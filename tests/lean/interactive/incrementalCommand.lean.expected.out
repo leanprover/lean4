@@ -33,3 +33,4 @@ w
    "message": "tactic 'assumption' failed\n⊢ False",
    "fullRange":
    {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 9}}}]}
+{"version": 3, "uri": "file:///incrementalCommand.lean", "diagnostics": []}

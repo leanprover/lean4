@@ -54,6 +54,11 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 @[simp] theorem val_ofNat' (a : Nat) (is_pos : n > 0) :
   (Fin.ofNat' a is_pos).val = a % n := rfl
 
+@[simp] theorem ofNat'_val_eq_self (x : Fin n) (h) : (Fin.ofNat' x h) = x := by
+  ext
+  rw [val_ofNat', Nat.mod_eq_of_lt]
+  exact x.2
+
 @[simp] theorem mod_val (a b : Fin n) : (a % b).val = a.val % b.val :=
   rfl
 
@@ -383,7 +388,7 @@ theorem castSucc_lt_iff_succ_le {n : Nat} {i : Fin n} {j : Fin (n + 1)} :
 
 @[simp] theorem succ_last (n : Nat) : (last n).succ = last n.succ := rfl
 
-@[simp] theorem succ_eq_last_succ {n : Nat} (i : Fin n.succ) :
+@[simp] theorem succ_eq_last_succ {n : Nat} {i : Fin n.succ} :
     i.succ = last (n + 1) ↔ i = last n := by rw [← succ_last, succ_inj]
 
 @[simp] theorem castSucc_castLT (i : Fin (n + 1)) (h : (i : Nat) < n) :
@@ -407,10 +412,10 @@ theorem castSucc_lt_last (a : Fin n) : castSucc a < last n := a.is_lt
 theorem castSucc_pos {i : Fin (n + 1)} (h : 0 < i) : 0 < castSucc i := by
   simpa [lt_def] using h
 
-@[simp] theorem castSucc_eq_zero_iff (a : Fin (n + 1)) : castSucc a = 0 ↔ a = 0 := by simp [Fin.ext_iff]
+@[simp] theorem castSucc_eq_zero_iff {a : Fin (n + 1)} : castSucc a = 0 ↔ a = 0 := by simp [Fin.ext_iff]
 
-theorem castSucc_ne_zero_iff (a : Fin (n + 1)) : castSucc a ≠ 0 ↔ a ≠ 0 :=
-  not_congr <| castSucc_eq_zero_iff a
+theorem castSucc_ne_zero_iff {a : Fin (n + 1)} : castSucc a ≠ 0 ↔ a ≠ 0 :=
+  not_congr <| castSucc_eq_zero_iff
 
 theorem castSucc_fin_succ (n : Nat) (j : Fin n) :
     castSucc (Fin.succ j) = Fin.succ (castSucc j) := by simp [Fin.ext_iff]
@@ -525,7 +530,7 @@ theorem pred_succ (i : Fin n) {h : i.succ ≠ 0} : i.succ.pred h = i := by
   cases i
   rfl
 
-theorem pred_eq_iff_eq_succ {n : Nat} (i : Fin (n + 1)) (hi : i ≠ 0) (j : Fin n) :
+theorem pred_eq_iff_eq_succ {n : Nat} {i : Fin (n + 1)} (hi : i ≠ 0) {j : Fin n} :
     i.pred hi = j ↔ i = j.succ :=
   ⟨fun h => by simp only [← h, Fin.succ_pred], fun h => by simp only [h, Fin.pred_succ]⟩
 

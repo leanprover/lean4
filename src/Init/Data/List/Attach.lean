@@ -55,11 +55,14 @@ theorem pmap_eq_map (p : α → Prop) (f : α → β) (l : List α) (H) :
   · rfl
   · simp only [*, pmap, map]
 
-theorem pmap_congr {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, q a → β} (l : List α) {H₁ H₂}
+theorem pmap_congr_left {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, q a → β} (l : List α) {H₁ H₂}
     (h : ∀ a ∈ l, ∀ (h₁ h₂), f a h₁ = g a h₂) : pmap f l H₁ = pmap g l H₂ := by
   induction l with
   | nil => rfl
-  | cons x l ih => rw [pmap, pmap, h _ (mem_cons_self _ _), ih fun a ha => h a (mem_cons_of_mem _ ha)]
+  | cons x l ih =>
+    rw [pmap, pmap, h _ (mem_cons_self _ _), ih fun a ha => h a (mem_cons_of_mem _ ha)]
+
+@[deprecated pmap_congr_left (since := "2024-09-06")] abbrev pmap_congr := @pmap_congr_left
 
 theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (l H) :
     map g (pmap f l H) = pmap (fun a h => g (f a h)) l H := by
@@ -73,16 +76,22 @@ theorem pmap_map {p : β → Prop} (g : ∀ b, p b → γ) (f : α → β) (l H)
   · rfl
   · simp only [*, pmap, map]
 
+theorem attach_congr {l₁ l₂ : List α} (h : l₁ = l₂) :
+    l₁.attach = l₂.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by
+  subst h
+  simp
+
 @[simp] theorem attach_cons (x : α) (xs : List α) :
-    (x :: xs).attach = ⟨x, mem_cons_self x xs⟩ :: xs.attach.map fun ⟨y, h⟩ => ⟨y, mem_cons_of_mem x h⟩ := by
+    (x :: xs).attach =
+      ⟨x, mem_cons_self x xs⟩ :: xs.attach.map fun ⟨y, h⟩ => ⟨y, mem_cons_of_mem x h⟩ := by
   simp only [attach, attachWith, pmap, map_pmap, cons.injEq, true_and]
-  apply pmap_congr
+  apply pmap_congr_left
   intros a _ m' _
   rfl
 
 theorem pmap_eq_map_attach {p : α → Prop} (f : ∀ a, p a → β) (l H) :
     pmap f l H = l.attach.map fun x => f x.1 (H _ x.2) := by
-  rw [attach, attachWith, map_pmap]; exact pmap_congr l fun _ _ _ _ => rfl
+  rw [attach, attachWith, map_pmap]; exact pmap_congr_left l fun _ _ _ _ => rfl
 
 theorem attach_map_coe (l : List α) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
@@ -95,11 +104,13 @@ theorem attach_map_val (l : List α) (f : α → β) : (l.attach.map fun i => f 
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
   (attach_map_coe _ _).trans (List.map_id _)
 
-theorem countP_attach (l : List α) (p : α → Bool) : l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
+theorem countP_attach (l : List α) (p : α → Bool) :
+    l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attach_map_subtype_val]
 
 @[simp]
-theorem count_attach [DecidableEq α] (l : List α) (a : {x // x ∈ l}) : l.attach.count a = l.count ↑a :=
+theorem count_attach [DecidableEq α] (l : List α) (a : {x // x ∈ l}) :
+    l.attach.count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach _ _
 
 @[simp]
@@ -114,6 +125,11 @@ theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H b} :
     b ∈ pmap f l H ↔ ∃ (a : _) (h : a ∈ l), f a (H a h) = b := by
   simp only [pmap_eq_map_attach, mem_map, mem_attach, true_and, Subtype.exists, eq_comm]
 
+theorem mem_pmap_of_mem {p : α → Prop} {f : ∀ a, p a → β} {l H} {a} (h : a ∈ l) :
+    f a (H a h) ∈ pmap f l H := by
+  rw [mem_pmap]
+  exact ⟨a, h, rfl⟩
+
 @[simp]
 theorem length_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H} : length (pmap f l H) = length l := by
   induction l
@@ -125,17 +141,26 @@ theorem length_attach (L : List α) : L.attach.length = L.length :=
   length_pmap
 
 @[simp]
-theorem pmap_eq_nil {p : α → Prop} {f : ∀ a, p a → β} {l H} : pmap f l H = [] ↔ l = [] := by
+theorem pmap_eq_nil_iff {p : α → Prop} {f : ∀ a, p a → β} {l H} : pmap f l H = [] ↔ l = [] := by
   rw [← length_eq_zero, length_pmap, length_eq_zero]
 
-theorem pmap_ne_nil {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
+theorem pmap_ne_nil_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ [] ↔ xs ≠ [] := by
   simp
 
 @[simp]
-theorem attach_eq_nil (l : List α) : l.attach = [] ↔ l = [] :=
-  pmap_eq_nil
+theorem attach_eq_nil_iff {l : List α} : l.attach = [] ↔ l = [] :=
+  pmap_eq_nil_iff
 
+theorem attach_ne_nil_iff {l : List α} : l.attach ≠ [] ↔ l ≠ [] :=
+  pmap_ne_nil_iff _ _
+
+@[deprecated pmap_eq_nil_iff (since := "2024-09-06")] abbrev pmap_eq_nil := @pmap_eq_nil_iff
+@[deprecated pmap_ne_nil_iff (since := "2024-09-06")] abbrev pmap_ne_nil := @pmap_ne_nil_iff
+@[deprecated attach_eq_nil_iff (since := "2024-09-06")] abbrev attach_eq_nil := @attach_eq_nil_iff
+@[deprecated attach_ne_nil_iff (since := "2024-09-06")] abbrev attach_ne_nil := @attach_ne_nil_iff
+
+@[simp]
 theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :
     (pmap f l h)[n]? = Option.pmap f l[n]? fun x H => h x (getElem?_mem H) := by
   induction l generalizing n with
@@ -157,6 +182,7 @@ theorem get?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : �
   simp only [get?_eq_getElem?]
   simp [getElem?_pmap, h]
 
+@[simp]
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {n : Nat}
     (hn : n < (pmap f l h).length) :
     (pmap f l h)[n] =
@@ -179,8 +205,38 @@ theorem get_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : �
   simp only [get_eq_getElem]
   simp [getElem_pmap]
 
+@[simp]
+theorem getElem?_attach {xs : List α} {i : Nat} :
+    xs.attach[i]? = xs[i]?.pmap Subtype.mk (fun _ a => getElem?_mem a) := by
+  induction xs generalizing i with
+  | nil => simp
+  | cons x xs ih =>
+    rcases i with ⟨i⟩
+    · simp only [attach_cons, Option.pmap]
+      split <;> simp_all
+    · simp only [attach_cons, getElem?_cons_succ, getElem?_map, ih]
+      simp only [Option.pmap]
+      split <;> split <;> simp_all
+
+@[simp]
+theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
+    xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem xs i (by simpa using h)⟩ := by
+  apply Option.some.inj
+  rw [← getElem?_eq_getElem]
+  rw [getElem?_attach]
+  simp only [Option.pmap]
+  split <;> rename_i h' _
+  · simp at h
+    simp at h'
+    exfalso
+    exact Nat.lt_irrefl _ (Nat.lt_of_le_of_lt h' h)
+  · simp only [Option.some.injEq, Subtype.mk.injEq]
+    apply Option.some.inj
+    rw [← getElem?_eq_getElem, h']
+
 @[simp] theorem head?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
-    (H : ∀ (a : α), a ∈ xs → P a) : (xs.pmap f H).head? = xs.attach.head?.map fun ⟨a, m⟩ => f a (H a m) := by
+    (H : ∀ (a : α), a ∈ xs → P a) :
+    (xs.pmap f H).head? = xs.attach.head?.map fun ⟨a, m⟩ => f a (H a m) := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
@@ -193,6 +249,66 @@ theorem get_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : �
   induction xs with
   | nil => simp at h
   | cons x xs ih => simp [head_pmap, ih]
+
+@[simp] theorem head?_attach (xs : List α) :
+    xs.attach.head? = xs.head?.pbind (fun a h => some ⟨a, mem_of_mem_head? h⟩) := by
+  cases xs <;> simp_all
+
+theorem head_attach {xs : List α} (h) :
+    xs.attach.head h = ⟨xs.head (by simpa using h), head_mem (by simpa using h)⟩ := by
+  cases xs with
+  | nil => simp at h
+  | cons x xs => simp [head_attach, h]
+
+theorem attach_map {l : List α} (f : α → β) :
+    (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
+  induction l <;> simp [*]
+
+theorem attach_filterMap {l : List α} {f : α → Option β} :
+    (l.filterMap f).attach = l.attach.filterMap
+      fun ⟨x, h⟩ => (f x).pbind (fun b m => some ⟨b, mem_filterMap.mpr ⟨x, h, m⟩⟩) := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [filterMap_cons, attach_cons, ih, filterMap_map]
+    split <;> rename_i h
+    · simp only [Option.pbind_eq_none_iff, reduceCtorEq, Option.mem_def, exists_false,
+        or_false] at h
+      rw [attach_congr]
+      rotate_left
+      · simp only [h]
+        rfl
+      rw [ih]
+      simp only [map_filterMap, Option.map_pbind, Option.map_some']
+      rfl
+    · simp only [Option.pbind_eq_some_iff] at h
+      obtain ⟨a, h, w⟩ := h
+      simp only [Option.some.injEq] at w
+      subst w
+      simp only [Option.mem_def] at h
+      rw [attach_congr]
+      rotate_left
+      · simp only [h]
+        rfl
+      rw [attach_cons, map_cons, map_map, ih, map_filterMap]
+      congr
+      ext
+      simp
+
+theorem attach_filter {l : List α} (p : α → Bool) :
+    (l.filter p).attach = l.attach.filterMap
+      fun x => if w : p x.1 then some ⟨x.1, mem_filter.mpr ⟨x.2, w⟩⟩ else none := by
+  rw [attach_congr (congrFun (filterMap_eq_filter _).symm _), attach_filterMap, map_filterMap]
+  simp only [Option.guard]
+  congr
+  ext1
+  split <;> simp
+
+theorem pmap_pmap {p : α → Prop} {q : β → Prop} (g : ∀ a, p a → β) (f : ∀ b, q b → γ) (l H₁ H₂) :
+    pmap f (pmap g l H₁) H₂ =
+      pmap (α := { x // x ∈ l }) (fun a h => f (g a h) (H₂ (g a h) (mem_pmap_of_mem a.2))) l.attach
+        (fun a _ => H₁ a a.2) := by
+  simp [pmap_eq_map_attach, attach_map]
 
 @[simp] theorem pmap_append {p : ι → Prop} (f : ∀ a : ι, p a → α) (l₁ l₂ : List ι)
     (h : ∀ a ∈ l₁ ++ l₂, p a) :
@@ -211,46 +327,51 @@ theorem pmap_append' {p : α → Prop} (f : ∀ a : α, p a → β) (l₁ l₂ :
       l₁.pmap f h₁ ++ l₂.pmap f h₂ :=
   pmap_append f l₁ l₂ _
 
-@[simp] theorem pmap_reverse {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
-    (H : ∀ (a : α), a ∈ xs.reverse → P a) : xs.reverse.pmap f H = (xs.pmap f (fun a h => H a (by simpa using h))).reverse := by
-  induction xs <;> simp_all
-
-theorem reverse_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
-    (H : ∀ (a : α), a ∈ xs → P a) : (xs.pmap f H).reverse = xs.reverse.pmap f (fun a h => H a (by simpa using h)) := by
-  rw [pmap_reverse]
-
 @[simp] theorem attach_append (xs ys : List α) :
     (xs ++ ys).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_append_of_mem_left ys h⟩) ++
       ys.attach.map fun ⟨x, h⟩ => ⟨x, mem_append_of_mem_right xs h⟩ := by
   simp only [attach, attachWith, pmap, map_pmap, pmap_append]
   congr 1 <;>
-  exact pmap_congr _ fun _ _ _ _ => rfl
+  exact pmap_congr_left _ fun _ _ _ _ => rfl
 
-@[simp] theorem attach_reverse (xs : List α) : xs.reverse.attach = xs.attach.reverse.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
+@[simp] theorem pmap_reverse {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
+    (H : ∀ (a : α), a ∈ xs.reverse → P a) :
+    xs.reverse.pmap f H = (xs.pmap f (fun a h => H a (by simpa using h))).reverse := by
+  induction xs <;> simp_all
+
+theorem reverse_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
+    (H : ∀ (a : α), a ∈ xs → P a) :
+    (xs.pmap f H).reverse = xs.reverse.pmap f (fun a h => H a (by simpa using h)) := by
+  rw [pmap_reverse]
+
+@[simp] theorem attach_reverse (xs : List α) :
+    xs.reverse.attach = xs.attach.reverse.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
   simp only [attach, attachWith, reverse_pmap, map_pmap]
-  apply pmap_congr
+  apply pmap_congr_left
   intros
   rfl
 
-theorem reverse_attach (xs : List α) : xs.attach.reverse = xs.reverse.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
+theorem reverse_attach (xs : List α) :
+    xs.attach.reverse = xs.reverse.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
   simp only [attach, attachWith, reverse_pmap, map_pmap]
-  apply pmap_congr
+  apply pmap_congr_left
   intros
   rfl
 
-
+@[simp]
 theorem getLast?_attach {xs : List α} :
-    xs.attach.getLast? = match h : xs.getLast? with | none => none | some a => some ⟨a, mem_of_getLast?_eq_some h⟩ := by
-  rw [getLast?_eq_head?_reverse, reverse_attach, head?_map]
-  split <;> rename_i h
-  · simp only [getLast?_eq_none_iff] at h
-    subst h
-    simp
-  · obtain ⟨ys, rfl⟩ := getLast?_eq_some_iff.mp h
-    simp
+    xs.attach.getLast? = xs.getLast?.pbind fun a h => some ⟨a, mem_of_getLast?_eq_some h⟩ := by
+  rw [getLast?_eq_head?_reverse, reverse_attach, head?_map, head?_attach]
+  simp
+
+@[simp]
+theorem getLast_attach {xs : List α} (h : xs.attach ≠ []) :
+    xs.attach.getLast h = ⟨xs.getLast (by simpa using h), getLast_mem (by simpa using h)⟩ := by
+  simp only [getLast_eq_head_reverse, reverse_attach, head_map, head_attach]
 
 @[simp] theorem getLast?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
-    (H : ∀ (a : α), a ∈ xs → P a) : (xs.pmap f H).getLast? = xs.attach.getLast?.map fun ⟨a, m⟩ => f a (H a m) := by
+    (H : ∀ (a : α), a ∈ xs → P a) :
+    (xs.pmap f H).getLast? = xs.attach.getLast?.map fun ⟨a, m⟩ => f a (H a m) := by
   simp only [getLast?_eq_head?_reverse]
   rw [reverse_pmap, reverse_attach, head?_map, pmap_eq_map_attach, head?_map]
   simp only [Option.map_map]
@@ -259,14 +380,7 @@ theorem getLast?_attach {xs : List α} :
 @[simp] theorem getLast_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
     (H : ∀ (a : α), a ∈ xs → P a) (h : xs.pmap f H ≠ []) :
     (xs.pmap f H).getLast h = f (xs.getLast (by simpa using h)) (H _ (getLast_mem _)) := by
-  simp only [getLast_eq_iff_getLast_eq_some, getLast?_pmap, Option.map_eq_some', Subtype.exists]
-  refine ⟨xs.getLast (by simpa using h), by simp, ?_⟩
-  simp only [getLast?_attach, and_true]
-  split <;> rename_i h'
-  · simp only [getLast?_eq_none_iff] at h'
-    subst h'
-    simp at h
-  · symm
-    simpa [getLast_eq_iff_getLast_eq_some]
+  simp only [getLast_eq_head_reverse]
+  simp only [reverse_pmap, head_pmap, head_reverse]
 
 end List

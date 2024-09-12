@@ -189,7 +189,7 @@ static lean_object* l_Std_Internal_Parsec_manyCharsCore___at_Lean_Xml_Parser_Enc
 static lean_object* l_Lean_Xml_Parser_PEReference___closed__2;
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCharsCore___at_Lean_Xml_Parser_EncName___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_Nmtoken(lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Xml_Parser_DefaultDecl___closed__2;
 static lean_object* l_Std_Internal_Parsec_manyCore___at_Lean_Xml_Parser_Mixed___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_GEDecl(lean_object*);
@@ -32781,7 +32781,7 @@ LEAN_EXPORT lean_object* l_Lean_Xml_Parser_elementPrefix___elambda__1(lean_objec
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_array_to_list(lean_box(0), x_2);
+x_4 = lean_array_to_list(x_2);
 x_5 = lean_box(0);
 x_6 = l_List_foldl___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__3___at_Lean_Xml_Parser_elementPrefix___elambda__1___spec__4(x_5, x_4);
 x_7 = lean_alloc_ctor(0, 3, 0);

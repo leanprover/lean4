@@ -132,7 +132,7 @@ static lean_object* l_Lean_Elab_Term_MatchExpr_getParams___lambda__2___closed__7
 uint8_t l_List_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_MatchExpr_getParams___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Term_MatchExpr_getFunNamesToMatch___spec__2___closed__3;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_MatchExpr_getParams___spec__2___closed__1;
 static lean_object* l_Lean_Elab_Term_MatchExpr_generate_loop___lambda__2___closed__15;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -533,7 +533,7 @@ x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 x_12 = lean_box(0);
 x_13 = l_Lean_Syntax_getArgs(x_11);
 lean_dec(x_11);
-x_14 = lean_array_to_list(lean_box(0), x_13);
+x_14 = lean_array_to_list(x_13);
 x_15 = l_List_reverse___rarg(x_14);
 x_16 = l_Lean_Elab_Term_MatchExpr_toAlt_x3f___lambda__1___closed__4;
 x_17 = l_Lean_Elab_Term_MatchExpr_toAlt_x3f___lambda__1___closed__5;
@@ -884,7 +884,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Elab_Term_MatchExpr_getFunNamesToMatch___closed__1;
 x_3 = l_List_forIn_loop___at_Lean_Elab_Term_MatchExpr_getFunNamesToMatch___spec__2(x_1, x_2);
-x_4 = lean_array_to_list(lean_box(0), x_3);
+x_4 = lean_array_to_list(x_3);
 return x_4;
 }
 }
@@ -1032,7 +1032,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; 
 lean_dec(x_1);
-x_4 = lean_array_to_list(lean_box(0), x_3);
+x_4 = lean_array_to_list(x_3);
 return x_4;
 }
 else
@@ -5317,7 +5317,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_main(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_array_to_list(lean_box(0), x_2);
+x_6 = lean_array_to_list(x_2);
 x_7 = lean_box(0);
 lean_inc(x_4);
 x_8 = l_List_mapM_loop___at_Lean_Elab_Term_MatchExpr_main___spec__1(x_6, x_7, x_4, x_5);

@@ -761,9 +761,12 @@ def mkMotive (discrs : Array Expr) (expectedType : Expr) : MetaM Expr := do
     let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
     return Lean.mkLambda (← mkFreshBinderName) BinderInfo.default discrType motiveBody
 
-/-- If the eliminator is over-applied, we "revert" the extra arguments. -/
-def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (Expr × Expr) :=
-  args.foldrM (init := (f, expectedType)) fun arg (f, expectedType) => do
+/--
+If the eliminator is over-applied, we "revert" the extra arguments.
+Returns the function with the reverted arguments applied and the new generalized expected type.
+-/
+def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (Expr × Expr) := do
+  let (xs, expectedType) ← args.foldrM (init := ([], expectedType)) fun arg (xs, expectedType) => do
     let val ←
       match arg with
       | .expr val => pure val
@@ -772,7 +775,8 @@ def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (E
     let expectedTypeBody ← kabstract expectedType val
     /- We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions. -/
     let valType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType val))
-    return (mkApp f val, mkForall (← mkFreshBinderName) BinderInfo.default valType expectedTypeBody)
+    return (val :: xs, mkForall (← mkFreshBinderName) BinderInfo.default valType expectedTypeBody)
+  return (xs.foldl .app f, expectedType)
 
 /--
 Construct the resulting application after all discriminants have been elaborated, and we have
@@ -1590,10 +1594,13 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 @[builtin_term_elab dotIdent] def elabDotIdent : TermElab := elabAtom
 @[builtin_term_elab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
 @[builtin_term_elab pipeProj] def elabPipeProj : TermElab
-  | `($e |>.$f $args*), expectedType? =>
+  | `($e |>.%$tk$f $args*), expectedType? =>
     universeConstraintsCheckpoint do
       let (namedArgs, args, ellipsis) ← expandArgs args
-      elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
+      let mut stx ← `($e |>.%$tk$f)
+      if let (some startPos, some stopPos) := (e.raw.getPos?, f.raw.getTailPos?) then
+        stx := ⟨stx.raw.setInfo <| .synthetic (canonical := true) startPos stopPos⟩
+      elabAppAux stx namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
 
 @[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>

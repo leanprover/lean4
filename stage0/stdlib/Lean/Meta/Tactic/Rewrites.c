@@ -182,7 +182,7 @@ static lean_object* l_Lean_Meta_Rewrites_rewriteCandidates___closed__1;
 static lean_object* l_Lean_Meta_Rewrites_RewriteResult_newGoal___closed__1;
 uint8_t l_List_isEmpty___rarg(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Meta_Rewrites_createModuleTreeRef___closed__1;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_getRemainingHeartbeats(lean_object*, lean_object*, lean_object*);
@@ -17626,7 +17626,7 @@ x_35 = lean_ctor_get(x_28, 1);
 x_36 = lean_ctor_get(x_28, 0);
 lean_dec(x_36);
 lean_inc(x_25);
-x_37 = lean_array_to_list(lean_box(0), x_25);
+x_37 = lean_array_to_list(x_25);
 x_38 = lean_box(0);
 x_39 = l_List_mapTR_loop___at_Lean_Meta_Rewrites_rewriteCandidates___spec__6(x_37, x_38);
 x_40 = l_Lean_MessageData_ofList(x_39);
@@ -17659,7 +17659,7 @@ x_47 = lean_ctor_get(x_28, 1);
 lean_inc(x_47);
 lean_dec(x_28);
 lean_inc(x_25);
-x_48 = lean_array_to_list(lean_box(0), x_25);
+x_48 = lean_array_to_list(x_25);
 x_49 = lean_box(0);
 x_50 = l_List_mapTR_loop___at_Lean_Meta_Rewrites_rewriteCandidates___spec__6(x_48, x_49);
 x_51 = l_Lean_MessageData_ofList(x_50);
@@ -17727,7 +17727,7 @@ if (lean_is_exclusive(x_61)) {
  x_68 = lean_box(0);
 }
 lean_inc(x_59);
-x_69 = lean_array_to_list(lean_box(0), x_59);
+x_69 = lean_array_to_list(x_59);
 x_70 = lean_box(0);
 x_71 = l_List_mapTR_loop___at_Lean_Meta_Rewrites_rewriteCandidates___spec__6(x_69, x_70);
 x_72 = l_Lean_MessageData_ofList(x_71);
@@ -20606,7 +20606,7 @@ lean_ctor_set_uint8(x_14, sizeof(void*)*5, x_1);
 lean_ctor_set_uint8(x_14, sizeof(void*)*5 + 1, x_5);
 x_15 = lean_mk_empty_array_with_capacity(x_2);
 lean_dec(x_2);
-x_16 = lean_array_to_list(lean_box(0), x_7);
+x_16 = lean_array_to_list(x_7);
 x_17 = l_Lean_Meta_Rewrites_findRewrites___lambda__1___closed__3;
 x_18 = l_Lean_Meta_Rewrites_takeListAux(x_14, x_17, x_15, x_16, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_18) == 0)
@@ -20617,7 +20617,7 @@ if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
 x_20 = lean_ctor_get(x_18, 0);
-x_21 = lean_array_to_list(lean_box(0), x_20);
+x_21 = lean_array_to_list(x_20);
 lean_ctor_set(x_18, 0, x_21);
 return x_18;
 }
@@ -20629,7 +20629,7 @@ x_23 = lean_ctor_get(x_18, 1);
 lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_18);
-x_24 = lean_array_to_list(lean_box(0), x_22);
+x_24 = lean_array_to_list(x_22);
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);

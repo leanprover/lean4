@@ -45,8 +45,18 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
     2. The actual BitVec bitwise variables
     Hence we access the assignment array offset by the AIG size to obtain the value for a BitVec bit.
     We assume that a variable can be found at its index as CaDiCal prints them in order.
+
+    Note that cadical will report an assignment for all literals up to the maximum literal from the
+    CNF. So even if variable or AIG bits below the maximum literal did not occur in the CNF they
+    will still occur in the assignment that cadical reports.
+
+    There is one crucial thing to consider in addition: If the highest literal that ended up in the
+    CNF does not represent the highest variable bit not all variable bits show up in the assignment.
+    For this situation we do the same as cadical for literals that did not show up in the CNF:
+    set them to true.
     -/
-    let (varSet, _) := assignment[cnfVar + aigSize]!
+    let idx := cnfVar + aigSize
+    let varSet := if h : idx < assignment.size then assignment[idx].fst else true
     let mut bitMap := sparseMap.getD bitVar.var {}
     bitMap := bitMap.insert bitVar.idx varSet
     sparseMap := sparseMap.insert bitVar.var bitMap

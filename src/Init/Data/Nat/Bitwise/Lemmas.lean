@@ -96,7 +96,13 @@ theorem testBit_succ (x i : Nat) : testBit x (succ i) = testBit (x/2) i := by
   unfold testBit
   simp [shiftRight_succ_inside]
 
-@[simp] theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
+/--
+Depending on use cases either `testBit_add_one` or `testBit_div_two`
+may be more useful as a `simp` lemma, so neither is a global `simp` lemma.
+-/
+-- We turn `testBit_add_one` on as a `local simp` for this file.
+@[local simp]
+theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
   unfold testBit
   simp [shiftRight_succ_inside]
 
@@ -439,6 +445,28 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
 @[simp] theorem testBit_and (x y i : Nat) : (x &&& y).testBit i = (x.testBit i && y.testBit i) := by
   simp [HAnd.hAnd, AndOp.and, land, testBit_bitwise ]
 
+
+@[simp] protected theorem and_self (x : Nat) : x &&& x = x := by
+   apply Nat.eq_of_testBit_eq
+   simp
+
+protected theorem and_comm (x y : Nat) : x &&& y = y &&& x := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.and_comm]
+
+protected theorem and_assoc (x y z : Nat) : (x &&& y) &&& z = x &&& (y &&& z) := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.and_assoc]
+
+instance : Std.Associative (α := Nat) (· &&& ·) where
+  assoc := Nat.and_assoc
+
+instance : Std.Commutative (α := Nat) (· &&& ·) where
+  comm := Nat.and_comm
+
+instance : Std.IdempotentOp (α := Nat) (· &&& ·) where
+  idempotent := Nat.and_self
+
 theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n := by
   apply lt_pow_two_of_testBit
   intro i i_ge_n
@@ -448,15 +476,19 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
           exact pow_le_pow_of_le_right Nat.zero_lt_two i_ge_n
   simp [testBit_and, yf]
 
-@[simp] theorem and_pow_two_is_mod (x n : Nat) : x &&& (2^n-1) = x % 2^n := by
+@[simp] theorem and_pow_two_sub_one_eq_mod (x n : Nat) : x &&& 2^n - 1 = x % 2^n := by
   apply eq_of_testBit_eq
   intro i
   simp only [testBit_and, testBit_mod_two_pow]
   cases testBit x i <;> simp
 
-theorem and_pow_two_identity {x : Nat} (lt : x < 2^n) : x &&& 2^n-1 = x := by
-  rw [and_pow_two_is_mod]
+@[deprecated and_pow_two_sub_one_eq_mod (since := "2024-09-11")] abbrev and_pow_two_is_mod := @and_pow_two_sub_one_eq_mod
+
+theorem and_pow_two_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n - 1 = x := by
+  rw [and_pow_two_sub_one_eq_mod]
   apply Nat.mod_eq_of_lt lt
+
+@[deprecated and_pow_two_sub_one_of_lt_two_pow (since := "2024-09-11")] abbrev and_two_pow_identity := @and_pow_two_sub_one_of_lt_two_pow
 
 @[simp] theorem and_mod_two_eq_one : (a &&& b) % 2 = 1 ↔ a % 2 = 1 ∧ b % 2 = 1 := by
   simp only [mod_two_eq_one_iff_testBit_zero]
@@ -482,6 +514,47 @@ theorem and_div_two : (a &&& b) / 2 = a / 2 &&& b / 2 := by
 @[simp] theorem testBit_or (x y i : Nat) : (x ||| y).testBit i = (x.testBit i || y.testBit i) := by
   simp [HOr.hOr, OrOp.or, lor, testBit_bitwise ]
 
+@[simp] protected theorem or_self (x : Nat) : x ||| x = x := by
+   apply Nat.eq_of_testBit_eq
+   simp
+
+protected theorem or_comm (x y : Nat) : x ||| y = y ||| x := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.or_comm]
+
+protected theorem or_assoc (x y z : Nat) : (x ||| y) ||| z = x ||| (y ||| z) := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.or_assoc]
+
+theorem and_or_distrib_left (x y z : Nat) : x &&& (y ||| z) = (x &&& y) ||| (x &&& z) := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.and_or_distrib_left]
+
+theorem and_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y &&& z) := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.and_or_distrib_right]
+
+theorem or_and_distrib_left (x y z : Nat) : x ||| (y &&& z) = (x ||| y) &&& (x ||| z) := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.or_and_distrib_left]
+
+theorem or_and_distrib_right (x y z : Nat) : (x &&& y) ||| z = (x ||| z) &&& (y ||| z) := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.or_and_distrib_right]
+
+instance : Std.Associative (α := Nat) (· ||| ·) where
+  assoc := Nat.or_assoc
+
+instance : Std.Commutative (α := Nat) (· ||| ·) where
+  comm := Nat.or_comm
+
+instance : Std.IdempotentOp (α := Nat) (· ||| ·) where
+  idempotent := Nat.or_self
+
+instance : Std.LawfulCommIdentity (α := Nat) (· ||| ·) 0 where
+  left_id := zero_or
+  right_id := or_zero
+
 theorem or_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ||| y < 2^n :=
   bitwise_lt_two_pow left right
 
@@ -499,6 +572,36 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 := by
 @[simp] theorem testBit_xor (x y i : Nat) :
     (x ^^^ y).testBit i = Bool.xor (x.testBit i) (y.testBit i) := by
   simp [HXor.hXor, Xor.xor, xor, testBit_bitwise ]
+
+@[simp] theorem zero_xor (x : Nat) : 0 ^^^ x = x := by
+   apply Nat.eq_of_testBit_eq
+   simp
+
+@[simp] theorem xor_zero (x : Nat) : x ^^^ 0 = x := by
+   apply Nat.eq_of_testBit_eq
+   simp
+
+@[simp] protected theorem xor_self (x : Nat) : x ^^^ x = 0 := by
+   apply Nat.eq_of_testBit_eq
+   simp
+
+protected theorem xor_comm (x y : Nat) : x ^^^ y = y ^^^ x := by
+   apply Nat.eq_of_testBit_eq
+   simp [Bool.xor_comm]
+
+protected theorem xor_assoc (x y z : Nat) : (x ^^^ y) ^^^ z = x ^^^ (y ^^^ z) := by
+   apply Nat.eq_of_testBit_eq
+   simp
+
+instance : Std.Associative (α := Nat) (· ^^^ ·) where
+  assoc := Nat.xor_assoc
+
+instance : Std.Commutative (α := Nat) (· ^^^ ·) where
+  comm := Nat.xor_comm
+
+instance : Std.LawfulCommIdentity (α := Nat) (· ^^^ ·) 0 where
+  left_id := zero_xor
+  right_id := xor_zero
 
 theorem xor_lt_two_pow {x y n : Nat} (left : x < 2^n) (right : y < 2^n) : x ^^^ y < 2^n :=
   bitwise_lt_two_pow left right

@@ -405,7 +405,8 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
     if r.isAppOf ``isTrue then
       -- Success!
       -- While we have a proof from reduction, we do not embed it in the proof term,
-      -- and instead we let the kernel recompute it during type checking from the following more efficient term.
+      -- and instead we let the kernel recompute it during type checking from the following more
+      -- efficient term. The kernel handles the unification `e =?= true` specially.
       let rflPrf ← mkEqRefl (toExpr true)
       return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
     else

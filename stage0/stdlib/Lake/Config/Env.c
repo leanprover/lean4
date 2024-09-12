@@ -22,7 +22,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_Env_baseVars___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Env_leanPath___boxed(lean_object*);
 lean_object* l_Lake_LeanInstall_sharedLibPath(lean_object*);
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Env_path___boxed(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lake_Env_compute(lean_object*, lean_object*, lean_obj
 extern lean_object* l_Lean_toolchain;
 static lean_object* l_Lake_Env_compute___closed__9;
 LEAN_EXPORT lean_object* l_Lake_Env_compute_getUrlD___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1(lean_object*);
 static lean_object* l_Lake_Env_vars___closed__1;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedEnv___closed__4;
@@ -95,6 +96,8 @@ LEAN_EXPORT lean_object* l_Lake_Env_path(lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_Env_baseVars___closed__6;
 static lean_object* l_Lake_Env_baseVars___closed__4;
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1___boxed(lean_object*);
+static lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1;
 static lean_object* _init_l_Lake_instInhabitedEnv___closed__1() {
 _start:
 {
@@ -1367,6 +1370,22 @@ x_5 = l_List_appendTR___rarg(x_3, x_4);
 return x_5;
 }
 }
+LEAN_EXPORT uint8_t l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1376,7 +1395,7 @@ return x_1;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
@@ -1388,11 +1407,12 @@ lean_inc(x_6);
 lean_dec(x_2);
 x_7 = l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1(x_1, x_3);
 x_8 = 1;
-x_9 = l_Lean_Name_toString(x_4, x_8);
-x_10 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_10, 0, x_5);
-x_11 = l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(x_7, x_9, x_10);
-x_1 = x_11;
+x_9 = l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1;
+x_10 = l_Lean_Name_toString(x_4, x_8, x_9);
+x_11 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_11, 0, x_5);
+x_12 = l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(x_7, x_10, x_11);
+x_1 = x_12;
 x_2 = x_6;
 goto _start;
 }
@@ -1635,6 +1655,16 @@ return x_70;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___lambda__1(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lake_Env_vars___closed__1() {
 _start:
 {
@@ -1790,6 +1820,8 @@ l_Lake_Env_compute___closed__8 = _init_l_Lake_Env_compute___closed__8();
 lean_mark_persistent(l_Lake_Env_compute___closed__8);
 l_Lake_Env_compute___closed__9 = _init_l_Lake_Env_compute___closed__9();
 lean_mark_persistent(l_Lake_Env_compute___closed__9);
+l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1 = _init_l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1();
+lean_mark_persistent(l_Lean_RBNode_fold___at_Lake_Env_baseVars___spec__1___closed__1);
 l_Lake_Env_baseVars___closed__1 = _init_l_Lake_Env_baseVars___closed__1();
 lean_mark_persistent(l_Lake_Env_baseVars___closed__1);
 l_Lake_Env_baseVars___closed__2 = _init_l_Lake_Env_baseVars___closed__2();

@@ -34,6 +34,7 @@ attribute [bv_normalize] ge_iff_le
 theorem BitVec.truncate_eq_zeroExtend (x : BitVec w) : x.truncate n = x.zeroExtend n := by
   rfl
 
+attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
 attribute [bv_normalize] BitVec.slt_eq_ult
 attribute [bv_normalize] BitVec.sle_eq_not_slt
@@ -190,7 +191,7 @@ theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (0#w != a) := by
 
 theorem BitVec.max_ult (a : BitVec w) : ¬ ((-1#w) < a) := by
 rcases w with rfl | w
-· simp [bv_toNat]
+· simp [bv_toNat, BitVec.toNat_of_zero_length]
 · simp only [BitVec.lt_def, BitVec.toNat_neg, BitVec.toNat_ofNat, Nat.not_lt]
   rw [Nat.mod_eq_of_lt (a := 1) (by simp)];
   rw [Nat.mod_eq_of_lt]

@@ -41,7 +41,7 @@ theorem Clause.maxLiteral_eq_some_of_mem (c : Clause Nat) (h : Mem l c) :
 theorem Clause.of_maxLiteral_eq_none (c : Clause Nat) (h : c.maxLiteral = none) :
     ∀ lit, ¬Mem lit c := by
   intro lit hlit
-  simp only [maxLiteral, List.maximum?_eq_none_iff, List.map_eq_nil] at h
+  simp only [maxLiteral, List.maximum?_eq_none_iff, List.map_eq_nil_iff] at h
   simp only [h, not_mem_nil] at hlit
 
 /--

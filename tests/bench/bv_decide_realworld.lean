@@ -28,7 +28,7 @@ def parity32_spec_rec (i : Nat) (x : BitVec 32) : Bool :=
   match i with
   | 0 => false
   | i' + 1 =>
-    let bit_idx := BitVec.getLsb x i'
+    let bit_idx := BitVec.getLsbD x i'
     Bool.xor bit_idx (parity32_spec_rec i' x)
 
 def parity32_spec (x : BitVec 32) : Bool :=
@@ -42,6 +42,6 @@ def parity32_impl (x : BitVec 32) : BitVec 32 :=
   (0x00006996#32 >>> x4) &&& 1#32
 
 theorem parity32_correct (x : BitVec 32) :
-  (parity32_spec x) = ((parity32_impl x).getLsb 0) := by
+    (parity32_spec x) = ((parity32_impl x).getLsbD 0) := by
   dsimp only [parity32_spec, parity32_impl, parity32_spec_rec]
   bv_decide

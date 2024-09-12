@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Meta.Tactic.Util
+import Lean.Util.NumObjs
 import Lean.Util.ForEachExpr
 import Lean.Util.OccursCheck
 import Lean.Elab.Tactic.Basic

@@ -143,7 +143,7 @@ theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
   induction x, y using mod.inductionOn with
   | base x y h₁ =>
     intro h₂
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Iff.mp (Decidable.not_and_iff_or_not _ _) h₁
+    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Decidable.not_and_iff_or_not.mp h₁
     match h₁ with
     | Or.inl h₁ => exact absurd h₂ h₁
     | Or.inr h₁ =>

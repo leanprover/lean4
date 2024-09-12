@@ -2022,7 +2022,7 @@ theorem toNat_sub_of_le {x y : BitVec n} (h : y ≤ x) :
   rw [BitVec.le_def] at h
   by_cases h' : x.toNat = y.toNat
   · rw [h', Nat.sub_self, Nat.sub_add_cancel (by omega), Nat.mod_self]
-  · rw [show 2 ^ n - y.toNat + x.toNat = 2 ^ n + (x.toNat - y.toNat) by omega,
-      Nat.add_mod_left, Nat.mod_eq_of_lt (by omega)]
+  · have : 2 ^ n - y.toNat + x.toNat = 2 ^ n + (x.toNat - y.toNat) := by omega
+    rw [this, Nat.add_mod_left, Nat.mod_eq_of_lt (by omega)]
 
 end BitVec

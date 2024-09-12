@@ -725,10 +725,17 @@ private def findCompletionInfoAt?
       | none
     let some stack := info.stx.findStack? (·.getRange?.any (·.contains hoverPos (includeStop := true)))
       | none
-    let some (stx, id, danglingDot) := stack.findSome? fun (stx, _) =>
+    let stack := stack.dropWhile fun (stx, _) => !(stx matches `($_:ident) || stx matches `($_:ident.))
+    let some (stx, _) := stack.head?
+      | none
+    let isDotIdCompletion := stack.any fun (stx, _) => stx matches `(.$_:ident)
+    if isDotIdCompletion then
+      -- An identifier completion is never useful in a dotId completion context.
+      none
+    let some (id, danglingDot) :=
         match stx with
-        | `($id:ident) => some (stx, id.getId, false)
-        | `($id:ident.) => some (stx, id.getId, true)
+        | `($id:ident) => some (id.getId, false)
+        | `($id:ident.) => some (id.getId, true)
         | _ => none
       | none
     let tailPos := stx.getTailPos?.get!

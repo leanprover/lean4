@@ -130,7 +130,7 @@ structure ThreadWithMaps extends Thread where
 -- TODO: add others, dynamically?
 def categories : Array Category := #[
   { name := `Other, color := "gray" },
-  { name := `Elab.block, color := "black" },
+  { name := `Elab.block, color := "brown" },
   { name := `Elab, color := "red" },
   { name := `Meta, color := "yellow" }
 ]
@@ -166,7 +166,8 @@ where
           (thread.stringMap.size, { thread with
             stringArray := thread.stringArray.push funcName
             stringMap := thread.stringMap.insert funcName thread.stringMap.size })
-      let category := categories.findIdx? (·.name.isPrefixOf data.cls) |>.getD 0
+      let category := categories.findIdx? (fun c => c.name == data.cls || c.name.isPrefixOf data.cls)
+        |>.getD 0
       let funcIdx ← modifyGet fun thread =>
         if let some idx := thread.funcMap[strIdx]? then
           (idx, thread)

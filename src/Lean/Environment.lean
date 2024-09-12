@@ -376,6 +376,9 @@ def toKernelEnv (env : Environment) : Kernel.Environment := Id.run do
       | .error _ => panic! "oh no"; return kenv
   kenv
 
+def willWait (env : Environment) : BaseIO Bool :=
+  not <$> IO.hasFinished env.final
+
 def wait (env : Environment) : Environment :=
   let kenv := env.final.get
   { env with base := kenv, final := .pure kenv }

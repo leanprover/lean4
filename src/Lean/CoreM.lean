@@ -138,22 +138,28 @@ instance : AddMessageContext CoreM where
     let opts ← getOptions
     return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
 
+protected def envContains (n : Name) : CoreM Bool := do
+  return (← get).env.contains n
+
+protected def envFind? (n : Name) : CoreM (Option ConstantInfo) := do
+  return (← get).env.find? n
+
 protected def getEnv (traceBlock := true) : CoreM Environment := do
-  if traceBlock && (← isTracingEnabledFor `Elab.block) then
+  if traceBlock && (← isTracingEnabledFor `Elab.block) && (← (← get).env.willWait) then
     withTraceNode `Elab.block (fun _ => return "getEnv") do
       return (← get).env.wait
   else
     return (← get).env
 
 instance : MonadEnv CoreM where
-  getEnv := Core.getEnv
+  getEnv := Core.getEnv (traceBlock := false)
   modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
 
 instance : MonadWithOptions CoreM where
   withOptions f x := do
     let options := f (← read).options
     let diag := diagnostics.get options
-    if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
+    if Kernel.isDiagnosticsEnabled (← Core.getEnv (traceBlock := false)) != diag then
       modifyEnv fun env => Kernel.enableDiag env diag
     withReader
       (fun ctx =>

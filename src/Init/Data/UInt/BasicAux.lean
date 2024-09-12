@@ -18,6 +18,9 @@ def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
 
+@[simp] theorem UInt8.ofNat_eq_ofNat {n : Nat} : OfNat.ofNat n = UInt8.ofNat n := by
+  rfl
+
 def UInt16.val (x : UInt16) : Fin UInt16.size := x.toBitVec.toFin
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨BitVec.ofNat 16 n⟩
@@ -31,6 +34,8 @@ def UInt8.toUInt16 (a : UInt8) : UInt16 := ⟨⟨a.toNat, Nat.lt_trans a.toBitVe
 
 instance UInt16.instOfNat : OfNat UInt16 n := ⟨UInt16.ofNat n⟩
 
+@[simp] theorem UInt16.ofNat_eq_ofNat {n : Nat} : OfNat.ofNat n = UInt16.ofNat n := by
+  rfl
 
 def UInt32.val (x : UInt32) : Fin UInt32.size := x.toBitVec.toFin
 @[extern "lean_uint32_of_nat"]
@@ -57,15 +62,18 @@ def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨⟨a.toNat, Nat.lt_trans a.toBit
 
 instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
 
-theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h : n < UInt32.size) :
-     n < m → UInt32.ofNat' n h < OfNat.ofNat m := by
-  intro h
-  sorry
+@[simp] theorem UInt32.ofNat_eq_ofNat {n : Nat} : OfNat.ofNat n = UInt32.ofNat n := by
+  rfl
 
-theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h : n < UInt32.size) :
-     m < n → OfNat.ofNat m < UInt32.ofNat' n h  := by
-  intro h
-  sorry
+theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
+     n < m → UInt32.ofNat' n h1 < UInt32.ofNat m := by
+  simp only [(· < ·), BitVec.toNat, ofNat', BitVec.ofNatLt, ofNat, BitVec.ofNat, Fin.ofNat',
+    Nat.mod_eq_of_lt h2, imp_self]
+
+theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
+     m < n → UInt32.ofNat m < UInt32.ofNat' n h1  := by
+  simp only [(· < ·), BitVec.toNat, ofNat', BitVec.ofNatLt, ofNat, BitVec.ofNat, Fin.ofNat',
+    Nat.mod_eq_of_lt h2, imp_self]
 
 def UInt64.val (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
 @[extern "lean_uint64_of_nat"]
@@ -88,6 +96,9 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨⟨a.toNat, Nat.lt_trans a.toBit
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 
+@[simp] theorem UInt64.ofNat_eq_ofNat {n : Nat} : OfNat.ofNat n = UInt64.ofNat n := by
+  rfl
+
 theorem usize_size_gt_zero : USize.size > 0 := by
   cases usize_size_eq with
   | inl h => rw [h]; decide
@@ -108,6 +119,10 @@ def USize.lt (a b : USize) : Prop := a.toBitVec < b.toBitVec
 def USize.le (a b : USize) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance USize.instOfNat : OfNat USize n := ⟨USize.ofNat n⟩
+
+@[simp] theorem USize.ofNat_eq_ofNat {n : Nat} : OfNat.ofNat n = USize.ofNat n := by
+  rfl
+
 instance : Add USize       := ⟨USize.add⟩
 instance : Sub USize       := ⟨USize.sub⟩
 instance : LT USize        := ⟨USize.lt⟩

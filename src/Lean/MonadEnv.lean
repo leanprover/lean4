@@ -94,8 +94,13 @@ def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Co
   | some info => pure info
   | none      => throwError "unknown constant '{mkConst constName}'"
 
+def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantVal := do
+  match (← getEnv).findConstVal? constName with
+  | some val => pure val
+  | none     => throwError "unknown constant '{mkConst constName}'"
+
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
-  let info ← getConstInfo constName
+  let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do

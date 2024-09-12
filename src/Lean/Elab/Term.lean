@@ -1861,7 +1861,7 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
 def mkConst (constName : Name) (explicitLevels : List Level := []) (checkDeprecated := true) : TermElabM Expr := do
   if checkDeprecated then
     Linter.checkDeprecated constName
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
   else

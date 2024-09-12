@@ -280,8 +280,8 @@ structure AsyncTheoremVal extends ConstantVal where
     See comment at `DefinitionVal.all`. -/
   all : List Name := [name]
 
-def AsyncTheoremVal.toTheoremVal (v : AsyncTheoremVal) : TheoremVal :=
-  { v with value := v.value.get }
+def AsyncTheoremVal.toTheoremVal (v : AsyncTheoremVal) : Task TheoremVal :=
+  v.value.map (sync := true) ({ v with value := · })
 
 instance [Nonempty α] : Nonempty (Thunk α) :=
   Nonempty.intro ⟨fun _ => Classical.ofNonempty⟩
@@ -408,10 +408,8 @@ def resolveAsync (env : Environment) : BaseIO Unit := do
   if let some asyncCtx := env.asyncCtx? then
     asyncCtx.resolve.resolve env.toKernelEnv
 
-def find? (env : Environment) (n : Name) : Option ConstantInfo := do
-  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
-    return .thmInfo asyncThm.toTheoremVal
-  else if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
+private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
+  if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
     match subDecl with
       | .thmDecl thm => return .thmInfo thm
       | .defnDecl defn => return .defnInfo defn
@@ -420,8 +418,23 @@ def find? (env : Environment) (n : Name) : Option ConstantInfo := do
     /- It is safe to use `find?'` because we never overwrite imported declarations. -/
     env.base.constants.find?' n
 
+def findAsync? (env : Environment) (n : Name) : Option (Task ConstantInfo) := do
+  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
+    return asyncThm.toTheoremVal.map (sync := true) .thmInfo
+  else env.findNoAsyncTheorem n |>.map .pure
+
+def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
+  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
+    return asyncThm.toConstantVal
+  else env.findNoAsyncTheorem n |>.map (·.toConstantVal)
+
+def find? (env : Environment) (n : Name) : Option ConstantInfo :=
+  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
+    return .thmInfo asyncThm.toTheoremVal.get
+  else env.findNoAsyncTheorem n
+
 def contains (env : Environment) (n : Name) : Bool :=
-  env.find? n |>.isSome
+  env.findAsync? n |>.isSome
 
 def imports (env : Environment) : Array Import :=
   env.header.imports
@@ -453,10 +466,13 @@ def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
 
 end Environment
 
+def ConstantVal.instantiateTypeLevelParams (c : ConstantVal) (ls : List Level) : Expr :=
+  c.type.instantiateLevelParams c.levelParams ls
+
 namespace ConstantInfo
 
 def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
-  c.type.instantiateLevelParams c.levelParams ls
+  c.toConstantVal.instantiateTypeLevelParams ls
 
 def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
   c.value!.instantiateLevelParams c.levelParams ls

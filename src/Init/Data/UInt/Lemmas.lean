@@ -82,7 +82,7 @@ protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := by
 
 @[simp] protected theorem toNat_div (a b : $typeName) : (a / b).toNat = a.toNat / b.toNat := BitVec.toNat_udiv  ..
 
-@[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := sorry--Fin.sub_val_of_le
+@[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := BitVec.toNat_sub_of_le
 
 protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b := by
   simp only [lt_def, mod_def]

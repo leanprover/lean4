@@ -245,14 +245,33 @@ endif()
 
 # LibUV
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
   # Only on WebAssembly we compile LibUV ourselves
+  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
+  set(LIBUV_PATCH "
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5e8e0166..f3b29134 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -317,6 +317,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "GNU")
+        src/unix/hurd.c)
+ endif()
+
++if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
++  list(APPEND uv_sources
++       src/unix/no-proctitle.c)
++endif()
++
+ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+   list(APPEND uv_defines _GNU_SOURCE _POSIX_C_SOURCE=200112)
+   list(APPEND uv_libraries dl rt)
+")
   ExternalProject_add(libuv
     PREFIX libuv
-    GIT_REPOSITORY https://github.com/TwoFx/libuv
+    GIT_REPOSITORY https://github.com/libuv/libuv
     # Sync version with flake.nix
-    GIT_TAG v1.48.0-patch-1
+    GIT_TAG v1.48.0
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_AR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=${LIBUV_EMSCRIPTEN_FLAGS}
+    PATCH_COMMAND ${CMAKE_COMMAND} -E echo "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")

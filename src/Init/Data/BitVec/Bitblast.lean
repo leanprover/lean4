@@ -448,7 +448,7 @@ Let us study an instructive counterexample:
 Such examples can be created by choosing `(q, r)` for a fixed `(d, n)`
 such that `(d * q + r)` overflows and wraps around to equal `n`.
 
-This tells us that the division algorithm must have more restrictions that just the ones
+This tells us that the division algorithm must have more restrictions than just the ones
 we have for natural numbers. These restrictions are captured in `DivModState.Lawful`,
 which captures the relationship necessary between `n, d, q, r`. The key idea is to state
 the relationship in terms of the `{n, d, q, r}.toNat` values, which implies that the
@@ -489,7 +489,7 @@ theorem udiv_eq_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
   · exact hd
 
 /-- If the division equation `d.toNat * q.toNat + r.toNat = n.toNat` holds,
-then `n.umod d = r` -/
+then `n.umod d = r`. -/
 theorem umod_eq_of_mul_add_toNat {d n q r : BitVec w} (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
     n.umod d = r := by
@@ -506,7 +506,7 @@ theorem umod_eq_of_mul_add_toNat {d n q r : BitVec w} (hrd : r < d)
 
 /-! ### DivModState -/
 
-/-- Structure that maintains the state of recursive `divrem` calls. -/
+/-- `DivModState` is a structure that maintains the state of recursive `divrem` calls. -/
 structure DivModState (w : Nat) : Type where
   /-- The current quotient. -/
   q : BitVec w
@@ -568,7 +568,7 @@ def DivModState.Lawful.init (w : Nat) (n d : BitVec w) (hd : 0#w < d) :
 }
 
 /--
-A lawful DivModState with a fully consumed dividend (`wn = 0`) witneses that the
+A lawful DivModState with a fully consumed dividend (`wn = 0`) witnesses that the
 quotient has been correctly computed.
 -/
 theorem DivModState.udiv_eq_of_lawful_zero {qr : DivModState w}
@@ -579,7 +579,7 @@ theorem DivModState.udiv_eq_of_lawful_zero {qr : DivModState w}
   omega
 
 /--
-A lawful DivModState with a fully consumed dividend (`wn = 0`) witneses that the
+A lawful DivModState with a fully consumed dividend (`wn = 0`) witnesses that the
 remainder has been correctly computed.
 -/
 theorem DivModState.umod_eq_of_lawful_zero {qr : DivModState w}
@@ -615,8 +615,7 @@ def DivModState.wr_lt_w {qr : DivModState w} (h : qr.LawfulShiftSubtract wr wn n
   omega
 
 /-- If we have extra bits to spare in `n`,
-then the div rem input can be converted into a shift subtract input
-to run a round of the shift subtracter. -/
+then we know the div mod state is poised to run another round of the shift subtractor. -/
 def DivModState.Lawful.toLawfulShiftSubtract {qr : DivModState w}
     (h : qr.Lawful w wr (wn + 1) n d) : qr.LawfulShiftSubtract wr (wn + 1) n d where
   hwrn := by have := h.hwrn; omega
@@ -635,13 +634,13 @@ Note that this is only called when `r.msb = false`, so we will not overflow.
 -/
 def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState w) :
     DivModState w :=
-  let r' := shiftConcat qr.r (n.getLsbD (wn - 1)) -- if r ≥ d, then we have a quotient bit.
+  let r' := shiftConcat qr.r (n.getLsbD (wn - 1)) 
   if r' < d
   then {
     q := qr.q.shiftConcat false, -- If `r' < d`, then we do not have a quotient bit.
     r := r'
   } else {
-    q := qr.q.shiftConcat true, -- If `r' ≥ d`, then we have a quotient bit.
+    q := qr.q.shiftConcat true, -- Otherwise, `r' ≥ d`, and we have a quotient bit.
     r := r' - d -- we subtract to maintain the invariant that `r < d`.
   }
 
@@ -735,7 +734,8 @@ theorem divRec_succ (wn : Nat) (qr : DivModState w) :
         (divSubtractShift n d (wn + 1) qr) := rfl
 
 theorem divRec_correct {n d : BitVec w} (qr : DivModState w)
-  (h : DivModState.Lawful w wr wn n d qr) : DivModState.Lawful w w 0 n d (divRec w wr wn n d qr) := by
+    (h : DivModState.Lawful w wr wn n d qr) : 
+    DivModState.Lawful w w 0 n d (divRec w wr wn n d qr) := by
   induction wn generalizing wr qr
   case zero =>
     unfold divRec

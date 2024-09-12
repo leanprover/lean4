@@ -1016,7 +1016,15 @@ private def registerNamePrefixes : Environment → Name → Environment
 
 @[export lean_environment_add]
 private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
-  let env := registerNamePrefixes env cinfo.name
+  let name := cinfo.name
+  let env := match name with
+    | .str _ s =>
+      if s.get 0 == '_' then
+        -- Do not register namespaces that only contain internal declarations.
+        env
+      else
+        registerNamePrefixes env name
+    | _ => env
   env.addAux cinfo
 
 @[export lean_display_stats]

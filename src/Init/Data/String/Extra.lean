@@ -28,7 +28,7 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
     let r := ((c &&& 0x1f).toUInt32 <<< 6) ||| (c1 &&& 0x3f).toUInt32
     guard (0x80 ≤ r)
     -- TODO: Prove h from the definition of r once we have the necessary lemmas
-    if h : r < 0xd800 then some ⟨r, .inl (UInt32.toNat_lt_of_lt h)⟩ else none
+    if h : r < 0xd800 then some ⟨r, .inl (UInt32.toNat_lt_of_lt (by decide) h)⟩ else none
   else if c &&& 0xf0 == 0xe0 then
     let c1 ← a[i+1]?
     let c2 ← a[i+2]?
@@ -42,8 +42,8 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
     if h : r < 0xd800 ∨ 0xdfff < r ∧ r < 0x110000 then
       have :=
         match h with
-        | .inl h => Or.inl (UInt32.toNat_lt_of_lt h)
-        | .inr h => Or.inr ⟨UInt32.lt_toNat_of_lt h.left, UInt32.toNat_lt_of_lt h.right⟩
+        | .inl h => Or.inl (UInt32.toNat_lt_of_lt (by decide) h)
+        | .inr h => Or.inr ⟨UInt32.lt_toNat_of_lt (by decide) h.left, UInt32.toNat_lt_of_lt (by decide) h.right⟩
       some ⟨r, this⟩
     else
       none
@@ -58,7 +58,7 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
       ((c2 &&& 0x3f).toUInt32 <<< 6) |||
       (c3 &&& 0x3f).toUInt32
     if h : 0x10000 ≤ r ∧ r < 0x110000 then
-      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) (UInt32.le_toNat_of_le h.left), UInt32.toNat_lt_of_lt h.right⟩⟩
+      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) (UInt32.le_toNat_of_le (by decide) h.left), UInt32.toNat_lt_of_lt (by decide) h.right⟩⟩
     else none
   else
     none

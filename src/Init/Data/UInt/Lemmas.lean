@@ -104,17 +104,17 @@ declare_uint_theorems UInt32
 declare_uint_theorems UInt64
 declare_uint_theorems USize
 
-theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : n < OfNat.ofNat m) :
-    n.toNat < m := sorry
+theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m := by
+  simp [lt_def, BitVec.lt_def, UInt32.toNat, toBitVec_eq_of_lt h]
 
-theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : OfNat.ofNat m < n) :
-    m < n.toNat := sorry
+theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : m < size) : ofNat m < n → m < n.toNat := by
+  simp [lt_def, BitVec.lt_def, UInt32.toNat, toBitVec_eq_of_lt h]
 
-theorem UInt32.toNat_le_of_le {n : UInt32} {m : Nat} (h : n ≤ OfNat.ofNat m) :
-    n.toNat ≤ m := sorry
+theorem UInt32.toNat_le_of_le {n : UInt32} {m : Nat} (h : m < size) : n ≤ ofNat m → n.toNat ≤ m := by
+  simp [le_def, BitVec.le_def, UInt32.toNat, toBitVec_eq_of_lt h]
 
-theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : OfNat.ofNat m ≤ n) :
-    m ≤ n.toNat := sorry
+theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : m < size) : ofNat m ≤ n → m ≤ n.toNat := by
+  simp [le_def, BitVec.le_def, UInt32.toNat, toBitVec_eq_of_lt h]
 
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.zero_toNat := @UInt8.toNat_zero
 @[deprecated (since := "2024-06-23")] protected abbrev UInt8.div_toNat := @UInt8.toNat_div

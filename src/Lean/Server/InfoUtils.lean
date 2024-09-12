@@ -141,10 +141,12 @@ def Info.stx : Info → Syntax
   | ofOmissionInfo i       => i.stx
 
 def Info.lctx : Info → LocalContext
-  | Info.ofTermInfo i     => i.lctx
-  | Info.ofFieldInfo i    => i.lctx
-  | Info.ofOmissionInfo i => i.lctx
-  | _                     => LocalContext.empty
+  | .ofTermInfo i           => i.lctx
+  | .ofFieldInfo i          => i.lctx
+  | .ofOmissionInfo i       => i.lctx
+  | .ofMacroExpansionInfo i => i.lctx
+  | .ofCompletionInfo i     => i.lctx
+  | _                       => LocalContext.empty
 
 def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (canonicalOnly := true)

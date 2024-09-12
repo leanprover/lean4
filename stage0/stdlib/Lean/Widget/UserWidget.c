@@ -53,7 +53,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_erasePanelWidget___at_Lean_Widget_elabSho
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpec___closed__13;
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_fromJsonWidgetSource____x40_Lean_Widget_UserWidget___hyg_1030____closed__5;
 static lean_object* l_Lean_Widget_showPanelWidgetsCmd___closed__6;
-lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__18;
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_1415____spec__1(lean_object*, uint64_t);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_244____lambda__3___closed__4;
@@ -103,6 +102,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Widget_WidgetInstance_ofHas
 lean_object* l_Lean_Syntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__2___rarg(lean_object*);
 uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
+lean_object* l_Lean_log___at_Lean_Meta_isExprDefEq___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean_Widget_GetWidgetsResponse_fromJsonRpcEncodablePacket____x40_Lean_Widget_UserWidget___hyg_4831____closed__11;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Widget_getWidgets___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addPanelWidgetLocal___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6233,14 +6233,14 @@ if (x_9 == 0)
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = 1;
-x_11 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
+x_11 = l_Lean_log___at_Lean_Meta_isExprDefEq___spec__2(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
 return x_11;
 }
 else
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = 2;
-x_13 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
+x_13 = l_Lean_log___at_Lean_Meta_isExprDefEq___spec__2(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
 return x_13;
 }
 }

@@ -23,7 +23,6 @@ import Init.Data.Bool
 
 namespace List
 
--- We enable this instance locally so we can write `Pairwise le` instead of `Pairwise (le · ·)` everywhere.
 /-! ### splitInTwo -/
 
 @[simp] theorem splitInTwo_fst (l : { l : List α // l.length = n }) :
@@ -159,6 +158,7 @@ theorem mem_merge {a : α} {xs ys : List α} : a ∈ merge xs ys le ↔ a ∈ xs
         apply or_congr_left
         simp only [or_comm (a := a = y), or_assoc]
 
+-- We enable this instance locally so we can write `Pairwise le` instead of `Pairwise (le · ·)` everywhere.
 attribute [local instance] boolRelToRel
 
 /--

@@ -226,19 +226,14 @@ theorem Exists.imp' {β} {q : β → Prop} (f : α → β) (hpq : ∀ a, p a →
 theorem exists_imp : ((∃ x, p x) → b) ↔ ∀ x, p x → b := forall_exists_index
 theorem exists₂_imp {P : (x : α) → p x → Prop} : (∃ x h, P x h) → b ↔ ∀ x h, P x h → b := by simp
 
-@[simp] theorem exists_const (α) [i : Nonempty α] : (∃ _ : α, b) ↔ b :=
+-- We only apply this when `α : Type _`, as `exists_prop` covers the case `α : Prop`.
+@[simp] theorem exists_const (α : Type _) [i : Nonempty α] : (∃ _ : α, b) ↔ b :=
   ⟨fun ⟨_, h⟩ => h, i.elim Exists.intro⟩
 
 @[congr]
 theorem exists_prop_congr {p p' : Prop} {q q' : p → Prop} (hq : ∀ h, q h ↔ q' h) (hp : p ↔ p') :
     Exists q ↔ ∃ h : p', q' (hp.2 h) :=
   ⟨fun ⟨_, _⟩ ↦ ⟨hp.1 ‹_›, (hq _).1 ‹_›⟩, fun ⟨_, _⟩ ↦ ⟨_, (hq _).2 ‹_›⟩⟩
-
-theorem exists_prop_of_true {p : Prop} {q : p → Prop} (h : p) : (Exists fun h' : p => q h') ↔ q h :=
-  @exists_const (q h) p ⟨h⟩
-
-@[simp] theorem exists_true_left {p : True → Prop} : Exists p ↔ p True.intro :=
-  exists_prop_of_true _
 
 section forall_congr
 
@@ -355,8 +350,14 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 @[simp] theorem exists_prop' {α : Type _} {p : Prop} : (∃ _ : α, p) ↔ Nonempty α ∧ p :=
   ⟨fun ⟨a, h⟩ => ⟨⟨a⟩, h⟩, fun ⟨⟨a⟩, h⟩ => ⟨a, h⟩⟩
 
-@[simp] theorem exists_prop (p q : Prop): (∃ _h : p, q) ↔ p ∧ q :=
+@[simp] theorem exists_prop (p q : Prop) : (∃ _h : p, q) ↔ p ∧ q :=
   ⟨fun ⟨hp, hq⟩ => ⟨hp, hq⟩, fun ⟨hp, hq⟩ => ⟨hp, hq⟩⟩
+
+theorem exists_prop_of_true {p : Prop} {q : p → Prop} (h : p) : (Exists fun h' : p => q h') ↔ q h :=
+  ⟨fun ⟨_, hq⟩ => hq, fun hq => ⟨h, hq⟩⟩
+
+@[simp] theorem exists_true_left {p : True → Prop} : Exists p ↔ p True.intro :=
+  exists_prop_of_true _
 
 @[simp] theorem exists_apply_eq_apply (f : α → β) (a' : α) : ∃ a, f a = f a' := ⟨a', rfl⟩
 

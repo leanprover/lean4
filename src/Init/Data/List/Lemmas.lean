@@ -1052,6 +1052,9 @@ theorem tail_eq_tailD (l) : @tail α l = tailD l [] := by cases l <;> rfl
 
 theorem tail_eq_tail? (l) : @tail α l = (tail? l).getD [] := by simp [tail_eq_tailD]
 
+theorem mem_of_mem_tail {a : α} {l : List α} (h : a ∈ tail l) : a ∈ l := by
+  induction l <;> simp_all
+
 /-! ## Basic operations -/
 
 /-! ### map -/

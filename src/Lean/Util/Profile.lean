@@ -13,7 +13,7 @@ register_builtin_option profiler : Bool := {
   defValue := false
   group    := "profiler"
   descr    := "show exclusive execution times of various Lean components
-  
+
 See also `trace.profiler` for an alternative profiling system with structured output."
 }
 
@@ -21,6 +21,16 @@ register_builtin_option profiler.threshold : Nat := {
   defValue := 100
   group    := "profiler"
   descr    := "threshold in milliseconds, profiling times under threshold will not be reported individually"
+}
+
+register_builtin_option profiler.isDefEq : Bool := {
+  defValue := false
+  descr    := "Report slow isDefEq problems"
+}
+
+register_builtin_option profiler.isDefEq.threshold : Nat := {
+  defValue := 200000
+  descr    := "Threshold for reporting isDefEq heartbeats"
 }
 
 @[export lean_get_profiler]

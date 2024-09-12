@@ -14,10 +14,10 @@ namespace Std.Tactic.BVDecide
 namespace Frontend.Normalize
 
 attribute [bv_normalize] not_true
-attribute [bv_normalize] and_true
-attribute [bv_normalize] true_and
-attribute [bv_normalize] or_true
-attribute [bv_normalize] true_or
+attribute [bv_normalize] and_true_eq
+attribute [bv_normalize] true_and_eq
+attribute [bv_normalize] or_true_eq
+attribute [bv_normalize] true_or_eq
 
 end Frontend.Normalize
 end Std.Tactic.BVDecide

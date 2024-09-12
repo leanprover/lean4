@@ -101,13 +101,13 @@ theorem dite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c →
 end SimprocHelperLemmas
 @[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d <;> rfl
 
-@[simp] theorem and_true (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩
-@[simp] theorem true_and (p : Prop) : (True ∧ p) = p := propext ⟨(·.2), (⟨trivial, ·⟩)⟩
+@[simp] theorem and_true_eq (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩
+@[simp] theorem true_and_eq (p : Prop) : (True ∧ p) = p := propext ⟨(·.2), (⟨trivial, ·⟩)⟩
 instance : Std.LawfulIdentity And True where
-  left_id := true_and
-  right_id := and_true
-@[simp] theorem and_false (p : Prop) : (p ∧ False) = False := eq_false (·.2)
-@[simp] theorem false_and (p : Prop) : (False ∧ p) = False := eq_false (·.1)
+  left_id := true_and_eq
+  right_id := and_true_eq
+@[simp] theorem and_false_eq (p : Prop) : (p ∧ False) = False := eq_false (·.2)
+@[simp] theorem false_and_eq (p : Prop) : (False ∧ p) = False := eq_false (·.1)
 @[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext ⟨(·.left), fun h => ⟨h, h⟩⟩
 instance : Std.IdempotentOp And := ⟨and_self⟩
 @[simp] theorem and_not_self : ¬(a ∧ ¬a) | ⟨ha, hn⟩ => absurd ha hn
@@ -116,18 +116,18 @@ instance : Std.IdempotentOp And := ⟨and_self⟩
 @[simp] theorem not_and : ¬(a ∧ b) ↔ (a → ¬b) := and_imp
 @[simp] theorem or_self (p : Prop) : (p ∨ p) = p := propext ⟨fun | .inl h | .inr h => h, .inl⟩
 instance : Std.IdempotentOp Or := ⟨or_self⟩
-@[simp] theorem or_true (p : Prop) : (p ∨ True) = True := eq_true (.inr trivial)
-@[simp] theorem true_or (p : Prop) : (True ∨ p) = True := eq_true (.inl trivial)
-@[simp] theorem or_false (p : Prop) : (p ∨ False) = p := propext ⟨fun (.inl h) => h, .inl⟩
-@[simp] theorem false_or (p : Prop) : (False ∨ p) = p := propext ⟨fun (.inr h) => h, .inr⟩
+@[simp] theorem or_true_eq (p : Prop) : (p ∨ True) = True := eq_true (.inr trivial)
+@[simp] theorem true_or_eq (p : Prop) : (True ∨ p) = True := eq_true (.inl trivial)
+@[simp] theorem or_false_eq (p : Prop) : (p ∨ False) = p := propext ⟨fun (.inl h) => h, .inl⟩
+@[simp] theorem false_or_eq (p : Prop) : (False ∨ p) = p := propext ⟨fun (.inr h) => h, .inr⟩
 instance : Std.LawfulIdentity Or False where
-  left_id := false_or
-  right_id := or_false
-@[simp] theorem iff_self (p : Prop) : (p ↔ p) = True := eq_true .rfl
-@[simp] theorem iff_true (p : Prop) : (p ↔ True) = p := propext ⟨(·.2 trivial), fun h => ⟨fun _ => trivial, fun _ => h⟩⟩
-@[simp] theorem true_iff (p : Prop) : (True ↔ p) = p := propext ⟨(·.1 trivial), fun h => ⟨fun _ => h, fun _ => trivial⟩⟩
-@[simp] theorem iff_false (p : Prop) : (p ↔ False) = ¬p := propext ⟨(·.1), (⟨·, False.elim⟩)⟩
-@[simp] theorem false_iff (p : Prop) : (False ↔ p) = ¬p := propext ⟨(·.2), (⟨False.elim, ·⟩)⟩
+  left_id := false_or_eq
+  right_id := or_false_eq
+@[simp] theorem iff_self_eq (p : Prop) : (p ↔ p) = True := eq_true .rfl
+@[simp] theorem iff_true_eq (p : Prop) : (p ↔ True) = p := propext ⟨(·.2 trivial), fun h => ⟨fun _ => trivial, fun _ => h⟩⟩
+@[simp] theorem true_iff_eq (p : Prop) : (True ↔ p) = p := propext ⟨(·.1 trivial), fun h => ⟨fun _ => h, fun _ => trivial⟩⟩
+@[simp] theorem iff_false_eq (p : Prop) : (p ↔ False) = ¬p := propext ⟨(·.1), (⟨·, False.elim⟩)⟩
+@[simp] theorem false_iff_eq (p : Prop) : (False ↔ p) = ¬p := propext ⟨(·.2), (⟨False.elim, ·⟩)⟩
 @[simp] theorem false_implies (p : Prop) : (False → p) = True := eq_true False.elim
 @[simp] theorem forall_false (p : False → Prop) : (∀ h : False, p h) = True := eq_true (False.elim ·)
 @[simp] theorem implies_true (α : Sort u) : (α → True) = True := eq_true fun _ => trivial

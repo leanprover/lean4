@@ -266,7 +266,7 @@ where
       else
         return .none
 
-@[inline] def simpOnlyBuiltins : List Name := [``eq_self, ``iff_self]
+@[inline] def simpOnlyBuiltins : List Name := [``eq_self, ``iff_self_eq]
 
 structure MkSimpContextResult where
   ctx              : Simp.Context

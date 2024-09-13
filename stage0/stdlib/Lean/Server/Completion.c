@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Completion_initFn____x40_Lean_Server_Comp
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_runM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__3___closed__10;
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_matchDecl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDefEqToAppOf___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,6 +73,7 @@ double lean_float_div(double, double);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__2___closed__1;
+LEAN_EXPORT lean_object* l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3(lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__5;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__2;
@@ -99,6 +101,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Server_Completion
 lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotIdCompletion___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotCompletionMethod___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -108,14 +112,17 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 extern lean_object* l_Lean_Parser_ParserExtension_instInhabitedState;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__2;
 static lean_object* l_Lean_Server_Completion_completeNamespaces___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Completion_completeNamespaces___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotIdCompletion___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_completeNamespaces___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_eligibleHeaderDeclsRef;
 lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f_choose(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
@@ -124,12 +131,14 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Compl
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 uint8_t lean_float_decLt(double, double);
 static lean_object* l_Lean_Server_Completion_getEligibleHeaderDecls___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___spec__4(lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_head_x3f___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_matchNamespace___closed__1___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_isEnumType___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addKeywordCompletionItem___closed__3;
@@ -139,6 +148,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJson
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Server_Completion_completeNamespaces___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedJson;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__1___closed__2;
+uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -155,15 +165,21 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at___private_Lean_Serve
 static lean_object* l_List_allM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__5___closed__1;
 uint8_t l_Lean_MapDeclarationExtension_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentArray_toList___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_any___rarg(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2;
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__2;
 lean_object* l_Lean_getAliasState(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addUnresolvedCompletionItem___lambda__1(lean_object*, uint8_t, lean_object*, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_numTypeFormers(lean_object*);
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__4;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotCompletionMethod___lambda__2___closed__1;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7;
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__3___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonCompletionItemDataWithId___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SMap_forM___at_Lean_Server_Completion_completeNamespaces___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -195,6 +211,7 @@ static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__26(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___spec__2(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___private_Lean_Environment_0__Lean_Environment_addAux___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -236,11 +253,13 @@ LEAN_EXPORT lean_object* l_Lean_Server_Completion_matchNamespace___boxed(lean_ob
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__1;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___private_Lean_Server_Completion_0__Lean_Server_Completion_sortCompletionItems___spec__2___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDefEqToAppOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____spec__1(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Info_updateContext_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Data_Trie_findPrefix_go___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_matchAtomic(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_stripPrivatePrefix(lean_object*);
@@ -252,6 +271,7 @@ static lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Server_Complet
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f_isBetter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
+lean_object* l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_isCtor(lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___closed__5;
@@ -271,6 +291,7 @@ lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_assignSortTexts___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__25(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3(lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonCompletionIdentifier;
 LEAN_EXPORT lean_object* l_Lean_Lsp_CompletionItem_resolve___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -292,6 +313,7 @@ extern lean_object* l_Lean_NameSSet_instInhabited;
 uint8_t l_Lean_isPrivatePrefix(lean_object*);
 lean_object* l_Lean_getOptionDecls(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__9(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotCompletionMethod___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotIdCompletionMethod(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotIdCompletion___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -332,6 +354,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Compl
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_fieldIdCompletion___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Server_Completion_completeNamespaces___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_consumeImplicitPrefix(lean_object*);
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___closed__1;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_matchDecl_x3f___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotCompletionMethod___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____spec__1___boxed(lean_object*, lean_object*);
@@ -343,6 +366,7 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Server_Completion_completeNamespaces___spec__8(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__3___closed__5;
+static lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__3;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__17;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_normPrivateName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addNamespaceCompletionItem(lean_object*, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,6 +383,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Compl
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__24___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonCompletionItemDataWithId;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addNamespaceCompletionItem___closed__2;
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2;
 extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_List_allM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__5___closed__2;
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__3___closed__3;
@@ -380,6 +405,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Serv
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__4;
 static lean_object* l_List_forIn_loop___at_Lean_Server_Completion_completeNamespaces___spec__1___closed__3;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__3___closed__4;
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
@@ -389,6 +415,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_toJsonCo
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__3___closed__9;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_completeNamespaces(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__22(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_allM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -404,17 +431,22 @@ LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Server_Completion
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_completeNamespaces_visitNamespaces___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___spec__1(lean_object*);
 lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__18;
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_truncate_go___closed__1;
+LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotIdCompletion___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__1(lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_isBetter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotIdCompletionMethod___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__9;
+uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__6(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_normPrivateName_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDefEqToAppOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -429,7 +461,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Compl
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Server_Completion_completeNamespaces___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Completion_completeNamespaces___spec__7___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_findStack_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__24___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addNamespaceCompletionItem___closed__1;
@@ -471,6 +505,7 @@ lean_object* l_String_toName(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
+extern lean_object* l_Id_instMonad;
 lean_object* l_Lean_getAllParentStructures(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__25___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -494,9 +529,11 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Compl
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__6___closed__1;
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_fieldIdCompletion___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___spec__3___boxed__const__1;
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at___private_Lean_Server_Completion_0__Lean_Server_Completion_dotIdCompletion___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_fieldIdCompletion___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -506,24 +543,31 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Compl
 lean_object* l_Lean_Name_getString_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_isBetter___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
+lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__17___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Info_isCompletion(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+static lean_object* l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3___closed__1;
 extern lean_object* l_Lean_namespacesExt;
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_isDotCompletionMethod___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_truncate_go___closed__2;
+lean_object* l_List_dropWhile___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____lambda__2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___closed__6;
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__8(lean_object*, lean_object*, lean_object*, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__8(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__3___closed__2;
@@ -533,14 +577,17 @@ extern lean_object* l_Lean_instInhabitedName;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_stripPrivatePrefix___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Completion_0__Lean_Server_Completion_assignSortTexts___spec__2(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l_Lean_Elab_Info_lctx(lean_object*);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__14___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Completion_completeNamespaces___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_toJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_460_(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Server_Completion_cmpModPrivate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____closed__4;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_pos_x3f(lean_object*);
@@ -554,11 +601,13 @@ static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompl
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_truncate_go___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_fieldIdCompletion___closed__3;
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonCompletionIdentifier___closed__1;
 uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__6;
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_cmpModPrivate___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Completion_getEligibleHeaderDecls___closed__3;
@@ -575,16 +624,20 @@ LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Lsp_toJsonComplet
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotIdCompletion___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Char_utf8Size(uint32_t);
 uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Server_Completion_completeNamespaces___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_addKeywordCompletionItem(lean_object*, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Info_stx(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___lambda__6(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore_visitNamespaces(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
@@ -608,17 +661,20 @@ uint8_t l_Lean_Name_isInternal(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonCompletionIdentifier;
+uint8_t lean_local_ctx_is_empty(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Completion_getEligibleHeaderDecls___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_resolve___closed__2;
 lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__2(lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__6___closed__3;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__13;
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_completeNamespaces___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Parser_getCategory___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_allowCompletion___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_forEligibleDeclsM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -626,6 +682,7 @@ static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompl
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion___hyg_136____closed__3;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_fieldIdCompletion___closed__1;
 static lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_matchDecl_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_data_value_to_string(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -24477,6 +24534,580 @@ lean_dec(x_2);
 return x_7;
 }
 }
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_isBetter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+else
+{
+if (lean_obj_tag(x_2) == 0)
+{
+uint8_t x_4; 
+x_4 = 1;
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_5 = lean_ctor_get(x_1, 0);
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_5, 1);
+x_8 = lean_ctor_get(x_6, 1);
+x_9 = l_Lean_Elab_Info_lctx(x_7);
+x_10 = lean_local_ctx_is_empty(x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; uint8_t x_12; 
+x_11 = l_Lean_Elab_Info_lctx(x_8);
+x_12 = lean_local_ctx_is_empty(x_11);
+if (x_12 == 0)
+{
+uint8_t x_13; 
+x_13 = l_Lean_Elab_Info_isSmaller(x_7, x_8);
+return x_13;
+}
+else
+{
+uint8_t x_14; 
+x_14 = 1;
+return x_14;
+}
+}
+else
+{
+lean_object* x_15; uint8_t x_16; 
+x_15 = l_Lean_Elab_Info_lctx(x_8);
+x_16 = lean_local_ctx_is_empty(x_15);
+if (x_16 == 0)
+{
+uint8_t x_17; 
+x_17 = 0;
+return x_17;
+}
+else
+{
+uint8_t x_18; 
+x_18 = l_Lean_Elab_Info_isSmaller(x_7, x_8);
+return x_18;
+}
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_isBetter___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_isBetter(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; 
+x_3 = l_List_reverse___rarg(x_2);
+return x_3;
+}
+else
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+if (lean_obj_tag(x_4) == 0)
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_1);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_1, 1);
+x_7 = lean_ctor_get(x_1, 0);
+lean_dec(x_7);
+x_8 = lean_box(0);
+lean_ctor_set(x_1, 1, x_2);
+lean_ctor_set(x_1, 0, x_8);
+{
+lean_object* _tmp_0 = x_6;
+lean_object* _tmp_1 = x_1;
+x_1 = _tmp_0;
+x_2 = _tmp_1;
+}
+goto _start;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_1, 1);
+lean_inc(x_10);
+lean_dec(x_1);
+x_11 = lean_box(0);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_2);
+x_1 = x_10;
+x_2 = x_12;
+goto _start;
+}
+}
+else
+{
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_1);
+if (x_14 == 0)
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_1, 1);
+x_16 = lean_ctor_get(x_1, 0);
+lean_dec(x_16);
+x_17 = lean_ctor_get(x_4, 0);
+lean_inc(x_17);
+lean_dec(x_4);
+lean_ctor_set(x_1, 1, x_2);
+lean_ctor_set(x_1, 0, x_17);
+{
+lean_object* _tmp_0 = x_15;
+lean_object* _tmp_1 = x_1;
+x_1 = _tmp_0;
+x_2 = _tmp_1;
+}
+goto _start;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_19 = lean_ctor_get(x_1, 1);
+lean_inc(x_19);
+lean_dec(x_1);
+x_20 = lean_ctor_get(x_4, 0);
+lean_inc(x_20);
+lean_dec(x_4);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_2);
+x_1 = x_19;
+x_2 = x_21;
+goto _start;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_inc(x_1);
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_2, 0);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_isBetter(x_1, x_3);
+if (x_5 == 0)
+{
+x_1 = x_3;
+x_2 = x_4;
+goto _start;
+}
+else
+{
+x_2 = x_4;
+goto _start;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_6 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = l_List_mapTR_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__1(x_5, x_7);
+x_9 = l_List_foldl___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__2(x_6, x_8);
+lean_dec(x_8);
+x_10 = l_Lean_Elab_Info_occursInOrOnBoundary(x_3, x_1);
+if (x_10 == 0)
+{
+lean_dec(x_3);
+lean_dec(x_2);
+return x_9;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_2);
+lean_ctor_set(x_11, 1, x_3);
+lean_inc(x_11);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_isBetter(x_12, x_9);
+lean_dec(x_12);
+if (x_13 == 0)
+{
+lean_dec(x_11);
+return x_9;
+}
+else
+{
+lean_object* x_14; 
+lean_dec(x_9);
+x_14 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_14, 0, x_11);
+return x_14;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_foldl___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___spec__2(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_1);
+return x_6;
+}
+}
+static lean_object* _init_l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Id_instMonad;
+x_3 = l_instInhabitedOfMonad___rarg(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3___closed__1;
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_6; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_6 = l_List_reverse___rarg(x_5);
+return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = !lean_is_exclusive(x_4);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_4, 0);
+x_9 = lean_ctor_get(x_4, 1);
+lean_inc(x_3);
+lean_inc(x_2);
+x_10 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2(x_1, x_2, x_3, x_8);
+lean_ctor_set(x_4, 1, x_5);
+lean_ctor_set(x_4, 0, x_10);
+{
+lean_object* _tmp_3 = x_9;
+lean_object* _tmp_4 = x_4;
+x_4 = _tmp_3;
+x_5 = _tmp_4;
+}
+goto _start;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_ctor_get(x_4, 0);
+x_13 = lean_ctor_get(x_4, 1);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_4);
+lean_inc(x_3);
+lean_inc(x_2);
+x_14 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2(x_1, x_2, x_3, x_12);
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_5);
+x_4 = x_13;
+x_5 = x_15;
+goto _start;
+}
+}
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean.Server.InfoUtils", 21, 21);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean.Elab.InfoTree.visitM.go", 28, 28);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("unexpected context-free info tree node", 38, 38);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__1;
+x_2 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__2;
+x_3 = lean_unsigned_to_nat(56u);
+x_4 = lean_unsigned_to_nat(21u);
+x_5 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__3;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+switch (lean_obj_tag(x_4)) {
+case 0:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+lean_dec(x_4);
+x_7 = l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f(x_5, x_3);
+x_3 = x_7;
+x_4 = x_6;
+goto _start;
+}
+case 1:
+{
+lean_object* x_9; lean_object* x_10; 
+lean_dec(x_4);
+lean_dec(x_2);
+x_9 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__4;
+x_10 = l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3(x_9);
+return x_10;
+}
+default: 
+{
+lean_object* x_11; 
+lean_dec(x_4);
+lean_dec(x_2);
+x_11 = lean_box(0);
+return x_11;
+}
+}
+}
+else
+{
+switch (lean_obj_tag(x_4)) {
+case 0:
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_4, 0);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_4, 1);
+lean_inc(x_13);
+lean_dec(x_4);
+x_14 = l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f(x_12, x_3);
+x_3 = x_14;
+x_4 = x_13;
+goto _start;
+}
+case 1:
+{
+uint8_t x_16; 
+x_16 = !lean_is_exclusive(x_3);
+if (x_16 == 0)
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_17 = lean_ctor_get(x_3, 0);
+x_18 = lean_ctor_get(x_4, 0);
+lean_inc(x_18);
+x_19 = lean_ctor_get(x_4, 1);
+lean_inc(x_19);
+lean_dec(x_4);
+lean_inc(x_17);
+x_20 = l_Lean_Elab_Info_updateContext_x3f(x_3, x_18);
+x_21 = l_Lean_PersistentArray_toList___rarg(x_19);
+x_22 = lean_box(0);
+lean_inc(x_2);
+x_23 = l_List_mapM_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__4(x_1, x_2, x_20, x_21, x_22);
+x_24 = lean_apply_4(x_2, x_17, x_18, x_19, x_23);
+x_25 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_25, 0, x_24);
+return x_25;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+x_26 = lean_ctor_get(x_3, 0);
+lean_inc(x_26);
+lean_dec(x_3);
+x_27 = lean_ctor_get(x_4, 0);
+lean_inc(x_27);
+x_28 = lean_ctor_get(x_4, 1);
+lean_inc(x_28);
+lean_dec(x_4);
+lean_inc(x_26);
+x_29 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_29, 0, x_26);
+x_30 = l_Lean_Elab_Info_updateContext_x3f(x_29, x_27);
+x_31 = l_Lean_PersistentArray_toList___rarg(x_28);
+x_32 = lean_box(0);
+lean_inc(x_2);
+x_33 = l_List_mapM_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__4(x_1, x_2, x_30, x_31, x_32);
+x_34 = lean_apply_4(x_2, x_26, x_27, x_28, x_33);
+x_35 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_35, 0, x_34);
+return x_35;
+}
+}
+default: 
+{
+lean_object* x_36; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_36 = lean_box(0);
+return x_36;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_box(0);
+x_5 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2(x_1, x_2, x_4, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___lambda__1___boxed), 3, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f_choose___boxed), 5, 1);
+lean_closure_set(x_3, 0, x_1);
+x_4 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___closed__1;
+x_5 = l_Lean_Elab_InfoTree_visitM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__1(x_4, x_3, x_2);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; 
+x_6 = lean_box(0);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_5, 0);
+lean_inc(x_7);
+lean_dec(x_5);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_List_mapM_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__4(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_1);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Elab_InfoTree_visitM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__1(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f_isBetter(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -25188,6 +25819,492 @@ lean_dec(x_2);
 return x_7;
 }
 }
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = 0;
+x_4 = l_Lean_Syntax_getRange_x3f(x_2, x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
+}
+else
+{
+lean_object* x_6; uint8_t x_7; uint8_t x_8; 
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+lean_dec(x_4);
+x_7 = 1;
+x_8 = l_String_Range_contains(x_6, x_1, x_7);
+lean_dec(x_6);
+return x_8;
+}
+}
+}
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__2(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = l_Lean_Syntax_hasArgs(x_1);
+if (x_2 == 0)
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ident", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2;
+lean_inc(x_2);
+x_4 = l_Lean_Syntax_isOfKind(x_2, x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__6___closed__5;
+lean_inc(x_2);
+x_6 = l_Lean_Syntax_isOfKind(x_2, x_5);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+lean_dec(x_2);
+x_7 = 1;
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_Lean_Syntax_getArg(x_2, x_8);
+lean_dec(x_2);
+x_10 = l_Lean_Syntax_isOfKind(x_9, x_3);
+if (x_10 == 0)
+{
+uint8_t x_11; 
+x_11 = 1;
+return x_11;
+}
+else
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
+}
+}
+}
+else
+{
+uint8_t x_13; 
+lean_dec(x_2);
+x_13 = 0;
+return x_13;
+}
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("dotIdent", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l___private_Lean_Server_Completion_0__Lean_Lsp_fromJsonCompletionItemDataWithId____x40_Lean_Server_Completion___hyg_358____closed__2;
+x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__6___closed__2;
+x_3 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__6___closed__3;
+x_4 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__1;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__2;
+lean_inc(x_2);
+x_4 = l_Lean_Syntax_isOfKind(x_2, x_3);
+if (x_4 == 0)
+{
+uint8_t x_5; 
+lean_dec(x_2);
+x_5 = 0;
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = l_Lean_Syntax_getArg(x_2, x_6);
+lean_dec(x_2);
+x_8 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2;
+x_9 = l_Lean_Syntax_isOfKind(x_7, x_8);
+return x_9;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_72; uint8_t x_73; 
+x_72 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2;
+lean_inc(x_1);
+x_73 = l_Lean_Syntax_isOfKind(x_1, x_72);
+if (x_73 == 0)
+{
+lean_object* x_74; uint8_t x_75; 
+x_74 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__6___closed__5;
+lean_inc(x_1);
+x_75 = l_Lean_Syntax_isOfKind(x_1, x_74);
+if (x_75 == 0)
+{
+lean_object* x_76; 
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+x_76 = lean_box(0);
+return x_76;
+}
+else
+{
+lean_object* x_77; lean_object* x_78; uint8_t x_79; 
+x_77 = lean_unsigned_to_nat(0u);
+x_78 = l_Lean_Syntax_getArg(x_1, x_77);
+lean_inc(x_78);
+x_79 = l_Lean_Syntax_isOfKind(x_78, x_72);
+if (x_79 == 0)
+{
+lean_object* x_80; 
+lean_dec(x_78);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+x_80 = lean_box(0);
+return x_80;
+}
+else
+{
+lean_object* x_81; uint8_t x_82; lean_object* x_83; lean_object* x_84; 
+x_81 = l_Lean_Syntax_getId(x_78);
+lean_dec(x_78);
+x_82 = 1;
+x_83 = lean_box(x_82);
+x_84 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_84, 0, x_81);
+lean_ctor_set(x_84, 1, x_83);
+x_7 = x_84;
+goto block_71;
+}
+}
+}
+else
+{
+lean_object* x_85; uint8_t x_86; lean_object* x_87; lean_object* x_88; 
+x_85 = l_Lean_Syntax_getId(x_1);
+x_86 = 0;
+x_87 = lean_box(x_86);
+x_88 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_88, 0, x_85);
+lean_ctor_set(x_88, 1, x_87);
+x_7 = x_88;
+goto block_71;
+}
+block_71:
+{
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_9 = lean_ctor_get(x_7, 0);
+x_10 = lean_ctor_get(x_7, 1);
+x_11 = 0;
+x_12 = l_Lean_Syntax_getTailPos_x3f(x_1, x_11);
+x_13 = l_Lean_Elab_Info_lctx(x_2);
+x_14 = lean_alloc_ctor(1, 4, 1);
+lean_ctor_set(x_14, 0, x_1);
+lean_ctor_set(x_14, 1, x_9);
+lean_ctor_set(x_14, 2, x_13);
+lean_ctor_set(x_14, 3, x_3);
+x_15 = lean_unbox(x_10);
+lean_dec(x_10);
+lean_ctor_set_uint8(x_14, sizeof(void*)*4, x_15);
+lean_ctor_set(x_7, 1, x_14);
+lean_ctor_set(x_7, 0, x_4);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7;
+x_17 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_16);
+x_18 = lean_nat_dec_lt(x_5, x_17);
+if (x_18 == 0)
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_dec(x_17);
+x_19 = lean_box(0);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_19);
+lean_ctor_set(x_20, 1, x_7);
+x_21 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_21, 0, x_20);
+return x_21;
+}
+else
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_22 = lean_nat_sub(x_17, x_5);
+lean_dec(x_17);
+x_23 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_23, 0, x_22);
+x_24 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_24, 0, x_23);
+lean_ctor_set(x_24, 1, x_7);
+x_25 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_25, 0, x_24);
+return x_25;
+}
+}
+else
+{
+uint8_t x_26; 
+x_26 = !lean_is_exclusive(x_12);
+if (x_26 == 0)
+{
+lean_object* x_27; uint8_t x_28; 
+x_27 = lean_ctor_get(x_12, 0);
+x_28 = lean_nat_dec_lt(x_5, x_27);
+if (x_28 == 0)
+{
+lean_object* x_29; lean_object* x_30; 
+lean_dec(x_27);
+x_29 = lean_box(0);
+x_30 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_7);
+lean_ctor_set(x_12, 0, x_30);
+return x_12;
+}
+else
+{
+lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_31 = lean_nat_sub(x_27, x_5);
+lean_dec(x_27);
+x_32 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_32, 0, x_31);
+x_33 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_33, 0, x_32);
+lean_ctor_set(x_33, 1, x_7);
+lean_ctor_set(x_12, 0, x_33);
+return x_12;
+}
+}
+else
+{
+lean_object* x_34; uint8_t x_35; 
+x_34 = lean_ctor_get(x_12, 0);
+lean_inc(x_34);
+lean_dec(x_12);
+x_35 = lean_nat_dec_lt(x_5, x_34);
+if (x_35 == 0)
+{
+lean_object* x_36; lean_object* x_37; lean_object* x_38; 
+lean_dec(x_34);
+x_36 = lean_box(0);
+x_37 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_37, 0, x_36);
+lean_ctor_set(x_37, 1, x_7);
+x_38 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_38, 0, x_37);
+return x_38;
+}
+else
+{
+lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+x_39 = lean_nat_sub(x_34, x_5);
+lean_dec(x_34);
+x_40 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_40, 0, x_39);
+x_41 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_41, 0, x_40);
+lean_ctor_set(x_41, 1, x_7);
+x_42 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_42, 0, x_41);
+return x_42;
+}
+}
+}
+}
+else
+{
+lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; 
+x_43 = lean_ctor_get(x_7, 0);
+x_44 = lean_ctor_get(x_7, 1);
+lean_inc(x_44);
+lean_inc(x_43);
+lean_dec(x_7);
+x_45 = 0;
+x_46 = l_Lean_Syntax_getTailPos_x3f(x_1, x_45);
+x_47 = l_Lean_Elab_Info_lctx(x_2);
+x_48 = lean_alloc_ctor(1, 4, 1);
+lean_ctor_set(x_48, 0, x_1);
+lean_ctor_set(x_48, 1, x_43);
+lean_ctor_set(x_48, 2, x_47);
+lean_ctor_set(x_48, 3, x_3);
+x_49 = lean_unbox(x_44);
+lean_dec(x_44);
+lean_ctor_set_uint8(x_48, sizeof(void*)*4, x_49);
+x_50 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_50, 0, x_4);
+lean_ctor_set(x_50, 1, x_48);
+if (lean_obj_tag(x_46) == 0)
+{
+lean_object* x_51; lean_object* x_52; uint8_t x_53; 
+x_51 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7;
+x_52 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_51);
+x_53 = lean_nat_dec_lt(x_5, x_52);
+if (x_53 == 0)
+{
+lean_object* x_54; lean_object* x_55; lean_object* x_56; 
+lean_dec(x_52);
+x_54 = lean_box(0);
+x_55 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_55, 0, x_54);
+lean_ctor_set(x_55, 1, x_50);
+x_56 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_56, 0, x_55);
+return x_56;
+}
+else
+{
+lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
+x_57 = lean_nat_sub(x_52, x_5);
+lean_dec(x_52);
+x_58 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_58, 0, x_57);
+x_59 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_59, 0, x_58);
+lean_ctor_set(x_59, 1, x_50);
+x_60 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_60, 0, x_59);
+return x_60;
+}
+}
+else
+{
+lean_object* x_61; lean_object* x_62; uint8_t x_63; 
+x_61 = lean_ctor_get(x_46, 0);
+lean_inc(x_61);
+if (lean_is_exclusive(x_46)) {
+ lean_ctor_release(x_46, 0);
+ x_62 = x_46;
+} else {
+ lean_dec_ref(x_46);
+ x_62 = lean_box(0);
+}
+x_63 = lean_nat_dec_lt(x_5, x_61);
+if (x_63 == 0)
+{
+lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+lean_dec(x_61);
+x_64 = lean_box(0);
+x_65 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_65, 0, x_64);
+lean_ctor_set(x_65, 1, x_50);
+if (lean_is_scalar(x_62)) {
+ x_66 = lean_alloc_ctor(1, 1, 0);
+} else {
+ x_66 = x_62;
+}
+lean_ctor_set(x_66, 0, x_65);
+return x_66;
+}
+else
+{
+lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
+x_67 = lean_nat_sub(x_61, x_5);
+lean_dec(x_61);
+x_68 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_68, 0, x_67);
+x_69 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_69, 0, x_68);
+lean_ctor_set(x_69, 1, x_50);
+if (lean_is_scalar(x_62)) {
+ x_70 = lean_alloc_ctor(1, 1, 0);
+} else {
+ x_70 = x_62;
+}
+lean_ctor_set(x_70, 0, x_69);
+return x_70;
+}
+}
+}
+}
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__2___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -25197,176 +26314,487 @@ x_4 = l_Lean_FileMap_toPosition(x_1, x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
+lean_inc(x_2);
 x_6 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f_choose___boxed), 6, 3);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_2);
 lean_closure_set(x_6, 2, x_5);
 x_7 = lean_box(0);
+lean_inc(x_3);
 x_8 = l_Lean_Elab_InfoTree_foldInfo___rarg(x_6, x_7, x_3);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; 
-x_9 = lean_box(0);
-return x_9;
+lean_inc(x_2);
+x_9 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f(x_2, x_3);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_object* x_10; 
+lean_dec(x_2);
+x_10 = lean_box(0);
+return x_10;
 }
 else
 {
-uint8_t x_10; 
-x_10 = !lean_is_exclusive(x_8);
-if (x_10 == 0)
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_8, 0);
-x_12 = lean_ctor_get(x_11, 1);
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_11 = lean_ctor_get(x_9, 0);
+lean_inc(x_11);
+lean_dec(x_9);
+x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_12, 1);
+x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-if (lean_obj_tag(x_13) == 6)
+lean_dec(x_11);
+x_14 = l_Lean_Elab_Info_stx(x_13);
+lean_inc(x_2);
+x_15 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1___boxed), 2, 1);
+lean_closure_set(x_15, 0, x_2);
+x_16 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1;
+x_17 = l_Lean_Syntax_findStack_x3f(x_14, x_15, x_16);
+if (lean_obj_tag(x_17) == 0)
 {
-uint8_t x_14; 
-x_14 = !lean_is_exclusive(x_11);
-if (x_14 == 0)
-{
-lean_object* x_15; uint8_t x_16; 
-x_15 = lean_ctor_get(x_11, 1);
-lean_dec(x_15);
-x_16 = !lean_is_exclusive(x_12);
-if (x_16 == 0)
-{
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_ctor_get(x_12, 1);
-lean_dec(x_17);
-x_18 = lean_ctor_get(x_13, 0);
-lean_inc(x_18);
+lean_object* x_18; 
 lean_dec(x_13);
-lean_ctor_set(x_12, 1, x_18);
-return x_8;
+lean_dec(x_12);
+lean_dec(x_2);
+x_18 = lean_box(0);
+return x_18;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = lean_ctor_get(x_12, 0);
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
-lean_dec(x_12);
-x_20 = lean_ctor_get(x_13, 0);
-lean_inc(x_20);
+lean_dec(x_17);
+x_20 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2;
+x_21 = l_List_dropWhile___rarg(x_20, x_19);
+x_22 = l_List_head_x3f___rarg(x_21);
+if (lean_obj_tag(x_22) == 0)
+{
+lean_object* x_23; 
+lean_dec(x_21);
 lean_dec(x_13);
-x_21 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_21, 0, x_19);
-lean_ctor_set(x_21, 1, x_20);
-lean_ctor_set(x_11, 1, x_21);
-return x_8;
-}
+lean_dec(x_12);
+lean_dec(x_2);
+x_23 = lean_box(0);
+return x_23;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_22 = lean_ctor_get(x_11, 0);
-lean_inc(x_22);
-lean_dec(x_11);
-x_23 = lean_ctor_get(x_12, 0);
-lean_inc(x_23);
-if (lean_is_exclusive(x_12)) {
- lean_ctor_release(x_12, 0);
- lean_ctor_release(x_12, 1);
- x_24 = x_12;
-} else {
- lean_dec_ref(x_12);
- x_24 = lean_box(0);
-}
-x_25 = lean_ctor_get(x_13, 0);
+lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
+x_24 = lean_ctor_get(x_22, 0);
+lean_inc(x_24);
+lean_dec(x_22);
+x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
+lean_dec(x_24);
+x_26 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3;
+x_27 = l_List_any___rarg(x_21, x_26);
+if (x_27 == 0)
+{
+lean_object* x_28; lean_object* x_29; 
+x_28 = lean_box(0);
+x_29 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5(x_25, x_13, x_7, x_12, x_2, x_28);
+lean_dec(x_2);
 lean_dec(x_13);
-if (lean_is_scalar(x_24)) {
- x_26 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_26 = x_24;
+return x_29;
 }
-lean_ctor_set(x_26, 0, x_23);
-lean_ctor_set(x_26, 1, x_25);
-x_27 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_27, 0, x_22);
-lean_ctor_set(x_27, 1, x_26);
-lean_ctor_set(x_8, 0, x_27);
+else
+{
+lean_object* x_30; 
+lean_dec(x_25);
+lean_dec(x_13);
+lean_dec(x_12);
+lean_dec(x_2);
+x_30 = lean_box(0);
+return x_30;
+}
+}
+}
+}
+}
+else
+{
+uint8_t x_31; 
+x_31 = !lean_is_exclusive(x_8);
+if (x_31 == 0)
+{
+lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+x_32 = lean_ctor_get(x_8, 0);
+x_33 = lean_ctor_get(x_32, 1);
+lean_inc(x_33);
+x_34 = lean_ctor_get(x_33, 1);
+lean_inc(x_34);
+if (lean_obj_tag(x_34) == 6)
+{
+uint8_t x_35; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_35 = !lean_is_exclusive(x_32);
+if (x_35 == 0)
+{
+lean_object* x_36; uint8_t x_37; 
+x_36 = lean_ctor_get(x_32, 1);
+lean_dec(x_36);
+x_37 = !lean_is_exclusive(x_33);
+if (x_37 == 0)
+{
+lean_object* x_38; lean_object* x_39; 
+x_38 = lean_ctor_get(x_33, 1);
+lean_dec(x_38);
+x_39 = lean_ctor_get(x_34, 0);
+lean_inc(x_39);
+lean_dec(x_34);
+lean_ctor_set(x_33, 1, x_39);
+return x_8;
+}
+else
+{
+lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+x_40 = lean_ctor_get(x_33, 0);
+lean_inc(x_40);
+lean_dec(x_33);
+x_41 = lean_ctor_get(x_34, 0);
+lean_inc(x_41);
+lean_dec(x_34);
+x_42 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_42, 0, x_40);
+lean_ctor_set(x_42, 1, x_41);
+lean_ctor_set(x_32, 1, x_42);
 return x_8;
 }
 }
 else
 {
-lean_object* x_28; 
-lean_dec(x_13);
-lean_dec(x_12);
+lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
+x_43 = lean_ctor_get(x_32, 0);
+lean_inc(x_43);
+lean_dec(x_32);
+x_44 = lean_ctor_get(x_33, 0);
+lean_inc(x_44);
+if (lean_is_exclusive(x_33)) {
+ lean_ctor_release(x_33, 0);
+ lean_ctor_release(x_33, 1);
+ x_45 = x_33;
+} else {
+ lean_dec_ref(x_33);
+ x_45 = lean_box(0);
+}
+x_46 = lean_ctor_get(x_34, 0);
+lean_inc(x_46);
+lean_dec(x_34);
+if (lean_is_scalar(x_45)) {
+ x_47 = lean_alloc_ctor(0, 2, 0);
+} else {
+ x_47 = x_45;
+}
+lean_ctor_set(x_47, 0, x_44);
+lean_ctor_set(x_47, 1, x_46);
+x_48 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_48, 0, x_43);
+lean_ctor_set(x_48, 1, x_47);
+lean_ctor_set(x_8, 0, x_48);
+return x_8;
+}
+}
+else
+{
+lean_object* x_49; 
+lean_dec(x_34);
+lean_dec(x_33);
 lean_free_object(x_8);
-lean_dec(x_11);
-x_28 = lean_box(0);
-return x_28;
+lean_dec(x_32);
+lean_inc(x_2);
+x_49 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f(x_2, x_3);
+if (lean_obj_tag(x_49) == 0)
+{
+lean_object* x_50; 
+lean_dec(x_2);
+x_50 = lean_box(0);
+return x_50;
+}
+else
+{
+lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
+x_51 = lean_ctor_get(x_49, 0);
+lean_inc(x_51);
+lean_dec(x_49);
+x_52 = lean_ctor_get(x_51, 0);
+lean_inc(x_52);
+x_53 = lean_ctor_get(x_51, 1);
+lean_inc(x_53);
+lean_dec(x_51);
+x_54 = l_Lean_Elab_Info_stx(x_53);
+lean_inc(x_2);
+x_55 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1___boxed), 2, 1);
+lean_closure_set(x_55, 0, x_2);
+x_56 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1;
+x_57 = l_Lean_Syntax_findStack_x3f(x_54, x_55, x_56);
+if (lean_obj_tag(x_57) == 0)
+{
+lean_object* x_58; 
+lean_dec(x_53);
+lean_dec(x_52);
+lean_dec(x_2);
+x_58 = lean_box(0);
+return x_58;
+}
+else
+{
+lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_59 = lean_ctor_get(x_57, 0);
+lean_inc(x_59);
+lean_dec(x_57);
+x_60 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2;
+x_61 = l_List_dropWhile___rarg(x_60, x_59);
+x_62 = l_List_head_x3f___rarg(x_61);
+if (lean_obj_tag(x_62) == 0)
+{
+lean_object* x_63; 
+lean_dec(x_61);
+lean_dec(x_53);
+lean_dec(x_52);
+lean_dec(x_2);
+x_63 = lean_box(0);
+return x_63;
+}
+else
+{
+lean_object* x_64; lean_object* x_65; lean_object* x_66; uint8_t x_67; 
+x_64 = lean_ctor_get(x_62, 0);
+lean_inc(x_64);
+lean_dec(x_62);
+x_65 = lean_ctor_get(x_64, 0);
+lean_inc(x_65);
+lean_dec(x_64);
+x_66 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3;
+x_67 = l_List_any___rarg(x_61, x_66);
+if (x_67 == 0)
+{
+lean_object* x_68; lean_object* x_69; 
+x_68 = lean_box(0);
+x_69 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5(x_65, x_53, x_7, x_52, x_2, x_68);
+lean_dec(x_2);
+lean_dec(x_53);
+return x_69;
+}
+else
+{
+lean_object* x_70; 
+lean_dec(x_65);
+lean_dec(x_53);
+lean_dec(x_52);
+lean_dec(x_2);
+x_70 = lean_box(0);
+return x_70;
+}
+}
+}
+}
 }
 }
 else
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_29 = lean_ctor_get(x_8, 0);
-lean_inc(x_29);
+lean_object* x_71; lean_object* x_72; lean_object* x_73; 
+x_71 = lean_ctor_get(x_8, 0);
+lean_inc(x_71);
 lean_dec(x_8);
-x_30 = lean_ctor_get(x_29, 1);
-lean_inc(x_30);
-x_31 = lean_ctor_get(x_30, 1);
-lean_inc(x_31);
-if (lean_obj_tag(x_31) == 6)
+x_72 = lean_ctor_get(x_71, 1);
+lean_inc(x_72);
+x_73 = lean_ctor_get(x_72, 1);
+lean_inc(x_73);
+if (lean_obj_tag(x_73) == 6)
 {
-lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_32 = lean_ctor_get(x_29, 0);
-lean_inc(x_32);
-if (lean_is_exclusive(x_29)) {
- lean_ctor_release(x_29, 0);
- lean_ctor_release(x_29, 1);
- x_33 = x_29;
+lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; 
+lean_dec(x_3);
+lean_dec(x_2);
+x_74 = lean_ctor_get(x_71, 0);
+lean_inc(x_74);
+if (lean_is_exclusive(x_71)) {
+ lean_ctor_release(x_71, 0);
+ lean_ctor_release(x_71, 1);
+ x_75 = x_71;
 } else {
- lean_dec_ref(x_29);
- x_33 = lean_box(0);
+ lean_dec_ref(x_71);
+ x_75 = lean_box(0);
 }
-x_34 = lean_ctor_get(x_30, 0);
-lean_inc(x_34);
-if (lean_is_exclusive(x_30)) {
- lean_ctor_release(x_30, 0);
- lean_ctor_release(x_30, 1);
- x_35 = x_30;
+x_76 = lean_ctor_get(x_72, 0);
+lean_inc(x_76);
+if (lean_is_exclusive(x_72)) {
+ lean_ctor_release(x_72, 0);
+ lean_ctor_release(x_72, 1);
+ x_77 = x_72;
 } else {
- lean_dec_ref(x_30);
- x_35 = lean_box(0);
+ lean_dec_ref(x_72);
+ x_77 = lean_box(0);
 }
-x_36 = lean_ctor_get(x_31, 0);
-lean_inc(x_36);
-lean_dec(x_31);
-if (lean_is_scalar(x_35)) {
- x_37 = lean_alloc_ctor(0, 2, 0);
+x_78 = lean_ctor_get(x_73, 0);
+lean_inc(x_78);
+lean_dec(x_73);
+if (lean_is_scalar(x_77)) {
+ x_79 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_37 = x_35;
+ x_79 = x_77;
 }
-lean_ctor_set(x_37, 0, x_34);
-lean_ctor_set(x_37, 1, x_36);
-if (lean_is_scalar(x_33)) {
- x_38 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_79, 0, x_76);
+lean_ctor_set(x_79, 1, x_78);
+if (lean_is_scalar(x_75)) {
+ x_80 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_38 = x_33;
+ x_80 = x_75;
 }
-lean_ctor_set(x_38, 0, x_32);
-lean_ctor_set(x_38, 1, x_37);
-x_39 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_39, 0, x_38);
-return x_39;
+lean_ctor_set(x_80, 0, x_74);
+lean_ctor_set(x_80, 1, x_79);
+x_81 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_81, 0, x_80);
+return x_81;
 }
 else
 {
-lean_object* x_40; 
-lean_dec(x_31);
-lean_dec(x_30);
-lean_dec(x_29);
-x_40 = lean_box(0);
-return x_40;
+lean_object* x_82; 
+lean_dec(x_73);
+lean_dec(x_72);
+lean_dec(x_71);
+lean_inc(x_2);
+x_82 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f(x_2, x_3);
+if (lean_obj_tag(x_82) == 0)
+{
+lean_object* x_83; 
+lean_dec(x_2);
+x_83 = lean_box(0);
+return x_83;
+}
+else
+{
+lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
+x_84 = lean_ctor_get(x_82, 0);
+lean_inc(x_84);
+lean_dec(x_82);
+x_85 = lean_ctor_get(x_84, 0);
+lean_inc(x_85);
+x_86 = lean_ctor_get(x_84, 1);
+lean_inc(x_86);
+lean_dec(x_84);
+x_87 = l_Lean_Elab_Info_stx(x_86);
+lean_inc(x_2);
+x_88 = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1___boxed), 2, 1);
+lean_closure_set(x_88, 0, x_2);
+x_89 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1;
+x_90 = l_Lean_Syntax_findStack_x3f(x_87, x_88, x_89);
+if (lean_obj_tag(x_90) == 0)
+{
+lean_object* x_91; 
+lean_dec(x_86);
+lean_dec(x_85);
+lean_dec(x_2);
+x_91 = lean_box(0);
+return x_91;
+}
+else
+{
+lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; 
+x_92 = lean_ctor_get(x_90, 0);
+lean_inc(x_92);
+lean_dec(x_90);
+x_93 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2;
+x_94 = l_List_dropWhile___rarg(x_93, x_92);
+x_95 = l_List_head_x3f___rarg(x_94);
+if (lean_obj_tag(x_95) == 0)
+{
+lean_object* x_96; 
+lean_dec(x_94);
+lean_dec(x_86);
+lean_dec(x_85);
+lean_dec(x_2);
+x_96 = lean_box(0);
+return x_96;
+}
+else
+{
+lean_object* x_97; lean_object* x_98; lean_object* x_99; uint8_t x_100; 
+x_97 = lean_ctor_get(x_95, 0);
+lean_inc(x_97);
+lean_dec(x_95);
+x_98 = lean_ctor_get(x_97, 0);
+lean_inc(x_98);
+lean_dec(x_97);
+x_99 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3;
+x_100 = l_List_any___rarg(x_94, x_99);
+if (x_100 == 0)
+{
+lean_object* x_101; lean_object* x_102; 
+x_101 = lean_box(0);
+x_102 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5(x_98, x_86, x_7, x_85, x_2, x_101);
+lean_dec(x_2);
+lean_dec(x_86);
+return x_102;
+}
+else
+{
+lean_object* x_103; 
+lean_dec(x_98);
+lean_dec(x_86);
+lean_dec(x_85);
+lean_dec(x_2);
+x_103 = lean_box(0);
+return x_103;
 }
 }
 }
+}
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__2___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__2(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__5(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_2);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at___private_Lean_Server_Completion_0__Lean_Server_Completion_assignSortTexts___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -26885,6 +28313,32 @@ l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__6);
 l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7();
 lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__7);
+l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3___closed__1 = _init_l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3___closed__1();
+lean_mark_persistent(l_panic___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__3___closed__1);
+l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__1 = _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__1();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__1);
+l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__2 = _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__2();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__2);
+l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__3 = _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__3();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__3);
+l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__4 = _init_l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__4();
+lean_mark_persistent(l_Lean_Elab_InfoTree_visitM_go___at___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___spec__2___closed__4);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___closed__1();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findClosestInfoWithLocalContextAt_x3f___closed__1);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__1();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__1);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__3___closed__2);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__1();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__1);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__2 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__2();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___lambda__4___closed__2);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__1);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__2);
+l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3 = _init_l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3();
+lean_mark_persistent(l___private_Lean_Server_Completion_0__Lean_Server_Completion_findCompletionInfoAt_x3f___closed__3);
 l_Array_mapMUnsafe_map___at___private_Lean_Server_Completion_0__Lean_Server_Completion_assignSortTexts___spec__2___boxed__const__1 = _init_l_Array_mapMUnsafe_map___at___private_Lean_Server_Completion_0__Lean_Server_Completion_assignSortTexts___spec__2___boxed__const__1();
 lean_mark_persistent(l_Array_mapMUnsafe_map___at___private_Lean_Server_Completion_0__Lean_Server_Completion_assignSortTexts___spec__2___boxed__const__1);
 l_Lean_Server_Completion_find_x3f___closed__1 = _init_l_Lean_Server_Completion_find_x3f___closed__1();

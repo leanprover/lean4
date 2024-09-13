@@ -4007,7 +4007,7 @@ x_9 = lean_ctor_get(x_7, 0);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = lean_ctor_get(x_10, 7);
+x_11 = lean_ctor_get(x_10, 8);
 lean_inc(x_11);
 lean_dec(x_10);
 x_12 = l_Lean_PersistentHashMap_contains___at_Lean_MVarId_isAssigned___spec__1(x_11, x_1);
@@ -4026,7 +4026,7 @@ lean_dec(x_7);
 x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_ctor_get(x_16, 7);
+x_17 = lean_ctor_get(x_16, 8);
 lean_inc(x_17);
 lean_dec(x_16);
 x_18 = l_Lean_PersistentHashMap_contains___at_Lean_MVarId_isAssigned___spec__1(x_17, x_1);
@@ -11903,16 +11903,17 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_CustomEliminators_map___default___closed__12;
-x_3 = lean_alloc_ctor(0, 9, 0);
+x_3 = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_2);
+lean_ctor_set(x_3, 3, x_1);
 lean_ctor_set(x_3, 4, x_2);
 lean_ctor_set(x_3, 5, x_2);
 lean_ctor_set(x_3, 6, x_2);
 lean_ctor_set(x_3, 7, x_2);
 lean_ctor_set(x_3, 8, x_2);
+lean_ctor_set(x_3, 9, x_2);
 return x_3;
 }
 }

@@ -4719,16 +4719,17 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_2018____lambda__3___closed__7;
-x_3 = lean_alloc_ctor(0, 9, 0);
+x_3 = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_2);
+lean_ctor_set(x_3, 3, x_1);
 lean_ctor_set(x_3, 4, x_2);
 lean_ctor_set(x_3, 5, x_2);
 lean_ctor_set(x_3, 6, x_2);
 lean_ctor_set(x_3, 7, x_2);
 lean_ctor_set(x_3, 8, x_2);
+lean_ctor_set(x_3, 9, x_2);
 return x_3;
 }
 }

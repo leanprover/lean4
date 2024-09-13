@@ -7,6 +7,8 @@ prelude
 import Init.NotationExtra
 
 
+@[inherit_doc] infixl:33 " ^^ " => xor
+
 namespace Bool
 
 /-- Boolean exclusive or -/
@@ -145,8 +147,8 @@ theorem and_or_distrib_right : ∀ (x y z : Bool), ((x || y) && z) = (x && z || 
 theorem or_and_distrib_left  : ∀ (x y z : Bool), (x || y && z) = ((x || y) && (x || z)) := by decide
 theorem or_and_distrib_right : ∀ (x y z : Bool), (x && y || z) = ((x || z) && (y || z)) := by decide
 
-theorem and_xor_distrib_left  : ∀ (x y z : Bool), (x && xor y z) = xor (x && y) (x && z) := by decide
-theorem and_xor_distrib_right : ∀ (x y z : Bool), (xor x y && z) = xor (x && z) (y && z) := by decide
+theorem and_xor_distrib_left  : ∀ (x y z : Bool), (x && (y ^^ z)) = ((x && y) ^^ (x && z)) := by decide
+theorem and_xor_distrib_right : ∀ (x y z : Bool), ((x ^^ y) && z) = ((x && z) ^^ (y && z)) := by decide
 
 /-- De Morgan's law for boolean and -/
 @[simp] theorem not_and : ∀ (x y : Bool), (!(x && y)) = (!x || !y) := by decide
@@ -274,37 +276,37 @@ theorem beq_comm {α} [BEq α] [LawfulBEq α] {a b : α} : (a == b) = (b == a) :
 
 /-! ### xor -/
 
-theorem false_xor : ∀ (x : Bool), xor false x = x := false_bne
+theorem false_xor : ∀ (x : Bool), (false ^^ x) = x := false_bne
 
-theorem xor_false : ∀ (x : Bool), xor x false = x := bne_false
+theorem xor_false : ∀ (x : Bool), (x ^^ false) = x := bne_false
 
-theorem true_xor : ∀ (x : Bool), xor true x = !x := true_bne
+theorem true_xor : ∀ (x : Bool), (true ^^ x) = !x := true_bne
 
-theorem xor_true : ∀ (x : Bool), xor x true = !x := bne_true
+theorem xor_true : ∀ (x : Bool), (x ^^ true) = !x := bne_true
 
-theorem not_xor_self : ∀ (x : Bool), xor (!x) x = true := not_bne_self
+theorem not_xor_self : ∀ (x : Bool), (!x ^^ x) = true := not_bne_self
 
-theorem xor_not_self : ∀ (x : Bool), xor x (!x) = true := bne_not_self
+theorem xor_not_self : ∀ (x : Bool), (x ^^ !x) = true := bne_not_self
 
-theorem not_xor : ∀ (x y : Bool), xor (!x) y = !(xor x y) := by decide
+theorem not_xor : ∀ (x y : Bool), (!x ^^ y) = !(x ^^ y) := by decide
 
-theorem xor_not : ∀ (x y : Bool), xor x (!y) = !(xor x y) := by decide
+theorem xor_not : ∀ (x y : Bool), (x ^^ !y) = !(x ^^ y) := by decide
 
-theorem not_xor_not : ∀ (x y : Bool), xor (!x) (!y) = (xor x y) := not_bne_not
+theorem not_xor_not : ∀ (x y : Bool), (!x ^^ !y) = (x ^^ y) := not_bne_not
 
-theorem xor_self : ∀ (x : Bool), xor x x = false := by decide
+theorem xor_self : ∀ (x : Bool), (x ^^ x) = false := by decide
 
-theorem xor_comm : ∀ (x y : Bool), xor x y = xor y x := by decide
+theorem xor_comm : ∀ (x y : Bool), (x ^^ y) = (y ^^ x) := by decide
 
-theorem xor_left_comm : ∀ (x y z : Bool), xor x (xor y z) = xor y (xor x z) := by decide
+theorem xor_left_comm : ∀ (x y z : Bool), (x ^^ (y ^^ z)) = (y ^^ (x ^^ z)) := by decide
 
-theorem xor_right_comm : ∀ (x y z : Bool), xor (xor x y) z = xor (xor x z) y := by decide
+theorem xor_right_comm : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = ((x ^^ z) ^^ y) := by decide
 
-theorem xor_assoc : ∀ (x y z : Bool), xor (xor x y) z = xor x (xor y z) := bne_assoc
+theorem xor_assoc : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = (x ^^ (y ^^ z)) := bne_assoc
 
-theorem xor_left_inj : ∀ {x y z : Bool}, xor x y = xor x z ↔ y = z := bne_left_inj
+theorem xor_left_inj : ∀ {x y z : Bool}, (x ^^ y) = (x ^^ z) ↔ y = z := bne_left_inj
 
-theorem xor_right_inj : ∀ {x y z : Bool}, xor x z = xor y z ↔ x = y := bne_right_inj
+theorem xor_right_inj : ∀ {x y z : Bool}, (x ^^ z) = (y ^^ z) ↔ x = y := bne_right_inj
 
 /-! ### le/lt -/
 

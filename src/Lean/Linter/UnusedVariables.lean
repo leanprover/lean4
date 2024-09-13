@@ -497,7 +497,7 @@ def unusedVariables : Linter where
         -- collect additional `fvarUses` from tactic assignments
         visitAssignments (← IO.mkRef {}) fvarUsesRef s.assignments
         -- Resolve potential aliases again to preserve `fvarUsesRef` invariant
-        fvarUsesRef.modify fun fvarUses => fvarUses.toList.map getCanonVar |> .ofList
+        fvarUsesRef.modify fun fvarUses => fvarUses.toArray.map getCanonVar |> .insertMany {}
         initializedMVars := true
         let fvarUses ← fvarUsesRef.get
         -- Redo the initial check because `fvarUses` could be bigger now

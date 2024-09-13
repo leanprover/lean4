@@ -113,12 +113,10 @@ instance : Sub USize       := ⟨USize.sub⟩
 instance : LT USize        := ⟨USize.lt⟩
 instance : LE USize        := ⟨USize.le⟩
 
-set_option bootstrap.genMatcherCode false in
 @[extern "lean_usize_dec_lt"]
 def USize.decLt (a b : USize) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
-set_option bootstrap.genMatcherCode false in
 @[extern "lean_usize_dec_le"]
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))

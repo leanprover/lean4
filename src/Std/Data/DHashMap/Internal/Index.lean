@@ -56,10 +56,9 @@ cf. https://github.com/leanprover/lean4/issues/4157
       · exact h'
       · rw [USize.le_def, BitVec.le_def]
         change _ ≤ (_ % _)
-        rw [Nat.mod_eq_of_lt h']
-        rw [USize.toBitVec_eq_of_lt]
-        · omega
-        · cases usize_size_eq <;> omega
+        rw [Nat.mod_eq_of_lt h', USize.ofNat, BitVec.toNat_ofNat, Nat.mod_eq_of_lt]
+        · exact h
+        · exact Nat.lt_of_le_of_lt h h'
     · exact Nat.lt_of_lt_of_le (USize.toNat_lt_size _) (Nat.le_of_not_lt h')⟩
 
 end Std.DHashMap.Internal

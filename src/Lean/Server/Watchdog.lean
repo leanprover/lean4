@@ -286,72 +286,75 @@ section ServerM
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let o := (←read).hOut
-    let rec loop : ServerM WorkerEvent := do
-      try
-        let msg ← fw.stdout.readLspMessage
-        -- Re. `o.writeLspMessage msg`:
-        -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
-        match msg with
-          | Message.response id _ => do
-            fw.erasePendingRequest id
-            o.writeLspMessage msg
-          | Message.responseError id _ _ _ => do
-            fw.erasePendingRequest id
-            o.writeLspMessage msg
-          | Message.request id method params? =>
-            let globalID ← (←read).serverRequestData.modifyGet
-              (·.trackOutboundRequest fw.doc.uri id)
-            o.writeLspMessage (Message.request globalID method params?)
-          | Message.notification "$/lean/ileanInfoUpdate" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleIleanInfoUpdate fw params
-          | Message.notification "$/lean/ileanInfoFinal" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleIleanInfoFinal fw params
-          | Message.notification "$/lean/importClosure" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleImportClosure fw params
-          | _ => o.writeLspMessage msg
-      catch err =>
-        -- If writeLspMessage from above errors we will block here, but the main task will
-        -- quit eventually anyways if that happens
-        let exitCode ← fw.proc.wait
-        -- Remove surviving descendant processes, if any, such as from nested builds.
-        -- On Windows, we instead rely on elan doing this.
-        try fw.proc.kill catch _ => pure ()
-        match exitCode with
-        | 0 =>
-          -- Worker was terminated
-          fw.errorPendingRequests o ErrorCode.contentModified
-            (s!"The file worker for {fw.doc.uri} has been terminated. "
-            ++ "Either the header has changed, or the file was closed, "
-            ++ " or the server is shutting down.")
-          -- one last message to clear the diagnostics for this file so that stale errors
-          -- do not remain in the editor forever.
-          o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
-          return WorkerEvent.terminated
-        | 2 =>
-          return .importsChanged
-        | _ =>
-          -- Worker crashed
-          let (errorCode, errorCausePointer) :=
-            if exitCode = 1 then
-              (ErrorCode.workerExited, "see stderr for exception")
-            else
-              (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
-          fw.errorPendingRequests o errorCode
-            s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
-          o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
-          return WorkerEvent.crashed err
-      loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     return task.map fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
+  where
+    loop : ServerM WorkerEvent := do
+      let o := (←read).hOut
+      let msg ←
+        try
+          fw.stdout.readLspMessage
+        catch err =>
+          let exitCode ← fw.proc.wait
+          -- Remove surviving descendant processes, if any, such as from nested builds.
+          -- On Windows, we instead rely on elan doing this.
+          try fw.proc.kill catch _ => pure ()
+          match exitCode with
+          | 0 =>
+            -- Worker was terminated
+            fw.errorPendingRequests o ErrorCode.contentModified
+              (s!"The file worker for {fw.doc.uri} has been terminated. "
+              ++ "Either the header has changed, or the file was closed, "
+              ++ " or the server is shutting down.")
+            -- one last message to clear the diagnostics for this file so that stale errors
+            -- do not remain in the editor forever.
+            o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
+            return WorkerEvent.terminated
+          | 2 =>
+            return .importsChanged
+          | _ =>
+            -- Worker crashed
+            let (errorCode, errorCausePointer) :=
+              if exitCode = 1 then
+                (ErrorCode.workerExited, "see stderr for exception")
+              else
+                (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
+            fw.errorPendingRequests o errorCode
+              s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
+            o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
+            return WorkerEvent.crashed err
+
+      -- Re. `o.writeLspMessage msg`:
+      -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
+      match msg with
+      | Message.response id _ => do
+        fw.erasePendingRequest id
+        o.writeLspMessage msg
+      | Message.responseError id _ _ _ => do
+        fw.erasePendingRequest id
+        o.writeLspMessage msg
+      | Message.request id method params? =>
+        let globalID ← (←read).serverRequestData.modifyGet
+          (·.trackOutboundRequest fw.doc.uri id)
+        o.writeLspMessage (Message.request globalID method params?)
+      | Message.notification "$/lean/ileanInfoUpdate" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleIleanInfoUpdate fw params
+      | Message.notification "$/lean/ileanInfoFinal" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleIleanInfoFinal fw params
+      | Message.notification "$/lean/importClosure" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleImportClosure fw params
+      | _ =>
+        o.writeLspMessage msg
+
+      loop
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     (← read).hOut.writeLspMessage <| mkFileProgressAtPosNotification m 0
@@ -948,7 +951,7 @@ section MainLoop
     for ⟨uri, _⟩ in fileWorkers do
       terminateFileWorker uri
     for ⟨_, fw⟩ in fileWorkers do
-      discard <| IO.wait fw.commTask
+      fw.proc.kill
 
   inductive ServerEvent where
     | workerEvent (fw : FileWorker) (ev : WorkerEvent)
@@ -1188,9 +1191,9 @@ def watchdogMain (args : List String) : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWatchdog args i o e
-    return 0
+    IO.Process.exit 0 -- Terminate all tasks of this process
   catch err =>
     e.putStrLn s!"Watchdog error: {err}"
-    return 1
+    IO.Process.exit 1 -- Terminate all tasks of this process
 
 end Lean.Server.Watchdog

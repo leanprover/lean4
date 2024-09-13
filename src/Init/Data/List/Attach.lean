@@ -187,7 +187,7 @@ theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h 
     (hn : n < (pmap f l h).length) :
     (pmap f l h)[n] =
       f (l[n]'(@length_pmap _ _ p f l h ▸ hn))
-        (h _ (getElem_mem l n (@length_pmap _ _ p f l h ▸ hn))) := by
+        (h _ (getElem_mem (@length_pmap _ _ p f l h ▸ hn))) := by
   induction l generalizing n with
   | nil =>
     simp only [length, pmap] at hn
@@ -220,7 +220,7 @@ theorem getElem?_attach {xs : List α} {i : Nat} :
 
 @[simp]
 theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
-    xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem xs i (by simpa using h)⟩ := by
+    xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem (by simpa using h)⟩ := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem]
   rw [getElem?_attach]

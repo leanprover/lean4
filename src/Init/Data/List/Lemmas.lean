@@ -480,9 +480,9 @@ theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n : Nat, l[n]? = s
 theorem get?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n, l.get? n = some a :=
   let ⟨⟨n, _⟩, e⟩ := get_of_mem h; ⟨n, e ▸ get?_eq_get _⟩
 
-theorem getElem_mem : ∀ (l : List α) n (h : n < l.length), l[n]'h ∈ l
+theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
   | _ :: _, 0, _ => .head ..
-  | _ :: l, _+1, _ => .tail _ (getElem_mem l ..)
+  | _ :: l, _+1, _ => .tail _ (getElem_mem (l := l) ..)
 
 theorem get_mem : ∀ (l : List α) n h, get l ⟨n, h⟩ ∈ l
   | _ :: _, 0, _ => .head ..
@@ -524,7 +524,7 @@ theorem forall_getElem {l : List α} {p : α → Prop} :
       · simpa
       · apply w
         simp only [getElem_cons_succ]
-        exact getElem_mem l n (lt_of_succ_lt_succ h)
+        exact getElem_mem (lt_of_succ_lt_succ h)
 
 @[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by

@@ -1,0 +1,262 @@
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqListTree✝ (x✝ : @ListTree✝) (x✝¹ : @ListTree✝) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @ListTree.nil, @ListTree.nil => isTrue✝ rfl✝
+         | ListTree.nil .., ListTree.cons .. => isFalse✝ (by intro h✝; injection h✝)
+         | ListTree.cons .., ListTree.nil .. => isFalse✝ (by intro h✝; injection h✝)
+         | @ListTree.cons a✝ a✝¹, @ListTree.cons b✝ b✝¹ =>
+           let inst✝ := decEqTree✝ @a✝ @b✝;
+           if h✝¹ : @a✝ = @b✝ then by subst h✝¹;
+             exact
+               let inst✝¹ := decEqListTree✝ @a✝¹ @b✝¹;
+               if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝¹ rfl✝¹
+               else isFalse✝¹ (by intro n✝; injection n✝; contradiction)
+           else isFalse✝² (by intro n✝¹; injection n✝¹; contradiction)
+       termination_by structural x✝
+       private def decEqTree✝ (x✝² : @Tree✝) (x✝³ : @Tree✝) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @Tree.node a✝², @Tree.node b✝² =>
+           let inst✝² := decEqListTree✝ @a✝² @b✝²;
+           if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
+           else isFalse✝³ (by intro n✝²; injection n✝²; contradiction)
+       termination_by structural x✝²
+     end,
+     instance : DecidableEq✝ (@ListTree✝) :=
+       decEqListTree✝,
+     instance : DecidableEq✝ (@Tree✝) :=
+       decEqTree✝]
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqListTree'✝ {α✝} [DecidableEq✝ α✝] (x✝ : @List✝ (@Tree'✝ α✝)) (x✝¹ : @List✝ (@Tree'✝ α✝)) :
+           Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @List.nil _, @List.nil _ => isTrue✝ rfl✝
+         | List.nil .., List.cons .. => isFalse✝ (by intro h✝; injection h✝)
+         | List.cons .., List.nil .. => isFalse✝ (by intro h✝; injection h✝)
+         | @List.cons _ a✝ a✝¹, @List.cons _ b✝ b✝¹ =>
+           let inst✝ := decEqTree'✝ @a✝ @b✝;
+           if h✝¹ : @a✝ = @b✝ then by subst h✝¹;
+             exact
+               let inst✝¹ := decEqListTree'✝ @a✝¹ @b✝¹;
+               if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝¹ rfl✝¹
+               else isFalse✝¹ (by intro n✝; injection n✝; contradiction)
+           else isFalse✝² (by intro n✝¹; injection n✝¹; contradiction)
+       termination_by structural x✝
+       private def decEqOptionListTree'✝ {α✝} [DecidableEq✝ α✝] (x✝² : @Option✝ (@List✝ (@Tree'✝ α✝)))
+           (x✝³ : @Option✝ (@List✝ (@Tree'✝ α✝))) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @Option.none _, @Option.none _ => isTrue✝ rfl✝
+         | Option.none .., Option.some .. => isFalse✝ (by intro h✝; injection h✝)
+         | Option.some .., Option.none .. => isFalse✝ (by intro h✝; injection h✝)
+         | @Option.some _ a✝², @Option.some _ b✝² =>
+           let inst✝² := decEqListTree'✝ @a✝² @b✝²;
+           if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
+           else isFalse✝³ (by intro n✝²; injection n✝²; contradiction)
+       termination_by structural x✝²
+       private def decEqTree'✝ {α✝¹} [DecidableEq✝ α✝¹] (x✝⁴ : @Tree'✝ α✝¹) (x✝⁵ : @Tree'✝ α✝¹) :
+           Decidable✝ (x✝⁴ = x✝⁵) :=
+         match x✝⁴, x✝⁵ with
+         | @Tree'.node _ a✝³ a✝⁴, @Tree'.node _ b✝³ b✝⁴ =>
+           if h✝⁴ : @a✝³ = @b✝³ then by subst h✝⁴;
+             exact
+               let inst✝³ := decEqOptionListTree'✝ @a✝⁴ @b✝⁴;
+               if h✝⁵ : @a✝⁴ = @b✝⁴ then by subst h✝⁵; exact isTrue✝³ rfl✝³
+               else isFalse✝⁴ (by intro n✝³; injection n✝³; contradiction)
+           else isFalse✝⁵ (by intro n✝⁴; injection n✝⁴; contradiction)
+       termination_by structural x✝⁴
+     end,
+     instance {α✝} [DecidableEq✝ α✝] : DecidableEq✝ (@Tree'✝ α✝) :=
+       decEqTree'✝]
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqFoo₃✝ (x✝ : @Foo₃✝) (x✝¹ : @Foo₃✝) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @Foo₃.foo₃ a✝, @Foo₃.foo₃ b✝ =>
+           let inst✝ := decEqFoo₁✝ @a✝ @b✝;
+           if h✝ : @a✝ = @b✝ then by subst h✝; exact isTrue✝ rfl✝
+           else isFalse✝ (by intro n✝; injection n✝; contradiction)
+       termination_by structural x✝
+       private def decEqFoo₂✝ (x✝² : @Foo₂✝) (x✝³ : @Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @Foo₂.foo₂ a✝¹, @Foo₂.foo₂ b✝¹ =>
+           let inst✝¹ := decEqFoo₃✝ @a✝¹ @b✝¹;
+           if h✝¹ : @a✝¹ = @b✝¹ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
+           else isFalse✝¹ (by intro n✝¹; injection n✝¹; contradiction)
+       termination_by structural x✝²
+       private def decEqFoo₁✝ (x✝⁴ : @Foo₁✝) (x✝⁵ : @Foo₁✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
+         match x✝⁴, x✝⁵ with
+         | @Foo₁.foo₁₁, @Foo₁.foo₁₁ => isTrue✝² rfl✝²
+         | Foo₁.foo₁₁ .., Foo₁.foo₁₂ .. => isFalse✝² (by intro h✝²; injection h✝²)
+         | Foo₁.foo₁₂ .., Foo₁.foo₁₁ .. => isFalse✝² (by intro h✝²; injection h✝²)
+         | @Foo₁.foo₁₂ a✝², @Foo₁.foo₁₂ b✝² =>
+           let inst✝² := decEqFoo₂✝ @a✝² @b✝²;
+           if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝³ rfl✝³
+           else isFalse✝³ (by intro n✝²; injection n✝²; contradiction)
+       termination_by structural x✝⁴
+     end,
+     instance : DecidableEq✝ (@Foo₃✝) :=
+       decEqFoo₃✝,
+     instance : DecidableEq✝ (@Foo₂✝) :=
+       decEqFoo₂✝,
+     instance : DecidableEq✝ (@Foo₁✝) :=
+       decEqFoo₁✝]
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqListMin'✝ (x✝ : @List✝ (@Min'✝)) (x✝¹ : @List✝ (@Min'✝)) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @List.nil _, @List.nil _ => isTrue✝ rfl✝
+         | List.nil .., List.cons .. => isFalse✝ (by intro h✝; injection h✝)
+         | List.cons .., List.nil .. => isFalse✝ (by intro h✝; injection h✝)
+         | @List.cons _ a✝ a✝¹, @List.cons _ b✝ b✝¹ =>
+           let inst✝ := decEqMin'✝ @a✝ @b✝;
+           if h✝¹ : @a✝ = @b✝ then by subst h✝¹;
+             exact
+               let inst✝¹ := decEqListMin'✝ @a✝¹ @b✝¹;
+               if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝¹ rfl✝¹
+               else isFalse✝¹ (by intro n✝; injection n✝; contradiction)
+           else isFalse✝² (by intro n✝¹; injection n✝¹; contradiction)
+       termination_by structural x✝
+       private def decEqMin'✝ (x✝² : @Min'✝) (x✝³ : @Min'✝) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @Min'.Base, @Min'.Base => isTrue✝ rfl✝
+         | Min'.Base .., Min'.Const .. => isFalse✝ (by intro h✝; injection h✝)
+         | Min'.Const .., Min'.Base .. => isFalse✝ (by intro h✝; injection h✝)
+         | @Min'.Const a✝², @Min'.Const b✝² =>
+           let inst✝² := decEqListMin'✝ @a✝² @b✝²;
+           if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
+           else isFalse✝³ (by intro n✝²; injection n✝²; contradiction)
+       termination_by structural x✝²
+     end,
+     instance : DecidableEq✝ (@Min'✝) :=
+       decEqMin'✝]
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqComplexInductiveNestedComplex✝ {A✝} {C✝} [DecidableEq✝ A✝] [DecidableEq✝ A✝] [DecidableEq✝ C✝]
+           (x✝ : @ComplexInductive✝ A✝ (@NestedComplex✝ A✝ C✝) C✝ 1)
+           (x✝¹ : @ComplexInductive✝ A✝ (@NestedComplex✝ A✝ C✝) C✝ 1) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @ComplexInductive.constr _ _ _ _ a✝ a✝¹ a✝², @ComplexInductive.constr _ _ _ _ b✝ b✝¹ b✝² =>
+           if h✝ : @a✝ = @b✝ then by subst h✝;
+             exact
+               let inst✝ := decEqNestedComplex✝ @a✝¹ @b✝¹;
+               if h✝¹ : @a✝¹ = @b✝¹ then by subst h✝¹;
+                 exact
+                   if h✝² : @a✝² = @b✝² then by subst h✝²; exact isTrue✝ rfl✝
+                   else isFalse✝ (by intro n✝; injection n✝; contradiction)
+               else isFalse✝¹ (by intro n✝¹; injection n✝¹; contradiction)
+           else isFalse✝² (by intro n✝²; injection n✝²; contradiction)
+       termination_by structural x✝
+       private def decEqNestedComplex✝ {A✝¹} {C✝¹} [DecidableEq✝ A✝¹] [DecidableEq✝ C✝¹] (x✝² : @NestedComplex✝ A✝¹ C✝¹)
+           (x✝³ : @NestedComplex✝ A✝¹ C✝¹) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @NestedComplex.constr _ _ a✝³, @NestedComplex.constr _ _ b✝³ =>
+           let inst✝¹ := decEqComplexInductiveNestedComplex✝ @a✝³ @b✝³;
+           if h✝³ : @a✝³ = @b✝³ then by subst h✝³; exact isTrue✝¹ rfl✝¹
+           else isFalse✝³ (by intro n✝³; injection n✝³; contradiction)
+       termination_by structural x✝²
+     end,
+     instance {A✝} {C✝} [DecidableEq✝ A✝] [DecidableEq✝ C✝] : DecidableEq✝ (@NestedComplex✝ A✝ C✝) :=
+       decEqNestedComplex✝]
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqListTree✝ {α✝} [DecidableEq✝ α✝] (x✝ : @List✝ (@nested.Tree✝ α✝))
+           (x✝¹ : @List✝ (@nested.Tree✝ α✝)) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @List.nil _, @List.nil _ => isTrue✝ rfl✝
+         | List.nil .., List.cons .. => isFalse✝ (by intro h✝; injection h✝)
+         | List.cons .., List.nil .. => isFalse✝ (by intro h✝; injection h✝)
+         | @List.cons _ a✝ a✝¹, @List.cons _ b✝ b✝¹ =>
+           let inst✝ := decEqTree✝ @a✝ @b✝;
+           if h✝¹ : @a✝ = @b✝ then by subst h✝¹;
+             exact
+               let inst✝¹ := decEqListTree✝ @a✝¹ @b✝¹;
+               if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝¹ rfl✝¹
+               else isFalse✝¹ (by intro n✝; injection n✝; contradiction)
+           else isFalse✝² (by intro n✝¹; injection n✝¹; contradiction)
+       termination_by structural x✝
+       private def decEqArrayTree✝ {α✝¹} [DecidableEq✝ α✝¹] (x✝² : @Array✝ (@nested.Tree✝ α✝¹))
+           (x✝³ : @Array✝ (@nested.Tree✝ α✝¹)) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @Array.mk _ a✝², @Array.mk _ b✝² =>
+           let inst✝² := decEqListTree✝ @a✝² @b✝²;
+           if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
+           else isFalse✝³ (by intro n✝²; injection n✝²; contradiction)
+       termination_by structural x✝²
+       private def decEqTree✝ {α✝²} [DecidableEq✝ α✝²] (x✝⁴ : @nested.Tree✝ α✝²) (x✝⁵ : @nested.Tree✝ α✝²) :
+           Decidable✝ (x✝⁴ = x✝⁵) :=
+         match x✝⁴, x✝⁵ with
+         | @nested.Tree.node _ a✝³, @nested.Tree.node _ b✝³ =>
+           let inst✝³ := decEqArrayTree✝ @a✝³ @b✝³;
+           if h✝⁴ : @a✝³ = @b✝³ then by subst h✝⁴; exact isTrue✝³ rfl✝³
+           else isFalse✝⁴ (by intro n✝³; injection n✝³; contradiction)
+       termination_by structural x✝⁴
+     end,
+     instance {α✝} [DecidableEq✝ α✝] : DecidableEq✝ (@nested.Tree✝ α✝) :=
+       decEqTree✝]
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqListMess1✝ (x✝ : @List✝ (@mess.Mess1✝)) (x✝¹ : @List✝ (@mess.Mess1✝)) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @List.nil _, @List.nil _ => isTrue✝ rfl✝
+         | List.nil .., List.cons .. => isFalse✝ (by intro h✝; injection h✝)
+         | List.cons .., List.nil .. => isFalse✝ (by intro h✝; injection h✝)
+         | @List.cons _ a✝ a✝¹, @List.cons _ b✝ b✝¹ =>
+           let inst✝ := decEqMess1✝ @a✝ @b✝;
+           if h✝¹ : @a✝ = @b✝ then by subst h✝¹;
+             exact
+               let inst✝¹ := decEqListMess1✝ @a✝¹ @b✝¹;
+               if h✝² : @a✝¹ = @b✝¹ then by subst h✝²; exact isTrue✝¹ rfl✝¹
+               else isFalse✝¹ (by intro n✝; injection n✝; contradiction)
+           else isFalse✝² (by intro n✝¹; injection n✝¹; contradiction)
+       termination_by structural x✝
+       private def decEqArrayMess1✝ (x✝² : @Array✝ (@mess.Mess1✝)) (x✝³ : @Array✝ (@mess.Mess1✝)) :
+           Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @Array.mk _ a✝², @Array.mk _ b✝² =>
+           let inst✝² := decEqListMess1✝ @a✝² @b✝²;
+           if h✝³ : @a✝² = @b✝² then by subst h✝³; exact isTrue✝² rfl✝²
+           else isFalse✝³ (by intro n✝²; injection n✝²; contradiction)
+       termination_by structural x✝²
+       private def decEqListMess2✝ (x✝⁴ : @List✝ (@mess.Mess2✝)) (x✝⁵ : @List✝ (@mess.Mess2✝)) :
+           Decidable✝ (x✝⁴ = x✝⁵) :=
+         match x✝⁴, x✝⁵ with
+         | @List.nil _, @List.nil _ => isTrue✝ rfl✝
+         | List.nil .., List.cons .. => isFalse✝ (by intro h✝; injection h✝)
+         | List.cons .., List.nil .. => isFalse✝ (by intro h✝; injection h✝)
+         | @List.cons _ a✝³ a✝⁴, @List.cons _ b✝³ b✝⁴ =>
+           let inst✝³ := decEqMess2✝ @a✝³ @b✝³;
+           if h✝⁴ : @a✝³ = @b✝³ then by subst h✝⁴;
+             exact
+               let inst✝⁴ := decEqListMess2✝ @a✝⁴ @b✝⁴;
+               if h✝⁵ : @a✝⁴ = @b✝⁴ then by subst h✝⁵; exact isTrue✝³ rfl✝³
+               else isFalse✝⁴ (by intro n✝³; injection n✝³; contradiction)
+           else isFalse✝⁵ (by intro n✝⁴; injection n✝⁴; contradiction)
+       termination_by structural x✝⁴
+       private def decEqArrayMess2✝ (x✝⁶ : @Array✝ (@mess.Mess2✝)) (x✝⁷ : @Array✝ (@mess.Mess2✝)) :
+           Decidable✝ (x✝⁶ = x✝⁷) :=
+         match x✝⁶, x✝⁷ with
+         | @Array.mk _ a✝⁵, @Array.mk _ b✝⁵ =>
+           let inst✝⁵ := decEqListMess2✝ @a✝⁵ @b✝⁵;
+           if h✝⁶ : @a✝⁵ = @b✝⁵ then by subst h✝⁶; exact isTrue✝⁴ rfl✝⁴
+           else isFalse✝⁶ (by intro n✝⁵; injection n✝⁵; contradiction)
+       termination_by structural x✝⁶
+       private def decEqMess2✝ (x✝⁸ : @mess.Mess2✝) (x✝⁹ : @mess.Mess2✝) : Decidable✝ (x✝⁸ = x✝⁹) :=
+         match x✝⁸, x✝⁹ with
+         | @mess.Mess2.node a✝⁶, @mess.Mess2.node b✝⁶ =>
+           let inst✝⁶ := decEqArrayMess1✝ @a✝⁶ @b✝⁶;
+           if h✝⁷ : @a✝⁶ = @b✝⁶ then by subst h✝⁷; exact isTrue✝⁵ rfl✝⁵
+           else isFalse✝⁷ (by intro n✝⁶; injection n✝⁶; contradiction)
+       termination_by structural x✝⁸
+       private def decEqMess1✝ (x✝¹⁰ : @mess.Mess1✝) (x✝¹¹ : @mess.Mess1✝) : Decidable✝ (x✝¹⁰ = x✝¹¹) :=
+         match x✝¹⁰, x✝¹¹ with
+         | @mess.Mess1.node a✝⁷, @mess.Mess1.node b✝⁷ =>
+           let inst✝⁷ := decEqArrayMess2✝ @a✝⁷ @b✝⁷;
+           if h✝⁸ : @a✝⁷ = @b✝⁷ then by subst h✝⁸; exact isTrue✝⁶ rfl✝⁶
+           else isFalse✝⁸ (by intro n✝⁷; injection n✝⁷; contradiction)
+       termination_by structural x✝¹⁰
+     end,
+     instance : DecidableEq✝ (@mess.Mess2✝) :=
+       decEqMess2✝,
+     instance : DecidableEq✝ (@mess.Mess1✝) :=
+       decEqMess1✝]

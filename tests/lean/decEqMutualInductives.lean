@@ -1,5 +1,8 @@
 /-! Verify that the derive handler for `DecidableEq` handles mutual inductive types-/
 
+-- Print the generated derivations
+set_option trace.Elab.Deriving.decEq true
+
 mutual
 inductive Tree :=
   | node : ListTree → Tree

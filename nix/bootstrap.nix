@@ -79,7 +79,7 @@ lib.warn "The Nix-based build is deprecated" rec {
         fullSrc = src;
         srcPath = "$PWD/src:$PWD/src/lake";
         inherit debug;
-        leanFlags = [ "-DwarningAsError=true" ];
+        leanFlags = [ "-DwarningAsError=true" "-Dinterpreter.prefer_native=true" ];
       } // args);
       Init' = build { name = "Init"; deps = []; };
       Std' = build { name = "Std"; deps = [ Init' ]; };

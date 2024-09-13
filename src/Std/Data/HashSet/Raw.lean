@@ -14,7 +14,7 @@ set with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
 available as `Std.Data.HashSet.Raw.WF` and we prove in this file that all operations preserve
-well-formedness. When in doubt, prefer `HashSet` over `DHashSet.Raw`.
+well-formedness. When in doubt, prefer `HashSet` over `HashSet.Raw`.
 
 Lemmas about the operations on `Std.Data.HashSet.Raw` are available in the module
 `Std.Data.HashSet.RawLemmas`.
@@ -112,6 +112,34 @@ instance [BEq α] [Hashable α] {m : Raw α} {a : α} : Decidable (a ∈ m) :=
 /-- The number of elements present in the set -/
 @[inline] def size (m : Raw α) : Nat :=
   m.inner.size
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def get? [BEq α] [Hashable α] (m : Raw α) (a : α) : Option α :=
+  m.inner.getKey? a
+
+/--
+Retrieves the key from the set that matches `a`. Ensures that such a key exists by requiring a proof
+of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def get [BEq α] [Hashable α] (m : Raw α) (a : α) (h : a ∈ m) : α :=
+  m.inner.getKey a h
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise `fallback`.
+If they key is contained the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def getD [BEq α] [Hashable α] (m : Raw α) (a : α) (fallback : α) : α :=
+  m.inner.getKeyD a fallback
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def get! [BEq α] [Hashable α] [Inhabited α] (m : Raw α) (a : α) : α :=
+  m.inner.getKey! a
 
 /--
 Returns `true` if the hash set contains no elements.

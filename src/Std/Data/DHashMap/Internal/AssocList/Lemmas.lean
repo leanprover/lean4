@@ -113,6 +113,32 @@ theorem get!_eq {β : Type v} [BEq α] [Inhabited β] {l : AssocList α (fun _ =
       Bool.apply_cond Option.get!]
 
 @[simp]
+theorem getKey?_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.getKey? a = List.getKey? a l.toList := by
+  induction l <;> simp_all [getKey?]
+
+@[simp]
+theorem getKey_eq [BEq α] {l : AssocList α β} {a : α} {h} :
+    l.getKey a h = List.getKey a l.toList (contains_eq.symm.trans h) := by
+  induction l
+  · simp [contains] at h
+  · next k v t ih => simp only [getKey, toList_cons, List.getKey_cons, ih]
+
+@[simp]
+theorem getKeyD_eq [BEq α] {l : AssocList α β} {a fallback : α} :
+    l.getKeyD a fallback = List.getKeyD a l.toList fallback := by
+  induction l
+  · simp [getKeyD, List.getKeyD]
+  · simp_all [getKeyD, List.getKeyD, Bool.apply_cond (fun x => Option.getD x fallback)]
+
+@[simp]
+theorem getKey!_eq [BEq α] [Inhabited α] {l : AssocList α β} {a : α} :
+    l.getKey! a = List.getKey! a l.toList := by
+  induction l
+  · simp [getKey!, List.getKey!]
+  · simp_all [getKey!, List.getKey!, Bool.apply_cond Option.get!]
+
+@[simp]
 theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :
     (l.replace a b).toList = replaceEntry a b l.toList := by
   induction l

@@ -379,7 +379,7 @@ where
       have := h2 h1 h3
       let lval := go lhs decls assign (by omega) h2
       let rval := go rhs decls assign (by omega) h2
-      xor lval linv && xor rval rinv
+      Bool.xor lval linv && Bool.xor rval rinv
 
 /--
 Denotation of an `AIG` at a specific `Entrypoint`.

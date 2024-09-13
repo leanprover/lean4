@@ -381,7 +381,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else uncovered
           | _ => undecided,
         doMatch := fun yes no => do
-          let cond ← ks.foldlM (fun cond k => `(or $cond (Syntax.isOfKind __discr $(quote k)))) (← `(false))
+          let cond ← ks.foldlM (fun cond k => `(Bool.or $cond (Syntax.isOfKind __discr $(quote k)))) (← `(false))
           `(cond $cond $(← yes []) $(← no)),
       }
     else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"

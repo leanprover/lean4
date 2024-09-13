@@ -27,7 +27,7 @@ namespace blastAdd
 theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : FullAdderInput aig) :
     ⟦mkFullAdderOut aig input, assign⟧
       =
-    xor (xor ⟦aig, input.lhs, assign⟧ ⟦aig, input.rhs, assign⟧) ⟦aig, input.cin, assign⟧
+    Bool.xor (Bool.xor ⟦aig, input.lhs, assign⟧ ⟦aig, input.rhs, assign⟧) ⟦aig, input.cin, assign⟧
     := by
   simp only [mkFullAdderOut, Ref.cast_eq, denote_mkXorCached, denote_projected_entry, Bool.bne_assoc,
     Bool.bne_left_inj]
@@ -39,7 +39,7 @@ theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : F
       =
     or
       (and
-        (xor
+        (Bool.xor
           ⟦aig, input.lhs, assign⟧
           ⟦aig, input.rhs, assign⟧)
         ⟦aig, input.cin, assign⟧)
@@ -137,7 +137,7 @@ theorem go_get (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
 theorem atLeastTwo_eq_halfAdder (lhsBit rhsBit carry : Bool) :
     Bool.atLeastTwo lhsBit rhsBit carry
       =
-    (((xor lhsBit rhsBit) && carry) || (lhsBit && rhsBit)) := by
+    (((Bool.xor lhsBit rhsBit) && carry) || (lhsBit && rhsBit)) := by
   revert lhsBit rhsBit carry
   decide
 

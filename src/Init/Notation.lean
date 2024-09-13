@@ -10,6 +10,16 @@ import Init.Prelude
 import Init.Coe
 set_option linter.missingDocs true -- keep it documented
 
+
+/-- Deprecated copy of `Bool.or` in the root namespace. -/
+abbrev or := Bool.or
+
+/-- Deprecated copy of `Bool.and` in the root namespace. -/
+abbrev and := Bool.and
+
+/-- Deprecated copy of `Bool.not` in the root namespace. -/
+abbrev not := Bool.not
+
 namespace Lean
 
 /--
@@ -332,9 +342,9 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 @[inherit_doc] infixr:30 " ∨  "  => Or
 @[inherit_doc] notation:max "¬" p:40 => Not p
 
-@[inherit_doc] infixl:35 " && " => and
-@[inherit_doc] infixl:30 " || " => or
-@[inherit_doc] notation:max "!" b:40 => not b
+@[inherit_doc] infixl:35 " && " => Bool.and
+@[inherit_doc] infixl:30 " || " => Bool.or
+@[inherit_doc] notation:max "!" b:40 => Bool.not b
 
 @[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
@@ -761,3 +771,7 @@ macro_rules
   | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs:ident*)
 
 end Parser
+
+attribute [deprecated] or
+attribute [deprecated] and
+attribute [deprecated] not

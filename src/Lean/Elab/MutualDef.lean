@@ -1080,8 +1080,10 @@ where
           addLocalVarInfo view.declId funFVar
         let mut asyncEnv? := none
         if let #[header] := headers then
-          if header.kind.isTheorem && typeCheckedPromise?.isSome then
-            let type ← mkForallFVars vars header.type
+          if header.kind.isTheorem && typeCheckedPromise?.isSome && !deprecated.oldSectionVars.get (← getOptions) then
+            let type ←
+              withHeaderSecVars vars sc headers fun vars => do
+                mkForallFVars vars header.type
             let mut s : CollectLevelParams.State := {}
             s := collectLevelParams s header.type
             let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params

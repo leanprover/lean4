@@ -255,3 +255,10 @@ def ignoreEverything : Lean.Linter.IgnoreFunction :=
   fun _ _ _ => true
 
 def ignored (x : Nat) := 0
+
+/-!
+The wildcard pattern introduces a copy of `x` that should not be linted as it is in an
+inaccessible annotation.
+-/
+example : (x = y) → y = x
+  | .refl _ => .refl _

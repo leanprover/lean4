@@ -250,12 +250,6 @@ example [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f
 example {α β} [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
 example {h : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
 
-@[unused_variables_ignore_fn]
-def ignoreEverything : Lean.Linter.IgnoreFunction :=
-  fun _ _ _ => true
-
-def ignored (x : Nat) := 0
-
 /-!
 The wildcard pattern introduces a copy of `x` that should not be linted as it is in an
 inaccessible annotation.

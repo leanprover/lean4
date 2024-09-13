@@ -6,16 +6,14 @@ Authors: F. G. Dorais
 prelude
 import Init.NotationExtra
 
-/-- Boolean exclusive or -/
-abbrev xor : Bool → Bool → Bool := bne
 
 namespace Bool
 
-/- Namespaced versions that can be used instead of prefixing `_root_` -/
-@[inherit_doc not] protected abbrev not := not
-@[inherit_doc or]  protected abbrev or  := or
-@[inherit_doc and] protected abbrev and := and
-@[inherit_doc xor] protected abbrev xor := xor
+/-- Boolean exclusive or -/
+abbrev xor : Bool → Bool → Bool := bne
+
+/-- Deprecated alias for `Bool.xor` in the root namespace. -/
+@[deprecated Bool.xor (since := "2024-09-13")] abbrev _root_.xor := Bool.xor
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with

@@ -1014,7 +1014,7 @@ with `Or : Prop → Prop → Prop`, which is the propositional connective).
 It is `@[macro_inline]` because it has C-like short-circuiting behavior:
 if `x` is true then `y` is not evaluated.
 -/
-@[macro_inline] def or (x y : Bool) : Bool :=
+@[macro_inline] def Bool.or (x y : Bool) : Bool :=
   match x with
   | true  => true
   | false => y
@@ -1025,7 +1025,7 @@ with `And : Prop → Prop → Prop`, which is the propositional connective).
 It is `@[macro_inline]` because it has C-like short-circuiting behavior:
 if `x` is false then `y` is not evaluated.
 -/
-@[macro_inline] def and (x y : Bool) : Bool :=
+@[macro_inline] def Bool.and (x y : Bool) : Bool :=
   match x with
   | false => false
   | true  => y
@@ -1034,9 +1034,10 @@ if `x` is false then `y` is not evaluated.
 `not x`, or `!x`, is the boolean "not" operation (not to be confused
 with `Not : Prop → Prop`, which is the propositional connective).
 -/
-@[inline] def not : Bool → Bool
+@[inline] def Bool.not : Bool → Bool
   | true  => false
   | false => true
+
 
 /--
 The type of natural numbers, starting at zero. It is defined as an
@@ -3577,8 +3578,8 @@ abbrev mkSimple (s : String) : Name :=
 @[extern "lean_name_eq"]
 protected def beq : (@& Name) → (@& Name) → Bool
   | anonymous, anonymous => true
-  | str p₁ s₁, str p₂ s₂ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
-  | num p₁ n₁, num p₂ n₂ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
+  | str p₁ s₁, str p₂ s₂ => .and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
+  | num p₁ n₁, num p₂ n₂ => .and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
   | _,         _         => false
 
 instance : BEq Name where
@@ -3903,7 +3904,7 @@ if it parsed something and `none` otherwise.
 -/
 def getOptional? (stx : Syntax) : Option Syntax :=
   match stx with
-  | Syntax.node _ k args => match and (beq k nullKind) (beq args.size 1) with
+  | Syntax.node _ k args => match .and (beq k nullKind) (beq args.size 1) with
     | true  => some (args.get! 0)
     | false => none
   | _                    => none
@@ -3915,7 +3916,7 @@ def isMissing : Syntax → Bool
 
 /-- Is this syntax a `node` with kind `k`? -/
 def isNodeOf (stx : Syntax) (k : SyntaxNodeKind) (n : Nat) : Bool :=
-  and (stx.isOfKind k) (beq stx.getNumArgs n)
+  .and (stx.isOfKind k) (beq stx.getNumArgs n)
 
 /-- `stx.isIdent` is `true` iff `stx` is an identifier. -/
 def isIdent : Syntax → Bool
@@ -4403,12 +4404,12 @@ def matchesNull (stx : Syntax) (n : Nat) : Bool :=
   identifiers that "look" the same match. This is particularly useful when dealing with identifiers that
   do not actually refer to Lean bindings, e.g. in the `stx` pattern `` `(many($p)) ``. -/
 def matchesIdent (stx : Syntax) (id : Name) : Bool :=
-  and stx.isIdent (beq stx.getId.eraseMacroScopes id.eraseMacroScopes)
+  .and stx.isIdent (beq stx.getId.eraseMacroScopes id.eraseMacroScopes)
 
 /-- Is this syntax a node kind `k` wrapping an `atom _ val`? -/
 def matchesLit (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool :=
   match stx with
-  | Syntax.node _ k' args => and (beq k k') (match args.getD 0 Syntax.missing with
+  | Syntax.node _ k' args => .and (beq k k') (match args.getD 0 Syntax.missing with
     | Syntax.atom _ val' => beq val val'
     | _                  => false)
   | _                     => false

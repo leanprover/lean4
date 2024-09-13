@@ -46,7 +46,7 @@ attribute [bv_normalize] Bool.and_self_left
 attribute [bv_normalize] Bool.and_self_right
 
 @[bv_normalize]
-theorem Bool.not_xor : ∀ (a b : Bool), !(xor a b) = (a == b) := by decide
+theorem Bool.not_xor : ∀ (a b : Bool), !(Bool.xor a b) = (a == b) := by decide
 
 end Normalize
 end Std.Tactic.BVDecide

@@ -32,7 +32,7 @@ private theorem or_as_aig : ∀ (a b : Bool), (!(!a && !b)) = (a || b) := by
 /--
 Encoding of XOR as boolean expression in AIG form.
 -/
-private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (xor a b) := by
+private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (Bool.xor a b) := by
   decide
 
 /--
@@ -175,7 +175,7 @@ instance : LawfulOperator α BinaryInput mkXorCached where
 theorem denote_mkXorCached {aig : AIG α} {input : BinaryInput aig} :
     ⟦aig.mkXorCached input, assign⟧
       =
-    xor
+    Bool.xor
       ⟦aig, input.lhs, assign⟧
       ⟦aig, input.rhs, assign⟧
     := by

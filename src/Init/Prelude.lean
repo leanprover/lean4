@@ -3479,12 +3479,13 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (u : USize) : UInt64 where
-  toBitVec := BitVec.ofNatLt u.toBitVec.toNat
-      (let ⟨⟨n, h⟩⟩ := u
-       show LT.lt n _ from
-       match System.Platform.numBits, System.Platform.numBits_eq, h with
-       | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
-       | _, Or.inr rfl, h => h)
+  toBitVec := BitVec.ofNatLt u.toBitVec.toNat (
+        let ⟨⟨n, h⟩⟩ := u
+        show LT.lt n _ from
+        match System.Platform.numBits, System.Platform.numBits_eq, h with
+        | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
+        | _, Or.inr rfl, h => h
+      )
 
 /-- An opaque hash mixing operation, used to implement hashing for tuples. -/
 @[extern "lean_uint64_mix_hash"]

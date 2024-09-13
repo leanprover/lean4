@@ -51,7 +51,7 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
     | Level.mvar mvarId =>
       let s ← get
       let depth := s.mctx.getLevelDepth mvarId;
-      if depth != s.mctx.depth then
+      if depth < s.mctx.depth then
         return u -- metavariables from lower depths are treated as constants
       else
         match s.lmap[mvarId]? with

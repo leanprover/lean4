@@ -116,7 +116,7 @@ partial def normLevel (u : Level) : M Level := do
     | .max v w     => return u.updateMax! (← normLevel v) (← normLevel w)
     | .imax v w    => return u.updateIMax! (← normLevel v) (← normLevel w)
     | .mvar mvarId =>
-      if (← getMCtx).getLevelDepth mvarId != (← getMCtx).depth then
+      if (← getMCtx).getLevelDepth mvarId < (← getMCtx).depth then
         return u
       else
         let s ← get

@@ -77,7 +77,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
-      return not (← isType a)
+      return !(← isType a)
     else
       isProof a
   else

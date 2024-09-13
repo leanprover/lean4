@@ -56,7 +56,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let eqPrf := mkApp6 (.const ``congrArg [u1, u2]) α eType lhs rhs motive heq
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
             (synthAssignedInstances := !tactic.skipAssignedInstances.get (← getOptions))
-          let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
+          let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => Bool.not <$> mvarId.isAssigned
           let otherMVarIds ← getMVarsNoDelayed heqIn
           let otherMVarIds := otherMVarIds.filter (!newMVarIds.contains ·)
           let newMVarIds := newMVarIds ++ otherMVarIds

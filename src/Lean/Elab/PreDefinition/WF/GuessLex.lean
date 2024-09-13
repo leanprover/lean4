@@ -599,7 +599,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
             all_le := false
             break
       -- No progress here? Try the next measure
-      if not (has_lt && all_le) then continue
+      if !(has_lt && all_le) then continue
       -- We found a suitable measure, remove it from the list (mild optimization)
       let measures' := measures.eraseIdx measureIdx
       return ← go measures' todo (acc.push measure)

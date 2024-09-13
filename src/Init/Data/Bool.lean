@@ -12,9 +12,6 @@ namespace Bool
 /-- Boolean exclusive or -/
 abbrev xor : Bool → Bool → Bool := bne
 
-/-- Deprecated alias for `Bool.xor` in the root namespace. -/
-@[deprecated Bool.xor (since := "2024-09-13")] abbrev _root_.xor := Bool.xor
-
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with
   | isFalse ht, _ => isFalse fun h => absurd (h _) ht
@@ -595,7 +592,7 @@ theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidab
 
 end Bool
 
-export Bool (cond_eq_if)
+export Bool (cond_eq_if xor and or not)
 
 /-! ### decide -/
 

@@ -57,7 +57,7 @@ theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c 
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
     · split
       · next heq =>
-        simp only [heq, Literal.negate, not, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
+        simp only [heq, Literal.negate, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
         simp_all
       · next hne =>
         exact pv
@@ -67,7 +67,7 @@ theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c 
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
     · split
       · next heq =>
-        simp only [heq, Literal.negate, not, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
+        simp only [heq, Literal.negate, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
         simp_all
       · next hne =>
         exact pv

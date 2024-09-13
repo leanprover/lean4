@@ -37,15 +37,11 @@ theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : Ful
 theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : FullAdderInput aig) :
     ⟦mkFullAdderCarry aig input, assign⟧
       =
-    or
-      (and
-        (Bool.xor
+      ((Bool.xor
           ⟦aig, input.lhs, assign⟧
-          ⟦aig, input.rhs, assign⟧)
-        ⟦aig, input.cin, assign⟧)
-      (and
-        ⟦aig, input.lhs, assign⟧
-        ⟦aig, input.rhs, assign⟧)
+          ⟦aig, input.rhs, assign⟧) &&
+        ⟦aig, input.cin, assign⟧ ||
+       ⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧)
     := by
   simp only [mkFullAdderCarry, Ref.cast_eq, Int.reduceNeg, denote_mkOrCached,
     LawfulOperator.denote_input_entry, denote_mkAndCached, denote_projected_entry',

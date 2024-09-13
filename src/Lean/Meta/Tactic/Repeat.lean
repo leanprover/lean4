@@ -21,7 +21,7 @@ def repeat'Core [Monad m] [MonadExcept ε m] [MonadBacktrack s m] [MonadMCtx m]
     (f : MVarId → m (List MVarId)) (goals : List MVarId) (maxIters := 100000) :
     m (Bool × List MVarId) := do
   let (progress, acc) ← go maxIters false goals [] #[]
-  pure (progress, (← acc.filterM fun g => not <$> g.isAssigned).toList)
+  pure (progress, (← acc.filterM fun g => Bool.not <$> g.isAssigned).toList)
 where
   /-- Auxiliary for `repeat'Core`. `repeat'Core.go f maxIters progress goals stk acc` evaluates to
   essentially `acc.toList ++ repeat' f (goals::stk).join maxIters`: that is, `acc` are goals we will

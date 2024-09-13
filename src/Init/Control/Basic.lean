@@ -28,7 +28,7 @@ Important instances include
 * `Option`, where `failure := none` and `<|>` returns the left-most `some`.
 * Parser combinators typically provide an `Applicative` instance for error-handling and
   backtracking.
-  
+
 Error recovery and state can interact subtly. For example, the implementation of `Alternative` for `OptionT (StateT σ Id)` keeps modifications made to the state while recovering from failure, while `StateT σ (OptionT Id)` discards them.
 -/
 -- NB: List instance is in mathlib. Once upstreamed, add
@@ -93,7 +93,7 @@ infixr:30 " <||> " => orM
 infixr:35 " <&&> " => andM
 
 @[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
-  not <$> x
+  Bool.not <$> x
 
 /-!
 # How `MonadControl` works

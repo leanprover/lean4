@@ -94,35 +94,35 @@ where go
 
 partial instance : ToString NestedOccurence := ⟨go⟩
 where go
-  | leaf ind e=> s!"leaf {ind.name} {e}"
+  | leaf ind e   => s!"leaf {ind.name} {e}"
   | node ind arr =>
     let s := arr.map (@instToStringSum _ _ ⟨go⟩ inferInstance |>.toString)
     s!"node {ind.name} {s}"
 
 @[inline]
 def getIndVal :  NestedOccurence → InductiveVal
-  | leaf indVal _| node indVal _ => indVal
+  | leaf indVal _ | node indVal _ => indVal
 
 @[inline]
 def getArr :  NestedOccurence → Array (NestedOccurence ⊕ Expr)
-  | leaf .. => #[]
+  | leaf ..    => #[]
   | node _ arr => arr
 
 @[inline]
 def isLeaf : NestedOccurence → Bool
-  | leaf ..=> true
+  | leaf .. => true
   | node .. => false
 
 @[inline]
 def isNode : NestedOccurence → Bool := not ∘ isLeaf
 
 partial def containsFVar (fvarId : FVarId) : NestedOccurence → Bool
-  | leaf _ e => e.any (Expr.containsFVar · fvarId)
+  | leaf _ e   => e.any (Expr.containsFVar · fvarId)
   | node _ arr => arr.any (Sum.elim (containsFVar fvarId) (Expr.containsFVar · fvarId))
 
 partial def toListofNests (e : NestedOccurence) : List NestedOccurence :=
   match e with
-  | .leaf _ _ => []
+  | .leaf _ _   => []
   | .node _ arr =>
     let l := flip arr.foldr [] fun occ l =>
       if let .inl occ := occ then
@@ -210,7 +210,7 @@ instance : BEq Result := ⟨(·.occ == ·.occ)⟩
 
 structure Context where
   indNames : List Name
-  res : List Result
+  results : List Result
 
 end NestedOccurence
 
@@ -255,15 +255,14 @@ partial def getNestedOccurences (indNames : List Name) : TermElabM (List NestedO
   let ⟨_,l⟩ ← withIndNames indNames do
     for name in indNames do
       go name #[] #[]
-  let l := l.eraseDups
   return l.eraseDups
 where
   go (indName : Name) (args : Array Expr) (fvars : Array Expr): NestedOccM Unit := do
     let indVal ← getConstInfoInduct indName
     if !indVal.isNested && args.size == 0 then
       return
-    let constrs ← indVal.ctors.mapM getConstInfoCtor
-    for constInfo in constrs do
+    let consts ← indVal.ctors.mapM getConstInfoCtor
+    for constInfo in consts do
       let instConstInfo ← forallBoundedTelescope constInfo.type args.size fun xs e =>
         return e.abstract xs |>.instantiateRev args
       forallTelescope instConstInfo fun xs _ => do
@@ -271,7 +270,7 @@ where
           let localDecl ← e.fvarId!.getDecl
           mkFreshUserName localDecl.userName.eraseMacroScopes
         let mut l := []
-        for i in [:constInfo.numParams-args.size] do
+        for i in [:constInfo.numParams - args.size] do
           let some e := xs[i]? | break
           let localDecl ← e.fvarId!.getDecl
           let paramName ← mkFreshUserName localDecl.userName.eraseMacroScopes
@@ -286,8 +285,8 @@ where
           let l' := if let .some x := occs then x.toListofNests else []
           for occ in l' do
             let new_args := paramArgs ++ localArgs.filter (occ.containsFVar ⟨·⟩)
-            if (← get).res.all (occ != ·.occ) then
-              addResult ⟨occ,xs[:i],new_args⟩
+            if (← get).results.all (occ != ·.occ) then
+              addResult ⟨occ, xs[:i], new_args⟩
               let fvars := fvars ++ xs[:i]
               let app   ← occ.mkAppExpr fvars
               let hd    := app.getAppFn.constName!
@@ -358,7 +357,7 @@ def mkContext (fnPrefix : String) (typeName : Name) (withNested : Bool := true):
   for indName in indNames do
     let indVal ← getConstInfoInduct indName
     let args ← mkInductArgNames indVal
-    typeInfos' := ⟨.leaf indVal #[],#[].toSubarray,args⟩::typeInfos'
+    typeInfos' := ⟨.leaf indVal #[], #[].toSubarray, args⟩::typeInfos'
   if withNested then
     typeInfos' := (← getNestedOccurences indVal.all) ++ typeInfos'
   let typeArgNames := typeInfos'.map (·.argNames) |>.toArray
@@ -373,7 +372,8 @@ def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array
   for i in [:ctx.typeInfos.size] do
     let occ          := ctx.typeInfos[i]!
     let auxFunName   := ctx.auxFunNames[i]!
-    unless occ.isLeaf do continue
+    unless occ.isLeaf do
+      continue
     let indVal       := occ.getIndVal
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
@@ -400,10 +400,10 @@ def mkInstanceCmds (ctx : Context) (className : Name) (useAnonCtor := true) : Te
     unless nestedOcc.isLeaf do continue
     let auxFunName := ctx.auxFunNames[i]!
     let argNames   := ctx.typeArgNames[i]!
-    let binders    ← mkImplicitBinders argNames
+    let binders    ←  mkImplicitBinders argNames
     let binders    := binders ++ (← mkInstImplicitBinders className nestedOcc argNames)
-    let indType    ← nestedOcc.mkAppTerm argNames
-    let type       ← `($(mkCIdent className) $indType)
+    let indType    ←  nestedOcc.mkAppTerm argNames
+    let type       ←  `($(mkCIdent className) $indType)
     let mut val    := mkIdent auxFunName
     if useAnonCtor then
       val ← `(⟨$val⟩)

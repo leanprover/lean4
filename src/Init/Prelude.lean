@@ -2110,25 +2110,7 @@ instance : DecidableEq UInt64 := UInt64.decEq
 instance : Inhabited UInt64 where
   default := UInt64.ofNatCore 0 (by decide)
 
-/--
-The size of type `USize`, that is, `2^System.Platform.numBits`, which may
-be either `2^32` or `2^64` depending on the platform's architecture.
-
-Remark: we define `USize.size` using `(2^numBits - 1) + 1` to ensure the
-Lean unifier can solve constraints such as `?m + 1 = USize.size`. Recall that
-`numBits` does not reduce to a numeral in the Lean kernel since it is platform
-specific. Without this trick, the following definition would be rejected by the
-Lean type checker.
-```
-def one: Fin USize.size := 1
-```
-Because Lean would fail to synthesize instance `OfNat (Fin USize.size) 1`.
-Recall that the `OfNat` instance for `Fin` is
-```
-instance : OfNat (Fin (n+1)) i where
-  ofNat := Fin.ofNat i
-```
--/
+/-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
 abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
 theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=

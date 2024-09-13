@@ -759,7 +759,9 @@ section NotificationHandling
     let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText, oldDoc.dependencyBuildMode⟩
     updateFileWorkers { fw with doc := newDoc }
     let notification := Notification.mk "textDocument/didChange" p
-    tryWriteMessage doc.uri notification (restartCrashedWorker := true)
+    -- Don't queue failed `didChange` notifications because we already accumulate them in the
+    -- document and hand the updated document to the file worker when restarting it.
+    tryWriteMessage doc.uri notification (restartCrashedWorker := true) (queueFailedMessage := false)
 
   /--
   When a file is saved, notifies all file workers for files that depend on this file that this

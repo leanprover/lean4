@@ -58,13 +58,13 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   -- NB: uses whnfR, we do not want to unfold the relation itself
   let t ← whnfR <|← instantiateMVars <|← goal.getType
   if t.getAppNumArgs < 2 then
-    throwError "rfl can only be used on binary relations, not{indentExpr (← goal.getType)}"
+    throwTacticEx `rfl goal "expected goal to be a binary relation"
 
   -- Special case HEq here as it has a different argument order.
   if t.isAppOfArity ``HEq 4 then
     let gs ← goal.applyConst ``HEq.refl
     unless gs.isEmpty do
-      throwError MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
+      throwTacticEx `rfl goal <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
         goalsToMessageData gs}"
     return
 
@@ -77,7 +77,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
     let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
       let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
       return m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
-    throwTacticEx `apply_rfl goal explanation
+    throwTacticEx `rfl goal explanation
 
   if rel.isAppOfArity `Eq 1 then
     -- The common case is equality: just use `Eq.refl`
@@ -102,7 +102,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
       sErr.restore
       throw e
     else
-      throwError "rfl failed, no @[refl] lemma registered for relation{indentExpr rel}"
+      throwTacticEx `rfl goal m!"no @[refl] lemma registered for relation{indentExpr rel}"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
 private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}

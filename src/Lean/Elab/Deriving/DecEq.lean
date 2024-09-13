@@ -15,8 +15,8 @@ namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
 open Meta
 
-def mkDecEqHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
-  mkHeader `DecidableEq 2 argNames nestedOcc
+def mkDecEqHeader (argNames : Array Name) (indTypeFormer : IndTypeFormer) : TermElabM Header := do
+  mkHeader `DecidableEq 2 argNames indTypeFormer
 
 def mkMatch (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr) : TermElabM Term := do
   let f := e.getAppFn
@@ -93,12 +93,12 @@ where
           alts := alts.push (← `(matchAltExpr| | $[$patterns:term],* => $rhs:term))
     return alts
 
-def mkAuxFunction (ctx : Context) (auxFunName : Name) (argNames : Array Name) (nestedOcc : NestedOccurence): TermElabM (TSyntax `command) := do
-  let header  ← mkDecEqHeader argNames nestedOcc
+def mkAuxFunction (ctx : Context) (auxFunName : Name) (argNames : Array Name) (indTypeFormer : IndTypeFormer): TermElabM (TSyntax `command) := do
+  let header  ← mkDecEqHeader argNames indTypeFormer
   let binders := header.binders
   let target₁ := mkIdent header.targetNames[0]!
   let target₂ := mkIdent header.targetNames[1]!
-  let termSuffix ← if ctx.auxFunNames.size > 1 || nestedOcc.getIndVal.isRec
+  let termSuffix ← if ctx.auxFunNames.size > 1 || indTypeFormer.getIndVal.isRec
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
   Term.elabBinders binders fun xs => do
@@ -112,9 +112,9 @@ def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   let mut res : Array (TSyntax `command) := #[]
   for i in [:ctx.auxFunNames.size] do
     let auxFunName    := ctx.auxFunNames[i]!
-    let nestedOcc     := ctx.typeInfos[i]!
+    let indTypeFormer := ctx.typeInfos[i]!
     let argNames      := ctx.typeArgNames[i]!
-    res := res.push (← mkAuxFunction ctx auxFunName argNames nestedOcc)
+    res := res.push (← mkAuxFunction ctx auxFunName argNames indTypeFormer)
   `(command| mutual $[$res:command]* end)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do

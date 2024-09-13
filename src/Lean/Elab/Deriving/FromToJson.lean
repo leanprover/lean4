@@ -15,11 +15,11 @@ open Lean.Json
 open Lean.Parser.Term
 open Lean.Meta
 
-def mkToJsonHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
-  mkHeader ``ToJson 1 argNames nestedOcc
+def mkToJsonHeader (argNames : Array Name) (indTypeFormer : IndTypeFormer) : TermElabM Header := do
+  mkHeader ``ToJson 1 argNames indTypeFormer
 
-def mkFromJsonHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
-  let header ← mkHeader ``FromJson 0 argNames nestedOcc
+def mkFromJsonHeader (argNames : Array Name) (indTypeFormer : IndTypeFormer) : TermElabM Header := do
+  let header ← mkHeader ``FromJson 0 argNames indTypeFormer
   let jsonArg ← `(bracketedBinderF|(json : Json))
   return {header with
     binders := header.binders.push jsonArg}
@@ -175,11 +175,11 @@ def mkToJsonBody (ctx : Context) (header : Header) (e : Expr) (fvars : Array Exp
     mkToJsonBodyForInduct ctx header e fvars
 
 def mkToJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]!
-  let nestedOcc  := ctx.typeInfos[i]!
-  let argNames   := ctx.typeArgNames[i]!
-  let header     ←  mkToJsonHeader argNames nestedOcc
-  let binders    := header.binders
+  let auxFunName    := ctx.auxFunNames[i]!
+  let indTypeFormer := ctx.typeInfos[i]!
+  let argNames      := ctx.typeArgNames[i]!
+  let header        ←  mkToJsonHeader argNames indTypeFormer
+  let binders       := header.binders
   Term.elabBinders binders fun xs => do
     let type       ← Term.elabTerm header.targetType none
     let mut body   ←  mkToJsonBody ctx header type xs
@@ -197,15 +197,15 @@ def mkFromJsonBody (ctx : Context) (header : Header) (e : Expr) (fvars : Array E
     mkFromJsonBodyForInduct ctx header e fvars
 
 def mkFromJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]!
-  let nestedOcc  := ctx.typeInfos[i]!
-  let argNames   := ctx.typeArgNames[i]!
-  let header     ←  mkFromJsonHeader argNames nestedOcc --TODO fix header info
-  let binders    := header.binders
+  let auxFunName    := ctx.auxFunNames[i]!
+  let indTypeFormer := ctx.typeInfos[i]!
+  let argNames      := ctx.typeArgNames[i]!
+  let header        ←  mkFromJsonHeader argNames indTypeFormer --TODO fix header info
+  let binders       := header.binders
   Term.elabBinders binders fun xs => do
     let type ← Term.elabTerm header.targetType none
     let mut body ← mkFromJsonBody ctx header type xs
-    if ctx.usePartial || nestedOcc.getIndVal.isRec then
+    if ctx.usePartial || indTypeFormer.getIndVal.isRec then
       let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
       body ← mkLet letDecls body
       `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← ctx.typeInfos[i]!.mkAppTerm header.argNames) := $body:term)

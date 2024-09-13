@@ -14,8 +14,8 @@ open Lean.Parser.Term
 open Meta
 open Std
 
-def mkReprHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
-  let header ← mkHeader `Repr 1 argNames nestedOcc
+def mkReprHeader (argNames : Array Name) (indTypeFormer : IndTypeFormer) : TermElabM Header := do
+  let header ← mkHeader `Repr 1 argNames indTypeFormer
   return { header with
     binders := header.binders.push (← `(bracketedBinderF| (prec : Nat)))
   }
@@ -100,11 +100,11 @@ def mkBody (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr): Te
     mkBodyForInduct ctx header e fvars
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]!
-  let nestedOcc  := ctx.typeInfos[i]!
-  let argNames   := ctx.typeArgNames[i]!
-  let header     ←  mkReprHeader argNames nestedOcc
-  let binders    := header.binders
+  let auxFunName    := ctx.auxFunNames[i]!
+  let indTypeFormer := ctx.typeInfos[i]!
+  let argNames      := ctx.typeArgNames[i]!
+  let header        ←  mkReprHeader argNames indTypeFormer
+  let binders       := header.binders
   Term.elabBinders binders fun xs => do
   let type ← Term.elabTerm header.targetType none
   let mut body   ←  mkBody ctx header type xs

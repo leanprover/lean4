@@ -12,8 +12,8 @@ namespace Lean.Elab.Deriving.Ord
 open Lean.Parser.Term
 open Meta
 
-def mkOrdHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
-  mkHeader `Ord 2 argNames nestedOcc
+def mkOrdHeader (argNames : Array Name) (indTypeFormer : IndTypeFormer) : TermElabM Header := do
+  mkHeader `Ord 2 argNames indTypeFormer
 
 def mkMatch (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr) : TermElabM Term := do
   let f := e.getAppFn
@@ -76,11 +76,11 @@ where
     return alts.pop.pop
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]!
-  let nestedOcc  := ctx.typeInfos[i]!
-  let argNames   := ctx.typeArgNames[i]!
-  let header     ← mkOrdHeader argNames nestedOcc
-  let binders    := header.binders
+  let auxFunName    := ctx.auxFunNames[i]!
+  let indTypeFormer := ctx.typeInfos[i]!
+  let argNames      := ctx.typeArgNames[i]!
+  let header        ← mkOrdHeader argNames indTypeFormer
+  let binders       := header.binders
   Term.elabBinders binders fun xs => do
   let type ← Term.elabTerm header.targetType none
   let body ←  mkMatch ctx header type xs

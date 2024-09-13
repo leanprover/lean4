@@ -12,8 +12,8 @@ namespace Lean.Elab.Deriving.BEq
 open Lean.Parser.Term
 open Meta
 
-def mkBEqHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
-  mkHeader `BEq 2 argNames nestedOcc
+def mkBEqHeader (argNames : Array Name) (indTypeFormer : IndTypeFormer) : TermElabM Header := do
+  mkHeader `BEq 2 argNames indTypeFormer
 
 def mkMatch (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr) : TermElabM Term := do
   let f := e.getAppFn
@@ -100,11 +100,11 @@ where
     return alts
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
-  let auxFunName := ctx.auxFunNames[i]!
-  let nestedOcc  := ctx.typeInfos[i]!
-  let argNames   := ctx.typeArgNames[i]!
-  let header     ←  mkBEqHeader argNames nestedOcc
-  let binders    := header.binders
+  let auxFunName    := ctx.auxFunNames[i]!
+  let indTypeFormer := ctx.typeInfos[i]!
+  let argNames      := ctx.typeArgNames[i]!
+  let header        ←  mkBEqHeader argNames indTypeFormer
+  let binders       := header.binders
   Term.elabBinders binders fun xs => do
   let type ← Term.elabTerm header.targetType none
   let mut body ← mkMatch ctx header type xs

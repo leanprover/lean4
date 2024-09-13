@@ -146,7 +146,7 @@ argument
 has type
   Prop : Type
 but is expected to have type
-  Type ?u.1758 : Type (?u.1758 + 1)
+  Type ?u.1754 : Type (?u.1754 + 1)
 -/
 #guard_msgs in
 omit [ToString True]

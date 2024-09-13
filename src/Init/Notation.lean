@@ -771,7 +771,3 @@ macro_rules
   | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs:ident*)
 
 end Parser
-
-attribute [deprecated] or
-attribute [deprecated] and
-attribute [deprecated] not

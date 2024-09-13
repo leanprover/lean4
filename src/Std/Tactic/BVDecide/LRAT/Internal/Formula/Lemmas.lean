@@ -507,7 +507,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
                 Fin.eta, Array.get_eq_getElem, Array.getElem_eq_toList_getElem, decidableGetElem?] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
-              simp only [← heq, not] at l_ne_b
+              simp only [← heq] at l_ne_b
               simp at l_ne_b
             · next id_ne_idx => simp [id_ne_idx]
           · exact hf

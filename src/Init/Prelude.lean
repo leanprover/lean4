@@ -1038,6 +1038,7 @@ with `Not : Prop → Prop`, which is the propositional connective).
   | true  => false
   | false => true
 
+export Bool (or and not)
 
 /--
 The type of natural numbers, starting at zero. It is defined as an

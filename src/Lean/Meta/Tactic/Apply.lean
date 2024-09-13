@@ -208,7 +208,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
-    let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned
+    let newMVars ← newMVars.filterM fun mvar => Bool.not <$> mvar.mvarId!.isAssigned
     let otherMVarIds ← getMVarsNoDelayed e
     let newMVarIds ← reorderGoals newMVars cfg.newGoals
     let otherMVarIds := otherMVarIds.filter fun mvarId => !newMVarIds.contains mvarId

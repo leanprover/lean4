@@ -219,7 +219,7 @@ def performRupAdd {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (rupHin
     let (f, derivedLits, derivedEmpty, encounteredError) := performRupCheck f rupHints
     if encounteredError then
       (f, false)
-    else if not derivedEmpty then
+    else if !derivedEmpty then
       (f, false)
     else -- derivedEmpty is true and encounteredError is false
       let ⟨clauses, rupUnits, ratUnits, assignments⟩ := f
@@ -284,7 +284,7 @@ def performRatCheck {n : Nat} (f : DefaultFormula n) (negPivot : Literal (PosFin
           -- assignments should now be the same as it was before the performRupCheck call
           let f := clearRatUnits ⟨clauses, rupUnits, ratUnits, assignments⟩
           -- f should now be the same as it was before insertRatUnits
-          if encounteredError || not derivedEmpty then (f, false)
+          if encounteredError || !derivedEmpty then (f, false)
           else (f, true)
     | none => (⟨clauses, rupUnits, ratUnits, assignments⟩, false)
 
@@ -309,7 +309,7 @@ def performRatAdd {n : Nat} (f : DefaultFormula n) (c : DefaultClause n)
           if allChecksPassed then performRatCheck f (Literal.negate pivot) ratHint
           else (f, false)
         let (f, allChecksPassed) := ratHints.foldl fold_fn (f, true)
-        if not allChecksPassed then (f, false)
+        if !allChecksPassed then (f, false)
         else
           match f with
           | ⟨clauses, rupUnits, ratUnits, assignments⟩ =>

@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
+import Init.System.Mutex
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
@@ -112,6 +113,7 @@ section FileWorker
   structure FileWorker where
     doc                : DocumentMeta
     proc               : Process.Child workerCfg
+    exitCode           : IO.Mutex (Option UInt32)
     commTask           : Task WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker,
@@ -144,6 +146,29 @@ section FileWorker
     match fw.state with
     | .running => #[]
     | .crashed queuedMsgs _ => queuedMsgs
+
+  def waitForProc (fw : FileWorker) : IO UInt32 :=
+    fw.exitCode.atomically do
+      match ← get with
+      | none =>
+        let exitCode ← fw.proc.wait
+        set <| some exitCode
+        return exitCode
+      | some exitCode =>
+        return exitCode
+
+  def killProcAndWait (fw : FileWorker) : IO UInt32 :=
+    fw.exitCode.atomically do
+      match ← get with
+      | none =>
+        fw.proc.kill
+        let exitCode ← fw.proc.wait
+        set <| some exitCode
+        return exitCode
+      | some exitCode =>
+        -- Process is already dead
+        return exitCode
+
 
   end FileWorker
 end FileWorker
@@ -297,10 +322,11 @@ section ServerM
         try
           fw.stdout.readLspMessage
         catch err =>
-          let exitCode ← fw.proc.wait
+          let exitCode ← fw.waitForProc
           -- Remove surviving descendant processes, if any, such as from nested builds.
           -- On Windows, we instead rely on elan doing this.
           try fw.proc.kill catch _ => pure ()
+          -- TODO: Wait for process group to finish
           match exitCode with
           | 0 =>
             -- Worker was terminated
@@ -366,6 +392,7 @@ section ServerM
       -- open session for `kill` above
       setsid        := true
     }
+    let exitCode ← IO.Mutex.new none
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     let initialDependencyBuildMode := m.dependencyBuildMode
     let updatedDependencyBuildMode :=
@@ -379,6 +406,7 @@ section ServerM
     let fw : FileWorker := {
       doc                := { m with dependencyBuildMode := updatedDependencyBuildMode}
       proc               := workerProc
+      exitCode
       commTask           := Task.pure WorkerEvent.terminated
       state              := WorkerState.running
       pendingRequestsRef := pendingRequestsRef
@@ -953,7 +981,8 @@ section MainLoop
     for ⟨uri, _⟩ in fileWorkers do
       terminateFileWorker uri
     for ⟨_, fw⟩ in fileWorkers do
-      fw.proc.kill
+      -- TODO: Wait for process group to finish instead
+      try let _ ← fw.killProcAndWait catch _ => pure ()
 
   inductive ServerEvent where
     | workerEvent (fw : FileWorker) (ev : WorkerEvent)

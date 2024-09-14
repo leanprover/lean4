@@ -685,6 +685,14 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
 
+@[simp] theorem size_ite (P: Prop) [Decidable P] (a b: Array α): (if P then a else b).size = (if P then a.size else b.size) := by
+  split
+  all_goals rfl
+
+@[simp] theorem size_dite (P: Prop) [Decidable P] (a: P → Array α) (b: ¬P → Array α): (if h: P then a h else b h).size = (if h: P then (a h).size else (b h).size) := by
+  split
+  all_goals rfl
+
 theorem reverse.termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
   rw [Nat.sub_sub, Nat.add_comm]
   exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)

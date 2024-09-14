@@ -9,69 +9,41 @@ import Init.Data.Nat.Mod
 
 namespace Array
 
-def qpartition (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × Array α :=
+@[specialize] def qpartition (as : Array α) (lt : α → α → Bool) (low high : Nat)
+    (hlh: low ≤ high := by omega) (hhs: high < as.size := by omega): Nat × Array α :=
   let s := as.size
   have hs: as.size = s := rfl
 
-  let hi := if hi < s then hi else s - 1
+  have hls: low < s := Nat.lt_of_le_of_lt hlh hhs
 
-  if hlh: lo ≥ hi then (lo, as) else
-  have hlh: lo < hi := Nat.gt_of_not_le hlh
-
-  have h0s: s ≠ 0 := by
-    dsimp only [hi] at hlh
-    split at hlh
-    case isTrue h =>
-      exact Nat.not_eq_zero_of_lt h
-    case isFalse h =>
-      apply Nat.ne_of_gt
-      apply Nat.zero_lt_of_lt
-      exact Nat.add_lt_of_lt_sub hlh
-
-  have hhs: hi < s := by
-    dsimp only [hi]
-    split
-    · assumption
-    · apply Nat.sub_one_lt
-      exact h0s
-
-  -- we need this since otherwise loop doesn't capture hi, but rather what it unfolds to
-  have ⟨hi, hlh, hhs⟩: (hi: Nat) ×' (lo < hi) ×' (hi < s) := ⟨hi, hlh, hhs⟩
-
-  have hls: lo < s := Nat.lt_trans hlh hhs
-
-  let mid := (lo + hi) / 2
+  let mid := (low + high) / 2
 
   have hms: mid < s := by
     apply Nat.div_lt_of_lt_mul
     rw [Nat.two_mul]
     exact Nat.add_lt_add hls hhs
 
-  let b := lt as[mid] as[lo]
-  let as := if b then as.swap ⟨lo, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
+  let as := if lt (as[mid]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
   have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-  -- we need let b since otherwise the split tactic fails
-  let b := lt as[hi] as[lo]
-  let as := if b then as.swap ⟨lo, hs ▸ hls⟩ ⟨hi, hs ▸ hhs⟩  else as
+  let as := if lt (as[high]'(hs ▸ hhs)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨high, hs ▸ hhs⟩  else as
   have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-  let b := lt as[mid] as[hi]
-  let as := if b then as.swap ⟨mid, hs ▸ hms⟩ ⟨hi, hs ▸ hhs⟩ else as
+  let as := if lt (as[mid]'(hs ▸ hms)) (as[high]'(hs ▸ hhs)) then as.swap ⟨mid, hs ▸ hms⟩ ⟨high, hs ▸ hhs⟩ else as
   have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-  let pivot := as[hi]
+  let pivot := as[high]'(hs ▸ hhs)
 
-  let rec loop (as : Array α) (i j : Nat) (hij: i ≤ j) (hjh: j ≤ hi) (hhs: hi < as.size):=
+  let rec @[specialize] loop (as : Array α) (i j : Nat) (hij: i ≤ j) (hjh: j ≤ high) (hhs: high < as.size):=
     let s := as.size
     have hs: as.size = s := rfl
 
     have his: i < s := Nat.lt_of_le_of_lt hij (Nat.lt_of_le_of_lt hjh hhs)
 
-    if hjh : j < hi then
+    if hjh : j < high then
       have hjs: j < s := Nat.lt_trans hjh hhs
 
-      if lt as[j] pivot then
+      if lt (as[j]'(hs ▸ hjs)) pivot then
         let as := as.swap ⟨i, hs ▸ his⟩ ⟨j, hs ▸ hjs⟩
         have hs: as.size = s := by simp_all only [as, Array.size_swap]
 
@@ -83,56 +55,118 @@ def qpartition (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × 
 
         loop as i (j+1) hij hjh (hs ▸ hhs)
     else
-      let as := as.swap ⟨i, hs ▸ his⟩ ⟨hi, hs ▸ hhs⟩
+      let as := as.swap ⟨i, hs ▸ his⟩ ⟨high, hs ▸ hhs⟩
       (i, as)
 
-  have hlh: lo ≤ hi := Nat.le_of_succ_le hlh
-  have hll: lo ≤ lo := Nat.le_refl lo
+  have hll: low ≤ low := Nat.le_refl low
 
-  loop as lo lo hll hlh (hs ▸ hhs)
+  loop as low low hll hlh (hs ▸ hhs)
 
-theorem i_le_qpartition_loop_fst (lt: α → α → Bool) {hi: Nat} (pivot: α) {as: Array α} {i: Nat} {j: Nat}
-    (hij: i ≤ j) (hjh: j ≤ hi) (hhs: hi < as.size):
-  i ≤ (qpartition.loop lt hi pivot as i j hij hjh hhs).1 := by
+theorem i_le_fst_qpartition_loop (lt: α → α → Bool) {high: Nat} (pivot: α) {as: Array α} {i: Nat} {j: Nat}
+    (hij: i ≤ j) (hjh: j ≤ high) (hhs: high < as.size):
+    i ≤ (qpartition.loop lt high pivot as i j hij hjh hhs).1 := by
   unfold qpartition.loop
   dsimp only
   split
   · split
     · apply Nat.le_of_succ_le
-      apply i_le_qpartition_loop_fst
-    · apply i_le_qpartition_loop_fst
+      apply i_le_fst_qpartition_loop
+    · apply i_le_fst_qpartition_loop
   · apply Nat.le_refl
 
-theorem lo_le_qpartition_fst (as: Array α) (lt: α → α → Bool) (lo hi: Nat):
-    lo ≤ (qpartition as lt lo hi).1 := by
-  unfold qpartition
+theorem fst_qpartition_loop_le_high (lt: α → α → Bool) (high: Nat) (pivot: α) (as: Array α) (i: Nat) (j: Nat)
+    (hij: i ≤ j) (hjh: j ≤ high) (hhs: high < as.size):
+    (qpartition.loop lt high pivot as i j hij hjh hhs).1 ≤ high := by
+  unfold qpartition.loop
   dsimp only
   split
-  all_goals
-    split
-    · apply Nat.le_refl
-    · apply i_le_qpartition_loop_fst
+  · split
+    · apply fst_qpartition_loop_le_high
+    · apply fst_qpartition_loop_le_high
+  · exact Nat.le_trans hij hjh
 
-@[inline] def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
-  let rec @[specialize] sort (as : Array α) (low high : Nat) :=
-    if hlh: low < high then
-      let p := qpartition as lt low high
+theorem size_snd_qpartition_loop (lt: α → α → Bool) {high: Nat} (pivot: α) {as: Array α} {i: Nat} {j: Nat}
+    (hij: i ≤ j) (hjh: j ≤ high) (hhs: high < as.size):
+    (qpartition.loop lt high pivot as i j hij hjh hhs).2.size = as.size := by
+  unfold qpartition.loop
+  dsimp only
+  split
+  · split
+    · rw [size_snd_qpartition_loop]
+      apply size_swap
+    · apply size_snd_qpartition_loop
+  · apply size_swap
+
+theorem low_le_fst_qpartition (as: Array α) (lt: α → α → Bool) (low high: Nat)
+    (hlh: low ≤ high) (hhs: high < as.size):
+    low ≤ (qpartition as lt low high hlh hhs).1 := by
+  apply i_le_fst_qpartition_loop
+
+theorem fst_qpartition_le_high (as: Array α) (lt: α → α → Bool) (low high: Nat)
+    (hlh: low ≤ high) (hhs: high < as.size):
+    (qpartition as lt low high hlh hhs).1 ≤ high := by
+  apply fst_qpartition_loop_le_high
+
+@[simp] theorem size_snd_qpartition (as: Array α) (lt: α → α → Bool) (low high: Nat)
+    (hlh: low ≤ high) (hhs: high < as.size):
+    (qpartition as lt low high hlh hhs).2.size = as.size := by
+  simp only [qpartition, size_snd_qpartition_loop, size_ite, size_swap, ite_self]
+
+@[inline] def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
+    (hlh: low ≤ high := by omega) (hhs: low < high → high < as.size := by omega) : Array α :=
+
+  let rec @[specialize] sort (as : Array α) (low high : Nat)
+      (hlh: low ≤ high) (hhs: low < high → high < as.size): {as': Array α // as'.size = as.size} :=
+    let s := as.size
+    have hs: as.size = s := rfl
+    if hlh': low < high then
+      have hhs := hhs hlh'
+
+      let p := qpartition as lt low high hlh (hs ▸ hhs)
       let mid := p.1
       let as  := p.2
-      if hmh: mid >= high then as
+      have hs: as.size = s := by
+        simp only [as, p, size_snd_qpartition, hs]
+
+      if hmh: mid >= high then ⟨as, hs⟩
       else
-        let as := sort as low mid
-        sort as (mid+1) high
-    else as
+        have hms: mid < s := by
+          apply Nat.lt_of_le_of_lt ?_ hhs
+          apply fst_qpartition_le_high
+
+        have hlm: low ≤ mid := by
+          apply low_le_fst_qpartition
+
+        have hmh: mid + 1 ≤ high := Nat.succ_le_of_lt (Nat.gt_of_not_le hmh)
+
+        let ⟨as, hs'⟩ := sort as low mid hlm (λ _ ↦ hs ▸ hms)
+        have hs: as.size = s := by rw [← hs, hs']
+
+        let ⟨as, hs'⟩ := sort as (mid+1) high hmh (λ _ ↦ hs ▸ hhs)
+        have hs: as.size = s := by rw [← hs, hs']
+
+        ⟨as, hs⟩
+    else ⟨as, hs⟩
   termination_by high - low
   decreasing_by
     · apply Nat.sub_lt_sub_right
-      · apply lo_le_qpartition_fst
-      · exact Nat.gt_of_not_le hmh
+      · apply low_le_fst_qpartition
+      · exact hmh
     · apply Nat.sub_lt_sub_left
-      · exact hlh
+      · exact hlh'
       · apply Nat.lt_succ_of_le
-        apply lo_le_qpartition_fst
+        apply low_le_fst_qpartition
 
-  sort as low high
+  (sort as low high hlh hhs).1
+
+@[simp]
+theorem size_qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
+    (hlh: low ≤ high := by omega) (hhs: low < high → high < as.size := by omega):
+    (qsort as lt low high hlh hhs).size = as.size := by
+  unfold qsort
+  exact (qsort.sort lt as low high hlh hhs).2
+
+def qsort_nats (as : Array Nat) :=
+  qsort as (· < · )
+
 end Array

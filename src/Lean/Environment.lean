@@ -1536,7 +1536,7 @@ An environment extension with support for storing/retrieving entries from a .ole
  - β is the type of values used to update the state.
  - σ is the actual state.
 
-For most extensions, α and β coincide. `α` and ‵β` do not coincide for extensions where the data
+For most extensions, α and β coincide. `α` and `β` do not coincide for extensions where the data
 used to update the state contains elements which cannot be stored in files (for example, closures).
 
 During elaboration of a module, state of type `σ` can be both read and written. When elaboration is

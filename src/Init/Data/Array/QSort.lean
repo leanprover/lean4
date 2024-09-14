@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
+import Init.Tactics
 
 namespace Array
 

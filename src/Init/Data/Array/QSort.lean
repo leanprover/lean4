@@ -94,9 +94,8 @@ theorem i_le_qpartition_loop_fst (lt: α → α → Bool) {hi: Nat} (pivot: α) 
     (hij: i ≤ j) (hjh: j ≤ hi) (hhs: hi < as.size):
   i ≤ (qpartition.loop lt hi pivot as i j hij hjh hhs).1 := by
   unfold qpartition.loop
-  -- the split tactic fails
-  by_cases hjh: j < hi
-  all_goals simp only [hjh, ↓reduceDIte]
+  dsimp only
+  split
   · split
     · apply Nat.le_of_succ_le
       apply i_le_qpartition_loop_fst
@@ -106,11 +105,12 @@ theorem i_le_qpartition_loop_fst (lt: α → α → Bool) {hi: Nat} (pivot: α) 
 theorem lo_le_qpartition_fst (as: Array α) (lt: α → α → Bool) (lo hi: Nat):
     lo ≤ (qpartition as lt lo hi).1 := by
   unfold qpartition
-  -- the split tactic fails
-  by_cases hlh: lo ≥ (if hi < as.size then hi else as.size - 1)
-  all_goals simp only [hlh, ↓reduceDIte]
-  · apply Nat.le_refl
-  · apply i_le_qpartition_loop_fst
+  dsimp only
+  split
+  all_goals
+    split
+    · apply Nat.le_refl
+    · apply i_le_qpartition_loop_fst
 
 @[inline] def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat) :=

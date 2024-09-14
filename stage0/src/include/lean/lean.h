@@ -448,9 +448,6 @@ static inline void lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_
 static inline void lean_inc_n(lean_object * o, size_t n) { if (!lean_is_scalar(o)) lean_inc_ref_n(o, n); }
 static inline void lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_ref(o); }
 
-/* Just free memory */
-LEAN_EXPORT void lean_dealloc(lean_object * o);
-
 static inline bool lean_is_ctor(lean_object * o) { return lean_ptr_tag(o) <= LeanMaxCtorTag; }
 static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == LeanClosure; }
 static inline bool lean_is_array(lean_object * o) { return lean_ptr_tag(o) == LeanArray; }
@@ -482,6 +479,10 @@ static inline bool lean_is_exclusive(lean_object * o) {
     } else {
         return false;
     }
+}
+
+static inline uint8_t lean_is_exclusive_obj(lean_object * o) {
+    return lean_is_exclusive(o);
 }
 
 static inline bool lean_is_shared(lean_object * o) {
@@ -702,7 +703,7 @@ static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg 
     lean_to_array(o)->m_data[i] = v;
 }
 LEAN_EXPORT lean_object * lean_array_mk(lean_obj_arg l);
-LEAN_EXPORT lean_object * lean_array_data(lean_obj_arg a);
+LEAN_EXPORT lean_object * lean_array_to_list(lean_obj_arg a);
 
 /* Arrays of objects (high level API) */
 
@@ -1134,6 +1135,17 @@ static inline lean_external_class * lean_get_external_class(lean_object * o) {
 
 static inline void * lean_get_external_data(lean_object * o) {
     return lean_to_external(o)->m_data;
+}
+
+static inline lean_object * lean_set_external_data(lean_object * o, void * data) {
+    if (lean_is_exclusive(o)) {
+        lean_to_external(o)->m_data = data;
+        return o;
+    } else {
+        lean_object * o_new = lean_alloc_external(lean_get_external_class(o), data);
+        lean_dec_ref(o);
+        return o_new;
+    }
 }
 
 /* Natural numbers */

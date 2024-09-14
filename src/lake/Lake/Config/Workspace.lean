@@ -32,7 +32,7 @@ structure Workspace : Type where
 
 instance : Nonempty Workspace :=
   have : Inhabited Package := Classical.inhabited_of_nonempty inferInstance
-  by refine' ⟨{..}⟩ <;> exact default
+  ⟨by constructor <;> exact default⟩
 
 hydrate_opaque_type OpaqueWorkspace Workspace
 

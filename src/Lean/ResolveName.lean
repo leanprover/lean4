@@ -314,7 +314,7 @@ def ensureNoOverload [Monad m] [MonadError m] (n : Name) (cs : List Name) : m Na
 def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do
   ensureNoOverload n (← resolveGlobalConstCore n)
 
-def preprocessSyntaxAndResolve [Monad m] [MonadEnv m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
+def preprocessSyntaxAndResolve [Monad m] [MonadError m] (stx : Syntax) (k : Name → m (List Name)) : m (List Name) := do
   match stx with
   | .ident _ _ n pre => do
     let pre := pre.filterMap fun

@@ -78,7 +78,7 @@ All modifiers are optional, and have to come in the listed order.
 `nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed
 on the same line as the declaration. It is used for declarations nested inside other syntax,
 such as inductive constructors, structure projections, and `let rec` / `where` definitions. -/
-def declModifiers (inline : Bool) := leading_parser
+@[builtin_doc] def declModifiers (inline : Bool) := leading_parser
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
@@ -86,13 +86,16 @@ def declModifiers (inline : Bool) := leading_parser
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
-def declId           := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def declId := leading_parser
   ident >> optional (".{" >> sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
 /-- `declSig` matches the signature of a declaration with required type: a list of binders and then `: type` -/
-def declSig          := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
-def optDeclSig       := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def optDeclSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
 /-- Right-hand side of a `:=` in a declaration, a term. -/
 def declBody : Parser :=
@@ -141,11 +144,11 @@ def whereStructInst  := leading_parser
 * a sequence of `| pat => expr` (a declaration by equations), shorthand for a `match`
 * `where` and then a sequence of `field := value` initializers, shorthand for a structure constructor
 -/
-def declVal          :=
+@[builtin_doc] def declVal :=
   -- Remark: we should not use `Term.whereDecls` at `declVal`
   -- because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
-  withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
+  withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
@@ -193,9 +196,10 @@ inductive List (α : Type u) where
 ```
 A list of elements of type `α` is either the empty list, `nil`,
 or an element `head : α` followed by a list `tail : List α`.
-For more information about [inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html).
+See [Inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html)
+for more information.
 -/
-def «inductive»      := leading_parser
+@[builtin_doc] def «inductive» := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser
@@ -242,10 +246,10 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def noncomputableSection := leading_parser
   "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
 /--
-A `section`/`end` pair delimits the scope of `variable`, `open`, `set_option`, and `local` commands.
-Sections can be nested. `section <id>` provides a label to the section that has to appear with the
-matching `end`. In either case, the `end` can be omitted, in which case the section is closed at the
-end of the file.
+A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
+commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
+with the matching `end`. In either case, the `end` can be omitted, in which case the section is
+closed at the end of the file.
 -/
 @[builtin_command_parser] def «section»      := leading_parser
   "section" >> optional (ppSpace >> checkColGt >> ident)
@@ -269,17 +273,17 @@ corresponding `end <id>` or the end of the file.
   "namespace " >> checkColGt >> ident
 /--
 `end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
-with `end <id>`.
+with `end <id>`. The `end` command is optional at the end of a file.
 -/
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
 /-- Declares one or more typed variables, or modifies whether already-declared variables are
-implicit.
+  implicit.
 
 Introduces variables that can be used in definitions within the same `namespace` or `section` block.
-When a definition mentions a variable, Lean will add it as an argument of the definition. The
-`variable` command is also able to add typeclass parameters. This is useful in particular when
-writing many definitions that have parameters in common (see below for an example).
+When a definition mentions a variable, Lean will add it as an argument of the definition. This is
+useful in particular when writing many definitions that have parameters in common (see below for an
+example).
 
 Variable declarations have the same flexibility as regular function paramaters. In particular they
 can be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they
@@ -287,17 +291,22 @@ can be anonymous). This can be changed, for instance one can turn explicit varia
 implicit one with `variable {x}`. Note that currently, you should avoid changing how variables are
 bound and declare new variables at the same time; see [issue 2789] for more on this topic.
 
+In *theorem bodies* (i.e. proofs), variables are not included based on usage in order to ensure that
+changes to the proof cannot change the statement of the overall theorem. Instead, variables are only
+available to the proof if they have been mentioned in the theorem header or in an `include` command
+or are instance implicit and depend only on such variables.
+
 See [*Variables and Sections* from Theorem Proving in Lean][tpil vars] for a more detailed
 discussion.
 
-[tpil vars]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections
-(Variables and Sections on Theorem Proving in Lean)
-[tpil classes]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html
-(Type classes on Theorem Proving in Lean)
-[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo
-(Documentation for the BinderInfo type)
-[issue 2789]: https://github.com/leanprover/lean4/issues/2789
-(Issue 2789 on github)
+[tpil vars]:
+https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections
+(Variables and Sections on Theorem Proving in Lean) [tpil classes]:
+https://lean-lang.org/theorem_proving_in_lean4/type_classes.html (Type classes on Theorem Proving in
+Lean) [binder docs]:
+https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo (Documentation
+for the BinderInfo type) [issue 2789]: https://github.com/leanprover/lean4/issues/2789 (Issue 2789
+on github)
 
 ## Examples
 
@@ -368,6 +377,24 @@ namespace Logger
 end Logger
 ```
 
+The following example demonstrates availability of variables in proofs:
+```lean
+variable
+  {α : Type}    -- available in the proof as indirectly mentioned through `a`
+  [ToString α]  -- available in the proof as `α` is included
+  (a : α)       -- available in the proof as mentioned in the header
+  {β : Type}    -- not available in the proof
+  [ToString β]  -- not available in the proof
+
+theorem ex : a = a := rfl
+```
+After elaboration of the proof, the following warning will be generated to highlight the unused
+hypothesis:
+```
+included section variable '[ToString α]' is not used in 'ex', consider excluding it
+```
+In such cases, the offending variable declaration should be moved down or into a section so that
+only theorems that do depend on it follow it until the end of the section.
 -/
 @[builtin_command_parser] def «variable»     := leading_parser
   "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
@@ -437,6 +464,8 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 @[builtin_command_parser] def eval           := leading_parser
   "#eval " >> termParser
+@[builtin_command_parser] def evalBang       := leading_parser
+  "#eval! " >> termParser
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser
 @[builtin_command_parser] def exit           := leading_parser
@@ -519,7 +548,7 @@ def openSimple       := leading_parser
 def openScoped       := leading_parser
   " scoped" >> many1 (ppSpace >> checkColGt >> ident)
 /-- `openDecl` is the body of an `open` declaration (see `open`) -/
-def openDecl         :=
+@[builtin_doc] def openDecl :=
   withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
     openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 /-- Makes names from other namespaces visible without writing the namespace prefix.
@@ -701,7 +730,25 @@ list, so it should be brief.
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
 
-/-- No-op parser used as syntax kind for attaching remaining whitespace to at the end of the input. -/
+/--
+`include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all
+theorems in the remainder of the current section, differing from the default behavior of
+conditionally including variables based on use in the theorem header. Other commands are
+not affected. `include` is usually followed by `in theorem ...` to limit the inclusion
+to the subsequent declaration.
+-/
+@[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
+
+/--
+`omit` instructs Lean to not include a variable previously `include`d. Apart from variable names, it
+can also refer to typeclass instance variables by type using the syntax `omit [TypeOfInst]`, in
+which case all instance variables that unify with the given type are omitted. `omit` should usually
+only be used in conjunction with `in` in order to keep the section structure simple.
+-/
+@[builtin_command_parser] def «omit» := leading_parser "omit " >>
+  many1 (ident <|> Term.instBinder)
+
+/-- No-op parser used as syntax kind for attaching remaining whitespace at the end of the input. -/
 @[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""
 
 builtin_initialize

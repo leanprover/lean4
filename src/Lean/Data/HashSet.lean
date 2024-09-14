@@ -5,7 +5,8 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Power2
-import Init.Data.List.Control
+import Std.Data.HashSet.Basic
+import Std.Data.HashSet.Raw
 namespace Lean
 universe u v w
 
@@ -41,7 +42,7 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
   if h' : u.toNat < sz then
     ⟨u, h'⟩
   else
-    ⟨0, by simp [USize.toNat, OfNat.ofNat, USize.ofNat, Fin.ofNat']; apply Nat.pos_of_isPowerOfTwo h⟩
+    ⟨0, by simp [USize.toNat, OfNat.ofNat, USize.ofNat]; apply Nat.pos_of_isPowerOfTwo h⟩
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashSetBucket α) (a : α) : HashSetBucket α :=
   let ⟨i, h⟩ := mkIdx (hashFn a) data.property
@@ -217,3 +218,9 @@ def insertMany [ForIn Id ρ α] (s : HashSet α) (as : ρ) : HashSet α := Id.ru
 def merge {α : Type u} [BEq α] [Hashable α] (s t : HashSet α) : HashSet α :=
   t.fold (init := s) fun s a => s.insert a
   -- We don't use `insertMany` here because it gives weird universes.
+
+attribute [deprecated Std.HashSet] HashSet
+attribute [deprecated Std.HashSet.Raw] HashSetImp
+attribute [deprecated Std.HashSet.Raw.empty] mkHashSetImp
+attribute [deprecated Std.HashSet.empty] mkHashSet
+attribute [deprecated Std.HashSet.empty] HashSet.empty

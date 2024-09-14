@@ -46,6 +46,9 @@ theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) := by
 theorem gcd_add_one (x y : Nat) : gcd (x + 1) y = gcd (y % (x + 1)) (x + 1) := by
   rw [gcd]; rfl
 
+theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
+  cases x <;> simp [Nat.gcd_add_one]
+
 @[simp] theorem gcd_one_left (n : Nat) : gcd 1 n = 1 := by
   rw [gcd_succ, mod_one]
   rfl
@@ -72,7 +75,7 @@ theorem gcd_rec (m n : Nat) : gcd m n = gcd (n % m) m :=
 
 @[elab_as_elim] theorem gcd.induction {P : Nat → Nat → Prop} (m n : Nat)
     (H0 : ∀n, P 0 n) (H1 : ∀ m n, 0 < m → P (n % m) m → P m n) : P m n :=
-  Nat.strongInductionOn (motive := fun m => ∀ n, P m n) m
+  Nat.strongRecOn (motive := fun m => ∀ n, P m n) m
     (fun
     | 0, _ => H0
     | _+1, IH => fun _ => H1 _ _ (succ_pos _) (IH _ (mod_lt _ (succ_pos _)) _) )
@@ -224,7 +227,7 @@ theorem gcd_eq_zero_iff {i j : Nat} : gcd i j = 0 ↔ i = 0 ∧ j = 0 :=
    fun h => by simp [h]⟩
 
 /-- Characterization of the value of `Nat.gcd`. -/
-theorem gcd_eq_iff (a b : Nat) :
+theorem gcd_eq_iff {a b : Nat} :
     gcd a b = g ↔ g ∣ a ∧ g ∣ b ∧ (∀ c, c ∣ a → c ∣ b → c ∣ g) := by
   constructor
   · rintro rfl

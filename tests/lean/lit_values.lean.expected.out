@@ -3,10 +3,10 @@
 (some 2)
 (some -2)
 (some a)
+some "hello"
 (some (⟨5, 3⟩))
 (some (⟨12, 0x003#12⟩))
 (some 2)
 (some 2)
 (some 2)
 (some 2)
-some "hello"

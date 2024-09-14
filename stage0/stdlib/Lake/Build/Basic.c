@@ -14,14 +14,13 @@
 extern "C" {
 #endif
 static lean_object* l_Lake_getNoBuild___rarg___closed__1;
+static lean_object* l_Lake_instInhabitedJobCore___rarg___closed__1;
 LEAN_EXPORT uint8_t l_Lake_BuildConfig_trustHash___default;
 LEAN_EXPORT lean_object* l_Lake_getIsQuiet(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsQuiet___rarg___lambda__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OpaqueJob_nonemptyType;
 LEAN_EXPORT lean_object* l_Lake_getLeanTrace___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_BuildConfig_noBuild___default;
 LEAN_EXPORT lean_object* l_Lake_getIsOldMode___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildConfig_outLv___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsVerbose___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_getVerbosity___rarg___lambda__1(lean_object*);
 static lean_object* l_Lake_getBuildConfig___rarg___closed__1;
@@ -41,24 +40,29 @@ LEAN_EXPORT lean_object* l_Lake_getNoBuild___rarg(lean_object*, lean_object*);
 uint8_t l_Lake_Verbosity_minLogLv(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_getIsOldMode___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_BuildConfig_verbosity___default;
-LEAN_EXPORT uint8_t l_Lake_BuildConfig_outLv(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildContext(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildConfig___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_getIsOldMode___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Lake_instInhabitedJobCore___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getTrustHash___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_BuildConfig_showProgress(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getBuildContext___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_BuildConfig_outLv___default___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getIsVerbose(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildConfig_showProgress___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_getTrustHash___rarg___lambda__1(lean_object*);
+LEAN_EXPORT uint8_t l_Lake_JobCore_optional___default;
 LEAN_EXPORT lean_object* l_Lake_getIsOldMode(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedJobCore(lean_object*);
+LEAN_EXPORT uint8_t l_Lake_BuildConfig_outLv___default(uint8_t);
 static lean_object* l_Lake_getVerbosity___rarg___closed__1;
 uint8_t l_Lake_instDecidableEqVerbosity(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_getVerbosity___rarg___lambda__1___boxed(lean_object*);
 static lean_object* l_Lake_getIsQuiet___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_logStep(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logStep___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueJobTask_nonemptyType;
 static lean_object* l_Lake_getIsVerbose___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_getBuildConfig(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getNoBuild___rarg___lambda__1___boxed(lean_object*);
@@ -122,6 +126,25 @@ x_1 = 3;
 return x_1;
 }
 }
+LEAN_EXPORT uint8_t l_Lake_BuildConfig_outLv___default(uint8_t x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = l_Lake_Verbosity_minLogLv(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_BuildConfig_outLv___default___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_Lake_BuildConfig_outLv___default(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
 static lean_object* _init_l_Lake_BuildConfig_out___default() {
 _start:
 {
@@ -136,25 +159,6 @@ _start:
 uint8_t x_1; 
 x_1 = 0;
 return x_1;
-}
-}
-LEAN_EXPORT uint8_t l_Lake_BuildConfig_outLv(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; uint8_t x_3; 
-x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*1 + 3);
-x_3 = l_Lake_Verbosity_minLogLv(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildConfig_outLv___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lake_BuildConfig_outLv(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_Lake_BuildConfig_showProgress(lean_object* x_1) {
@@ -224,7 +228,44 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_OpaqueJob_nonemptyType() {
+static uint8_t _init_l_Lake_JobCore_optional___default() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 0;
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_instInhabitedJobCore___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("", 0, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedJobCore___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = l_Lake_instInhabitedJobCore___rarg___closed__1;
+x_3 = 0;
+x_4 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedJobCore(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lake_instInhabitedJobCore___rarg), 1, 0);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_OpaqueJobTask_nonemptyType() {
 _start:
 {
 return lean_box(0);
@@ -717,7 +758,10 @@ l_Lake_BuildConfig_failLv___default = _init_l_Lake_BuildConfig_failLv___default(
 l_Lake_BuildConfig_out___default = _init_l_Lake_BuildConfig_out___default();
 lean_mark_persistent(l_Lake_BuildConfig_out___default);
 l_Lake_BuildConfig_ansiMode___default = _init_l_Lake_BuildConfig_ansiMode___default();
-l_Lake_OpaqueJob_nonemptyType = _init_l_Lake_OpaqueJob_nonemptyType();
+l_Lake_JobCore_optional___default = _init_l_Lake_JobCore_optional___default();
+l_Lake_instInhabitedJobCore___rarg___closed__1 = _init_l_Lake_instInhabitedJobCore___rarg___closed__1();
+lean_mark_persistent(l_Lake_instInhabitedJobCore___rarg___closed__1);
+l_Lake_OpaqueJobTask_nonemptyType = _init_l_Lake_OpaqueJobTask_nonemptyType();
 l_Lake_getLeanTrace___rarg___closed__1 = _init_l_Lake_getLeanTrace___rarg___closed__1();
 lean_mark_persistent(l_Lake_getLeanTrace___rarg___closed__1);
 l_Lake_getBuildConfig___rarg___closed__1 = _init_l_Lake_getBuildConfig___rarg___closed__1();

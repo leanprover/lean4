@@ -27,6 +27,8 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
 
+open List (Perm perm_append_comm_assoc)
+
 namespace Std.DHashMap.Internal
 
 open Internal.List
@@ -119,7 +121,7 @@ theorem exists_bucket_of_update [BEq α] [Hashable α] (m : Array (AssocList α 
 
 theorem exists_bucket' [BEq α] [Hashable α]
     (self : Array (AssocList α β)) (i : USize) (hi : i.toNat < self.size) :
-      ∃ l, Perm (self.data.bind AssocList.toList) (self[i.toNat].toList ++ l) ∧
+      ∃ l, Perm (self.toList.bind AssocList.toList) (self[i.toNat].toList ++ l) ∧
         (∀ [LawfulHashable α], IsHashSelf self → ∀ k,
           (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat → containsKey k l = false) := by
   obtain ⟨l, h₁, -, h₂⟩ := exists_bucket_of_uset self i hi .nil
@@ -170,8 +172,7 @@ theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [La
   obtain ⟨l, h₁, h₂, h₃⟩ := exists_bucket_of_update m.1.buckets m.2 a f
   refine h₂.trans (Perm.trans ?_ (hg₁ hm.distinct h₁).symm)
   rw [hfg, hg₂]
-  · exact Perm.refl _
-  · exact h₃ hm.buckets_hash_self _ rfl
+  exact h₃ hm.buckets_hash_self _ rfl
 
 /-- This is the general theorem to show that mapping operations (like `map` and `filter`) are
 correct. -/
@@ -185,13 +186,13 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
-  rw [updateAllBuckets, toListModel, Array.map_data, List.bind_eq_foldl, List.foldl_map,
+  rw [updateAllBuckets, toListModel, Array.map_toList, List.bind_eq_foldl, List.foldl_map,
     toListModel, List.bind_eq_foldl]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
       Perm (g l'') l' →
       Perm (l.foldl (fun acc a => acc ++ (f a).toList) l')
         (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
-    simpa using this m.1.buckets.data [] [] (by simpa [hg₀] using Perm.refl _)
+    simpa using this m.1.buckets.toList [] [] (by simp [hg₀])
   rintro l l' l'' h
   induction l generalizing l' l''
   · simpa using h.symm
@@ -241,7 +242,7 @@ theorem updateAllBuckets [BEq α] [Hashable α] [LawfulHashable α] {m : Array (
   simp only [Array.getElem_map, Array.size_map]
   refine ⟨fun h p hp => ?_⟩
   rcases containsKey_eq_true_iff_exists_mem.1 (hf _ _ hp) with ⟨q, hq₁, hq₂⟩
-  rw [hash_eq hq₂, (hm.hashes_to _ _).hash_self _ _ hq₁]
+  rw [← hash_eq hq₂, (hm.hashes_to _ _).hash_self _ _ hq₁]
 
 end IsHashSelf
 
@@ -262,6 +263,10 @@ def get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) : 
   (bucket m.1.buckets m.2 a).getCast? a
 
 /-- Internal implementation detail of the hash map -/
+def getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
+  (bucket m.1.buckets m.2 a).getKey? a
+
+/-- Internal implementation detail of the hash map -/
 def containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   (bucket m.1.buckets m.2 a).contains a
 
@@ -278,6 +283,18 @@ def get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [I
   (m.get?ₘ a).get!
 
 /-- Internal implementation detail of the hash map -/
+def getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.containsₘ a) : α :=
+  (bucket m.1.buckets m.2 a).getKey a h
+
+/-- Internal implementation detail of the hash map -/
+def getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) : α :=
+  (m.getKey?ₘ a).getD fallback
+
+/-- Internal implementation detail of the hash map -/
+def getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) : α :=
+  (m.getKey?ₘ a).get!
+
+/-- Internal implementation detail of the hash map -/
 def insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
   if m.containsₘ a then m.replaceₘ a b else Raw₀.expandIfNecessary (m.consₘ a b)
 
@@ -286,12 +303,12 @@ def insertIfNewₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a)
   if m.containsₘ a then m else Raw₀.expandIfNecessary (m.consₘ a b)
 
 /-- Internal implementation detail of the hash map -/
-def removeₘaux [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
-  ⟨⟨m.1.size - 1, updateBucket m.1.buckets m.2 a (fun l => l.remove a)⟩, by simpa using m.2⟩
+def eraseₘaux [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
+  ⟨⟨m.1.size - 1, updateBucket m.1.buckets m.2 a (fun l => l.erase a)⟩, by simpa using m.2⟩
 
 /-- Internal implementation detail of the hash map -/
-def removeₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
-  if m.containsₘ a then m.removeₘaux a else m
+def eraseₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
+  if m.containsₘ a then m.eraseₘaux a else m
 
 /-- Internal implementation detail of the hash map -/
 def filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → Option (δ a)) : Raw₀ α δ :=
@@ -346,6 +363,20 @@ theorem getD_eq_getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β)
 theorem get!_eq_get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited (β a)] :
     get! m a = get!ₘ m a := by
   simp [get!, get!ₘ, get?ₘ, List.getValueCast!_eq_getValueCast?, bucket]
+
+theorem getKey?_eq_getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    getKey? m a = getKey?ₘ m a := rfl
+
+theorem getKey_eq_getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
+    getKey m a h = getKeyₘ m a h := rfl
+
+theorem getKeyD_eq_getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a fallback : α) :
+    getKeyD m a fallback = getKeyDₘ m a fallback := by
+  simp [getKeyD, getKeyDₘ, getKey?ₘ, List.getKeyD_eq_getKey?, bucket]
+
+theorem getKey!_eq_getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) :
+    getKey! m a = getKey!ₘ m a := by
+  simp [getKey!, getKey!ₘ, getKey?ₘ, List.getKey!_eq_getKey?, bucket]
 
 theorem contains_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
     m.contains a = m.containsₘ a := rfl
@@ -405,12 +436,12 @@ theorem getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] [LawfulBEq α] (m 
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all
 
-theorem remove_eq_removeₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
-    m.remove a = m.removeₘ a := by
-  rw [remove, removeₘ, containsₘ, bucket]
+theorem erase_eq_eraseₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    m.erase a = m.eraseₘ a := by
+  rw [erase, eraseₘ, containsₘ, bucket]
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split
-  · simp only [removeₘaux, Subtype.mk.injEq, Raw.mk.injEq, true_and]
+  · simp only [eraseₘaux, Subtype.mk.injEq, Raw.mk.injEq, true_and]
     rw [Array.set_set, updateBucket]
     simp only [Array.uset, Array.ugetElem_eq_getElem]
   · rfl

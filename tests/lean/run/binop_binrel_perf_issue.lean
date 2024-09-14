@@ -14,7 +14,7 @@ def setOf {α : Type u} (p : α → Prop) : Set α := p
 
 namespace Set
 
-protected def Mem (a : α) (s : Set α) : Prop := s a
+protected def Mem (s : Set α) (a : α) : Prop := s a
 
 instance : Membership α (Set α) := ⟨Set.Mem⟩
 
@@ -25,12 +25,6 @@ end Mathlib.Init.Set
 section Mathlib.Init.ZeroOne
 
 set_option autoImplicit true
-
-class Zero.{u} (α : Type u) where
-  zero : α
-
-instance (priority := 300) Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
 
 class One (α : Type u) where
   one : α
@@ -57,9 +51,6 @@ end Mathlib.Init.Function
 section Mathlib.Data.Subtype
 
 variable {α : Sort _} {p : α → Prop}
-
-protected theorem Subtype.ext : ∀ {a1 a2 : { x // p x }}, (a1 : α) = (a2 : α) → a1 = a2
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem Subtype.coe_injective : Function.Injective (fun (a : Subtype p) ↦ (a : α)) := fun _ _ ↦ Subtype.ext
 
@@ -158,7 +149,7 @@ variable {A : Type _} {B : Type _} [i : SetLike A B]
 instance : CoeTC A (Set B) where coe := SetLike.coe
 
 instance (priority := 100) instMembership : Membership B A :=
-  ⟨fun x p => x ∈ (p : Set B)⟩
+  ⟨fun p x => x ∈ (p : Set B)⟩
 
 instance (priority := 100) : CoeSort A (Type _) :=
   ⟨fun p => { x : B // x ∈ p }⟩
@@ -749,6 +740,8 @@ variable {α : Type _}
 namespace QuotientAddGroup
 
 variable [AddGroup α] (s : AddSubgroup α)
+
+instance : VAdd s.op α := Submonoid.vadd s.op.toAddSubmonoid
 
 def leftRel : Setoid α :=
   VAdd.orbitRel s.op α

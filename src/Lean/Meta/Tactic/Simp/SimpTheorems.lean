@@ -420,12 +420,12 @@ def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
       | .toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
   }
 
-abbrev SimpExtensionMap := HashMap Name SimpExtension
+abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
 
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 
 def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
-  return (← simpExtensionMapRef.get).find? attrName
+  return (← simpExtensionMapRef.get)[attrName]?
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
@@ -463,8 +463,38 @@ def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name)
     let simpThms ← mkSimpTheorems id levelParams proof post inv prio
     return simpThms.foldl addSimpTheoremEntry s
 
+/--
+Reducible functions and projection functions should always be put in `toUnfold`, instead
+of trying to use equational theorems.
+
+The simplifiers has special support for structure and class projections, and gets
+confused when they suddenly rewrite, so ignore equations for them
+-/
+def SimpTheorems.ignoreEquations (declName : Name) : CoreM Bool := do
+  return (← isProjectionFn declName) || (← isReducible declName)
+
+/--
+Even if a function has equation theorems,
+we also store it in the `toUnfold` set in the following two cases:
+1- It was defined by structural recursion and has a smart-unfolding associated declaration.
+2- It is non-recursive.
+
+Reason: `unfoldPartialApp := true` or conditional equations may not apply.
+
+Remark: In the future, we are planning to disable this
+behavior unless `unfoldPartialApp := true`.
+Moreover, users will have to use `f.eq_def` if they want to force the definition to be
+unfolded.
+-/
+def SimpTheorems.unfoldEvenWithEqns (declName : Name) : CoreM Bool := do
+  if hasSmartUnfoldingDecl (← getEnv) declName then return true
+  unless (← isRecursiveDefinition declName) do return true
+  return false
+
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
-  if let some eqns ← getEqnsFor? declName then
+  if (← ignoreEquations declName) then
+    return d.addDeclToUnfoldCore declName
+  else if let some eqns ← getEqnsFor? declName then
     let mut d := d
     for h : i in [:eqns.size] do
       let eqn := eqns[i]
@@ -483,22 +513,8 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
         if i + 1 = eqns.size then 0 else 1
       else
         100 - i
-      -- We assign very low priority to equational le
       d ← SimpTheorems.addConst d eqn (prio := prio)
-    /-
-    Even if a function has equation theorems,
-    we also store it in the `toUnfold` set in the following two cases:
-    1- It was defined by structural recursion and has a smart-unfolding associated declaration.
-    2- It is non-recursive.
-
-    Reason: `unfoldPartialApp := true` or conditional equations may not apply.
-
-    Remark: In the future, we are planning to disable this
-    behavior unless `unfoldPartialApp := true`.
-    Moreover, users will have to use `f.eq_def` if they want to force the definition to be
-    unfolded.
-    -/
-    if hasSmartUnfoldingDecl (← getEnv) declName || !(← isRecursiveDefinition declName) then
+    if (← unfoldEvenWithEqns declName) then
       d := d.addDeclToUnfoldCore declName
     return d
   else

@@ -36,6 +36,17 @@ and `flip (·<·)` is the greater-than relation.
 
 theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g = fun x => f (g x) := rfl
 
+@[simp] theorem Function.const_comp {f : α → β} {c : γ} :
+    (Function.const β c ∘ f) = Function.const α c := by
+  rfl
+@[simp] theorem Function.comp_const {f : β → γ} {b : β} :
+    (f ∘ Function.const α b) = Function.const α (f b) := by
+  rfl
+@[simp] theorem Function.true_comp {f : α → β} : ((fun _ => true) ∘ f) = fun _ => true := by
+  rfl
+@[simp] theorem Function.false_comp {f : α → β} : ((fun _ => false) ∘ f) = fun _ => false := by
+  rfl
+
 attribute [simp] namedPattern
 
 /--
@@ -154,9 +165,23 @@ inductive PSum (α : Sort u) (β : Sort v) where
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
 
-instance {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
+/--
+`PSum α β` is inhabited if `α` is inhabited.
+This is not an instance to avoid non-canonical instances.
+-/
+@[reducible] def  PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
 
-instance {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
+/--
+`PSum α β` is inhabited if `β` is inhabited.
+This is not an instance to avoid non-canonical instances.
+-/
+@[reducible] def PSum.inhabitedRight {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
+
+instance PSum.nonemptyLeft [h : Nonempty α] : Nonempty (PSum α β) :=
+  Nonempty.elim h (fun a => ⟨PSum.inl a⟩)
+
+instance PSum.nonemptyRight [h : Nonempty β] : Nonempty (PSum α β) :=
+  Nonempty.elim h (fun b => ⟨PSum.inr b⟩)
 
 /--
 `Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
@@ -474,6 +499,8 @@ class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert �
   insert_emptyc_eq (x : α) : (insert x ∅ : β) = singleton x
 export LawfulSingleton (insert_emptyc_eq)
 
+attribute [simp] insert_emptyc_eq
+
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
   /-- Computes `{ a ∈ c | p a }`. -/
@@ -701,7 +728,7 @@ theorem Ne.elim (h : a ≠ b) : a = b → False := h
 
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
-theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)
+@[symm] theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)
 
 theorem ne_comm {α} {a b : α} : a ≠ b ↔ b ≠ a := ⟨Ne.symm, Ne.symm⟩
 
@@ -754,7 +781,7 @@ noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
 
-theorem HEq.symm (h : HEq a b) : HEq b a :=
+@[symm] theorem HEq.symm (h : HEq a b) : HEq b a :=
   h.rec (HEq.refl a)
 
 theorem heq_of_eq (h : a = a') : HEq a a' :=
@@ -787,16 +814,14 @@ theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a
 
 variable {a b c d : Prop}
 
-theorem iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
+theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
-theorem Iff.refl (a : Prop) : a ↔ a :=
+@[refl] theorem Iff.refl (a : Prop) : a ↔ a :=
   Iff.intro (fun h => h) (fun h => h)
 
 protected theorem Iff.rfl {a : Prop} : a ↔ a :=
   Iff.refl a
-
-macro_rules | `(tactic| rfl) => `(tactic| exact Iff.rfl)
 
 theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.rfl
 
@@ -810,15 +835,15 @@ instance : Trans Iff Iff Iff where
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
-theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
+@[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
 theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
 theorem iff_comm : (a ↔ b) ↔ (b ↔ a) := Iff.comm
 
-theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
+@[symm] theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
 theorem And.comm : a ∧ b ↔ b ∧ a := Iff.intro And.symm And.symm
 theorem and_comm : a ∧ b ↔ b ∧ a := And.comm
 
-theorem Or.symm : a ∨ b → b ∨ a := .rec .inr .inl
+@[symm] theorem Or.symm : a ∨ b → b ∨ a := .rec .inr .inl
 theorem Or.comm : a ∨ b ↔ b ∨ a := Iff.intro Or.symm Or.symm
 theorem or_comm : a ∨ b ↔ b ∨ a := Or.comm
 
@@ -883,7 +908,7 @@ theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
 theorem of_not_not [Decidable p] : ¬ ¬ p → p :=
   fun hnn => byContradiction (fun hn => absurd hn hnn)
 
-theorem not_and_iff_or_not (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
+theorem not_and_iff_or_not {p q : Prop} [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
   Iff.intro
     (fun h => match d₁, d₂ with
       | isTrue h₁,  isTrue h₂   => absurd (And.intro h₁ h₂) h
@@ -1089,19 +1114,30 @@ def InvImage {α : Sort u} {β : Sort v} (r : β → β → Prop) (f : α → β
   fun a₁ a₂ => r (f a₁) (f a₂)
 
 /--
-The transitive closure `r⁺` of a relation `r` is the smallest relation which is
-transitive and contains `r`. `r⁺ a z` if and only if there exists a sequence
+The transitive closure `TransGen r` of a relation `r` is the smallest relation which is
+transitive and contains `r`. `TransGen r a z` if and only if there exists a sequence
 `a r b r ... r z` of length at least 1 connecting `a` to `z`.
 -/
-inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop where
-  /-- If `r a b` then `r⁺ a b`. This is the base case of the transitive closure. -/
-  | base  : ∀ a b, r a b → TC r a b
+inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
+  /-- If `r a b` then `TransGen r a b`. This is the base case of the transitive closure. -/
+  | single {a b} : r a b → TransGen r a b
   /-- The transitive closure is transitive. -/
-  | trans : ∀ a b c, TC r a b → TC r b c → TC r a c
+  | tail {a b c} : TransGen r a b → r b c → TransGen r a c
+
+/-- Deprecated synonym for `Relation.TransGen`. -/
+@[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
+
+theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
+    TransGen r a b → TransGen r b c → TransGen r a c := by
+  intro hab hbc
+  induction hbc with
+  | single h => exact TransGen.tail hab h
+  | tail _ h ih => exact TransGen.tail ih h
 
 /-! # Subtype -/
 
 namespace Subtype
+
 theorem existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
@@ -1126,11 +1162,19 @@ end Subtype
 section
 variable {α : Type u} {β : Type v}
 
-instance Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
+/-- This is not an instance to avoid non-canonical instances. -/
+@[reducible] def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-instance Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
+/-- This is not an instance to avoid non-canonical instances. -/
+@[reducible] def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
+
+instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=
+  Nonempty.elim h (fun a => ⟨Sum.inl a⟩)
+
+instance Sum.nonemptyRight [h : Nonempty β] : Nonempty (Sum α β) :=
+  Nonempty.elim h (fun b => ⟨Sum.inr b⟩)
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
   match a, b with
@@ -1198,8 +1242,12 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 /-! # Dependent products -/
 
-theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
+theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
+
+@[deprecated Exists.of_psigma_prop (since := "2024-07-27")]
+theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x) :=
+  Exists.of_psigma_prop
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
     (h₁ : a₁ = a₂) (h₂ : Eq.ndrec b₁ h₁ = b₂) : PSigma.mk a₁ b₁ = PSigma.mk a₂ b₂ := by
@@ -1323,7 +1371,7 @@ theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
 theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
   Eq.propIntro Nat.succ.inj (congrArg Nat.succ)
 
-@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] (a b : α) : a == b ↔ a = b :=
+@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
   ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
 
 /-! # Prop lemmas -/
@@ -1362,6 +1410,9 @@ theorem iff_false_right (ha : ¬a) : (b ↔ a) ↔ ¬b := Iff.comm.trans (iff_fa
 theorem of_iff_true    (h : a ↔ True) : a := h.mpr trivial
 theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h trivial
 
+theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
+  iff_true_intro (Subsingleton.elim ..)
+
 theorem not_of_iff_false : (p ↔ False) → ¬p := Iff.mp
 theorem iff_false_intro (h : ¬a) : a ↔ False := iff_of_false h id
 
@@ -1385,7 +1436,7 @@ theorem false_of_true_eq_false  (h : True = False) : False := false_of_true_iff_
 
 theorem true_eq_false_of_false : False → (True = False) := False.elim
 
-theorem iff_def  : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies a b
+theorem iff_def  : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies
 theorem iff_def' : (a ↔ b) ↔ (b → a) ∧ (a → b) := Iff.trans iff_def And.comm
 
 theorem true_iff_false : (True ↔ False) ↔ False := iff_false_intro (·.mp  True.intro)
@@ -1413,7 +1464,7 @@ theorem imp_true_iff (α : Sort u) : (α → True) ↔ True := iff_true_intro (f
 
 theorem false_imp_iff (a : Prop) : (False → a) ↔ True := iff_true_intro False.elim
 
-theorem true_imp_iff (α : Prop) : (True → α) ↔ α := imp_iff_right True.intro
+theorem true_imp_iff {α : Prop} : (True → α) ↔ α := imp_iff_right True.intro
 
 @[simp high] theorem imp_self : (a → a) ↔ True := iff_true_intro id
 
@@ -1533,13 +1584,13 @@ so you should consider the simpler versions if they apply:
 * `Quot.recOnSubsingleton`, when the target type is a `Subsingleton`
 * `Quot.hrecOn`, which uses `HEq (f a) (f b)` instead of a `sound p ▸ f a = f b` assummption
 -/
-protected abbrev rec
+@[elab_as_elim] protected abbrev rec
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     (q : Quot r) : motive q :=
   Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
 
-@[inherit_doc Quot.rec] protected abbrev recOn
+@[inherit_doc Quot.rec, elab_as_elim] protected abbrev recOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
@@ -1550,7 +1601,7 @@ protected abbrev rec
 Dependent induction principle for a quotient, when the target type is a `Subsingleton`.
 In this case the quotient's side condition is trivial so any function can be lifted.
 -/
-protected abbrev recOnSubsingleton
+@[elab_as_elim] protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quot.mk r a))]
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
@@ -1619,7 +1670,7 @@ protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Pro
 
 /--
 The analogue of `Quot.liftOn`: if `f : α → β` respects the equivalence relation `≈`,
-then it lifts to a function on `Quotient s` such that `lift (mk a) f h = f a`.
+then it lifts to a function on `Quotient s` such that `liftOn (mk a) f h = f a`.
 -/
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c

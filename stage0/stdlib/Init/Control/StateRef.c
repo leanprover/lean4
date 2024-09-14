@@ -13,11 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instAlternativeOfMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_modifyGet(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -27,16 +25,17 @@ LEAN_EXPORT lean_object* l_StateRefT_x27_run___rarg___lambda__3(lean_object*, le
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run_x27___rarg___lambda__1(lean_object*, lean_object*);
 static lean_object* l_instMonadControlStateRefT_x27___closed__2;
-LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_run___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadStateOfOfMonadLiftTST(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadControlStateRefT_x27___closed__1;
+LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadFunctor(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadFunctor(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_instMonadExceptOf___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_lift___rarg(lean_object*, lean_object*);
@@ -490,30 +489,21 @@ x_4 = l_instMonadControlStateRefT_x27___closed__3;
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___rarg), 6, 1);
-lean_closure_set(x_3, 0, x_1);
-return x_3;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_ReaderT_tryFinally___rarg), 6, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_instMonadFinallyStateRefT_x27OfMonad___rarg___boxed), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_instMonadFinallyStateRefT_x27___rarg), 1, 0);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_instMonadFinallyStateRefT_x27OfMonad___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_instMonadFinallyStateRefT_x27OfMonad___rarg(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);

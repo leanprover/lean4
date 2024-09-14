@@ -10,7 +10,7 @@ import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.TerminationHint
-import Lean.PrettyPrinter.Delaborator
+import Lean.PrettyPrinter.Delaborator.Basic
 
 /-!
 This module contains
@@ -115,7 +115,7 @@ def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : Termi
       -- any variable not mentioned syntatically (it may appear in the `Expr`, so do not just use
       -- `e.bindingBody!.hasLooseBVar`) should be delaborated as a hole.
       let vars  : TSyntaxArray [`ident, `Lean.Parser.Term.hole] :=
-        Array.map (fun (i : Ident) => if hasIdent i.getId stxBody then i else hole) vars
+        Array.map (fun (i : Ident) => if stxBody.raw.hasIdent i.getId then i else hole) vars
       -- drop trailing underscores
       let mut vars := vars
       while ! vars.isEmpty && vars.back.raw.isOfKind ``hole do vars := vars.pop

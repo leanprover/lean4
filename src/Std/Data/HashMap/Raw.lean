@@ -37,16 +37,19 @@ inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt
 over `HashMap.Raw`. Lemmas about the operations on `Std.Data.HashMap.Raw` are available in the
 module `Std.Data.HashMap.RawLemmas`.
 
+This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
+and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+is always a power of two. The hash map doubles its size upon inserting an element such that the
+number of elements is more than 75% of the number of buckets.
+
+The hash table is backed by an `Array`. Users should make sure that the hash map is used linearly to
+avoid expensive copies.
+
 The hash map uses `==` (provided by the `BEq` typeclass) to compare keys and `hash` (provided by
 the `Hashable` typeclass) to hash them. To ensure that the operations behave as expected, `==`
 should be an equivalence relation and `a == b` should imply `hash a = hash b` (see also the
 `EquivBEq` and `LawfulHashable` typeclasses). Both of these conditions are automatic if the BEq
 instance is lawful, i.e., if `a == b` implies `a = b`.
-
-This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
-is always a power of two. The hash map doubles its size upon inserting an element such that the
-number of elements is more than 75% of the number of buckets.
 
 Dependent hash maps, in which keys may occur in their values' types, are available as
 `Std.Data.Raw.DHashMap`.
@@ -63,8 +66,12 @@ namespace Raw
 instance : EmptyCollection (Raw α β) where
   emptyCollection := empty
 
-@[inline, inherit_doc DHashMap.Raw.insert] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α)
-    (b : β) : Raw α β :=
+instance : Inhabited (Raw α β) where
+  default := ∅
+
+set_option linter.unusedVariables false in
+@[inline, inherit_doc DHashMap.Raw.insert] def insert [beq : BEq α] [Hashable α] (m : Raw α β)
+    (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insert a b⟩
 
 @[inline, inherit_doc DHashMap.Raw.insertIfNew] def insertIfNew [BEq α] [Hashable α] (m : Raw α β)
@@ -87,12 +94,13 @@ instance : EmptyCollection (Raw α β) where
   let ⟨previous, r⟩ := DHashMap.Raw.Const.getThenInsertIfNew? m.inner a b
   ⟨previous, ⟨r⟩⟩
 
+set_option linter.unusedVariables false in
 /--
 The notation `m[a]?` is preferred over calling this function directly.
 
 Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
 -/
-@[inline] def get? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
+@[inline] def get? [beq : BEq α] [Hashable α] (m : Raw α β) (a : α) : Option β :=
   DHashMap.Raw.Const.get? m.inner a
 
 @[inline, inherit_doc DHashMap.Raw.contains] def contains [BEq α] [Hashable α] (m : Raw α β)
@@ -100,7 +108,7 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (Raw α β) where
-  mem a m := a ∈ m.inner
+  mem m a := a ∈ m.inner
 
 instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
@@ -130,9 +138,25 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
-@[inline, inherit_doc DHashMap.Raw.remove] def remove [BEq α] [Hashable α] (m : Raw α β)
+@[inline, inherit_doc DHashMap.Raw.getKey?] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) :
+    Option α :=
+  DHashMap.Raw.getKey? m.inner a
+
+@[inline, inherit_doc DHashMap.Raw.getKey] def getKey [BEq α] [Hashable α] (m : Raw α β) (a : α)
+    (h : a ∈ m) : α :=
+  DHashMap.Raw.getKey m.inner a h
+
+@[inline, inherit_doc DHashMap.Raw.getKeyD] def getKeyD [BEq α] [Hashable α] (m : Raw α β) (a : α)
+    (fallback : α) : α :=
+  DHashMap.Raw.getKeyD m.inner a fallback
+
+@[inline, inherit_doc DHashMap.Raw.getKey!] def getKey! [BEq α] [Hashable α] [Inhabited α]
+    (m : Raw α β) (a : α) : α :=
+  DHashMap.Raw.getKey! m.inner a
+
+@[inline, inherit_doc DHashMap.Raw.erase] def erase [BEq α] [Hashable α] (m : Raw α β)
     (a : α) : Raw α β :=
-  ⟨m.inner.remove a⟩
+  ⟨m.inner.erase a⟩
 
 @[inline, inherit_doc DHashMap.Raw.size] def size (m : Raw α β) : Nat :=
   m.inner.size
@@ -255,8 +279,8 @@ theorem WF.getThenInsertIfNew? [BEq α] [Hashable α] {m : Raw α β} {a : α} {
     (m.getThenInsertIfNew? a b).2.WF :=
   ⟨DHashMap.Raw.WF.Const.getThenInsertIfNew? h.out⟩
 
-theorem WF.remove [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.remove a).WF :=
-  ⟨DHashMap.Raw.WF.remove h.out⟩
+theorem WF.erase [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.erase a).WF :=
+  ⟨DHashMap.Raw.WF.erase h.out⟩
 
 theorem WF.filter [BEq α] [Hashable α] {m : Raw α β} {f : α → β → Bool} (h : m.WF) :
     (m.filter f).WF :=

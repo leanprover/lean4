@@ -15,13 +15,18 @@ mutual
 end
 
 mutual
+  -- Since #4733 this function can be compiled using structural recursion,
+  -- but then the construction of the functional induction principle falls over
+  -- TODO: Fix funind, and then omit the `termination_by` here (or test both variants)
   def replaceConst (a b : String) : Term → Term
     | const c => if a == c then const b else const c
     | app f cs => app f (replaceConstLst a b cs)
+  termination_by t => sizeOf t
 
   def replaceConstLst (a b : String) : List Term → List Term
     | [] => []
     | c :: cs => replaceConst a b c :: replaceConstLst a b cs
+  termination_by ts => sizeOf ts
 end
 
 

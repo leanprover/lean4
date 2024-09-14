@@ -35,6 +35,10 @@ public:
         s.m_obj = box(0);
         return *this;
     }
+    void set_box(object * o) {
+        lean_assert(is_scalar(m_obj));
+        m_obj = o;
+    }
     object * raw() const { return m_obj; }
     object * steal() { object * r = m_obj; m_obj = box(0); return r; }
     object * to_obj_arg() const { inc(m_obj); return m_obj; }

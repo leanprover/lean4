@@ -69,8 +69,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp
 static lean_object* l_List_tacticSizeOf__list__dec___closed__4;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__42;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__46;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,7 +132,6 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__9;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__21;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__20;
-LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getLast_x21(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__39;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -489,8 +487,8 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_array_to_list(lean_box(0), x_4);
-x_9 = lean_array_to_list(lean_box(0), x_5);
+x_8 = lean_array_to_list(x_4);
+x_9 = lean_array_to_list(x_5);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
@@ -573,8 +571,8 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_dec(x_1);
-x_5 = lean_array_to_list(lean_box(0), x_3);
-x_6 = lean_array_to_list(lean_box(0), x_4);
+x_5 = lean_array_to_list(x_3);
+x_6 = lean_array_to_list(x_4);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);
@@ -1325,7 +1323,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Nat.lt_trans", 12, 12);
+x_1 = lean_mk_string_unchecked("Nat.lt_of_lt_of_le", 18, 18);
 return x_1;
 }
 }
@@ -1350,7 +1348,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("lt_trans", 8, 8);
+x_1 = lean_mk_string_unchecked("lt_of_lt_of_le", 14, 14);
 return x_1;
 }
 }
@@ -1869,24 +1867,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_List___aux__Init__Data__List__BasicAux______macroRules__tacticDecreasing__trivial__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_box(0);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_instAntisymmLeOfNotLt(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
 }

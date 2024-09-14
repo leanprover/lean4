@@ -80,6 +80,10 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
 def singleton (k : α) (v : β k) : RBNode α β :=
   node red leaf k v leaf
 
+def isSingleton : RBNode α β → Bool
+  | node _ leaf _ _ leaf => true
+  | _ => false
+
 -- the first half of Okasaki's `balance`, concerning red-red sequences in the left child
 @[inline] def balance1 : RBNode α β → (a : α) → β a → RBNode α β → RBNode α β
   | node red (node red a kx vx b) ky vy c, kz, vz, d
@@ -268,6 +272,9 @@ variable {α : Type u} {β : Type v} {σ : Type w} {cmp : α → α → Ordering
 
 def depth (f : Nat → Nat → Nat) (t : RBMap α β cmp) : Nat :=
   t.val.depth f
+
+def isSingleton (t : RBMap α β cmp) : Bool :=
+  t.val.isSingleton
 
 @[inline] def fold (f : σ → α → β → σ) : (init : σ) → RBMap α β cmp → σ
   | b, ⟨t, _⟩ => t.fold f b

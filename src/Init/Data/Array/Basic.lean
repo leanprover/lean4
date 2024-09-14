@@ -16,10 +16,11 @@ universe u v w
 namespace Array
 variable {α : Type u}
 
+@[deprecated Array.toList (since := "2024-09-10")] abbrev Array.data := @Array.toList
+
 @[extern "lean_mk_array"]
-def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
-  data := List.replicate n v
-}
+def mkArray {α : Type u} (n : Nat) (v : α) : Array α where
+  toList := List.replicate n v
 
 /--
 `ofFn f` with `f : Fin n → α` returns the list whose ith element is `f i`.
@@ -49,6 +50,13 @@ instance : Inhabited (Array α) where
 
 def singleton (v : α) : Array α :=
   mkArray 1 v
+
+/-- Low-level version of `size` that directly queries the C array object cached size.
+    While this is not provable, `usize` always returns the exact size of the array since
+    the implementation only supports arrays of size less than `USize.size`.
+-/
+@[extern "lean_array_size", simp]
+def usize (a : @& Array α) : USize := a.size.toUSize
 
 /-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
@@ -101,7 +109,7 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   a'.set (size_set a i v₂ ▸ j) v₁
 
 /--
-Swaps two entries in an array, or panics if either index is out of bounds.
+Swaps two entries in an array, or returns the array unchanged if either index is out of bounds.
 
 This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
@@ -127,9 +135,8 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
     panic! ("index " ++ toString i ++ " out of bounds")
 
 @[extern "lean_array_pop"]
-def pop (a : Array α) : Array α := {
-  data := a.data.dropLast
-}
+def pop (a : Array α) : Array α where
+  toList := a.toList.dropLast
 
 def shrink (a : Array α) (n : Nat) : Array α :=
   let rec loop
@@ -174,7 +181,7 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat as.size
+  let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof
@@ -280,7 +287,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
 /-- See comment at `forInUnsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
-  let sz := USize.ofNat as.size
+  let sz := as.usize
   let rec @[specialize] map (i : USize) (r : Array NonScalar) : m (Array PNonScalar.{v}) := do
     if i < sz then
      let v    := r.uget i lcProof
@@ -492,10 +499,10 @@ def elem [BEq α] (a : α) (as : Array α) : Bool :=
       (true, r)
 
 /-- Convert a `Array α` into an `List α`. This is O(n) in the size of the array.  -/
--- This function is exported to C, where it is called by `Array.data`
+-- This function is exported to C, where it is called by `Array.toList`
 -- (the projection) to implement this functionality.
-@[export lean_array_to_list]
-def toList (as : Array α) : List α :=
+@[export lean_array_to_list_impl]
+def toListImpl (as : Array α) : List α :=
   as.foldr List.cons []
 
 /-- Prepends an `Array α` onto the front of a list.  Equivalent to `as.toList ++ l`. -/
@@ -786,28 +793,32 @@ def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i 
 def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
   List.toArray <| toListLitAux a n hsz n (hsz ▸ Nat.le_refl _) []
 
-theorem ext' {as bs : Array α} (h : as.data = bs.data) : as = bs := by
+theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
   cases as; cases bs; simp at h; rw [h]
 
-@[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
+@[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-theorem data_toArray (as : List α) : as.toArray.data = as := by
+@[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := by
   simp [List.toArray, Array.mkEmpty]
+
+@[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @toList_toArray
+
+@[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 
 theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
   apply ext'
-  simp [toArrayLit, data_toArray]
+  simp [toArrayLit, toList_toArray]
   have hle : n ≤ as.size := hsz ▸ Nat.le_refl _
   have hge : as.size ≤ n := hsz ▸ Nat.le_refl _
   have := go n hle
   rw [List.drop_eq_nil_of_le hge] at this
   rw [this]
 where
-  getLit_eq (as : Array α) (i : Nat) (h₁ : as.size = n) (h₂ : i < n) : as.getLit i h₁ h₂ = getElem as.data i ((id (α := as.data.length = n) h₁) ▸ h₂) :=
+  getLit_eq (as : Array α) (i : Nat) (h₁ : as.size = n) (h₂ : i < n) : as.getLit i h₁ h₂ = getElem as.toList i ((id (α := as.toList.length = n) h₁) ▸ h₂) :=
     rfl
 
-  go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.data.drop i) = as.data := by
+  go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.toList.drop i) = as.toList := by
     induction i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, *]
 
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=

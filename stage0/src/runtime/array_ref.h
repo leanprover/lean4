@@ -28,12 +28,12 @@ public:
     array_ref(b_obj_arg o, bool b):object_ref(o, b) {}
     array_ref():object_ref(array_mk_empty()) {}
     array_ref(array_ref const & other):object_ref(other) {}
-    array_ref(array_ref && other):object_ref(other) {}
+    array_ref(array_ref && other):object_ref(std::move(other)) {}
     array_ref(std::initializer_list<T> const & elems):object_ref(to_array(elems)) {}
     array_ref(buffer<T> const & elems):object_ref(to_array(elems)) {}
 
     array_ref & operator=(array_ref const & other) { object_ref::operator=(other); return *this; }
-    array_ref & operator=(array_ref && other) { object_ref::operator=(other); return *this; }
+    array_ref & operator=(array_ref && other) { object_ref::operator=(std::move(other)); return *this; }
 
     size_t size() const { return array_size(raw()); }
 

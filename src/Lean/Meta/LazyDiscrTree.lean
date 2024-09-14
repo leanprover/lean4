@@ -286,7 +286,7 @@ private structure Trie (α : Type) where
     /-- Index of trie matching star. -/
     star : TrieIndex
     /-- Following matches based on key of trie. -/
-    children : HashMap Key TrieIndex
+    children : Std.HashMap Key TrieIndex
     /-- Lazy entries at this trie that are not processed. -/
     pending : Array (LazyEntry α) := #[]
   deriving Inhabited
@@ -318,7 +318,7 @@ structure LazyDiscrTree (α : Type) where
   /-- Backing array of trie entries.  Should be owned by this trie. -/
   tries : Array (LazyDiscrTree.Trie α) := #[default]
   /-- Map from discriminator trie roots to the index. -/
-  roots : Lean.HashMap LazyDiscrTree.Key LazyDiscrTree.TrieIndex := {}
+  roots : Std.HashMap LazyDiscrTree.Key LazyDiscrTree.TrieIndex := {}
 
 namespace LazyDiscrTree
 
@@ -445,9 +445,9 @@ private def addLazyEntryToTrie (i:TrieIndex) (e : LazyEntry α) : MatchM α Unit
   modify (·.modify i (·.pushPending e))
 
 private def evalLazyEntry (config : WhnfCoreConfig)
-    (p : Array α × TrieIndex × HashMap Key TrieIndex)
+    (p : Array α × TrieIndex × Std.HashMap Key TrieIndex)
     (entry : LazyEntry α)
-    : MatchM α (Array α × TrieIndex × HashMap Key TrieIndex) := do
+    : MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
   let (values, starIdx, children) := p
   let (todo, lctx, v) := entry
   if todo.isEmpty then
@@ -465,7 +465,7 @@ private def evalLazyEntry (config : WhnfCoreConfig)
         addLazyEntryToTrie starIdx (todo, lctx, v)
         pure (values, starIdx, children)
     else
-      match children.find? k with
+      match children[k]? with
       | none =>
         let children := children.insert k (← newTrie (todo, lctx, v))
         pure (values, starIdx, children)
@@ -478,16 +478,16 @@ This evaluates all lazy entries in a trie and updates `values`, `starIdx`, and `
 accordingly.
 -/
 private partial def evalLazyEntries (config : WhnfCoreConfig)
-    (values : Array α) (starIdx : TrieIndex) (children : HashMap Key TrieIndex)
+    (values : Array α) (starIdx : TrieIndex) (children : Std.HashMap Key TrieIndex)
     (entries : Array (LazyEntry α)) :
-    MatchM α (Array α × TrieIndex × HashMap Key TrieIndex) := do
+    MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
   let mut values := values
   let mut starIdx := starIdx
   let mut children := children
   entries.foldlM (init := (values, starIdx, children)) (evalLazyEntry config)
 
 private def evalNode (c : TrieIndex) :
-    MatchM α (Array α × TrieIndex × HashMap Key TrieIndex) := do
+    MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
   let .node vs star cs pending := (←get).get! c
   if pending.size = 0 then
     pure (vs, star, cs)
@@ -508,7 +508,7 @@ def dropKeyAux (next : TrieIndex) (rest : List Key) :
     | [] =>
       modify (·.set! next {values := #[], star, children})
     | k :: r => do
-      let next := if k == .star then star else children.findD k 0
+      let next := if k == .star then star else children.getD k 0
       dropKeyAux next r
 
 /--
@@ -519,7 +519,7 @@ def dropKey (t : LazyDiscrTree α) (path : List LazyDiscrTree.Key) : MetaM (Lazy
   match path with
   | [] => pure t
   | rootKey :: rest => do
-    let idx := t.roots.findD rootKey 0
+    let idx := t.roots.getD rootKey 0
     Prod.snd <$> runMatch t (dropKeyAux idx rest)
 
 /--
@@ -628,7 +628,7 @@ private partial def getMatchLoop (cases : Array PartialMatch) (result : MatchRes
         else
           cases.push { todo, score := ca.score, c := star }
       let pushNonStar (k : Key) (args : Array Expr) (cases : Array PartialMatch) :=
-        match cs.find? k with
+        match cs[k]? with
         | none   => cases
         | some c => cases.push { todo := todo ++ args, score := ca.score + 1, c }
       let cases := pushStar cases
@@ -650,8 +650,8 @@ private partial def getMatchLoop (cases : Array PartialMatch) (result : MatchRes
           cases |> pushNonStar k args
       getMatchLoop cases result
 
-private def getStarResult (root : Lean.HashMap Key TrieIndex) : MatchM α (MatchResult α) :=
-  match root.find? .star with
+private def getStarResult (root : Std.HashMap Key TrieIndex) : MatchM α (MatchResult α) :=
+  match root[Key.star]? with
   | none =>
     pure <| {}
   | some idx => do
@@ -661,16 +661,16 @@ private def getStarResult (root : Lean.HashMap Key TrieIndex) : MatchM α (Match
 /-
 Add partial match to cases if discriminator tree root map has potential matches.
 -/
-private def pushRootCase (r : Lean.HashMap Key TrieIndex) (k : Key) (args : Array Expr)
+private def pushRootCase (r : Std.HashMap Key TrieIndex) (k : Key) (args : Array Expr)
     (cases : Array PartialMatch) : Array PartialMatch :=
-  match r.find? k with
+  match r[k]? with
   | none => cases
   | some c => cases.push { todo := args, score := 1, c }
 
 /--
   Find values that match `e` in `root`.
 -/
-private def getMatchCore (root : Lean.HashMap Key TrieIndex) (e : Expr) :
+private def getMatchCore (root : Std.HashMap Key TrieIndex) (e : Expr) :
     MatchM α (MatchResult α) := do
   let result ← getStarResult root
   let (k, args) ← MatchClone.getMatchKeyArgs e (root := true) (← read)
@@ -701,7 +701,7 @@ of elements using concurrent functions for generating entries.
 -/
 private structure PreDiscrTree (α : Type) where
   /-- Maps keys to index in tries array. -/
-  roots : HashMap Key Nat := {}
+  roots : Std.HashMap Key Nat := {}
   /-- Lazy entries for root of trie. -/
   tries : Array (Array (LazyEntry α)) := #[]
   deriving Inhabited
@@ -711,7 +711,7 @@ namespace PreDiscrTree
 private def modifyAt (d : PreDiscrTree α) (k : Key)
     (f : Array (LazyEntry α) → Array (LazyEntry α)) : PreDiscrTree α :=
   let { roots, tries } := d
-  match roots.find? k with
+  match roots[k]? with
   | .none =>
     let roots := roots.insert k tries.size
     { roots, tries := tries.push (f #[]) }

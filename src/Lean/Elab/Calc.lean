@@ -42,7 +42,7 @@ def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) 
     unless (← getCalcRelation? resultType).isSome do
       throwError "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
     return (result, resultType)
-  | _ => throwError "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}\n{useDiagnosticMsg}"
+  | _ => throwError "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}{useDiagnosticMsg}"
 
 /--
 Adds a type annotation to a hole that occurs immediately at the beginning of the term.

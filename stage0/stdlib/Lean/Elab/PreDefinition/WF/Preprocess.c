@@ -40,7 +40,6 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 static lean_object* l_Lean_Elab_WF_preprocess___closed__1;
 static lean_object* l_panic___at_Lean_Elab_WF_preprocess___spec__1___closed__1;
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -57,6 +56,7 @@ static lean_object* l_Lean_Elab_WF_preprocess___lambda__2___closed__5;
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_WF_Preprocess_0__Lean_Elab_WF_shouldBetaReduce___lambda__1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lean_Expr_isMData(lean_object*);
+lean_object* lean_find_expr(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_beta(lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_WF_Preprocess_0__Lean_Elab_WF_shouldBetaReduce___spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4) {
@@ -137,7 +137,9 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_WF_Preprocess_0__Lean_Elab_WF_shouldBetaReduce___lambda__1___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_2);
 x_7 = l_Lean_Expr_getAppFn(x_1);
-x_8 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_6, x_7);
+x_8 = lean_find_expr(x_6, x_7);
+lean_dec(x_7);
+lean_dec(x_6);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 

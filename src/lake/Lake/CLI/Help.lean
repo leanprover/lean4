@@ -18,6 +18,7 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
   lint                  lint the package using the configured lint driver
@@ -35,23 +36,31 @@ COMMANDS:
   translate-config      change language of the package configuration
   serve                 start the Lean language server
 
-OPTIONS:
+BASIC OPTIONS:
   --version             print version and exit
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
-  --quiet, -q           hide progress messages
-  --verbose, -v         show verbose information (command invocations)
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
-  --wfail               fail build if warnings are logged
-  --iofail              fail build if any I/O or other info is logged
-  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
   --no-build            exit immediately if a build target is not up-to-date
+
+OUTPUT OPTIONS:
+  --quiet, -q           hide informational logs and the progress indicator
+  --verbose, -v         show trace logs (command invocations) and built targets
+  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
+  --log-level=lv        minimum log level to output on success
+                        (levels: trace, info, warning, error)
+  --fail-level=lv       minimum log level to fail a build (default: error)
+  --iofail              fail build if any I/O or other info is logged
+                        (same as --fail-level=info)
+  --wfail               fail build if warnings are logged
+                        (same as --fail-level=warning)
+
 
 See `lake help <command>` for more information on a specific command."
 
@@ -125,6 +134,19 @@ TARGET EXAMPLES:        build the ...
 
 A bare `lake build` command will build the default facet of the root package.
 Package dependencies are not updated during a build."
+
+def helpCheckBuild :=
+"Check if any default build targets are configured
+
+USAGE:
+  lake check-build
+
+Exits with code 0 if the workspace's root package has any
+default targets configured. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured default targets are valid.
+It merely verifies that some are specified.
+"
 
 def helpUpdate :=
 "Update dependencies and save them to the manifest
@@ -375,6 +397,7 @@ def help : (cmd : String) → String
 | "new"                 => helpNew
 | "init"                => helpInit
 | "build"               => helpBuild
+| "check-build"         => helpCheckBuild
 | "update" | "upgrade"  => helpUpdate
 | "pack"                => helpPack
 | "unpack"              => helpUnpack

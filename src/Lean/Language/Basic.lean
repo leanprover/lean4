@@ -12,6 +12,7 @@ prelude
 import Init.System.Promise
 import Lean.Message
 import Lean.Parser.Types
+import Lean.Elab.InfoTree
 
 set_option linter.missingDocs true
 
@@ -46,6 +47,8 @@ def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
   The base class of all snapshots: all the generic information the language server needs about a
   snapshot. -/
 structure Snapshot where
+  /-- Debug description shown by `trace.Elab.snapshotTree`, defaults to the caller's decl name. -/
+  desc : String := by exact decl_name%.toString
   /--
     The messages produced by this step. The union of message logs of all finished snapshots is
     reported to the user. -/
@@ -71,7 +74,7 @@ structure SnapshotTask (α : Type) where
   range? : Option String.Range
   /-- Underlying task producing the snapshot. -/
   task : Task α
-deriving Nonempty
+deriving Nonempty, Inhabited
 
 /-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
 def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
@@ -203,15 +206,19 @@ abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree
   | mk _ children => children
 
 /-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.format : SnapshotTree → Format := go none
-where go range? s :=
-  let range := match range? with
-    | some range => f!"{range.start}..{range.stop} "
-    | none => ""
-  let element := f!"{s.element.diagnostics.msgLog.unreported.size} diagnostics"
-  let children := Std.Format.prefixJoin .line <|
-    s.children.toList.map fun c => go c.range? c.get
-  .nestD f!"• {range}{element}{children}"
+partial def SnapshotTree.format [Monad m] [MonadFileMap m] [MonadLiftT IO m] :
+    SnapshotTree → m Format :=
+  go none
+where go range? s := do
+  let file ← getFileMap
+  let mut desc := f!"• {s.element.desc}"
+  if let some range := range? then
+    desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
+  desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
+  if let some t := s.element.infoTree? then
+    desc := desc ++ f!"\n{← t.format}"
+  desc := desc ++ .prefixJoin "\n" (← s.children.toList.mapM fun c => go c.range? c.get)
+  return .nestD desc
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous

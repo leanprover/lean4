@@ -67,7 +67,7 @@ structure TraceState where
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 
-builtin_initialize inheritedTraceOptions : IO.Ref (HashSet Name) ← IO.mkRef ∅
+builtin_initialize inheritedTraceOptions : IO.Ref (Std.HashSet Name) ← IO.mkRef ∅
 
 class MonadTrace (m : Type → Type) where
   modifyTraceState : (TraceState → TraceState) → m Unit
@@ -88,7 +88,7 @@ def printTraces : m Unit := do
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-private def checkTraceOption (inherited : HashSet Name) (opts : Options) (cls : Name) : Bool :=
+private def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
   !opts.isEmpty && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
@@ -294,9 +294,9 @@ macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
 
-def bombEmoji := "💥"
-def checkEmoji := "✅"
-def crossEmoji := "❌"
+def bombEmoji := "💥️"
+def checkEmoji := "✅️"
+def crossEmoji := "❌️"
 
 def exceptBoolEmoji : Except ε Bool → String
   | .error _ => bombEmoji
@@ -326,7 +326,7 @@ instance : ExceptToEmoji ε (Option α) where
 Similar to `withTraceNode`, but msg is constructed **before** executing `k`.
 This is important when debugging methods such as `isDefEq`, and we want to generate the message
 before `k` updates the metavariable assignment. The class `ExceptToEmoji` is used to convert
-the result produced by `k` into an emoji (e.g., `💥`, `✅`, `❌`).
+the result produced by `k` into an emoji (e.g., `💥️`, `✅️`, `❌️`).
 
 TODO: find better name for this function.
 -/

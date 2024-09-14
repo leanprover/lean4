@@ -3,15 +3,17 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-
 prelude
-import Init.Data.Array.Lemmas
+import Init.Data.Array.Bootstrap
 
 /-!
 ## Tail recursive implementations for `List` definitions.
 
 Many of the proofs require theorems about `Array`,
 so these are in a separate file to minimize imports.
+
+If you import `Init.Data.List.Basic` but do not import this file,
+then at runtime you will get non-tail recursive versions of the following definitions.
 -/
 
 namespace List
@@ -31,25 +33,16 @@ The following operations are not recursive to begin with
 `isEmpty`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft`, `rotateRight`, `insert`, `zip`, `enum`,
 `minimum?`, `maximum?`, and `removeAll`.
 
+The following operations were already given `@[csimp]` replacements in `Init/Data/List/Basic.lean`:
+`length`, `map`, `filter`, `replicate`, `leftPad`, `unzip`, `range'`, `iota`, `intersperse`.
+
 The following operations are given `@[csimp]` replacements below:
-`length`, `set`, `map`, `filter`, `filterMap`, `foldr`, `append`, `bind`, `join`, `replicate`,
-`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`, `unzip`, `iota`,
-`enumFrom`, `intersperse`, and `intercalate`.
+`set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
+`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`,
+`enumFrom`, and `intercalate`.
 
 -/
 
-/-! ### length -/
-
-theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
-  induction as generalizing n with
-  | nil  => simp [length, lengthTRAux]
-  | cons a as ih =>
-    simp [length, lengthTRAux, ← ih, Nat.succ_add]
-    rfl
-
-@[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
-  apply funext; intro α; apply funext; intro as
-  simp [lengthTR, ← length_add_eq_lengthTRAux]
 
 /-! ### set -/
 
@@ -64,59 +57,12 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
 
 @[csimp] theorem set_eq_setTR : @set = @setTR := by
   funext α l n a; simp [setTR]
-  let rec go (acc) : ∀ xs n, l = acc.data ++ xs →
-    setTR.go l a xs n acc = acc.data ++ xs.set n a
+  let rec go (acc) : ∀ xs n, l = acc.toList ++ xs →
+    setTR.go l a xs n acc = acc.toList ++ xs.set n a
   | [], _ => fun h => by simp [setTR.go, set, h]
   | x::xs, 0 => by simp [setTR.go, set]
   | x::xs, n+1 => fun h => by simp only [setTR.go, set]; rw [go _ xs] <;> simp [h]
   exact (go #[] _ _ rfl).symm
-
-/-! ### map -/
-
-/-- Tail-recursive version of `List.map`. -/
-@[inline] def mapTR (f : α → β) (as : List α) : List β :=
-  loop as []
-where
-  @[specialize] loop : List α → List β → List β
-  | [],    bs => bs.reverse
-  | a::as, bs => loop as (f a :: bs)
-
-theorem mapTR_loop_eq (f : α → β) (as : List α) (bs : List β) :
-    mapTR.loop f as bs = bs.reverse ++ map f as := by
-  induction as generalizing bs with
-  | nil => simp [mapTR.loop, map]
-  | cons a as ih =>
-    simp only [mapTR.loop, map]
-    rw [ih (f a :: bs), reverse_cons, append_assoc]
-    rfl
-
-@[csimp] theorem map_eq_mapTR : @map = @mapTR :=
-  funext fun α => funext fun β => funext fun f => funext fun as => by
-    simp [mapTR, mapTR_loop_eq]
-
-/-! ### filter -/
-
-/-- Tail-recursive version of `List.filter`. -/
-@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
-  loop as []
-where
-  @[specialize] loop : List α → List α → List α
-  | [],    rs => rs.reverse
-  | a::as, rs => match p a with
-     | true  => loop as (a::rs)
-     | false => loop as rs
-
-theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
-    filterTR.loop p as bs = bs.reverse ++ filter p as := by
-  induction as generalizing bs with
-  | nil => simp [filterTR.loop, filter]
-  | cons a as ih =>
-    simp only [filterTR.loop, filter]
-    split <;> simp_all
-
-@[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
-  apply funext; intro α; apply funext; intro p; apply funext; intro as
-  simp [filterTR, filterTR_loop_eq]
 
 /-! ### filterMap -/
 
@@ -131,10 +77,11 @@ theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
 
 @[csimp] theorem filterMap_eq_filterMapTR : @List.filterMap = @filterMapTR := by
   funext α β f l
-  let rec go : ∀ as acc, filterMapTR.go f as acc = acc.data ++ as.filterMap f
+  let rec go : ∀ as acc, filterMapTR.go f as acc = acc.toList ++ as.filterMap f
     | [], acc => by simp [filterMapTR.go, filterMap]
     | a::as, acc => by
-      simp only [filterMapTR.go, go as, Array.push_data, append_assoc, singleton_append, filterMap]
+      simp only [filterMapTR.go, go as, Array.push_toList, append_assoc, singleton_append,
+        filterMap]
       split <;> simp [*]
   exact (go l #[]).symm
 
@@ -144,7 +91,7 @@ theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
 @[specialize] def foldrTR (f : α → β → β) (init : β) (l : List α) : β := l.toArray.foldr f init
 
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
-  funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_data, -Array.size_toArray]
+  funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_toList, -Array.size_toArray]
 
 /-! ### bind  -/
 
@@ -157,7 +104,7 @@ theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
 
 @[csimp] theorem bind_eq_bindTR : @List.bind = @bindTR := by
   funext α β as f
-  let rec go : ∀ as acc, bindTR.go f as acc = acc.data ++ as.bind f
+  let rec go : ∀ as acc, bindTR.go f as acc = acc.toList ++ as.bind f
     | [], acc => by simp [bindTR.go, bind]
     | x::xs, acc => by simp [bindTR.go, bind, go xs]
   exact (go as #[]).symm
@@ -169,29 +116,6 @@ theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
 
 @[csimp] theorem join_eq_joinTR : @join = @joinTR := by
   funext α l; rw [← List.bind_id, List.bind_eq_bindTR]; rfl
-
-/-! ### replicate -/
-
-/-- Tail-recursive version of `List.replicate`. -/
-def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
-  let rec loop : Nat → List α → List α
-    | 0, as => as
-    | n+1, as => loop n (a::as)
-  loop n []
-
-theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
-  replicateTR.loop a n (replicate m a) = replicate (n + m) a := by
-  induction n generalizing m with simp [replicateTR.loop]
-  | succ n ih => simp [Nat.succ_add]; exact ih (m+1)
-
-theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++ acc
-  | 0 => rfl
-  | n+1 => by rw [← replicateTR_loop_replicate_eq _ 1 n, replicate, replicate,
-    replicateTR.loop, replicateTR_loop_eq n, replicateTR_loop_eq n, append_assoc]; rfl
-
-@[csimp] theorem replicate_eq_replicateTR : @List.replicate = @List.replicateTR := by
-  apply funext; intro α; apply funext; intro n; apply funext; intro a
-  exact (replicateTR_loop_replicate_eq _ 0 n).symm
 
 /-! ## Sublists -/
 
@@ -208,7 +132,7 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
 
 @[csimp] theorem take_eq_takeTR : @take = @takeTR := by
   funext α n l; simp [takeTR]
-  suffices ∀ xs acc, l = acc.data ++ xs → takeTR.go l xs n acc = acc.data ++ xs.take n from
+  suffices ∀ xs acc, l = acc.toList ++ xs → takeTR.go l xs n acc = acc.toList ++ xs.take n from
     (this l #[] (by simp)).symm
   intro xs; induction xs generalizing n with intro acc
   | nil => cases n <;> simp [take, takeTR.go]
@@ -229,13 +153,13 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
 
 @[csimp] theorem takeWhile_eq_takeWhileTR : @takeWhile = @takeWhileTR := by
   funext α p l; simp [takeWhileTR]
-  suffices ∀ xs acc, l = acc.data ++ xs →
-      takeWhileTR.go p l xs acc = acc.data ++ xs.takeWhile p from
+  suffices ∀ xs acc, l = acc.toList ++ xs →
+      takeWhileTR.go p l xs acc = acc.toList ++ xs.takeWhile p from
     (this l #[] (by simp)).symm
   intro xs; induction xs with intro acc
   | nil => simp [takeWhile, takeWhileTR.go]
   | cons x xs IH =>
-    simp only [takeWhileTR.go, Array.toList_eq, takeWhile]
+    simp only [takeWhileTR.go, Array.toListImpl_eq, takeWhile]
     split
     · intro h; rw [IH] <;> simp_all
     · simp [*]
@@ -262,8 +186,8 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
 
 @[csimp] theorem replace_eq_replaceTR : @List.replace = @replaceTR := by
   funext α _ l b c; simp [replaceTR]
-  suffices ∀ xs acc, l = acc.data ++ xs →
-      replaceTR.go l b c xs acc = acc.data ++ xs.replace b c from
+  suffices ∀ xs acc, l = acc.toList ++ xs →
+      replaceTR.go l b c xs acc = acc.toList ++ xs.replace b c from
     (this l #[] (by simp)).symm
   intro xs; induction xs with intro acc
   | nil => simp [replace, replaceTR.go]
@@ -285,7 +209,7 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
 
 @[csimp] theorem erase_eq_eraseTR : @List.erase = @eraseTR := by
   funext α _ l a; simp [eraseTR]
-  suffices ∀ xs acc, l = acc.data ++ xs → eraseTR.go l a xs acc = acc.data ++ xs.erase a from
+  suffices ∀ xs acc, l = acc.toList ++ xs → eraseTR.go l a xs acc = acc.toList ++ xs.erase a from
     (this l #[] (by simp)).symm
   intro xs; induction xs with intro acc h
   | nil => simp [List.erase, eraseTR.go, h]
@@ -294,6 +218,24 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
     cases x == a
     · rw [IH] <;> simp_all
     · simp
+
+/-- Tail-recursive version of `eraseP`. -/
+@[inline] def erasePTR (p : α → Bool) (l : List α) : List α := go l #[] where
+  /-- Auxiliary for `erasePTR`: `erasePTR.go p l xs acc = acc.toList ++ eraseP p xs`,
+  unless `xs` does not contain any elements satisfying `p`, where it returns `l`. -/
+  @[specialize] go : List α → Array α → List α
+  | [], _ => l
+  | a :: l, acc => bif p a then acc.toListAppend l else go l (acc.push a)
+
+@[csimp] theorem eraseP_eq_erasePTR : @eraseP = @erasePTR := by
+  funext α p l; simp [erasePTR]
+  let rec go (acc) : ∀ xs, l = acc.toList ++ xs →
+    erasePTR.go p l xs acc = acc.toList ++ xs.eraseP p
+  | [] => fun h => by simp [erasePTR.go, eraseP, h]
+  | x::xs => by
+    simp [erasePTR.go, eraseP]; cases p x <;> simp
+    · intro h; rw [go _ xs]; {simp}; simp [h]
+  exact (go #[] _ rfl).symm
 
 /-! ### eraseIdx -/
 
@@ -308,7 +250,7 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
 
 @[csimp] theorem eraseIdx_eq_eraseIdxTR : @eraseIdx = @eraseIdxTR := by
   funext α l n; simp [eraseIdxTR]
-  suffices ∀ xs acc, l = acc.data ++ xs → eraseIdxTR.go l xs n acc = acc.data ++ xs.eraseIdx n from
+  suffices ∀ xs acc, l = acc.toList ++ xs → eraseIdxTR.go l xs n acc = acc.toList ++ xs.eraseIdx n from
     (this l #[] (by simp)).symm
   intro xs; induction xs generalizing n with intro acc h
   | nil => simp [eraseIdx, eraseIdxTR.go, h]
@@ -332,38 +274,12 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
 
 @[csimp] theorem zipWith_eq_zipWithTR : @zipWith = @zipWithTR := by
   funext α β γ f as bs
-  let rec go : ∀ as bs acc, zipWithTR.go f as bs acc = acc.data ++ as.zipWith f bs
+  let rec go : ∀ as bs acc, zipWithTR.go f as bs acc = acc.toList ++ as.zipWith f bs
     | [], _, acc | _::_, [], acc => by simp [zipWithTR.go, zipWith]
     | a::as, b::bs, acc => by simp [zipWithTR.go, zipWith, go as bs]
   exact (go as bs #[]).symm
 
-/-! ### unzip -/
-
-/-- Tail recursive version of `List.unzip`. -/
-def unzipTR (l : List (α × β)) : List α × List β :=
-  l.foldr (fun (a, b) (al, bl) => (a::al, b::bl)) ([], [])
-
-@[csimp] theorem unzip_eq_unzipTR : @unzip = @unzipTR := by
-  funext α β l; simp [unzipTR]; induction l <;> simp [*]
-
 /-! ## Ranges and enumeration -/
-
-/-! ### iota -/
-
-/-- Tail-recursive version of `List.iota`. -/
-def iotaTR (n : Nat) : List Nat :=
-  let rec go : Nat → List Nat → List Nat
-    | 0, r => r.reverse
-    | m@(n+1), r => go n (m::r)
-  go n []
-
-@[csimp]
-theorem iota_eq_iotaTR : @iota = @iotaTR :=
-  have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by
-    induction n generalizing r with
-    | zero => simp [iota, iotaTR.go]
-    | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
-  funext fun n => by simp [iotaTR, aux]
 
 /-! ### enumFrom -/
 
@@ -380,24 +296,10 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
     | a::as, n => by
       rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
       simp [enumFrom, f]
-  rw [Array.foldr_eq_foldr_data]
+  rw [Array.foldr_eq_foldr_toList]
   simp [go]
 
 /-! ## Other list operations -/
-
-/-! ### intersperse -/
-
-/-- Tail recursive version of `List.intersperse`. -/
-def intersperseTR (sep : α) : List α → List α
-  | [] => []
-  | [x] => [x]
-  | x::y::xs => x :: sep :: y :: xs.foldr (fun a r => sep :: a :: r) []
-
-@[csimp] theorem intersperse_eq_intersperseTR : @intersperse = @intersperseTR := by
-  funext α sep l; simp [intersperseTR]
-  match l with
-  | [] | [_] => rfl
-  | x::y::xs => simp [intersperse]; induction xs generalizing y <;> simp [*]
 
 /-! ### intercalate -/
 
@@ -420,7 +322,7 @@ where
   | [_] => simp
   | x::y::xs =>
     let rec go {acc x} : ∀ xs,
-      intercalateTR.go sep.toArray x xs acc = acc.data ++ join (intersperse sep (x::xs))
+      intercalateTR.go sep.toArray x xs acc = acc.toList ++ join (intersperse sep (x::xs))
     | [] => by simp [intercalateTR.go]
     | _::_ => by simp [intercalateTR.go, go]
     simp [intersperse, go]

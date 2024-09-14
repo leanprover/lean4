@@ -27,10 +27,10 @@ public:
     static nat of_size_t(size_t v) { return nat(lean_usize_to_nat(v)); }
 
     nat(nat const & other):object_ref(other) {}
-    nat(nat && other):object_ref(other) {}
+    nat(nat && other):object_ref(std::move(other)) {}
 
     nat & operator=(nat const & other) { object_ref::operator=(other); return *this; }
-    nat & operator=(nat && other) { object_ref::operator=(other); return *this; }
+    nat & operator=(nat && other) { object_ref::operator=(std::move(other)); return *this; }
     bool is_small() const { return is_scalar(raw()); }
     size_t get_small_value() const { lean_assert(is_small()); return unbox(raw()); }
     bool is_zero() const { return is_small() && get_small_value() == 0; }

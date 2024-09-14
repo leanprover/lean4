@@ -164,6 +164,16 @@ def asNode : Syntax → SyntaxNode
 def getIdAt (stx : Syntax) (i : Nat) : Name :=
   (stx.getArg i).getId
 
+/--
+Check for a `Syntax.ident` of the given name anywhere in the tree.
+This is usually a bad idea since it does not check for shadowing bindings,
+but in the delaborator we assume that bindings are never shadowed.
+-/
+partial def hasIdent (id : Name) : Syntax → Bool
+  | ident _ _ id' _ => id == id'
+  | node _ _ args   => args.any (hasIdent id)
+  | _               => false
+
 @[inline] def modifyArgs (stx : Syntax) (fn : Array Syntax → Array Syntax) : Syntax :=
   match stx with
   | node i k args => node i k (fn args)

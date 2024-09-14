@@ -123,6 +123,12 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
+macro "app_delab" id:ident : attr => do
+  match ← Macro.resolveGlobalName id.getId with
+  | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"
+  | [(c, [])] => `(attr| delab $(mkIdentFrom (canonical := true) id (`app ++ c)))
+  | _ => Macro.throwErrorAt id s!"ambiguous declaration '{id.getId}'"
+
 def getExprKind : DelabM Name := do
   let e ← getExpr
   pure $ match e with

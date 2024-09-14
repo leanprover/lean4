@@ -55,3 +55,42 @@ example : False := by
   interrupt
   simp
 --^ collectDiagnostics
+
+/-!
+Trailing whitespace should not invalidate the module header. Note that in case of a regression, this
+test case will currently deadlock. In any case, it should not succeed as interactive tests
+communicate with one worker process only.
+-/
+-- RESET
+import Init.Prelude
+                 --^ collectDiagnostics
+                 --^ insert: " "
+                 --^ collectDiagnostics
+#eval "import"
+
+/-!
+`where` should not break incrementality
+(used to fail with "(kernel) declaration has metavariables '_example'")
+-/
+-- RESET
+example : False := by
+  trivial
+where
+  bar : True := by
+    trivial
+         --^ sync
+         --^ insert: " "
+         --^ collectDiagnostics
+
+/-!
+A reuse bug led to deletions after the header skipping a prefix of the next command on further edits
+-/
+-- RESET
+--asdf
+--^ delete: "a"
+--^ sync
+def f := 1  -- used to raise "unexpected identifier" after edit below because we would start parsing
+            -- on "ef"
+def g := 2
+   --^ insert: "g"
+   --^ collectDiagnostics

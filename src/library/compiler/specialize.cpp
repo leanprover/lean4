@@ -92,10 +92,10 @@ public:
         object_ref(mk_cnstr(0, ns, ks)) {}
     spec_info():spec_info(names(), spec_arg_kinds()) {}
     spec_info(spec_info const & other):object_ref(other) {}
-    spec_info(spec_info && other):object_ref(other) {}
+    spec_info(spec_info && other):object_ref(std::move(other)) {}
     spec_info(b_obj_arg o, bool b):object_ref(o, b) {}
     spec_info & operator=(spec_info const & other) { object_ref::operator=(other); return *this; }
-    spec_info & operator=(spec_info && other) { object_ref::operator=(other); return *this; }
+    spec_info & operator=(spec_info && other) { object_ref::operator=(std::move(other)); return *this; }
     names const & get_mutual_decls() const { return static_cast<names const &>(cnstr_get_ref(*this, 0)); }
     spec_arg_kinds const & get_arg_kinds() const { return static_cast<spec_arg_kinds const &>(cnstr_get_ref(*this, 1)); }
 };

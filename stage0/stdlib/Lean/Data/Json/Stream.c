@@ -22,8 +22,10 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lea
 static lean_object* l_IO_FS_Stream_readJson___closed__2;
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
+static lean_object* l_IO_FS_Stream_readJson___closed__3;
+lean_object* l_Std_Internal_Parsec_String_Parser_run___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Json_Parser_any(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_parse(lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -85,6 +87,14 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_IO_FS_Stream_readJson___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Json_Parser_any), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -116,65 +126,67 @@ return x_7;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_free_object(x_7);
 x_13 = lean_string_from_utf8_unchecked(x_9);
 lean_dec(x_9);
-x_14 = l_Lean_Json_parse(x_13);
-x_15 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(x_14, x_10);
-return x_15;
+x_14 = l_IO_FS_Stream_readJson___closed__3;
+x_15 = l_Std_Internal_Parsec_String_Parser_run___rarg(x_14, x_13);
+x_16 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(x_15, x_10);
+return x_16;
 }
 }
 else
 {
-lean_object* x_16; lean_object* x_17; uint8_t x_18; 
-x_16 = lean_ctor_get(x_7, 0);
-x_17 = lean_ctor_get(x_7, 1);
+lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_17 = lean_ctor_get(x_7, 0);
+x_18 = lean_ctor_get(x_7, 1);
+lean_inc(x_18);
 lean_inc(x_17);
-lean_inc(x_16);
 lean_dec(x_7);
-x_18 = lean_string_validate_utf8(x_16);
-if (x_18 == 0)
+x_19 = lean_string_validate_utf8(x_17);
+if (x_19 == 0)
 {
-lean_object* x_19; lean_object* x_20; 
-lean_dec(x_16);
-x_19 = l_IO_FS_Stream_readJson___closed__2;
-x_20 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_17);
-return x_20;
+lean_object* x_20; lean_object* x_21; 
+lean_dec(x_17);
+x_20 = l_IO_FS_Stream_readJson___closed__2;
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_18);
+return x_21;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_string_from_utf8_unchecked(x_16);
-lean_dec(x_16);
-x_22 = l_Lean_Json_parse(x_21);
-x_23 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(x_22, x_17);
-return x_23;
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_22 = lean_string_from_utf8_unchecked(x_17);
+lean_dec(x_17);
+x_23 = l_IO_FS_Stream_readJson___closed__3;
+x_24 = l_Std_Internal_Parsec_String_Parser_run___rarg(x_23, x_22);
+x_25 = l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(x_24, x_18);
+return x_25;
 }
 }
 }
 else
 {
-uint8_t x_24; 
-x_24 = !lean_is_exclusive(x_7);
-if (x_24 == 0)
+uint8_t x_26; 
+x_26 = !lean_is_exclusive(x_7);
+if (x_26 == 0)
 {
 return x_7;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_25 = lean_ctor_get(x_7, 0);
-x_26 = lean_ctor_get(x_7, 1);
-lean_inc(x_26);
-lean_inc(x_25);
+lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_27 = lean_ctor_get(x_7, 0);
+x_28 = lean_ctor_get(x_7, 1);
+lean_inc(x_28);
+lean_inc(x_27);
 lean_dec(x_7);
-x_27 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_27, 0, x_25);
-lean_ctor_set(x_27, 1, x_26);
-return x_27;
+x_29 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_29, 0, x_27);
+lean_ctor_set(x_29, 1, x_28);
+return x_29;
 }
 }
 }
@@ -258,6 +270,8 @@ l_IO_FS_Stream_readJson___closed__1 = _init_l_IO_FS_Stream_readJson___closed__1(
 lean_mark_persistent(l_IO_FS_Stream_readJson___closed__1);
 l_IO_FS_Stream_readJson___closed__2 = _init_l_IO_FS_Stream_readJson___closed__2();
 lean_mark_persistent(l_IO_FS_Stream_readJson___closed__2);
+l_IO_FS_Stream_readJson___closed__3 = _init_l_IO_FS_Stream_readJson___closed__3();
+lean_mark_persistent(l_IO_FS_Stream_readJson___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

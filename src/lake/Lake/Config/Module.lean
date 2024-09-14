@@ -23,8 +23,8 @@ structure Module where
 instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName
 
-abbrev ModuleSet := HashSet Module
-@[inline] def ModuleSet.empty : ModuleSet := HashSet.empty
+abbrev ModuleSet := Std.HashSet Module
+@[inline] def ModuleSet.empty : ModuleSet := Std.HashSet.empty
 
 abbrev OrdModuleSet := OrdHashSet Module
 @[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty

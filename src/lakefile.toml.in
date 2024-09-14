@@ -33,6 +33,7 @@ defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Std"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Lean"
@@ -50,4 +51,8 @@ globs = [
 name = "Lake"
 srcDir = "lake"
 defaultFacets = ["static", "static.export"]
-globs = ["Lake", "Lake.Main"]
+
+[[lean_lib]]
+name = "LakeMain"
+srcDir = "lake"
+defaultFacets = ["static"]

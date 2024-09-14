@@ -695,7 +695,7 @@ def throwOutOfScopeFVar : CheckAssignmentM α :=
   throw <| Exception.internal outOfScopeExceptionId
 
 private def findCached? (e : Expr) : CheckAssignmentM (Option Expr) := do
-  return (← get).cache.find? e
+  return (← get).cache.get? e
 
 private def cache (e r : Expr) : CheckAssignmentM Unit := do
   modify fun s => { s with cache := s.cache.insert e r }
@@ -895,23 +895,27 @@ end CheckAssignment
 
 namespace CheckAssignmentQuick
 
-partial def check
+unsafe def checkImpl
     (hasCtxLocals : Bool)
     (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
-  let rec visit (e : Expr) : Bool := Id.run do
+  let rec visit (e : Expr) : StateM (PtrSet Expr) Bool := do
     if !e.hasExprMVar && !e.hasFVar then
       return true
+    if (← get).contains e then
+      return true
+    modify fun visited => visited.insert e
     match e with
     | .mdata _ b       => visit b
     | .proj _ _ s      => visit s
-    | .app f a         => visit f && visit a
-    | .lam _ d b _     => visit d && visit b
-    | .forallE _ d b _ => visit d && visit b
-    | .letE _ t v b _  => visit t && visit v && visit b
+    | .app f a         => visit f <&&> visit a
+    | .lam _ d b _     => visit d <&&> visit b
+    | .forallE _ d b _ => visit d <&&> visit b
+    | .letE _ t v b _  => visit t <&&> visit v <&&> visit b
     | .bvar .. | .sort .. | .const ..
     | .lit .. => return true
     | .fvar fvarId ..  =>
-      if mvarDecl.lctx.contains fvarId then return true
+      if mvarDecl.lctx.contains fvarId then
+        return true
       if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
         return false -- need expensive CheckAssignment.check
       if fvars.any fun x => x.fvarId! == fvarId then
@@ -925,7 +929,13 @@ partial def check
       if !mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then return false -- use CheckAssignment.check
       let none := mctx.getDelayedMVarAssignmentCore? mvarId' | return false -- use CheckAssignment.check
       return true
-  visit e
+  if !e.hasExprMVar && !e.hasFVar then
+    true
+  else
+    visit e |>.run' mkPtrSet
+
+def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
+  unsafe checkImpl hasCtxLocals mctx lctx mvarDecl mvarId fvars e
 
 end CheckAssignmentQuick
 
@@ -1045,6 +1055,15 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
     unless typeOccursCheck (← getMCtx) mvarId v do
       return none
     return some v
+
+-- Implementation for `_root_.Lean.MVarId.checkedAssign`
+@[export lean_checked_assign]
+def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do
+  if let some val ← checkAssignment mvarId #[] val then
+    mvarId.assign val
+    return true
+  else
+    return false
 
 private def processAssignmentFOApproxAux (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
   match v with

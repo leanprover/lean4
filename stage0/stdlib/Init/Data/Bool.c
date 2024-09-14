@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Bool
-// Imports: Init.BinderPredicates
+// Imports: Init.NotationExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,12 +16,14 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred(lean_object*);
 LEAN_EXPORT uint8_t l_Bool_instMin(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Bool_not(uint8_t);
+LEAN_EXPORT lean_object* l_boolPredToPred(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_xor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_xor(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Bool_and(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_boolRelToRel(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instLT;
@@ -424,13 +426,25 @@ x_3 = l_Bool_toNat(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_BinderPredicates(uint8_t builtin, lean_object*);
+LEAN_EXPORT lean_object* l_boolPredToPred(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
+LEAN_EXPORT lean_object* l_boolRelToRel(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
+lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_BinderPredicates(builtin, lean_io_mk_world());
+res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Bool_instLE = _init_l_Bool_instLE();

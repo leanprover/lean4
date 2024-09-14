@@ -316,9 +316,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
           return false
     return true
   if canClear then
-    let lctx := (← getLCtx).erase fvarId
-    let localInsts := (← getLocalInstances).filter (·.fvar.fvarId! != fvarId)
-    withLCtx lctx localInsts do elabTerm body expectedType?
+    withErasedFVars #[fvarId] do elabTerm body expectedType?
   else
     elabTerm body expectedType?
 
@@ -363,5 +361,8 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
     let path := srcDir / path
     mkStrLit <$> IO.FS.readFile path
   | _, _ => throwUnsupportedSyntax
+
+@[builtin_term_elab Lean.Parser.Term.namedPattern] def elabNamedPatternErr : TermElab := fun stx _ =>
+  throwError "`<identifier>@<term>` is a named pattern and can only be used in pattern matching contexts{indentD stx}"
 
 end Lean.Elab.Term

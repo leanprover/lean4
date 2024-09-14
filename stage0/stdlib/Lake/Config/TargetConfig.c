@@ -146,13 +146,15 @@ return x_1;
 static lean_object* _init_l_Lake_instInhabitedTargetConfig___lambda__2___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_1 = l_Lake_instInhabitedTargetConfig___lambda__2___closed__5;
 x_2 = l_Lake_instInhabitedTargetConfig___lambda__2___closed__6;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+x_3 = 0;
+x_4 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__2(lean_object* x_1) {
@@ -286,20 +288,22 @@ return x_1;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_1, 0);
 x_9 = lean_ctor_get(x_1, 1);
+x_10 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_dec(x_1);
-x_10 = l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__2;
-x_11 = l_Task_Priority_default;
-x_12 = 0;
-x_13 = lean_task_map(x_10, x_8, x_11, x_12);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_9);
-return x_14;
+x_11 = l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__2;
+x_12 = l_Task_Priority_default;
+x_13 = 0;
+x_14 = lean_task_map(x_11, x_8, x_12, x_13);
+x_15 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_9);
+lean_ctor_set_uint8(x_15, sizeof(void*)*2, x_10);
+return x_15;
 }
 }
 }

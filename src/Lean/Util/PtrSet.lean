@@ -6,6 +6,9 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Hashable
 import Lean.Data.HashSet
+import Lean.Data.HashMap
+import Std.Data.HashSet.Basic
+import Std.Data.HashMap.Basic
 
 namespace Lean
 
@@ -22,15 +25,33 @@ unsafe instance : BEq (Ptr α) where
 Set of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.
 -/
 unsafe def PtrSet (α : Type) :=
-  HashSet (Ptr α)
+  Std.HashSet (Ptr α)
 
 unsafe def mkPtrSet {α : Type} (capacity : Nat := 64) : PtrSet α :=
-  mkHashSet capacity
+  Std.HashSet.empty capacity
 
 unsafe abbrev PtrSet.insert (s : PtrSet α) (a : α) : PtrSet α :=
-  HashSet.insert s { value := a }
+  Std.HashSet.insert s { value := a }
 
 unsafe abbrev PtrSet.contains (s : PtrSet α) (a : α) : Bool :=
-  HashSet.contains s { value := a }
+  Std.HashSet.contains s { value := a }
+
+/--
+Map of pointers. It is a low-level auxiliary datastructure used for traversing DAGs.
+-/
+unsafe def PtrMap (α : Type) (β : Type) :=
+  Std.HashMap (Ptr α) β
+
+unsafe def mkPtrMap {α β : Type} (capacity : Nat := 64) : PtrMap α β :=
+  Std.HashMap.empty capacity
+
+unsafe abbrev PtrMap.insert (s : PtrMap α β) (a : α) (b : β) : PtrMap α β :=
+  Std.HashMap.insert s { value := a } b
+
+unsafe abbrev PtrMap.contains (s : PtrMap α β) (a : α) : Bool :=
+  Std.HashMap.contains s { value := a }
+
+unsafe abbrev PtrMap.find? (s : PtrMap α β) (a : α) : Option β :=
+  Std.HashMap.get? s { value := a }
 
 end Lean

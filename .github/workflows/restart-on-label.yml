@@ -14,8 +14,9 @@ jobs:
         # (unfortunately cannot search by PR number, only base branch,
         # and that is't even unique given PRs from forks, but the risk
         # of confusion is low and the danger is mild)
-        run_id=$(gh run list -e pull_request -b "$head_ref" --workflow 'CI' --limit 1 \
-          --limit 1 --json databaseId --jq '.[0].databaseId')
+        echo "Trying to find a run with branch $head_ref and commit $head_sha"
+        run_id="$(gh run list -e pull_request -b "$head_ref" -c "$head_sha" \
+          --workflow 'CI' --limit 1 --json databaseId --jq '.[0].databaseId')"
         echo "Run id: ${run_id}"
         gh run view "$run_id"
         echo "Cancelling (just in case)"
@@ -29,5 +30,6 @@ jobs:
       shell: bash
       env:
         head_ref: ${{ github.head_ref }}
+        head_sha: ${{ github.event.pull_request.head.sha }}
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}

@@ -8,7 +8,7 @@ The integers, with addition, multiplication, and subtraction.
 prelude
 import Init.Data.Cast
 import Init.Data.Nat.Div
-import Init.Data.List.Basic
+
 set_option linter.missingDocs true -- keep it documented
 open Nat
 
@@ -322,8 +322,8 @@ protected def pow (m : Int) : Nat → Int
   | 0      => 1
   | succ n => Int.pow m n * m
 
-instance : HPow Int Nat Int where
-  hPow := Int.pow
+instance : NatPow Int where
+  pow := Int.pow
 
 instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption

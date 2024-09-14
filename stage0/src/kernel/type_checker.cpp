@@ -185,7 +185,7 @@ expr type_checker::infer_app(expr const & e, bool infer_only) {
 
 static void mark_used(unsigned n, expr const * fvars, expr const & b, bool * used) {
     if (!has_fvar(b)) return;
-    for_each(b, [&](expr const & x, unsigned) {
+    for_each(b, [&](expr const & x) {
             if (!has_fvar(x)) return false;
             if (is_fvar(x)) {
                 for (unsigned i = 0; i < n; i++) {
@@ -1072,7 +1072,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
-    // TODO: add metadata to control whether this optimization is used or not.
+    // This code path is taken in particular when using the `decide` tactic, which produces
+    // proof terms of the form `Eq.refl true : decide p = true`.
     if (!has_fvar(t) && is_constant(s, *g_bool_true)) {
         if (is_constant(whnf(t), *g_bool_true)) {
             return true;

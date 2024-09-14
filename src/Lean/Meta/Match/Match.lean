@@ -68,7 +68,7 @@ where
         loop lhss alts minors
 
 structure State where
-  used            : HashSet Nat := {} -- used alternatives
+  used            : Std.HashSet Nat := {} -- used alternatives
   counterExamples : List (List Example) := []
 
 /-- Return true if the given (sub-)problem has been solved. -/

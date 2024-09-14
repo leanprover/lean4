@@ -27,7 +27,7 @@ $(BIN_OUT)/testcpp.so: $(CPP_OBJS) | $(BIN_OUT)
 	$(CXX) -shared -o $@ $^ `leanc -shared --print-ldflags`
 
 $(BIN_OUT)/test: $(LIB_OUT)/libMain.a $(CPP_OBJS) | $(BIN_OUT)
-	$(CXX) -o $@ $^ `leanc -shared --print-ldflags` -lInit_shared -lleanshared $(TEST_SHARED_LINK_FLAGS)
+	$(CXX) -o $@ $^ `leanc -shared --print-ldflags` -lInit_shared -lleanshared_1 -lleanshared $(TEST_SHARED_LINK_FLAGS)
 
 run_test: $(BIN_OUT)/test
 	$^

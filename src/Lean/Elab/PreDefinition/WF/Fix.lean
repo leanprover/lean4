@@ -14,6 +14,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.BRecOn
+import Lean.Elab.PreDefinition.WF.Basic
 import Lean.Data.Array
 
 namespace Lean.Elab.WF
@@ -37,7 +38,7 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F
   trace[Elab.definition.wf] "{F} : {← inferType F}"
   loop F e |>.run' {}
 where
-  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
       loop F (← etaExpand e)
     else
@@ -47,16 +48,16 @@ where
       let r := mkApp r (← mkDecreasingProof decreasingProp)
       return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
 
-  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then
       processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
-  containsRecFn (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Bool := do
+  containsRecFn (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Bool := do
     modifyGet (·.contains e)
 
-  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
@@ -90,7 +91,9 @@ where
         else
           processApp F e
       | none => processApp F e
-    | e => ensureNoRecFn recFnName e
+    | e =>
+      ensureNoRecFn #[recFnName] e
+      pure e
 
 /-- Refine `F` over `PSum.casesOn` -/
 private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
@@ -140,6 +143,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
 
 private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   let remainingGoals ← Tactic.run mvarId do
+    applyCleanWfTactic
     Tactic.evalTactic (← `(tactic| decreasing_tactic))
   unless remainingGoals.isEmpty do
     Term.reportUnsolvedGoals remainingGoals
@@ -200,6 +204,7 @@ def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option 
         goals.forM fun goal => pushInfoTree (.hole goal)
         let remainingGoals ← Tactic.run goals[0]! do
           Tactic.setGoals goals.toList
+          applyCleanWfTactic
           Tactic.withTacticInfoContext decrTactic.ref do
             Tactic.evalTactic decrTactic.tactic
         unless remainingGoals.isEmpty do

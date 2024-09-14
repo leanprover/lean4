@@ -7,7 +7,6 @@ import Lean.Data.Json
 import Lean.Data.NameMap
 import Lake.Util.DRBMap
 import Lake.Util.RBArray
-import Lake.Util.Compare
 
 open Lean
 
@@ -54,7 +53,7 @@ namespace Name
 open Lean.Name
 
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
-  rw [← beq_iff_eq m n]; cases m == n <;> simp (config := { decide := true })
+  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp (config := { decide := true })
 
 @[simp] theorem isPrefixOf_self {n : Name} : n.isPrefixOf n := by
   cases n <;> simp [isPrefixOf]

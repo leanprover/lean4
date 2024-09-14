@@ -23,11 +23,11 @@ namespace Lake
 deriving instance BEq, Hashable for Import
 
 /- Cache for the imported header environment of Lake configuration files. -/
-initialize importEnvCache : IO.Ref (HashMap (Array Import) Environment) ← IO.mkRef {}
+initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
 
 /-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
 def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
-  if let some env := (← importEnvCache.get).find? imports then
+  if let some env := (← importEnvCache.get)[imports]? then
     return env
   let env ← importModules imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
@@ -120,7 +120,7 @@ def importConfigFileCore (olean : FilePath) (leanOpts : Options) : IO Environmen
   let extNameIdx ← mkExtNameMap 0
   let env := mod.entries.foldl (init := env) fun env (extName, ents) =>
     if lakeExts.contains extName then
-      match extNameIdx.find? extName with
+      match extNameIdx[extName]? with
       | some entryIdx => ents.foldl extDescrs[entryIdx]!.addEntry env
       | none => env
     else

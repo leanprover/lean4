@@ -28,25 +28,28 @@ open Snapshots
 
 open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
+def findCompletionInfoTreeAtPos
+    (doc : EditableDocument)
+    (pos : String.Pos)
+    : Task (Option Elab.InfoTree) :=
+  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
+  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
+  -- snapshot that is eligible for completion should be separated by some delimiter.
+  findInfoTreeAtPos doc (fun s => s.data.stx.getTailPos?.any (· + ⟨1⟩ >= pos)) pos
+
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let caps := (← read).initParams.capabilities
-  -- dbg_trace ">> handleCompletion invoked {pos}"
-  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
-  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
-  -- command starts with a keyword that (currently?) does not participate in completion.
-  withWaitFindSnap doc (·.endPos + ' ' >= pos)
-    (notFoundX :=
+  mapTask (findCompletionInfoTreeAtPos doc pos) fun infoTree? => do
+    let some infoTree := infoTree?
       -- work around https://github.com/microsoft/vscode/issues/155738
-      -- this is important when a snapshot cannot be found because it was aborted
-      pure { items := #[{label := "-"}], isIncomplete := true })
-    (x := fun snap => do
-      if let some r ← Completion.find? p doc.meta.text pos snap.infoTree caps then
-        return r
-      return { items := #[ ], isIncomplete := true })
+      | return { items := #[{label := "-"}], isIncomplete := true }
+    if let some r ← Completion.find? p doc.meta.text pos infoTree caps then
+      return r
+    return { items := #[ ], isIncomplete := true }
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -64,9 +67,10 @@ def handleCompletionItemResolve (item : CompletionItem)
   let some id := data.id?
     | return .pure item
   let pos := text.lspPosToUtf8Pos data.params.position
-  withWaitFindSnap doc (·.endPos + ' ' >= pos)
-    (notFoundX := pure item)
-    (x := fun snap => Completion.resolveCompletionItem? text pos snap.infoTree item id)
+  mapTask (findCompletionInfoTreeAtPos doc pos) fun infoTree? => do
+    let some infoTree := infoTree?
+      | return item
+    Completion.resolveCompletionItem? text pos infoTree item id
 
 open Elab in
 def handleHover (p : HoverParams)
@@ -223,7 +227,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := pure #[]) fun snap => do
       if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
         locationLinksOfInfo kind infoWithCtx snap.infoTree
@@ -234,31 +238,27 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
-    (notFoundX := return none) fun snap => do
-      if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.meta.text hoverPos then
-        let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
-          let ciAfter := { ci with mctx := ti.mctxAfter }
-          let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
-          -- compute the interactive goals
-          let goals ← ci.runMetaM {} (do
-            let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
-            let goals ← goals.mapM Widget.goalToInteractive
-            return {goals}
-          )
-          -- compute the goal diff
-          let goals ← ciAfter.runMetaM {} (do
-              try
-                Widget.diffInteractiveGoals useAfter ti goals
-              catch _ =>
-                -- fail silently, since this is just a bonus feature
-                return goals
-          )
-          return goals
-        return some <| goals.foldl (· ++ ·) ∅
-      else
-        return none
+  mapTask (findInfoTreeAtPosWithTrailingWhitespace doc hoverPos) <| Option.bindM fun infoTree => do
+    let rs@(_ :: _) := infoTree.goalsAt? doc.meta.text hoverPos
+      | return none
+    let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
+      let ciAfter := { ci with mctx := ti.mctxAfter }
+      let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
+      -- compute the interactive goals
+      let goals ← ci.runMetaM {} (do
+        let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
+        let goals ← goals.mapM Widget.goalToInteractive
+        return {goals}
+      )
+      -- compute the goal diff
+      ciAfter.runMetaM {} (do
+          try
+            Widget.diffInteractiveGoals useAfter ti goals
+          catch _ =>
+            -- fail silently, since this is just a bonus feature
+            return goals
+      )
+    return some <| goals.foldl (· ++ ·) ∅
 
 open Elab in
 def handlePlainGoal (p : PlainGoalParams)
@@ -280,19 +280,17 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-    (notFoundX := pure none) fun snap => do
-      if let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := snap.infoTree.termGoalAt? hoverPos then
-        let ty ← ci.runMetaM i.lctx do
-          instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
-        -- for binders, hide the last hypothesis (the binder itself)
-        let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-        let goal ← ci.runMetaM lctx' do
-          Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
-        let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-        return some { goal with range, term := ⟨ti⟩ }
-      else
-        return none
+  mapTask (findInfoTreeAtPosWithTrailingWhitespace doc hoverPos) <| Option.bindM fun infoTree => do
+    let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
+      | return none
+    let ty ← ci.runMetaM i.lctx do
+      instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
+    -- for binders, hide the last hypothesis (the binder itself)
+    let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
+    let goal ← ci.runMetaM lctx' do
+      Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
+    let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
+    return some { goal with range, term := ⟨ti⟩ }
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -321,8 +319,8 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     let trees := snaps.map (·.infoTree)
     let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
-    for ident in refs.findAt p.position do
-      if let some info := refs.find? ident then
+    for ident in refs.findAt p.position (includeStop := true) do
+      if let some info := refs.get? ident then
         if let some ⟨definitionRange, _⟩ := info.definition? then
           ranges := ranges.push definitionRange
         ranges := ranges.append <| info.usages.map (·.range)
@@ -330,7 +328,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
       return none
     return some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
 
-  withWaitFindSnap doc (fun s => s.endPos > pos)
+  withWaitFindSnap doc (fun s => s.endPos >= pos)
     (notFoundX := pure #[]) fun snap => do
       let (snaps, _) ← doc.cmdSnaps.getFinishedPrefix
       if let some his ← highlightRefs? snaps.toArray then

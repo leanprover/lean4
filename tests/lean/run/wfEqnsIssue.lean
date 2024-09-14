@@ -55,20 +55,6 @@ def Ctx.extend (x : α) : HList Γ → HList (α :: Γ) :=
 def Ctx.drop : HList (α :: Γ) → HList Γ
   | HList.cons a as => as
 
-macro_rules
-| `(tactic| decreasing_tactic) =>
- `(tactic|
-   (simp_wf
-    repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
-    simp [Nat.add_comm (n := 1), Nat.succ_add, Nat.mul_succ]
-    try apply Nat.lt_succ_of_le
-    repeat apply Nat.le_step
-    first
-    | repeat first | apply Nat.le_add_left | apply Nat.le_add_right_of_le
-    | assumption
-    all_goals apply Nat.le_refl
-))
-
 @[simp]
 def Stmt.mapCtx (f : HList Γ' → HList Γ) : Stmt m ω Γ Δ b c β → Stmt m ω Γ' Δ b c β
   | expr e => expr (e ∘ f)

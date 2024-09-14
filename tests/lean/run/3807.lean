@@ -93,12 +93,6 @@ section Mathlib.Init.ZeroOne
 
 set_option autoImplicit true
 
-class Zero.{u} (α : Type u) where
-  zero : α
-
-instance (priority := 300) Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-
 class One (α : Type u) where
   one : α
 
@@ -138,7 +132,7 @@ def setOf {α : Type u} (p : α → Prop) : Set α := p
 
 namespace Set
 
-protected def Mem (a : α) (s : Set α) : Prop := s a
+protected def Mem (s : Set α) (a : α) : Prop := s a
 
 instance : Membership α (Set α) := ⟨Set.Mem⟩
 
@@ -747,7 +741,7 @@ variable {A : Type _} {B : Type _} [i : SetLike A B]
 instance : CoeTC A (Set B) where coe := SetLike.coe
 
 instance (priority := 100) instMembership : Membership B A :=
-  ⟨fun x p => x ∈ (p : Set B)⟩
+  ⟨fun p x => x ∈ (p : Set B)⟩
 
 instance (priority := 100) : CoeSort A (Type _) :=
   ⟨fun p => { x : B // x ∈ p }⟩
@@ -2050,6 +2044,8 @@ instance id : Algebra R R where
   map_zero' := sorry
   map_add' := sorry
 
+instance (S : Subsemiring R) : SMul S A := Submonoid.smul ..
+
 instance ofSubsemiring (S : Subsemiring R) : Algebra S A where
   toRingHom := (algebraMap R A).comp S.subtype
   smul := (· • ·)
@@ -2085,9 +2081,10 @@ variable {R : Type u} {A : Type v} {B : Type w} {C : Type u₁}
 
 section Semiring
 
-variable [Semiring R] [Semiring A] [Semiring B] [Semiring C]
-variable [Algebra R A] [Algebra R B] [Algebra R C]
+variable [Semiring R] [Semiring A] [Semiring B]
+variable [Algebra R A] [Algebra R B]
 
+variable [Semiring C] [Algebra R C] in
 instance funLike : FunLike (A →ₐ[R] B) A B where
   coe f := f.toFun
 
@@ -2101,6 +2098,7 @@ instance algHomClass : AlgHomClass (A →ₐ[R] B) R A B where
 @[ext]
 theorem ext {φ₁ φ₂ : A →ₐ[R] B} (H : ∀ x, φ₁ x = φ₂ x) : φ₁ = φ₂ := sorry
 
+variable [Semiring C] [Algebra R C] in
 def comp (φ₁ : B →ₐ[R] C) (φ₂ : A →ₐ[R] B) : A →ₐ[R] C :=
   { φ₁.toRingHom.comp φ₂ with
     commutes' := sorry }
@@ -2272,6 +2270,8 @@ def inclusion {S T : Subalgebra R A} (h : S ≤ T) : S →ₐ[R] T where
   map_zero' := sorry
   commutes' _ := sorry
 
+instance Subalgebra.instSMul [Semiring S] [Algebra R S] [SMul S T] (S' : Subalgebra R S) : SMul S' T := S'.smul
+
 instance isScalarTower_mid {R S T : Type _} [Semiring R] [Semiring S] [AddMonoid T]
     [Algebra R S] [MulAction R T] [MulAction S T] [IsScalarTower R S T] (S' : Subalgebra R S) :
     IsScalarTower R S' T := sorry
@@ -2400,7 +2400,7 @@ end Mathlib.FieldTheory.Subfield
 
 section Mathlib.FieldTheory.IntermediateField
 
-variable (K L L' : Type _) [Field K] [Field L] [Field L'] [Algebra K L] [Algebra K L']
+variable (K L L' : Type _) [Field K] [Field L] [Field L'] [Algebra K L]
 
 structure IntermediateField extends Subalgebra K L where
   inv_mem' : ∀ x ∈ carrier, x⁻¹ ∈ carrier
@@ -2418,19 +2418,23 @@ def toSubfield : Subfield L :=
 
 instance : SubfieldClass (IntermediateField K L) L where
 
+instance toAlgebra : Algebra S L :=
+  inferInstanceAs (Algebra S.toSubsemiring L)
+
+instance algebra' {R' K L : Type _} [Field K] [Field L] [Algebra K L] (S : IntermediateField K L)
+    [Semiring R'] [SMul R' K] [Algebra R' L] [IsScalarTower R' K L] : Algebra R' S :=
+  inferInstanceAs (Algebra R' S.toSubalgebra)
+
+instance {E} [Field E] [Algebra L E] : Algebra S E := Algebra.ofSubsemiring S.toSubsemiring
+
 instance isScalarTower {R} [Semiring R] [SMul R K] [SMul R L] [SMul R S] [IsScalarTower R K L] :
     IsScalarTower R K S := sorry
-
-variable {E} [Field E] [Algebra L E] (T : IntermediateField S E) {S}
-instance : Algebra S T := T.algebra
-instance : SMul S T := Algebra.toSMul
-instance [Algebra K E] [IsScalarTower K L E] : IsScalarTower K S T := T.isScalarTower
 
 end IntermediateField
 
 namespace AlgHom
 
-variable (f : L →ₐ[K] L')
+variable [Algebra K L'] (f : L →ₐ[K] L')
 
 def fieldRange : IntermediateField K L' :=
   { f.range, (f : L →+* L').fieldRange with
@@ -2446,8 +2450,9 @@ def inclusion {E F : IntermediateField K L} (hEF : E ≤ F) : E →ₐ[K] F :=
 section RestrictScalars
 
 variable (K)
-variable [Algebra L' L] [IsScalarTower K L' L]
+variable [Algebra L' L]
 
+variable [Algebra K L'] [IsScalarTower K L' L] in
 def restrictScalars (E : IntermediateField L' L) : IntermediateField K L :=
   { E.toSubfield, E.toSubalgebra.restrictScalars K with
     carrier := E.carrier
@@ -2470,17 +2475,22 @@ namespace IntermediateField
 
 section AdjoinDef
 
-variable (F : Type _) [Field F] {E : Type _} [Field E] [Algebra F E] (S : Set E)
+variable (F : Type _) {E : Type _} [Field E] (S : Set E)
 
+variable [Field F] [Algebra F E] in
 def adjoin : IntermediateField F E :=
   { Subfield.closure (Set.range (algebraMap F E) ∪ S) with
     inv_mem' := sorry }
 
+variable [Field F] [Algebra F E] in
 theorem subset_adjoin : S ⊆ adjoin F S := sorry
+
+instance (F : Subfield E) : Algebra F E := inferInstanceAs (Algebra F.toSubsemiring E)
 
 theorem subset_adjoin_of_subset_left {F : Subfield E} {T : Set E} (HT : T ⊆ F) : T ⊆ adjoin F S :=
   sorry
 
+variable [Field F] [Algebra F E] in
 theorem adjoin_subset_adjoin_iff {F' : Type _} [Field F'] [Algebra F' E] {S S' : Set E} :
     (adjoin F S : Set E) ⊆ adjoin F' S' ↔
       Set.range (algebraMap F E) ⊆ adjoin F' S' ∧ S ⊆ adjoin F' S' := sorry
@@ -2497,6 +2507,11 @@ namespace IntermediateField
 
 variable {F E K : Type _} [Field F] [Field E] [Field K] [Algebra F E] [Algebra F K] {S : Set E}
 
+instance (L : IntermediateField F E) : IsScalarTower F L E := sorry
+
+instance (L : IntermediateField F E) : Algebra F (adjoin L S) :=
+  (IntermediateField.adjoin { x // x ∈ L } S).algebra'
+
 private theorem exists_algHom_adjoin_of_splits'' {L : IntermediateField F E}
     (f : L →ₐ[F] K) :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
@@ -2506,7 +2521,7 @@ variable {L : Type _} [Field L] [Algebra F L] [Algebra L E] [IsScalarTower F L E
   (f : L →ₐ[F] K)
 
 -- This only required 16,000 heartbeats prior to #3807, and now takes ~210,000.
-set_option maxHeartbeats 30000
+set_option maxHeartbeats 20000
 theorem exists_algHom_adjoin_of_splits''' :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
   let L' := (IsScalarTower.toAlgHom F L E).fieldRange

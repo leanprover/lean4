@@ -29,7 +29,7 @@ In this section, we define the primitives that make up a builder.
 A dependently typed monadic *fetch* function.
 
 That is, a function within the monad `m` and takes an input `a : α`
-describing what to fetch and and produces some output `b : β a` (dependently
+describing what to fetch and produces some output `b : β a` (dependently
 typed) or `b : B` (not) describing what was fetched. All build functions are
 fetch functions, but not all fetch functions need build something.
 -/

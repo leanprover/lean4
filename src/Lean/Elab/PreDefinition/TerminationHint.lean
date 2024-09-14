@@ -57,18 +57,18 @@ structure TerminationHints where
 
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, 0⟩
 
-/-- Logs warnings when the `TerminationHints` are present.  -/
+/-- Logs warnings when the `TerminationHints` are unexpectedly present.  -/
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : CoreM Unit := do
   match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy? with
   | .none, .none, .none => pure ()
   | .none, .none, .some dec_by =>
-    logErrorAt dec_by.ref m!"unused `decreasing_by`, function is {reason}"
+    logWarningAt dec_by.ref m!"unused `decreasing_by`, function is {reason}"
   | .some term_by?, .none, .none =>
-    logErrorAt term_by? m!"unused `termination_by?`, function is {reason}"
+    logWarningAt term_by? m!"unused `termination_by?`, function is {reason}"
   | .none, .some term_by, .none =>
-    logErrorAt term_by.ref m!"unused `termination_by`, function is {reason}"
+    logWarningAt term_by.ref m!"unused `termination_by`, function is {reason}"
   | _, _, _ =>
-    logErrorAt hints.ref m!"unused termination hints, function is {reason}"
+    logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 
 /-- True if any form of termination hint is present. -/
 def TerminationHints.isNotNone (hints : TerminationHints) : Bool :=

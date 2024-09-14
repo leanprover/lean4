@@ -48,7 +48,8 @@ instance : ToExpr (Fin n) where
   toExpr a :=
     let r := mkRawNatLit a.val
     mkApp3 (.const ``OfNat.ofNat [0]) (.app (mkConst ``Fin) (toExpr n)) r
-      (mkApp2 (.const ``Fin.instOfNat []) (mkNatLit (n-1)) r)
+      (mkApp3 (.const ``Fin.instOfNat []) (toExpr n)
+        (.app (.const ``Nat.instNeZeroSucc []) (mkNatLit (n-1))) r)
 
 instance : ToExpr (BitVec n) where
   toTypeExpr := .app (mkConst ``BitVec) (toExpr n)
@@ -105,6 +106,10 @@ instance : ToExpr String where
 instance : ToExpr Unit where
   toExpr     := fun _ => mkConst `Unit.unit
   toTypeExpr := mkConst ``Unit
+
+instance : ToExpr System.FilePath where
+  toExpr p := mkApp (mkConst ``System.FilePath.mk) (toExpr p.toString)
+  toTypeExpr := mkConst ``System.FilePath
 
 private def Name.toExprAux (n : Name) : Expr :=
   if isSimple n 0 then

@@ -99,17 +99,18 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
 def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, ..} ← get
   let {totalJobs, failLv, outLv, out, useAnsi, showProgress, minAction, ..} ← read
-  let {task, caption} := job.toJob
+  let {task, caption, optional} := job.toJob
   let {log, action, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := log.hasEntries ∧ maxLv ≥ failLv
-  if failed then
+  if failed ∧ ¬optional then
     modify fun s => {s with failures := s.failures.push caption}
   let hasOutput := failed ∨ (log.hasEntries ∧ maxLv ≥ outLv)
   if hasOutput ∨ (showProgress ∧ ¬ useAnsi ∧ action ≥ minAction) then
     let verb := action.verb failed
     let icon := if hasOutput then maxLv.icon else '✔'
-    let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {caption}"
+    let opt := if optional then " (Optional)" else ""
+    let caption := s!"{icon} [{jobNo}/{totalJobs}]{opt} {verb} {caption}"
     let caption :=
       if useAnsi then
         let color := if hasOutput then maxLv.ansiColor else "32"
@@ -235,7 +236,7 @@ def Workspace.runFetchM
       | error "top-level build failed"
     return a
   else
-    print! out "Some builds logged failures:\n"
+    print! out "Some required builds logged failures:\n"
     failures.forM (print! out s!"- {·}\n")
     flush out
     error "build failed"

@@ -22,7 +22,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_LeanLibConfig_isBuilda
 static lean_object* l_Lake_LeanLibConfig_nativeFacets___default___closed__3;
 static lean_object* l_Lake_LeanLibConfig_roots___default___closed__1;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_LeanLibConfig_isBuildableModule___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lake_LeanLibConfig_isBuildableModule___spec__3(lean_object*, lean_object*, size_t, size_t);
@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_roots___default(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedLeanLibConfig___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_libName___default___lambda__1___boxed(lean_object*);
 static lean_object* l_Lake_LeanLibConfig_defaultFacets___default___closed__3;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_LeanLibConfig_isLocalModule___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_isLocalModule___boxed(lean_object*, lean_object*);
@@ -47,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_defaultFacets___default;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lake_LeanLibConfig_isBuildableModule___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT uint8_t l_Lake_LeanLibConfig_precompileModules___default;
+LEAN_EXPORT uint8_t l_Lake_LeanLibConfig_libName___default___lambda__1(lean_object*);
 static lean_object* l_Lake_LeanLibConfig_nativeFacets___default___closed__2;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_libName___default(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_LeanLibConfig_isBuildableModule___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,12 +65,14 @@ static lean_object* l_Lake_instInhabitedLeanLibConfig___closed__2;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_extraDepTargets___default;
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+size_t lean_array_size(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_LeanLibConfig_isBuildableModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedLeanLibConfig;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_isBuildableModule___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedLeanLibConfig___closed__4;
 uint8_t lean_usize_dec_lt(size_t, size_t);
+static lean_object* l_Lake_LeanLibConfig_libName___default___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lake_instInhabitedLeanLibConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_nativeFacets___default___boxed(lean_object*);
@@ -135,13 +139,11 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_globs___default(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; size_t x_3; size_t x_4; lean_object* x_5; 
-x_2 = lean_array_get_size(x_1);
-x_3 = lean_usize_of_nat(x_2);
-lean_dec(x_2);
-x_4 = 0;
-x_5 = l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1(x_3, x_4, x_1);
-return x_5;
+size_t x_2; size_t x_3; lean_object* x_4; 
+x_2 = lean_array_size(x_1);
+x_3 = 0;
+x_4 = l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1(x_2, x_3, x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -156,12 +158,39 @@ x_6 = l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_globs___default___spec__1(x
 return x_6;
 }
 }
+LEAN_EXPORT uint8_t l_Lake_LeanLibConfig_libName___default___lambda__1(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_LeanLibConfig_libName___default___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lake_LeanLibConfig_libName___default___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_libName___default(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; lean_object* x_3; 
+uint8_t x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = 0;
-x_3 = l_Lean_Name_toString(x_1, x_2);
+x_3 = l_Lake_LeanLibConfig_libName___default___closed__1;
+x_4 = l_Lean_Name_toString(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_LeanLibConfig_libName___default___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lake_LeanLibConfig_libName___default___lambda__1(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
 return x_3;
 }
 }
@@ -862,6 +891,8 @@ l_Lake_LeanLibConfig_srcDir___default = _init_l_Lake_LeanLibConfig_srcDir___defa
 lean_mark_persistent(l_Lake_LeanLibConfig_srcDir___default);
 l_Lake_LeanLibConfig_roots___default___closed__1 = _init_l_Lake_LeanLibConfig_roots___default___closed__1();
 lean_mark_persistent(l_Lake_LeanLibConfig_roots___default___closed__1);
+l_Lake_LeanLibConfig_libName___default___closed__1 = _init_l_Lake_LeanLibConfig_libName___default___closed__1();
+lean_mark_persistent(l_Lake_LeanLibConfig_libName___default___closed__1);
 l_Lake_LeanLibConfig_extraDepTargets___default___closed__1 = _init_l_Lake_LeanLibConfig_extraDepTargets___default___closed__1();
 lean_mark_persistent(l_Lake_LeanLibConfig_extraDepTargets___default___closed__1);
 l_Lake_LeanLibConfig_extraDepTargets___default = _init_l_Lake_LeanLibConfig_extraDepTargets___default();

@@ -210,6 +210,7 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   if e' == e then
     return e'
   else
+    trace[Debug.Meta.Tactic.simp] "reduce {e} => {e'}"
     reduce e'
 
 instance : Inhabited (SimpM α) where
@@ -438,19 +439,19 @@ private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fu
     return .continue e
 
 /--
-Auliliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
+Auxiliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
 This is the `dsimp` equivalent of the approach used at `visitApp`.
 Recall that we fold orphan raw Nat literals.
 -/
 private def doNotVisitOfNat : DSimproc := doNotVisit isOfNatNatLit ``OfNat.ofNat
 
 /--
-Auliliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
+Auxiliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
 -/
 private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
 
 /--
-Auliliary `dsimproc` for not visiting `Char` literal subterms.
+Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
 private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
 
@@ -624,6 +625,7 @@ where
   visitPreContinue (cfg : Config) (r : Result) : SimpM Result := do
     let eNew ← reduceStep r.expr
     if eNew != r.expr then
+      trace[Debug.Meta.Tactic.simp] "reduceStep (pre) {e} => {eNew}"
       let r := { r with expr := eNew }
       cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
     else

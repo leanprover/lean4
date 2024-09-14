@@ -1,3 +1,2 @@
-276.lean:5:27-5:50: error: failed to elaborate eliminator, expected type is not available
-fun {α : Sort v} => @?m α : {α : Sort v} → @?m α
-276.lean:9:33-9:56: error: failed to elaborate eliminator, expected type is not available
+fun {α : Sort v} => PEmpty.rec.{v, u_1} fun (x : PEmpty.{u_1}) => α : {α : Sort v} → PEmpty.{u_1} → α
+276.lean:9:4-9:16: error: code generator does not support recursor 'PEmpty.rec' yet, consider using 'match ... with' and/or structural recursion

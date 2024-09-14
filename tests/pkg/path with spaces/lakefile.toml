@@ -1,0 +1,6 @@
+name = "path with spaces"
+defaultTargets = ["«path with spaces»"]
+
+[[lean_exe]]
+name = "path with spaces"
+root = "Main"

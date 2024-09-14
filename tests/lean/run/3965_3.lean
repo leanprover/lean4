@@ -20,7 +20,7 @@ def Set (α : Type u) := α → Prop
 
 namespace Set
 
-protected def Mem (a : α) (s : Set α) : Prop :=
+protected def Mem (s : Set α) (a : α) : Prop :=
   s a
 
 instance : Membership α (Set α) :=

@@ -3594,7 +3594,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Lemmas______macroRules__com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("zero_toNat", 10, 10);
+x_1 = lean_mk_string_unchecked("toNat_zero", 10, 10);
 return x_1;
 }
 }
@@ -3656,7 +3656,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Lemmas______macroRules__com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("mod_toNat", 9, 9);
+x_1 = lean_mk_string_unchecked("toNat_mod", 9, 9);
 return x_1;
 }
 }
@@ -3800,7 +3800,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Lemmas______macroRules__com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("div_toNat", 9, 9);
+x_1 = lean_mk_string_unchecked("toNat_div", 9, 9);
 return x_1;
 }
 }
@@ -3888,7 +3888,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Lemmas______macroRules__com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("sub_toNat_of_le", 15, 15);
+x_1 = lean_mk_string_unchecked("toNat_sub_of_le", 15, 15);
 return x_1;
 }
 }
@@ -3950,7 +3950,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Lemmas______macroRules__com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("modn_toNat", 10, 10);
+x_1 = lean_mk_string_unchecked("toNat_modn", 10, 10);
 return x_1;
 }
 }

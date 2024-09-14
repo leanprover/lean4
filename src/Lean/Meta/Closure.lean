@@ -127,7 +127,7 @@ abbrev ClosureM := ReaderT Context $ StateRefT State MetaM
     pure u
   else
     let s ← get
-    match s.visitedLevel.find? u with
+    match s.visitedLevel[u]? with
     | some v => pure v
     | none   => do
       let v ← f u
@@ -139,7 +139,7 @@ abbrev ClosureM := ReaderT Context $ StateRefT State MetaM
     pure e
   else
     let s ← get
-    match s.visitedExpr.find? e with
+    match s.visitedExpr.get? e with
     | some r => pure r
     | none   =>
       let r ← f e

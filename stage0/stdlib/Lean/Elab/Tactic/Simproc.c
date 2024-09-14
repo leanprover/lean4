@@ -94,7 +94,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_elabSimprocPattern___lambda__2___boxed(lean
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSimprocPattern(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabSimprocPatternBuiltin_declRange__1___closed__3;
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -2395,7 +2395,7 @@ lean_dec(x_16);
 x_19 = lean_box(0);
 lean_inc(x_11);
 x_20 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux(x_11);
-x_21 = lean_array_to_list(lean_box(0), x_17);
+x_21 = lean_array_to_list(x_17);
 x_22 = l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda__1___closed__11;
 x_23 = l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda__1___closed__15;
 x_24 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Command_elabSimprocPatternBuiltin___spec__1(x_22, x_23, x_21);

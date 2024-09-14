@@ -28,11 +28,10 @@ def Array.mapMUnsafe.map._at.applyProjectionRules._spec_1 (x_1 : ◾) (x_2 : ◾
   let x_4 : obj := pap Array.mapMUnsafe.map._at.applyProjectionRules._spec_1._rarg;
   ret x_4
 def applyProjectionRules._rarg (x_1 : obj) (x_2 : obj) : obj :=
-  let x_3 : obj := Array.size ◾ x_1;
-  let x_4 : usize := USize.ofNat x_3;
-  let x_5 : usize := 0;
-  let x_6 : obj := Array.mapMUnsafe.map._at.applyProjectionRules._spec_1._rarg x_2 x_4 x_5 x_1;
-  ret x_6
+  let x_3 : usize := Array.usize ◾ x_1;
+  let x_4 : usize := 0;
+  let x_5 : obj := Array.mapMUnsafe.map._at.applyProjectionRules._spec_1._rarg x_2 x_3 x_4 x_1;
+  ret x_5
 def applyProjectionRules (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) : obj :=
   let x_4 : obj := pap applyProjectionRules._rarg;
   ret x_4

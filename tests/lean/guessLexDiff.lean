@@ -56,11 +56,10 @@ def distinct (xs : Array Nat) : Bool :=
   loop 0 0
 
 -- This examples shows a limitation of our current `decreasing_tactic`.
--- Guesslex infers
--- termination_by (Array.size xs - i, i)
--- but because `decreasing_with` is using
+-- Guesslex infers `termination_by (Array.size xs - i, i)` but because `decreasing_with` is using
 --     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
--- it cannot solve this goal. But if we leave the Prod.Lex-handling to omega, it works
+-- it cannot solve this goal. But if we leave the Prod.Lex-handling to omega, it works.
+-- See https://github.com/leanprover/lean4/issues/3906
 def weird (xs : Array Nat) (i : Nat) : Bool :=
   if _ : i < xs.size then
     if _ : 0 < i then
@@ -72,7 +71,8 @@ def weird (xs : Array Nat) (i : Nat) : Bool :=
       weird xs (i+1)
   else
     true
-decreasing_by all_goals simp_wf; omega
+decreasing_by all_goals (try simp only [Array.size_pop]); omega
+
 
 /--
 This checks

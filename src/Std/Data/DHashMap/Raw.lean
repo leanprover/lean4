@@ -54,6 +54,9 @@ capacity.
 instance : EmptyCollection (Raw α β) where
   emptyCollection := empty
 
+instance : Inhabited (Raw α β) where
+  default := ∅
+
 /--
 Inserts the given mapping into the map, replacing an existing mapping for the key if there is one.
 -/
@@ -139,7 +142,7 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
   else false -- will never happen for well-formed inputs
 
 instance [BEq α] [Hashable α] : Membership α (Raw α β) where
-  mem a m := m.contains a
+  mem m a := m.contains a
 
 instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (m.contains a))
@@ -177,9 +180,9 @@ Uses the `LawfulBEq` instance to cast the retrieved value to the correct type.
   else default -- will never happen for well-formed inputs
 
 /-- Removes the mapping for the given key if it exists. -/
-@[inline] def remove [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
+@[inline] def erase [BEq α] [Hashable α] (m : Raw α β) (a : α) : Raw α β :=
   if h : 0 < m.buckets.size then
-    Raw₀.remove ⟨m, h⟩ a
+    Raw₀.erase ⟨m, h⟩ a
   else m -- will never happen for well-formed inputs
 
 section
@@ -233,6 +236,41 @@ returned map has a new value inserted.
   else (none, m) -- will never happen for well-formed inputs
 
 end
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey? ⟨m, h⟩ a
+  else none -- will never happen for well-formed inputs
+
+/--
+Retrieves the key from the mapping that matches `a`. Ensures that such a mapping exists by
+requiring a proof of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey [BEq α] [Hashable α] (m : Raw α β) (a : α) (h : a ∈ m) : α :=
+  Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+    (by change dite .. = true at h; split at h <;> simp_all)
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `fallback`.
+If a mapping exists the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKeyD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKeyD ⟨m, h⟩ a fallback
+  else fallback -- will never happen for well-formed inputs
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw α β) (a : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey! ⟨m, h⟩ a
+  else default -- will never happen for well-formed inputs
 
 /--
 Returns `true` if the hash map contains no mappings.
@@ -413,7 +451,7 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | containsThenInsertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
       WF m → WF (Raw₀.containsThenInsertIfNew ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
-  | remove₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a} : WF m → WF (Raw₀.remove ⟨m, h⟩ a).1
+  | erase₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a} : WF m → WF (Raw₀.erase ⟨m, h⟩ a).1
   /-- Internal implementation detail of the hash map -/
   | insertIfNew₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {h a b} :
       WF m → WF (Raw₀.insertIfNew ⟨m, h⟩ a b).1
@@ -433,7 +471,7 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | insert₀ _ => (Raw₀.insert ⟨_, _⟩ _ _).2
   | containsThenInsert₀ _ => (Raw₀.containsThenInsert ⟨_, _⟩ _ _).2.2
   | containsThenInsertIfNew₀ _ => (Raw₀.containsThenInsertIfNew ⟨_, _⟩ _ _).2.2
-  | remove₀ _ => (Raw₀.remove ⟨_, _⟩ _).2
+  | erase₀ _ => (Raw₀.erase ⟨_, _⟩ _).2
   | insertIfNew₀ _ => (Raw₀.insertIfNew ⟨_, _⟩ _ _).2
   | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
   | filter₀ _ => (Raw₀.filter _ ⟨_, _⟩).2
@@ -457,8 +495,8 @@ theorem WF.containsThenInsertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : �
     (m.containsThenInsertIfNew a b).2.WF := by
   simpa [Raw.containsThenInsertIfNew, h.size_buckets_pos] using .containsThenInsertIfNew₀ h
 
-theorem WF.remove [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.remove a).WF := by
-  simpa [Raw.remove, h.size_buckets_pos] using .remove₀ h
+theorem WF.erase [BEq α] [Hashable α] {m : Raw α β} {a : α} (h : m.WF) : (m.erase a).WF := by
+  simpa [Raw.erase, h.size_buckets_pos] using .erase₀ h
 
 theorem WF.insertIfNew [BEq α] [Hashable α] {m : Raw α β} {a : α} {b : β a} (h : m.WF) :
     (m.insertIfNew a b).WF := by

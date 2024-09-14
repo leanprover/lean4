@@ -23,7 +23,7 @@ endif
 
 $(OUT_DIR)/main: main.c lake | $(OUT_DIR)
 # Add library paths for Lake package and for Lean itself
-	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(LEAN_LIBDIR) -L lib/.lake/build/lib -lRFFI -lInit_shared -lleanshared $(LINK_FLAGS)
+	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(LEAN_LIBDIR) -L lib/.lake/build/lib -lRFFI -lInit_shared -lleanshared_1 -lleanshared $(LINK_FLAGS)
 
 run: $(OUT_DIR)/main
 ifeq ($(OS),Windows_NT)
@@ -55,7 +55,7 @@ endif
 
 $(OUT_DIR)/main-local: main.c lake | $(OUT_DIR)
 	cp -f $(LEAN_SHLIB_ROOT)/*.$(SHLIB_EXT) lib/.lake/build/lib/$(SHLIB_PREFIX)RFFI.$(SHLIB_EXT) $(OUT_DIR)
-	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(OUT_DIR) -lRFFI -lInit_shared -lleanshared $(LINK_FLAGS_LOCAL)
+	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(OUT_DIR) -lRFFI -lInit_shared -lleanshared_1 -lleanshared $(LINK_FLAGS_LOCAL)
 
 run-local: $(OUT_DIR)/main-local
 	$(OUT_DIR)/main-local

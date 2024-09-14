@@ -53,7 +53,7 @@ structure AttributeImpl extends AttributeImplCore where
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
   deriving Inhabited
 
-builtin_initialize attributeMapRef : IO.Ref (HashMap Name AttributeImpl) ← IO.mkRef {}
+builtin_initialize attributeMapRef : IO.Ref (Std.HashMap Name AttributeImpl) ← IO.mkRef {}
 
 /-- Low level attribute registration function. -/
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
@@ -296,7 +296,7 @@ end EnumAttributes
 -/
 
 abbrev AttributeImplBuilder := Name → List DataValue → Except String AttributeImpl
-abbrev AttributeImplBuilderTable := HashMap Name AttributeImplBuilder
+abbrev AttributeImplBuilderTable := Std.HashMap Name AttributeImplBuilder
 
 builtin_initialize attributeImplBuilderTableRef : IO.Ref AttributeImplBuilderTable ← IO.mkRef {}
 
@@ -307,7 +307,7 @@ def registerAttributeImplBuilder (builderId : Name) (builder : AttributeImplBuil
 
 def mkAttributeImplOfBuilder (builderId ref : Name) (args : List DataValue) : IO AttributeImpl := do
   let table ← attributeImplBuilderTableRef.get
-  match table.find? builderId with
+  match table[builderId]? with
   | none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString builderId ++ "'"))
   | some builder => IO.ofExcept <| builder ref args
 
@@ -317,7 +317,7 @@ inductive AttributeExtensionOLeanEntry where
 
 structure AttributeExtensionState where
   newEntries : List AttributeExtensionOLeanEntry := []
-  map        : HashMap Name AttributeImpl
+  map        : Std.HashMap Name AttributeImpl
   deriving Inhabited
 
 abbrev AttributeExtension := PersistentEnvExtension AttributeExtensionOLeanEntry (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
@@ -348,7 +348,7 @@ private def AttributeExtension.addImported (es : Array (Array AttributeExtension
   let map ← es.foldlM
     (fun map entries =>
       entries.foldlM
-        (fun (map : HashMap Name AttributeImpl) entry => do
+        (fun (map : Std.HashMap Name AttributeImpl) entry => do
           let attrImpl ← mkAttributeImplOfEntry ctx.env ctx.opts entry
           return map.insert attrImpl.name attrImpl)
         map)
@@ -378,7 +378,7 @@ def getBuiltinAttributeNames : IO (List Name) :=
 
 def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   let m ← attributeMapRef.get
-  match m.find? attrName with
+  match m[attrName]? with
   | some attr => pure attr
   | none      => throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 
@@ -396,7 +396,7 @@ def getAttributeNames (env : Environment) : List Name :=
 
 def getAttributeImpl (env : Environment) (attrName : Name) : Except String AttributeImpl :=
   let m := (attributeExtension.getState env).map
-  match m.find? attrName with
+  match m[attrName]? with
   | some attr => pure attr
   | none      => throw ("unknown attribute '" ++ toString attrName ++ "'")
 

@@ -10,7 +10,7 @@ out.putStrLn "print stdout"
 let err ← IO.getStderr;
 (err.putStr "print stderr" : IO Unit)
 
-open usingIO IO
+open IO
 
 def test : IO Unit := do
 FS.withFile "stdout1.txt" IO.FS.Mode.write $ fun h₁ => do

@@ -7,5 +7,7 @@ has type
   String : Type
 but is expected to have type
   Nat : Type
-evalSorry.lean:7:0-7:15: error: cannot evaluate code because '_eval._lambda_1' uses 'sorry' and/or contains errors
-evalSorry.lean:11:0-11:15: error: cannot evaluate code because 'h' uses 'sorry' and/or contains errors
+evalSorry.lean:7:0-7:15: error: cannot evaluate expression that depends on the `sorry` axiom.
+Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
+evalSorry.lean:11:0-11:15: error: cannot evaluate expression that depends on the `sorry` axiom.
+Use `#eval!` to evaluate nevertheless (which may cause lean to crash).

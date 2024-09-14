@@ -7,6 +7,7 @@ prelude
 import Lean.Data.Trie
 import Lean.Syntax
 import Lean.Message
+import Lean.DocString.Extension
 
 namespace Lean.Parser
 
@@ -131,7 +132,7 @@ structure ParserCacheEntry where
 
 structure ParserCache where
   tokenCache  : TokenCacheEntry
-  parserCache : HashMap ParserCacheKey ParserCacheEntry
+  parserCache : Std.HashMap ParserCacheKey ParserCacheEntry
 
 def initCacheForInput (input : String) : ParserCache where
   tokenCache  := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
@@ -418,7 +419,7 @@ place if there was an error.
 -/
 def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
   let key := ⟨c.toCacheableParserContext, parserName, s.pos⟩
-  if let some r := s.cache.parserCache.find? key then
+  if let some r := s.cache.parserCache[key]? then
     -- TODO: turn this into a proper trace once we have these in the parser
     --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
     return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg, s.recoveredErrors⟩
@@ -428,7 +429,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
   { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 
-@[inherit_doc withCacheFn]
+@[inherit_doc withCacheFn, builtin_doc]
 def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)
 
 def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState) : ParserState :=

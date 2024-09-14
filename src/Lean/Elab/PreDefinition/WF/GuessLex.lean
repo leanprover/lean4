@@ -15,6 +15,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.WF.Basic
 import Lean.Data.Array
 
 
@@ -192,7 +193,7 @@ def simpleMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
 
 /-- Internal monad used by `withRecApps` -/
 abbrev M (recFnName : Name) (α β : Type) : Type :=
-  StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM) β
+  StateRefT (Array α) (StateRefT (HasConstCache #[recFnName]) MetaM) β
 
 /--
 Traverses the given expression `e`, and invokes the continuation `k`
@@ -223,7 +224,7 @@ where
         loop param f
 
   containsRecFn (e : Expr) : M recFnName α Bool := do
-    modifyGetThe (HasConstCache recFnName) (·.contains e)
+    modifyGetThe (HasConstCache #[recFnName]) (·.contains e)
 
   loop (param : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then
@@ -266,7 +267,7 @@ where
           processApp param e
       | none => processApp param e
     | e => do
-      let _ ← ensureNoRecFn recFnName e
+      ensureNoRecFn #[recFnName] e
 
 /--
 A `SavedLocalContext` captures the state and local context of a `MetaM`, to be continued later.
@@ -445,6 +446,7 @@ def evalRecCall (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasur
         else do
           Lean.Elab.Term.TermElabM.run' do Term.withoutErrToSorry do
             let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
+              applyCleanWfTactic
               let tacticStx : Syntax ←
                 match decrTactic? with
                 | none => pure (← `(tactic| decreasing_tactic)).raw

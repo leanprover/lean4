@@ -10,7 +10,6 @@ with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
 prelude
 import Init.System.IO
-import Init.Data.List.Control
 
 namespace Lean
 open System
@@ -113,7 +112,7 @@ partial def findOLean (mod : Name) : IO FilePath := do
     let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
     let mut msg := s!"unknown module prefix '{pkg}'
 
-No directory '{pkg}' or file '{pkg}.lean' in the search path entries:
+No directory '{pkg}' or file '{pkg}.olean' in the search path entries:
 {"\n".intercalate <| sp.map (·.toString)}"
     throw <| IO.userError msg
 

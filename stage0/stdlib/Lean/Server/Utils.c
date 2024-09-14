@@ -1362,7 +1362,6 @@ lean_dec(x_6);
 x_13 = lean_ctor_get(x_7, 0);
 lean_inc(x_13);
 lean_dec(x_7);
-lean_inc(x_13);
 x_14 = l_IO_FS_createDirAll(x_13, x_12);
 if (lean_obj_tag(x_14) == 0)
 {

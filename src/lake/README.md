@@ -337,7 +337,7 @@ For theorem proving packages which depend on `mathlib`, you can also run `lake n
 
 **NOTE:** For mathlib in particular, you should run `lake exe cache get` prior to a `lake build` after adding or updating a mathlib dependency. Otherwise, it will be rebuilt from scratch (which can take hours). For more information, see mathlib's [wiki page](https://github.com/leanprover-community/mathlib4/wiki/Using-mathlib4-as-a-dependency) on using it as a dependency.
 
-## Lean `require`
+### Lean `require`
 
 The `require` command in Lean Lake configuration follows the general syntax:
 
@@ -347,15 +347,18 @@ require ["<scope>" /] <pkg-name> [@ <version>]
 ```
 
 The `from` clause tells Lake where to locate the dependency.
-Without a `from` clause, Lake will lookup the package in the default registry (i.e., [Reservoir](https://reservoir.lean-lang.org/@lean-dojo/LeanCopilot)) and use the information there to download the package at the specified `version`. The optional `scope` is used to disambiguate which package with `pkg-name` to lookup. In Reservoir, this scope is the package owner (e.g., `leanprover` of [@leanprover/doc-gen4](https://reservoir.lean-lang.org/@leanprover/doc-gen4)).
+Without a `from` clause, Lake will lookup the package in the default registry (i.e., [Reservoir](https://reservoir.lean-lang.org)) and use the information there to download the package at the requested `version`. To specify a Git revision, use the syntax `@ git <rev>`.
+
+The `scope` is used to disambiguate between packages in the registry with the same `pkg-name`. In Reservoir, this scope is the package owner (e.g., `leanprover` of [@leanprover/doc-gen4](https://reservoir.lean-lang.org/@leanprover/doc-gen4)).
+
 
 The `with` clause specifies a `NameMap String` of Lake options used to configure the dependency. This is equivalent to passing `-K` options to the dependency on the command line.
 
-## Supported Sources
+### Supported Sources
 
 Lake supports the following types of dependencies as sources in a `from` clause.
 
-### Path Dependencies
+#### Path Dependencies
 
 ```
 from <path>
@@ -363,7 +366,7 @@ from <path>
 
 Lake loads the package located a fixed `path` relative to the requiring package's directory.
 
-### Git Dependencies
+#### Git Dependencies
 
 ```
 from git <url> [@ <rev>] [/ <subDir>]
@@ -371,7 +374,7 @@ from git <url> [@ <rev>] [/ <subDir>]
 
 Lake clones the Git repository available at the specified fixed Git `url`, and checks out the specified revision `rev`. The revision can be a commit hash, branch, or tag. If none is provided, Lake defaults to `master`. After checkout, Lake loads the package located in `subDir` (or the repository root if no subdirectory is specified).
 
-## TOML `require`
+### TOML `require`
 
 To `require` a package in a TOML configuration, the parallel syntax for the above examples is:
 
@@ -382,6 +385,12 @@ name = "<pkg-name>"
 scope = "<scope>"
 version = "<version>"
 options = {<options>}
+
+# A Reservoir Git dependency
+[[require]]
+name = "<pkg-name>"
+scope = "<scope>"
+rev = "<rev>"
 
 # A path dependency
 [[require]]

@@ -6,7 +6,7 @@ Authors: Dany Fabian
 
 prelude
 import Init.Classical
-import Init.Data.List
+import Init.ByCases
 
 namespace Lean.Data.AC
 inductive Expr
@@ -260,7 +260,7 @@ theorem Context.evalList_sort (ctx : Context α) (h : ContextInformation.isComm 
     simp [ContextInformation.isComm, Option.isSome] at h
     match h₂ : ctx.comm with
     | none =>
-      simp only [h₂] at h
+      simp [h₂] at h
     | some val =>
       simp [h₂] at h
       exact val.down

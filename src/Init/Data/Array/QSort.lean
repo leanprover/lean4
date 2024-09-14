@@ -52,7 +52,7 @@ def qpartition (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × 
 
   -- we need let b since otherwise the split tactic fails
   let b := lt as[hi] as[lo]
-  let as  := if b then as.swap ⟨lo, hs ▸ hls⟩ ⟨hi, hs ▸ hhs⟩  else as
+  let as := if b then as.swap ⟨lo, hs ▸ hls⟩ ⟨hi, hs ▸ hhs⟩  else as
   have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
   let b := lt as[mid] as[hi]

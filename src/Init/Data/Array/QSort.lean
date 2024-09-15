@@ -27,31 +27,32 @@ namespace Array
 
       have hls: low < s := Nat.lt_of_le_of_lt hlh hhs
 
-      let i := (low + high) / 2
+      let mid := (low + high) / 2
 
-      have hms: i < s := by
+      have hms: mid < s := by
         apply Nat.div_lt_of_lt_mul
         rw [Nat.two_mul]
         exact Nat.add_lt_add hls hhs
 
-      let as := if lt (as[i]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨i, hs ▸ hms⟩ else as
+      let as := if lt (as[mid]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
       let as := if lt (as[high]'(hs ▸ hhs)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨high, hs ▸ hhs⟩  else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-      let as := if lt (as[i]'(hs ▸ hms)) (as[high]'(hs ▸ hhs)) then as.swap ⟨i, hs ▸ hms⟩ ⟨high, hs ▸ hhs⟩ else as
+      let as := if lt (as[mid]'(hs ▸ hms)) (as[high]'(hs ▸ hhs)) then as.swap ⟨mid, hs ▸ hms⟩ ⟨high, hs ▸ hhs⟩ else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
       let pivot := as[high]'(hs ▸ hhs)
 
+      -- invariant: lo ≤ x < i → lt as[i] pivot, i ≤ x < j -> ¬lt as[i] pivot
       let rec @[specialize] loop (as : Array α) (i j : Nat) (hli: low ≤ i) (hij: i ≤ j) (hjh: j ≤ high) (hhs: high < as.size): {as': Array α // as'.size = as.size}:=
         let s := as.size
         have hs: as.size = s := rfl
         have his: i < s := Nat.lt_of_le_of_lt hij (Nat.lt_of_le_of_lt hjh hhs)
 
-        if hjh' : j < high then
-          have hjs: j < s := Nat.lt_trans hjh' hhs
+        if hjh : j < high then
+          have hjs: j < s := Nat.lt_trans hjh hhs
 
           if lt (as[j]'(hs ▸ hjs)) pivot then
             let as := as.swap ⟨i, hs ▸ his⟩ ⟨j, hs ▸ hjs⟩
@@ -60,14 +61,14 @@ namespace Array
             have hij: i + 1 ≤ j + 1 := Nat.add_le_add_right hij 1
             have hli: low ≤ i + 1 := Nat.le_add_right_of_le hli
 
-            let ⟨as, hs'⟩ := loop as (i+1) (j+1) hli hij hjh' (hs ▸ hhs)
+            let ⟨as, hs'⟩ := loop as (i+1) (j+1) hli hij hjh (hs ▸ hhs)
             have hs: as.size = s := by rw [← hs, hs']
 
             ⟨as, hs⟩
           else
             have hij: i ≤ j + 1 := Nat.le_add_right_of_le hij
 
-            let ⟨as, hs'⟩ := loop as i (j+1) hli hij hjh' (hs ▸ hhs)
+            let ⟨as, hs'⟩ := loop as i (j+1) hli hij hjh (hs ▸ hhs)
             have hs: as.size = s := by rw [← hs, hs']
 
             ⟨as, hs⟩
@@ -79,22 +80,21 @@ namespace Array
           -- hence, mid = high, which implies (low + high) / 2 = high, which implies that low = high or
           -- low = high + 1, the latter of which is impossible because low <= high; hence, low == high
 
-            ⟨as, hs⟩
-          else
-            let as := as.swap ⟨i, hs ▸ his⟩ ⟨high, hs ▸ hhs⟩
-            have hs: as.size = s := by simp_all only [as, Array.size_swap]
+          ⟨as, hs⟩
+        else
+          have hih: i < high := Nat.gt_of_not_le hih
 
-            have hih: i < high := Nat.gt_of_not_le hih
-            have his: i < s := Nat.lt_trans hih hhs
+          let as := as.swap ⟨i, hs ▸ his⟩ ⟨high, hs ▸ hhs⟩
+          have hs: as.size = s := by simp_all only [as, Array.size_swap]
 
-            let ⟨as, hs'⟩ := sort as low i hli (λ _ ↦ hs ▸ his)
-            have hs: as.size = s := by rw [← hs, hs']
+          let ⟨as, hs'⟩ := sort as low i hli (λ _ ↦ hs ▸ his)
+          have hs: as.size = s := by rw [← hs, hs']
 
-            let ⟨as, hs'⟩ := sort as (i+1) high hih (λ _ ↦ hs ▸ hhs)
-            have hs: as.size = s := by rw [← hs, hs']
+          let ⟨as, hs'⟩ := sort as (i+1) high hih (λ _ ↦ hs ▸ hhs)
+          have hs: as.size = s := by rw [← hs, hs']
 
-            ⟨as, hs⟩
-            termination_by (high - low, 0, high - j)
+          ⟨as, hs⟩
+          termination_by (high - low, 0, high - j)
 
       have hll: low ≤ low := Nat.le_refl low
 

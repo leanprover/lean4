@@ -398,6 +398,22 @@ theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
 theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
   cases l <;> simp [-not_or]
 
+@[simp] theorem mem_dite_nil_left {x : α} [Decidable p] {l : ¬ p → List α} :
+    (x ∈ if h : p then [] else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
+  split <;> simp_all
+
+@[simp] theorem mem_dite_nil_right {x : α} [Decidable p] {l : p → List α} :
+    (x ∈ if h : p then l h else []) ↔ ∃ h : p, x ∈ l h := by
+  split <;> simp_all
+
+@[simp] theorem mem_ite_nil_left {x : α} [Decidable p] {l : List α} :
+    (x ∈ if p then [] else l) ↔ ¬ p ∧ x ∈ l := by
+  split <;> simp_all
+
+@[simp] theorem mem_ite_nil_right {x : α} [Decidable p] {l : List α} :
+    (x ∈ if p then l else []) ↔ p ∧ x ∈ l := by
+  split <;> simp_all
+
 theorem eq_of_mem_singleton : a ∈ [b] → a = b
   | .head .. => rfl
 
@@ -556,17 +572,25 @@ theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by i
 
 theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
 
-@[simp] theorem any_decide {l : List α} {p : α → Prop} [DecidablePred p] :
-    l.any p = decide (∃ x, x ∈ l ∧ p x) := by
+theorem decide_exists_mem {l : List α} {p : α → Prop} [DecidablePred p] :
+    decide (∃ x, x ∈ l ∧ p x) = l.any p := by
   simp [any_eq]
 
-@[simp] theorem all_decide {l : List α} {p : α → Prop} [DecidablePred p] :
-    l.all p = decide (∀ x, x ∈ l → p x) := by
+theorem decide_forall_mem {l : List α} {p : α → Prop} [DecidablePred p] :
+    decide (∀ x, x ∈ l → p x) = l.all p := by
   simp [all_eq]
 
-@[simp] theorem any_eq_true {l : List α} : l.any p = true ↔ ∃ x, x ∈ l ∧ p x := by simp [any_eq]
+@[simp] theorem any_eq_true {l : List α} : l.any p = true ↔ ∃ x, x ∈ l ∧ p x := by
+  simp only [any_eq, decide_eq_true_eq]
 
-@[simp] theorem all_eq_true {l : List α} : l.all p = true ↔ ∀ x, x ∈ l → p x := by simp [all_eq]
+@[simp] theorem all_eq_true {l : List α} : l.all p = true ↔ ∀ x, x ∈ l → p x := by
+  simp only [all_eq, decide_eq_true_eq]
+
+@[simp] theorem any_eq_false {l : List α} : l.any p = false ↔ ∀ x, x ∈ l → ¬p x := by
+  simp [any_eq]
+
+@[simp] theorem all_eq_false {l : List α} : l.all p = false ↔ ∃ x, x ∈ l ∧ ¬p x := by
+  simp [all_eq]
 
 /-! ### set -/
 
@@ -1028,6 +1052,9 @@ theorem tail_eq_tailD (l) : @tail α l = tailD l [] := by cases l <;> rfl
 
 theorem tail_eq_tail? (l) : @tail α l = (tail? l).getD [] := by simp [tail_eq_tailD]
 
+theorem mem_of_mem_tail {a : α} {l : List α} (h : a ∈ tail l) : a ∈ l := by
+  induction l <;> simp_all
+
 /-! ## Basic operations -/
 
 /-! ### map -/
@@ -1254,7 +1281,7 @@ theorem forall_mem_filter {l : List α} {p : α → Bool} {P : α → Prop} :
 
 @[deprecated forall_mem_filter (since := "2024-07-25")] abbrev forall_mem_filter_iff := @forall_mem_filter
 
-@[simp] theorem filter_filter (q) : ∀ l, filter p (filter q l) = filter (fun a => p a ∧ q a) l
+@[simp] theorem filter_filter (q) : ∀ l, filter p (filter q l) = filter (fun a => p a && q a) l
   | [] => rfl
   | a :: l => by by_cases hp : p a <;> by_cases hq : q a <;> simp [hp, hq, filter_filter _ l]
 

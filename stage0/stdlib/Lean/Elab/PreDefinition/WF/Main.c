@@ -172,7 +172,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix_
 static lean_object* l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_getFixedPrefix___spec__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_varyingVarNames___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_withCommonTelescope___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withCommonTelescope_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1148,7 +1148,7 @@ lean_inc(x_12);
 x_13 = lean_box(0);
 x_14 = l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(x_12, x_13);
 lean_inc(x_3);
-x_15 = lean_array_to_list(lean_box(0), x_3);
+x_15 = lean_array_to_list(x_3);
 x_16 = l_List_mapTR_loop___at_Lean_Elab_addAndCompileUnsafe___spec__2(x_15, x_13);
 x_17 = lean_array_get_size(x_3);
 x_18 = lean_unsigned_to_nat(0u);

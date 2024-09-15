@@ -134,6 +134,30 @@ The left-to-right direction, double negation elimination (DNE),
 is classically true but not constructively. -/
 @[simp] theorem not_not : ¬¬a ↔ a := Decidable.not_not
 
+/-- Transfer decidability of `¬ p` to decidability of `p`. -/
+-- This can not be an instance as it would be tried everywhere.
+def decidable_of_decidable_not (p : Prop) [h : Decidable (¬ p)] : Decidable p :=
+  match h with
+  | isFalse h => isTrue (Classical.not_not.mp h)
+  | isTrue h => isFalse h
+
+attribute [local instance] decidable_of_decidable_not in
+/-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
+@[simp low] protected theorem dite_not [hn : Decidable (¬p)] (x : ¬p → α) (y : ¬¬p → α) :
+    dite (¬p) x y = dite p (fun h => y (not_not_intro h)) x := by
+  cases hn <;> rename_i g
+  · simp [not_not.mp g]
+  · simp [g]
+
+attribute [local instance] decidable_of_decidable_not in
+/-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
+@[simp low] protected theorem ite_not (p : Prop) [Decidable (¬ p)] (x y : α) : ite (¬p) x y = ite p y x :=
+  dite_not (fun _ => x) (fun _ => y)
+
+attribute [local instance] decidable_of_decidable_not in
+@[simp low] protected theorem decide_not (p : Prop) [Decidable (¬ p)] : decide (¬p) = !decide p :=
+  byCases (fun h : p => by simp_all) (fun h => by simp_all)
+
 @[simp low] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x := Decidable.not_forall
 
 theorem not_forall_not {p : α → Prop} : (¬∀ x, ¬p x) ↔ ∃ x, p x := Decidable.not_forall_not

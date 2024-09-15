@@ -348,7 +348,7 @@ theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l�
       specialize H b
       simp at H
   | cons a l₁ IH =>
-    have : a ∈ l₂ := count_pos_iff_mem.mp (by rw [← H]; simp)
+    have : a ∈ l₂ := count_pos_iff.mp (by rw [← H]; simp)
     refine ((IH fun b => ?_).cons a).trans (perm_cons_erase this).symm
     specialize H b
     rw [(perm_cons_erase this).count_eq] at H

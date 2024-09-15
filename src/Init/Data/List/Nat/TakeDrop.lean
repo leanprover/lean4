@@ -6,6 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 prelude
 import Init.Data.List.Zip
 import Init.Data.List.Sublist
+import Init.Data.List.Find
 import Init.Data.Nat.Lemmas
 
 /-!
@@ -190,15 +191,7 @@ theorem dropLast_take {n : Nat} {l : List α} (h : n < l.length) :
     (l.take n).dropLast = l.take (n - 1) := by
   simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
 
-theorem map_eq_append_split {f : α → β} {l : List α} {s₁ s₂ : List β}
-    (h : map f l = s₁ ++ s₂) : ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = s₁ ∧ map f l₂ = s₂ := by
-  have := h
-  rw [← take_append_drop (length s₁) l] at this ⊢
-  rw [map_append] at this
-  refine ⟨_, _, rfl, append_inj this ?_⟩
-  rw [length_map, length_take, Nat.min_eq_left]
-  rw [← length_map l f, h, length_append]
-  apply Nat.le_add_right
+@[deprecated map_eq_append_iff (since := "2024-09-05")] abbrev map_eq_append_split := @map_eq_append_iff
 
 theorem take_prefix_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+: take n l := by
   rw [isPrefix_iff]
@@ -268,6 +261,26 @@ theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := 
 theorem get?_drop (L : List α) (i j : Nat) : get? (L.drop i) j = get? L (i + j) := by
   simp
 
+theorem mem_take_iff_getElem {l : List α} {a : α} :
+    a ∈ l.take n ↔ ∃ (i : Nat) (hm : i < min n l.length), l[i] = a := by
+  rw [mem_iff_getElem]
+  constructor
+  · rintro ⟨i, hm, rfl⟩
+    simp at hm
+    refine ⟨i, by omega, by rw [getElem_take']⟩
+  · rintro ⟨i, hm, rfl⟩
+    refine ⟨i, by simpa, by rw [getElem_take']⟩
+
+theorem mem_drop_iff_getElem {l : List α} {a : α} :
+    a ∈ l.drop n ↔ ∃ (i : Nat) (hm : i + n < l.length), l[n + i] = a := by
+  rw [mem_iff_getElem]
+  constructor
+  · rintro ⟨i, hm, rfl⟩
+    simp at hm
+    refine ⟨i, by omega, by rw [getElem_drop]⟩
+  · rintro ⟨i, hm, rfl⟩
+    refine ⟨i, by simp; omega, by rw [getElem_drop]⟩
+
 theorem head?_drop (l : List α) (n : Nat) :
     (l.drop n).head? = l[n]? := by
   rw [head?_eq_getElem?, getElem?_drop, Nat.add_zero]
@@ -288,7 +301,7 @@ theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n th
 
 theorem getLast_drop {l : List α} (h : l.drop n ≠ []) :
     (l.drop n).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
-  simp only [ne_eq, drop_eq_nil_iff_le] at h
+  simp only [ne_eq, drop_eq_nil_iff] at h
   apply Option.some_inj.1
   simp only [← getLast?_eq_getLast, getLast?_drop, ite_eq_right_iff]
   omega
@@ -434,6 +447,64 @@ theorem reverse_drop {l : List α} {n : Nat} :
   · have w : l.length - n = 0 := by omega
     rw [w, take_zero, drop_of_length_le, reverse_nil]
     omega
+
+/-! ### findIdx -/
+
+theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs.take (xs.findIdx p)) :
+    p x = false := by
+  simp only [mem_take_iff_getElem, forall_exists_index] at h
+  obtain ⟨i, h, rfl⟩ := h
+  exact not_of_lt_findIdx (by omega)
+
+@[simp] theorem findIdx_take {xs : List α} {n : Nat} {p : α → Bool} :
+    (xs.take n).findIdx p = min n (xs.findIdx p) := by
+  induction xs generalizing n with
+  | nil => simp
+  | cons x xs ih =>
+    cases n
+    · simp
+    · simp only [take_succ_cons, findIdx_cons, ih, cond_eq_if]
+      split
+      · simp
+      · rw [Nat.add_min_add_right]
+
+@[simp] theorem findIdx?_take {xs : List α} {n : Nat} {p : α → Bool} :
+    (xs.take n).findIdx? p = (xs.findIdx? p).bind (Option.guard (fun i => i < n)) := by
+  induction xs generalizing n with
+  | nil => simp
+  | cons x xs ih =>
+    cases n
+    · simp
+    · simp only [take_succ_cons, findIdx?_cons]
+      split
+      · simp
+      · simp [ih, Option.guard_comp]
+
+@[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
+    min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp [findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    split <;> split <;> simp_all [Nat.add_min_add_right]
+
+/-! ### takeWhile -/
+
+theorem takeWhile_eq_take_findIdx_not {xs : List α} {p : α → Bool} :
+    takeWhile p xs = take (xs.findIdx (fun a => !p a)) xs := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [takeWhile_cons, ih, findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    split <;> simp_all
+
+theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
+    dropWhile p xs = drop (xs.findIdx (fun a => !p a)) xs := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [dropWhile_cons, ih, findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    split <;> simp_all
 
 /-! ### rotateLeft -/
 

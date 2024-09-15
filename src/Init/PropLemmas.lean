@@ -186,6 +186,21 @@ theorem ite_true_same {p q : Prop} [Decidable p] : (if p then p else q) ↔ (¬p
 @[deprecated ite_else_self (since := "2024-08-28")]
 theorem ite_false_same {p q : Prop} [Decidable p] : (if p then q else p) ↔ (p ∧ q) := ite_else_self
 
+/-- If two if-then-else statements only differ by the `Decidable` instances, they are equal. -/
+-- This is useful for ensuring confluence, but rarely otherwise.
+@[simp] theorem ite_eq_ite (p : Prop) {h h' : Decidable p} (x y : α) :
+    (@ite _ p h x y = @ite _ p h' x y) ↔ True := by
+  simp
+  congr
+
+/-- If two if-then-else statements only differ by the `Decidable` instances, they are equal. -/
+-- This is useful for ensuring confluence, but rarely otherwise.
+@[simp] theorem ite_iff_ite (p : Prop) {h h' : Decidable p} (x y : Prop) :
+    (@ite _ p h x y ↔ @ite _ p h' x y) ↔ True := by
+  rw [iff_true]
+  suffices @ite _ p h x y = @ite _ p h' x y by simp [this]
+  congr
+
 /-! ## exists and forall -/
 
 section quantifiers
@@ -540,6 +555,9 @@ This is the same as `decidable_of_iff` but the iff is flipped. -/
 
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
     CoeDep (α → Prop) p (α → Bool) := ⟨fun b => decide <| p b⟩
+
+instance [DecidablePred p] : DecidablePred (p ∘ f) :=
+  fun x => inferInstanceAs (Decidable (p (f x)))
 
 /-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
 (This is sometimes taken as an alternate definition of decidability.) -/

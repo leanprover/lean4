@@ -539,7 +539,7 @@ theorem findIdx_lt_length {p : α → Bool} {xs : List α} :
 
 /-- `p` does not hold for elements with indices less than `xs.findIdx p`. -/
 theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.findIdx p) :
-    ¬p (xs[i]'(Nat.le_trans h (findIdx_le_length p))) := by
+    p (xs[i]'(Nat.le_trans h (findIdx_le_length p))) = false := by
   revert i
   induction xs with
   | nil => intro i h; rw [findIdx_nil] at h; simp at h
@@ -547,10 +547,14 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
     intro i h
     have ho := h
     rw [findIdx_cons] at h
-    have npx : ¬p x := by intro y; rw [y, cond_true] at h; simp at h
+    have npx : p x = false := by
+      apply eq_false_of_ne_true
+      intro y
+      rw [y, cond_true] at h
+      simp at h
     simp [npx, cond_false] at h
     cases i.eq_zero_or_pos with
-    | inl e => simpa only [e, Fin.zero_eta, get_cons_zero]
+    | inl e => simpa [e, Fin.zero_eta, get_cons_zero]
     | inr e =>
       have ipm := Nat.succ_pred_eq_of_pos e
       have ilt := Nat.le_trans ho (findIdx_le_length p)
@@ -560,11 +564,11 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
 
 /-- If `¬ p xs[j]` for all `j < i`, then `i ≤ xs.findIdx p`. -/
 theorem le_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
-    (h2 : ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji h))) : i ≤ xs.findIdx p := by
+    (h2 : ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false) : i ≤ xs.findIdx p := by
   apply Decidable.byContradiction
   intro f
   simp only [Nat.not_le] at f
-  exact absurd (@findIdx_getElem _ p xs (Nat.lt_trans f h)) (h2 (xs.findIdx p) f)
+  exact absurd (@findIdx_getElem _ p xs (Nat.lt_trans f h)) (by simpa using h2 (xs.findIdx p) f)
 
 /-- If `¬ p xs[j]` for all `j ≤ i`, then `i < xs.findIdx p`. -/
 theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
@@ -576,19 +580,18 @@ theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
 
 /-- `xs.findIdx p = i` iff `p xs[i]` and `¬ p xs [j]` for all `j < i`. -/
 theorem findIdx_eq {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length) :
-    xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji h)) := by
+    xs.findIdx p = i ↔ p xs[i] ∧ ∀ j (hji : j < i), p (xs[j]'(Nat.lt_trans hji h)) = false := by
   refine ⟨fun f ↦ ⟨f ▸ (@findIdx_getElem _ p xs (f ▸ h)), fun _ hji ↦ not_of_lt_findIdx (f ▸ hji)⟩,
-    fun ⟨h1, h2⟩ ↦ ?_⟩
+    fun ⟨_, h2⟩ ↦ ?_⟩
   apply Nat.le_antisymm _ (le_findIdx_of_not h h2)
   apply Decidable.byContradiction
   intro h3
   simp at h3
-  exact not_of_lt_findIdx h3 h1
+  simp_all [not_of_lt_findIdx h3]
 
 theorem findIdx_append (p : α → Bool) (l₁ l₂ : List α) :
     (l₁ ++ l₂).findIdx p =
-      if l₁.findIdx p < l₁.length then l₁.findIdx p else l₂.findIdx p + l₁.length := by
-  simp
+      if ∃ x, x ∈ l₁ ∧ p x = true then l₁.findIdx p else l₂.findIdx p + l₁.length := by
   induction l₁ with
   | nil => simp
   | cons x xs ih =>
@@ -624,10 +627,23 @@ theorem IsPrefix.findIdx_eq_of_findIdx_lt_length {l₁ l₂ : List α} {p : α �
 @[simp] theorem findIdx?_cons :
     (x :: xs).findIdx? p i = if p x then some i else findIdx? p xs (i + 1) := rfl
 
-@[simp] theorem findIdx?_succ :
+theorem findIdx?_succ :
     (xs : List α).findIdx? p (i+1) = (xs.findIdx? p i).map fun i => i + 1 := by
   induction xs generalizing i with simp
   | cons _ _ _ => split <;> simp_all
+
+@[simp] theorem findIdx?_start_succ :
+    (xs : List α).findIdx? p (i+1) = (xs.findIdx? p 0).map fun k => k + (i + 1) := by
+  induction xs generalizing i with
+  | nil => simp
+  | cons _ _ _ =>
+    simp only [findIdx?_succ, findIdx?_cons, Nat.zero_add]
+    split
+    · simp_all
+    · simp_all only [findIdx?_succ, Bool.not_eq_true, Option.map_map, Nat.zero_add]
+      congr
+      ext
+      simp only [Nat.add_comm i, Function.comp_apply, Nat.add_assoc]
 
 @[simp]
 theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
@@ -679,6 +695,16 @@ theorem findIdx?_eq_some_of_exists {xs : List α} {p : α → Bool} (h : ∃ x, 
 theorem findIdx?_eq_none_iff_findIdx_eq {xs : List α} {p : α → Bool} :
     xs.findIdx? p = none ↔ xs.findIdx p = xs.length := by
   simp
+
+theorem findIdx?_eq_guard_findIdx_lt {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = Option.guard (fun i => i < xs.length) (xs.findIdx p) := by
+  match h : xs.findIdx? p with
+  | none =>
+    simp only [findIdx?_eq_none_iff] at h
+    simp [findIdx_eq_length_of_false h, Option.guard]
+  | some i =>
+    simp only [findIdx?_eq_some_iff_findIdx_eq] at h
+    simp [h]
 
 theorem findIdx?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {i : Nat} :
     xs.findIdx? p = some i ↔

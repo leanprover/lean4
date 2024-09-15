@@ -40752,7 +40752,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Command_include_docString__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all\ndeclarations in the remainder of the current section, differing from the default behavior of\nconditionally including variables based on use in the declaration header. `include` is usually\nfollowed by the `in` combinator to limit the inclusion to the subsequent declaration.\n", 371, 371);
+x_1 = lean_mk_string_unchecked("`include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all\ntheorems in the remainder of the current section, differing from the default behavior of\nconditionally including variables based on use in the theorem header. Other commands are\nnot affected. `include` is usually followed by `in theorem ...` to limit the inclusion\nto the subsequent declaration.\n", 393, 393);
 return x_1;
 }
 }

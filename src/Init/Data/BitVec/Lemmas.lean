@@ -1631,12 +1631,49 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
 @[simp] theorem ofNat_lt_ofNat {n} (x y : Nat) : BitVec.ofNat n x < BitVec.ofNat n y ↔ x % 2^n < y % 2^n := by
   simp [lt_def]
 
-protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x < y := by
-  revert h1 h2
-  let ⟨x, lt⟩ := x
-  let ⟨y, lt⟩ := y
-  simp
-  exact Nat.lt_of_le_of_ne
+@[simp] protected theorem not_le {x y : BitVec n} : ¬ x ≤ y ↔ y < x := by
+  simp [le_def, lt_def]
+
+@[simp] protected theorem not_lt {x y : BitVec n} : ¬ x < y ↔ y ≤ x := by
+  simp [le_def, lt_def]
+
+@[simp] protected theorem le_refl (x : BitVec n) : x ≤ x := by
+  simp [le_def]
+
+@[simp] protected theorem lt_irrefl (x : BitVec n) : ¬x < x := by
+  simp [lt_def]
+
+protected theorem le_trans {x y z : BitVec n} : x ≤ y → y ≤ z → x ≤ z := by
+  simp only [le_def]
+  apply Nat.le_trans
+
+protected theorem lt_trans {x y z : BitVec n} : x < y → y < z → x < z := by
+  simp only [lt_def]
+  apply Nat.lt_trans
+
+protected theorem le_total (x y : BitVec n) : x ≤ y ∨ y ≤ x := by
+  simp only [le_def]
+  apply Nat.le_total
+
+protected theorem le_antisymm {x y : BitVec n} : x ≤ y → y ≤ x → x = y := by
+  simp only [le_def, BitVec.toNat_eq]
+  apply Nat.le_antisymm
+
+protected theorem lt_asymm {x y : BitVec n} : x < y → ¬ y < x := by
+  simp only [lt_def]
+  apply Nat.lt_asymm
+
+protected theorem lt_of_le_ne {x y : BitVec n} : x ≤ y → ¬ x = y → x < y := by
+  simp only [lt_def, le_def, BitVec.toNat_eq]
+  apply Nat.lt_of_le_of_ne
+
+protected theorem ne_of_lt {x y : BitVec n} : x < y → x ≠ y := by
+  simp only [lt_def, ne_eq, toNat_eq]
+  apply Nat.ne_of_lt
+
+protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x.umod y < y := by
+  simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod, umod, toNat_ofNatLt]
+  apply Nat.mod_lt
 
 /-! ### ofBoolList -/
 
@@ -2008,5 +2045,21 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   by_cases h : w = 0
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
+
+
+/-! ### Non-overflow theorems -/
+
+/--
+If `y ≤ x`, then the subtraction `(x - y)` does not overflow.
+Thus, `(x - y).toNat = x.toNat - y.toNat`
+-/
+theorem toNat_sub_of_le {x y : BitVec n} (h : y ≤ x) :
+    (x - y).toNat = x.toNat - y.toNat := by
+  simp only [toNat_sub]
+  rw [BitVec.le_def] at h
+  by_cases h' : x.toNat = y.toNat
+  · rw [h', Nat.sub_self, Nat.sub_add_cancel (by omega), Nat.mod_self]
+  · have : 2 ^ n - y.toNat + x.toNat = 2 ^ n + (x.toNat - y.toNat) := by omega
+    rw [this, Nat.add_mod_left, Nat.mod_eq_of_lt (by omega)]
 
 end BitVec

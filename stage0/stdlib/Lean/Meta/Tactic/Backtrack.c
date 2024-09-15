@@ -105,7 +105,7 @@ uint8_t l_List_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_processIndependentGoals___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_observing_x3f___at___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_Backtrack_BacktrackConfig_maxDepth___default;
 static lean_object* l_Lean_Meta_Tactic_Backtrack_BacktrackConfig_discharge___default___rarg___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___closed__2;
@@ -722,7 +722,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else
@@ -771,7 +771,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else
@@ -5126,8 +5126,8 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_1);
-x_10 = lean_array_to_list(lean_box(0), x_3);
-x_11 = lean_array_to_list(lean_box(0), x_4);
+x_10 = lean_array_to_list(x_3);
+x_11 = lean_array_to_list(x_4);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -5607,7 +5607,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else
@@ -5648,7 +5648,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else
@@ -5758,7 +5758,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; 
-x_3 = lean_array_to_list(lean_box(0), x_2);
+x_3 = lean_array_to_list(x_2);
 return x_3;
 }
 else

@@ -1,4 +1,4 @@
-isDefEqOffsetBug.lean:27:2-27:5: error: type mismatch
+isDefEqOffsetBug.lean:19:2-19:5: error: type mismatch
   rfl
 has type
   0 + 0 = 0 + 0 : Prop

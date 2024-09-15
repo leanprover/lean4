@@ -9,3 +9,4 @@ import Init.Data.List.Nat.Pairwise
 import Init.Data.List.Nat.Range
 import Init.Data.List.Nat.Sublist
 import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Nat.Count

@@ -79,7 +79,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Ela
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_registerIdMap___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim___boxed(lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Elab_Tactic_BVDecide_LRAT_trim_mapping___spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis_go(lean_object*, lean_object*, lean_object*);
@@ -5909,7 +5909,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
 x_8 = lean_ctor_get(x_6, 1);
-x_9 = lean_array_to_list(lean_box(0), x_8);
+x_9 = lean_array_to_list(x_8);
 lean_ctor_set_tag(x_6, 1);
 lean_ctor_set(x_6, 1, x_9);
 x_10 = l_List_appendTR___rarg(x_6, x_4);
@@ -5927,7 +5927,7 @@ x_15 = lean_ctor_get(x_6, 1);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_dec(x_6);
-x_16 = lean_array_to_list(lean_box(0), x_15);
+x_16 = lean_array_to_list(x_15);
 x_17 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_17, 0, x_14);
 lean_ctor_set(x_17, 1, x_16);
@@ -6113,7 +6113,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34;
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 lean_dec(x_31);
-x_33 = lean_array_to_list(lean_box(0), x_32);
+x_33 = lean_array_to_list(x_32);
 x_34 = l_List_appendTR___rarg(x_33, x_7);
 x_1 = x_34;
 x_3 = x_12;
@@ -6125,7 +6125,7 @@ lean_object* x_36; lean_object* x_37; lean_object* x_38;
 x_36 = lean_ctor_get(x_31, 2);
 lean_inc(x_36);
 lean_dec(x_31);
-x_37 = lean_array_to_list(lean_box(0), x_36);
+x_37 = lean_array_to_list(x_36);
 x_38 = l_List_appendTR___rarg(x_37, x_7);
 x_1 = x_38;
 x_3 = x_12;
@@ -6143,7 +6143,7 @@ x_42 = lean_box(0);
 x_43 = lean_array_get_size(x_41);
 x_44 = lean_unsigned_to_nat(0u);
 x_45 = lean_nat_dec_lt(x_44, x_43);
-x_46 = lean_array_to_list(lean_box(0), x_40);
+x_46 = lean_array_to_list(x_40);
 if (x_45 == 0)
 {
 lean_object* x_47; lean_object* x_48; 

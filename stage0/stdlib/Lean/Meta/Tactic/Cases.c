@@ -218,7 +218,7 @@ LEAN_EXPORT uint8_t l_Nat_anyTR_loop___at___private_Lean_Meta_Tactic_Cases_0__Le
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__42(lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_toByCasesSubgoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__15___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Meta_Cases_cases___lambda__2___closed__8;
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___closed__1;
 lean_object* l_Lean_MVarId_induction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15277,7 +15277,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = lean_ctor_get(x_10, 0);
-x_13 = lean_array_to_list(lean_box(0), x_12);
+x_13 = lean_array_to_list(x_12);
 x_14 = lean_box(0);
 x_15 = l_List_mapTR_loop___at_Lean_MVarId_casesRec___spec__1(x_13, x_14);
 lean_ctor_set(x_10, 0, x_15);
@@ -15291,7 +15291,7 @@ x_17 = lean_ctor_get(x_10, 1);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_10);
-x_18 = lean_array_to_list(lean_box(0), x_16);
+x_18 = lean_array_to_list(x_16);
 x_19 = lean_box(0);
 x_20 = l_List_mapTR_loop___at_Lean_MVarId_casesRec___spec__1(x_18, x_19);
 x_21 = lean_alloc_ctor(0, 2, 0);

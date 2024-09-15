@@ -541,7 +541,7 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
     -- so we need to replace that IH
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
-        (addEqualities := mask.map Bool.not)
+        (addEqualities := mask.map not)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => M2.branch do
@@ -560,7 +560,7 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
       let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs goal
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
-        (addEqualities := mask.map Bool.not)
+        (addEqualities := mask.map not)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => M2.branch do

@@ -57,7 +57,7 @@ def setGoals (mvarIds : List MVarId) : TacticM Unit :=
 
 def pruneSolvedGoals : TacticM Unit := do
   let gs ← getGoals
-  let gs ← gs.filterM fun g => Bool.not <$> g.isAssigned
+  let gs ← gs.filterM fun g => not <$> g.isAssigned
   setGoals gs
 
 def getUnsolvedGoals : TacticM (List MVarId) := do

@@ -93,9 +93,9 @@ theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
     ⟦aig.mkGate input, assign⟧
       =
     (
-      (Bool.xor ⟦aig, input.lhs.ref, assign⟧ input.lhs.inv)
+      (xor ⟦aig, input.lhs.ref, assign⟧ input.lhs.inv)
         &&
-      (Bool.xor ⟦aig, input.rhs.ref, assign⟧ input.rhs.inv)
+      (xor ⟦aig, input.rhs.ref, assign⟧ input.rhs.inv)
     ) := by
   conv =>
     lhs
@@ -224,9 +224,9 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
     ⟦aig, ⟨start, hstart⟩, assign⟧
       =
     (
-      (Bool.xor ⟦aig, ⟨lhs, by have := aig.invariant hstart h; omega⟩, assign⟧ linv)
+      (xor ⟦aig, ⟨lhs, by have := aig.invariant hstart h; omega⟩, assign⟧ linv)
         &&
-      (Bool.xor ⟦aig, ⟨rhs, by have := aig.invariant hstart h; omega⟩, assign⟧ rinv)
+      (xor ⟦aig, ⟨rhs, by have := aig.invariant hstart h; omega⟩, assign⟧ rinv)
     ) := by
   unfold denote
   conv =>

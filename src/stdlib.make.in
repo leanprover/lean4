@@ -108,10 +108,10 @@ else
 	"${LEANC}" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/empty.c ${LEANSHARED_1_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 ifeq "${CMAKE_SYSTEM_NAME}" "Darwin"
 	"${LEANC}" -shared -o $@ \
-	  ${LIB}/temp/Lean.*o.export -Wl,-force_load,${LIB}/temp/libleanshell.a -lInit -lStd -lLean -lleancpp ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  ${LIB}/temp/Lean.*o.export -Wl,-force_load,${LIB}/temp/libleanshell.a -lInit -lStd -lLean -lleancpp ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}
 else
 	"${LEANC}" -shared -o $@ \
-	  -Wl,--whole-archive ${LIB}/temp/Lean.*o.export ${LIB}/temp/libleanshell.a -Wl,--no-whole-archive -Wl,--start-group -lInit -lStd -lLean -lleancpp -Wl,--end-group ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  -Wl,--whole-archive ${LIB}/temp/Lean.*o.export ${LIB}/temp/libleanshell.a -Wl,--no-whole-archive -Wl,--start-group -lInit -lStd -lLean -lleancpp -Wl,--end-group ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}
 endif
 endif
 
@@ -120,7 +120,7 @@ leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRAR
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/lean/libLean.a.export ${LIB}/lean/libLake.a.export
 	@echo "[    ] Building $@"
 	"${LEANC}" -shared -o $@ \
-	  ${LAKESHARED_LINKER_FLAGS} -lleanshared -lleanshared_1 -lInit_shared ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  ${LAKESHARED_LINKER_FLAGS} -lleanshared -lleanshared_1 -lInit_shared ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}
 
 libLake_shared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
@@ -128,7 +128,7 @@ ${CMAKE_BINARY_DIR}/bin/lake${CMAKE_EXECUTABLE_SUFFIX}: ${LIB}/temp/LakeMain.*o.
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
-	"${LEANC}" $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEANC_OPTS} -o $@
+	"${LEANC}" $< -lLake_shared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEANC_OPTS} ${LINK_OPTS} -o $@
 
 lake: ${CMAKE_BINARY_DIR}/bin/lake${CMAKE_EXECUTABLE_SUFFIX}
 

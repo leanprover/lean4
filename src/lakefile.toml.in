@@ -51,6 +51,7 @@ globs = [
 name = "Lake"
 srcDir = "lake"
 defaultFacets = ["static", "static.export"]
+globs = ["Lake", "Lake.CLI"]
 
 [[lean_lib]]
 name = "LakeMain"

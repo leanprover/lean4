@@ -653,13 +653,13 @@ endif()
 
 # use Bash version for building stage 0 and 1, use Lean version afterwards
 if(${STAGE} EQUAL 0)
-  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
-  set(LEANC "${CMAKE_BINARY_DIR}/leanc.sh")
+  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}" @ONLY)
+  set(LEANC "${CMAKE_BINARY_DIR}/bin/leanc")
 else()
   set(LEANC "${PREV_STAGE}/bin/leanc")
 endif()
 
-if(EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/leanc

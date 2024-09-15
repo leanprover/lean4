@@ -1242,10 +1242,10 @@ private def registerNamePrefixes (env : Environment) (name : Name) : Environment
         -- Do not register namespaces that only contain internal declarations.
         env
       else
-        go name
+        go env name
     | _ => env
-where go
-  | .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+where go env
+  | .str p _ => if isNamespaceName p then go (registerNamespace env p) p else env
   | _        => env
 
 @[export lean_elab_environment_update_base_after_kernel_add]

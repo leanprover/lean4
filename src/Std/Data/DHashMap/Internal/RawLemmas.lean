@@ -541,6 +541,8 @@ end Const
 theorem getKey?_empty {a : α} {c} : (empty c : Raw₀ α β).getKey? a = none := by
   simp [getKey?]
 
+set_option debug.byAsSorry true
+
 theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     m.1.isEmpty = true → m.getKey? a = none := by
   simp_to_model; empty

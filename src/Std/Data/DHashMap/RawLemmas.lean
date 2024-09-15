@@ -665,6 +665,8 @@ theorem getD_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} {fall
 
 end Const
 
+set_option debug.byAsSorry true
+
 @[simp]
 theorem getKey?_empty {a : α} {c} :
     (empty c : Raw α β).getKey? a = none := by

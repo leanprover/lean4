@@ -135,6 +135,37 @@ theorem get!_val [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} {a : �
     m.val.get! a = m.get! a := by
   simp [Raw.get!, m.2]
 
+theorem getKey?_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
+    m.getKey? a = Raw₀.getKey? ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.getKey?, h.size_buckets_pos]
+
+theorem getKey?_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} :
+    m.val.getKey? a = m.getKey? a := by
+  simp [Raw.getKey?, m.2]
+
+theorem getKey_eq [BEq α] [Hashable α] {m : Raw α β} {a : α} {h : a ∈ m} :
+    m.getKey a h = Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+      (by change dite .. = true at h; split at h <;> simp_all) := rfl
+
+theorem getKey_val [BEq α] [Hashable α] {m : Raw₀ α β} {a : α} {h : a ∈ m.val}  :
+    m.val.getKey a h = m.getKey a (contains_val (m := m) ▸ h) := rfl
+
+theorem getKeyD_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a fallback : α} :
+    m.getKeyD a fallback = Raw₀.getKeyD ⟨m, h.size_buckets_pos⟩ a fallback := by
+  simp [Raw.getKeyD, h.size_buckets_pos]
+
+theorem getKeyD_val [BEq α] [Hashable α] {m : Raw₀ α β} {a fallback : α} :
+    m.val.getKeyD a fallback = m.getKeyD a fallback := by
+  simp [Raw.getKeyD, m.2]
+
+theorem getKey!_eq [BEq α] [Hashable α] [Inhabited α] {m : Raw α β} (h : m.WF) {a : α} :
+    m.getKey! a = Raw₀.getKey! ⟨m, h.size_buckets_pos⟩ a := by
+  simp [Raw.getKey!, h.size_buckets_pos]
+
+theorem getKey!_val [BEq α] [Hashable α] [Inhabited α] {m : Raw₀ α β} {a : α} :
+    m.val.getKey! a = m.getKey! a := by
+  simp [Raw.getKey!, m.2]
+
 theorem erase_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} :
     m.erase a = Raw₀.erase ⟨m, h.size_buckets_pos⟩ a := by
   simp [Raw.erase, h.size_buckets_pos]

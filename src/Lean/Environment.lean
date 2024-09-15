@@ -1235,9 +1235,18 @@ private def isNamespaceName : Name → Bool
   | .str p _          => isNamespaceName p
   | _                 => false
 
-private def registerNamePrefixes : Environment → Name → Environment
-  | env, .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
-  | env, _        => env
+private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
+  match name with
+    | .str _ s =>
+      if s.get 0 == '_' then
+        -- Do not register namespaces that only contain internal declarations.
+        env
+      else
+        go name
+    | _ => env
+where go
+  | .str p _ => if isNamespaceName p then registerNamePrefixes (registerNamespace env p) p else env
+  | _        => env
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) : Environment :=

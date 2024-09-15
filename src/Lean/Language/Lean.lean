@@ -315,7 +315,8 @@ where
           stx := newStx
           diagnostics := old.diagnostics
           cancelTk? := ctx.newCancelTk
-          result? := some { oldSuccess with
+          result? := some {
+            parserState := newParserState
             processedSnap := (← oldSuccess.processedSnap.bindIO (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
@@ -323,8 +324,11 @@ where
                 oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd => do
                   let prom ← IO.Promise.new
                   let _ ← IO.asTask (parseCmd oldCmd newParserState oldProcSuccess.cmdState prom ctx)
-                  return .pure { oldProcessed with result? := some { oldProcSuccess with
-                    firstCmdSnap := { range? := none, task := prom.result } } }
+                  return .pure {
+                    diagnostics := oldProcessed.diagnostics
+                    result? := some {
+                      cmdState := oldProcSuccess.cmdState
+                      firstCmdSnap := { range? := none, task := prom.result } } }
               else
                 return .pure oldProcessed) } }
       else return old

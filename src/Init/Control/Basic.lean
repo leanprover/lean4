@@ -93,7 +93,7 @@ infixr:30 " <||> " => orM
 infixr:35 " <&&> " => andM
 
 @[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
-  Bool.not <$> x
+  not <$> x
 
 /-!
 # How `MonadControl` works

@@ -498,7 +498,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   -/
   let cNode := { cNode with
     subgoals := ← withMCtx cNode.mctx do
-      cNode.subgoals.filterM (Bool.not <$> ·.mvarId!.isAssigned)
+      cNode.subgoals.filterM (not <$> ·.mvarId!.isAssigned)
   }
   match cNode.subgoals with
   | []      => addAnswer cNode

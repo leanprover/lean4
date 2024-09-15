@@ -2677,10 +2677,10 @@ we do not separately develop much theory about it.
 -/
 
 @[simp] theorem partition_eq_filter_filter (p : α → Bool) (l : List α) :
-    partition p l = (filter p l, filter (Bool.not ∘ p) l) := by simp [partition, aux]
+    partition p l = (filter p l, filter (not ∘ p) l) := by simp [partition, aux]
   where
     aux : ∀ l {as bs}, partition.loop p l (as, bs) =
-        (as.reverse ++ filter p l, bs.reverse ++ filter (Bool.not ∘ p) l)
+        (as.reverse ++ filter p l, bs.reverse ++ filter (not ∘ p) l)
       | [] => by simp [partition.loop, filter]
       | a :: l => by cases pa : p a <;> simp [partition.loop, pa, aux, filter, append_assoc]
 

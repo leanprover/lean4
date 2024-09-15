@@ -31,9 +31,9 @@ def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
 decreasing_by apply bitwise_rec_lemma; assumption
 
 @[extern "lean_nat_land"]
-def land : @& Nat → @& Nat → Nat := bitwise Bool.and
+def land : @& Nat → @& Nat → Nat := bitwise and
 @[extern "lean_nat_lor"]
-def lor  : @& Nat → @& Nat → Nat := bitwise Bool.or
+def lor  : @& Nat → @& Nat → Nat := bitwise or
 @[extern "lean_nat_lxor"]
 def xor  : @& Nat → @& Nat → Nat := bitwise bne
 @[extern "lean_nat_shiftl"]

@@ -115,4 +115,4 @@ def getFilteredRemoteUrl? (remote := Git.defaultRemote) (repo : GitRepo) : BaseI
   repo.testGit #["diff", "--exit-code"]
 
 @[inline] def hasDiff (repo : GitRepo) : BaseIO Bool := do
-  Bool.not <$> repo.hasNoDiff
+  not <$> repo.hasNoDiff

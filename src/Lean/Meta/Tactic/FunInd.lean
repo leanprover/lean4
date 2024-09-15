@@ -293,7 +293,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             -- statement and the infered alt types
             let dummyGoal := mkConst ``True []
             mkArrow eTypeAbst dummyGoal)
-          (onAlt := fun altType alt => do
+          (onAlt := fun _ altType alt => do
             removeLamda alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
@@ -310,7 +310,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun _altType alt => do
+          (onAlt := fun _ _altType alt => do
             removeLamda alt fun oldIH alt => do
               M.eval (foldAndCollect oldIH newIH isRecCall alt))
           (onRemaining := fun _ => pure #[])
@@ -438,9 +438,11 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
   let mvar ← mkFreshExprSyntheticOpaqueMVar goal (tag := `hyp)
   let mut mvarId := mvar.mvarId!
   mvarId ← assertIHs IHs mvarId
+  trace[Meta.FunInd] "Goal before cleanup:{mvarId}"
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
   mvarId ← mvarId.cleanup (toPreserve := toPreserve)
+  trace[Meta.FunInd] "Goal after cleanup (toClear := {toClear.map mkFVar}) (toPreserve := {toPreserve.map mkFVar}):{mvarId}"
   modify (·.push mvarId)
   let mvar ← instantiateMVars mvar
   pure mvar
@@ -544,11 +546,13 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
         (addEqualities := mask.map not)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => M2.branch do
+        (onAlt := fun xs expAltType alt => M2.branch do
           removeLamda alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
-              let alt' ← buildInductionBody (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! isRecCall alt
+              let toClear' := toClear.push newIH'.fvarId!
+              let toPreserve' := toPreserve ++ xs.map (·.fvarId!)
+              let alt' ← buildInductionBody toClear' toPreserve' goal' oldIH' newIH'.fvarId! isRecCall alt
               mkLambdaFVars #[newIH'] alt')
         (onRemaining := fun _ => pure #[.fvar newIH])
       return matcherApp'.toExpr
@@ -563,7 +567,7 @@ partial def buildInductionBody (toClear toPreserve : Array FVarId) (goal : Expr)
         (addEqualities := mask.map not)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
-        (onAlt := fun expAltType alt => M2.branch do
+        (onAlt := fun _ expAltType alt => M2.branch do
           buildInductionBody toClear toPreserve expAltType oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
 

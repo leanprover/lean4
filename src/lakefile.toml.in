@@ -26,6 +26,7 @@ nativeLibDir = "lib/lean"
 
 moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 moreLeancArgs = [${LEANC_OPTS_TOML}]
+moreLinkArgs = [${LINK_OPTS_TOML}]
 
 [[lean_lib]]
 name = "Init"

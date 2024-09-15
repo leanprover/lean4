@@ -739,6 +739,7 @@ function(toml_escape IN OUTVAR)
 endfunction()
 toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
 toml_escape("${LEANC_OPTS}" LEANC_OPTS_TOML)
+toml_escape("${LINK_OPTS}" LINK_OPTS_TOML)
 
 if(USE_LAKE AND STAGE EQUAL 1)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)

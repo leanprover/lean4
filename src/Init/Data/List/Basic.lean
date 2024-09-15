@@ -2359,13 +2359,16 @@ where
 /--
 Splits a list into the longest segments in which each pair of adjacent elements are related by `R`.
 
-`O(|l|)`.
+* `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
+* `groupBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
 
-Examples:
-* `[1, 1, 2, 2, 2, 3, 2].splitBy (· == ·) = [[1, 1], [2, 2, 2], [3], [2]]`
-* `[1, 2, 5, 4, 5, 1, 4].splitBy (· < ·) = [[1, 2, 5], [4, 5], [1, 4]]`
-* `[1, 2, 5, 4, 5, 1, 4].splitBy (fun _ _ => true) = [[1, 2, 5, 4, 5, 1, 4]]`
-* `[1, 2, 5, 4, 5, 1, 4].splitBy (fun _ _ => false) = [[1], [2], [5], [4], [5], [1], [4]]`
+Note that `groupBy` is defined in terms of a bespoke `groupBy.loop`. The arguments of
+`groupBy.loop l ag g gs` represent the following:
+
+- `l : List α` is the list whose elements we group.
+- `ag : α` is the previous element for which a comparison was performed.
+- `g : List α` is the group currently being assembled, in **reverse order**.
+- `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
 -/
 @[specialize] def splitBy (R : α → α → Bool) : List α → List (List α)
   | []    => []

@@ -71,19 +71,19 @@ namespace Array
             have hs: as.size = s := by rw [← hs, hs']
 
             ⟨as, hs⟩
-        else
-          let as := as.swap ⟨i, hs ▸ his⟩ ⟨high, hs ▸ hhs⟩
-          have hs: as.size = s := by simp_all only [as, Array.size_swap]
-
+        else if hih: i >= high then
           -- this can only happen if low == high assuming lt is antisymmetric
           -- that's because i == j == high implies that all x in [low, high) are less than the pivot as[high]
           -- in particular, this means that if mid != high, as[mid] is less than as[high], which is impossible,
           -- because we swap them in that case, so that a[mid] >= a[high]
           -- hence, mid = high, which implies (low + high) / 2 = high, which implies that low = high or
           -- low = high + 1, the latter of which is impossible because low <= high; hence, low == high
-          if hih: i >= high then
+
             ⟨as, hs⟩
           else
+            let as := as.swap ⟨i, hs ▸ his⟩ ⟨high, hs ▸ hhs⟩
+            have hs: as.size = s := by simp_all only [as, Array.size_swap]
+
             have hih: i < high := Nat.gt_of_not_le hih
             have his: i < s := Nat.lt_trans hih hhs
 

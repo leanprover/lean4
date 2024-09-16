@@ -52,9 +52,7 @@ end Nat
 
 namespace Array
 
-@[inline] def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
-    (hhs: low < high → high < as.size := by omega) : Array α :=
-
+@[inline] def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat)
       (hhs: low < high → high < as.size): {as': Array α // as'.size = as.size} :=
     let s := as.size
@@ -143,18 +141,26 @@ namespace Array
       ⟨as, hs⟩
       termination_by (high - low, 1, 0)
 
-  (sort as low high hhs).1
+  have hhs := by
+    intro hlh
+    split
+    · assumption
+    · apply Nat.sub_one_lt
+      intro h0
+      simp [h0] at hlh
+
+  (sort as low (if high < as.size then high else as.size - 1) hhs).1
 
 @[simp] theorem size_qsort.sort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
-    (hhs: low < high → high < as.size := by omega):
+    (hhs: low < high → high < as.size):
     (qsort.sort lt as low high hhs).1.size = as.size := by
   exact (qsort.sort lt as low high hhs).2
 
-@[simp] theorem size_qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
-    (hhs: low < high → high < as.size := by omega):
-    (qsort as lt low high hhs).size = as.size := by
+@[simp] theorem size_qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1):
+    (qsort as lt low high).size = as.size := by
   unfold qsort
-  exact (qsort.sort lt as low high hhs).2
+  split
+  all_goals exact (qsort.sort _ _ _ _ _).2
 
 inductive IPerm {α} (low high: Nat): Array α → Array α → Prop where
 | refl: IPerm low high as as
@@ -198,6 +204,18 @@ theorem size_eq {α} {as: Array α} {as': Array α} {low high: Nat}
   | refl => rfl
   | trans _ _ ih ih' => rwa [ih'] at ih
   | swap => simp only [size_swap]
+
+theorem resize_out_of_bounds (p: IPerm low high as0 as) (hsh': (as0.size - 1) ≤ high'):
+  IPerm low high' as0 as := by
+  induction p with
+  | refl => exact refl
+  | trans p' _ ih ih' => exact trans (ih hsh') (ih' (p'.size_eq ▸ hsh'))
+  | swap as i his hli _ j hjs hlj _ =>
+    have hih': i ≤ high' := Nat.le_trans (Nat.le_sub_one_of_lt his) hsh'
+    have hjh': j ≤ high' := Nat.le_trans (Nat.le_sub_one_of_lt hjs) hsh'
+    exact swap as
+      i his hli hih'
+      j hjs hlj hjh'
 
 def getElem?_lower {α: Type u} {as: Array α} {as': Array α} {low high: Nat} (hkl: k < low)
   (p: IPerm low high as as'): as[k]? = as'[k]? := by
@@ -393,6 +411,13 @@ theorem restrict {low high: Nat}
   intro i j hli hij hjl hjs
   exact p i j (Nat.le_trans hll hli) hij (Nat.le_trans hjl hhh) hjs
 
+theorem resize_out_of_bounds (h: IOrdered lt low high as) (hsh: (as.size - 1) ≤ high):
+  IOrdered lt low high' as := by
+  unfold IOrdered
+  intro i j hli hij _ hjs
+  have hjh: j ≤ high := Nat.le_trans (Nat.le_sub_one_of_lt hjs) hsh
+  exact h i j hli hij hjh hjs
+
 /-- can use IPerm.expand if the endpoints don't match --/
 theorem transport_lower {low high : Nat} {as as' : Array α}
     (hp : IPerm (low + 1) high as as')
@@ -467,11 +492,15 @@ theorem mkSingle (lt : α → α → Bool) (k: Nat) (as0: Array α) (as: Array �
 theorem trans {lt: α → α → Bool} {low high: Nat} {as as' as'': Array α}
     (hp: IPerm low high as as') (hs: ISortOf lt low high as' as''):
     (ISortOf lt low high as as'') := by
-    constructor
-    case ord =>
-      exact hs.ord
-    case perm =>
-      apply IPerm.trans hp hs.perm
+  constructor
+  case perm => exact hp.trans hs.perm
+  case ord => exact hs.ord
+
+theorem resize_out_of_bounds (h: ISortOf lt low high as0 as) (hsh: (as.size - 1) ≤ high) (hsh': (as0.size - 1) ≤ high'):
+  ISortOf lt low high' as0 as := by
+  constructor
+  case perm => exact h.perm.resize_out_of_bounds hsh'
+  case ord => exact h.ord.resize_out_of_bounds hsh
 end ISortOf
 
 mutual
@@ -653,7 +682,7 @@ mutual
       termination_by (high - low, 2, 0)
 
   theorem qsort.sort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
-      (hhs: low < high → high < as.size := by omega)
+      (hhs: low < high → high < as.size)
       -- TODO: to use this less constrained version, we need proofs that as'es are a permutation of eac hother
       --(hltas: {i: Nat} → (hli: low ≤ i) → (hih: i ≤ high) → {j: Nat} → (hlj: low ≤ j) → (hjh: j ≤ high) → lt as[i] as[j] = true → lt as[j] as[i] = true → False):
       (hltas: IsAsymm (lt · ·)) (hlttr: IsTrans (lt · · = false)):
@@ -699,12 +728,21 @@ mutual
 end
 
 theorem qsort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
-    (hhs: low < high → high < as.size := by omega)
     (hltas: IsAsymm (lt · ·)) (hlttr: IsTrans (lt · · = false)):
-    ISortOf lt low high as (qsort as lt low high hhs)  := by
+    ISortOf lt low high as (qsort as lt low high)  := by
     unfold qsort
-    apply qsort.sort_sorts
-    · exact hltas
-    · exact hlttr
+    split
+    case isTrue =>
+      apply qsort.sort_sorts
+      · exact hltas
+      · exact hlttr
+    case isFalse h =>
+      apply ISortOf.resize_out_of_bounds
+      · apply qsort.sort_sorts
+        · exact hltas
+        · exact hlttr
+      · simp only [size_qsort.sort, Nat.le_refl]
+      · apply Nat.sub_le_of_le_add
+        exact Nat.le_add_right_of_le (Nat.le_of_not_lt h)
 
 end Array

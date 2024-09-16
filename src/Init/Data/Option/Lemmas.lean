@@ -248,7 +248,7 @@ theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter
 theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
     x.bind (Option.map f) = (x.map (Option.map f)).bind id := by cases x <;> simp
 
-@[simp] theorem bind_map {f : α → β} {g : β → Option γ} {x : Option α} :
+theorem bind_map {f : α → β} {g : β → Option γ} {x : Option α} :
     (x.map f).bind g = x.bind (g ∘ f) := by cases x <;> simp
 
 @[simp] theorem map_bind {f : α → Option β} {g : β → γ} {x : Option α} :

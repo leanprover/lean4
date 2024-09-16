@@ -457,7 +457,7 @@ def extractLsb (hi lo : Nat) (x : BitVec n) : BitVec (hi - lo + 1) := extractLsb
 /--
 A version of `zeroExtend` that requires a proof, but is a noop.
 -/
-def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
+def zeroExtend' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
     exact Nat.pow_le_pow_of_le_right (by trivial) le)
@@ -474,29 +474,22 @@ def shiftLeftZeroExtend (msbs : BitVec w) (m : Nat) : BitVec (w + m) :=
   (msbs.toNat <<< m)#'(shiftLeftLt msbs.isLt m)
 
 /--
-Zero extend or truncate a vector `x` of length `w` by adding zeros in the high
-bits until it has length `v`.  If `v < w` then it truncates the high bits
-instead.
--/
-def setWidth (v : Nat) (x : BitVec w) : BitVec v :=
-  if h : w ≤ v then
-    setWidth' h x
-  else
-    .ofNat v x.toNat
-
-/--
 Zero extend vector `x` of length `w` by adding zeros in the high bits until it has length `v`.
 If `v < w` then it truncates the high bits instead.
 
 SMT-Lib name: `zero_extend`.
 -/
-abbrev zeroExtend := @setWidth
+def zeroExtend (v : Nat) (x : BitVec w) : BitVec v :=
+  if h : w ≤ v then
+    zeroExtend' h x
+  else
+    .ofNat v x.toNat
 
 /--
 Truncate the high bits of bitvector `x` of length `w`, resulting in a vector of length `v`.
 If `v > w` then it zero-extends the vector instead.
 -/
-abbrev truncate := @setWidth
+abbrev truncate := @zeroExtend
 
 /--
 Sign extend a vector of length `w`, extending with `i` additional copies of the most significant
@@ -647,7 +640,7 @@ input is on the left, so `0xAB#8 ++ 0xCD#8 = 0xABCD#16`.
 SMT-Lib name: `concat`.
 -/
 def append (msbs : BitVec n) (lsbs : BitVec m) : BitVec (n+m) :=
-  shiftLeftZeroExtend msbs m ||| setWidth' (Nat.le_add_left m n) lsbs
+  shiftLeftZeroExtend msbs m ||| zeroExtend' (Nat.le_add_left m n) lsbs
 
 instance : HAppend (BitVec w) (BitVec v) (BitVec (w + v)) := ⟨.append⟩
 

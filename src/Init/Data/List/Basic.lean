@@ -2361,27 +2361,19 @@ Splits a list into the longest segments in which each pair of adjacent elements 
 
 * `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
 * `groupBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
-
-Note that `groupBy` is defined in terms of a bespoke `groupBy.loop`. The arguments of
-`groupBy.loop l ag g gs` represent the following:
+-/
+@[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
+  | []    => []
+  | a::as => loop as a [] []
+where
+/--
+The arguments of `groupBy.loop l ag g gs` represent the following:
 
 - `l : List α` is the list whose elements we group.
 - `ag : α` is the previous element for which a comparison was performed.
 - `g : List α` is the group currently being assembled, in **reverse order**.
 - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
 -/
-@[specialize] def splitBy (R : α → α → Bool) : List α → List (List α)
-  | []    => []
-  | a::as => loop as a [] []
-where
-  /--
-  The arguments of `splitBy.loop l ag g gs` represent the following:
-
-  - `l : List α` are the elements which we still need to split.
-  - `ag : α` is the previous element for which a comparison was performed.
-  - `g : List α` is the group currently being assembled, in **reverse order**.
-  - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
-  -/
   @[specialize] loop : List α → α → List α → List (List α) → List (List α)
   | a::as, b, r, acc => match R b a with
     | true  => loop as a (b::r) acc

@@ -51,7 +51,7 @@ Helper function for reducing homogenous binary bitvector operators.
   else
     return .continue
 
-/-- Simplification procedure for `zeroExtend` and `signExtend` on `BitVec`s. -/
+/-- Simplification procedure for `setWidth`, `zeroExtend` and `signExtend` on `BitVec`s. -/
 @[inline] def reduceExtend (declName : Name)
     (op : {n : Nat} → (m : Nat) → BitVec n → BitVec m) (e : Expr) : SimpM DStep := do
   unless e.isAppOfArity declName 3 do return .continue
@@ -253,13 +253,13 @@ builtin_dsimproc [simp, seval] reduceSLT (BitVec.slt _ _) :=
 builtin_dsimproc [simp, seval] reduceSLE (BitVec.sle _ _) :=
   reduceBoolPred ``BitVec.sle 3 BitVec.sle
 
-/-- Simplification procedure for `zeroExtend'` on `BitVec`s. -/
-builtin_dsimproc [simp, seval] reduceZeroExtend' (zeroExtend' _ _) := fun e => do
-  let_expr zeroExtend' _ w _ v ← e | return .continue
+/-- Simplification procedure for `setWidth'` on `BitVec`s. -/
+builtin_dsimproc [simp, seval] reduceSetWidth' (setWidth' _ _) := fun e => do
+  let_expr setWidth' _ w _ v ← e | return .continue
   let some v ← fromExpr? v | return .continue
   let some w ← Nat.fromExpr? w | return .continue
   if h : v.n ≤ w then
-    return .done <| toExpr (v.value.zeroExtend' h)
+    return .done <| toExpr (v.value.setWidth' h)
   else
     return .continue
 
@@ -284,6 +284,9 @@ builtin_dsimproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   let some v ← fromExpr? v | return .continue
   let some i ← Nat.fromExpr? i | return .continue
   return .done <| toExpr (v.value.replicate i)
+
+/-- Simplification procedure for `setWidth` on `BitVec`s. -/
+builtin_dsimproc [simp, seval] reduceSetWidth (setWidth _ _) := reduceExtend ``setWidth setWidth
 
 /-- Simplification procedure for `zeroExtend` on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceZeroExtend (zeroExtend _ _) := reduceExtend ``zeroExtend zeroExtend

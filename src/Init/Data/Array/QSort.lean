@@ -408,6 +408,13 @@ structure IsMultiTrans {α} (r: α → α → Prop) where
   -/
 abbrev le_of_any_b (r: α → α → Bool) (i j: α) := r i j = true ∨ r j i = false
 
+def le_of_any_b_refl (r: α → α → Bool) (x: α): (le_of_any_b r) x x := by
+  by_cases h: r x x
+  · left
+    exact h
+  · right
+    exact eq_false_of_ne_true h
+
 def IPairwise (r: α → α → Prop) (low: Nat) (high: Nat) (as: Array α) :=
    ∀ i j, (hli: low ≤ i) → (hij: i < j) → (hjh: j ≤ high) → (hjs: j < as.size) →
   r (as[i]'(Nat.lt_trans hij hjs)) (as[j]'hjs)
@@ -646,14 +653,10 @@ mutual
           case hhs => simpa [size_swap]
           case ha =>
             let ha: as.IForAll (le_of_any_b lt · pivot) low i := ha.map (λ x a ↦ by
-              right
-              exact eq_false_of_ne_true (hltas a))
+              left
+              exact a)
 
-            have hhh: (le_of_any_b lt) as[high] as[high] := by
-              right
-              exact eq_false_of_ne_true fun a => hltas a a
-
-            exact (hph ▸ ha).swap_left hij hhh
+            exact (hph ▸ ha).swap_left hij (le_of_any_b_refl lt _)
           case hb =>
             let hb: as.IForAll (le_of_any_b lt pivot ·) i high := hb.map (λ x a ↦ by
               right

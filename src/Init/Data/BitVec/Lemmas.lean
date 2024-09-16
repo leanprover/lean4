@@ -528,7 +528,7 @@ theorem getElem_truncate (m : Nat) (x : BitVec n) (i : Nat) (hi : i < m) :
   simp [getElem?_eq, getElem_zeroExtend]
 
 theorem getElem?_truncate (m : Nat) (x : BitVec n) (i : Nat) :
-    (truncate m x)[i]? = if i < m then some (x.getLsbD i) else none :=
+    (truncate m x)[i]? = if h : i < m then some x[i] else none :=
   getElem?_zeroExtend m x i
 
 theorem getLsbD_truncate (m : Nat) (x : BitVec n) (i : Nat) :

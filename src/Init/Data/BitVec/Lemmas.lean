@@ -245,7 +245,7 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 @[simp, bv_toNat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat']
 
-@[simp] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat' x (Nat.two_pow_pos w) := rfl
+@[simp] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat' (2^w) x := rfl
 
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
@@ -826,7 +826,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   BitVec.toNat_ofNat _ _
 
 @[simp] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
-    BitVec.toFin (x <<< n) = Fin.ofNat' (x.toNat <<< n) (Nat.two_pow_pos w) := rfl
+    BitVec.toFin (x <<< n) = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
 
 @[simp]
 theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
@@ -1508,7 +1508,7 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
   simp [Neg.neg, BitVec.neg]
 
 @[simp] theorem toFin_neg (x : BitVec n) :
-    (-x).toFin = Fin.ofNat' (2^n - x.toNat) (Nat.two_pow_pos _) :=
+    (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=
   rfl
 
 theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by

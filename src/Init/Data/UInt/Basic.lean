@@ -290,11 +290,14 @@ instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 
+instance : NeZero USize.size := ⟨add_one_ne_zero _⟩
+
+@[deprecated "Use the `NeZero USize.size` instance." (since := "2024-09-16")]
 theorem usize_size_gt_zero : USize.size > 0 :=
   Nat.zero_lt_succ ..
 
 @[extern "lean_usize_of_nat"]
-def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat' n usize_size_gt_zero⟩
+def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat'  _ n⟩
 abbrev Nat.toUSize := USize.ofNat
 @[extern "lean_usize_to_nat"]
 def USize.toNat (n : USize) : Nat := n.val.val

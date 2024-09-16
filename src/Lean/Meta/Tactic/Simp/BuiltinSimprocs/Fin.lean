@@ -77,8 +77,9 @@ builtin_dsimproc [simp, seval] reduceFinMk (Fin.mk _ _)  := fun e => do
   let_expr Fin.mk n v _ ← e | return .continue
   let some n ← evalNat n |>.run | return .continue
   let some v ← getNatValue? v | return .continue
-  if h : n > 0 then
-    return .done <| toExpr (Fin.ofNat' v h)
+  if h : n ≠ 0 then
+    have : NeZero n := ⟨h⟩
+    return .done <| toExpr (Fin.ofNat' n v)
   else
     return .continue
 

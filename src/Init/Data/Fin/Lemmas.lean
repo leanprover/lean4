@@ -51,10 +51,10 @@ theorem eq_mk_iff_val_eq {a : Fin n} {k : Nat} {hk : k < n} :
 
 theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 
-@[simp] theorem val_ofNat' (a : Nat) (is_pos : n > 0) :
-  (Fin.ofNat' a is_pos).val = a % n := rfl
+@[simp] theorem val_ofNat' (n : Nat) [NeZero n] (a : Nat) :
+  (Fin.ofNat' n a).val = a % n := rfl
 
-@[simp] theorem ofNat'_val_eq_self (x : Fin n) (h) : (Fin.ofNat' x h) = x := by
+@[simp] theorem ofNat'_val_eq_self [NeZero n](x : Fin n) : (Fin.ofNat' n x) = x := by
   ext
   rw [val_ofNat', Nat.mod_eq_of_lt]
   exact x.2
@@ -750,13 +750,13 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 
 /-! ### add -/
 
-@[simp] theorem ofNat'_add (x : Nat) (lt : 0 < n) (y : Fin n) :
-    Fin.ofNat' x lt + y = Fin.ofNat' (x + y.val) lt := by
+@[simp] theorem ofNat'_add [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat' n x + y = Fin.ofNat' n (x + y.val) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.add_def]
 
-@[simp] theorem add_ofNat' (x : Fin n) (y : Nat) (lt : 0 < n) :
-    x + Fin.ofNat' y lt = Fin.ofNat' (x.val + y) lt := by
+@[simp] theorem add_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+    x + Fin.ofNat' n y = Fin.ofNat' n (x.val + y) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.add_def]
 
@@ -765,13 +765,13 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = ((n - b) + a) % n := by
   cases a; cases b; rfl
 
-@[simp] theorem ofNat'_sub (x : Nat) (lt : 0 < n) (y : Fin n) :
-    Fin.ofNat' x lt - y = Fin.ofNat' ((n - y.val) + x) lt := by
+@[simp] theorem ofNat'_sub [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat' n x - y = Fin.ofNat' n ((n - y.val) + x) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
 
-@[simp] theorem sub_ofNat' (x : Fin n) (y : Nat) (lt : 0 < n) :
-    x - Fin.ofNat' y lt = Fin.ofNat' ((n - y % n) + x.val) lt := by
+@[simp] theorem sub_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+    x - Fin.ofNat' n y = Fin.ofNat' n ((n - y % n) + x.val) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
 

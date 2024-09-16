@@ -64,7 +64,7 @@ protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2^n) : BitVec n where
 /-- The `BitVec` with value `i mod 2^n`. -/
 @[match_pattern]
 protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat' i (Nat.two_pow_pos n)
+  toFin := Fin.ofNat' (2^n) i
 
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩

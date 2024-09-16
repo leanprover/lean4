@@ -1507,10 +1507,11 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 
 /-! ### append -/
 
-theorem getElem_append : ∀ {l₁ l₂ : List α} (n : Nat) (h : n < l₁.length),
-    (l₁ ++ l₂)[n]'(length_append .. ▸ Nat.lt_add_right _ h) = l₁[n]
-| a :: l, _, 0, h => rfl
-| a :: l, _, n+1, h => by simp only [get, cons_append]; apply getElem_append
+theorem getElem_append {l₁ l₂ : List α} (n : Nat) (h) :
+    (l₁ ++ l₂)[n] = if h' : n < l₁.length then l₁[n] else l₂[n - l₁.length]'(by simp at h h'; exact Nat.sub_lt_left_of_lt_add h' h) := by
+  split <;> rename_i h'
+  · rw [getElem_append_left h']
+  · rw [getElem_append_right (by simpa using h')]
 
 theorem getElem?_append_left {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
     (l₁ ++ l₂)[n]? = l₁[n]? := by
@@ -1536,12 +1537,13 @@ theorem get?_append_right {l₁ l₂ : List α} {n : Nat} (h : l₁.length ≤ n
     (l₁ ++ l₂).get? n = l₂.get? (n - l₁.length) := by
   simp [getElem?_append_right, h]
 
-theorem getElem_append_right' {l₁ l₂ : List α} {n : Nat} (h₁ : l₁.length ≤ n) (h₂) :
-    (l₁ ++ l₂)[n]'h₂ =
-      l₂[n - l₁.length]'(by rw [length_append] at h₂; exact Nat.sub_lt_left_of_lt_add h₁ h₂) :=
-  Option.some.inj <| by rw [← getElem?_eq_getElem, ← getElem?_eq_getElem, getElem?_append_right h₁]
+/-- Variant of `getElem_append_left` useful for rewriting from the small list to the big list. -/
+theorem getElem_append_left' (l₂ : List α) {l₁ : List α} {n : Nat} (hn : n < l₁.length) :
+    l₁[n] = (l₁ ++ l₂)[n]'(by simpa using Nat.lt_add_right l₂.length hn) := by
+  rw [getElem_append_left] <;> simp
 
-theorem getElem_append_right'' (l₁ : List α) {l₂ : List α} {n : Nat} (hn : n < l₂.length) :
+/-- Variant of `getElem_append_right` useful for rewriting from the small list to the big list. -/
+theorem getElem_append_right' (l₁ : List α) {l₂ : List α} {n : Nat} (hn : n < l₂.length) :
     l₂[n] = (l₁ ++ l₂)[n + l₁.length]'(by simpa [Nat.add_comm] using Nat.add_lt_add_left hn _) := by
   rw [getElem_append_right] <;> simp [*, le_add_left]
 
@@ -1552,7 +1554,7 @@ theorem get_append_right_aux {l₁ l₂ : List α} {n : Nat}
   exact Nat.sub_lt_left_of_lt_add h₁ h₂
 
 set_option linter.deprecated false in
-@[deprecated getElem_append_right' (since := "2024-06-12")]
+@[deprecated getElem_append_right (since := "2024-06-12")]
 theorem get_append_right' {l₁ l₂ : List α} {n : Nat} (h₁ : l₁.length ≤ n) (h₂) :
     (l₁ ++ l₂).get ⟨n, h₂⟩ = l₂.get ⟨n - l₁.length, get_append_right_aux h₁ h₂⟩ :=
   Option.some.inj <| by rw [← get?_eq_get, ← get?_eq_get, get?_append_right h₁]
@@ -1644,7 +1646,7 @@ theorem get_append_left (as bs : List α) (h : i < as.length) {h'} :
   simp [getElem_append_left, h, h']
 
 @[deprecated getElem_append_right (since := "2024-06-12")]
-theorem get_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} :
+theorem get_append_right (as bs : List α) (h : as.length ≤ i) {h' h''} :
     (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
   simp [getElem_append_right, h, h', h'']
 

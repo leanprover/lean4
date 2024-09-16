@@ -488,10 +488,12 @@ theorem getLast_attach {xs : List α} (h : xs.attach ≠ []) :
     xs.attach.getLast h = ⟨xs.getLast (by simpa using h), getLast_mem (by simpa using h)⟩ := by
   simp only [getLast_eq_head_reverse, reverse_attach, head_map, head_attach]
 
+@[simp]
 theorem countP_attach (l : List α) (p : α → Bool) :
     l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attach_map_subtype_val]
 
+@[simp]
 theorem countP_attachWith {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) (q : α → Bool) :
     (l.attachWith p H).countP (fun a : {x // p x} => q a) = l.countP q := by
   simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attachWith_map_subtype_val]

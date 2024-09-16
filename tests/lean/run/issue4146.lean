@@ -20,19 +20,10 @@ termination_by n
 
 /--
 info: bar.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (x : Nat), ¬x = 0 → ∀ (m : Nat), ¬m + 1 = 0 → motive m → motive m.succ) (n : Nat) : motive n
+  (case2 : ∀ (m : Nat), ¬m + 1 = 0 → ¬m.succ = 0 → motive m → motive m.succ) (n : Nat) : motive n
 -/
 #guard_msgs in
 #check bar.induct
-
-
--- NB: Here we get a (heterogenous!) equality relating
--- `i + 1  : Fin (n+1)` and `j : Fin (m + 2 + 1)`
---
--- There is also another `i_0 : Fin (m + 2 + 1)`
--- because the `match` syntax also adds `i` to the discriminants.
--- All a bit messy, hopefully cleaner induction principles can be
--- created in the future.
 
 def baz (n : Nat) (i : Fin (n+1)) : Bool :=
   if h : n = 0 then
@@ -47,12 +38,11 @@ termination_by n
 
 /--
 info: baz.induct (motive : (n : Nat) → Fin (n + 1) → Prop) (case1 : ∀ (i : Fin (0 + 1)), motive 0 i)
-  (case2 : ∀ (n : Nat) (i : Fin (n + 1)), ¬n = 0 → ∀ (x i_1 : Fin (1 + 1)), HEq (i + 1) x → motive 1 i_1)
+  (case2 : ¬1 = 0 → ∀ (i : Fin (1 + 1)), ¬1 = 0 → motive 1 i)
   (case3 :
-    ∀ (n : Nat) (i : Fin (n + 1)),
-      ¬n = 0 →
-        ∀ (m : Nat) (j i_1 : Fin (m + 2 + 1)),
-          ¬m + 2 = 0 → HEq (i + 1) j → motive (m + 1) ⟨↑j - 1, ⋯⟩ → motive m.succ.succ i_1)
+    ∀ (m : Nat),
+      ¬m + 2 = 0 →
+        ∀ (i : Fin (m.succ.succ + 1)), ¬m.succ.succ = 0 → motive (m + 1) ⟨↑(i + 1) - 1, ⋯⟩ → motive m.succ.succ i)
   (n : Nat) (i : Fin (n + 1)) : motive n i
 -/
 #guard_msgs in

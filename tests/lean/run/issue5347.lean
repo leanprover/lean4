@@ -9,11 +9,9 @@ def test (x: Nat): Nat :=
 
 -- set_option trace.Meta.FunInd true
 
--- At the time of writing, the induction princpile misses the `f x = some k` assumptions:
-
 /--
-info: test.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), motive x) (case2 : motive 0)
-  (case3 : ∀ (n : Nat), motive n → motive n.succ) (x : Nat) : motive x
+info: test.induct (motive : Nat → Prop) (case1 : ∀ (k x : Nat), f x = some k → motive x) (case2 : f 0 = none → motive 0)
+  (case3 : ∀ (n : Nat), f n.succ = none → motive n → motive n.succ) (x : Nat) : motive x
 -/
 #guard_msgs in
 #check test.induct

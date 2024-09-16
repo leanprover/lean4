@@ -199,9 +199,8 @@ Performs a possibly type-changing transformation to a `MatcherApp`.
 If `useSplitter` is true, the matcher is replaced with the splitter.
 NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitter.
 
-The array `addEqualities`, if provided, indicates for which of the discriminants an equality
-connecting the discriminant to the parameters of the alternative (like in `match h : x with …`)
-should be added (if it is isn't already there).
+If `addEqualities` is true, then equalities connecting the discriminant to the parameters of the
+alternative (like in `match h : x with …`) are be added, if not already there.
 
 This function works even if the the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
@@ -212,15 +211,12 @@ def transform
     [AddMessageContext n] [MonadOptions n]
     (matcherApp : MatcherApp)
     (useSplitter := false)
-    (addEqualities : Array Bool := mkArray matcherApp.discrs.size false)
+    (addEqualities : Bool := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
     (onAlt : Expr → Expr → n Expr := fun _ e => pure e)
     (onRemaining : Array Expr → n (Array Expr) := pure) :
     n MatcherApp := do
-
-  if addEqualities.size != matcherApp.discrs.size then
-    throwError "MatcherApp.transform: addEqualities has wrong size"
 
   -- We also handle CasesOn applications here, and need to treat them specially in a
   -- few places.
@@ -245,8 +241,8 @@ def transform
     -- Prepend `(x = e) →` or `(HEq x e) → ` to the motive when an equality is requested
     -- and not already present, and remember whether we added an Eq or a HEq
     let mut addHEqualities : Array (Option Bool) := #[]
-    for arg in motiveArgs, discr in discrs', b in addEqualities, di in matcherApp.discrInfos do
-      if b && di.hName?.isNone then
+    for arg in motiveArgs, discr in discrs', di in matcherApp.discrInfos do
+      if addEqualities && di.hName?.isNone then
         if ← isProof arg then
           addHEqualities := addHEqualities.push none
         else

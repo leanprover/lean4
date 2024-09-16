@@ -820,7 +820,7 @@ theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (
 @[refl] theorem Iff.refl (a : Prop) : a ↔ a :=
   Iff.intro (fun h => h) (fun h => h)
 
-protected theorem Iff.rfl {a : Prop} : a ↔ a :=
+@[refl] protected theorem Iff.rfl {a : Prop} : a ↔ a :=
   Iff.refl a
 
 theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.rfl

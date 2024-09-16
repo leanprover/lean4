@@ -478,7 +478,7 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
     · simp only [take_succ_cons, findIdx?_cons]
       split
       · simp
-      · simp [ih, Option.guard_comp]
+      · simp [ih, Option.guard_comp, Option.bind_map]
 
 @[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
     min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by

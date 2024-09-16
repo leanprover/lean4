@@ -10,7 +10,7 @@ def test (x: Nat): Nat :=
 -- set_option trace.Meta.FunInd true
 
 /--
-info: test.induct (motive : Nat → Prop) (case1 : ∀ (k x : Nat), f x = some k → motive x) (case2 : f 0 = none → motive 0)
+info: test.induct (motive : Nat → Prop) (case1 : ∀ (t k : Nat), f t = some k → motive t) (case2 : f 0 = none → motive 0)
   (case3 : ∀ (n : Nat), f n.succ = none → motive n → motive n.succ) (x : Nat) : motive x
 -/
 #guard_msgs in

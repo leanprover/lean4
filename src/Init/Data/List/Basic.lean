@@ -1588,6 +1588,14 @@ such that adjacent elements are related by `R`.
   | []    => []
   | a::as => loop as a [] []
 where
+  /--
+  The arguments of `groupBy.loop l ag g gs` represent the following:
+
+  - `l : List α` are the elements which we still need to group.
+  - `ag : α` is the previous element for which a comparison was performed.
+  - `g : List α` is the group currently being assembled, in **reverse order**.
+  - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
+  -/
   @[specialize] loop : List α → α → List α → List (List α) → List (List α)
   | a::as, ag, g, gs => match R ag a with
     | true  => loop as a (ag::g) gs

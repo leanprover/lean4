@@ -477,7 +477,7 @@ theorem trans {lt: α → α → Bool} {low high: Nat} {as as' as'': Array α}
 end ISortOf
 
 mutual
-  theorem qsort_sort_sort_sorts (lt : α → α → Bool) (low high : Nat) (pivot : α) (i : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
+  theorem qsort.sort_sort_sorts (lt : α → α → Bool) (low high : Nat) (pivot : α) (i : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
       (hli : low ≤ i) (hih : i < high) (hhs : high < as.size)
       (ha: IForAll as (lt pivot · = false) low (i + 1))
       (hb: IForAll as (lt · pivot = false) (i + 1) (high + 1))
@@ -485,11 +485,11 @@ mutual
       have ⟨as', hs'⟩ := qsort.sort lt as low i hli (λ _ ↦ Nat.lt_trans hih hhs)
       ISortOf lt low high as0 (qsort.sort lt as' (i + 1) high hih (λ _ ↦ hs' ▸ hhs)) := by
 
-    have h1 := qsort_sort_sorts as lt low i hli (λ _ ↦ Nat.lt_trans hih hhs) hltas hlttr
+    have h1 := qsort.sort_sorts as lt low i hli (λ _ ↦ Nat.lt_trans hih hhs) hltas hlttr
     let ahs' := qsort.sort lt as low i hli (λ _ ↦ Nat.lt_trans hih hhs)
     let as' := ahs'.1
     let hs' := ahs'.2
-    have h2 := qsort_sort_sorts as' lt (i + 1) high hih (λ _ ↦ hs' ▸ hhs) hltas hlttr
+    have h2 := qsort.sort_sorts as' lt (i + 1) high hih (λ _ ↦ hs' ▸ hhs) hltas hlttr
     constructor
     case perm =>
       apply IPerm.trans hp
@@ -511,7 +511,7 @@ mutual
       case h2 => exact h2.ord
       termination_by (high - low, 0, 0)
 
-  theorem qsort_sort_loop_sorts (lt : α → α → Bool) (low high : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
+  theorem qsort.sort_loop_sorts (lt : α → α → Bool) (low high : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
       {pivot : α} (i j : Nat)
       (hli : low ≤ i) (hij : i ≤ j) (hjh : j ≤ high) (hhs : high < as.size) (hph: as[high]'hhs = pivot)
       (ha: IForAll as (lt · pivot) low i)
@@ -536,7 +536,7 @@ mutual
       all_goals simp only [hjp, Bool.false_eq_true, ↓reduceIte]
 
       case pos =>
-        apply qsort_sort_loop_sorts
+        apply qsort.sort_loop_sorts
         case hph => simpa only [getElem_after_swap hij hjh' hhs]
         case ha => exact ha.swap_left hij hjp
         case hb => exact hb.swap_right hij hjs
@@ -546,7 +546,7 @@ mutual
         case hp => exact .trans hp (.swap as i his hli hih j hjs hlj hjh)
 
       case neg =>
-        apply qsort_sort_loop_sorts
+        apply qsort.sort_loop_sorts
         case hph => exact hph
         case ha =>
           exact ha
@@ -586,7 +586,7 @@ mutual
         exact ha
 
       case neg =>
-        apply qsort_sort_sort_sorts
+        apply qsort.sort_sort_sorts
         case hhs => simpa [size_swap]
         case hp =>
           exact IPerm.trans_swap hp i his hli hih high hhs hlh (Nat.le_refl _)
@@ -602,7 +602,7 @@ mutual
         case hlttr => exact hlttr
         termination_by (high - low, 1, high - j)
 
-  theorem qsort_sort_loop_pivot_swap_sorts (lt : α → α → Bool) (low high : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
+  theorem qsort.sort_loop_pivot_swap_sorts (lt : α → α → Bool) (low high : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
       (mid: Nat) (hlm: low ≤ mid) (hmh: mid < high) (hhs : high < as.size)
       --(hltas: lt as[mid] as[high] = true → lt as[high] as[mid] = true → False)
       (hltas: IsAsymm (lt · ·)) (hlttr: IsTrans (lt · · = false)):
@@ -616,7 +616,7 @@ mutual
     have hlh := Nat.le_trans hlm (Nat.le_of_lt hmh)
 
     have hmh': mid ≠ high := Nat.ne_of_lt hmh
-    apply qsort_sort_loop_sorts
+    apply qsort.sort_loop_sorts
     case hc =>
       intro h
       simp only [IForAll, size_ite, size_swap, ite_self] at h
@@ -651,7 +651,7 @@ mutual
       exact (Nat.ne_of_lt hll) rfl
       termination_by (high - low, 2, 0)
 
-  theorem qsort_sort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
+  theorem qsort.sort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
       (hlh: low ≤ high := by omega) (hhs: low < high → high < as.size := by omega)
       -- TODO: to use this less constrained version, we need proofs that as'es are a permutation of eac hother
       --(hltas: {i: Nat} → (hli: low ≤ i) → (hih: i ≤ high) → {j: Nat} → (hlj: low ≤ j) → (hjh: j ≤ high) → lt as[i] as[j] = true → lt as[j] as[i] = true → False):
@@ -675,7 +675,7 @@ mutual
         simp only [hlh']
         have hlh': low < high := Nat.gt_of_not_le hlh'
 
-        apply qsort_sort_loop_pivot_swap_sorts
+        apply qsort.sort_loop_pivot_swap_sorts
 
         case hlm => exact Nat.le_avg_iff_le.mpr hlh
         case hmh => exact Nat.avg_lt_iff_lt.mpr hlh'
@@ -701,7 +701,7 @@ theorem qsort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high :=
     (hltas: IsAsymm (lt · ·)) (hlttr: IsTrans (lt · · = false)):
     ISortOf lt low high as (qsort as lt low high hlh hhs)  := by
     unfold qsort
-    apply qsort_sort_sorts
+    apply qsort.sort_sorts
     · exact hltas
     · exact hlttr
 

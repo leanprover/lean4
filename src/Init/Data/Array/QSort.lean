@@ -185,7 +185,7 @@ theorem dite (p: Prop) [Decidable p] (low high: Nat) (as0: Array α) (ast: p →
 theorem trans_swap {as0 as: Array α} (hp: IPerm low high as0 as) (i: Nat) (his: i < as.size) (hli: low ≤ i) (hih: i ≤ high) (j: Nat) (hjs: j < as.size) (hlj: low ≤ j) (hjh: j ≤ high):
   IPerm low high as0 (as.swap ⟨i, his⟩ ⟨j, hjs⟩) := by
   apply IPerm.trans hp
-  apply IPerm.swap as i his hli hih j hjs hlj hjh
+  exact IPerm.swap as i his hli hih j hjs hlj hjh
 
 theorem expand {α} {low high: Nat}
     {low' high': Nat} (hll: low' ≤ low) (hhh: high ≤ high') {as: Array α} {as': Array α}

@@ -173,7 +173,6 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
 theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
 
-/-- This should become @[simp] after the getElem API has been completed. -/
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
     x.getLsbD i = x[i] := by
   simp [getLsbD, getElem_eq_testBit_toNat]

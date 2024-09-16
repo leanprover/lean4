@@ -130,24 +130,6 @@ theorem attachWith_map_subtype_val {p : α → Prop} (l : List α) (H : ∀ a �
     (l.attachWith p H).map Subtype.val = l :=
   (attachWith_map_coe _ _ _).trans (List.map_id _)
 
-theorem countP_attach (l : List α) (p : α → Bool) :
-    l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
-  simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attach_map_subtype_val]
-
-theorem countP_attachWith {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) (q : α → Bool) :
-    (l.attachWith p H).countP (fun a : {x // p x} => q a) = l.countP q := by
-  simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attachWith_map_subtype_val]
-
-@[simp]
-theorem count_attach [DecidableEq α] (l : List α) (a : {x // x ∈ l}) :
-    l.attach.count a = l.count ↑a :=
-  Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach _ _
-
-@[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) (a : {x // p x}) :
-    (l.attachWith p H).count a = l.count ↑a :=
-  Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _ _ _
-
 @[simp]
 theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach
   | ⟨a, h⟩ => by
@@ -311,6 +293,20 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
   cases xs with
   | nil => simp at h
   | cons x xs => simp [head_attach, h]
+
+@[simp] theorem tail_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : List α)
+    (H : ∀ (a : α), a ∈ xs → P a) :
+    (xs.pmap f H).tail = xs.tail.pmap f (fun a h => H a (mem_of_mem_tail h)) := by
+  cases xs <;> simp
+
+@[simp] theorem tail_attachWith {P : α → Prop} {xs : List α}
+    {H : ∀ (a : α), a ∈ xs → P a} :
+    (xs.attachWith P H).tail = xs.tail.attachWith P (fun a h => H a (mem_of_mem_tail h)) := by
+  cases xs <;> simp
+
+@[simp] theorem tail_attach (xs : List α) :
+    xs.attach.tail = xs.tail.attach.map (fun ⟨x, h⟩ => ⟨x, mem_of_mem_tail h⟩) := by
+  cases xs <;> simp
 
 theorem attach_map {l : List α} (f : α → β) :
     (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
@@ -491,5 +487,25 @@ theorem getLast?_attach {xs : List α} :
 theorem getLast_attach {xs : List α} (h : xs.attach ≠ []) :
     xs.attach.getLast h = ⟨xs.getLast (by simpa using h), getLast_mem (by simpa using h)⟩ := by
   simp only [getLast_eq_head_reverse, reverse_attach, head_map, head_attach]
+
+@[simp]
+theorem countP_attach (l : List α) (p : α → Bool) :
+    l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
+  simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attach_map_subtype_val]
+
+@[simp]
+theorem countP_attachWith {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) (q : α → Bool) :
+    (l.attachWith p H).countP (fun a : {x // p x} => q a) = l.countP q := by
+  simp only [← Function.comp_apply (g := Subtype.val), ← countP_map, attachWith_map_subtype_val]
+
+@[simp]
+theorem count_attach [DecidableEq α] (l : List α) (a : {x // x ∈ l}) :
+    l.attach.count a = l.count ↑a :=
+  Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attach _ _
+
+@[simp]
+theorem count_attachWith [DecidableEq α] {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) (a : {x // p x}) :
+    (l.attachWith p H).count a = l.count ↑a :=
+  Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _ _ _
 
 end List

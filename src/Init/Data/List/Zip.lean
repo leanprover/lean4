@@ -31,6 +31,10 @@ theorem zip_map_left (f : α → γ) (l₁ : List α) (l₂ : List β) :
 theorem zip_map_right (f : β → γ) (l₁ : List α) (l₂ : List β) :
     zip l₁ (l₂.map f) = (zip l₁ l₂).map (Prod.map id f) := by rw [← zip_map, map_id]
 
+@[simp] theorem tail_zip (l₁ : List α) (l₂ : List β) :
+    (zip l₁ l₂).tail = zip l₁.tail l₂.tail := by
+  cases l₁ <;> cases l₂ <;> simp
+
 theorem zip_append :
     ∀ {l₁ r₁ : List α} {l₂ r₂ : List β} (_h : length l₁ = length l₂),
       zip (l₁ ++ r₁) (l₂ ++ r₂) = zip l₁ l₂ ++ zip r₁ r₂
@@ -229,6 +233,7 @@ theorem drop_zipWith : (zipWith f l l').drop n = zipWith f (l.drop n) (l'.drop n
 
 @[deprecated drop_zipWith (since := "2024-07-26")] abbrev zipWith_distrib_drop := @drop_zipWith
 
+@[simp]
 theorem tail_zipWith : (zipWith f l l').tail = zipWith f l.tail l'.tail := by
   rw [← drop_one]; simp [drop_zipWith]
 
@@ -284,11 +289,15 @@ theorem head?_zipWithAll {f : Option α → Option β → γ} :
       | none, none => .none | a?, b? => some (f a? b?) := by
   simp [head?_eq_getElem?, getElem?_zipWithAll]
 
-theorem head_zipWithAll {f : Option α → Option β → γ} (h) :
+@[simp] theorem head_zipWithAll {f : Option α → Option β → γ} (h) :
     (zipWithAll f as bs).head h = f as.head? bs.head? := by
   apply Option.some.inj
   rw [← head?_eq_head, head?_zipWithAll]
   split <;> simp_all
+
+@[simp] theorem tail_zipWithAll {f : Option α → Option β → γ} :
+    (zipWithAll f as bs).tail = zipWithAll f as.tail bs.tail := by
+  cases as <;> cases bs <;> simp
 
 theorem zipWithAll_map {μ} (f : Option γ → Option δ → μ) (g : α → γ) (h : β → δ) (l₁ : List α) (l₂ : List β) :
     zipWithAll f (l₁.map g) (l₂.map h) = zipWithAll (fun a b => f (g <$> a) (h <$> b)) l₁ l₂ := by
@@ -357,6 +366,12 @@ theorem unzip_zip {l₁ : List α} {l₂ : List β} (h : length l₁ = length l�
 theorem zip_of_prod {l : List α} {l' : List β} {lp : List (α × β)} (hl : lp.map Prod.fst = l)
     (hr : lp.map Prod.snd = l') : lp = l.zip l' := by
   rw [← hl, ← hr, ← zip_unzip lp, ← unzip_fst, ← unzip_snd, zip_unzip, zip_unzip]
+
+@[simp] theorem tail_zip_fst {l : List (α × β)} : l.unzip.1.tail = l.tail.unzip.1 := by
+  cases l <;> simp
+
+@[simp] theorem tail_zip_snd {l : List (α × β)} : l.unzip.2.tail = l.tail.unzip.2 := by
+  cases l <;> simp
 
 @[simp] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
     unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by

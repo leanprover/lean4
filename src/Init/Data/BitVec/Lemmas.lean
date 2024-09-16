@@ -31,13 +31,13 @@ namespace BitVec
   simp only [Bool.and_eq_false_imp, decide_eq_true_eq]
   omega
 
-theorem lt_of_getLsbD (x : BitVec w) (i : Nat) : getLsbD x i = true → i < w := by
+theorem lt_of_getLsbD {x : BitVec w} {i : Nat} : getLsbD x i = true → i < w := by
   if h : i < w then
     simp [h]
   else
     simp [Nat.ge_of_not_lt h]
 
-theorem lt_of_getMsbD (x : BitVec w) (i : Nat) : getMsbD x i = true → i < w := by
+theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w := by
   if h : i < w then
     simp [h]
   else
@@ -546,7 +546,7 @@ theorem msb_truncate (x : BitVec w) : (x.truncate (k + 1)).msb = x.getLsbD k := 
     (x.zeroExtend l).zeroExtend k = x.zeroExtend k := by
   ext i
   simp only [getLsbD_zeroExtend, Fin.is_lt, decide_True, Bool.true_and]
-  have p := lt_of_getLsbD x i
+  have p := lt_of_getLsbD (x := x) (i := i)
   revert p
   cases getLsbD x i <;> simp; omega
 
@@ -591,6 +591,12 @@ theorem truncate_one {x : BitVec w} :
     x.truncate 1 = ofBool (x.getLsbD 0) := by
   ext i
   simp [show i = 0 by omega]
+
+@[simp] theorem truncate_ofNat_of_le (h : v ≤ w) (x : Nat) : truncate v (BitVec.ofNat w x) = BitVec.ofNat v x := by
+  apply BitVec.eq_of_toNat_eq
+  simp only [toNat_truncate, toNat_ofNat]
+  rw [Nat.mod_mod_of_dvd]
+  exact Nat.pow_dvd_pow_iff_le_right'.mpr h
 
 /-! ## extractLsb -/
 
@@ -1027,7 +1033,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
     · simp only [hi, decide_False, Bool.not_false, Bool.true_and, Bool.iff_and_self,
         decide_eq_true_eq]
       intros hlsb
-      apply BitVec.lt_of_getLsbD _ _ hlsb
+      apply BitVec.lt_of_getLsbD hlsb
   · by_cases hi : i ≥ w
     · simp [hi]
     · simp only [sshiftRight_eq_of_msb_true hmsb, getLsbD_not, getLsbD_ushiftRight, Bool.not_and,
@@ -1228,7 +1234,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = cast (by omega) y := by
   ext
   rw [getLsbD_append]
-  simpa using lt_of_getLsbD _ _
+  simpa using lt_of_getLsbD
 
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
     cast h (x ++ y) = x ++ cast (by omega) y := by
@@ -1258,6 +1264,18 @@ theorem truncate_append {x : BitVec w} {y : BitVec v} :
     · simp [t]
     · have t' : i - v < k - v := by omega
       simp [t, t']
+
+@[simp] theorem truncate_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) : truncate (v' + w') (x ++ y) = truncate v' x ++ truncate w' y := by
+  subst h
+  ext i
+  simp only [getLsbD_zeroExtend, Fin.is_lt, decide_True, getLsbD_append, cond_eq_if,
+    decide_eq_true_eq, Bool.true_and, zeroExtend_eq]
+  split
+  · simp_all
+  · simp_all only [Bool.iff_and_self, decide_eq_true_eq]
+    intro h
+    have := BitVec.lt_of_getLsbD h
+    omega
 
 @[simp] theorem truncate_cons {x : BitVec w} : (cons a x).truncate w = x := by
   simp [cons, truncate_append]

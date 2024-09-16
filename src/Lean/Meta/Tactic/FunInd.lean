@@ -469,6 +469,7 @@ def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr)
   let mvar ← mkFreshExprSyntheticOpaqueMVar goal (tag := `hyp)
   let mut mvarId := mvar.mvarId!
   mvarId ← assertIHs IHs mvarId
+  trace[Meta.FunInd] "Goal before cleanup:{mvarId}"
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
   modify (·.push mvarId)

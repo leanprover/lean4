@@ -273,6 +273,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_isSmaller___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_CompletionInfo_lctx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Elab_InfoTree_foldInfo_go___spec__10(lean_object*);
 LEAN_EXPORT lean_object* l_compareOn___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__11___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__54(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -5436,28 +5437,43 @@ x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
 return x_3;
 }
-case 5:
+case 3:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_4, 2);
+x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 return x_5;
 }
+case 5:
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+return x_7;
+}
+case 6:
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = l_Lean_Elab_CompletionInfo_lctx(x_8);
+return x_9;
+}
 case 11:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_1, 0);
-x_7 = lean_ctor_get(x_6, 0);
-x_8 = lean_ctor_get(x_7, 1);
-lean_inc(x_8);
-return x_8;
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_10, 0);
+x_12 = lean_ctor_get(x_11, 1);
+lean_inc(x_12);
+return x_12;
 }
 default: 
 {
-lean_object* x_9; 
-x_9 = l_Lean_LocalContext_empty;
-return x_9;
+lean_object* x_13; 
+x_13 = l_Lean_LocalContext_empty;
+return x_13;
 }
 }
 }

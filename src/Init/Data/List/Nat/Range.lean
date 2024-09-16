@@ -176,7 +176,7 @@ theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
-  · simp (config := { contextual := true }) [← getElem_take, Nat.lt_min]
+  · simp (config := { contextual := true }) [getElem_take, Nat.lt_min]
 
 theorem nodup_range (n : Nat) : Nodup (range n) := by
   simp (config := {decide := true}) only [range_eq_range', nodup_range']

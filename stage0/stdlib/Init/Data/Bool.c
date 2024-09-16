@@ -15,16 +15,12 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred(lean_object*);
 LEAN_EXPORT uint8_t l_Bool_instMin(uint8_t, uint8_t);
-LEAN_EXPORT uint8_t l_Bool_not(uint8_t);
 LEAN_EXPORT lean_object* l_boolPredToPred(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_xor___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_xor(uint8_t, uint8_t);
-LEAN_EXPORT uint8_t l_Bool_and(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_boolRelToRel(lean_object*);
-LEAN_EXPORT lean_object* l_Bool_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instLT;
 LEAN_EXPORT uint8_t l_Bool_instMax(uint8_t, uint8_t);
@@ -33,135 +29,10 @@ LEAN_EXPORT lean_object* l_Bool_instLE;
 LEAN_EXPORT uint8_t l_Bool_xor(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Bool_instMin___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableLt___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_xor___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Bool_not___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Bool_or(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Bool_instDecidableLe(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instMax___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred(lean_object*);
-LEAN_EXPORT lean_object* l_Bool_or___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_xor(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-return x_2;
-}
-else
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_xor___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_xor(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_Bool_not(uint8_t x_1) {
-_start:
-{
-if (x_1 == 0)
-{
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Bool_not___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = lean_unbox(x_1);
-lean_dec(x_1);
-x_3 = l_Bool_not(x_2);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT uint8_t l_Bool_or(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Bool_or___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_Bool_or(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_Bool_and(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-else
-{
-return x_2;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Bool_and___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_Bool_and(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
 LEAN_EXPORT uint8_t l_Bool_xor(uint8_t x_1, uint8_t x_2) {
 _start:
 {

@@ -19,21 +19,35 @@ import Init.Data.Nat.Mod
   all_goals rfl
 
 namespace Nat
-theorem avg_lt_of_lt (h: a < b): (a + b) / 2 < b := by
-  apply (Nat.div_lt_iff_lt_mul Nat.zero_lt_two).mpr
-  rw [Nat.mul_two]
-  exact Nat.add_lt_add_right h b
+@[simp] theorem lt_avg_iff_succ_lt: n < (n + m) / 2 ↔ n + 1 < m := by
+  rw [← succ_le,
+    Nat.le_div_iff_mul_le Nat.zero_lt_two,
+    Nat.mul_two, succ_add, succ_le,
+    Nat.add_lt_add_iff_left]
 
-theorem le_avg_of_le (h: a ≤ b): a ≤ (a + b) / 2 := by
-  apply (Nat.le_div_iff_mul_le _).mpr
-  · rw [Nat.mul_two]
-    exact Nat.add_le_add_left h a
-  · exact Nat.zero_lt_two
+@[simp] theorem le_avg_iff_le: n ≤ (n + m) / 2 ↔ n ≤ m := by
+  rw [
+    Nat.le_div_iff_mul_le Nat.zero_lt_two,
+    Nat.mul_two,
+    Nat.add_le_add_iff_left]
 
-theorem avg_le_of_le (h: a ≤ b): (a + b) / 2 ≤ b:= by
-  apply Nat.div_le_of_le_mul
-  rw [Nat.two_mul]
-  exact Nat.add_le_add_right h b
+@[simp] theorem avg_lt_iff_lt: (n + m) / 2 < m ↔ n < m:= by
+  rw [
+    Nat.div_lt_iff_lt_mul Nat.zero_lt_two,
+    Nat.mul_two,
+    Nat.add_lt_add_iff_right]
+
+@[simp] theorem avg_le_iff_le_succ: (n + m) / 2 ≤ m ↔ n ≤ m + 1:= by
+  rw [← lt_succ,
+    Nat.div_lt_iff_lt_mul Nat.zero_lt_two,
+    Nat.mul_two, add_succ, lt_succ,
+    Nat.add_le_add_iff_right]
+
+theorem lt_of_avg_lt (h: n < (n + m) / 2): n < m :=
+  lt_of_succ_lt (lt_avg_iff_succ_lt.mp h)
+
+theorem avg_le_of_le (h: n ≤ m): (n + m) / 2 ≤ m :=
+  avg_le_iff_le_succ.mpr (le_add_right_of_le h)
 end Nat
 
 namespace Array
@@ -663,8 +677,8 @@ mutual
 
         apply qsort_sort_loop_pivot_swap_sorts
 
-        case hlm => exact Nat.le_avg_of_le hlh
-        case hmh => exact Nat.avg_lt_of_lt hlh'
+        case hlm => exact Nat.le_avg_iff_le.mpr hlh
+        case hmh => exact Nat.avg_lt_iff_lt.mpr hlh'
 
         case hltas => exact hltas
         case hlttr => exact hlttr
@@ -674,7 +688,7 @@ mutual
             first
             | apply Nat.le_refl
             | apply Nat.avg_le_of_le
-            | apply Nat.le_avg_of_le
+            | apply Nat.le_avg_iff_le.mpr
             | apply IPerm.refl
             | apply IPerm.ite
             | apply IPerm.trans_swap

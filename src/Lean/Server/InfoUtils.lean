@@ -316,7 +316,7 @@ where
         if let some ldecl := (← getLCtx).findFVar? e then
           !ldecl.userName.hasMacroScopes
         else false
-      else isAtomicFormat eFmt
+      else !e.isMVar
       let fmt := if showTerm then f!"{eFmt} : {tpFmt}" else tpFmt
       return (some f!"```lean\n{fmt}\n```", none)
     | Info.ofFieldInfo fi =>
@@ -324,13 +324,6 @@ where
       let tpFmt ← Meta.ppExpr tp
       return (some f!"```lean\n{fi.fieldName} : {tpFmt}\n```", none)
     | _ => return (none, none)
-
-  isAtomicFormat : Format → Bool
-    | Std.Format.text _    => true
-    | Std.Format.group f _ => isAtomicFormat f
-    | Std.Format.nest _ f  => isAtomicFormat f
-    | Std.Format.tag _ f   => isAtomicFormat f
-    | _                    => false
 
 structure GoalsAtResult where
   ctxInfo    : ContextInfo

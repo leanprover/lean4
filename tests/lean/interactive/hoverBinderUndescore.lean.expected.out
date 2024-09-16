@@ -46,3 +46,11 @@
  {"value":
   "```lean\nBool\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
+ "position": {"line": 16, "character": 59}}
+{"range":
+ {"start": {"line": 16, "character": 59}, "end": {"line": 16, "character": 60}},
+ "contents":
+ {"value":
+  "```lean\nNat.zero + Nat.zero : Nat\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "kind": "markdown"}}

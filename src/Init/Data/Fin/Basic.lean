@@ -145,10 +145,10 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
-instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin (no_index n)) i where
+instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin n) i where
   ofNat := Fin.ofNat' n i
 
-instance : Inhabited (Fin (no_index (n+1))) where
+instance instInhabited {n : Nat} [NeZero n] : Inhabited (Fin n) where
   default := 0
 
 @[simp] theorem zero_eta : (⟨0, Nat.zero_lt_succ _⟩ : Fin (n + 1)) = 0 := rfl

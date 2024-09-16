@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_int_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instDiv;
 static lean_object* l_Int_fdiv___closed__1;
 LEAN_EXPORT lean_object* l_Nat_cast___at_Int_bmod___spec__1(lean_object*);
@@ -27,15 +28,18 @@ lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_0__Int_fdiv_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_fmod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_tmod___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_0__Int_fdiv_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_fdiv___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_0__Int_fdiv_match__1_splitter(lean_object*);
+lean_object* lean_int_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bmod___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_tdiv___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_div___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bmod(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Int_subNatNat(lean_object*, lean_object*);
-lean_object* lean_int_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_div(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
@@ -45,7 +49,7 @@ LEAN_EXPORT lean_object* l_Int_emod___boxed(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bdiv(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_int_mod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_mod(lean_object*, lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 static lean_object* l_Int_instDiv___closed__1;
 lean_object* lean_int_add(lean_object*, lean_object*);
@@ -53,7 +57,7 @@ lean_object* lean_int_ediv(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bdiv___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_div___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_tdiv___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -63,11 +67,47 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Int_div(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_int_div(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Int_div___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Int_div(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Int_tmod___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = lean_int_mod(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Int_mod(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_int_mod(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Int_mod(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

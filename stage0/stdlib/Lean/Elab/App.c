@@ -8974,7 +8974,7 @@ x_13 = lean_ctor_get(x_11, 0);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_ctor_get(x_14, 7);
+x_15 = lean_ctor_get(x_14, 8);
 lean_inc(x_15);
 lean_dec(x_14);
 x_16 = l_Lean_PersistentHashMap_contains___at_Lean_MVarId_isAssigned___spec__1(x_15, x_1);
@@ -8993,7 +8993,7 @@ lean_dec(x_11);
 x_20 = lean_ctor_get(x_18, 0);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = lean_ctor_get(x_20, 7);
+x_21 = lean_ctor_get(x_20, 8);
 lean_inc(x_21);
 lean_dec(x_20);
 x_22 = l_Lean_PersistentHashMap_contains___at_Lean_MVarId_isAssigned___spec__1(x_21, x_1);
@@ -16969,16 +16969,17 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Elab_Term_initFn____x40_Lean_Elab_App___hyg_6729____lambda__2___closed__3;
-x_3 = lean_alloc_ctor(0, 9, 0);
+x_3 = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_1);
 lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_2);
+lean_ctor_set(x_3, 3, x_1);
 lean_ctor_set(x_3, 4, x_2);
 lean_ctor_set(x_3, 5, x_2);
 lean_ctor_set(x_3, 6, x_2);
 lean_ctor_set(x_3, 7, x_2);
 lean_ctor_set(x_3, 8, x_2);
+lean_ctor_set(x_3, 9, x_2);
 return x_3;
 }
 }

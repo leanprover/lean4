@@ -755,7 +755,7 @@ mutual
       /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
          We "subtract" variables being abstracted because we use `elimMVarDeps` -/
       return mvar
-    if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
+    if mvarDecl.depth < (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
       traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
       throwCheckAssignmentFailure
     let ctxMeta ← readThe Meta.Context

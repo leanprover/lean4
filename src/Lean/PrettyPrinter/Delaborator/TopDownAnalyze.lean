@@ -165,13 +165,13 @@ partial def hasMVarAtCurrDepth (e : Expr) : MetaM Bool := do
   let mctx ← getMCtx
   return Option.isSome <| e.findMVar? fun mvarId =>
     match mctx.findDecl? mvarId with
-    | some mdecl => mdecl.depth == mctx.depth
+    | some mdecl => mdecl.depth >= mctx.depth
     | _ => false
 
 partial def hasLevelMVarAtCurrDepth (e : Expr) : MetaM Bool := do
   let mctx ← getMCtx
   return Option.isSome <| e.findLevelMVar? fun mvarId =>
-    mctx.findLevelDepth? mvarId == some mctx.depth
+    (mctx.findLevelDepth? mvarId).elim false fun depth => depth >= mctx.depth
 
 private def valUnknown (e : Expr) : MetaM Bool := do
   hasMVarAtCurrDepth (← instantiateMVars e)

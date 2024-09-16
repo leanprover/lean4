@@ -758,7 +758,7 @@ Return true if the given metavariable is "read-only".
 That is, its `depth` is different from the current metavariable context depth.
 -/
 def _root_.Lean.MVarId.isReadOnly (mvarId : MVarId) : MetaM Bool := do
-  return (← mvarId.getDecl).depth != (← getMCtx).depth
+  return (← mvarId.getDecl).depth < (← getMCtx).depth
 
 /--
 Returns true if `mvarId.isReadOnly` returns true or if `mvarId` is a synthetic opaque metavariable.
@@ -767,7 +767,7 @@ Recall `isDefEq` will not assign a value to `mvarId` if `mvarId.isReadOnlyOrSynt
 -/
 def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Bool := do
   let mvarDecl ← mvarId.getDecl
-  if mvarDecl.depth != (← getMCtx).depth then
+  if mvarDecl.depth < (← getMCtx).depth then
     return true
   else
     match mvarDecl.kind with
@@ -1509,12 +1509,12 @@ def withExistingLocalDecls (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withExistingLocalDeclsImp decls
 
 private def withNewMCtxDepthImp (allowLevelAssignments : Bool) (x : MetaM α) : MetaM α := do
-  let saved ← get
+  let { mctx := { depth, levelAssignDepth, .. }, postponed, .. } ← get
   modify fun s => { s with mctx := s.mctx.incDepth allowLevelAssignments, postponed := {} }
   try
     x
   finally
-    modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
+    modify fun s => { s with mctx := { s.mctx with depth, levelAssignDepth }, postponed }
 
 /--
 Removes `fvarId` from the local context, and replaces occurrences of it with `e`.

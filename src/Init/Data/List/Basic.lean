@@ -1583,19 +1583,19 @@ such that adjacent elements are related by `R`.
 
 * `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
 * `groupBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
-
-Note that `groupBy` is defined in terms of a bespoke `groupBy.loop`. The arguments of
-`groupBy.loop l ag g gs` represent the following:
+-/
+@[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
+  | []    => []
+  | a::as => loop as a [] []
+where
+/--
+The arguments of `groupBy.loop l ag g gs` represent the following:
 
 - `l : List α` is the list whose elements we group.
 - `ag : α` is the previous element for which a comparison was performed.
 - `g : List α` is the group currently being assembled, in **reverse order**.
 - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
 -/
-@[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
-  | []    => []
-  | a::as => loop as a [] []
-where
   @[specialize] loop : List α → α → List α → List (List α) → List (List α)
   | a::as, ag, g, gs => match R ag a with
     | true  => loop as a (ag::g) gs

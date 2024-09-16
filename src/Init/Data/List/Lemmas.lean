@@ -929,6 +929,10 @@ theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
   | [_], _ => .head ..
   | _::a::l, _ => .tail _ <| getLast_mem (cons_ne_nil a l)
 
+theorem getLast_mem_getLast? : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ getLast? l
+  | [], h => by contradiction
+  | a :: l, _ => rfl
+
 theorem getLastD_mem_cons : ∀ (l : List α) (a : α), getLastD l a ∈ a::l
   | [], _ => .head ..
   | _::_, _ => .tail _ <| getLast_mem _
@@ -1025,6 +1029,10 @@ theorem mem_of_mem_head? : ∀ {l : List α} {a : α}, a ∈ l.head? → a ∈ l
     simp at h
     cases h
     exact mem_cons_self a l
+
+theorem head_mem_head? : ∀ {l : List α} (h : l ≠ []), head l h ∈ head? l
+  | [], h => by contradiction
+  | a :: l, _ => rfl
 
 theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
   cases l <;> simp

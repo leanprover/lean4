@@ -133,7 +133,6 @@ static lean_object* l_term_x7e_x7e_x7e_____closed__7;
 static lean_object* l_Lean_command__code__action___closed__4;
 static lean_object* l_Lean_Parser_checkSimp___closed__4;
 static lean_object* l_term___u2208_____closed__1;
-static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__8;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__stx_x21____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2223____1___closed__7;
@@ -234,7 +233,6 @@ static lean_object* l_Lean_Attr_coe___closed__5;
 static lean_object* l_term___u2218_____closed__5;
 static lean_object* l_Lean_rawStx_quot___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__1;
-static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__19;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___xd7____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a__1___closed__5;
 LEAN_EXPORT lean_object* l_term___x3c_x7c_x3e__;
@@ -259,7 +257,6 @@ static lean_object* l_Lean_Parser_Tactic_caseArg___closed__4;
 static lean_object* l_termIfLet___closed__18;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__6;
-static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Bool__and__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Complement__complement__1(lean_object*, lean_object*, lean_object*);
@@ -324,7 +321,6 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c_x3e_
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3d____2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser___aux__Init__Notation______macroRules__Lean__Parser__commandSeal______1___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__9;
-static lean_object* l___aux__Init__Notation______macroRules__term_x21____1___closed__8;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__8;
 static lean_object* l_Lean_Parser_discrTreeKeyCmd___closed__1;
 static lean_object* l_stx___x2a___closed__2;
@@ -652,14 +648,12 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___xd7_x27
 static lean_object* l___aux__Init__Notation______macroRules__termIfLet__1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26____1___closed__7;
 static lean_object* l_term_x7e_x7e_x7e_____closed__3;
-static lean_object* l___aux__Init__Notation______macroRules__term_x21____1___closed__7;
 static lean_object* l_Lean_Parser___aux__Init__Notation______macroRules__Lean__Parser__commandSeal______1___closed__9;
 static lean_object* l_term___x24_______closed__10;
 static lean_object* l_termDepIfThenElse___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_term___x3c__;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a_x3e____1___closed__6;
-static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__20;
 static lean_object* l_term___x3c_x3c_x3c_____closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1___closed__7;
 static lean_object* l_prioMid___closed__3;
@@ -716,7 +710,6 @@ static lean_object* l_termIfLet___closed__14;
 static lean_object* l_term___u2264_____closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HAppend__hAppend__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3d____2___closed__1;
-static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__11;
 static lean_object* l_term___x3a_x3a_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__3;
 static lean_object* l_term_x2d_____closed__5;
@@ -1228,7 +1221,6 @@ static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_prio;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c_x3e____1___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prioMid__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__6;
 static lean_object* l_term___x5e_____closed__3;
 static lean_object* l_stx___x2a___closed__5;
 static lean_object* l_Lean_runElab___closed__4;
@@ -1511,7 +1503,6 @@ static lean_object* l_Lean_runElab___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term_x7e_x7e_x7e____1___closed__3;
 static lean_object* l_term___x3e_____closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__LE__le__2___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__12;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26____1___closed__1;
 static lean_object* l_Lean_Parser_Syntax_addPrio___closed__1;
@@ -1621,7 +1612,6 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2b__1___closed__7;
 static lean_object* l_Lean_builtin__command__code__action___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser___aux__Init__Notation______macroRules__Lean__Parser__commandSeal______1(lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__7;
 LEAN_EXPORT lean_object* l_term_x21__;
 static lean_object* l_stx___x2a___closed__1;
 static lean_object* l_term___x25_____closed__4;
@@ -5589,34 +5579,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__Notation______macroRules__term___u2218____1___closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__8;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__term___u2218____1___closed__11() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__10;
+x_2 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__9;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__term___u2218____1___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__9;
-x_2 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__11;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -5659,7 +5627,7 @@ lean_dec(x_2);
 x_17 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__8;
 x_18 = l_Lean_addMacroScope(x_16, x_17, x_15);
 x_19 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__5;
-x_20 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__12;
+x_20 = l___aux__Init__Notation______macroRules__term___u2218____1___closed__10;
 lean_inc(x_14);
 x_21 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_21, 0, x_14);
@@ -16092,34 +16060,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__7() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__6;
+x_2 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__5;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__5;
-x_2 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__7;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -16162,7 +16108,7 @@ lean_dec(x_2);
 x_17 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__4;
 x_18 = l_Lean_addMacroScope(x_16, x_17, x_15);
 x_19 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__2;
-x_20 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__8;
+x_20 = l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__6;
 lean_inc(x_14);
 x_21 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_21, 0, x_14);
@@ -16387,34 +16333,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__Notation______macroRules__term_x21____1___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Notation______macroRules__term_x21____1___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__term_x21____1___closed__7() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Notation______macroRules__term_x21____1___closed__6;
+x_2 = l___aux__Init__Notation______macroRules__term_x21____1___closed__5;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__term_x21____1___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__term_x21____1___closed__5;
-x_2 = l___aux__Init__Notation______macroRules__term_x21____1___closed__7;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -16455,7 +16379,7 @@ lean_dec(x_2);
 x_15 = l___aux__Init__Notation______macroRules__term_x21____1___closed__4;
 x_16 = l_Lean_addMacroScope(x_14, x_15, x_13);
 x_17 = l___aux__Init__Notation______macroRules__term_x21____1___closed__2;
-x_18 = l___aux__Init__Notation______macroRules__term_x21____1___closed__8;
+x_18 = l___aux__Init__Notation______macroRules__term_x21____1___closed__6;
 lean_inc(x_12);
 x_19 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_19, 0, x_12);
@@ -20733,34 +20657,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__18() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__16;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__19() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__18;
+x_2 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__17;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__20() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__17;
-x_2 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__19;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -20907,7 +20809,7 @@ lean_ctor_set(x_54, 1, x_53);
 x_55 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__16;
 x_56 = l_Lean_addMacroScope(x_31, x_55, x_32);
 x_57 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__15;
-x_58 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__20;
+x_58 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__18;
 lean_inc(x_44);
 x_59 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_59, 0, x_44);
@@ -21068,7 +20970,7 @@ lean_ctor_set(x_125, 1, x_124);
 x_126 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__16;
 x_127 = l_Lean_addMacroScope(x_102, x_126, x_103);
 x_128 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__15;
-x_129 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__20;
+x_129 = l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__18;
 lean_inc(x_115);
 x_130 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_130, 0, x_115);
@@ -21349,34 +21251,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__3;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__5;
+x_2 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__4;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__4;
-x_2 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__6;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -21474,7 +21354,7 @@ lean_ctor_set(x_39, 1, x_38);
 x_40 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__3;
 x_41 = l_Lean_addMacroScope(x_16, x_40, x_17);
 x_42 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__2;
-x_43 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__7;
+x_43 = l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__5;
 lean_inc(x_29);
 x_44 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_44, 0, x_29);
@@ -28166,10 +28046,6 @@ l___aux__Init__Notation______macroRules__term___u2218____1___closed__9 = _init_l
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term___u2218____1___closed__9);
 l___aux__Init__Notation______macroRules__term___u2218____1___closed__10 = _init_l___aux__Init__Notation______macroRules__term___u2218____1___closed__10();
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term___u2218____1___closed__10);
-l___aux__Init__Notation______macroRules__term___u2218____1___closed__11 = _init_l___aux__Init__Notation______macroRules__term___u2218____1___closed__11();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__term___u2218____1___closed__11);
-l___aux__Init__Notation______macroRules__term___u2218____1___closed__12 = _init_l___aux__Init__Notation______macroRules__term___u2218____1___closed__12();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__term___u2218____1___closed__12);
 l___aux__Init__Notation______unexpand__Function__comp__1___closed__1 = _init_l___aux__Init__Notation______unexpand__Function__comp__1___closed__1();
 lean_mark_persistent(l___aux__Init__Notation______unexpand__Function__comp__1___closed__1);
 l___aux__Init__Notation______unexpand__Function__comp__1___closed__2 = _init_l___aux__Init__Notation______unexpand__Function__comp__1___closed__2();
@@ -29064,10 +28940,6 @@ l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__5 = _init
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__5);
 l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__6 = _init_l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__6();
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__6);
-l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__7 = _init_l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__7();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__7);
-l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__8 = _init_l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__8();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__8);
 l_term_x21_____closed__1 = _init_l_term_x21_____closed__1();
 lean_mark_persistent(l_term_x21_____closed__1);
 l_term_x21_____closed__2 = _init_l_term_x21_____closed__2();
@@ -29092,10 +28964,6 @@ l___aux__Init__Notation______macroRules__term_x21____1___closed__5 = _init_l___a
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term_x21____1___closed__5);
 l___aux__Init__Notation______macroRules__term_x21____1___closed__6 = _init_l___aux__Init__Notation______macroRules__term_x21____1___closed__6();
 lean_mark_persistent(l___aux__Init__Notation______macroRules__term_x21____1___closed__6);
-l___aux__Init__Notation______macroRules__term_x21____1___closed__7 = _init_l___aux__Init__Notation______macroRules__term_x21____1___closed__7();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__term_x21____1___closed__7);
-l___aux__Init__Notation______macroRules__term_x21____1___closed__8 = _init_l___aux__Init__Notation______macroRules__term_x21____1___closed__8();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__term_x21____1___closed__8);
 l_term___u2208_____closed__1 = _init_l_term___u2208_____closed__1();
 lean_mark_persistent(l_term___u2208_____closed__1);
 l_term___u2208_____closed__2 = _init_l_term___u2208_____closed__2();
@@ -29558,10 +29426,6 @@ l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__17 = _in
 lean_mark_persistent(l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__17);
 l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__18 = _init_l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__18();
 lean_mark_persistent(l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__18);
-l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__19 = _init_l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__19();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__19);
-l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__20 = _init_l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__20();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__20);
 l_termIfThenElse___closed__1 = _init_l_termIfThenElse___closed__1();
 lean_mark_persistent(l_termIfThenElse___closed__1);
 l_termIfThenElse___closed__2 = _init_l_termIfThenElse___closed__2();
@@ -29598,10 +29462,6 @@ l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__4 = _init_l
 lean_mark_persistent(l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__4);
 l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__5 = _init_l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__5();
 lean_mark_persistent(l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__5);
-l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__6 = _init_l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__6();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__6);
-l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__7 = _init_l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__7();
-lean_mark_persistent(l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__7);
 l_termIfLet___closed__1 = _init_l_termIfLet___closed__1();
 lean_mark_persistent(l_termIfLet___closed__1);
 l_termIfLet___closed__2 = _init_l_termIfLet___closed__2();

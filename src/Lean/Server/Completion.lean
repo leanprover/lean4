@@ -666,6 +666,50 @@ private def tacticCompletion (params : CompletionParams) (ctx : ContextInfo) : I
       }, 1)
     return some { items := sortCompletionItems items, isIncomplete := true }
 
+/--
+If there are `Info`s that contain `hoverPos` and have a nonempty `LocalContext`,
+yields the closest one of those `Info`s.
+Otherwise, yields the closest `Info` that contains `hoverPos` and has an empty `LocalContext`.
+-/
+private def findClosestInfoWithLocalContextAt?
+    (hoverPos : String.Pos)
+    (infoTree : InfoTree)
+    : Option (ContextInfo × Info) :=
+  infoTree.visitM (m := Id) (postNode := choose) |>.join
+where
+  choose
+      (ctx : ContextInfo)
+      (info : Info)
+      (_ : PersistentArray InfoTree)
+      (childValues : List (Option (Option (ContextInfo × Info))))
+      : Option (ContextInfo × Info) :=
+    let bestChildValue := childValues.map (·.join) |>.foldl (init := none) fun v best =>
+      if isBetter v best then
+        v
+      else
+        best
+    if info.occursInOrOnBoundary hoverPos && isBetter (ctx, info) bestChildValue then
+      (ctx, info)
+    else
+      bestChildValue
+
+  isBetter (a b : Option (ContextInfo × Info)) : Bool :=
+    match a, b with
+    | none,   none   => false
+    | some _, none   => true
+    | none,   some _ => false
+    | some (_, ia), some (_, ib) =>
+      if !ia.lctx.isEmpty && ib.lctx.isEmpty then
+        true
+      else if ia.lctx.isEmpty && !ib.lctx.isEmpty then
+        false
+      else if ia.isSmaller ib then
+        true
+      else if ib.isSmaller ia then
+        false
+      else
+        false
+
 private def findCompletionInfoAt?
     (fileMap  : FileMap)
     (hoverPos : String.Pos)
@@ -675,9 +719,32 @@ private def findCompletionInfoAt?
   match infoTree.foldInfo (init := none) (choose hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     some (hoverInfo, ctx, info)
-  | _ =>
-    -- TODO try to extract id from `fileMap` and some `ContextInfo` from `InfoTree`
-    none
+  | _ => do
+    -- No completion info => Attempt providing identifier completions
+    let some (ctx, info) := findClosestInfoWithLocalContextAt? hoverPos infoTree
+      | none
+    let some stack := info.stx.findStack? (·.getRange?.any (·.contains hoverPos (includeStop := true)))
+      | none
+    let stack := stack.dropWhile fun (stx, _) => !(stx matches `($_:ident) || stx matches `($_:ident.))
+    let some (stx, _) := stack.head?
+      | none
+    let isDotIdCompletion := stack.any fun (stx, _) => stx matches `(.$_:ident)
+    if isDotIdCompletion then
+      -- An identifier completion is never useful in a dotId completion context.
+      none
+    let some (id, danglingDot) :=
+        match stx with
+        | `($id:ident) => some (id.getId, false)
+        | `($id:ident.) => some (id.getId, true)
+        | _ => none
+      | none
+    let tailPos := stx.getTailPos?.get!
+    let hoverInfo :=
+      if hoverPos < tailPos then
+        HoverInfo.inside (tailPos - hoverPos).byteIdx
+      else
+        HoverInfo.after
+    some (hoverInfo, ctx, .id stx id danglingDot info.lctx none)
 where
   choose
       (hoverLine : Nat)

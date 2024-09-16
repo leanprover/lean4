@@ -2046,4 +2046,20 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+
+/-! ### Non-overflow theorems -/
+
+/--
+If `y ≤ x`, then the subtraction `(x - y)` does not overflow.
+Thus, `(x - y).toNat = x.toNat - y.toNat`
+-/
+theorem toNat_sub_of_le {x y : BitVec n} (h : y ≤ x) :
+    (x - y).toNat = x.toNat - y.toNat := by
+  simp only [toNat_sub]
+  rw [BitVec.le_def] at h
+  by_cases h' : x.toNat = y.toNat
+  · rw [h', Nat.sub_self, Nat.sub_add_cancel (by omega), Nat.mod_self]
+  · have : 2 ^ n - y.toNat + x.toNat = 2 ^ n + (x.toNat - y.toNat) := by omega
+    rw [this, Nat.add_mod_left, Nat.mod_eq_of_lt (by omega)]
+
 end BitVec

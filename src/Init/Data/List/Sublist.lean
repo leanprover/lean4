@@ -667,7 +667,7 @@ theorem IsSuffix.length_le (h : l₁ <:+ l₂) : l₁.length ≤ l₂.length :=
 theorem IsPrefix.getElem {x y : List α} (h : x <+: y) {n} (hn : n < x.length) :
     x[n] = y[n]'(Nat.le_trans hn h.length_le) := by
   obtain ⟨_, rfl⟩ := h
-  exact (List.getElem_append n hn).symm
+  exact (List.getElem_append_left hn).symm
 
 -- See `Init.Data.List.Nat.Sublist` for `IsSuffix.getElem`.
 

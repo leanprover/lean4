@@ -114,7 +114,7 @@ jobs:
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
           else
-            labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }}) --jq '.labels'"
+            labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels')"
             if echo "$labels" | grep -q "release-ci"; then
               check_level=2
             elif echo "$labels" | grep -q "merge-ci"; then

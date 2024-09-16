@@ -2407,9 +2407,9 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkRefl___closed__7;
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_of___lambda__9___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -2417,9 +2417,9 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkRefl___closed__7;
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_of_gateReflection___closed__11;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -2427,9 +2427,9 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkRefl___closed__7;
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_of_gateReflection___closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -2437,9 +2437,9 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkRefl___closed__7;
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_of_gateReflection___closed__8;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }

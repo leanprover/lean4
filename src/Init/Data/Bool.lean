@@ -6,16 +6,11 @@ Authors: F. G. Dorais
 prelude
 import Init.NotationExtra
 
-/-- Boolean exclusive or -/
-abbrev xor : Bool → Bool → Bool := bne
 
 namespace Bool
 
-/- Namespaced versions that can be used instead of prefixing `_root_` -/
-@[inherit_doc not] protected abbrev not := not
-@[inherit_doc or]  protected abbrev or  := or
-@[inherit_doc and] protected abbrev and := and
-@[inherit_doc xor] protected abbrev xor := xor
+/-- Boolean exclusive or -/
+abbrev xor : Bool → Bool → Bool := bne
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with
@@ -597,7 +592,7 @@ theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidab
 
 end Bool
 
-export Bool (cond_eq_if)
+export Bool (cond_eq_if xor and or not)
 
 /-! ### decide -/
 

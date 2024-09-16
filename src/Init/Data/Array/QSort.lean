@@ -391,14 +391,34 @@ def IsAsymm {α} (r: α → α → Prop) :=
 def IsTrans {α} (r: α → α → Prop) :=
   {x: α} → {y: α} → {z: α} → r x y → r y z → r x z
 
+/-
+structure IsMultiTrans {α} (r: α → α → Prop) where
+  -pos: {x: α} → {y: α} → {z: α} → r x y → r y z → r x z
+  neg: {x: α} → {y: α} → {z: α} → ¬r x y → ¬r y z → ¬r x z
+  -p_of_pn: {x: α} → {y: α} → {z: α} → r x y → ¬r z y → r x z
+  -p_of_np: {x: α} → {y: α} → {z: α} → ¬r y x → r y z → r x z
+  n_of_np: {x: α} → {y: α} → {z: α} → ¬r x y → r z y → ¬r x z
+  n_of_pn: {x: α} → {y: α} → {z: α} → r y x → ¬r y z → ¬r x z
+-/
+
+
+ /--
+ If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
+ If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤  a[j]
+  -/
+abbrev le_of_any (r: α → α → Prop) (i j: α):= r i j ∨ ¬r j i
+abbrev le_of_any_b (r: α → α → Bool) (i j: α) := r i j = true ∨ r j i = false
+
+def IPairwise (r: α → α → Prop) (low: Nat) (high: Nat) (as: Array α) :=
+   ∀ i j, (hli: low ≤ i) → (hij: i < j) → (hjh: j ≤ high) → (hjs: j < as.size) →
+  r (as[i]'(Nat.lt_trans hij hjs)) (as[j]'hjs)
+
 /--
 If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
 If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤  a[j]
  -/
-def IOrdered (r: α → α → Bool) (low: Nat) (high: Nat) (as: Array α) :=
-  ∀ i j, (hli: low ≤ i) → (hij: i < j) → (hjh: j ≤ high) → (hjs: j < as.size) →
-  r (as[i]'(Nat.lt_trans hij hjs)) (as[j]'hjs) = true
-    ∨ r (as[j]'hjs) (as[i]'(Nat.lt_trans hij hjs)) = false
+abbrev IOrdered (r: α → α → Bool) (low: Nat) (high: Nat) (as: Array α) :=
+  IPairwise (le_of_any_b (r · ·)) low high as
 
 namespace IOrdered
 theorem mkSingle (lt : α → α → Bool) (k: Nat) (as: Array α):

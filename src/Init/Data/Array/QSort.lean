@@ -19,35 +19,35 @@ import Init.Data.Nat.Mod
   all_goals rfl
 
 namespace Nat
-@[simp] theorem lt_avg_iff_succ_lt: n < (n + m) / 2 ↔ n + 1 < m := by
+@[simp] theorem left_lt_add_div_two: n < (n + m) / 2 ↔ n + 1 < m := by
   rw [← succ_le,
     Nat.le_div_iff_mul_le Nat.zero_lt_two,
     Nat.mul_two, succ_add, succ_le,
     Nat.add_lt_add_iff_left]
 
-@[simp] theorem le_avg_iff_le: n ≤ (n + m) / 2 ↔ n ≤ m := by
+@[simp] theorem left_le_add_div_two: n ≤ (n + m) / 2 ↔ n ≤ m := by
   rw [
     Nat.le_div_iff_mul_le Nat.zero_lt_two,
     Nat.mul_two,
     Nat.add_le_add_iff_left]
 
-@[simp] theorem avg_lt_iff_lt: (n + m) / 2 < m ↔ n < m:= by
+@[simp] theorem add_div_two_lt_right: (n + m) / 2 < m ↔ n < m:= by
   rw [
     Nat.div_lt_iff_lt_mul Nat.zero_lt_two,
     Nat.mul_two,
     Nat.add_lt_add_iff_right]
 
-@[simp] theorem avg_le_iff_le_succ: (n + m) / 2 ≤ m ↔ n ≤ m + 1:= by
+@[simp] theorem add_div_two_le_right: (n + m) / 2 ≤ m ↔ n ≤ m + 1:= by
   rw [← lt_succ,
     Nat.div_lt_iff_lt_mul Nat.zero_lt_two,
     Nat.mul_two, add_succ, lt_succ,
     Nat.add_le_add_iff_right]
 
-theorem lt_of_avg_lt (h: n < (n + m) / 2): n < m :=
-  lt_of_succ_lt (lt_avg_iff_succ_lt.mp h)
+theorem lt_of_left_lt_add_div_two (h: n < (n + m) / 2): n < m :=
+  lt_of_succ_lt (left_lt_add_div_two.mp h)
 
-theorem avg_le_of_le (h: n ≤ m): (n + m) / 2 ≤ m :=
-  avg_le_iff_le_succ.mpr (le_add_right_of_le h)
+theorem add_div_two_le_right_of_le (h: n ≤ m): (n + m) / 2 ≤ m :=
+  add_div_two_le_right.mpr (le_add_right_of_le h)
 end Nat
 
 namespace Array
@@ -72,7 +72,7 @@ namespace Array
 
       let mid := (low + high) / 2
 
-      have hmh: mid ≤ high := Nat.avg_le_of_le hlh
+      have hmh: mid ≤ high := Nat.add_div_two_le_right_of_le hlh
       have hms: mid < s := Nat.lt_of_le_of_lt hmh hhs
 
       let as := if lt (as[mid]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
@@ -677,8 +677,8 @@ mutual
 
         apply qsort.sort_loop_pivot_swap_sorts
 
-        case hlm => exact Nat.le_avg_iff_le.mpr hlh
-        case hmh => exact Nat.avg_lt_iff_lt.mpr hlh'
+        case hlm => exact Nat.left_le_add_div_two.mpr hlh
+        case hmh => exact Nat.add_div_two_lt_right.mpr hlh'
 
         case hltas => exact hltas
         case hlttr => exact hlttr
@@ -687,8 +687,8 @@ mutual
           repeat any_goals
             first
             | apply Nat.le_refl
-            | apply Nat.avg_le_of_le
-            | apply Nat.le_avg_iff_le.mpr
+            | apply Nat.add_div_two_le_right_of_le
+            | apply Nat.left_le_add_div_two.mpr
             | apply IPerm.refl
             | apply IPerm.ite
             | apply IPerm.trans_swap

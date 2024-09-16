@@ -817,11 +817,13 @@ variable {a b c d : Prop}
 theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
-theorem Iff.refl (a : Prop) : a ↔ a :=
+@[refl] theorem Iff.refl (a : Prop) : a ↔ a :=
   Iff.intro (fun h => h) (fun h => h)
 
-@[refl] protected theorem Iff.rfl {a : Prop} : a ↔ a :=
+protected theorem Iff.rfl {a : Prop} : a ↔ a :=
   Iff.refl a
+
+macro_rules | `(tactic| rfl) => `(tactic| exact Iff.rfl)
 
 theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.rfl
 

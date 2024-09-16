@@ -18,6 +18,26 @@ open Nat
 
 namespace List
 
+/-! ### dropLast -/
+
+theorem tail_dropLast (l : List α) : tail (dropLast l) = dropLast (tail l) := by
+  ext1
+  simp only [getElem?_tail, getElem?_dropLast, length_tail]
+  split <;> split
+  · rfl
+  · omega
+  · omega
+  · rfl
+
+@[simp] theorem dropLast_reverse (l : List α) : l.reverse.dropLast = l.tail.reverse := by
+  apply ext_getElem
+  · simp
+  · intro i h₁ h₂
+    simp only [getElem_dropLast, getElem_reverse, length_tail, getElem_tail]
+    congr
+    simp only [length_dropLast, length_reverse, length_tail] at h₁ h₂
+    omega
+
 /-! ### filter -/
 
 theorem length_filter_lt_length_iff_exists {l} :

@@ -258,6 +258,9 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   | zero => simp at h
   | succ n => simp
 
+@[simp] theorem tail_iota (n : Nat) : (iota n).tail = iota (n - 1) := by
+  cases n <;> simp
+
 @[simp] theorem reverse_iota : reverse (iota n) = range' 1 n := by
   induction n with
   | zero => simp
@@ -447,6 +450,9 @@ theorem getElem_enum (l : List α) (i : Nat) (h : i < l.enum.length) :
 @[simp] theorem getLast?_enum (l : List α) :
     l.enum.getLast? = l.getLast?.map fun a => (l.length - 1, a) := by
   simp [getLast?_eq_getElem?]
+
+@[simp] theorem tail_enum (l : List α) : (enum l).tail = enumFrom 1 l.tail := by
+  simp [enum]
 
 theorem mk_mem_enum_iff_getElem? {i : Nat} {x : α} {l : List α} : (i, x) ∈ enum l ↔ l[i]? = x := by
   simp [enum, mk_mem_enumFrom_iff_le_and_getElem?_sub]

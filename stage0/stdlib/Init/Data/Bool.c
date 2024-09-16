@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Bool_instDecidableLe___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_xor___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_xor(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_boolRelToRel(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_toNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instLT;
@@ -30,7 +29,6 @@ LEAN_EXPORT lean_object* l_Bool_instLE;
 LEAN_EXPORT uint8_t l_Bool_xor(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Bool_instMin___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instDecidableLt___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_xor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Bool_instDecidableLe(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instMax___boxed(lean_object*, lean_object*);
@@ -68,43 +66,6 @@ lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
 x_5 = l_Bool_xor(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT uint8_t l_xor(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-return x_2;
-}
-else
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_xor___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_xor(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }

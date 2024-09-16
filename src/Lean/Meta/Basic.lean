@@ -1894,7 +1894,14 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
     Remark: the kernel does *not* update the type of variables in the local context.
     -/
     resetDefEqPermCaches
-    checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
+    let start ← IO.getNumHeartbeats
+    let r ← checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
+    if profiler.isDefEq.get (← getOptions) then
+      let finish ← IO.getNumHeartbeats
+      let elapsed := (finish - start) / 1000
+      if elapsed ≥ profiler.isDefEq.threshold.get (← getOptions) then
+        logInfo s!"isDefEq took {elapsed} heartbeats"
+    return r
 
 /--
   Determines whether two expressions are definitionally equal to each other.

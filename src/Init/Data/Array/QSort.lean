@@ -504,13 +504,13 @@ theorem resize_out_of_bounds (h: ISortOf lt low high as0 as) (hsh: (as.size - 1)
 end ISortOf
 
 mutual
-  theorem qsort.sort_sort_sorts (lt : α → α → Bool) (low high : Nat) (pivot : α) (i : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
+  theorem qsort.sort_sort_sorts (lt : α → α → Bool) (low high : Nat) (pivot : α) (i : Nat) (as: Array α)
       (hli : low ≤ i) (hih : i < high) (hhs : high < as.size)
       (ha: IForAll as (lt pivot · = false) low (i + 1))
       (hb: IForAll as (lt · pivot = false) (i + 1) (high + 1))
       (hltas: IsAsymm (lt · ·)) (hlttr: IsTrans (lt · · = false)):
       have ⟨as', hs'⟩ := qsort.sort lt as low i (λ _ ↦ Nat.lt_trans hih hhs)
-      ISortOf lt low high as0 (qsort.sort lt as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
+      ISortOf lt low high as (qsort.sort lt as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
 
     have h1 := qsort.sort_sorts as lt low i (λ _ ↦ Nat.lt_trans hih hhs) hltas hlttr
     let ahs' := qsort.sort lt as low i (λ _ ↦ Nat.lt_trans hih hhs)
@@ -519,7 +519,6 @@ mutual
     have h2 := qsort.sort_sorts as' lt (i + 1) high (λ _ ↦ hs' ▸ hhs) hltas hlttr
     constructor
     case perm =>
-      apply IPerm.trans hp
       apply IPerm.trans
       · apply IPerm.expand (Nat.le_refl _) (Nat.le_of_lt hih) h1.perm
       · apply IPerm.expand (Nat.le_add_right_of_le hli) (Nat.le_refl _) h2.perm
@@ -538,14 +537,14 @@ mutual
       case h2 => exact h2.ord
       termination_by (high - low, 0, 0)
 
-  theorem qsort.sort_loop_sorts (lt : α → α → Bool) (low high : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
+  theorem qsort.sort_loop_sorts (lt : α → α → Bool) (low high : Nat) (as: Array α)
       {pivot : α} (i j : Nat)
       (hli : low ≤ i) (hij : i ≤ j) (hjh : j ≤ high) (hhs : high < as.size) (hph: as[high]'hhs = pivot)
       (ha: IForAll as (lt · pivot) low i)
       (hb: IForAll as (lt · pivot = false) i j)
       (hc: IForAll as (lt · pivot) low high → low = high)
       (hltas: IsAsymm (lt · ·)) (hlttr: IsTrans (lt · · = false)):
-      ISortOf lt low high as0 (qsort.sort.loop lt low high pivot as i j hli hij hjh hhs) := by
+      ISortOf lt low high as (qsort.sort.loop lt low high pivot as i j hli hij hjh hhs) := by
     unfold qsort.sort.loop
 
     have hjs: j < as.size := Nat.lt_of_le_of_lt hjh hhs
@@ -563,36 +562,40 @@ mutual
       all_goals simp only [hjp, Bool.false_eq_true, ↓reduceIte]
 
       case pos =>
-        apply qsort.sort_loop_sorts
-        case hph => simpa only [getElem_after_swap hij hjh' hhs]
-        case ha => exact ha.swap_left hij hjp
-        case hb => exact hb.swap_right hij hjs
-        case hc => intro h; apply hc; exact h.of_swap hli hij hjh'
-        case hltas => exact hltas
-        case hlttr => exact hlttr
-        case hp => exact .trans hp (.swap as i his hli hih j hjs hlj hjh)
+        apply ISortOf.trans
+        case hs =>
+          apply qsort.sort_loop_sorts
+          case hph => simpa only [getElem_after_swap hij hjh' hhs]
+          case ha => exact ha.swap_left hij hjp
+          case hb => exact hb.swap_right hij hjs
+          case hc => intro h; apply hc; exact h.of_swap hli hij hjh'
+          case hltas => exact hltas
+          case hlttr => exact hlttr
+        case hp => exact .swap as i his hli hih j hjs hlj hjh
 
       case neg =>
-        apply qsort.sort_loop_sorts
-        case hph => exact hph
-        case ha =>
-          exact ha
+        apply ISortOf.trans
+        case hs =>
+          apply qsort.sort_loop_sorts
+          case hph => exact hph
+          case ha =>
+            exact ha
 
-        case hb =>
-          intro k hks hik hkj1
-          by_cases hkj: k < j
-          · specialize hb k hks hik hkj
-            exact hb
-          · have hkj: k = j := Nat.eq_of_lt_succ_of_not_lt hkj1 hkj
-            subst k
-            exact eq_false_of_ne_true hjp
+          case hb =>
+            intro k hks hik hkj1
+            by_cases hkj: k < j
+            · specialize hb k hks hik hkj
+              exact hb
+            · have hkj: k = j := Nat.eq_of_lt_succ_of_not_lt hkj1 hkj
+              subst k
+              exact eq_false_of_ne_true hjp
 
-        case hc =>
-          exact hc
+          case hc =>
+            exact hc
 
-        case hltas => exact hltas
-        case hlttr => exact hlttr
-        case hp => exact hp
+          case hltas => exact hltas
+          case hlttr => exact hlttr
+        case hp => exact .refl
 
     case neg =>
       have hjh: j = high := Nat.le_antisymm hjh (Nat.le_of_not_lt hjh')
@@ -607,32 +610,34 @@ mutual
         suffices h: low = high by
           subst high
           apply ISortOf.mkSingle
-          exact hp
+          exact .refl
 
         apply hc
         exact ha
 
       case neg =>
-        apply qsort.sort_sort_sorts
-        case hhs => simpa [size_swap]
+        apply ISortOf.trans
+        case hs =>
+          apply qsort.sort_sort_sorts
+          case hhs => simpa [size_swap]
+          case ha =>
+            let ha := ha.map (λ x a ↦ eq_false_of_ne_true (hltas a))
+
+            have hhh: lt as[high] as[high] = false := by
+              exact eq_false_of_ne_true fun a => hltas a a
+
+            exact (hph ▸ ha).swap_left hij hhh
+          case hb => exact (hph ▸ hb).swap_right hij hhs
+          case hltas => exact hltas
+          case hlttr => exact hlttr
+          case hli => exact hli
+          case hih => exact Nat.gt_of_not_le hhi
         case hp =>
-          exact IPerm.trans_swap hp i his hli hih high hhs hlh (Nat.le_refl _)
-        case ha =>
-          let ha := ha.map (λ x a ↦ eq_false_of_ne_true (hltas a))
-
-          have hhh: lt as[high] as[high] = false := by
-            exact eq_false_of_ne_true fun a => hltas a a
-
-          exact (hph ▸ ha).swap_left hij hhh
-        case hb => exact (hph ▸ hb).swap_right hij hhs
-        case hltas => exact hltas
-        case hlttr => exact hlttr
-        case hli => exact hli
-        case hih => exact Nat.gt_of_not_le hhi
+          exact IPerm.swap as i his hli hih high hhs hlh (Nat.le_refl _)
 
         termination_by (high - low, 1, high - j)
 
-  theorem qsort.sort_loop_pivot_swap_sorts (lt : α → α → Bool) (low high : Nat) (as0: Array α) (as: Array α) (hp: IPerm low high as0 as)
+  theorem qsort.sort_loop_pivot_swap_sorts (lt : α → α → Bool) (low high : Nat) (as: Array α)
       (mid: Nat) (hlm: low ≤ mid) (hmh: mid < high) (hhs : high < as.size)
       --(hltas: lt as[mid] as[high] = true → lt as[high] as[mid] = true → False)
       (hltas: IsAsymm (lt · ·)) (hlttr: IsTrans (lt · · = false)):
@@ -640,46 +645,48 @@ mutual
       let as' := if lt (as[mid]'(Nat.lt_trans hmh hhs)) (as[high]'hhs) then as.swap ⟨mid, Nat.lt_trans hmh hhs⟩ ⟨high, hhs⟩ else as
       have hs': as'.size = as.size := by dsimp only [as']; split; all_goals simp_all only [Array.size_swap]
 
-      ISortOf lt low high as0 (qsort.sort.loop lt low high (as'[high]'(hs' ▸ hhs)) as' low low
+      ISortOf lt low high as (qsort.sort.loop lt low high (as'[high]'(hs' ▸ hhs)) as' low low
         (Nat.le_refl low) (Nat.le_refl low) (Nat.le_trans hlm (Nat.le_of_lt hmh)) (hs' ▸ hhs)).1 := by
     have hms := Nat.lt_trans hmh hhs
     have hlh := Nat.le_trans hlm (Nat.le_of_lt hmh)
 
     have hmh': mid ≠ high := Nat.ne_of_lt hmh
-    apply qsort.sort_loop_sorts
-    case hc =>
-      intro h
-      simp only [IForAll, size_ite, size_swap, ite_self] at h
-      specialize h mid hms hlm hmh
-      simp [swap_def] at h
-      split at h
-      case isTrue h' =>
-        rw [getElem_set_ne] at h
-        rw [getElem_set_eq] at h
-        rw [getElem_set_eq] at h
+    apply ISortOf.trans
+    case hs =>
+      apply qsort.sort_loop_sorts
+      case hc =>
+        intro h
+        simp only [IForAll, size_ite, size_swap, ite_self] at h
+        specialize h mid hms hlm hmh
+        simp [swap_def] at h
+        split at h
+        case isTrue h' =>
+          rw [getElem_set_ne] at h
+          rw [getElem_set_eq] at h
+          rw [getElem_set_eq] at h
+          exfalso
+          exact hltas h' h
+          · rfl
+          · rfl
+          · exact Ne.symm hmh'
+        case isFalse h' =>
+          exfalso
+          exact h' h
+      case hph => rfl
+      case hltas => exact hltas
+      case hlttr => exact hlttr
+      all_goals
+        intro k hks hlk hkl
+        have hll: low < low := Nat.lt_of_le_of_lt hlk hkl
         exfalso
-        exact hltas h' h
-        · rfl
-        · rfl
-        · exact Ne.symm hmh'
-      case isFalse h' =>
-        exfalso
-        exact h' h
-    case hph => rfl
-    case hltas => exact hltas
-    case hlttr => exact hlttr
+        exact (Nat.ne_of_lt hll) rfl
     case hp =>
       split
       case isTrue h =>
-        exact .trans hp <| .swap as mid hms hlm (Nat.le_of_lt hmh) high hhs hlh (Nat.le_refl _)
+        exact .swap as mid hms hlm (Nat.le_of_lt hmh) high hhs hlh (Nat.le_refl _)
       case isFalse h =>
-        exact hp
-    all_goals
-      intro k hks hlk hkl
-      have hll: low < low := Nat.lt_of_le_of_lt hlk hkl
-      exfalso
-      exact (Nat.ne_of_lt hll) rfl
-      termination_by (high - low, 2, 0)
+        exact .refl
+    termination_by (high - low, 2, 0)
 
   theorem qsort.sort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
       (hhs: low < high → high < as.size)
@@ -706,13 +713,15 @@ mutual
         have hlh: low < high := Nat.gt_of_not_le hlh
         have hlh': low ≤ high := Nat.le_of_lt hlh
 
-        apply qsort.sort_loop_pivot_swap_sorts
+        apply ISortOf.trans
+        case hs =>
+          apply qsort.sort_loop_pivot_swap_sorts
 
-        case hlm => exact Nat.left_le_add_div_two.mpr hlh'
-        case hmh => exact Nat.add_div_two_lt_right.mpr hlh
+          case hlm => exact Nat.left_le_add_div_two.mpr hlh'
+          case hmh => exact Nat.add_div_two_lt_right.mpr hlh
 
-        case hltas => exact hltas
-        case hlttr => exact hlttr
+          case hltas => exact hltas
+          case hlttr => exact hlttr
 
         case hp =>
           repeat any_goals

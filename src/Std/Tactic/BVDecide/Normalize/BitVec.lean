@@ -56,8 +56,8 @@ attribute [bv_normalize] BitVec.zero_add
 attribute [bv_normalize] BitVec.neg_zero
 attribute [bv_normalize] BitVec.sub_self
 attribute [bv_normalize] BitVec.sub_zero
-attribute [bv_normalize] BitVec.zeroExtend_eq
-attribute [bv_normalize] BitVec.zeroExtend_zero
+attribute [bv_normalize] BitVec.setWidth_eq
+attribute [bv_normalize] BitVec.setWidth_zero
 attribute [bv_normalize] BitVec.getLsbD_zero
 attribute [bv_normalize] BitVec.getLsbD_zero_length
 attribute [bv_normalize] BitVec.getLsbD_concat_zero

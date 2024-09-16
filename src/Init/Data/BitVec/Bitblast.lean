@@ -139,11 +139,11 @@ def adc (x y : BitVec w) : Bool → Bool × BitVec w :=
   iunfoldr fun (i : Fin w) c => adcb (x.getLsbD i) (y.getLsbD i) c
 
 theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
-    getLsbD (x + y + zeroExtend w (ofBool c)) i =
+    getLsbD (x + y + setWidth w (ofBool c)) i =
       Bool.xor (getLsbD x i) (Bool.xor (getLsbD y i) (carry i x y c)) := by
   let ⟨x, x_lt⟩ := x
   let ⟨y, y_lt⟩ := y
-  simp only [getLsbD, toNat_add, toNat_zeroExtend, i_lt, toNat_ofFin, toNat_ofBool,
+  simp only [getLsbD, toNat_add, toNat_setWidth, i_lt, toNat_ofFin, toNat_ofBool,
     Nat.mod_add_mod, Nat.add_mod_mod]
   apply Eq.trans
   rw [← Nat.div_add_mod x (2^i), ← Nat.div_add_mod y (2^i)]
@@ -165,11 +165,11 @@ theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
   simpa using getLsbD_add_add_bool i_lt x y false
 
 theorem adc_spec (x y : BitVec w) (c : Bool) :
-    adc x y c = (carry w x y c, x + y + zeroExtend w (ofBool c)) := by
+    adc x y c = (carry w x y c, x + y + setWidth w (ofBool c)) := by
   simp only [adc]
   apply iunfoldr_replace
           (fun i => carry i x y c)
-          (x + y + zeroExtend w (ofBool c))
+          (x + y + setWidth w (ofBool c))
           c
   case init =>
     simp [carry, Nat.mod_one]
@@ -306,12 +306,12 @@ theorem mulRec_succ_eq (x y : BitVec w) (s : Nat) :
 Recurrence lemma: truncating to `i+1` bits and then zero extending to `w`
 equals truncating upto `i` bits `[0..i-1]`, and then adding the `i`th bit of `x`.
 -/
-theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w) (i : Nat) :
-    zeroExtend w (x.truncate (i + 1)) =
-      zeroExtend w (x.truncate i) + (x &&& twoPow w i) := by
+theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i : Nat) :
+    setWidth w (x.setWidth (i + 1)) =
+      setWidth w (x.setWidth i) + (x &&& twoPow w i) := by
   rw [add_eq_or_of_and_eq_zero]
   · ext k
-    simp only [getLsbD_zeroExtend, Fin.is_lt, decide_True, Bool.true_and, getLsbD_or, getLsbD_and]
+    simp only [getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and, getLsbD_or, getLsbD_and]
     by_cases hik : i = k
     · subst hik
       simp
@@ -322,27 +322,32 @@ theorem zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow (x : BitVec w
       · have hik'' : ¬ (k < i) := by omega
         simp [hik', hik'']
   · ext k
-    simp only [and_twoPow, getLsbD_and, getLsbD_zeroExtend, Fin.is_lt, decide_True, Bool.true_and,
+    simp only [and_twoPow, getLsbD_and, getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and,
       getLsbD_zero, and_eq_false_imp, and_eq_true, decide_eq_true_eq, and_imp]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
+
+@[deprecated setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (since := "2024-09-18"),
+  inherit_doc setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
+abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow :=
+  @setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow
 
 /--
 Recurrence lemma: multiplying `x` with the first `s` bits of `y` is the
 same as truncating `y` to `s` bits, then zero extending to the original length,
 and performing the multplication. -/
-theorem mulRec_eq_mul_signExtend_truncate (x y : BitVec w) (s : Nat) :
-    mulRec x y s = x * ((y.truncate (s + 1)).zeroExtend w) := by
+theorem mulRec_eq_mul_signExtend_setWidth (x y : BitVec w) (s : Nat) :
+    mulRec x y s = x * ((y.setWidth (s + 1)).setWidth w) := by
   induction s
   case zero =>
     simp only [mulRec_zero_eq, ofNat_eq_ofNat, Nat.reduceAdd]
     by_cases y.getLsbD 0
     case pos hy =>
-      simp only [hy, ↓reduceIte, truncate, zeroExtend_one_eq_ofBool_getLsb_zero,
+      simp only [hy, ↓reduceIte, setWidth_one_eq_ofBool_getLsb_zero,
         ofBool_true, ofNat_eq_ofNat]
-      rw [zeroExtend_ofNat_one_eq_ofNat_one_of_lt (by omega)]
+      rw [setWidth_ofNat_one_eq_ofNat_one_of_lt (by omega)]
       simp
     case neg hy =>
-      simp [hy, zeroExtend_one_eq_ofBool_getLsb_zero]
+      simp [hy, setWidth_one_eq_ofBool_getLsb_zero]
   case succ s' hs =>
     rw [mulRec_succ_eq, hs]
     have heq :
@@ -350,13 +355,16 @@ theorem mulRec_eq_mul_signExtend_truncate (x y : BitVec w) (s : Nat) :
         (x * (y &&& (BitVec.twoPow w (s' + 1)))) := by
       simp only [ofNat_eq_ofNat, and_twoPow]
       by_cases hy : y.getLsbD (s' + 1) <;> simp [hy]
-    rw [heq, ← BitVec.mul_add, ← zeroExtend_truncate_succ_eq_zeroExtend_truncate_add_twoPow]
+    rw [heq, ← BitVec.mul_add, ← setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow]
+
+@[deprecated mulRec_eq_mul_signExtend_setWidth (since := "2024-09-18"),
+  inherit_doc mulRec_eq_mul_signExtend_setWidth]
+abbrev mulRec_eq_mul_signExtend_truncate := @mulRec_eq_mul_signExtend_setWidth
 
 theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsbD i = (mulRec x y w).getLsbD i := by
-  simp only [mulRec_eq_mul_signExtend_truncate]
-  rw [truncate, ← truncate_eq_zeroExtend, ← truncate_eq_zeroExtend,
-    truncate_truncate_of_le]
+  simp only [mulRec_eq_mul_signExtend_setWidth]
+  rw [setWidth_setWidth_of_le]
   · simp
   · omega
 
@@ -402,22 +410,22 @@ theorem shiftLeft_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
 `shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
 -/
 theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
-    shiftLeftRec x y n = x <<< (y.truncate (n + 1)).zeroExtend w₂ := by
+    shiftLeftRec x y n = x <<< (y.setWidth (n + 1)).setWidth w₂ := by
   induction n generalizing x y
   case zero =>
     ext i
-    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, truncate_one,
-      and_one_eq_zeroExtend_ofBool_getLsbD]
+    simp only [shiftLeftRec_zero, twoPow_zero, Nat.reduceAdd, setWidth_one,
+      and_one_eq_setWidth_ofBool_getLsbD]
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow]
     rw [ih]
     by_cases h : y.getLsbD (n + 1)
     · simp only [h, ↓reduceIte]
-      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true h,
+      rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         shiftLeft_or_of_and_eq_zero]
       simp [and_twoPow]
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
-      rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false (i := n + 1)]
+      rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)]
       simp [h]
 
 /--
@@ -466,18 +474,18 @@ theorem sshiftRight'_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
     toNat_add_of_and_eq_zero h, sshiftRight_add]
 
 theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
-    sshiftRightRec x y n = x.sshiftRight' ((y.truncate (n + 1)).zeroExtend w₂) := by
+    sshiftRightRec x y n = x.sshiftRight' ((y.setWidth (n + 1)).setWidth w₂) := by
   induction n generalizing x y
   case zero =>
     ext i
-    simp [twoPow_zero, Nat.reduceAdd, and_one_eq_zeroExtend_ofBool_getLsbD, truncate_one]
+    simp [twoPow_zero, Nat.reduceAdd, and_one_eq_setWidth_ofBool_getLsbD, setWidth_one]
   case succ n ih =>
     simp only [sshiftRightRec_succ_eq, and_twoPow, ih]
     by_cases h : y.getLsbD (n + 1)
-    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true h,
+    · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         sshiftRight'_or_of_and_eq_zero (by simp [and_twoPow]), h]
       simp
-    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false (i := n + 1)
+    · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)
         (by simp [h])]
       simp [h]
 
@@ -529,20 +537,20 @@ theorem ushiftRight'_or_of_and_eq_zero {x : BitVec w₁} {y z : BitVec w₂}
   simp [← add_eq_or_of_and_eq_zero _ _ h, toNat_add_of_and_eq_zero h, shiftRight_add]
 
 theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
-    ushiftRightRec x y n = x >>> (y.truncate (n + 1)).zeroExtend w₂ := by
+    ushiftRightRec x y n = x >>> (y.setWidth (n + 1)).setWidth w₂ := by
   induction n generalizing x y
   case zero =>
     ext i
     simp only [ushiftRightRec_zero, twoPow_zero, Nat.reduceAdd,
-      and_one_eq_zeroExtend_ofBool_getLsbD, truncate_one]
+      and_one_eq_setWidth_ofBool_getLsbD, setWidth_one]
   case succ n ih =>
     simp only [ushiftRightRec_succ, and_twoPow]
     rw [ih]
     by_cases h : y.getLsbD (n + 1) <;> simp only [h, ↓reduceIte]
-    · rw [zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true h,
+    · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         ushiftRight'_or_of_and_eq_zero]
       simp [and_twoPow]
-    · simp [zeroExtend_truncate_succ_eq_zeroExtend_truncate_of_getLsbD_false, h]
+    · simp [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false, h]
 
 /--
 Show that `x >>> y` can be written in terms of `ushiftRightRec`.

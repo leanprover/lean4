@@ -1591,7 +1591,7 @@ where
 /--
 The arguments of `groupBy.loop l ag g gs` represent the following:
 
-- `l : List α` is the list whose elements we group.
+- `l : List α` are the elements which we still need to group.
 - `ag : α` is the previous element for which a comparison was performed.
 - `g : List α` is the group currently being assembled, in **reverse order**.
 - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.

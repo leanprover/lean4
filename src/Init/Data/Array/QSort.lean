@@ -391,9 +391,14 @@ def IsAsymm {α} (r: α → α → Prop) :=
 def IsTrans {α} (r: α → α → Prop) :=
   {x: α} → {y: α} → {z: α} → r x y → r y z → r x z
 
-def IOrdered (lt: α → α → Bool) (low: Nat) (high: Nat) (as: Array α) :=
+/--
+If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
+If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤  a[j]
+ -/
+def IOrdered (r: α → α → Bool) (low: Nat) (high: Nat) (as: Array α) :=
   ∀ i j, (hli: low ≤ i) → (hij: i < j) → (hjh: j ≤ high) → (hjs: j < as.size) →
-  lt (as[j]'hjs) (as[i]'(Nat.lt_trans hij hjs)) = false
+  r (as[i]'(Nat.lt_trans hij hjs)) (as[j]'hjs) = true
+    ∨ r (as[j]'hjs) (as[i]'(Nat.lt_trans hij hjs)) = false
 
 namespace IOrdered
 theorem mkSingle (lt : α → α → Bool) (k: Nat) (as: Array α):
@@ -436,10 +441,10 @@ induction hp with
   rw [getElem_set_ne]
   · simp [size_swap] at hbs
     exact h a b hla hab hbl hbs
-  · exact Ne.symm (Nat.ne_of_lt (Nat.lt_trans hal hli))
-  · exact Ne.symm (Nat.ne_of_lt (Nat.lt_trans hal hlj))
   · exact Ne.symm (Nat.ne_of_lt (Nat.lt_of_le_of_lt hbl hli))
   · exact Ne.symm (Nat.ne_of_lt (Nat.lt_of_le_of_lt hbl hlj))
+  · exact Ne.symm (Nat.ne_of_lt (Nat.lt_trans hal hli))
+  · exact Ne.symm (Nat.ne_of_lt (Nat.lt_trans hal hlj))
 
 theorem glue
     {lt : α → α → Bool} {low high : Nat} {pivot : α} {i : Nat} {as : Array α}
@@ -463,6 +468,7 @@ theorem glue
   have hai: a < i + 1 := by exact Nat.gt_of_not_le hia
   specialize ha a has hla hai
   specialize hb b hbs hib (Nat.lt_add_one_of_le hbh)
+  right
   exact hlttr hb ha
 
 end IOrdered

@@ -109,6 +109,9 @@ theorem cons_eq_cons {a b : α} {l l' : List α} : a :: l = b :: l' ↔ a = b �
 theorem exists_cons_of_ne_nil : ∀ {l : List α}, l ≠ [] → ∃ b L, l = b :: L
   | c :: l', _ => ⟨c, l', rfl⟩
 
+theorem singleton_inj {α : Type _} {a b : α} : [a] = [b] ↔ a = b := by
+  simp
+
 /-! ### length -/
 
 theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl
@@ -728,6 +731,45 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
   | _ :: _, _+1, _, _, .tail _ h => (mem_or_eq_of_mem_set h).imp_left (.tail _)
 
 -- See also `set_eq_take_append_cons_drop` in `Init.Data.List.TakeDrop`.
+
+/-! ### BEq -/
+
+@[simp] theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
+  constructor
+  · intro h
+    constructor
+    intro a
+    suffices ([a] == [a]) = true by
+      simpa only [List.instBEq, List.beq, Bool.and_true]
+    simp
+  · intro h
+    constructor
+    intro a
+    induction a with
+    | nil => simp only [List.instBEq, List.beq]
+    | cons a as ih =>
+      simp [List.instBEq, List.beq]
+      exact ih
+
+@[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (List α) ↔ LawfulBEq α := by
+  constructor
+  · intro h
+    constructor
+    · intro a b h
+      apply singleton_inj.1
+      apply eq_of_beq
+      simp only [List.instBEq, List.beq]
+      simpa
+    · intro a
+      suffices ([a] == [a]) = true by
+        simpa only [List.instBEq, List.beq, Bool.and_true]
+      simp
+  · intro h
+    constructor
+    · intro a b h
+      simpa using h
+    · intro a
+      simp
 
 /-! ### Lexicographic ordering -/
 

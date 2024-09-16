@@ -6,6 +6,7 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.Option.BasicAux
 import Init.Data.Option.Instances
+import Init.Data.BEq
 import Init.Classical
 import Init.Ext
 
@@ -410,6 +411,37 @@ variable [BEq α]
 @[simp] theorem none_beq_some (a : α) : ((none : Option α) == some a) = false := rfl
 @[simp] theorem some_beq_none (a : α) : ((some a : Option α) == none) = false := rfl
 @[simp] theorem some_beq_some {a b : α} : (some a == some b) = (a == b) := rfl
+
+@[simp] theorem reflBEq_iff : ReflBEq (Option α) ↔ ReflBEq α := by
+  constructor
+  · intro h
+    constructor
+    intro a
+    suffices (some a == some a) = true by
+      simpa only [some_beq_some]
+    simp
+  · intro h
+    constructor
+    · rintro (_ | a) <;> simp
+
+@[simp] theorem lawfulBEq_iff : LawfulBEq (Option α) ↔ LawfulBEq α := by
+  constructor
+  · intro h
+    constructor
+    · intro a b h
+      apply Option.some.inj
+      apply eq_of_beq
+      simpa
+    · intro a
+      suffices (some a == some a) = true by
+        simpa only [some_beq_some]
+      simp
+  · intro h
+    constructor
+    · intro a b h
+      simpa using h
+    · intro a
+      simp
 
 end beq
 

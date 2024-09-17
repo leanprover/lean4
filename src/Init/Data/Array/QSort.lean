@@ -669,17 +669,20 @@ abbrev IPairwiseLeB (r:  α → α → Bool) (low: Nat) (high: Nat) (as: Array �
 
 namespace IPairwise
 
-/-
 theorem glue_with_pivot
-    (ha : as.IForAllIco low (i + 1) (r · pivot))
-    (hb : as.IForAllIco (i + 1) (high + 1) (r pivot ·))
-    (hrtle : ITrans low high as r)
+    {r: α → α → Prop}
+    {p: Nat} (hps: p < as.size) (hlp: low ≤ p) (hph: p ≤ high) (hp: pivot = as[p]'hps)
+    (ha : IForAllIco (r · pivot) low (i + 1) as)
+    (hb : IForAllIco (r pivot ·) (i + 1) (high + 1) as)
+    (hrtle : ITrans r low high as)
     (h1 : IPairwise r low i as)
     (h2 : IPairwise r (i + 1) high as):
     IPairwise r low high as := by
   unfold IPairwise
   intro a b hla hab hbh hbs
   have has := Nat.lt_trans hab hbs
+  have hlb := Nat.le_trans hla (Nat.le_of_lt hab)
+  have hah: a ≤ high := Nat.le_trans (Nat.le_of_lt hab) hbh
 
   by_cases hbi: b ≤ i
   · exact h1 a b hla hab hbi hbs
@@ -689,10 +692,10 @@ theorem glue_with_pivot
   · exact h2 a b hia hab hbh hbs
 
   have hai: a < i + 1 := by exact Nat.gt_of_not_le hia
-  specialize ha a has hla hai
-  specialize hb b hbs hib (Nat.lt_add_one_of_le hbh)
-  exact hrtle ha hb
--/
+
+  exact hrtle a has hla hah p hps hlp hph b hbs hlb hbh
+    (hp ▸ (ha a has hla hai))
+    (hp ▸ (hb b hbs hib (Nat.lt_add_one_of_le hbh)))
 
 theorem glue_with_middle
     (his: i < as.size) {r: α → α → Prop}

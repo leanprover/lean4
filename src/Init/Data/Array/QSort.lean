@@ -667,15 +667,18 @@ theorem getElem_after_swap {as: Array α} {i j high: Nat} (hij: i ≤ j) (hjh: j
   · exact Nat.ne_of_lt (Nat.lt_of_le_of_lt hij hjh)
   · exact Nat.ne_of_lt (hjh)
 
-structure ISortOf (r: α → α → Bool) (low high: Nat) (orig: Array α) (sorted: Array α): Prop where
+structure ISortOf (r: α → α → Prop) (low high: Nat) (orig: Array α) (sorted: Array α): Prop where
   perm: IPerm low high orig sorted
-  ord: IPairwiseLeB r low high sorted
+  ord: IPairwise r low high sorted
+
+abbrev ISortOfLeB (r: α → α → Bool) (low high: Nat) (orig: Array α) (sorted: Array α): Prop
+  := ISortOf (le_of_relation r) low high orig sorted
 
 namespace ISortOf
-theorem mkSingle (r: α → α → Bool) (k: Nat) (as0: Array α) (as: Array α) (hp: IPerm k k as0 as):
-    ISortOf r k k as0 as := ⟨hp, .mkSingle (le_of_relation r) k as⟩
+theorem mkSingle (r: α → α → Prop) (k: Nat) (as0: Array α) (as: Array α) (hp: IPerm k k as0 as):
+    ISortOf r k k as0 as := ⟨hp, .mkSingle r k as⟩
 
-theorem trans {r: α → α → Bool} {low high: Nat} {as as' as'': Array α}
+theorem trans {r: α → α → Prop} {low high: Nat} {as as' as'': Array α}
     (hp: IPerm low high as as') (hs: ISortOf r low high as' as''):
     (ISortOf r low high as as'') := by
   constructor
@@ -697,7 +700,7 @@ mutual
       (hb: IForAll as (i + 1) (high + 1) ((le_of_relation r) pivot ·))
       (hrtle: ITransLeB as low high r):
       have ⟨as', hs'⟩ := qsort.sort r as low (i - 1) (λ _ ↦ Nat.lt_of_le_of_lt (Nat.sub_le i 1) (Nat.lt_of_le_of_lt hih hhs))
-      ISortOf r low high as (qsort.sort r as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
+      ISortOfLeB r low high as (qsort.sort r as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
     have his := Nat.lt_of_le_of_lt hih hhs
     have h1ih: i - 1 ≤ high := Nat.le_trans (Nat.sub_le i 1) hih
     have h1is: i - 1 < as.size := Nat.lt_of_le_of_lt h1ih hhs
@@ -771,7 +774,7 @@ mutual
       (ha: IForAll as low i (r · pivot))
       (hb: IForAll as i j (r · pivot = false))
       (hrtle: ITransLeB as low high r):
-      ISortOf r low high as (qsort.sort.loop r low high hlh pivot as i j hli hij hjh hhs) := by
+      ISortOfLeB r low high as (qsort.sort.loop r low high hlh pivot as i j hli hij hjh hhs) := by
     unfold qsort.sort.loop
 
     have hjs: j < as.size := Nat.lt_of_le_of_lt hjh hhs
@@ -854,7 +857,7 @@ mutual
       let as' := if r (as[mid]'(Nat.lt_trans hmh hhs)) (as[high]'hhs) then as.swap ⟨mid, Nat.lt_trans hmh hhs⟩ ⟨high, hhs⟩ else as
       have hs': as'.size = as.size := by dsimp only [as']; split; all_goals simp_all only [Array.size_swap]
 
-      ISortOf r low high as (qsort.sort.loop r low high hlh (as'[high]'(hs' ▸ hhs)) as' low low
+      ISortOfLeB r low high as (qsort.sort.loop r low high hlh (as'[high]'(hs' ▸ hhs)) as' low low
         (Nat.le_refl low) (Nat.le_refl low) (Nat.le_trans hlm (Nat.le_of_lt hmh)) (hs' ▸ hhs)).1 := by
     have hms := Nat.lt_trans hmh hhs
     have hlh := Nat.le_trans hlm (Nat.le_of_lt hmh)
@@ -889,7 +892,7 @@ mutual
   theorem qsort.sort_sorts (as: Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
       (hhs: low < high → high < as.size)
       (hrtle: ITransLeB as low high r):
-      ISortOf r low high as (qsort.sort r as low high hhs) := by
+      ISortOfLeB r low high as (qsort.sort r as low high hhs) := by
       unfold qsort.sort
       by_cases hlh: low ≥ high
       case pos =>
@@ -932,7 +935,7 @@ end
 
 theorem qsort_sorts (as: Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
     (hrtle: ITransLeB as low high r):
-    ISortOf r low high as (qsort as r low high)  := by
+    ISortOfLeB r low high as (qsort as r low high)  := by
     unfold qsort
     split
     case isTrue =>

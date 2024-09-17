@@ -250,6 +250,10 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
 
+@[inline, inherit_doc DHashMap.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α] (l : Array α) :
+    HashMap α Unit :=
+  ⟨DHashMap.Const.unitOfArray l⟩
+
 @[inline, inherit_doc DHashMap.Internal.numBuckets] def Internal.numBuckets
     (m : HashMap α β) : Nat :=
   DHashMap.Internal.numBuckets m.inner

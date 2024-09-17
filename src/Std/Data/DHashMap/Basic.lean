@@ -260,6 +260,10 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
     DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 
+@[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
+    DHashMap α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
 @[inherit_doc Raw.Internal.numBuckets] def Internal.numBuckets
     (m : DHashMap α β) : Nat :=
   Raw.Internal.numBuckets m.1

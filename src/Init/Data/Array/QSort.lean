@@ -19,7 +19,7 @@ namespace Array
   split
   all_goals rfl
 
-theorem set_getElem_eq {as: Array α} {his: i < as.size} {his': i < as.size}: as.set ⟨i, his⟩ (as[i]'his') = as := by
+@[simp] theorem set_getElem_eq {as: Array α} {his: i < as.size} {his': i < as.size}: as.set ⟨i, his⟩ (as[i]'his') = as := by
   apply Array.ext
   · simp only [size_set]
   · intro k _ _
@@ -64,7 +64,7 @@ end Nat
 
 namespace Array
 
-@[inline] def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
+@[inline] def qsort (as : Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat)
       (hhs: low < high → high < as.size): {as': Array α // as'.size = as.size} :=
     let s := as.size
@@ -85,18 +85,18 @@ namespace Array
       have hmh: mid ≤ high := Nat.add_div_two_le_right_of_le (Nat.le_of_lt hlh)
       have hms: mid < s := Nat.lt_of_le_of_lt hmh hhs
 
-      let as := if lt (as[mid]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
+      let as := if r (as[mid]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-      let as := if lt (as[high]'(hs ▸ hhs)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨high, hs ▸ hhs⟩  else as
+      let as := if r (as[high]'(hs ▸ hhs)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨high, hs ▸ hhs⟩  else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-      let as := if lt (as[mid]'(hs ▸ hms)) (as[high]'(hs ▸ hhs)) then as.swap ⟨mid, hs ▸ hms⟩ ⟨high, hs ▸ hhs⟩ else as
+      let as := if r (as[mid]'(hs ▸ hms)) (as[high]'(hs ▸ hhs)) then as.swap ⟨mid, hs ▸ hms⟩ ⟨high, hs ▸ hhs⟩ else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
       let pivot := as[high]'(hs ▸ hhs)
 
-      -- invariant: lo ≤ k < i → lt as[i] pivot, i ≤ k < j -> ¬lt as[i] pivot
+      -- invariant: lo ≤ k < i → r as[i] pivot, i ≤ k < j -> ¬lt as[i] pivot
       let rec @[specialize] loop (as : Array α) (i j : Nat) (hli: low ≤ i) (hij: i ≤ j) (hjh: j ≤ high) (hhs: high < as.size): {as': Array α // as'.size = as.size}:=
         have _hlh := hlh
         let s := as.size
@@ -106,7 +106,7 @@ namespace Array
         if hjh' : j < high then
           have hjs: j < s := Nat.lt_trans hjh' hhs
 
-          if lt (as[j]'(hs ▸ hjs)) pivot then
+          if r (as[j]'(hs ▸ hjs)) pivot then
             let as := as.swap ⟨i, hs ▸ his⟩ ⟨j, hs ▸ hjs⟩
             have hs: as.size = s := by simp_all only [as, Array.size_swap]
 
@@ -156,13 +156,13 @@ namespace Array
 
   (sort as low (if high < as.size then high else as.size - 1) hhs).1
 
-@[simp] theorem qsort.size_sort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
+@[simp] theorem qsort.size_sort (as : Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
     (hhs: low < high → high < as.size):
-    (qsort.sort lt as low high hhs).1.size = as.size := by
-  exact (qsort.sort lt as low high hhs).2
+    (qsort.sort r as low high hhs).1.size = as.size := by
+  exact (qsort.sort r as low high hhs).2
 
-@[simp] theorem size_qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1):
-    (qsort as lt low high).size = as.size := by
+@[simp] theorem size_qsort (as : Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1):
+    (qsort as r low high).size = as.size := by
   unfold qsort
   split
   all_goals exact (qsort.sort _ _ _ _ _).2
@@ -218,7 +218,7 @@ theorem size_eq {α} {as: Array α} {as': Array α} {low high: Nat}
   | trans _ _ ih ih' => rwa [ih'] at ih
   | swap => simp only [size_swap]
 
-theorem eq_of_trivial (hp: IPerm k k as as' ): as = as' := by
+theorem eq_of_singleton (hp: IPerm k k as as' ): as = as' := by
   induction hp with
   | refl => rfl
   | trans _ _ ih ih' => rw [ih, ih']
@@ -227,13 +227,26 @@ theorem eq_of_trivial (hp: IPerm k k as as' ): as = as' := by
     have hjk: j = k := Nat.le_antisymm hjh hlj
     subst i j
     rw [swap_def]
-    simp
-    rw [set_getElem_eq]
+    apply Array.ext
+    · simp only [size_set]
+    · intro k _ _
+      repeat rw [getElem_set]
+      split
+      all_goals
+        try subst k
+        simp only [get_eq_getElem]
 
-
-
-
-
+theorem eq_of_trivial (hp: IPerm low high as as' ) (h: high ≤ low): as = as' := by
+  by_cases h': high = low
+  · subst high
+    apply eq_of_singleton hp
+  · induction hp with
+    | refl => rfl
+    | trans _ _ ih ih' => rw [ih, ih']
+    | swap as i his hli hih j hjs _ _ =>
+      exfalso
+      have h: high < low := Nat.lt_of_le_of_ne h h'
+      exact Nat.not_lt.mpr (Nat.le_trans hli hih) h
 
 theorem resize_out_of_bounds (hp: IPerm low high as0 as) (hsh': (as0.size - 1) ≤ high'):
   IPerm low high' as0 as := by
@@ -283,29 +296,48 @@ def getElem_higher (hp: IPerm low high as as') (hhk: high < k)
 
 end IPerm
 
-def IForAll (as: Array α) (P: α → Prop) (low high: Nat) :=
+def IForAll (as: Array α) (low high: Nat) (P: α → Prop) :=
   ∀ k, (hks: k < as.size) → low ≤ k → (hkh: k < high) → P (as[k]'hks)
 
-abbrev IForAllSwap (as: Array α) (i j) (his: i < as.size) (hjs: j < as.size) (P: α → Prop) (low high: Nat) :=
-  IForAll (as.swap ⟨i, his⟩ ⟨j, hjs⟩) P low high
+abbrev IForAllSwap (as: Array α) (i j) (his: i < as.size) (hjs: j < as.size) (low high: Nat)(P: α → Prop)  :=
+  IForAll (as.swap ⟨i, his⟩ ⟨j, hjs⟩) low high P
+
+
+def ITrans {α} (as: Array α) (low high: Nat) (r:  α → α → Prop) :=
+  (i: Nat) → (his: i < as.size) → low ≤ i → i ≤ high →
+  (j: Nat) → (hjs: j < as.size) → low ≤ j → j ≤ high →
+  (k: Nat) → (hks: k < as.size) → low ≤ k → k ≤ high →
+  r (as[i]'his) (as[j]'hjs) → r (as[j]'hjs) (as[k]'hks) → r (as[i]'his) (as[k]'hks)
+
+ /--
+ Turns a relation into one that behaves like le
+ If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
+ If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤ a[j]
+  -/
+abbrev le_of_relation (r:  α → α → Bool) (i j: α) := r i j = true ∨ r j i = false
+
+def ITransLeB {α} (as: Array α) (low high: Nat) (r:  α → α → Bool) :=
+  ITrans as low high (le_of_relation r)
+
+def le_of_relation_refl (r:  α → α → Bool) (x: α): (le_of_relation r) x x := by
+  by_cases h: r x x
+  · left
+    exact h
+  · right
+    exact eq_false_of_ne_true h
+
 
 namespace IForAll
-theorem map {P: α → Prop} {Q: α → Prop} (ha: IForAll as P low high) (f: (a: α) → P a → Q a):
-  IForAll as Q low high := by
+theorem map {P: α → Prop} {Q: α → Prop} (ha: IForAll as low high P) (f: (a: α) → P a → Q a):
+  IForAll as low high Q := by
   intro k hks hlk hkh
   specialize ha k hks hlk hkh
   exact f as[k] ha
 
-theorem restrict (ha: IForAll as P low high)
-    (hll: low ≤ low') (hhh: high' ≤ high)
-  : IForAll as P low' high' := by
-  intro k hks hlk' hkh'
-  exact ha k hks (Nat.le_trans hll hlk') (Nat.le_trans hkh' hhh)
-
 theorem swap_left {as: Array α} {P: α → Prop} {low: Nat} {i j: Nat}
     (hij: i ≤ j) {hjs: j < as.size} (hjp: P (as[j]'hjs))
-    (ha: IForAll as P low i):
-    IForAllSwap as i j (Nat.lt_of_le_of_lt hij hjs) hjs P low (i + 1) := by
+    (ha: IForAll as low i P):
+    IForAllSwap as i j (Nat.lt_of_le_of_lt hij hjs) hjs low (i + 1) P := by
   intro k hks hlk hki1
   rw [size_swap] at hks
   simp only [swap_def]
@@ -328,8 +360,8 @@ theorem swap_left {as: Array α} {P: α → Prop} {low: Nat} {i j: Nat}
       exact hij (Eq.symm h)
 
 theorem swap_right {as: Array α} {P: α → Prop} {i j: Nat} (hij: i ≤ j) (hjs: j < as.size)
-    (hb: IForAll as P i j):
-    IForAllSwap as i j (Nat.lt_of_le_of_lt hij hjs) hjs P (i + 1) (j + 1) := by
+    (hb: IForAll as i j P):
+    IForAllSwap as i j (Nat.lt_of_le_of_lt hij hjs) hjs (i + 1) (j + 1) P := by
   intro k hks hi1x hkj1
   rw [size_swap] at hks
   simp only [swap_def]
@@ -346,7 +378,7 @@ theorem swap_right {as: Array α} {P: α → Prop} {i j: Nat} (hij: i ≤ j) (hj
 
 theorem of_swap {as: Array α} {P: α → Prop} {low high i j: Nat} (hli: low ≤ i) (hij: i ≤ j) (hjh: j < high) {hjs: j < as.size}
     (h: IForAllSwap as i j (Nat.lt_of_le_of_lt hij hjs) hjs
-      P low high): IForAll as P low high := by
+      low high P): IForAll as low high P := by
   have his := Nat.lt_of_le_of_lt hij hjs
   intro k hks hlk hkh
   simp [IForAllSwap, IForAll, size_swap, swap_def] at h
@@ -369,49 +401,103 @@ theorem of_swap {as: Array α} {P: α → Prop} {low high i j: Nat} (hli: low �
   rwa [getElem_set_ne] at h
   · exact Ne.symm hki
   · exact Ne.symm hkj
+end IForAll
 
-theorem transport_enclosing {low high : Nat} {as as' : Array α}
-    (h : as.IForAll P low high)
+set_option hygiene false in
+macro "transport_lemmas"
+  α:ident
+  "(" T:term ")"
+  "(" Ts:term* ")"
+  "(" ub:term ")"
+  "(" ub':term ")"
+  trans:ident
+  not_trans:ident
+  intros:num : command =>
+`(
+  theorem restrict {as: Array $α} {low high low' high': Nat} (ha: $T as low high $Ts*)
+    (hll: low ≤ low') (hhh: high' ≤ high)
+    : $T as low' high' $Ts* := by
+  iterate $intros intro _
+  apply ha
+  all_goals
+    try first
+    | apply Nat.le_trans hll _
+    | apply Nat.le_trans _ hhh
+    assumption
+
+  theorem transport_enclosing {as as': Array $α} {low high plow phigh: Nat}
+    (h : $T as low high $Ts*)
     (hp : IPerm plow phigh as as')
     (hll: low ≤ plow)
-    (hhh: phigh < high):
-    as'.IForAll P low high := by
+    (hhh: $ub phigh high) :
+    $T as' low high $Ts* := by
   induction hp with
   | refl => exact h
   | trans _ _ ih ih' => exact ih' (ih h)
-  | swap as i his hpli hiph j hjs hplj hjph  =>
-    intro k hks hlk hkh
+  | swap as a has hpla haph b hbs hplb hbph =>
+    have hla := Nat.le_trans hll hpla
+    have hlb := Nat.le_trans hll hplb
+    have hah := $trans haph hhh
+    have hbh := $trans hbph hhh
+    iterate $intros intro _
     simp [swap_def]
-    rw [getElem_set]
-    rw [getElem_set]
-    split
-    · exact h i his (Nat.le_trans hll hpli) (Nat.lt_of_le_of_lt hiph hhh)
-    · split
-      · exact h j hjs (Nat.le_trans hll hplj) (Nat.lt_of_le_of_lt hjph hhh)
-      · simp [size_swap] at hks
-        exact h k hks hlk hkh
+    repeat rw [getElem_set]
+    repeat any_goals split
+    all_goals
+      apply h
+      all_goals assumption
 
-theorem transport_outside {low high : Nat} {as as' : Array α}
-    (h : as.IForAll P low high)
+  theorem transport_outside {as as': Array $α} {low high plow phigh: Nat}
+    (h : $T as low high $Ts*)
     (hp : IPerm plow phigh as as')
-    (hd: (k: Nat) → (hlk: low ≤ k) → (hkh: k < high) → (hplk: plow ≤ k) → (hkph: k ≤ phigh) → False):
-    as'.IForAll P low high := by
-induction hp with
-| refl => exact h
-| trans _ _ ih ih' => exact ih' (ih h)
-| swap as i his hli hih j hjs hlj hjh  =>
-  intro k hks hlk hkh
-  simp [swap_def]
-  repeat rw [getElem_set_ne]
-  · simp [size_swap] at hks
-    exact h k hks hlk hkh
-  all_goals
-    intro he
-    simp only at he
-    subst k
-  · exact hd i hlk hkh hli hih
-  · exact hd j hlk hkh hlj hjh
+    (hd: (k: Nat) → (hlk: low ≤ k) → (hkh: $ub k high) → (hplk: plow ≤ k) → (hkph: k ≤ phigh) → False):
+    $T as' low high $Ts* := by
+  induction hp with
+  | refl => exact h
+  | trans _ _ ih ih' => exact ih' (ih h)
+  | swap as i his hli hih j hjs hlj hjh  =>
+    iterate $intros intro _
+    simp [swap_def]
+    repeat rw [getElem_set_ne]
+    · apply h
+      all_goals assumption
+    all_goals
+      intro he
+      subst_eqs
+      apply hd
+      all_goals assumption
 
+  theorem transport_lower {as as': Array $α} {low high plow phigh: Nat}
+    (h : $T as low high $Ts*)
+    (hp : IPerm plow phigh as as')
+    (hd: $ub' high plow):
+    $T as' low high $Ts* := by
+  apply transport_outside h hp
+  intro k _ hkh hplk _
+  exact $not_trans ($trans hplk hkh) hd
+
+  theorem transport_higher {as as': Array $α} {low high plow phigh: Nat}
+    (h : $T as low high $Ts*)
+    (hp : IPerm plow phigh as as')
+    (hd: phigh < low):
+    $T as' low high $Ts* := by
+  apply transport_outside h hp
+  intro k hlk _ _ hkph
+  exact Nat.not_lt.mpr (Nat.le_trans hlk hkph) hd
+)
+
+namespace IForAll
+variable {α} {P: α → Prop}
+transport_lemmas α (IForAll) (P) (LT.lt) (LE.le) Nat.lt_of_le_of_lt Nat.not_le.mpr 4
+end IForAll
+
+namespace ITrans
+variable {α} {r: α → α → Prop}
+
+transport_lemmas α (ITrans) (r) (LE.le) (LT.lt) Nat.le_trans Nat.not_lt.mpr 12
+end ITrans
+
+/-
 theorem transport_lower {low high : Nat} {as as' : Array α}
     (h : as.IForAll P low high)
     (hp : IPerm plow phigh as as')
@@ -420,6 +506,15 @@ theorem transport_lower {low high : Nat} {as as' : Array α}
   apply h.transport_outside hp
   intro k _ hkh hplk _
   exact Nat.not_le.mpr (Nat.lt_of_le_of_lt hplk hkh) hd
+
+theorem transport_lower' {low high : Nat} {as as' : Array α}
+    (h : as.ITrans low high rel)
+    (hp : IPerm plow phigh as as')
+    (hd: high < plow):
+    as'.ITrans low high rel := by
+  apply transport_outside' h hp
+  intro k _ hkh hplk _
+  exact Nat.not_lt.mpr (Nat.le_trans hplk hkh) hd
 
 theorem transport_higher {low high : Nat} {as as' : Array α}
     (h : as.IForAll P low high)
@@ -430,35 +525,139 @@ theorem transport_higher {low high : Nat} {as as' : Array α}
   intro k hlk _ _ hkph
   exact Nat.not_lt.mpr (Nat.le_trans hlk hkph) hd
 
-end IForAll
-
-def IsTrans {α} (r: α → α → Prop) :=
-  {x: α} → {y: α} → {z: α} → r x y → r y z → r x z
-
-/-
-structure IsMultiTrans {α} (r: α → α → Prop) where
-  -pos: {x: α} → {y: α} → {z: α} → r x y → r y z → r x z
-  neg: {x: α} → {y: α} → {z: α} → ¬r x y → ¬r y z → ¬r x z
-  -p_of_pn: {x: α} → {y: α} → {z: α} → r x y → ¬r z y → r x z
-  -p_of_np: {x: α} → {y: α} → {z: α} → ¬r y x → r y z → r x z
-  n_of_np: {x: α} → {y: α} → {z: α} → ¬r x y → r z y → ¬r x z
-  n_of_pn: {x: α} → {y: α} → {z: α} → r y x → ¬r y z → ¬r x z
+theorem transport_higher' {low high : Nat} {as as' : Array α}
+    (h : as.ITrans low high rel)
+    (hp : IPerm plow phigh as as')
+    (hd: phigh < low):
+    as'.ITrans low high rel := by
+  apply transport_outside' h hp
+  intro k hlk _ _ hkph
+  exact Nat.not_lt.mpr (Nat.le_trans hlk hkph) hd
 -/
 
- /--
- If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
- If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤  a[j]
-  -/
-abbrev le_of_any_b (r: α → α → Bool) (i j: α) := r i j = true ∨ r j i = false
+/-
+theorem transport_enclosing
+    (h : as.IForAll low high P)
+    (hp : IPerm plow phigh as as')
+    (hll: low ≤ plow)
+    (hhh: phigh < high):
+    as'.IForAll low high P := by
+  induction hp with
+  | refl => exact h
+  | trans _ _ ih ih' => exact ih' (ih h)
+  | swap as a has hpla haph b hbs hplb hbph =>
+    have hla := Nat.le_trans hll hpla
+    have hlb := Nat.le_trans hll hplb
+    have hah := Nat.lt_of_le_of_lt haph hhh
+    have hbh := Nat.lt_of_le_of_lt hbph hhh
+    iterate 4 intro _
+    simp [swap_def]
+    repeat rw [getElem_set]
+    repeat any_goals split
+    all_goals
+      apply h
+      any_goals assumption
 
-def le_of_any_b_refl (r: α → α → Bool) (x: α): (le_of_any_b r) x x := by
-  by_cases h: r x x
-  · left
-    exact h
-  · right
-    exact eq_false_of_ne_true h
+theorem transport_enclosing'
+    (h : as.ITrans low high r)
+    (hp : IPerm plow phigh as as')
+    (hll: low ≤ plow)
+    (hhh: phigh ≤ high):
+    as'.ITrans low high r := by
+  induction hp with
+  | refl => exact h
+  | trans _ _ ih ih' => exact ih' (ih h)
+  | swap as a has hpla haph b hbs hplb hbph =>
+    have hla := Nat.le_trans hll hpla
+    have hlb := Nat.le_trans hll hplb
+    have hah := Nat.le_trans haph hhh
+    have hbh := Nat.le_trans hbph hhh
+    iterate 12 intro _
+    simp [swap_def]
+    repeat rw [getElem_set]
+    repeat any_goals split
+    all_goals
+      apply h
+      all_goals assumption
 
-def IPairwise (r: α → α → Prop) (low: Nat) (high: Nat) (as: Array α) :=
+theorem transport_outside {low high : Nat} {as as' : Array α}
+    (h : as.IForAll low high P)
+    (hp : IPerm plow phigh as as')
+    (hd: (k: Nat) → (hlk: low ≤ k) → (hkh: k < high) → (hplk: plow ≤ k) → (hkph: k ≤ phigh) → False):
+    as'.IForAll low high P := by
+induction hp with
+| refl => exact h
+| trans _ _ ih ih' => exact ih' (ih h)
+| swap as i his hli hih j hjs hlj hjh  =>
+  iterate 4 intro _
+  simp [swap_def]
+  repeat rw [getElem_set_ne]
+  · apply h
+    all_goals assumption
+  all_goals
+    intro he
+    subst_eqs
+    apply hd
+    all_goals assumption
+
+theorem transport_outside'
+    (h : as.ITrans low high r)
+    (hp : IPerm plow phigh as as')
+    (hd: (k: Nat) → (hlk: low ≤ k) → (hkh: k ≤  high) → (hplk: plow ≤ k) → (hkph: k ≤ phigh) → False):
+    as'.ITrans low high r := by
+induction hp with
+| refl => exact h
+| trans _ _ ih ih' => exact ih' (ih h)
+| swap as i his hli hih j hjs hlj hjh  =>
+  iterate 12 intro _
+  simp [swap_def]
+  repeat rw [getElem_set_ne]
+  · apply h
+    all_goals assumption
+  all_goals
+    intro he
+    subst_eqs
+    apply hd
+    all_goals assumption
+
+theorem transport_lower {low high : Nat} {as as' : Array α}
+    (h : as.IForAll low high P)
+    (hp : IPerm plow phigh as as')
+    (hd: high ≤ plow):
+    as'.IForAll low high P := by
+  apply h.transport_outside hp
+  intro k _ hkh hplk _
+  exact Nat.not_le.mpr (Nat.lt_of_le_of_lt hplk hkh) hd
+
+theorem transport_lower' {low high : Nat} {as as' : Array α}
+    (h : as.ITrans low high rel)
+    (hp : IPerm plow phigh as as')
+    (hd: high < plow):
+    as'.ITrans low high rel := by
+  apply transport_outside' h hp
+  intro k _ hkh hplk _
+  exact Nat.not_lt.mpr (Nat.le_trans hplk hkh) hd
+
+theorem transport_higher {low high : Nat} {as as' : Array α}
+    (h : as.IForAll low high P)
+    (hp : IPerm plow phigh as as')
+    (hd: phigh < low):
+    as'.IForAll low high P := by
+  apply h.transport_outside hp
+  intro k hlk _ _ hkph
+  exact Nat.not_lt.mpr (Nat.le_trans hlk hkph) hd
+
+theorem transport_higher' {low high : Nat} {as as' : Array α}
+    (h : as.ITrans low high rel)
+    (hp : IPerm plow phigh as as')
+    (hd: phigh < low):
+    as'.ITrans low high rel := by
+  apply transport_outside' h hp
+  intro k hlk _ _ hkph
+  exact Nat.not_lt.mpr (Nat.le_trans hlk hkph) hd
+-/
+
+def IPairwise (r:  α → α → Prop) (low high: Nat) (as: Array α) :=
    ∀ i j, (hli: low ≤ i) → (hij: i < j) → (hjh: j ≤ high) → (hjs: j < as.size) →
   r (as[i]'(Nat.lt_trans hij hjs)) (as[j]'hjs)
 
@@ -466,8 +665,8 @@ def IPairwise (r: α → α → Prop) (low: Nat) (high: Nat) (as: Array α) :=
 If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
 If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤  a[j]
  -/
-abbrev IOrdered (r: α → α → Bool) (low: Nat) (high: Nat) (as: Array α) :=
-  IPairwise (le_of_any_b (r · ·)) low high as
+abbrev IPairwiseLeB (r:  α → α → Bool) (low: Nat) (high: Nat) (as: Array α) :=
+  IPairwise (le_of_relation (r · ·)) low high as
 
 namespace IPairwise
 theorem mkSingle (r : α → α → Prop) (k: Nat) (as: Array α):
@@ -534,11 +733,12 @@ theorem transport_higher
   intro k hlk _ _ hkph
   exact Nat.not_lt.mpr (Nat.le_trans hlk hkph) hd
 
+/-
 theorem glue_with_pivot
     {r : α → α → Prop} {low high : Nat} {pivot : α} {i : Nat} {as : Array α}
-    (ha : as.IForAll (r · pivot) low (i + 1))
-    (hb : as.IForAll (r pivot ·) (i + 1) (high + 1))
-    (hlttr : IsTrans r)
+    (ha : as.IForAll low (i + 1) (r · pivot))
+    (hb : as.IForAll (i + 1) (high + 1) (r pivot ·))
+    (hrtle : ITrans as low high r)
     (h1 : IPairwise r low i as)
     (h2 : IPairwise r (i + 1) high as):
     IPairwise r low high as := by
@@ -556,14 +756,15 @@ theorem glue_with_pivot
   have hai: a < i + 1 := by exact Nat.gt_of_not_le hia
   specialize ha a has hla hai
   specialize hb b hbs hib (Nat.lt_add_one_of_le hbh)
-  exact hlttr ha hb
+  exact hrtle ha hb
+-/
 
 theorem glue_with_middle
     {r : α → α → Prop} {low high : Nat} {i : Nat} {as : Array α}
     (his: i < as.size)
-    (ha : as.IForAll (r · (as[i]'his)) low i)
-    (hb : as.IForAll (r (as[i]'his) ·) (i + 1) (high + 1))
-    (hlttr : IsTrans r)
+    (ha : as.IForAll low i (r · (as[i]'his)))
+    (hb : as.IForAll (i + 1) (high + 1) (r (as[i]'his) ·))
+    (hrtle : ITrans as low high r)
     (h1 : IPairwise r low (i - 1) as)
     (h2 : IPairwise r (i + 1) high as):
     IPairwise r low high as := by
@@ -580,12 +781,17 @@ theorem glue_with_middle
 
   have hai: a ≤ i := by exact Nat.le_of_not_lt hia
 
-  have ha: a < i → r as[a] (as[i]'his) := λ hai' ↦ ha a has hla hai'
-  have hb: i < b → r (as[i]'his) as[b] := λ hib' ↦ hb b hbs hib' (Nat.lt_add_one_of_le hbh)
+  have ha: a < i → r (as[a]'has) (as[i]'his) := λ hai' ↦ ha a has hla hai'
+  have hb: i < b → r (as[i]'his) (as[b]'hbs) := λ hib' ↦ hb b hbs hib' (Nat.lt_add_one_of_le hbh)
+
+  have hah := Nat.le_trans (Nat.le_of_lt hab) hbh
+  have hli := Nat.le_trans hla hai
+  have hih := Nat.le_trans hib hbh
+  have hlb := Nat.le_trans hla (Nat.le_of_lt hab)
 
   by_cases hai': a < i
   · by_cases hib': i < b
-    · exact hlttr (ha hai') (hb hib')
+    · exact hrtle a has hla hah i his hli hih b hbs hlb hbh (ha hai') (hb hib')
     · have hib: i = b := by exact Nat.le_antisymm hib (Nat.le_of_not_lt hib')
       subst b
       exact (ha hai')
@@ -597,9 +803,9 @@ theorem glue_with_middle_eq_pivot
     {r : α → α → Prop} {low high : Nat} {i : Nat} {as : Array α}
     (his: i < as.size)
     (hpi: as[i]'his = pivot)
-    (ha : as.IForAll (r · pivot) low i)
-    (hb : as.IForAll (r pivot ·) (i + 1) (high + 1))
-    (hlttr : IsTrans r)
+    (ha : as.IForAll low i (r · pivot))
+    (hb : as.IForAll (i + 1) (high + 1) (r pivot ·))
+    (hrtle : ITrans as low high r)
     (h1 : IPairwise r low (i - 1) as)
     (h2 : IPairwise r (i + 1) high as):
     IPairwise r low high as := by
@@ -623,46 +829,51 @@ theorem getElem_after_swap {as: Array α} {i j high: Nat} (hij: i ≤ j) (hjh: j
   · exact Nat.ne_of_lt (Nat.lt_of_le_of_lt hij hjh)
   · exact Nat.ne_of_lt (hjh)
 
-structure ISortOf (lt: α → α → Bool) (low high: Nat) (orig: Array α) (sorted: Array α): Prop where
+structure ISortOf (r: α → α → Bool) (low high: Nat) (orig: Array α) (sorted: Array α): Prop where
   perm: IPerm low high orig sorted
-  ord: IOrdered lt low high sorted
+  ord: IPairwiseLeB r low high sorted
 
 namespace ISortOf
-theorem mkSingle (lt : α → α → Bool) (k: Nat) (as0: Array α) (as: Array α) (hp: IPerm k k as0 as):
-    ISortOf lt k k as0 as := ⟨hp, .mkSingle (le_of_any_b lt) k as⟩
+theorem mkSingle (r: α → α → Bool) (k: Nat) (as0: Array α) (as: Array α) (hp: IPerm k k as0 as):
+    ISortOf r k k as0 as := ⟨hp, .mkSingle (le_of_relation r) k as⟩
 
-theorem trans {lt: α → α → Bool} {low high: Nat} {as as' as'': Array α}
-    (hp: IPerm low high as as') (hs: ISortOf lt low high as' as''):
-    (ISortOf lt low high as as'') := by
+theorem trans {r: α → α → Bool} {low high: Nat} {as as' as'': Array α}
+    (hp: IPerm low high as as') (hs: ISortOf r low high as' as''):
+    (ISortOf r low high as as'') := by
   constructor
   case perm => exact hp.trans hs.perm
   case ord => exact hs.ord
 
-theorem resize_out_of_bounds (h: ISortOf lt low high as0 as) (hsh: (as.size - 1) ≤ high) (hsh': (as0.size - 1) ≤ high'):
-  ISortOf lt low high' as0 as := by
+theorem resize_out_of_bounds (h: ISortOf r low high as0 as) (hsh: (as.size - 1) ≤ high) (hsh': (as0.size - 1) ≤ high'):
+  ISortOf r low high' as0 as := by
   constructor
   case perm => exact h.perm.resize_out_of_bounds hsh'
   case ord => exact h.ord.resize_out_of_bounds hsh
 end ISortOf
 
 mutual
-  theorem qsort.sort_sort_sorts (lt : α → α → Bool) (low high : Nat) (pivot : α) (i : Nat) (as: Array α)
+  theorem qsort.sort_sort_sorts (r: α → α → Bool) (low high : Nat) (pivot : α) (i : Nat) (as: Array α)
       (hlh: low < high) (hli : low ≤ i) (hih : i ≤ high) (hhs : high < as.size)
       (hpi: as[i]'(Nat.lt_of_le_of_lt hih hhs) = pivot)
-      (ha: IForAll as ((le_of_any_b lt) · pivot) low (i + 1))
-      (hb: IForAll as ((le_of_any_b lt) pivot ·) (i + 1) (high + 1))
-      (hlttr: IsTrans (le_of_any_b lt)):
-      have ⟨as', hs'⟩ := qsort.sort lt as low (i - 1) (λ _ ↦ Nat.lt_of_le_of_lt (Nat.sub_le i 1) (Nat.lt_of_le_of_lt hih hhs))
-      ISortOf lt low high as (qsort.sort lt as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
+      (ha: IForAll as low (i + 1) ((le_of_relation r) · pivot))
+      (hb: IForAll as (i + 1) (high + 1) ((le_of_relation r) pivot ·))
+      (hrtle: ITransLeB as low high r):
+      have ⟨as', hs'⟩ := qsort.sort r as low (i - 1) (λ _ ↦ Nat.lt_of_le_of_lt (Nat.sub_le i 1) (Nat.lt_of_le_of_lt hih hhs))
+      ISortOf r low high as (qsort.sort r as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
     have his := Nat.lt_of_le_of_lt hih hhs
     have h1ih: i - 1 ≤ high := Nat.le_trans (Nat.sub_le i 1) hih
     have h1is: i - 1 < as.size := Nat.lt_of_le_of_lt h1ih hhs
 
-    have h1 := qsort.sort_sorts as lt low (i - 1) (λ _ ↦ h1is) hlttr
-    let ahs' := qsort.sort lt as low (i - 1) (λ _ ↦ h1is)
+    have h1 := qsort.sort_sorts as r low (i - 1) (λ _ ↦ h1is) (hrtle.restrict (Nat.le_refl _) h1ih)
+
+    let ahs' := qsort.sort r as low (i - 1) (λ _ ↦ h1is)
     let as' := ahs'.1
     let hs' := ahs'.2
-    have h2 := qsort.sort_sorts as' lt (i + 1) high (λ _ ↦ hs' ▸ hhs) hlttr
+    have h2 := by
+      apply qsort.sort_sorts as' r (i + 1) high (λ _ ↦ hs' ▸ hhs) ((hrtle.restrict ?_ ?_).transport_higher h1.perm ?_)
+      · exact Nat.le_add_right_of_le hli
+      · exact Nat.le_refl _
+      · exact Nat.sub_lt_succ i 1
 
     constructor
     case perm =>
@@ -672,7 +883,12 @@ mutual
 
     case ord =>
       apply IPairwise.glue_with_middle_eq_pivot
-      case hlttr => exact hlttr
+      case hrtle =>
+        apply (hrtle.transport_enclosing h1.perm ?_ ?_).transport_enclosing h2.perm ?_ ?_
+        · exact Nat.le_refl _
+        · exact h1ih
+        · exact Nat.le_add_right_of_le hli
+        · exact Nat.le_refl _
       case i => exact i
       case his => simpa [qsort.size_sort]
       case ha =>
@@ -703,20 +919,23 @@ mutual
           subst i
           have: low = 0 := by exact Nat.eq_zero_of_le_zero hli
           subst low
-          simp
-          rw [h1.perm.getElem_empty]
+          simp_all
+          simp [h1.perm.eq_of_trivial]
+          rw [h2.perm.getElem_lower]
+          exact Nat.one_pos
+
       case h1 =>
         apply h1.ord.transport_lower h2.perm (Nat.sub_lt_succ i 1)
       case h2 => exact h2.ord
       termination_by (high - low, 0, 0)
 
-  theorem qsort.sort_loop_sorts (lt : α → α → Bool) (low high : Nat) (hlh: low < high) (as: Array α)
+  theorem qsort.sort_loop_sorts (r: α → α → Bool) (low high : Nat) (hlh: low < high) (as: Array α)
       {pivot : α} (i j : Nat)
       (hli : low ≤ i) (hij : i ≤ j) (hjh : j ≤ high) (hhs : high < as.size) (hph: as[high]'hhs = pivot)
-      (ha: IForAll as (lt · pivot) low i)
-      (hb: IForAll as (lt · pivot = false) i j)
-      (hlttr: IsTrans (le_of_any_b lt)):
-      ISortOf lt low high as (qsort.sort.loop lt low high hlh pivot as i j hli hij hjh hhs) := by
+      (ha: IForAll as low i (r · pivot))
+      (hb: IForAll as i j (r · pivot = false))
+      (hrtle: ITransLeB as low high r):
+      ISortOf r low high as (qsort.sort.loop r low high hlh pivot as i j hli hij hjh hhs) := by
     unfold qsort.sort.loop
 
     have hjs: j < as.size := Nat.lt_of_le_of_lt hjh hhs
@@ -729,7 +948,7 @@ mutual
 
     case pos =>
       have hjs: j < as.size := Nat.lt_trans hjh' hhs
-      by_cases hjp: lt (as[j]'hjs) pivot = true
+      by_cases hjp: r (as[j]'hjs) pivot = true
       all_goals simp only [hjp, Bool.false_eq_true, ↓reduceIte]
 
       case pos =>
@@ -739,7 +958,7 @@ mutual
           case hph => simpa only [getElem_after_swap hij hjh' hhs]
           case ha => exact ha.swap_left hij hjp
           case hb => exact hb.swap_right hij hjs
-          case hlttr => exact hlttr
+          case hrtle => exact hrtle.transport_enclosing (IPerm.swap _ _ _ hli hih _ _ hlj hjh) (Nat.le_refl _) (Nat.le_refl _)
         case hp => exact .swap as i his hli hih j hjs hlj hjh
 
       case neg =>
@@ -759,7 +978,7 @@ mutual
               subst k
               exact eq_false_of_ne_true hjp
 
-          case hlttr => exact hlttr
+          case hrtle => exact hrtle
         case hp => exact .refl
 
     case neg =>
@@ -770,42 +989,54 @@ mutual
         apply qsort.sort_sort_sorts
         case hhs => simpa [size_swap]
         case ha =>
-          let ha: as.IForAll (le_of_any_b lt · pivot) low i := ha.map (λ x a ↦ by
+          let ha: as.IForAll low i (le_of_relation r · pivot) := ha.map (λ x a ↦ by
             left
             exact a)
 
-          exact (hph ▸ ha).swap_left hij (le_of_any_b_refl lt _)
+          exact (hph ▸ ha).swap_left hij (le_of_relation_refl r _)
         case hb =>
-          let hb: as.IForAll (le_of_any_b lt pivot ·) i high := hb.map (λ x a ↦ by
+          let hb: as.IForAll i high (le_of_relation r pivot ·) := hb.map (λ x a ↦ by
             right
             exact a)
           exact (hph ▸ hb).swap_right hij hhs
-        case hlttr => exact hlttr
+        case hrtle => exact hrtle.transport_enclosing (IPerm.swap _ _ _ hli hih _ _ hlj hjh) (Nat.le_refl _) (Nat.le_refl _)
         case hli => exact hli
         case hih => exact hih
         case hlh => exact hlh
+        case hpi =>
+          simp only [swap_def, get_eq_getElem, getElem_set, getElem_set_eq, ite_eq_right_iff, ↓reduceIte]
+          intro h
+          simp only [h]
       case hp =>
         exact IPerm.swap as i his hli hih high hhs (Nat.le_of_lt hlh) (Nat.le_refl _)
     termination_by (high - low, 1, high - j)
 
-  theorem qsort.sort_loop_pivot_swap_sorts (lt : α → α → Bool) (low high : Nat) (hlh: low < high) (as: Array α)
+  theorem qsort.sort_loop_pivot_swap_sorts (r: α → α → Bool) (low high : Nat) (hlh: low < high) (as: Array α)
       (mid: Nat) (hlm: low ≤ mid) (hmh: mid < high) (hhs : high < as.size)
-      (hlttr: IsTrans (le_of_any_b lt)):
+      (hrtle: ITransLeB as low high r):
 
-      let as' := if lt (as[mid]'(Nat.lt_trans hmh hhs)) (as[high]'hhs) then as.swap ⟨mid, Nat.lt_trans hmh hhs⟩ ⟨high, hhs⟩ else as
+      let as' := if r (as[mid]'(Nat.lt_trans hmh hhs)) (as[high]'hhs) then as.swap ⟨mid, Nat.lt_trans hmh hhs⟩ ⟨high, hhs⟩ else as
       have hs': as'.size = as.size := by dsimp only [as']; split; all_goals simp_all only [Array.size_swap]
 
-      ISortOf lt low high as (qsort.sort.loop lt low high hlh (as'[high]'(hs' ▸ hhs)) as' low low
+      ISortOf r low high as (qsort.sort.loop r low high hlh (as'[high]'(hs' ▸ hhs)) as' low low
         (Nat.le_refl low) (Nat.le_refl low) (Nat.le_trans hlm (Nat.le_of_lt hmh)) (hs' ▸ hhs)).1 := by
     have hms := Nat.lt_trans hmh hhs
     have hlh := Nat.le_trans hlm (Nat.le_of_lt hmh)
 
-    have hmh': mid ≠ high := Nat.ne_of_lt hmh
     apply ISortOf.trans
     case hs =>
       apply qsort.sort_loop_sorts
       case hph => rfl
-      case hlttr => exact hlttr
+      case hrtle =>
+        apply hrtle.transport_enclosing ?_ (Nat.le_refl _) (Nat.le_refl _)
+        apply IPerm.ite
+        · apply IPerm.swap
+          all_goals
+            first
+            | apply Nat.le_refl _
+            | assumption
+            | apply Nat.le_of_lt; assumption
+        · apply IPerm.refl
       all_goals
         intro k hks hlk hkl
         have hll: low < low := Nat.lt_of_le_of_lt hlk hkl
@@ -819,11 +1050,11 @@ mutual
         exact .refl
     termination_by (high - low, 2, 0)
 
-  theorem qsort.sort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
+  theorem qsort.sort_sorts (as: Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
       (hhs: low < high → high < as.size)
       -- TODO: to use this less constrained version, we need proofs that as'es are a permutation of eac hother
-      (hlttr: IsTrans (le_of_any_b lt)):
-      ISortOf lt low high as (qsort.sort lt as low high hhs) := by
+      (hrtle: ITransLeB as low high r):
+      ISortOf r low high as (qsort.sort r as low high hhs) := by
       unfold qsort.sort
       by_cases hlh: low ≥ high
       case pos =>
@@ -850,35 +1081,36 @@ mutual
           case hlm => exact Nat.left_le_add_div_two.mpr hlh'
           case hmh => exact Nat.add_div_two_lt_right.mpr hlh
 
-          case hlttr => exact hlttr
-
-        case hp =>
-          repeat any_goals
-            first
-            | apply Nat.le_refl
-            | apply Nat.add_div_two_le_right_of_le
-            | apply Nat.left_le_add_div_two.mpr
-            | apply IPerm.refl
-            | apply IPerm.ite
-            | apply IPerm.trans_swap
-            | assumption
+          case hrtle =>
+            apply hrtle.transport_enclosing ?hp (Nat.le_refl _) (Nat.le_refl _)
+            repeat any_goals
+              first
+              | apply Nat.le_refl
+              | apply Nat.add_div_two_le_right_of_le
+              | apply Nat.left_le_add_div_two.mpr
+              | apply IPerm.refl
+              | apply IPerm.ite
+              | apply IPerm.trans_swap
+              | assumption
     termination_by ((sizeOf high) - (sizeOf low), 3, 0)
 end
 
-theorem qsort_sorts (as: Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1)
-    (hlttr: IsTrans (le_of_any_b lt)):
-    ISortOf lt low high as (qsort as lt low high)  := by
+theorem qsort_sorts (as: Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
+    (hrtle: ITransLeB as low high r):
+    ISortOf r low high as (qsort as r low high)  := by
     unfold qsort
     split
     case isTrue =>
       apply qsort.sort_sorts
-      · exact hlttr
+      · exact hrtle
     case isFalse h =>
+      have hsh: as.size - 1 ≤ high := by
+        apply Nat.sub_le_of_le_add
+        exact Nat.le_add_right_of_le (Nat.le_of_not_lt h)
       apply ISortOf.resize_out_of_bounds
       · apply qsort.sort_sorts
-        · exact hlttr
+        · exact hrtle.restrict (Nat.le_refl _) hsh
       · simp only [qsort.size_sort, Nat.le_refl]
-      · apply Nat.sub_le_of_le_add
-        exact Nat.le_add_right_of_le (Nat.le_of_not_lt h)
+      · exact hsh
 
 end Array

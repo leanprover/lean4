@@ -64,7 +64,7 @@ end Nat
 
 namespace Array
 
-@[inline] def qsort (as : Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
+@[inline] def qsort (as : Array α) (f: α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat)
       (hhs: low < high → high < as.size): {as': Array α // as'.size = as.size} :=
     let s := as.size
@@ -85,13 +85,13 @@ namespace Array
       have hmh: mid ≤ high := Nat.add_div_two_le_right_of_le (Nat.le_of_lt hlh)
       have hms: mid < s := Nat.lt_of_le_of_lt hmh hhs
 
-      let as := if r (as[mid]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
+      let as := if f (as[mid]'(hs ▸ hms)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨mid, hs ▸ hms⟩ else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-      let as := if r (as[high]'(hs ▸ hhs)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨high, hs ▸ hhs⟩  else as
+      let as := if f (as[high]'(hs ▸ hhs)) (as[low]'(hs ▸ hls)) then as.swap ⟨low, hs ▸ hls⟩ ⟨high, hs ▸ hhs⟩  else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
-      let as := if r (as[mid]'(hs ▸ hms)) (as[high]'(hs ▸ hhs)) then as.swap ⟨mid, hs ▸ hms⟩ ⟨high, hs ▸ hhs⟩ else as
+      let as := if f (as[mid]'(hs ▸ hms)) (as[high]'(hs ▸ hhs)) then as.swap ⟨mid, hs ▸ hms⟩ ⟨high, hs ▸ hhs⟩ else as
       have hs: as.size = s := by dsimp only [as]; split; all_goals simp_all only [Array.size_swap]
 
       let pivot := as[high]'(hs ▸ hhs)
@@ -106,7 +106,7 @@ namespace Array
         if hjh' : j < high then
           have hjs: j < s := Nat.lt_trans hjh' hhs
 
-          if r (as[j]'(hs ▸ hjs)) pivot then
+          if f (as[j]'(hs ▸ hjs)) pivot then
             let as := as.swap ⟨i, hs ▸ his⟩ ⟨j, hs ▸ hjs⟩
             have hs: as.size = s := by simp_all only [as, Array.size_swap]
 
@@ -156,13 +156,13 @@ namespace Array
 
   (sort as low (if high < as.size then high else as.size - 1) hhs).1
 
-@[simp] theorem qsort.size_sort (as : Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
+@[simp] theorem qsort.size_sort (as : Array α) (f: α → α → Bool) (low := 0) (high := as.size - 1)
     (hhs: low < high → high < as.size):
-    (qsort.sort r as low high hhs).1.size = as.size := by
-  exact (qsort.sort r as low high hhs).2
+    (qsort.sort f as low high hhs).1.size = as.size := by
+  exact (qsort.sort f as low high hhs).2
 
-@[simp] theorem size_qsort (as : Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1):
-    (qsort as r low high).size = as.size := by
+@[simp] theorem size_qsort (as : Array α) (f: α → α → Bool) (low := 0) (high := as.size - 1):
+    (qsort as f low high).size = as.size := by
   unfold qsort
   split
   all_goals exact (qsort.sort _ _ _ _ _).2
@@ -416,20 +416,69 @@ abbrev ITrans (r:  α → α → Prop) :=
  If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
  If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤ a[j]
   -/
-abbrev le_of_relation (r:  α → α → Bool) (i j: α) := r i j = true ∨ r j i = false
+abbrev Completion (r:  α → α → Prop) := λ x y ↦ r x y ∨ ¬r y x
 
-abbrev ITransLeB (r:  α → α → Bool) :=
-  ITrans (le_of_relation r)
+namespace Completion
 
-def le_of_relation_refl (r:  α → α → Bool) (x: α): (le_of_relation r) x x := by
+def pos (h: r x y): Completion r x y := by
+  left
+  exact h
+
+def neg (h: ¬r y x): Completion r x y := by
+  right
+  exact h
+
+def wtotal (h: ¬Completion r x y): Completion r y x := by
+  right
+  intro h'
+  exact h (Or.inl h')
+
+def refl [DecidableRel r] (x): Completion r x x := by
   by_cases h: r x x
+  · exact pos h
+  · exact neg h
+
+def stotal [DecidableRel r]: Completion r x y ∨ Completion r y x := by
+  by_cases h: Completion r x y
   · left
     exact h
   · right
-    exact eq_false_of_ne_true h
+    exact wtotal h
 
-abbrev ICompat (r:  α → α → Prop) (r':  α → α → Prop) :=
-  IForAllIcc2 (λ x y ↦ r x y → r' x y)
+end Completion
+
+abbrev ICompat (hr:  α → α → Prop) (r:  α → α → Prop) :=
+  IForAllIcc2 (λ x y ↦ hr x y → r x y)
+
+abbrev ITransCompat (hr: α → α → Prop) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
+  (ICompat hr r low high as) ∧ (ITrans r low high as)
+
+abbrev ITransCompatCB (f: α → α → Bool) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
+  ITransCompat (Completion (f · ·)) r low high as
+
+inductive ITransGen {α} (r : α → α → Prop) (low high: Nat) (as: Array α) : α → α → Prop
+| base (i: Nat) (his: i < as.size) (hli: low ≤ i) (hih: i ≤ high) (j: Nat) (hjs: j < as.size) (hlj: low ≤ j) (hjh: j ≤ high)
+    (h: r (as[i]'his) (as[j]'hjs)): ITransGen r low high as (as[i]'his) (as[j]'hjs)
+| trans {a b c} : ITransGen r low high as a b → ITransGen r low high as b c → ITransGen r low high as a c
+
+namespace ITransCompat
+
+def compat (h: ITransCompat hr r low high as): ICompat hr r low high as := h.1
+def trans (h: ITransCompat hr r low high as): ITrans r low high as := h.2
+
+def mkITransGen: ITransCompatCB f (ITransGen (Completion (f · ·)) low high as) low high as := by
+  constructor
+  · apply ITransGen.base
+  · intro i his _ _ j hjs _ _ k hks _ _
+    apply ITransGen.trans
+
+end ITransCompat
+
+namespace ITransCompatCB
+
+export ITransCompat (compat trans)
+
+end ITransCompatCB
 
 local macro "elementwise"
   t:term : tactic =>
@@ -743,13 +792,6 @@ impl_transport_outside α (IForAllIcc2I P) (LE.le) 8
 end IForAllIcc2I
 -/
 
-/--
-If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
-If r is <=, then this means a[i] ≤ a[j] or a[j] !≤ a[i] => a[i] ≤  a[j]
- -/
-abbrev IPairwiseLeB (r:  α → α → Bool) (low: Nat) (high: Nat) (as: Array α) :=
-  IPairwise (le_of_relation (r · ·)) low high as
-
 namespace IPairwise
 
 theorem glue_with_pivot
@@ -757,7 +799,7 @@ theorem glue_with_pivot
     {p: Nat} (hps: p < as.size) (hlp: low ≤ p) (hph: p ≤ high) (hp: pivot = as[p]'hps)
     (ha : IForAllIco (r · pivot) low (i + 1) as)
     (hb : IForAllIco (r pivot ·) (i + 1) (high + 1) as)
-    (hrtle : ITrans r low high as)
+    (hrel : ITrans r low high as)
     (h1 : IPairwise r low i as)
     (h2 : IPairwise r (i + 1) high as):
     IPairwise r low high as := by
@@ -776,7 +818,7 @@ theorem glue_with_pivot
 
   have hai: a < i + 1 := by exact Nat.gt_of_not_le hia
 
-  exact hrtle a has hla hah p hps hlp hph b hbs hlb hbh
+  exact hrel a has hla hah p hps hlp hph b hbs hlb hbh
     (hp ▸ (ha a has hla hai))
     (hp ▸ (hb b hbs hib (Nat.lt_add_one_of_le hbh)))
 
@@ -785,7 +827,7 @@ theorem glue_with_middle
     (his: i < as.size) {r: α → α → Prop}
     (ha : IForAllIco (r · (as[i]'his)) low i as)
     (hb : IForAllIco (r (as[i]'his) ·) (i + 1) (high + 1) as)
-    (hrtle : ITrans r low high as)
+    (hrel : ITrans r low high as)
     (h1 : IPairwise r low (i - 1) as)
     (h2 : IPairwise r (i + 1) high as):
     IPairwise r low high as := by
@@ -812,7 +854,7 @@ theorem glue_with_middle
 
   by_cases hai': a < i
   · by_cases hib': i < b
-    · exact hrtle a has hla hah i his hli hih b hbs hlb hbh (ha hai') (hb hib')
+    · exact hrel a has hla hah i his hli hih b hbs hlb hbh (ha hai') (hb hib')
     · have hib: i = b := by exact Nat.le_antisymm hib (Nat.le_of_not_lt hib')
       subst b
       exact (ha hai')
@@ -827,7 +869,7 @@ theorem glue_with_middle_eq_pivot
     (hpi: as[i]'his = pivot)
     (ha : as.IForAllIco (r · pivot) low i)
     (hb : as.IForAllIco (r pivot ·) (i + 1) (high + 1))
-    (hrtle : ITrans r low high as)
+    (hrel : ITrans r low high as)
     (h1 : IPairwise r low (i - 1) as)
     (h2 : IPairwise r (i + 1) high as):
     IPairwise r low high as := by
@@ -854,9 +896,6 @@ theorem getElem_after_swap (as: Array α) (hij: i ≤ j) (hjh: j < high) (hhs: h
 structure ISortOf (r: α → α → Prop) (low high: Nat) (orig: Array α) (sorted: Array α): Prop where
   perm: IPerm low high orig sorted
   ord: IPairwise r low high sorted
-
-abbrev ISortOfLeB (r: α → α → Bool) (low high: Nat) (orig: Array α) (sorted: Array α): Prop
-  := ISortOf (le_of_relation r) low high orig sorted
 
 namespace ISortOf
 instance [Trivial α (IPairwise r) ub']:
@@ -885,30 +924,30 @@ end ISortOf
 
 
 mutual
-  theorem qsort.sort_sort_sorts (r: α → α → Bool) (low high : Nat) (pivot : α) (i : Nat) (as: Array α)
+  theorem qsort.sort_sort_sorts (f: α → α → Bool) (r: α → α → Prop) (low high : Nat) (pivot : α) (i : Nat) (as: Array α)
       (hlh: low < high) (hli : low ≤ i) (hih : i ≤ high) (hhs : high < as.size)
       (hpi: as[i]'(Nat.lt_of_le_of_lt hih hhs) = pivot)
-      (ha: IForAllIco ((le_of_relation r) · pivot) low (i + 1) as)
-      (hb: IForAllIco ((le_of_relation r) pivot ·) (i + 1) (high + 1) as)
-      (hrtle: ITransLeB r low high as):
-      have ⟨as', hs'⟩ := qsort.sort r as low (i - 1) (λ _ ↦ Nat.lt_of_le_of_lt (Nat.sub_le i 1) (Nat.lt_of_le_of_lt hih hhs))
-      ISortOfLeB r low high as (qsort.sort r as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
+      (ha: IForAllIco (r · pivot) low (i + 1) as)
+      (hb: IForAllIco (r pivot ·) (i + 1) (high + 1) as)
+      (hrel: ITransCompatCB f r low high as):
+      have ⟨as', hs'⟩ := qsort.sort f as low (i - 1) (λ _ ↦ Nat.lt_of_le_of_lt (Nat.sub_le i 1) (Nat.lt_of_le_of_lt hih hhs))
+      ISortOf r low high as (qsort.sort f as' (i + 1) high (λ _ ↦ hs' ▸ hhs)) := by
     have his := Nat.lt_of_le_of_lt hih hhs
     have h1ih: i - 1 ≤ high := Nat.le_trans (Nat.sub_le i 1) hih
     have h1is: i - 1 < as.size := Nat.lt_of_le_of_lt h1ih hhs
 
     have h1 := by
-      apply qsort.sort_sorts as r low (i - 1) (λ _ ↦ h1is) ?_
-      apply restrict hrtle (Nat.le_refl low) h1ih
+      apply qsort.sort_sorts as f r low (i - 1) (λ _ ↦ h1is) ?_
+      apply restrict hrel (Nat.le_refl low) h1ih
 
-    let ahs' := qsort.sort r as low (i - 1) (λ _ ↦ h1is)
+    let ahs' := qsort.sort f as low (i - 1) (λ _ ↦ h1is)
     let as' := ahs'.1
     let hs' := ahs'.2
     have his': i < as'.size := Nat.lt_of_lt_of_eq his hs'.symm
     have h2 := by
-      apply qsort.sort_sorts as' r (i + 1) high (λ _ ↦ hs' ▸ hhs) ?_
+      apply qsort.sort_sorts as' f r (i + 1) high (λ _ ↦ hs' ▸ hhs) ?_
       apply transport_higher ?_ h1.perm (Nat.sub_lt_succ i 1)
-      exact restrict hrtle (Nat.le_succ_of_le hli) (Nat.le_refl high)
+      exact restrict hrel (Nat.le_succ_of_le hli) (Nat.le_refl high)
 
     apply ISortOf.mk
     case perm =>
@@ -922,9 +961,9 @@ mutual
       case his => simpa [qsort.size_sort]
       case pivot => exact pivot
 
-      case hrtle =>
+      case hrel =>
         apply transport_enclosing ?_ h2.perm (Nat.le_add_right_of_le hli) (Nat.le_refl high)
-        exact transport_enclosing hrtle h1.perm (Nat.le_refl _) h1ih
+        exact transport_enclosing hrel.trans h1.perm (Nat.le_refl _) h1ih
 
       case ha =>
         apply restrict ?_ (Nat.le_refl low) (Nat.le_add_right i 1)
@@ -958,13 +997,13 @@ mutual
 
       termination_by (high - low, 0, 0)
 
-  theorem qsort.sort_loop_sorts (r: α → α → Bool) (low high : Nat) (hlh: low < high) (as: Array α)
+  theorem qsort.sort_loop_sorts (f: α → α → Bool) (r: α → α → Prop) (low high : Nat) (hlh: low < high) (as: Array α)
       (i j : Nat)
       (hli : low ≤ i) (hij : i ≤ j) (hjh : j ≤ high) (hhs : high < as.size) (hph: as[high]'hhs = pivot)
       (ha: IForAllIco (r · pivot) low i as)
-      (hb: IForAllIco (r · pivot = false) i j as)
-      (hrtle: ITransLeB r low high as):
-      ISortOfLeB r low high as (qsort.sort.loop r low high hlh pivot as i j hli hij hjh hhs) := by
+      (hb: IForAllIco (r pivot ·) i j as)
+      (hrel: ITransCompatCB f r low high as):
+      ISortOf r low high as (qsort.sort.loop f low high hlh pivot as i j hli hij hjh hhs) := by
     unfold qsort.sort.loop
 
     have hjs: j < as.size := Nat.lt_of_le_of_lt hjh hhs
@@ -977,21 +1016,23 @@ mutual
 
     case pos =>
       have hjs: j < as.size := Nat.lt_trans hjh' hhs
-      by_cases hjp: r (as[j]'hjs) pivot = true
+      by_cases hjp: f (as[j]'hjs) pivot = true
       all_goals simp only [hjp, Bool.false_eq_true, ↓reduceIte]
 
       case pos =>
+        have hrjp := hrel.compat j hjs hlj hjh high hhs (Nat.le_trans hli hih) (Nat.le_refl high) (.pos (hph ▸ hjp))
         apply ISortOf.trans
         case hp =>
           exact .swap as i his hli hih j hjs hlj hjh
         case hs =>
           apply qsort.sort_loop_sorts
           case hph => simpa only [getElem_after_swap _ hij hjh' hhs]
-          case ha => exact ha.swap_left hij hjp
+          case ha => exact ha.swap_left hij (hph ▸ hrjp)
           case hb => exact hb.swap_right hij hjs
-          case hrtle => exact transport_exact_icc hrtle (IPerm.swap _ _ _ hli hih _ _ hlj hjh)
+          case hrel => exact transport_exact_icc hrel (IPerm.swap _ _ _ hli hih _ _ hlj hjh)
 
       case neg =>
+        have hrjp := hrel.compat high hhs (Nat.le_trans hli hih) (Nat.le_refl high) j hjs hlj hjh (.neg (hph ▸ hjp))
         apply qsort.sort_loop_sorts
         case hph => exact hph
         case ha =>
@@ -1004,9 +1045,9 @@ mutual
             exact hb
           · have hkj: k = j := Nat.eq_of_lt_succ_of_not_lt hkj1 hkj
             subst k
-            exact eq_false_of_ne_true hjp
+            exact hph ▸ hrjp
 
-        case hrtle => exact hrtle
+        case hrel => exact hrel
 
     case neg =>
       have hjh: j = high := Nat.le_antisymm hjh (Nat.le_of_not_lt hjh')
@@ -1023,19 +1064,17 @@ mutual
         case hhs => simpa [size_swap]
 
         case ha =>
-          let ha: IForAllIco (le_of_relation r · pivot) low i as := ha.map (λ x a ↦ by
-            left
-            exact a)
-          exact (hph ▸ ha).swap_left hij (le_of_relation_refl r _)
+          have hrpp := hrel.compat
+            high hhs (Nat.le_trans hli hih) (Nat.le_refl high)
+            high hhs (Nat.le_trans hli hih) (Nat.le_refl high)
+            (Completion.refl (r := (f · ·)) (as[high]'hhs))
+          exact (hph ▸ ha).swap_left hij hrpp
 
         case hb =>
-          let hb: IForAllIco (le_of_relation r pivot ·) i high as := hb.map (λ x a ↦ by
-            right
-            exact a)
           exact (hph ▸ hb).swap_right hij hhs
 
-        case hrtle =>
-          exact transport_exact_icc hrtle (IPerm.swap _ _ _ hli hih _ _ hlj hjh)
+        case hrel =>
+          exact transport_exact_icc hrel (IPerm.swap _ _ _ hli hih _ _ hlj hjh)
 
         case hpi =>
           simp only [swap_def, get_eq_getElem, getElem_set, getElem_set_eq, ite_eq_right_iff, ↓reduceIte]
@@ -1043,14 +1082,14 @@ mutual
           simp only [h]
     termination_by (high - low, 1, high - j)
 
-  theorem qsort.sort_loop_pivot_swap_sorts (r: α → α → Bool) (low high : Nat) (hlh: low < high) (as: Array α)
+  theorem qsort.sort_loop_pivot_swap_sorts (f: α → α → Bool) (low high : Nat) (hlh: low < high) (as: Array α)
       (mid: Nat) (hlm: low ≤ mid) (hmh: mid < high) (hhs : high < as.size)
-      (hrtle: ITransLeB r low high as):
+      (hrel: ITransCompatCB f r low high as):
 
-      let as' := if r (as[mid]'(Nat.lt_trans hmh hhs)) (as[high]'hhs) then as.swap ⟨mid, Nat.lt_trans hmh hhs⟩ ⟨high, hhs⟩ else as
+      let as' := if f (as[mid]'(Nat.lt_trans hmh hhs)) (as[high]'hhs) then as.swap ⟨mid, Nat.lt_trans hmh hhs⟩ ⟨high, hhs⟩ else as
       have hs': as'.size = as.size := by dsimp only [as']; split; all_goals simp_all only [Array.size_swap]
 
-      ISortOfLeB r low high as (qsort.sort.loop r low high hlh (as'[high]'(hs' ▸ hhs)) as' low low
+      ISortOf r low high as (qsort.sort.loop f low high hlh (as'[high]'(hs' ▸ hhs)) as' low low
         (Nat.le_refl low) (Nat.le_refl low) (Nat.le_trans hlm (Nat.le_of_lt hmh)) (hs' ▸ hhs)).1 := by
     have hms := Nat.lt_trans hmh hhs
     have hlh := Nat.le_trans hlm (Nat.le_of_lt hmh)
@@ -1060,8 +1099,8 @@ mutual
     case hs =>
       apply qsort.sort_loop_sorts
       case hph => rfl
-      case hrtle =>
-        apply transport_enclosing hrtle ?_ (Nat.le_refl _) (Nat.le_refl _)
+      case hrel =>
+        apply transport_enclosing hrel ?_ (Nat.le_refl _) (Nat.le_refl _)
         apply IPerm.ite
         · apply IPerm.swap
           all_goals
@@ -1084,10 +1123,10 @@ mutual
         exact .refl
     termination_by (high - low, 2, 0)
 
-  theorem qsort.sort_sorts (as: Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
+  theorem qsort.sort_sorts (as: Array α) (f: α → α → Bool) (r: α → α → Prop) (low := 0) (high := as.size - 1)
       (hhs: low < high → high < as.size)
-      (hrtle: ITransLeB r low high as):
-      ISortOfLeB r low high as (qsort.sort r as low high hhs) := by
+      (hrel: ITransCompatCB f r low high as):
+      ISortOf r low high as (qsort.sort f as low high hhs) := by
       unfold qsort.sort
 
       by_cases hlh: high ≤ low
@@ -1106,8 +1145,8 @@ mutual
           case hlm => exact Nat.left_le_add_div_two.mpr hlh'
           case hmh => exact Nat.add_div_two_lt_right.mpr hlh
 
-          case hrtle =>
-            apply transport_enclosing hrtle ?hp (Nat.le_refl _) (Nat.le_refl _)
+          case hrel =>
+            apply transport_enclosing hrel ?hp (Nat.le_refl _) (Nat.le_refl _)
 
             case hp =>
               repeat'
@@ -1122,22 +1161,37 @@ mutual
     termination_by ((sizeOf high) - (sizeOf low), 3, 0)
 end
 
-theorem qsort_sorts (as: Array α) (r: α → α → Bool) (low := 0) (high := as.size - 1)
-    (hrtle: ITransLeB r low high as):
-    ISortOfLeB r low high as (qsort as r low high)  := by
+theorem qsort_sorts_as (as: Array α) (f: α → α → Bool) (r: α → α → Prop) (low := 0) (high := as.size - 1)
+    (hrel: ITransCompatCB f r low high as):
+    ISortOf r low high as (qsort as f low high)  := by
     unfold qsort
     split
     case isTrue =>
       apply qsort.sort_sorts
-      · exact hrtle
+      · exact hrel
     case isFalse h =>
       have hsh: as.size - 1 ≤ high := by
         apply Nat.sub_le_of_le_add
         exact Nat.le_add_right_of_le (Nat.le_of_not_lt h)
       apply ISortOf.resize_out_of_bounds
       · apply qsort.sort_sorts
-        case hrtle => exact restrict hrtle (Nat.le_refl _) hsh
+        case hrel => exact restrict hrel (Nat.le_refl _) hsh
       · simp only [qsort.size_sort, Nat.le_refl]
       · exact hsh
+
+/--
+We prove that qsort produces an array that:
+- Is a permutation of the input (generated by the input by a finite sequence of swaps)
+- Is ordered according to the transitive completion of the total completion of f
+
+The latter means that for any indices i0 < i1 in the range, there is a chain i0 ≤~ k_0 ≤~ ... ≤~ k_n ≤~ i1
+of indices in range, where i ≤~ j means that f(as[i], as[j]) = true or f(as[j], as[i]) = false.
+
+If f corresponds to a < or ≤ function on a totally ordered set, this simplifies to i < j → as[i] ≤ as[j].
+--/
+theorem qsort_sorts (as: Array α) (f: α → α → Bool) (low := 0) (high := as.size - 1):
+    ISortOf (ITransGen (Completion (f · ·)) low high as) low high as (qsort as f low high)  := by
+    apply qsort_sorts_as
+    apply ITransCompat.mkITransGen
 
 end Array

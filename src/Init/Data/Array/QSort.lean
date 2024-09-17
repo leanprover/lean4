@@ -543,7 +543,7 @@ instance: RestrictableOutOfBounds $α ($T) $ub where
       $T low high' as := by
     iterate $intros intro _
     apply h
-    repeat any_goals
+    repeat'
       first
       | assumption
       | apply Nat.le_trans _ hsh
@@ -610,7 +610,7 @@ instance: TransportableEnclosing $α ($T) $ub where
       iterate $intros intro _
       simp [swap_def]
       repeat rw [getElem_set]
-      repeat any_goals split
+      repeat' split
       all_goals
         apply h
         all_goals assumption
@@ -1017,7 +1017,7 @@ mutual
 
           case hrtle =>
             apply transport_enclosing hrtle ?hp (Nat.le_refl _) (Nat.le_refl _)
-            repeat any_goals
+            repeat'
               first
               | apply Nat.le_refl
               | apply Nat.add_div_two_le_right_of_le

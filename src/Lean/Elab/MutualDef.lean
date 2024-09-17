@@ -1080,7 +1080,13 @@ where
           addLocalVarInfo view.declId funFVar
         let mut asyncEnv? := none
         if let #[header] := headers then
-          if header.kind.isTheorem && typeCheckedPromise?.isSome && !deprecated.oldSectionVars.get (← getOptions) then
+          let env ← getEnv
+          if header.kind.isTheorem && typeCheckedPromise?.isSome &&
+              !deprecated.oldSectionVars.get (← getOptions) &&
+              header.modifiers.attrs.any (fun attr =>
+                match getAttributeImpl env attr.name with
+                | .error _ => false
+                | .ok attrImpl => attrImpl.applicationTime != .beforeElaboration) then
             let type ←
               withHeaderSecVars vars sc headers fun vars => do
                 mkForallFVars vars header.type

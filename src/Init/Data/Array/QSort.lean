@@ -856,8 +856,6 @@ mutual
         · exact Nat.lt_add_one high
       case hpi =>
         subst pivot
-        simp only [as', ahs'] at h2 -- needed?
-
         by_cases h0i: 0 < i
         · rw [h1.perm.getElem_higher]
           rw [h2.perm.getElem_lower]
@@ -868,8 +866,7 @@ mutual
           subst i
           have: low = 0 := by exact Nat.eq_zero_of_le_zero hli
           subst low
-          simp_all
-          simp [h1.perm.eq_of_trivial]
+          simp only [Nat.le_refl, h1.perm.eq_of_trivial]
           rw [h2.perm.getElem_lower]
           exact Nat.one_pos
 

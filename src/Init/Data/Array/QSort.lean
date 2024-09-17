@@ -9,16 +9,6 @@ import Init.Data.Array.Lemmas
 import Init.Data.Nat.Mod
 
 namespace Array
-@[simp] theorem size_ite (P: Prop) [Decidable P] (a b: Array α):
-    (if P then a else b).size = (if P then a.size else b.size) := by
-  split
-  all_goals rfl
-
-@[simp] theorem size_dite (P: Prop) [Decidable P] (a: P → Array α) (b: ¬P → Array α):
-    (if h: P then a h else b h).size = (if h: P then (a h).size else (b h).size) := by
-  split
-  all_goals rfl
-
 @[simp] theorem set_getElem_eq (as: Array α) (his: i < as.size) (his': i < as.size): as.set ⟨i, his⟩ (as[i]'his') = as := by
   apply Array.ext
   · simp only [size_set]

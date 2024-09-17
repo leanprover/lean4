@@ -68,6 +68,9 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 @[simp] theorem modn_val (a : Fin n) (b : Nat) : (a.modn b).val = a.val % b :=
   rfl
 
+@[simp] theorem val_eq_zero (a : Fin 1) : a.val = 0 :=
+  Nat.eq_zero_of_le_zero <| Nat.le_of_lt_succ a.isLt
+
 theorem ite_val {n : Nat} {c : Prop} [Decidable c] {x : c → Fin n} (y : ¬c → Fin n) :
     (if h : c then x h else y h).val = if h : c then (x h).val else (y h).val := by
   by_cases c <;> simp [*]

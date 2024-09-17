@@ -206,5 +206,17 @@ theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
 
+@[bv_normalize]
+theorem BitVec.ofBool_getLsbD (a : BitVec w) (i : Nat) :
+    BitVec.ofBool (a.getLsbD i) = a.extractLsb' i 1 := by
+  ext j
+  simp
+
+@[bv_normalize]
+theorem BitVec.ofBool_getElem (a : BitVec w) (i : Nat) (h : i < w) :
+    BitVec.ofBool a[i] = a.extractLsb' i 1 := by
+  rw [show a[i] = a.getLsbD i from rfl]
+  apply ofBool_getLsbD
+
 end Normalize
 end Std.Tactic.BVDecide

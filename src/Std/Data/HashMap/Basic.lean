@@ -190,6 +190,11 @@ section Unverified
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
 
+@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β × HashMap α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
+
 @[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.foldM f init

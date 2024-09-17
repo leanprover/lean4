@@ -431,11 +431,18 @@ def le_of_relation_refl (r:  α → α → Bool) (x: α): (le_of_relation r) x x
 abbrev ICompat (r:  α → α → Prop) (r':  α → α → Prop) :=
   IForAllIcc2 (λ x y ↦ r x y → r' x y)
 
-class RestrictableOutOfBounds (α) (T: Nat → Nat → Array α → Prop) (ub: outParam (Nat → Nat → Prop)) where
-  restrict_out_of_bounds {low high: Nat} {as: Array α} {high': Nat} (ha: T low high as)
-    (hsh: ub (as.size - 1) high): T low high' as
-
-export RestrictableOutOfBounds (restrict_out_of_bounds)
+local macro "elementwise"
+  n:ident h:ident : tactic =>
+`(tactic| {
+    intros
+    constructor
+    · apply $n
+      any_goals assumption
+      exact $h.1
+    · apply $n
+      any_goals assumption
+      exact $h.2
+})
 
 class Restrictable (α) (T: Nat → Nat → Array α → Prop) where
   restrict (ha: T low high as)
@@ -443,6 +450,20 @@ class Restrictable (α) (T: Nat → Nat → Array α → Prop) where
     : T low' high' as
 
 export Restrictable (restrict)
+
+instance [Restrictable α T1] [Restrictable α T2]:
+    Restrictable α (λ low high as ↦ (T1 low high as) ∧ (T2 low high as)) where
+  restrict h := by elementwise restrict h
+
+class RestrictableOutOfBounds (α) (T: Nat → Nat → Array α → Prop) (ub: outParam (Nat → Nat → Prop)) where
+  restrict_out_of_bounds {low high: Nat} {as: Array α} {high': Nat} (ha: T low high as)
+    (hsh: ub (as.size - 1) high): T low high' as
+
+export RestrictableOutOfBounds (restrict_out_of_bounds)
+
+instance [RestrictableOutOfBounds α T1 ub] [RestrictableOutOfBounds α T2 ub]:
+    RestrictableOutOfBounds α (λ low high as ↦ (T1 low high as) ∧ (T2 low high as)) ub where
+  restrict_out_of_bounds h := by elementwise restrict_out_of_bounds h
 
 class TransportableOutside (α) (T: Nat → Nat → Array α → Prop) (ub: outParam (Nat → Nat → Prop)) where
   transport_outside
@@ -452,6 +473,10 @@ class TransportableOutside (α) (T: Nat → Nat → Array α → Prop) (ub: outP
     T low high as'
 
 export TransportableOutside (transport_outside)
+
+instance [TransportableOutside α T1 ub] [TransportableOutside α T2 ub]:
+    TransportableOutside α (λ low high as ↦ (T1 low high as) ∧ (T2 low high as)) ub where
+  transport_outside h := by elementwise transport_outside h
 
 class LteOp (r: Nat → Nat → Prop) where
   co: Nat → Nat → Prop
@@ -501,7 +526,11 @@ class TransportableEnclosing (α) (T: Nat → Nat → Array α → Prop) (ub: ou
 
 export TransportableEnclosing (transport_enclosing)
 
-scoped macro "singleton_inhabited"
+instance [TransportableEnclosing α T1 ub] [TransportableEnclosing α T2 ub]:
+    TransportableEnclosing α (λ low high as ↦ (T1 low high as) ∧ (T2 low high as)) ub where
+  transport_enclosing h := by elementwise transport_enclosing h
+
+scoped macro "impl_singleton_inhabited"
   α:ident
   "(" T:term ")"
   intros:num : command =>
@@ -519,144 +548,126 @@ instance {k: Nat} {as: Array $α}:
     | done
 )
 
-scoped macro "transport_lemmas_outside"
+scoped macro "impl_transport_outside"
   α:ident
   "(" T:term ")"
   "(" ub:term ")"
   intros:num : command =>
 `(
-instance: Restrictable $α ($T) where
-  restrict {low high: Nat} {as: Array $α} {low' high': Nat} (h: $T low high as)
-      (hll: low ≤ low') (hhh: high' ≤ high)
-      : $T low' high' as := by
-    iterate $intros intro _
-    apply h
-    all_goals
-      try first
-      | apply Nat.le_trans hll _
-      | apply Nat.le_trans _ hhh
-      assumption
-
-instance: RestrictableOutOfBounds $α ($T) $ub where
-  restrict_out_of_bounds {low high: Nat} {as: Array $α} {high': Nat} (h: $T low high as)
-      (hsh: $ub (as.size - 1) high):
-      $T low high' as := by
-    iterate $intros intro _
-    apply h
-    repeat'
-      first
-      | assumption
-      | apply Nat.le_trans _ hsh
-      | apply Nat.succ_le_succ
-      | apply Nat.le_sub_one_of_lt
-
-instance: TransportableOutside $α ($T) $ub where
-  transport_outside {low high: Nat} {as: Array $α} {plow phigh: Nat} {as': Array $α}
-      (h : $T low high as)
-      (hp : IPerm plow phigh as as')
-       (hd: (k: Nat) → (hlk: low ≤ k) → (hkh: $ub k high) → (hplk: plow ≤ k) → (hkph: k ≤ phigh) → False):
-      $T low high as' := by
-    induction hp with
-    | refl => exact h
-    | trans _ _ ih ih' => exact ih' (ih h)
-    | swap as i his hli hih j hjs hlj hjh  =>
+  instance: Restrictable $α ($T) where
+    restrict h hll hhh := by
       iterate $intros intro _
-      simp only [swap_def]
-      repeat rw [getElem_set_ne]
-      · apply h
-        all_goals assumption
+      apply h
       all_goals
-        intro he
-        subst_eqs
+        try first
+        | apply Nat.le_trans hll _
+        | apply Nat.le_trans _ hhh
+        assumption
+
+  instance: RestrictableOutOfBounds $α ($T) $ub where
+    restrict_out_of_bounds h hsh := by
+      iterate $intros intro _
+      apply h
+      repeat'
         first
-        | apply hd i
-          all_goals
-            first
-            | assumption
-            | exact (Nat.le_trans (by assumption) (Nat.le_of_lt (by assumption)))
-            | exact (Nat.le_of_lt (Nat.lt_of_lt_of_le (by assumption) (by assumption)))
-        | apply hd j
-          all_goals
-            first
-            | assumption
-            | exact (Nat.le_trans (by assumption) (Nat.le_of_lt (by assumption)))
-            | exact (Nat.le_of_lt (Nat.lt_of_lt_of_le (by assumption) (by assumption)))
+        | assumption
+        | apply Nat.le_trans _ hsh
+        | apply Nat.succ_le_succ
+        | apply Nat.le_sub_one_of_lt
+
+  instance: TransportableOutside $α ($T) $ub where
+    transport_outside h hp hd := by
+      induction hp with
+      | refl => exact h
+      | trans _ _ ih ih' => exact ih' (ih h)
+      | swap as i his hli hih j hjs hlj hjh  =>
+        iterate $intros intro _
+        simp only [swap_def]
+        repeat rw [getElem_set_ne]
+        · apply h
+          all_goals assumption
+        all_goals
+          intro he
+          subst_eqs
+          first
+          | apply hd i
+            all_goals
+              first
+              | assumption
+              | exact (Nat.le_trans (by assumption) (Nat.le_of_lt (by assumption)))
+              | exact (Nat.le_of_lt (Nat.lt_of_lt_of_le (by assumption) (by assumption)))
+          | apply hd j
+            all_goals
+              first
+              | assumption
+              | exact (Nat.le_trans (by assumption) (Nat.le_of_lt (by assumption)))
+              | exact (Nat.le_of_lt (Nat.lt_of_lt_of_le (by assumption) (by assumption)))
 )
 
-set_option hygiene false in
-scoped macro "transport_lemmas"
+scoped macro "impl_transport"
   α:ident
   "(" T:term ")"
   "(" ub:term ")"
   intros:num : command =>
 `(
-  transport_lemmas_outside $α ($T) ($ub) $intros
+  impl_transport_outside $α ($T) ($ub) $intros
 
-instance: TransportableEnclosing $α ($T) $ub where
-  transport_enclosing {low high: Nat} {as: Array $α} {plow phigh: Nat} {as': Array $α}
-    (h : $T low high as)
-    (hp : IPerm plow phigh as as')
-    (hll: low ≤ plow)
-    (hhh: $ub phigh high) :
-    $T low high as' := by
-    induction hp with
-    | refl => exact h
-    | trans _ _ ih ih' => exact ih' (ih h)
-    | swap as a has hpla haph b hbs hplb hbph =>
-      have hla := Nat.le_trans hll hpla
-      have hlb := Nat.le_trans hll hplb
-      have hah := LteOp.of_le_of haph hhh
-      have hbh := LteOp.of_le_of hbph hhh
-      iterate $intros intro _
-      simp [swap_def]
-      repeat rw [getElem_set]
-      repeat' split
-      all_goals
-        apply h
-        all_goals assumption
+  instance: TransportableEnclosing $α ($T) $ub where
+    transport_enclosing h hp hll hhh := by
+      induction hp with
+      | refl => exact h
+      | trans _ _ ih ih' => exact ih' (ih h)
+      | swap as a has hpla haph b hbs hplb hbph =>
+        have hla := Nat.le_trans hll hpla
+        have hlb := Nat.le_trans hll hplb
+        have hah := LteOp.of_le_of haph hhh
+        have hbh := LteOp.of_le_of hbph hhh
+        iterate $intros intro _
+        simp [swap_def]
+        repeat rw [getElem_set]
+        repeat' split
+        all_goals
+          apply h
+          all_goals assumption
 )
-
-def problem (i i' high: Nat) (hij' : i' < i)
-  (hjh' : i ≤ high): i' < high := by
-    apply Nat.lt_of_lt_of_le (m := i) (by assumption) (by assumption)
 
 namespace IPairwise
 variable {α} {P: α → α → Prop}
 
-singleton_inhabited α (IPairwise P) 6
-transport_lemmas_outside α (IPairwise P) (LE.le) 6
+impl_singleton_inhabited α (IPairwise P) 6
+impl_transport_outside α (IPairwise P) (LE.le) 6
 end IPairwise
 
 namespace IForAllIco
 variable {α} {P: α → Prop}
 
-singleton_inhabited α (IForAllIco P) 4
-transport_lemmas α (IForAllIco P) (LT.lt) 4
+impl_singleton_inhabited α (IForAllIco P) 4
+impl_transport α (IForAllIco P) (LT.lt) 4
 end IForAllIco
 
 namespace IForAllIcc
 variable {α} {P: α → Prop}
 
-transport_lemmas α (IForAllIcc P) (LE.le) 4
+impl_transport α (IForAllIcc P) (LE.le) 4
 end IForAllIcc
 
 namespace IForAllIcc2
 variable {α} {P: α → α → Prop}
 
-transport_lemmas α (IForAllIcc2 P) (LE.le) 8
+impl_transport α (IForAllIcc2 P) (LE.le) 8
 end IForAllIcc2
 
 namespace IForAllIcc3
 variable {α} {P: α → α → α → Prop}
 
-transport_lemmas α (IForAllIcc3 P) (LE.le) 12
+impl_transport α (IForAllIcc3 P) (LE.le) 12
 end IForAllIcc3
 
 /-
 namespace IForAllIcc2I
 variable {α} {P: Nat → Nat → α → α → Prop}
 
-transport_lemmas_outside α (IForAllIcc2I P) (LE.le) 8
+impl_transport_outside α (IForAllIcc2I P) (LE.le) 8
 end IForAllIcc2I
 -/
 

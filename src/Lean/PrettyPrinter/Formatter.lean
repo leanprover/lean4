@@ -537,7 +537,7 @@ register_builtin_option pp.oneline : Bool := {
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
   trace[PrettyPrinter.format.input] "{Std.format stx}"
   let options ← getOptions
-  let table ← Parser.builtinTokenTable.get
+  let table := Parser.getTokenTable (← getEnv)
   catchInternalId backtrackExceptionId
     (do
       let (_, st) ← (concat formatter { table, options }).run { stxTrav := .fromSyntax stx }

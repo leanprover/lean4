@@ -213,7 +213,7 @@ def lratBitblaster (cfg : TacticContext) (reflectionResult : ReflectionResult)
 def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let hyps ← getPropHyps
   let mut sats := #[]
-  let mut unusedHypotheses : Std.HashSet FVarId := {}
+  let mut unusedHypotheses := {}
   for hyp in hyps do
     if let some reflected ← SatAtBVLogical.of (mkFVar hyp) then
       sats := sats.push reflected

@@ -922,3 +922,35 @@ instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
+
+/-! ### (n + m) / 2 -/
+
+@[simp] theorem left_lt_add_div_two: n < (n + m) / 2 ↔ n + 1 < m := by
+  rw [← succ_le,
+    Nat.le_div_iff_mul_le Nat.zero_lt_two,
+    Nat.mul_two, succ_add, succ_le,
+    Nat.add_lt_add_iff_left]
+
+@[simp] theorem left_le_add_div_two: n ≤ (n + m) / 2 ↔ n ≤ m := by
+  rw [
+    Nat.le_div_iff_mul_le Nat.zero_lt_two,
+    Nat.mul_two,
+    Nat.add_le_add_iff_left]
+
+@[simp] theorem add_div_two_lt_right: (n + m) / 2 < m ↔ n < m:= by
+  rw [
+    Nat.div_lt_iff_lt_mul Nat.zero_lt_two,
+    Nat.mul_two,
+    Nat.add_lt_add_iff_right]
+
+@[simp] theorem add_div_two_le_right: (n + m) / 2 ≤ m ↔ n ≤ m + 1:= by
+  rw [← lt_succ,
+    Nat.div_lt_iff_lt_mul Nat.zero_lt_two,
+    Nat.mul_two, add_succ, lt_succ,
+    Nat.add_le_add_iff_right]
+
+theorem lt_of_left_lt_add_div_two (h: n < (n + m) / 2): n < m :=
+  lt_of_succ_lt (left_lt_add_div_two.mp h)
+
+theorem add_div_two_le_right_of_le (h: n ≤ m): (n + m) / 2 ≤ m :=
+  add_div_two_le_right.mpr (le_add_right_of_le h)

@@ -72,7 +72,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   let lhs := t.appFn!.appArg!
   let rhs := t.appArg!
 
-  let success ← approxDefEq <| isDefEqGuarded lhs rhs
+  let success ← isDefEqGuarded lhs rhs
   unless success do
     let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
       let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs

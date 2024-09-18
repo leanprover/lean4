@@ -12,6 +12,13 @@ import Init.Data.Nat.Mod
 
 namespace Array
 
+/--
+Sorts the array using QuickSort according to function f.
+
+The function can be a ≤, a <, or in fact an arbitrary function (with weaker guarantees).
+
+See [qsort_sorts_of_is_le], [qsort_sorts_of_is_lt], [qsort_sorts], [qsort_sorts_as] for proofs.
+--/
 @[inline] def qsort (as : Array α) (f: α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat)
       (hhs: low < high → high < as.size): {as': Array α // as'.size = as.size} :=

@@ -387,8 +387,19 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
     if inv || (← shouldPreprocess type) then
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
-        let auxName ← mkAuxLemma cinfo.levelParams type val
-        r := r.push <| (← mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
+        let mut name := declName ++ `_simp
+        if inv then
+          name := name ++ `inv
+        name := name.mkNum r.size
+        let env ← getEnv
+        let (env, prom?) ← env.addGlobalTheorem name
+        if let some prom := prom? then
+          prom.resolve <| Declaration.thmDecl {
+            name,
+            levelParams := cinfo.levelParams, type, value := val
+          }
+        modifyEnv fun _ => env
+        r := r.push <| (← mkSimpTheoremCore origin (mkConst name us) #[] (mkConst name) post prio (noIndexAtArgs := false))
       return r
     else
       return #[← mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]

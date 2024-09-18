@@ -377,6 +377,8 @@ structure Environment where
   header                  : EnvironmentHeader := {}
   asyncTheorems           : Array AsyncTheoremVal := #[]
   private asyncCtx? : Option AsyncContext := none
+  private globalThms : IO.Ref (NameMap (IO.Promise Declaration))
+  localThms               : NameMap (Task Declaration) := {}
 deriving Nonempty
 
 namespace Environment
@@ -409,16 +411,30 @@ where addDecl' env decl :=
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
+def addGlobalTheorem (env : Environment) (declName : Name) : BaseIO (Environment × Option (IO.Promise Declaration)) := do
+  let prom ← IO.Promise.new
+  let existingProm? ← env.globalThms.modifyGet fun m => match m.find? declName with
+    | some prom' => (some prom', m)
+    | none       => (none, m.insert declName prom)
+  if let some existingProm := existingProm? then
+    let env := { env with localThms := env.localThms.insert declName existingProm.result }
+    return (env, none)
+  else
+    let env := { env with localThms := env.localThms.insert declName prom.result }
+    return (env, some prom)
+
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment := Id.run do
-  let mut kenv := if unsafe (unsafeBaseIO <| IO.hasFinished env.final) then
-    env.final.get
-  else /-dbgStackTrace fun _ =>-/ env.final.get
+  let mut kenv := env.final.get
   if let some asyncCtx := env.asyncCtx? then
     for subDecl in asyncCtx.subDecls do
       match kenv.addDeclWithoutChecking subDecl with
       | .ok kenv' => kenv := kenv'
       | .error _ => panic! "oh no"; return kenv
+  for (_, localThm) in env.localThms do
+    match kenv.addDeclWithoutChecking localThm.get with
+    | .ok kenv' => kenv := kenv'
+    | .error _ => panic! "oh no"; return kenv
   kenv
 
 def willWait (env : Environment) : BaseIO Bool :=
@@ -456,6 +472,11 @@ def resolveAsync (env : Environment) : BaseIO Unit := do
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
   if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
     match subDecl with
+      | .thmDecl thm => return .thmInfo thm
+      | .defnDecl defn => return .defnInfo defn
+      | _ => env.toKernelEnv.constants.find?' n
+  else if let some localThm := env.localThms.find? n then
+    match localThm.get with
       | .thmDecl thm => return .thmInfo thm
       | .defnDecl defn => return .defnInfo defn
       | _ => env.toKernelEnv.constants.find?' n
@@ -677,6 +698,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
     header          := { trustLevel }
     extraConstNames := {}
     extensions      := exts
+    globalThms      := ← IO.mkRef {}
   }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) where
@@ -1144,6 +1166,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       moduleNames  := s.moduleNames
       moduleData   := s.moduleData
     }
+    globalThms     := ← IO.mkRef {}
   }
   env ← setImportedEntries env s.moduleData
   if leakEnv then

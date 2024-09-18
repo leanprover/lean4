@@ -1083,13 +1083,13 @@ where
           let env ← getEnv
           if header.kind.isTheorem && typeCheckedPromise?.isSome &&
               !deprecated.oldSectionVars.get (← getOptions) &&
-              header.modifiers.attrs.any (fun attr =>
+              !header.modifiers.attrs.any (fun attr =>
                 match getAttributeImpl env attr.name with
                 | .error _ => false
                 | .ok attrImpl => attrImpl.applicationTime != .beforeElaboration) then
             let type ←
               withHeaderSecVars vars sc headers fun vars => do
-                mkForallFVars vars header.type
+                mkForallFVars vars header.type >>= instantiateMVars
             let mut s : CollectLevelParams.State := {}
             s := collectLevelParams s header.type
             let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params

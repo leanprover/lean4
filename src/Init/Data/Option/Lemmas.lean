@@ -14,7 +14,7 @@ namespace Option
 
 theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 
-@[simp] theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp [mem_iff]
+theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp
 
 theorem mem_some_self (a : α) : a ∈ some a := mem_some.2 rfl
 
@@ -231,7 +231,7 @@ theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter
     o.isSome := by
   cases o <;> simp at h ⊢
 
-@[simp] theorem filter_eq_none (p : α → Bool) :
+@[simp] theorem filter_eq_none {p : α → Bool} :
     Option.filter p o = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
   cases o <;> simp [filter_some]
 
@@ -448,22 +448,6 @@ end beq
 /-! ### ite -/
 section ite
 
-@[simp] theorem mem_dite_none_left {x : α} [Decidable p] {l : ¬ p → Option α} :
-    (x ∈ if h : p then none else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
-  split <;> simp_all
-
-@[simp] theorem mem_dite_none_right {x : α} [Decidable p] {l : p → Option α} :
-    (x ∈ if h : p then l h else none) ↔ ∃ h : p, x ∈ l h := by
-  split <;> simp_all
-
-@[simp] theorem mem_ite_none_left {x : α} [Decidable p] {l : Option α} :
-    (x ∈ if p then none else l) ↔ ¬ p ∧ x ∈ l := by
-  split <;> simp_all
-
-@[simp] theorem mem_ite_none_right {x : α} [Decidable p] {l : Option α} :
-    (x ∈ if p then l else none) ↔ p ∧ x ∈ l := by
-  split <;> simp_all
-
 @[simp] theorem dite_none_left_eq_some {p : Prop} [Decidable p] {b : ¬p → Option β} :
     (if h : p then none else b h) = some a ↔ ∃ h, b h = some a := by
   split <;> simp_all
@@ -495,6 +479,22 @@ section ite
 @[simp] theorem some_eq_ite_none_right {p : Prop} [Decidable p] {b : Option α} :
     some a = (if p then b else none) ↔ p ∧ some a = b := by
   split <;> simp_all
+
+theorem mem_dite_none_left {x : α} [Decidable p] {l : ¬ p → Option α} :
+    (x ∈ if h : p then none else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
+  simp
+
+theorem mem_dite_none_right {x : α} [Decidable p] {l : p → Option α} :
+    (x ∈ if h : p then l h else none) ↔ ∃ h : p, x ∈ l h := by
+  simp
+
+theorem mem_ite_none_left {x : α} [Decidable p] {l : Option α} :
+    (x ∈ if p then none else l) ↔ ¬ p ∧ x ∈ l := by
+  simp
+
+theorem mem_ite_none_right {x : α} [Decidable p] {l : Option α} :
+    (x ∈ if p then l else none) ↔ p ∧ x ∈ l := by
+  simp
 
 @[simp] theorem isSome_dite {p : Prop} [Decidable p] {b : p → β} :
     (if h : p then some (b h) else none).isSome = true ↔ p := by

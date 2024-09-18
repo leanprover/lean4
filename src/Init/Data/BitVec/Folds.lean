@@ -48,7 +48,7 @@ private theorem iunfoldr.eq_test
     simp only [init, eq_nil]
   case step =>
     intro i
-    simp_all [truncate_succ]
+    simp_all [setWidth_succ]
 
 theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
     (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :

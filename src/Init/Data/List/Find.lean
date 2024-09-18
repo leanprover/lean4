@@ -224,7 +224,7 @@ theorem find?_eq_some : xs.find? p = some b ↔ p b ∧ ∃ as bs, xs = as ++ b 
           simp only [cons_append] at h₁
           obtain ⟨rfl, -⟩ := h₁
           simp_all
-    · simp only [ih, Bool.not_eq_true', exists_and_right, and_congr_right_iff]
+    · simp only [ih, Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, and_congr_right_iff]
       intro pb
       constructor
       · rintro ⟨as, ⟨⟨bs, rfl⟩, h₁⟩⟩
@@ -878,7 +878,7 @@ theorem lookup_eq_some_iff {l : List (α × β)} {k : α} {b : β} :
   simp only [lookup_eq_findSome?, findSome?_eq_some_iff]
   constructor
   · rintro ⟨l₁, a, l₂, rfl, h₁, h₂⟩
-    simp only [beq_iff_eq, ite_some_none_eq_some] at h₁
+    simp only [beq_iff_eq, Option.ite_none_right_eq_some, Option.some.injEq] at h₁
     obtain ⟨rfl, rfl⟩ := h₁
     simp at h₂
     exact ⟨l₁, l₂, rfl, by simpa using h₂⟩

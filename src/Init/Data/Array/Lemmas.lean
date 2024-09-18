@@ -19,7 +19,7 @@ This file contains some theorems about `Array` and `List` needed for `Init.Data.
 
 namespace Array
 
-attribute [simp] data_toArray uset
+attribute [simp] uset
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 

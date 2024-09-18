@@ -234,6 +234,15 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 
 @[simp] theorem not_ofBool : ~~~ (ofBool b) = ofBool (!b) := by cases b <;> rfl
 
+@[simp] theorem ofBool_and : ofBool b &&& ofBool b' = ofBool (b && b') := by
+  cases b <;> cases b' <;> rfl
+
+@[simp] theorem ofBool_or : ofBool b ||| ofBool b' = ofBool (b || b') := by
+  cases b <;> cases b' <;> rfl
+
+@[simp] theorem ofBool_xor : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
+  cases b <;> cases b' <;> rfl
+
 @[simp, bv_toNat] theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl
 
 @[simp] theorem toNat_ofNatLt (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
@@ -1421,15 +1430,18 @@ theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)
 
 @[simp] theorem cons_or_cons (x y : BitVec w) (a b : Bool) :
     (cons a x) ||| (cons b y) = cons (a || b) (x ||| y) := by
-  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+  ext i
+  simp [cons]
 
 @[simp] theorem cons_and_cons (x y : BitVec w) (a b : Bool) :
     (cons a x) &&& (cons b y) = cons (a && b) (x &&& y) := by
-  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+  ext i
+  simp [cons]
 
 @[simp] theorem cons_xor_cons (x y : BitVec w) (a b : Bool) :
     (cons a x) ^^^ (cons b y) = cons (a ^^ b) (x ^^^ y) := by
-  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+  ext i
+  simp [cons]
 
 /-! ### concat -/
 

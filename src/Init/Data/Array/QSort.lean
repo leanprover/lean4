@@ -1117,57 +1117,57 @@ mutual
       (hhs: low < high → high < as.size)
       (hrel: ITransCompatCB f r low high as):
       ISortOf r low high as (qsort.sort f as low high hhs) := by
-      unfold qsort.sort
+    unfold qsort.sort
 
-      by_cases hlh: high ≤ low
-      case pos =>
-        simp only [ge_iff_le, hlh, ↓reduceDIte]
-        exact ISortOf.trivial hlh
-      case neg =>
-        simp only [hlh]
-        have hlh: low < high := Nat.gt_of_not_le hlh
-        have hlh': low ≤ high := Nat.le_of_lt hlh
+    by_cases hlh: high ≤ low
+    case pos =>
+      simp only [ge_iff_le, hlh, ↓reduceDIte]
+      exact ISortOf.trivial hlh
+    case neg =>
+      simp only [hlh]
+      have hlh: low < high := Nat.gt_of_not_le hlh
+      have hlh': low ≤ high := Nat.le_of_lt hlh
 
-        apply ISortOf.trans
-        case hs =>
-          apply qsort.sort_loop_pivot_swap_sorts
+      apply ISortOf.trans
+      case hs =>
+        apply qsort.sort_loop_pivot_swap_sorts
 
-          case hlm => exact Nat.left_le_add_div_two.mpr hlh'
-          case hmh => exact Nat.add_div_two_lt_right.mpr hlh
+        case hlm => exact Nat.left_le_add_div_two.mpr hlh'
+        case hmh => exact Nat.add_div_two_lt_right.mpr hlh
 
-          case hrel =>
-            apply transport_enclosing hrel ?hp (Nat.le_refl _) (Nat.le_refl _)
+        case hrel =>
+          apply transport_enclosing hrel ?hp (Nat.le_refl _) (Nat.le_refl _)
 
-            case hp =>
-              repeat'
-                first
-                | apply Nat.le_refl
-                | apply Nat.add_div_two_le_right_of_le
-                | apply Nat.left_le_add_div_two.mpr
-                | apply IPerm.refl
-                | apply IPerm.ite
-                | apply IPerm.trans_swap
-                | assumption
+          case hp =>
+            repeat'
+              first
+              | apply Nat.le_refl
+              | apply Nat.add_div_two_le_right_of_le
+              | apply Nat.left_le_add_div_two.mpr
+              | apply IPerm.refl
+              | apply IPerm.ite
+              | apply IPerm.trans_swap
+              | assumption
     termination_by ((sizeOf high) - (sizeOf low), 3, 0)
 end
 
 theorem qsort_sorts_as (as: Array α) (f: α → α → Bool) (r: α → α → Prop) (low := 0) (high := as.size - 1)
     (hrel: ITransCompatCB f r low high as):
     ISortOf r low high as (qsort as f low high)  := by
-    unfold qsort
-    split
-    case isTrue =>
-      apply qsort.sort_sorts
-      · exact hrel
-    case isFalse h =>
-      have hsh: as.size - 1 ≤ high := by
-        apply Nat.sub_le_of_le_add
-        exact Nat.le_add_right_of_le (Nat.le_of_not_lt h)
-      apply ISortOf.resize_out_of_bounds
-      · apply qsort.sort_sorts
-        case hrel => exact restrict hrel (Nat.le_refl _) hsh
-      · simp only [qsort.size_sort, Nat.le_refl]
-      · exact hsh
+  unfold qsort
+  split
+  case isTrue =>
+    apply qsort.sort_sorts
+    · exact hrel
+  case isFalse h =>
+    have hsh: as.size - 1 ≤ high := by
+      apply Nat.sub_le_of_le_add
+      exact Nat.le_add_right_of_le (Nat.le_of_not_lt h)
+    apply ISortOf.resize_out_of_bounds
+    · apply qsort.sort_sorts
+      case hrel => exact restrict hrel (Nat.le_refl _) hsh
+    · simp only [qsort.size_sort, Nat.le_refl]
+    · exact hsh
 
 theorem iTransCompat_of_trans_total (f: α → α → Bool)
     (trans: ∀ {x y z}, f x y → f y z → f x z) (total: ∀ {x y}, f x y ∨ f y x):

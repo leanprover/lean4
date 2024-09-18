@@ -841,7 +841,7 @@ protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = ((n - b) + a
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
 
-@[simp] theorem sub_self [NeZero n] {x : Fin n} : x - x = 0 := by
+@[simp] protected theorem sub_self [NeZero n] {x : Fin n} : x - x = 0 := by
   ext
   rw [Fin.sub_def]
   simp

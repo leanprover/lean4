@@ -1946,7 +1946,7 @@ theorem map_eq_append_iff {f : α → β} :
     map f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [← filterMap_eq_map, filterMap_eq_append_iff]
 
-theorem append_eq_map_iff (f : α → β) :
+theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
 

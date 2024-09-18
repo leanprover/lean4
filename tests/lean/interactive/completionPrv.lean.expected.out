@@ -46,6 +46,30 @@
      "position": {"line": 9, "character": 11}},
     "id": {"const": {"declName": "BitVec.getMsbD_ofBoolListBE"}}}},
   {"sortText": "4",
+   "label": "BitVec.ofBool_and_ofBool",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionPrv.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "BitVec.ofBool_and_ofBool"}}}},
+  {"sortText": "5",
+   "label": "BitVec.ofBool_of_ofBool",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionPrv.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "BitVec.ofBool_of_ofBool"}}}},
+  {"sortText": "6",
+   "label": "BitVec.ofBool_or_ofBool",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionPrv.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "BitVec.ofBool_or_ofBool"}}}},
+  {"sortText": "7",
    "label": "BitVec.ofBoolListBE",
    "kind": 3,
    "documentation":

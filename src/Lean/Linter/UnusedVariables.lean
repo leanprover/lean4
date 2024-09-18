@@ -64,7 +64,7 @@ open Lean.Elab.Command Lean.Server Std
 
 /-- Enables or disables all unused variable linter warnings -/
 register_builtin_option linter.unusedVariables : Bool := {
-  defValue := true,
+  defValue := false,  -- TEMP
   descr := "enable the 'unused variables' linter"
 }
 /-- Enables or disables unused variable linter warnings in function arguments -/

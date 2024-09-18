@@ -140,7 +140,7 @@ def adc (x y : BitVec w) : Bool → Bool × BitVec w :=
 
 theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
     getLsbD (x + y + setWidth w (ofBool c)) i =
-      (getLsbD x i) ^^ ((getLsbD y i) ^^ (carry i x y c)) := by
+      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y c)) := by
   let ⟨x, x_lt⟩ := x
   let ⟨y, y_lt⟩ := y
   simp only [getLsbD, toNat_add, toNat_setWidth, i_lt, toNat_ofFin, toNat_ofBool,

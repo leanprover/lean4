@@ -215,7 +215,7 @@ theorem BitVec.ofBool_getLsbD (a : BitVec w) (i : Nat) :
 @[bv_normalize]
 theorem BitVec.ofBool_getElem (a : BitVec w) (i : Nat) (h : i < w) :
     BitVec.ofBool a[i] = a.extractLsb' i 1 := by
-  rw [show a[i] = a.getLsbD i from rfl]
+  rw [← BitVec.getLsbD_eq_getElem]
   apply ofBool_getLsbD
 
 end Normalize

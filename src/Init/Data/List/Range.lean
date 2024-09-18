@@ -35,10 +35,15 @@ theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) 
 theorem range'_ne_nil (s : Nat) {n : Nat} : range' s n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
-@[simp] theorem range'_zero : range' s 0 = [] := by
+@[simp] theorem range'_zero : range' s 0 step = [] := by
   simp
 
 @[simp] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
+
+@[simp] theorem tail_range' (n : Nat) : (range' s n step).tail = range' (s + step) (n - 1) step := by
+  cases n with
+  | zero => simp
+  | succ n => simp [range'_succ]
 
 @[simp] theorem range'_inj : range' s n = range' s' n' ↔ n = n' ∧ (n = 0 ∨ s = s') := by
   constructor
@@ -153,6 +158,9 @@ theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) :=
 theorem range_ne_nil {n : Nat} : range n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
+@[simp] theorem tail_range (n : Nat) : (range n).tail = range' 1 (n - 1) := by
+  rw [range_eq_range', tail_range']
+
 @[simp]
 theorem range_sublist {m n : Nat} : range m <+ range n ↔ m ≤ n := by
   simp only [range_eq_range', range'_sublist_right]
@@ -218,6 +226,12 @@ theorem getElem_enumFrom (l : List α) (n) (i : Nat) (h : i < (l.enumFrom n).len
   rw [getElem_eq_getElem?_get]
   simp only [getElem?_enumFrom, getElem?_eq_getElem h]
   simp
+
+@[simp]
+theorem tail_enumFrom (l : List α) (n : Nat) : (enumFrom n l).tail = enumFrom (n + 1) l.tail := by
+  induction l generalizing n with
+  | nil => simp
+  | cons _ l ih => simp [ih, enumFrom_cons]
 
 theorem map_fst_add_enumFrom_eq_enumFrom (l : List α) (n k : Nat) :
     map (Prod.map (· + n) id) (enumFrom k l) = enumFrom (n + k) l :=

@@ -722,7 +722,7 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 
 theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
 
-instance {n : Nat} : NeZero (succ n) := ⟨succ_ne_zero n⟩
+instance instNeZeroSucc {n : Nat} : NeZero (n + 1) := ⟨succ_ne_zero n⟩
 
 /-! # mul + order -/
 

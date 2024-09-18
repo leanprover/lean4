@@ -234,7 +234,7 @@ theorem mergeSort_perm : ∀ (l : List α) (le), mergeSort l le ~ l
         (Perm.of_eq (splitInTwo_fst_append_splitInTwo_snd _)))
 termination_by l => l.length
 
-@[simp] theorem mergeSort_length (l : List α) : (mergeSort l le).length = l.length :=
+@[simp] theorem length_mergeSort (l : List α) : (mergeSort l le).length = l.length :=
   (mergeSort_perm l le).length_eq
 
 @[simp] theorem mem_mergeSort {a : α} {l : List α} : a ∈ mergeSort l le ↔ a ∈ l :=

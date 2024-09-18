@@ -1045,6 +1045,11 @@ theorem head?_eq_getElem? : ∀ l : List α, head? l = l[0]?
   | [] => rfl
   | a :: l => by simp
 
+theorem head_eq_getElem (l : List α) (h : l ≠ []) : head l h = l[0]'(length_pos.mpr h) := by
+  cases l with
+  | nil => simp at h
+  | cons _ _ => simp
+
 theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
   cases xs with
   | nil => simp at h
@@ -1104,6 +1109,55 @@ theorem tail_eq_tail? (l) : @tail α l = (tail? l).getD [] := by simp [tail_eq_t
 
 theorem mem_of_mem_tail {a : α} {l : List α} (h : a ∈ tail l) : a ∈ l := by
   induction l <;> simp_all
+
+theorem ne_nil_of_tail_ne_nil {l : List α} : l.tail ≠ [] → l ≠ [] := by
+  cases l <;> simp
+
+@[simp] theorem getElem_tail (l : List α) (i : Nat) (h : i < l.tail.length) :
+    (tail l)[i] = l[i + 1]'(add_lt_of_lt_sub (by simpa using h)) := by
+  cases l with
+  | nil => simp at h
+  | cons _ l => simp
+
+@[simp] theorem getElem?_tail (l : List α) (i : Nat) :
+    (tail l)[i]? = l[i + 1]? := by
+  cases l <;> simp
+
+@[simp] theorem set_tail (l : List α) (i : Nat) (a : α) :
+    l.tail.set i a = (l.set (i + 1) a).tail := by
+  cases l <;> simp
+
+theorem one_lt_length_of_tail_ne_nil {l : List α} (h : l.tail ≠ []) : 1 < l.length := by
+  cases l with
+  | nil => simp at h
+  | cons _ l =>
+    simp only [tail_cons, ne_eq] at h
+    exact Nat.lt_add_of_pos_left (length_pos.mpr h)
+
+@[simp] theorem head_tail (l : List α) (h : l.tail ≠ []) :
+    (tail l).head h = l[1]'(one_lt_length_of_tail_ne_nil h) := by
+  cases l with
+  | nil => simp at h
+  | cons _ l => simp [head_eq_getElem]
+
+@[simp] theorem head?_tail (l : List α) : (tail l).head? = l[1]? := by
+  simp [head?_eq_getElem?]
+
+@[simp] theorem getLast_tail (l : List α) (h : l.tail ≠ []) :
+    (tail l).getLast h = l.getLast (ne_nil_of_tail_ne_nil h) := by
+  simp only [getLast_eq_getElem, length_tail, getElem_tail]
+  congr
+  match l with
+  | _ :: _ :: l => simp
+
+theorem getLast?_tail (l : List α) : (tail l).getLast? = if l.length = 1 then none else l.getLast? := by
+  match l with
+  | [] => simp
+  | [a] => simp
+  | _ :: _ :: l =>
+    simp only [tail_cons, length_cons, getLast?_cons_cons]
+    rw [if_neg]
+    rintro ⟨⟩
 
 /-! ## Basic operations -/
 
@@ -2846,6 +2900,12 @@ theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (
 @[simp] theorem dropLast_cons_self_replicate (n) (a : α) :
     dropLast (a :: replicate n a) = replicate n a := by
   rw [← replicate_succ, dropLast_replicate, Nat.add_sub_cancel]
+
+@[simp] theorem tail_reverse (l : List α) : l.reverse.tail = l.dropLast.reverse := by
+  apply ext_getElem
+  · simp
+  · intro i h₁ h₂
+    simp [Nat.add_comm i, Nat.sub_add_eq]
 
 /-!
 ### splitAt

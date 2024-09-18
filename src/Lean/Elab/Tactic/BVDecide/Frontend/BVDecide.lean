@@ -144,6 +144,32 @@ def diagnose : DiagnosisM Unit := do
 
 end DiagnosisM
 
+def uninterpretedExplainer (d : Diagnosis) : Option MessageData := do
+  guard d.containsUninterpreted
+  return m!"It uses uninterpreted symbols"
+
+def unusedRelevantHypothesesExplainer (d : Diagnosis) : Option MessageData := do
+  guard !d.unusedRelevantHypotheses.isEmpty
+  let hypList := d.unusedRelevantHypotheses.toList.map mkFVar
+  return m!"The following potentially relevant hypotheses could not be used: {hypList}"
+
+def explainers : List (Diagnosis → Option MessageData) :=
+  [uninterpretedExplainer, unusedRelevantHypothesesExplainer]
+
+def explainCounterExampleQuality (unusedHypotheses : Std.HashSet FVarId)
+    (atomsAssignment : Std.HashMap Nat Expr) : MetaM MessageData := do
+  let diagnosis ← DiagnosisM.run DiagnosisM.diagnose unusedHypotheses atomsAssignment
+  let folder acc explainer := if let some m := explainer diagnosis then acc.push m else acc
+  let explanations := explainers.foldl (init := #[]) folder
+
+  if explanations.isEmpty then
+    return m!"The prover found a counterexample, consider the following assignment:\n"
+  else
+    let mut err := m!"The prover found a potentially spurious counterexample:\n"
+    err := err ++ explanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
+    err := err ++ m!"Consider the following assignment:\n"
+    return err
+
 def lratBitblaster (cfg : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat Expr) :
     MetaM UnsatProver.Result := do
@@ -181,33 +207,7 @@ def lratBitblaster (cfg : TacticContext) (reflectionResult : ReflectionResult)
     for (var, value) in reconstructed do
       error := error ++ m!"{var} = {value.bv}\n"
     throwError error
-where
-  diagnose (unusedHypotheses : Std.HashSet FVarId)
-      (atomsAssignment : Std.HashMap Nat Expr) : MetaM Diagnosis := do
-    DiagnosisM.run DiagnosisM.diagnose unusedHypotheses atomsAssignment
 
-  explainCounterExampleQuality (unusedHypotheses : Std.HashSet FVarId)
-      (atomsAssignment : Std.HashMap Nat Expr) : MetaM MessageData := do
-    let diagnosis ← diagnose unusedHypotheses atomsAssignment
-    let unusedHypsList := unusedHypotheses.toList.map mkFVar
-    let unusedHypsIssue :=
-      m!"The following potentially relevant hypotheses could not be used: {unusedHypsList}"
-
-    let explainers : List (Bool × MessageData) := [
-      (diagnosis.containsUninterpreted, m!"It uses uninterpreted symbols"),
-      (!diagnosis.unusedRelevantHypotheses.isEmpty, unusedHypsIssue)
-    ]
-
-    let folder acc explainer := if explainer.fst then acc.push explainer.snd else acc
-    let explanations := explainers.foldl (init := #[]) folder
-
-    if explanations.isEmpty then
-      return m!"The prover found a counterexample, consider the following assignment:\n"
-    else
-      let mut err := m!"The prover found a potentially spurious counterexample:\n"
-      err := err ++ explanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
-      err := err ++ m!"Consider the following assignment:\n"
-      return err
 
 def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let hyps ← getPropHyps

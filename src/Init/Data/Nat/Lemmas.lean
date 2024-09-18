@@ -84,9 +84,6 @@ protected theorem add_lt_add_of_lt_of_le {a b c d : Nat} (hlt : a < b) (hle : c 
     a + c < b + d :=
   Nat.lt_of_le_of_lt (Nat.add_le_add_left hle _) (Nat.add_lt_add_right hlt _)
 
-protected theorem lt_add_of_pos_left : 0 < k → n < k + n := by
-  rw [Nat.add_comm]; exact Nat.lt_add_of_pos_right
-
 protected theorem pos_of_lt_add_right (h : n < n + k) : 0 < k :=
   Nat.lt_of_add_lt_add_left h
 

@@ -451,6 +451,15 @@ def withAnonymousAntiquot := leading_parser
 @[builtin_term_parser] def «trailing_parser» := leading_parser:leadPrec
   "trailing_parser" >> optExprPrecedence >> optExprPrecedence >> ppSpace >> termParser
 
+/-- 
+Indicates that an argument to a function marked `@[extern]` is borrowed.
+
+Being borrowed only affects the ABI and runtime behavior of the function when compiled or interpreted. From the perspective of Lean's type system, this annotation has no effect. It similarly has no effect on functions not marked `@[extern]`.
+
+When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
+
+Please see https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing for a complete description.
+-/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec
 /-- A literal of type `Name`. -/
@@ -754,7 +763,7 @@ We use them to implement `macro_rules` and `elab_rules`
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
 def ellipsis       := leading_parser (withAnonymousAntiquot := false)
-  ".." >> notFollowedBy "." "`.` immediately after `..`"
+  ".." >> notFollowedBy (checkNoWsBefore >> ".") "`.` immediately after `..`"
 def argument       :=
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>

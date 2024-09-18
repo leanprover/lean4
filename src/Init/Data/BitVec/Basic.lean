@@ -64,7 +64,7 @@ protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2^n) : BitVec n where
 /-- The `BitVec` with value `i mod 2^n`. -/
 @[match_pattern]
 protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat' i (Nat.two_pow_pos n)
+  toFin := Fin.ofNat' (2^n) i
 
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
@@ -172,6 +172,10 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
 
 theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
+
+theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
+    x.getLsbD i = x[i] := by
+  simp [getLsbD, getElem_eq_testBit_toNat]
 
 end getElem
 

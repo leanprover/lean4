@@ -1014,7 +1014,7 @@ with `Or : Prop → Prop → Prop`, which is the propositional connective).
 It is `@[macro_inline]` because it has C-like short-circuiting behavior:
 if `x` is true then `y` is not evaluated.
 -/
-@[macro_inline] def or (x y : Bool) : Bool :=
+@[macro_inline] def Bool.or (x y : Bool) : Bool :=
   match x with
   | true  => true
   | false => y
@@ -1025,7 +1025,7 @@ with `And : Prop → Prop → Prop`, which is the propositional connective).
 It is `@[macro_inline]` because it has C-like short-circuiting behavior:
 if `x` is false then `y` is not evaluated.
 -/
-@[macro_inline] def and (x y : Bool) : Bool :=
+@[macro_inline] def Bool.and (x y : Bool) : Bool :=
   match x with
   | false => false
   | true  => y
@@ -1034,9 +1034,11 @@ if `x` is false then `y` is not evaluated.
 `not x`, or `!x`, is the boolean "not" operation (not to be confused
 with `Not : Prop → Prop`, which is the propositional connective).
 -/
-@[inline] def not : Bool → Bool
+@[inline] def Bool.not : Bool → Bool
   | true  => false
   | false => true
+
+export Bool (or and not)
 
 /--
 The type of natural numbers, starting at zero. It is defined as an

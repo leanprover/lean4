@@ -234,13 +234,13 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
 
 @[simp] theorem not_ofBool : ~~~ (ofBool b) = ofBool (!b) := by cases b <;> rfl
 
-@[simp] theorem ofBool_and : ofBool b &&& ofBool b' = ofBool (b && b') := by
+@[simp] theorem and_ofBool : ofBool b &&& ofBool b' = ofBool (b && b') := by
   cases b <;> cases b' <;> rfl
 
-@[simp] theorem ofBool_or : ofBool b ||| ofBool b' = ofBool (b || b') := by
+@[simp] theorem or_ofBool : ofBool b ||| ofBool b' = ofBool (b || b') := by
   cases b <;> cases b' <;> rfl
 
-@[simp] theorem ofBool_xor : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
+@[simp] theorem xor_ofBool : ofBool b ^^^ ofBool b' = ofBool (b ^^ b') := by
   cases b <;> cases b' <;> rfl
 
 @[simp, bv_toNat] theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl

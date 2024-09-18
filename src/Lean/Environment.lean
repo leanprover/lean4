@@ -400,6 +400,7 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
       for subDecl in asyncCtx.subDecls do
         env ← addDecl' env subDecl
     else if let some c := decl.getNames.find? (!asyncCtx.declPrefix.isPrefixOf ·) then
+      dbgStackTrace fun _ =>
       throw <| .other s!"declaration '{c}' cannot be added to the environment because the context \
         is restricted to the prefix {asyncCtx.declPrefix}"
     else
@@ -469,8 +470,13 @@ def resolveAsync (env : Environment) : BaseIO Unit := do
   if let some asyncCtx := env.asyncCtx? then
     asyncCtx.resolve.resolve env.toKernelEnv
 
+def unlockAsync (env : Environment) : Environment :=
+  { env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
+
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
-  if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
+  if env.asyncTheorems.any (·.name.isPrefixOf n) then
+    env.toKernelEnv.constants.find?' n
+  else if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
     match subDecl with
       | .thmDecl thm => return .thmInfo thm
       | .defnDecl defn => return .defnInfo defn
@@ -497,7 +503,8 @@ def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
   if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
     return .thmInfo asyncThm.toTheoremVal.get
-  else env.findNoAsyncTheorem n
+  else
+    env.findNoAsyncTheorem n
 
 def contains (env : Environment) (n : Name) : Bool :=
   env.findAsync? n |>.isSome

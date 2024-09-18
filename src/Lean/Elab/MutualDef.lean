@@ -1087,20 +1087,21 @@ where
                 match getAttributeImpl env attr.name with
                 | .error _ => false
                 | .ok attrImpl => attrImpl.applicationTime != .beforeElaboration) then
-            let type ←
-              withHeaderSecVars vars sc headers fun vars => do
-                mkForallFVars vars header.type >>= instantiateMVars
-            let mut s : CollectLevelParams.State := {}
-            s := collectLevelParams s header.type
-            let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-            let env ← Core.getEnv (traceBlock := false)
-            let (env', asyncEnv) ← env.addTheoremAsync {
-              name := header.declName
-              levelParams
-              type
-              value := valPromise.result
-            }
-            modifyEnv fun _=> env'
+            let asyncEnv ← withHeaderSecVars vars sc headers fun vars => do
+              let type ← mkForallFVars vars header.type >>= instantiateMVars
+              let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
+              let mut s : CollectLevelParams.State := {}
+              s := collectLevelParams s type
+              let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+              let env ← Core.getEnv (traceBlock := false)
+              let (env', asyncEnv) ← env.addTheoremAsync {
+                name := header.declName
+                levelParams
+                type
+                value := valPromise.result
+              }
+              modifyEnv fun _=> env'
+              return asyncEnv
             asyncEnv? := some asyncEnv
         let finishElab := try
           let values ← try
@@ -1110,6 +1111,8 @@ where
           catch ex =>
             logException ex
             headers.mapM fun header => mkSorry header.type (synthetic := true)
+          if let #[value] := values then
+            valPromise.resolve value
           let headers ← headers.mapM instantiateMVarsAtHeader
           let letRecsToLift ← getLetRecsToLift
           let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
@@ -1130,7 +1133,7 @@ where
           finally
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)
-            valPromise.resolve default
+            valPromise.resolve (Expr.const `failedAsyncElab [])
             (← Core.getEnv (traceBlock := false)).resolveAsync
         if let some asyncEnv := asyncEnv? then
           let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {headers[0]!.declName}") do

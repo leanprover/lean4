@@ -96,7 +96,7 @@ structure DiagnosisInput where
 The result of a spurious counter example diagnosis.
 -/
 structure Diagnosis where
-  containsUninterpreted : Bool := false
+  uninterpretedSymbols : Std.HashSet Expr := {}
   unusedRelevantHypotheses : Std.HashSet FVarId := {}
 
 abbrev DiagnosisM : Type → Type := ReaderT DiagnosisInput <| StateRefT Diagnosis MetaM
@@ -114,8 +114,8 @@ def unusedHyps : DiagnosisM (Std.HashSet FVarId) := do
 def atomsAssignment : DiagnosisM (Std.HashMap Nat Expr) := do
   return (← read).atomsAssignment
 
-def unininterpretedSeen : DiagnosisM Unit :=
-  modify fun s => { s with containsUninterpreted := true }
+def addUninterpretedSymbol (e : Expr) : DiagnosisM Unit :=
+  modify fun s => { s with uninterpretedSymbols := s.uninterpretedSymbols.insert e }
 
 def addUnusedRelevantHypothesis (fvar : FVarId) : DiagnosisM Unit :=
   modify fun s => { s with unusedRelevantHypotheses := s.unusedRelevantHypotheses.insert fvar }
@@ -136,17 +136,18 @@ def diagnose : DiagnosisM Unit := do
     | BitVec.ofBool x =>
       match x with
       | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => unininterpretedSeen
+      | _ => addUninterpretedSymbol expr
     | _ =>
       match expr with
       | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => unininterpretedSeen
+      | _ => addUninterpretedSymbol expr
 
 end DiagnosisM
 
 def uninterpretedExplainer (d : Diagnosis) : Option MessageData := do
-  guard d.containsUninterpreted
-  return m!"It uses uninterpreted symbols"
+  guard !d.uninterpretedSymbols.isEmpty
+  let symList := d.uninterpretedSymbols.toList
+  return m!"It abstracted the following unsupported expressions as opaque variables: {symList}"
 
 def unusedRelevantHypothesesExplainer (d : Diagnosis) : Option MessageData := do
   guard !d.unusedRelevantHypotheses.isEmpty

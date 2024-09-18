@@ -87,7 +87,7 @@ def zeros (w : Nat) : BitVec w := 0#w
 
 /--
 error: The prover found a potentially spurious counterexample:
-- It uses uninterpreted symbols
+- It abstracted the following unsupported expressions as opaque variables: [zeros 32]
 Consider the following assignment:
 x = 0xffffffff#32
 zeros 32 = 0xffffffff#32
@@ -98,7 +98,7 @@ example (x : BitVec 32) (h : x = zeros 32) : x = 0 := by
 
 /--
 error: The prover found a potentially spurious counterexample:
-- It uses uninterpreted symbols
+- It abstracted the following unsupported expressions as opaque variables: [zeros 32]
 - The following potentially relevant hypotheses could not be used: [h1]
 Consider the following assignment:
 x = 0xffffffff#32

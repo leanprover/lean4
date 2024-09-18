@@ -252,15 +252,6 @@ theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :
 theorem eq_not : ∀ {a b : Bool}, (a = (!b)) ↔ (a ≠ b) := by decide
 theorem not_eq : ∀ {a b : Bool}, ((!a) = b) ↔ (a ≠ b) := by decide
 
-@[simp] theorem not_eq_not : ∀ {a b : Bool}, ¬a = !b ↔ a = b := by decide
-@[simp] theorem not_not_eq : ∀ {a b : Bool}, ¬(!a) = b ↔ a = b := by decide
-
-/--
-We move `!` from the left hand side of an equality to the right hand side.
-This helps confluence, and also helps combining pairs of `!`s.
--/
-@[simp] theorem not_eq_eq_eq_not : ∀ {a b : Bool}, ((!a) = b) ↔ (a = !b) := by decide
-
 @[simp] theorem coe_iff_coe : ∀{a b : Bool}, (a ↔ b) ↔ a = b := by decide
 
 @[simp] theorem coe_true_iff_false  : ∀{a b : Bool}, (a ↔ b = false) ↔ a = (!b) := by decide

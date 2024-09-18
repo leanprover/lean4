@@ -109,7 +109,8 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
   rw [find?_eq_some]
-  simp only [Bool.not_eq_true', exists_and_right, mem_range'_1, and_congr_right_iff]
+  simp only [Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, mem_range'_1,
+    and_congr_right_iff]
   simp only [range'_eq_append_iff, eq_comm (a := i :: _), range'_eq_cons_iff]
   intro h
   constructor
@@ -275,15 +276,15 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   rw [getLast_eq_head_reverse]
   simp
 
-theorem find?_iota_eq_none {n : Nat} (p : Nat → Bool) :
+theorem find?_iota_eq_none {n : Nat} {p : Nat → Bool} :
     (iota n).find? p = none ↔ ∀ i, 0 < i → i ≤ n → !p i := by
   simp
 
 @[simp] theorem find?_iota_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (iota n).find? p = some i ↔ p i ∧ i ∈ iota n ∧ ∀ j, i < j → j ≤ n → !p j := by
   rw [find?_eq_some]
-  simp only [iota_eq_reverse_range', reverse_eq_append_iff, reverse_cons, append_assoc,
-    singleton_append, Bool.not_eq_true', exists_and_right, mem_reverse, mem_range'_1,
+  simp only [iota_eq_reverse_range', reverse_eq_append_iff, reverse_cons, append_assoc, cons_append,
+    nil_append, Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, mem_reverse, mem_range'_1,
     and_congr_right_iff]
   intro h
   constructor

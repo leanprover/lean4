@@ -367,11 +367,11 @@ theorem zip_of_prod {l : List α} {l' : List β} {lp : List (α × β)} (hl : lp
     (hr : lp.map Prod.snd = l') : lp = l.zip l' := by
   rw [← hl, ← hr, ← zip_unzip lp, ← unzip_fst, ← unzip_snd, zip_unzip, zip_unzip]
 
-@[simp] theorem tail_zip_fst {l : List (α × β)} : l.unzip.1.tail = l.tail.unzip.1 := by
-  cases l <;> simp
+theorem tail_zip_fst {l : List (α × β)} : l.unzip.1.tail = l.tail.unzip.1 := by
+  simp
 
-@[simp] theorem tail_zip_snd {l : List (α × β)} : l.unzip.2.tail = l.tail.unzip.2 := by
-  cases l <;> simp
+theorem tail_zip_snd {l : List (α × β)} : l.unzip.2.tail = l.tail.unzip.2 := by
+  simp
 
 @[simp] theorem unzip_replicate {n : Nat} {a : α} {b : β} :
     unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by

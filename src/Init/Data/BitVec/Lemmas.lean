@@ -279,21 +279,22 @@ private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) :
 @[simp] theorem getElem_zero_ofNat_one (h : 0 < w) : (BitVec.ofNat w 1)[0] = true := by
   simp [getElem_eq_testBit_toNat, h]
 
-@[simp] theorem getElem?_zero_ofNat_zero : (BitVec.ofNat (w+1) 0)[0]? = some false := by
-  simp [getElem?_eq_getElem]
+theorem getElem?_zero_ofNat_zero : (BitVec.ofNat (w+1) 0)[0]? = some false := by
+  simp
 
-@[simp] theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by
-  simp [getElem?_eq_getElem]
+theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by
+  simp
 
-@[simp] theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
+-- This does not need to be a `@[simp]` theorem as it is already handled by `getElem?_eq_getElem`.
+theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
   simp [ofBool, cond_eq_if]
   split <;> simp_all
 
 @[simp] theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
   rw [getElem_eq_iff, getElem?_zero_ofBool]
 
-@[simp] theorem getElem?_succ_ofBool (b : Bool) (i : Nat) : (ofBool b)[i + 1]? = none := by
-  simp [ofBool]
+theorem getElem?_succ_ofBool (b : Bool) (i : Nat) : (ofBool b)[i + 1]? = none := by
+  simp
 
 @[simp]
 theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) && b) := by
@@ -1703,7 +1704,7 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
   x < BitVec.ofFin y ↔ x.toFin < y := Iff.rfl
 @[simp] theorem ofFin_lt {x : Fin (2^n)} {y : BitVec n} :
   BitVec.ofFin x < y ↔ x < y.toFin := Iff.rfl
-@[simp] theorem ofNat_lt_ofNat {n} (x y : Nat) : BitVec.ofNat n x < BitVec.ofNat n y ↔ x % 2^n < y % 2^n := by
+@[simp] theorem ofNat_lt_ofNat {n} {x y : Nat} : BitVec.ofNat n x < BitVec.ofNat n y ↔ x % 2^n < y % 2^n := by
   simp [lt_def]
 
 @[simp] protected theorem not_le {x y : BitVec n} : ¬ x ≤ y ↔ y < x := by

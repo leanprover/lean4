@@ -1511,7 +1511,8 @@ Definition of bitvector addition as a nat.
   x + .ofFin y = .ofFin (x.toFin + y) := rfl
 
 theorem ofNat_add {n} (x y : Nat) : BitVec.ofNat n (x + y) = BitVec.ofNat n x + BitVec.ofNat n y := by
-  apply eq_of_toNat_eq ; simp [BitVec.ofNat]
+  apply eq_of_toNat_eq
+  simp [BitVec.ofNat, Fin.ofNat'_add]
 
 theorem ofNat_add_ofNat {n} (x y : Nat) : BitVec.ofNat n x + BitVec.ofNat n y = BitVec.ofNat n (x + y) :=
   (ofNat_add x y).symm
@@ -1565,10 +1566,12 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
   rfl
 @[simp] theorem sub_ofFin (x : BitVec n) (y : Fin (2^n)) : x - .ofFin y = .ofFin (x.toFin - y) :=
   rfl
+
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
 theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = .ofNat n ((2^n - y % 2^n) + x) := by
-  apply eq_of_toNat_eq ; simp [BitVec.ofNat]
+  apply eq_of_toNat_eq
+  simp [BitVec.ofNat, Fin.ofNat'_sub]
 
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
 

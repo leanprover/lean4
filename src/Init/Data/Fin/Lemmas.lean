@@ -750,12 +750,12 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 
 /-! ### add -/
 
-@[simp] theorem ofNat'_add [NeZero n] (x : Nat) (y : Fin n) :
+theorem ofNat'_add [NeZero n] (x : Nat) (y : Fin n) :
     Fin.ofNat' n x + y = Fin.ofNat' n (x + y.val) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.add_def]
 
-@[simp] theorem add_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+theorem add_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
     x + Fin.ofNat' n y = Fin.ofNat' n (x.val + y) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.add_def]
@@ -765,12 +765,12 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = ((n - b) + a) % n := by
   cases a; cases b; rfl
 
-@[simp] theorem ofNat'_sub [NeZero n] (x : Nat) (y : Fin n) :
+theorem ofNat'_sub [NeZero n] (x : Nat) (y : Fin n) :
     Fin.ofNat' n x - y = Fin.ofNat' n ((n - y.val) + x) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
 
-@[simp] theorem sub_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+theorem sub_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
     x - Fin.ofNat' n y = Fin.ofNat' n ((n - y % n) + x.val) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]

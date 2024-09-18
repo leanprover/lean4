@@ -252,21 +252,46 @@ theorem of_swap
   · exact Ne.symm hkj
 end IForAllIco
 
+inductive ITransGen {α} (r : α → α → Prop) (low high: Nat) (as: Array α) : α → α → Prop
+| base (i: Nat) (his: i < as.size) (hli: low ≤ i) (hih: i ≤ high) (j: Nat) (hjs: j < as.size) (hlj: low ≤ j) (hjh: j ≤ high)
+    (h: r (as[i]'his) (as[j]'hjs)): ITransGen r low high as (as[i]'his) (as[j]'hjs)
+| trans {a b c} : ITransGen r low high as a b → ITransGen r low high as b c → ITransGen r low high as a c
+
+namespace ITransGen
+def exists_left_idx (hr: ITransGen r low high as x y):
+    ∃ (i: Nat) (his: i < as.size) (_: low ≤ i) (_: i ≤ high), x = as[i]'his := by
+  induction hr
+  case base i his hli hih _ _ _ _ _ =>
+    exists i, his, hli, hih
+  case trans _ _ ih _ =>
+    exact ih
+
+def exists_right_idx (hr: ITransGen r low high as x y):
+    ∃ (j: Nat) (hjs: j < as.size) (_: low ≤ j) (_: j ≤ high), y = as[j]'hjs:= by
+  induction hr
+  case base _ _ _ _ j hjs hlj hjh _ =>
+    exists j, hjs, hlj, hjh
+  case trans _ _ _ ih =>
+    exact ih
+end ITransGen
+
 abbrev ITrans (r:  α → α → Prop) :=
   IForAllIcc3 (λ x y z ↦ r x y → r y z → r x z)
 
 abbrev ICompat (hr:  α → α → Prop) (r:  α → α → Prop) :=
   IForAllIcc2 (λ x y ↦ hr x y → r x y)
 
+namespace ICompat
+def refl: ICompat r r low high as := by
+  repeat intro h
+  exact h
+end ICompat
+
 abbrev ITransCompat (hr: α → α → Prop) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
   (ICompat hr r low high as) ∧ (ITrans r low high as)
 
-inductive ITransGen {α} (r : α → α → Prop) (low high: Nat) (as: Array α) : α → α → Prop
-| base (i: Nat) (his: i < as.size) (hli: low ≤ i) (hih: i ≤ high) (j: Nat) (hjs: j < as.size) (hlj: low ≤ j) (hjh: j ≤ high)
-    (h: r (as[i]'his) (as[j]'hjs)): ITransGen r low high as (as[i]'his) (as[j]'hjs)
-| trans {a b c} : ITransGen r low high as a b → ITransGen r low high as b c → ITransGen r low high as a c
-
 namespace ITransCompat
+def of_trans (h: ITrans r low high as): ITransCompat r r low high as := ⟨ICompat.refl, h⟩
 
 def compat (h: ITransCompat hr r low high as): ICompat hr r low high as := h.1
 def trans (h: ITransCompat hr r low high as): ITrans r low high as := h.2
@@ -323,11 +348,99 @@ def stotal' [Decidable (r y x)]: Completion r x y ∨ Completion r y x := by
 
 end Completion
 
+abbrev ITransGenC {α} (r : α → α → Prop) (low high: Nat) (as: Array α) :=
+  ITransGen (Completion r) low high as
+
+abbrev ITransGenCB {α} (f : α → α → Bool) (low high: Nat) (as: Array α) :=
+  ITransGenC (f · ·) low high as
+
 abbrev ITransCompatC (hr: α → α → Prop) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
   ITransCompat (Completion hr) r low high as
 
 abbrev ITransCompatCB (f: α → α → Bool) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
   ITransCompatC (f · ·) r low high as
+
+theorem iTransCompatCB_of_trans_total (f: α → α → Bool)
+    (trans: ∀ {x y z}, f x y → f y z → f x z) (total: ∀ {x y}, f x y ∨ f y x):
+  ITransCompatCB (f · ·) (f · ·) low high as := by
+  constructor
+  case left =>
+    intro i his _ _ j hjs _ _ h
+    cases h
+    case inl h =>
+      exact h
+    case inr h =>
+      apply Or.resolve_right
+      apply total
+      exact h
+  case right =>
+    intro i his _ _ j hjs _ _ k hks _ _ hxy hyz
+    apply trans hxy hyz
+
+theorem iTransCompatCB_of_wlinear_asymm (f: α → α → Bool)
+    (wlinear: ∀ {x y z}, f x z → f x y ∨ f y z) (asymm: ∀ {x y}, f x y → ¬f y x):
+  ITransCompatCB (f · ·) (λ x y ↦ ¬f y x) low high as := by
+  constructor
+  case left =>
+    intro i his _ _ j hjs _ _ h
+    cases h
+    case inl h =>
+      apply asymm
+      exact h
+    case inr h =>
+      exact h
+  case right =>
+    intro i his _ _ j hjs _ _ k hks _ _ hxy hyz
+    intro hki
+    apply not_or_intro hyz hxy
+    apply wlinear
+    exact hki
+
+def of_iTransCompat_iTransGen (h: ITransCompat hr r low high as) (htg: ITransGen hr low high as x y):
+  r x y := by
+  induction htg
+  case base i his hli hih j hjs hlj hjh c =>
+    exact h.compat i his hli hih j hjs hlj hjh c
+  case trans a b c ab bc hab hbc =>
+    obtain ⟨i, his, hli, hih, ha⟩ := ITransGen.exists_left_idx ab
+    obtain ⟨j, hjs, hlj, hjh, hb⟩ := ITransGen.exists_left_idx bc
+    obtain ⟨k, hks, hlk, hkh, hc⟩ := ITransGen.exists_right_idx bc
+    subst a b c
+    apply h.trans i his hli hih j hjs hlj hjh k hks hlk hkh hab hbc
+
+def eq_iTransGen_of_iTransCompat_iCompat (h: ITransCompat hr r low high as) (hc: ICompat r hr low high as):
+  IForAllIcc2 (λ x y ↦ ITransGen hr low high as x y = r x y) low high as := by
+  intro i his hli hih j hjs hlj hjh
+  ext
+  constructor
+  · intro h'
+    apply of_iTransCompat_iTransGen ?_ h'
+    exact h
+  · intro h'
+    apply ITransGen.base i his hli hih j hjs hlj hjh
+    exact hc i his hli hih j hjs hlj hjh h'
+
+def compat_completion: ICompat r (Completion r) low high as := by
+  repeat intro h
+  left
+  exact h
+
+def not_compat_completion: ICompat (λ x y ↦ ¬r y x) (Completion r) low high as := by
+  repeat intro h
+  right
+  exact h
+
+def eq_iTransGenC_of_iTransCompatC_iCompat (h: ITransCompatC r r low high as):
+  IForAllIcc2 (λ x y ↦ ITransGenC r low high as x y = r x y) low high as := by
+  apply eq_iTransGen_of_iTransCompat_iCompat
+  · exact h
+  · exact compat_completion
+
+def iTransGenC_eq_not_symm_of_iTransCompatC_iCompat (h: ITransCompatC r (λ x y ↦ ¬r y x) low high as):
+  IForAllIcc2 (λ x y ↦ ITransGenC r low high as x y = ¬r y x) low high as := by
+  apply eq_iTransGen_of_iTransCompat_iCompat
+  · exact h
+  · exact not_compat_completion
 
 local macro "elementwise"
   t:term : tactic =>
@@ -642,6 +755,20 @@ end IForAllIcc2I
 -/
 
 namespace IPairwise
+def congr_rel (h: IForAllIcc2 (λ x y ↦ r x y = r' x y) low high as):
+  IPairwise r low high as = IPairwise r' low high as := by
+  unfold IForAllIcc2 at h
+  unfold IPairwise
+  ext
+  apply forall₂_congr
+  intro i j
+  apply forall₄_congr
+  intro hli hij hjh hjs
+  have hih: i ≤ high := Nat.le_trans (Nat.le_of_lt hij) hjh
+  have his: i < as.size := Nat.lt_trans hij hjs
+  have hlj: low ≤ j := Nat.le_trans hli (Nat.le_of_lt hij)
+  apply eq_iff_iff.mp
+  exact h i his hli hih j hjs hlj hjh
 
 theorem glue_with_pivot
     {r: α → α → Prop}
@@ -755,6 +882,38 @@ theorem resize_out_of_bounds (h: ISortOf r low high as0 as) (hsh: (as.size - 1) 
   constructor
   case perm => exact h.perm.resize_out_of_bounds hsh'
   case ord => exact restrict_out_of_bounds h.ord hsh
+
+theorem congr_rel (h: IPerm low high orig sorted → IPairwise r low high sorted = IPairwise r' low high sorted):
+  ISortOf r low high orig sorted = ISortOf r' low high orig sorted := by
+  ext
+  constructor
+  all_goals
+    intro a
+    constructor
+    · exact a.perm
+    · exact (h a.perm) ▸ a.ord
+
+theorem congr_rel' (h: IForAllIcc2 (fun x y => r x y = r' x y) low high orig):
+  ISortOf r low high orig sorted = ISortOf r' low high orig sorted := by
+  apply ISortOf.congr_rel
+  intro hp
+  apply IPairwise.congr_rel
+  apply transport_exact_icc h hp
+
+theorem eq_of_trans_total {f: α → α → Bool}
+    (trans: ∀ {x y z}, f x y → f y z → f x z) (total: ∀ {x y}, f x y ∨ f y x):
+    ISortOf (ITransGenCB f low high as) low high as as' = ISortOf (f · · ) low high as as' := by
+  apply ISortOf.congr_rel'
+  apply eq_iTransGenC_of_iTransCompatC_iCompat
+  exact iTransCompatCB_of_trans_total f trans total
+
+theorem eq_of_wlinear_asymm
+    (wlinear: ∀ {x y z}, f x z → f x y ∨ f y z) (asymm: ∀ {x y}, f x y → ¬f y x):
+    ISortOf (ITransGenCB f low high as) low high as as' = ISortOf (λ x y ↦ ¬f y x) low high as as' := by
+  apply ISortOf.congr_rel'
+  apply iTransGenC_eq_not_symm_of_iTransCompatC_iCompat
+  exact iTransCompatCB_of_wlinear_asymm f wlinear asymm
+
 end ISortOf
 
 end Array.IntervalPreds

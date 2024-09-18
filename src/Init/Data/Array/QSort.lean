@@ -1236,7 +1236,7 @@ theorem qsort_sorts (as: Array α) (f: α → α → Bool) (low := 0) (high := a
 /--
 If f is a lawful ≤, i.e. a total order, meaning a transitive total relation, qsort sorts according to f:
 - The output is a permutation of the input
-- If i < j, then f (qsort as f _ _)[i] ≤ f (qsort as f _ _)[j]
+- If i < j, then f out[i] out[j]
 
 See [qsort_sorts] for the result for arbitrary f
 --/
@@ -1249,7 +1249,7 @@ theorem qsort_sorts_of_is_le (as: Array α) (f: α → α → Bool) (low := 0) (
 /--
 If f is a lawful <, i.e. a strict total order, meaning a weakly linear asymmetric relation, qsort sorts according to f:
 - The output is a permutation of the input
-- If i < j, then ¬ f (qsort as f _ _)[j] < f (qsort as f _ _)[i]
+- If i < j, then ¬ f out[j] < f out[i]
 
 See [qsort_sorts] for the result for arbitrary f
 --/

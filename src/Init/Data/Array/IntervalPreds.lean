@@ -304,17 +304,22 @@ def wtotal (h: ¬Completion r x y): Completion r y x := by
   intro h'
   exact h (Or.inl h')
 
-def refl [DecidableRel r] (x): Completion r x x := by
-  by_cases h: r x x
-  · exact pos h
-  · exact neg h
+def refl (x) [i: Decidable (r x x)]: Completion r x x := by
+  exact Decidable.em (r x x)
 
-def stotal [DecidableRel r]: Completion r x y ∨ Completion r y x := by
-  by_cases h: Completion r x y
+def stotal [Decidable (r x y)]: Completion r x y ∨ Completion r y x := by
+  by_cases h: r x y
   · left
-    exact h
+    exact pos h
   · right
-    exact wtotal h
+    exact neg h
+
+def stotal' [Decidable (r y x)]: Completion r x y ∨ Completion r y x := by
+  by_cases h: r y x
+  · right
+    exact pos h
+  · left
+    exact neg h
 
 end Completion
 

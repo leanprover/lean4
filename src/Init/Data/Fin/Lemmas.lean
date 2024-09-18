@@ -368,7 +368,7 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
 
 @[simp] theorem cast_mk (h : n = m) (i : Nat) (hn : i < n) : cast h ⟨i, hn⟩ = ⟨i, h ▸ hn⟩ := rfl
 
-@[simp] theorem cast_refl (n : Nat) (i : Fin n) : cast rfl i = i := by
+@[simp] theorem cast_refl (n : Nat) (h : n = n) : cast h = id := by
   ext
   simp
 

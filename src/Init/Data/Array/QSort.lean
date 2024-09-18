@@ -415,7 +415,7 @@ See [qsort_sorts] for the result for arbitrary f
 theorem qsort_sorts_of_is_le (as: Array α) (f: α → α → Bool) (low) (high)
     (trans: ∀ {x y z}, f x y → f y z → f x z) (total: ∀ {x y}, f x y ∨ f y x):
     ISortOf (f · ·) low high as (qsort as f low high)  := by
-  apply Eq.mp
+  apply Iff.mp
   apply ISortOf.eq_of_trans_total trans total (f := f)
   exact qsort_sorts as f low high
 
@@ -429,7 +429,7 @@ See [qsort_sorts] for the result for arbitrary f
 theorem qsort_sorts_of_is_lt (as: Array α) (f: α → α → Bool) (low := 0) (high := as.size - 1)
     (wlinear: ∀ {x y z}, f x z → f x y ∨ f y z) (asymm: ∀ {x y}, f x y → ¬f y x):
     ISortOf (λ x y ↦ ¬(f y x)) low high as (qsort as f low high)  := by
-  apply Eq.mp
+  apply Iff.mp
   exact ISortOf.eq_of_wlinear_asymm wlinear asymm
   exact qsort_sorts as f low high
 

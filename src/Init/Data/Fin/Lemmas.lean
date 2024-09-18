@@ -241,7 +241,7 @@ theorem add_def (a b : Fin n) : a + b = Fin.mk ((a + b) % n) (Nat.mod_lt _ a.siz
 
 theorem val_add (a b : Fin n) : (a + b).val = (a.val + b.val) % n := rfl
 
-@[simp] theorem zero_add {n : Nat} [NeZero n] (i : Fin n) : (0 : Fin n) + i = i := by
+@[simp] protected theorem zero_add {n : Nat} [NeZero n] (i : Fin n) : (0 : Fin n) + i = i := by
   ext
   simp [Fin.add_def, Nat.mod_eq_of_lt i.2]
 

@@ -261,6 +261,27 @@ abbrev ICompat (hr:  α → α → Prop) (r:  α → α → Prop) :=
 abbrev ITransCompat (hr: α → α → Prop) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
   (ICompat hr r low high as) ∧ (ITrans r low high as)
 
+inductive ITransGen {α} (r : α → α → Prop) (low high: Nat) (as: Array α) : α → α → Prop
+| base (i: Nat) (his: i < as.size) (hli: low ≤ i) (hih: i ≤ high) (j: Nat) (hjs: j < as.size) (hlj: low ≤ j) (hjh: j ≤ high)
+    (h: r (as[i]'his) (as[j]'hjs)): ITransGen r low high as (as[i]'his) (as[j]'hjs)
+| trans {a b c} : ITransGen r low high as a b → ITransGen r low high as b c → ITransGen r low high as a c
+
+namespace ITransCompat
+
+def compat (h: ITransCompat hr r low high as): ICompat hr r low high as := h.1
+def trans (h: ITransCompat hr r low high as): ITrans r low high as := h.2
+
+def mkITransGen: ITransCompat r (ITransGen r low high as) low high as := by
+  constructor
+  · unfold ICompat
+    unfold IForAllIcc2
+    simp
+    apply ITransGen.base
+  · intro i his _ _ j hjs _ _ k hks _ _
+    apply ITransGen.trans
+
+end ITransCompat
+
  /--
  Turns a relation into one that behaves like le
  If r is <, then this means a[i] < a[j] or a[j] !< a[i] => a[i] ≤ a[j]
@@ -302,30 +323,6 @@ abbrev ITransCompatC (hr: α → α → Prop) (r: α → α → Prop) (low high:
 
 abbrev ITransCompatCB (f: α → α → Bool) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
   ITransCompatC (f · ·) r low high as
-
-inductive ITransGen {α} (r : α → α → Prop) (low high: Nat) (as: Array α) : α → α → Prop
-| base (i: Nat) (his: i < as.size) (hli: low ≤ i) (hih: i ≤ high) (j: Nat) (hjs: j < as.size) (hlj: low ≤ j) (hjh: j ≤ high)
-    (h: r (as[i]'his) (as[j]'hjs)): ITransGen r low high as (as[i]'his) (as[j]'hjs)
-| trans {a b c} : ITransGen r low high as a b → ITransGen r low high as b c → ITransGen r low high as a c
-
-namespace ITransCompat
-
-def compat (h: ITransCompat hr r low high as): ICompat hr r low high as := h.1
-def trans (h: ITransCompat hr r low high as): ITrans r low high as := h.2
-
-def mkITransGen: ITransCompatCB f (ITransGen (Completion (f · ·)) low high as) low high as := by
-  constructor
-  · apply ITransGen.base
-  · intro i his _ _ j hjs _ _ k hks _ _
-    apply ITransGen.trans
-
-end ITransCompat
-
-namespace ITransCompatCB
-
-export ITransCompat (compat trans)
-
-end ITransCompatCB
 
 local macro "elementwise"
   t:term : tactic =>

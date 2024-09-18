@@ -174,8 +174,7 @@ theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
 
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
-    x.getLsbD i = x[i] := by
-  simp [getLsbD, getElem_eq_testBit_toNat]
+    x.getLsbD i = x[i] := rfl
 
 end getElem
 

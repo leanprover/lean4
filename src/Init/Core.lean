@@ -1193,6 +1193,21 @@ end
 
 /-! # Product -/
 
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (α × β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨(x, y)⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (MProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (PProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
+
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (default, default)
 

@@ -897,14 +897,14 @@ theorem congr_rel' (h: IForAllIcc2 (fun x y => r x y ↔ r' x y) low high orig):
   apply IPairwise.congr_rel
   apply transport_exact_icc h hp
 
-theorem eq_of_trans_total {f: α → α → Bool}
+theorem iff_of_trans_total {f: α → α → Bool}
     (trans: ∀ {x y z}, f x y → f y z → f x z) (total: ∀ {x y}, f x y ∨ f y x):
     ISortOf (ITransGenCB f low high as) low high as as' ↔ ISortOf (f · · ) low high as as' := by
   apply ISortOf.congr_rel'
   apply eq_iTransGenC_of_iTransCompatC_iCompat
   exact iTransCompatCB_of_trans_total f trans total
 
-theorem eq_of_wlinear_asymm
+theorem iff_of_wlinear_asymm
     (wlinear: ∀ {x y z}, f x z → f x y ∨ f y z) (asymm: ∀ {x y}, f x y → ¬f y x):
     ISortOf (ITransGenCB f low high as) low high as as' ↔ ISortOf (λ x y ↦ ¬f y x) low high as as' := by
   apply ISortOf.congr_rel'

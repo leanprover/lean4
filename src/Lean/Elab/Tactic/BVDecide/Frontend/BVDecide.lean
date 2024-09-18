@@ -189,30 +189,25 @@ where
   explainCounterExampleQuality (unusedHypotheses : Std.HashSet FVarId)
       (atomsAssignment : Std.HashMap Nat Expr) : MetaM MessageData := do
     let diagnosis ← diagnose unusedHypotheses atomsAssignment
-    let uninterpretedIssue := m!"- It uses uninterpreted symbols\n"
     let unusedHypsList := unusedHypotheses.toList.map mkFVar
     let unusedHypsIssue :=
-      m!"- The following potentially relevant hypotheses could not be used: {unusedHypsList}\n"
+      m!"The following potentially relevant hypotheses could not be used: {unusedHypsList}"
 
-    match diagnosis.containsUninterpreted, !diagnosis.unusedRelevantHypotheses.isEmpty with
-    | true, true =>
-      let mut err := m!"The prover found a potentially spurious counterexample:\n"
-      err := err ++ uninterpretedIssue
-      err := err ++ unusedHypsIssue
-      err := err ++ m!"Consider the following assignment:\n"
-      return err
-    | true, false =>
-      let mut err := m!"The prover found a potentially spurious counterexample:\n"
-      err := err ++ uninterpretedIssue
-      err := err ++ m!"Consider the following assignment:\n"
-      return err
-    | false, true =>
-      let mut err := m!"The prover found a potentially spurious counterexample:\n"
-      err := err ++ unusedHypsIssue
-      err := err ++ m!"Consider the following assignment:\n"
-      return err
-    | false, false =>
+    let explainers : List (Bool × MessageData) := [
+      (diagnosis.containsUninterpreted, m!"It uses uninterpreted symbols"),
+      (!diagnosis.unusedRelevantHypotheses.isEmpty, unusedHypsIssue)
+    ]
+
+    let folder acc explainer := if explainer.fst then acc.push explainer.snd else acc
+    let explanations := explainers.foldl (init := #[]) folder
+
+    if explanations.isEmpty then
       return m!"The prover found a counterexample, consider the following assignment:\n"
+    else
+      let mut err := m!"The prover found a potentially spurious counterexample:\n"
+      err := err ++ explanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
+      err := err ++ m!"Consider the following assignment:\n"
+      return err
 
 def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let hyps ← getPropHyps

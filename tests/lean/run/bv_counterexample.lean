@@ -74,7 +74,7 @@ example (x y : BitVec 32) (a : Bool) (h : x < y) : (x = y) ↔ a := by
 -- False counter examples but correctly detected as such.
 /--
 error: The prover found a potentially spurious counterexample:
-- The following potentially relevant hypothesis could not be used: [h]
+- The following potentially relevant hypotheses could not be used: [h]
 Consider the following assignment:
 x = 0xffffffff#32
 y = 0x7fffffff#32
@@ -99,7 +99,7 @@ example (x : BitVec 32) (h : x = zeros 32) : x = 0 := by
 /--
 error: The prover found a potentially spurious counterexample:
 - It uses uninterpreted symbols
-- The following potentially relevant hypothesis could not be used: [h1]
+- The following potentially relevant hypotheses could not be used: [h1]
 Consider the following assignment:
 x = 0xffffffff#32
 zeros 32 = 0xffffffff#32

@@ -360,7 +360,8 @@ abbrev ITransCompatC (hr: α → α → Prop) (r: α → α → Prop) (low high:
 abbrev ITransCompatCB (f: α → α → Bool) (r: α → α → Prop) (low high: Nat) (as: Array α) :=
   ITransCompatC (f · ·) r low high as
 
-theorem iTransCompatCB_of_trans_total (f: α → α → Bool)
+namespace ITransCompatCB
+theorem of_trans_total (f: α → α → Bool)
     (trans: ∀ {x y z}, f x y → f y z → f x z) (total: ∀ {x y}, f x y ∨ f y x):
   ITransCompatCB (f · ·) (f · ·) low high as := by
   constructor
@@ -377,7 +378,7 @@ theorem iTransCompatCB_of_trans_total (f: α → α → Bool)
     intro i his _ _ j hjs _ _ k hks _ _ hxy hyz
     apply trans hxy hyz
 
-theorem iTransCompatCB_of_wlinear_asymm (f: α → α → Bool)
+theorem of_wlinear_asymm (f: α → α → Bool)
     (wlinear: ∀ {x y z}, f x z → f x y ∨ f y z) (asymm: ∀ {x y}, f x y → ¬f y x):
   ITransCompatCB (f · ·) (λ x y ↦ ¬f y x) low high as := by
   constructor
@@ -395,6 +396,7 @@ theorem iTransCompatCB_of_wlinear_asymm (f: α → α → Bool)
     apply not_or_intro hyz hxy
     apply wlinear
     exact hki
+end ITransCompatCB
 
 def of_iTransCompat_iTransGen (h: ITransCompat hr r low high as) (htg: ITransGen hr low high as x y):
   r x y := by
@@ -902,14 +904,14 @@ theorem iff_of_trans_total {f: α → α → Bool}
     ISortOf (ITransGenCB f low high as) low high as as' ↔ ISortOf (f · · ) low high as as' := by
   apply ISortOf.congr_rel'
   apply eq_iTransGenC_of_iTransCompatC_iCompat
-  exact iTransCompatCB_of_trans_total f trans total
+  exact ITransCompatCB.of_trans_total f trans total
 
 theorem iff_of_wlinear_asymm
     (wlinear: ∀ {x y z}, f x z → f x y ∨ f y z) (asymm: ∀ {x y}, f x y → ¬f y x):
     ISortOf (ITransGenCB f low high as) low high as as' ↔ ISortOf (λ x y ↦ ¬f y x) low high as as' := by
   apply ISortOf.congr_rel'
   apply iTransGenC_eq_not_symm_of_iTransCompatC_iCompat
-  exact iTransCompatCB_of_wlinear_asymm f wlinear asymm
+  exact ITransCompatCB.of_wlinear_asymm f wlinear asymm
 
 end ISortOf
 

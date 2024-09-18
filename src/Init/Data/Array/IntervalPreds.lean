@@ -757,10 +757,9 @@ end IForAllIcc2I
 
 namespace IPairwise
 def congr_rel (h: IForAllIcc2 (λ x y ↦ r x y ↔ r' x y) low high as):
-  IPairwise r low high as = IPairwise r' low high as := by
+  IPairwise r low high as ↔ IPairwise r' low high as := by
   unfold IForAllIcc2 at h
   unfold IPairwise
-  ext
   apply forall₂_congr
   intro i j
   apply forall₄_congr
@@ -883,14 +882,17 @@ theorem resize_out_of_bounds (h: ISortOf r low high as0 as) (hsh: (as.size - 1) 
   case perm => exact h.perm.resize_out_of_bounds hsh'
   case ord => exact restrict_out_of_bounds h.ord hsh
 
-theorem congr_rel (h: IPerm low high orig sorted → IPairwise r low high sorted = IPairwise r' low high sorted):
+theorem congr_rel (h: IPerm low high orig sorted → (IPairwise r low high sorted ↔ IPairwise r' low high sorted)):
   ISortOf r low high orig sorted ↔ ISortOf r' low high orig sorted := by
   constructor
-  all_goals
-    intro a
+  · intro a
     constructor
     · exact a.perm
-    · exact (h a.perm) ▸ a.ord
+    · exact (h a.perm).mp a.ord
+  · intro a
+    constructor
+    · exact a.perm
+    · exact (h a.perm).mpr a.ord
 
 theorem congr_rel' (h: IForAllIcc2 (fun x y => r x y ↔ r' x y) low high orig):
   ISortOf r low high orig sorted ↔ ISortOf r' low high orig sorted := by

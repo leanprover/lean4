@@ -60,7 +60,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
      "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "BitVec.ofBool_xor_ofBool"}}}},
+    "id": {"const": {"declName": "BitVec.ofBool_or_ofBool"}}}},
   {"sortText": "6",
    "label": "BitVec.ofBool_or_ofBool",
    "kind": 3,

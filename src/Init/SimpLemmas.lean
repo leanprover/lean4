@@ -244,9 +244,7 @@ This helps confluence, and also helps combining pairs of `!`s.
   cases a <;> cases b <;> simp
 theorem Bool.not_not_eq {a b : Bool} : ¬(!a) = b ↔ a = b := by simp
 
-@[deprecated Bool.not_eq_eq_eq_not (since := "2024-09-18")]
 theorem Bool.not_eq_true'  (b : Bool) : ((!b) = true) = (b = false) := by simp
-@[deprecated Bool.not_eq_eq_eq_not (since := "2024-09-18")]
 theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by simp
 
 @[simp] theorem Bool.not_eq_true (b : Bool) : (¬(b = true)) = (b = false) := by cases b <;> decide

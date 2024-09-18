@@ -237,7 +237,7 @@ theorem testBit_two_pow_add_eq (x i : Nat) : testBit (2^i + x) i = !(testBit x i
   | _ p => simp [p]
 
 theorem testBit_mul_two_pow_add_eq (a b i : Nat) :
-    testBit (2^i*a + b) i = Bool.xor (a%2 = 1) (testBit b i) := by
+    testBit (2^i*a + b) i = (a%2 = 1 ^^ testBit b i) := by
   match a with
   | 0 => simp
   | a+1 =>
@@ -570,7 +570,7 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 := by
 /-! ### xor -/
 
 @[simp] theorem testBit_xor (x y i : Nat) :
-    (x ^^^ y).testBit i = Bool.xor (x.testBit i) (y.testBit i) := by
+    (x ^^^ y).testBit i = ((x.testBit i) ^^ (y.testBit i)) := by
   simp [HXor.hXor, Xor.xor, xor, testBit_bitwise ]
 
 @[simp] theorem zero_xor (x : Nat) : 0 ^^^ x = x := by

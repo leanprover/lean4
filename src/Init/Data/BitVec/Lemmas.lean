@@ -752,20 +752,20 @@ instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_co
   exact (Nat.mod_eq_of_lt <| Nat.xor_lt_two_pow x.isLt y.isLt).symm
 
 @[simp] theorem getLsbD_xor {x y : BitVec v} :
-    (x ^^^ y).getLsbD i = (xor (x.getLsbD i) (y.getLsbD i)) := by
+    (x ^^^ y).getLsbD i = ((x.getLsbD i) ^^ (y.getLsbD i)) := by
   rw [← testBit_toNat, getLsbD, getLsbD]
   simp
 
 @[simp] theorem getMsbD_xor {x y : BitVec w} :
-    (x ^^^ y).getMsbD i = (xor (x.getMsbD i) (y.getMsbD i)) := by
+    (x ^^^ y).getMsbD i = (x.getMsbD i ^^ y.getMsbD i) := by
   simp only [getMsbD]
   by_cases h : i < w <;> simp [h]
 
-@[simp] theorem getElem_xor {x y : BitVec w} {i : Nat} (h : i < w) : (x ^^^ y)[i] = (xor x[i] y[i]) := by
+@[simp] theorem getElem_xor {x y : BitVec w} {i : Nat} (h : i < w) : (x ^^^ y)[i] = (x[i] ^^ y[i]) := by
   simp [getElem_eq_testBit_toNat]
 
 @[simp] theorem msb_xor {x y : BitVec w} :
-    (x ^^^ y).msb = (xor x.msb y.msb) := by
+    (x ^^^ y).msb = (x.msb ^^ y.msb) := by
   simp [BitVec.msb]
 
 @[simp] theorem setWidth_xor {x y : BitVec w} :
@@ -1427,7 +1427,7 @@ theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)
   ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
 
 @[simp] theorem cons_xor_cons (x y : BitVec w) (a b : Bool) :
-    (cons a x) ^^^ (cons b y) = cons (xor a b) (x ^^^ y) := by
+    (cons a x) ^^^ (cons b y) = cons (a ^^ b) (x ^^^ y) := by
   ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
 
 /-! ### concat -/
@@ -1466,7 +1466,7 @@ theorem getLsbD_concat (x : BitVec w) (b : Bool) (i : Nat) :
   ext i; cases i using Fin.succRecOn <;> simp
 
 @[simp] theorem concat_xor_concat (x y : BitVec w) (a b : Bool) :
-    (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (xor a b) := by
+    (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (a ^^ b) := by
   ext i; cases i using Fin.succRecOn <;> simp
 
 /-! ### add -/

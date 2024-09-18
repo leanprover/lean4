@@ -132,7 +132,7 @@ theorem toNat_add_of_and_eq_zero {x y : BitVec w} (h : x &&& y = 0#w) :
   simp [not_eq_true, carry_of_and_eq_zero h]
 
 /-- Carry function for bitwise addition. -/
-def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, Bool.xor x (Bool.xor y c))
+def adcb (x y c : Bool) : Bool × Bool := (atLeastTwo x y c, x ^^ (y ^^ c))
 
 /-- Bitwise addition implemented via a ripple carry adder. -/
 def adc (x y : BitVec w) : Bool → Bool × BitVec w :=
@@ -140,7 +140,7 @@ def adc (x y : BitVec w) : Bool → Bool × BitVec w :=
 
 theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
     getLsbD (x + y + setWidth w (ofBool c)) i =
-      Bool.xor (getLsbD x i) (Bool.xor (getLsbD y i) (carry i x y c)) := by
+      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y c)) := by
   let ⟨x, x_lt⟩ := x
   let ⟨y, y_lt⟩ := y
   simp only [getLsbD, toNat_add, toNat_setWidth, i_lt, toNat_ofFin, toNat_ofBool,
@@ -161,7 +161,7 @@ theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool
 
 theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
     getLsbD (x + y) i =
-      Bool.xor (getLsbD x i) (Bool.xor (getLsbD y i) (carry i x y false)) := by
+      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y false)) := by
   simpa using getLsbD_add_add_bool i_lt x y false
 
 theorem adc_spec (x y : BitVec w) (c : Bool) :

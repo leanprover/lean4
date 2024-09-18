@@ -54,7 +54,7 @@
      "position": {"line": 9, "character": 11}},
     "id": {"const": {"declName": "BitVec.ofBool_and_ofBool"}}}},
   {"sortText": "5",
-   "label": "BitVec.ofBool_of_ofBool",
+   "label": "BitVec.ofBool_or_ofBool",
    "kind": 3,
    "data":
    {"params":

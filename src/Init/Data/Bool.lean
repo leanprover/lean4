@@ -7,12 +7,12 @@ prelude
 import Init.NotationExtra
 
 
-@[inherit_doc] infixl:33 " ^^ " => xor
-
 namespace Bool
 
 /-- Boolean exclusive or -/
 abbrev xor : Bool → Bool → Bool := bne
+
+@[inherit_doc] infixl:33 " ^^ " => xor
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with

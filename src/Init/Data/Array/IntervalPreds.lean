@@ -31,6 +31,24 @@ theorem dite (p: Prop) [Decidable p] (low high: Nat) (as0: Array α) (ast: p →
   case isTrue h => exact hpt h
   case isFalse h => exact hpf h
 
+theorem size_eq
+  (hp: IPerm low high as as' ): as.size = as'.size := by
+  induction hp with
+  | refl => rfl
+  | trans _ _ ih ih' => rwa [ih'] at ih
+  | swap => simp only [size_swap]
+
+theorem symm (hp: IPerm low high as as'): IPerm low high as' as := by
+  induction hp with
+  | refl => exact refl
+  | trans _ _ ih ih' => exact trans ih' ih
+  | swap as i his hli hih j hjs hlj hjh =>
+    have hs := (size_swap as ⟨i, his⟩ ⟨j, hjs⟩).symm
+    have := swap _
+      i (hs ▸ his) hli hih
+      j (hs ▸ hjs) hlj hjh
+    rwa [swap_swap] at this
+
 theorem trans_swap (hp: IPerm low high as0 as) (i: Nat) (his: i < as.size) (hli: low ≤ i) (hih: i ≤ high) (j: Nat) (hjs: j < as.size) (hlj: low ≤ j) (hjh: j ≤ high):
   IPerm low high as0 (as.swap ⟨i, his⟩ ⟨j, hjs⟩) := by
   apply IPerm.trans hp
@@ -54,13 +72,6 @@ theorem expand_up (hhh: high ≤ high')
 theorem expand_down (hll: low' ≤ low)
     (hp: IPerm low high as as'): IPerm low' high as as' :=
   hp.expand hll (Nat.le_refl _)
-
-theorem size_eq
-  (hp: IPerm low high as as' ): as.size = as'.size := by
-  induction hp with
-  | refl => rfl
-  | trans _ _ ih ih' => rwa [ih'] at ih
-  | swap => simp only [size_swap]
 
 theorem eq_of_singleton (hp: IPerm k k as as' ): as = as' := by
   induction hp with
@@ -143,20 +154,60 @@ end IPerm
 def IForAllIco (P: α → Prop) (low high: Nat) (as: Array α) :=
   ∀ k, (hks: k < as.size) → low ≤ k → (hkh: k < high) → P (as[k]'hks)
 
+namespace IForAllIco
+theorem map {P: α → Prop} {Q: α → Prop} (ha: IForAllIco P low high as) (f: {a: α} → P a → Q a):
+  IForAllIco Q low high as := by
+  iterate 4
+    intro x
+    specialize ha x
+  apply f
+  exact ha
+end IForAllIco
+
 def IForAllIcc (P: α → Prop) (low high: Nat) (as: Array α) :=
   (i: Nat) → (his: i < as.size) → low ≤ i → i ≤ high →
   P (as[i]'his)
+
+namespace ForAllIcc
+theorem map {P: α → Prop} {Q: α → Prop} (ha: IForAllIcc P low high as) (f: {a: α} → P a → Q a):
+  IForAllIcc Q low high as := by
+  iterate 4
+    intro x
+    specialize ha x
+  apply f
+  exact ha
+end ForAllIcc
 
 def IForAllIcc2 (P: α → α → Prop) (low high: Nat) (as: Array α) :=
   (i: Nat) → (his: i < as.size) → low ≤ i → i ≤ high →
   (j: Nat) → (hjs: j < as.size) → low ≤ j → j ≤ high →
   P (as[i]'his) (as[j]'hjs)
 
+namespace IForAllIcc2
+theorem map {P: α → α → Prop} {Q: α → α → Prop} (ha: IForAllIcc2 P low high as) (f: {a: α} → {b: α} → P a b → Q a b):
+  IForAllIcc2 Q low high as := by
+  iterate 8
+    intro x
+    specialize ha x
+  apply f
+  exact ha
+end IForAllIcc2
+
 def IForAllIcc3 (P: α → α → α → Prop) (low high: Nat) (as: Array α) :=
   (i: Nat) → (his: i < as.size) → low ≤ i → i ≤ high →
   (j: Nat) → (hjs: j < as.size) → low ≤ j → j ≤ high →
   (k: Nat) → (hks: k < as.size) → low ≤ k → k ≤ high →
   P (as[i]'his) (as[j]'hjs) (as[k]'hks)
+
+namespace ForAllIcc3
+theorem map {P: α → α → α → Prop} {Q: α → α → α → Prop} (ha: IForAllIcc3 P low high as) (f: (a: α) → (b: α) → (c: α) → P a b c → Q a b c):
+  IForAllIcc3 Q low high as := by
+  iterate 12
+    intro x
+    specialize ha x
+  apply f
+  exact ha
+end ForAllIcc3
 
 /-
 def IForAllIcc2I (P: Nat → Nat → α → α → Prop) (low high: Nat) (as: Array α) :=
@@ -175,12 +226,6 @@ abbrev IForAllIcoSwap (as: Array α) (i j) (his: i < as.size) (hjs: j < as.size)
   IForAllIco P low high (as.swap ⟨i, his⟩ ⟨j, hjs⟩)
 
 namespace IForAllIco
-theorem map {P: α → Prop} {Q: α → Prop} (ha: IForAllIco P low high as) (f: (a: α) → P a → Q a):
-  IForAllIco Q low high as := by
-  intro k hks hlk hkh
-  specialize ha k hks hlk hkh
-  exact f (as[k]'hks) ha
-
 theorem swap_left
     (hij: i ≤ j) {hjs: j < as.size} (hjp: P (as[j]'hjs))
     (ha: IForAllIco P low i as):
@@ -410,23 +455,37 @@ def of_iTransCompat_iTransGen (h: ITransCompat hr r low high as) (htg: ITransGen
     subst a b c
     apply h.trans i his hli hih j hjs hlj hjh k hks hlk hkh hab hbc
 
+theorem iForAll_of_iTransCompat_iTransGen
+    (hrel: ITransCompat hr r low high as):
+    IForAllIcc2 (λ x y ↦ ITransGen hr low high as x y → r x y) low high as:= by
+  intro i his _ _
+  intro j his _ _
+  exact of_iTransCompat_iTransGen hrel
+
+/-
+def left_iTransGen_of_iTransCompat_iCompat (hc: ICompat r hr low high as):
+  IForAllIcc2 (λ x y ↦ r x y → ITransGen hr low high as x y) low high as := by
+  intro i his hli hih j hjs hlj hjh
+  intro h'
+  apply ITransGen.base i his hli hih j hjs hlj hjh
+  exact hc i his hli hih j hjs hlj hjh h'
+-/
+
 def eq_iTransGen_of_iTransCompat_iCompat (h: ITransCompat hr r low high as) (hc: ICompat r hr low high as):
   IForAllIcc2 (λ x y ↦ ITransGen hr low high as x y ↔ r x y) low high as := by
   intro i his hli hih j hjs hlj hjh
   constructor
-  · intro h'
-    apply of_iTransCompat_iTransGen ?_ h'
-    exact h
+  · exact iForAll_of_iTransCompat_iTransGen h i his hli hih j hjs hlj hjh
   · intro h'
     apply ITransGen.base i his hli hih j hjs hlj hjh
     exact hc i his hli hih j hjs hlj hjh h'
 
-def compat_completion: ICompat r (Completion r) low high as := by
+def iCompat_completion: ICompat r (Completion r) low high as := by
   repeat intro h
   left
   exact h
 
-def not_compat_completion: ICompat (λ x y ↦ ¬r y x) (Completion r) low high as := by
+def not_iCompat_completion: ICompat (λ x y ↦ ¬r y x) (Completion r) low high as := by
   repeat intro h
   right
   exact h
@@ -435,13 +494,13 @@ def eq_iTransGenC_of_iTransCompatC_iCompat (h: ITransCompatC r r low high as):
   IForAllIcc2 (λ x y ↦ ITransGenC r low high as x y ↔ r x y) low high as := by
   apply eq_iTransGen_of_iTransCompat_iCompat
   · exact h
-  · exact compat_completion
+  · exact iCompat_completion
 
 def iTransGenC_eq_not_symm_of_iTransCompatC_iCompat (h: ITransCompatC r (λ x y ↦ ¬r y x) low high as):
   IForAllIcc2 (λ x y ↦ ITransGenC r low high as x y ↔ ¬r y x) low high as := by
   apply eq_iTransGen_of_iTransCompat_iCompat
   · exact h
-  · exact not_compat_completion
+  · exact not_iCompat_completion
 
 local macro "elementwise"
   t:term : tactic =>
@@ -486,6 +545,15 @@ instance {k: Nat} {as: Array α} [Trivial α T LE.le]: Inhabited (T (k + 1) k as
 
 instance {k: Nat} {as: Array α} [Trivial α T LT.lt]: Inhabited (T (k + 1) k as) where
   default := trivial (Nat.lt_add_one k)
+
+theorem map {P: α → Prop} {Q: α → Prop} (ha: IForAllIco P low high as) (f: {a: α} → P a → Q a):
+  IForAllIco Q low high as := by
+  iterate 4 intro _
+  iterate 4
+    specialize ha _
+    assumption
+  apply f
+  exact ha
 
 class Restrictable (α) (T: Nat → Nat → Array α → Prop) where
   restrict (ha: T low high as)
@@ -756,18 +824,23 @@ end IForAllIcc2I
 -/
 
 namespace IPairwise
-def congr_rel (h: IForAllIcc2 (λ x y ↦ r x y ↔ r' x y) low high as):
-  IPairwise r low high as ↔ IPairwise r' low high as := by
-  unfold IForAllIcc2 at h
-  unfold IPairwise
-  apply forall₂_congr
+def imap (h:IPairwise r low high as) (f: IForAllIcc2 (λ x y ↦ r x y → r' x y) low high as):
+  IPairwise r' low high as := by
   intro i j
-  apply forall₄_congr
   intro hli hij hjh hjs
   have hih: i ≤ high := Nat.le_trans (Nat.le_of_lt hij) hjh
   have his: i < as.size := Nat.lt_trans hij hjs
   have hlj: low ≤ j := Nat.le_trans hli (Nat.le_of_lt hij)
-  exact h i his hli hih j hjs hlj hjh
+  apply f i his hli hih j hjs hlj hjh
+  exact h i j hli hij hjh hjs
+
+def congr_rel (h: IForAllIcc2 (λ x y ↦ r x y ↔ r' x y) low high as):
+  IPairwise r low high as ↔ IPairwise r' low high as := by
+  constructor
+  · intro h'
+    exact imap h' (IForAllIcc2.map h Iff.mp)
+  · intro h'
+    exact imap h' (IForAllIcc2.map h Iff.mpr)
 
 theorem glue_with_pivot
     {r: α → α → Prop}
@@ -882,36 +955,51 @@ theorem resize_out_of_bounds (h: ISortOf r low high as0 as) (hsh: (as.size - 1) 
   case perm => exact h.perm.resize_out_of_bounds hsh'
   case ord => exact restrict_out_of_bounds h.ord hsh
 
-theorem congr_rel (h: IPerm low high orig sorted → (IPairwise r low high sorted ↔ IPairwise r' low high sorted)):
+theorem map_ord (h: ISortOf r low high orig sorted) (f: IPerm low high orig sorted → IPairwise r low high sorted → IPairwise r' low high sorted)
+  : ISortOf r' low high orig sorted := by
+  constructor
+  · exact h.perm
+  · exact f h.perm h.ord
+
+theorem congr_ord (h: IPerm low high orig sorted → (IPairwise r low high sorted ↔ IPairwise r' low high sorted)):
   ISortOf r low high orig sorted ↔ ISortOf r' low high orig sorted := by
   constructor
-  · intro a
-    constructor
-    · exact a.perm
-    · exact (h a.perm).mp a.ord
-  · intro a
-    constructor
-    · exact a.perm
-    · exact (h a.perm).mpr a.ord
+  · exact (map_ord · (h · |> Iff.mp))
+  · exact (map_ord · (h · |> Iff.mpr))
 
-theorem congr_rel' (h: IForAllIcc2 (fun x y => r x y ↔ r' x y) low high orig):
+theorem imap (h: ISortOf r low high orig sorted) (f: IForAllIcc2 (fun x y => r x y → r' x y) low high orig):
+  ISortOf r' low high orig sorted := by
+  apply ISortOf.map_ord h
+  intro hp
+  intro h'
+  apply IPairwise.imap
+  exact h'
+  apply transport_exact_icc f hp
+
+theorem congr_rel (h: IForAllIcc2 (fun x y => r x y ↔ r' x y) low high orig):
   ISortOf r low high orig sorted ↔ ISortOf r' low high orig sorted := by
-  apply ISortOf.congr_rel
+  apply ISortOf.congr_ord
   intro hp
   apply IPairwise.congr_rel
   apply transport_exact_icc h hp
 
+theorem of_iSortOf_ITransGen (h: ISortOf (ITransGen hr low high as) low high as as')
+    (hrel: ITransCompat hr r low high as):
+    (ISortOf r low high as as'):= by
+  apply imap h
+  exact iForAll_of_iTransCompat_iTransGen hrel
+
 theorem iff_of_trans_total {f: α → α → Bool}
     (trans: ∀ {x y z}, f x y → f y z → f x z) (total: ∀ {x y}, f x y ∨ f y x):
     ISortOf (ITransGenCB f low high as) low high as as' ↔ ISortOf (f · · ) low high as as' := by
-  apply ISortOf.congr_rel'
+  apply ISortOf.congr_rel
   apply eq_iTransGenC_of_iTransCompatC_iCompat
   exact ITransCompatCB.of_trans_total f trans total
 
 theorem iff_of_wlinear_asymm
     (wlinear: ∀ {x y z}, f x z → f x y ∨ f y z) (asymm: ∀ {x y}, f x y → ¬f y x):
     ISortOf (ITransGenCB f low high as) low high as as' ↔ ISortOf (λ x y ↦ ¬f y x) low high as as' := by
-  apply ISortOf.congr_rel'
+  apply ISortOf.congr_rel
   apply iTransGenC_eq_not_symm_of_iTransCompatC_iCompat
   exact ITransCompatCB.of_wlinear_asymm f wlinear asymm
 

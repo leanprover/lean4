@@ -195,8 +195,13 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
-  let synthOrder ← computeSynthOrder c
-  instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+  if let some info ← getProjectionFnInfo? declName then
+    trace[Meta.debug] "addInstance: {declName}, numParams: {info.numParams}"
+    let synthOrder := #[info.numParams]
+    instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
+  else
+    let synthOrder ← computeSynthOrder c
+    instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 builtin_initialize
   registerBuiltinAttribute {

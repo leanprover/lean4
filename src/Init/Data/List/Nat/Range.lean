@@ -358,17 +358,6 @@ theorem map_enumFrom (f : α → β) (n : Nat) (l : List α) :
     map (Prod.map id f) (enumFrom n l) = enumFrom n (map f l) := by
   induction l generalizing n <;> simp_all
 
-@[simp]
-theorem enumFrom_map_fst (n) :
-    ∀ (l : List α), map Prod.fst (enumFrom n l) = range' n l.length
-  | [] => rfl
-  | _ :: _ => congrArg (cons _) (enumFrom_map_fst _ _)
-
-@[simp]
-theorem enumFrom_map_snd : ∀ (n) (l : List α), map Prod.snd (enumFrom n l) = l
-  | _, [] => rfl
-  | _, _ :: _ => congrArg (cons _) (enumFrom_map_snd _ _)
-
 theorem snd_mem_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) : x.2 ∈ l :=
   enumFrom_map_snd n l ▸ mem_map_of_mem _ h
 
@@ -391,10 +380,6 @@ theorem mem_enumFrom {x : α} {i j : Nat} {xs : List α} (h : (i, x) ∈ xs.enum
       x = xs[i - j]'(by have := le_fst_of_mem_enumFrom h; have := fst_lt_add_of_mem_enumFrom h; omega) :=
   ⟨le_fst_of_mem_enumFrom h, fst_lt_add_of_mem_enumFrom h, snd_eq_of_mem_enumFrom h⟩
 
-theorem enumFrom_cons' (n : Nat) (x : α) (xs : List α) :
-    enumFrom n (x :: xs) = (n, x) :: (enumFrom n xs).map (Prod.map (· + 1) id) := by
-  rw [enumFrom_cons, Nat.add_comm, ← map_fst_add_enumFrom_eq_enumFrom]
-
 theorem enumFrom_map (n : Nat) (l : List α) (f : α → β) :
     enumFrom n (l.map f) = (enumFrom n l).map (Prod.map id f) := by
   induction l with
@@ -411,21 +396,38 @@ theorem enumFrom_append (xs ys : List α) (n : Nat) :
     rw [cons_append, enumFrom_cons, IH, ← cons_append, ← enumFrom_cons, length, Nat.add_right_comm,
       Nat.add_assoc]
 
-theorem enumFrom_eq_zip_range' (l : List α) {n : Nat} : l.enumFrom n = (range' n l.length).zip l :=
-  zip_of_prod (enumFrom_map_fst _ _) (enumFrom_map_snd _ _)
+theorem enumFrom_eq_cons_iff {l : List α} {n : Nat} :
+    l.enumFrom n = x :: l' ↔ ∃ a as, l = a :: as ∧ x = (n, a) ∧ l' = enumFrom (n + 1) as := by
+  rw [enumFrom_eq_zip_range', zip_eq_cons_iff]
+  constructor
+  · rintro ⟨l₁, l₂, h, rfl, rfl⟩
+    rw [range'_eq_cons_iff] at h
+    obtain ⟨rfl, -, rfl⟩ := h
+    exact ⟨x.2, l₂, by simp [enumFrom_eq_zip_range']⟩
+  · rintro ⟨a, as, rfl, rfl, rfl⟩
+    refine ⟨range' (n+1) as.length, as, ?_⟩
+    simp [enumFrom_eq_zip_range', range'_succ]
 
-@[simp]
-theorem unzip_enumFrom_eq_prod (l : List α) {n : Nat} :
-    (l.enumFrom n).unzip = (range' n l.length, l) := by
-  simp only [enumFrom_eq_zip_range', unzip_zip, length_range']
+theorem enumFrom_eq_append_iff {l : List α} {n : Nat} :
+    l.enumFrom n = l₁ ++ l₂ ↔
+      ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = l₁'.enumFrom n ∧ l₂ = l₂'.enumFrom (n + l₁'.length) := by
+  rw [enumFrom_eq_zip_range', zip_eq_append_iff]
+  constructor
+  · rintro ⟨w, x, y, z, h, h', rfl, rfl, rfl⟩
+    rw [range'_eq_append_iff] at h'
+    obtain ⟨k, -, rfl, rfl⟩ := h'
+    simp only [length_range'] at h
+    obtain rfl := h
+    refine ⟨y, z, rfl, ?_⟩
+    simp only [enumFrom_eq_zip_range', length_append, true_and]
+    congr
+    omega
+  · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
+    simp only [enumFrom_eq_zip_range']
+    refine ⟨range' n l₁'.length, range' (n + l₁'.length) l₂'.length, l₁', l₂', ?_⟩
+    simp [Nat.add_comm]
 
 /-! ### enum -/
-
-theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
-
-theorem enum_cons' (x : α) (xs : List α) :
-    enum (x :: xs) = (0, x) :: (enum xs).map (Prod.map (· + 1) id) :=
-  enumFrom_cons' _ _ _
 
 @[simp]
 theorem enum_eq_nil {l : List α} : List.enum l = [] ↔ l = [] := enumFrom_eq_nil

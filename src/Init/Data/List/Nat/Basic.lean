@@ -118,6 +118,53 @@ theorem minimum?_cons' {a : Nat} {l : List Nat} :
         specialize le b h
         split <;> omega
 
+theorem foldl_min
+    {α : Type _} [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
+    {l : List α} {a : α} :
+    l.foldl (init := a) min = min a (l.minimum?.getD a) := by
+  cases l with
+  | nil => simp [Std.IdempotentOp.idempotent]
+  | cons b l =>
+    simp only [minimum?]
+    induction l generalizing a b with
+    | nil => simp
+    | cons c l ih => simp [ih, Std.Associative.assoc]
+
+theorem foldl_min_right {α β : Type _}
+    [Min β] [Std.IdempotentOp (min : β → β → β)] [Std.Associative (min : β → β → β)]
+    {l : List α} {b : β} {f : α → β} :
+    (l.foldl (init := b) fun acc a => min acc (f a)) = min b ((l.map f).minimum?.getD b) := by
+  rw [← foldl_map, foldl_min]
+
+theorem foldl_min_le {l : List Nat} {a : Nat} : l.foldl (init := a) min ≤ a := by
+  induction l generalizing a with
+  | nil => simp
+  | cons c l ih =>
+    simp only [foldl_cons]
+    exact Nat.le_trans ih (Nat.min_le_left _ _)
+
+theorem foldl_min_min_of_le {l : List Nat} {a b : Nat} (h : a ≤ b) :
+    l.foldl (init := a) min ≤ b :=
+  Nat.le_trans (foldl_min_le) h
+
+theorem minimum?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
+    l.minimum?.getD k ≤ a := by
+  cases l with
+  | nil => simp at h
+  | cons b l =>
+    simp [minimum?_cons]
+    simp at h
+    rcases h with (rfl | h)
+    · exact foldl_min_le
+    · induction l generalizing b with
+      | nil => simp_all
+      | cons c l ih =>
+        simp only [foldl_cons]
+        simp at h
+        rcases h with (rfl | h)
+        · exact foldl_min_min_of_le (Nat.min_le_right _ _)
+        · exact ih _ h
+
 /-! ### maximum? -/
 
 -- A specialization of `maximum?_eq_some_iff` to Nat.
@@ -150,5 +197,52 @@ theorem maximum?_cons' {a : Nat} {l : List Nat} :
       | inr h =>
         specialize le b h
         split <;> omega
+
+theorem foldl_max
+    {α : Type _} [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
+    {l : List α} {a : α} :
+    l.foldl (init := a) max = max a (l.maximum?.getD a) := by
+  cases l with
+  | nil => simp [Std.IdempotentOp.idempotent]
+  | cons b l =>
+    simp only [maximum?]
+    induction l generalizing a b with
+    | nil => simp
+    | cons c l ih => simp [ih, Std.Associative.assoc]
+
+theorem foldl_max_right {α β : Type _}
+    [Max β] [Std.IdempotentOp (max : β → β → β)] [Std.Associative (max : β → β → β)]
+    {l : List α} {b : β} {f : α → β} :
+    (l.foldl (init := b) fun acc a => max acc (f a)) = max b ((l.map f).maximum?.getD b) := by
+  rw [← foldl_map, foldl_max]
+
+theorem le_foldl_max {l : List Nat} {a : Nat} : a ≤ l.foldl (init := a) max := by
+  induction l generalizing a with
+  | nil => simp
+  | cons c l ih =>
+    simp only [foldl_cons]
+    exact Nat.le_trans (Nat.le_max_left _ _) ih
+
+theorem le_foldl_max_of_le {l : List Nat} {a b : Nat} (h : a ≤ b) :
+    a ≤ l.foldl (init := b) max :=
+  Nat.le_trans h (le_foldl_max)
+
+theorem le_maximum?_getD_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
+    a ≤ l.maximum?.getD k := by
+  cases l with
+  | nil => simp at h
+  | cons b l =>
+    simp [maximum?_cons]
+    simp at h
+    rcases h with (rfl | h)
+    · exact le_foldl_max
+    · induction l generalizing b with
+      | nil => simp_all
+      | cons c l ih =>
+        simp only [foldl_cons]
+        simp at h
+        rcases h with (rfl | h)
+        · exact le_foldl_max_of_le (Nat.le_max_right b a)
+        · exact ih _ h
 
 end List

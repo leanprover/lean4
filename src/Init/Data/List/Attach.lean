@@ -328,7 +328,7 @@ Unfortunately this can't be applied by `simp` because of the higher order unific
 and even when rewriting we need to specify the function explicitly.
 -/
 theorem foldl_attach (l : List α) (f : β → α → β) (b : β) :
-    l.attach.foldl (fun acc t => f acc t.val) b = l.foldl (fun acc a => f acc a) b := by
+    l.attach.foldl (fun acc t => f acc t.1) b = l.foldl f b := by
   induction l generalizing b with
   | nil => simp
   | cons a l ih => rw [foldl_cons, attach_cons, foldl_cons, foldl_map, ih]
@@ -343,7 +343,7 @@ Unfortunately this can't be applied by `simp` because of the higher order unific
 and even when rewriting we need to specify the function explicitly.
 -/
 theorem foldr_attach (l : List α) (f : α → β → β) (b : β) :
-    l.attach.foldr (fun t acc => f t.val acc) b = l.foldr (fun a acc => f a acc) b := by
+    l.attach.foldr (fun t acc => f t.1 acc) b = l.foldr f b := by
   induction l generalizing b with
   | nil => simp
   | cons a l ih => rw [foldr_cons, attach_cons, foldr_cons, foldr_map, ih]

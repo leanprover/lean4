@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Count
+import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.Nat.Lemmas
 

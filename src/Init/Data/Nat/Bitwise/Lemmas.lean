@@ -591,7 +591,7 @@ protected theorem xor_comm (x y : Nat) : x ^^^ y = y ^^^ x := by
 
 protected theorem xor_assoc (x y z : Nat) : (x ^^^ y) ^^^ z = x ^^^ (y ^^^ z) := by
    apply Nat.eq_of_testBit_eq
-   simp
+   simp [Bool.bne_assoc]
 
 instance : Std.Associative (α := Nat) (· ^^^ ·) where
   assoc := Nat.xor_assoc

@@ -233,7 +233,7 @@ due to `beq_iff_eq`.
 
 theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by simp
 
-@[simp] theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
+theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
 instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
 @[simp] theorem bne_left_inj  : ∀ {x y z : Bool}, (x != y) = (x != z) ↔ y = z := by decide
@@ -241,7 +241,7 @@ instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
 theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
 
-/-! ### coercision related normal forms -/
+/-! ### coercion related normal forms -/
 
 theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :
     (a == b) = decide (a = b) := by

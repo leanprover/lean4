@@ -17,7 +17,7 @@ variable (u v w : Prop) [Decidable u] [Decidable v] [Decidable w]
 #check_simp decide (u → False) ~> !decide u
 #check_simp decide (¬u) ~> !decide u
 #check_simp (b = true) ≠ (c = false) ~> b = c
-#check_simp (b != c) != (false != d) ~> b != (c != d)
+#check_simp (b != c) != (false != d) ~> (b != c) != d
 #check_simp (b == false) ≠ (c != d) ~> b = (c != d)
 #check_simp (b = true) ≠ (c = false) ~> b = c
 #check_simp ¬b = !c ~> b = c

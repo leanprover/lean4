@@ -101,7 +101,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
     DiscrTree.mkPath type tcDtConfig
 
 /--
-Compute the order the arguments of `inst` should by synthesized.
+Compute the order the arguments of `inst` should be synthesized.
 
 The synthesization order makes sure that all mvars in non-out-params of the
 subgoals are assigned before we try to synthesize it.  Otherwise it goes left

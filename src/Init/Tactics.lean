@@ -773,8 +773,8 @@ macro_rules
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
-/-- Similar to `have`, but using `refine'` -/
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
+attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 

@@ -56,7 +56,7 @@ partial def of (t : Expr) : M (Option ReifiedBVLogical) := do
     let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr Bool.false)
     let proof := return mkRefl (mkConst ``Bool.false)
     return some ⟨boolExpr, proof, expr⟩
-  | not subExpr =>
+  | Bool.not subExpr =>
     let some sub ← of subExpr | return none
     let boolExpr := .not sub.bvExpr
     let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
@@ -65,9 +65,9 @@ partial def of (t : Expr) : M (Option ReifiedBVLogical) := do
       let subProof ← sub.evalsAtAtoms
       return mkApp3 (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.not_congr) subExpr subEvalExpr subProof
     return some ⟨boolExpr, proof, expr⟩
-  | or lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .or ``Std.Tactic.BVDecide.Reflect.Bool.or_congr
-  | and lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .and ``Std.Tactic.BVDecide.Reflect.Bool.and_congr
-  | xor lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .xor ``Std.Tactic.BVDecide.Reflect.Bool.xor_congr
+  | Bool.or lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .or ``Std.Tactic.BVDecide.Reflect.Bool.or_congr
+  | Bool.and lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .and ``Std.Tactic.BVDecide.Reflect.Bool.and_congr
+  | Bool.xor lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .xor ``Std.Tactic.BVDecide.Reflect.Bool.xor_congr
   | BEq.beq α _ lhsExpr rhsExpr =>
     match_expr α with
     | Bool => gateReflection lhsExpr rhsExpr .beq ``Std.Tactic.BVDecide.Reflect.Bool.beq_congr

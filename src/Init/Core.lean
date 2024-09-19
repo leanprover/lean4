@@ -817,7 +817,7 @@ variable {a b c d : Prop}
 theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
-theorem Iff.refl (a : Prop) : a ↔ a :=
+@[refl] theorem Iff.refl (a : Prop) : a ↔ a :=
   Iff.intro (fun h => h) (fun h => h)
 
 protected theorem Iff.rfl {a : Prop} : a ↔ a :=
@@ -1192,6 +1192,21 @@ instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : Decidab
 end
 
 /-! # Product -/
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (α × β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨(x, y)⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (MProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (PProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
 
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (default, default)

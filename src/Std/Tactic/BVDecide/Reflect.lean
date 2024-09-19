@@ -126,7 +126,7 @@ theorem or_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) 
   simp[*]
 
 theorem xor_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (xor lhs' rhs') = (xor lhs rhs) := by
+    (lhs' ^^ rhs') = (lhs ^^ rhs) := by
   simp[*]
 
 theorem beq_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :

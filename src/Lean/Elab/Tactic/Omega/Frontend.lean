@@ -422,10 +422,11 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
     trace[omega] "adding fact: {t}"
     match t with
     | .forallE _ x y _ =>
-      if (← isProp x) && (← isProp y) then
+      if ← pure t.isArrow <&&> isProp x <&&> isProp y then
         p.addFact (mkApp4 (.const ``Decidable.not_or_of_imp []) x y
           (.app (.const ``Classical.propDecidable []) x) h)
       else
+        trace[omega] "rejecting forall: it's not an arrow, or not propositional"
         return (p, 0)
     | .app _ _ =>
       match_expr t with

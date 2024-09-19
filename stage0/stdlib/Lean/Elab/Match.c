@@ -28614,7 +28614,7 @@ else
 uint8_t x_102; lean_object* x_103; 
 lean_dec(x_82);
 lean_dec(x_1);
-x_102 = 0;
+x_102 = 1;
 x_103 = l_Lean_Elab_Term_ToDepElimPattern_savePatternInfo_go(x_81, x_102, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_103) == 0)
 {

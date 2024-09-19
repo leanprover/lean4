@@ -56,8 +56,8 @@ attribute [bv_normalize] BitVec.zero_add
 attribute [bv_normalize] BitVec.neg_zero
 attribute [bv_normalize] BitVec.sub_self
 attribute [bv_normalize] BitVec.sub_zero
-attribute [bv_normalize] BitVec.zeroExtend_eq
-attribute [bv_normalize] BitVec.zeroExtend_zero
+attribute [bv_normalize] BitVec.setWidth_eq
+attribute [bv_normalize] BitVec.setWidth_zero
 attribute [bv_normalize] BitVec.getLsbD_zero
 attribute [bv_normalize] BitVec.getLsbD_zero_length
 attribute [bv_normalize] BitVec.getLsbD_concat_zero
@@ -205,6 +205,18 @@ theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
   simp [this]
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
+
+@[bv_normalize]
+theorem BitVec.ofBool_getLsbD (a : BitVec w) (i : Nat) :
+    BitVec.ofBool (a.getLsbD i) = a.extractLsb' i 1 := by
+  ext j
+  simp
+
+@[bv_normalize]
+theorem BitVec.ofBool_getElem (a : BitVec w) (i : Nat) (h : i < w) :
+    BitVec.ofBool a[i] = a.extractLsb' i 1 := by
+  rw [← BitVec.getLsbD_eq_getElem]
+  apply ofBool_getLsbD
 
 end Normalize
 end Std.Tactic.BVDecide

@@ -109,7 +109,8 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
   rw [find?_eq_some]
-  simp only [Bool.not_eq_true', exists_and_right, mem_range'_1, and_congr_right_iff]
+  simp only [Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, mem_range'_1,
+    and_congr_right_iff]
   simp only [range'_eq_append_iff, eq_comm (a := i :: _), range'_eq_cons_iff]
   intro h
   constructor
@@ -176,7 +177,7 @@ theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
-  · simp (config := { contextual := true }) [← getElem_take, Nat.lt_min]
+  · simp (config := { contextual := true }) [getElem_take, Nat.lt_min]
 
 theorem nodup_range (n : Nat) : Nodup (range n) := by
   simp (config := {decide := true}) only [range_eq_range', nodup_range']
@@ -258,6 +259,9 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   | zero => simp at h
   | succ n => simp
 
+@[simp] theorem tail_iota (n : Nat) : (iota n).tail = iota (n - 1) := by
+  cases n <;> simp
+
 @[simp] theorem reverse_iota : reverse (iota n) = range' 1 n := by
   induction n with
   | zero => simp
@@ -272,15 +276,15 @@ theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   rw [getLast_eq_head_reverse]
   simp
 
-theorem find?_iota_eq_none {n : Nat} (p : Nat → Bool) :
+theorem find?_iota_eq_none {n : Nat} {p : Nat → Bool} :
     (iota n).find? p = none ↔ ∀ i, 0 < i → i ≤ n → !p i := by
   simp
 
 @[simp] theorem find?_iota_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (iota n).find? p = some i ↔ p i ∧ i ∈ iota n ∧ ∀ j, i < j → j ≤ n → !p j := by
   rw [find?_eq_some]
-  simp only [iota_eq_reverse_range', reverse_eq_append_iff, reverse_cons, append_assoc,
-    singleton_append, Bool.not_eq_true', exists_and_right, mem_reverse, mem_range'_1,
+  simp only [iota_eq_reverse_range', reverse_eq_append_iff, reverse_cons, append_assoc, cons_append,
+    nil_append, Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, mem_reverse, mem_range'_1,
     and_congr_right_iff]
   intro h
   constructor
@@ -354,17 +358,6 @@ theorem map_enumFrom (f : α → β) (n : Nat) (l : List α) :
     map (Prod.map id f) (enumFrom n l) = enumFrom n (map f l) := by
   induction l generalizing n <;> simp_all
 
-@[simp]
-theorem enumFrom_map_fst (n) :
-    ∀ (l : List α), map Prod.fst (enumFrom n l) = range' n l.length
-  | [] => rfl
-  | _ :: _ => congrArg (cons _) (enumFrom_map_fst _ _)
-
-@[simp]
-theorem enumFrom_map_snd : ∀ (n) (l : List α), map Prod.snd (enumFrom n l) = l
-  | _, [] => rfl
-  | _, _ :: _ => congrArg (cons _) (enumFrom_map_snd _ _)
-
 theorem snd_mem_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) : x.2 ∈ l :=
   enumFrom_map_snd n l ▸ mem_map_of_mem _ h
 
@@ -387,10 +380,6 @@ theorem mem_enumFrom {x : α} {i j : Nat} {xs : List α} (h : (i, x) ∈ xs.enum
       x = xs[i - j]'(by have := le_fst_of_mem_enumFrom h; have := fst_lt_add_of_mem_enumFrom h; omega) :=
   ⟨le_fst_of_mem_enumFrom h, fst_lt_add_of_mem_enumFrom h, snd_eq_of_mem_enumFrom h⟩
 
-theorem enumFrom_cons' (n : Nat) (x : α) (xs : List α) :
-    enumFrom n (x :: xs) = (n, x) :: (enumFrom n xs).map (Prod.map (· + 1) id) := by
-  rw [enumFrom_cons, Nat.add_comm, ← map_fst_add_enumFrom_eq_enumFrom]
-
 theorem enumFrom_map (n : Nat) (l : List α) (f : α → β) :
     enumFrom n (l.map f) = (enumFrom n l).map (Prod.map id f) := by
   induction l with
@@ -407,21 +396,38 @@ theorem enumFrom_append (xs ys : List α) (n : Nat) :
     rw [cons_append, enumFrom_cons, IH, ← cons_append, ← enumFrom_cons, length, Nat.add_right_comm,
       Nat.add_assoc]
 
-theorem enumFrom_eq_zip_range' (l : List α) {n : Nat} : l.enumFrom n = (range' n l.length).zip l :=
-  zip_of_prod (enumFrom_map_fst _ _) (enumFrom_map_snd _ _)
+theorem enumFrom_eq_cons_iff {l : List α} {n : Nat} :
+    l.enumFrom n = x :: l' ↔ ∃ a as, l = a :: as ∧ x = (n, a) ∧ l' = enumFrom (n + 1) as := by
+  rw [enumFrom_eq_zip_range', zip_eq_cons_iff]
+  constructor
+  · rintro ⟨l₁, l₂, h, rfl, rfl⟩
+    rw [range'_eq_cons_iff] at h
+    obtain ⟨rfl, -, rfl⟩ := h
+    exact ⟨x.2, l₂, by simp [enumFrom_eq_zip_range']⟩
+  · rintro ⟨a, as, rfl, rfl, rfl⟩
+    refine ⟨range' (n+1) as.length, as, ?_⟩
+    simp [enumFrom_eq_zip_range', range'_succ]
 
-@[simp]
-theorem unzip_enumFrom_eq_prod (l : List α) {n : Nat} :
-    (l.enumFrom n).unzip = (range' n l.length, l) := by
-  simp only [enumFrom_eq_zip_range', unzip_zip, length_range']
+theorem enumFrom_eq_append_iff {l : List α} {n : Nat} :
+    l.enumFrom n = l₁ ++ l₂ ↔
+      ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = l₁'.enumFrom n ∧ l₂ = l₂'.enumFrom (n + l₁'.length) := by
+  rw [enumFrom_eq_zip_range', zip_eq_append_iff]
+  constructor
+  · rintro ⟨w, x, y, z, h, h', rfl, rfl, rfl⟩
+    rw [range'_eq_append_iff] at h'
+    obtain ⟨k, -, rfl, rfl⟩ := h'
+    simp only [length_range'] at h
+    obtain rfl := h
+    refine ⟨y, z, rfl, ?_⟩
+    simp only [enumFrom_eq_zip_range', length_append, true_and]
+    congr
+    omega
+  · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
+    simp only [enumFrom_eq_zip_range']
+    refine ⟨range' n l₁'.length, range' (n + l₁'.length) l₂'.length, l₁', l₂', ?_⟩
+    simp [Nat.add_comm]
 
 /-! ### enum -/
-
-theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
-
-theorem enum_cons' (x : α) (xs : List α) :
-    enum (x :: xs) = (0, x) :: (enum xs).map (Prod.map (· + 1) id) :=
-  enumFrom_cons' _ _ _
 
 @[simp]
 theorem enum_eq_nil {l : List α} : List.enum l = [] ↔ l = [] := enumFrom_eq_nil
@@ -447,6 +453,9 @@ theorem getElem_enum (l : List α) (i : Nat) (h : i < l.enum.length) :
 @[simp] theorem getLast?_enum (l : List α) :
     l.enum.getLast? = l.getLast?.map fun a => (l.length - 1, a) := by
   simp [getLast?_eq_getElem?]
+
+@[simp] theorem tail_enum (l : List α) : (enum l).tail = enumFrom 1 l.tail := by
+  simp [enum]
 
 theorem mk_mem_enum_iff_getElem? {i : Nat} {x : α} {l : List α} : (i, x) ∈ enum l ↔ l[i]? = x := by
   simp [enum, mk_mem_enumFrom_iff_le_and_getElem?_sub]

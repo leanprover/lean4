@@ -224,7 +224,7 @@ theorem find?_eq_some : xs.find? p = some b ↔ p b ∧ ∃ as bs, xs = as ++ b 
           simp only [cons_append] at h₁
           obtain ⟨rfl, -⟩ := h₁
           simp_all
-    · simp only [ih, Bool.not_eq_true', exists_and_right, and_congr_right_iff]
+    · simp only [ih, Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, and_congr_right_iff]
       intro pb
       constructor
       · rintro ⟨as, ⟨⟨bs, rfl⟩, h₁⟩⟩
@@ -620,6 +620,18 @@ theorem IsPrefix.findIdx_eq_of_findIdx_lt_length {l₁ l₂ : List α} {p : α �
   · rfl
   · simp_all
 
+theorem findIdx_le_findIdx {l : List α} {p q : α → Bool} (h : ∀ x ∈ l, p x → q x) : l.findIdx q ≤ l.findIdx p := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findIdx_cons, cond_eq_if]
+    split
+    · simp
+    · split
+      · simp_all
+      · simp only [Nat.add_le_add_iff_right]
+        exact ih fun _ m w => h _ (mem_cons_of_mem x m) w
+
 /-! ### findIdx? -/
 
 @[simp] theorem findIdx?_nil : ([] : List α).findIdx? p i = none := rfl
@@ -803,7 +815,7 @@ theorem findIdx?_join {l : List (List α)} {p : α → Bool} :
     simp only [replicate, findIdx?_cons, Nat.zero_add, findIdx?_succ, zero_lt_succ, true_and]
     split <;> simp_all
 
-theorem findIdx?_eq_enum_findSome? {xs : List α} {p : α → Bool} :
+theorem findIdx?_eq_findSome?_enum {xs : List α} {p : α → Bool} :
     xs.findIdx? p = xs.enum.findSome? fun ⟨i, a⟩ => if p a then some i else none := by
   induction xs with
   | nil => simp
@@ -813,6 +825,30 @@ theorem findIdx?_eq_enum_findSome? {xs : List α} {p : α → Bool} :
     · simp_all
     · simp_all only [enumFrom_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone, reduceCtorEq]
       simp [Function.comp_def, ← map_fst_add_enum_eq_enumFrom, findSome?_map]
+
+theorem findIdx?_eq_fst_find?_enum {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = (xs.enum.find? fun ⟨_, x⟩ => p x).map (·.1) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findIdx?_cons, Nat.zero_add, findIdx?_start_succ, enum_cons]
+    split
+    · simp_all
+    · simp only [Option.map_map, enumFrom_eq_map_enum, Bool.false_eq_true, not_false_eq_true,
+        find?_cons_of_neg, find?_map, *]
+      congr
+
+-- See also `findIdx_le_findIdx`.
+theorem findIdx?_eq_none_of_findIdx?_eq_none {xs : List α} {p q : α → Bool} (w : ∀ x ∈ xs, p x → q x) :
+    xs.findIdx? q = none → xs.findIdx? p = none := by
+  simp only [findIdx?_eq_none_iff]
+  intro h x m
+  cases z : p x
+  · rfl
+  · exfalso
+    specialize w x m z
+    specialize h x m
+    simp_all
 
 theorem Sublist.findIdx?_isSome {l₁ l₂ : List α} (h : l₁ <+ l₂) :
     (l₁.findIdx? p).isSome → (l₂.findIdx? p).isSome := by
@@ -878,7 +914,7 @@ theorem lookup_eq_some_iff {l : List (α × β)} {k : α} {b : β} :
   simp only [lookup_eq_findSome?, findSome?_eq_some_iff]
   constructor
   · rintro ⟨l₁, a, l₂, rfl, h₁, h₂⟩
-    simp only [beq_iff_eq, ite_some_none_eq_some] at h₁
+    simp only [beq_iff_eq, Option.ite_none_right_eq_some, Option.some.injEq] at h₁
     obtain ⟨rfl, rfl⟩ := h₁
     simp at h₂
     exact ⟨l₁, l₂, rfl, by simpa using h₂⟩

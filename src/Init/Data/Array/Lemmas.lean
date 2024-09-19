@@ -19,7 +19,7 @@ This file contains some theorems about `Array` and `List` needed for `Init.Data.
 
 namespace Array
 
-attribute [simp] data_toArray uset
+attribute [simp] uset
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 
@@ -828,7 +828,7 @@ theorem get_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.
     (as ++ bs)[i] = bs[i - as.size] := by
   simp only [getElem_eq_toList_getElem]
   have h' : i < (as.toList ++ bs.toList).length := by rwa [← toList_length, append_toList] at h
-  conv => rhs; rw [← List.getElem_append_right (h' := h') (h := Nat.not_lt_of_ge hle)]
+  conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [append_toList]
 
 @[simp] theorem append_nil (as : Array α) : as ++ #[] = as := by

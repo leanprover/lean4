@@ -6,6 +6,7 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.Option.BasicAux
 import Init.Data.Option.Instances
+import Init.Data.BEq
 import Init.Classical
 import Init.Ext
 
@@ -13,7 +14,7 @@ namespace Option
 
 theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 
-@[simp] theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp [mem_iff]
+theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp
 
 theorem mem_some_self (a : α) : a ∈ some a := mem_some.2 rfl
 
@@ -230,7 +231,7 @@ theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter
     o.isSome := by
   cases o <;> simp at h ⊢
 
-@[simp] theorem filter_eq_none (p : α → Bool) :
+@[simp] theorem filter_eq_none {p : α → Bool} :
     Option.filter p o = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
   cases o <;> simp [filter_some]
 
@@ -247,7 +248,7 @@ theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter
 theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
     x.bind (Option.map f) = (x.map (Option.map f)).bind id := by cases x <;> simp
 
-@[simp] theorem bind_map {f : α → β} {g : β → Option γ} {x : Option α} :
+theorem bind_map {f : α → β} {g : β → Option γ} {x : Option α} :
     (x.map f).bind g = x.bind (g ∘ f) := by cases x <;> simp
 
 @[simp] theorem map_bind {f : α → Option β} {g : β → γ} {x : Option α} :
@@ -411,26 +412,41 @@ variable [BEq α]
 @[simp] theorem some_beq_none (a : α) : ((some a : Option α) == none) = false := rfl
 @[simp] theorem some_beq_some {a b : α} : (some a == some b) = (a == b) := rfl
 
+@[simp] theorem reflBEq_iff : ReflBEq (Option α) ↔ ReflBEq α := by
+  constructor
+  · intro h
+    constructor
+    intro a
+    suffices (some a == some a) = true by
+      simpa only [some_beq_some]
+    simp
+  · intro h
+    constructor
+    · rintro (_ | a) <;> simp
+
+@[simp] theorem lawfulBEq_iff : LawfulBEq (Option α) ↔ LawfulBEq α := by
+  constructor
+  · intro h
+    constructor
+    · intro a b h
+      apply Option.some.inj
+      apply eq_of_beq
+      simpa
+    · intro a
+      suffices (some a == some a) = true by
+        simpa only [some_beq_some]
+      simp
+  · intro h
+    constructor
+    · intro a b h
+      simpa using h
+    · intro a
+      simp
+
 end beq
 
 /-! ### ite -/
 section ite
-
-@[simp] theorem mem_dite_none_left {x : α} [Decidable p] {l : ¬ p → Option α} :
-    (x ∈ if h : p then none else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
-  split <;> simp_all
-
-@[simp] theorem mem_dite_none_right {x : α} [Decidable p] {l : p → Option α} :
-    (x ∈ if h : p then l h else none) ↔ ∃ h : p, x ∈ l h := by
-  split <;> simp_all
-
-@[simp] theorem mem_ite_none_left {x : α} [Decidable p] {l : Option α} :
-    (x ∈ if p then none else l) ↔ ¬ p ∧ x ∈ l := by
-  split <;> simp_all
-
-@[simp] theorem mem_ite_none_right {x : α} [Decidable p] {l : Option α} :
-    (x ∈ if p then l else none) ↔ p ∧ x ∈ l := by
-  split <;> simp_all
 
 @[simp] theorem dite_none_left_eq_some {p : Prop} [Decidable p] {b : ¬p → Option β} :
     (if h : p then none else b h) = some a ↔ ∃ h, b h = some a := by
@@ -463,6 +479,22 @@ section ite
 @[simp] theorem some_eq_ite_none_right {p : Prop} [Decidable p] {b : Option α} :
     some a = (if p then b else none) ↔ p ∧ some a = b := by
   split <;> simp_all
+
+theorem mem_dite_none_left {x : α} [Decidable p] {l : ¬ p → Option α} :
+    (x ∈ if h : p then none else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
+  simp
+
+theorem mem_dite_none_right {x : α} [Decidable p] {l : p → Option α} :
+    (x ∈ if h : p then l h else none) ↔ ∃ h : p, x ∈ l h := by
+  simp
+
+theorem mem_ite_none_left {x : α} [Decidable p] {l : Option α} :
+    (x ∈ if p then none else l) ↔ ¬ p ∧ x ∈ l := by
+  simp
+
+theorem mem_ite_none_right {x : α} [Decidable p] {l : Option α} :
+    (x ∈ if p then l else none) ↔ p ∧ x ∈ l := by
+  simp
 
 @[simp] theorem isSome_dite {p : Prop} [Decidable p] {b : p → β} :
     (if h : p then some (b h) else none).isSome = true ↔ p := by

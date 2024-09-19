@@ -68,7 +68,7 @@ This parser has arity 1, and returns a `interpolatedStrKind` with an odd number 
 alternating between chunks of literal text and results from `p`. The literal chunks contain
 uninterpreted substrings of the input. For example, `"foo\n{2 + 2}"` would have three arguments:
 an atom `"foo\n{`, the parsed `2 + 2` term, and then the atom `}"`. -/
-def interpolatedStr (p : Parser) : Parser :=
+@[builtin_doc] def interpolatedStr (p : Parser) : Parser :=
   withAntiquot (mkAntiquot "interpolatedStr" interpolatedStrKind) $ interpolatedStrNoAntiquot p
 
 end Lean.Parser

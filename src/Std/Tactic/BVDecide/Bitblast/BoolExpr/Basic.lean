@@ -33,7 +33,7 @@ def toString : Gate → String
 def eval : Gate → Bool → Bool → Bool
   | and => (· && ·)
   | or => (· || ·)
-  | xor => _root_.xor
+  | xor => (· ^^ ·)
   | beq => (· == ·)
   | imp => (!· || ·)
 

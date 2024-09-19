@@ -168,7 +168,7 @@ Attempts to add the literal `(idx, b)` to clause `c`. Returns none if doing so w
 tautology.
 -/
 def insert (c : DefaultClause n) (l : Literal (PosFin n)) : Option (DefaultClause n) :=
-  if heq1 : c.clause.contains (l.1, not l.2) then
+  if heq1 : c.clause.contains (l.1, !l.2) then
     none -- Adding l would make c a tautology
   else if heq2 : c.clause.contains l then
     some c
@@ -353,7 +353,7 @@ def reduce_fold_fn (assignments : Array Assignment) (acc : ReduceResult (PosFin 
         else
           .reducedToEmpty
       | .neg =>
-        if not l.2 then
+        if !l.2 then
           .reducedToUnit l
         else
           .reducedToEmpty
@@ -367,7 +367,7 @@ def reduce_fold_fn (assignments : Array Assignment) (acc : ReduceResult (PosFin 
         else
           .reducedToUnit l'
       | .neg =>
-        if not l.2 then
+        if !l.2 then
           .reducedToNonunit -- Assignment fails to refute both l and l'
         else
           .reducedToUnit l'

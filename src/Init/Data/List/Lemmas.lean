@@ -266,8 +266,14 @@ theorem get!_len_le [Inhabited α] : ∀ {l : List α} {n}, length l ≤ n → l
 theorem getElem?_eq_some_iff {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length, l[n] = a := by
   simp only [← get?_eq_getElem?, get?_eq_some, get_eq_getElem]
 
+theorem some_eq_getElem?_iff {l : List α} : some a = l[n]? ↔ ∃ h : n < l.length, l[n] = a := by
+  rw [eq_comm, getElem?_eq_some_iff]
+
 @[simp] theorem getElem?_eq_none_iff : l[n]? = none ↔ length l ≤ n := by
   simp only [← get?_eq_getElem?, get?_eq_none]
+
+@[simp] theorem none_eq_getElem?_iff {l : List α} {n : Nat} : none = l[n]? ↔ length l ≤ n := by
+  simp [eq_comm (a := none)]
 
 theorem getElem?_eq_none (h : length l ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 

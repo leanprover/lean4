@@ -623,6 +623,10 @@ Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable
 def deriveUnaryInduction (name : Name) : MetaM Name := do
   let inductName := .append name `induct
   if ← hasConst inductName then return inductName
+  let env ← getEnv
+  let (env, prom?) ← env.addGlobalTheorem inductName
+  modifyEnv fun _ => env
+  let some prom := prom? | return inductName
 
   let info ← getConstInfoDefn name
 
@@ -690,7 +694,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   -- Prune unused level parameters, preserving the original order
   let us := info.levelParams.filter (params.contains ·)
 
-  addDecl <| Declaration.thmDecl
+  prom.resolve <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
   return inductName
 
@@ -705,13 +709,17 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
   for name in names, idx in [:names.size] do
     let inductName := .append name `induct
     unless ← hasConst inductName do
+      let env ← getEnv
+      let (env, prom?) ← env.addGlobalTheorem name
+      modifyEnv fun _ => env
+      let some prom := prom? | continue
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
         let value := mkAppN value xs
         let value ← PProdN.proj names.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
-      addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
+      prom.resolve <| Declaration.thmDecl { name := inductName, levelParams, type, value }
 
 /--
 In the type of `value`, reduces
@@ -778,6 +786,10 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
     -- If there is no mutual recursion, we generate the `foo.induct` directly.
     .append eqnInfo.declNames[0]! `induct
   if ← hasConst inductName then return inductName
+  let env ← getEnv
+  let (env, prom?) ← env.addGlobalTheorem inductName
+  modifyEnv fun _ => env
+  let some prom := prom? | return inductName
 
   let ci ← getConstInfo unaryInductName
   let us := ci.levelParams
@@ -812,7 +824,7 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
   let type ← inferType value
   let type ← elimOptParam type
 
-  addDecl <| Declaration.thmDecl
+  prom.resolve <| Declaration.thmDecl
     { name := inductName, levelParams := ci.levelParams, type, value }
   return inductName
 

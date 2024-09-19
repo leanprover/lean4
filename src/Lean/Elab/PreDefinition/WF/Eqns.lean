@@ -88,9 +88,13 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
+    let env ← getEnv
+    let (env, prom?) ← env.addGlobalTheorem name
+    modifyEnv fun _ => env
+    let some prom := prom? | continue
     let value ← mkProof declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
+    prom.resolve <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
     }

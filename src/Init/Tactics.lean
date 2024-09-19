@@ -379,7 +379,8 @@ macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
 
 -- But, mostly for backward compatibility, we try `eq_refl` too (reduces more aggressively)
 macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
-
+-- Als for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
+macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).

@@ -16,4 +16,8 @@ variable {α : Nat → Type u} [∀ i, LE (α i)]
 instance : L (S α) Nat α := sorry
 instance : LE (S α) := ⟨fun f g ↦ ∀ i, f i ≤ g i⟩
 
-example : ∀ {a b : S α}, L.coe a ≤ L.coe b ↔ a ≤ b := by rfl
+example : ∀ {a b : S α}, L.coe a ≤ L.coe b ↔ a ≤ b := by
+  -- at some point, rfl would, for Iff.rfl, use `exact` which would enable implicit lambdas
+  fail_if_success rfl
+  -- how, one has to intro first
+  intros; rfl

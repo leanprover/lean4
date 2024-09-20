@@ -18,21 +18,21 @@ set_option linter.all true
 Converts a `PlainDateTime` to a `Timestamp`
 -/
 @[inline]
-def ofPlainDateTime (pdt : PlainDateTime) : Timestamp :=
+def ofPlainDateTimeAssumingUTC (pdt : PlainDateTime) : Timestamp :=
   pdt.toTimestampAssumingUTC
 
 /--
 Converts a `Timestamp` to a `PlainDateTime`
 -/
 @[inline]
-def toPlainDateTime (timestamp : Timestamp) : PlainDateTime :=
+def toPlainDateTimeAssumingUTC (timestamp : Timestamp) : PlainDateTime :=
   PlainDateTime.ofUTCTimestamp timestamp
 
 /--
 Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
-def ofPlainDate (pd : PlainDate) : Timestamp :=
+def ofPlainDateAssumingUTC (pd : PlainDate) : Timestamp :=
   let days := pd.toDaysSinceUNIXEpoch
   let secs := days.toSeconds
   Timestamp.ofSecondsSinceUnixEpoch secs
@@ -41,7 +41,7 @@ def ofPlainDate (pd : PlainDate) : Timestamp :=
 Converts a `Timestamp` to a `PlainDate`
 -/
 @[inline]
-def toPlainDate (timestamp : Timestamp) : PlainDate :=
+def toPlainDateAssumingUTC (timestamp : Timestamp) : PlainDate :=
   let secs := timestamp.toSecondsSinceUnixEpoch
   let days := Day.Offset.ofSeconds secs
   PlainDate.ofDaysSinceUNIXEpoch days
@@ -70,7 +70,7 @@ Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
 def toTimestampAssumingUTC (pdt : PlainDate) : Timestamp :=
-  Timestamp.ofPlainDate pdt
+  Timestamp.ofPlainDateAssumingUTC pdt
 
 /--
 Calculates the duration between a given `PlainDate` and a specified date.
@@ -101,14 +101,14 @@ Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
 def ofPlainDate (pd : PlainDate) : PlainDateTime :=
-  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainDate pd)
+  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainDateAssumingUTC pd)
 
 /--
 Converts a `PlainDateTime` to a `PlainDate`
 -/
 @[inline]
 def toPlainDate (pdt : PlainDateTime) : PlainDate :=
-  Timestamp.toPlainDate pdt.toTimestampAssumingUTC
+  Timestamp.toPlainDateAssumingUTC pdt.toTimestampAssumingUTC
 
 /--
 Converts a `PlainTime` to a `PlainDateTime`
@@ -125,10 +125,10 @@ def toPlainTime (pdt : PlainDateTime) : PlainTime :=
   Timestamp.toPlainTime pdt.toTimestampAssumingUTC
 
 instance : ToTimestamp PlainDateTime where
-  toTimestamp := Timestamp.ofPlainDateTime
+  toTimestamp := Timestamp.ofPlainDateTimeAssumingUTC
 
 instance : ToTimestamp PlainDate where
-  toTimestamp := Timestamp.ofPlainDate
+  toTimestamp := Timestamp.ofPlainDateAssumingUTC
 
 /--
 Calculates the duration between a given `PlainDateTime` and a specified date.

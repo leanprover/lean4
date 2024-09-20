@@ -41,6 +41,13 @@ instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 namespace Ordinal
 
 /--
+`OfMonth` represents the number of weeks within a month. It ensures that the week is within the
+correct bounds—either 1 to 6, representing the possible weeks in a month.
+-/
+def OfMonth := Bounded.LE 1 6
+
+
+/--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
 def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 53 := by decide) : Ordinal :=
@@ -57,6 +64,34 @@ Converts an `Ordinal` to an `Offset`.
 -/
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
+
+/--
+Convert `Week.Offset` into `Millisecond.Offset`.
+-/
+@[inline]
+def toMilliseconds (weeks : Week.Offset) : Millisecond.Offset :=
+  weeks.mul 604800000
+
+/--
+Convert `Millisecond.Offset` into `Week.Offset`.
+-/
+@[inline]
+def ofMilliseconds (millis : Millisecond.Offset) : Week.Offset :=
+  millis.ediv 604800000
+
+/--
+Convert `Week.Offset` into `Nanosecond.Offset`.
+-/
+@[inline]
+def toNanoseconds (weeks : Week.Offset) : Nanosecond.Offset :=
+  weeks.mul 604800000000000
+
+/--
+Convert `Nanosecond.Offset` into `Week.Offset`.
+-/
+@[inline]
+def ofNanoseconds (nanos : Nanosecond.Offset) : Week.Offset :=
+  nanos.ediv 604800000000000
 
 /--
 Convert `Week.Offset` into `Second.Offset`.

@@ -35,7 +35,7 @@ inductive Era
 `Offset` represents a year offset, defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE
 
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
 
@@ -70,21 +70,29 @@ def toMonths (val : Offset) : Month.Offset :=
   val.mul 12
 
 /--
-Determines if a year is a leap year in the proleptic gregorian calendar.
+Determines if a year is a leap year in the proleptic Gregorian calendar.
 -/
 @[inline]
 def isLeap (y : Offset) : Bool :=
   y.toInt.mod 4 = 0 ∧ (y.toInt.mod 100 ≠ 0 ∨ y.toInt.mod 400 = 0)
 
 /--
+Returns the `Era` of the `Year`.
+-/
+def era (year : Offset) : Era :=
+  if year.toInt ≥ 1
+    then .ce
+    else .bce
+
+/--
 Checks if the given date is valid for the specified year, month, and day.
 -/
 @[inline]
 abbrev Valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
-  month.Valid year.isLeap day
+  day ≤ month.days year.isLeap
 
 instance : Decidable (Valid year month day) :=
-  dite (month.Valid year.isLeap day) isTrue isFalse
+  dite (day ≤ month.days year.isLeap) isTrue isFalse
 
 end Offset
 end Year

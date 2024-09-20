@@ -34,45 +34,93 @@ instance {x y : Ordinal} : Decidable (x < y) :=
 instance : Inhabited Ordinal where default := 1
 
 /--
-`Ordinal.OfYear` represents the number of days in a year, accounting for leap years. It ensures that
-the day is within the correct bounds—either 1 to 365 for regular years or 1 to 366 for leap years.
+`Offset` represents an offset in days. It is defined as an `Int` with a base unit of 86400 (the number of seconds in a day).
+This type supports arithmetic operations like addition, subtraction, multiplication, and division, and also comparisons like less than or equal.
 -/
-def Ordinal.OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
+def Offset : Type := UnitVal 86400
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
 
-instance : OfNat (Ordinal.OfYear leap) n := by
-  have inst := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (364 : Nat))) n)
-  cases leap
-  · exact inst
-  · exact ⟨inst.ofNat.expandTop (by decide)⟩
+/--
+Provides an instance for creating an `Offset` from a natural number (`OfNat`), converting the input to the base unit (days).
+-/
+instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
-instance : OfNat (Ordinal.OfYear true) 366 where
-  ofNat := Bounded.LE.mk (Int.ofNat 366) (by decide)
+/--
+Provides a decidable instance to check if one `Offset` is less than or equal to another.
+-/
+instance {x y : Offset} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
 
+/--
+Provides a decidable instance to check if one `Offset` is strictly less than another.
+-/
+instance {x y : Offset} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
+namespace Ordinal
+
+/--
+`OfYear` represents the day ordinal within a year, which can be bounded between 1 and 365 or 366,
+depending on whether it's a leap year.
+-/
+def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
+
+namespace OfYear
+
+/--
+Creates an ordinal for a specific day within the year, ensuring that the provided day (`data`)
+is within the valid range for the year, which can be 1 to 365 or 366 for leap years.
+-/
+@[inline]
+def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ (if leap then 366 else 365) := by decide) : OfYear leap :=
+  Bounded.LE.ofNat' data h
+
+end OfYear
+
+/--
+`Period` is an enumeration representing different times of the day: morning, afternoon, evening, and night.
+-/
+inductive Period
+  /-- Represents the morning period. -/
+  | morning
+
+  /-- Represents the afternoon period. -/
+  | afternoon
+
+  /-- Represents the evening period. -/
+  | evening
+
+  /-- Represents the night period. -/
+  | night
+
+/--
+Instance to allow creation of an `Ordinal.OfYear` from a natural number, ensuring the value is
+within the bounds of the year, which depends on whether it's a leap year or not.
+-/
+instance : OfNat (Ordinal.OfYear leap) n :=
+  match leap with
+  | true => inferInstanceAs (OfNat (Bounded.LE 1 (1 + (365 : Nat))) n)
+  | false => inferInstanceAs (OfNat (Bounded.LE 1 (1 + (364 : Nat))) n)
+
+/--
+Provides a default value for `Ordinal.OfYear`, defaulting to day 1.
+-/
 instance : Inhabited (Ordinal.OfYear leap) where
   default := by
     refine ⟨1, And.intro (by decide) ?_⟩
     split <;> simp
 
 /--
-`Offset` represents an offset in days. It is defined as an `Int`.
--/
-def Offset : Type := UnitVal 86400
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
-
-instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
-
-namespace Ordinal
-
-/--
-Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+Creates an ordinal from a natural number, ensuring the number is within the valid range
+for days of a month (1 to 31).
 -/
 @[inline]
 def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 31 := by decide) : Ordinal :=
   Bounded.LE.ofNat' data h
 
 /--
-Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds, if its 0 then its converted
-to 1.
+Creates an ordinal from a `Fin` value, ensuring it is within the valid range for days of the month (1 to 31).
+If the `Fin` value is 0, it is converted to 1.
 -/
 @[inline]
 def ofFin (data : Fin 32) : Ordinal :=
@@ -85,9 +133,29 @@ Converts an `Ordinal` to an `Offset`.
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
+namespace OfYear
+
+/--
+Converts an `OfYear` ordinal to a `Offset`.
+-/
+def toOffset (of: OfYear leap) : Offset :=
+  UnitVal.mk of.val
+
+end OfYear
 end Ordinal
 
 namespace Offset
+
+/--
+Converts an `Ordinal` to an `Offset`.
+-/
+@[inline]
+def toOrdinal (off : Offset) (h : off.val ≥ 1 ∧ off.val ≤ 31) : Ordinal :=
+  Bounded.LE.mk off.val h
+
+theorem toOffset_toOrdinal {d : Ordinal} : ∃h, d.toOffset.toOrdinal h = d := by
+  simp [Ordinal.toOffset, toOrdinal, Bounded.LE.mk, UnitVal.ofInt]
+  exists d.property
 
 /--
 Creates an `Offset` from a natural number.

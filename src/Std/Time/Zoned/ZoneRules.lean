@@ -86,7 +86,7 @@ namespace LocalTimeType
 Gets the `TimeZone` offset from a `LocalTimeType`.
 -/
 def getTimeZone (time : LocalTimeType) : TimeZone :=
-  ⟨time.gmtOffset, time.abbreviation, time.isDst⟩
+  ⟨time.gmtOffset, time.identifier, time.abbreviation, time.isDst⟩
 
 end LocalTimeType
 
@@ -149,9 +149,10 @@ namespace Transition
 Create a TimeZone from a Transition.
 -/
 def createTimeZoneFromTransition (transition : Transition) : TimeZone :=
+  let name := transition.localTimeType.identifier
   let offset := transition.localTimeType.gmtOffset
-  let name := transition.localTimeType.abbreviation
-  TimeZone.mk offset name transition.localTimeType.isDst
+  let abbreviation := transition.localTimeType.abbreviation
+  TimeZone.mk offset name abbreviation transition.localTimeType.isDst
 
 /--
 Applies the transition to a Timestamp.

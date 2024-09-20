@@ -21,6 +21,15 @@ for potential leap second.
 -/
 def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 60 else 59))
 
+instance : BEq (Ordinal leap) where
+  beq x y := BEq.beq x.val y.val
+
+instance : LE (Ordinal leap) where
+  le x y := LE.le x.val y.val
+
+instance : LT (Ordinal leap) where
+  lt x y := LT.lt x.val y.val
+
 instance : ToString (Ordinal leap) where
   toString x := toString x.val
 
@@ -33,8 +42,11 @@ instance : OfNat (Ordinal leap) n := by
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩
 
-instance : OfNat (Ordinal true) 60 where
-  ofNat := Bounded.LE.mk (Int.ofNat 60) (by decide)
+instance {x y : Ordinal l} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Ordinal l} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 /--
 `Offset` represents an offset in seconds. It is defined as an `Int`.
@@ -42,7 +54,8 @@ instance : OfNat (Ordinal true) 60 where
 def Offset : Type := UnitVal 1
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
 
-instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
+instance : OfNat Offset n :=
+  ⟨UnitVal.ofNat n⟩
 
 namespace Offset
 
@@ -63,6 +76,13 @@ def ofInt (data : Int) : Offset :=
 end Offset
 
 namespace Ordinal
+
+/--
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+-/
+@[inline]
+def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ Int.ofNat (if leap then 60 else 59)) : Ordinal leap :=
+  Bounded.LE.mk data h
 
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.

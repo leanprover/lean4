@@ -32,7 +32,7 @@ Converts a `Nanosecond.Offset` to a `Millisecond.Offset`.
 -/
 @[inline]
 def toMilliseconds (offset : Nanosecond.Offset) : Millisecond.Offset :=
-  offset.ediv 1000000
+  offset.div 1000000
 
 /--
 Converts a `Millisecond.Offset` to a `Nanosecond.Offset`.
@@ -46,7 +46,7 @@ Converts a `Nanosecond.Offset` to a `Second.Offset`.
 -/
 @[inline]
 def toSeconds (offset : Nanosecond.Offset) : Second.Offset :=
-  offset.ediv 1000000000
+  offset.div 1000000000
 
 /--
 Converts a `Second.Offset` to a `Nanosecond.Offset`.
@@ -60,7 +60,7 @@ Converts a `Nanosecond.Offset` to a `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (offset : Nanosecond.Offset) : Minute.Offset :=
-  offset.ediv 60000000000
+  offset.div 60000000000
 
 /--
 Converts a `Minute.Offset` to a `Nanosecond.Offset`.
@@ -74,7 +74,7 @@ Converts a `Nanosecond.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def toHours (offset : Nanosecond.Offset) : Hour.Offset :=
-  offset.ediv 3600000000000
+  offset.div 3600000000000
 
 /--
 Converts an `Hour.Offset` to a `Nanosecond.Offset`.
@@ -99,14 +99,14 @@ Converts a `Nanosecond.Offset` to a `Millisecond.Offset`.
 -/
 @[inline]
 def ofNanoseconds (offset : Nanosecond.Offset) : Millisecond.Offset :=
-  offset.ediv 1000000
+  offset.div 1000000
 
 /--
 Converts a `Millisecond.Offset` to a `Second.Offset`.
 -/
 @[inline]
 def toSeconds (offset : Millisecond.Offset) : Second.Offset :=
-  offset.ediv 1000
+  offset.div 1000
 
 /--
 Converts a `Second.Offset` to a `Millisecond.Offset`.
@@ -120,7 +120,7 @@ Converts a `Millisecond.Offset` to a `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (offset : Millisecond.Offset) : Minute.Offset :=
-  offset.ediv 60000
+  offset.div 60000
 
 /--
 Converts a `Minute.Offset` to a `Millisecond.Offset`.
@@ -134,7 +134,7 @@ Converts a `Millisecond.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def toHours (offset : Millisecond.Offset) : Hour.Offset :=
-  offset.ediv 3600000
+  offset.div 3600000
 
 /--
 Converts an `Hour.Offset` to a `Millisecond.Offset`.
@@ -159,7 +159,7 @@ Converts a `Nanosecond.Offset` to a `Second.Offset`.
 -/
 @[inline]
 def ofNanoseconds (offset : Nanosecond.Offset) : Second.Offset :=
-  offset.ediv 1000000000
+  offset.div 1000000000
 
 /--
 Converts a `Second.Offset` to a `Millisecond.Offset`.
@@ -173,14 +173,14 @@ Converts a `Millisecond.Offset` to a `Second.Offset`.
 -/
 @[inline]
 def ofMilliseconds (offset : Millisecond.Offset) : Second.Offset :=
-  offset.ediv 1000
+  offset.div 1000
 
 /--
 Converts a `Second.Offset` to a `Minute.Offset`.
 -/
 @[inline]
 def toMinutes (offset : Second.Offset) : Minute.Offset :=
-  offset.ediv 60
+  offset.div 60
 
 /--
 Converts a `Minute.Offset` to a `Second.Offset`.
@@ -194,7 +194,7 @@ Converts a `Second.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def toHours (offset : Second.Offset) : Hour.Offset :=
-  offset.ediv 3600
+  offset.div 3600
 
 /--
 Converts an `Hour.Offset` to a `Second.Offset`.
@@ -219,7 +219,7 @@ Converts a `Nanosecond.Offset` to a `Minute.Offset`.
 -/
 @[inline]
 def ofNanoseconds (offset : Nanosecond.Offset) : Minute.Offset :=
-  offset.ediv 60000000000
+  offset.div 60000000000
 
 /--
 Converts a `Minute.Offset` to a `Millisecond.Offset`.
@@ -233,7 +233,7 @@ Converts a `Millisecond.Offset` to a `Minute.Offset`.
 -/
 @[inline]
 def ofMilliseconds (offset : Millisecond.Offset) : Minute.Offset :=
-  offset.ediv 60000
+  offset.div 60000
 
 /--
 Converts a `Minute.Offset` to a `Second.Offset`.
@@ -247,14 +247,14 @@ Converts a `Second.Offset` to a `Minute.Offset`.
 -/
 @[inline]
 def ofSeconds (offset : Second.Offset) : Minute.Offset :=
-  offset.ediv 60
+  offset.div 60
 
 /--
 Converts a `Minute.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def toHours (offset : Minute.Offset) : Hour.Offset :=
-  offset.ediv 60
+  offset.div 60
 
 /--
 Converts an `Hour.Offset` to a `Minute.Offset`.
@@ -279,7 +279,7 @@ Converts a `Nanosecond.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def ofNanoseconds (offset : Nanosecond.Offset) : Hour.Offset :=
-  offset.ediv 3600000000000
+  offset.div 3600000000000
 
 /--
 Converts an `Hour.Offset` to a `Millisecond.Offset`.
@@ -293,7 +293,7 @@ Converts a `Millisecond.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def ofMilliseconds (offset : Millisecond.Offset) : Hour.Offset :=
-  offset.ediv 3600000
+  offset.div 3600000
 
 /--
 Converts an `Hour.Offset` to a `Second.Offset`.
@@ -307,7 +307,7 @@ Converts a `Second.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def ofSeconds (offset : Second.Offset) : Hour.Offset :=
-  offset.ediv 3600
+  offset.div 3600
 
 /--
 Converts an `Hour.Offset` to a `Minute.Offset`.
@@ -321,7 +321,7 @@ Converts a `Minute.Offset` to an `Hour.Offset`.
 -/
 @[inline]
 def ofMinutes (offset : Minute.Offset) : Hour.Offset :=
-  offset.ediv 60
+  offset.div 60
 
 end Hour.Offset
 

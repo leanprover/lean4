@@ -27,6 +27,11 @@ structure TimeZone where
   name : String
 
   /--
+  The abbreviation of the time zone/
+  -/
+  abbreviation : String
+
+  /--
   Day light saving flag.
   -/
   isDST : Bool
@@ -44,25 +49,25 @@ opaque getSystemTimezone : IO TimeZone
 A zeroed `Timezone` representing UTC (no offset).
 -/
 def UTC : TimeZone :=
-  TimeZone.mk (Offset.zero) "Coordinated Universal Time" false
+  TimeZone.mk (Offset.zero) "Coordinated Universal Time" "UTC" false
 
 /--
 A zeroed `Timezone` representing GMT (no offset).
 -/
 def GMT : TimeZone :=
-  TimeZone.mk (Offset.zero) "Greenwich Mean Time" false
+  TimeZone.mk (Offset.zero) "Greenwich Mean Time" "GMT" false
 
 /--
 Creates a `Timestamp` from a given number of hour.
 -/
-def ofHours (name : String) (n : Hour.Offset) (isDST : Bool := false) : TimeZone :=
-  TimeZone.mk (Offset.ofHours n) name isDST
+def ofHours (name : String) (abbreviation : String) (n : Hour.Offset) (isDST : Bool := false) : TimeZone :=
+  TimeZone.mk (Offset.ofHours n) name abbreviation isDST
 
 /--
 Creates a `Timestamp` from a given number of second.
 -/
-def ofSeconds (name : String) (n : Second.Offset) (isDST : Bool := false) : TimeZone :=
-  TimeZone.mk (Offset.ofSeconds n) name isDST
+def ofSeconds (name : String) (abbreviation : String) (n : Second.Offset) (isDST : Bool := false) : TimeZone :=
+  TimeZone.mk (Offset.ofSeconds n) name abbreviation isDST
 
 /--
 Gets the number of seconds in a timezone offset.

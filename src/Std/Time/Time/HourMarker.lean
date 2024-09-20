@@ -23,16 +23,25 @@ inductive HourMarker
   | pm
   deriving Repr, BEq
 
+namespace HourMarker
+
+/--
+`ofOrdinal` converts an `Hour.Ordinal` value to an `HourMarker`, indicating whether it is AM or PM.
+-/
+def ofOrdinal (time : Hour.Ordinal) : HourMarker :=
+  if time.val ≥ 12 then
+    .pm
+  else
+    .am
+
 /--
 Converts a 12-hour clock time to a 24-hour clock time based on the `HourMarker`.
 -/
-def HourMarker.toAbsolute (marker : HourMarker) (time : Bounded.LE 0 12) : Hour.Ordinal l :=
+def toAbsolute (marker : HourMarker) (time : Bounded.LE 1 12) : Hour.Ordinal :=
   match marker with
-  | .am => by
-    refine time.expandTop ?_
-    split <;> decide
-  | .pm => by
-    have time := time.add 12 |>.emod 24 (by decide)
-    cases l
-    · exact time
-    · exact time.expandTop (by decide)
+  | .am => time.sub 1 |>.expandTop (by decide)
+  | .pm => time.add 11 |>.emod 24 (by decide)
+
+end HourMarker
+end Time
+end Std

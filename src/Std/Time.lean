@@ -116,58 +116,93 @@ Represents spans of time and the difference between two points in time.
 
 # Formats
 
-Format strings are used to convert between `String` representations and date/time types, e.g, `YYYY-MM-DD'T'hh:mm:ss.sssZ`.
-The supported formats include:
+Format strings are used to convert between `String` representations and date/time types, such as `yyyy-MM-dd'T'HH:mm:ss.sssZ`.
+The table below outlines the available format specifiers. Some specifiers can be modified by repeating characters to
+adjust truncation and offsets. Some of them when a character is repeated `n` times, it truncates the corresponding value to
+`n` characters, usually when not specified a quantity.
 
-- **Year:**
-  - `YYYY`: Four-digit year (e.g., 2024)
-  - `YY`: Two-digit year (e.g., 24 for 2024)
-- **Month:**
-  - `MMMM`: Full month name (e.g., January, February)
-  - `MMM`: Abbreviated month name (e.g., Jan, Feb)
-  - `MM`: Two-digit month (e.g., 01 for January)
-  - `M`: One or two-digit month (e.g., 1 for January, 10 for October)
-- **Day:**
-  - `DD`: Two-digit day of the month (e.g., 01, 02)
-  - `D`: One or two-digit day of the month (e.g., 1, 2)
-  - `d`: One or two-digit day of the month with space padding (e.g., " 1", "12")
-- **Day of Week:**
-  - `EEEE`: Full name of the day of the week (e.g., Monday, Tuesday)
-  - `EEE`: Abbreviated day of the week (e.g., Mon, Tue)
-- **Hour:**
-  - `hh`: Two-digit hour in 24-hour format (e.g., 13, 14)
-  - `h`: One or two-digit hour in 24-hour format (e.g., 1, 2)
-  - `HH`: Two-digit hour in 12-hour format (e.g., 01, 02)
-  - `H`: One or two-digit hour in 12-hour format (e.g., 1, 2)
-- **AM/PM Indicator:**
-  - `AA`: Uppercase AM/PM (e.g., AM, PM)
-  - `aa`: Lowercase am/pm (e.g., am, pm)
-- **Minute:**
-  - `mm`: Two-digit minute (e.g., 01, 02)
-  - `m`: One or two-digit minute (e.g., 1, 2)
-- **Second:**
-  - `sssssssss` : Nine-digit nanosseconds (e.g., 000000009)
-  - `sss`: Three-digit milliseconds (e.g., 001, 202)
-  - `ss`: Two-digit second (e.g., 01, 02)
-  - `s`: One or two-digit second (e.g., 1, 2)
-- **Timezone:**
-  - `ZZZZZ`: Full timezone offset with hours and minutes (e.g., +03:00)
-  - `ZZZZ`: Timezone offset without the colon (e.g., +0300)
-  - `ZZZ`: Like `ZZZZ`, but with "UTC" for UTC
-  - `Z`: Like `ZZZZZ`, but with "Z" for UTC
-  - `z`: Timezone name (e.g., Brasilia Standard Time)
+The supported formats include:
+- `G`: Represents the era, such as AD (Anno Domini) or BC (Before Christ).
+  - `G`, `GG`, `GGG` (short): Displays the era in a short format (e.g., "AD").
+  - `GGGG` (full): Displays the era in a full format (e.g., "Anno Domini").
+  - `GGGGG` (narrow): Displays the era in a narrow format (e.g., "A").
+- `y`: Represents the year of the era.
+  - `yy`: Displays the year in a two-digit format, showing the last two digits (e.g., "04" for 2004).
+  - `yyyy`: Displays the year in a four-digit format (e.g., "2004").
+  - `yyyy+`: Extended format for years with more than four digits.
+- `D`: Represents the day of the year.
+- `M`: Represents the month of the year, displayed as either a number or text.
+  - `M`, `MM`: Displays the month as a number, with `MM` zero-padded (e.g., "7" for July, "07" for July with padding).
+  - `MMM`: Displays the abbreviated month name (e.g., "Jul").
+  - `MMMM`: Displays the full month name (e.g., "July").
+  - `MMMMM`: Displays the month in a narrow form (e.g., "J" for July).
+- `d`: Represents the day of the month.
+- `Q`: Represents the quarter of the year.
+  - `Q`, `QQ`: Displays the quarter as a number (e.g., "3", "03").
+  - `QQQ` (short): Displays the quarter as an abbreviated text (e.g., "Q3").
+  - `QQQQ` (full): Displays the full quarter text (e.g., "3rd quarter").
+  - `QQQQQ` (narrow): Displays the full quarter text (e.g., "3rd quarter").
+- `w`: Represents the week of the week-based year (e.g., "27").
+- `W`: Represents the week of the month (e.g., "4").
+- `E`: Represents the day of the week as text.
+  - `E`, `EE`, `EEE`: Displays the abbreviated day name (e.g., "Tue").
+  - `EEEE`: Displays the full day name (e.g., "Tuesday").
+  - `EEEEE`: Displays the narrow day name (e.g., "T" for Tuesday).
+- `e`: Represents the localized day of the week.
+  - `e`, `ee`: Displays the day of the week as a number, starting from 1 (Monday) to 7 (Sunday).
+  - `eee`, `eeee`, `eeeee`: Displays the localized day of the week as text (same format as `E`).
+- `F`: Represents the aligned week of the month (e.g., "3").
+- `a`: Represents the AM or PM designation of the day.
+  - `a`, `aa`, `aaa`: Displays AM or PM in a concise format (e.g., "PM").
+  - `aaaa`: Displays the full AM/PM designation (e.g., "PM").
+- `B`: Represents the period of the day (e.g., "in the morning", "at night").
+  - `b`, `bb`, `bbb` (short): Displays the abbreviated period of the day (e.g., "morning").
+  - `bbbb` (full): Displays the full period of the day (e.g., "in the morning").
+  - `bbbbb` (narrow): Displays a narrow version of the period of the day (e.g., "m" for morning).
+- `h`: Represents the hour of the AM/PM clock (1-12) (e.g., "12").
+- `K`: Represents the hour of the AM/PM clock (0-11) (e.g., "0").
+- `k`: Represents the hour of the day in a 1-24 format (e.g., "24").
+- `H`: Represents the hour of the day in a 0-23 format (e.g., "0").
+- `m`: Represents the minute of the hour (e.g., "30").
+- `s`: Represents the second of the minute (e.g., "55").
+- `S`: Represents a fraction of a second, typically displayed as a decimal number (e.g., "978" for milliseconds).
+- `A`: Represents the millisecond of the day (e.g., "1234").
+- `n`: Represents the nanosecond of the second (e.g., "987654321").
+- `N`: Represents the nanosecond of the day (e.g., "1234000000").
+- `V`: Represents the time zone ID, which could be a city-based zone (e.g., "America/Los_Angeles"), a UTC marker (`"Z"`), or a specific offset (e.g., "-08:30").
+- `z`: Represents the time zone name.
+  - `z`, `zz`, `zzz`: Shows an abbreviated time zone name (e.g., "PST" for Pacific Standard Time).
+  - `zzzz`: Displays the full time zone name (e.g., "Pacific Standard Time").
+- `O`: Represents the localized zone offset in the format "GMT" followed by the time difference from UTC.
+  - `O`: Displays the GMT offset in a simple format (e.g., "GMT+8").
+  - `O`: Displays the full GMT offset, including hours and minutes (e.g., "GMT+08:00").
+- `X`: Represents the zone offset, using 'Z' for UTC and specifying the offset.
+  - `X`: Displays the hour offset (e.g., "-08").
+  - `XX`: Displays the hour and minute offset without a colon (e.g., "-0830").
+  - `XXX`: Displays the hour and minute offset with a colon (e.g., "-08:30").
+  - `XXXX`: Displays the hour, minute, and second offset without a colon (e.g., "-083045").
+  - `XXXXX`: Displays the hour, minute, and second offset with a colon (e.g., "-08:30:45").
+  - It also uses `Z` to represent UTC without any offset.
+- `x`: Represents the zone offset without using 'Z' for zero offsets.
+  - `x`: Displays the hour offset (e.g., "+08").
+  - `xx`: Displays the hour and minute offset without a colon (e.g., "+0830").
+  - `xxx`: Displays the hour and minute offset with a colon (e.g., "+08:30").
+  - `xxxx`: Displays the hour, minute, and second offset without a colon (e.g., "+083045").
+  - `xxxxx`: Displays the hour, minute, and second offset with a colon (e.g., "+08:30:45").
+- `Z`: Represents the zone offset, with 'Z' for UTC and an optional time offset.
+  - `Z`: Displays the hour and minute offset without a colon (e.g., "+0800").
+  - `ZZ`: Displays "GMT" followed by the time offset (e.g., "GMT+08:00" or Z).
+  - `ZZZ`: Displays the full hour, minute, and second offset with a colon (e.g., "+08:30:45" or Z).
 
 # Macros
 
 In order to help the user build dates easily, there are a lot of macros available for creating dates.
 The `.sssssssss` can be ommited in most cases.
 
-- **`date% YYYY-MM-DD`**: Defines a date in the `YYYY-MM-DD` format.
-- **`date% HH:mm:ss,sssssssss`**: Defines a time in the `HH:mm:ss:sssssssss` format, including fractional seconds.
-- **`date% YYYY-MM-DD T HH:mm:ss,sssssssss`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss:sssssssss` format.
-- **`date% YYYY-MM-DD T HH:mm:ss,sssssssssZ`**: Defines a datetime with a timezone in the `YYYY-MM-DDTHH:mm:ss:sssssssssZ` format.
-- **`time% HH:mm:ss,sssssssss`**: Defines a time in the `HH:mm:ss` format.
-- **`offset% +HH:mm`**: Defines a timezone offset in the format `+HH:mm`.
-- **`timezone% NAME/ID offset% +HH:mm`**: Defines a timezone with a name and an offset.
-- **`date-spec% "format"`**: Defines a date specification format at compile time using the provided format string.
+- **`date(yyyy-MM-dd)`**: Defines a date in the `YYYY-MM-DD` format.
+- **`time(HH:mm:ss.sssssssss)`**: Defines a time in the `HH:mm:ss:sssssssss` format, including fractional seconds.
+- **`datetime("yyy-MM-ddTHH:mm:ss.sssssssss")`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss:sssssssss` format.
+- **`offset("+HH:mm")`**: Defines a timezone offset in the format `+HH:mm`.
+- **`timezone("NAME/ID ZZZ")`**: Defines a timezone with a name and an offset.
+- **`datespec("format")`**: Defines a date specification format at compile time using the provided format string.
 -/

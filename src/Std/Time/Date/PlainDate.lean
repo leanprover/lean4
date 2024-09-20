@@ -52,37 +52,11 @@ Creates a `PlainDate` by clipping the day to ensure validity. This function forc
 valid by adjusting the day to fit within the valid range to fit the given month and year.
 -/
 def clip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate :=
-  let ⟨day, valid⟩ := month.clipDay year.isLeap day
-  PlainDate.mk year month day valid
-
-/--
-Creates a `PlainDate` by rolling over the extra days to the next month.
--/
-def rollOver (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate := by
-  let max : Day.Ordinal := month.days year.isLeap
-  have p := month.all_greater_than_27 year.isLeap
-  if h : day.val > max.val then
-    if h₁ : month.val > 11 then
-      let eq : month.val = 12 := Int.eq_iff_le_and_ge.mpr (And.intro month.property.right h₁)
-      let h : max.val = 31 := by simp [max, Month.Ordinal.days, Month.Ordinal.daysWithoutProof, Bounded.LE.sub , Bounded.LE.add, Bounded.LE.toFin, eq]; rfl
-      let h₂ := Int.le_trans day.property.right (Int.eq_iff_le_and_ge.mp h |>.right) |> Int.not_lt.mpr
-      contradiction
-    else
-      let max₂ : Bounded.LE 28 31 := max.truncateBottom p
-      let sub := Int.sub_nonneg_of_le h
-      simp [←Int.sub_sub] at sub
-      let roll := day.addBounds (max₂.neg) |>.truncateBottom (Int.add_le_of_le_sub_left sub)
-      let day : Day.Ordinal := roll.expandTop (by decide)
-      let h₂ : roll.val ≤ 27 := Int.le_trans roll.property.right (by decide)
-      let month := month.truncateTop (Int.not_lt.mp h₁) |>.addTop 1 (by decide)
-      refine ⟨year, month, day, ?_⟩
-      exact Int.le_of_lt (Int.le_trans (Int.add_le_add_right h₂ 1) (Month.Ordinal.all_greater_than_27 year.isLeap month))
-  else
-    let h := Int.not_lt.mp h
-    exact ⟨year, month, day, h⟩
+  let day := month.clipDay year.isLeap day
+  PlainDate.mk year month day Month.Ordinal.clipDay_valid
 
 instance : Inhabited PlainDate where
-  default := clip 0 1 1
+  default := mk 0 1 1 (by decide)
 
 /--
 Creates a new `PlainDate` from year, month, and day components.
@@ -96,8 +70,8 @@ def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordin
 Creates a `PlainDate` from a year and a day ordinal within that year.
 -/
 def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : PlainDate :=
-  let ⟨⟨month, day⟩, valid⟩ := Month.Ordinal.ofOrdinal ordinal
-  PlainDate.mk year month day valid
+  let ⟨⟨month, day⟩, proof⟩ := Month.Ordinal.ofOrdinal ordinal
+  ⟨year, month, day, proof⟩
 
 /--
 Creates a `PlainDate` from the number of days since the UNIX epoch (January 1st, 1970).
@@ -133,7 +107,7 @@ def weekday (date : PlainDate) : Weekday :=
   let j : Bounded.LE (-10) 9 := (Bounded.LE.byMod y 1000 (by decide)).ediv 100 (by decide)
   let part : Bounded.LE 6 190 := q.addBounds (((m.add 1).mul_pos 13 (by decide)).ediv 5 (by decide)) |>.addBounds k |>.addBounds (k.ediv 4 (by decide))
   let h : Bounded.LE (-15) 212 := part.addBounds ((j.ediv 4 (by decide)).addBounds (j.mul_pos 2 (by decide)).neg)
-  let d :=  (h.add 5).emod 7 (by decide)
+  let d :=  (h.add 6).emod 7 (by decide)
 
   .ofOrdinal (d.add 1)
 
@@ -203,26 +177,15 @@ Subtracts a given number of weeks from a `PlainDate`.
 @[inline]
 def subWeeks (date : PlainDate) (weeks : Week.Offset) : PlainDate :=
   addWeeks date (-weeks)
-
 /--
 Adds a given number of months to a `PlainDate`, clipping the day to the last valid day of the month.
 -/
 def addMonthsClip (date : PlainDate) (months : Month.Offset) : PlainDate :=
-  let yearsOffset := months.div 12
-  let monthOffset := Bounded.LE.byMod months 12 (by decide)
-  let months := date.month.addBounds monthOffset
-
-  let (yearsOffset, months) : Year.Offset × Month.Ordinal := by
-    if h₁ : months.val > 12 then
-      let months := months |>.truncateBottom h₁ |>.sub 12
-      exact (yearsOffset.add 1, months.expandTop (by decide))
-    else if h₂ : months.val < 1 then
-      let months := months |>.truncateTop (Int.le_sub_one_of_lt h₂) |>.add 12
-      exact (yearsOffset.sub 1, months.expandBottom (by decide))
-    else
-      exact (yearsOffset, months.truncateTop (Int.not_lt.mp h₁) |>.truncateBottom (Int.not_lt.mp h₂))
-
-  PlainDate.clip (date.year.add yearsOffset) months date.day
+  let totalMonths := (date.month.toOffset - 1) + months
+  let totalMonths : Int := totalMonths
+  let wrappedMonths := Bounded.LE.byEmod totalMonths 12 (by decide) |>.add 1
+  let yearsOffset := totalMonths / 12
+  PlainDate.clip (date.year.add yearsOffset) wrappedMonths date.day
 
 /--
 Subtracts `Month.Offset` from a `PlainDate`, it clips the day to the last valid day of that month.
@@ -232,36 +195,64 @@ def subMonthsClip (date : PlainDate) (months : Month.Offset) : PlainDate :=
   addMonthsClip date (-months)
 
 /--
+Creates a `PlainDate` by rolling over the extra days to the next month.
+-/
+def rollOver (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate :=
+  clip year month 1 |>.addDays (day.toOffset - 1)
+
+/--
+Creates a new `PlainDate` by adjusting the day of the month to the given `days` value, with any
+out-of-range days clipped to the nearest valid date.
+-/
+@[inline]
+def withDaysClip (dt : PlainDate) (days : Day.Ordinal) : PlainDate :=
+  clip dt.year dt.month days
+
+/--
+Creates a new `PlainDate` by adjusting the day of the month to the given `days` value, with any
+out-of-range days rolled over to the next month or year as needed.
+-/
+@[inline]
+def withDaysRollOver (dt : PlainDate) (days : Day.Ordinal) : PlainDate :=
+  rollOver dt.year dt.month days
+
+/--
+Creates a new `PlainDate` by adjusting the month to the given `month` value.
+The day remains unchanged, and any invalid days for the new month will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withMonthClip (dt : PlainDate) (month : Month.Ordinal) : PlainDate :=
+  clip dt.year month dt.day
+
+/--
+Creates a new `PlainDate` by adjusting the month to the given `month` value.
+The day is rolled over to the next valid month if necessary.
+-/
+@[inline]
+def withMonthRollOver (dt : PlainDate) (month : Month.Ordinal) : PlainDate :=
+  rollOver dt.year month dt.day
+
+/--
+Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day remain unchanged,
+and any invalid days for the new year will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withYearClip (dt : PlainDate) (year : Year.Offset) : PlainDate :=
+  clip year dt.month dt.day
+
+/--
+Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day are rolled
+over to the next valid month and day if necessary.
+-/
+@[inline]
+def withYearRollOver (dt : PlainDate) (year : Year.Offset) : PlainDate :=
+  rollOver year dt.month dt.day
+
+/--
 Adds a given number of months to a `PlainDate`, rolling over any excess days into the following month.
 -/
 def addMonthsRollOver (date : PlainDate) (months : Month.Offset) : PlainDate :=
-  let yearsOffset := months.div 12
-  let monthOffset := Bounded.LE.byMod months 12 (by decide)
-  let months := date.month.addBounds monthOffset
-
-  let (yearsOffset, months) : Year.Offset × Month.Ordinal := by
-    if h₁ : months.val > 12 then
-      let months := months |>.truncateBottom h₁ |>.sub 12
-      exact (yearsOffset.add 1, months.expandTop (by decide))
-    else if h₂ : months.val < 1 then
-      let months := months |>.truncateTop (Int.le_sub_one_of_lt h₂) |>.add 12
-      exact (yearsOffset.sub 1, months.expandBottom (by decide))
-    else
-      exact (yearsOffset, months.truncateTop (Int.not_lt.mp h₁) |>.truncateBottom (Int.not_lt.mp h₂))
-
-  let year : Year.Offset := date.year.add yearsOffset
-  let ⟨days, proof, _⟩ := Month.Ordinal.days year.isLeap months
-
-  if h : days.val ≥ date.day.val then
-    have p : year.Valid months date.day := by
-      simp_all [Year.Offset.Valid, Month.Ordinal.Valid]
-      exact Int.le_trans h proof
-    PlainDate.mk year months date.day p
-  else
-    let roll := Day.Offset.ofInt (date.day.val - days.toInt)
-    let date := PlainDate.clip (date.year.add yearsOffset) months date.day
-    let days := date.toDaysSinceUNIXEpoch + roll
-    PlainDate.ofDaysSinceUNIXEpoch days
+  addMonthsClip (clip date.year date.month 1) months |>.addDays (date.day.toOffset - 1)
 
 /--
 Subtracts `Month.Offset` from a `PlainDate`, rolling over excess days as needed.

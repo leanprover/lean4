@@ -5,7 +5,7 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Internal.Rat
-import Std.Time.Time.Unit.Millisecond
+import Std.Time.Internal
 
 namespace Std
 namespace Time
@@ -30,28 +30,11 @@ instance : OfNat Ordinal n where
 instance : Inhabited Ordinal where
   default := 0
 
-namespace Ordinal
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
 
-/--
-`Ordinal` represents a bounded value for nanoseconds in a day, which ranges between 0 and 86400000000000.
--/
-def OfDay := Bounded.LE 0 86400000000000
-  deriving Repr, BEq, LE, LT
-
-/--
-Converts a `Nanosecond.Ordinal` value to `Millisecond.Ordinal`.
--/
-def toMillisecond (nano : Ordinal) : Millisecond.Ordinal :=
-  nano.ediv 1000000 (by decide)
-
-/--
-Converts a `Millisecond.Ordinal` value to `Nanosecond.Ordinal`.
--/
-def ofMillisecond (nano : Millisecond.Ordinal) : Nanosecond.Ordinal :=
-  nano.mul_pos 1000000 (by decide)
-  |>.expandTop (by decide)
-
-end Ordinal
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 /--
 `Offset` represents a time offset in nanoseconds and is defined as an `Int`.
@@ -59,7 +42,8 @@ end Ordinal
 def Offset : Type := UnitVal (1 / 1000000000)
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
 
-instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
+instance : OfNat Offset n :=
+  ⟨UnitVal.ofNat n⟩
 
 namespace Offset
 
@@ -97,6 +81,44 @@ def toOffset (span : Span) : Offset :=
   UnitVal.mk span.val
 
 end Span
+
+namespace Ordinal
+
+/--
+`Ordinal` represents a bounded value for nanoseconds in a day, which ranges between 0 and 86400000000000.
+-/
+def OfDay := Bounded.LE 0 86400000000000
+  deriving Repr, BEq, LE, LT
+
+/--
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+-/
+@[inline]
+def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ 999999999) : Ordinal :=
+  Bounded.LE.mk data h
+
+/--
+Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+-/
+@[inline]
+def ofNat (data : Nat) (h : data ≤ 999999999) : Ordinal :=
+  Bounded.LE.ofNat data h
+
+/--
+Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
+-/
+@[inline]
+def ofFin (data : Fin 1000000000) : Ordinal :=
+  Bounded.LE.ofFin data
+
+/--
+Converts an `Ordinal` to an `Offset`.
+-/
+@[inline]
+def toOffset (ordinal : Ordinal) : Offset :=
+  UnitVal.ofInt ordinal.val
+
+end Ordinal
 end Nanosecond
 end Time
 end Std

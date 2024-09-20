@@ -13,14 +13,14 @@ open Internal
 set_option linter.all true
 
 /--
-Represents a specific point in time, including hours, minutes, seconds, and nanoseconds.
+Represents a specific point in a day, including hours, minutes, seconds, and nanoseconds.
 -/
 structure PlainTime where
 
   /--
   `Hour` component of the `PlainTime`
   -/
-  hour : Sigma Hour.Ordinal
+  hour : Hour.Ordinal
 
   /--
   `Minute` component of the `PlainTime`
@@ -37,87 +37,52 @@ structure PlainTime where
   -/
   nano : Nanosecond.Ordinal
 
-  /--
-  The prove that if it includes a leap second than it needs to be exactly 23 : 59 : 60
-  -/
-  proof : (second.snd.val = 60 → hour.snd.val = 23 ∧ minute.val = 59)
-        ∧ (hour.snd.val = 24 → second.snd.val = 0 ∧ minute.val = 0)
-
 instance : Inhabited PlainTime where
-  default := ⟨Sigma.mk false 0, 0, Sigma.mk false 0, 0, by simp; decide⟩
+  default := ⟨0, 0, Sigma.mk false 0, 0, by decide⟩
 
 instance : BEq PlainTime where
-  beq x y := x.hour.snd.val == y.hour.snd.val && x.minute == y.minute
+  beq x y := x.hour.val == y.hour.val && x.minute == y.minute
           && x.second.snd.val == y.second.snd.val && x.nano == y.nano
 
 namespace PlainTime
 
 /--
-Checks if the hour is valid if it has a leap second or leap hour.
+Creates a `PlainTime` value from hours, minutes, seconds and nanoseconds.
 -/
-@[simp]
-abbrev ValidTime (hour : Hour.Ordinal l) (minute : Minute.Ordinal) (second : Second.Ordinal l₁) : Prop :=
-    (second.val = 60 → hour.val = 23 ∧ minute.val = 59)
-  ∧ (hour.val = 24 → second.val = 0 ∧ minute.val = 0)
+@[inline]
+def ofHourMinuteSecondsNano (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (nano : Nanosecond.Ordinal) : PlainTime :=
+  ⟨hour, minute, Sigma.mk leap second, nano⟩
 
 /--
 Creates a `PlainTime` value from hours, minutes, and seconds.
 -/
-def ofHourMinuteSecondsNano (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (nano : Nanosecond.Ordinal) (proof : ValidTime hour minute second) : PlainTime :=
-  ⟨Sigma.mk leap₂ hour, minute, Sigma.mk leap second, nano, proof⟩
-
-/--
-Creates a `PlainTime` value from hours, minutes, and seconds. Return `none` if its invalid.
--/
-def ofHourMinuteSeconds? (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal) (second : Second.Ordinal leap) : Option PlainTime :=
-  if h : ValidTime hour minute second
-    then some <| ofHourMinuteSecondsNano hour minute second 0 h
-    else none
-
-/--
-Creates a `PlainTime` value from hours, minutes, seconds and nanoseconds.
--/
-def ofValidHourMinuteSecondsNano (hour : Hour.Ordinal false) (minute : Minute.Ordinal) (second : Second.Ordinal false) (nano : Nanosecond.Ordinal) : PlainTime := by
-  refine ⟨Sigma.mk false hour, minute, Sigma.mk false second, nano, ?_⟩
-  constructor
-  exact fun x => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr second.property.right)) x)
-  exact fun x => nomatch (Int.ne_iff_lt_or_gt.mpr (Or.inl (Int.lt_add_one_iff.mpr hour.property.right)) x)
-
-/--
-Creates a `PlainTime` value from hours, minutes, and seconds. Return `none` if its invalid.
--/
-def ofHourMinuteSecondsNano? (hour : Hour.Ordinal leap₂) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (nano : Nanosecond.Ordinal) : Option PlainTime :=
-  if h : ValidTime hour minute second
-    then some <| ofHourMinuteSecondsNano hour minute second nano h
-    else none
+@[inline]
+def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal leap) : PlainTime :=
+  ofHourMinuteSecondsNano hour minute second 0
 
 /--
 Converts a `PlainTime` value to the total number of milliseconds.
 -/
 def toMilliseconds (time : PlainTime) : Millisecond.Offset :=
-  let secs :=
-    time.hour.snd.toOffset.toSeconds +
-    time.minute.toOffset.toSeconds +
-    time.second.snd.toOffset
-  let millis := secs.mul 1000
-  Millisecond.Offset.ofInt (millis.val + time.nano.val)
+  time.hour.toOffset.toMilliseconds +
+  time.minute.toOffset.toMilliseconds +
+  time.second.snd.toOffset.toMilliseconds +
+  time.nano.toOffset.toMilliseconds
 
 /--
 Converts a `PlainTime` value to the total number of nanoseconds.
 -/
 def toNanoseconds (time : PlainTime) : Nanosecond.Offset :=
-  let secs :=
-    time.hour.snd.toOffset.toSeconds +
-    time.minute.toOffset.toSeconds +
-    time.second.snd.toOffset
-  let nanos := secs.mul 1000000000
-  Nanosecond.Offset.ofInt (nanos.val + time.nano.val)
+  time.hour.toOffset.toNanoseconds +
+  time.minute.toOffset.toNanoseconds +
+  time.second.snd.toOffset.toNanoseconds +
+  time.nano.toOffset
 
 /--
 Converts a `PlainTime` value to the total number of seconds.
 -/
 def toSeconds (time : PlainTime) : Second.Offset :=
-  time.hour.snd.toOffset.toSeconds +
+  time.hour.toOffset.toSeconds +
   time.minute.toOffset.toSeconds +
   time.second.snd.toOffset
 
@@ -125,7 +90,7 @@ def toSeconds (time : PlainTime) : Second.Offset :=
 Converts a `PlainTime` value to the total number of minutes.
 -/
 def toMinutes (time : PlainTime) : Minute.Offset :=
-  time.hour.snd.toOffset.toMinutes +
+  time.hour.toOffset.toMinutes +
   time.minute.toOffset +
   time.second.snd.toOffset.toMinutes
 
@@ -133,8 +98,7 @@ def toMinutes (time : PlainTime) : Minute.Offset :=
 Converts a `PlainTime` value to the total number of hours.
 -/
 def toHours (time : PlainTime) : Hour.Offset :=
-  let hour : Hour.Offset := time.minute.toOffset.ediv 60
-  time.hour.snd.toOffset + hour + time.second.snd.toOffset.toHours
+  time.hour.toOffset
 
 /--
 Creates a `PlainTime` value from a total number of nanoseconds.
@@ -146,17 +110,21 @@ def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime :=
   have minutes := (Bounded.LE.byEmod totalSeconds.val 3600 (by decide)).ediv 60 (by decide)
   have seconds := Bounded.LE.byEmod totalSeconds.val 60 (by decide)
   let nanos := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
-  ofValidHourMinuteSecondsNano hours minutes seconds nanos
+  PlainTime.mk hours minutes (Sigma.mk false seconds) nanos
+
+/--
+Creates a `PlainTime` value from a total number of millisecond.
+-/
+@[inline]
+def ofMilliseconds (millis : Millisecond.Offset) : PlainTime :=
+  ofNanoseconds millis.toNanoseconds
 
 /--
 Creates a `PlainTime` value from a total number of seconds.
 -/
 @[inline]
 def ofSeconds (secs : Second.Offset) : PlainTime :=
-  have hours := Bounded.LE.byEmod (secs.val / 3600) 24 (by decide)
-  have minutes := (Bounded.LE.byEmod secs.val 3600 (by decide)).ediv 60 (by decide)
-  have seconds := Bounded.LE.byEmod secs.val 60 (by decide)
-  ofValidHourMinuteSecondsNano hours minutes seconds 0
+  ofNanoseconds secs.toNanoseconds
 
 /--
 Adds seconds to a `PlainTime`.
@@ -191,6 +159,7 @@ def subMinutes (time : PlainTime) (minutesToSub : Minute.Offset) : PlainTime :=
 /--
 Adds hours to a `PlainTime`.
 -/
+@[inline]
 def addHours (time : PlainTime) (hoursToAdd : Hour.Offset) : PlainTime :=
   let total := time.toSeconds + hoursToAdd.toSeconds
   ofSeconds total
@@ -215,11 +184,30 @@ Subtracts nanoseconds from a `PlainTime`.
 def subNanoseconds (time : PlainTime) (nanosToSub : Nanosecond.Offset) : PlainTime :=
   addNanoseconds time (-nanosToSub)
 
+/--
+Adds milliseconds to a `PlainTime`.
+-/
+def addMilliseconds (time : PlainTime) (millisToAdd : Millisecond.Offset) : PlainTime :=
+  let total := time.toMilliseconds + millisToAdd
+  ofMilliseconds total
+
+/--
+Subtracts milliseconds from a `PlainTime`.
+-/
+def subMilliseconds (time : PlainTime) (millisToSub : Millisecond.Offset) : PlainTime :=
+  addMilliseconds time (-millisToSub)
+
 instance : HAdd PlainTime Nanosecond.Offset PlainTime where
   hAdd := addNanoseconds
 
 instance : HSub PlainTime Nanosecond.Offset PlainTime where
   hSub := subNanoseconds
+
+instance : HAdd PlainTime Millisecond.Offset PlainTime where
+  hAdd := addMilliseconds
+
+instance : HSub PlainTime Millisecond.Offset PlainTime where
+  hSub := subMilliseconds
 
 instance : HAdd PlainTime Second.Offset PlainTime where
   hAdd := addSeconds

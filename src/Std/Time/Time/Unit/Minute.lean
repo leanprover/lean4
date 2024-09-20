@@ -20,7 +20,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for minutes, ranging from 0 to 59. This is useful for representing the minute component of a time.
 -/
 def Ordinal := Bounded.LE 0 59
-  deriving Repr, BEq, LE
+  deriving Repr, BEq, LE, LT
 
 instance : ToString Ordinal where
   toString x := toString x.val
@@ -30,6 +30,12 @@ instance : OfNat Ordinal n :=
 
 instance : Inhabited Ordinal where
   default := 0
+
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 /--
 `Offset` represents a duration offset in minutes. It is defined as an `Int` value.
@@ -43,22 +49,28 @@ instance : OfNat Offset n :=
 namespace Ordinal
 
 /--
-Creates an `Ordinal` from a natural number, ensuring the value is within the valid range (0 to 59).
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
 -/
 @[inline]
-def ofNat (data : Nat) (h : data ≤ 59 := by decide) : Ordinal :=
+def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ 59) : Ordinal :=
+  Bounded.LE.mk data h
+
+/--
+Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+-/
+@[inline]
+def ofNat (data : Nat) (h : data ≤ 59) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
-Creates an `Ordinal` from a `Fin` value, ensuring it is within the valid range (0 to 59).
+Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
 -/
 @[inline]
 def ofFin (data : Fin 60) : Ordinal :=
   Bounded.LE.ofFin data
 
 /--
-Converts an `Ordinal` to an `Offset`. The `Ordinal` value is converted to an `Offset` by interpreting
-it as the number of minutes.
+Converts an `Ordinal` to an `Offset`.
 -/
 @[inline]
 def toOffset (ordinal : Ordinal) : Offset :=

@@ -64,6 +64,13 @@ def ediv (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
   ⟨unit.val.ediv divisor⟩
 
 /--
+Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio.
+-/
+@[inline]
+def div (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
+  ⟨unit.val.div divisor⟩
+
+/--
 Adds two `UnitVal` values of the same ratio.
 -/
 @[inline]

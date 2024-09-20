@@ -1,33 +1,34 @@
 import Std.Time
 open Std.Time
 
-def ISO8601UTC : Format .any := date-spec% "YYYY-MM-DD'T'hh:mm:ss.sssZ"
-def RFC1123 : Format .any := date-spec% "EEE, DD MMM YYYY hh:mm:ss ZZZ"
-def ShortDate : Format .any := date-spec% "MM/DD/YYYY"
-def LongDate : Format .any := date-spec% "MMMM D, YYYY"
-def ShortDateTime : Format .any := date-spec% "MM/DD/YYYY hh:mm:ss"
-def LongDateTime : Format .any := date-spec% "MMMM D, YYYY h:mm aa"
-def Time24Hour : Format .any := date-spec% "hh:mm:ss"
-def Time12Hour : Format .any := date-spec% "HH:mm:ss aa"
-def FullDayTimeZone : Format .any := date-spec% "EEEE, MMMM D, YYYY hh:mm:ss ZZZZ"
-def CustomDayTime : Format .any := date-spec% "EEE D MMM YYYY hh:mm"
+def ISO8601UTC : Format .any := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
+def RFC1123 : Format .any := datespec("eee, dd MMM yyyy HH:mm:ss ZZZ")
+def ShortDate : Format .any := datespec("MM/dd/yyyy")
+def LongDate : Format .any := datespec("MMMM D, yyyy")
+def ShortDateTime : Format .any := datespec("MM/dd/yyyy HH:mm:ss")
+def LongDateTime : Format .any := datespec("MMMM D, yyyy h:mm aa")
+def Time24Hour : Format .any := datespec("HH:mm:ss")
+def Time12Hour : Format .any := datespec("hh:mm:ss aa")
+def FullDayTimeZone : Format .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss ZZZ")
+def CustomDayTime : Format .any := datespec("EEE dd MMM yyyy HH:mm")
 
 -- Dates
 
-def brTZ : TimeZone := timezone% "America/Sao_Paulo" -03:00
-def jpTZ : TimeZone := timezone% "Asia/Tokyo" +09:00
+def brTZ : TimeZone := timezone("America/Sao_Paulo -03:00")
+def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
 
-def date₁ := date% 2014-06-16 T 03:03:03(brTZ)
-def time₁ := time% 14:11:01
-def time₂ := time% 03:11:01
+def date₁ := zoned("2014-06-16T03:03:03-03:00")
+
+def time₁ := time("14:11:01")
+def time₂ := time("03:11:01")
 
 /--
 info: "Monday, June 16, 2014 03:03:03 -0300"
 -/
 #guard_msgs in
-#eval FullDayTimeZone.format date₁
+#eval FullDayTimeZone.format date₁.snd
 
-def tm := date₁.timestamp
+def tm := date₁.snd.timestamp
 def date₂ := DateTime.ofTimestamp tm brTZ
 
 /--
@@ -178,17 +179,18 @@ info: "14:11:01"
 #guard_msgs in
 #eval Time24Hour.formatBuilder time₁.hour time₁.minute time₁.second
 
-/--
-info: "02:11:01 pm"
--/
-#guard_msgs in
-#eval Time12Hour.formatBuilder time₁.hour time₁.minute time₁.second (if time₁.hour.snd.val > 12 then HourMarker.pm else HourMarker.am)
+def l := Time12Hour.formatBuilder time₁.hour.toRelative time₁.minute time₁.second (if time₁.hour.val > 12 then HourMarker.pm else HourMarker.am)
 
 /--
-info: "03:11:01 am"
+info: "02:11:01 PM"
 -/
 #guard_msgs in
-#eval Time12Hour.formatBuilder time₂.hour time₂.minute time₂.second (if time₂.hour.snd.val > 12 then HourMarker.pm else HourMarker.am)
+#eval l
+/--
+info: "03:11:01 AM"
+-/
+#guard_msgs in
+#eval Time12Hour.formatBuilder time₂.hour.toRelative time₂.minute time₂.second (if time₂.hour.val > 12 then HourMarker.pm else HourMarker.am)
 
 /--
 info: "06/16/2014"
@@ -221,49 +223,49 @@ info: "-0221-09-04"
 #eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)
 
 /--
-info: date% -0221-09-04
+info: date("-0221-09-04")
 -/
 #guard_msgs in
-#eval (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
+#eval PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩
 
 /--
-info: "-0221-09-04"
+info: date("-0221-09-04")
 -/
 #guard_msgs in
-#eval toString (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩)
+#eval PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩
 
 /--
-info: date% 2002-07-14
+info: date("2002-07-14")
 -/
 #guard_msgs in
-#eval date% 2002-07-14
+#eval date("2002-07-14")
 
 /--
-info: time% 14:13:12,000000000
+info: time("14:13:12.000000000")
 -/
 #guard_msgs in
-#eval time% 14:13:12
+#eval time("14:13:12")
 
 /--
-info: date% 2002-07-14T14:13:12,000000000
+info: zoned("2002-07-14T14:13:12.000000000Z")
 -/
 #guard_msgs in
-#eval date% 2002-07-14 T 14:13:12
+#eval zoned("2002-07-14T14:13:12Z")
 
 /--
-info: date% 2002-07-14T14:13:12,000000000+09:00
+info: zoned("2002-07-14T14:13:12.000000000+09:00")
 -/
 #guard_msgs in
-#eval date% 2002-07-14 T 14:13:12+09:00
+#eval zoned("2002-07-14T14:13:12+09:00")
 
 /--
 info: "2002-07-14"
 -/
 #guard_msgs in
-#eval (date% 2002-07-14 T 14:13:12+09:00).format "YYYY-MM-DD"
+#eval zoned("2002-07-14T14:13:12+09:00").format "yyyy-MM-dd"
 
 /--
 info: "14-13-12"
 -/
 #guard_msgs in
-#eval (date% 2002-07-14 T 14:13:12+09:00).format "hh-mm-ss"
+#eval zoned("2002-07-14T14:13:12+09:00").format "HH-mm-ss"

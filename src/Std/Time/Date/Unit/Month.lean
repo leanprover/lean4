@@ -34,12 +34,29 @@ instance : Inhabited Ordinal where
 `Offset` represents an offset in months. It is defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE, DecidableEq
 
 instance : OfNat Offset n :=
   ⟨Int.ofNat n⟩
 
+namespace Ordinal
+
+/--
+`OfYear` represents the number of days in a year, accounting for leap years. It ensures that
+the day is within the correct bounds—either 1 to 365 for regular years or 1 to 366 for leap years.
+-/
+def Quarter := Bounded.LE 1 4
+
+end Ordinal
 namespace Offset
+
+/--
+Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds, if its 0 then its converted
+to 1.
+-/
+@[inline]
+def ofFin (data : Fin 13) : Ordinal :=
+  Bounded.LE.ofFin' data (by decide)
 
 /--
 Creates an `Offset` from a natural number.
@@ -120,6 +137,13 @@ The ordinal value representing the month of December.
 @[inline] def december : Ordinal := 12
 
 /--
+Converts a `Ordinal` into a `Offset`.
+-/
+@[inline]
+def toOffset (month : Ordinal) : Offset :=
+  month.val
+
+/--
 Creates an `Ordinal` from a `Nat`, ensuring the value is within bounds.
 -/
 @[inline]
@@ -130,8 +154,10 @@ def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 12 := by decide) : Ordinal :
 Converts a `Ordinal` into a `Nat`.
 -/
 @[inline]
-def toNat (month : Ordinal) : Nat :=
-  Bounded.LE.toNat month
+def toNat (month : Ordinal) : Nat := by
+  match month with
+  | ⟨.ofNat s, _⟩ => exact s
+  | ⟨.negSucc s, h⟩ => nomatch h.left
 
 /--
 Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds, if its 0 then its converted
@@ -180,79 +206,152 @@ Size in days of each month if the year is not a leap year.
 -/
 @[inline]
 def monthSizesNonLeap : { val : Array Day.Ordinal // val.size = 12 } :=
-  ⟨#[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], by simp⟩
+  ⟨#[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], by decide⟩
+
+/--
+Size in days of each month if the year is not a leap year.
+-/
+@[inline]
+def cumulativeSizes : { val : Array Day.Offset // val.size = 12 } :=
+  ⟨#[0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334], by decide⟩
+
+/--
+Gets the number of days in a month.
+-/
+def days (leap : Bool) (month : Ordinal) : Day.Ordinal :=
+  if month.val = 2 then
+    if leap then 29 else 28
+  else by
+    let ⟨months, p⟩ := monthSizesNonLeap
+    let index : Fin 12 := (month.sub 1).toFin (by decide) (by decide)
+    rw [← p] at index
+    exact months.get index
+
+theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
+  match i with
+  | ⟨2, _⟩ =>
+    simp [days]
+    split <;> decide
+  | ⟨1, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ | ⟨5, _⟩ | ⟨6, _⟩ | ⟨7, _⟩
+  | ⟨8, _⟩ | ⟨9, _⟩ | ⟨10, _⟩ | ⟨11, _⟩ | ⟨12, _⟩ =>
+    simp [days, monthSizesNonLeap, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin]
+    decide
 
 /--
 Gets the number of days in a month without requiring a proof of the validity of the ordinal in a
 month and year.
 -/
-def daysWithoutProof (leap : Bool) (month : Ordinal) : Day.Ordinal :=
-  if month.val = 2 then
-    if leap then 29 else 28
-  else by
-    let ⟨months, p⟩ := monthSizesNonLeap
-    let r : Fin 12 := (month.sub 1).toFin (by decide) (by decide)
-    rw [← p] at r
-    exact months.get r
+def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
+  let ⟨months, p⟩ := cumulativeSizes
+  let index : Fin 12 := (month.sub 1).toFin (by decide) (by decide)
+  rw [← p] at index
+  let res := months.get index
+  exact res + (if leap ∧ month.val > 2 then 1 else 0)
 
-theorem all_greater_than_27 (leap : Bool) (i : Month.Ordinal) : daysWithoutProof leap i > 27 := by
-  simp [daysWithoutProof, monthSizesNonLeap, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin]
-  match i with
-  | ⟨2, _⟩ => split <;> (simp; try split); all_goals decide
-  | ⟨1, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ | ⟨5, _⟩ | ⟨6, _⟩ | ⟨7, _⟩
-  | ⟨8, _⟩ | ⟨9, _⟩ | ⟨10, _⟩ | ⟨11, _⟩ | ⟨12, _⟩ => simp; decide
+theorem cumulativeDays_le_335 (leap : Bool) (month : Month.Ordinal) : cumulativeDays leap month ≥ 0 ∧ cumulativeDays leap month ≤ 334 + (if leap then 1 else 0) := by
+  match month with
+  | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩  | ⟨4, _⟩  | ⟨5, _⟩  | ⟨6, _⟩  | ⟨7, _⟩  | ⟨8, _⟩  | ⟨9, _⟩  | ⟨10, _⟩  | ⟨11, _⟩ | ⟨12, _⟩ =>
+    simp [cumulativeSizes, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin, cumulativeDays]
+    try split
+    all_goals decide
+
+theorem difference_eq (p : month.val ≤ 11) :
+  let next := month.truncateTop p |>.addTop 1 (by decide)
+  (cumulativeDays leap next).val = (cumulativeDays leap month).val + (days leap month).val := by
+  match month with
+  | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩  | ⟨4, _⟩  | ⟨5, _⟩  | ⟨6, _⟩  | ⟨7, _⟩  | ⟨8, _⟩  | ⟨9, _⟩  | ⟨10, _⟩  | ⟨11, _⟩ =>
+    simp [cumulativeDays, Bounded.LE.addTop, days, monthSizesNonLeap];
+    try split <;> rfl
+    try rfl
+  | ⟨12, _⟩ => contradiction
 
 /--
 Check if the day is valid in a month and a leap year.
 -/
 abbrev Valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
-  day.val ≤ (daysWithoutProof leap month).val
-
-instance : Decidable (Valid leap month day) :=
-  dite (day ≤ daysWithoutProof leap month) isTrue isFalse
+  day.val ≤ (days leap month).val
 
 /--
-Gets the number of days in a month along with a proof of its validity.
+Type for dates and months that are valid within a leap year.
 -/
-@[inline]
-def days (leap : Bool) (month : Ordinal) : { day : Day.Ordinal // Valid leap month day ∧ day.val > 27 } := by
-  refine ⟨daysWithoutProof leap month, ⟨Int.le_refl ((daysWithoutProof leap month).val), all_greater_than_27 leap month⟩⟩
+def ValidDate (leap : Bool) := { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) }
+
+instance : Inhabited (ValidDate l) where
+  default := ⟨⟨1, 1⟩, (by cases l <;> decide)⟩
+
+/--
+Transforms a tuple of a `Month` and a `Day` into a `Day.Ordinal.OfYear`.
+-/
+def toOrdinal (ordinal : ValidDate leap) : Day.Ordinal.OfYear leap :=
+  let days := cumulativeDays leap ordinal.val.fst
+  let proof := cumulativeDays_le_335 leap ordinal.val.fst
+  let bounded := Bounded.LE.mk days.toInt proof |>.addBounds ordinal.val.snd
+  match leap, bounded with
+  | true, bounded => bounded
+  | false, bounded => bounded
+
+/--
+Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
+-/
+def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : ValidDate leap :=
+    let rec go (idx : Month.Ordinal) (acc : Int) (h : ordinal.val > acc) (p : acc = (cumulativeDays leap idx).val) : ValidDate leap :=
+      let monthDays := days leap idx
+      if h₁ : ordinal.val ≤ acc + monthDays.val then
+        let bounded := Bounded.LE.mk ordinal.val (And.intro h h₁) |>.sub acc
+        let bounded : Bounded.LE 1 monthDays.val := bounded.cast (by omega) (by omega)
+        let days₁ : Day.Ordinal := ⟨bounded.val, And.intro bounded.property.left (Int.le_trans bounded.property.right monthDays.property.right)⟩
+        ⟨⟨idx, days₁⟩, Int.le_trans bounded.property.right (by simp)⟩
+      else
+        let h₂ := Int.not_le.mp h₁
+        if h₃ : idx.val > 11 then by
+          have h₅ := ordinal.property.right
+          let eq := Int.eq_iff_le_and_ge.mpr (And.intro idx.property.right h₃)
+          simp [monthDays, days, eq] at h₂
+          simp [cumulativeDays, eq] at p
+          simp [p] at h₂
+          cases leap
+          all_goals (simp at h₂; simp_all)
+          · have h₂ : 365 < ordinal.val := h₂
+            omega
+          · have h₂ : 366 < ordinal.val := h₂
+            omega
+        else by
+          let h₃ := Int.not_le.mp h₃
+          let idx₂ := idx.truncateTop (Int.le_sub_one_of_lt h₃) |>.addTop 1 (by decide)
+          refine go idx₂ (acc + monthDays.val) h₂ ?_
+          simp [monthDays, p]
+          rw [difference_eq (Int.le_of_lt_add_one h₃)]
+      termination_by 12 - idx.val.toNat
+      decreasing_by
+        simp_wf
+        simp [Bounded.LE.addTop]
+        let gt0 : idx.val ≥ 0 := Int.le_trans (by decide) idx.property.left
+        refine Nat.sub_lt_sub_left (Int.toNat_lt gt0 |>.mpr h₃) ?_
+        let toNat_lt_lt {n z : Int} (h : 0 ≤ z) (h₁ : 0 ≤ n) : z.toNat < n.toNat ↔ z < n := by
+          rw [← Int.not_le, ← Nat.not_le, ← Int.ofNat_le, Int.toNat_of_nonneg h, Int.toNat_of_nonneg h₁]
+        rw [toNat_lt_lt (by omega) (by omega)]
+        omega
+
+    go 1 0 (Int.le_trans (by decide) ordinal.property.left) (by cases leap <;> decide)
 
 /--
 Clips the day to be within the valid range.
 -/
 @[inline]
-def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : { day : Day.Ordinal // Valid leap month day } :=
+def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Day.Ordinal :=
   let max : Day.Ordinal := month.days leap
-  if h : day.val > max.val
-    then ⟨max, Int.le_refl max.val⟩
-    else ⟨day, Int.not_lt.mp h⟩
+  if day.val > max.val
+    then max
+    else day
 
 /--
-Transforms a `Day.Ordinal.OfYear` into a tuple of a `Month` and a `Day`.
+Proves that every value provided by a clipDay is a valid day in a year.
 -/
-def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) } := Id.run do
-  let rec go (idx : Fin 12) (cumulative : Fin 366) :=
-    let month := Month.Ordinal.ofFin idx.succ
-    let ⟨days, valid, _⟩ := days leap month
-
-    if h : cumulative.val < ordinal.val ∧ ordinal.val ≤ cumulative.val + days.val then
-      let bounded := Bounded.LE.mk ordinal.val h |>.sub cumulative
-      let bounded : Bounded.LE 1 days.val := bounded.cast (by omega) (by omega)
-
-      let ⟨left, right⟩ := bounded.property
-      let days₁ : Day.Ordinal := ⟨bounded.val, And.intro left (Int.le_trans right days.property.right)⟩
-      ⟨⟨month, days₁⟩, Int.le_trans right valid⟩
-    else
-      if h : idx.val ≥ 11 then
-        -- Need to remove this in the future.
-        let ⟨day, valid⟩ := clipDay leap 1 1
-        ⟨⟨1, day⟩, valid⟩
-      else
-        go ⟨idx.val + 1, Nat.succ_le_succ (Nat.not_le.mp h)⟩ (cumulative + (Fin.ofNat days.val.toNat))
-
-  termination_by 12 - idx.val
-  go 0 0
+theorem clipDay_valid : Valid leap month (clipDay leap month day) := by
+  simp [Valid, clipDay]
+  split
+  exact Int.le_refl (days leap month).val
+  next h => exact Int.not_lt.mp h
 
 end Ordinal
 end Month

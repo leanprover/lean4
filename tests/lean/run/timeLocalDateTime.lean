@@ -2,15 +2,16 @@ import Std.Time
 import Init
 open Std.Time
 
-def ShortDateTime : Format .any := date-spec% "DD/MM/YYYY hh:mm:ss"
-def ShortDate : Format .any := date-spec% "DD/MM/YYYY"
+def ShortDateTime : Format .any := datespec("dd/MM/yyyy HH:mm:ss")
+def ShortDate : Format .any := datespec("dd/MM/yyyy")
+
 def format (PlainDate : PlainDateTime) : String := ShortDateTime.formatBuilder PlainDate.day PlainDate.month PlainDate.year PlainDate.time.hour PlainDate.minute PlainDate.time.second
 def format₂ (PlainDate : PlainDate) : String := ShortDate.formatBuilder PlainDate.day PlainDate.month PlainDate.year
 
-def date₁ := date% 1993-11-19 T 09:08:07
-def date₂ := date% 1993-05-09 T 12:59:59
-def date₃ := date% 2024-08-16
-def date₄ := date% 1500-08-16
+def date₁ := datetime("1993-11-19T09:08:07")
+def date₂ := datetime("1993-05-09T12:59:59")
+def date₃ := date("2024-08-16")
+def date₄ := date("1500-08-16")
 
 def tm₁ := 753700087
 def tm₂ := 736952399

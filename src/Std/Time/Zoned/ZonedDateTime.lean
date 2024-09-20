@@ -31,6 +31,13 @@ namespace ZonedDateTime
 open DateTime
 
 /--
+Creates a new `ZonedDateTime` out of a `DateTime` and `TimeZone`
+-/
+@[inline]
+def mk (tz : TimeZone) (datetime : DateTime tz) : ZonedDateTime :=
+  ⟨tz, datetime⟩
+
+/--
 Creates a new `ZonedDateTime` out of a `Timestamp`
 -/
 @[inline]
@@ -99,8 +106,8 @@ def day (zdt : ZonedDateTime) : Day.Ordinal :=
 Getter for the `Hour` inside of a `ZonedDateTime`
 -/
 @[inline]
-def hour (zdt : ZonedDateTime) : Hour.Ordinal zdt.snd.date.get.time.hour.fst :=
-  zdt.snd.date.get.time.hour.snd
+def hour (zdt : ZonedDateTime) : Hour.Ordinal :=
+  zdt.snd.date.get.time.hour
 
 /--
 Getter for the `Minute` inside of a `ZonedDateTime`
@@ -115,6 +122,13 @@ Getter for the `Second` inside of a `ZonedDateTime`
 @[inline]
 def second (zdt : ZonedDateTime) : Second.Ordinal zdt.snd.date.get.time.second.fst :=
   zdt.snd.date.get.time.second.snd
+
+/--
+Getter for the `Nanosecond` inside of a `ZonedDateTime`
+-/
+@[inline]
+def nano (zdt : ZonedDateTime) : Nanosecond.Ordinal :=
+  zdt.snd.date.get.time.nano
 
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
@@ -205,6 +219,20 @@ Add `Year.Offset` to a `ZonedDateTime`, it clips the day to the last valid day o
 @[inline]
 def addYearsClip (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
   Sigma.mk dt.fst (dt.snd.addYearsClip years)
+
+/--
+Subtract `Year.Offset` from a `ZonedDateTime`, this function clips the day to the last valid day of that month.
+-/
+@[inline]
+def subYearsClip (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.subYearsClip years)
+
+/--
+Subtract `Year.Offset` from a `ZonedDateTime`, this function rolls over any excess days into the previous month.
+-/
+@[inline]
+def subYearsRollOver (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
+  Sigma.mk dt.fst (dt.snd.subYearsRollOver years)
 
 /--
 Add `Hour.Offset` to a `ZonedDateTime`, adjusting the date if necessary.

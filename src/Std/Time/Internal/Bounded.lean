@@ -170,7 +170,7 @@ def toNat' (n : Bounded.LE lo hi) (h : lo ≥ 0) : Nat :=
   let h₁ := (Int.le_trans h n.property.left)
   match n.val, h₁ with
   | .ofNat n, _ => n
-  | .negSucc _, h => nomatch h
+  | .negSucc _, h => by contradiction
 
 /--
 Convert a `Bounded.LE` to an Int.
@@ -182,7 +182,7 @@ def toInt (n : Bounded.LE lo hi) : Int :=
 /--
 Convert a `Bounded.LE` to a `Fin`.
 -/
-@[inline]
+@[inline, simp]
 def toFin (n : Bounded.LE lo hi) (h₀ : 0 ≤ lo) (h₁ : lo < hi) : Fin (hi + 1).toNat := by
   let h := n.property.right
   let h₁ := Int.le_trans h₀ n.property.left
@@ -252,7 +252,7 @@ def truncate (bounded : Bounded.LE n m) : Bounded.LE 0 (m - n) := by
 Adjust the bounds of a `Bounded` by changing the higher bound if another value `j` satisfies the same
 constraint.
 -/
-@[inline]
+@[inline, simp]
 def truncateTop (bounded : Bounded.LE n m) (h : bounded.val ≤ j) : Bounded.LE n j := by
   refine ⟨bounded.val, And.intro ?_ ?_⟩
   · exact bounded.property.left
@@ -280,12 +280,21 @@ def neg (bounded : Bounded.LE n m) : Bounded.LE (-m) (-n) := by
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
 -/
-@[inline]
+@[inline, simp]
 def add (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n + num) (m + num) := by
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
   all_goals apply (Int.add_le_add · (Int.le_refl num))
   · exact bounded.property.left
   · exact bounded.property.right
+
+/--
+Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
+-/
+@[inline]
+def addProven (bounded : Bounded.LE n m) (h₀ : bounded.val + num ≤ m) (h₁ : num ≥ 0) : Bounded.LE n m := by
+  refine ⟨bounded.val + num, And.intro ?_ ?_⟩
+  · exact Int.le_trans bounded.property.left (Int.le_add_of_nonneg_right h₁)
+  · exact h₀
 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to the upper bounds.
@@ -321,7 +330,7 @@ def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE i j) : Bounded
 /--
 Adjust the bounds of a `Bounded` by subtracting a constant value to both the lower and upper bounds.
 -/
-@[inline]
+@[inline, simp]
 def sub (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n - num) (m - num) :=
   add bounded (-num)
 
@@ -406,6 +415,18 @@ Adds one to the value of the bounded if the value is less than the higher bound 
 def succ (bounded : Bounded.LE lo hi) (h : bounded.val < hi) : Bounded.LE lo hi :=
   let left := bounded.property.left
   ⟨bounded.val + 1, And.intro (by omega) (by omega)⟩
+
+/--
+Returns the absolute value of the bounded number `bo` with bounds `-(i - 1)` to `i - 1`. The result
+will be a new bounded number with bounds `0` to `i - 1`.
+-/
+def abs (bo :  Bounded.LE (- (i - 1)) (i - 1)) : Bounded.LE 0 (i - 1) :=
+  if h : bo.val ≥ 0 then
+    bo.truncateBottom h
+  else by
+    let r := bo.truncateTop (Int.le_of_lt (Int.not_le.mp h)) |>.neg
+    rw [Int.neg_neg] at r
+    exact r
 
 end LE
 end Bounded

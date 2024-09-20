@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Internal.Rat
 import Std.Time.Internal
+import Std.Time.Time.Unit.Nanosecond
 
 namespace Std
 namespace Time
@@ -29,6 +30,12 @@ instance : OfNat Ordinal n :=
 
 instance : Inhabited Ordinal where
   default := 0
+
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 /--
 `Offset` represents a duration offset in milliseconds. It is defined as an `Int` value,
@@ -57,6 +64,37 @@ def ofInt (data : Int) : Offset :=
   UnitVal.mk data
 
 end Offset
+namespace Ordinal
+
+/--
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+-/
+@[inline]
+def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ 999) : Ordinal :=
+  Bounded.LE.mk data h
+
+/--
+Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
+-/
+@[inline]
+def ofNat (data : Nat) (h : data ≤ 999) : Ordinal :=
+  Bounded.LE.ofNat data h
+
+/--
+Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
+-/
+@[inline]
+def ofFin (data : Fin 1000) : Ordinal :=
+  Bounded.LE.ofFin data
+
+/--
+Converts an `Ordinal` to an `Offset`.
+-/
+@[inline]
+def toOffset (ordinal : Ordinal) : Offset :=
+  UnitVal.ofInt ordinal.val
+
+end Ordinal
 end Millisecond
 end Time
 end Std

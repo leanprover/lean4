@@ -8,7 +8,7 @@ import Std.Time.Date
 import Std.Time.Time
 import Std.Time.Zoned
 import Std.Time.DateTime
-import Std.Time.Format
+import Std.Time.Format.Basic
 import Lean.Parser
 
 namespace Std
@@ -96,84 +96,19 @@ private def convertFormatPart : FormatPart → MacroM (TSyntax `term)
   | .string s => `(.string $(Syntax.mkStrLit s))
   | .modifier mod => do `(.modifier $(← convertModifier mod))
 
-def syntaxNat (n : Nat) : MacroM (TSyntax `term) := do
-  let info ← MonadRef.mkInfoFromRefPos
-  pure { raw := Syntax.node1 info `num (Lean.Syntax.atom info (toString n)) }
-
-def syntaxString (n : String) : MacroM (TSyntax `term) := do
-  let info ← MonadRef.mkInfoFromRefPos
-  pure { raw := Syntax.node1 info `str (Lean.Syntax.atom info (toString n)) }
-
-def syntaxInt (n : Int) : MacroM (TSyntax `term) := do
-  match n with
-  | .ofNat n => `(Int.ofNat $(Syntax.mkNumLit <| toString n))
-  | .negSucc n => `(Int.negSucc $(Syntax.mkNumLit <| toString n))
-
-def syntaxBounded (n : Int) : MacroM (TSyntax `term) := do
- `(Std.Time.Internal.Bounded.LE.ofNatWrapping $(← syntaxInt n) (by decide))
-
-def syntaxVal (n : Int) : MacroM (TSyntax `term) := do
- `(Std.Time.Internal.UnitVal.ofInt $(← syntaxInt n))
-
-def convertOffset (offset : Std.Time.TimeZone.Offset) : MacroM (TSyntax `term) := do
- `(Std.Time.TimeZone.Offset.mk $(← syntaxVal offset.hour.val) $(← syntaxVal offset.second.val))
-
-def convertTimezone (tz : Std.Time.TimeZone) : MacroM (TSyntax `term) := do
- `(Std.Time.TimeZone.mk $(← convertOffset tz.offset) $(Syntax.mkStrLit tz.name) $(Syntax.mkStrLit tz.abbreviation) false)
-
-def convertPlainDate (d : Std.Time.PlainDate) : MacroM (TSyntax `term) := do
- `(Std.Time.PlainDate.clip $(← syntaxInt d.year) $(← syntaxBounded d.month.val) $(← syntaxBounded d.day.val))
-
-def convertPlainTime (d : Std.Time.PlainTime) : MacroM (TSyntax `term) := do
- `(Std.Time.PlainTime.mk $(← syntaxBounded d.hour.val) $(← syntaxBounded d.minute.val) ⟨true, $(← syntaxBounded d.second.snd.val)⟩ $(← syntaxBounded d.nano.val))
-
-def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do
- `(Std.Time.PlainDateTime.mk $(← convertPlainDate d.date) $(← convertPlainTime d.time))
-
-def convertZonedDateTime (d : Std.Time.ZonedDateTime) : MacroM (TSyntax `term) := do
- `(Std.Time.ZonedDateTime.mk $(← convertTimezone d.timezone) (DateTime.ofLocalDateTime $(← convertPlainDateTime d.snd.date.get) $(← convertTimezone d.timezone)))
-
-syntax "zoned(" str ")" : term
-
-syntax "datetime(" str ")" : term
-
-syntax "date(" str ")" : term
-
-syntax "time(" str ")" : term
-
-syntax "offset(" str ")" : term
-
-syntax "timezone(" str ")" : term
+/--
+Syntax for defining a date spec at compile time.
+-/
+syntax "datespec(" str ")" : term
 
 macro_rules
-  | `(zoned( $date:str )) => do
-      match ZonedDateTime.fromLeanDateTimeWithZoneString date.getString with
-      | .ok res => do
-        return ← convertZonedDateTime res
-      | .error res => Macro.throwErrorAt date s!"error: {res}"
-
-  | `(datetime( $date:str )) => do
-      match PlainDateTime.fromLeanDateTimeString date.getString with
-      | .ok res => do
-        return ← convertPlainDateTime res
-      | .error res => Macro.throwErrorAt date s!"error: {res}"
-
-  | `(date( $date:str )) => do
-      match PlainDate.fromSQLDateString date.getString with
-      | .ok res => return ← convertPlainDate res
-      | .error res => Macro.throwErrorAt date s!"error: {res}"
-
-  | `(time( $time:str )) => do
-      match PlainTime.fromLeanTime24Hour time.getString with
-      | .ok res => return ← convertPlainTime res
-      | .error res => Macro.throwErrorAt time s!"error: {res}"
-
-  | `(offset( $offset:str )) => do
-      match TimeZone.Offset.fromOffset offset.getString with
-      | .ok res => return ← convertOffset res
-      | .error res => Macro.throwErrorAt offset s!"error: {res}"
-
-  | `(timezone( $tz:str )) => do
-      match TimeZone.fromTimeZone tz.getString with
-      | .ok res => return ← convertTimezone res
-      | .error res => Macro.throwErrorAt tz s!"error: {res}"
+  | `(datespec( $format_string:str )) => do
+    let input := format_string.getString
+    let format : Except String (Format .any) := Format.spec input
+    match format with
+    | .ok res =>
+      let alts ← res.string.mapM convertFormatPart
+      let alts := alts.foldl Syntax.TSepArray.push (Syntax.TSepArray.mk #[] (sep := ","))
+      `(⟨[$alts,*]⟩)
+    | .error err =>
+      Macro.throwErrorAt format_string s!"cannot compile spec: {err}"

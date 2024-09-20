@@ -17,7 +17,6 @@ set_option linter.all true
 Represents a timezone offset with an hour and second component.
 -/
 structure Offset where
-  private mk ::
 
   /--
   The timezone offset in Hours.

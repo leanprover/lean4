@@ -41,14 +41,14 @@ Converts a `PlainDate` to a `DateTime`
 -/
 @[inline]
 def ofPlainDate (pd : PlainDate) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofTimestamp (Timestamp.ofPlainDate pd) tz
+  DateTime.ofTimestamp (Timestamp.ofPlainDateAssumingUTC pd) tz
 
 /--
 Converts a `DateTime` to a `PlainDate`
 -/
 @[inline]
 def toPlainDate (dt : DateTime tz) : PlainDate :=
-  Timestamp.toPlainDate dt.toTimestamp
+  Timestamp.toPlainDateAssumingUTC dt.toTimestamp
 
 /--
 Converts a `PlainTime` to a `DateTime`
@@ -71,8 +71,8 @@ Calculates the duration between a given `DateTime` and a specified date.
 
 ```lean
 example : Duration :=
-  let startDate := date% 2023-1-1:05:10:20UTC
-  let endDate := date% 2023-3-15:05:10:20UTC
+  let startDate := date("2023-1-1:05:10:20UTC")
+  let endDate := date("2023-3-15:05:10:20UTC")
   endDate.since startDate
 ```
 -/
@@ -99,7 +99,7 @@ Converts a `PlainDate` to a `ZonedDateTime`
 -/
 @[inline]
 def ofPlainDate (pd : PlainDate) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainDate pd) tz⟩
+  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainDateAssumingUTC pd) tz⟩
 
 /--
 Converts a `ZonedDateTime` to a `PlainDate`
@@ -114,6 +114,13 @@ Converts a `PlainTime` to a `ZonedDateTime`
 @[inline]
 def ofPlainTime (pt : PlainTime) (tz : TimeZone) : ZonedDateTime :=
   ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainTime pt) tz⟩
+
+/--
+Converts a `PlainDateTime` to a `ZonedDateTime` assuming the Plain Date is Local.
+-/
+@[inline]
+def ofLocalDateTime (pd : PlainDateTime) (tz : TimeZone) : ZonedDateTime :=
+  ⟨tz, DateTime.ofLocalDateTime pd tz⟩
 
 /--
 Converts a `ZonedDateTime` to a `PlainTime`

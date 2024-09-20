@@ -123,7 +123,7 @@ def ofUTCTimestamp (stamp : Timestamp) : PlainDateTime := Id.run do
 
   return {
     date := PlainDate.clip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
-    time := PlainTime.ofValidHourMinuteSecondsNano (hour.expandTop (by decide)) minute (second.expandTop (by decide)) nano
+    time := PlainTime.ofHourMinuteSecondsNano (leap := false) (hour.expandTop (by decide)) minute second nano
   }
 
 /--
@@ -139,6 +139,14 @@ Subtracts a `Day.Offset` from a `PlainDateTime`.
 @[inline]
 def subDays (dt : PlainDateTime) (days : Day.Offset) : PlainDateTime :=
   { dt with date := dt.date.subDays days }
+
+/--
+Sets the `Day.Offset` from a `PlainDateTime`.
+-/
+@[inline]
+def withDaysClip (dt : PlainDateTime) (days : Day.Ordinal) : PlainDateTime :=
+  { dt with date := dt.date.withDaysClip days }
+
 
 /--
 Adds a `Week.Offset` to a `PlainDateTime`.
@@ -309,8 +317,8 @@ def day (dt : PlainDateTime) : Day.Ordinal :=
 Getter for the `Hour` inside of a `PlainDateTime`.
 -/
 @[inline]
-def hour (dt : PlainDateTime) : Hour.Ordinal dt.time.hour.fst :=
-  dt.time.hour.snd
+def hour (dt : PlainDateTime) : Hour.Ordinal :=
+  dt.time.hour
 
 /--
 Getter for the `Minute` inside of a `PlainDateTime`.

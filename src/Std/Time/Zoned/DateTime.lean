@@ -6,9 +6,11 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.DateTime
 import Std.Time.Zoned.TimeZone
+import Std.Internal
 
 namespace Std
 namespace Time
+open Internal
 
 set_option linter.all true
 
@@ -42,7 +44,7 @@ Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
-  DateTime.mk tm (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds).toPlainDateTime)
+  DateTime.mk tm (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds).toPlainDateTimeAssumingUTC)
 
 /--
 Creates a new zone aware `Timestamp` out of a `DateTime`.
@@ -64,7 +66,7 @@ to UTC. If you're using hte PlainDateTime
 -/
 @[inline]
 def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
-  let tm := Timestamp.ofPlainDateTime date
+  let tm := Timestamp.ofPlainDateTimeAssumingUTC date
   DateTime.mk tm (Thunk.mk fun _ => date.addSeconds tz.toSeconds)
 
 /--
@@ -73,7 +75,7 @@ to the
 -/
 @[inline]
 def ofLocalDateTime (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
-  let tm := Timestamp.ofPlainDateTime date
+  let tm := Timestamp.ofPlainDateTimeAssumingUTC date
   DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk fun _ => date)
 
 /--
@@ -250,7 +252,7 @@ def day (dt : DateTime tz) : Day.Ordinal :=
 Getter for the `Hour` inside of a `DateTime`
 -/
 @[inline]
-def hour (dt : DateTime tz) : Hour.Ordinal dt.date.get.time.hour.fst :=
+def hour (dt : DateTime tz) : Hour.Ordinal :=
   dt.date.get.hour
 
 /--
@@ -272,7 +274,7 @@ Getter for the `Milliseconds` inside of a `DateTime`
 -/
 @[inline]
 def milliseconds (dt : DateTime tz) : Millisecond.Ordinal :=
-  dt.date.get.time.nano.toMillisecond
+  dt.date.get.time.nano.emod 1000 (by decide)
 
 /--
 Getter for the `Nanosecond` inside of a `DateTime`
@@ -289,19 +291,61 @@ def weekday (dt : DateTime tz) : Weekday :=
   dt.date.get.date.weekday
 
 /--
+Gets the `Weekday` of a DateTime.
+-/
+@[inline]
+def getPeriod (dt : DateTime tz) : Day.Ordinal.Period :=
+  if dt.hour ≥ 21 ∨ dt.hour ≤ 4 then
+    .night
+  else if dt.hour ≥ 17 then
+    .evening
+  else if dt.hour ≥ 12 then
+    .afternoon
+  else
+    .morning
+
+
+/--
 Determines the era of the given `DateTime` based on its year.
 -/
 def era (date : DateTime tz) : Year.Era :=
-  if date.year.toInt ≥ 0 then
-    .ce
-  else
-    .bce
+  date.year.era
 
 /--
 Checks if the `DateTime` is in a leap year.
 -/
 def inLeapYear (date : DateTime tz) : Bool :=
   date.year.isLeap
+
+/--
+Determines the ordinal day of the year for the given `DateTime`.
+-/
+def toOrdinal (date : DateTime tz) : Day.Ordinal.OfYear date.year.isLeap :=
+  Month.Ordinal.toOrdinal ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩
+
+/--
+Determines the week of the year for the given `DateTime`.
+-/
+def toWeekOfYear (date : DateTime tz) : Week.Ordinal :=
+  let res := Month.Ordinal.toOrdinal ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩ |>.ediv 7 (by decide) |>.add 1
+  match date.date.get.date.year.isLeap, res with
+  | true, res => res
+  | false, res => res
+
+/--
+Determines the week of the month for the given `DateTime`. The week of the month is calculated based
+on the day of the month and the weekday. Each week starts on Sunday because the entire library is
+based on the Gregorian Calendar.
+-/
+def toWeekOfMonth (date : DateTime tz) : Bounded.LE 1 6 :=
+  let weekday := date.weekday.toOrdinal
+  date.day.addBounds (weekday.sub 1) |>.ediv 7 (by decide) |>.add 1
+
+/--
+Determines the quarter of the year for the given `DateTime`.
+-/
+def quarter (date : DateTime tz) : Bounded.LE 1 4 :=
+  date.month.sub 1 |>.ediv 3 (by decide) |>.add 1
 
 instance : ToTimestamp (DateTime tz) where
   toTimestamp dt := dt.toTimestamp

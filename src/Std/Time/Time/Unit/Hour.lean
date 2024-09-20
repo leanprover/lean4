@@ -18,22 +18,25 @@ open Internal
 set_option linter.all true
 
 /--
-`Ordinal` represents a bounded value for hours, ranging from 0 to 24 or 23. The upper bound is 24 to
-account for valid timestamps like 24:00:00 with leap seconds.
+`Ordinal` represents a bounded value for hours, ranging from 0 to 23.
 -/
-def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 24 else 23))
+def Ordinal := Bounded.LE 0 23
+  deriving Repr, BEq, LE, LT
 
-instance : ToString (Ordinal leap) where
+instance : ToString Ordinal where
   toString x := toString x.val
 
-instance : Repr (Ordinal l) where
-  reprPrec r l := reprPrec r.val l
+instance : OfNat Ordinal n :=
+  inferInstanceAs (OfNat (Bounded.LE 0 (0 + (23 : Nat))) n)
 
-instance : OfNat (Ordinal leap) n := by
-  have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (23 : Nat))) n)
-  cases leap
-  · exact inst
-  · exact ⟨inst.ofNat.expandTop (by decide)⟩
+instance : Inhabited Ordinal where
+  default := 0
+
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 /--
 `Offset` represents an offset in hours, defined as an `Int`. This can be used to express durations
@@ -48,27 +51,30 @@ instance : OfNat Offset n :=
 namespace Ordinal
 
 /--
+Converts an `Ordinal` into a relative month in the range of 1 to 12.
+-/
+def toRelative (ordinal : Ordinal) : Bounded.LE 1 12 :=
+  (ordinal.add 11).emod 12 (by decide) |>.add 1
+
+/--
 Creates an `Ordinal` from a natural number, ensuring the value is within the valid bounds for hours.
 -/
 @[inline]
-def ofNat (data : Nat) (h : data ≤ (if leap then 24 else 23)) : Ordinal leap :=
+def ofNat (data : Nat) (h : data ≤ 23) : Ordinal :=
   Bounded.LE.ofNat data h
 
 /--
-Creates an `Ordinal` from a `Fin` value, ensuring the value is within bounds depending on whether
-leap seconds are considered.
+Creates an `Ordinal` from a `Fin` value.
 -/
 @[inline]
-def ofFin (data : Fin (if leap then 25 else 24)) : Ordinal leap :=
-  match leap with
-  | true => Bounded.LE.ofFin data
-  | false => Bounded.LE.ofFin data
+def ofFin (data : Fin 24) : Ordinal :=
+  Bounded.LE.ofFin data
 
 /--
 Converts an `Ordinal` to an `Offset`, which represents the duration in hours as an integer value.
 -/
 @[inline]
-def toOffset (ordinal : Ordinal leap) : Offset :=
+def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal

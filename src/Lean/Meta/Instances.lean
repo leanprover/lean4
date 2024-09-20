@@ -114,7 +114,7 @@ For example:
 
 (The type of `inst` must not contain mvars.)
 
-Remark: `projInfo?` is some if the instance is a projection.
+Remark: `projInfo?` is `some` if the instance is a projection.
 We need this information because of the heuristic we use to annotate binder
 information in projections. See PR #5376 and issue #5333. Before PR
 #5376, given a class `C` at

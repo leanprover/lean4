@@ -250,6 +250,17 @@ example [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f
 example {α β} [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
 example {h : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
 
+inductive A where
+  | intro : Nat → A
+
+def A.out : A → Nat
+  | .intro n => n
+
+/-! `h` is used indirectly via an alias introduced by `match` that is used only via the mvar ctx -/
+theorem problematicAlias (n : A) (i : Nat) (h : i ≤ n.out) : i ≤ n.out :=
+  match n with
+  | .intro _ => by assumption
+
 /-!
 The wildcard pattern introduces a copy of `x` that should not be linted as it is in an
 inaccessible annotation.

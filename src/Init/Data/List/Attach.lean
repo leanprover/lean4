@@ -308,6 +308,46 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
     xs.attach.tail = xs.tail.attach.map (fun ⟨x, h⟩ => ⟨x, mem_of_mem_tail h⟩) := by
   cases xs <;> simp
 
+theorem foldl_pmap (l : List α) {P : α → Prop} (f : (a : α) → P a → β)
+  (H : ∀ (a : α), a ∈ l → P a) (g : γ → β → γ) (x : γ) :
+    (l.pmap f H).foldl g x = l.attach.foldl (fun acc a => g acc (f a.1 (H _ a.2))) x := by
+  rw [pmap_eq_map_attach, foldl_map]
+
+theorem foldr_pmap (l : List α) {P : α → Prop} (f : (a : α) → P a → β)
+  (H : ∀ (a : α), a ∈ l → P a) (g : β → γ → γ) (x : γ) :
+    (l.pmap f H).foldr g x = l.attach.foldr (fun a acc => g (f a.1 (H _ a.2)) acc) x := by
+  rw [pmap_eq_map_attach, foldr_map]
+
+/--
+If we fold over `l.attach` with a function that ignores the membership predicate,
+we get the same results as folding over `l` directly.
+
+This is useful when we need to use `attach` to show termination.
+
+Unfortunately this can't be applied by `simp` because of the higher order unification problem,
+and even when rewriting we need to specify the function explicitly.
+-/
+theorem foldl_attach (l : List α) (f : β → α → β) (b : β) :
+    l.attach.foldl (fun acc t => f acc t.1) b = l.foldl f b := by
+  induction l generalizing b with
+  | nil => simp
+  | cons a l ih => rw [foldl_cons, attach_cons, foldl_cons, foldl_map, ih]
+
+/--
+If we fold over `l.attach` with a function that ignores the membership predicate,
+we get the same results as folding over `l` directly.
+
+This is useful when we need to use `attach` to show termination.
+
+Unfortunately this can't be applied by `simp` because of the higher order unification problem,
+and even when rewriting we need to specify the function explicitly.
+-/
+theorem foldr_attach (l : List α) (f : α → β → β) (b : β) :
+    l.attach.foldr (fun t acc => f t.1 acc) b = l.foldr f b := by
+  induction l generalizing b with
+  | nil => simp
+  | cons a l ih => rw [foldr_cons, attach_cons, foldr_cons, foldr_map, ih]
+
 theorem attach_map {l : List α} (f : α → β) :
     (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
   induction l <;> simp [*]

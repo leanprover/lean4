@@ -8,6 +8,7 @@ import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
+import Lean.Util.CollectLMVars
 import Lean.Linter.Deprecated
 import Lean.Elab.Config
 import Lean.Elab.Level
@@ -94,6 +95,17 @@ structure MVarErrorInfo where
   deriving Inhabited
 
 /--
+When reporting unexpected universe level metavariables, it is useful to localize the errors
+to particular terms, especially at `let` bindings and function binders.
+-/
+structure LMVarErrorInfo where
+  lctx      : LocalContext
+  expr      : Expr
+  ref       : Syntax
+  msgData?  : Option MessageData := none
+  deriving Inhabited
+
+/--
   Nested `let rec` expressions are eagerly lifted by the elaborator.
   We store the information necessary for performing the lifting here.
 -/
@@ -120,6 +132,8 @@ structure State where
   pendingMVars      : List MVarId := {}
   /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
   mvarErrorInfos    : List MVarErrorInfo := []
+  /-- List of data to be able to localize universe level metavariable errors to particular expressions. -/
+  lmvarErrorInfos   : List LMVarErrorInfo := []
   /--
     `mvarArgNames` stores the argument names associated to metavariables.
     These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
@@ -792,6 +806,54 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
     for error in errors do
       error.mvarId.withContext do
         error.logError extraMsg?
+    return hasNewErrors
+
+def registerLMVarErrorInfo (lmvarErrorInfo : LMVarErrorInfo) : TermElabM Unit :=
+  modify fun s => { s with lmvarErrorInfos := lmvarErrorInfo :: s.lmvarErrorInfos }
+
+def registerLMVarErrorExprInfo (expr : Expr) (ref : Syntax) (msgData? : Option MessageData := none) : TermElabM Unit := do
+  registerLMVarErrorInfo { lctx := (← getLCtx), expr, ref, msgData? }
+
+def exposeLevelMVars (e : Expr) : MetaM Expr :=
+  Core.transform e
+    (post := fun e => do
+      match e with
+      | .const _ us     => return .done <| if us.any (·.isMVar) then e.setPPUniverses true else e
+      | .sort u         => return .done <| if u.isMVar then e.setPPUniverses true else e
+      | .lam _ t _ _    => return .done <| if t.hasLevelMVar then e.setOption `pp.funBinderTypes true else e
+      | .letE _ t _ _ _ => return .done <| if t.hasLevelMVar then e.setOption `pp.letVarTypes true else e
+      | _               => return .done e)
+
+def LMVarErrorInfo.logError (lmvarErrorInfo : LMVarErrorInfo) : TermElabM Unit :=
+  Meta.withLCtx lmvarErrorInfo.lctx {} do
+    let e' ← exposeLevelMVars (← instantiateMVars lmvarErrorInfo.expr)
+    let msg := lmvarErrorInfo.msgData?.getD m!"don't know how to synthesize universe level metavariables"
+    let msg := m!"{msg}{indentExpr e'}"
+    logErrorAt lmvarErrorInfo.ref msg
+
+/--
+Try to log errors for unassigned level metavariables `pendingLMVarIds`.
+
+Returns `true` if there are any relevant `LMVarErrorInfo`s and we should "abort" the declaration.
+
+Remark: we only log unassigned level metavariables as new errors if no error has been logged so far.
+-/
+def logUnassignedLMVarsUsingErrorInfos (pendingLMVarIds : Array LMVarId) : TermElabM Bool := do
+  if pendingLMVarIds.isEmpty then
+    return false
+  else
+    let hasOtherErrors ← MonadLog.hasErrors
+    let mut hasNewErrors := false
+    let mut errors : Array LMVarErrorInfo := #[]
+    for lmvarErrorInfo in (← get).lmvarErrorInfos do
+      let e ← instantiateMVars lmvarErrorInfo.expr
+      let lmvars := (collectLMVars {} e).result
+      if lmvars.any pendingLMVarIds.contains then do
+        unless hasOtherErrors do
+          errors := errors.push lmvarErrorInfo
+        hasNewErrors := true
+    for error in errors do
+      error.logError
     return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/

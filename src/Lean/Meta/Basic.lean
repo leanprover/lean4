@@ -1766,7 +1766,7 @@ private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
     | .sort u     => if p u then some (e.setPPUniverses true) else none
     | _           => none
 
-private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
+private def mkLevelErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
   match entry.ctx? with
   | none =>
     return m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}"
@@ -1783,10 +1783,10 @@ private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : 
         addMessageContext m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD lhs}\nwith{indentD rhs}"
 
 def mkLevelStuckErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
-  mkLeveErrorMessageCore "stuck at solving universe constraint" entry
+  mkLevelErrorMessageCore "stuck at solving universe constraint" entry
 
 def mkLevelErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
-  mkLeveErrorMessageCore "failed to solve universe constraint" entry
+  mkLevelErrorMessageCore "failed to solve universe constraint" entry
 
 private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool := do
   let ps ← getResetPostponed

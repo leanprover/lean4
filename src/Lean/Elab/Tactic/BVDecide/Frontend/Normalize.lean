@@ -35,9 +35,12 @@ such that these symbolic branches get constant folded by the AIG framework.
 builtin_simproc [bv_normalize] mulConst ((_ : BitVec _) * (_ : BitVec _)) := fun e => do
   let_expr HMul.hMul _ _ _ _ lhs rhs := e | return .continue
   let some ⟨width, _⟩ ← Lean.Meta.getBitVecValue? lhs | return .continue
-  let new ← mkAppM ``HMul.hMul #[rhs, lhs]
-  let proof := mkApp3 (mkConst ``BitVec.mul_comm) (toExpr width) lhs rhs
-  return .done { expr := new, proof? := some proof }
+  if (← Lean.Meta.getBitVecValue? rhs).isSome then
+    return .continue
+  else
+    let new ← mkAppM ``HMul.hMul #[rhs, lhs]
+    let proof := mkApp3 (mkConst ``BitVec.mul_comm) (toExpr width) lhs rhs
+    return .done { expr := new, proof? := some proof }
 
 builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => do
   let_expr Eq _ lhs rhs := e | return .continue
@@ -65,6 +68,7 @@ def bvNormalize (g : MVarId) : MetaM Result := do
     let sevalSimprocs ← Simp.getSEvalSimprocs
 
     let simpCtx : Simp.Context := {
+      config := { failIfUnchanged := false, zetaDelta := true }
       simpTheorems := #[bvThms, sevalThms]
       congrTheorems := (← getSimpCongrTheorems)
     }

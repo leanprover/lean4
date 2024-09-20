@@ -27,21 +27,6 @@ namespace Frontend.Normalize
 open Lean.Meta
 open Std.Tactic.BVDecide.Normalize
 
-/--
-The bitblaster for multiplication introduces symbolic branches over the right hand side.
-If we have an expression of the form `c * x` where `c` is constant we should change it to `x * c`
-such that these symbolic branches get constant folded by the AIG framework.
--/
-builtin_simproc [bv_normalize] mulConst ((_ : BitVec _) * (_ : BitVec _)) := fun e => do
-  let_expr HMul.hMul _ _ _ _ lhs rhs := e | return .continue
-  let some ⟨width, _⟩ ← Lean.Meta.getBitVecValue? lhs | return .continue
-  if (← Lean.Meta.getBitVecValue? rhs).isSome then
-    return .continue
-  else
-    let new ← mkAppM ``HMul.hMul #[rhs, lhs]
-    let proof := mkApp3 (mkConst ``BitVec.mul_comm) (toExpr width) lhs rhs
-    return .done { expr := new, proof? := some proof }
-
 builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => do
   let_expr Eq _ lhs rhs := e | return .continue
   match_expr rhs with

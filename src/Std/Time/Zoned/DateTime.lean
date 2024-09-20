@@ -221,6 +221,82 @@ def subYearsClip (dt : DateTime tz) (years : Year.Offset) : DateTime tz :=
   ofLocalDateTime (dt.date.get.subYearsClip years) tz
 
 /--
+Creates a new `DateTime tz` by adjusting the day of the month to the given `days` value, with any
+out-of-range days clipped to the nearest valid date.
+-/
+@[inline]
+def withDaysClip (dt : DateTime tz) (days : Day.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withDaysClip days) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the day of the month to the given `days` value, with any
+out-of-range days rolled over to the next month or year as needed.
+-/
+@[inline]
+def withDaysRollOver (dt : DateTime tz) (days : Day.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withDaysRollOver days) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the month to the given `month` value.
+The day remains unchanged, and any invalid days for the new month will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withMonthClip (dt : DateTime tz) (month : Month.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withMonthClip month) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the month to the given `month` value.
+The day is rolled over to the next valid month if necessary.
+-/
+@[inline]
+def withMonthRollOver (dt : DateTime tz) (month : Month.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withMonthRollOver month) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the year to the given `year` value. The month and day remain unchanged,
+and any invalid days for the new year will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withYearClip (dt : DateTime tz) (year : Year.Offset) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withYearClip year) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the year to the given `year` value. The month and day are rolled
+over to the next valid month and day if necessary.
+-/
+@[inline]
+def withYearRollOver (dt : DateTime tz) (year : Year.Offset) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withYearRollOver year) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the `hour` component.
+-/
+@[inline]
+def withHour (dt : DateTime tz) (hour : Hour.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withHour hour) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the `minute` component.
+-/
+@[inline]
+def withMinute (dt : DateTime tz) (minute : Minute.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withMinute minute) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the `second` component.
+-/
+@[inline]
+def withSecond (dt : DateTime tz) (second : Sigma Second.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withSecond second) tz
+
+/--
+Creates a new `DateTime tz` by adjusting the `nano` component.
+-/
+@[inline]
+def withNano (dt : DateTime tz) (nano : Nanosecond.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withNano nano) tz
+
+/--
 Converts a `Timestamp` to a `PlainDateTime`
 -/
 @[inline]

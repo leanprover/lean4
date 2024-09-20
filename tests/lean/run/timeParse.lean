@@ -9,10 +9,10 @@ def ShortDateTime : Format .any := datespec("MM/dd/yyyy HH:mm:ss")
 def LongDateTime : Format .any := datespec("MMMM dd, yyyy hh:mm aa")
 def Time24Hour : Format .any := datespec("HH:mm:ss")
 def Time12Hour : Format .any := datespec("hh:mm:ss aa")
-def FullDayTimeZone : Format .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss XXX")
+def FullDayTimeZone : Format .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss ZZZ")
 def CustomDayTime : Format .any := datespec("EEE dd MMM yyyy HH:mm")
 
-def Full12HourWrong : Format .any := datespec("MM/dd/yyyy HH:mm:ss aa XXX")
+def Full12HourWrong : Format .any := datespec("MM/dd/yyyy hh:mm:ss aa XXX")
 
 -- Dates
 
@@ -85,7 +85,7 @@ info: "2024-08-16T01:28:00.000000000Z"
     ISO8601UTC.format t.snd
 
 /--
-info: "-0001-12-31T22:28:12.000+09:00"
+info: "0000-12-30T22:28:12.000000000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -93,11 +93,11 @@ info: "-0001-12-31T22:28:12.000+09:00"
     ISO8601UTC.format (t.snd.convertTimeZone jpTZ)
 
 /--
-info: "-0001-12-31T09:28:12.000-03:00"
+info: "0000-12-29T21:28:12.000000000-03:00"
 -/
 #guard_msgs in
 #eval
-    let t1 : ZonedDateTime := Time12Hour.parse! "12:28:12 am"
+    let t1 : ZonedDateTime := Time12Hour.parse! "12:28:12 AM"
     ISO8601UTC.format (t1.snd.convertTimeZone brTZ)
 
 /--
@@ -109,7 +109,7 @@ info: "Thu 15 Aug 2024 16:28"
     CustomDayTime.format t2.snd
 
 /--
-info: "2024-08-16T13:28:00.000Z"
+info: "2024-08-16T13:28:00.000000000Z"
 -/
 #guard_msgs in
 #eval
@@ -117,7 +117,7 @@ info: "2024-08-16T13:28:00.000Z"
     ISO8601UTC.format t5.snd
 
 /--
-info: "2024-08-16T01:28:12.000+09:00"
+info: "2024-08-16T01:28:12.000000000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -125,7 +125,7 @@ info: "2024-08-16T01:28:12.000+09:00"
     ISO8601UTC.format (t6.snd.convertTimeZone jpTZ)
 
 /--
-info: "2024-08-16T01:28:12.000+09:00"
+info: "2024-08-16T01:28:12.000000000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -142,7 +142,7 @@ def localTm : Second.Offset := 1723730627
 /--
 This PlainDate is relative to the local time.
 -/
-def PlainDate : PlainDateTime := Timestamp.toPlainDateTime (Timestamp.ofSecondsSinceUnixEpoch localTm)
+def PlainDate : PlainDateTime := Timestamp.toPlainDateTimeAssumingUTC (Timestamp.ofSecondsSinceUnixEpoch localTm)
 
 def dateBR₁ := DateTime.ofLocalDateTime PlainDate brTZ
 def dateJP₁ := DateTime.ofLocalDateTime PlainDate jpTZ
@@ -181,7 +181,7 @@ info: Except.ok "1993-05-10T10:30:23.000000000+03:00"
     (ISO8601UTC.format ·.snd) <$> t2
 
 /--
-info: Except.ok "1993-05-10T22:30:23.000+03:00"
+info: Except.ok "1993-05-10T22:30:23.000000000+03:00"
 -/
 #guard_msgs in
 #eval
@@ -189,7 +189,7 @@ info: Except.ok "1993-05-10T22:30:23.000+03:00"
     (ISO8601UTC.format ·.snd) <$> t2
 
 /--
-info: Except.error "offset 29: The 24-hour is out of the range and cannot be transformed into a 12-hour with a marker."
+info: Except.error "offset 13: need a natural number in the interval of 1 to 12"
 -/
 #guard_msgs in
 #eval
@@ -197,7 +197,7 @@ info: Except.error "offset 29: The 24-hour is out of the range and cannot be tra
     (ISO8601UTC.format ·.snd) <$> t2
 
 /--
-info: Except.error "offset 29: The 24-hour is out of the range and cannot be transformed into a 12-hour with a marker."
+info: Except.error "offset 13: need a natural number in the interval of 1 to 12"
 -/
 #guard_msgs in
 #eval

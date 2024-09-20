@@ -197,6 +197,34 @@ Subtracts milliseconds from a `PlainTime`.
 def subMilliseconds (time : PlainTime) (millisToSub : Millisecond.Offset) : PlainTime :=
   addMilliseconds time (-millisToSub)
 
+/--
+Creates a new `PlainTime` by adjusting the `second` component to the given value.
+-/
+@[inline]
+def withSecond (pt : PlainTime) (second : Sigma Second.Ordinal) : PlainTime :=
+  { pt with second := second }
+
+/--
+Creates a new `PlainTime` by adjusting the `minute` component to the given value.
+-/
+@[inline]
+def withMinute (pt : PlainTime) (minute : Minute.Ordinal) : PlainTime :=
+  { pt with minute := minute }
+
+/--
+Creates a new `PlainTime` by adjusting the `nano` component to the given value.
+-/
+@[inline]
+def withNano (pt : PlainTime) (nano : Nanosecond.Ordinal) : PlainTime :=
+  { pt with nano := nano }
+
+/--
+Creates a new `PlainTime` by adjusting the `hour` component to the given value.
+-/
+@[inline]
+def withHour (pt : PlainTime) (hour : Hour.Ordinal) : PlainTime :=
+  { pt with hour := hour }
+
 instance : HAdd PlainTime Nanosecond.Offset PlainTime where
   hAdd := addNanoseconds
 

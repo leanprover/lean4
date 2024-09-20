@@ -127,6 +127,82 @@ def ofUTCTimestamp (stamp : Timestamp) : PlainDateTime := Id.run do
   }
 
 /--
+Creates a new `PlainDateTime` by adjusting the day of the month to the given `days` value, with any
+out-of-range days clipped to the nearest valid date.
+-/
+@[inline]
+def withDaysClip (dt : PlainDateTime) (days : Day.Ordinal) : PlainDateTime :=
+  { dt with date := PlainDate.clip dt.date.year dt.date.month days }
+
+/--
+Creates a new `PlainDateTime` by adjusting the day of the month to the given `days` value, with any
+out-of-range days rolled over to the next month or year as needed.
+-/
+@[inline]
+def withDaysRollOver (dt : PlainDateTime) (days : Day.Ordinal) : PlainDateTime :=
+  { dt with date := PlainDate.rollOver dt.date.year dt.date.month days }
+
+/--
+Creates a new `PlainDateTime` by adjusting the month to the given `month` value.
+The day remains unchanged, and any invalid days for the new month will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withMonthClip (dt : PlainDateTime) (month : Month.Ordinal) : PlainDateTime :=
+  { dt with date := PlainDate.clip dt.date.year month dt.date.day }
+
+/--
+Creates a new `PlainDateTime` by adjusting the month to the given `month` value.
+The day is rolled over to the next valid month if necessary.
+-/
+@[inline]
+def withMonthRollOver (dt : PlainDateTime) (month : Month.Ordinal) : PlainDateTime :=
+  { dt with date := PlainDate.rollOver dt.date.year month dt.date.day }
+
+/--
+Creates a new `PlainDateTime` by adjusting the year to the given `year` value. The month and day remain unchanged,
+and any invalid days for the new year will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withYearClip (dt : PlainDateTime) (year : Year.Offset) : PlainDateTime :=
+  { dt with date := PlainDate.clip year dt.date.month dt.date.day }
+
+/--
+Creates a new `PlainDateTime` by adjusting the year to the given `year` value. The month and day are rolled
+over to the next valid month and day if necessary.
+-/
+@[inline]
+def withYearRollOver (dt : PlainDateTime) (year : Year.Offset) : PlainDateTime :=
+  { dt with date := PlainDate.rollOver year dt.date.month dt.date.day }
+
+/--
+Creates a new `PlainDateTime` by adjusting the `hour` component of its `time` to the given value.
+-/
+@[inline]
+def withHour (dt : PlainDateTime) (hour : Hour.Ordinal) : PlainDateTime :=
+  { dt with time := { dt.time with hour := hour } }
+
+/--
+Creates a new `PlainDateTime` by adjusting the `minute` component of its `time` to the given value.
+-/
+@[inline]
+def withMinute (dt : PlainDateTime) (minute : Minute.Ordinal) : PlainDateTime :=
+  { dt with time := { dt.time with minute := minute } }
+
+/--
+Creates a new `PlainDateTime` by adjusting the `second` component of its `time` to the given value.
+-/
+@[inline]
+def withSecond (dt : PlainDateTime) (second : Sigma Second.Ordinal) : PlainDateTime :=
+  { dt with time := { dt.time with second := second } }
+
+/--
+Creates a new `PlainDateTime` by adjusting the `nano` component of its `time` to the given value.
+-/
+@[inline]
+def withNano (dt : PlainDateTime) (nano : Nanosecond.Ordinal) : PlainDateTime :=
+  { dt with time := { dt.time with nano := nano } }
+
+/--
 Adds a `Day.Offset` to a `PlainDateTime`.
 -/
 @[inline]
@@ -139,14 +215,6 @@ Subtracts a `Day.Offset` from a `PlainDateTime`.
 @[inline]
 def subDays (dt : PlainDateTime) (days : Day.Offset) : PlainDateTime :=
   { dt with date := dt.date.subDays days }
-
-/--
-Sets the `Day.Offset` from a `PlainDateTime`.
--/
-@[inline]
-def withDaysClip (dt : PlainDateTime) (days : Day.Ordinal) : PlainDateTime :=
-  { dt with date := dt.date.withDaysClip days }
-
 
 /--
 Adds a `Week.Offset` to a `PlainDateTime`.

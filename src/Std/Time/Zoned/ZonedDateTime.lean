@@ -297,6 +297,82 @@ def era (date : ZonedDateTime) : Year.Era :=
     .bce
 
 /--
+Creates a new `ZonedDateTime` by adjusting the day of the month to the given `days` value, with any
+out-of-range days clipped to the nearest valid date.
+-/
+@[inline]
+def withDaysClip (dt : ZonedDateTime) (days : Day.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withDaysClip days⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the day of the month to the given `days` value, with any
+out-of-range days rolled over to the next month or year as needed.
+-/
+@[inline]
+def withDaysRollOver (dt : ZonedDateTime) (days : Day.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withDaysRollOver days⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the month to the given `month` value.
+The day remains unchanged, and any invalid days for the new month will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withMonthClip (dt : ZonedDateTime) (month : Month.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withMonthClip month⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the month to the given `month` value.
+The day is rolled over to the next valid month if necessary.
+-/
+@[inline]
+def withMonthRollOver (dt : ZonedDateTime) (month : Month.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withMonthRollOver month⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the year to the given `year` value. The month and day remain unchanged,
+and any invalid days for the new year will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withYearClip (dt : ZonedDateTime) (year : Year.Offset) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withYearClip year⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the year to the given `year` value. The month and day are rolled
+over to the next valid month and day if necessary.
+-/
+@[inline]
+def withYearRollOver (dt : ZonedDateTime) (year : Year.Offset) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withYearRollOver year⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the `hour` component.
+-/
+@[inline]
+def withHour (dt : ZonedDateTime) (hour : Hour.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withHour hour⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the `minute` component.
+-/
+@[inline]
+def withMinute (dt : ZonedDateTime) (minute : Minute.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withMinute minute⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the `second` component.
+-/
+@[inline]
+def withSecond (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withSecond second⟩
+
+/--
+Creates a new `ZonedDateTime` by adjusting the `nano` component.
+-/
+@[inline]
+def withNano (dt : ZonedDateTime) (nano : Nanosecond.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withNano nano⟩
+
+/--
 Checks if the `DateTime` is in a leap year.
 -/
 def inLeapYear (date : ZonedDateTime) : Bool :=

@@ -395,6 +395,13 @@ def eq {n : Int} : Bounded.LE n n :=
   ⟨n, And.intro (Int.le_refl n) (Int.le_refl n)⟩
 
 /--
+Expand the top and bottom of the bounded.
+-/
+@[inline]
+def expand (bounded : Bounded.LE lo hi) (h : hi ≤ nhi) (h₁ : nlo ≤ lo) : Bounded.LE nlo nhi :=
+  ⟨bounded.val, And.intro (Int.le_trans h₁ bounded.property.left) (Int.le_trans bounded.property.right h)⟩
+
+/--
 Expand the bottom of the bounded to a number `nhi` is `hi` is less or equal to the previous higher bound.
 -/
 @[inline]

@@ -219,19 +219,20 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
       sats := sats.push reflected
     else
       unusedHypotheses := unusedHypotheses.insert hyp
-  if sats.size = 0 then
+  if h : sats.size = 0 then
     let mut error := "None of the hypotheses are in the supported BitVec fragment.\n"
     error := error ++ "There are two potential fixes for this:\n"
     error := error ++ "1. If you are using custom BitVec constructs simplify them to built-in ones.\n"
     error := error ++ "2. If your problem is using only built-in ones it might currently be out of reach.\n"
     error := error ++ "   Consider expressing it in terms of different operations that are better supported."
     throwError error
-  let sat := sats.foldl (init := SatAtBVLogical.trivial) SatAtBVLogical.and
-  return {
-    bvExpr := sat.bvExpr,
-    proveFalse := sat.proveFalse,
-    unusedHypotheses := unusedHypotheses
-  }
+  else
+    let sat := sats[1:].foldl (init := sats[0]) SatAtBVLogical.and
+    return {
+      bvExpr := sat.bvExpr,
+      proveFalse := sat.proveFalse,
+      unusedHypotheses := unusedHypotheses
+    }
 
 
 def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :

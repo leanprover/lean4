@@ -271,6 +271,9 @@ termination_by n - i
 
 /-- # mkArray -/
 
+@[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
+  List.length_replicate ..
+
 @[simp] theorem toList_mkArray (n : Nat) (v : α) : (mkArray n v).toList = List.replicate n v := rfl
 
 @[deprecated toList_mkArray (since := "2024-09-09")]
@@ -495,7 +498,6 @@ abbrev size_eq_length_data := @size_eq_length_toList
   let rec go (as : Array α) (i j) : (reverse.loop as i j).size = as.size := by
     rw [reverse.loop]
     if h : i < j then
-      have := reverse.termination h
       simp [(go · (i+1) ⟨j-1, ·⟩), h]
     else simp [h]
     termination_by j - i
@@ -527,9 +529,8 @@ set_option linter.deprecated false in
       (H : ∀ k, as.toList.get? k = if i ≤ k ∧ k ≤ j then a.toList.get? k else a.toList.reverse.get? k)
       (k) : (reverse.loop as i ⟨j, hj⟩).toList.get? k = a.toList.reverse.get? k := by
     rw [reverse.loop]; dsimp; split <;> rename_i h₁
-    · have p := reverse.termination h₁
-      match j with | j+1 => ?_
-      simp only [Nat.add_sub_cancel] at p ⊢
+    · match j with | j+1 => ?_
+      simp only [Nat.add_sub_cancel]
       rw [(go · (i+1) j)]
       · rwa [Nat.add_right_comm i]
       · simp [size_swap, h₂]
@@ -1112,6 +1113,5 @@ theorem swap_comm (a : Array α) {i j : Fin a.size} : a.swap i j = a.swap j i :=
     split
     · split <;> simp_all
     · split <;> simp_all
-
 
 end Array

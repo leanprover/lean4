@@ -158,6 +158,11 @@ section Unverified
 @[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
+  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
+  ⟨⟨l⟩, ⟨r⟩⟩
+
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.

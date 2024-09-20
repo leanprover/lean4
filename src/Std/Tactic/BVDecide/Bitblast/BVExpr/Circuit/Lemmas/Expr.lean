@@ -67,7 +67,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     simp [go, hidx, denote_blastVar]
   | zeroExtend v inner ih =>
     simp only [go, denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-      eval_zeroExtend, BitVec.getLsbD_zeroExtend, hidx, decide_True, Bool.true_and,
+      eval_zeroExtend, BitVec.getLsbD_setWidth, hidx, decide_True, Bool.true_and,
       Bool.and_iff_right_iff_imp, decide_eq_true_eq]
     apply BitVec.lt_of_getLsbD
   | append lhs rhs lih rih =>
@@ -93,9 +93,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [blastSignExtend_empty_eq_zeroExtend] at hgo
       · rw [← hgo]
         simp only [eval_signExtend]
-        rw [BitVec.signExtend_eq_not_zeroExtend_not_of_msb_false]
+        rw [BitVec.signExtend_eq_not_setWidth_not_of_msb_false]
         · simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-            BitVec.getLsbD_zeroExtend, hidx, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
+            BitVec.getLsbD_setWidth, hidx, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
             decide_eq_true_eq]
           apply BitVec.lt_of_getLsbD
         · subst heq

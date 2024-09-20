@@ -142,8 +142,8 @@ def toString : BVUnOp → String
   | not => "~"
   | shiftLeftConst n => s!"<< {n}"
   | shiftRightConst n => s!">> {n}"
-  | rotateLeft n => s! "rotL {n}"
-  | rotateRight n => s! "rotR {n}"
+  | rotateLeft n => s!"rotL {n}"
+  | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
 
 instance : ToString BVUnOp := ⟨toString⟩
@@ -238,7 +238,7 @@ def toString : BVExpr w → String
   | .var idx => s!"var{idx}"
   | .const val => ToString.toString val
   | .zeroExtend v expr => s!"(zext {v} {expr.toString})"
-  | .extract hi lo expr => s!"{expr.toString}[{hi}:{lo}]"
+  | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
   | .un op operand => s!"({op.toString} {toString operand})"
   | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"

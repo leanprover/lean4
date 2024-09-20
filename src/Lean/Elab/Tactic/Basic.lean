@@ -49,6 +49,9 @@ instance : Monad TacticM :=
   let i := inferInstanceAs (Monad TacticM);
   { pure := i.pure, bind := i.bind }
 
+instance : Inhabited (TacticM α) where
+  default := fun _ _ => default
+
 def getGoals : TacticM (List MVarId) :=
   return (← get).goals
 

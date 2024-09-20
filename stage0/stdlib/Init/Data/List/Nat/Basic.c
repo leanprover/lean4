@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat.Basic
-// Imports: Init.Data.List.Count Init.Data.List.MinMax Init.Data.Nat.Lemmas
+// Imports: Init.Data.List.Count Init.Data.List.Find Init.Data.List.MinMax Init.Data.Nat.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -109,6 +109,7 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_List_Count(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Find(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_MinMax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -117,6 +118,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_List_Count(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Find(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_MinMax(builtin, lean_io_mk_world());

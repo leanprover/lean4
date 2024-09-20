@@ -418,7 +418,7 @@ This method assumes that for any `xs[i]` and `xs[j]` where `i < j`, we have that
 where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
-  if not (← hasLetDeclsInBetween) then
+  if !(← hasLetDeclsInBetween) then
     mkLambdaFVars xs v (etaReduce := true)
   else
     let ys ← addLetDeps

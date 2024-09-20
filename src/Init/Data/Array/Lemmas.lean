@@ -19,7 +19,7 @@ This file contains some theorems about `Array` and `List` needed for `Init.Data.
 
 namespace Array
 
-attribute [simp] data_toArray uset
+attribute [simp] uset
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 
@@ -271,6 +271,9 @@ termination_by n - i
 
 /-- # mkArray -/
 
+@[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
+  List.length_replicate ..
+
 @[simp] theorem toList_mkArray (n : Nat) (v : α) : (mkArray n v).toList = List.replicate n v := rfl
 
 @[deprecated toList_mkArray (since := "2024-09-09")]
@@ -495,7 +498,6 @@ abbrev size_eq_length_data := @size_eq_length_toList
   let rec go (as : Array α) (i j) : (reverse.loop as i j).size = as.size := by
     rw [reverse.loop]
     if h : i < j then
-      have := reverse.termination h
       simp [(go · (i+1) ⟨j-1, ·⟩), h]
     else simp [h]
     termination_by j - i
@@ -527,9 +529,8 @@ set_option linter.deprecated false in
       (H : ∀ k, as.toList.get? k = if i ≤ k ∧ k ≤ j then a.toList.get? k else a.toList.reverse.get? k)
       (k) : (reverse.loop as i ⟨j, hj⟩).toList.get? k = a.toList.reverse.get? k := by
     rw [reverse.loop]; dsimp; split <;> rename_i h₁
-    · have p := reverse.termination h₁
-      match j with | j+1 => ?_
-      simp only [Nat.add_sub_cancel] at p ⊢
+    · match j with | j+1 => ?_
+      simp only [Nat.add_sub_cancel]
       rw [(go · (i+1) j)]
       · rwa [Nat.add_right_comm i]
       · simp [size_swap, h₂]
@@ -828,7 +829,7 @@ theorem get_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.
     (as ++ bs)[i] = bs[i - as.size] := by
   simp only [getElem_eq_toList_getElem]
   have h' : i < (as.toList ++ bs.toList).length := by rwa [← toList_length, append_toList] at h
-  conv => rhs; rw [← List.getElem_append_right (h' := h') (h := Nat.not_lt_of_ge hle)]
+  conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [append_toList]
 
 @[simp] theorem append_nil (as : Array α) : as ++ #[] = as := by
@@ -1127,7 +1128,6 @@ abbrev swap_getElem (as: Array α) (i j k: Nat) (his: i < as.size) (hjs: j < as.
   (as.swap ⟨i, his⟩ ⟨j, hjs⟩)[k]'(
       le_of_le_of_eq hks (Eq.symm (size_swap as ⟨i, his⟩ ⟨j, hjs⟩))
     )
-
 theorem getElem_after_swap (as: Array α) (hij: i ≤ j) (hjh: j < high) (hhs: high < as.size):
     swap_getElem as i j high (Nat.lt_of_le_of_lt hij (Nat.lt_trans hjh hhs)) (Nat.lt_trans hjh hhs) hhs
     = (as[high]'hhs) := by
@@ -1136,5 +1136,15 @@ theorem getElem_after_swap (as: Array α) (hij: i ≤ j) (hjh: j < high) (hhs: h
   rw [getElem_set_ne]
   · exact Nat.ne_of_lt (Nat.lt_of_le_of_lt hij hjh)
   · exact Nat.ne_of_lt (hjh)
+
+@[simp] theorem size_ite (P: Prop) [Decidable P] (a b: Array α):
+    (if P then a else b).size = (if P then a.size else b.size) := by
+  split
+  all_goals rfl
+
+@[simp] theorem size_dite (P: Prop) [Decidable P] (a: P → Array α) (b: ¬P → Array α):
+    (if h: P then a h else b h).size = (if h: P then (a h).size else (b h).size) := by
+  split
+  all_goals rfl
 
 end Array

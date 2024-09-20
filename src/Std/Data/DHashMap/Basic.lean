@@ -186,6 +186,15 @@ section Unverified
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
 
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : (a : α) → β a → Bool)
+    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
+  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
+
 @[inline, inherit_doc Raw.forM] def forM (f : (a : α) → β a → m PUnit)
     (b : DHashMap α β) : m PUnit :=
   b.1.forM f
@@ -257,6 +266,10 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
   Const.insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    DHashMap α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
+@[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 

@@ -115,6 +115,13 @@ theorem IsPrefix.countP_le (s : l₁ <+: l₂) : countP p l₁ ≤ countP p l₂
 theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
 theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
 
+-- See `Init.Data.List.Nat.Count` for `Sublist.le_countP : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁`.
+
+theorem countP_tail_le (l) : countP p l.tail ≤ countP p l :=
+  (tail_sublist l).countP_le _
+
+-- See `Init.Data.List.Nat.Count` for `le_countP_tail : countP p l - 1 ≤ countP p l.tail`.
+
 theorem countP_filter (l : List α) :
     countP p (filter q l) = countP (fun a => p a && q a) l := by
   simp only [countP_eq_length_filter, filter_filter]
@@ -206,6 +213,13 @@ theorem Sublist.count_le (h : l₁ <+ l₂) (a : α) : count a l₁ ≤ count a 
 theorem IsPrefix.count_le (h : l₁ <+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
 theorem IsSuffix.count_le (h : l₁ <:+ l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
 theorem IsInfix.count_le (h : l₁ <:+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
+
+-- See `Init.Data.List.Nat.Count` for `Sublist.le_count : count a l₂ - (l₂.length - l₁.length) ≤ countP a l₁`.
+
+theorem count_tail_le (a : α) (l) : count a l.tail ≤ count a l :=
+  (tail_sublist l).count_le _
+
+-- See `Init.Data.List.Nat.Count` for `le_count_tail : count a l - 1 ≤ count a l.tail`.
 
 theorem count_le_count_cons (a b : α) (l : List α) : count a l ≤ count a (b :: l) :=
   (sublist_cons_self _ _).count_le _

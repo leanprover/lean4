@@ -35,7 +35,7 @@ Reconstruct bit by bit which value expression must have had which `BitVec` value
 expression - pair values.
 -/
 def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Array (Bool × Nat))
-    (aigSize : Nat) (atomsAssignment : Std.HashMap Nat Expr) :
+    (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr)) :
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
   let mut sparseMap : Std.HashMap Nat (RBMap Nat Bool Ord.compare) := {}
   for (bitVar, cnfVar) in var2Cnf.toArray do
@@ -70,7 +70,7 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
       if bitValue then
         value := value ||| (1 <<< currentBit)
       currentBit := currentBit + 1
-    let atomExpr := atomsAssignment.get! bitVecVar
+    let atomExpr := atomsAssignment.get! bitVecVar |>.snd
     finalMap := finalMap.push (atomExpr, ⟨BitVec.ofNat currentBit value⟩)
   return finalMap
 
@@ -83,14 +83,14 @@ structure UnsatProver.Result where
   proof : Expr
   lratCert : LratCert
 
-abbrev UnsatProver := ReflectionResult → Std.HashMap Nat Expr → MetaM UnsatProver.Result
+abbrev UnsatProver := ReflectionResult → Std.HashMap Nat (Nat × Expr) → MetaM UnsatProver.Result
 
 /--
 Contains values that will be used to diagnose spurious counter examples.
 -/
 structure DiagnosisInput where
   unusedHypotheses : Std.HashSet FVarId
-  atomsAssignment : Std.HashMap Nat Expr
+  atomsAssignment : Std.HashMap Nat (Nat × Expr)
 
 /--
 The result of a spurious counter example diagnosis.
@@ -104,14 +104,14 @@ abbrev DiagnosisM : Type → Type := ReaderT DiagnosisInput <| StateRefT Diagnos
 namespace DiagnosisM
 
 def run (x : DiagnosisM Unit) (unusedHypotheses : Std.HashSet FVarId)
-    (atomsAssignment : Std.HashMap Nat Expr) : MetaM Diagnosis := do
+    (atomsAssignment : Std.HashMap Nat (Nat × Expr)) : MetaM Diagnosis := do
   let (_, issues) ← ReaderT.run x { unusedHypotheses, atomsAssignment } |>.run {}
   return issues
 
 def unusedHyps : DiagnosisM (Std.HashSet FVarId) := do
   return (← read).unusedHypotheses
 
-def atomsAssignment : DiagnosisM (Std.HashMap Nat Expr) := do
+def atomsAssignment : DiagnosisM (Std.HashMap Nat (Nat × Expr)) := do
   return (← read).atomsAssignment
 
 def addUninterpretedSymbol (e : Expr) : DiagnosisM Unit :=
@@ -131,7 +131,7 @@ Diagnose spurious counter examples, currently this checks:
 - Whether all hypotheses which contain any variable that was bitblasted were included
 -/
 def diagnose : DiagnosisM Unit := do
-  for (_, expr) in ← atomsAssignment do
+  for (_, (_, expr)) in ← atomsAssignment do
     match_expr expr with
     | BitVec.ofBool x =>
       match x with
@@ -158,7 +158,7 @@ def explainers : List (Diagnosis → Option MessageData) :=
   [uninterpretedExplainer, unusedRelevantHypothesesExplainer]
 
 def explainCounterExampleQuality (unusedHypotheses : Std.HashSet FVarId)
-    (atomsAssignment : Std.HashMap Nat Expr) : MetaM MessageData := do
+    (atomsAssignment : Std.HashMap Nat (Nat × Expr)) : MetaM MessageData := do
   let diagnosis ← DiagnosisM.run DiagnosisM.diagnose unusedHypotheses atomsAssignment
   let folder acc explainer := if let some m := explainer diagnosis then acc.push m else acc
   let explanations := explainers.foldl (init := #[]) folder
@@ -172,7 +172,7 @@ def explainCounterExampleQuality (unusedHypotheses : Std.HashSet FVarId)
     return err
 
 def lratBitblaster (cfg : TacticContext) (reflectionResult : ReflectionResult)
-    (atomsAssignment : Std.HashMap Nat Expr) :
+    (atomsAssignment : Std.HashMap Nat (Nat × Expr)) :
     MetaM UnsatProver.Result := do
   let bvExpr := reflectionResult.bvExpr
   let entry ←
@@ -242,7 +242,7 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
         reflectBV g
     trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.bvExpr}"
 
-    let atomsPairs := (← getThe State).atoms.toList.map (fun (expr, _, ident) => (ident, expr))
+    let atomsPairs := (← getThe State).atoms.toList.map (fun (expr, ⟨width, ident⟩) => (ident, (width, expr)))
     let atomsAssignment := Std.HashMap.ofList atomsPairs
     let ⟨bvExprUnsat, cert⟩ ← unsatProver reflectionResult atomsAssignment
     let proveFalse ← reflectionResult.proveFalse bvExprUnsat

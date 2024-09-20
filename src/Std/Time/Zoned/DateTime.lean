@@ -70,8 +70,8 @@ def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone) : DateTime
   DateTime.mk tm (Thunk.mk fun _ => date.addSeconds tz.toSeconds)
 
 /--
-Creates a new `DateTime` out of a `PlainDateTime`. It assumes that the `PlainDateTime` it's relative
-to the
+Creates a new `DateTime` from a `PlainDateTime`, assuming that the `PlainDateTime`
+is relative to the given `TimeZone`.
 -/
 @[inline]
 def ofLocalDateTime (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=

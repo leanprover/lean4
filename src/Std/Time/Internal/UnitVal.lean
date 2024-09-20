@@ -68,7 +68,7 @@ Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted
 -/
 @[inline]
 def div (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
-  ⟨unit.val.div divisor⟩
+  ⟨unit.val.tdiv divisor⟩
 
 /--
 Adds two `UnitVal` values of the same ratio.

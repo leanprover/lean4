@@ -7,7 +7,7 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.MetaTypes
-import Init.Data.Array.Basic
+import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
 
 namespace Lean

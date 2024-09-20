@@ -943,7 +943,7 @@ We can prove that two folds over the same list are related (by some arbitrary re
 if we know that the initial elements are related and the folding function, for each element of the list,
 preserves the relation.
 -/
-theorem List.foldl_rel {l : List α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
+theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
   induction l generalizing a b with
@@ -959,7 +959,7 @@ We can prove that two folds over the same list are related (by some arbitrary re
 if we know that the initial elements are related and the folding function, for each element of the list,
 preserves the relation.
 -/
-theorem List.foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
+theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
   induction l generalizing a b with

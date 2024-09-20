@@ -11,13 +11,10 @@ all remaining arguments have metavariables:
       Foo A B
       Foo B C
 [Meta.synthOrder] synthesizing the arguments of @instFooOption in the order []:
-[Meta.synthOrder] synthesizing the arguments of @TwoHalf.toTwo in the order [1, 2]:
-      One α
+[Meta.synthOrder] synthesizing the arguments of @TwoHalf.toTwo in the order [2]:
       TwoHalf α
-[Meta.synthOrder] synthesizing the arguments of @Four.toThree in the order [4, 2, 3]:
+[Meta.synthOrder] synthesizing the arguments of @Four.toThree in the order [4]:
       Four α β
-      One β
-      TwoHalf β
 [Meta.synthOrder] synthesizing the arguments of @instFourOfThree in the order [4, 2, 3]:
       Three α β
       One β

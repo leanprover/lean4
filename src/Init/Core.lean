@@ -1382,6 +1382,11 @@ gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
 
+/-- Replacement for `Array.mk.injEq`; we avoid mentioning the constructor and prefer `List.toArray`. -/
+abbrev List.toArray_inj := @Array.mk.injEq
+
+attribute [deprecated List.toArray_inj (since := "2024-09-09")] Array.mk.injEq
+
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id
 

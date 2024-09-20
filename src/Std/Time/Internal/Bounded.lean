@@ -224,8 +224,8 @@ Creates a new `Bounded.LE` using a the Truncating modulus of a number.
 -/
 @[inline]
 def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := by
-  refine ⟨b.mod i, And.intro ?_ ?_⟩
-  · simp [Int.mod]
+  refine ⟨b.tmod i, And.intro ?_ ?_⟩
+  · simp [Int.tmod]
     split <;> try contradiction
     next m n =>
       let h := Int.emod_nonneg (a := m) (b := n) (Int.ne_of_gt hi)
@@ -235,9 +235,9 @@ def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := b
       exact (Int.le_sub_one_of_lt hi)
     next m n =>
       apply Int.neg_le_neg
-      have h := Int.mod_lt_of_pos (m + 1) hi
+      have h := Int.tmod_lt_of_pos (m + 1) hi
       exact Int.le_sub_one_of_lt h
-  · exact Int.le_sub_one_of_lt (Int.mod_lt_of_pos b hi)
+  · exact Int.le_sub_one_of_lt (Int.tmod_lt_of_pos b hi)
 
 /--
 Adjust the bounds of a `Bounded` by setting the lower bound to zero and the maximum value to (m - n).

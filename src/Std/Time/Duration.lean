@@ -87,11 +87,11 @@ def ofNanoseconds (s : Nanosecond.Offset) : Duration := by
     refine ⟨s.ediv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
     cases Int.le_total s.val 0
     next n => exact Or.inr (And.intro (Int.ediv_le_ediv (by decide) n) (mod_nonpos 1000000000 n (by decide)))
-    next n => exact Or.inl (And.intro (Int.ediv_nonneg n (by decide)) (Int.mod_nonneg 1000000000 n))
+    next n => exact Or.inl (And.intro (Int.ediv_nonneg n (by decide)) (Int.tmod_nonneg 1000000000 n))
   where
-    mod_nonpos : ∀ {a : Int} (b : Int), (a ≤ 0) → (b ≥ 0) → 0 ≥ a.mod b
-    | .negSucc m, .ofNat n, _, _ => Int.neg_le_neg (Int.mod_nonneg (↑n) (Int.ofNat_le.mpr (Nat.zero_le (m + 1))))
-    | 0, n, _, _ => Int.eq_iff_le_and_ge.mp (Int.zero_mod n) |>.left
+    mod_nonpos : ∀ {a : Int} (b : Int), (a ≤ 0) → (b ≥ 0) → 0 ≥ a.tmod b
+    | .negSucc m, .ofNat n, _, _ => Int.neg_le_neg (Int.tmod_nonneg (↑n) (Int.ofNat_le.mpr (Nat.zero_le (m + 1))))
+    | 0, n, _, _ => Int.eq_iff_le_and_ge.mp (Int.zero_tmod n) |>.left
 
 /--
 Checks if the duration is zero seconds and zero nanoseconds.

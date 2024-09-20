@@ -78,13 +78,13 @@ Creates a `PlainDate` from the number of days since the UNIX epoch (January 1st,
 -/
 def ofDaysSinceUNIXEpoch (day : Day.Offset) : PlainDate :=
   let z := day.toInt + 719468
-  let era := (if z ≥ 0 then z else z - 146096).div 146097
+  let era := (if z ≥ 0 then z else z - 146096).tdiv 146097
   let doe := z - era * 146097
-  let yoe := (doe - doe.div 1460 + doe.div 36524 - doe.div 146096).div 365
+  let yoe := (doe - doe.tdiv 1460 + doe.tdiv 36524 - doe.tdiv 146096).tdiv 365
   let y := yoe + era * 400
-  let doy := doe - (365 * yoe + yoe.div 4 - yoe.div 100)
-  let mp := (5 * doy + 2).div 153
-  let d := doy - (153 * mp + 2).div 5 + 1
+  let doy := doe - (365 * yoe + yoe.tdiv 4 - yoe.tdiv 100)
+  let mp := (5 * doy + 2).tdiv 153
+  let d := doy - (153 * mp + 2).tdiv 5 + 1
   let m := mp + (if mp < 10 then 3 else -9)
   let y := y + (if m <= 2 then 1 else 0)
   .clip y (.clip m (by decide)) (.clip d (by decide))
@@ -131,12 +131,12 @@ Converts a `PlainDate` to the number of days since the UNIX epoch.
 -/
 def toDaysSinceUNIXEpoch (date : PlainDate) : Day.Offset :=
   let y : Int := if date.month.toInt > 2 then date.year else date.year.toInt - 1
-  let era : Int := (if y ≥ 0 then y else y - 399).div 400
+  let era : Int := (if y ≥ 0 then y else y - 399).tdiv 400
   let yoe : Int := y - era * 400
   let m : Int := date.month.toInt
   let d : Int := date.day.toInt
-  let doy := (153 * (m + (if m > 2 then -3 else 9)) + 2).div 5 + d - 1
-  let doe := yoe * 365 + yoe.div 4 - yoe.div 100 + doy
+  let doy := (153 * (m + (if m > 2 then -3 else 9)) + 2).tdiv 5 + d - 1
+  let doe := yoe * 365 + yoe.tdiv 4 - yoe.tdiv 100 + doy
 
   .ofInt (era * 146097 + doe - 719468)
 

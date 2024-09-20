@@ -9,11 +9,10 @@ import Std.Time.Time
 import Std.Time.Zoned
 import Std.Time.DateTime
 import Std.Time.Format.Basic
-import Lean.Parser
 
 namespace Std
 namespace Time
-open Lean Parser Command Std Lean.Parser
+open Lean Parser Command Std
 
 private def convertText : Text → MacroM (TSyntax `term)
   | .short  => `(Std.Time.Text.short)

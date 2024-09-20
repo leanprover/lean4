@@ -74,7 +74,7 @@ Determines if a year is a leap year in the proleptic Gregorian calendar.
 -/
 @[inline]
 def isLeap (y : Offset) : Bool :=
-  y.toInt.mod 4 = 0 ∧ (y.toInt.mod 100 ≠ 0 ∨ y.toInt.mod 400 = 0)
+  y.toInt.tmod 4 = 0 ∧ (y.toInt.tmod 100 ≠ 0 ∨ y.toInt.tmod 400 = 0)
 
 /--
 Returns the `Era` of the `Year`.

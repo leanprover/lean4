@@ -25,7 +25,11 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
       let name := declName ++ suffix
-      addDecl <| Declaration.thmDecl {
+      let env ← getEnv
+      let (env, prom?) ← env.addGlobalTheorem name
+      modifyEnv fun _ => env
+      let some prom := prom? | return some name
+      prom.resolve <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }

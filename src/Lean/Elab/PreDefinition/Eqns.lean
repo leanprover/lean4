@@ -352,18 +352,19 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
   let baseName := declName
   let name := Name.str baseName unfoldThmSuffix
-  let env ← getEnv
-  let (env, prom?) ← env.addGlobalTheorem name
-  modifyEnv fun _ => env
-  let some prom := prom? | return name
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
       let goal ← mkFreshExprSyntheticOpaqueMVar type
+      -- TODO: calls getEqnsFor!!!
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
+      let env ← getEnv
+      let (env, prom?) ← env.addGlobalTheorem name
+      modifyEnv fun _ => env
+      let some prom := prom? | return name
       prom.resolve <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams

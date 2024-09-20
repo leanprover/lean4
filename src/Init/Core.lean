@@ -165,9 +165,23 @@ inductive PSum (α : Sort u) (β : Sort v) where
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
 
-instance {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
+/--
+`PSum α β` is inhabited if `α` is inhabited.
+This is not an instance to avoid non-canonical instances.
+-/
+@[reducible] def  PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
 
-instance {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
+/--
+`PSum α β` is inhabited if `β` is inhabited.
+This is not an instance to avoid non-canonical instances.
+-/
+@[reducible] def PSum.inhabitedRight {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
+
+instance PSum.nonemptyLeft [h : Nonempty α] : Nonempty (PSum α β) :=
+  Nonempty.elim h (fun a => ⟨PSum.inl a⟩)
+
+instance PSum.nonemptyRight [h : Nonempty β] : Nonempty (PSum α β) :=
+  Nonempty.elim h (fun b => ⟨PSum.inr b⟩)
 
 /--
 `Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
@@ -800,10 +814,10 @@ theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a
 
 variable {a b c d : Prop}
 
-theorem iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
+theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
-theorem Iff.refl (a : Prop) : a ↔ a :=
+@[refl] theorem Iff.refl (a : Prop) : a ↔ a :=
   Iff.intro (fun h => h) (fun h => h)
 
 protected theorem Iff.rfl {a : Prop} : a ↔ a :=
@@ -896,7 +910,7 @@ theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
 theorem of_not_not [Decidable p] : ¬ ¬ p → p :=
   fun hnn => byContradiction (fun hn => absurd hn hnn)
 
-theorem not_and_iff_or_not (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
+theorem not_and_iff_or_not {p q : Prop} [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
   Iff.intro
     (fun h => match d₁, d₂ with
       | isTrue h₁,  isTrue h₂   => absurd (And.intro h₁ h₂) h
@@ -1150,11 +1164,19 @@ end Subtype
 section
 variable {α : Type u} {β : Type v}
 
-instance Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
+/-- This is not an instance to avoid non-canonical instances. -/
+@[reducible] def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-instance Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
+/-- This is not an instance to avoid non-canonical instances. -/
+@[reducible] def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
+
+instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=
+  Nonempty.elim h (fun a => ⟨Sum.inl a⟩)
+
+instance Sum.nonemptyRight [h : Nonempty β] : Nonempty (Sum α β) :=
+  Nonempty.elim h (fun b => ⟨Sum.inr b⟩)
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
   match a, b with
@@ -1170,6 +1192,21 @@ instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : Decidab
 end
 
 /-! # Product -/
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (α × β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨(x, y)⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (MProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (PProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
 
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (default, default)
@@ -1351,7 +1388,7 @@ theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
 theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
   Eq.propIntro Nat.succ.inj (congrArg Nat.succ)
 
-@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] (a b : α) : a == b ↔ a = b :=
+@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
   ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
 
 /-! # Prop lemmas -/
@@ -1416,7 +1453,7 @@ theorem false_of_true_eq_false  (h : True = False) : False := false_of_true_iff_
 
 theorem true_eq_false_of_false : False → (True = False) := False.elim
 
-theorem iff_def  : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies a b
+theorem iff_def  : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies
 theorem iff_def' : (a ↔ b) ↔ (b → a) ∧ (a → b) := Iff.trans iff_def And.comm
 
 theorem true_iff_false : (True ↔ False) ↔ False := iff_false_intro (·.mp  True.intro)
@@ -1444,7 +1481,7 @@ theorem imp_true_iff (α : Sort u) : (α → True) ↔ True := iff_true_intro (f
 
 theorem false_imp_iff (a : Prop) : (False → a) ↔ True := iff_true_intro False.elim
 
-theorem true_imp_iff (α : Prop) : (True → α) ↔ α := imp_iff_right True.intro
+theorem true_imp_iff {α : Prop} : (True → α) ↔ α := imp_iff_right True.intro
 
 @[simp high] theorem imp_self : (a → a) ↔ True := iff_true_intro id
 
@@ -1650,7 +1687,7 @@ protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Pro
 
 /--
 The analogue of `Quot.liftOn`: if `f : α → β` respects the equivalence relation `≈`,
-then it lifts to a function on `Quotient s` such that `lift (mk a) f h = f a`.
+then it lifts to a function on `Quotient s` such that `liftOn (mk a) f h = f a`.
 -/
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c

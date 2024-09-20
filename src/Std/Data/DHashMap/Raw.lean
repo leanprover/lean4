@@ -238,6 +238,41 @@ returned map has a new value inserted.
 end
 
 /--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey? ⟨m, h⟩ a
+  else none -- will never happen for well-formed inputs
+
+/--
+Retrieves the key from the mapping that matches `a`. Ensures that such a mapping exists by
+requiring a proof of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey [BEq α] [Hashable α] (m : Raw α β) (a : α) (h : a ∈ m) : α :=
+  Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+    (by change dite .. = true at h; split at h <;> simp_all)
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `fallback`.
+If a mapping exists the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKeyD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKeyD ⟨m, h⟩ a fallback
+  else fallback -- will never happen for well-formed inputs
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw α β) (a : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey! ⟨m, h⟩ a
+  else default -- will never happen for well-formed inputs
+
+/--
 Returns `true` if the hash map contains no mappings.
 
 Note that if your `BEq` instance is not reflexive or your `Hashable` instance is not
@@ -373,6 +408,14 @@ occurrence takes precedence. -/
 This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
 `HashSet` or `HashSet.Raw` might be a better fit for you. -/
 @[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    Raw α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
+/-- Creates a hash map from an array of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofArray`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 

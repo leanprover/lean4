@@ -74,18 +74,17 @@ theorem denote_blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth)
     ∀ (idx : Nat) (hidx : idx < newWidth),
         ⟦(blastExtract aig target).aig, (blastExtract aig target).vec.get idx hidx, assign⟧
           =
-        if h : (target.lo + idx) < target.w then
-          ⟦aig, target.vec.get (target.lo + idx) h, assign⟧
+        if h : (target.start + idx) < target.w then
+          ⟦aig, target.vec.get (target.start + idx) h, assign⟧
         else
           false
     := by
   intro idx hidx
   generalize hextract : blastExtract aig target = res
-  rcases target with ⟨input, hi, lo, hnew⟩
+  rcases target with ⟨input, start⟩
   dsimp only
   unfold blastExtract at hextract
   dsimp only at hextract
-  split at hextract
   · rw [← hextract]
     rw [blastExtract.go_get]
     · dsimp only
@@ -98,21 +97,6 @@ theorem denote_blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth)
         · simp
         · omega
     · omega
-  · have : idx = 0 := by omega
-    simp only [this]
-    have : 1 = newWidth := by omega
-    subst this
-    rw [← hextract]
-    split
-    · rw [RefVec.get_in_bound]
-      dsimp only
-      rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
-      · congr 2
-      · omega
-    · rw [RefVec.get_out_bound]
-      · simp
-      · omega
-
 
 end bitblast
 end BVExpr

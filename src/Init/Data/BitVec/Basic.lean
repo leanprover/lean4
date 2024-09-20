@@ -64,7 +64,7 @@ protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2^n) : BitVec n where
 /-- The `BitVec` with value `i mod 2^n`. -/
 @[match_pattern]
 protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat' i (Nat.two_pow_pos n)
+  toFin := Fin.ofNat' (2^n) i
 
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
@@ -116,16 +116,67 @@ end zero_allOnes
 
 section getXsb
 
+/--
+Return the `i`-th least significant bit.
+
+This will be renamed `getLsb` after the existing deprecated alias is removed.
+-/
+@[inline] def getLsb' (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+
+/-- Return the `i`-th least significant bit or `none` if `i ≥ w`. -/
+@[inline] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
+  if h : i < w then some (getLsb' x ⟨i, h⟩) else none
+
+/--
+Return the `i`-th most significant bit.
+
+This will be renamed `getMsb` after the existing deprecated alias is removed.
+-/
+@[inline] def getMsb' (x : BitVec w) (i : Fin w) : Bool := x.getLsb' ⟨w-1-i, by omega⟩
+
+/-- Return the `i`-th most significant bit or `none` if `i ≥ w`. -/
+@[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
+  if h : i < w then some (getMsb' x ⟨i, h⟩) else none
+
 /-- Return the `i`-th least significant bit or `false` if `i ≥ w`. -/
-@[inline] def getLsb (x : BitVec w) (i : Nat) : Bool := x.toNat.testBit i
+@[inline] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
+  x.toNat.testBit i
+
+@[deprecated getLsbD (since := "2024-08-29"), inherit_doc getLsbD]
+def getLsb (x : BitVec w) (i : Nat) : Bool := x.getLsbD i
 
 /-- Return the `i`-th most significant bit or `false` if `i ≥ w`. -/
-@[inline] def getMsb (x : BitVec w) (i : Nat) : Bool := i < w && getLsb x (w-1-i)
+@[inline] def getMsbD (x : BitVec w) (i : Nat) : Bool :=
+  i < w && x.getLsbD (w-1-i)
+
+@[deprecated getMsbD (since := "2024-08-29"), inherit_doc getMsbD]
+def getMsb (x : BitVec w) (i : Nat) : Bool := x.getMsbD i
 
 /-- Return most-significant bit in bitvector. -/
-@[inline] protected def msb (x : BitVec n) : Bool := getMsb x 0
+@[inline] protected def msb (x : BitVec n) : Bool := getMsbD x 0
 
 end getXsb
+
+section getElem
+
+instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
+  getElem xs i h := xs.getLsb' ⟨i, h⟩
+
+/-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
+@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Fin w) :
+    x.getLsb' i = x[i] := rfl
+
+/-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
+@[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
+    x.getLsb? i = x[i]? := rfl
+
+theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
+  x[i] = x.toNat.testBit i := rfl
+
+theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
+    x.getLsbD i = x[i] := rfl
+
+end getElem
 
 section Int
 
@@ -402,12 +453,14 @@ SMT-Lib name: `extract`.
 def extractLsb (hi lo : Nat) (x : BitVec n) : BitVec (hi - lo + 1) := extractLsb' lo _ x
 
 /--
-A version of `zeroExtend` that requires a proof, but is a noop.
+A version of `setWidth` that requires a proof, but is a noop.
 -/
-def zeroExtend' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
+def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
     exact Nat.pow_le_pow_of_le_right (by trivial) le)
+
+@[deprecated setWidth' (since := "2024-09-18"), inherit_doc setWidth'] abbrev zeroExtend' := @setWidth'
 
 /--
 `shiftLeftZeroExtend x n` returns `zeroExtend (w+n) x <<< n` without
@@ -421,22 +474,35 @@ def shiftLeftZeroExtend (msbs : BitVec w) (m : Nat) : BitVec (w + m) :=
   (msbs.toNat <<< m)#'(shiftLeftLt msbs.isLt m)
 
 /--
-Zero extend vector `x` of length `w` by adding zeros in the high bits until it has length `v`.
-If `v < w` then it truncates the high bits instead.
+Transform `x` of length `w` into a bitvector of length `v`, by either:
+- zero extending, that is, adding zeros in the high bits until it has length `v`, if `v > w`, or
+- truncating the high bits, if `v < w`.
 
 SMT-Lib name: `zero_extend`.
 -/
-def zeroExtend (v : Nat) (x : BitVec w) : BitVec v :=
+def setWidth (v : Nat) (x : BitVec w) : BitVec v :=
   if h : w ≤ v then
-    zeroExtend' h x
+    setWidth' h x
   else
     .ofNat v x.toNat
 
 /--
-Truncate the high bits of bitvector `x` of length `w`, resulting in a vector of length `v`.
-If `v > w` then it zero-extends the vector instead.
+Transform `x` of length `w` into a bitvector of length `v`, by either:
+- zero extending, that is, adding zeros in the high bits until it has length `v`, if `v > w`, or
+- truncating the high bits, if `v < w`.
+
+SMT-Lib name: `zero_extend`.
 -/
-abbrev truncate := @zeroExtend
+abbrev zeroExtend := @setWidth
+
+/--
+Transform `x` of length `w` into a bitvector of length `v`, by either:
+- zero extending, that is, adding zeros in the high bits until it has length `v`, if `v > w`, or
+- truncating the high bits, if `v < w`.
+
+SMT-Lib name: `zero_extend`.
+-/
+abbrev truncate := @setWidth
 
 /--
 Sign extend a vector of length `w`, extending with `i` additional copies of the most significant
@@ -587,7 +653,7 @@ input is on the left, so `0xAB#8 ++ 0xCD#8 = 0xABCD#16`.
 SMT-Lib name: `concat`.
 -/
 def append (msbs : BitVec n) (lsbs : BitVec m) : BitVec (n+m) :=
-  shiftLeftZeroExtend msbs m ||| zeroExtend' (Nat.le_add_left m n) lsbs
+  shiftLeftZeroExtend msbs m ||| setWidth' (Nat.le_add_left m n) lsbs
 
 instance : HAppend (BitVec w) (BitVec v) (BitVec (w + v)) := ⟨.append⟩
 

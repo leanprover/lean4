@@ -14,6 +14,7 @@ import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
+import Lake.Util.Version
 
 open System Lean
 
@@ -22,6 +23,56 @@ namespace Lake
 /-- The default `buildArchive` configuration for a package with `name`. -/
 @[inline] def defaultBuildArchive (name : Name) : String :=
   s!"{name.toString false}-{System.Platform.target}.tar.gz"
+
+/-- A `String` pattern. Matches some subset of strings. -/
+inductive StrPat
+/--
+Matches a string that satisfies an arbitrary predicate
+(optionally identified by a `Name`).
+-/
+| satisfies (f : String → Bool) (name := Name.anonymous)
+/-- Matches a string that is a member of the the array -/
+| mem (xs : Array String)
+/-- Matches a string that starts with this prefix. -/
+| startsWith (pre : String)
+deriving Inhabited
+
+instance : Coe (Array String) StrPat := ⟨.mem⟩
+instance : Coe (String → Bool) StrPat := ⟨.satisfies⟩
+
+/-- Matches nothing. -/
+def StrPat.none : StrPat := .mem #[]
+
+instance : EmptyCollection StrPat := ⟨.none⟩
+
+/--
+Whether a string is "version-like".
+That is, a `v` followed by a digit.
+-/
+def isVerLike (s : String) : Bool :=
+  if h : s.utf8ByteSize ≥ 2 then
+    s.get' 0 (by simp [String.atEnd]; omega) == 'v' &&
+    (s.get' ⟨1⟩ (by simp [String.atEnd]; omega)).isDigit
+  else
+    false
+
+/-- Matches a "version-like" string: a `v` followed by a digit. -/
+def StrPat.verLike : StrPat := .satisfies isVerLike `verLike
+
+/-- Default string pattern for a Package's `versionTags`. -/
+def defaultVersionTags := StrPat.satisfies isVerLike `default
+
+/-- Builtin `StrPat` presets available to TOML for `versionTags`. -/
+def versionTagPresets :=
+  NameMap.empty
+  |>.insert `verLike .verLike
+  |>.insert `default defaultVersionTags
+
+/-- Returns whether the string `s` matches the pattern. -/
+def StrPat.matches (s : String) : (self : StrPat) → Bool
+| .satisfies f _ => f s
+| .mem xs => xs.contains s
+| .startsWith p => p.isPrefixOf s
 
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
@@ -183,6 +234,127 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   -/
   lintDriverArgs : Array String := #[]
 
+  /--
+  The package version. Versions have the form:
+
+  ```
+  v!"<major>.<minor>.<patch>[-<specialDescr>]"
+  ```
+
+  A version with a `-` suffix is considered a "prerelease".
+
+  Lake suggest the following guidelines for incrementing versions:
+
+  * **Major version increment** *(e.g., v1.3.0 → v2.0.0)*
+    Indicates significant breaking changes in the package.
+    Package users are not expected to update to the new version
+    without manual intervention.
+
+  * **Minor version increment** *(e.g., v1.3.0 → v1.4.0)*
+    Denotes notable changes that are expected to be
+    generally backwards compatible.
+    Package users are expected to update to this version automatically
+    and should be able to fix any breakages and/or warnings easily.
+
+  * **Patch version increment** *(e.g., v1.3.0 → v1.3.1)*
+    Reserved for bug fixes and small touchups.
+    Package users are expected to update automatically and should not expect
+    significant breakage, except in the edge case of users relying on the
+    behavior of patched bugs.
+
+  **Note that backwards-incompatible changes may occur at any version increment.**
+  The is because the current nature of Lean (e.g., transitive imports,
+  rich metaprogramming, reducibility in proofs), makes it infeasible to
+  define a completely stable interface for a package.
+  Instead, the different version levels indicate a change's intended significance
+  and how difficult migration is expected to be.
+
+  Versions of form the `0.x.x` are considered development versions prior to
+  first official release. Like prerelease, they are not expected to closely
+  follow the above guidelines.
+
+  Packages without a defined version default to `0.0.0`.
+  -/
+  version : StdVer := v!"0.0.0"
+
+  /--
+  Git tags of this package's repository that should be treated as versions.
+  Package indices (e.g., Reservoir) can make use of this information to determine
+  the Git revisions corresponding to released versions.
+
+  Defaults to tags that are "version-like".
+  That is, start with a `v` and are followed by a digit.
+  -/
+  versionTags : StrPat := defaultVersionTags
+
+  /-- A short description for the package (e.g., for Reservoir). -/
+  description : String := ""
+
+  /--
+  Custom keywords associated with the package.
+  Reservoir can make use of a package's keywords to group related packages
+  together and make it easier for users to discover them.
+
+  Good keywords include the domain (e.g., `math`, `software-verification`,
+  `devtool`), specific subtopics (e.g., `topology`,  `cryptology`), and
+  significant implementation details (e.g., `dsl`, `ffi`, `cli`).
+  For instance, Lake's keywords could be `devtool`, `cli`, `dsl`,
+  `package-manager`, `build-system`.
+  -/
+  keywords : Array String := #[]
+
+  /--
+  A URL to information about the package.
+
+  Reservoir will already include a link to the package's GitHub repository
+  (if the package is sourced from there). Thus, users are advised to specify
+  something else for this link (if anything).
+  -/
+  homepage : String := ""
+
+  /--
+  The package's license (if one).
+  Should be a valid [SPDX License Expression][1].
+
+  Reservoir requires that packages uses an OSI-approved license to be
+  included in its index, and currently only supports single identifier
+  SPDX expressions. For, a list of OSI-approved SPDX license identifiers,
+  see the [SPDX LIcense List][2].
+
+  [1]: https://spdx.github.io/spdx-spec/v3.0/annexes/SPDX-license-expressions/
+  [2]: https://spdx.org/licenses/
+  -/
+  license : String := ""
+
+  /--
+  Files containing licensing information for the package.
+
+  These should be the license files that users are expected to include when
+  distributing package sources, which may be more then one file for some licenses.
+  For example, the Apache 2.0 license requires the reproduction of a `NOTICE`
+  file along with the license (if such a file exists).
+
+  Defaults to `#["LICENSE"]`.
+  -/
+  licenseFiles : Array FilePath := #["LICENSE"]
+
+  /--
+  The path to the package's README.
+  A README should be a markdown file containing an overview of the package.
+  Reservoir displays the rendered HTML of this README on a package's page.
+
+  Defaults to `README.md`.
+  -/
+  readmeFile : FilePath := "README.md"
+
+  /--
+  Whether Reservoir should include the package in its index.
+  When set to `false`, Reservoir will not add the package to its index
+  and will remove it if it was already there (when Reservoir is next updated).
+  -/
+  reservoir : Bool := true
+
+
 deriving Inhabited
 
 --------------------------------------------------------------------------------
@@ -286,6 +458,50 @@ structure PostUpdateHookDecl where
   fn : PostUpdateFn pkg
 
 namespace Package
+
+/-- The package version. -/
+@[inline] def version (self : Package) : LeanVer  :=
+  self.config.version
+
+/-- The package's `versionTags` configuration. -/
+@[inline] def versionTags (self : Package) : StrPat  :=
+  self.config.versionTags
+
+/-- The package's `description` configuration. -/
+@[inline] def description (self : Package) : String  :=
+  self.config.description
+
+/-- The package's `keywords` configuration. -/
+@[inline] def keywords (self : Package) : Array String  :=
+  self.config.keywords
+
+/-- The package's `homepage` configuration. -/
+@[inline] def homepage (self : Package) : String  :=
+  self.config.homepage
+
+/-- The package's `reservoir` configuration. -/
+@[inline] def reservoir (self : Package) : Bool  :=
+  self.config.reservoir
+
+/-- The package's `license` configuration. -/
+@[inline] def license (self : Package) : String  :=
+  self.config.license
+
+/-- The package's `licenseFiles` configuration. -/
+@[inline] def relLicenseFiles (self : Package) : Array FilePath  :=
+  self.config.licenseFiles
+
+/-- The package's `dir` joined with each of its `relLicenseFiles`. -/
+@[inline] def licenseFiles (self : Package) : Array FilePath  :=
+  self.relLicenseFiles.map (self.dir / ·)
+
+/-- The package's `readmeFile` configuration. -/
+@[inline] def relReadmeFile (self : Package) : FilePath  :=
+  self.config.readmeFile
+
+/-- The package's `dir` joined with its `relReadmeFile`. -/
+@[inline] def readmeFile (self : Package) : FilePath  :=
+  self.dir / self.config.readmeFile
 
 /-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=

@@ -183,7 +183,7 @@ def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
   f!"UserWidget {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
 
 def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
-  f!"FVarAlias {info.userName.eraseMacroScopes}"
+  f!"FVarAlias {info.userName.eraseMacroScopes}: {info.id.name} -> {info.baseId.name}"
 
 def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
   f!"FieldRedecl @ {formatStxRange ctx info.stx}"

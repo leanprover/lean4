@@ -165,9 +165,9 @@ where
         dsimp only at haig
         assumption
       ⟨res, this⟩
-    | .extract hi lo expr =>
+    | .extract start len expr =>
       let ⟨⟨eaig, evec⟩, heaig⟩ := go aig expr
-      let res := bitblast.blastExtract eaig ⟨evec, hi, lo, rfl⟩
+      let res := bitblast.blastExtract eaig ⟨evec, start⟩
       have := by
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastExtract)
         dsimp only at heaig

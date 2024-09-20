@@ -196,6 +196,13 @@ def lt_wfRel : WellFoundedRelation Nat where
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
   Nat.lt_wfRel.wf.fix ind n
 
+@[deprecated Nat.strongRecOn (since := "2024-08-27")]
+protected noncomputable def strongInductionOn
+    {motive : Nat → Sort u}
+    (n : Nat)
+    (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
+  Nat.strongRecOn n ind
+
 @[elab_as_elim] protected noncomputable def caseStrongRecOn
     {motive : Nat → Sort u}
     (a : Nat)
@@ -205,6 +212,14 @@ def lt_wfRel : WellFoundedRelation Nat where
     match n with
     | 0   => fun _  => zero
     | n+1 => fun h₁ => ind n (λ _ h₂ => h₁ _ (lt_succ_of_le h₂))
+
+@[deprecated Nat.caseStrongRecOn (since := "2024-08-27")]
+protected noncomputable def caseStrongInductionOn
+    {motive : Nat → Sort u}
+    (a : Nat)
+    (zero : motive 0)
+    (ind : ∀ n, (∀ m, m ≤ n → motive m) → motive (succ n)) : motive a :=
+  Nat.caseStrongRecOn a zero ind
 
 end Nat
 
@@ -230,7 +245,7 @@ protected inductive Lex : α × β → α × β → Prop where
   | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Prod.Lex (a₁, b₁) (a₂, b₂)
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
-theorem lex_def (r : α → α → Prop) (s : β → β → Prop) {p q : α × β} :
+theorem lex_def {r : α → α → Prop} {s : β → β → Prop} {p q : α × β} :
     Prod.Lex r s p q ↔ r p.1 q.1 ∨ p.1 = q.1 ∧ s p.2 q.2 :=
   ⟨fun h => by cases h <;> simp [*], fun h =>
     match p, q, h with

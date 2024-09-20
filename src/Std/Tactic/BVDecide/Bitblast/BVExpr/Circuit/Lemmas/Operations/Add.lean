@@ -27,7 +27,7 @@ namespace blastAdd
 theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : FullAdderInput aig) :
     ⟦mkFullAdderOut aig input, assign⟧
       =
-    xor (xor ⟦aig, input.lhs, assign⟧ ⟦aig, input.rhs, assign⟧) ⟦aig, input.cin, assign⟧
+    ((⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) ^^ ⟦aig, input.cin, assign⟧)
     := by
   simp only [mkFullAdderOut, Ref.cast_eq, denote_mkXorCached, denote_projected_entry, Bool.bne_assoc,
     Bool.bne_left_inj]
@@ -37,15 +37,8 @@ theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : Ful
 theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : FullAdderInput aig) :
     ⟦mkFullAdderCarry aig input, assign⟧
       =
-    or
-      (and
-        (xor
-          ⟦aig, input.lhs, assign⟧
-          ⟦aig, input.rhs, assign⟧)
-        ⟦aig, input.cin, assign⟧)
-      (and
-        ⟦aig, input.lhs, assign⟧
-        ⟦aig, input.rhs, assign⟧)
+      ((⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) && ⟦aig, input.cin, assign⟧ ||
+       ⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧)
     := by
   simp only [mkFullAdderCarry, Ref.cast_eq, Int.reduceNeg, denote_mkOrCached,
     LawfulOperator.denote_input_entry, denote_mkAndCached, denote_projected_entry',
@@ -137,15 +130,15 @@ theorem go_get (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
 theorem atLeastTwo_eq_halfAdder (lhsBit rhsBit carry : Bool) :
     Bool.atLeastTwo lhsBit rhsBit carry
       =
-    (((xor lhsBit rhsBit) && carry) || (lhsBit && rhsBit)) := by
+    (((lhsBit ^^ rhsBit) && carry) || (lhsBit && rhsBit)) := by
   revert lhsBit rhsBit carry
   decide
 
 theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) (assign : α → Bool)
     (lhsExpr rhsExpr : BitVec w)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign⟧ = lhsExpr.getLsb idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign⟧ = rhsExpr.getLsb idx)
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign⟧ = lhsExpr.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign⟧ = rhsExpr.getLsbD idx)
     (hcin : ⟦aig, cin, assign⟧ = BitVec.carry curr lhsExpr rhsExpr false) :
     ∀ (idx : Nat) (hidx1 : idx < w),
         curr ≤ idx
@@ -211,14 +204,14 @@ end blastAdd
 
 theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       (input : BinaryRefVec aig w)
-      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsb idx)
-      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsb idx) :
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
       ∀ (idx : Nat) (hidx : idx < w),
           ⟦(blastAdd aig input).aig, (blastAdd aig input).vec.get idx hidx, assign⟧
             =
-          (lhs + rhs).getLsb idx := by
+          (lhs + rhs).getLsbD idx := by
   intro idx hidx
-  rw [BitVec.getLsb_add]
+  rw [BitVec.getLsbD_add]
   · rw [← hleft idx hidx]
     rw [← hright idx hidx]
     unfold blastAdd

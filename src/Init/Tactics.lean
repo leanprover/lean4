@@ -676,12 +676,16 @@ compiled by Lean.
 syntax (name := delta) "delta" (ppSpace colGt ident)+ (location)? : tactic
 
 /--
-* `unfold id` unfolds definition `id`.
+* `unfold id` unfolds all occurrences of definition `id` in the target.
 * `unfold id1 id2 ...` is equivalent to `unfold id1; unfold id2; ...`.
+* `unfold id at h` unfolds at the hypothesis `h`.
 
-For non-recursive definitions, this tactic is identical to `delta`. For recursive definitions,
-it uses the "unfolding lemma" `id.eq_def`, which is generated for each recursive definition,
-to unfold according to the recursive definition given by the user.
+Definitions can be either global or local definitions.
+
+For non-recursive global definitions, this tactic is identical to `delta`.
+For recursive global definitions, it uses the "unfolding lemma" `id.eq_def`,
+which is generated for each recursive definition, to unfold according to the recursive definition given by the user.
+Only one level of unfolding is performed, in contrast to `simp only [id]`, which unfolds definition `id` recursively.
 -/
 syntax (name := unfold) "unfold" (ppSpace colGt ident)+ (location)? : tactic
 
@@ -769,8 +773,9 @@ macro_rules
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
-/-- Similar to `have`, but using `refine'` -/
+set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
+attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 

@@ -73,4 +73,10 @@ theorem mod_pow_succ {x b k : Nat} :
     x % b ^ (k + 1) = x % b ^ k + b ^ k * ((x / b ^ k) % b) := by
   rw [Nat.pow_succ, Nat.mod_mul]
 
+@[simp] theorem two_pow_mod_two_eq_zero {n : Nat} : 2 ^ n % 2 = 0 ↔ 0 < n := by
+  cases n <;> simp [Nat.pow_succ]
+
+@[simp] theorem two_pow_mod_two_eq_one {n : Nat} : 2 ^ n % 2 = 1 ↔ n = 0 := by
+  cases n <;> simp [Nat.pow_succ]
+
 end Nat

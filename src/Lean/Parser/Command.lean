@@ -78,7 +78,7 @@ All modifiers are optional, and have to come in the listed order.
 `nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed
 on the same line as the declaration. It is used for declarations nested inside other syntax,
 such as inductive constructors, structure projections, and `let rec` / `where` definitions. -/
-def declModifiers (inline : Bool) := leading_parser
+@[builtin_doc] def declModifiers (inline : Bool) := leading_parser
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
@@ -86,13 +86,16 @@ def declModifiers (inline : Bool) := leading_parser
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
-def declId           := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def declId := leading_parser
   ident >> optional (".{" >> sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
 /-- `declSig` matches the signature of a declaration with required type: a list of binders and then `: type` -/
-def declSig          := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
-def optDeclSig       := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def optDeclSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
 /-- Right-hand side of a `:=` in a declaration, a term. -/
 def declBody : Parser :=
@@ -141,11 +144,11 @@ def whereStructInst  := leading_parser
 * a sequence of `| pat => expr` (a declaration by equations), shorthand for a `match`
 * `where` and then a sequence of `field := value` initializers, shorthand for a structure constructor
 -/
-def declVal          :=
+@[builtin_doc] def declVal :=
   -- Remark: we should not use `Term.whereDecls` at `declVal`
   -- because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
-  withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
+  withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
@@ -193,9 +196,10 @@ inductive List (α : Type u) where
 ```
 A list of elements of type `α` is either the empty list, `nil`,
 or an element `head : α` followed by a list `tail : List α`.
-For more information about [inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html).
+See [Inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html)
+for more information.
 -/
-def «inductive»      := leading_parser
+@[builtin_doc] def «inductive» := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser
@@ -544,7 +548,7 @@ def openSimple       := leading_parser
 def openScoped       := leading_parser
   " scoped" >> many1 (ppSpace >> checkColGt >> ident)
 /-- `openDecl` is the body of an `open` declaration (see `open`) -/
-def openDecl         :=
+@[builtin_doc] def openDecl :=
   withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
     openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 /-- Makes names from other namespaces visible without writing the namespace prefix.
@@ -728,9 +732,10 @@ list, so it should be brief.
 
 /--
 `include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all
-declarations in the remainder of the current section, differing from the default behavior of
-conditionally including variables based on use in the declaration header. `include` is usually
-followed by the `in` combinator to limit the inclusion to the subsequent declaration.
+theorems in the remainder of the current section, differing from the default behavior of
+conditionally including variables based on use in the theorem header. Other commands are
+not affected. `include` is usually followed by `in theorem ...` to limit the inclusion
+to the subsequent declaration.
 -/
 @[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
 

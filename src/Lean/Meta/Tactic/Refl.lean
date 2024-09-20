@@ -10,14 +10,11 @@ import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
 
-private def useKernel (lhs rhs : Expr) : MetaM Bool := do
-  if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
-    return false
-  else
-    return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
-
 /--
 Close given goal using `Eq.refl`.
+
+See `Lean.MVarId.applyRfl` for the variant that also consults `@[refl]` lemmas, and which
+backs the `rfl` tactic.
 -/
 def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
   mvarId.withContext do
@@ -27,10 +24,7 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
       throwTacticEx `rfl mvarId m!"equality expected{indentExpr targetType}"
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
-    let success ← if (← useKernel lhs rhs) then
-      ofExceptKernelException (Kernel.isDefEq (← getEnv) {} lhs rhs)
-    else
-      isDefEq lhs rhs
+    let success ← isDefEq lhs rhs
     unless success do
       throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
     let us := targetType.getAppFn.constLevels!

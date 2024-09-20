@@ -32,7 +32,7 @@ info: foo.eq_def :
 #check foo.eq_4
 
 
-set_option eqns.deepRecursiveSplit false in
+set_option backward.eqns.deepRecursiveSplit false in
 def bar : Nat → Nat → Nat
   | 0, m => match m with | 0 => 0 | m => m
   | n+1, m => bar n m
@@ -101,7 +101,7 @@ info: Structural.foo.eq_def :
 #check Structural.foo.eq_4
 
 
-set_option eqns.deepRecursiveSplit false in
+set_option backward.eqns.deepRecursiveSplit false in
 def bar : Nat → Nat → Nat
   | 0, m => match m with | 0 => 0 | m => m
   | n+1, m => bar n m

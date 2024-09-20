@@ -203,7 +203,7 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processSumCasesOn___lambda__2___closed__1;
 lean_object* l_Lean_Expr_replaceFVar(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkRecAppWithSyntax(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_assignSubsumed___spec__2___rarg___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__13(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_assignSubsumed___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -218,6 +218,7 @@ LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Elab_PreDefinitio
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps___closed__6;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_assignSubsumed___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps___closed__5;
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_HasConstCache_containsUnsafe(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__20___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__24(lean_object*, lean_object*);
@@ -404,7 +405,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_assignSubs
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_mkFix___lambda__1___closed__3;
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
-lean_object* l_List_length___rarg(lean_object*);
 lean_object* l_Lean_Meta_etaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__22___boxed(lean_object*, lean_object*);
@@ -5702,9 +5702,9 @@ lean_inc(x_34);
 x_35 = lean_ctor_get(x_34, 1);
 lean_inc(x_35);
 lean_dec(x_34);
-x_36 = l_List_length___rarg(x_35);
+x_36 = l_List_lengthTRAux___rarg(x_35, x_16);
 lean_dec(x_35);
-x_37 = l_List_length___rarg(x_3);
+x_37 = l_List_lengthTRAux___rarg(x_3, x_16);
 x_38 = lean_nat_dec_eq(x_36, x_37);
 lean_dec(x_37);
 lean_dec(x_36);
@@ -14730,7 +14730,7 @@ block_58:
 {
 lean_object* x_19; lean_object* x_20; 
 lean_inc(x_3);
-x_19 = lean_array_to_list(lean_box(0), x_3);
+x_19 = lean_array_to_list(x_3);
 x_20 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_WF_solveDecreasingGoals___spec__3___lambda__4), 12, 3);
 lean_closure_set(x_20, 0, x_19);
 lean_closure_set(x_20, 1, x_4);
@@ -15019,7 +15019,7 @@ block_114:
 {
 lean_object* x_85; lean_object* x_86; 
 lean_inc(x_3);
-x_85 = lean_array_to_list(lean_box(0), x_3);
+x_85 = lean_array_to_list(x_3);
 x_86 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_Elab_WF_solveDecreasingGoals___spec__3___lambda__4), 12, 3);
 lean_closure_set(x_86, 0, x_85);
 lean_closure_set(x_86, 1, x_4);

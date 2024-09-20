@@ -12,12 +12,12 @@ import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta
 
-register_builtin_option eqns.nonrecursive : Bool := {
+register_builtin_option backward.eqns.nonrecursive : Bool := {
     defValue := true
     descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
   }
 
-register_builtin_option eqns.deepRecursiveSplit : Bool := {
+register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
     defValue := true
     descr    := "Create equational lemmas for recursive functions like for non-recursive \
                 functions. If disabled, match statements in recursive function definitions \
@@ -35,7 +35,7 @@ This is implemented by
  * eagerly realizing the equations when they are set to a non-default vaule
  * when realizing them lazily, reset the options to their default
 -/
-def eqnAffectingOptions : Array (Lean.Option Bool) := #[eqns.nonrecursive, eqns.deepRecursiveSplit]
+def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
 
 /--
 Environment extension for storing which declarations are recursive.
@@ -66,27 +66,25 @@ def isEqnReservedNameSuffix (s : String) : Bool :=
   eqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
 
 def unfoldThmSuffix := "eq_def"
-
-/-- Returns `true` if `s == "eq_def"` -/
-def isUnfoldReservedNameSuffix (s : String) : Bool :=
-  s == unfoldThmSuffix
+def eqUnfoldThmSuffix := "eq_unfold"
 
 /--
 Throw an error if names for equation theorems for `declName` are not available.
 -/
 def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
+  ensureReservedNameAvailable declName eqUnfoldThmSuffix
   ensureReservedNameAvailable declName unfoldThmSuffix
   ensureReservedNameAvailable declName eqn1ThmSuffix
   -- TODO: `declName` may need to reserve multiple `eq_<idx>` names, but we check only the first one.
   -- Possible improvement: try to efficiently compute the number of equation theorems at declaration time, and check all of them.
 
 /--
-Ensures that `f.eq_def` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
+Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
   | .str p s =>
-    (isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s)
+    (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
     && env.isSafeDefinition p
     -- Remark: `f.match_<idx>.eq_<idx>` are private definitions and are not treated as reserved names
     -- Reason: `f.match_<idx>.splitter is generated at the same time, and can eliminate into type.
@@ -261,7 +259,7 @@ def registerGetUnfoldEqnFn (f : GetUnfoldEqnFn) : IO Unit := do
   getUnfoldEqnFnsRef.modify (f :: ·)
 
 /--
-Returns an "unfold" theorem for the given declaration.
+Returns an "unfold" theorem (`f.eq_def`) for the given declaration.
 By default, we do not create unfold theorems for nonrecursive definitions.
 You can use `nonRec := true` to override this behavior.
 -/
@@ -286,7 +284,7 @@ builtin_initialize
     unless (← getEnv).isSafeDefinition p do return false
     if isEqnReservedNameSuffix s then
       return (← MetaM.run' <| getEqnsFor? p).isSome
-    if isUnfoldReservedNameSuffix s then
+    if s == unfoldThmSuffix then
       return (← MetaM.run' <| getUnfoldEqnFor? p (nonRec := true)).isSome
     return false
 

@@ -1,11 +1,5 @@
 variable {R M : Type}
 
-class Zero (α : Type) where
-  zero : α
-
-instance (priority := 300) Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-
 /-- Typeclass for the `⊥` (`\bot`) notation -/
 class Bot (α : Type) where
   /-- The bot (`⊥`, `\bot`) element -/

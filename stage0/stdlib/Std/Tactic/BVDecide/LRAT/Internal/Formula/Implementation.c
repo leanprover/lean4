@@ -65,7 +65,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_clea
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_clearRupUnits(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insertRupUnits___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insertRupUnits___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupCheck___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -169,7 +169,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; 
-x_4 = lean_array_to_list(lean_box(0), x_3);
+x_4 = lean_array_to_list(x_3);
 return x_4;
 }
 else
@@ -305,19 +305,19 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = lean_array_to_list(lean_box(0), x_3);
+x_4 = lean_array_to_list(x_3);
 x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__1;
 x_6 = l_List_filterMapTR_go___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___spec__1(x_1, x_4, x_5);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
-x_8 = lean_array_to_list(lean_box(0), x_7);
+x_8 = lean_array_to_list(x_7);
 x_9 = lean_box(0);
 x_10 = l_List_mapTR_loop___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___spec__2(x_1, x_8, x_9);
 x_11 = l_List_appendTR___rarg(x_6, x_10);
 x_12 = lean_ctor_get(x_2, 2);
 lean_inc(x_12);
 lean_dec(x_2);
-x_13 = lean_array_to_list(lean_box(0), x_12);
+x_13 = lean_array_to_list(x_12);
 x_14 = l_List_mapTR_loop___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___spec__3(x_1, x_13, x_9);
 x_15 = l_List_appendTR___rarg(x_11, x_14);
 return x_15;

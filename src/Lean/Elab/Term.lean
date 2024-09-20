@@ -1439,7 +1439,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     let localDecl? := lctx.decls.findSomeRev? fun localDecl? => do
       let localDecl ← localDecl?
       if localDecl.isAuxDecl then
-        guard (not skipAuxDecl)
+        guard (!skipAuxDecl)
         if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
         else
@@ -1497,7 +1497,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       foo := 10
     ```
     -/
-    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && not projs.isEmpty) with
+    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && !projs.isEmpty) with
     | some decl => return some (decl.toExpr, projs)
     | none => match n with
       | .str pre s => loop pre (s::projs) globalDeclFoundNext

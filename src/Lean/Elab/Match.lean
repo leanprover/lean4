@@ -643,7 +643,7 @@ where
     | .proj _ _ b       => return p.updateProj! (← go b)
     | .mdata k b        =>
       if inaccessible? p |>.isSome then
-        return mkMData k (← withReader (fun _ => false) (go b))
+        return mkMData k (← withReader (fun _ => true) (go b))
       else if let some (stx, p) := patternWithRef? p then
         Elab.withInfoContext' (go p) fun p => do
           /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/

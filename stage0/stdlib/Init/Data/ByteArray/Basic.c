@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Basic_0__ByteArray_Iterator_remainingBytes_match__1_splitter(lean_object*);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__4;
 LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_nextn(lean_object*, lean_object*);
@@ -35,6 +36,7 @@ LEAN_EXPORT lean_object* l_ByteArray_mkIterator(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_mkEmpty___boxed(lean_object*);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 uint64_t lean_byte_array_hash(lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_next_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instForInUInt8___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__6;
 LEAN_EXPORT lean_object* l_ByteArray_toList_loop(lean_object*, lean_object*, lean_object*);
@@ -78,6 +80,7 @@ LEAN_EXPORT lean_object* l_ByteArray_foldl___rarg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_ByteArray_empty;
 uint64_t lean_uint8_to_uint64(uint8_t);
 size_t lean_sarray_size(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Basic_0__ByteArray_Iterator_remainingBytes_match__1_splitter___rarg(lean_object*, lean_object*);
 static uint8_t l_ByteArray_Iterator_curr___closed__1;
 LEAN_EXPORT uint8_t l_ByteArray_instGetElemNatUInt8LtSize(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop(lean_object*, lean_object*);
@@ -86,6 +89,7 @@ LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe_loop(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_List_toByteArray(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_toUInt64BE_x21___boxed(lean_object*);
 uint8_t lean_byte_array_uget(lean_object*, size_t);
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_curr_x27___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_mk___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_instInhabitedIterator;
@@ -95,6 +99,7 @@ LEAN_EXPORT lean_object* l_ByteArray_toUInt64BE_x21(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_size___boxed(lean_object*);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__5;
 LEAN_EXPORT lean_object* l_ByteArray_copySlice___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_ByteArray_Iterator_curr_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlM_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_toList(lean_object*);
 static lean_object* l_ByteArray_instInhabitedIterator___closed__1;
@@ -1465,6 +1470,80 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Basic_0__ByteArray_Iterator_remainingBytes_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_2(x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_ByteArray_Basic_0__ByteArray_Iterator_remainingBytes_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_ByteArray_Basic_0__ByteArray_Iterator_remainingBytes_match__1_splitter___rarg), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT uint8_t l_ByteArray_Iterator_curr_x27(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = lean_byte_array_fget(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_curr_x27___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_ByteArray_Iterator_curr_x27(x_1, x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ByteArray_Iterator_next_x27(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = lean_unsigned_to_nat(1u);
+x_6 = lean_nat_add(x_4, x_5);
+lean_dec(x_4);
+lean_ctor_set(x_1, 1, x_6);
+return x_1;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = lean_ctor_get(x_1, 0);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_dec(x_1);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_add(x_8, x_9);
+lean_dec(x_8);
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_7);
+lean_ctor_set(x_11, 1, x_10);
+return x_11;
+}
+}
+}
 LEAN_EXPORT uint8_t l_ByteArray_Iterator_hasPrev(lean_object* x_1) {
 _start:
 {
@@ -1864,7 +1943,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__4;
 x_2 = l_ByteArray_toUInt64LE_x21___closed__5;
-x_3 = lean_unsigned_to_nat(321u);
+x_3 = lean_unsigned_to_nat(337u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_ByteArray_toUInt64LE_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1962,7 +2041,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_ByteArray_toUInt64LE_x21___closed__4;
 x_2 = l_ByteArray_toUInt64BE_x21___closed__1;
-x_3 = lean_unsigned_to_nat(333u);
+x_3 = lean_unsigned_to_nat(349u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_ByteArray_toUInt64LE_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

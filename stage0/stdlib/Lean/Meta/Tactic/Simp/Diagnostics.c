@@ -20,6 +20,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSumma
 static lean_object* l_Lean_Meta_Simp_reportDiag___closed__5;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_originToKey___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_reportDiag___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_originToKey___closed__1;
@@ -32,7 +33,6 @@ lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*,
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__8___lambda__1___closed__5;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__8___closed__3;
-lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2909,7 +2909,7 @@ x_51 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_51, 0, x_49);
 lean_ctor_set(x_51, 1, x_50);
 x_52 = 0;
-x_53 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_51, x_52, x_2, x_3, x_4, x_5, x_37);
+x_53 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_51, x_52, x_2, x_3, x_4, x_5, x_37);
 return x_53;
 }
 else
@@ -2936,7 +2936,7 @@ x_67 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_67, 0, x_65);
 lean_ctor_set(x_67, 1, x_66);
 x_68 = 0;
-x_69 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_67, x_68, x_2, x_3, x_4, x_5, x_37);
+x_69 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_67, x_68, x_2, x_3, x_4, x_5, x_37);
 return x_69;
 }
 else
@@ -2963,7 +2963,7 @@ x_83 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_83, 0, x_81);
 lean_ctor_set(x_83, 1, x_82);
 x_84 = 0;
-x_85 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_83, x_84, x_2, x_3, x_4, x_5, x_37);
+x_85 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_83, x_84, x_2, x_3, x_4, x_5, x_37);
 return x_85;
 }
 else
@@ -2990,7 +2990,7 @@ x_99 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_99, 0, x_97);
 lean_ctor_set(x_99, 1, x_98);
 x_100 = 0;
-x_101 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_99, x_100, x_2, x_3, x_4, x_5, x_37);
+x_101 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_99, x_100, x_2, x_3, x_4, x_5, x_37);
 return x_101;
 }
 else
@@ -3037,7 +3037,7 @@ x_118 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_118, 0, x_116);
 lean_ctor_set(x_118, 1, x_117);
 x_119 = 0;
-x_120 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_118, x_119, x_2, x_3, x_4, x_5, x_104);
+x_120 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_118, x_119, x_2, x_3, x_4, x_5, x_104);
 return x_120;
 }
 else
@@ -3063,7 +3063,7 @@ x_134 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_134, 0, x_132);
 lean_ctor_set(x_134, 1, x_133);
 x_135 = 0;
-x_136 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_134, x_135, x_2, x_3, x_4, x_5, x_104);
+x_136 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_134, x_135, x_2, x_3, x_4, x_5, x_104);
 return x_136;
 }
 else
@@ -3089,7 +3089,7 @@ x_150 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_150, 0, x_148);
 lean_ctor_set(x_150, 1, x_149);
 x_151 = 0;
-x_152 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_150, x_151, x_2, x_3, x_4, x_5, x_104);
+x_152 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_150, x_151, x_2, x_3, x_4, x_5, x_104);
 return x_152;
 }
 else
@@ -3115,7 +3115,7 @@ x_166 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_166, 0, x_164);
 lean_ctor_set(x_166, 1, x_165);
 x_167 = 0;
-x_168 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__5(x_166, x_167, x_2, x_3, x_4, x_5, x_104);
+x_168 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_166, x_167, x_2, x_3, x_4, x_5, x_104);
 return x_168;
 }
 else

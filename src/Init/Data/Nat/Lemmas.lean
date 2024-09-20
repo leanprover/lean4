@@ -27,6 +27,11 @@ namespace Nat
   ⟨fun ⟨n, h, w⟩ => by cases n with | zero => simp at h | succ n => exact ⟨n, w⟩,
     fun ⟨n, w⟩ => ⟨n + 1, by simp, w⟩⟩
 
+@[simp] theorem exists_eq_add_one : (∃ n, a = n + 1) ↔ 0 < a :=
+  ⟨fun ⟨n, h⟩ => by omega, fun h => ⟨a - 1, by omega⟩⟩
+@[simp] theorem exists_add_one_eq : (∃ n, n + 1 = a) ↔ 0 < a :=
+  ⟨fun ⟨n, h⟩ => by omega, fun h => ⟨a - 1, by omega⟩⟩
+
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by
@@ -41,7 +46,7 @@ theorem succ_add_eq_add_succ (a b) : succ a + b = a + succ b := Nat.succ_add ..
 protected theorem eq_zero_of_add_eq_zero_right (h : n + m = 0) : n = 0 :=
   (Nat.eq_zero_of_add_eq_zero h).1
 
-protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
+@[simp] protected theorem add_eq_zero_iff : n + m = 0 ↔ n = 0 ∧ m = 0 :=
   ⟨Nat.eq_zero_of_add_eq_zero, fun ⟨h₁, h₂⟩ => h₂.symm ▸ h₁⟩
 
 @[simp] protected theorem add_left_cancel_iff {n : Nat} : n + m = n + k ↔ m = k :=
@@ -78,9 +83,6 @@ protected theorem add_lt_add_of_le_of_lt {a b c d : Nat} (hle : a ≤ b) (hlt : 
 protected theorem add_lt_add_of_lt_of_le {a b c d : Nat} (hlt : a < b) (hle : c ≤ d) :
     a + c < b + d :=
   Nat.lt_of_le_of_lt (Nat.add_le_add_left hle _) (Nat.add_lt_add_right hlt _)
-
-protected theorem lt_add_of_pos_left : 0 < k → n < k + n := by
-  rw [Nat.add_comm]; exact Nat.lt_add_of_pos_right
 
 protected theorem pos_of_lt_add_right (h : n < n + k) : 0 < k :=
   Nat.lt_of_add_lt_add_left h
@@ -152,16 +154,8 @@ protected theorem sub_le_iff_le_add' {a b c : Nat} : a - b ≤ c ↔ a ≤ b + c
 protected theorem le_sub_iff_add_le {n : Nat} (h : k ≤ m) : n ≤ m - k ↔ n + k ≤ m :=
   ⟨Nat.add_le_of_le_sub h, Nat.le_sub_of_add_le⟩
 
-@[deprecated Nat.le_sub_iff_add_le (since := "2024-02-19")]
-protected theorem add_le_to_le_sub (n : Nat) (h : m ≤ k) : n + m ≤ k ↔ n ≤ k - m :=
-  (Nat.le_sub_iff_add_le h).symm
-
 protected theorem add_le_of_le_sub' {n k m : Nat} (h : m ≤ k) : n ≤ k - m → m + n ≤ k :=
   Nat.add_comm .. ▸ Nat.add_le_of_le_sub h
-
-@[deprecated Nat.add_le_of_le_sub' (since := "2024-02-19")]
-protected theorem add_le_of_le_sub_left {n k m : Nat} (h : m ≤ k) : n ≤ k - m → m + n ≤ k :=
-  Nat.add_le_of_le_sub' h
 
 protected theorem le_sub_of_add_le' {n k m : Nat} : m + n ≤ k → n ≤ k - m :=
   Nat.add_comm .. ▸ Nat.le_sub_of_add_le
@@ -236,6 +230,17 @@ instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
 @[simp] protected theorem min_self_assoc' {m n : Nat} : min n (min m n) = min n m := by
   rw [Nat.min_comm m n, ← Nat.min_assoc, Nat.min_self]
 
+@[simp] theorem min_add_left {a b : Nat} : min a (b + a) = a := by
+  rw [Nat.min_def]
+  simp
+@[simp] theorem min_add_right {a b : Nat} : min a (a + b) = a := by
+  rw [Nat.min_def]
+  simp
+@[simp] theorem add_left_min {a b : Nat} : min (b + a) a = a := by
+  rw [Nat.min_comm, min_add_left]
+@[simp] theorem add_right_min {a b : Nat} : min (a + b) a = a := by
+  rw [Nat.min_comm, min_add_right]
+
 protected theorem sub_sub_eq_min : ∀ (a b : Nat), a - (a - b) = min a b
   | 0, _ => by rw [Nat.zero_sub, Nat.zero_min]
   | _, 0 => by rw [Nat.sub_zero, Nat.sub_self, Nat.min_zero]
@@ -289,6 +294,17 @@ protected theorem max_assoc : ∀ (a b c : Nat), max (max a b) c = max a (max b 
   | _, _, 0 => by rw [Nat.max_zero, Nat.max_zero]
   | _+1, _+1, _+1 => by simp only [Nat.succ_max_succ]; exact congrArg succ <| Nat.max_assoc ..
 instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
+
+@[simp] theorem max_add_left {a b : Nat} : max a (b + a) = b + a := by
+  rw [Nat.max_def]
+  simp
+@[simp] theorem max_add_right {a b : Nat} : max a (a + b) = a + b := by
+  rw [Nat.max_def]
+  simp
+@[simp] theorem add_left_max {a b : Nat} : max (b + a) a = b + a := by
+  rw [Nat.max_comm, max_add_left]
+@[simp] theorem add_right_max {a b : Nat} : max (a + b) a = a + b := by
+  rw [Nat.max_comm, max_add_right]
 
 protected theorem sub_add_eq_max (a b : Nat) : a - b + b = max a b := by
   match Nat.le_total a b with
@@ -424,14 +440,6 @@ protected theorem mul_min_mul_left (a b c : Nat) : min (a * b) (a * c) = a * min
 
 /-! ### mul -/
 
-@[deprecated Nat.mul_le_mul_left (since := "2024-02-19")]
-protected theorem mul_le_mul_of_nonneg_left {a b c : Nat} : a ≤ b → c * a ≤ c * b :=
-  Nat.mul_le_mul_left c
-
-@[deprecated Nat.mul_le_mul_right (since := "2024-02-19")]
-protected theorem mul_le_mul_of_nonneg_right {a b c : Nat} : a ≤ b → a * c ≤ b * c :=
-  Nat.mul_le_mul_right c
-
 protected theorem mul_right_comm (n m k : Nat) : n * m * k = n * k * m := by
   rw [Nat.mul_assoc, Nat.mul_comm m, ← Nat.mul_assoc]
 
@@ -464,10 +472,10 @@ protected theorem mul_right_cancel {n m k : Nat} (mp : 0 < m) (h : n * m = k * m
   simp [Nat.mul_comm _ m] at h
   apply Nat.mul_left_cancel mp h
 
-protected theorem mul_left_cancel_iff {n: Nat} (p : 0 < n) (m k : Nat) : n * m = n * k ↔ m = k :=
+protected theorem mul_left_cancel_iff {n : Nat} (p : 0 < n) {m k : Nat} : n * m = n * k ↔ m = k :=
   ⟨Nat.mul_left_cancel p, fun | rfl => rfl⟩
 
-protected theorem mul_right_cancel_iff {m : Nat} (p : 0 < m) (n k : Nat) : n * m = k * m ↔ n = k :=
+protected theorem mul_right_cancel_iff {m : Nat} (p : 0 < m) {n k : Nat} : n * m = k * m ↔ n = k :=
   ⟨Nat.mul_right_cancel p, fun | rfl => rfl⟩
 
 protected theorem ne_zero_of_mul_ne_zero_right (h : n * m ≠ 0) : m ≠ 0 :=
@@ -505,7 +513,7 @@ theorem succ_mul_succ (a b) : succ a * succ b = a * b + a + b + 1 := by
 theorem add_one_mul_add_one (a b : Nat) : (a + 1) * (b + 1) = a * b + a + b + 1 := by
   rw [add_one_mul, mul_add_one]; rfl
 
-theorem mul_le_add_right (m k n : Nat) : k * m ≤ m + n ↔ (k-1) * m ≤ n := by
+theorem mul_le_add_right {m k n : Nat} : k * m ≤ m + n ↔ (k-1) * m ≤ n := by
   match k with
   | 0 =>
     simp
@@ -588,6 +596,15 @@ theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
 theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
   rw [add_mod_mod, mod_add_mod]
 
+@[simp] theorem self_sub_mod (n k : Nat) [NeZero k] : (n - k) % n = n - k := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [mod_eq_of_lt]
+    cases k with
+    | zero => simp_all
+    | succ k => omega
+
 /-! ### pow -/
 
 theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by
@@ -666,6 +683,9 @@ protected theorem one_le_two_pow : 1 ≤ 2 ^ n :=
     rw [mod_eq_of_lt (a := 1) (Nat.one_lt_two_pow (by omega))]
     simp
 
+@[simp] theorem one_mod_two_pow (h : 0 < n) : 1 % 2 ^ n = 1 :=
+  one_mod_two_pow_eq_one.mpr h
+
 protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
   match n with
   | 0 => Nat.zero_lt_one
@@ -716,6 +736,36 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
     exact Nat.lt_of_lt_of_le w.1 (Nat.pow_le_pow_of_le h w.2)
   · intro w
     exact Nat.pow_lt_pow_of_lt h w
+
+@[simp]
+protected theorem pow_pred_mul {x w : Nat} (h : 0 < w) :
+    x ^ (w - 1) * x = x ^ w := by
+  simp [← Nat.pow_succ, succ_eq_add_one, Nat.sub_add_cancel h]
+
+protected theorem pow_pred_lt_pow {x w : Nat} (h₁ : 1 < x) (h₂ : 0 < w) :
+    x ^ (w - 1) < x ^ w :=
+  Nat.pow_lt_pow_of_lt h₁ (by omega)
+
+protected theorem two_pow_pred_lt_two_pow {w : Nat} (h : 0 < w) :
+    2 ^ (w - 1) < 2 ^ w :=
+  Nat.pow_pred_lt_pow (by omega) h
+
+@[simp]
+protected theorem two_pow_pred_add_two_pow_pred (h : 0 < w) :
+    2 ^ (w - 1) + 2 ^ (w - 1) = 2 ^ w := by
+  rw [← Nat.pow_pred_mul h]
+  omega
+
+@[simp]
+protected theorem two_pow_sub_two_pow_pred (h : 0 < w) :
+    2 ^ w - 2 ^ (w - 1) = 2 ^ (w - 1) := by
+  simp [← Nat.two_pow_pred_add_two_pow_pred h]
+
+@[simp]
+protected theorem two_pow_pred_mod_two_pow (h : 0 < w) :
+    2 ^ (w - 1) % 2 ^ w = 2 ^ (w - 1) := by
+  rw [mod_eq_of_lt]
+  apply Nat.pow_pred_lt_pow (by omega) h
 
 /-! ### log2 -/
 

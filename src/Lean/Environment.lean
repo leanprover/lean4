@@ -474,7 +474,10 @@ def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
 
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
-  if env.asyncTheorems.any (·.name.isPrefixOf n) then
+  /- It is safe to use `find?'` because we never overwrite imported declarations. -/
+  if let some c := env.base.constants.find?' n then
+    some c
+  else if env.asyncTheorems.any (·.name.isPrefixOf n) then
     env.toKernelEnv.constants.find?' n
   else if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
     match subDecl with

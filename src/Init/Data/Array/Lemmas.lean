@@ -19,6 +19,15 @@ This file contains some theorems about `Array` and `List` needed for `Init.Data.
 
 namespace Array
 
+/-- We avoid mentioning the constructor `Array.mk` directly, preferring `List.toArray`. -/
+@[simp] theorem mk_eq_toArray (as : List α) : Array.mk as = as.toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+@[simp] theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
+
 theorem getElem_eq_toList_getElem (a : Array α) (h : i < a.size) : a[i] = a.toList[i] := by
   by_cases i < a.size <;> (try simp [*]) <;> rfl
 
@@ -27,7 +36,7 @@ abbrev getElem_eq_data_getElem := @getElem_eq_toList_getElem
 
 @[deprecated getElem_eq_toList_getElem (since := "2024-06-12")]
 theorem getElem_eq_toList_get (a : Array α) (h : i < a.size) : a[i] = a.toList.get ⟨i, h⟩ := by
-  simp [getElem_eq_toList_getElem]
+  simp
 
 theorem get_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
     have : i < (a.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
@@ -62,57 +71,11 @@ open Array
 @[simp] theorem toArray_toList : (a : Array α) → a.toList.toArray = a
   | ⟨l⟩ => ext' (toList_toArray l)
 
-theorem getElem_toArrayAux_of_lt
-    {a : List α} {b : Array α} {i : Nat} (h : i < b.size) :
-    (a.toArrayAux b)[i]'(by simp; omega) = b[i] := by
-  induction a generalizing b with
-  | nil => simp [toArrayAux]
-  | cons x xs ih =>
-    simp only [toArrayAux]
-    rw [ih, get_push_lt]
-
-theorem getElem_toArrayAux_push_size {a : List α} {b : Array α} {x : α} :
-    (a.toArrayAux (b.push x))[b.size]'(by simp; omega) = x := by
-  cases a with
-  | nil => simp [toArrayAux]
-  | cons x xs =>
-    simp [toArrayAux]
-    rw [getElem_toArrayAux_of_lt (by simp; omega)]
-    rw [get_push_lt, get_push_eq]
-
-theorem getElem_toArrayAux_size_add {a : List α} {b : Array α} {i : Nat} (h : i < a.length) :
-    (a.toArrayAux b)[b.size + i]'(by simp; omega) = a[i] := by
-  induction a generalizing b i with
-  | nil => simp at h
-  | cons x xs ih =>
-    simp [toArrayAux]
-    match i with
-    | 0 => simp [getElem_toArrayAux_push_size]
-    | i + 1 =>
-      simp only [length_cons, Nat.add_lt_add_iff_right] at h
-      specialize @ih (b.push x) _ h
-      simp only [getElem_cons_succ]
-      simp only [size_push] at ih
-      rw [← ih]
-      congr 1
-      omega
-
 @[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
     a.toArray[i] = a[i]'(by simpa using h) := by
-  simp only [toArray, mkEmpty]
-  cases a with
-  | nil => simp at h
-  | cons x xs =>
-    match i with
-    | 0 => apply getElem_toArrayAux_push_size
-    | i + 1 =>
-      simp only [getElem_cons_succ]
-      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right] at h
-      have := getElem_toArrayAux_size_add (a := xs) (b := #[].push x) h
-      simp only [size_push, size_toArray, length_nil, Nat.zero_add] at this
-      rw [← this]
-      congr 1
-      omega
+  have h₁ := mk_eq_toArray a
+  have h₂ := getElem_mk (by simpa using h)
+  simpa [h₁] using h₂
 
 @[simp] theorem toArray_concat {as : List α} {x : α} :
     (as ++ [x]).toArray = as.toArray.push x := by
@@ -124,11 +87,6 @@ end List
 namespace Array
 
 attribute [simp] uset
-
-/-- We avoid mentioning the constructor `Array.mk` directly, preferring `List.toArray`. -/
-@[simp] theorem mk_eq_toArray (as : List α) : Array.mk as = as.toArray := by
-  apply ext'
-  simp
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 
@@ -429,7 +387,7 @@ theorem getElem_mem_toList (a : Array α) (h : i < a.size) : a[i] ∈ a.toList :
 abbrev getElem_mem_data := @getElem_mem_toList
 
 theorem getElem?_eq_toList_get? (a : Array α) (i : Nat) : a[i]? = a.toList.get? i := by
-  by_cases i < a.size <;> simp_all [getElem?_pos, getElem?_neg, List.get?_eq_get, eq_comm]; rfl
+  by_cases i < a.size <;> simp_all [getElem?_pos, getElem?_neg, List.get?_eq_get, eq_comm]
 
 @[deprecated getElem?_eq_toList_get? (since := "2024-09-09")]
 abbrev getElem?_eq_data_get? := @getElem?_eq_toList_get?

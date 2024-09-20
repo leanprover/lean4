@@ -18,6 +18,11 @@ attribute [bv_normalize] and_true
 attribute [bv_normalize] true_and
 attribute [bv_normalize] or_true
 attribute [bv_normalize] true_or
+attribute [bv_normalize] eq_iff_iff
+attribute [bv_normalize] iff_true
+attribute [bv_normalize] true_iff
+attribute [bv_normalize] iff_false
+attribute [bv_normalize] false_iff
 
 end Frontend.Normalize
 end Std.Tactic.BVDecide

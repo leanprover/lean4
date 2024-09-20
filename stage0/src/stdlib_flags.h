@@ -18,5 +18,3 @@ options get_default_options() {
     return opts;
 }
 }
-
-// please update stage0

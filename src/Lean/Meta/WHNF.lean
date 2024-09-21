@@ -798,10 +798,12 @@ mutual
           else
             unfoldDefault ()
     | .const declName lvls => do
+      let some cinfo ← getUnfoldableConstNoEx? declName | pure none
+      -- check smart unfolding only after `getUnfoldableConstNoEx?` because `Environment.contains`
+      -- misses are more costly
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        let some cinfo ← getUnfoldableConstNoEx? declName | pure none
         unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)

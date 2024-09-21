@@ -8,7 +8,7 @@ import Lean.Expr
 
 namespace Lean
 
-namespace CollectLMVars
+namespace CollectLevelMVars
 
 structure State where
   visitedLevel : LevelSet      := {}
@@ -50,13 +50,13 @@ mutual
     | _                => id
 end
 
-end CollectLMVars
+end CollectLevelMVars
 
 /--
 Collects all universe level metavariables present in `e`.
-Result is in `Lean.CollectLMVars.State.result`.
+Result is in `Lean.CollectLevelMVars.State.result`.
 -/
-def collectLMVars (s : CollectLMVars.State) (e : Expr) : CollectLMVars.State :=
-  CollectLMVars.main e s
+def collectLevelMVars (s : CollectLevelMVars.State) (e : Expr) : CollectLevelMVars.State :=
+  CollectLevelMVars.main e s
 
 end Lean

@@ -172,7 +172,7 @@ private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
 
 private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit := do
   registerCustomErrorIfMVar type ref "failed to infer binder type"
-  registerLMVarErrorExprInfo type ref m!"failed to infer universe levels in binder type"
+  registerLevelMVarErrorExprInfo type ref m!"failed to infer universe levels in binder type"
 
 def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
   addTermInfo' (isBinder := true) stx fvar
@@ -673,7 +673,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
     let letMsg := if useLetExpr then "let" else "have"
     registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
-    registerLMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
+    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
     if elabBodyFirst then
       let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type

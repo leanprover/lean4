@@ -56,7 +56,7 @@ private def getMVarsAtPreDef (preDef : PreDefinition) : MetaM (Array MVarId) := 
 /--
 Set any lingering level mvars to `.zero`, for error recovery.
 -/
-private def setLMVarsAtPreDef (preDef : PreDefinition) : PreDefinition :=
+private def setLevelMVarsAtPreDef (preDef : PreDefinition) : PreDefinition :=
   if preDef.value.hasLevelMVar then
     let value' :=
       preDef.value.replaceLevel fun l =>
@@ -71,9 +71,9 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
   if !preDef.value.hasLevelMVar then
     return preDef
   else
-    let pendingLMVars := (collectLMVars {} (← instantiateMVars preDef.value)).result
-    if (← logUnassignedLMVarsUsingErrorInfos pendingLMVars) then
-      return setLMVarsAtPreDef preDef
+    let pendingLevelMVars := (collectLevelMVars {} (← instantiateMVars preDef.value)).result
+    if (← logUnassignedLevelMVarsUsingErrorInfos pendingLevelMVars) then
+      return setLevelMVarsAtPreDef preDef
     else if !(← MonadLog.hasErrors) then
       -- This is a fallback in case we don't have an error info available for the universe level metavariables.
       -- We try to produce an error message containing an expression with one of the universe level metavariables.
@@ -106,10 +106,10 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
         visit preDef.value |>.run preDef.value |>.run {}
       catch e =>
         logException e
-        return setLMVarsAtPreDef preDef
+        return setLevelMVarsAtPreDef preDef
       throwAbortCommand
     else
-      return setLMVarsAtPreDef preDef
+      return setLevelMVarsAtPreDef preDef
 
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef

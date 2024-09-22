@@ -1,5 +1,5 @@
 /-!
-This test validates the Repr instance for `Empty`.
+# Validation of `Repr Empty` instance
 
 While it may seem unnecessary to have Repr, it prevents the automatic derivation
 of Repr for other types when `Empty` is used as a type parameter.

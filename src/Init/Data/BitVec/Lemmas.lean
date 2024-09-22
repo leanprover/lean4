@@ -710,13 +710,19 @@ theorem or_comm (x y : BitVec w) :
   simp [Bool.or_comm]
 instance : Std.Commutative (fun (x y : BitVec w) => x ||| y) := ⟨BitVec.or_comm⟩
 
-@[simp] theorem or_self {x : BitVec w} : x ||| x = x := by
+@[simp] theorem or_self (x : BitVec w) : x ||| x = x := by
   ext i
   simp
 
-@[simp] theorem or_zero {x : BitVec w} : x ||| 0#w = x := by
+instance : Std.IdempotentOp (α := BitVec n) (· ||| · ) where
+  idempotent := BitVec.or_self
+
+@[simp] theorem or_zero (x : BitVec w) : x ||| 0#w = x := by
   ext i
   simp
+
+instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
+  right_id := BitVec.or_zero
 
 @[simp] theorem zero_or {x : BitVec w} : 0#w ||| x = x := by
   ext i
@@ -771,9 +777,12 @@ theorem and_comm (x y : BitVec w) :
   simp [Bool.and_comm]
 instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_comm⟩
 
-@[simp] theorem and_self {x : BitVec w} : x &&& x = x := by
+@[simp] theorem and_self (x : BitVec w) : x &&& x = x := by
   ext i
   simp
+
+instance : Std.IdempotentOp (α := BitVec n) (· &&& · ) where
+  idempotent := BitVec.and_self
 
 @[simp] theorem and_zero {x : BitVec w} : x &&& 0#w = 0#w := by
   ext i
@@ -783,9 +792,12 @@ instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_co
   ext i
   simp
 
-@[simp] theorem and_allOnes {x : BitVec w} : x &&& allOnes w = x := by
+@[simp] theorem and_allOnes (x : BitVec w) : x &&& allOnes w = x := by
   ext i
   simp
+
+instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) where
+  right_id := BitVec.and_allOnes
 
 @[simp] theorem allOnes_and {x : BitVec w} : allOnes w &&& x = x := by
   ext i
@@ -839,9 +851,12 @@ instance : Std.Commutative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_co
   ext i
   simp
 
-@[simp] theorem xor_zero {x : BitVec w} : x ^^^ 0#w = x := by
+@[simp] theorem xor_zero (x : BitVec w) : x ^^^ 0#w = x := by
   ext i
   simp
+
+instance : Std.LawfulCommIdentity (α := BitVec n) (· ^^^ · ) (0#n) where
+  right_id := BitVec.xor_zero
 
 @[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by
   ext i
@@ -1573,10 +1588,10 @@ instance : Std.Commutative (α := BitVec n) (· + ·) := ⟨BitVec.add_comm⟩
 
 @[simp] protected theorem add_zero (x : BitVec n) : x + 0#n = x := by simp [add_def]
 
-@[simp] protected theorem zero_add (x : BitVec n) : 0#n + x = x := by simp [add_def]
-instance : Std.LawfulIdentity (α := BitVec n) (· + ·) 0#n where
-  left_id := BitVec.zero_add
+instance : Std.LawfulCommIdentity (α := BitVec n) (· + · ) (0#n) where
   right_id := BitVec.add_zero
+
+@[simp] protected theorem zero_add (x : BitVec n) : 0#n + x = x := by simp [add_def]
 
 theorem setWidth_add (x y : BitVec w) (h : i ≤ w) :
     (x + y).setWidth i = x.setWidth i + y.setWidth i := by

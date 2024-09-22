@@ -26,4 +26,4 @@ open Prim in
 /-- info: Prim.minus -/
 #guard_msgs in
 open Prim in
-#eval (minus: Prim Empty)
+#eval (minus : Prim Empty)

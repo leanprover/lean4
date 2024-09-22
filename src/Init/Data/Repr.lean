@@ -55,7 +55,8 @@ instance [Repr α] : Repr (Id α) :=
 This instance allows us to use `Empty` as a type parameter without causing automatic
 derivations of `Repr` to fail.
 -/
-deriving instance Repr for Empty
+instance : Repr Empty where
+  reprPrec := nofun
 
 instance : Repr Bool where
   reprPrec

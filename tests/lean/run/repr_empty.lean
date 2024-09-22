@@ -21,7 +21,7 @@ Check that both Repr's work
 /-- info: Prim.plus -/
 #guard_msgs in
 open Prim in
-#eval (plus: Prim Int)
+#eval (plus : Prim Int)
 
 /-- info: Prim.minus -/
 #guard_msgs in

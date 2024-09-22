@@ -52,8 +52,7 @@ instance [Repr α] : Repr (Id α) :=
   inferInstanceAs (Repr α)
 
 /-
-This instance allows us to use `Empty` as a type parameter without causing automatic
-derivations of `Repr` to fail.
+This instance allows us to use `Empty` as a type parameter without causing instance synthesis to fail.
 -/
 instance : Repr Empty where
   reprPrec := nofun

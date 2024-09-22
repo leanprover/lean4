@@ -14,7 +14,9 @@ inductive Prim (special : Type) where
   | other : special → Prim special
 deriving Repr
 
--- Check that both Repr's work
+/-!
+Check that both Repr's work
+-/
 
 /-- info: Prim.plus -/
 #guard_msgs in

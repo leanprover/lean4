@@ -28,6 +28,9 @@ instance : ToJson Json := ⟨id⟩
 instance : FromJson JsonNumber := ⟨Json.getNum?⟩
 instance : ToJson JsonNumber := ⟨Json.num⟩
 
+instance : FromJson Empty where
+  fromJson? j := throw s!"no constructor matched JSON value '{j}'"
+instance : ToJson Empty := ⟨nofun⟩
 -- looks like id, but there are coercions happening
 instance : FromJson Bool := ⟨Json.getBool?⟩
 instance : ToJson Bool := ⟨fun b => b⟩

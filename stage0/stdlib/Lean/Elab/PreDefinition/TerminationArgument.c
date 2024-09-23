@@ -83,7 +83,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_structuralArg___lambda_
 static lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__2___closed__4;
 lean_object* lean_array_pop(lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_elab___closed__14;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTerminationArgument___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -638,7 +638,7 @@ lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-x_31 = lean_array_to_list(lean_box(0), x_29);
+x_31 = lean_array_to_list(x_29);
 x_32 = lean_box(0);
 x_33 = l_List_mapTR_loop___at_Lean_Elab_TerminationArgument_elab___spec__2(x_31, x_32);
 x_34 = l_Lean_MessageData_andList(x_33);

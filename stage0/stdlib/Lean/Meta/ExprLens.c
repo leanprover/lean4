@@ -110,7 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Expr
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewAux___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___closed__7;
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___closed__8;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_viewSubexpr___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_viewBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__8___closed__1;
@@ -2548,7 +2548,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Lean_SubExpr_Pos_toArray(x_6);
-x_9 = lean_array_to_list(lean_box(0), x_8);
+x_9 = lean_array_to_list(x_8);
 x_10 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensAux___rarg(x_1, x_2, x_3, x_4, x_5, x_9, x_7);
 return x_10;
 }
@@ -3685,7 +3685,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = l_Lean_SubExpr_Pos_toArray(x_7);
-x_10 = lean_array_to_list(lean_box(0), x_9);
+x_10 = lean_array_to_list(x_9);
 x_11 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewAux___rarg___lambda__3___closed__1;
 x_12 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewAux___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_6, x_11, x_10, x_8);
 return x_12;
@@ -4358,7 +4358,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_Lean_SubExpr_Pos_toArray(x_8);
-x_11 = lean_array_to_list(lean_box(0), x_10);
+x_11 = lean_array_to_list(x_10);
 x_12 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewAux___rarg___lambda__3___closed__1;
 x_13 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_foldAncestorsAux___rarg(x_1, x_2, x_3, x_4, lean_box(0), x_6, x_7, x_11, x_12, x_9);
 return x_13;

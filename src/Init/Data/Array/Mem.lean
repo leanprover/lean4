@@ -14,7 +14,7 @@ namespace Array
 -- NB: This is defined as a structure rather than a plain def so that a lemma
 -- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
 structure Mem (as : Array α) (a : α) : Prop where
-  val : a ∈ as.data
+  val : a ∈ as.toList
 
 instance : Membership α (Array α) where
   mem := Mem

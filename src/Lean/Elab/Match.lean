@@ -643,7 +643,7 @@ where
     | .proj _ _ b       => return p.updateProj! (← go b)
     | .mdata k b        =>
       if inaccessible? p |>.isSome then
-        return mkMData k (← withReader (fun _ => false) (go b))
+        return mkMData k (← withReader (fun _ => true) (go b))
       else if let some (stx, p) := patternWithRef? p then
         Elab.withInfoContext' (go p) fun p => do
           /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/
@@ -795,7 +795,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
               let rhs ← elabTermEnsuringType alt.rhs matchType'
               -- We use all approximations to ensure the auxiliary type is defeq to the original one.
               unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
-                throwError "type mistmatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
+                throwError "type mismatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
               let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs
               let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
               trace[Elab.match] "rhs: {rhs}"

@@ -817,7 +817,7 @@ variable {a b c d : Prop}
 theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
-theorem Iff.refl (a : Prop) : a ↔ a :=
+@[refl] theorem Iff.refl (a : Prop) : a ↔ a :=
   Iff.intro (fun h => h) (fun h => h)
 
 protected theorem Iff.rfl {a : Prop} : a ↔ a :=
@@ -1193,6 +1193,21 @@ end
 
 /-! # Product -/
 
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (α × β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨(x, y)⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (MProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
+
+instance [h1 : Nonempty α] [h2 : Nonempty β] : Nonempty (PProd α β) :=
+  Nonempty.elim h1 fun x =>
+    Nonempty.elim h2 fun y =>
+      ⟨⟨x, y⟩⟩
+
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
   default := (default, default)
 
@@ -1366,6 +1381,11 @@ gen_injective_theorems% Except
 gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
+
+/-- Replacement for `Array.mk.injEq`; we avoid mentioning the constructor and prefer `List.toArray`. -/
+abbrev List.toArray_inj := @Array.mk.injEq
+
+attribute [deprecated List.toArray_inj (since := "2024-09-09")] Array.mk.injEq
 
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id

@@ -84,9 +84,6 @@ protected theorem add_lt_add_of_lt_of_le {a b c d : Nat} (hlt : a < b) (hle : c 
     a + c < b + d :=
   Nat.lt_of_le_of_lt (Nat.add_le_add_left hle _) (Nat.add_lt_add_right hlt _)
 
-protected theorem lt_add_of_pos_left : 0 < k → n < k + n := by
-  rw [Nat.add_comm]; exact Nat.lt_add_of_pos_right
-
 protected theorem pos_of_lt_add_right (h : n < n + k) : 0 < k :=
   Nat.lt_of_add_lt_add_left h
 
@@ -233,6 +230,17 @@ instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
 @[simp] protected theorem min_self_assoc' {m n : Nat} : min n (min m n) = min n m := by
   rw [Nat.min_comm m n, ← Nat.min_assoc, Nat.min_self]
 
+@[simp] theorem min_add_left {a b : Nat} : min a (b + a) = a := by
+  rw [Nat.min_def]
+  simp
+@[simp] theorem min_add_right {a b : Nat} : min a (a + b) = a := by
+  rw [Nat.min_def]
+  simp
+@[simp] theorem add_left_min {a b : Nat} : min (b + a) a = a := by
+  rw [Nat.min_comm, min_add_left]
+@[simp] theorem add_right_min {a b : Nat} : min (a + b) a = a := by
+  rw [Nat.min_comm, min_add_right]
+
 protected theorem sub_sub_eq_min : ∀ (a b : Nat), a - (a - b) = min a b
   | 0, _ => by rw [Nat.zero_sub, Nat.zero_min]
   | _, 0 => by rw [Nat.sub_zero, Nat.sub_self, Nat.min_zero]
@@ -286,6 +294,17 @@ protected theorem max_assoc : ∀ (a b c : Nat), max (max a b) c = max a (max b 
   | _, _, 0 => by rw [Nat.max_zero, Nat.max_zero]
   | _+1, _+1, _+1 => by simp only [Nat.succ_max_succ]; exact congrArg succ <| Nat.max_assoc ..
 instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
+
+@[simp] theorem max_add_left {a b : Nat} : max a (b + a) = b + a := by
+  rw [Nat.max_def]
+  simp
+@[simp] theorem max_add_right {a b : Nat} : max a (a + b) = a + b := by
+  rw [Nat.max_def]
+  simp
+@[simp] theorem add_left_max {a b : Nat} : max (b + a) a = b + a := by
+  rw [Nat.max_comm, max_add_left]
+@[simp] theorem add_right_max {a b : Nat} : max (a + b) a = a + b := by
+  rw [Nat.max_comm, max_add_right]
 
 protected theorem sub_add_eq_max (a b : Nat) : a - b + b = max a b := by
   match Nat.le_total a b with
@@ -576,6 +595,15 @@ theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
 
 theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
   rw [add_mod_mod, mod_add_mod]
+
+@[simp] theorem self_sub_mod (n k : Nat) [NeZero k] : (n - k) % n = n - k := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [mod_eq_of_lt]
+    cases k with
+    | zero => simp_all
+    | succ k => omega
 
 /-! ### pow -/
 

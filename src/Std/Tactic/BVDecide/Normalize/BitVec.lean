@@ -39,9 +39,7 @@ attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
 attribute [bv_normalize] BitVec.slt_eq_ult
 attribute [bv_normalize] BitVec.sle_eq_not_slt
 
-@[bv_normalize]
-theorem BitVec.OfNat_reduce (n : Nat) : OfNat.ofNat n = BitVec.ofNat w n := by
-  rfl
+attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
 @[bv_normalize]
 theorem BitVec.ofNatLt_reduce (n : Nat) (h) : BitVec.ofNatLt n h = BitVec.ofNat w n := by
@@ -56,8 +54,8 @@ attribute [bv_normalize] BitVec.zero_add
 attribute [bv_normalize] BitVec.neg_zero
 attribute [bv_normalize] BitVec.sub_self
 attribute [bv_normalize] BitVec.sub_zero
-attribute [bv_normalize] BitVec.zeroExtend_eq
-attribute [bv_normalize] BitVec.zeroExtend_zero
+attribute [bv_normalize] BitVec.setWidth_eq
+attribute [bv_normalize] BitVec.setWidth_zero
 attribute [bv_normalize] BitVec.getLsbD_zero
 attribute [bv_normalize] BitVec.getLsbD_zero_length
 attribute [bv_normalize] BitVec.getLsbD_concat_zero
@@ -120,6 +118,10 @@ theorem BitVec.add_neg (a : BitVec w) : a + (-a) = 0#w := by
 theorem BitVec.neg_add (a : BitVec w) : (-a) + a = 0#w := by
   rw [BitVec.add_comm]
   rw [BitVec.add_neg]
+
+@[bv_normalize]
+theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
+  rw [BitVec.mul_two]
 
 @[bv_normalize]
 theorem BitVec.zero_sshiftRight : BitVec.sshiftRight 0#w a = 0#w := by
@@ -190,13 +192,13 @@ theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (0#w != a) := by
   | false => simp_all
 
 theorem BitVec.max_ult (a : BitVec w) : ¬ ((-1#w) < a) := by
-rcases w with rfl | w
-· simp [bv_toNat, BitVec.toNat_of_zero_length]
-· simp only [BitVec.lt_def, BitVec.toNat_neg, BitVec.toNat_ofNat, Nat.not_lt]
-  rw [Nat.mod_eq_of_lt (a := 1) (by simp)];
-  rw [Nat.mod_eq_of_lt]
-  · omega
-  · apply Nat.sub_one_lt_of_le (Nat.pow_pos (by omega)) (Nat.le_refl ..)
+  rcases w with rfl | w
+  · simp [bv_toNat, BitVec.toNat_of_zero_length]
+  · simp only [BitVec.lt_def, BitVec.toNat_neg, BitVec.toNat_ofNat, Nat.not_lt]
+    rw [Nat.mod_eq_of_lt (a := 1) (by simp)];
+    rw [Nat.mod_eq_of_lt]
+    · omega
+    · apply Nat.sub_one_lt_of_le (Nat.pow_pos (by omega)) (Nat.le_refl ..)
 
 @[bv_normalize]
 theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
@@ -205,6 +207,18 @@ theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
   simp [this]
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
+
+@[bv_normalize]
+theorem BitVec.ofBool_getLsbD (a : BitVec w) (i : Nat) :
+    BitVec.ofBool (a.getLsbD i) = a.extractLsb' i 1 := by
+  ext j
+  simp
+
+@[bv_normalize]
+theorem BitVec.ofBool_getElem (a : BitVec w) (i : Nat) (h : i < w) :
+    BitVec.ofBool a[i] = a.extractLsb' i 1 := by
+  rw [← BitVec.getLsbD_eq_getElem]
+  apply ofBool_getLsbD
 
 end Normalize
 end Std.Tactic.BVDecide

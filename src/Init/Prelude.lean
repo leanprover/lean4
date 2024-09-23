@@ -1014,7 +1014,7 @@ with `Or : Prop → Prop → Prop`, which is the propositional connective).
 It is `@[macro_inline]` because it has C-like short-circuiting behavior:
 if `x` is true then `y` is not evaluated.
 -/
-@[macro_inline] def or (x y : Bool) : Bool :=
+@[macro_inline] def Bool.or (x y : Bool) : Bool :=
   match x with
   | true  => true
   | false => y
@@ -1025,7 +1025,7 @@ with `And : Prop → Prop → Prop`, which is the propositional connective).
 It is `@[macro_inline]` because it has C-like short-circuiting behavior:
 if `x` is false then `y` is not evaluated.
 -/
-@[macro_inline] def and (x y : Bool) : Bool :=
+@[macro_inline] def Bool.and (x y : Bool) : Bool :=
   match x with
   | false => false
   | true  => y
@@ -1034,9 +1034,11 @@ if `x` is false then `y` is not evaluated.
 `not x`, or `!x`, is the boolean "not" operation (not to be confused
 with `Not : Prop → Prop`, which is the propositional connective).
 -/
-@[inline] def not : Bool → Bool
+@[inline] def Bool.not : Bool → Bool
   | true  => false
   | false => true
+
+export Bool (or and not)
 
 /--
 The type of natural numbers, starting at zero. It is defined as an
@@ -1303,6 +1305,11 @@ class HShiftRight (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   * On `Nat` and fixed width unsigned types like `UInt8`,
     this is equivalent to `a / 2 ^ b`. -/
   hShiftRight : α → β → γ
+
+/-- A type with a zero element. -/
+class Zero (α : Type u) where
+  /-- The zero element of the type. -/
+  zero : α
 
 /-- The homogeneous version of `HAdd`: `a + b : α` where `a b : α`. -/
 class Add (α : Type u) where
@@ -2568,17 +2575,17 @@ structure Array (α : Type u) where
   /--
   Converts a `Array α` into an `List α`.
 
-  At runtime, this projection is implemented by `Array.toList` and is O(n) in the length of the
+  At runtime, this projection is implemented by `Array.toListImpl` and is O(n) in the length of the
   array. -/
-  data : List α
+  toList : List α
 
-attribute [extern "lean_array_data"] Array.data
+attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
 /-- Construct a new empty array with initial capacity `c`. -/
 @[extern "lean_mk_empty_array_with_capacity"]
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
-  data := List.nil
+  toList := List.nil
 
 /-- Construct a new empty array. -/
 def Array.empty {α : Type u} : Array α := mkEmpty 0
@@ -2586,12 +2593,12 @@ def Array.empty {α : Type u} : Array α := mkEmpty 0
 /-- Get the size of an array. This is a cached value, so it is O(1) to access. -/
 @[reducible, extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
- a.data.length
+ a.toList.length
 
 /-- Access an element from an array without bounds checks, using a `Fin` index. -/
 @[extern "lean_array_fget"]
 def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
-  a.data.get i
+  a.toList.get i
 
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
@@ -2608,7 +2615,7 @@ Push an element onto the end of an array. This is amortized O(1) because
 -/
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
-  data := List.concat a.data v
+  toList := List.concat a.toList v
 
 /-- Create array `#[]` -/
 def Array.mkArray0 {α : Type u} : Array α :=
@@ -2654,7 +2661,7 @@ count of 1 when called.
 -/
 @[extern "lean_array_fset"]
 def Array.set (a : Array α) (i : @& Fin a.size) (v : α) : Array α where
-  data := a.data.set i.val v
+  toList := a.toList.set i.val v
 
 /--
 Set an element in an array, or do nothing if the index is out of bounds.
@@ -2702,7 +2709,10 @@ def Array.extract (as : Array α) (start stop : Nat) : Array α :=
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
 
-/-- Auxiliary definition for `List.toArray`. -/
+/--
+Auxiliary definition for `List.toArray`.
+`List.toArrayAux as r = r ++ as.toArray`
+-/
 @[inline_if_reduce]
 def List.toArrayAux : List α → Array α → Array α
   | nil,       r => r

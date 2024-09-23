@@ -14,7 +14,7 @@ name const & get_and_rec_name();
 name const & get_and_cases_on_name();
 name const & get_array_name();
 name const & get_array_sz_name();
-name const & get_array_data_name();
+name const & get_array_to_list_name();
 name const & get_auto_param_name();
 name const & get_bit0_name();
 name const & get_bit1_name();

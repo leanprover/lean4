@@ -156,9 +156,11 @@ private def processVar (idStx : Syntax) : M Syntax := do
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
-private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool :=
-  if h : s₁.vars.size = s₂.vars.size then
-    Array.isEqvAux s₁.vars s₂.vars h (.==.) startingAt
+private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
+  if h₁ : s₁.vars.size = s₂.vars.size then
+    for h₂ : i in [startingAt:s₁.vars.size] do
+      if s₁.vars[i] != s₂.vars[i]'(by obtain ⟨_, y⟩ := h₂; simp_all) then return false
+    true
   else
     false
 

@@ -62,14 +62,6 @@ partial def of (h : Expr) : M (Option SatAtBVLogical) := do
   | _ => return none
 
 /--
-The trivially true `BVLogicalExpr`.
--/
-def trivial : SatAtBVLogical where
-  bvExpr := .const true
-  expr := toExpr (.const true : BVLogicalExpr)
-  satAtAtoms := return mkApp (mkConst ``BVLogicalExpr.sat_true) (← M.atomsAssignment)
-
-/--
 Logical conjunction of two `ReifiedBVLogical`.
 -/
 def and (x y : SatAtBVLogical) : SatAtBVLogical where

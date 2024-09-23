@@ -202,7 +202,7 @@ lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__42(size_t, size_t, lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_WhitespaceMode_apply(uint8_t, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_instImpl____x40_Lean_Elab_GuardMsgs___hyg_1823____closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction_declare__1____x40_Lean_Elab_GuardMsgs___hyg_3182____closed__1;
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___lambda__1___closed__1;
@@ -4654,7 +4654,7 @@ lean_dec(x_6);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__1(x_5, x_9, x_8);
 lean_dec(x_8);
-x_11 = lean_array_to_list(lean_box(0), x_10);
+x_11 = lean_array_to_list(x_10);
 return x_11;
 }
 }

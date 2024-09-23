@@ -108,7 +108,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_mkImplic
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Term_instAddErrorMessageContextTermElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_mkInductArgNames___closed__1;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkLocalInstanceLetDecls___spec__1___closed__9;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_mkHeader___spec__2___closed__1;
 static lean_object* l_Lean_Elab_Deriving_mkContext___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_mkHeader___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2018,7 +2018,7 @@ x_30 = lean_ctor_get(x_23, 1);
 x_31 = lean_ctor_get(x_23, 0);
 lean_dec(x_31);
 lean_inc(x_20);
-x_32 = lean_array_to_list(lean_box(0), x_20);
+x_32 = lean_array_to_list(x_20);
 x_33 = lean_box(0);
 x_34 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_32, x_33);
 x_35 = l_Lean_MessageData_ofList(x_34);
@@ -2048,7 +2048,7 @@ x_41 = lean_ctor_get(x_23, 1);
 lean_inc(x_41);
 lean_dec(x_23);
 lean_inc(x_20);
-x_42 = lean_array_to_list(lean_box(0), x_20);
+x_42 = lean_array_to_list(x_20);
 x_43 = lean_box(0);
 x_44 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_42, x_43);
 x_45 = l_Lean_MessageData_ofList(x_44);
@@ -2113,7 +2113,7 @@ if (lean_is_exclusive(x_55)) {
  x_62 = lean_box(0);
 }
 lean_inc(x_52);
-x_63 = lean_array_to_list(lean_box(0), x_52);
+x_63 = lean_array_to_list(x_52);
 x_64 = lean_box(0);
 x_65 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_63, x_64);
 x_66 = l_Lean_MessageData_ofList(x_65);

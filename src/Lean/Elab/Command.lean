@@ -532,8 +532,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       -- We can assume that the root command snapshot is not involved in parallelism yet, so this
       -- should be true iff the command supports incrementality
       if (← IO.hasFinished snap.new.result) then
-        trace[Elab.snapshotTree]
-          (←Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format)
+        liftCoreM <| Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.trace
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }

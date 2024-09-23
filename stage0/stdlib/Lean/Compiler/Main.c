@@ -26,7 +26,7 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90___
 static lean_object* l_Lean_Compiler_compile___lambda__1___closed__1;
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_90____closed__3;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -90,7 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object* x_1, l
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_6 = lean_array_to_list(lean_box(0), x_1);
+x_6 = lean_array_to_list(x_1);
 x_7 = lean_box(0);
 x_8 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_6, x_7);
 x_9 = l_Lean_MessageData_ofList(x_8);

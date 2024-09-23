@@ -160,6 +160,18 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
+@[inline, inherit_doc DHashMap.getKey?] def getKey? (m : HashMap α β) (a : α) : Option α :=
+  DHashMap.getKey? m.inner a
+
+@[inline, inherit_doc DHashMap.getKey] def getKey (m : HashMap α β) (a : α) (h : a ∈ m) : α :=
+  DHashMap.getKey m.inner a h
+
+@[inline, inherit_doc DHashMap.getKeyD] def getKeyD (m : HashMap α β) (a : α) (fallback : α) : α :=
+  DHashMap.getKeyD m.inner a fallback
+
+@[inline, inherit_doc DHashMap.getKey!] def getKey! [Inhabited α] (m : HashMap α β) (a : α) : α :=
+  DHashMap.getKey! m.inner a
+
 @[inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
     HashMap α β :=
   ⟨m.inner.erase a⟩
@@ -177,6 +189,11 @@ section Unverified
 @[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
+
+@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β × HashMap α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 @[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
@@ -237,6 +254,10 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 @[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] (l : List α) :
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
+
+@[inline, inherit_doc DHashMap.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α] (l : Array α) :
+    HashMap α Unit :=
+  ⟨DHashMap.Const.unitOfArray l⟩
 
 @[inline, inherit_doc DHashMap.Internal.numBuckets] def Internal.numBuckets
     (m : HashMap α β) : Nat :=

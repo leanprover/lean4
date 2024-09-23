@@ -3,7 +3,7 @@ import Std.Tactic.BVDecide
 open BitVec
 
 /--
-error: The prover found a potential counterexample, consider the following assignment:
+error: The prover found a counterexample, consider the following assignment:
 y = 0xffffffffffffffff#64
 -/
 #guard_msgs in

@@ -226,18 +226,18 @@ private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
     simp [Nat.mod_eq (x+2) 2, p, hyp]
     cases Nat.mod_two_eq_zero_or_one x with | _ p => simp [p]
 
-private theorem testBit_succ_zero : testBit (x + 1) 0 = not (testBit x 0) := by
+private theorem testBit_succ_zero : testBit (x + 1) 0 = !(testBit x 0) := by
   simp [testBit_to_div_mod, succ_mod_two]
   cases Nat.mod_two_eq_zero_or_one x with | _ p =>
     simp [p]
 
-theorem testBit_two_pow_add_eq (x i : Nat) : testBit (2^i + x) i = not (testBit x i) := by
+theorem testBit_two_pow_add_eq (x i : Nat) : testBit (2^i + x) i = !(testBit x i) := by
   simp [testBit_to_div_mod, add_div_left, Nat.two_pow_pos, succ_mod_two]
   cases mod_two_eq_zero_or_one (x / 2 ^ i) with
   | _ p => simp [p]
 
 theorem testBit_mul_two_pow_add_eq (a b i : Nat) :
-    testBit (2^i*a + b) i = Bool.xor (a%2 = 1) (testBit b i) := by
+    testBit (2^i*a + b) i = (a%2 = 1 ^^ testBit b i) := by
   match a with
   | 0 => simp
   | a+1 =>
@@ -476,15 +476,19 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
           exact pow_le_pow_of_le_right Nat.zero_lt_two i_ge_n
   simp [testBit_and, yf]
 
-@[simp] theorem and_pow_two_is_mod (x n : Nat) : x &&& (2^n-1) = x % 2^n := by
+@[simp] theorem and_pow_two_sub_one_eq_mod (x n : Nat) : x &&& 2^n - 1 = x % 2^n := by
   apply eq_of_testBit_eq
   intro i
   simp only [testBit_and, testBit_mod_two_pow]
   cases testBit x i <;> simp
 
-theorem and_pow_two_identity {x : Nat} (lt : x < 2^n) : x &&& 2^n-1 = x := by
-  rw [and_pow_two_is_mod]
+@[deprecated and_pow_two_sub_one_eq_mod (since := "2024-09-11")] abbrev and_pow_two_is_mod := @and_pow_two_sub_one_eq_mod
+
+theorem and_pow_two_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n - 1 = x := by
+  rw [and_pow_two_sub_one_eq_mod]
   apply Nat.mod_eq_of_lt lt
+
+@[deprecated and_pow_two_sub_one_of_lt_two_pow (since := "2024-09-11")] abbrev and_two_pow_identity := @and_pow_two_sub_one_of_lt_two_pow
 
 @[simp] theorem and_mod_two_eq_one : (a &&& b) % 2 = 1 ↔ a % 2 = 1 ∧ b % 2 = 1 := by
   simp only [mod_two_eq_one_iff_testBit_zero]
@@ -566,7 +570,7 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 := by
 /-! ### xor -/
 
 @[simp] theorem testBit_xor (x y i : Nat) :
-    (x ^^^ y).testBit i = Bool.xor (x.testBit i) (y.testBit i) := by
+    (x ^^^ y).testBit i = ((x.testBit i) ^^ (y.testBit i)) := by
   simp [HXor.hXor, Xor.xor, xor, testBit_bitwise ]
 
 @[simp] theorem zero_xor (x : Nat) : 0 ^^^ x = x := by

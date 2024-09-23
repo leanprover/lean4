@@ -152,6 +152,18 @@ variable {β : Type v}
 
 end
 
+@[inline, inherit_doc Raw.getKey?] def getKey? (m : DHashMap α β) (a : α) : Option α :=
+  Raw₀.getKey? ⟨m.1, m.2.size_buckets_pos⟩ a
+
+@[inline, inherit_doc Raw.getKey] def getKey (m : DHashMap α β) (a : α) (h : a ∈ m) : α :=
+  Raw₀.getKey ⟨m.1, m.2.size_buckets_pos⟩ a h
+
+@[inline, inherit_doc Raw.getKey!] def getKey! [Inhabited α] (m : DHashMap α β) (a : α) : α :=
+  Raw₀.getKey! ⟨m.1, m.2.size_buckets_pos⟩ a
+
+@[inline, inherit_doc Raw.getKeyD] def getKeyD (m : DHashMap α β) (a : α) (fallback : α) : α :=
+  Raw₀.getKeyD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
+
 @[inline, inherit_doc Raw.size] def size (m : DHashMap α β) : Nat :=
   m.1.size
 
@@ -173,6 +185,15 @@ section Unverified
 @[inline, inherit_doc Raw.fold] def fold (f : δ → (a : α) → β a → δ)
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
+
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : (a : α) → β a → Bool)
+    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
+  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
 
 @[inline, inherit_doc Raw.forM] def forM (f : (a : α) → β a → m PUnit)
     (b : DHashMap α β) : m PUnit :=
@@ -245,6 +266,10 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
   Const.insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    DHashMap α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
+@[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 

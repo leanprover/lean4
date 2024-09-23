@@ -880,7 +880,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_of_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("getLsb_congr", 12, 12);
+x_1 = lean_mk_string_unchecked("getLsbD_congr", 13, 13);
 return x_1;
 }
 }
@@ -970,7 +970,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_of_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("getLsb", 6, 6);
+x_1 = lean_mk_string_unchecked("getLsbD", 7, 7);
 return x_1;
 }
 }

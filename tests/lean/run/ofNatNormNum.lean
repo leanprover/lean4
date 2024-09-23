@@ -6,14 +6,8 @@ export OfNatSound (ofNat_add)
 theorem ex1 {α : Type u} [Add α] [(n : Nat) → OfNat α n] [OfNatSound α] : (10000000 : α) + 10000000 = 20000000 :=
   ofNat_add ..
 
-class Zero (α : Type u) where
-  zero : α
-
 class One (α : Type u) where
   one : α
-
-instance [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := Zero.zero
 
 instance [One α] : OfNat α (nat_lit 1) where
   ofNat := One.one

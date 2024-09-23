@@ -36,7 +36,7 @@ private theorem two_mul_sub_one {n : Nat} (n_pos : n > 0) : (2*n - 1) % 2 = 1 :=
 /-! ### Preliminaries -/
 
 /--
-An induction principal that works on divison by two.
+An induction principal that works on division by two.
 -/
 noncomputable def div2Induction {motive : Nat → Sort u}
     (n : Nat) (ind : ∀(n : Nat), (n > 0 → motive (n/2)) → motive n) : motive n := by

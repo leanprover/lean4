@@ -26,7 +26,7 @@ def hIterateFrom (P : Nat → Sort _) {n} (f : ∀(i : Fin n), P i.val → P (i.
   decreasing_by decreasing_trivial_pre_omega
 
 /--
-`hIterate` is a heterogenous iterative operation that applies a
+`hIterate` is a heterogeneous iterative operation that applies a
 index-dependent function `f` to a value `init : P start` a total of
 `stop - start` times to produce a value of type `P stop`.
 
@@ -35,7 +35,7 @@ Concretely, `hIterate start stop f init` is equal to
   init |> f start _ |> f (start+1) _ ... |> f (end-1) _
 ```
 
-Because it is heterogenous and must return a value of type `P stop`,
+Because it is heterogeneous and must return a value of type `P stop`,
 `hIterate` requires proof that `start ≤ stop`.
 
 One can prove properties of `hIterate` using the general theorem
@@ -70,7 +70,7 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
 
 /-
 `hIterate_elim` provides a mechanism for showing that the result of
-`hIterate` satisifies a property `Q stop` by showing that the states
+`hIterate` satisfies a property `Q stop` by showing that the states
 at the intermediate indices `i : start ≤ i < stop` satisfy `Q i`.
 -/
 theorem hIterate_elim {P : Nat → Sort _} (Q : ∀(i : Nat), P i → Prop)

@@ -920,7 +920,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
             · constructor
               · simp only [l'] at l'_eq_true
                 simp only [hasAssignment, l'_eq_true, ite_true] at h2
-                simp only [hasAssignment, l_eq_false, ↓reduceIte, getElem!, l_eq_i, i_in_bounds,
+                simp only [hasAssignment, l_eq_false, ↓reduceIte, ↓reduceDIte, getElem!, l_eq_i, i_in_bounds,
                   Array.get_eq_getElem, h1, addAssignment, l'_eq_true, hasNeg_addPos, decidableGetElem?, reduceCtorEq] at h
                 exact unassigned_of_has_neither _ h2 h
               · intro k k_ne_j_succ k_ne_zero

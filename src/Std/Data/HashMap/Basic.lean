@@ -190,6 +190,11 @@ section Unverified
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
 
+@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β × HashMap α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
+
 @[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.foldM f init
@@ -249,6 +254,10 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 @[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] (l : List α) :
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
+
+@[inline, inherit_doc DHashMap.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α] (l : Array α) :
+    HashMap α Unit :=
+  ⟨DHashMap.Const.unitOfArray l⟩
 
 @[inline, inherit_doc DHashMap.Internal.numBuckets] def Internal.numBuckets
     (m : HashMap α β) : Nat :=

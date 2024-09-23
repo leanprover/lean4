@@ -51,6 +51,12 @@ instance [Repr α] : Repr (id α) :=
 instance [Repr α] : Repr (Id α) :=
   inferInstanceAs (Repr α)
 
+/-
+This instance allows us to use `Empty` as a type parameter without causing instance synthesis to fail.
+-/
+instance : Repr Empty where
+  reprPrec := nofun
+
 instance : Repr Bool where
   reprPrec
     | true, _  => "true"

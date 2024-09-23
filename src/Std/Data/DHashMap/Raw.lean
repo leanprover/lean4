@@ -411,6 +411,14 @@ This is mainly useful to implement `HashSet.ofList`, so if you are considering u
     Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 
+/-- Creates a hash map from an array of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofArray`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
+    Raw α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
 /--
 Returns the number of buckets in the internal representation of the hash map. This function may be
 useful for things like monitoring system health, but it should be considered an internal

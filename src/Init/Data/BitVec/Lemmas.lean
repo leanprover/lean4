@@ -710,6 +710,26 @@ theorem or_comm (x y : BitVec w) :
   simp [Bool.or_comm]
 instance : Std.Commutative (fun (x y : BitVec w) => x ||| y) := ⟨BitVec.or_comm⟩
 
+@[simp] theorem or_self {x : BitVec w} : x ||| x = x := by
+  ext i
+  simp
+
+@[simp] theorem or_zero {x : BitVec w} : x ||| 0#w = x := by
+  ext i
+  simp
+
+@[simp] theorem zero_or {x : BitVec w} : 0#w ||| x = x := by
+  ext i
+  simp
+
+@[simp] theorem or_allOnes {x : BitVec w} : x ||| allOnes w = allOnes w := by
+  ext i
+  simp
+
+@[simp] theorem allOnes_or {x : BitVec w} : allOnes w ||| x = allOnes w := by
+  ext i
+  simp
+
 /-! ### and -/
 
 @[simp] theorem toNat_and (x y : BitVec v) :
@@ -750,6 +770,26 @@ theorem and_comm (x y : BitVec w) :
   ext i
   simp [Bool.and_comm]
 instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_comm⟩
+
+@[simp] theorem and_self {x : BitVec w} : x &&& x = x := by
+  ext i
+  simp
+
+@[simp] theorem and_zero {x : BitVec w} : x &&& 0#w = 0#w := by
+  ext i
+  simp
+
+@[simp] theorem zero_and {x : BitVec w} : 0#w &&& x = 0#w := by
+  ext i
+  simp
+
+@[simp] theorem and_allOnes {x : BitVec w} : x &&& allOnes w = x := by
+  ext i
+  simp
+
+@[simp] theorem allOnes_and {x : BitVec w} : allOnes w &&& x = x := by
+  ext i
+  simp
 
 /-! ### xor -/
 
@@ -794,6 +834,18 @@ theorem xor_comm (x y : BitVec w) :
   ext i
   simp [Bool.xor_comm]
 instance : Std.Commutative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_comm⟩
+
+@[simp] theorem xor_self {x : BitVec w} : x ^^^ x = 0#w := by
+  ext i
+  simp
+
+@[simp] theorem xor_zero {x : BitVec w} : x ^^^ 0#w = x := by
+  ext i
+  simp
+
+@[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by
+  ext i
+  simp
 
 /-! ### not -/
 
@@ -841,6 +893,14 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
 
 @[simp] theorem not_zero : ~~~(0#n) = allOnes n := by
   ext
+  simp
+
+@[simp] theorem xor_allOnes {x : BitVec w} : x ^^^ allOnes w = ~~~ x := by
+  ext i
+  simp
+
+@[simp] theorem allOnes_xor {x : BitVec w} : allOnes w ^^^ x = ~~~ x := by
+  ext i
   simp
 
 /-! ### cast -/

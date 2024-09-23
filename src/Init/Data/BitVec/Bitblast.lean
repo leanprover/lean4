@@ -590,7 +590,7 @@ theorem DivModState.umod_eq_of_lawful_zero {qr : DivModState w}
   simp only [shiftRight_zero] at hdiv
   exact hdiv.symm
 
-/-! ### LawfulShiftSubtract -/
+/-! ### DivModState.Poised -/
 
 /--
 A `Poised` DivModState is a state which is `Lawful` and furthermore, has at least
@@ -608,15 +608,15 @@ structure DivModState.Poised (w wr wn : Nat) (n d : BitVec w) (qr : DivModState 
 In the shift subtract input, the dividend is at least one bit long (`wn > 0`), so
 the remainder has bits to be computed (`wr < w`).
 -/
-def DivModState.wr_lt_w {qr : DivModState w} (h : qr.LawfulShiftSubtract wr wn n d) : wr < w := by
+def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised wr wn n d) : wr < w := by
   have hwrn := h.hwrn
   have hwn_lt := h.hwn_lt
   omega
 
 /-- If we have extra bits to spare in `n`,
 then we know the div mod state is poised to run another round of the shift subtractor. -/
-def DivModState.Lawful.toLawfulShiftSubtract {qr : DivModState w}
-    (h : qr.Lawful w wr (wn + 1) n d) : qr.LawfulShiftSubtract wr (wn + 1) n d where
+def DivModState.Lawful.toPoised {qr : DivModState w}
+    (h : qr.Lawful w wr (wn + 1) n d) : qr.Poised wr (wn + 1) n d where
   hwrn := by have := h.hwrn; omega
   hdPos := h.hdPos
   hrLtDivisor := h.hrLtDivisor
@@ -633,7 +633,7 @@ Note that this should only be called when `r.msb = false`, so we will not overfl
 -/
 def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState w) :
     DivModState w :=
-  let r' := shiftConcat qr.r (n.getLsbD (wn - 1)) 
+  let r' := shiftConcat qr.r (n.getLsbD (wn - 1))
   if r' < d
   then {
     q := qr.q.shiftConcat false, -- If `r' < d`, then we do not have a quotient bit.
@@ -645,7 +645,7 @@ def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState 
 
 /-- The value of shifting right by `wn - 1` equals shifting by `wn` and grabbing the lsb at `(wn - 1)`. -/
 theorem DivModState.toNat_shiftRight_sub_one_eq
-    (qr : DivModState w) (h : qr.LawfulShiftSubtract wr wn n d):
+    (qr : DivModState w) (h : qr.Poised wr wn n d):
     n.toNat >>> (wn - 1) = (n.toNat >>> wn) * 2 + (n.getLsbD (wn - 1)).toNat := by
   show BitVec.toNat (n >>> (wn - 1)) = _
   have {..} := h -- break the structure down for `omega`
@@ -668,7 +668,7 @@ private theorem two_mul_add_sub_lt_of_lt_of_lt_two (h : a < x) (hy : y < 2) :
 
 /-- We show that the output of `divSubtractShift` is lawful, which tells us that it
 obeys the division equation. -/
-def divSubtractShiftProof (qr : DivModState w) (h : qr.LawfulShiftSubtract  wr wn n d) :
+def divSubtractShiftProof (qr : DivModState w) (h : qr.Poised  wr wn n d) :
     DivModState.Lawful w (wr + 1) (wn - 1) n d (divSubtractShift n d wn qr) := by
   simp only [divSubtractShift, decide_eq_true_eq]
   -- We add these hypotheses for `omega` to find them later.
@@ -733,7 +733,7 @@ theorem divRec_succ (wn : Nat) (qr : DivModState w) :
         (divSubtractShift n d (wn + 1) qr) := rfl
 
 theorem divRec_correct {n d : BitVec w} (qr : DivModState w)
-    (h : DivModState.Lawful w wr wn n d qr) : 
+    (h : DivModState.Lawful w wr wn n d qr) :
     DivModState.Lawful w w 0 n d (divRec w wr wn n d qr) := by
   induction wn generalizing wr qr
   case zero =>
@@ -745,7 +745,7 @@ theorem divRec_correct {n d : BitVec w} (qr : DivModState w)
     apply divSubtractShiftProof (w := w)
       (wr := wr)
       (wn := wn' + 1)
-    exact h.toLawfulShiftSubtract
+    exact h.toPoised
 
 /-- The result of `udiv` agrees with the result of the division recurrence. -/
 theorem udiv_eq_divRec (hd : 0#w < d) :

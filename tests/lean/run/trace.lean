@@ -44,7 +44,7 @@ do withTraceNode `module.slow (fun _ => return m!"slow: {slow b}") do {
 def run (x : M Unit) : M Unit :=
 withReader
   (fun ctx =>
-    -- Try commeting/uncommeting the following `setBool`s
+    -- Try commenting/uncommeting the following `setBool`s
     let opts := ctx.options;
     let opts := opts.setBool `trace.module true;
     -- let opts := opts.setBool `trace.module.aux false;

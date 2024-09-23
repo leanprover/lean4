@@ -473,7 +473,7 @@ end AsPattern
 
 namespace GramSchmidt
 
--- this tried to repoduce a problem with gramSchmidt,
+-- this tried to reproduce a problem with gramSchmidt,
 -- with more proofs from `simp` abstracting over the IH.
 -- I couldn't quite reproduce it, but let's keep it.
 

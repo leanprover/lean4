@@ -625,14 +625,8 @@ def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised wr wn n d) : wr < w 
 /-- If we have extra bits to spare in `n`,
 then we know the div mod state is poised to run another round of the shift subtractor. -/
 def DivModState.Lawful.toPoised {qr : DivModState w}
-    (h : qr.Lawful w wr (wn + 1) n d) : qr.Poised wr (wn + 1) n d where
-  hwrn := by have := h.hwrn; omega
-  hdPos := h.hdPos
-  hrLtDivisor := h.hrLtDivisor
-  hrWidth := h.hrWidth
-  hqWidth := h.hqWidth
-  hdiv := h.hdiv
-  hwn_lt := by omega
+    (h : qr.Lawful w wr (wn + 1) n d) : qr.Poised wr (wn + 1) n d :=
+  { h with hwn_lt := by omega }
 
 /-! ### Division shift subtractor -/
 

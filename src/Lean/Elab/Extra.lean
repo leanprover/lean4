@@ -375,7 +375,7 @@ private def hasHeterogeneousDefaultInstances (f : Expr) (maxType : Expr) (lhs : 
   return false
 
 /--
-  Return `true` if polymorphic function `f` has a homogenous instance of `maxType`.
+  Return `true` if polymorphic function `f` has a homogeneous instance of `maxType`.
   The coercions to `maxType` only makes sense if such instance exists.
 
   For example, suppose `maxType` is `Int`, and `f` is `HPow.hPow`. Then,
@@ -421,9 +421,9 @@ mutual
       | .binop ref kind f lhs rhs =>
         /-
           We only keep applying coercions to `maxType` if `f` is predicate or
-          `f` has a homogenous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
+          `f` has a homogeneous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
 
-          Remark: We assume `binrel%` elaborator is only used with homogenous predicates.
+          Remark: We assume `binrel%` elaborator is only used with homogeneous predicates.
         -/
         if (← pure isPred <||> hasHomogeneousInstance f maxType) then
           return .binop ref kind f (← go lhs f true false) (← go rhs f false false)

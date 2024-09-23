@@ -650,7 +650,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     /-
     We use `withSynthesize` to ensure that any postponed elaboration problem
     and nested tactics in `type` are resolved before elaborating `val`.
-    Resolved: we want to avoid synthethic opaque metavariables in `type`.
+    Resolved: we want to avoid synthetic opaque metavariables in `type`.
     Recall that this kind of metavariable is non-assignable, and `isDefEq`
     may waste a lot of time unfolding declarations before failing.
     See issue #4051 for an example.

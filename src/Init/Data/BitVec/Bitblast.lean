@@ -526,9 +526,9 @@ structure DivModState.Lawful (w wr wn : Nat) (n d : BitVec w)
     (qr : DivModState w) : Prop where
   /-- The sum of widths of the dividend and remainder is `w`. -/
   hwrn : wr + wn = w
-  /-- The divisor is positive. -/
+  /-- The denominator is positive. -/
   hdPos : 0 < d
-  /-- The remainder is strictly less than the divisor. -/
+  /-- The remainder is strictly less than the denominator. -/
   hrLtDivisor : qr.r.toNat < d.toNat
   /-- The remainder is morally a `Bitvec wr`, and so has value less than `2^wr`. -/
   hrWidth : qr.r.toNat < 2^wr

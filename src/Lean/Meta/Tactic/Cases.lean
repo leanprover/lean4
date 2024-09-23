@@ -327,7 +327,7 @@ def _root_.Lean.MVarId.byCasesDec (mvarId : MVarId) (p : Expr) (dec : Expr) (hNa
   let (fvarId, mvarId) ← mvarId.intro1
   let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
     throwError "'byCasesDec' tactic failed, unexpected number of subgoals"
-  -- We flip `s₁` and `s₂` because `isFalse` is the first contructor.
+  -- We flip `s₁` and `s₂` because `isFalse` is the first constructor.
   return ((← toByCasesSubgoal s₂), (← toByCasesSubgoal s₁))
 
 builtin_initialize registerTraceClass `Meta.Tactic.cases

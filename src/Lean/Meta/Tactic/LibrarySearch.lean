@@ -102,7 +102,7 @@ def droppedKeys : List (List LazyDiscrTree.Key) := [[.star], [.const `Eq 3, .sta
 /--
 The maximum number of constants an individual task may perform.
 
-The value was picked because it roughly correponded to 50ms of work on the
+The value was picked because it roughly corresponded to 50ms of work on the
 machine this was developed on.  Smaller numbers did not seem to improve
 performance when importing Std and larger numbers (<10k) seemed to degrade
 initialization performance.

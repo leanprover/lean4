@@ -15,7 +15,7 @@ insert into Lean code.
 The `exact?` tactic is an example of a tactic that benefits from this
 functionality.  `exact?` finds lemmas in the environment to use to
 prove a theorem, but it needs to avoid inserting references to theorems
-with unstable names such as auxillary lemmas that could change with
+with unstable names such as auxiliary lemmas that could change with
 minor unintentional modifications to definitions.
 
 It uses a blacklist environment extension to enable names in an

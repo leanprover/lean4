@@ -66,6 +66,11 @@ protected theorem toBitVec_eq_of_eq {a b : $typeName} (h : a = b) : a.toBitVec =
 protected theorem eq_of_toBitVec_eq {a b : $typeName} (h : a.toBitVec = b.toBitVec) : a = b := by
   cases a; cases b; simp_all
 
+open $typeName (eq_of_toBitVec_eq) in
+@[deprecated eq_of_toBitVec_eq (since := "2024-09-23")]
+protected theorem eq_of_val_eq {a b : $typeName} (h : a.val = b.val) : a = b := by
+  rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [val]
+
 open $typeName (toBitVec_eq_of_eq) in
 protected theorem ne_of_toBitVec_ne {a b : $typeName} (h : a.toBitVec ≠ b.toBitVec) : a ≠ b :=
   fun h' => absurd (toBitVec_eq_of_eq h') h
@@ -116,6 +121,7 @@ declare_uint_theorems UInt16
 declare_uint_theorems UInt32
 declare_uint_theorems UInt64
 declare_uint_theorems USize
+
 
 theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m := by
   simp [lt_def, BitVec.lt_def, UInt32.toNat, toBitVec_eq_of_lt h]

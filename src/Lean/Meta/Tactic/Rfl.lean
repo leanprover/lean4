@@ -86,6 +86,9 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
     goal.assign (mkApp2 (mkConst ``Eq.refl us) α lhs)
   else
     -- Else search through `@refl` keyed by the relation
+    -- We change the type to `lhs ~ lhs` so that we do not the (possibly costly) `lhs =?= rhs` check
+    -- again.
+    goal.setType (.app t.appFn! lhs)
     let s ← saveState
     let mut ex? := none
     for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do

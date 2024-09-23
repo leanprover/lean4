@@ -15,7 +15,7 @@ section Nat
 /-- The `BitVec` with value `i mod 2^n`. -/
 @[match_pattern]
 protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat' i (Nat.two_pow_pos n)
+  toFin := Fin.ofNat' (2^n) i
 
 instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 

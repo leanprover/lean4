@@ -237,11 +237,6 @@ instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 
--- This instance would interfere with the global instance `NeZero (n + 1)`,
--- so we only enable it locally.
-@[local instance]
-private def instNeZeroUSizeSize : NeZero USize.size := ⟨add_one_ne_zero _⟩
-
 @[extern "lean_usize_mul"]
 def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_usize_div"]

@@ -626,7 +626,7 @@ section MessageHandling
       ctx.chanOut.send <| .responseError id .internalError (toString e) none
       return
 
-    -- we assume that any other request requires at least the the search path
+    -- we assume that any other request requires at least the search path
     -- TODO: move into language-specific request handling
     let t ← IO.bindTask st.srcSearchPathTask fun srcSearchPath => do
       let rc : RequestContext :=

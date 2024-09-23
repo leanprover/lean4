@@ -140,7 +140,7 @@ abbrev _root_.Lean.MVarId.introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVa
   introNCore mvarId n [] (useNamesForExplicitOnly := false) (preserveBinderNames := true)
 
 /--
-Introduce one binder using `name` as the the new hypothesis name.
+Introduce one binder using `name` as the new hypothesis name.
 -/
 def _root_.Lean.MVarId.intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
   let (fvarIds, mvarId) ← mvarId.introN 1 [name]

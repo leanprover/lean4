@@ -64,7 +64,7 @@ def packType (xs : Array Expr) : MetaM Expr := do
 
 /--
 Create a unary application by packing the given arguments using `PSigma.mk`.
-The `type` should be the the expected type of the packed argument, as created with `packType`.
+The `type` should be the expected type of the packed argument, as created with `packType`.
 -/
 partial def pack (type : Expr) (args : Array Expr) : Expr := go 0 type
 where

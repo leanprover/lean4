@@ -28,7 +28,7 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   This function is used to filter unification problems in
   `isDefEqArgs`/`isDefEqEtaStruct` where we can assign proofs.
   If one side is of the form described above, then we can likely assign `?m`.
-  But it it's not, we would most likely apply proof irrelevance, which is
+  But if it's not, we would most likely apply proof irrelevance, which is
   usually very expensive since it needs to unify the types as well.
 -/
 def isAbstractedUnassignedMVar : Expr → MetaM Bool
@@ -978,7 +978,7 @@ where
   occursCheck (type : Expr) : Bool :=
     let go : StateM MetavarContext Bool := do
       Lean.occursCheck mvarId type
-    -- Remark: it is ok to discard the the "updated" `MetavarContext` because
+    -- Remark: it is ok to discard the "updated" `MetavarContext` because
     -- this function assumes all assigned metavariables have already been
     -- instantiated.
     go.run' mctx
@@ -1486,7 +1486,7 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
   ```
   Foo.pow x 256 =?= Pow.pow x 256
   ```
-  where the the `Pow` instance is wrapping `Foo.pow`
+  where the `Pow` instance is wrapping `Foo.pow`
   See issue #1419 for the complete example.
 -/
 private partial def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do

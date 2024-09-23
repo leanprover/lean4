@@ -308,7 +308,7 @@ with `?m` a fresh metavariable.
 Instance-implicit binder, like `[C]` or `[inst : C]`.
 In regular applications without `@` explicit mode, it is automatically inserted
 and solved for by typeclass inference for the specified class `C`.
-In `@` explicit mode, if `_` is used for an an instance-implicit parameter, then it is still solved for by typeclass inference;
+In `@` explicit mode, if `_` is used for an instance-implicit parameter, then it is still solved for by typeclass inference;
 use `(_)` to inhibit this and have it be solved for by unification instead, like an implicit argument.
 -/
 @[builtin_doc] def instBinder := leading_parser ppGroup <|
@@ -610,7 +610,7 @@ termination_by b c => a - b
 
 By default, a `termination_by` clause will cause the function to be constructed using well-founded
 recursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)
-indicates the the function is expected to be structural recursive on the argument. In this case
+indicates the function is expected to be structural recursive on the argument. In this case
 the body of the `termination_by` clause must be one of the function's parameters.
 
 If omitted, a termination argument will be inferred. If written as `termination_by?`,

@@ -18,7 +18,7 @@ private def getMonadForIn (expectedType? : Option Expr) : TermElabM Expr := do
     | some expectedType =>
       match (← isTypeApp? expectedType) with
       | some (m, _) => return m
-      | none => throwError "invalid 'for_in%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
+      | none => throwError "invalid 'for_in%' notation, expected type is not of the form `M α`{indentExpr expectedType}"
 
 private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   throwError "failed to synthesize instance for 'for_in%' notation{indentExpr forInInstance}"

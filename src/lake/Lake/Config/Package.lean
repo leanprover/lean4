@@ -31,7 +31,7 @@ Matches a string that satisfies an arbitrary predicate
 (optionally identified by a `Name`).
 -/
 | satisfies (f : String → Bool) (name := Name.anonymous)
-/-- Matches a string that is a member of the the array -/
+/-- Matches a string that is a member of the array -/
 | mem (xs : Array String)
 /-- Matches a string that starts with this prefix. -/
 | startsWith (pre : String)

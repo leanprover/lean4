@@ -56,7 +56,7 @@ If it fails, add the errors to the state and return `Inhabited.default`.
 /--
 If the value is not `none`, run the decode action.
 If it fails, add the errors to the state and return `none`.
-Otherwise, return the the result in `some`.
+Otherwise, return the result in `some`.
 -/
 @[inline] def optDecode? (a? : Option α)  (f : α → Except (Array ε) β) : StateM (Array ε) (Option β) :=
   optDecodeD none a? fun a  => some <$> f a

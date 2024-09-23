@@ -162,19 +162,16 @@ instance : Inhabited (Array α) where
 @[simp] def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
--- TODO(Leo): cleanup
 @[specialize]
-def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
-  if h : i < a.size then
-     have : i < b.size := hsz ▸ h
-     p a[i] b[i] && isEqvAux a b hsz p (i+1)
-  else
-    true
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) :
+    ∀ (i : Nat) (_ : i ≤ a.size), Bool
+  | 0, _ => true
+  | i+1, h =>
+    p a[i] (b[i]'(hsz ▸ h)) && isEqvAux a b hsz p i (Nat.le_trans (Nat.le_add_right i 1) h)
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
-    isEqvAux a b h p 0
+    isEqvAux a b h p a.size (Nat.le_refl a.size)
   else
     false
 

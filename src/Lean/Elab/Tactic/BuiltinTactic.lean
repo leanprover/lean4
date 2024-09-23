@@ -90,6 +90,7 @@ where
         withAlwaysResolvedPromise fun finished => do
           withAlwaysResolvedPromise fun inner => do
             snap.new.resolve <| .mk {
+              desc := tac.getKind.toString
               diagnostics := .empty
               stx := tac
               inner? := some { range?, task := inner.result }

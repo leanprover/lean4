@@ -840,7 +840,7 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
         return value
 
   unless ← isTypeCorrect value do
-    logError m!"failed to unpack induction priciple:{indentExpr value}"
+    logError m!"failed to unpack induction principle:{indentExpr value}"
     check value
   let type ← inferType value
   let type ← elimOptParam type

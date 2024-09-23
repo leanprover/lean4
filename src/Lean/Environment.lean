@@ -718,7 +718,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   saveModuleData fname env.mainModule (← mkModuleData env)
 
 /--
-Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
+Construct a mapping from persistent extension name to extension index at the array of persistent extensions.
 We only consider extensions starting with index `>= startingAt`.
 -/
 def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do

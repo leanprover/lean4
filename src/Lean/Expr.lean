@@ -1628,7 +1628,7 @@ def nat? (e : Expr) : Option Nat := do
 /--
 Checks if an expression is an "integer numeral in normal form",
 i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
-or the negation of a positive natural number numberal in normal form,
+or the negation of a positive natural number numeral in normal form,
 and if so returns the integer.
 -/
 def int? (e : Expr) : Option Int :=

@@ -168,7 +168,7 @@ This option can only be set on the command line, not in the lakefile or via `set
 
     Debouncing: we only report information
     * after first waiting for `reportDelayMs`, to give trivial tasks a chance to finish
-    * when first blocking, i.e. not before skipping over any unchanged snapshots and such trival
+    * when first blocking, i.e. not before skipping over any unchanged snapshots and such trivial
       tasks
     * afterwards, each time new information is found in a snapshot
     * at the very end, if we never blocked (e.g. emptying a file should make

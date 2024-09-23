@@ -444,23 +444,21 @@ In order to prove the correctness of the division algorithm on the integers,
 one shows that `n.div d = q` and `n.mod d = r` iff `n = d * q + r` and `0 ≤ r < d`.
 Mnemonic: `n` is the numerator, `d` is the denominator, `q` is the quotient, and `r` the remainder.
 
-This uniqueness property is not true for bitvectors.
-Let us study an instructive counterexample:
+This *uniqueness of decomposition* is not true for bitvectors.
+For `n = 0, d = 3, w = 3`, we can write:
+- `0 = 0 * 3 + 0` (`q = 0`, `r = 0 < 3`.)
+- `0 = 2 * 3 + 2 = 6 + 2 ≃ 0 (mod 8)` (`q = 2`, `r = 2 < 3`).
 
-- Let `bitwidth = 3`
-- Let `n = 0, d = 3`
-- If we choose `q = 2, r = 2`, then `d * q + r = 6 + 2 = 8 ≃ 0 (mod 8)` and (`r < d`).
-- But see that `q = 0, r = 0` also satisfies the constraints, as `0 * 3 + 0 = 0`.
-- So for (`n = 0, d = 3`), both (a) `q = 2, r = 2` as well as (b) `q = 0, r = 0` are solutions!
-
-Such examples can be created by choosing `(q, r)` for a fixed `(d, n)`
+Such examples can be created by choosing different `(q, r)` for a fixed `(d, n)`
 such that `(d * q + r)` overflows and wraps around to equal `n`.
 
 This tells us that the division algorithm must have more restrictions than just the ones
-we have for integers. These restrictions are captured in `DivModState.Lawful`,
-which captures the relationship necessary between `n, d, q, r`. The key idea is to state
-the relationship in terms of the `{n, d, q, r}.toNat` values, which implies that the
-relationship also holds at the bitvector level, and in particular, holds without relying on overflows.
+we have for integers. These restrictions are captured in `DivModState.Lawful`.
+The key idea is to state the relationship in terms of the `{n, d, q, r}.toNat` values.
+If the division equation `d.toNat * q.toNat + r.toNat = n.toNat` holds,
+then `n.udiv d = q` and `n.umod d = r`.
+
+Following this, we implement the division algorithm by repeated shift-subtract.
 
 References:
 - Fast 32-bit Division on the DSP56800E: Minimized nonrestoring division algorithm by David Baca
@@ -529,6 +527,9 @@ This is a proof engineering choice: An alternative world could have
 
 Instead, we choose to declare all involved bitvectors as length `w`, and then prove that
 the values are within their respective bounds.
+
+We start with `wn = w` and `wr = 0`, and then in each step, we decrement `wn` and increment `wr`.
+In this way, we grow a legal remainder in each loop iteration.
 -/
 structure DivModState.Lawful (w wr wn : Nat) (n d : BitVec w)
     (qr : DivModState w) : Prop where
@@ -542,7 +543,7 @@ structure DivModState.Lawful (w wr wn : Nat) (n d : BitVec w)
   hrWidth : qr.r.toNat < 2^wr
   /-- The quotient is morally a `Bitvec wr`, and so has value less than `2^wr`. -/
   hqWidth : qr.q.toNat < 2^wr
-  /-- The low n bits of `n` obey the fundamental division equation. -/
+  /-- The low `(w - wn)` bits of `n` obey the invariant for division. -/
   hdiv : n.toNat >>> wn = d.toNat * qr.q.toNat + qr.r.toNat
 
 /-- A lawful DivModState implies `w > 0`. -/

@@ -32,9 +32,9 @@ theorem size_insertUnit_fold :
   induction units
   · simp only [List.foldl, forall_const]
   · next hd tl ih =>
-    intro unitsAcc asssignments b
+    intro unitsAcc assignments b
     simp only [List.foldl]
-    let hd_res := insertUnit (unitsAcc, asssignments, b) hd
+    let hd_res := insertUnit (unitsAcc, assignments, b) hd
     specialize ih hd_res.1 hd_res.2.1 hd_res.2.2
     rw [ih, size_insertUnit]
 

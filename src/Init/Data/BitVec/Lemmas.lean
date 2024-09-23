@@ -1476,7 +1476,7 @@ theorem setWidth_succ (x : BitVec w) :
     have j_lt : j.val < i := Nat.lt_of_le_of_ne (Nat.le_of_succ_le_succ j.isLt) j_eq
     simp [j_eq, j_lt]
 
-theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)) := by
+@[simp] theorem cons_msb_setWidth (x : BitVec (w+1)) : (cons x.msb (x.setWidth w)) = x := by
   ext i
   simp
   split <;> rename_i h
@@ -1484,6 +1484,10 @@ theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)
   · by_cases h' : i < w
     · simp_all
     · omega
+
+@[deprecated "Use the reverse direction of `cons_msb_setWidth`"]
+theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)) := by
+  simp
 
 @[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
   simp [cons]
@@ -2185,6 +2189,71 @@ theorem toNat_sub_of_le {x y : BitVec n} (h : y ≤ x) :
   · rw [h', Nat.sub_self, Nat.sub_add_cancel (by omega), Nat.mod_self]
   · have : 2 ^ n - y.toNat + x.toNat = 2 ^ n + (x.toNat - y.toNat) := by omega
     rw [this, Nat.add_mod_left, Nat.mod_eq_of_lt (by omega)]
+
+/-! ### Decidable quantifiers -/
+
+theorem forall_zero_iff {P : BitVec 0 → Prop} :
+    (∀ v, P v) ↔ P 0#0 := by
+  constructor
+  · intro h
+    apply h
+  · intro h v
+    obtain (rfl : v = 0#0) := (by ext ⟨i, h⟩; simp at h)
+    apply h
+
+theorem forall_cons_iff {P : BitVec (n + 1) → Prop} :
+    (∀ v : BitVec (n + 1), P v) ↔ (∀ (x : Bool) (v : BitVec n), P (v.cons x)) := by
+  constructor
+  · intro h _ _
+    apply h
+  · intro h v
+    have w : v = (v.setWidth n).cons v.msb := by simp
+    rw [w]
+    apply h
+
+instance instDecidableForallBitVecZero (P : BitVec 0 → Prop) :
+    ∀ [Decidable (P 0#0)], Decidable (∀ v, P v)
+  | .isTrue h => .isTrue fun v => by
+    obtain (rfl : v = 0#0) := (by ext ⟨i, h⟩; cases h)
+    exact h
+  | .isFalse h => .isFalse (fun w => h (w _))
+
+instance instDecidableForallBitVecSucc (P : BitVec (n+1) → Prop) [DecidablePred P]
+    [Decidable (∀ (x : Bool) (v : BitVec n), P (v.cons x))] : Decidable (∀ v, P v) :=
+  decidable_of_iff' (∀ x (v : BitVec n), P (v.cons x)) forall_cons_iff
+
+instance instDecidableExistsBitVecZero (P : BitVec 0 → Prop) [Decidable (P 0#0)] :
+    Decidable (∃ v, P v) :=
+  decidable_of_iff (¬ ∀ v, ¬ P v) Classical.not_forall_not
+
+instance instDecidableExistsBitVecSucc (P : BitVec (n+1) → Prop) [DecidablePred P]
+    [Decidable (∀ (x : Bool) (v : BitVec n), ¬ P (v.cons x))] : Decidable (∃ v, P v) :=
+  decidable_of_iff (¬ ∀ v, ¬ P v) Classical.not_forall_not
+
+/--
+For small numerals this isn't necessary (as typeclass search can use the above two instances),
+but for large numerals this provides a shortcut.
+Note, however, that for large numerals the decision procedure may be very slow,
+and you should use `bv_decide` if possible.
+-/
+instance instDecidableForallBitVec :
+    ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∀ v, P v)
+  | 0, _, _ => inferInstance
+  | n + 1, _, _ =>
+    have := instDecidableForallBitVec n
+    inferInstance
+
+/--
+For small numerals this isn't necessary (as typeclass search can use the above two instances),
+but for large numerals this provides a shortcut.
+Note, however, that for large numerals the decision procedure may be very slow.
+-/
+instance instDecidableExistsBitVec :
+    ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∃ v, P v)
+  | 0, _, _ => inferInstance
+  | n + 1, _, _ =>
+    have := instDecidableExistsBitVec n
+    inferInstance
 
 /-! ### Deprecations -/
 

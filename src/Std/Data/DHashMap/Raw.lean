@@ -367,7 +367,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling
-`insert`. If the same key appears multiple times, the last occurrence takes precendence.
+`insert`. If the same key appears multiple times, the last occurrence takes precedence.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=

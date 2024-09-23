@@ -25,7 +25,7 @@ open DefaultClause DefaultFormula Assignment
 This invariant states that if the `assignments` field of a default formula `f` indicates that `f`
 contains an assignment `b` at index `i`, then the unit literal `(i, b)` must be included in `f`.
 Default formulas are expected to satisfy this invariant at all times except during intermediate
-stages of unit propogation (during which, default formulas are only expected to satisfy the more
+stages of unit propagation (during which, default formulas are only expected to satisfy the more
 lenient `AssignmentsInvariant` defined below).
 -/
 def StrongAssignmentsInvariant {n : Nat} (f : DefaultFormula n) : Prop :=

@@ -19,8 +19,8 @@ def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.toBitVec * b.toBitVec⟩
 def UInt8.div (a b : UInt8) : UInt8 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint8_mod"]
 def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
-@[extern "lean_uint8_modn"]
-def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨Fin.modn a.val n⟩ -- TODO
+@[extern "lean_uint8_modn", deprecated UInt8.mod (since := "2024-09-23")]
+def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint8_land"]
 def UInt8.land (a b : UInt8) : UInt8 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint8_lor"]
@@ -38,7 +38,10 @@ instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
 instance : Mul UInt8       := ⟨UInt8.mul⟩
 instance : Mod UInt8       := ⟨UInt8.mod⟩
+
+set_option linter.deprecated false in
 instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
+
 instance : Div UInt8       := ⟨UInt8.div⟩
 instance : LT UInt8        := ⟨UInt8.lt⟩
 instance : LE UInt8        := ⟨UInt8.le⟩
@@ -76,7 +79,7 @@ def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.toBitVec * b.toBitVec⟩
 def UInt16.div (a b : UInt16) : UInt16 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint16_mod"]
 def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
-@[extern "lean_uint16_modn"]
+@[extern "lean_uint16_modn", deprecated UInt16.mod (since := "2024-09-23")]
 def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint16_land"]
 def UInt16.land (a b : UInt16) : UInt16 := ⟨a.toBitVec &&& b.toBitVec⟩
@@ -95,7 +98,10 @@ instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
 instance : Mul UInt16       := ⟨UInt16.mul⟩
 instance : Mod UInt16       := ⟨UInt16.mod⟩
+
+set_option linter.deprecated false in
 instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
+
 instance : Div UInt16       := ⟨UInt16.div⟩
 instance : LT UInt16        := ⟨UInt16.lt⟩
 instance : LE UInt16        := ⟨UInt16.le⟩
@@ -135,7 +141,7 @@ def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.toBitVec * b.toBitVec⟩
 def UInt32.div (a b : UInt32) : UInt32 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint32_mod"]
 def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
-@[extern "lean_uint32_modn"]
+@[extern "lean_uint32_modn", deprecated UInt32.mod (since := "2024-09-23")]
 def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint32_land"]
 def UInt32.land (a b : UInt32) : UInt32 := ⟨a.toBitVec &&& b.toBitVec⟩
@@ -152,7 +158,10 @@ instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
 instance : Mod UInt32       := ⟨UInt32.mod⟩
+
+set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
+
 instance : Div UInt32       := ⟨UInt32.div⟩
 
 @[extern "lean_uint32_complement"]
@@ -175,7 +184,7 @@ def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec⟩
 def UInt64.div (a b : UInt64) : UInt64 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint64_mod"]
 def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
-@[extern "lean_uint64_modn"]
+@[extern "lean_uint64_modn", deprecated UInt64.mod (since := "2024-09-23")]
 def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨Fin.modn a.val n⟩
 @[extern "lean_uint64_land"]
 def UInt64.land (a b : UInt64) : UInt64 := ⟨a.toBitVec &&& b.toBitVec⟩
@@ -194,7 +203,10 @@ instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
 instance : Mul UInt64       := ⟨UInt64.mul⟩
 instance : Mod UInt64       := ⟨UInt64.mod⟩
+
+set_option linter.deprecated false in
 instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
+
 instance : Div UInt64       := ⟨UInt64.div⟩
 instance : LT UInt64        := ⟨UInt64.lt⟩
 instance : LE UInt64        := ⟨UInt64.le⟩
@@ -236,7 +248,7 @@ def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
 def USize.div (a b : USize) : USize := ⟨a.toBitVec / b.toBitVec⟩
 @[extern "lean_usize_mod"]
 def USize.mod (a b : USize) : USize := ⟨a.toBitVec % b.toBitVec⟩
-@[extern "lean_usize_modn"]
+@[extern "lean_usize_modn", deprecated USize.mod (since := "2024-09-23")]
 def USize.modn (a : USize) (n : @& Nat) : USize := ⟨Fin.modn a.val n⟩
 @[extern "lean_usize_land"]
 def USize.land (a b : USize) : USize := ⟨a.toBitVec &&& b.toBitVec⟩
@@ -245,13 +257,16 @@ def USize.lor (a b : USize) : USize := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_usize_xor"]
 def USize.xor (a b : USize) : USize := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_usize_shift_left"]
-def USize.shiftLeft (a b : USize) : USize := ⟨a.toBitVec <<< (modn b System.Platform.numBits).toBitVec⟩
+def USize.shiftLeft (a b : USize) : USize := ⟨a.toBitVec <<< (mod b (USize.ofNat System.Platform.numBits)).toBitVec⟩
 @[extern "lean_usize_shift_right"]
-def USize.shiftRight (a b : USize) : USize := ⟨a.toBitVec >>> (modn b System.Platform.numBits).toBitVec⟩
+def USize.shiftRight (a b : USize) : USize := ⟨a.toBitVec >>> (mod b (USize.ofNat System.Platform.numBits)).toBitVec⟩
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
+
+set_option linter.deprecated false in
 instance : HMod USize Nat USize := ⟨USize.modn⟩
+
 instance : Div USize       := ⟨USize.div⟩
 
 @[extern "lean_usize_complement"]

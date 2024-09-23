@@ -72,7 +72,7 @@ structure Config where
   constApprox        : Bool := false
   /--
     When the following flag is set,
-    `isDefEq` throws the exception `Exeption.isDefEqStuck`
+    `isDefEq` throws the exception `Exception.isDefEqStuck`
     whenever it encounters a constraint `?m ... =?= t` where
     `?m` is read only.
     This feature is useful for type class resolution where
@@ -1549,7 +1549,7 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 /--
-Runs `k` in a local envrionment with the `fvarIds` erased.
+Runs `k` in a local environment with the `fvarIds` erased.
 -/
 def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) (k : n α) : n α := do
   let lctx ← getLCtx
@@ -1819,7 +1819,7 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
               return true
             else if numPostponed' < numPostponed then
               loop
-            -- If we cannot pospone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
+            -- If we cannot postpone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
             -- then try approximations before failing.
             else if !mayPostpone && (← getConfig).univApprox && !(← read).univApprox then
               withReader (fun ctx => { ctx with univApprox := true }) loop

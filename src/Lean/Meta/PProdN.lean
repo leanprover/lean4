@@ -8,7 +8,7 @@ prelude
 import Lean.Meta.InferType
 
 /-!
-This module provides functios to pack and unpack values using nested `PProd` or `And`,
+This module provides functions to pack and unpack values using nested `PProd` or `And`,
 as used in the `.below` construction, in the `.brecOn` construction for mutual recursion and
 and the `mutual_induct` construction.
 

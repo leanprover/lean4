@@ -139,7 +139,7 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
     val := mkAppN val indices
     val := mkApp val major
 
-    -- All paramaters of `.rec` besides the `minors` become parameters of `.below`
+    -- All parameters of `.rec` besides the `minors` become parameters of `.below`
     let below_params := params ++ motives ++ indices ++ #[major]
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
@@ -330,7 +330,7 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
       -- project out first component
       val ← mkPProdFst val
 
-      -- All paramaters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
+      -- All parameters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
       let below_params := params ++ motives ++ indices ++ #[major] ++ fs
       let type ← mkForallFVars below_params (mkAppN motives[idx]! (indices ++ #[major]))
       val ← mkLambdaFVars below_params val

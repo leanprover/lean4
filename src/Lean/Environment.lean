@@ -376,6 +376,7 @@ structure Environment where
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := {}
   asyncTheorems           : Array AsyncTheoremVal := #[]
+  asyncTheoremMap         : NameMap AsyncTheoremVal := {}
   private asyncCtx? : Option AsyncContext := none
   private globalThms : IO.Ref (NameMap (IO.Promise Declaration))
   localThms               : NameMap (Task Declaration) := {}
@@ -463,7 +464,7 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
 def addTheoremAsync (env : Environment) (val : AsyncTheoremVal) : BaseIO (Environment × Environment) := do
   let resolve ← IO.Promise.new
   return (
-    { env with asyncTheorems := env.asyncTheorems.push val, final := resolve.result },
+    { env with asyncTheorems := env.asyncTheorems.push val, asyncTheoremMap := env.asyncTheoremMap.insert val.name val, final := resolve.result },
     { env with asyncCtx? := some { declPrefix := val.name, subDecls := #[], resolve }})
 
 def resolveAsync (env : Environment) : BaseIO Unit := do
@@ -474,12 +475,7 @@ def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
 
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
-  /- It is safe to use `find?'` because we never overwrite imported declarations. -/
-  if let some c := env.base.constants.find?' n then
-    some c
-  else if env.asyncTheorems.any (·.name.isPrefixOf n) then
-    env.toKernelEnv.constants.find?' n
-  else if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
+  if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.getNames.contains n)) then
     match subDecl with
       | .thmDecl thm => return .thmInfo thm
       | .defnDecl defn => return .defnInfo defn
@@ -489,22 +485,30 @@ private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantI
       | .thmDecl thm => return .thmInfo thm
       | .defnDecl defn => return .defnInfo defn
       | _ => env.toKernelEnv.constants.find?' n
+  else if env.asyncTheorems.any (·.name.isPrefixOf n) then
+    env.toKernelEnv.constants.find?' n
   else
-    /- It is safe to use `find?'` because we never overwrite imported declarations. -/
-    env.base.constants.find?' n
+    none
 
 def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
-  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
+  /- It is safe to use `find?'` because we never overwrite imported declarations. -/
+  if let some c := env.base.constants.find?' n then
+    some <| .ofConstantInfo c
+  else if let some asyncThm := env.asyncTheoremMap.find? n then
     return .thmInfo asyncThm
   else env.findNoAsyncTheorem n |>.map .ofConstantInfo
 
 def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
-  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
+  if let some c := env.base.constants.find?' n then
+    some c.toConstantVal
+  else if let some asyncThm := env.asyncTheoremMap.find? n then
     return asyncThm.toConstantVal
   else env.findNoAsyncTheorem n |>.map (·.toConstantVal)
 
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
-  if let some asyncThm := env.asyncTheorems.find? (·.name = n) then
+  if let some c := env.base.constants.find?' n then
+    some c
+  else if let some asyncThm := env.asyncTheoremMap.find? n then
     return .thmInfo asyncThm.toTheoremVal.get
   else
     env.findNoAsyncTheorem n

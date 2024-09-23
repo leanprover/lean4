@@ -71,7 +71,7 @@ For the second kind more steps are involved:
 3. Verify that algorithm in `Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas`.
 4. Integrate it with either the expression or predicate bitblaster and use the proof above to verify it.
 5. Add simplification lemmas for the primitive to `bv_normalize` in `Std.Tactic.BVDecide.Normalize`.
-   If there are mutliple ways to write the primitive (e.g. with TC based notation and without) you
+   If there are multiple ways to write the primitive (e.g. with TC based notation and without) you
    should normalize for one notation here.
 6. Add the reflection code to `Lean.Elab.Tactic.BVDecide.Frontend.BVDecide`
 7. Add a test!

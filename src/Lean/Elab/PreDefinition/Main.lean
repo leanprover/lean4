@@ -104,7 +104,7 @@ Checks consistency of a clique of TerminationHints:
 
 * If not all have a hint, the hints are ignored (log error)
 * If one has `structural`, check that all have it, (else throw error)
-* A `structural` shold not have a `decreasing_by` (else log error)
+* A `structural` should not have a `decreasing_by` (else log error)
 
 -/
 def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do

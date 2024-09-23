@@ -66,7 +66,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
           else if let some mvarIds ← splitTarget? mvarId then
             mvarIds.forM go
           else
-            -- At some point in the past, we looked for occurences of Wf.fix to fold on the
+            -- At some point in the past, we looked for occurrences of Wf.fix to fold on the
             -- LHS (introduced in 096e4eb), but it seems that code path was never used,
             -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"

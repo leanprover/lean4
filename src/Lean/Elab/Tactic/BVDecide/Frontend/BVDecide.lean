@@ -270,7 +270,7 @@ structure Result where
   -/
   simpTrace : Simp.Stats
   /--
-  If the normalization step was not enough to solve the goal this contaisn the LRAT proof
+  If the normalization step was not enough to solve the goal this contains the LRAT proof
   certificate.
   -/
   lratCert : Option LratCert

@@ -129,6 +129,7 @@ def nolintPatternVars (x : Option (Option Nat)) : Nat :=
   | some (some y) => (fun z => 1) 2
   | _ => 0
 
+set_option linter.unusedVariables.inTactics true in
 set_option linter.unusedVariables.patternVars false in
 theorem nolintPatternVarsInduction (n : Nat) : True := by
   induction n with
@@ -188,9 +189,12 @@ opaque foo (x : Nat) : Nat
 opaque foo' (x : Nat) : Nat :=
   let y := 5
   3
+
+section
 variable (bar)
 variable (bar' : (x : Nat) → Nat)
 variable {α β} [inst : ToString α]
+end
 
 @[specialize]
 def specializeDef (x : Nat) : Nat := 3
@@ -210,6 +214,8 @@ opaque externConst (x : Nat) : Nat :=
   let y := 3
   5
 
+section
+variable {α : Type}
 
 macro "useArg " name:declId arg:ident : command => `(def $name ($arg : α) : α := $arg)
 useArg usedMacroVariable a
@@ -222,6 +228,7 @@ doNotUseArg unusedMacroVariable b
 def ignoreDoNotUse : Lean.Linter.IgnoreFunction := fun _ stack _ => stack.matches [``doNotUse]
 
 doNotUseArg unusedMacroVariable2 b
+end
 
 macro "ignoreArg " id:declId sig:declSig : command => `(opaque $id $sig)
 ignoreArg ignoredMacroVariable (x : UInt32) : UInt32
@@ -267,3 +274,6 @@ inaccessible annotation.
 -/
 example : (x = y) → y = x
   | .refl _ => .refl _
+
+theorem lexicalTacticUse (p : α → Prop) (ha : p a) (hb : p b) :  p b := by
+  simp [ha, hb]

@@ -449,10 +449,10 @@ Such examples can be created by choosing `(q, r)` for a fixed `(d, n)`
 such that `(d * q + r)` overflows and wraps around to equal `n`.
 
 This tells us that the division algorithm must have more restrictions than just the ones
-we have for natural numbers. These restrictions are captured in `DivModState.Lawful`,
+we have for integers. These restrictions are captured in `DivModState.Lawful`,
 which captures the relationship necessary between `n, d, q, r`. The key idea is to state
 the relationship in terms of the `{n, d, q, r}.toNat` values, which implies that the
-relationship also holds at the bitvector level.
+relationship also holds at the bitvector level, and in particular, holds without relying on overflows.
 
 References:
 - Fast 32-bit Division on the DSP56800E: Minimized nonrestoring division algorithm by David Baca
@@ -513,7 +513,7 @@ structure DivModState (w : Nat) : Type where
   /-- The current remainder. -/
   r : BitVec w
 
-/-- A `DivModState` is lawful if the remainder width `wr` plus the dividend width `wn` equals `w`,
+/-- A `DivModState` is lawful if the remainder width `wr` plus the numerator width `wn` equals `w`,
 and the bitvectors `r` and `n` have values in the bounds given by bitwidths `wr`, resp. `wn`.
 
 This is a proof engineering choice: An alternative world could have
@@ -553,7 +553,7 @@ def DivModState.init (w : Nat) : DivModState w := {
   r := 0#w
 }
 
-/-- The initial state. -/
+/-- The initial state is lawful. -/
 def DivModState.Lawful.init (w : Nat) (n d : BitVec w) (hd : 0#w < d) :
     DivModState.Lawful w 0 w n d (DivModState.init w) := {
   hwrn := by omega,
@@ -593,9 +593,8 @@ theorem DivModState.umod_eq_of_lawful_zero {qr : DivModState w}
 /-! ### LawfulShiftSubtract -/
 
 /--
-A `LawfulShiftSubtract` is a `Lawful` DivModState that is also a legal input to the shift subtractor.
-So in particular, we must have at least one dividend bit left over `(0 < wn)`
-to perform a round of shift subtraction.
+A `Poised` DivModState is a state which is `Lawful` and furthermore, has at least
+one numerator bit left to process `(0 < wn)`
 
 The input to the shift subtractor is a legal input to `divrem`, and we also need to have an
 input bit to perform shift subtraction on, and thus we need `0 < wn`.
@@ -630,7 +629,7 @@ def DivModState.Lawful.toLawfulShiftSubtract {qr : DivModState w}
 
 /--
 One round of the division algorithm, that tries to perform a subtract shift.
-Note that this is only called when `r.msb = false`, so we will not overflow.
+Note that this should only be called when `r.msb = false`, so we will not overflow.
 -/
 def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState w) :
     DivModState w :=
@@ -644,7 +643,7 @@ def divSubtractShift (n : BitVec w) (d : BitVec w) (wn : Nat) (qr : DivModState 
     r := r' - d -- we subtract to maintain the invariant that `r < d`.
   }
 
-/-- The value of shifting by `wn - 1` equals shifting by `wn` and grabbing the lsb at `(wn - 1)`. -/
+/-- The value of shifting right by `wn - 1` equals shifting by `wn` and grabbing the lsb at `(wn - 1)`. -/
 theorem DivModState.toNat_shiftRight_sub_one_eq
     (qr : DivModState w) (h : qr.LawfulShiftSubtract wr wn n d):
     n.toNat >>> (wn - 1) = (n.toNat >>> wn) * 2 + (n.getLsbD (wn - 1)).toNat := by

@@ -120,6 +120,10 @@ theorem BitVec.neg_add (a : BitVec w) : (-a) + a = 0#w := by
   rw [BitVec.add_neg]
 
 @[bv_normalize]
+theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
+  rw [BitVec.mul_two]
+
+@[bv_normalize]
 theorem BitVec.zero_sshiftRight : BitVec.sshiftRight 0#w a = 0#w := by
   ext
   simp [BitVec.getLsbD_sshiftRight]

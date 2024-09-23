@@ -84,6 +84,19 @@ protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := by
 
 @[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := BitVec.toNat_sub_of_le
 
+set_option linter.deprecated false in
+@[deprecated (since := "2024-09-23")]
+protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m := by
+  intro u
+  simp only [(· % ·)]
+  simp only [gt_iff_lt, toNat, modn, Fin.modn_val, BitVec.natCast_eq_ofNat, BitVec.toNat_ofNat,
+    Nat.reducePow]
+  rw [Nat.mod_eq_of_lt]
+  · apply Nat.mod_lt
+  · apply Nat.lt_of_le_of_lt
+    · apply Nat.mod_le
+    · apply Fin.is_lt
+
 protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b := by
   simp only [lt_def, mod_def]
   apply BitVec.umod_lt

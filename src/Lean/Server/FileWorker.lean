@@ -126,8 +126,8 @@ section Elab
     /-- Whether we encountered any snapshot with `Snapshot.isFatal`. -/
     hasFatal := false
     /--
-    Last `Snapshot.range?` encountered that was not `none`. We use this as a fallback when reporting
-    progress as we should always report *some* range when waiting on a task.
+    Last `Snapshot.range?` encountered that was not `none`, if any. We use this as a fallback when
+    reporting progress as we should always report *some* range when waiting on a task.
     -/
     lastRange? : Option String.Range := none
   deriving Inhabited

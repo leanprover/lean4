@@ -381,7 +381,7 @@ v4.10.0
 
 * **Commands**
   * [#4370](https://github.com/leanprover/lean4/pull/4370) makes the `variable` command fully elaborate binders during validation, fixing an issue where some errors would be reported only at the next declaration.
-  * [#4408](https://github.com/leanprover/lean4/pull/4408) fixes a discrepency in universe parameter order between `theorem` and `def` declarations.
+  * [#4408](https://github.com/leanprover/lean4/pull/4408) fixes a discrepancy in universe parameter order between `theorem` and `def` declarations.
   * [#4493](https://github.com/leanprover/lean4/pull/4493) and
     [#4482](https://github.com/leanprover/lean4/pull/4482) fix a discrepancy in the elaborators for `theorem`, `def`, and `example`,
     making `Prop`-valued `example`s and other definition commands elaborate like `theorem`s.
@@ -443,7 +443,7 @@ v4.10.0
   * [#4454](https://github.com/leanprover/lean4/pull/4454) adds public `Name.isInternalDetail` function for filtering declarations using naming conventions for internal names.
 
 * **Other fixes or improvements**
-  * [#4416](https://github.com/leanprover/lean4/pull/4416) sorts the ouput of `#print axioms` for determinism.
+  * [#4416](https://github.com/leanprover/lean4/pull/4416) sorts the output of `#print axioms` for determinism.
   * [#4528](https://github.com/leanprover/lean4/pull/4528) fixes error message range for the cdot focusing tactic.
 
 ### Language server, widgets, and IDE extensions
@@ -479,7 +479,7 @@ v4.10.0
   * [#4372](https://github.com/leanprover/lean4/pull/4372) fixes linearity in `HashMap.insert` and `HashMap.erase`, leading to a 40% speedup in a replace-heavy workload.
 * `Option`
   * [#4403](https://github.com/leanprover/lean4/pull/4403) generalizes type of `Option.forM` from `Unit` to `PUnit`.
-  * [#4504](https://github.com/leanprover/lean4/pull/4504) remove simp attribute from `Option.elim` and instead adds it to individal reduction lemmas, making unfolding less aggressive.
+  * [#4504](https://github.com/leanprover/lean4/pull/4504) remove simp attribute from `Option.elim` and instead adds it to individual reduction lemmas, making unfolding less aggressive.
 * `Nat`
   * [#4242](https://github.com/leanprover/lean4/pull/4242) adds missing theorems for `n + 1` and `n - 1` normal forms.
   * [#4486](https://github.com/leanprover/lean4/pull/4486) makes `Nat.min_assoc` be a simp lemma.
@@ -940,7 +940,7 @@ While most changes could be considered to be a breaking change, this section mak
   In particular, tactics embedded in the type will no longer make use of the type of `value` in expressions such as `let x : type := value; body`.
 * Now functions defined by well-founded recursion are marked with `@[irreducible]` by default ([#4061](https://github.com/leanprover/lean4/pull/4061)).
   Existing proofs that hold by definitional equality (e.g. `rfl`) can be
-  rewritten to explictly unfold the function definition (using `simp`,
+  rewritten to explicitly unfold the function definition (using `simp`,
   `unfold`, `rw`), or the recursive function can be temporarily made
   semireducible (using `unseal f in` before the command), or the function
   definition itself can be marked as `@[semireducible]` to get the previous
@@ -1559,7 +1559,7 @@ v4.7.0
      and `BitVec` as we begin making the APIs and simp normal forms for these types
      more complete and consistent.
   4. Laying the groundwork for the Std roadmap, as a library focused on
-     essential datatypes not provided by the core langauge (e.g. `RBMap`)
+     essential datatypes not provided by the core language (e.g. `RBMap`)
      and utilities such as basic IO.
   While we have achieved most of our initial aims in `v4.7.0-rc1`,
   some upstreaming will continue over the coming months.
@@ -1570,7 +1570,7 @@ v4.7.0
   There is now kernel support for these functions.
   [#3376](https://github.com/leanprover/lean4/pull/3376).
 
-* `omega`, our integer linear arithmetic tactic, is now availabe in the core langauge.
+* `omega`, our integer linear arithmetic tactic, is now available in the core language.
   * It is supplemented by a preprocessing tactic `bv_omega` which can solve goals about `BitVec`
     which naturally translate into linear arithmetic problems.
     [#3435](https://github.com/leanprover/lean4/pull/3435).
@@ -1663,11 +1663,11 @@ v4.6.0
       /-
       The `Step` type has three constructors: `.done`, `.visit`, `.continue`.
       * The constructor `.done` instructs `simp` that the result does
-        not need to be simplied further.
+        not need to be simplified further.
       * The constructor `.visit` instructs `simp` to visit the resulting expression.
       * The constructor `.continue` instructs `simp` to try other simplification procedures.
 
-      All three constructors take a `Result`. The `.continue` contructor may also take `none`.
+      All three constructors take a `Result`. The `.continue` constructor may also take `none`.
       `Result` has two fields `expr` (the new expression), and `proof?` (an optional proof).
        If the new expression is definitionally equal to the input one, then `proof?` can be omitted or set to `none`.
       -/
@@ -1879,7 +1879,7 @@ v4.5.0
 ---------
 
 * Modify the lexical syntax of string literals to have string gaps, which are escape sequences of the form `"\" newline whitespace*`.
-  These have the interpetation of an empty string and allow a string to flow across multiple lines without introducing additional whitespace.
+  These have the interpretation of an empty string and allow a string to flow across multiple lines without introducing additional whitespace.
   The following is equivalent to `"this is a string"`.
   ```lean
   "this is \
@@ -1902,7 +1902,7 @@ v4.5.0
 
   If the well-founded relation you want to use is not the one that the
   `WellFoundedRelation` type class would infer for your termination argument,
-  you can use `WellFounded.wrap` from the std libarary to explicitly give one:
+  you can use `WellFounded.wrap` from the std library to explicitly give one:
   ```diff
   -termination_by' ⟨r, hwf⟩
   +termination_by x => hwf.wrap x

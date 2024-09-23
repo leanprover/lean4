@@ -1724,6 +1724,15 @@ theorem BitVec.mul_add {x y z : BitVec w} :
   rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
     ← Nat.mul_mod, Nat.mul_add]
 
+theorem mul_succ {x y : BitVec w} : x * (y + 1#w) = x * y + x := by simp [BitVec.mul_add]
+theorem succ_mul {x y : BitVec w} : (x + 1#w) * y = x * y + y := by simp [BitVec.mul_comm, BitVec.mul_add]
+
+theorem mul_two {x : BitVec w} : x * 2#w = x + x := by
+  have : 2#w = 1#w + 1#w := by apply BitVec.eq_of_toNat_eq; simp
+  simp [this, mul_succ]
+
+theorem two_mul {x : BitVec w} : 2#w * x = x + x := by rw [BitVec.mul_comm, mul_two]
+
 @[simp, bv_toNat] theorem toInt_mul (x y : BitVec w) :
   (x * y).toInt = (x.toInt * y.toInt).bmod (2^w) := by
   simp [toInt_eq_toNat_bmod]

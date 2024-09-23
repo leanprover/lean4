@@ -2248,6 +2248,7 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+
 /-! ### Non-overflow theorems -/
 
 /--

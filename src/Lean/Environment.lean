@@ -679,10 +679,20 @@ namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
 
 def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-  { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
+  if env.asyncCtx?.isSome then
+    let _ : Inhabited Environment := ⟨env⟩
+    dbgStackTrace fun _ =>
+    { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
+  else
+    { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
-  { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }
+  if env.asyncCtx?.isSome then
+    let _ : Inhabited Environment := ⟨env⟩
+    dbgStackTrace fun _ =>
+    { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }
+  else
+    { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }
 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
   EnvExtensionInterfaceImp.getState ext env.extensions

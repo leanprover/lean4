@@ -15,7 +15,7 @@ in particular
 and its corollary
 `Nat.mod_pow_succ : x % b ^ (k + 1) = x % b ^ k + b ^ k * ((x / b ^ k) % b)`.
 
-It contains the necesssary preliminary results relating order and `*` and `/`,
+It contains the necessary preliminary results relating order and `*` and `/`,
 which should probably be moved to their own file.
 -/
 

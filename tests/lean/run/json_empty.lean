@@ -10,9 +10,6 @@ structure Foo (α : Type) where
   y : Option α
 deriving Lean.ToJson, Lean.FromJson, Repr
 
-def fromStrHelper (res : Type) [Lean.FromJson res] (s : String) : Except String res :=
-  (Lean.Json.parse s) >>= Lean.fromJson?
-
 /-! First, two basic examples with α not-Empty -/
 /-- info: {"y": 1} -/
 #guard_msgs in
@@ -21,7 +18,7 @@ def fromStrHelper (res : Type) [Lean.FromJson res] (s : String) : Except String 
 /-! Ensure we can parse the type back -/
 /-- info: Except.ok { y := some 1 } -/
 #guard_msgs in
-#eval fromStrHelper (Foo Nat) "{\"y\": 1}"
+#eval Lean.fromJson? (α := Foo Nat) <| json% {"y": 1}
 
 /-- info: {"y": null} -/
 #guard_msgs in
@@ -29,7 +26,7 @@ def fromStrHelper (res : Type) [Lean.FromJson res] (s : String) : Except String 
 
 /-- info: Except.ok { y := none } -/
 #guard_msgs in
-#eval fromStrHelper (Foo Nat) "{\"y\": null}"
+#eval Lean.fromJson? (α := Foo Nat) <| json% {"y": null}
 
 /-! Examples with the `Empty` type -/
 /-- info: {"y": null} -/
@@ -39,14 +36,18 @@ def fromStrHelper (res : Type) [Lean.FromJson res] (s : String) : Except String 
 /-! Show that we can round-trip from string  -/
 /-- info: Except.ok { y := none } -/
 #guard_msgs in
-#eval fromStrHelper (Foo Empty) "{\"y\": null}"
+#eval Lean.fromJson? (α := Foo Empty) <| json% {"y": null}
 
 /-! Show that parsing fails -/
-/-- info: Except.error "no constructor matched JSON value '\"Yo!\"'" -/
+/-- info: Except.error "type Empty has no constructor to match JSON value '\"Yo!\"'.
+This is likely due to invalid JSON input, such as e.g. constructing an `Option Empty`
+with a non-null value." -/
 #guard_msgs in
-#eval fromStrHelper (Empty) "\"Yo!\""
+#eval Lean.fromJson? (α := Empty) <| json% "Yo!"
 
 /-! Show that parsing fails if we supply anything else but `null` -/
-/-- info: Except.error "Foo.y: no constructor matched JSON value '1'" -/
+/-- info: Except.error "Foo.y: type Empty has no constructor to match JSON value '1'.
+This is likely due to invalid JSON input, such as e.g. constructing an `Option Empty`
+with a non-null value." -/
 #guard_msgs in
-#eval fromStrHelper (Foo Empty) "{\"y\": 1}"
+#eval Lean.fromJson? (α := Foo Empty) <| json% {"y": 1}

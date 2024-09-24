@@ -9,7 +9,7 @@ import Std.Tactic.BVDecide.LRAT.Internal.Clause
 
 /-!
 This module contains the definition of the `Formula` typeclass. It is the interface that needs to
-be satisified by any LRAT implementation that can be used by the generic `LRATChecker` module.
+be satisfied by any LRAT implementation that can be used by the generic `LRATChecker` module.
 -/
 
 namespace Std.Tactic.BVDecide

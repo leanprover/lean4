@@ -32,9 +32,9 @@ theorem size_insertUnit_fold :
   induction units
   · simp only [List.foldl, forall_const]
   · next hd tl ih =>
-    intro unitsAcc asssignments b
+    intro unitsAcc assignments b
     simp only [List.foldl]
-    let hd_res := insertUnit (unitsAcc, asssignments, b) hd
+    let hd_res := insertUnit (unitsAcc, assignments, b) hd
     specialize ih hd_res.1 hd_res.2.1 hd_res.2.2
     rw [ih, size_insertUnit]
 
@@ -920,7 +920,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
             · constructor
               · simp only [l'] at l'_eq_true
                 simp only [hasAssignment, l'_eq_true, ite_true] at h2
-                simp only [hasAssignment, l_eq_false, ↓reduceIte, getElem!, l_eq_i, i_in_bounds,
+                simp only [hasAssignment, l_eq_false, ↓reduceIte, ↓reduceDIte, getElem!, l_eq_i, i_in_bounds,
                   Array.get_eq_getElem, h1, addAssignment, l'_eq_true, hasNeg_addPos, decidableGetElem?, reduceCtorEq] at h
                 exact unassigned_of_has_neither _ h2 h
               · intro k k_ne_j_succ k_ne_zero
@@ -1112,7 +1112,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
     (derivedLits : CNF.Clause (PosFin n))
     (derivedLits_satisfies_invariant:
       DerivedLitsInvariant f f_assignments_size (performRupCheck f rupHints).fst.assignments f'_assignments_size derivedLits)
-    (derivedLits_arr : Array (Literal (PosFin n))) (derivedLits_arr_def: derivedLits_arr = { toList := derivedLits })
+    (derivedLits_arr : Array (Literal (PosFin n))) (derivedLits_arr_def : derivedLits_arr = { toList := derivedLits })
     (i j : Fin (Array.size derivedLits_arr)) (i_ne_j : i ≠ j) :
     derivedLits_arr[i] ≠ derivedLits_arr[j] := by
   intro li_eq_lj

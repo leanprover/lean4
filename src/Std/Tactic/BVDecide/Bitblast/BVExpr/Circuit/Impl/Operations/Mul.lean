@@ -27,36 +27,35 @@ namespace BVExpr
 namespace bitblast
 
 def blastMul (aig : AIG BVBit) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry BVBit w :=
-  if h : w = 0 then
-    ⟨aig, h ▸ .empty⟩
+  if input.lhs.countKnown < input.rhs.countKnown then
+    blast aig input
   else
-    /-
-    theorem mulRec_zero_eq (l r : BitVec w) :
-        mulRec l r 0 = if r.getLsb 0 then l else 0 := by
-    -/
-    have : 0 < w := by omega
-    let res := blastConst aig 0
-    let aig := res.aig
-    let zero := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
-    let input := input.cast this
     let ⟨lhs, rhs⟩ := input
-    let res := AIG.RefVec.ite aig ⟨rhs.get 0 (by assumption), lhs, zero⟩
-    let aig := res.aig
-    let acc := res.vec
-    have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
-    let lhs := lhs.cast this
-    let rhs := rhs.cast this
-    go aig lhs rhs 1 (by omega) acc
+    blast aig ⟨rhs, lhs⟩
 where
+  blast (aig : AIG BVBit) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry BVBit w :=
+    if h : w = 0 then
+      ⟨aig, h ▸ .empty⟩
+    else
+      have : 0 < w := by omega
+      let res := blastConst aig 0
+      let aig := res.aig
+      let zero := res.vec
+      have := AIG.LawfulVecOperator.le_size (f := blastConst) ..
+      let input := input.cast this
+      let ⟨lhs, rhs⟩ := input
+      let res := AIG.RefVec.ite aig ⟨rhs.get 0 (by assumption), lhs, zero⟩
+      let aig := res.aig
+      let acc := res.vec
+      have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
+      let lhs := lhs.cast this
+      let rhs := rhs.cast this
+      go aig lhs rhs 1 (by omega) acc
+
   go (aig : AIG BVBit) (lhs rhs : AIG.RefVec aig w) (curr : Nat) (hcurr : curr ≤ w)
       (acc : AIG.RefVec aig w) :
       AIG.RefVecEntry BVBit w :=
     if h : curr < w then
-      /-
-      theorem mulRec_succ_eq (l r : BitVec w) (s : Nat) :
-          mulRec l r (s + 1) = mulRec l r s + if r.getLsb (s + 1) then (l <<< (s + 1)) else 0
-      -/
       let res := blastShiftLeftConst aig ⟨lhs, curr⟩
       let aig := res.aig
       let shifted := res.vec
@@ -120,12 +119,10 @@ theorem go_decl_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr ≤ w)
       assumption
   · simp [← hgo]
 
-end blastMul
-
-instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blastMul where
+instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blast where
   le_size := by
     intros
-    unfold blastMul
+    unfold blast
     split
     · simp
     · dsimp only
@@ -134,7 +131,7 @@ instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blastMul where
       apply AIG.LawfulVecOperator.le_size (f := blastConst)
   decl_eq := by
     intros
-    unfold blastMul
+    unfold blast
     split
     · simp
     · dsimp only
@@ -146,6 +143,18 @@ instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blastMul where
       · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
         apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastConst)
         assumption
+
+end blastMul
+
+instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blastMul where
+  le_size := by
+    intros
+    unfold blastMul
+    split <;> apply AIG.LawfulVecOperator.le_size (f := blastMul.blast)
+  decl_eq := by
+    intros
+    unfold blastMul
+    split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastMul.blast)]
 
 end bitblast
 end BVExpr

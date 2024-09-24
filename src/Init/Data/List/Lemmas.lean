@@ -1314,11 +1314,16 @@ theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
 theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs => f a :: bs) [] l := by
   induction l <;> simp [*]
 
-@[simp] theorem set_map {f : α → β} {l : List α} {n : Nat} {a : α} :
-    (map f l).set n (f a) = map f (l.set n a) := by
-  induction l generalizing n with
+@[simp] theorem map_set {f : α → β} {l : List α} {i : Nat} {a : α} :
+    (l.set i a).map f = (l.map f).set i (f a) := by
+  induction l generalizing i with
   | nil => simp
-  | cons b l ih => cases n <;> simp_all
+  | cons b l ih => cases i <;> simp_all
+
+@[deprecated "Use the reverse direction of `map_set`." (since := "2024-09-20")]
+theorem set_map {f : α → β} {l : List α} {n : Nat} {a : α} :
+    (map f l).set n (f a) = map f (l.set n a) := by
+  simp
 
 @[simp] theorem head_map (f : α → β) (l : List α) (w) :
     head (map f l) w = f (head l (by simpa using w)) := by

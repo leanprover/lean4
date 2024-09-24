@@ -31,7 +31,7 @@ structure RecArgInfo where
   indGroupInst : IndGroupInst
   /--
   index of the inductive datatype of the argument we are recursing on.
-  If `< indAll.all`, a normal data type, else an auxillary data type due to nested recursion
+  If `< indAll.all`, a normal data type, else an auxiliary data type due to nested recursion
   -/
   indIdx       : Nat
 deriving Inhabited
@@ -52,7 +52,7 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
   return (indexMajorArgs, otherArgs)
 
 /--
-Name of the recursive data type. Assumes that it is not one of the auxillary ones.
+Name of the recursive data type. Assumes that it is not one of the auxiliary ones.
 -/
 def RecArgInfo.indName! (info : RecArgInfo) : Name :=
   info.indGroupInst.all[info.indIdx]!

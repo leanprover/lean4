@@ -1210,7 +1210,7 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   * For most types like `Nat`, `Int`, `Rat`, `Real`, `a / 0` is defined to be `0`.
   * For `Nat`, `a / b` rounds downwards.
   * For `Int`, `a / b` rounds downwards if `b` is positive or upwards if `b` is negative.
-    It is implemented as `Int.ediv`, the unique function satisfiying
+    It is implemented as `Int.ediv`, the unique function satisfying
     `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
     Other rounding conventions are available using the functions
     `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
@@ -1364,7 +1364,7 @@ class Pow (α : Type u) (β : Type v) where
   /-- `a ^ b` computes `a` to the power of `b`. See `HPow`. -/
   pow : α → β → α
 
-/-- The homogenous version of `Pow` where the exponent is a `Nat`.
+/-- The homogeneous version of `Pow` where the exponent is a `Nat`.
 The purpose of this class is that it provides a default `Pow` instance,
 which can be used to specialize the exponent to `Nat` during elaboration.
 
@@ -2065,7 +2065,7 @@ The size of type `USize`, that is, `2^System.Platform.numBits`, which may
 be either `2^32` or `2^64` depending on the platform's architecture.
 
 Remark: we define `USize.size` using `(2^numBits - 1) + 1` to ensure the
-Lean unifier can solve contraints such as `?m + 1 = USize.size`. Recall that
+Lean unifier can solve constraints such as `?m + 1 = USize.size`. Recall that
 `numBits` does not reduce to a numeral in the Lean kernel since it is platform
 specific. Without this trick, the following definition would be rejected by the
 Lean type checker.
@@ -2709,7 +2709,10 @@ def Array.extract (as : Array α) (start stop : Nat) : Array α :=
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
 
-/-- Auxiliary definition for `List.toArray`. -/
+/--
+Auxiliary definition for `List.toArray`.
+`List.toArrayAux as r = r ++ as.toArray`
+-/
 @[inline_if_reduce]
 def List.toArrayAux : List α → Array α → Array α
   | nil,       r => r

@@ -134,7 +134,7 @@ jobs:
               MESSAGE=""
 
               if [[ -n "$MATHLIB_REMOTE_TAGS" ]]; then
-                echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."    
+                echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
               else
                 echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
                 MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
@@ -149,7 +149,7 @@ jobs:
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
             git -C lean4.git log -10 origin/master
 
-            git -C lean4.git fetch origin nightly-with-mathlib 
+            git -C lean4.git fetch origin nightly-with-mathlib
             NIGHTLY_WITH_MATHLIB_SHA="$(git -C lean4.git rev-parse "origin/nightly-with-mathlib")"
             MESSAGE="- ❗ Batteries/Mathlib CI will not be attempted unless your PR branches off the \`nightly-with-mathlib\` branch. Try \`git rebase $MERGE_BASE_SHA --onto $NIGHTLY_WITH_MATHLIB_SHA\`."
           fi
@@ -329,16 +329,17 @@ jobs:
             git switch -c lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} "$BASE"
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
             git add lean-toolchain
-            sed -i 's,require "leanprover-community" / "batteries" @ git ".\+",require "leanprover-community" / "batteries" @ git "nightly-testing-'"${MOST_RECENT_NIGHTLY}"'",' lakefile.lean
+            sed -i 's,require "leanprover-community" / "batteries" @ git ".\+",require "leanprover-community" / "batteries" @ git "lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}",' lakefile.lean
             lake update batteries
             git add lakefile.lean lake-manifest.json
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
-            echo "Branch already exists, pushing an empty commit."
+            echo "Branch already exists, merging $BASE and bumping Batteries."
             git switch lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
             # The Mathlib `nightly-testing` branch or `nightly-testing-YYYY-MM-DD` tag may have moved since this branch was created, so merge their changes.
             # (This should no longer be possible once `nightly-testing-YYYY-MM-DD` is a tag, but it is still safe to merge.)
             git merge "$BASE" --strategy-option ours --no-commit --allow-unrelated-histories
+            lake update batteries
             git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 

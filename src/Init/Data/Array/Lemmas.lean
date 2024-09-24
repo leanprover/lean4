@@ -609,7 +609,7 @@ theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : A
   rw [mapM_eq_foldlM, foldlM_eq_foldlM_toList, ← List.foldrM_reverse]
   conv => rhs; rw [← List.reverse_reverse arr.toList]
   induction arr.toList.reverse with
-  | nil => simp; rfl
+  | nil => simp
   | cons a l ih => simp [ih]; simp [map_eq_pure_bind, push]
 
 @[deprecated mapM_eq_mapM_toList (since := "2024-09-09")]

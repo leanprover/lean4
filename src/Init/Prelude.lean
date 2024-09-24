@@ -2584,6 +2584,9 @@ structure Array (α : Type u) where
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
+@[inherit_doc Array.mk, match_pattern]
+abbrev List.toArray (xs : List α) : Array α := .mk xs
+
 /-- Construct a new empty array with initial capacity `c`. -/
 @[extern "lean_mk_empty_array_with_capacity"]
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
@@ -2727,7 +2730,7 @@ def List.redLength : List α → Nat
 -- This function is exported to C, where it is called by `Array.mk`
 -- (the constructor) to implement this functionality.
 @[inline, match_pattern, pp_nodot, export lean_list_to_array]
-def List.toArray (as : List α) : Array α :=
+def List.toArrayImpl (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)
 
 /-- The typeclass which supplies the `>>=` "bind" function. See `Monad`. -/

@@ -2570,7 +2570,9 @@ structure Array (α : Type u) where
   /--
   Converts a `List α` into an `Array α`.
 
-  At runtime, this constructor is implemented by `List.toArray` and is O(n) in the length of the
+  You can also use the synonym `List.toArray` when dot notation is convenient.
+
+  At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
   list.
   -/
   mk ::

@@ -57,9 +57,7 @@ open Array
 
 /-! ### Lemmas about `List.toArray`. -/
 
-@[simp] theorem toArray_size (as : List α) : as.toArray.size = as.length := by simp [size]
-
-@[simp] theorem toArrayAux_size {a : List α} {b : Array α} :
+@[simp] theorem size_toArrayAux {a : List α} {b : Array α} :
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
 
@@ -67,6 +65,7 @@ open Array
 
 @[deprecated toArray_toList (since := "2024-09-09")]
 abbrev toArray_data := @toArray_toList
+
 @[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
     a.toArray[i] = a[i]'(by simpa using h) := rfl
 

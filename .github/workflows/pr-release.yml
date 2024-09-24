@@ -334,11 +334,12 @@ jobs:
             git add lakefile.lean lake-manifest.json
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
-            echo "Branch already exists, pushing an empty commit."
+            echo "Branch already exists, merging $BASE and bumping Batteries."
             git switch lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
             # The Mathlib `nightly-testing` branch or `nightly-testing-YYYY-MM-DD` tag may have moved since this branch was created, so merge their changes.
             # (This should no longer be possible once `nightly-testing-YYYY-MM-DD` is a tag, but it is still safe to merge.)
             git merge "$BASE" --strategy-option ours --no-commit --allow-unrelated-histories
+            lake update batteries
             git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 

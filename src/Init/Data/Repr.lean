@@ -163,7 +163,7 @@ protected def _root_.USize.repr (n : @& USize) : String :=
 
 /-- We statically allocate and memoize reprs for small natural numbers. -/
 private def reprArray : Array String := Id.run do
-  List.range 128 |>.map (·.toUSize.repr) |> List.toArray
+  List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
 private def reprFast (n : Nat) : String :=
   if h : n < 128 then Nat.reprArray.get ⟨n, h⟩ else

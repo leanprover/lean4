@@ -1112,7 +1112,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
     (derivedLits : CNF.Clause (PosFin n))
     (derivedLits_satisfies_invariant:
       DerivedLitsInvariant f f_assignments_size (performRupCheck f rupHints).fst.assignments f'_assignments_size derivedLits)
-    (derivedLits_arr : Array (Literal (PosFin n))) (derivedLits_arr_def : derivedLits_arr = { toList := derivedLits })
+    (derivedLits_arr : Array (Literal (PosFin n))) (derivedLits_arr_def: derivedLits_arr = { toList := derivedLits })
     (i j : Fin (Array.size derivedLits_arr)) (i_ne_j : i ≠ j) :
     derivedLits_arr[i] ≠ derivedLits_arr[j] := by
   intro li_eq_lj

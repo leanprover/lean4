@@ -577,7 +577,7 @@ def DivModState.init (w : Nat) : DivModState w := {
 }
 
 /-- The initial state is lawful. -/
-def DivModState.Lawful.init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) :
+def DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) :
     DivModState.Lawful args (DivModState.init w) := by
   simp only [BitVec.DivModState.init]
   exact {
@@ -788,7 +788,7 @@ theorem wn_divRec (args : DivModArgs w) (qr : DivModState w) :
 theorem udiv_eq_divRec (hd : 0#w < d) :
     let out := divRec w {n, d} (DivModState.init w)
     n.udiv d = out.q := by
-  have := DivModState.Lawful.init {n, d} hd
+  have := DivModState.lawful_init {n, d} hd
   have := lawful_divRec this
   apply DivModState.udiv_eq_of_lawful this (wn_divRec ..)
 
@@ -796,7 +796,7 @@ theorem udiv_eq_divRec (hd : 0#w < d) :
 theorem umod_eq_divRec (hd : 0#w < d) :
     let out := divRec w {n, d} (DivModState.init w)
     n.umod d = out.r := by
-  have := DivModState.Lawful.init {n, d} hd
+  have := DivModState.lawful_init {n, d} hd
   have := lawful_divRec this
   apply DivModState.umod_eq_of_lawful this (wn_divRec ..)
 

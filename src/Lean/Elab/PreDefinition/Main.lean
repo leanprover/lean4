@@ -53,6 +53,64 @@ private def getMVarsAtPreDef (preDef : PreDefinition) : MetaM (Array MVarId) := 
   let (_, s) ← (collectMVarsAtPreDef preDef).run {}
   pure s.result
 
+/--
+Set any lingering level mvars to `.zero`, for error recovery.
+-/
+private def setLevelMVarsAtPreDef (preDef : PreDefinition) : PreDefinition :=
+  if preDef.value.hasLevelMVar then
+    let value' :=
+      preDef.value.replaceLevel fun l =>
+        match l with
+        | .mvar _ => levelZero
+        | _       => none
+    { preDef with value := value' }
+  else
+    preDef
+
+private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
+  if !preDef.value.hasLevelMVar then
+    return preDef
+  else
+    let pendingLevelMVars := (collectLevelMVars {} (← instantiateMVars preDef.value)).result
+    if (← logUnassignedLevelMVarsUsingErrorInfos pendingLevelMVars) then
+      return setLevelMVarsAtPreDef preDef
+    else if !(← MonadLog.hasErrors) then
+      -- This is a fallback in case we don't have an error info available for the universe level metavariables.
+      -- We try to produce an error message containing an expression with one of the universe level metavariables.
+      let rec visitLevel (u : Level) (e : Expr) : TermElabM Unit := do
+        if u.hasMVar then
+          let e' ← exposeLevelMVars e
+          throwError "\
+            declaration '{preDef.declName}' contains universe level metavariables at the expression\
+            {indentExpr e'}\n\
+            in the declaration body{indentExpr <| ← exposeLevelMVars preDef.value}"
+      let withExpr (e : Expr) (m : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit) :=
+        withReader (fun _ => e) m
+      let rec visit (e : Expr) (head := false) : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit := do
+        if e.hasLevelMVar then
+          checkCache { val := e : ExprStructEq } fun _ => do
+            match e with
+            | .forallE n d b c | .lam n d b c => withExpr e do visit d; withLocalDecl n c d fun x => visit (b.instantiate1 x)
+            | .letE n t v b _ => withExpr e do visit t; visit v; withLetDecl n t v fun x => visit (b.instantiate1 x)
+            | .mdata _ b     => withExpr e do visit b
+            | .proj _ _ b    => withExpr e do visit b
+            | .sort u        => visitLevel u (← read)
+            | .const _ us    => (if head then id else withExpr e) <| us.forM (visitLevel · (← read))
+            | .app ..        => withExpr e do
+                                  if let some (args, n, t, v, b) := e.letFunAppArgs? then
+                                    visit t; visit v; withLocalDeclD n t fun x => visit (b.instantiate1 x); args.forM visit
+                                  else
+                                    e.withApp fun f args => do visit f true; args.forM visit
+            | _              => pure ()
+      try
+        visit preDef.value |>.run preDef.value |>.run {}
+      catch e =>
+        logException e
+        return setLevelMVarsAtPreDef preDef
+      throwAbortCommand
+    else
+      return setLevelMVarsAtPreDef preDef
+
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
@@ -62,7 +120,7 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
     else
       throwAbortCommand
   else
-    return preDef
+    ensureNoUnassignedLevelMVarsAtPreDef preDef
 
 /--
   Letrec declarations produce terms of the form `(fun .. => ..) d` where `d` is a (partial) application of an auxiliary declaration for a letrec declaration.

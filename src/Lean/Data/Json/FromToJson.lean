@@ -29,9 +29,9 @@ instance : FromJson JsonNumber := ⟨Json.getNum?⟩
 instance : ToJson JsonNumber := ⟨Json.num⟩
 
 instance : FromJson Empty where
-  fromJson? j := throw (s!"type Empty has no constructor to match JSON value '{j}'. "
-  ++ "This is likely due to invalid JSON input, such as e.g. constructing an `Option Empty` "
-  ++ "with a non-null value.")
+  fromJson? j := throw (s!"type Empty has no constructor to match JSON value '{j}'. \
+                           deserializing a value for type Empty, e.g. at type \
+                           Option Empty with code for the 'some' constructor.")
 
 instance : ToJson Empty := ⟨nofun⟩
 -- looks like id, but there are coercions happening

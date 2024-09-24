@@ -40,14 +40,14 @@ deriving Lean.ToJson, Lean.FromJson, Repr
 
 /-! Show that parsing fails -/
 /-- info: Except.error "type Empty has no constructor to match JSON value '\"Yo!\"'.
-This is likely due to invalid JSON input, such as e.g. constructing an `Option Empty`
-with a non-null value." -/
+deserializing a value for type Empty, e.g. at type Option Empty with code for the 'some'
+constructor." -/
 #guard_msgs in
 #eval Lean.fromJson? (α := Empty) <| json% "Yo!"
 
 /-! Show that parsing fails if we supply anything else but `null` -/
 /-- info: Except.error "Foo.y: type Empty has no constructor to match JSON value '1'.
-This is likely due to invalid JSON input, such as e.g. constructing an `Option Empty`
-with a non-null value." -/
+deserializing a value for type Empty, e.g. at type Option Empty with code for the 'some'
+constructor." -/
 #guard_msgs in
 #eval Lean.fromJson? (α := Foo Empty) <| json% {"y": 1}

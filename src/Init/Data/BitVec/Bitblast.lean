@@ -690,7 +690,7 @@ private theorem two_mul_add_sub_lt_of_lt_of_lt_two (h : a < x) (hy : y < 2) :
 
 /-- We show that the output of `divSubtractShift` is lawful, which tells us that it
 obeys the division equation. -/
-def lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
+theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
     DivModState.Lawful args (divSubtractShift args qr) := by
   rcases args with ⟨n, d⟩
   simp only [divSubtractShift, decide_eq_true_eq]

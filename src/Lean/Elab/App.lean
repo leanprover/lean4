@@ -383,8 +383,9 @@ private def finalize : M Expr := do
   unless s.missingExplicits.isEmpty do
     let mes := s.missingExplicits.map fun e => m!"{indentExpr e}"
     logError m!"insufficient number of arguments, \
-      missing {s.missingExplicits.size} explicit argument(s) that are dependencies of a named argument.\n\n\
-      Such arguments can be filled in with '_', or '(_)' if it is a non-canonical instance argument. \
+      {s.missingExplicits.size} missing explicit argument(s) are dependencies of a named argument and must be provided. \
+      Typically each missing argument can be filled in with '_' or `(_)`. \
+      In explicit mode, `_` for an instance argument triggers typeclass synthesis and `(_)` does not.\n\n\
       These are the inferred missing arguments:\
       {MessageData.joinSep mes.toList ""}"
   if !s.etaArgs.isEmpty then
@@ -421,17 +422,16 @@ private def finalize : M Expr := do
   return e
 
 /--
-Returns a named argument that depends on the next argument, otherwise `none`.
-If `onlySuppressDeps` is true, then only returns such a named argument with `suppressDeps` true.
+Returns a named argument satisfying the predicate `p` that depends on the next argument, otherwise `none`.
 -/
-private def anyNamedArgDependsOnCurrent? (onlySuppressDeps := true) : M (Option NamedArg) := do
+private def findNamedArgDependsOnCurrent? (p : NamedArg → Bool) : M (Option NamedArg) := do
   let s ← get
-  if s.namedArgs.any (·.suppressDeps || !onlySuppressDeps) then
+  if s.namedArgs.any p then
     forallTelescopeReducing s.fType fun xs _ => do
       let curr := xs[0]!
       for i in [1:xs.size] do
         let xDecl ← xs[i]!.fvarId!.getDecl
-        if let some arg := s.namedArgs.find? fun arg => (arg.suppressDeps || !onlySuppressDeps) && arg.name == xDecl.userName then
+        if let some arg := s.namedArgs.find? fun arg => p arg && arg.name == xDecl.userName then
           /- Remark: a default value at `optParam` does not count as a dependency -/
           if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
             return arg
@@ -536,6 +536,10 @@ mutual
       addNewArg argName x
       main
 
+  /--
+  Create a fresh metavariable for the implicit argument.
+  - If `missingExplicit` is true, then it is added to the `missingExplicits` array.
+  -/
   private partial def addImplicitArg (argName : Name) (missingExplicit : Bool := false) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
@@ -560,34 +564,41 @@ mutual
   private partial def processExplicitArg (argName : Name) : M Expr := do
     match (← get).args with
     | arg::args =>
-      if ← pure !(← read).explicit <&&> Option.isSome <$> anyNamedArgDependsOnCurrent? then
+      -- Note: currently the following test never succeeds in explicit mode since `@x.f` notation does not exist.
+      if (← findNamedArgDependsOnCurrent? (·.suppressDeps)).isSome then
         /-
-        We treat the explicit argument `argName` as implicit if we have a named arguments that depends on it
-        that has the `suppressDeps` flag set to `true`.
-        The idea is that this explicit argument can be inferred using the type of the named argument.
-        Note that we also use this approach in the branch where there are no explicit arguments left.
-        This is important to make sure the system behaves in a uniform way.
-
-        The motivation is that class projections can have explicit type parameters.
-        For example, consider the example on issue #1851
+        We treat the explicit argument `argName` as implicit
+        if we have a named arguments that depends on it whose `suppressDeps` flag set to `true`.
+        The motivation for this is class projections (issue #1851).
+        In some cases, class projections can have explicit parameters. For example, in
         ```
         class Approx {α : Type} (a : α) (X : Type) : Type where
           val : X
-
-        variable {α β X Y : Type} {f' : α → β} {x' : α} [f : Approx f' (X → Y)] [x : Approx x' X]
-
-        #check f.val
-        #check f.val x.val
         ```
-        The type of `Approx.val` is `{α : Type} → (a : α) → {X : Type} → [self : Approx a X] → X`
-        Note that the argument `a` is explicit since there is no way to infer it from the expected
-        type or the type of other explicit arguments.
-        Recall that `f.val` is sugar for `Approx.val (self := f)`. In both `#check` commands above
-        the user assumed that `a` does not need to be provided since it can be inferred from the type
-        of `self`.
-        Setting `suppressDeps` for this `self` argument enables this feature.
-        We used to that only in the branch where `(← get).args` was empty, but it created an asymmetry
-        because `#check f.val` worked as expected, but one would have to write `#check f.val _ x.val`.
+        the type of `Approx.val` is `{α : Type} → (a : α) → {X : Type} → [self : Approx a X] → X`.
+        Note that the parameter `a` is explicit since there is no way to infer it from the expected
+        type or from the types of other explicit parameters.
+        Being a parameter of the class, `a` is determined by the type of `self`.
+
+        Consider
+        ```
+        variable {α β X Y : Type} {f' : α → β} {x' : α} [f : Approx f' (X → Y)]
+        ```
+        Recall that `f.val` is, to first approximation, sugar for `Approx.val (self := f)`.
+        Without further refinement, this would expand to `fun f'' : α → β => Approx.val f'' f`,
+        which is a type error, since `f''` must be defeq to `f'`.
+        Furthermore, with projection notation, users expect all structure parameters to uniformly be implicit;
+        after all, they are determined by `self`.
+        To handle this, the `(self := f)` named argument is annotated with the `suppressDeps` flag.
+        This causes the `a` parameter to become implicit, and `f.val` instead expands to `Approx.val f' f`.
+
+        We used to have this feature enabled for *all* explicit arguments, which confused users
+        and was frequently reported as a bug (issue #1867).
+        Now it is only enabled for the `self` argument in structure projections.
+
+        We also used to do this in case `(← get).args` was empty,
+        but it created an asymmetry because `f.val` worked as expected,
+        yet one would have to write `f.val _ x` when there are further arguments.
         -/
         return (← addImplicitArg argName)
       propagateExpectedType arg
@@ -628,14 +639,14 @@ mutual
         throwError "invalid autoParam, argument must be a constant"
       | _, _, _ =>
         if !(← get).namedArgs.isEmpty then
-          if let some arg ← anyNamedArgDependsOnCurrent? (onlySuppressDeps := false) then
+          if let some arg ← findNamedArgDependsOnCurrent? (fun _ => true) then
             /-
             Dependencies of named arguments cannot be turned into eta arguments.
-            Doing so leads to confusing type errors.
-            However, they can safely be turned into implicit arguments for elaboration.
+            Doing so leads to confusing type errors due to the eta arguments not being defeq to the inferred arguments.
+            However, they can safely be turned into implicit arguments for error recovery.
             This is an error unless the named argument is meant to suppress dependencies.
             -/
-            addImplicitArg argName (missingExplicit := (← read).explicit || !arg.suppressDeps)
+            addImplicitArg argName (missingExplicit := !arg.suppressDeps)
           else if (← read).ellipsis then
             addImplicitArg argName
           else
@@ -671,15 +682,17 @@ mutual
       finalize
 
   /--
-    Process a `fType` of the form `[x : A] → B x`.
-    This method assume `fType` is a function type -/
+  Process a `fType` of the form `[x : A] → B x`.
+  This method assume `fType` is a function type.
+  -/
   private partial def processInstImplicitArg (argName : Name) : M Expr := do
     if (← read).explicit then
       if let some stx ← nextArgHole? then
-        /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
+        -- We still use typeclass resolution for `_` arguments.
+        -- This behavior can be suppressed with `(_)`.
         let ty ← getArgExpectedType
         let arg ← mkInstMVar ty
-        addTermInfo' stx arg ty (← getLCtx)
+        addTermInfo' stx arg ty (← getLCtx) (elaborator := `Lean.Elab.Term.elabHole)
         modify fun s => { s with args := s.args.tail! }
         main
       else

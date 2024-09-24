@@ -15,9 +15,10 @@ variable {p : Prop} [Decidable p] {α : Type} (x y : α) (h : ite p x y = x)
 
 
 /--
-error: insufficient number of arguments, missing 5 explicit argument(s) that are dependencies of a named argument.
+error: insufficient number of arguments, 5 missing explicit argument(s) are dependencies of
+a named argument and must be provided. Typically each missing argument can be filled in with '_' or `(_)`.
+In explicit mode, `_` for an instance argument triggers typeclass synthesis and `(_)` does not.
 
-Such arguments can be filled in with '_', or '(_)' if it is a non-canonical instance argument.
 These are the inferred missing arguments:
   α
   x

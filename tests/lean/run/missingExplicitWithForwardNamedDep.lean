@@ -16,9 +16,11 @@ def valOf2 (α β : Type) [s : Foo α β] : Nat :=
   s.val
 
 /--
-error: insufficient number of arguments, missing 2 explicit argument(s) that are dependencies of a named argument.
+error: insufficient number of arguments, 2 missing explicit argument(s) are dependencies of
+a named argument and must be provided. Typically each missing argument can be filled in with '_' or `(_)`.
+In explicit mode, `_` for an instance argument triggers typeclass synthesis and `(_)` does not.
 
-Such arguments can be filled in with '_', or '(_)' if it is a non-canonical instance argument. These are the inferred missing arguments:
+These are the inferred missing arguments:
   Bool
   Bool
 ---
@@ -38,9 +40,11 @@ def g {α : Type} (a b : α) := b
 
 def h (α : Type) (a b : α) := b
 /--
-error: insufficient number of arguments, missing 1 explicit argument(s) that are dependencies of a named argument.
+error: insufficient number of arguments, 1 missing explicit argument(s) are dependencies of
+a named argument and must be provided. Typically each missing argument can be filled in with '_' or `(_)`.
+In explicit mode, `_` for an instance argument triggers typeclass synthesis and `(_)` does not.
 
-Such arguments can be filled in with '_', or '(_)' if it is a non-canonical instance argument. These are the inferred missing arguments:
+These are the inferred missing arguments:
   Bool
 ---
 info: fun a => h Bool a true : Bool → Bool

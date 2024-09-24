@@ -451,7 +451,7 @@ modify it, use `PersistentEnvExtension.addEntry`, with an `addEntryFn` that perf
 modification.
 
 When a module is loaded, the values saved by all of its dependencies for this
-`PersistentEnvExtension` are are available as an `Array (Array α)` via the environment extension,
+`PersistentEnvExtension` are available as an `Array (Array α)` via the environment extension,
 with one array per transitively imported module. The state of type `σ` used in the current module
 can be initialized from these imports by specifying a suitable `addImportedFn`. The `addImportedFn`
 runs at the beginning of elaboration for every module, so it's usually better for performance to

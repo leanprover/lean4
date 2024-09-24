@@ -101,7 +101,7 @@ Otherwise, falls back to the package's.
 
 /--
 The arguments to pass to `lean --server` when running the Lean language server.
-`serverOptions` is the the accumulation of:
+`serverOptions` is the accumulation of:
 - the package's `leanOptions`
 - the package's `moreServerOptions`
 - the library's `leanOptions`

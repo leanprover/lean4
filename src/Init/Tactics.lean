@@ -456,7 +456,7 @@ syntax (name := change) "change " term (location)? : tactic
 
 /--
 * `change a with b` will change occurrences of `a` to `b` in the goal,
-  assuming `a` and `b` are are definitionally equal.
+  assuming `a` and `b` are definitionally equal.
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic

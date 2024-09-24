@@ -51,7 +51,7 @@ Here "branch" roughly corresponds to tail-call positions: branches of top-level
 For every recursive call in that branch, an induction hypothesis asserting the
 motive for the arguments of the recursive call is provided.
 If the recursive call is under binders and it, or its proof of termination,
-depend on the the bound values, then these become assumptions of the inductive
+depend on the bound values, then these become assumptions of the inductive
 hypothesis.
 
 Additionally, the local context of the branch (e.g. the condition of an
@@ -703,7 +703,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         let e' ← mkLambdaFVars #[motive] e'
 
         -- We could pass (usedOnly := true) below, and get nicer induction principles that
-        -- do do not mention odd unused parameters.
+        -- do not mention odd unused parameters.
         -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
         -- that derives them from an function application in the goal) is harder, as
         -- one would have to infer or keep track of which parameters to pass.
@@ -918,7 +918,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
       unless brecOnTargets.all (·.isFVar) do
         throwError "the indices and major argument of the brecOn application are not variables:{indentExpr body}"
       unless brecOnExtras.all (·.isFVar) do
-        throwError "the extra arguments to the the brecOn application are not variables:{indentExpr body}"
+        throwError "the extra arguments to the brecOn application are not variables:{indentExpr body}"
       let lvl :: indLevels := us |throwError "Too few universe parameters in .brecOn application:{indentExpr body}"
 
       let group : Structural.IndGroupInst := { Structural.IndGroupInfo.ofInductiveVal indInfo with
@@ -1041,7 +1041,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           let e' ← mkLambdaFVars motives e'
 
           -- We could pass (usedOnly := true) below, and get nicer induction principles that
-          -- do do not mention odd unused parameters.
+          -- do not mention odd unused parameters.
           -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
           -- that derives them from an function application in the goal) is harder, as
           -- one would have to infer or keep track of which parameters to pass.

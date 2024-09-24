@@ -512,7 +512,7 @@ private partial def withSynthesizeLightImp (k : TermElabM α) : TermElabM α := 
   finally
     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
-/-- Similar to `withSynthesize`, but uses `postpone := .true`, does not use use `synthesizeUsingDefault` -/
+/-- Similar to `withSynthesize`, but uses `postpone := .true`, does not use `synthesizeUsingDefault` -/
 @[inline] def withSynthesizeLight [MonadFunctorT TermElabM m] (k : m α) : m α :=
   monadMap (m := TermElabM) (withSynthesizeLightImp ·) k
 

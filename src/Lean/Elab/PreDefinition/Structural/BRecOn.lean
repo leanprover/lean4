@@ -269,7 +269,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument
   let packedFTypes ← forallBoundedTelescope brecOnType (some (recArgInfo.indicesPos.size + 1)) fun _ brecOnType =>
-    -- And return the types of of the next arguments
+    -- And return the types of the next arguments
     arrowDomainsN numTypeFormers brecOnType
 
   let mut FTypes := Array.mkArray positions.numIndices (Expr.sort 0)

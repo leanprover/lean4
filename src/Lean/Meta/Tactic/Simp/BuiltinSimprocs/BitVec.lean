@@ -139,7 +139,7 @@ builtin_dsimproc [simp, seval] reduceSub ((_ - _ : BitVec _)) := reduceBin ``HSu
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : BitVec _)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 /-- Simplification procedure for the modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : BitVec _)) := reduceBin ``HMod.hMod 6 (· % ·)
-/-- Simplification procedure for for the unsigned modulo operation on `BitVec`s. -/
+/-- Simplification procedure for the unsigned modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceUMod ((umod _ _ : BitVec _)) := reduceBin ``umod 3 umod
 /-- Simplification procedure for unsigned division of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceUDiv ((udiv _ _ : BitVec _)) := reduceBin ``udiv 3 udiv

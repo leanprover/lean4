@@ -242,7 +242,7 @@ structure ExtendState where
   /--
   A map from join point `FVarId`s to a respective map from free variables
   to `Param`s. The free variables in this map are the once that the context
-  of said join point will be extended by by passing in the respective parameter.
+  of said join point will be extended by passing in the respective parameter.
   -/
   fvarMap : Std.HashMap FVarId (Std.HashMap FVarId Param) := {}
 

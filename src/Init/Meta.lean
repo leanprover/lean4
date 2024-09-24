@@ -862,7 +862,7 @@ partial def decodeRawStrLitAux (s : String) (i : String.Pos) (num : Nat) : Strin
 /--
 Takes the string literal lexical syntax parsed by the parser and interprets it as a string.
 This is where escape sequences are processed for example.
-The string `s` is is either a plain string literal or a raw string literal.
+The string `s` is either a plain string literal or a raw string literal.
 
 If it returns `none` then the string literal is ill-formed, which indicates a bug in the parser.
 The function is not required to return `none` if the string literal is ill-formed.

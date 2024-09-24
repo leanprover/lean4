@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Meta
-// Imports: Init.MetaTypes Init.Data.Array.Basic Init.Data.Option.BasicAux
+// Imports: Init.MetaTypes Init.Data.Array.GetLit Init.Data.Option.BasicAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34461,7 +34461,7 @@ return x_5;
 }
 }
 lean_object* initialize_Init_MetaTypes(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_GetLit(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Option_BasicAux(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Meta(uint8_t builtin, lean_object* w) {
@@ -34471,7 +34471,7 @@ _G_initialized = true;
 res = initialize_Init_MetaTypes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_GetLit(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_BasicAux(builtin, lean_io_mk_world());

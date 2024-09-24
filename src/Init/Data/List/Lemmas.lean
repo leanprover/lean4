@@ -938,6 +938,38 @@ def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → 
         x (mem_cons_self x l) :=
   rfl
 
+/--
+We can prove that two folds over the same list are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the list,
+preserves the relation.
+-/
+theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+    r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
+  induction l generalizing a b with
+  | nil => simp_all
+  | cons a l ih =>
+    simp only [foldl_cons]
+    apply ih
+    · simp_all
+    · exact fun a m c c' h => h' _ (by simp_all) _ _ h
+
+/--
+We can prove that two folds over the same list are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the list,
+preserves the relation.
+-/
+theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+    r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
+  induction l generalizing a b with
+  | nil => simp_all
+  | cons a l ih =>
+    simp only [foldr_cons]
+    apply h'
+    · simp
+    · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
+
 /-! ### getLast -/
 
 theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),
@@ -1282,11 +1314,16 @@ theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
 theorem map_eq_foldr (f : α → β) (l : List α) : map f l = foldr (fun a bs => f a :: bs) [] l := by
   induction l <;> simp [*]
 
-@[simp] theorem set_map {f : α → β} {l : List α} {n : Nat} {a : α} :
-    (map f l).set n (f a) = map f (l.set n a) := by
-  induction l generalizing n with
+@[simp] theorem map_set {f : α → β} {l : List α} {i : Nat} {a : α} :
+    (l.set i a).map f = (l.map f).set i (f a) := by
+  induction l generalizing i with
   | nil => simp
-  | cons b l ih => cases n <;> simp_all
+  | cons b l ih => cases i <;> simp_all
+
+@[deprecated "Use the reverse direction of `map_set`." (since := "2024-09-20")]
+theorem set_map {f : α → β} {l : List α} {n : Nat} {a : α} :
+    (map f l).set n (f a) = map f (l.set n a) := by
+  simp
 
 @[simp] theorem head_map (f : α → β) (l : List α) (w) :
     head (map f l) w = f (head l (by simpa using w)) := by

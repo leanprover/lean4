@@ -213,7 +213,7 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
       match stx[1][idx] with
       | `({ $fields',* $[: $_]?}) =>
         -- We have found a subobject field that itself is printed with structure instance notation.
-        -- Scavange its fields.
+        -- Scavenge its fields.
         fields := fields ++ fields'.getElems
         continue
       | _ => pure ()

@@ -125,6 +125,11 @@ section Elab
     newInfoTrees : Array Elab.InfoTree := #[]
     /-- Whether we encountered any snapshot with `Snapshot.isFatal`. -/
     hasFatal := false
+    /--
+    Last `Snapshot.range?` encountered that was not `none`, if any. We use this as a fallback when
+    reporting progress as we should always report *some* range when waiting on a task.
+    -/
+    lastRange? : Option String.Range := none
   deriving Inhabited
 
   register_builtin_option server.reportDelayMs : Nat := {
@@ -168,7 +173,7 @@ This option can only be set on the command line, not in the lakefile or via `set
 
     Debouncing: we only report information
     * after first waiting for `reportDelayMs`, to give trivial tasks a chance to finish
-    * when first blocking, i.e. not before skipping over any unchanged snapshots and such trival
+    * when first blocking, i.e. not before skipping over any unchanged snapshots and such trivial
       tasks
     * afterwards, each time new information is found in a snapshot
     * at the very end, if we never blocked (e.g. emptying a file should make
@@ -226,8 +231,10 @@ This option can only be set on the command line, not in the lakefile or via `set
       | [] => return .pure st
       | t::ts => do
         let mut st := st
+        st := { st with lastRange? := t.range? <|> st.lastRange? }
         unless (← IO.hasFinished t.task) do
-          if let some range := t.range? then
+          -- report *some* recent range even if `t.range?` is `none`; see also `State.lastRange?`
+          if let some range := st.lastRange? then
             ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta range.start
           if !st.hasBlocked then
             publishDiagnostics ctx doc

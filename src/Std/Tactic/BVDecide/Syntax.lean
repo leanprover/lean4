@@ -15,7 +15,7 @@ namespace Tactic
 
 /--
 This tactic works just like `bv_decide` but skips calling a SAT solver by using a proof that is
-alreay stored on disk. It is called with the name of an LRAT file in the same directory as the
+already stored on disk. It is called with the name of an LRAT file in the same directory as the
 current Lean file:
 ```
 bv_check "proof.lrat"

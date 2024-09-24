@@ -322,7 +322,7 @@ where
 end
 namespace MetaProblem
 
-/-- The trivial `MetaProblem`, with no facts to processs and a trivial `Problem`. -/
+/-- The trivial `MetaProblem`, with no facts to process and a trivial `Problem`. -/
 def trivial : MetaProblem where
   problem := {}
 

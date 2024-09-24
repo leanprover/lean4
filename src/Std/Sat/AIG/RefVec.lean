@@ -150,6 +150,14 @@ theorem get_out_bound (s : RefVec aig len) (idx : Nat) (alt : Ref aig) (hidx : l
   · omega
   · rfl
 
+def countKnown [Inhabited α] (aig : AIG α) (s : RefVec aig len) : Nat := Id.run do
+  let folder acc ref :=
+    let decl := aig.decls[ref]!
+    match decl with
+    | .const .. => acc + 1
+    | _ => acc
+  return s.refs.foldl (init := 0) folder
+
 end RefVec
 
 structure BinaryRefVec (aig : AIG α) (len : Nat) where

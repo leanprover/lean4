@@ -367,7 +367,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling
-`insert`. If the same key appears multiple times, the last occurrence takes precendence.
+`insert`. If the same key appears multiple times, the last occurrence takes precedence.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
@@ -408,6 +408,14 @@ occurrence takes precedence. -/
 This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
 `HashSet` or `HashSet.Raw` might be a better fit for you. -/
 @[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    Raw α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
+/-- Creates a hash map from an array of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofArray`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 

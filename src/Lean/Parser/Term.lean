@@ -602,7 +602,7 @@ termination_by a - b
 indicates that termination of the currently defined recursive function follows
 because the difference between the arguments `a` and `b` decreases.
 
-If the fuction takes further argument after the colon, you can name them as follows:
+If the function takes further argument after the colon, you can name them as follows:
 ```
 def example (a : Nat) : Nat → Nat → Nat :=
 termination_by b c => a - b
@@ -685,27 +685,27 @@ particular use case, we can ensure this, so `unsafe (evalExpr Foo ``Foo e)` is a
 -/
 @[builtin_term_parser] def «unsafe» := leading_parser:leadPrec "unsafe " >> termParser
 
-/-- `binrel% r a b` elaborates `r a b` as a binary relation using the type propogation protocol in `Lean.Elab.Extra`. -/
+/-- `binrel% r a b` elaborates `r a b` as a binary relation using the type propagation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def binrel := leading_parser
   "binrel% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
 /-- `binrel_no_prop% r a b` is similar to `binrel% r a b`, but it coerces `Prop` arguments into `Bool`. -/
 @[builtin_term_parser] def binrel_no_prop := leading_parser
   "binrel_no_prop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `binop% f a b` elaborates `f a b` as a binary operation using the type propogation protocol in `Lean.Elab.Extra`. -/
+/-- `binop% f a b` elaborates `f a b` as a binary operation using the type propagation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def binop := leading_parser
   "binop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
 /-- `binop_lazy%` is similar to `binop% f a b`, but it wraps `b` as a function from `Unit`. -/
 @[builtin_term_parser] def binop_lazy := leading_parser
   "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `leftact% f a b` elaborates `f a b` as a left action using the type propogation protocol in `Lean.Elab.Extra`.
+/-- `leftact% f a b` elaborates `f a b` as a left action using the type propagation protocol in `Lean.Elab.Extra`.
 In particular, it is like a unary operation with a fixed parameter `a`, where only the right argument `b` participates in the operator coercion elaborator. -/
 @[builtin_term_parser] def leftact := leading_parser
   "leftact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `rightact% f a b` elaborates `f a b` as a right action using the type propogation protocol in `Lean.Elab.Extra`.
+/-- `rightact% f a b` elaborates `f a b` as a right action using the type propagation protocol in `Lean.Elab.Extra`.
 In particular, it is like a unary operation with a fixed parameter `b`, where only the left argument `a` participates in the operator coercion elaborator. -/
 @[builtin_term_parser] def rightact := leading_parser
   "rightact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `unop% f a` elaborates `f a` as a unary operation using the type propogation protocol in `Lean.Elab.Extra`. -/
+/-- `unop% f a` elaborates `f a` as a unary operation using the type propagation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def unop := leading_parser
   "unop% " >> ident >> ppSpace >> termParser maxPrec
 
@@ -835,7 +835,7 @@ You can also view `h ▸ e` as a "type casting" operation
 where you change the type of `e` by using `h`.
 
 The macro tries both orientations of `h`. If the context provides an
-expected type, it rewrites the expeced type, else it rewrites the type of e`.
+expected type, it rewrites the expected type, else it rewrites the type of e`.
 
 See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.

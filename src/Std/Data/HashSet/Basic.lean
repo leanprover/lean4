@@ -158,6 +158,11 @@ section Unverified
 @[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
 
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
+  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
+  ⟨⟨l⟩, ⟨r⟩⟩
+
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
@@ -211,6 +216,14 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
   ⟨HashMap.unitOfList l⟩
+
+/--
+Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : HashSet α :=
+  ⟨HashMap.unitOfArray l⟩
 
 /-- Computes the union of the given hash sets. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=

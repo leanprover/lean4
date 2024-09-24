@@ -44,7 +44,7 @@ def bvCheck (g : MVarId) (cfg : TacticContext) : MetaM Unit := do
   let unsatProver : UnsatProver := fun reflectionResult _ => do
     withTraceNode `sat (fun _ => return "Preparing LRAT reflection term") do
       let proof ← lratChecker cfg reflectionResult.bvExpr
-      return ⟨proof, ""⟩
+      return .ok ⟨proof, ""⟩
   let _ ← closeWithBVReflection g unsatProver
   return ()
 

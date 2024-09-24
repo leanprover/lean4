@@ -381,7 +381,7 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax): CommandElabM Uni
     -- Evaluate using term using `MetaEval` class.
     let elabMetaEval : CommandElabM Unit := do
       -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
-      -- we don't polute the environment with auxliary declarations.
+      -- we don't pollute the environment with auxliary declarations.
       -- We have special support for `CommandElabM` to ensure `#eval` can be used to execute commands
       -- that modify `CommandElabM` state not just the `Environment`.
       let act : Sum (CommandElabM Unit) (Environment → Options → IO (String × Except IO.Error Environment)) ←

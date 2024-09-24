@@ -2169,7 +2169,8 @@ theorem toInt_intMin {w : Nat} :
   · subst h
     simp [BitVec.toInt]
   · have w_pos : 0 < w := by omega
-    simp [BitVec.toInt, toNat_intMin, w_pos]
+    simp only [BitVec.toInt, toNat_intMin, w_pos, Nat.two_pow_pred_mod_two_pow,
+      Int.two_pow_pred_sub_two_pow, ite_eq_right_iff]
     rw [Nat.mul_comm]
     simp [w_pos]
 

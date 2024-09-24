@@ -19,5 +19,5 @@ theorem enumFrom_eq_enumFromTR' : @enumFrom = @enumFromTR' := by
     | a::as, n => by
       rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., List.foldr, go as]
       simp [enumFrom, f]
-  rw [Array.foldr_eq_foldr_data]
+  rw [Array.foldr_eq_foldr_toList]
   simp [go] -- Should close the goal

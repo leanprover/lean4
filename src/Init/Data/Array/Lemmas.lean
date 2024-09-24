@@ -19,6 +19,67 @@ This file contains some theorems about `Array` and `List` needed for `Init.Data.
 
 namespace Array
 
+@[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+@[simp] theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
+
+theorem getElem_eq_toList_getElem (a : Array α) (h : i < a.size) : a[i] = a.toList[i] := by
+  by_cases i < a.size <;> (try simp [*]) <;> rfl
+
+@[deprecated getElem_eq_toList_getElem (since := "2024-09-09")]
+abbrev getElem_eq_data_getElem := @getElem_eq_toList_getElem
+
+@[deprecated getElem_eq_toList_getElem (since := "2024-06-12")]
+theorem getElem_eq_toList_get (a : Array α) (h : i < a.size) : a[i] = a.toList.get ⟨i, h⟩ := by
+  simp
+
+theorem get_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
+    have : i < (a.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
+    (a.push x)[i] = a[i] := by
+  simp only [push, getElem_eq_toList_getElem, List.concat_eq_append, List.getElem_append_left, h]
+
+@[simp] theorem get_push_eq (a : Array α) (x : α) : (a.push x)[a.size] = x := by
+  simp only [push, getElem_eq_toList_getElem, List.concat_eq_append]
+  rw [List.getElem_append_right] <;> simp [getElem_eq_toList_getElem, Nat.zero_lt_one]
+
+theorem get_push (a : Array α) (x : α) (i : Nat) (h : i < (a.push x).size) :
+    (a.push x)[i] = if h : i < a.size then a[i] else x := by
+  by_cases h' : i < a.size
+  · simp [get_push_lt, h']
+  · simp at h
+    simp [get_push_lt, Nat.le_antisymm (Nat.le_of_lt_succ h) (Nat.ge_of_not_lt h')]
+
+end Array
+
+namespace List
+
+open Array
+
+/-! ### Lemmas about `List.toArray`. -/
+
+@[simp] theorem toArray_size (as : List α) : as.toArray.size = as.length := by simp [size]
+
+@[simp] theorem toArrayAux_size {a : List α} {b : Array α} :
+    (a.toArrayAux b).size = b.size + a.length := by
+  simp [size]
+
+@[simp] theorem toArray_toList : (a : Array α) → a.toList.toArray = a
+  | ⟨l⟩ => ext' (toList_toArray l)
+
+@[deprecated toArray_toList (since := "2024-09-09")]
+abbrev toArray_data := @toArray_toList
+@[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
+    a.toArray[i] = a[i]'(by simpa using h) := rfl
+
+@[simp] theorem toArray_concat {as : List α} {x : α} :
+    (as ++ [x]).toArray = as.toArray.push x := by
+  apply ext'
+  simp
+
+end List
+
+namespace Array
+
 attribute [simp] uset
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
@@ -38,20 +99,11 @@ abbrev data_length := @toList_length
 
 @[simp] theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp [size]
 
-theorem getElem_eq_toList_getElem (a : Array α) (h : i < a.size) : a[i] = a.toList[i] := by
-  by_cases i < a.size <;> (try simp [*]) <;> rfl
-
-@[deprecated getElem_eq_toList_getElem (since := "2024-09-09")]
-abbrev getElem_eq_data_getElem := @getElem_eq_toList_getElem
-
-@[deprecated getElem_eq_toList_getElem (since := "2024-06-12")]
-theorem getElem_eq_toList_get (a : Array α) (h : i < a.size) : a[i] = a.toList.get ⟨i, h⟩ := by
-  simp [getElem_eq_toList_getElem]
-
 theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
     (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
   simp [foldrM_eq_reverse_foldlM_toList, -size_push]
 
+/-- Variant of `foldrM_push` with the `start := arr.size + 1` rather than `(arr.push a).size`. -/
 @[simp] theorem foldrM_push' [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
     (arr.push a).foldrM f init (start := arr.size + 1) = f a init >>= arr.foldrM f := by
   simp [← foldrM_push]
@@ -59,6 +111,7 @@ theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array 
 theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) :
     (arr.push a).foldr f init = arr.foldr f (f a init) := foldrM_push ..
 
+/-- Variant of `foldr_push` with the `start := arr.size + 1` rather than `(arr.push a).size`. -/
 @[simp] theorem foldr_push' (f : α → β → β) (init : β) (arr : Array α) (a : α) :
     (arr.push a).foldr f init (start := arr.size + 1) = arr.foldr f (f a init) := foldrM_push' ..
 
@@ -67,22 +120,6 @@ theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) 
 
 @[simp] theorem toListRev_eq (arr : Array α) : arr.toListRev = arr.toList.reverse := by
   rw [toListRev, foldl_eq_foldl_toList, ← List.foldr_reverse, List.foldr_cons_nil]
-
-theorem get_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
-    have : i < (a.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
-    (a.push x)[i] = a[i] := by
-  simp only [push, getElem_eq_toList_getElem, List.concat_eq_append, List.getElem_append_left, h]
-
-@[simp] theorem get_push_eq (a : Array α) (x : α) : (a.push x)[a.size] = x := by
-  simp only [push, getElem_eq_toList_getElem, List.concat_eq_append]
-  rw [List.getElem_append_right] <;> simp [getElem_eq_toList_getElem, Nat.zero_lt_one]
-
-theorem get_push (a : Array α) (x : α) (i : Nat) (h : i < (a.push x).size) :
-    (a.push x)[i] = if h : i < a.size then a[i] else x := by
-  by_cases h' : i < a.size
-  · simp [get_push_lt, h']
-  · simp at h
-    simp [get_push_lt, Nat.le_antisymm (Nat.le_of_lt_succ h) (Nat.ge_of_not_lt h')]
 
 theorem mapM_eq_foldlM [Monad m] [LawfulMonad m] (f : α → m β) (arr : Array α) :
     arr.mapM f = arr.foldlM (fun bs a => bs.push <$> f a) #[] := by
@@ -345,7 +382,7 @@ theorem getElem_mem_toList (a : Array α) (h : i < a.size) : a[i] ∈ a.toList :
 abbrev getElem_mem_data := @getElem_mem_toList
 
 theorem getElem?_eq_toList_get? (a : Array α) (i : Nat) : a[i]? = a.toList.get? i := by
-  by_cases i < a.size <;> simp_all [getElem?_pos, getElem?_neg, List.get?_eq_get, eq_comm]; rfl
+  by_cases i < a.size <;> simp_all [getElem?_pos, getElem?_neg, List.get?_eq_get, eq_comm]
 
 @[deprecated getElem?_eq_toList_get? (since := "2024-09-09")]
 abbrev getElem?_eq_data_get? := @getElem?_eq_toList_get?
@@ -610,7 +647,7 @@ theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : A
   conv => rhs; rw [← List.reverse_reverse arr.toList]
   induction arr.toList.reverse with
   | nil => simp
-  | cons a l ih => simp [ih]; simp [map_eq_pure_bind, push]
+  | cons a l ih => simp [ih]; simp [map_eq_pure_bind]
 
 @[deprecated mapM_eq_mapM_toList (since := "2024-09-09")]
 abbrev mapM_eq_mapM_data := @mapM_eq_mapM_toList

@@ -2714,7 +2714,10 @@ def Array.extract (as : Array α) (start stop : Nat) : Array α :=
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
 
-/-- Auxiliary definition for `List.toArray`. -/
+/--
+Auxiliary definition for `List.toArray`.
+`List.toArrayAux as r = r ++ as.toArray`
+-/
 @[inline_if_reduce]
 def List.toArrayAux : List α → Array α → Array α
   | nil,       r => r

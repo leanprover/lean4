@@ -227,17 +227,18 @@ v4.12.0
 * [#4922](https://github.com/leanprover/lean4/pull/4922) perf: use `lean_instantiate_expr_mvars` at `instantiateExprMVars`
 * [#4921](https://github.com/leanprover/lean4/pull/4921) chore: cleanup `betaRev`
 * [#4915](https://github.com/leanprover/lean4/pull/4915) perf: `instantiateExprMVars`
-* [#3106](https://github.com/leanprover/lean4/pull/3106) feat: new snapshot architecture on the cmdline
-* [#4919](https://github.com/leanprover/lean4/pull/4919) chore: missing include on Windows
-* [#4914](https://github.com/leanprover/lean4/pull/4914) chore: remove unnecessary steps from release checklist
-* [#4913](https://github.com/leanprover/lean4/pull/4913) chore: require docs in BitVec
-* [#4912](https://github.com/leanprover/lean4/pull/4912) perf: use `lean_instantiate_level_mvars`
-* [#4911](https://github.com/leanprover/lean4/pull/4911) chore: cli help text: comma-separate alternative option forms
-* [#4910](https://github.com/leanprover/lean4/pull/4910) perf: add `lean_instantiate_level_mvars`
+
+
+
+
+
+
 
 (220 changes)
 
 ### Language features, tactics, and metaprograms
+
+*
 
 ### Language server, widgets, and IDE extensions
 
@@ -245,13 +246,26 @@ v4.12.0
 
 ### Library
 
+* `BitVec`
+* **Other fixes or improvements**
+  * [#4913](https://github.com/leanprover/lean4/pull/4913) enables `missingDocs` error for `BitVec`.
+
 ### Lean internals
 
+* **Porting core Lean to C++.** Some core algorithms have been rewritten in C++ for performance.
+  * [#4910](https://github.com/leanprover/lean4/pull/4910) and [#4912](https://github.com/leanprover/lean4/pull/4912) replace implementation of `instantiateLevelMVars` with `lean_instantiate_level_mvars`.
+  * [#4915](https://github.com/leanprover/lean4/pull/4915) perf: `instantiateExprMVars`
+
 ### Compiler, runtime, and FFI
+
+* [#3106](https://github.com/leanprover/lean4/pull/3106) enables parallelism when Lean is invoked from the command line. `Frontend.processCommand` and `FrontendM` are no longer used by Lean core; they will be preserved, but they will not benefit from parallelism going forward.
+* [#4919](https://github.com/leanprover/lean4/pull/4919) adds missing include in runtime for `AUTO_THREAD_FINALIZATION` feature on Windows.
+* [#4911](https://github.com/leanprover/lean4/pull/4911) improves formatting of CLI help text for the frontend.
 
 ### Lake
 
 ### DevOps/CI
+* [#4914](https://github.com/leanprover/lean4/pull/4914) removes unnecessary steps from release checklist
 
 ### Breaking changes
 

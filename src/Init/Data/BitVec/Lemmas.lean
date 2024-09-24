@@ -2201,6 +2201,11 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
 
 /-! ### Non-overflow theorems -/
 
+/-- If `x.toNat * y.toNat < 2^w`, then the multiplication `(x * y)` does not overflow. -/
+theorem toNat_add_of_lt {w} {x y : BitVec w} (h : x.toNat + y.toNat < 2^w) :
+    (x + y).toNat = x.toNat + y.toNat := by
+  rw [BitVec.toNat_add, Nat.mod_eq_of_lt h]
+
 /--
 If `y ≤ x`, then the subtraction `(x - y)` does not overflow.
 Thus, `(x - y).toNat = x.toNat - y.toNat`
@@ -2213,6 +2218,23 @@ theorem toNat_sub_of_le {x y : BitVec n} (h : y ≤ x) :
   · rw [h', Nat.sub_self, Nat.sub_add_cancel (by omega), Nat.mod_self]
   · have : 2 ^ n - y.toNat + x.toNat = 2 ^ n + (x.toNat - y.toNat) := by omega
     rw [this, Nat.add_mod_left, Nat.mod_eq_of_lt (by omega)]
+
+/--
+If `y > x`, then the subtraction `(x - y)` *does* overflow, and the result is the wraparound.
+Thus, `(x - y).toNat = 2^w - (y.toNat - x.toNat)`.
+-/
+theorem toNat_sub_of_lt {x y : BitVec w} (h : x < y) :
+    (x - y).toNat = 2^w - (y.toNat - x.toNat) := by
+  simp only [toNat_sub]
+  rw [Nat.mod_eq_of_lt (by bv_omega)]
+  bv_omega
+
+/-- If `x.toNat * y.toNat < 2^w`, then the multiplication `(x * y)` does not overflow.
+Thus, `(x * y).toNat = x.toNat * y.toNat`.
+-/
+theorem toNat_mul_of_lt {w} {x y : BitVec w} (h : x.toNat * y.toNat < 2^w) :
+    (x * y).toNat = x.toNat * y.toNat := by
+  rw [BitVec.toNat_mul, Nat.mod_eq_of_lt h]
 
 /-! ### Decidable quantifiers -/
 

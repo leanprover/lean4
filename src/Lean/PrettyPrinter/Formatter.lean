@@ -420,8 +420,8 @@ def identNoAntiquot.formatter : Formatter := do
   let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
   let id := id.simpMacroScopes
-  let tokenTable := getTokenTable (← getEnv)
-  let isToken (s : String) : Bool := (tokenTable.find? s).isSome
+  let table := (← read).table
+  let isToken (s : String) : Bool := (table.find? s).isSome
   withMaybeTag (getExprPos? stx) (pushToken info (id.toString (isToken := isToken)))
   goLeft
 
@@ -537,7 +537,7 @@ register_builtin_option pp.oneline : Bool := {
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
   trace[PrettyPrinter.format.input] "{Std.format stx}"
   let options ← getOptions
-  let table ← Parser.builtinTokenTable.get
+  let table := Parser.getTokenTable (← getEnv)
   catchInternalId backtrackExceptionId
     (do
       let (_, st) ← (concat formatter { table, options }).run { stxTrav := .fromSyntax stx }

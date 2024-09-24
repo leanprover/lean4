@@ -621,10 +621,6 @@ theorem DivModState.umod_eq_of_lawful {qr : DivModState w}
 
 /-! ### DivModState.Poised -/
 
-/-
-TODO: Can we redefine `qr.Poised` as simply `¬qr.IsFinal`?
-That would mean we have extra `Lawful` assumptions in some spots, but in others we'll have less,
-as we won't have to carry around the `args` -/
 /--
 A `Poised` DivModState is a state which is `Lawful` and furthermore, has at least
 one numerator bit left to process `(0 < wn)`
@@ -645,12 +641,6 @@ def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w :=
   have hwrn := h.hwrn
   have hwn_lt := h.hwn_lt
   omega
-
--- /-- If we have extra bits to spare in `n`,
--- then we know the div mod state is poised to run another round of the shift subtractor. -/
--- def DivModState.Lawful.toPoised {qr : DivModState w}
---     (h : qr.Lawful w wr (wn + 1) n d) : qr.Poised wr (wn + 1) n d :=
---   { h with hwn_lt := by omega }
 
 /-! ### Division shift subtractor -/
 

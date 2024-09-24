@@ -714,9 +714,15 @@ instance : Std.Commutative (fun (x y : BitVec w) => x ||| y) := ⟨BitVec.or_com
   ext i
   simp
 
+instance : Std.IdempotentOp (α := BitVec n) (· ||| · ) where
+  idempotent _ := BitVec.or_self
+
 @[simp] theorem or_zero {x : BitVec w} : x ||| 0#w = x := by
   ext i
   simp
+
+instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
+  right_id _ := BitVec.or_zero
 
 @[simp] theorem zero_or {x : BitVec w} : 0#w ||| x = x := by
   ext i
@@ -775,6 +781,9 @@ instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_co
   ext i
   simp
 
+instance : Std.IdempotentOp (α := BitVec n) (· &&& · ) where
+  idempotent _ := BitVec.and_self
+
 @[simp] theorem and_zero {x : BitVec w} : x &&& 0#w = 0#w := by
   ext i
   simp
@@ -786,6 +795,9 @@ instance : Std.Commutative (fun (x y : BitVec w) => x &&& y) := ⟨BitVec.and_co
 @[simp] theorem and_allOnes {x : BitVec w} : x &&& allOnes w = x := by
   ext i
   simp
+
+instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) where
+  right_id _ := BitVec.and_allOnes
 
 @[simp] theorem allOnes_and {x : BitVec w} : allOnes w &&& x = x := by
   ext i
@@ -842,6 +854,9 @@ instance : Std.Commutative (fun (x y : BitVec w) => x ^^^ y) := ⟨BitVec.xor_co
 @[simp] theorem xor_zero {x : BitVec w} : x ^^^ 0#w = x := by
   ext i
   simp
+
+instance : Std.LawfulCommIdentity (α := BitVec n) (· ^^^ · ) (0#n) where
+  right_id _ := BitVec.xor_zero
 
 @[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by
   ext i

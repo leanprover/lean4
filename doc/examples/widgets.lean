@@ -93,7 +93,7 @@ Meaning "Remote Procedure Call",this is a Lean function callable from widget cod
 Our method will take in the `name : Name` of a constant in the environment and return its type.
 By convention, we represent the input data as a `structure`.
 Since it will be sent over from JavaScript,
-we need `FromJson` and `ToJson` instnace.
+we need `FromJson` and `ToJson` instance.
 We'll see why the position field is needed later.
 -/
 

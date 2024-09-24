@@ -1879,7 +1879,7 @@ inductive DeltaStepResult where
 
 /--
 Perform one step of lazy delta reduction. This function decides whether to perform delta-reduction on `t`, `s`, or both.
-It is currently used to solve contraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
+It is currently used to solve constraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
 It is also a simpler version of `isDefEqDelta`. In the future, we may decide to combine these two functions like we do
 in the kernel.
 -/
@@ -1919,7 +1919,7 @@ where
     | .undef => return .cont t s
 
 /--
-Helper function for solving contraints of the form `t.i =?= s.i`.
+Helper function for solving constraints of the form `t.i =?= s.i`.
 -/
 private partial def isDefEqProjDelta (t s : Expr) (i : Nat) : MetaM Bool := do
   let t ← whnfCore t

@@ -109,7 +109,7 @@ def addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
   refined, and not a type with a value.
 
   This is used in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
-  calls to refine the functions' paramter, which may mention `major`.
+  calls to refine the functions' parameter, which may mention `major`.
   See there for how to use this function.
 -/
 def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
@@ -379,12 +379,12 @@ The given `MatcherApp` must not use a splitter in `matcherName`.
 The resulting expression *will* use the splitter corresponding to `matcherName` (this is necessary
 for the construction).
 
-Interally, this needs to reduce the matcher in a given branch; this is done using
+Internally, this needs to reduce the matcher in a given branch; this is done using
 `Split.simpMatchTarget`.
 -/
 def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
   -- In matcherApp.motive, replace the (dummy) matcher body with a type
-  -- derived from the inferred types of the alterantives
+  -- derived from the inferred types of the alternatives
   let nExtra := matcherApp.remaining.size
   matcherApp.transform (useSplitter := true)
     (onMotive := fun motiveArgs body => do

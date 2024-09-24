@@ -1589,7 +1589,7 @@ macro "get_elem_tactic" : tactic =>
       There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
       If `omega` is used to "fill" this proof, we will have a more complex proof term that
       cannot be inferred by unification.
-      We hardcoded `assumption` here to ensure users cannot accidentaly break this IF
+      We hardcoded `assumption` here to ensure users cannot accidentally break this IF
       they add new `macro_rules` for `get_elem_tactic_trivial`.
 
       TODO: Implement priorities for `macro_rules`.
@@ -1599,7 +1599,7 @@ macro "get_elem_tactic" : tactic =>
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )

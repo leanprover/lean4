@@ -9,7 +9,6 @@ import Std.Tactic.BVDecide.LRAT.Internal.Assignment
 import Std.Tactic.BVDecide.LRAT.Internal.CNF
 import Std.Tactic.BVDecide.LRAT.Internal.Formula
 import Std.Tactic.BVDecide.LRAT.Internal.Entails
-import Std.Tactic.BVDecide.LRAT.Internal.Assignment
 import Std.Tactic.BVDecide.LRAT.Internal.Clause
 import Std.Tactic.BVDecide.LRAT.Internal.LRATChecker
 import Std.Tactic.BVDecide.LRAT.Internal.LRATCheckerSound

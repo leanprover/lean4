@@ -1045,7 +1045,7 @@ def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM 
   logException ex
   pure syntheticSorry
 
-/-- If `mayPostpone == true`, throw `Expection.postpone`. -/
+/-- If `mayPostpone == true`, throw `Exception.postpone`. -/
 def tryPostpone : TermElabM Unit := do
   if (← read).mayPostpone then
     throwPostpone

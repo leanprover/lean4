@@ -30,7 +30,7 @@ def fromExpr? (e : Expr) : SimpM (Option Literal) := do
   return some { n, value }
 
 /--
-Helper function for reducing homogenous unary bitvector operators.
+Helper function for reducing homogeneous unary bitvector operators.
 -/
 @[inline] def reduceUnary (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n) (e : Expr) : SimpM DStep := do
@@ -39,7 +39,7 @@ Helper function for reducing homogenous unary bitvector operators.
   return .done <| toExpr (op v.value)
 
 /--
-Helper function for reducing homogenous binary bitvector operators.
+Helper function for reducing homogeneous binary bitvector operators.
 -/
 @[inline] def reduceBin (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n → BitVec n) (e : Expr) : SimpM DStep := do

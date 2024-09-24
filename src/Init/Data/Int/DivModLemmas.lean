@@ -194,7 +194,7 @@ theorem fdiv_eq_tdiv {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv
 @[simp, norm_cast] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
 
 
-/-! ### mod definitiions -/
+/-! ### mod definitions -/
 
 theorem emod_add_ediv : ∀ a b : Int, a % b + b * (a / b) = a
   | ofNat _, ofNat _ => congrArg ofNat <| Nat.mod_add_div ..

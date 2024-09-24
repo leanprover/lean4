@@ -21,7 +21,7 @@ private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSo
     elabTerm stx expectedType? false
 
 /--
-  Try to elaborate `stx` that was postponed by an elaboration method using `Expection.postpone`.
+  Try to elaborate `stx` that was postponed by an elaboration method using `Exception.postpone`.
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
 private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
@@ -86,7 +86,7 @@ private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Opti
   example (a : Int) (b c : Nat) : a = ↑b - ↑c := sorry
   ```
   We have two pending coercions for the `↑` and `HSub ?m.220 ?m.221 ?m.222`.
-  When we did not use a backtracking search here, then the homogenous default instance for `HSub`.
+  When we did not use a backtracking search here, then the homogeneous default instance for `HSub`.
   ```
   instance [Sub α] : HSub α α α where
   ```
@@ -306,7 +306,7 @@ inductive PostponeBehavior where
   | no
   /--
   Synthectic metavariables associated with type class resolution can be postponed.
-  Motivation: this kind of metavariable are not synthethic opaque, and can be assigned by `isDefEq`.
+  Motivation: this kind of metavariable are not synthetic opaque, and can be assigned by `isDefEq`.
   Unviverse constraints can also be postponed.
   -/
   | «partial»

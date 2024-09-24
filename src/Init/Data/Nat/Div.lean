@@ -84,7 +84,7 @@ decreasing_by apply div_rec_lemma; assumption
 protected def mod : @& Nat → @& Nat → Nat
   /-
   Nat.modCore is defined by well-founded recursion and thus irreducible. Nevertheless it is
-  desireable if trivial `Nat.mod` calculations, namely
+  desirable if trivial `Nat.mod` calculations, namely
   * `Nat.mod 0 m` for all `m`
   * `Nat.mod n (m+n)` for concrete literals `n`
   reduce definitionally.

@@ -30,7 +30,7 @@ private def mkUserNameFor (e : Expr) : TermElabM Name := do
 
 
 /--
-   Remark: if the discriminat is `Systax.missing`, we abort the elaboration of the `match`-expression.
+   Remark: if the discriminat is `Syntax.missing`, we abort the elaboration of the `match`-expression.
    This can happen due to error recovery. Example
    ```
    example : (p ∨ p) → p := fun h => match

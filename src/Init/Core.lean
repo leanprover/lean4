@@ -1897,7 +1897,8 @@ theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
   show extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
   exact congrArg extfunApp (Quot.sound h)
 
-instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) where
+instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] :
+    Subsingleton (∀ a, β a) where
   allEq f g := funext fun a => Subsingleton.elim (f a) (g a)
 
 /-! # Squash -/

@@ -815,6 +815,16 @@ def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos)
     let (d₃, i) ← decodeHexDigit s i
     let (d₄, i) ← decodeHexDigit s i
     pure (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
+  else if c = 'U'  then do
+    let (d₁, i) ← decodeHexDigit s i
+    let (d₂, i) ← decodeHexDigit s i
+    let (d₃, i) ← decodeHexDigit s i
+    let (d₄, i) ← decodeHexDigit s i
+    let (d₅, i) ← decodeHexDigit s i
+    let (d₆, i) ← decodeHexDigit s i
+    let (d₇, i) ← decodeHexDigit s i
+    let (d₈, i) ← decodeHexDigit s i
+    pure (Char.ofNat (16*(16*(16*(16*(16*(16*(16*d₁ + d₂) + d₃) + d₄) + d₅) + d₆) + d₇) + d₈), i)
   else
     none
 

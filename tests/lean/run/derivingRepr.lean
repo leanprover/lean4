@@ -88,3 +88,25 @@ structure test2 : Type 1 where
 #guard_msgs in #eval test1.wrap Nat (by simp)
 /-- info: { ty := _, wrap := _ } -/
 #guard_msgs in #eval test2.mk Nat (by simp)
+
+/-!
+Indices promoted to parameters are still explicit. Need to include them as arguments.
+-/
+
+inductive Promote : (loc : Int) -> (state : Nat) -> Type where
+  | mk : (loc : Int) -> (state : Nat) -> (id : Nat) -> Promote loc state
+  deriving Repr
+
+/-- info: Promote.mk 3 2 1 -/
+#guard_msgs in #eval Promote.mk 3 2 1
+
+/-!
+Promoted indices that are types are represented as `_`.
+-/
+
+inductive Promote2 : Type → Type where
+  | mk : (α : Type) → Promote2 α
+  deriving Repr
+
+/-- info: Promote2.mk _ -/
+#guard_msgs in #eval Promote2.mk Nat

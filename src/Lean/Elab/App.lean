@@ -145,8 +145,6 @@ structure State where
     When `..` is used, eta-expansion is disabled, and missing arguments are treated as `_`.
   -/
   etaArgs              : Array Expr   := #[]
-  /-- Missing explicit arguments, from dependencies of named arguments. These cannot be eta arguments. -/
-  missingExplicits     : Array Expr   := #[]
   /-- Metavariables that we need to set the error context using the application being built. -/
   toSetErrorCtx        : Array MVarId := #[]
   /-- Metavariables for the instance implicit arguments that have already been processed. -/
@@ -380,14 +378,6 @@ private def finalize : M Expr := do
   -- Register the error context of implicits
   for mvarId in s.toSetErrorCtx do
     registerMVarErrorImplicitArgInfo mvarId ref e
-  unless s.missingExplicits.isEmpty do
-    let mes := s.missingExplicits.map fun e => m!"{indentExpr e}"
-    logError m!"insufficient number of arguments, \
-      {s.missingExplicits.size} missing explicit argument(s) are dependencies of a named argument and must be provided. \
-      Typically each missing argument can be filled in with '_' or `(_)`. \
-      In explicit mode, `_` for an instance argument triggers typeclass synthesis and `(_)` does not.\n\n\
-      These are the inferred missing arguments:\
-      {MessageData.joinSep mes.toList ""}"
   if !s.etaArgs.isEmpty then
     e ← mkLambdaFVars s.etaArgs e
   /-
@@ -422,22 +412,22 @@ private def finalize : M Expr := do
   return e
 
 /--
-Returns a named argument satisfying the predicate `p` that depends on the next argument, otherwise `none`.
+Returns a named argument that depends on the next argument, otherwise `none`.
 -/
-private def findNamedArgDependsOnCurrent? (p : NamedArg → Bool) : M (Option NamedArg) := do
+private def findNamedArgDependsOnCurrent? : M (Option NamedArg) := do
   let s ← get
-  if s.namedArgs.any p then
+  if s.namedArgs.isEmpty then
+    return none
+  else
     forallTelescopeReducing s.fType fun xs _ => do
       let curr := xs[0]!
       for i in [1:xs.size] do
         let xDecl ← xs[i]!.fvarId!.getDecl
-        if let some arg := s.namedArgs.find? fun arg => p arg && arg.name == xDecl.userName then
+        if let some arg := s.namedArgs.find? fun arg => arg.name == xDecl.userName then
           /- Remark: a default value at `optParam` does not count as a dependency -/
           if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
             return arg
       return none
-  else
-    return none
 
 
 /-- Return `true` if there are regular or named arguments to be processed. -/
@@ -526,8 +516,9 @@ where
 
 mutual
   /--
-    Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
-    and then execute the main loop.-/
+  Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
+  and then execute the main loop.
+  -/
   private partial def addEtaArg (argName : Name) : M Expr := do
     let n    ← getBindingName
     let type ← getArgExpectedType
@@ -537,10 +528,9 @@ mutual
       main
 
   /--
-  Create a fresh metavariable for the implicit argument.
-  - If `missingExplicit` is true, then it is added to the `missingExplicits` array.
+  Create a fresh metavariable for the implicit argument, add it to `f`, and thn execute the main loop.
   -/
-  private partial def addImplicitArg (argName : Name) (missingExplicit : Bool := false) : M Expr := do
+  private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
       let arg ← mkFreshExprMVar argType
@@ -553,19 +543,18 @@ mutual
     else
       mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
-    if missingExplicit then
-      modify fun s => { s with missingExplicits := s.missingExplicits.push arg }
     addNewArg argName arg
     main
 
   /--
-    Process a `fType` of the form `(x : A) → B x`.
-    This method assume `fType` is a function type -/
+  Process a `fType` of the form `(x : A) → B x`.
+  This method assume `fType` is a function type.
+  -/
   private partial def processExplicitArg (argName : Name) : M Expr := do
     match (← get).args with
     | arg::args =>
       -- Note: currently the following test never succeeds in explicit mode since `@x.f` notation does not exist.
-      if (← findNamedArgDependsOnCurrent? (·.suppressDeps)).isSome then
+      if let some true := NamedArg.suppressDeps <$> (← findNamedArgDependsOnCurrent?) then
         /-
         We treat the explicit argument `argName` as implicit
         if we have a named arguments that depends on it whose `suppressDeps` flag set to `true`.
@@ -587,16 +576,16 @@ mutual
         Recall that `f.val` is, to first approximation, sugar for `Approx.val (self := f)`.
         Without further refinement, this would expand to `fun f'' : α → β => Approx.val f'' f`,
         which is a type error, since `f''` must be defeq to `f'`.
-        Furthermore, with projection notation, users expect all structure parameters to uniformly be implicit;
-        after all, they are determined by `self`.
+        Furthermore, with projection notation, users expect all structure parameters
+        to be uniformly implicit; after all, they are determined by `self`.
         To handle this, the `(self := f)` named argument is annotated with the `suppressDeps` flag.
         This causes the `a` parameter to become implicit, and `f.val` instead expands to `Approx.val f' f`.
 
-        We used to have this feature enabled for *all* explicit arguments, which confused users
+        This feature previously was enabled for *all* explicit arguments, which confused users
         and was frequently reported as a bug (issue #1867).
         Now it is only enabled for the `self` argument in structure projections.
 
-        We also used to do this in case `(← get).args` was empty,
+        We used to do this only when `(← get).args` was empty,
         but it created an asymmetry because `f.val` worked as expected,
         yet one would have to write `f.val _ x` when there are further arguments.
         -/
@@ -641,14 +630,13 @@ mutual
         if (← read).ellipsis then
           addImplicitArg argName
         else if !(← get).namedArgs.isEmpty then
-          if let some arg ← findNamedArgDependsOnCurrent? (fun _ => true) then
+          if let some _ ← findNamedArgDependsOnCurrent? then
             /-
-            Dependencies of named arguments cannot be turned into eta arguments.
-            Doing so leads to confusing type errors due to the eta arguments not being defeq to the inferred arguments.
-            However, they can safely be turned into implicit arguments for error recovery.
-            This is an error unless the named argument is meant to suppress dependencies.
+            Dependencies of named arguments cannot be turned into eta arguments
+            since they are determined by the named arguments.
+            Instead we can turn them into implicit arguments.
             -/
-            addImplicitArg argName (missingExplicit := !arg.suppressDeps)
+            addImplicitArg argName
           else
             addEtaArg argName
         else if !(← read).explicit then

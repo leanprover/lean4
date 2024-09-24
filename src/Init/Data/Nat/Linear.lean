@@ -162,7 +162,7 @@ def Expr.toNormPoly (e : Expr) : Poly :=
 def Expr.inc (e : Expr) : Expr :=
    Expr.add e (Expr.num 1)
 
-structure PolyCnstr  where
+structure PolyCnstr where
   eq  : Bool
   lhs : Poly
   rhs : Poly

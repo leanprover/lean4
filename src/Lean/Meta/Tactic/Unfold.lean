@@ -17,7 +17,7 @@ private def getSimpUnfoldContext : MetaM Simp.Context :=
    }
 
 def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
-  if let some unfoldThm ← getUnfoldEqnFor? declName  then
+  if let some unfoldThm ← getUnfoldEqnFor? declName then
     (·.1) <$> Simp.main e (← getSimpUnfoldContext) (methods := { pre := pre unfoldThm })
   else
     return { expr  := (← deltaExpand e (· == declName)) }

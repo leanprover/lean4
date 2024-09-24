@@ -270,7 +270,7 @@ First, it calls `findElanInstall?` to detect a Elan installation.
 Then it attempts to detect if Lake and Lean are part of a single installation
 where the `lake` executable is co-located with the `lean` executable (i.e., they
 are in the same directory). If Lean and Lake are not co-located, Lake will
-attempt  to find the their installations separately by calling
+attempt to find the their installations separately by calling
 `findLeanInstall?` and `findLakeInstall?`.
 
 When co-located, Lake will assume that Lean and Lake's binaries are located in

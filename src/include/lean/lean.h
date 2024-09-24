@@ -1007,7 +1007,7 @@ LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }
 LEAN_EXPORT lean_obj_res lean_string_mk(lean_obj_arg cs);
 LEAN_EXPORT lean_obj_res lean_string_data(lean_obj_arg s);
-LEAN_EXPORT uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
+LEAN_EXPORT uint32_t lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c);
 static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
   char const * str = lean_string_cstr(s);

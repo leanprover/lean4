@@ -22,7 +22,7 @@ namespace Simp
 structure Context where
   /--
   Name of the declaration being simplified.
-  We currently use this information because we are generating phase1 declarations  on demand,
+  We currently use this information because we are generating phase1 declarations on demand,
   and it may trigger non-termination when trying to access the phase1 declaration.
   -/
   declName : Name

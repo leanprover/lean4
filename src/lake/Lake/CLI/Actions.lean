@@ -59,7 +59,7 @@ def Package.test (pkg : Package) (args : List String := []) (buildConfig : Build
   let pkgName := pkg.name.toString (escape := false)
   if let some script := pkg.scripts.find? driver.toName then
     script.run (cfgArgs.toList ++ args)
-  else if let some exe := pkg.findLeanExe? driver.toName  then
+  else if let some exe := pkg.findLeanExe? driver.toName then
     let exeFile ← runBuild exe.fetch buildConfig
     env exeFile.toString (cfgArgs ++ args.toArray)
   else if let some lib := pkg.findLeanLib? driver.toName then
@@ -79,7 +79,7 @@ def Package.lint (pkg : Package) (args : List String := []) (buildConfig : Build
   let (pkg, driver) ← pkg.resolveDriver "lint" pkg.lintDriver
   if let some script := pkg.scripts.find? driver.toName then
     script.run (cfgArgs.toList ++ args)
-  else if let some exe := pkg.findLeanExe? driver.toName  then
+  else if let some exe := pkg.findLeanExe? driver.toName then
     let exeFile ← runBuild exe.fetch buildConfig
     env exeFile.toString (cfgArgs ++ args.toArray)
   else

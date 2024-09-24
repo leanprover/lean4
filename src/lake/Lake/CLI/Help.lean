@@ -179,7 +179,7 @@ package configuration option or by tagging a script, executable, or library
 `@[test_driver]`. A definition in a dependency can be used as a test driver
 by using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.
 
-A script test driver will be run with the  package configuration's
+A script test driver will be run with the package configuration's
 `testDriverArgs` plus the CLI `args`. An executable test driver will be
 built and then run like a script. A library test driver will just be built.
 "
@@ -208,7 +208,7 @@ configuration option by tagging a script or executable `@[lint_driver]`.
 A definition in dependency can be used as a test driver by using the
 `<pkg>/<name>` syntax for the 'testDriver' configuration option.
 
-A script lint driver will be run with the  package configuration's
+A script lint driver will be run with the package configuration's
 `lintDriverArgs` plus the CLI `args`. An executable lint driver will be
 built and then run like a script.
 "

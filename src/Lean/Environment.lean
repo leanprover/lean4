@@ -517,7 +517,7 @@ def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α �
 
 /-- Set the current state of the given extension in the given environment. This change is *not* persisted across files. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
-  ext.toEnvExtension.modifyState env fun ps => { ps with  state := s }
+  ext.toEnvExtension.modifyState env fun ps => { ps with state := s }
 
 /-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=

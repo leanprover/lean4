@@ -18,7 +18,7 @@ namespace Lean.Compiler.LCNF
 
 It is based on the [A-normal form](https://en.wikipedia.org/wiki/A-normal_form),
 and the approach described in the paper
-[Compiling  without continuations](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/compiling-without-continuations.pdf).
+[Compiling without continuations](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/compiling-without-continuations.pdf).
 
 -/
 

@@ -505,7 +505,7 @@ abbrev run?' [Functor m] (self : ELogT m α) (log : Log := {}) : m (Option α) :
 Run `self` with the log taken from the state of the monad `n`,
 
 **Warning:** If lifting `self` from `m` to `n` fails, the log will be lost.
-Thus, this is best used when the lift cannot fail. Note  excludes the
+Thus, this is best used when the lift cannot fail. Note excludes the
 native log position failure of `ELogT`, which are lifted safely.
 -/
 @[inline] def takeAndRun

@@ -1496,7 +1496,7 @@ private partial def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Exp
     isDefEqLeft tInfo.name tNew s
   else if let some sNew ← packedInstanceOf? sProjInfo? s tInfo.name then
     isDefEqRight sInfo.name t sNew
-  else  match tProjInfo?, sProjInfo? with
+  else match tProjInfo?, sProjInfo? with
     | some _, none => unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
     | none, some _ => unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
     | _, _ => unfoldReducibeDefEq tInfo sInfo t s

@@ -234,7 +234,7 @@ structure or its values.
 
 Left identity is `x >>= pure = x` and is demonstrated by the following examples on a monadic `List`:
 -/
-instance : Monad List  where
+instance : Monad List where
   pure := List.pure
   bind := List.bind
 

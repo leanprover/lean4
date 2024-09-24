@@ -46,10 +46,10 @@ int mpn_compare(mpn_digit const * a, size_t const lnga,
     return res;
 }
 
-void  mpn_add(mpn_digit const * a, size_t const lnga,
-              mpn_digit const * b, size_t const lngb,
-              mpn_digit * c, size_t const lngc_alloc,
-              size_t * plngc) {
+void mpn_add(mpn_digit const * a, size_t const lnga,
+             mpn_digit const * b, size_t const lngb,
+             mpn_digit * c, size_t const lngc_alloc,
+             size_t * plngc) {
     // Essentially Knuth's Algorithm A
     size_t len = max(lnga, lngb);
     lean_assert(lngc_alloc == len+1 && len > 0);
@@ -127,7 +127,7 @@ void mpn_mul(mpn_digit const * a, size_t const lnga,
 #define LAST_BITS(N, X) (((X) << (DIGIT_BITS-(N))) >> (DIGIT_BITS-(N)))
 #define BASE ((mpn_double_digit)0x01 << DIGIT_BITS)
 
-class  mpn_buffer : public buffer<mpn_digit> {
+class mpn_buffer : public buffer<mpn_digit> {
 public:
     mpn_buffer() : buffer<mpn_digit>() {}
 

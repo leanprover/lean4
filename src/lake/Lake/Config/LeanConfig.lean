@@ -205,7 +205,7 @@ structure LeanConfig where
   * If `true`, Lake will exclude platform-dependent elements
   (e.g., precompiled modules, external libraries) from a module's trace,
   preventing re-elaboration on different platforms. Note that this will not
-  effect  modules outside the code unit in question. For example, a
+  effect modules outside the code unit in question. For example, a
   platform-independent package which depends on a platform-dependent library
   will still be platform-dependent.
 
@@ -213,7 +213,7 @@ structure LeanConfig where
   platform-dependent artifacts in the trace if they module depends on them,
   but otherwise not force modules to be platform-dependent.
 
-  There is no check  for correctness here, so a configuration can lie
+  There is no check for correctness here, so a configuration can lie
   and Lake will not catch it. Defaults to `none`.
   -/
   platformIndependent : Option Bool := none

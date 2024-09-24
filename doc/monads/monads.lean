@@ -191,7 +191,7 @@ You can easily make `List` into a monad with the following, since List already p
 implementation of `pure` and `bind`.
 
 -/
-instance : Monad List  where
+instance : Monad List where
   pure := List.pure
   bind := List.bind
 /-!

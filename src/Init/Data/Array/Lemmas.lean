@@ -252,7 +252,7 @@ theorem getElem_set (a : Array α) (i : Fin a.size) (v : α) (j : Nat)
 
 @[simp] theorem size_setD (a : Array α) (index : Nat) (val : α) :
   (Array.setD a index val).size = a.size := by
-  if h : index < a.size  then
+  if h : index < a.size then
     simp [setD, h]
   else
     simp [setD, h]

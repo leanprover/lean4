@@ -59,7 +59,7 @@ instance : SmartInsert Table where
 instance [ToToml (Array α)] : SmartInsert (Array α) where
   smartInsert k v t := t.insertUnless v.isEmpty k (toToml v)
 
-instance : SmartInsert String  where
+instance : SmartInsert String where
   smartInsert k v t := t.insertUnless v.isEmpty k (toToml v)
 
 /-- Insert a value into the table if `p` is `true`. -/

@@ -2282,6 +2282,22 @@ theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   · simp only [Nat.not_lt, Nat.le_zero_eq] at h
     simp [bv_toNat, h]
 
+theorem toInt_neg {x : BitVec w} (rs : x ≠ intMin w) :
+    (-x).toInt = -(x.toInt) := by
+  simp only [ne_eq, toNat_eq, toNat_intMin] at rs
+  by_cases x_zero : x = 0
+  · subst x_zero
+    simp [BitVec.toInt]
+    omega
+  by_cases w_0 : w = 0
+  · subst w_0
+    simp [BitVec.eq_nil x]
+  have : 0 < w := by omega
+  rw [Nat.two_pow_pred_mod_two_pow (by omega)] at rs
+  simp only [BitVec.toInt, BitVec.toNat_neg, BitVec.sub_toNat_mod_cancel x_zero]
+  have := @Nat.two_pow_pred_mul_two w (by omega)
+  split <;> split <;> omega
+
 /-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/

@@ -850,7 +850,7 @@ theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
       cases l₁ with
       | nil =>
         exact nil_prefix
-      |cons _ _ =>
+      | cons _ _ =>
         simp only [length_cons, Nat.add_le_add_iff_right, Fin.getElem_fin] at hl h
         simp only [cons_prefix_cons]
         exact ⟨h 0, tail_ih hl (fun a ↦ h a.succ)⟩

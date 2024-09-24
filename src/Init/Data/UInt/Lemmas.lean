@@ -67,7 +67,6 @@ protected theorem eq_of_toBitVec_eq {a b : $typeName} (h : a.toBitVec = b.toBitV
   cases a; cases b; simp_all
 
 open $typeName (eq_of_toBitVec_eq) in
-@[deprecated eq_of_toBitVec_eq (since := "2024-09-23")]
 protected theorem eq_of_val_eq {a b : $typeName} (h : a.val = b.val) : a = b := by
   rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [val]
 

@@ -754,10 +754,10 @@ infer the proof of `Nonempty α`.
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
 
-instance (α : Sort u) {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
+instance {α : Sort u} {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
-instance Pi.instNonempty (α : Sort u) {β : α → Sort v} [(a : α) → Nonempty (β a)] :
+instance Pi.instNonempty {α : Sort u} {β : α → Sort v} [(a : α) → Nonempty (β a)] :
     Nonempty ((a : α) → β a) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
@@ -767,7 +767,7 @@ instance : Inhabited (Sort u) where
 instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
   default := fun _ => default
 
-instance Pi.instInhabited (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] :
+instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhabited (β a)] :
     Inhabited ((a : α) → β a) where
   default := fun _ => default
 

@@ -669,6 +669,21 @@ theorem IsPrefix.getElem {x y : List α} (h : x <+: y) {n} (hn : n < x.length) :
   obtain ⟨_, rfl⟩ := h
   exact (List.getElem_append_left hn).symm
 
+theorem IsPrefix.iff_getElem :
+    l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ x : Fin l₁.length, l₁[x] = l₂[x] where
+  mp h := ⟨h.length_le, fun _ ↦ h.getElem _⟩
+  mpr h := by
+    obtain ⟨hl, h⟩ := h
+    induction l₂ generalizing l₁
+    case nil =>
+      simpa using hl
+    case cons _ _ tail_ih =>
+      cases l₁
+      · exact nil_prefix
+      · simp [Fin.forall_fin_succ] at hl h
+        simp only [h.1, cons_prefix_cons, true_and]
+        apply tail_ih hl h.2
+
 -- See `Init.Data.List.Nat.Sublist` for `IsSuffix.getElem`.
 
 theorem IsPrefix.mem (hx : a ∈ l₁) (hl : l₁ <+: l₂) : a ∈ l₂ :=
@@ -725,11 +740,20 @@ theorem infix_iff_suffix_prefix {l₁ l₂ : List α} : l₁ <:+: l₂ ↔ ∃ t
 theorem IsInfix.eq_of_length (h : l₁ <:+: l₂) : l₁.length = l₂.length → l₁ = l₂ :=
   h.sublist.eq_of_length
 
+theorem IsInfix.eq_of_length_le (h : l₁ <:+: l₂) : l₂.length ≤ l₁.length → l₁ = l₂ :=
+  h.sublist.eq_of_length_le
+
 theorem IsPrefix.eq_of_length (h : l₁ <+: l₂) : l₁.length = l₂.length → l₁ = l₂ :=
   h.sublist.eq_of_length
 
+theorem IsPrefix.eq_of_length_le (h : l₁ <+: l₂) : l₂.length ≤ l₁.length → l₁ = l₂ :=
+  h.sublist.eq_of_length_le
+
 theorem IsSuffix.eq_of_length (h : l₁ <:+ l₂) : l₁.length = l₂.length → l₁ = l₂ :=
   h.sublist.eq_of_length
+
+theorem IsSuffix.eq_of_length_le (h : l₁ <:+ l₂) : l₂.length ≤ l₁.length → l₁ = l₂ :=
+  h.sublist.eq_of_length_le
 
 theorem prefix_of_prefix_length_le :
     ∀ {l₁ l₂ l₃ : List α}, l₁ <+: l₃ → l₂ <+: l₃ → length l₁ ≤ length l₂ → l₁ <+: l₂

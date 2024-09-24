@@ -5,6 +5,7 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 -/
 prelude
 import Init.Data.Int.Lemmas
+import Init.Data.Nat.Lemmas
 
 namespace Int
 
@@ -40,5 +41,23 @@ theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
   | 0 => rfl
   | n + 1 =>
     simp only [Nat.pow_succ, Int.pow_succ, natCast_mul, natCast_pow _ n]
+
+theorem natCast_two_pow (n : Nat) : ((2^n : Nat) : Int) = (2: Int) ^ n := by
+  match n with
+  | 0 => rfl
+  | n + 1 =>
+    simp [Nat.pow_succ, natCast_mul, natCast_pow _ n, Nat.cast_ofNat_Int,
+      Int.pow_succ]
+
+@[simp]
+protected theorem two_pow_pred_sub_two_pow {w : Nat} (h : 0 < w) :
+    (2 ^ (w - 1) : Nat) - (2 ^ w : Nat) = - ((2 ^ (w - 1) : Nat) : Int) := by
+  rw [← Nat.two_pow_pred_add_two_pow_pred h]
+  omega
+
+@[simp]
+protected theorem two_pow_pred_sub_two_pow' {w : Nat} (h : 0 < w) :
+    2 ^ (w - 1) - 2 ^ w = - 2 ^ (w - 1) := by
+  simp [← natCast_two_pow, h]
 
 end Int

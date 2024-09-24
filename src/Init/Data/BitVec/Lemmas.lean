@@ -11,6 +11,7 @@ import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Mod
 import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.Pow
 
 set_option linter.missingDocs true
 
@@ -2160,6 +2161,28 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
 @[simp, bv_toNat]
 theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
   simp [intMin]
+
+@[simp]
+theorem two_pow_pred_mul_two (h : 0 < w) :
+    2 ^ (w - 1) * 2 = 2 ^ w := by
+  simp [← Nat.pow_succ, Nat.sub_add_cancel h]
+
+@[simp]
+theorem two_pow_pred_sub_two_pow {w : Nat} (h : 0 < w) :
+    (2 ^ (w - 1) : Nat) - (2 ^ w : Nat) = - ((2 ^ (w - 1) : Nat) : Int) := by
+  rw [← Nat.two_pow_pred_add_two_pow_pred h]
+  omega
+
+@[simp]
+theorem toInt_intMin {w : Nat} :
+    (intMin w).toInt = -((2 ^ (w - 1) % 2 ^ w) : Nat) := by
+  by_cases h : w = 0
+  · subst h
+    simp [BitVec.toInt]
+  · have w_pos : 0 < w := by omega
+    simp [BitVec.toInt, toNat_intMin, w_pos]
+    rw [Nat.mul_comm]
+    simp [w_pos]
 
 @[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by

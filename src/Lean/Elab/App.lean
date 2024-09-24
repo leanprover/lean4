@@ -692,7 +692,7 @@ mutual
         -- This behavior can be suppressed with `(_)`.
         let ty ← getArgExpectedType
         let arg ← mkInstMVar ty
-        addTermInfo' stx arg ty (← getLCtx) (elaborator := `Lean.Elab.Term.elabHole)
+        addTermInfo' stx arg ty (← getLCtx)
         modify fun s => { s with args := s.args.tail! }
         main
       else

@@ -638,7 +638,9 @@ mutual
       | false, _, some _ =>
         throwError "invalid autoParam, argument must be a constant"
       | _, _, _ =>
-        if !(← get).namedArgs.isEmpty then
+        if (← read).ellipsis then
+          addImplicitArg argName
+        else if !(← get).namedArgs.isEmpty then
           if let some arg ← findNamedArgDependsOnCurrent? (fun _ => true) then
             /-
             Dependencies of named arguments cannot be turned into eta arguments.
@@ -647,14 +649,10 @@ mutual
             This is an error unless the named argument is meant to suppress dependencies.
             -/
             addImplicitArg argName (missingExplicit := !arg.suppressDeps)
-          else if (← read).ellipsis then
-            addImplicitArg argName
           else
             addEtaArg argName
         else if !(← read).explicit then
-          if (← read).ellipsis then
-            addImplicitArg argName
-          else if (← fTypeHasOptAutoParams) then
+          if (← fTypeHasOptAutoParams) then
             addEtaArg argName
           else
             finalize

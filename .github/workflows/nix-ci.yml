@@ -73,7 +73,7 @@ jobs:
         with:
           extra-conf: |
             extra-sandbox-paths = /nix/var/cache/ccache?
-            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org  
+            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
       - name: Prepare CCache Cache
         run: |
           sudo mkdir -m0770 -p /nix/var/cache/ccache

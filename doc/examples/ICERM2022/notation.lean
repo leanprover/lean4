@@ -35,9 +35,9 @@ open Lean Meta PrettyPrinter Delaborator SubExpr in
 @[delab app.Prod.mk] def delabDoubleRhsTest : Delab := do
    let e ← getExpr
    let #[_, _, x, y] := e.getAppArgs | failure
-   guard (← isDefEq x y) 
+   guard (← isDefEq x y)
    let stx ← withAppArg delab
-   `(diag $stx)     
+   `(diag $stx)
 
 #check diag 3
 #check (3, 3)

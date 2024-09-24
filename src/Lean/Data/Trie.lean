@@ -76,7 +76,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         let c := s.getUtf8Byte i h
         if c == c'
         then node1 v c' (loop (i + 1) t')
-        else 
+        else
           let t := insertEmpty (i + 1)
           node v (.mk #[c, c']) #[t, t']
       else

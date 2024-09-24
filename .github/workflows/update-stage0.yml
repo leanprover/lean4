@@ -65,7 +65,7 @@ jobs:
       uses: DeterminateSystems/nix-installer-action@main
       with:
         extra-conf: |
-          substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org  
+          substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
     - if: env.should_update_stage0 == 'yes'
       run: nix run .#update-stage0-commit
     - if: env.should_update_stage0 == 'yes'

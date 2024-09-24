@@ -84,7 +84,7 @@ Some remarks:
    \newunicodechar{✝}{\freeserif{✝}}
    \newunicodechar{𝓞}{\ensuremath{\mathcal{O}}}
    ```
- - If you are using an old version of Pygments, you can copy 
+ - If you are using an old version of Pygments, you can copy
    [`lean.py`](https://raw.githubusercontent.com/pygments/pygments/master/pygments/lexers/lean.py) into your working directory,
    and use `lean4.py:Lean4Lexer -x` instead of `lean4` above.
    If your version of `minted` is v2.7 or newer, but before v3.0,

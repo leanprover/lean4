@@ -83,8 +83,7 @@ attribute [simp] uset
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 
-@[simp] theorem toArray_toList : (a : Array α) → a.toList.toArray = a
-  | ⟨l⟩ => ext' (toList_toArray l)
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
 
 @[deprecated toArray_toList (since := "2024-09-09")]
 abbrev toArray_data := @toArray_toList

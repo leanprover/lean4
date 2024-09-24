@@ -653,8 +653,7 @@ def divSubtractShift (args : DivModArgs w) (qr : DivModState w) : DivModState w 
   let wn := qr.wn - 1
   let wr := qr.wr + 1
   let r' := shiftConcat qr.r (n.getLsbD wn)
-  if r' < d
-  then {
+  if r' < d then {
     q := qr.q.shiftConcat false, -- If `r' < d`, then we do not have a quotient bit.
     r := r'
     wn, wr

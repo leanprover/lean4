@@ -88,7 +88,21 @@ protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := by
 
 @[simp] protected theorem toNat_sub_of_le (a b : $typeName) : b ≤ a → (a - b).toNat = a.toNat - b.toNat := BitVec.toNat_sub_of_le
 
+protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.toBitVec.isLt
+
+open $typeName (toNat_mod toNat_lt_size) in
+protected theorem toNat_mod_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % ofNat m) < m := by
+  intro u h1
+  by_cases h2 : m < size
+  · rw [toNat_mod, toNat_ofNat_of_lt h2]
+    apply Nat.mod_lt _ h1
+  · apply Nat.lt_of_lt_of_le
+    · apply toNat_lt_size
+    · simpa using h2
+
+open $typeName (toNat_mod_lt) in
 set_option linter.deprecated false in
+@[deprecated toNat_mod_lt (since := "2024-09-24")]
 protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m := by
   intro u
   simp only [(· % ·)]
@@ -106,8 +120,6 @@ protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b :
 
 protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
-
-protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.toBitVec.isLt
 
 @[simp] protected theorem ofNat_one : ofNat 1 = 1 := rfl
 

@@ -20,7 +20,7 @@ def A.size (acc n : Nat) : A n → Nat
   | .b a' => 1 + A.size (acc + 1) n a'
 termination_by structural a => a
 
--- Another instance repoted on Zulip at
+-- Another instance reported on Zulip at
 -- https://leanprover.zulipchat.com/#narrow/stream/113488-general/topic/.E2.9C.94.20Doubly-nested.20inductive/near/451204850
 
 inductive Xn (e : Sigma.{0} (· → Type)) (α : Type) : Nat → Type where

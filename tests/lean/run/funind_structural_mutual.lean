@@ -32,7 +32,7 @@ info: Tree.size.induct.{u_1} {α : Type u_1} (motive_1 : Tree α → Prop) (moti
 #check Tree.size.induct
 
 
--- Recursion over nested inductive, functions in the “wrong” order (auxillary first)
+-- Recursion over nested inductive, functions in the “wrong” order (auxiliary first)
 
 mutual
 def Tree.size_aux' : List (Tree α) → Nat

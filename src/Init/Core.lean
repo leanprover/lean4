@@ -837,8 +837,8 @@ instance : Trans Iff Iff Iff where
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
-theorem HEq.comm {α β : Type _} {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm HEq.symm
-theorem heq_comm {α β : Type _} {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
+theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm HEq.symm
+theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
 
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
 theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm

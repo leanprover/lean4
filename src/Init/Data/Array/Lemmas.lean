@@ -63,8 +63,7 @@ open Array
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
 
-@[simp] theorem toArray_toList : (a : Array α) → a.toList.toArray = a
-  | ⟨l⟩ => ext' (toList_toArray l)
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
 
 @[deprecated toArray_toList (since := "2024-09-09")]
 abbrev toArray_data := @toArray_toList

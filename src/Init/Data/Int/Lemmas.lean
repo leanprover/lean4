@@ -523,15 +523,12 @@ theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
 theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 
-@[simp, norm_cast] theorem natCast_add (a b : Nat) : ((a + b : Nat) : Int) = (a : Int) + (b : Int) := by
+@[simp] theorem natCast_add (a b : Nat) : ((a + b : Nat) : Int) = (a : Int) + (b : Int) := by
   -- Note this only works because of local simp attributes in this file,
   -- so it still makes sense to tag the lemmas with `@[simp]`.
   simp
 
-@[simp, norm_cast] theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
+@[simp] theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
   simp
-
-@[simp, norm_cast] theorem cast_ofNat {n : Nat} :
-  (Nat.cast (no_index (OfNat.ofNat n)) : Int) = OfNat.ofNat n := rfl
 
 end Int

@@ -407,12 +407,23 @@ where
         | .ofTacticInfo ti =>
           if ignoredInTactic then return true
           -- Keep track of the `MetavarContext` after a tactic for later
-          modify fun s => { s with assignments := s.assignments.push ti.mctxAfter.eAssignment }
           -- For `set_option linter.unusedVariables.inTactics true in` to work, it is important to
           -- query the local options here
           if linter.unusedVariables.inTactics.get ci.options then
+            modify fun s => { s with assignments := s.assignments.push ti.mctxAfter.eAssignment }
             return true
           else
+            -- For the outermost tactic info, there should be exactly one initial goal and it should
+            -- be assigned in the end, so let's look only at its (instantiated) assignment instead
+            -- of the entire mctx
+            let eAssignment ← (do
+              if let [g] := ti.goalsBefore then
+                if let some ass := ti.mctxAfter.eAssignment[g] then
+                  let (ass, _) := instantiateMVarsCore ti.mctxAfter ass
+                  return .insert {} g ass
+              return ti.mctxAfter.eAssignment)
+            modify fun s => { s with
+              assignments := s.assignments.push eAssignment }
             withReader (fun _ => true) do
               go children.toArray ci
             return false

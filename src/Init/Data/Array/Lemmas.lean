@@ -19,11 +19,6 @@ This file contains some theorems about `Array` and `List` needed for `Init.Data.
 
 namespace Array
 
-/-- We avoid mentioning the constructor `Array.mk` directly, preferring `List.toArray`. -/
-@[simp] theorem mk_eq_toArray (as : List α) : Array.mk as = as.toArray := by
-  apply ext'
-  simp
-
 @[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
 
 @[simp] theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
@@ -68,14 +63,12 @@ open Array
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
 
-@[simp] theorem toArray_toList : (a : Array α) → a.toList.toArray = a
-  | ⟨l⟩ => ext' (toList_toArray l)
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
 
+@[deprecated toArray_toList (since := "2024-09-09")]
+abbrev toArray_data := @toArray_toList
 @[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
-    a.toArray[i] = a[i]'(by simpa using h) := by
-  have h₁ := mk_eq_toArray a
-  have h₂ := getElem_mk (by simpa using h)
-  simpa [h₁] using h₂
+    a.toArray[i] = a[i]'(by simpa using h) := rfl
 
 @[simp] theorem toArray_concat {as : List α} {x : α} :
     (as ++ [x]).toArray = as.toArray.push x := by
@@ -90,10 +83,10 @@ attribute [simp] uset
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 
-@[deprecated List.toArray_toList (since := "2024-09-09")]
-abbrev toArray_data := @List.toArray_toList
-@[deprecated List.toArray_toList (since := "2024-09-09")]
-abbrev toArray_toList := @List.toArray_toList
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
+
+@[deprecated toArray_toList (since := "2024-09-09")]
+abbrev toArray_data := @toArray_toList
 
 @[simp] theorem toList_length {l : Array α} : l.toList.length = l.size := rfl
 
@@ -647,7 +640,7 @@ theorem foldr_induction
   simp only [mem_def, map_toList, List.mem_map]
 
 theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : Array α) :
-    arr.mapM f = return (← arr.toList.mapM f).toArray := by
+    arr.mapM f = return mk (← arr.toList.mapM f) := by
   rw [mapM_eq_foldlM, foldlM_eq_foldlM_toList, ← List.foldrM_reverse]
   conv => rhs; rw [← List.reverse_reverse arr.toList]
   induction arr.toList.reverse with

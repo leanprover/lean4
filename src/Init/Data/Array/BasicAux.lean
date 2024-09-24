@@ -9,7 +9,7 @@ import Init.Data.Nat.Linear
 import Init.NotationExtra
 
 theorem Array.of_push_eq_push {as bs : Array α} (h : as.push a = bs.push b) : as = bs ∧ a = b := by
-  simp only [push, List.toArray_inj] at h
+  simp only [push, mk.injEq] at h
   have ⟨h₁, h₂⟩ := List.of_concat_eq_concat h
   cases as; cases bs
   simp_all
@@ -34,7 +34,7 @@ private theorem List.of_toArrayAux_eq_toArrayAux {as bs : List α} {cs ds : Arra
 
 @[simp] theorem List.toArray_eq_toArray_eq (as bs : List α) : (as.toArray = bs.toArray) = (as = bs) := by
   apply propext; apply Iff.intro
-  · intro h; simp [toArray] at h; have := of_toArrayAux_eq_toArrayAux h rfl; exact this.1
+  · intro h; simpa [toArray] using h
   · intro h; rw [h]
 
 def Array.mapM' [Monad m] (f : α → m β) (as : Array α) : m { bs : Array β // bs.size = as.size } :=

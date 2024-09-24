@@ -391,14 +391,11 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
         if inv then
           name := name ++ `inv
         name := name.mkNum r.size
-        let env ← getEnv
-        let (env, prom?) ← env.addGlobalTheorem name
-        if let some prom := prom? then
-          prom.resolve <| Declaration.thmDecl {
+        realizeConst declName name .thm do
+          return .thmInfo {
             name,
             levelParams := cinfo.levelParams, type, value := val
           }
-        modifyEnv fun _ => env
         r := r.push <| (← mkSimpTheoremCore origin (mkConst name us) #[] (mkConst name) post prio (noIndexAtArgs := false))
       return r
     else

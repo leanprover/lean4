@@ -25,14 +25,11 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
       let name := declName ++ suffix
-      let env ← getEnv
-      let (env, prom?) ← env.addGlobalTheorem name
-      modifyEnv fun _ => env
-      let some prom := prom? | return some name
-      prom.resolve <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
+      realizeConst declName name .thm do
+        return .thmInfo {
+          name, type, value
+          levelParams := info.levelParams
+        }
       return some name
   else
     return none
@@ -86,16 +83,13 @@ def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]!}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
-    let env ← getEnv
-    let (env, prom?) ← env.addGlobalTheorem name
-    modifyEnv fun _ => env
-    let some prom := prom? | continue
-    let value ← mkProof declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    prom.resolve <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
+    realizeConst declName name .thm do
+      let value ← mkProof declName type
+      let (type, value) ← removeUnusedEqnHypotheses type value
+      return .thmInfo {
+        name, type, value
+        levelParams := info.levelParams
+      }
   return thmNames
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do

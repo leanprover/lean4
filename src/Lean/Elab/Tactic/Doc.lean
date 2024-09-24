@@ -71,8 +71,7 @@ only works for global constants, as the local context is not included.
 -/
 private def showParserName (n : Name) : MetaM MessageData := do
   let env ← getEnv
-  let params :=
-    env.toKernelEnv.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
+  let params := env.find? n |>.map (·.levelParams.map Level.param) |>.getD []
   let tok ←
     if let some descr := env.find? n |>.bind (·.value?) then
       if let some tk ← getFirstTk descr then

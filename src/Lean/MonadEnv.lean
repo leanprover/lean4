@@ -25,10 +25,10 @@ def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m �
     setEnv saved
 
 def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  return (← getEnv).findAsync? declName matches some (.inductInfo ..)
+  return (← getEnv).findAsync? declName matches some { kind := .induct, .. }
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
-  env.findAsync? declName matches some (.recInfo ..)
+  env.findAsync? declName matches some { kind := .recursor, .. }
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName
@@ -152,5 +152,14 @@ def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool
       return false
   else
     return false
+
+def realizeConst [Monad m] [MonadEnv m] [MonadLiftT IO m]
+    (forConst : Name) (constName : Name) (kind : ConstantKind)
+    (doRealize : m ConstantInfo) (sig? : Option (Task ConstantVal) := none) : m Unit := do
+  let env ← getEnv
+  let (env, resolve?) ← env.realizeConst forConst constName kind sig?
+  setEnv env
+  if let some resolve := resolve? then
+    setEnv <| (← liftM (m := IO) <| resolve (← doRealize))
 
 end Lean

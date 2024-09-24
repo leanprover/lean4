@@ -361,14 +361,11 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let env ← getEnv
-      let (env, prom?) ← env.addGlobalTheorem name
-      modifyEnv fun _ => env
-      let some prom := prom? | return name
-      prom.resolve <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
+      realizeConst declName name .thm do
+        return .thmInfo {
+          name, type, value
+          levelParams := info.levelParams
+        }
       return name
 
 def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do

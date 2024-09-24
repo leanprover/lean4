@@ -127,12 +127,10 @@ private def cleanupOfNat (type : Expr) : MetaM Expr := do
 Elaborates only the declaration view headers. We have to elaborate the headers first because we
 support mutually recursive declarations in Lean 4.
 -/
-private def elabHeaders (views : Array DefView)
+private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandDeclIdResult)
     (bodyPromises : Array (IO.Promise (Option BodyProcessedSnapshot)))
     (tacPromises : Array (IO.Promise Tactic.TacticParsedSnapshot)) :
     TermElabM (Array DefViewElabHeader) := do
-  let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
-    Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
   withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
     let mut headers := #[]
     -- Can we reuse the result for a body? For starters, all headers (even those below the body)
@@ -1072,37 +1070,32 @@ where
     withPromisesResolvedOnException views.size fun tacPromises => do
     withPromiseResolvedOnException fun valPromise => do
       let scopeLevelNames ← getLevelNames
-      let headers ← elabHeaders views bodyPromises tacPromises
+      let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
+        Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      let mut async? := none
+      if let (#[view], #[declId]) := (views, expandedDeclIds) then
+        if view.kind.isTheorem && typeCheckedPromise?.isSome &&
+            !deprecated.oldSectionVars.get (← getOptions) &&
+            view.modifiers.attrs.isEmpty then
+          let env ← getEnv
+          let async ← env.addConstAsync declId.declName .thm
+          modifyEnv fun _=> async.mainEnv
+          async? := some async
+      -- TODO: spawn task
+      let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
       let headers ← levelMVarToParamHeaders views headers
       let allUserLevelNames := getAllUserLevelNames headers
       withFunLocalDecls headers fun funFVars => do
         for view in views, funFVar in funFVars do
           addLocalVarInfo view.declId funFVar
-        let mut asyncEnv? := none
-        if let #[header] := headers then
-          let env ← getEnv
-          if header.kind.isTheorem && typeCheckedPromise?.isSome &&
-              !deprecated.oldSectionVars.get (← getOptions) &&
-              !header.modifiers.attrs.any (fun attr =>
-                match getAttributeImpl env attr.name with
-                | .error _ => false
-                | .ok attrImpl => attrImpl.applicationTime != .beforeElaboration) then
-            let asyncEnv ← withHeaderSecVars vars sc headers fun vars => do
-              let type ← mkForallFVars vars header.type >>= instantiateMVars
-              let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
-              let mut s : CollectLevelParams.State := {}
-              s := collectLevelParams s type
-              let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-              let env ← Core.getEnv (traceBlock := false)
-              let (env', asyncEnv) ← env.addTheoremAsync {
-                name := header.declName
-                levelParams
-                type
-                value := valPromise.result
-              }
-              modifyEnv fun _=> env'
-              return asyncEnv
-            asyncEnv? := some asyncEnv
+        if let some async := async? then
+          let header := headers[0]!
+          let type ← mkForallFVars vars header.type >>= instantiateMVars
+          let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
+          let mut s : CollectLevelParams.State := {}
+          s := collectLevelParams s type
+          let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+          async.commitSignature { name := header.declName, levelParams, type }
         let finishElab := try
           let values ← try
             let values ← elabFunValues headers vars sc
@@ -1129,15 +1122,19 @@ where
               trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
             checkForHiddenUnivLevels allUserLevelNames preDefs
             addPreDefinitions preDefs
+            if let some async := async? then
+              async.commitConst (← getEnv)
             processDeriving headers
+            if let some async := async? then
+              (← async.checkAndCommitEnv (← getEnv) (← getOptions) (← readThe Core.Context).cancelTk? |>.toBaseIO) |> ofExceptKernelException
           finally
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)
             valPromise.resolve (Expr.const `failedAsyncElab [])
-            (← Core.getEnv (traceBlock := false)).resolveAsync
-        if let some asyncEnv := asyncEnv? then
+            async?.forM (·.commitFailure)
+        if let some async := async? then
           let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {headers[0]!.declName}") do
-            modifyEnv fun _ => asyncEnv
+            modifyEnv fun _ => async.asyncEnv
             finishElab
           let _ ← BaseIO.mapTask (t := t) fun snap => do
             if let some typeCheckedPromise := typeCheckedPromise? then

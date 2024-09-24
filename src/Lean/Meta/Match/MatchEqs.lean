@@ -695,10 +695,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
           notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
         notAlt ← mkForallFVars (discrs ++ ys) notAlt
-        let env ← getEnv
-        let (env, prom?) ← env.addGlobalTheorem thmName
-        modifyEnv fun _ => env
-        if let some prom := prom? then
+        realizeConst baseName thmName .thm do
           /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
             Thus, we need to create new `alts`. -/
           withNewAlts numDiscrEqs discrs patterns alts fun alts => do
@@ -710,7 +707,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
             let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
             let thmType ← unfoldNamedPattern thmType
             let thmVal ← proveCondEqThm matchDeclName thmType
-            prom.resolve <| Declaration.thmDecl {
+            return .thmInfo {
               name        := thmName
               levelParams := constInfo.levelParams
               type        := thmType
@@ -723,10 +720,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
-    let env ← getEnv
-    let (env, prom?) ← env.addGlobalTheorem splitterName
-    modifyEnv fun _ => env
-    if let some prom := prom? then
+    realizeConst baseName splitterName .thm do
       -- Define splitter with conditional/refined alternatives
       withSplitterAlts splitterAltTypes fun altsNew => do
         let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
@@ -736,8 +730,9 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         let template ← deltaExpand template (· == constInfo.name)
         let template := template.headBeta
         let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
+        setInlineAttribute splitterName  -- TODO
         -- TODO compilation?
-        prom.resolve <| Declaration.defnDecl {
+        return .defnInfo {
           name        := splitterName
           levelParams := constInfo.levelParams
           type        := splitterType
@@ -745,7 +740,6 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
           hints       := .abbrev
           safety      := .safe
         }
-        setInlineAttribute splitterName  -- TODO
     let result := { eqnNames, splitterName, splitterAltNumParams }
     registerMatchEqns matchDeclName result
     return result

@@ -939,6 +939,11 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   ext i
   simp
 
+@[simp]
+theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
+  ext i
+  simp
+
 /-! ### cast -/
 
 @[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(cast h x) = cast h (~~~x) := by
@@ -1071,6 +1076,16 @@ theorem shiftLeft_add {w : Nat} (x : BitVec w) (n m : Nat) :
   cases h₄ : decide (i - m < n) <;>
   cases h₅ : decide (i < n + m) <;>
     simp at * <;> omega
+
+@[simp]
+theorem allOnes_shiftLeft_and_shiftLeft {x : BitVec w} (n : Nat) :
+    BitVec.allOnes w <<< n &&& x <<< n = x <<< n := by
+  simp [← BitVec.shiftLeft_and_distrib]
+
+@[simp]
+theorem allOnes_shiftLeft_or_shiftLeft {x : BitVec w} (n : Nat) :
+    BitVec.allOnes w <<< n ||| x <<< n = BitVec.allOnes w <<< n := by
+  simp [← shiftLeft_or_distrib]
 
 @[deprecated shiftLeft_add (since := "2024-06-02")]
 theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
@@ -2362,6 +2377,11 @@ Thus, `(x * y).toNat = x.toNat * y.toNat`.
 theorem toNat_mul_of_lt {w} {x y : BitVec w} (h : x.toNat * y.toNat < 2^w) :
     (x * y).toNat = x.toNat * y.toNat := by
   rw [BitVec.toNat_mul, Nat.mod_eq_of_lt h]
+
+@[simp]
+theorem one_shiftLeft_mul {x y : BitVec w} :
+    1#w <<< x.toNat * y = y <<< x.toNat := by
+  simp [← mul_twoPow_eq_shiftLeft, BitVec.mul_comm]
 
 /-! ### Decidable quantifiers -/
 

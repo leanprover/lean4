@@ -149,26 +149,27 @@ syntax (name := assumption) "assumption" : tactic
 
 /--
 `contradiction` closes the main goal if its hypotheses are "trivially contradictory".
+
 - Inductive type/family with no applicable constructors
-```lean
-example (h : False) : p := by contradiction
-```
+  ```lean
+  example (h : False) : p := by contradiction
+  ```
 - Injectivity of constructors
-```lean
-example (h : none = some true) : p := by contradiction  --
-```
+  ```lean
+  example (h : none = some true) : p := by contradiction  --
+  ```
 - Decidable false proposition
-```lean
-example (h : 2 + 2 = 3) : p := by contradiction
-```
+  ```lean
+  example (h : 2 + 2 = 3) : p := by contradiction
+  ```
 - Contradictory hypotheses
-```lean
-example (h : p) (h' : ¬ p) : q := by contradiction
-```
+  ```lean
+  example (h : p) (h' : ¬ p) : q := by contradiction
+  ```
 - Other simple contradictions such as
-```lean
-example (x : Nat) (h : x ≠ x) : p := by contradiction
-```
+  ```lean
+  example (x : Nat) (h : x ≠ x) : p := by contradiction
+  ```
 -/
 syntax (name := contradiction) "contradiction" : tactic
 

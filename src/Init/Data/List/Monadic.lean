@@ -86,4 +86,16 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) 
     (l₁ ++ l₂).forM f = (do l₁.forM f; l₂.forM f) := by
   induction l₁ <;> simp [*]
 
+/-! ### allM -/
+
+theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
+    allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
+  induction as with
+  | nil => simp
+  | cons a as ih =>
+    simp only [allM, anyM, bind_map_left, _root_.map_bind]
+    congr
+    funext b
+    split <;> simp_all
+
 end List

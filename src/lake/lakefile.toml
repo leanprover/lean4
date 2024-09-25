@@ -6,5 +6,5 @@ name = "Lake"
 
 [[lean_exe]]
 name = "lake"
-root = "Lake.Main"
+root = "LakeMain"
 supportInterpreter = true

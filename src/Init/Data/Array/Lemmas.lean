@@ -706,7 +706,7 @@ theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : A
   conv => rhs; rw [← List.reverse_reverse arr.toList]
   induction arr.toList.reverse with
   | nil => simp
-  | cons a l ih => simp [ih]; simp [map_eq_pure_bind]
+  | cons a l ih => simp [ih]
 
 @[deprecated mapM_eq_mapM_toList (since := "2024-09-09")]
 abbrev mapM_eq_mapM_data := @mapM_eq_mapM_toList

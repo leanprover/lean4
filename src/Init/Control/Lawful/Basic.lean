@@ -118,7 +118,7 @@ theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> 
 theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
   rw [seqLeft_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
 
-theorem map_bind [Monad m] [LawfulMonad m](x : m α) {g : α → m β} {f : β → γ} :
+theorem map_bind [Monad m] [LawfulMonad m] (x : m α) {g : α → m β} {f : β → γ} :
     f <$> (x >>= fun a => g a) = x >>= fun a => f <$> g a := by
   rw [← bind_pure_comp, LawfulMonad.bind_assoc]
   simp [bind_pure_comp]

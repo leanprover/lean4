@@ -96,6 +96,23 @@ abbrev toArray_data := @toArray_toList
   apply ext'
   simp
 
+@[simp] theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
+    l.toArray.foldrM f init = l.foldrM f init := by
+  rw [foldrM_eq_reverse_foldlM_toList]
+  simp
+
+@[simp] theorem foldlM_toArray [Monad m] (f : β → α → m β) (init : β) (l : List α) :
+    l.toArray.foldlM f init = l.foldlM f init := by
+  rw [foldlM_eq_foldlM_toList]
+
+@[simp] theorem foldr_toArray (f : α → β → β) (init : β) (l : List α) :
+    l.toArray.foldr f init = l.foldr f init := by
+  rw [foldr_eq_foldr_toList]
+
+@[simp] theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
+    l.toArray.foldl f init = l.foldl f init := by
+  rw [foldl_eq_foldl_toList]
+
 end List
 
 namespace Array
@@ -618,6 +635,32 @@ set_option linter.deprecated false in
       rw [List.get?_eq_none.2 ‹_›, List.get?_eq_none.2 (a.toList.length_reverse ▸ ‹_›)]
 
 /-! ### foldl / foldr -/
+
+@[simp] theorem foldlM_loop_empty [Monad m] (f : β → α → m β) (init : β) (i j : Nat) :
+    foldlM.loop f #[] s h i j init = pure init := by
+  unfold foldlM.loop; split
+  · split
+    · rfl
+    · simp at h
+      omega
+  · rfl
+
+@[simp] theorem foldlM_empty [Monad m] (f : β → α → m β) (init : β) :
+    foldlM f init #[] start stop = return init := by
+  simp [foldlM]
+
+@[simp] theorem foldrM_fold_empty [Monad m] (f : α → β → m β) (init : β) (i j : Nat) (h) :
+    foldrM.fold f #[] i j h init = pure init := by
+  unfold foldrM.fold
+  split <;> rename_i h₁
+  · rfl
+  · split <;> rename_i h₂
+    · rfl
+    · simp at h₂
+
+@[simp] theorem foldrM_empty [Monad m] (f : α → β → m β) (init : β) :
+    foldrM f init #[] start stop = return init := by
+  simp [foldrM]
 
 -- This proof is the pure version of `Array.SatisfiesM_foldlM`,
 -- reproduced to avoid a dependency on `SatisfiesM`.

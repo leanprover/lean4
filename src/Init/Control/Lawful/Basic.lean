@@ -33,6 +33,10 @@ attribute [simp] id_map
 @[simp] theorem id_map' [Functor m] [LawfulFunctor m] (x : m α) : (fun a => a) <$> x = x :=
   id_map x
 
+theorem Functor.map_map [Functor f] [LawfulFunctor f] (m : α → β) (g : β → γ) (x : f α) :
+    g <$> m <$> x = (g ∘ m) <$> x :=
+  (comp_map _ _ _).symm
+
 /--
 The `Applicative` typeclass only contains the operations of an applicative functor.
 `LawfulApplicative` further asserts that these operations satisfy the laws of an applicative functor:
@@ -113,6 +117,16 @@ theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> 
 
 theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
   rw [seqLeft_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
+
+theorem map_bind [Monad m] [LawfulMonad m] (x : m α) {g : α → m β} {f : β → γ} :
+    f <$> (x >>= fun a => g a) = x >>= fun a => f <$> g a := by
+  rw [← bind_pure_comp, LawfulMonad.bind_assoc]
+  simp [bind_pure_comp]
+
+theorem bind_map_left [Monad m] [LawfulMonad m] (x : m α) (f : α → β) (g : β → m γ) :
+    ((f <$> x) >>= fun b => g b) = (x >>= fun a => g (f a)) := by
+  rw [← bind_pure_comp]
+  simp [bind_assoc, pure_bind]
 
 /--
 An alternative constructor for `LawfulMonad` which has more

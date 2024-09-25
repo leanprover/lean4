@@ -927,6 +927,10 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   ext
   simp
 
+@[simp] theorem not_allOnes : ~~~ allOnes w = 0#w := by
+  ext
+  simp
+
 @[simp] theorem xor_allOnes {x : BitVec w} : x ^^^ allOnes w = ~~~ x := by
   ext i
   simp
@@ -1410,6 +1414,10 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getLsbD_append]
   simpa using lt_of_getLsbD
 
+@[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by
+  ext
+  simp only [getLsbD_append, getLsbD_zero, Bool.cond_self]
+
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
     cast h (x ++ y) = x ++ cast (by omega) y := by
   ext
@@ -1654,6 +1662,10 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
 @[simp] theorem concat_xor_concat (x y : BitVec w) (a b : Bool) :
     (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (a ^^ b) := by
   ext i; cases i using Fin.succRecOn <;> simp
+
+@[simp] theorem zero_concat_false : concat 0#w false = 0#(w + 1) := by
+  ext
+  simp [getLsbD_concat]
 
 /-! ### add -/
 
@@ -2165,6 +2177,20 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
 @[simp]
 theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsbD_twoPow]
+
+@[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by
+  ext
+  simp [getLsbD_cons]
+  omega
+
+@[simp] theorem false_cons_zero : cons false 0#w = 0#(w + 1) := by
+  ext
+  simp [getLsbD_cons]
+
+@[simp] theorem zero_concat_true : concat 0#w true = 1#(w + 1) := by
+  ext
+  simp [getLsbD_concat]
+  omega
 
 /- ### setWidth, setWidth, and bitwise operations -/
 

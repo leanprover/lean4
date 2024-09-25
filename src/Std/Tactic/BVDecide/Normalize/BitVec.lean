@@ -61,6 +61,8 @@ attribute [bv_normalize] BitVec.getLsbD_zero_length
 attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
+attribute [bv_normalize] BitVec.not_not
+
 
 end Constant
 

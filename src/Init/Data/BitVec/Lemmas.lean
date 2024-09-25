@@ -939,7 +939,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   ext i
   simp
 
-@[bv_normalize]
+@[simp]
 theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
   ext i
   simp

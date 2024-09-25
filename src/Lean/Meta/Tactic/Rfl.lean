@@ -76,7 +76,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   unless success do
     let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
       let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-      return m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
+      return m!"the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
     throwTacticEx `rfl goal explanation
 
   if rel.isAppOfArity `Eq 1 then

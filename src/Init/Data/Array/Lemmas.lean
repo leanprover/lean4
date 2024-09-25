@@ -74,6 +74,23 @@ abbrev toArray_data := @toArray_toList
   apply ext'
   simp
 
+@[simp] theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
+    l.toArray.foldrM f init = l.foldrM f init := by
+  rw [foldrM_eq_reverse_foldlM_toList]
+  simp
+
+@[simp] theorem foldlM_toArray [Monad m] (f : β → α → m β) (init : β) (l : List α) :
+    l.toArray.foldlM f init = l.foldlM f init := by
+  rw [foldlM_eq_foldlM_toList]
+
+@[simp] theorem foldr_toArray (f : α → β → β) (init : β) (l : List α) :
+    l.toArray.foldr f init = l.foldr f init := by
+  rw [foldr_eq_foldr_toList]
+
+@[simp] theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
+    l.toArray.foldl f init = l.foldl f init := by
+  rw [foldl_eq_foldl_toList]
+
 end List
 
 namespace Array
@@ -1149,3 +1166,60 @@ theorem swap_comm (a : Array α) {i j : Fin a.size} : a.swap i j = a.swap j i :=
     · split <;> simp_all
 
 end Array
+
+
+open Array
+
+namespace List
+
+/-! ### More theorems about `List.toArray`, followed by an `Array` operation. -/
+
+@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+  simp [mem_def]
+
+@[simp] theorem getElem?_toArray (l : List α) (i : Nat) : l.toArray[i]? = l[i]? := by
+  sorry
+
+@[simp] theorem toListRev_toArray (l : List α) : l.toArray.toListRev = l.reverse := by
+  simp
+
+@[simp] theorem mapM_toArray [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) :
+    l.toArray.mapM f = List.toArray <$> l.mapM f := by
+  simp [mapM_eq_foldlM]
+  sorry
+
+@[simp] theorem map_toArray (f : α → β) (l : List α) : l.toArray.map f = (l.map f).toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem toArray_appendList (l₁ l₂ : List α) :
+    l₁.toArray ++ l₂ = (l₁ ++ l₂).toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem set_toArray (l : List α) (i : Fin l.toArray.size) (a : α) :
+    l.toArray.set i a = (l.set i a).toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray.size) :
+    l.toArray.uset i a h = (l.set i.toNat a).toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem setD_toArray (l : List α) (i : Nat) (a : α) :
+    l.toArray.setD i a  = (l.set i a).toArray := by
+  apply ext'
+  simp
+  sorry
+
+@[simp] theorem anyM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+    l.toArray.anyM p = l.anyM p := by
+  simp only [Array.size_toArray, anyM_eq_anyM_loop, Nat.min_self]
+  sorry
+
+@[simp] theorem allM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+    l.toArray.allM p = l.allM p := by
+  sorry
+
+end List

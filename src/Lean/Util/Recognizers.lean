@@ -97,7 +97,7 @@ partial def listLit? (e : Expr) : Option (Expr × List Expr) :=
   loop e []
 
 def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
-  if e.isAppOfArity' ``List.toArray 2 then
+  if e.isAppOfArity' ``Array.mk 2 then
     listLit? e.appArg!'
   else
     none

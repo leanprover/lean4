@@ -502,7 +502,7 @@ def mkListLit (type : Expr) (xs : List Expr) : MetaM Expr := do
 def mkArrayLit (type : Expr) (xs : List Expr) : MetaM Expr := do
   let u ← getDecLevel type
   let listLit ← mkListLit type xs
-  return mkApp (mkApp (mkConst ``List.toArray [u]) type) listLit
+  return mkApp (mkApp (mkConst ``Array.mk [u]) type) listLit
 
 def mkNone (type : Expr) : MetaM Expr := do
   let u ← getDecLevel type

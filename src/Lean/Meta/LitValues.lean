@@ -202,19 +202,19 @@ def getListLit? (e : Expr) : MetaM (Option (Array Expr)) := getListLitOf? e fun 
 
 /--
 Check if an expression is an array literal
-(i.e. `List.toArray` applied to a nested chain of `List.cons`, ending at a `List.nil`),
+(i.e. `Array.mk` applied to a nested chain of `List.cons`, ending at a `List.nil`),
 where each element is "recognised" by a given function `f : Expr → MetaM (Option α)`,
 and return the array of recognised values.
 -/
 def getArrayLitOf? (e : Expr) (f : Expr → MetaM (Option α)) : MetaM (Option (Array α)) := do
   let e ← instantiateMVars e.consumeMData
   match_expr e with
-  | List.toArray _ as => getListLitOf? as f
+  | Array.mk _ as => getListLitOf? as f
   | _ => return none
 
 /--
 Check if an expression is an array literal
-(i.e. `List.toArray` applied to a nested chain of `List.cons`, ending at a `List.nil`),
+(i.e. `Array.mk` applied to a nested chain of `List.cons`, ending at a `List.nil`),
 returning the array of `Expr` values.
 -/
 def getArrayLit? (e : Expr) : MetaM (Option (Array Expr)) := getArrayLitOf? e fun s => return some s

@@ -154,6 +154,10 @@ end Lean
     | _          => throw ()
   | _ => throw ()
 
+@[app_unexpander Array.mk] def unexpandArrayMk : Lean.PrettyPrinter.Unexpander
+  | `($(_) [$xs,*]) => `(#[$xs,*])
+  | _               => throw ()
+
 @[app_unexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
   | `($(_) [$xs,*]) => `(#[$xs,*])
   | _               => throw ()

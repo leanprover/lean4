@@ -11,6 +11,7 @@ import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Mod
 import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.Pow
 
 set_option linter.missingDocs true
 
@@ -270,6 +271,10 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
   Nat.mod_eq_of_lt x.isLt
+
+@[simp] theorem toNat_mod_cancel' {x : BitVec n} :
+    (x.toNat : Int) % (((2 ^ n) : Nat) : Int) = x.toNat := by
+  rw_mod_cast [toNat_mod_cancel]
 
 @[simp] theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :
     (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
@@ -1771,6 +1776,21 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 @[simp, bv_toNat] theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 
+theorem toInt_neg {x : BitVec w} :
+    (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
+  simp only [toInt_eq_toNat_bmod, toNat_neg, Int.ofNat_emod, Int.emod_bmod_congr]
+  rw [← Int.subNatNat_of_le (by omega), Int.subNatNat_eq_coe, Int.sub_eq_add_neg, Int.add_comm,
+    Int.bmod_add_cancel]
+  by_cases h : x.toNat < ((2 ^ w) + 1) / 2
+  · rw [Int.bmod_pos (x := x.toNat)]
+    all_goals simp [toNat_mod_cancel', h]
+    norm_cast
+  · rw [Int.bmod_neg (x := x.toNat)]
+    · simp only [toNat_mod_cancel']
+      rw_mod_cast [Int.neg_sub, Int.sub_eq_add_neg, Int.add_comm, Int.bmod_add_cancel]
+    · norm_cast
+      simp_all
+
 @[simp] theorem toFin_neg (x : BitVec n) :
     (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=
   rfl
@@ -2299,9 +2319,27 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
 
+/--
+The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
+-/
 @[simp, bv_toNat]
 theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
   simp [intMin]
+
+/--
+The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
+-/
+@[simp]
+theorem toInt_intMin {w : Nat} :
+    (intMin w).toInt = -((2 ^ (w - 1) % 2 ^ w) : Nat) := by
+  by_cases h : w = 0
+  · subst h
+    simp [BitVec.toInt]
+  · have w_pos : 0 < w := by omega
+    simp only [BitVec.toInt, toNat_intMin, w_pos, Nat.two_pow_pred_mod_two_pow,
+      Int.two_pow_pred_sub_two_pow, ite_eq_right_iff]
+    rw [Nat.mul_comm]
+    simp [w_pos]
 
 @[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
@@ -2309,6 +2347,22 @@ theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   · simp [bv_toNat, h]
   · simp only [Nat.not_lt, Nat.le_zero_eq] at h
     simp [bv_toNat, h]
+
+theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
+    (-x).toInt = -(x.toInt) := by
+  simp only [ne_eq, toNat_eq, toNat_intMin] at rs
+  by_cases x_zero : x = 0
+  · subst x_zero
+    simp [BitVec.toInt]
+    omega
+  by_cases w_0 : w = 0
+  · subst w_0
+    simp [BitVec.eq_nil x]
+  have : 0 < w := by omega
+  rw [Nat.two_pow_pred_mod_two_pow (by omega)] at rs
+  simp only [BitVec.toInt, BitVec.toNat_neg, BitVec.sub_toNat_mod_cancel x_zero]
+  have := @Nat.two_pow_pred_mul_two w (by omega)
+  split <;> split <;> omega
 
 /-! ### intMax -/
 

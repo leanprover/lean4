@@ -767,6 +767,11 @@ protected theorem two_pow_pred_mod_two_pow (h : 0 < w) :
   rw [mod_eq_of_lt]
   apply Nat.pow_pred_lt_pow (by omega) h
 
+@[simp]
+theorem two_pow_pred_mul_two (h : 0 < w) :
+    2 ^ (w - 1) * 2 = 2 ^ w := by
+  simp [← Nat.pow_succ, Nat.sub_add_cancel h]
+
 /-! ### log2 -/
 
 @[simp]

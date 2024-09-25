@@ -1222,4 +1222,10 @@ namespace List
     l.toArray.allM p = l.allM p := by
   sorry
 
+@[simp] theorem swap_toArray (l : List α) (i j : Fin l.toArray.size) :
+    l.toArray.swap i j = ((l.set i l[j]).set j l[i]).toArray := by
+  apply ext'
+  simp
+  sorry
+
 end List

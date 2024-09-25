@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Control.Basic
+import Init.Control.Lawful.Basic
 import Init.Data.List.Basic
 
 namespace List

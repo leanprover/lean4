@@ -823,6 +823,7 @@ theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (
 protected theorem Iff.rfl {a : Prop} : a ↔ a :=
   Iff.refl a
 
+-- And, also for backward compatibility, we try `Iff.rfl.` using `exact` (see #5366)
 macro_rules | `(tactic| rfl) => `(tactic| exact Iff.rfl)
 
 theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.rfl

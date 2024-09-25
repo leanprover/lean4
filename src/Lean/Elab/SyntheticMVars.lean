@@ -403,7 +403,7 @@ mutual
     | .tactic tacticCode savedContext kind =>
       withSavedContext savedContext do
         if runTactics then
-          runTactic mvarId tacticCode (kind := kind)
+          runTactic mvarId tacticCode kind
           return true
         else
           return false

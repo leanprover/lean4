@@ -2378,11 +2378,6 @@ theorem toNat_mul_of_lt {w} {x y : BitVec w} (h : x.toNat * y.toNat < 2^w) :
     (x * y).toNat = x.toNat * y.toNat := by
   rw [BitVec.toNat_mul, Nat.mod_eq_of_lt h]
 
-@[simp]
-theorem one_shiftLeft_mul {x y : BitVec w} :
-    1#w <<< x.toNat * y = y <<< x.toNat := by
-  simp [← mul_twoPow_eq_shiftLeft, BitVec.mul_comm]
-
 /-! ### Decidable quantifiers -/
 
 theorem forall_zero_iff {P : BitVec 0 → Prop} :

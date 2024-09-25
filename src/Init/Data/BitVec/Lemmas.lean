@@ -273,7 +273,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   Nat.mod_eq_of_lt x.isLt
 
 @[simp] theorem toNat_mod_cancel' {x : BitVec n} :
-    ((x.toNat : Int) % (((2 ^ n) : Nat) : Int) : Int) = (x.toNat : Int) := by
+    (x.toNat : Int) % (((2 ^ n) : Nat) : Int) = x.toNat := by
   rw_mod_cast [toNat_mod_cancel]
 
 @[simp] theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :

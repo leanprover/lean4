@@ -584,7 +584,6 @@ mutual
         match evalSyntaxConstant env opts tacticDecl with
         | Except.error err       => throwError err
         | Except.ok tacticSyntax =>
-          -- TODO(Leo): does this work correctly for tactic sequences?
           let tacticBlock ← `(by $(⟨tacticSyntax⟩))
           /-
           We insert position information from the current ref into `stx` everywhere, simulating this being
@@ -596,7 +595,8 @@ mutual
           -/
           let info := (← getRef).getHeadInfo
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
-          let argNew := Arg.stx tacticBlock
+          let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
+          let argNew := Arg.expr mvar
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew
           main

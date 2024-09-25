@@ -61,6 +61,8 @@ attribute [bv_normalize] BitVec.getLsbD_zero_length
 attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
+attribute [bv_normalize] BitVec.not_not
+
 
 end Constant
 
@@ -140,11 +142,6 @@ theorem BitVec.mul_zero (a : BitVec w) : a * 0#w = 0#w := by
 @[bv_normalize]
 theorem BitVec.zero_mul (a : BitVec w) : 0#w * a = 0#w := by
   simp [bv_toNat]
-
-@[bv_normalize]
-theorem BitVec.not_not (a : BitVec w) : ~~~(~~~a) = a := by
-  ext
-  simp
 
 @[bv_normalize]
 theorem BitVec.shiftLeft_zero (n : BitVec w) : n <<< 0#w' = n := by

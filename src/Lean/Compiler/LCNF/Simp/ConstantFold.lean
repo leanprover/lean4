@@ -180,7 +180,7 @@ let _x.26 := @Array.push _ _x.24 z
 def foldArrayLiteral : Folder := fun args => do
   let #[_, .fvar fvarId] := args | return none
   let some (list, typ, level) ← getPseudoListLiteral fvarId | return none
-  let arr := list.toArray
+  let arr := Array.mk list
   let lit ← mkPseudoArrayLiteral arr typ level
   return some lit
 

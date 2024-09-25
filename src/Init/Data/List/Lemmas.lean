@@ -2397,6 +2397,12 @@ theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
 theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.length b :=
   map_const l b
 
+@[simp] theorem set_replicate_self : (replicate n a).set i a = replicate n a := by
+  apply ext_getElem
+  · simp
+  · intro i h₁ h₂
+    simp [getElem_set]
+
 @[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   rw [eq_replicate_iff]
   constructor

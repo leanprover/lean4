@@ -754,10 +754,10 @@ infer the proof of `Nonempty α`.
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
 
-instance (α : Sort u) {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
+instance {α : Sort u} {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
-instance Pi.instNonempty (α : Sort u) {β : α → Sort v} [(a : α) → Nonempty (β a)] :
+instance Pi.instNonempty {α : Sort u} {β : α → Sort v} [(a : α) → Nonempty (β a)] :
     Nonempty ((a : α) → β a) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
@@ -767,7 +767,7 @@ instance : Inhabited (Sort u) where
 instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
   default := fun _ => default
 
-instance Pi.instInhabited (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] :
+instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhabited (β a)] :
     Inhabited ((a : α) → β a) where
   default := fun _ => default
 
@@ -2570,7 +2570,9 @@ structure Array (α : Type u) where
   /--
   Converts a `List α` into an `Array α`.
 
-  At runtime, this constructor is implemented by `List.toArray` and is O(n) in the length of the
+  You can also use the synonym `List.toArray` when dot notation is convenient.
+
+  At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
   list.
   -/
   mk ::
@@ -2583,6 +2585,9 @@ structure Array (α : Type u) where
 
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
+
+@[inherit_doc Array.mk, match_pattern]
+abbrev List.toArray (xs : List α) : Array α := .mk xs
 
 /-- Construct a new empty array with initial capacity `c`. -/
 @[extern "lean_mk_empty_array_with_capacity"]
@@ -2730,7 +2735,7 @@ def List.redLength : List α → Nat
 -- This function is exported to C, where it is called by `Array.mk`
 -- (the constructor) to implement this functionality.
 @[inline, match_pattern, pp_nodot, export lean_list_to_array]
-def List.toArray (as : List α) : Array α :=
+def List.toArrayImpl (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)
 
 /-- The typeclass which supplies the `>>=` "bind" function. See `Monad`. -/

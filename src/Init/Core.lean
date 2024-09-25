@@ -837,6 +837,9 @@ instance : Trans Iff Iff Iff where
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
+theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm HEq.symm
+theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
+
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
 theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
 theorem iff_comm : (a ↔ b) ↔ (b ↔ a) := Iff.comm
@@ -1381,11 +1384,6 @@ gen_injective_theorems% Except
 gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
-
-/-- Replacement for `Array.mk.injEq`; we avoid mentioning the constructor and prefer `List.toArray`. -/
-abbrev List.toArray_inj := @Array.mk.injEq
-
-attribute [deprecated List.toArray_inj (since := "2024-09-09")] Array.mk.injEq
 
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id

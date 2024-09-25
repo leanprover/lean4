@@ -133,6 +133,16 @@ theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y
   rw [← bind_pure_comp]
   simp only [bind_assoc, pure_bind]
 
+theorem map_bind [Monad m] [LawfulMonad m] (x : m α) {g : α → m β} {f : β → γ} :
+    f <$> (x >>= fun a => g a) = x >>= fun a => f <$> g a := by
+  rw [← bind_pure_comp, LawfulMonad.bind_assoc]
+  simp [bind_pure_comp]
+
+theorem bind_map_left [Monad m] [LawfulMonad m] (x : m α) (f : α → β) (g : β → m γ) :
+    ((f <$> x) >>= fun b => g b) = (x >>= fun a => g (f a)) := by
+  rw [← bind_pure_comp]
+  simp [bind_assoc, pure_bind]
+
 /--
 An alternative constructor for `LawfulMonad` which has more
 defaultable fields in the common case.

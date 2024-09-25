@@ -883,6 +883,7 @@ def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
   else DefKind.«def»
 
 def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers := {
+  stx             := ⟨.missing⟩
   isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable
   recKind         := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe
@@ -993,7 +994,7 @@ where
       for view in views, header in headers do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref
-        addDeclarationRanges header.declName view.ref
+        addDeclarationRanges header.declName view.modifiers.stx view.ref
 
 
   processDeriving (headers : Array DefViewElabHeader) := do
@@ -1017,7 +1018,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let mut reusedAllHeaders := true
     for h : i in [0:ds.size], headerPromise in headerPromises do
       let d := ds[i]
-      let modifiers ← elabModifiers d[0]
+      let modifiers ← elabModifiers ⟨d[0]⟩
       if ds.size > 1 && modifiers.isNonrec then
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]

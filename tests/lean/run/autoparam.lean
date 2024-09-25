@@ -35,7 +35,7 @@ structure Foo where
   inv : val.length = len := by next => decide
 
 /--
-error: could not synthesize default value for field 'inv' using tactics
+error: could not synthesize default value for field 'inv' of 'Foo' using tactics
 ---
 error: tactic 'decide' proved that the proposition
   "abc".length = 5

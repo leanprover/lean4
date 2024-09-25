@@ -34,9 +34,9 @@ inductive TacticMVarKind
   /-- Standard tactic metavariable, arising from `by ...` syntax. -/
   | term
   /-- Tactic metavariable arising from an autoparam for a function application. -/
-  | autoParam (arg : Name)
+  | autoParam (argName : Name)
   /-- Tactic metavariable arising from an autoparam for a structure field. -/
-  | fieldAutoParam (field : Name)
+  | fieldAutoParam (fieldName structName : Name)
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where

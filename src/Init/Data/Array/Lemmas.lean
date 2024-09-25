@@ -1235,8 +1235,7 @@ namespace List
 
 @[simp] theorem mapM_toArray [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) :
     l.toArray.mapM f = List.toArray <$> l.mapM f := by
-  simp only [← mapM'_eq_mapM]
-  simp only [mapM_eq_foldlM]
+  simp only [← mapM'_eq_mapM, mapM_eq_foldlM]
   suffices ∀ init : Array β,
       foldlM (fun bs a => bs.push <$> f a) init l.toArray = (init ++ toArray ·) <$> mapM' f l by
     simpa using this #[]
@@ -1245,14 +1244,8 @@ namespace List
   | nil => simp
   | cons a l ih =>
     simp only [foldlM_toArray] at ih
-    simp only [size_toArray, mapM'_cons]
-    rw [foldlM_toArray]
-    simp only [foldlM_cons]
-    simp only [ih]
-    simp only [_root_.map_bind] -- `@[simp]`?
-    simp only [_root_.bind_map_left] -- `@[simp]`?
-    simp only [push_append_toArray, map_pure]
-    simp only [bind_pure_comp] -- `@[simp]`?
+    rw [size_toArray, mapM'_cons, foldlM_toArray]
+    simp [ih]
 
 @[simp] theorem map_toArray (f : α → β) (l : List α) : l.toArray.map f = (l.map f).toArray := by
   apply ext'

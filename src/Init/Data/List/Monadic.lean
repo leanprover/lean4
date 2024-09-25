@@ -57,6 +57,7 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
   induction as generalizing b bs with
   | nil => simp
   | cons a as ih =>
+    simp only [bind_pure_comp] at ih
     simp [ih, _root_.map_bind, Functor.map_map, Function.comp_def]
 
 theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) :

@@ -2259,10 +2259,16 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
 
+/--
+The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
+-/
 @[simp, bv_toNat]
 theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
   simp [intMin]
 
+/--
+The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
+-/
 @[simp]
 theorem toInt_intMin {w : Nat} :
     (intMin w).toInt = -((2 ^ (w - 1) % 2 ^ w) : Nat) := by

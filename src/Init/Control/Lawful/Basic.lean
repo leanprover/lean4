@@ -123,25 +123,15 @@ theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y
   rw [seqLeft_eq]
   simp only [map_eq_pure_bind, seq_eq_bind_map, bind_assoc, pure_bind, const_apply]
 
-@[simp] theorem map_bind [Monad m] [LawfulMonad m] (x : m α) {g : α → m β} {f : β → γ} :
-    f <$> (x >>= fun a => g a) = x >>= fun a => f <$> g a := by
+@[simp] theorem map_bind [Monad m] [LawfulMonad m] (f : β → γ) (x : m α) (g : α → m β) :
+    f <$> (x >>= g) = x >>= fun a => f <$> g a := by
   rw [← bind_pure_comp, LawfulMonad.bind_assoc]
   simp [bind_pure_comp]
 
-@[simp] theorem bind_map_left [Monad m] [LawfulMonad m] (x : m α) (f : α → β) (g : β → m γ) :
+@[simp] theorem bind_map_left [Monad m] [LawfulMonad m] (f : α → β) (x : m α) (g : β → m γ) :
     ((f <$> x) >>= fun b => g b) = (x >>= fun a => g (f a)) := by
   rw [← bind_pure_comp]
   simp only [bind_assoc, pure_bind]
-
-theorem map_bind [Monad m] [LawfulMonad m] (x : m α) {g : α → m β} {f : β → γ} :
-    f <$> (x >>= fun a => g a) = x >>= fun a => f <$> g a := by
-  rw [← bind_pure_comp, LawfulMonad.bind_assoc]
-  simp [bind_pure_comp]
-
-theorem bind_map_left [Monad m] [LawfulMonad m] (x : m α) (f : α → β) (g : β → m γ) :
-    ((f <$> x) >>= fun b => g b) = (x >>= fun a => g (f a)) := by
-  rw [← bind_pure_comp]
-  simp [bind_assoc, pure_bind]
 
 /--
 An alternative constructor for `LawfulMonad` which has more

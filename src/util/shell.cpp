@@ -362,7 +362,7 @@ pair_ref<environment, object_ref> run_new_frontend(
     name const & main_module_name,
     uint32_t trust_level,
     optional<std::string> const & ilean_file_name,
-    uint8_t json
+    uint8_t json_output
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {

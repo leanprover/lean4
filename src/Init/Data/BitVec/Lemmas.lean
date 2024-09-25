@@ -272,6 +272,10 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
   Nat.mod_eq_of_lt x.isLt
 
+@[simp] theorem toNat_mod_cancel' {x : BitVec n} :
+    ((x.toNat : Int) % (((2 ^ n) : Nat) : Int) : Int) = (x.toNat : Int) := by
+  rw_mod_cast [toNat_mod_cancel]
+
 @[simp] theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :
     (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
   simp only [toNat_eq, toNat_ofNat, Nat.zero_mod] at h
@@ -1750,16 +1754,15 @@ theorem toInt_neg {x : BitVec w} :
   simp only [toInt_eq_toNat_bmod, toNat_neg, Int.ofNat_emod, Int.emod_bmod_congr]
   rw [← Int.subNatNat_of_le (by omega), Int.subNatNat_eq_coe, Int.sub_eq_add_neg, Int.add_comm,
     Int.bmod_add_cancel]
-  by_cases h : ↑x.toNat % (2 ^ w) < ((2 ^ w) + 1) / 2
+  by_cases h : x.toNat < ((2 ^ w) + 1) / 2
   · rw [Int.bmod_pos (x := x.toNat)]
-    rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
+    all_goals simp [toNat_mod_cancel', h]
     norm_cast
-  · rw [Nat.mod_eq_of_lt (by omega)] at h
-    simp at h
-    rw [Int.bmod_neg (x := x.toNat)]
-    · rw_mod_cast [Nat.mod_eq_of_lt (by omega), Int.neg_sub, Int.sub_eq_add_neg, Int.add_comm, Int.bmod_add_cancel]
-    · rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
-      simp [h]
+  · rw [Int.bmod_neg (x := x.toNat)]
+    · simp only [toNat_mod_cancel']
+      rw_mod_cast [Int.neg_sub, Int.sub_eq_add_neg, Int.add_comm, Int.bmod_add_cancel]
+    · norm_cast
+      simp_all
 
 @[simp] theorem toFin_neg (x : BitVec n) :
     (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=

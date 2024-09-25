@@ -269,8 +269,8 @@ Return the absolute value of a signed bitvector.
 protected def abs (x : BitVec n) : BitVec n := if x.msb then .neg x else x
 
 /--
-Multiplication for bit vectors. This can be interpreted as either signed or unsigned negation
-modulo `2^n`.
+Multiplication for bit vectors. This can be interpreted as either signed or unsigned
+multiplication modulo `2^n`.
 
 SMT-Lib name: `bvmul`.
 -/

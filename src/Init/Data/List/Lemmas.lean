@@ -1654,6 +1654,11 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 
 /-! ### append -/
 
+@[simp] theorem nil_append_fun : (([] : List α) ++ ·) = id := rfl
+
+@[simp] theorem cons_append_fun (a : α) (as : List α) :
+    (fun bs => ((a :: as) ++ bs)) = fun bs => a :: (as ++ bs) := rfl
+
 theorem getElem_append {l₁ l₂ : List α} (n : Nat) (h) :
     (l₁ ++ l₂)[n] = if h' : n < l₁.length then l₁[n] else l₂[n - l₁.length]'(by simp at h h'; exact Nat.sub_lt_left_of_lt_add h' h) := by
   split <;> rename_i h'

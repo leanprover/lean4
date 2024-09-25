@@ -2288,7 +2288,7 @@ theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   · simp only [Nat.not_lt, Nat.le_zero_eq] at h
     simp [bv_toNat, h]
 
-theorem toInt_neg {x : BitVec w} (rs : x ≠ intMin w) :
+theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
     (-x).toInt = -(x.toInt) := by
   simp only [ne_eq, toNat_eq, toNat_intMin] at rs
   by_cases x_zero : x = 0

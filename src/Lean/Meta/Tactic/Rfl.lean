@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Newell Jensen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Newell Jensen, Thomas Murrills
+Authors: Newell Jensen, Thomas Murrills, Joachim Breitner
 -/
 prelude
 import Lean.Meta.Tactic.Apply
@@ -58,13 +58,13 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   -- NB: uses whnfR, we do not want to unfold the relation itself
   let t ← whnfR <|← instantiateMVars <|← goal.getType
   if t.getAppNumArgs < 2 then
-    throwError "rfl can only be used on binary relations, not{indentExpr (← goal.getType)}"
+    throwTacticEx `rfl goal "expected goal to be a binary relation"
 
   -- Special case HEq here as it has a different argument order.
   if t.isAppOfArity ``HEq 4 then
     let gs ← goal.applyConst ``HEq.refl
     unless gs.isEmpty do
-      throwError MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
+      throwTacticEx `rfl goal <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
         goalsToMessageData gs}"
     return
 
@@ -76,8 +76,8 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
   unless success do
     let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
       let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
-      return m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
-    throwTacticEx `apply_rfl goal explanation
+      return m!"the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+    throwTacticEx `rfl goal explanation
 
   if rel.isAppOfArity `Eq 1 then
     -- The common case is equality: just use `Eq.refl`
@@ -86,6 +86,9 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
     goal.assign (mkApp2 (mkConst ``Eq.refl us) α lhs)
   else
     -- Else search through `@refl` keyed by the relation
+    -- We change the type to `lhs ~ lhs` so that we do not the (possibly costly) `lhs =?= rhs` check
+    -- again.
+    goal.setType (.app t.appFn! lhs)
     let s ← saveState
     let mut ex? := none
     for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
@@ -102,7 +105,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
       sErr.restore
       throw e
     else
-      throwError "rfl failed, no @[refl] lemma registered for relation{indentExpr rel}"
+      throwTacticEx `rfl goal m!"no @[refl] lemma registered for relation{indentExpr rel}"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
 private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}

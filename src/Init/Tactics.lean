@@ -149,26 +149,27 @@ syntax (name := assumption) "assumption" : tactic
 
 /--
 `contradiction` closes the main goal if its hypotheses are "trivially contradictory".
+
 - Inductive type/family with no applicable constructors
-```lean
-example (h : False) : p := by contradiction
-```
+  ```lean
+  example (h : False) : p := by contradiction
+  ```
 - Injectivity of constructors
-```lean
-example (h : none = some true) : p := by contradiction  --
-```
+  ```lean
+  example (h : none = some true) : p := by contradiction  --
+  ```
 - Decidable false proposition
-```lean
-example (h : 2 + 2 = 3) : p := by contradiction
-```
+  ```lean
+  example (h : 2 + 2 = 3) : p := by contradiction
+  ```
 - Contradictory hypotheses
-```lean
-example (h : p) (h' : ¬ p) : q := by contradiction
-```
+  ```lean
+  example (h : p) (h' : ¬ p) : q := by contradiction
+  ```
 - Other simple contradictions such as
-```lean
-example (x : Nat) (h : x ≠ x) : p := by contradiction
-```
+  ```lean
+  example (x : Nat) (h : x ≠ x) : p := by contradiction
+  ```
 -/
 syntax (name := contradiction) "contradiction" : tactic
 
@@ -363,31 +364,24 @@ syntax (name := fail) "fail" (ppSpace str)? : tactic
 syntax (name := eqRefl) "eq_refl" : tactic
 
 /--
-`rfl` tries to close the current goal using reflexivity.
-This is supposed to be an extensible tactic and users can add their own support
-for new reflexive relations.
-
-Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
-reflexivity theorems (e.g., `Iff.rfl`).
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is equality, heterogeneous equality or any relation that
+has a reflexivity lemma tagged with the attribute @[refl].
 -/
-macro "rfl" : tactic => `(tactic| case' _ => fail "The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.")
-
-macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
-macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
+syntax "rfl" : tactic
 
 /--
-This tactic applies to a goal whose target has the form `x ~ x`,
-where `~` is a reflexive relation other than `=`,
-that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
+The same as `rfl`, but without trying `eq_refl` at the end.
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
+-- We try `apply_rfl` first, beause it produces a nice error message
 macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
 
+-- But, mostly for backward compatibility, we try `eq_refl` too (reduces more aggressively)
+macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
+-- Als for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
+macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).

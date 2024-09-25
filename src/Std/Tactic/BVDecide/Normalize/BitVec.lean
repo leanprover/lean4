@@ -142,11 +142,6 @@ theorem BitVec.zero_mul (a : BitVec w) : 0#w * a = 0#w := by
   simp [bv_toNat]
 
 @[bv_normalize]
-theorem BitVec.not_not (a : BitVec w) : ~~~(~~~a) = a := by
-  ext
-  simp
-
-@[bv_normalize]
 theorem BitVec.shiftLeft_zero (n : BitVec w) : n <<< 0#w' = n := by
   ext i
   simp only [(· <<< ·)]

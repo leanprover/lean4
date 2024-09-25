@@ -684,6 +684,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
               let stx := stx.raw.rewriteBottomUp (·.setInfo info)
               let type := (d.getArg! 0).consumeTypeAnnotations
               let mvar ← mkTacticMVar type stx (.fieldAutoParam fieldName s.structName)
+              addTermInfo' stx mvar
               cont mvar field
           | _ =>
             if bi == .instImplicit then

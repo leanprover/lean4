@@ -596,6 +596,7 @@ mutual
           let info := (← getRef).getHeadInfo
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
           let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
+          addTermInfo' tacticBlock mvar
           let argNew := Arg.expr mvar
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew

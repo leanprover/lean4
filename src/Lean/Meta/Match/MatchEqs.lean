@@ -339,6 +339,9 @@ where
     let mvarId' ← mvarId.modifyTargetEqLHS whnfCore
     let mvarId := mvarId'
     let subgoals ←
+      (do let goals ← mvarId.applyConst ``True.intro {}
+          return goals.toArray)
+      <|>
       (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])

@@ -1,6 +1,6 @@
 Try this: simp only [f, reduceCtorEq]
 [Meta.Tactic.simp.rewrite] unfold f, f (a :: b = []) ==> a :: b = []
-[Meta.Tactic.simp.rewrite] eq_self:1000, False = False ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to False = False
 Try this: simp only [length, gt_iff_lt]
 [Meta.Tactic.simp.rewrite] unfold length, length (a :: b :: as) ==> length (b :: as) + 1
 [Meta.Tactic.simp.rewrite] unfold length, length (b :: as) ==> length as + 1
@@ -14,10 +14,10 @@ Try this: simp only [head]
 [Meta.Tactic.simp.rewrite] unfold head, head (a :: as) ==> match a :: as with
     | [] => default
     | a :: tail => a
-[Meta.Tactic.simp.rewrite] eq_self:1000, a = a ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to a = a
 Try this: simp only [foo]
 [Meta.Tactic.simp.rewrite] unfold foo, foo ==> 10
-[Meta.Tactic.simp.rewrite] eq_self:1000, 10 + x = 10 + x ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to 10 + x = 10 + x
 Try this: simp only [g, pure]
 [Meta.Tactic.simp.rewrite] unfold g, g x ==> (let x := x;
       pure x).run
@@ -37,33 +37,33 @@ Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modify
 [Meta.Tactic.simp.rewrite] unfold getThe, getThe Nat s ==> MonadStateOf.get s
 [Meta.Tactic.simp.rewrite] unfold StateT.get, StateT.get s ==> pure (s, s)
 [Meta.Tactic.simp.rewrite] unfold StateT.set, StateT.set (g s) s ==> pure (PUnit.unit, g s)
-[Meta.Tactic.simp.rewrite] eq_self:1000, (fun s => (PUnit.unit, g s)) = fun s => (PUnit.unit, g s) ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to (fun s => (PUnit.unit, g s)) = fun s => (PUnit.unit, g s)
 Try this: simp only [bla, h]
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
-[Meta.Tactic.simp.rewrite] eq_self:1000, x + x = x + x ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to x + x = x + x
 Try this: simp only [h, Nat.sub_add_cancel]
 [Meta.Tactic.simp.rewrite] h:1000, 1 ≤ x ==> True
 [Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
-[Meta.Tactic.simp.rewrite] eq_self:1000, x + 2 = x + 2 ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to x + 2 = x + 2
 Try this: simp (config := { contextual := true }) only [Nat.sub_add_cancel, dite_eq_ite]
 [Meta.Tactic.simp.rewrite] h:1000, 1 ≤ x ==> True
 [Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
 [Meta.Tactic.simp.rewrite] dite_eq_ite:1000, if h : 1 ≤ x then x else 0 ==> if 1 ≤ x then x else 0
 [Meta.Tactic.simp.rewrite] dite_eq_ite:1000, if _h : 1 ≤ x then x else 0 ==> if 1 ≤ x then x else 0
-[Meta.Tactic.simp.rewrite] eq_self:1000, (if 1 ≤ x then x else 0) = if 1 ≤ x then x else 0 ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to (if 1 ≤ x then x else 0) = if 1 ≤ x then x else 0
 Try this: simp only [and_self]
 [Meta.Tactic.simp.rewrite] and_self:1000, b ∧ b ==> b
 [Meta.Tactic.simp.rewrite] iff_self:1000, a ∧ b ↔ a ∧ b ==> True
 Try this: simp only [my_thm]
 [Meta.Tactic.simp.rewrite] my_thm:1000, b ∧ b ==> b
-[Meta.Tactic.simp.rewrite] eq_self:1000, (a ∧ b) = (a ∧ b) ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to (a ∧ b) = (a ∧ b)
 Try this: simp (discharger := sorry) only [Nat.sub_add_cancel]
 simp_trace.lean:83:0-83:7: warning: declaration uses 'sorry'
 [Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
-[Meta.Tactic.simp.rewrite] eq_self:1000, x = x ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to x = x
 Try this: simp only [bla, h] at *
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z

@@ -490,6 +490,17 @@ def simpGround : Simproc := fun e => do
     seval e
   return .done r
 
+def rewriteRfl : Simproc := fun e => do
+  if let .some (t, a, b) := e.eq? then
+    if (← withReducible <| isDefEq a b) then
+      trace[Meta.Tactic.simp.rewrite] "Eager eq_self simpproc appiled to {e}"
+      let u ← getLevel t
+      return .done {
+        expr := .const ``True []
+        proof? := .some <| mkApp2 (.const ``eq_self [u]) t a
+      }
+  return .continue
+
 def preDefault (s : SimprocsArray) : Simproc :=
   rewritePre >>
   simpMatch >>
@@ -497,6 +508,7 @@ def preDefault (s : SimprocsArray) : Simproc :=
   simpUsingDecide
 
 def postDefault (s : SimprocsArray) : Simproc :=
+  rewriteRfl >>
   rewritePost >>
   userPostSimprocs s >>
   simpGround >>

@@ -1522,12 +1522,12 @@ theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
     rw [BitVec.shiftLeft_add, Nat.add_comm, BitVec.shiftRight_add, ih,
        Nat.add_comm, BitVec.shiftLeft_add, BitVec.shiftLeft_and_distrib]
     ext i
-    have hi₁ : 1 + (i.val - 1) = i := by omega
+    have hi₁ (_: 0 < i.val) : 1 + (i.val - 1) = i := by omega
     by_cases hw : w = 0
     · simp [hw]
     · by_cases hi₂ : i.val = 0
       · simp [hi₂]
-      · simp [Nat.lt_one_iff, hi₂, hi₁]
+      · simp [Nat.lt_one_iff, hi₂, hi₁ (show 0 < i.val by omega)]
 
 @[deprecated shiftRight_add (since := "2024-06-02")]
 theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :

@@ -140,7 +140,7 @@ theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array
     refine ih.trans ?_
     simp only [Array.get_eq_getElem, AssocList.foldl_eq, Array.toList_set]
     rw [List.drop_eq_getElem_cons hi, List.bind_cons, List.foldl_append,
-      List.drop_set_of_lt _ _ (by omega), Array.getElem_eq_toList_getElem]
+      List.drop_set_of_lt _ _ (by omega), Array.getElem_eq_getElem_toList]
   · next i source target hi =>
     rw [expand.go_neg hi, List.drop_eq_nil_of_le, bind_nil, foldl_nil]
     rwa [Array.size_eq_length_toList, Nat.not_lt] at hi

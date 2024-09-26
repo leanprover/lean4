@@ -9,11 +9,10 @@ This file tests the `rfl` tactic:
 -- First, let's see what `rfl` does:
 
 /--
-error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+error: tactic 'rfl' failed, the left-hand side
+  false
+is not definitionally equal to the right-hand side
+  true
 ⊢ false = true
 -/
 #guard_msgs in
@@ -28,9 +27,9 @@ attribute [refl] P.refl
 -- Plain error
 
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   42
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   23
 ⊢ P 42 23
 -/
@@ -42,9 +41,9 @@ example : P 42 23 := by apply_rfl
 opaque withImplicitNat {n : Nat} : Nat
 
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   @withImplicitNat 42
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   @withImplicitNat 23
 ⊢ P withImplicitNat withImplicitNat
 -/
@@ -86,13 +85,15 @@ example : True ↔ True   := by apply_rfl
 example : P true true   := by apply_rfl
 example : Q true true   := by apply_rfl
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   Q'
+⊢ Q' true true
 -/
 #guard_msgs in example : Q' true true  := by apply_rfl -- Error
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   R
+⊢ R true true
 -/
 #guard_msgs in example : R true true   := by apply_rfl -- Error
 
@@ -102,14 +103,16 @@ example : True ↔ True   := by with_reducible apply_rfl
 example : P true true   := by with_reducible apply_rfl
 example : Q true true   := by with_reducible apply_rfl
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   Q'
+⊢ Q' true true
 -/
 #guard_msgs in
 example : Q' true true  := by with_reducible apply_rfl -- Error
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   R
+⊢ R true true
 -/
 #guard_msgs in
 example : R true true   := by with_reducible apply_rfl -- Error
@@ -125,14 +128,16 @@ example : True' ↔ True   := by apply_rfl
 example : P true' true   := by apply_rfl
 example : Q true' true   := by apply_rfl
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   Q'
+⊢ Q' true' true'
 -/
 #guard_msgs in
 example : Q' true' true  := by apply_rfl -- Error
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   R
+⊢ R true' true'
 -/
 #guard_msgs in
 example : R true' true   := by apply_rfl -- Error
@@ -143,14 +148,16 @@ example : True' ↔ True   := by with_reducible apply_rfl
 example : P true' true   := by with_reducible apply_rfl
 example : Q true' true   := by with_reducible apply_rfl -- NB: No error, Q and true' reducible
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   Q'
+⊢ Q' true' true'
 -/
 #guard_msgs in
 example : Q' true' true  := by with_reducible apply_rfl -- Error
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   R
+⊢ R true' true'
 -/
 #guard_msgs in
 example : R true' true   := by with_reducible apply_rfl -- Error
@@ -166,22 +173,24 @@ example : True'' ↔ True   := by apply_rfl
 example : P true'' true   := by apply_rfl
 example : Q true'' true   := by apply_rfl
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   Q'
+⊢ Q' true'' true''
 -/
 #guard_msgs in
 example : Q' true'' true  := by apply_rfl -- Error
 /--
-error: rfl failed, no @[refl] lemma registered for relation
+error: tactic 'rfl' failed, no @[refl] lemma registered for relation
   R
+⊢ R true'' true''
 -/
 #guard_msgs in
 example : R true'' true   := by apply_rfl -- Error
 
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   true''
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ true'' = true
 -/
@@ -197,45 +206,45 @@ with
 #guard_msgs in
 example : HEq true'' true := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   True''
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   True
 ⊢ True'' ↔ True
 -/
 #guard_msgs in
 example : True'' ↔ True   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   true''
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ P true'' true
 -/
 #guard_msgs in
 example : P true'' true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   true''
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ Q true'' true
 -/
 #guard_msgs in
 example : Q true'' true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   true''
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ Q' true'' true
 -/
 #guard_msgs in
 example : Q' true'' true  := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   true''
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ R true'' true
 -/
@@ -244,9 +253,9 @@ example : R true'' true   := by with_reducible apply_rfl -- Error
 
 -- Unequal
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ false = true
 -/
@@ -262,45 +271,45 @@ with
 #guard_msgs in
 example : HEq false true := by apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   False
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   True
 ⊢ False ↔ True
 -/
 #guard_msgs in
 example : False ↔ True   := by apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ P false true
 -/
 #guard_msgs in
 example : P false true   := by apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ Q false true
 -/
 #guard_msgs in
 example : Q false true   := by apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ Q' false true
 -/
 #guard_msgs in
 example : Q' false true  := by apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ R false true
 -/
@@ -308,9 +317,9 @@ is not definitionally equal to rhs
 example : R false true   := by apply_rfl -- Error
 
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ false = true
 -/
@@ -326,45 +335,45 @@ with
 #guard_msgs in
 example : HEq false true := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   False
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   True
 ⊢ False ↔ True
 -/
 #guard_msgs in
 example : False ↔ True   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ P false true
 -/
 #guard_msgs in
 example : P false true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ Q false true
 -/
 #guard_msgs in
 example : Q false true   := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ Q' false true
 -/
 #guard_msgs in
 example : Q' false true  := by with_reducible apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   false
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   true
 ⊢ R false true
 -/
@@ -398,18 +407,18 @@ example : HEq true 1 := by with_reducible apply_rfl -- Error
 inductive S : Bool → Bool → Prop where | refl : a = true → S a a
 attribute [refl] S.refl
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   true
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   false
 ⊢ S true false
 -/
 #guard_msgs in
 example : S true false  := by apply_rfl -- Error
 /--
-error: tactic 'apply_rfl' failed, The lhs
+error: tactic 'rfl' failed, the left-hand side
   true
-is not definitionally equal to rhs
+is not definitionally equal to the right-hand side
   false
 ⊢ S true false
 -/

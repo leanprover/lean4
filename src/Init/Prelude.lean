@@ -754,10 +754,11 @@ infer the proof of `Nonempty α`.
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
 
-instance (α : Sort u) {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
+instance {α : Sort u} {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
-instance (α : Sort u) {β : α → Sort v} [(a : α) → Nonempty (β a)] : Nonempty ((a : α) → β a) :=
+instance Pi.instNonempty {α : Sort u} {β : α → Sort v} [(a : α) → Nonempty (β a)] :
+    Nonempty ((a : α) → β a) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
 instance : Inhabited (Sort u) where
@@ -766,7 +767,8 @@ instance : Inhabited (Sort u) where
 instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
   default := fun _ => default
 
-instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) where
+instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhabited (β a)] :
+    Inhabited ((a : α) → β a) where
   default := fun _ => default
 
 deriving instance Inhabited for Bool
@@ -1210,7 +1212,7 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   * For most types like `Nat`, `Int`, `Rat`, `Real`, `a / 0` is defined to be `0`.
   * For `Nat`, `a / b` rounds downwards.
   * For `Int`, `a / b` rounds downwards if `b` is positive or upwards if `b` is negative.
-    It is implemented as `Int.ediv`, the unique function satisfiying
+    It is implemented as `Int.ediv`, the unique function satisfying
     `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
     Other rounding conventions are available using the functions
     `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
@@ -1364,7 +1366,7 @@ class Pow (α : Type u) (β : Type v) where
   /-- `a ^ b` computes `a` to the power of `b`. See `HPow`. -/
   pow : α → β → α
 
-/-- The homogenous version of `Pow` where the exponent is a `Nat`.
+/-- The homogeneous version of `Pow` where the exponent is a `Nat`.
 The purpose of this class is that it provides a default `Pow` instance,
 which can be used to specialize the exponent to `Nat` during elaboration.
 
@@ -2065,7 +2067,7 @@ The size of type `USize`, that is, `2^System.Platform.numBits`, which may
 be either `2^32` or `2^64` depending on the platform's architecture.
 
 Remark: we define `USize.size` using `(2^numBits - 1) + 1` to ensure the
-Lean unifier can solve contraints such as `?m + 1 = USize.size`. Recall that
+Lean unifier can solve constraints such as `?m + 1 = USize.size`. Recall that
 `numBits` does not reduce to a numeral in the Lean kernel since it is platform
 specific. Without this trick, the following definition would be rejected by the
 Lean type checker.
@@ -2568,7 +2570,9 @@ structure Array (α : Type u) where
   /--
   Converts a `List α` into an `Array α`.
 
-  At runtime, this constructor is implemented by `List.toArray` and is O(n) in the length of the
+  You can also use the synonym `List.toArray` when dot notation is convenient.
+
+  At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
   list.
   -/
   mk ::
@@ -2581,6 +2585,9 @@ structure Array (α : Type u) where
 
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
+
+@[inherit_doc Array.mk, match_pattern]
+abbrev List.toArray (xs : List α) : Array α := .mk xs
 
 /-- Construct a new empty array with initial capacity `c`. -/
 @[extern "lean_mk_empty_array_with_capacity"]
@@ -2728,7 +2735,7 @@ def List.redLength : List α → Nat
 -- This function is exported to C, where it is called by `Array.mk`
 -- (the constructor) to implement this functionality.
 @[inline, match_pattern, pp_nodot, export lean_list_to_array]
-def List.toArray (as : List α) : Array α :=
+def List.toArrayImpl (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)
 
 /-- The typeclass which supplies the `>>=` "bind" function. See `Monad`. -/

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.Elab.Tactic.Omega.Core
@@ -322,7 +322,7 @@ where
 end
 namespace MetaProblem
 
-/-- The trivial `MetaProblem`, with no facts to processs and a trivial `Problem`. -/
+/-- The trivial `MetaProblem`, with no facts to process and a trivial `Problem`. -/
 def trivial : MetaProblem where
   problem := {}
 

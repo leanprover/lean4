@@ -53,7 +53,7 @@ namespace LeanExe
   name := self.config.root
   keyName := self.pkg.name ++ self.config.root
 
-/-- Return the the root module if the name matches, otherwise return none. -/
+/-- Return the root module if the name matches, otherwise return none. -/
 def isRoot? (name : Name) (self : LeanExe) : Option Module :=
   if name == self.config.root then some self.root else none
 

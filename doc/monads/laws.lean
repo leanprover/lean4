@@ -171,7 +171,7 @@ of data contained in the container resulting in a new container that has the sam
 
 `u <*> pure y = pure (. y) <*> u`.
 
-This law is is a little more complicated, so don't sweat it too much. It states that the order that
+This law is a little more complicated, so don't sweat it too much. It states that the order that
 you wrap things shouldn't matter. One the left, you apply any applicative `u` over a pure wrapped
 object. On the right, you first wrap a function applying the object as an argument. Note that `(·
 y)` is short hand for: `fun f => f y`. Then you apply this to the first applicative `u`. These

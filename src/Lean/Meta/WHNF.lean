@@ -167,7 +167,7 @@ private def isWFRec (declName : Name) : Bool :=
 /--
 Helper method for `reduceRec`.
 We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
-We we use the following trick, if `e` can be expressed as an offest `(a, k)` with `k > 0`,
+We we use the following trick, if `e` can be expressed as an offset `(a, k)` with `k > 0`,
 we create a new expression `Nat.succ e'` where `e'` is `a` for `k = 1`, or `a + (k-1)` for `k > 1`.
 See issue #3022
 -/

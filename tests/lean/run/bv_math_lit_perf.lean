@@ -17,7 +17,7 @@ def f (x : BitVec 32) : Nat :=
   | _      => 1000
 
 -- Generate the equational lemmas ahead of time, to avoid going
--- over the hearbeat limit below
+-- over the heartbeat limit below
 #guard_msgs(drop all) in
 #print equations f
 

@@ -49,7 +49,7 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
   - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
   - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
 
-  This is used in in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+  This is used in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
   the argument provided by `fix` to refine the termination argument, which may mention `major`.
   See there for how to use this function.
 -/
@@ -108,8 +108,8 @@ def addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
   This is similar to `MatcherApp.addArg` when you only have an expression to
   refined, and not a type with a value.
 
-  This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
-  calls to refine the functions' paramter, which may mention `major`.
+  This is used in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
+  calls to refine the functions' parameter, which may mention `major`.
   See there for how to use this function.
 -/
 def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
@@ -202,7 +202,7 @@ NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitte
 If `addEqualities` is true, then equalities connecting the discriminant to the parameters of the
 alternative (like in `match h : x with …`) are be added, if not already there.
 
-This function works even if the the type of alternatives do *not* fit the inferred type. This
+This function works even if the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
 infer a type, given all the alternatives.
 -/
@@ -379,12 +379,12 @@ The given `MatcherApp` must not use a splitter in `matcherName`.
 The resulting expression *will* use the splitter corresponding to `matcherName` (this is necessary
 for the construction).
 
-Interally, this needs to reduce the matcher in a given branch; this is done using
+Internally, this needs to reduce the matcher in a given branch; this is done using
 `Split.simpMatchTarget`.
 -/
 def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
   -- In matcherApp.motive, replace the (dummy) matcher body with a type
-  -- derived from the inferred types of the alterantives
+  -- derived from the inferred types of the alternatives
   let nExtra := matcherApp.remaining.size
   matcherApp.transform (useSplitter := true)
     (onMotive := fun motiveArgs body => do

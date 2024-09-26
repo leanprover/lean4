@@ -14,7 +14,7 @@ instance coeToNat : CoeOut (Fin n) Nat :=
   ⟨fun v => v.val⟩
 
 /--
-From the empty type `Fin 0`, any desired result `α` can be derived. This is simlar to `Empty.elim`.
+From the empty type `Fin 0`, any desired result `α` can be derived. This is similar to `Empty.elim`.
 -/
 def elim0.{u} {α : Sort u} : Fin 0 → α
   | ⟨_, h⟩ => absurd h (not_lt_zero _)

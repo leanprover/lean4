@@ -7,7 +7,6 @@ prelude
 import Lean.Data.LBool
 import Lean.Meta.InferType
 import Lean.Meta.NatInstTesters
-import Lean.Meta.NatInstTesters
 import Lean.Util.SafeExponentiation
 
 namespace Lean.Meta

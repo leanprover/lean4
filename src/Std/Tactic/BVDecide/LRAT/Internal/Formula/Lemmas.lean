@@ -25,7 +25,7 @@ open DefaultClause DefaultFormula Assignment
 This invariant states that if the `assignments` field of a default formula `f` indicates that `f`
 contains an assignment `b` at index `i`, then the unit literal `(i, b)` must be included in `f`.
 Default formulas are expected to satisfy this invariant at all times except during intermediate
-stages of unit propogation (during which, default formulas are only expected to satisfy the more
+stages of unit propagation (during which, default formulas are only expected to satisfy the more
 lenient `AssignmentsInvariant` defined below).
 -/
 def StrongAssignmentsInvariant {n : Nat} (f : DefaultFormula n) : Prop :=
@@ -503,7 +503,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
                 conv => rhs; rw [Array.size_mk]
                 exact hbound
               simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_toList_getElem, decidableGetElem?] at heq
+                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               simp only [← heq] at l_ne_b
@@ -536,7 +536,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
                 conv => rhs; rw [Array.size_mk]
                 exact hbound
               simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_toList_getElem, decidableGetElem?] at heq
+                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               have i_eq_l : i = l.1 := by rw [← heq]
@@ -596,7 +596,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
                 conv => rhs; rw [Array.size_mk]
                 exact hbound
               simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_toList_getElem, decidableGetElem?] at heq
+                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx] at heq
               simp only [Option.some.injEq] at heq
               rw [← heq] at hl

@@ -1654,6 +1654,11 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 
 /-! ### append -/
 
+@[simp] theorem nil_append_fun : (([] : List α) ++ ·) = id := rfl
+
+@[simp] theorem cons_append_fun (a : α) (as : List α) :
+    (fun bs => ((a :: as) ++ bs)) = fun bs => a :: (as ++ bs) := rfl
+
 theorem getElem_append {l₁ l₂ : List α} (n : Nat) (h) :
     (l₁ ++ l₂)[n] = if h' : n < l₁.length then l₁[n] else l₂[n - l₁.length]'(by simp at h h'; exact Nat.sub_lt_left_of_lt_add h' h) := by
   split <;> rename_i h'
@@ -2391,6 +2396,12 @@ theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
 -- This can not be a `@[simp]` lemma because it would fire on every `List.map`.
 theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.length b :=
   map_const l b
+
+@[simp] theorem set_replicate_self : (replicate n a).set i a = replicate n a := by
+  apply ext_getElem
+  · simp
+  · intro i h₁ h₂
+    simp [getElem_set]
 
 @[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   rw [eq_replicate_iff]

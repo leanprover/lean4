@@ -13,7 +13,7 @@ fi
 LAKE1=${LAKE:-../../../.lake/build/bin/lake}
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-# Test `new` and `init` with bad template/langauge (should error)
+# Test `new` and `init` with bad template/language (should error)
 
 ($LAKE new foo bar 2>&1 && exit 1 || true) | grep --color "unknown package template"
 ($LAKE new foo .baz 2>&1 && exit 1 || true) | grep --color "unknown configuration language"

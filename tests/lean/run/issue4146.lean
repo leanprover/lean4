@@ -16,7 +16,7 @@ termination_by n
 -- NB: The induction theorem has both `h` in scope, as its original type mentioning `x`,
 -- and a refined `h` mentioning `m+1`.
 -- The former is redundant here, but will we always know that?
--- No HEq betwen the two `h`s due to proof irrelevance
+-- No HEq between the two `h`s due to proof irrelevance
 
 /--
 info: bar.induct (motive : Nat → Prop) (case1 : motive 0)

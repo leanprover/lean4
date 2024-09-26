@@ -30,7 +30,7 @@ def fromExpr? (e : Expr) : SimpM (Option Literal) := do
   return some { n, value }
 
 /--
-Helper function for reducing homogenous unary bitvector operators.
+Helper function for reducing homogeneous unary bitvector operators.
 -/
 @[inline] def reduceUnary (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n) (e : Expr) : SimpM DStep := do
@@ -39,7 +39,7 @@ Helper function for reducing homogenous unary bitvector operators.
   return .done <| toExpr (op v.value)
 
 /--
-Helper function for reducing homogenous binary bitvector operators.
+Helper function for reducing homogeneous binary bitvector operators.
 -/
 @[inline] def reduceBin (declName : Name) (arity : Nat)
     (op : {n : Nat} → BitVec n → BitVec n → BitVec n) (e : Expr) : SimpM DStep := do
@@ -139,7 +139,7 @@ builtin_dsimproc [simp, seval] reduceSub ((_ - _ : BitVec _)) := reduceBin ``HSu
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : BitVec _)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 /-- Simplification procedure for the modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : BitVec _)) := reduceBin ``HMod.hMod 6 (· % ·)
-/-- Simplification procedure for for the unsigned modulo operation on `BitVec`s. -/
+/-- Simplification procedure for the unsigned modulo operation on `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceUMod ((umod _ _ : BitVec _)) := reduceBin ``umod 3 umod
 /-- Simplification procedure for unsigned division of `BitVec`s. -/
 builtin_dsimproc [simp, seval] reduceUDiv ((udiv _ _ : BitVec _)) := reduceBin ``udiv 3 udiv

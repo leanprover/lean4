@@ -51,6 +51,27 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {l₁ l₂ : List α} :
     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]
 
+/-- Auxiliary lemma for `mapM_eq_reverse_foldlM_cons`. -/
+theorem foldlM_cons_eq_append [Monad m] [LawfulMonad m] (f : α → m β) (as : List α) (b : β) (bs : List β) :
+    (as.foldlM (init := b :: bs) fun acc a => return ((← f a) :: acc)) =
+      (· ++ b :: bs) <$> as.foldlM (init := []) fun acc a => return ((← f a) :: acc) := by
+  induction as generalizing b bs with
+  | nil => simp
+  | cons a as ih =>
+    simp only [bind_pure_comp] at ih
+    simp [ih, _root_.map_bind, Functor.map_map, Function.comp_def]
+
+theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) :
+    mapM f l = reverse <$> (l.foldlM (fun acc a => return ((← f a) :: acc)) []) := by
+  rw [← mapM'_eq_mapM]
+  induction l with
+  | nil => simp
+  | cons a as ih =>
+    simp only [mapM'_cons, ih, bind_map_left, foldlM_cons, LawfulMonad.bind_assoc, pure_bind,
+      foldlM_cons_eq_append, _root_.map_bind, Functor.map_map, Function.comp_def, reverse_append,
+      reverse_cons, reverse_nil, nil_append, singleton_append]
+    simp [bind_pure_comp]
+
 /-! ### forM -/
 
 -- We use `List.forM` as the simp normal form, rather that `ForM.forM`.
@@ -65,5 +86,17 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
 @[simp] theorem forM_append [Monad m] [LawfulMonad m] (l₁ l₂ : List α) (f : α → m PUnit) :
     (l₁ ++ l₂).forM f = (do l₁.forM f; l₂.forM f) := by
   induction l₁ <;> simp [*]
+
+/-! ### allM -/
+
+theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
+    allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
+  induction as with
+  | nil => simp
+  | cons a as ih =>
+    simp only [allM, anyM, bind_map_left, _root_.map_bind]
+    congr
+    funext b
+    split <;> simp_all
 
 end List

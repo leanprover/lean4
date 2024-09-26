@@ -525,7 +525,7 @@ structure DivModState (w : Nat) : Type where
 
 
 /-- `DivModArgs` contains the arguments to a `divrem` call which remain constant throughout
-execution -/
+execution. -/
 structure DivModArgs (w : Nat) where
   /-- the numerator (aka, dividend) -/
   n : BitVec w

@@ -11,6 +11,10 @@ theorem List.foldl_subtype (p : α → Prop) (l : List (Subtype p)) (f : β → 
   | nil => simp
   | cons a l ih => simp [hf, ih]
 
-theorem depth_eq (l : List Nat)  :
+example (l : List Nat)  :
   l.attach.foldl (fun acc t => max acc (t.val)) 0 = l.foldl (fun acc t => max acc t) 0 := by
+  simp [List.foldl_subtype]
+
+example (l : List Nat)  :
+  l.attach.foldl (fun acc ⟨t, _⟩ => max acc t) 0 = l.foldl (fun acc t => max acc t) 0 := by
   simp [List.foldl_subtype]

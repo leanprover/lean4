@@ -605,7 +605,7 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
     | zero => simp_all
     | succ k => omega
 
-@[simp] theorem mod_mul_mod (a b c : Nat) : (a % c * b) % c = a * b % c := by
+@[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
   rw [mul_mod, mod_mod, ← mul_mod]
 
 theorem mod_eq_of_eq {a b c : Nat} (h : a = b) : a % c = b % c := by

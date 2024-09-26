@@ -597,7 +597,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
     if let some r ← dischargeUsingAssumption? e then return some r
     if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
-  if let some p ← dischargeRfl e then
+  if let some p ← dischargeRfl r.expr then
     return some (← mkEqMPR (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))

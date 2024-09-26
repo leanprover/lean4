@@ -548,4 +548,12 @@ theorem count_attachWith [DecidableEq α] {p : α → Prop} (l : List α) (H : �
     (l.attachWith p H).count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _ _ _
 
+@[simp] theorem map_attach_comp_subtype_val {l : List α} :
+    l.attach.map (f ∘ Subtype.val) = l.map f := by
+  simp [map_attach]
+
+@[simp] theorem map_attachWith_comp_subtype_val {l : List α} {P : α → Prop} {H} :
+    (l.attachWith P H).map (f ∘ Subtype.val) = l.map f := by
+  simp [map_attachWith]
+
 end List

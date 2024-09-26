@@ -1763,10 +1763,7 @@ theorem shiftLeft_add_distrib {x y : BitVec w} {n : Nat} :
   case zero =>
     simp
   case succ n ih =>
-    simp only [shiftLeft_add, ih, toNat_eq, toNat_shiftLeft, toNat_add, Nat.shiftLeft_eq_mul_pow,
-      Nat.add_mod_mod, Nat.mod_add_mod, Nat.pow_one, Nat.mod_mul_mod]
-    rw [Nat.mod_eq_of_eq]
-    omega
+    simp [ih, toNat_eq, Nat.shiftLeft_eq_mul_pow, ←Nat.add_mul]
 
 /-! ### sub/neg -/
 

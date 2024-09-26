@@ -1512,7 +1512,6 @@ theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
   ext i
   simp [Nat.add_assoc n m i]
 
-@[simp]
 theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
     x >>> n <<< n = x &&& BitVec.allOnes w <<< n := by
   induction n generalizing x

@@ -1526,8 +1526,7 @@ theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
     · simp [hw]
     · by_cases hi₂ : i.val = 0
       · simp [hi₂]
-      · have hi₁ : 1 + (i.val - 1) = i := by omega
-        simp [Nat.lt_one_iff, hi₂, hi₁]
+      · simp [Nat.lt_one_iff, hi₂, show 1 + (i.val - 1) = i by omega]
 
 @[deprecated shiftRight_add (since := "2024-06-02")]
 theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :

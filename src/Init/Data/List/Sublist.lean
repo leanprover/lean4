@@ -725,11 +725,20 @@ theorem infix_iff_suffix_prefix {l₁ l₂ : List α} : l₁ <:+: l₂ ↔ ∃ t
 theorem IsInfix.eq_of_length (h : l₁ <:+: l₂) : l₁.length = l₂.length → l₁ = l₂ :=
   h.sublist.eq_of_length
 
+theorem IsInfix.eq_of_length_le (h : l₁ <:+: l₂) : l₂.length ≤ l₁.length → l₁ = l₂ :=
+  h.sublist.eq_of_length_le
+
 theorem IsPrefix.eq_of_length (h : l₁ <+: l₂) : l₁.length = l₂.length → l₁ = l₂ :=
   h.sublist.eq_of_length
 
+theorem IsPrefix.eq_of_length_le (h : l₁ <+: l₂) : l₂.length ≤ l₁.length → l₁ = l₂ :=
+  h.sublist.eq_of_length_le
+
 theorem IsSuffix.eq_of_length (h : l₁ <:+ l₂) : l₁.length = l₂.length → l₁ = l₂ :=
   h.sublist.eq_of_length
+
+theorem IsSuffix.eq_of_length_le (h : l₁ <:+ l₂) : l₂.length ≤ l₁.length → l₁ = l₂ :=
+  h.sublist.eq_of_length_le
 
 theorem prefix_of_prefix_length_le :
     ∀ {l₁ l₂ l₃ : List α}, l₁ <+: l₃ → l₂ <+: l₃ → length l₁ ≤ length l₂ → l₁ <+: l₂
@@ -828,6 +837,24 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
       simp only [cons_append, cons_prefix_cons, ih]
       rw (config := {occs := .pos [2]}) [← Nat.and_forall_add_one]
       simp [Nat.succ_lt_succ_iff, eq_comm]
+
+theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
+    l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ x (hx : x < l₁.length),
+      l₁[x] = l₂[x]'(Nat.lt_of_lt_of_le hx h) where
+  mp h := ⟨h.length_le, fun _ _ ↦ h.getElem _⟩
+  mpr h := by
+    obtain ⟨hl, h⟩ := h
+    induction l₂ generalizing l₁ with
+    | nil =>
+      simpa using hl
+    | cons _ _ tail_ih =>
+      cases l₁ with
+      | nil =>
+        exact nil_prefix
+      | cons _ _ =>
+        simp only [length_cons, Nat.add_le_add_iff_right, Fin.getElem_fin] at hl h
+        simp only [cons_prefix_cons]
+        exact ⟨h 0 (zero_lt_succ _), tail_ih hl fun a ha ↦ h a.succ (succ_lt_succ ha)⟩
 
 -- See `Init.Data.List.Nat.Sublist` for `isSuffix_iff` and `ifInfix_iff`.
 

@@ -167,7 +167,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
     r.addExtraArgs extraArgs
 
 def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) :=
-  withNewMCtxDepth do
+  (if thm.origin.key == ``eq_self then id else withNewMCtxDepth) do
     let val  ← thm.getValue
     let type ← inferType val
     let (xs, bis, type) ← forallMetaTelescopeReducing type
@@ -176,7 +176,7 @@ def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat)
     tryTheoremCore lhs xs bis val type e thm numExtraArgs
 
 def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
-  withNewMCtxDepth do
+  (if thm.origin.key == ``eq_self then id else withNewMCtxDepth) do
     let val  ← thm.getValue
     let type ← inferType val
     let (xs, bis, type) ← forallMetaTelescopeReducing type
@@ -490,17 +490,6 @@ def simpGround : Simproc := fun e => do
     seval e
   return .done r
 
-def rewriteRfl : Simproc := fun e => do
-  if let .some (t, a, b) := e.eq? then
-    if (← withReducible <| isDefEq a b) then
-      trace[Meta.Tactic.simp.rewrite] "Eager eq_self simpproc appiled to {e}"
-      let u ← getLevel t
-      return .done {
-        expr := .const ``True []
-        proof? := .some <| mkApp2 (.const ``eq_self [u]) t a
-      }
-  return .continue
-
 def preDefault (s : SimprocsArray) : Simproc :=
   rewritePre >>
   simpMatch >>
@@ -508,7 +497,6 @@ def preDefault (s : SimprocsArray) : Simproc :=
   simpUsingDecide
 
 def postDefault (s : SimprocsArray) : Simproc :=
-  rewriteRfl >>
   rewritePost >>
   userPostSimprocs s >>
   simpGround >>

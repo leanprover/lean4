@@ -31,6 +31,10 @@ a b : Nat
 case x
 a b : Nat
 | 0 + a
+case x
+a b : Nat
+| a
+
 case y
 a b : Nat
 | b + 0

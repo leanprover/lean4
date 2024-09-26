@@ -181,7 +181,7 @@ def State.get (σ : State) (x : Var) : Val :=
     next hc => split <;> simp_all
     next =>
       split
-      next => rfl
+      next => trivial
       next => exact find?_update σ v h
 
 -- TODO: remove after we add better automation
@@ -209,7 +209,7 @@ theorem State.get_of_find? {σ : State} (h : σ.find? x = some v) : σ.get x = v
     next hxy => rw [hxy] at h; simp [h.symm]; exact find?_erase σ h
     next =>
       split
-      next => rfl
+      next => trivial
       next => exact find?_erase σ h
 
 -- TODO: remove after we add better automation

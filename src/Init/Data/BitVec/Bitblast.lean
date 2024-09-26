@@ -438,6 +438,386 @@ theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [shiftLeftRec_eq]
 
+/-! # udiv/urem recurrence for bitblasting
+
+In order to prove the correctness of the division algorithm on the integers,
+one shows that `n.div d = q` and `n.mod d = r` iff `n = d * q + r` and `0 ≤ r < d`.
+Mnemonic: `n` is the numerator, `d` is the denominator, `q` is the quotient, and `r` the remainder.
+
+This *uniqueness of decomposition* is not true for bitvectors.
+For `n = 0, d = 3, w = 3`, we can write:
+- `0 = 0 * 3 + 0` (`q = 0`, `r = 0 < 3`.)
+- `0 = 2 * 3 + 2 = 6 + 2 ≃ 0 (mod 8)` (`q = 2`, `r = 2 < 3`).
+
+Such examples can be created by choosing different `(q, r)` for a fixed `(d, n)`
+such that `(d * q + r)` overflows and wraps around to equal `n`.
+
+This tells us that the division algorithm must have more restrictions than just the ones
+we have for integers. These restrictions are captured in `DivModState.Lawful`.
+The key idea is to state the relationship in terms of the toNat values of {n, d, q, r}.
+If the division equation `d.toNat * q.toNat + r.toNat = n.toNat` holds,
+then `n.udiv d = q` and `n.umod d = r`.
+
+Following this, we implement the division algorithm by repeated shift-subtract.
+
+References:
+- Fast 32-bit Division on the DSP56800E: Minimized nonrestoring division algorithm by David Baca
+- Bitwuzla sources for bitblasting.h
+-/
+
+private theorem Nat.div_add_eq_left_of_lt {x y z : Nat} (hx : z ∣ x) (hy : y < z) (hz : 0 < z) :
+    (x + y) / z = x / z := by
+  refine Nat.div_eq_of_lt_le ?lo ?hi
+  · apply Nat.le_trans
+    · exact div_mul_le_self x z
+    · omega
+  · simp only [succ_eq_add_one, Nat.add_mul, Nat.one_mul]
+    apply Nat.add_lt_add_of_le_of_lt
+    · apply Nat.le_of_eq
+      exact (Nat.div_eq_iff_eq_mul_left hz hx).mp rfl
+    · exact hy
+
+/-- If the division equation `d.toNat * q.toNat + r.toNat = n.toNat` holds,
+then `n.udiv d = q`. -/
+theorem udiv_eq_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
+    (hrd : r < d)
+    (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
+    n.udiv d = q := by
+  apply BitVec.eq_of_toNat_eq
+  rw [toNat_udiv]
+  replace hdqnr : (d.toNat * q.toNat + r.toNat) / d.toNat = n.toNat / d.toNat := by
+    simp [hdqnr]
+  rw [Nat.div_add_eq_left_of_lt] at hdqnr
+  · rw [← hdqnr]
+    exact mul_div_right q.toNat hd
+  · exact Nat.dvd_mul_right d.toNat q.toNat
+  · exact hrd
+  · exact hd
+
+/-- If the division equation `d.toNat * q.toNat + r.toNat = n.toNat` holds,
+then `n.umod d = r`. -/
+theorem umod_eq_of_mul_add_toNat {d n q r : BitVec w} (hrd : r < d)
+    (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
+    n.umod d = r := by
+  apply BitVec.eq_of_toNat_eq
+  rw [toNat_umod]
+  replace hdqnr : (d.toNat * q.toNat + r.toNat) % d.toNat = n.toNat % d.toNat := by
+    simp [hdqnr]
+  rw [Nat.add_mod, Nat.mul_mod_right] at hdqnr
+  simp only [Nat.zero_add, mod_mod] at hdqnr
+  replace hrd : r.toNat < d.toNat := by
+    simpa [BitVec.lt_def] using hrd
+  rw [Nat.mod_eq_of_lt hrd] at hdqnr
+  simp [hdqnr]
+
+/-! ### DivModState -/
+
+/-- `DivModState` is a structure that maintains the state of recursive `divrem` calls. -/
+structure DivModState (w : Nat) : Type where
+  /-- The number of bits in the numerator that are not yet processed -/
+  wn : Nat
+  /-- The number of bits in the remainder (and quotient) -/
+  wr : Nat
+  /-- The current quotient. -/
+  q : BitVec w
+  /-- The current remainder. -/
+  r : BitVec w
+
+
+/-- `DivModArgs` contains the arguments to a `divrem` call which remain constant throughout
+execution. -/
+structure DivModArgs (w : Nat) where
+  /-- the numerator (aka, dividend) -/
+  n : BitVec w
+  /-- the denumerator (aka, divisor)-/
+  d : BitVec w
+
+/-- A `DivModState` is lawful if the remainder width `wr` plus the numerator width `wn` equals `w`,
+and the bitvectors `r` and `n` have values in the bounds given by bitwidths `wr`, resp. `wn`.
+
+This is a proof engineering choice: an alternative world could have been
+`r : BitVec wr` and `n : BitVec wn`, but this required much more dependent typing coercions.
+
+Instead, we choose to declare all involved bitvectors as length `w`, and then prove that
+the values are within their respective bounds.
+
+We start with `wn = w` and `wr = 0`, and then in each step, we decrement `wn` and increment `wr`.
+In this way, we grow a legal remainder in each loop iteration.
+-/
+structure DivModState.Lawful {w : Nat} (args : DivModArgs w) (qr : DivModState w) : Prop where
+  /-- The sum of widths of the dividend and remainder is `w`. -/
+  hwrn : qr.wr + qr.wn = w
+  /-- The denominator is positive. -/
+  hdPos : 0 < args.d
+  /-- The remainder is strictly less than the denominator. -/
+  hrLtDivisor : qr.r.toNat < args.d.toNat
+  /-- The remainder is morally a `Bitvec wr`, and so has value less than `2^wr`. -/
+  hrWidth : qr.r.toNat < 2^qr.wr
+  /-- The quotient is morally a `Bitvec wr`, and so has value less than `2^wr`. -/
+  hqWidth : qr.q.toNat < 2^qr.wr
+  /-- The low `(w - wn)` bits of `n` obey the invariant for division. -/
+  hdiv : args.n.toNat >>> qr.wn = args.d.toNat * qr.q.toNat + qr.r.toNat
+
+/-- A lawful DivModState implies `w > 0`. -/
+def DivModState.Lawful.hw {args : DivModArgs w} {qr : DivModState w}
+    {h : DivModState.Lawful args qr} : 0 < w := by
+  have hd := h.hdPos
+  rcases w with rfl | w
+  · have hcontra : args.d = 0#0 := by apply Subsingleton.elim
+    rw [hcontra] at hd
+    simp at hd
+  · omega
+
+/-- An initial value with both `q, r = 0`. -/
+def DivModState.init (w : Nat) : DivModState w := {
+  wn := w
+  wr := 0
+  q := 0#w
+  r := 0#w
+}
+
+/-- The initial state is lawful. -/
+def DivModState.lawful_init {w : Nat} (args : DivModArgs w) (hd : 0#w < args.d) :
+    DivModState.Lawful args (DivModState.init w) := by
+  simp only [BitVec.DivModState.init]
+  exact {
+    hwrn := by simp only; omega,
+    hdPos := by assumption
+    hrLtDivisor := by simp [BitVec.lt_def] at hd ⊢; assumption
+    hrWidth := by simp [DivModState.init],
+    hqWidth := by simp [DivModState.init],
+    hdiv := by
+      simp only [DivModState.init, toNat_ofNat, zero_mod, Nat.mul_zero, Nat.add_zero];
+      rw [Nat.shiftRight_eq_div_pow]
+      apply Nat.div_eq_of_lt args.n.isLt
+  }
+
+/--
+A lawful DivModState with a fully consumed dividend (`wn = 0`) witnesses that the
+quotient has been correctly computed.
+-/
+theorem DivModState.udiv_eq_of_lawful {n d : BitVec w} {qr : DivModState w}
+    (h_lawful : DivModState.Lawful {n, d} qr)
+    (h_final  : qr.wn = 0) :
+    n.udiv d = qr.q := by
+  apply udiv_eq_of_mul_add_toNat h_lawful.hdPos h_lawful.hrLtDivisor
+  have hdiv := h_lawful.hdiv
+  simp only [h_final] at *
+  omega
+
+/--
+A lawful DivModState with a fully consumed dividend (`wn = 0`) witnesses that the
+remainder has been correctly computed.
+-/
+theorem DivModState.umod_eq_of_lawful {qr : DivModState w}
+    (h : DivModState.Lawful {n, d} qr)
+    (h_final  : qr.wn = 0) :
+    n.umod d = qr.r := by
+  apply umod_eq_of_mul_add_toNat h.hrLtDivisor
+  have hdiv := h.hdiv
+  simp only [shiftRight_zero] at hdiv
+  simp only [h_final] at *
+  exact hdiv.symm
+
+/-! ### DivModState.Poised -/
+
+/--
+A `Poised` DivModState is a state which is `Lawful` and furthermore, has at least
+one numerator bit left to process `(0 < wn)`
+
+The input to the shift subtractor is a legal input to `divrem`, and we also need to have an
+input bit to perform shift subtraction on, and thus we need `0 < wn`.
+-/
+structure DivModState.Poised {w : Nat} (args : DivModArgs w) (qr : DivModState w)
+  extends DivModState.Lawful args qr : Type where
+  /-- Only perform a round of shift-subtract if we have dividend bits. -/
+  hwn_lt : 0 < qr.wn
+
+/--
+In the shift subtract input, the dividend is at least one bit long (`wn > 0`), so
+the remainder has bits to be computed (`wr < w`).
+-/
+def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w := by
+  have hwrn := h.hwrn
+  have hwn_lt := h.hwn_lt
+  omega
+
+/-! ### Division shift subtractor -/
+
+/--
+One round of the division algorithm, that tries to perform a subtract shift.
+Note that this should only be called when `r.msb = false`, so we will not overflow.
+-/
+def divSubtractShift (args : DivModArgs w) (qr : DivModState w) : DivModState w :=
+  let {n, d} := args
+  let wn := qr.wn - 1
+  let wr := qr.wr + 1
+  let r' := shiftConcat qr.r (n.getLsbD wn)
+  if r' < d then {
+    q := qr.q.shiftConcat false, -- If `r' < d`, then we do not have a quotient bit.
+    r := r'
+    wn, wr
+  } else {
+    q := qr.q.shiftConcat true, -- Otherwise, `r' ≥ d`, and we have a quotient bit.
+    r := r' - d -- we subtract to maintain the invariant that `r < d`.
+    wn, wr
+  }
+
+/-- The value of shifting right by `wn - 1` equals shifting by `wn` and grabbing the lsb at `(wn - 1)`. -/
+theorem DivModState.toNat_shiftRight_sub_one_eq
+    {args : DivModArgs w} {qr : DivModState w} (h : qr.Poised args) :
+    args.n.toNat >>> (qr.wn - 1)
+    = (args.n.toNat >>> qr.wn) * 2 + (args.n.getLsbD (qr.wn - 1)).toNat := by
+  show BitVec.toNat (args.n >>> (qr.wn - 1)) = _
+  have {..} := h -- break the structure down for `omega`
+  rw [shiftRight_sub_one_eq_shiftConcat args.n h.hwn_lt]
+  rw [toNat_shiftConcat_eq_of_lt (k := w - qr.wn)]
+  · simp
+  · omega
+  · apply BitVec.toNat_ushiftRight_lt
+    omega
+
+/--
+This is used when proving the correctness of the divison algorithm,
+where we know that `r < d`.
+We then want to show that `((r.shiftConcat b) - d) < d` as the loop invariant.
+In arithmetic, this is the same as showing that
+`r * 2 + 1 - d < d`, which this theorem establishes.
+-/
+private theorem two_mul_add_sub_lt_of_lt_of_lt_two (h : a < x) (hy : y < 2) :
+    2 * a + y - x < x := by omega
+
+/-- We show that the output of `divSubtractShift` is lawful, which tells us that it
+obeys the division equation. -/
+theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
+    DivModState.Lawful args (divSubtractShift args qr) := by
+  rcases args with ⟨n, d⟩
+  simp only [divSubtractShift, decide_eq_true_eq]
+  -- We add these hypotheses for `omega` to find them later.
+  have ⟨⟨hrwn, hd, hrd, hr, hn, hrnd⟩, hwn_lt⟩ := h
+  have : d.toNat * (qr.q.toNat * 2) = d.toNat * qr.q.toNat * 2 := by rw [Nat.mul_assoc]
+  by_cases rltd : shiftConcat qr.r (n.getLsbD (qr.wn - 1)) < d
+  · simp only [rltd, ↓reduceIte]
+    constructor <;> try bv_omega
+    case pos.hrWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
+    case pos.hqWidth => apply toNat_shiftConcat_lt_of_lt <;> omega
+    case pos.hdiv =>
+      simp [qr.toNat_shiftRight_sub_one_eq h, h.hdiv, this,
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth,
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth]
+      omega
+  · simp only [rltd, ↓reduceIte]
+    constructor <;> try bv_omega
+    case neg.hrLtDivisor =>
+      simp only [lt_def, Nat.not_lt] at rltd
+      rw [BitVec.toNat_sub_of_le rltd,
+        toNat_shiftConcat_eq_of_lt (hk := qr.wr_lt_w h) (hx := h.hrWidth),
+        Nat.mul_comm]
+      apply two_mul_add_sub_lt_of_lt_of_lt_two <;> bv_omega
+    case neg.hrWidth =>
+      simp only
+      have hdr' : d ≤ (qr.r.shiftConcat (n.getLsbD (qr.wn - 1))) :=
+        BitVec.not_lt_iff_le.mp rltd
+      have hr' : ((qr.r.shiftConcat (n.getLsbD (qr.wn - 1)))).toNat < 2 ^ (qr.wr + 1) := by
+        apply toNat_shiftConcat_lt_of_lt <;> bv_omega
+      rw [BitVec.toNat_sub_of_le hdr']
+      omega
+    case neg.hqWidth =>
+      apply toNat_shiftConcat_lt_of_lt <;> omega
+    case neg.hdiv =>
+      have rltd' := (BitVec.not_lt_iff_le.mp rltd)
+      simp only [qr.toNat_shiftRight_sub_one_eq h,
+        BitVec.toNat_sub_of_le rltd',
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth]
+      simp only [BitVec.le_def,
+        toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth] at rltd'
+      simp only [toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hqWidth, h.hdiv, Nat.mul_add]
+      bv_omega
+
+/-! ### Core division algorithm circuit -/
+
+/-- A recursive definition of division for bitblasting, in terms of a shift-subtraction circuit. -/
+def divRec {w : Nat} (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
+    DivModState w :=
+  match m with
+  | 0 => qr
+  | m + 1 => divRec m args <| divSubtractShift args qr
+
+@[simp]
+theorem divRec_zero (qr : DivModState w) :
+    divRec 0 args qr = qr := rfl
+
+@[simp]
+theorem divRec_succ (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
+    divRec (m + 1) args qr =
+      divRec m args (divSubtractShift args qr) := rfl
+
+/-- The output of `divRec` is a lawful state -/
+theorem lawful_divRec {args : DivModArgs w} {qr : DivModState w}
+    (h : DivModState.Lawful args qr) :
+    DivModState.Lawful args (divRec qr.wn args qr) := by
+  generalize hm : qr.wn = m
+  induction m generalizing qr
+  case zero =>
+    exact h
+  case succ wn' ih =>
+    simp only [divRec_succ]
+    apply ih
+    · apply lawful_divSubtractShift
+      constructor
+      · assumption
+      · omega
+    · simp only [divSubtractShift, hm]
+      split <;> rfl
+
+/-- The output of `divRec` has no more bits left to process (i.e., `wn = 0`) -/
+@[simp]
+theorem wn_divRec (args : DivModArgs w) (qr : DivModState w) :
+    (divRec qr.wn args qr).wn = 0 := by
+  generalize hm : qr.wn = m
+  induction m generalizing qr
+  case zero =>
+    assumption
+  case succ wn' ih =>
+    apply ih
+    simp only [divSubtractShift, hm]
+    split <;> rfl
+
+/-- The result of `udiv` agrees with the result of the division recurrence. -/
+theorem udiv_eq_divRec (hd : 0#w < d) :
+    let out := divRec w {n, d} (DivModState.init w)
+    n.udiv d = out.q := by
+  have := DivModState.lawful_init {n, d} hd
+  have := lawful_divRec this
+  apply DivModState.udiv_eq_of_lawful this (wn_divRec ..)
+
+/-- The result of `umod` agrees with the result of the division recurrence. -/
+theorem umod_eq_divRec (hd : 0#w < d) :
+    let out := divRec w {n, d} (DivModState.init w)
+    n.umod d = out.r := by
+  have := DivModState.lawful_init {n, d} hd
+  have := lawful_divRec this
+  apply DivModState.umod_eq_of_lawful this (wn_divRec ..)
+
+@[simp]
+theorem divRec_succ' (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
+    divRec (m+1) args qr =
+    let wn := qr.wn - 1
+    let wr := qr.wr + 1
+    let r' := shiftConcat qr.r (args.n.getLsbD wn)
+    let input : DivModState _ :=
+      if r' < args.d then {
+        q := qr.q.shiftConcat false,
+        r := r'
+        wn, wr
+      } else {
+        q := qr.q.shiftConcat true,
+        r := r' - args.d
+        wn, wr
+      }
+    divRec m args input := by
+  simp [divRec_succ, divSubtractShift]
+
 /- ### Arithmetic shift right (sshiftRight) recurrence -/
 
 /--

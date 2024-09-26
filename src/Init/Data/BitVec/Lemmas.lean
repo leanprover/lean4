@@ -1149,6 +1149,17 @@ theorem ushiftRight_or_distrib (x y : BitVec w)  (n : Nat) :
 theorem ushiftRight_zero_eq (x : BitVec w) : x >>> 0 = x := by
   simp [bv_toNat]
 
+/--
+Shifting right by `n < w` yields a bitvector whose value is less than `2 ^ (w - n)`.
+-/
+theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
+    (x >>> n).toNat < 2 ^ (w - n) := by
+  rw [toNat_ushiftRight, Nat.shiftRight_eq_div_pow, Nat.div_lt_iff_lt_mul]
+  · rw [Nat.pow_sub_mul_pow]
+    · apply x.isLt
+    · apply hn
+  · apply Nat.pow_pos (by decide)
+
 /-! ### ushiftRight reductions from BitVec to Nat -/
 
 @[simp]
@@ -1698,6 +1709,51 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
     (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (a ^^ b) := by
   ext i; cases i using Fin.succRecOn <;> simp
 
+/-! ### shiftConcat -/
+
+theorem getLsbD_shiftConcat (x : BitVec w) (b : Bool) (i : Nat) :
+    (shiftConcat x b).getLsbD i
+    = (decide (i < w) && (if (i = 0) then b else x.getLsbD (i - 1))) := by
+  simp only [shiftConcat, getLsbD_setWidth, getLsbD_concat]
+
+theorem getLsbD_shiftConcat_eq_decide (x : BitVec w) (b : Bool) (i : Nat) :
+    (shiftConcat x b).getLsbD i
+    = (decide (i < w) && ((decide (i = 0) && b) || (decide (0 < i) && x.getLsbD (i - 1)))) := by
+  simp only [getLsbD_shiftConcat]
+  split <;> simp [*, show ((0 < i) ↔ ¬(i = 0)) by omega]
+
+theorem shiftRight_sub_one_eq_shiftConcat (n : BitVec w) (hwn : 0 < wn) :
+    n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by
+  ext i
+  simp only [getLsbD_ushiftRight, getLsbD_shiftConcat, Fin.is_lt, decide_True, Bool.true_and]
+  split
+  · simp [*]
+  · congr 1; omega
+
+@[simp, bv_toNat]
+theorem toNat_shiftConcat {x : BitVec w} {b : Bool} :
+    (x.shiftConcat b).toNat
+    = (x.toNat <<< 1 + b.toNat) % 2 ^ w  := by
+  simp [shiftConcat, Nat.shiftLeft_eq]
+
+/-- `x.shiftConcat b` does not overflow if `x < 2^k` for `k < w`, and so
+`x.shiftConcat b |>.toNat = x.toNat * 2 + b.toNat`. -/
+theorem toNat_shiftConcat_eq_of_lt {x : BitVec w} {b : Bool} {k : Nat}
+    (hk : k < w) (hx : x.toNat < 2 ^ k) :
+    (x.shiftConcat b).toNat = x.toNat * 2 + b.toNat := by
+  simp only [toNat_shiftConcat, Nat.shiftLeft_eq, Nat.pow_one]
+  have : 2 ^ k < 2 ^ w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
+  have : 2 ^ k * 2 ≤ 2 ^ w := (Nat.pow_lt_pow_iff_pow_mul_le_pow (by omega)).mp this
+  rw [Nat.mod_eq_of_lt (by cases b <;> simp [bv_toNat] <;> omega)]
+
+theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
+    (hk : k < w) (hx : x.toNat < 2 ^ k) :
+    (x.shiftConcat b).toNat < 2 ^ (k + 1) := by
+  rw [toNat_shiftConcat_eq_of_lt hk hx]
+  have : 2 ^ (k + 1) ≤ 2 ^ w := Nat.pow_le_pow_of_le_right (by decide) (by assumption)
+  have := Bool.toNat_lt b
+  omega
+
 @[simp] theorem zero_concat_false : concat 0#w false = 0#(w + 1) := by
   ext
   simp [getLsbD_concat]
@@ -1992,6 +2048,10 @@ protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x.umod y < y
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod, umod, toNat_ofNatLt]
   apply Nat.mod_lt
 
+theorem not_lt_iff_le {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
+  constructor <;>
+    (intro h; simp only [lt_def, Nat.not_lt, le_def] at h ⊢; omega)
+
 /-! ### ofBoolList -/
 
 @[simp] theorem getMsbD_ofBoolListBE : (ofBoolListBE bs).getMsbD i = bs.getD i false := by
@@ -2236,6 +2296,13 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
 @[simp]
 theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsbD_twoPow]
+
+theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
+    x <<< n = x * (BitVec.twoPow w n) := by
+  ext i
+  simp [getLsbD_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, mul_twoPow_eq_shiftLeft]
+
+/- ### cons -/
 
 @[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by
   ext

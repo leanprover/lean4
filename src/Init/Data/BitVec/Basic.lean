@@ -676,6 +676,13 @@ result of appending a single bit to the front in the naive implementation).
     That is, the new bit is the least significant bit. -/
 def concat {n} (msbs : BitVec n) (lsb : Bool) : BitVec (n+1) := msbs ++ (ofBool lsb)
 
+/--
+`x.shiftConcat b` shifts all bits of `x` to the left by `1` and sets the least significant bit to `b`.
+It is a non-dependent version of `concat` that does not change the total bitwidth.
+-/
+def shiftConcat (x : BitVec n) (b : Bool) : BitVec n :=
+  (x.concat b).truncate n
+
 /-- Prepend a single bit to the front of a bitvector, using big endian order (see `append`).
     That is, the new bit is the most significant bit. -/
 def cons {n} (msb : Bool) (lsbs : BitVec n) : BitVec (n+1) :=

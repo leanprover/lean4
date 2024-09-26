@@ -117,8 +117,22 @@ module_data o.noexport : BuildJob FilePath
 /-! ## Package Facets -/
 
 /--
+A package's *optional* build archive barrel.
+Will NOT cause the whole build to fail if the release cannot be fetched.
+-/
+abbrev Package.optBarrelFacet := `optBarrel
+package_data optBarrel : BuildJob Bool
+
+/--
+A package's build archive barrel from Reservoir.
+Will cause the whole build to fail if the barrel cannot be fetched.
+-/
+abbrev Package.barrelFacet := `barrel
+package_data barrel : BuildJob Unit
+
+/--
 A package's *optional* cloud build release.
-Will not cause the whole build to fail if the release cannot be fetched.
+Will NOT cause the whole build to fail if the release cannot be fetched.
 -/
 abbrev Package.optReleaseFacet := `optRelease
 package_data optRelease : BuildJob Bool

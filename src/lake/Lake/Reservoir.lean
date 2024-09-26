@@ -171,8 +171,11 @@ protected def ReservoirResp.fromJson? [FromJson α] (val : Json) : Except String
 
 instance [FromJson α] : FromJson (ReservoirResp α) := ⟨ReservoirResp.fromJson?⟩
 
-def fetchReservoirPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
-  let url := s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
+def Reservoir.pkgApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
+   s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
+
+def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
+  let url := Reservoir.pkgApiUrl lakeEnv owner pkg
   let out ←
     try
       getUrl url #[

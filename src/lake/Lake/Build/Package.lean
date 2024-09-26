@@ -7,6 +7,7 @@ import Lake.Util.Git
 import Lake.Util.Sugar
 import Lake.Build.Common
 import Lake.Build.Targets
+import Lake.Reservoir
 
 /-! # Package Facet Builds
 Build function definitions for a package's builtin facets.
@@ -53,6 +54,45 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
   mkFacetJobConfig Package.recBuildExtraDepTargets
+
+/-- Tries to download and unpack the package's build archive barrel from Reservoir. -/
+def Package.fetchOptBarrelCore (self : Package) : FetchM (BuildJob Bool) :=
+  withRegisterJob s!"{self.name}:optBarrel" (optional := true) <| Job.async do
+  if self.scope.isEmpty then
+    logError s!"package has no Reservoir scope"
+    updateAction .fetch
+    return (false, .nil)
+  let repo := GitRepo.mk self.dir
+  let some rev ← repo.getHeadRevision?
+    | logError s!"failed to resolve HEAD revision"
+      updateAction .fetch
+      return (false, .nil)
+  let pkgName := self.name.toString (escape := false)
+  let baseUrl := Reservoir.pkgApiUrl (← getLakeEnv) self.scope pkgName
+  let url := s!"{baseUrl}/barrels/{rev}?dev"
+  let depTrace := Hash.ofString rev
+  let traceFile := self.barrelFile.addExtension "trace"
+  let upToDate ← buildUnlessUpToDate? (action := .fetch) self.barrelFile depTrace traceFile do
+    logVerbose s!"downloading Reservoir build archive barrel"
+    download url self.barrelFile
+  unless upToDate && (← self.buildDir.pathExists) do
+    updateAction .fetch
+    logVerbose s!"unpacking barrel"
+    untar self.barrelFile self.buildDir
+  return (true, .nil)
+
+/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
+def Package.optBarrelFacetConfig : PackageFacetConfig optBarrelFacet :=
+  mkFacetJobConfig (·.fetchOptBarrelCore)
+
+/-- The `PackageFacetConfig` for the builtin `barrelFacet`. -/
+def Package.barrelFacetConfig : PackageFacetConfig barrelFacet :=
+  mkFacetJobConfig fun pkg =>
+    withRegisterJob s!"{pkg.name}:barrel" do
+      (← pkg.optBarrel.fetch).bindSync fun success t => do
+        unless success do
+          error s!"failed to fetch barrel (see '{pkg.name}:optBarrel for details)"
+        return ((), t)
 
 /-- Tries to download and unpack the package's prebuilt release archive (from GitHub). -/
 def Package.fetchOptReleaseCore (self : Package) : FetchM (BuildJob Bool) :=
@@ -117,5 +157,7 @@ def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
+  |>.insert optBarrelFacet optBarrelFacetConfig
+  |>.insert barrelFacet barrelFacetConfig
   |>.insert optReleaseFacet optReleaseFacetConfig
   |>.insert releaseFacet releaseFacetConfig

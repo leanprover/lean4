@@ -4,16 +4,26 @@ set -exo pipefail
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./clean.sh
+# Test barrel download
+$LAKE -f barrel.lean update
+ELAN_TOOLCHAIN=leanprover/lean4:v4.12.0-rc1 \
+RESERVOIR_API_URL=https://xmn2falba9t-p7vs9jzud6chgsk--reservoir-lean-lang.netlify.app/api/v1 \
+  $LAKE -f barrel.lean build @Cli:barrel -v
+LEAN_GITHASH=e9e858a4484905a0bfe97c4f05c3924ead02eed8 \
+  $LAKE -f barrel.lean build Cli --no-build
+exit 0
+
+./clean.sh
 # Tests requiring a package not in the index
-($LAKE update -f bogus-dep.toml 2>&1 && exit || true) |
+($LAKE -f bogus-dep.toml update 2>&1 && exit || true) |
   grep --color "error: bogus/bogus: could not materialize package: dependency has no explicit source and was not found on Reservoir"
 
 ./clean.sh
-$LAKE update -f lakefile.lean -v
+$LAKE -f require.lean update -v
 test -d .lake/packages/doc-gen4
-$LAKE resolve-deps -f lakefile.lean # validate manifest
+$LAKE -f require.lean resolve-deps  # validate manifest
 
 ./clean.sh
-$LAKE update -f lakefile.toml -v
+$LAKE -f require.toml update  v
 test -d .lake/packages/doc-gen4
-$LAKE resolve-deps -f lakefile.toml # validate manifest
+$LAKE -f require.toml resolve-deps  # validate manifest

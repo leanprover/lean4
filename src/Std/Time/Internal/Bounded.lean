@@ -46,8 +46,11 @@ integers that `lo ≤ val ≤ hi`.
 -/
 abbrev LE := @Bounded LE.le
 
-def cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo₁ = lo₂) (h₂ : hi₁ = hi₂)
-    (b : Bounded rel lo₁ hi₁) : Bounded rel lo₂ hi₂ :=
+/--
+Casts the boundaries of the `Bounded` using equivalences.
+-/
+@[inline]
+def cast {rel : Int → Int → Prop} {lo₁ lo₂ hi₁ hi₂ : Int} (h₁ : lo₁ = lo₂) (h₂ : hi₁ = hi₂) (b : Bounded rel lo₁ hi₁) : Bounded rel lo₂ hi₂ :=
   .mk b.val ⟨h₁ ▸ b.property.1, h₂ ▸ b.property.2⟩
 
 /--
@@ -79,7 +82,7 @@ namespace LE
 Convert a `Nat` to a `Bounded.LE` by wrapping it.
 -/
 @[inline]
-def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi): Bounded.LE lo hi := by
+def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi := by
   let range := hi - lo + 1
   have range_pos := Int.add_pos_of_nonneg_of_pos (b := 1) (Int.sub_nonneg_of_le h) (by decide)
   have not_zero := Int.ne_iff_lt_or_gt.mpr (Or.inl range_pos)
@@ -395,7 +398,7 @@ def eq {n : Int} : Bounded.LE n n :=
   ⟨n, And.intro (Int.le_refl n) (Int.le_refl n)⟩
 
 /--
-Expand the top and bottom of the bounded.
+Expand the range of a bounded value.
 -/
 @[inline]
 def expand (bounded : Bounded.LE lo hi) (h : hi ≤ nhi) (h₁ : nlo ≤ lo) : Bounded.LE nlo nhi :=
@@ -406,14 +409,14 @@ Expand the bottom of the bounded to a number `nhi` is `hi` is less or equal to t
 -/
 @[inline]
 def expandTop (bounded : Bounded.LE lo hi) (h : hi ≤ nhi) : Bounded.LE lo nhi :=
-  ⟨bounded.val, And.intro bounded.property.left (Int.le_trans bounded.property.right h)⟩
+  expand bounded h (Int.le_refl lo)
 
 /--
 Expand the bottom of the bounded to a number `nlo` if `lo` is greater or equal to the previous lower bound.
 -/
 @[inline]
 def expandBottom (bounded : Bounded.LE lo hi) (h : nlo ≤ lo) : Bounded.LE nlo hi :=
-  ⟨bounded.val, And.intro (Int.le_trans h bounded.property.left) bounded.property.right⟩
+  expand bounded (Int.le_refl hi) h
 
 /--
 Adds one to the value of the bounded if the value is less than the higher bound of the bounded number.
@@ -427,7 +430,8 @@ def succ (bounded : Bounded.LE lo hi) (h : bounded.val < hi) : Bounded.LE lo hi 
 Returns the absolute value of the bounded number `bo` with bounds `-(i - 1)` to `i - 1`. The result
 will be a new bounded number with bounds `0` to `i - 1`.
 -/
-def abs (bo :  Bounded.LE (- (i - 1)) (i - 1)) : Bounded.LE 0 (i - 1) :=
+@[inline]
+def abs (bo :  Bounded.LE (-i) i) : Bounded.LE 0 i :=
   if h : bo.val ≥ 0 then
     bo.truncateBottom h
   else by

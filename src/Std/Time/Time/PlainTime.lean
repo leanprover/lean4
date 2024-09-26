@@ -47,6 +47,12 @@ instance : BEq PlainTime where
 namespace PlainTime
 
 /--
+Creates a `PlainTime` value representing midnight (00:00:00.000).
+-/
+def midnight : PlainTime :=
+  ⟨0, 0, ⟨true, 0⟩, 0⟩
+
+/--
 Creates a `PlainTime` value from hours, minutes, seconds and nanoseconds.
 -/
 @[inline]

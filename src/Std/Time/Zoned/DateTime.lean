@@ -367,19 +367,12 @@ def weekday (dt : DateTime tz) : Weekday :=
   dt.date.get.date.weekday
 
 /--
-Gets the `Weekday` of a DateTime.
+Gets the `Period` of a `DateTime`, corresponding to the part of the day (e.g. night, morning,
+afternoon, evening) based on the hour.
 -/
 @[inline]
-def getPeriod (dt : DateTime tz) : Day.Ordinal.Period :=
-  if dt.hour ≥ 21 ∨ dt.hour ≤ 4 then
-    .night
-  else if dt.hour ≥ 17 then
-    .evening
-  else if dt.hour ≥ 12 then
-    .afternoon
-  else
-    .morning
-
+def period (dt : DateTime tz) : Day.Ordinal.Period :=
+  Day.Ordinal.Period.fromHour dt.hour
 
 /--
 Determines the era of the given `DateTime` based on its year.
@@ -402,7 +395,7 @@ def toOrdinal (date : DateTime tz) : Day.Ordinal.OfYear date.year.isLeap :=
 /--
 Determines the week of the year for the given `DateTime`.
 -/
-def toWeekOfYear (date : DateTime tz) : Week.Ordinal :=
+def weekOfYear (date : DateTime tz) : Week.Ordinal :=
   let res := Month.Ordinal.toOrdinal ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩ |>.ediv 7 (by decide) |>.add 1
   match date.date.get.date.year.isLeap, res with
   | true, res => res
@@ -413,7 +406,7 @@ Determines the week of the month for the given `DateTime`. The week of the month
 on the day of the month and the weekday. Each week starts on Sunday because the entire library is
 based on the Gregorian Calendar.
 -/
-def toWeekOfMonth (date : DateTime tz) : Bounded.LE 1 6 :=
+def weekOfMonth (date : DateTime tz) : Week.Ordinal.OfMonth :=
   let weekday := date.weekday.toOrdinal
   date.day.addBounds (weekday.sub 1) |>.ediv 7 (by decide) |>.add 1
 

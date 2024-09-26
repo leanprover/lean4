@@ -698,19 +698,19 @@ private def formatEraNarrow : Year.Era → String
   | .bce => "B"
   | .ce  => "C"
 
-private def formatQuarterNumber : Bounded.LE 1 4 → String
+private def formatQuarterNumber : Month.Quarter → String
   |⟨1, _⟩ => "1"
   |⟨2, _⟩ => "2"
   |⟨3, _⟩ => "3"
   |⟨4, _⟩ => "4"
 
-private def formatQuarterShort : Bounded.LE 1 4 → String
+private def formatQuarterShort : Month.Quarter → String
   | ⟨1, _⟩ => "Q1"
   | ⟨2, _⟩ => "Q2"
   | ⟨3, _⟩ => "Q3"
   | ⟨4, _⟩ => "Q4"
 
-private def formatQuarterLong : Bounded.LE 1 4 → String
+private def formatQuarterLong : Month.Quarter → String
   | ⟨1, _⟩ => "1st quarter"
   | ⟨2, _⟩ => "2nd quarter"
   | ⟨3, _⟩ => "3rd quarter"
@@ -769,7 +769,7 @@ private def TypeFormat : Modifier → Type
   | .D _ => Sigma Day.Ordinal.OfYear
   | .MorL _ => Month.Ordinal
   | .d _ => Day.Ordinal
-  | .Qorq _ => Month.Ordinal.Quarter
+  | .Qorq _ => Month.Quarter
   | .w _ => Week.Ordinal
   | .W _ => Week.Ordinal.OfMonth
   | .E _ => Weekday
@@ -917,13 +917,13 @@ private def dateFromModifier (date : DateTime tz) : TypeFormat modifier :=
   | .MorL _ => date.month
   | .d _ => date.day
   | .Qorq _ => date.quarter
-  | .w _ => date.toWeekOfYear
-  | .W _ => date.toWeekOfMonth
+  | .w _ => date.weekOfYear
+  | .W _ => date.weekOfMonth
   | .E _ =>  date.weekday
   | .eorc _ => date.weekday
-  | .F _ => date.toWeekOfMonth
+  | .F _ => date.weekOfMonth
   | .a _ => HourMarker.ofOrdinal date.hour
-  | .B _ => date.getPeriod
+  | .B _ => date.period
   | .h _ => HourMarker.toRelative date.hour |>.fst
   | .K _ => date.hour.emod 12 (by decide)
   | .k _ => date.hour.add 1
@@ -1022,19 +1022,19 @@ private def parseEraNarrow : Parser Year.Era
    := pstring "B" *> pure Year.Era.bce
   <|> pstring "C" *> pure Year.Era.ce
 
-private def parseQuarterNumber : Parser Month.Ordinal.Quarter
+private def parseQuarterNumber : Parser Month.Quarter
    := pstring "1" *> pure ⟨1, by decide⟩
   <|> pstring "2" *> pure ⟨2, by decide⟩
   <|> pstring "3" *> pure ⟨3, by decide⟩
   <|> pstring "4" *> pure ⟨4, by decide⟩
 
-private def parseQuarterLong : Parser Month.Ordinal.Quarter
+private def parseQuarterLong : Parser Month.Quarter
    := pstring "1st quarter" *> pure ⟨1, by decide⟩
   <|> pstring "2nd quarter" *> pure ⟨2, by decide⟩
   <|> pstring "3rd quarter" *> pure ⟨3, by decide⟩
   <|> pstring "4th quarter" *> pure ⟨4, by decide⟩
 
-private def parseQuarterShort : Parser Month.Ordinal.Quarter
+private def parseQuarterShort : Parser Month.Quarter
    := pstring "Q1" *> pure ⟨1, by decide⟩
   <|> pstring "Q2" *> pure ⟨2, by decide⟩
   <|> pstring "Q3" *> pure ⟨3, by decide⟩
@@ -1095,10 +1095,7 @@ private def exactlyChars (parse : Parser Char) (size : Nat) : Parser String :=
 private def parseSigned (parser : Parser Nat) : Parser Int := do
   let signed ← optional (pstring "-")
   let res ← parser
-  if signed.isSome then
-    return -res
-  else
-    return res
+  return if signed.isSome then -res else res
 
 private def parseNum (size : Nat) : Parser Nat :=
   String.toNat! <$> exactlyChars (satisfy Char.isDigit) size
@@ -1263,7 +1260,7 @@ private structure DateBuilder where
   D : Option (Sigma Day.Ordinal.OfYear) := none
   MorL : Option Month.Ordinal := none
   d : Option Day.Ordinal := none
-  Qorq : Option Month.Ordinal.Quarter := none
+  Qorq : Option Month.Quarter := none
   w : Option Week.Ordinal := none
   W : Option Week.Ordinal.OfMonth := none
   E : Option Weekday := none
@@ -1294,6 +1291,7 @@ namespace DateBuilder
 private def insert (date : DateBuilder) (modifier : Modifier) (data : TypeFormat modifier) : DateBuilder :=
   match modifier with
   | .G _ => { date with G := some data }
+  | .y .twoDigit => { date with y := some (Year.Offset.ofInt (data.toInt + 2000)) }
   | .y _ => { date with y := some data }
   | .D _ => { date with D := some data }
   | .MorL _ => { date with MorL := some data }

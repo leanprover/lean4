@@ -39,15 +39,16 @@ def Offset : Type := Int
 instance : OfNat Offset n :=
   ⟨Int.ofNat n⟩
 
-namespace Ordinal
 
 /--
-`OfYear` represents the number of days in a year, accounting for leap years. It ensures that
-the day is within the correct bounds—either 1 to 365 for regular years or 1 to 366 for leap years.
+`Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of a year.
 -/
 def Quarter := Bounded.LE 1 4
 
-end Ordinal
+namespace Quarter
+
+end Quarter
+
 namespace Offset
 
 /--
@@ -205,14 +206,14 @@ def toDays (leap : Bool) (month : Ordinal) : Day.Offset :=
 Size in days of each month if the year is not a leap year.
 -/
 @[inline]
-def monthSizesNonLeap : { val : Array Day.Ordinal // val.size = 12 } :=
+private def monthSizesNonLeap : { val : Array Day.Ordinal // val.size = 12 } :=
   ⟨#[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31], by decide⟩
 
 /--
-Size in days of each month if the year is not a leap year.
+Returns the cumulative size in days of each month for a non-leap year.
 -/
 @[inline]
-def cumulativeSizes : { val : Array Day.Offset // val.size = 12 } :=
+private def cumulativeSizes : { val : Array Day.Offset // val.size = 12 } :=
   ⟨#[0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334], by decide⟩
 
 /--
@@ -238,8 +239,7 @@ theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
     decide
 
 /--
-Gets the number of days in a month without requiring a proof of the validity of the ordinal in a
-month and year.
+Returns the number of days until the `month`.
 -/
 def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   let ⟨months, p⟩ := cumulativeSizes

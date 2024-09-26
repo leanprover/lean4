@@ -21,14 +21,10 @@ set_option linter.all true
 Defines the different eras.
 -/
 inductive Era
-  /--
-  The era before the Common Era (BCE), always represents a date before year 0.
-  -/
+  /-- The era before the Common Era (BCE), always represents a date before year 0. -/
   | bce
 
-  /--
-  The Common Era (CE), represents dates from year 0 onwards.
-  -/
+  /-- The Common Era (CE), represents dates from year 0 onwards. -/
   | ce
 
 /--
@@ -63,7 +59,7 @@ def toInt (offset : Offset) : Int :=
   offset
 
 /--
-Converts the `Year` offset to a `Month` offset (i.e., multiplies by 12).
+Converts the `Year` offset to a `Month` offset.
 -/
 @[inline]
 def toMonths (val : Offset) : Month.Offset :=
@@ -88,7 +84,7 @@ def era (year : Offset) : Era :=
 Checks if the given date is valid for the specified year, month, and day.
 -/
 @[inline]
-abbrev Valid (year : Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
+abbrev Valid (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
   day ≤ month.days year.isLeap
 
 instance : Decidable (Valid year month day) :=

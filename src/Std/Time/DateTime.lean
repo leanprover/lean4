@@ -58,7 +58,7 @@ def ofPlainTime (pt : PlainTime) : Timestamp :=
 Converts a `Timestamp` to a `PlainTime`
 -/
 @[inline]
-def toPlainTime (timestamp : Timestamp) : PlainTime :=
+def getTime (timestamp : Timestamp) : PlainTime :=
   let nanos := timestamp.toNanosecondsSinceUnixEpoch
   PlainTime.ofNanoseconds nanos
 
@@ -100,29 +100,29 @@ namespace PlainDateTime
 Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
-def ofPlainDate (pd : PlainDate) : PlainDateTime :=
-  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainDateAssumingUTC pd)
+def ofPlainDate (date : PlainDate) : PlainDateTime :=
+  { date, time := PlainTime.midnight }
 
 /--
 Converts a `PlainDateTime` to a `PlainDate`
 -/
 @[inline]
 def toPlainDate (pdt : PlainDateTime) : PlainDate :=
-  Timestamp.toPlainDateAssumingUTC pdt.toTimestampAssumingUTC
+  pdt.date
 
 /--
 Converts a `PlainTime` to a `PlainDateTime`
 -/
 @[inline]
-def ofPlainTime (pt : PlainTime) : PlainDateTime :=
-  PlainDateTime.ofUTCTimestamp (Timestamp.ofPlainTime pt)
+def ofPlainTime (time : PlainTime) : PlainDateTime :=
+  { date := ⟨1, 1, 1, by decide⟩, time }
 
 /--
 Converts a `PlainDateTime` to a `PlainTime`
 -/
 @[inline]
 def toPlainTime (pdt : PlainDateTime) : PlainTime :=
-  Timestamp.toPlainTime pdt.toTimestampAssumingUTC
+  pdt.time
 
 instance : ToTimestamp PlainDateTime where
   toTimestamp := Timestamp.ofPlainDateTimeAssumingUTC

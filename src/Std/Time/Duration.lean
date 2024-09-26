@@ -82,7 +82,6 @@ def ofSeconds (s : Second.Offset) : Duration := by
 /--
 Creates a new `Duration` out of `Nanosecond.Offset`.
 -/
-@[inline]
 def ofNanoseconds (s : Nanosecond.Offset) : Duration := by
     refine ⟨s.ediv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
     cases Int.le_total s.val 0
@@ -284,6 +283,31 @@ instance : HSub Duration Duration Duration where
 
 instance : HAdd Duration Duration Duration where
   hAdd := add
+
+instance : Coe Nanosecond.Offset Duration where
+  coe := ofNanoseconds
+
+instance : Coe Second.Offset Duration where
+  coe := ofSeconds
+
+instance : Coe Minute.Offset Duration where
+  coe := ofSeconds ∘ Minute.Offset.toSeconds
+
+instance : Coe Hour.Offset Duration where
+  coe := ofSeconds ∘ Hour.Offset.toSeconds
+
+instance : Coe Week.Offset Duration where
+  coe := ofSeconds ∘ Day.Offset.toSeconds ∘ Week.Offset.toDays
+
+instance : Coe Day.Offset Duration where
+  coe := ofSeconds ∘ Day.Offset.toSeconds
+
+instance : HMul Int Duration Duration where
+  hMul x y := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (y.toNanoseconds.val * x)
+
+instance : HMul Duration Int Duration where
+  hMul y x := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (y.toNanoseconds.val * x)
+
 
 end Duration
 end Time

@@ -15,22 +15,27 @@ open Internal
 set_option linter.all true
 
 /--
-Defines the enumeration for days of the week. Each variant corresponds to a day of the week, from Monday to Sunday.
-It starts on the sunday because the library is based on the Gregorian Calendar.
+Defines the enumeration for days of the week. Each variant corresponds to a day of the week.
 -/
 inductive Weekday
   /-- Sunday. -/
   | sunday
+
   /-- Monday. -/
   | monday
+
   /-- Tuesday. -/
   | tuesday
+
   /-- Wednesday. -/
   | wednesday
+
   /-- Thursday. -/
   | thursday
+
   /-- Friday. -/
   | friday
+
   /-- Saturday. -/
   | saturday
   deriving Repr, Inhabited, BEq
@@ -59,7 +64,7 @@ def ofOrdinal : Ordinal → Weekday
   | 7 => .saturday
 
 /--
-Converts a `Weekday` to a `Nat`.
+Converts a `Weekday` to a `Ordinal`.
 -/
 def toOrdinal : Weekday → Ordinal
   | .sunday => 1
@@ -102,7 +107,7 @@ Converts a `Nat` to a `Weekday`. Panics if the value provided is invalid.
 def ofNat! (n : Nat) : Weekday :=
   match ofNat? n with
   | some res => res
-  | none     => panic! "invalid weekday"
+  | none => panic! "invalid weekday"
 
 /--
 Gets the next `Weekday`.

@@ -15,8 +15,8 @@ namespace Time
 open Lean Parser Command Std
 
 private def convertText : Text → MacroM (TSyntax `term)
-  | .short  => `(Std.Time.Text.short)
-  | .full   => `(Std.Time.Text.full)
+  | .short => `(Std.Time.Text.short)
+  | .full => `(Std.Time.Text.full)
   | .narrow => `(Std.Time.Text.narrow)
 
 private def convertNumber : Number → MacroM (TSyntax `term)

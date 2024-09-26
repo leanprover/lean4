@@ -31,7 +31,7 @@ instance : Inhabited Ordinal where
   default := 1
 
 /--
-`Offset` represents an offset in weeks. It is defined as an `Int`.
+`Offset` represents an offset in weeks.
 -/
 def Offset : Type := UnitVal (86400 * 7)
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
@@ -46,22 +46,24 @@ correct bounds—either 1 to 6, representing the possible weeks in a month.
 -/
 def OfMonth := Bounded.LE 1 6
 
-
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
 -/
+@[inline]
 def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ 53 := by decide) : Ordinal :=
   Bounded.LE.ofNat' data h
 
 /--
 Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds.
 -/
+@[inline]
 def ofFin (data : Fin 54) : Ordinal :=
   Bounded.LE.ofFin' data (by decide)
 
 /--
 Converts an `Ordinal` to an `Offset`.
 -/
+@[inline]
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 

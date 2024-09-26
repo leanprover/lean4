@@ -39,7 +39,7 @@ Converts a `PlainDateTime` to a `Timestamp`
 -/
 def toTimestampAssumingUTC (dt : PlainDateTime) : Timestamp :=
   let days := dt.date.toDaysSinceUNIXEpoch
-  let nanos : Nanosecond.Offset := days.toSeconds + dt.time.toSeconds |>.mul 1000000000
+  let nanos := days.toSeconds + dt.time.toSeconds |>.mul 1000000000
   let nanos := nanos.val + dt.time.nano.val
   Timestamp.ofNanosecondsSinceUnixEpoch (Nanosecond.Offset.ofInt nanos)
 
@@ -403,6 +403,13 @@ def second (dt : PlainDateTime) : Second.Ordinal dt.time.second.fst :=
   dt.time.second.snd
 
 /--
+Getter for the `Nanosecond.Ordinal` inside of a `PlainDateTime`.
+-/
+@[inline]
+def nanosecond (dt : PlainDateTime) : Nanosecond.Ordinal :=
+  dt.time.nano
+
+/--
 Determines the era of the given `PlainDateTime` based on its year.
 -/
 def era (date : PlainDateTime) : Year.Era :=
@@ -414,15 +421,9 @@ def era (date : PlainDateTime) : Year.Era :=
 /--
 Checks if the `PlainDateTime` is in a leap year.
 -/
+@[inline]
 def inLeapYear (date : PlainDateTime) : Bool :=
   date.year.isLeap
-
-/--
-Getter for the `Second` inside of a `PlainDateTime`.
--/
-@[inline]
-def nanosecond (dt : PlainDateTime) : Nanosecond.Ordinal :=
-  dt.time.nano
 
 instance : HAdd PlainDateTime Day.Offset PlainDateTime where
   hAdd := addDays
@@ -459,6 +460,9 @@ instance : HAdd PlainDateTime Nanosecond.Offset PlainDateTime where
 
 instance : HSub PlainDateTime Nanosecond.Offset PlainDateTime where
   hSub := subNanoseconds
+
+instance : HAdd PlainDateTime Duration PlainDateTime where
+  hAdd x y := addNanoseconds x y.toNanoseconds
 
 end PlainDateTime
 end Time

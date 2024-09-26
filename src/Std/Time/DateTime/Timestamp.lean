@@ -196,6 +196,9 @@ Subtracts a `Week.Offset` from a `Timestamp`
 def subWeeks (t : Timestamp) (d : Week.Offset) : Timestamp :=
   ⟨t.val - d⟩
 
+instance : HAdd Timestamp Duration Timestamp where
+  hAdd x y := ⟨x.val + y⟩
+
 instance : HAdd Timestamp Day.Offset Timestamp where
   hAdd := addDays
 

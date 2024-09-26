@@ -34,26 +34,17 @@ instance {x y : Ordinal} : Decidable (x < y) :=
 instance : Inhabited Ordinal where default := 1
 
 /--
-`Offset` represents an offset in days. It is defined as an `Int` with a base unit of 86400 (the number of seconds in a day).
-This type supports arithmetic operations like addition, subtraction, multiplication, and division, and also comparisons like less than or equal.
+`Offset` represents an offset in days. It is defined as an `Int` with a base unit of 86400
+(the number of seconds in a day).
 -/
 def Offset : Type := UnitVal 86400
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
 
-/--
-Provides an instance for creating an `Offset` from a natural number (`OfNat`), converting the input to the base unit (days).
--/
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
-/--
-Provides a decidable instance to check if one `Offset` is less than or equal to another.
--/
 instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
-/--
-Provides a decidable instance to check if one `Offset` is strictly less than another.
--/
 instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
@@ -78,33 +69,50 @@ def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ (if leap then 366 else 365) 
 end OfYear
 
 /--
-`Period` is an enumeration representing different times of the day: morning, afternoon, evening, and night.
+`Period` is an enumeration representing different times of the day : morning, afternoon, evening, and night.
 -/
 inductive Period
-  /-- Represents the morning period. -/
+  /--Represents the morning period. -/
   | morning
 
-  /-- Represents the afternoon period. -/
+  /--Represents the afternoon period. -/
   | afternoon
 
-  /-- Represents the evening period. -/
+  /--Represents the evening period. -/
   | evening
 
-  /-- Represents the night period. -/
+  /--Represents the night period. -/
   | night
+  deriving Repr, BEq, Inhabited
+
+namespace Period
 
 /--
-Instance to allow creation of an `Ordinal.OfYear` from a natural number, ensuring the value is
-within the bounds of the year, which depends on whether it's a leap year or not.
+Determines the `Period` of the day based on the given hour
+
+- If the hour is between 20 and 4, it returns `night`.
+- If the hour is between 17 and 20, it returns `evening`.
+- If the hour is between 12 and 17, it returns `afternoon`.
+- If the hour is between 5 and 12, it reutrns `morning`.
 -/
+@[inline]
+def fromHour (hour : Hour.Ordinal) : Day.Ordinal.Period :=
+  if hour ≥ 20 ∨ hour ≤ 4 then
+    .night
+  else if hour ≥ 17 then
+    .evening
+  else if hour ≥ 12 then
+    .afternoon
+  else
+    .morning
+
+end Period
+
 instance : OfNat (Ordinal.OfYear leap) n :=
   match leap with
   | true => inferInstanceAs (OfNat (Bounded.LE 1 (1 + (365 : Nat))) n)
   | false => inferInstanceAs (OfNat (Bounded.LE 1 (1 + (364 : Nat))) n)
 
-/--
-Provides a default value for `Ordinal.OfYear`, defaulting to day 1.
--/
 instance : Inhabited (Ordinal.OfYear leap) where
   default := by
     refine ⟨1, And.intro (by decide) ?_⟩
@@ -138,8 +146,8 @@ namespace OfYear
 /--
 Converts an `OfYear` ordinal to a `Offset`.
 -/
-def toOffset (of: OfYear leap) : Offset :=
-  UnitVal.mk of.val
+def toOffset (ofYear : OfYear leap) : Offset :=
+  UnitVal.mk ofYear.val
 
 end OfYear
 end Ordinal
@@ -152,10 +160,6 @@ Converts an `Ordinal` to an `Offset`.
 @[inline]
 def toOrdinal (off : Offset) (h : off.val ≥ 1 ∧ off.val ≤ 31) : Ordinal :=
   Bounded.LE.mk off.val h
-
-theorem toOffset_toOrdinal {d : Ordinal} : ∃h, d.toOffset.toOrdinal h = d := by
-  simp [Ordinal.toOffset, toOrdinal, Bounded.LE.mk, UnitVal.ofInt]
-  exists d.property
 
 /--
 Creates an `Offset` from a natural number.

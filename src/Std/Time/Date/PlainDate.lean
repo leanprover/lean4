@@ -22,25 +22,18 @@ and day components, with validation to ensure the date is valid.
 -/
 structure PlainDate where
 
-  /--
-  The year component of the date. It is represented as an `Offset` type from `Year`.
-  -/
+  /-- The year component of the date. It is represented as an `Offset` type from `Year`. -/
   year : Year.Offset
 
-  /--
-  The month component of the date. It is represented as an `Ordinal` type from `Month`.
-  -/
+  /-- The month component of the date. It is represented as an `Ordinal` type from `Month`. -/
   month : Month.Ordinal
 
-  /--
-  The day component of the date. It is represented as an `Ordinal` type from `Day`.
-  -/
+  /-- The day component of the date. It is represented as an `Ordinal` type from `Day`. -/
   day : Day.Ordinal
 
-  /--
-  Validates the date by ensuring that the year, month, and day form a correct and valid date.
-  -/
+  /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
+
 
 instance : BEq PlainDate where
   beq x y := x.day == y.day && x.month == y.month && x.year == y.year
@@ -51,6 +44,7 @@ namespace PlainDate
 Creates a `PlainDate` by clipping the day to ensure validity. This function forces the date to be
 valid by adjusting the day to fit within the valid range to fit the given month and year.
 -/
+@[inline]
 def clip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate :=
   let day := month.clipDay year.isLeap day
   PlainDate.mk year month day Month.Ordinal.clipDay_valid
@@ -61,6 +55,7 @@ instance : Inhabited PlainDate where
 /--
 Creates a new `PlainDate` from year, month, and day components.
 -/
+@[inline]
 def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Option PlainDate :=
   if valid : year.Valid month day
     then some (PlainDate.mk year month day valid)
@@ -69,6 +64,7 @@ def ofYearMonthDay (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordin
 /--
 Creates a `PlainDate` from a year and a day ordinal within that year.
 -/
+@[inline]
 def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : PlainDate :=
   let ⟨⟨month, day⟩, proof⟩ := Month.Ordinal.ofOrdinal ordinal
   ⟨year, month, day, proof⟩
@@ -123,6 +119,7 @@ def era (date : PlainDate) : Year.Era :=
 /--
 Checks if the `PlainDate` is in a leap year.
 -/
+@[inline]
 def inLeapYear (date : PlainDate) : Bool :=
   date.year.isLeap
 
@@ -143,6 +140,7 @@ def toDaysSinceUNIXEpoch (date : PlainDate) : Day.Offset :=
 /--
 Calculates the difference in years between a `PlainDate` and a given year.
 -/
+@[inline]
 def yearsSince (date : PlainDate) (year : Year.Offset) : Year.Offset :=
   date.year - year
 

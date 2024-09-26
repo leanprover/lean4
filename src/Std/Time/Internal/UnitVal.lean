@@ -93,15 +93,25 @@ def convert (val : UnitVal a) : UnitVal b :=
   ofInt <| val.toInt * ratio.num / ratio.den
 
 instance : OfNat (UnitVal α) n where ofNat := ⟨Int.ofNat n⟩
+
 instance : Repr (UnitVal α) where reprPrec x p := reprPrec x.val p
+
 instance : LE (UnitVal α) where le x y := x.val ≤ y.val
+
 instance : LT (UnitVal α) where lt x y := x.val < y.val
+
 instance : Add (UnitVal α) where add x y := ⟨x.val + y.val⟩
+
 instance : Sub (UnitVal α) where sub x y := ⟨x.val - y.val⟩
+
 instance : Mul (UnitVal α) where mul x y := ⟨x.val * y.val⟩
+
 instance : Div (UnitVal α) where div x y := ⟨x.val / y.val⟩
+
 instance : Neg (UnitVal α) where neg x := ⟨-x.val⟩
+
 instance : ToString (UnitVal n) where toString n := toString n.val
+
 
 end UnitVal
 end Internal

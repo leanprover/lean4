@@ -839,8 +839,9 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
       simp [Nat.succ_lt_succ_iff, eq_comm]
 
 theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
-    l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ x : Fin l₁.length, l₁[x] = l₂[x] where
-  mp h := ⟨h.length_le, fun _ ↦ h.getElem _⟩
+    l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ x (hx : x < l₁.length),
+      l₁[x] = l₂[x]'(Nat.lt_of_lt_of_le hx h) where
+  mp h := ⟨h.length_le, fun _ _ ↦ h.getElem _⟩
   mpr h := by
     obtain ⟨hl, h⟩ := h
     induction l₂ generalizing l₁ with
@@ -853,7 +854,7 @@ theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
       | cons _ _ =>
         simp only [length_cons, Nat.add_le_add_iff_right, Fin.getElem_fin] at hl h
         simp only [cons_prefix_cons]
-        exact ⟨h 0, tail_ih hl fun a ↦ h a.succ⟩
+        exact ⟨h 0 (zero_lt_succ _), tail_ih hl fun a ha ↦ h a.succ (succ_lt_succ ha)⟩
 
 -- See `Init.Data.List.Nat.Sublist` for `isSuffix_iff` and `ifInfix_iff`.
 

@@ -2024,7 +2024,7 @@ protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x.umod y < y
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod, umod, toNat_ofNatLt]
   apply Nat.mod_lt
 
-theorem le_iff_not_lt {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
+theorem not_lt_iff_le {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
   constructor <;>
     (intro h; simp only [lt_def, Nat.not_lt, le_def] at h ⊢; omega)
 

@@ -717,7 +717,7 @@ theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
     case neg.hrWidth =>
       simp only
       have hdr' : d ≤ (qr.r.shiftConcat (n.getLsbD (qr.wn - 1))) :=
-        BitVec.le_iff_not_lt.mp rltd
+        BitVec.not_lt_iff_le.mp rltd
       have hr' : ((qr.r.shiftConcat (n.getLsbD (qr.wn - 1)))).toNat < 2 ^ (qr.wr + 1) := by
         apply toNat_shiftConcat_lt_of_lt <;> bv_omega
       rw [BitVec.toNat_sub_of_le hdr']
@@ -725,7 +725,7 @@ theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
     case neg.hqWidth =>
       apply toNat_shiftConcat_lt_of_lt <;> omega
     case neg.hdiv =>
-      have rltd' := (BitVec.le_iff_not_lt.mp rltd)
+      have rltd' := (BitVec.not_lt_iff_le.mp rltd)
       simp only [qr.toNat_shiftRight_sub_one_eq h,
         BitVec.toNat_sub_of_le rltd',
         toNat_shiftConcat_eq_of_lt (qr.wr_lt_w h) h.hrWidth]

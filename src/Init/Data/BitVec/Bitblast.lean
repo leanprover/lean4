@@ -454,7 +454,7 @@ such that `(d * q + r)` overflows and wraps around to equal `n`.
 
 This tells us that the division algorithm must have more restrictions than just the ones
 we have for integers. These restrictions are captured in `DivModState.Lawful`.
-The key idea is to state the relationship in terms of the `{n, d, q, r}.toNat` values.
+The key idea is to state the relationship in terms of the toNat values of {n, d, q, r}.
 If the division equation `d.toNat * q.toNat + r.toNat = n.toNat` holds,
 then `n.udiv d = q` and `n.umod d = r`.
 

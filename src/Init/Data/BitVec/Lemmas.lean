@@ -1512,11 +1512,6 @@ theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
   ext i
   simp [Nat.add_assoc n m i]
 
-@[deprecated shiftRight_add (since := "2024-06-02")]
-theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
-    (x >>> n) >>> m = x >>> (n + m) := by
-  rw [shiftRight_add]
-
 @[simp]
 theorem shiftLeft_shiftRight {x : BitVec w} {n : Nat}:
   x >>> n <<< n = x &&& BitVec.allOnes w <<< n := by
@@ -1527,15 +1522,19 @@ theorem shiftLeft_shiftRight {x : BitVec w} {n : Nat}:
     rw [BitVec.shiftLeft_add, Nat.add_comm, BitVec.shiftRight_add, ih,
        Nat.add_comm, BitVec.shiftLeft_add, BitVec.shiftLeft_and_distrib]
     ext i
-    simp only [getLsbD_and, getLsbD_shiftLeft, Fin.is_lt, decide_True, Nat.lt_one_iff,
-      Bool.true_and, getLsbD_ushiftRight, getLsbD_allOnes]
-    rw [Nat.add_comm]
+    have hi₁ (_: 0 < i.val) : 1 + (i.val - 1) = i := by
+      rw [Nat.add_comm, Nat.sub_add_cancel]
+      omega
     by_cases hw : w = 0
     · simp [hw]
-    · by_cases h : i.val = 0
-      · simp [h]
-      · rw [Nat.sub_add_cancel (by omega)]
-        simp [h]
+    by_cases hi₂ : i.val = 0
+    · simp [hi₂]
+    · simp [Nat.lt_one_iff, hi₂, hi₁ (show 0 < i.val by omega)]
+
+@[deprecated shiftRight_add (since := "2024-06-02")]
+theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
+    (x >>> n) >>> m = x >>> (n + m) := by
+  rw [shiftRight_add]
 
 /-! ### rev -/
 

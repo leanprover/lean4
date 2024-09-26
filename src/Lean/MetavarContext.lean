@@ -17,13 +17,13 @@ assignments. It is used in the elaborator, tactic framework, unifier
 the requirements imposed by these modules.
 
 - We may invoke TC while executing `isDefEq`. We need this feature to
-  WellFoundedRelationbe able to solve unification problems such as:
+  be able to solve unification problems such as:
   ```
   f ?a (ringAdd ?s) ?x ?y =?= f Int intAdd n m
   ```
   where `(?a : Type) (?s : Ring ?a) (?x ?y : ?a)`.
 
-  During `isDefEq` (i.e., unification), it will need to solve the constrain
+  During `isDefEq` (i.e., unification), it will need to solve the constraint
   ```
   ringAdd ?s =?= intAdd
   ```
@@ -179,7 +179,7 @@ the requirements imposed by these modules.
   an exception instead of return `false` whenever it tries to assign
   a metavariable owned by its caller. The idea is to sign to the caller that
   it cannot solve the TC problem at this point, and more information is needed.
-  That is, the caller must make progress an assign its metavariables before
+  That is, the caller must make progress and assign its metavariables before
   trying to invoke TC again.
 
   In Lean4, we are using a simpler design for the `MetavarContext`.

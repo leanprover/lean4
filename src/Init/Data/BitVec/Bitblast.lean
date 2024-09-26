@@ -26,6 +26,11 @@ expressions into expressions about individual bits in each vector.
 All other operations are to be PR'ed later and are already proved in
 https://github.com/mhk119/lean-smt/blob/bitvec/Smt/Data/Bitwise.lean.
 
+### Example: How bitblasting work for multiplication
+
+- `succ`
+- `zero`
+
 -/
 
 set_option linter.missingDocs true

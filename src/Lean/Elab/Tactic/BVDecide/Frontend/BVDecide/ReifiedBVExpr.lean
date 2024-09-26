@@ -343,7 +343,7 @@ where
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
   goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
-    let some ⟨width, bvVal⟩ ← getBitVecValue? x | return none
+    let some ⟨width, bvVal⟩ ← getBitVecValue? x | return ← ofAtom x
     let bvExpr : BVExpr width := .const bvVal
     let expr := mkApp2 (mkConst ``BVExpr.const) (toExpr width) (toExpr bvVal)
     let proof := do

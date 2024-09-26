@@ -123,12 +123,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
 endif()
 
-message(STATUS ${CMAKE_SYSTEM_PROCESSOR})
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64")
-  # GMP seems to need this
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -fstack-protector")
-endif()
-
 # Added for CTest
 include(CTest)
 

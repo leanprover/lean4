@@ -17,7 +17,7 @@ instance : Vec' Nat := ⟨⟩
 set_option trace.Meta.Tactic.simp true
 /--
 info: [Meta.Tactic.simp.rewrite] differential_of_linear:1000, differential f x dx ==> f dx
-[Meta.Tactic.simp.rewrite] eq_self:1000, f dx = f dx ==> True
+[Meta.Tactic.simp.rewrite] Eager eq_self simpproc appiled to f dx = f dx
 -/
 #guard_msgs in
 example {Y : Type} [Vec Y] (f : Nat → Y) (x dx : Nat)

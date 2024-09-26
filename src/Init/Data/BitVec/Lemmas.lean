@@ -1512,6 +1512,21 @@ theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
   ext i
   simp [Nat.add_assoc n m i]
 
+theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
+    x >>> n <<< n = x &&& BitVec.allOnes w <<< n := by
+  induction n generalizing x
+  case zero =>
+    ext; simp
+  case succ n ih =>
+    rw [BitVec.shiftLeft_add, Nat.add_comm, BitVec.shiftRight_add, ih,
+       Nat.add_comm, BitVec.shiftLeft_add, BitVec.shiftLeft_and_distrib]
+    ext i
+    by_cases hw : w = 0
+    · simp [hw]
+    · by_cases hi₂ : i.val = 0
+      · simp [hi₂]
+      · simp [Nat.lt_one_iff, hi₂, show 1 + (i.val - 1) = i by omega]
+
 @[deprecated shiftRight_add (since := "2024-06-02")]
 theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
     (x >>> n) >>> m = x >>> (n + m) := by
@@ -1736,6 +1751,15 @@ theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
     BitVec.ofInt n x + BitVec.ofInt n y := by
   apply eq_of_toInt_eq
   simp
+
+@[simp]
+theorem shiftLeft_add_distrib {x y : BitVec w} {n : Nat} :
+    (x + y) <<< n = x <<< n + y <<< n := by
+  induction n
+  case zero =>
+    simp
+  case succ n ih =>
+    simp [ih, toNat_eq, Nat.shiftLeft_eq, ← Nat.add_mul]
 
 /-! ### sub/neg -/
 

@@ -681,7 +681,7 @@ theorem DivModState.toNat_shiftRight_sub_one_eq
 This is used when proving the correctness of the divison algorithm,
 where we know that `r < d`.
 We then want to show that `((r.shiftConcat b) - d) < d` as the loop invariant.
-In arithmethic, this is the same as showing that
+In arithmetic, this is the same as showing that
 `r * 2 + 1 - d < d`, which this theorem establishes.
 -/
 private theorem two_mul_add_sub_lt_of_lt_of_lt_two (h : a < x) (hy : y < 2) :

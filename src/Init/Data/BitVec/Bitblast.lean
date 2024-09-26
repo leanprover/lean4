@@ -535,7 +535,7 @@ structure DivModArgs (w : Nat) where
 /-- A `DivModState` is lawful if the remainder width `wr` plus the numerator width `wn` equals `w`,
 and the bitvectors `r` and `n` have values in the bounds given by bitwidths `wr`, resp. `wn`.
 
-This is a proof engineering choice: An alternative world could have
+This is a proof engineering choice: an alternative world could have been
 `r : BitVec wr` and `n : BitVec wn`, but this required much more dependent typing coercions.
 
 Instead, we choose to declare all involved bitvectors as length `w`, and then prove that

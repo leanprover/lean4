@@ -1522,14 +1522,12 @@ theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
     rw [BitVec.shiftLeft_add, Nat.add_comm, BitVec.shiftRight_add, ih,
        Nat.add_comm, BitVec.shiftLeft_add, BitVec.shiftLeft_and_distrib]
     ext i
-    have hi₁ (_: 0 < i.val) : 1 + (i.val - 1) = i := by
-      rw [Nat.add_comm, Nat.sub_add_cancel]
-      omega
+    have hi₁ : 1 + (i.val - 1) = i := by omega
     by_cases hw : w = 0
     · simp [hw]
-    by_cases hi₂ : i.val = 0
-    · simp [hi₂]
-    · simp [Nat.lt_one_iff, hi₂, hi₁ (show 0 < i.val by omega)]
+    · by_cases hi₂ : i.val = 0
+      · simp [hi₂]
+      · simp [Nat.lt_one_iff, hi₂, hi₁]
 
 @[deprecated shiftRight_add (since := "2024-06-02")]
 theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
@@ -1763,10 +1761,7 @@ theorem shiftLeft_add_distrib {x y : BitVec w} {n : Nat} :
   case zero =>
     simp
   case succ n ih =>
-    simp only [shiftLeft_add, ih, toNat_eq, toNat_shiftLeft, toNat_add, Nat.shiftLeft_eq_mul_pow,
-      Nat.add_mod_mod, Nat.mod_add_mod, Nat.pow_one, Nat.mod_mul_mod]
-    rw [Nat.mod_eq_of_eq]
-    omega
+    simp [ih, toNat_eq, Nat.shiftLeft_eq, ← Nat.add_mul]
 
 /-! ### sub/neg -/
 

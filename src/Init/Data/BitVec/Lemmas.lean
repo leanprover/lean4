@@ -1335,6 +1335,15 @@ theorem sdiv_eq (x y : BitVec w) : x.sdiv y =
   rw [BitVec.sdiv]
   rcases x.msb <;> rcases y.msb <;> simp
 
+theorem toNat_sdiv (x y : BitVec w) : (x.sdiv y).toNat =
+    match x.msb, y.msb with
+    | false, false => (udiv x y).toNat
+    | false, true  =>  (- (x.udiv (- y))).toNat
+    | true,  false => (- ((- x).udiv y)).toNat
+    | true,  true  => ((- x).udiv (- y)).toNat := by
+  simp [sdiv_eq]
+  by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
+
 theorem sdiv_eq_and (x y : BitVec 1) : x.sdiv y = x &&& y := by
   have hx : x = 0#1 ∨ x = 1#1 := by bv_omega
   have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
@@ -1357,6 +1366,23 @@ theorem smod_eq (x y : BitVec w) : x.smod y =
   | true, true => - ((- x).umod (- y)) := by
   rw [BitVec.smod]
   rcases x.msb <;> rcases y.msb <;> simp
+
+theorem toNat_smod (x y : BitVec w) : (x.smod y).toNat =
+    match x.msb, y.msb with
+    | false, false => (x.umod y).toNat
+    | false, true =>
+      let u := x.umod (- y)
+      (if u = 0#w then u.toNat else (u + y).toNat)
+    | true, false =>
+      let u := umod (- x) y
+      (if u = 0#w then u.toNat else (y - u).toNat)
+    | true, true => (- ((- x).umod (- y))).toNat := by
+  simp [smod_eq]
+  by_cases h : x.msb <;> by_cases h' : y.msb
+  <;> by_cases h'' : (-x).umod y = 0#w <;> by_cases h''' : x.umod (-y) = 0#w
+  <;> simp only [h, h', h'', h''']
+  <;> simp only [umod, toNat_eq, toNat_ofNatLt, toNat_ofNat, Nat.zero_mod] at h'' h'''
+  <;> simp [h'', h''']
 
 /-! ### signExtend -/
 
@@ -1960,6 +1986,18 @@ theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
     intro h h'
     subst h'
     simp at h
+
+/-! ### abs -/
+
+@[simp]
+theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
+  simp only [BitVec.abs, neg_eq]
+  by_cases h : x.msb = true
+  · simp only [h, ↓reduceIte, toNat_neg]
+    rw [Nat.mod_eq_of_lt]
+    have := (@BitVec.msb_eq_true_iff_two_mul_ge w x).mp h
+    omega
+  · simp [h]
 
 /-! ### mul -/
 

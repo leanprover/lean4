@@ -515,11 +515,11 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
   (ext.toEnvExtension.getState env).state
 
-/-- Set the current state of the given extension in the given environment. This change is *not* persisted across files. -/
+/-- Set the current state of the given extension in the given environment. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with  state := s }
 
-/-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
+/-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with state := f (ps.state) }
 

@@ -2368,7 +2368,7 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
         simp_all
 
 @[simp]
-theorem getElem_twoPow (i j : Nat) (h : j < w) : ((twoPow w i)[j]) = (i = j) := by
+theorem getElem_twoPow (i j : Nat) (h : j < w) : (twoPow w i)[j] = (i = j) := by
   rw [←getLsbD_eq_getElem, getLsbD_twoPow]
   simp
   omega

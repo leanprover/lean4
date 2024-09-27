@@ -626,8 +626,7 @@ partial def whitespace : ParserFn := fun c s =>
         else andthenFn (finishCommentBlock (pushMissingOnError := false) 1) whitespace c (s.next input i)
       else s
     else
-      --if parser.git.useIncoming.get c.options then
-      if true then
+      if parser.git.useIncoming.get c.options then
         -- `<<<<<<< ... =======` and `>>>>>>>` are comments
         let s' := parseStartDiff "start conflict" c s
         if !s'.hasError then

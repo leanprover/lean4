@@ -121,10 +121,6 @@ theorem and_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs)
     (lhs' && rhs') = (lhs && rhs) := by
   simp[*]
 
-theorem or_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (lhs' || rhs') = (lhs || rhs) := by
-  simp[*]
-
 theorem xor_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
     (lhs' ^^ rhs') = (lhs ^^ rhs) := by
   simp[*]

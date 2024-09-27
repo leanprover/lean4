@@ -684,6 +684,8 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
               let stx := stx.raw.rewriteBottomUp (·.setInfo info)
               let type := (d.getArg! 0).consumeTypeAnnotations
               let mvar ← mkTacticMVar type stx (.fieldAutoParam fieldName s.structName)
+              -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
+              -- (See the aformentioned `processExplicitArg` for a comment about this.)
               addTermInfo' stx mvar
               cont mvar field
           | _ =>

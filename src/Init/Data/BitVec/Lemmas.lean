@@ -1499,23 +1499,6 @@ theorem getLsbD_append {x : BitVec n} {y : BitVec m} :
   · simp [h]
   · simp [h]; simp_all
 
-@[simp]
-theorem getLsbD_append' {x : BitVec 0} {y : BitVec m} :
-    getLsbD (x ++ y) i = getLsbD y i := by
-  rw [getLsbD_append]
-  by_cases h : i < m
-  · simp [h]
-  · simp only [h, decide_False, Nat.zero_le, getLsbD_ge, cond_false, Bool.false_eq]
-    rw [getLsbD_ge]
-    simp only [Nat.not_lt] at h
-    simp [h]
-
-@[simp]
-theorem getLsbD_append'' {x : BitVec n} {y : BitVec 0} :
-    getLsbD (x ++ y) i = getLsbD x i := by
-  rw [getLsbD_append]
-  simp
-
 theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
     (x ++ y)[i] = bif i < m then getLsbD y i else getLsbD x (i - m) := by
   simp only [append_def, getElem_or, getElem_shiftLeftZeroExtend, getElem_setWidth']

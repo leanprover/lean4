@@ -1367,7 +1367,7 @@ theorem smod_eq (x y : BitVec w) : x.smod y =
   rw [BitVec.smod]
   rcases x.msb <;> rcases y.msb <;> simp
 
-theorem toNat_smod (x y : BitVec w) : (x.smod y).toNat =
+theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
     match x.msb, y.msb with
     | false, false => (x.umod y).toNat
     | false, true =>

@@ -68,3 +68,5 @@ linterUnusedVariables.lean:257:15-257:18: warning: unused variable `ord`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
 linterUnusedVariables.lean:258:9-258:10: warning: unused variable `h`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
+linterUnusedVariables.lean:280:41-280:43: warning: unused variable `ha`
+note: this linter can be disabled with `set_option linter.unusedVariables false`

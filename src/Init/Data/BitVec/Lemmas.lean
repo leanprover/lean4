@@ -949,6 +949,13 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
   ext i
   simp
 
+@[simp] theorem getMsb_not (x : BitVec w) :
+    (~~~x).getMsbD i = (decide (i < w) && !(x.getMsbD i)) := by
+  by_cases h : i < w <;> simp [getMsbD, h] ; omega
+
+@[simp] theorem msb_not (x : BitVec w) : (~~~x).msb = (decide (0 < w) && !x.msb) := by
+  simp [BitVec.msb]
+
 /-! ### cast -/
 
 @[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(cast h x) = cast h (~~~x) := by
@@ -1292,6 +1299,22 @@ theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
       · simp [h₃]
         omega
       · simp [h₃, sshiftRight_msb_eq_msb]
+
+theorem not_sshiftRight {b : BitVec w} :
+    ~~~b.sshiftRight n = (~~~b).sshiftRight n := by
+  ext i
+  simp only [getLsbD_not, Fin.is_lt, decide_True, getLsbD_sshiftRight, Bool.not_and, Bool.not_not,
+    Bool.true_and, msb_not]
+  by_cases h : w ≤ i
+  <;> by_cases h' : n + i < w
+  <;> by_cases h'' : 0 < w
+  <;> simp [h, h', h'']
+  <;> omega
+
+@[simp]
+theorem not_sshiftRight_not {x : BitVec w} {n : Nat} :
+    ~~~((~~~x).sshiftRight n) = x.sshiftRight n := by
+  simp [not_sshiftRight]
 
 /-! ### sshiftRight reductions from BitVec to Nat -/
 

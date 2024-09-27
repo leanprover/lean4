@@ -74,7 +74,7 @@ v4.12.0
 * **Definitions**
   * [#5016](https://github.com/leanprover/lean4/pull/5016) and [#5066](https://github.com/leanprover/lean4/pull/5066) add `clean_wf` tactic to clean up tactic state in `decreasing_by`. This can be disabled with `set_option debug.rawDecreasingByGoal false`.
   * [#5055](https://github.com/leanprover/lean4/pull/5055) unifies equational theorems between structural and well-founded recursion.
-  * [#5041](https://github.com/leanprover/lean4/pull/5041) allows mutual recursion to have its shared prefix of parameters to be up to alpha-equivalence.
+  * [#5041](https://github.com/leanprover/lean4/pull/5041) allows mutually recursive functions to use different parameter names among the “fixed parameter prefix”
   * [#4154](https://github.com/leanprover/lean4/pull/4154) and [#5109](https://github.com/leanprover/lean4/pull/5109) add fine-grained equational lemmas for non-recursive functions. See breaking changes.
   * [#5129](https://github.com/leanprover/lean4/pull/5129) unifies equation lemmas for recursive and non-recursive definitions. The `backward.eqns.deepRecursiveSplit` option can be set to `false` to get the old behavior. See breaking changes.
   * [#5141](https://github.com/leanprover/lean4/pull/5141) adds `f.eq_unfold` lemmas. Now Lean produces the following zoo of rewrite rules:
@@ -286,7 +286,9 @@ v4.12.0
 
 * Recursive definitions with a `decreasing_by` clause that begins with `simp_wf` may break. Try removing `simp_wf` or replacing it with `simp`. ([#5016](https://github.com/leanprover/lean4/pull/5016))
 
-* Previously, `rw [Option.map]` would rewrite `Option.map f o` to `match o with … `. Now this rewrite will fail because the equational lemmas require constructors here (like they do for, say, `List.map`).
+* The behavior of `rw [f]` where `f` is a non-recursive function defined by pattern matching changed.
+
+  For example, preciously, `rw [Option.map]` would rewrite `Option.map f o` to `match o with … `. Now this rewrite fails because it will use the equational lemmas, and these require constructors – just like for `List.map`.
 
   Remedies:
   * Split on `o` before rewriting.

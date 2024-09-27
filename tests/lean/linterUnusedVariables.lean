@@ -275,5 +275,15 @@ inaccessible annotation.
 example : (x = y) → y = x
   | .refl _ => .refl _
 
+/-! We do lint parameters by default (`analyzeTactics false`) even when they have lexical uses -/
+
 theorem lexicalTacticUse (p : α → Prop) (ha : p a) (hb : p b) : p b := by
+  simp [ha, hb]
+
+/-!
+... however, `analyzeTactics true` consistently takes lexical uses for all variables into account
+-/
+
+set_option linter.unusedVariables.analyzeTactics true in
+theorem lexicalTacticUse' (p : α → Prop) (ha : p a) (hb : p b) : p b := by
   simp [ha, hb]

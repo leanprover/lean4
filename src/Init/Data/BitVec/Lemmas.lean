@@ -1523,17 +1523,6 @@ theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
   · simp [h']
   · simp [h']; simp_all
 
-@[simp]
-theorem getElem_append' {x : BitVec n} {y : BitVec 0} (h : i < n) :
-    (x ++ y)[i] = getLsbD x i := by
-  rw [getElem_append]
-  simp [h]
-
-@[simp]
-theorem getElem_append'' {x : BitVec 0} {y : BitVec m} (h : i < m) :
-    (x ++ y)[i] = getLsbD y i := by
-  simp [getElem_append, h]
-
 @[simp] theorem getMsbD_append {x : BitVec n} {y : BitVec m} :
     getMsbD (x ++ y) i = bif n ≤ i then getMsbD y (i - n) else getMsbD x i := by
   simp [append_def]

@@ -2497,6 +2497,28 @@ instance instDecidableExistsBitVec :
     have := instDecidableExistsBitVec n
     inferInstance
 
+/-! ### Decidable relations -/
+
+instance instDecidableRelForallBitVecZero (R : BitVec 0 → BitVec 0 → Prop) :
+    ∀ [Decidable (R 0#0 0#0)], Decidable (∀ v w, R v w)
+  | .isTrue h => .isTrue fun v w => by
+    obtain (rfl : v = 0#0) := (by ext ⟨i, h⟩; cases h)
+    obtain (rfl : w = 0#0) := (by ext ⟨i, h⟩; cases h)
+    exact h
+  | .isFalse h => .isFalse (fun h' => h (h' ..))
+
+instance instDecidableRelForallBitVecSucc (R : BitVec (n+1) → BitVec (n+1) → Prop) [DecidableRel R]
+    [I : Decidable (∀ (x y : Bool) (v w : BitVec n), R (v.cons x) (w.cons y))] : Decidable (∀ v w, R v w) := by
+  apply decidable_of_iff' (∀ (x y : Bool) (v w : BitVec n), R (v.cons x) (w.cons y))
+  constructor
+  · intro h x y v w
+    apply h
+  · intro h v w
+    have hv : v = (v.setWidth n).cons v.msb := by simp
+    have hw : w = (w.setWidth n).cons w.msb := by simp
+    rw [hv, hw]
+    apply h
+
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false

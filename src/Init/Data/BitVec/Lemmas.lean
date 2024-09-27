@@ -1593,21 +1593,19 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
   ext i
-  simp [getElem_append, cond_eq_if]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_and, getElem_append, cond_eq_if]
   split <;> simp
 
 @[simp] theorem or_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by
   ext i
-  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_or, getElem_append, cond_eq_if,
-    decide_eq_true_eq, getLsbD_or]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_or, getElem_append, cond_eq_if]
   split <;> simp
 
 @[simp] theorem xor_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by
   ext i
-  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_xor, getElem_append, cond_eq_if,
-    decide_eq_true_eq, getLsbD_xor]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_xor, getElem_append, cond_eq_if]
   split <;> simp
 
 theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :

@@ -1341,7 +1341,7 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
     | false, true  =>  (- (x.udiv (- y))).toNat
     | true,  false => (- ((- x).udiv y)).toNat
     | true,  true  => ((- x).udiv (- y)).toNat := by
-  simp [sdiv_eq]
+  simp only [sdiv_eq, toNat_udiv]
   by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
 
 theorem sdiv_eq_and (x y : BitVec 1) : x.sdiv y = x &&& y := by
@@ -1377,7 +1377,7 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
       let u := (-x).umod y
       (if u = 0#w then u.toNat else (y - u).toNat)
     | true, true => (- ((- x).umod (- y))).toNat := by
-  simp [smod_eq]
+  simp only [smod_eq, toNat_umod]
   by_cases h : x.msb <;> by_cases h' : y.msb
   <;> by_cases h'' : (-x).umod y = 0#w <;> by_cases h''' : x.umod (-y) = 0#w
   <;> simp only [h, h', h'', h''']

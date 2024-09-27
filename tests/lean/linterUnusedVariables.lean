@@ -129,7 +129,7 @@ def nolintPatternVars (x : Option (Option Nat)) : Nat :=
   | some (some y) => (fun z => 1) 2
   | _ => 0
 
-set_option linter.unusedVariables.inTactics true in
+set_option linter.unusedVariables.analyzeTactics true in
 set_option linter.unusedVariables.patternVars false in
 theorem nolintPatternVarsInduction (n : Nat) : True := by
   induction n with
@@ -275,5 +275,5 @@ inaccessible annotation.
 example : (x = y) → y = x
   | .refl _ => .refl _
 
-theorem lexicalTacticUse (p : α → Prop) (ha : p a) (hb : p b) :  p b := by
+theorem lexicalTacticUse (p : α → Prop) (ha : p a) (hb : p b) : p b := by
   simp [ha, hb]

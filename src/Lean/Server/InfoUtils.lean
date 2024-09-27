@@ -417,6 +417,9 @@ where go ci?
     match ci?, i with
     | some ci, .ofTermInfo ti
     | some ci, .ofOmissionInfo { toTermInfo := ti, .. } => do
+      -- NOTE: `instantiateMVars` can potentially be expensive but we rely on the elaborator
+      -- creating a fully instantiated `MutualDef.body` term info node which has the implicit effect
+      -- of making the `instantiateMVars` here a no-op and avoids further recursing into the body
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and

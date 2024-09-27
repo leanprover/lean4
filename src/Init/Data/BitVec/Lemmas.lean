@@ -1526,13 +1526,13 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
     simp [h, q, t, BitVec.msb, getMsbD]
 
 @[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
-  ext i
+  ext
   rw [getLsbD_append] -- Why does this not work with `simp [getLsbD_append]`?
   simp
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = cast (by omega) y := by
   ext
-  rw [getLsbD_append] -- Why does this not work with `simp [getLsbD_append]`?
+  rw [getLsbD_append]
   simpa using lt_of_getLsbD
 
 @[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by

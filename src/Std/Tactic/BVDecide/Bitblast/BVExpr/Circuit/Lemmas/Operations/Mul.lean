@@ -35,19 +35,20 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
                 (BitVec.mulRec lexpr rexpr curr).getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig lhs rhs (curr + 1) hcurr acc).aig,
-          (go aig lhs rhs (curr + 1) hcurr acc).vec.get idx hidx,
+          (go aig lhs rhs (curr + 1) acc).aig,
+          (go aig lhs rhs (curr + 1) acc).vec.get idx hidx,
           assign.toAIGAssignment
         ⟧
           =
         (BitVec.mulRec lexpr rexpr w).getLsbD idx := by
   intro idx hidx
-  generalize hgo: go aig lhs rhs (curr + 1) hcurr acc = res
+  generalize hgo: go aig lhs rhs (curr + 1) acc = res
   unfold go at hgo
   split at hgo
   · dsimp only at hgo
     rw [← hgo]
     rw [go_denote_eq]
+    · omega
     · intro idx hidx
       simp only [RefVec.get_cast, Ref.cast_eq]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
@@ -128,6 +129,7 @@ theorem denote_blast (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment
     subst hw
     rw [← hb]
     rw [go_denote_eq]
+    · omega
     · intro idx hidx
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]

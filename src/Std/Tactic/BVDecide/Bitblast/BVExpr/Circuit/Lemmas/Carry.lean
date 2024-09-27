@@ -29,7 +29,7 @@ theorem go_eq_carry (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref 
     (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign⟧ = lhsExpr.getLsbD idx)
     (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign⟧ = rhsExpr.getLsbD idx)
     (hcin : ⟦aig, cin, assign⟧ = BitVec.carry curr lhsExpr rhsExpr ⟦aig, origCin, assign⟧) :
-    ⟦go aig lhs rhs curr hcurr cin, assign⟧
+    ⟦go aig lhs rhs curr cin, assign⟧
       =
     BitVec.carry w lhsExpr rhsExpr ⟦aig, origCin, assign⟧ := by
   unfold go
@@ -38,6 +38,7 @@ theorem go_eq_carry (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref 
   · rw [go_eq_carry]
     · congr 1
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
+    · omega
     · intros
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
       · simp [hleft]
@@ -67,6 +68,7 @@ theorem mkOverflowBit_eq_carry (aig : AIG α) (input : OverflowInput aig) (lhs r
   unfold mkOverflowBit
   dsimp only
   apply mkOverflowBit.go_eq_carry
+  · omega
   · assumption
   · assumption
   · simp [BitVec.carry_zero]

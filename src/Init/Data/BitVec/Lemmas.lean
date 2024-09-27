@@ -1374,7 +1374,7 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
       let u := x.umod (- y)
       (if u = 0#w then u.toNat else (u + y).toNat)
     | true, false =>
-      let u := y.umod (- x)
+      let u := (-x).umod y
       (if u = 0#w then u.toNat else (y - u).toNat)
     | true, true => (- ((- x).umod (- y))).toNat := by
   simp [smod_eq]

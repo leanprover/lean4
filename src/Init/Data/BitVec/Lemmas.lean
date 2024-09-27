@@ -303,7 +303,7 @@ theorem getElem?_zero_ofNat_one : (BitVec.ofNat (w+1) 1)[0]? = some true := by
 
 -- This does not need to be a `@[simp]` theorem as it is already handled by `getElem?_eq_getElem`.
 theorem getElem?_zero_ofBool (b : Bool) : (ofBool b)[0]? = some b := by
-  simp [ofBool, cond_eq_if]
+  simp only [ofBool, ofNat_eq_ofNat, cond_eq_if]
   split <;> simp_all
 
 @[simp] theorem getElem_zero_ofBool (b : Bool) : (ofBool b)[0] = b := by
@@ -332,7 +332,7 @@ theorem getElem_ofBool {b : Bool} {i : Nat} : (ofBool b)[0] = b := by
 
 theorem msb_eq_getLsbD_last (x : BitVec w) :
     x.msb = x.getLsbD (w - 1) := by
-  simp [BitVec.msb, getMsbD, getLsbD]
+  simp only [BitVec.msb, getMsbD]
   rcases w  with rfl | w
   · simp [BitVec.eq_nil x]
   · simp
@@ -360,7 +360,7 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
   | 0 =>
     simp [BitVec.msb, BitVec.getMsbD] at p
   | n + 1 =>
-    simp [BitVec.msb_eq_decide] at p
+    simp only [msb_eq_decide, Nat.add_one_sub_one, decide_eq_true_eq] at p
     simp only [Nat.add_sub_cancel]
     exact p
 
@@ -420,7 +420,7 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
 /-- Prove equality of bitvectors in terms of nat operations. -/
 theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
   intro eq
-  simp [toInt_eq_toNat_cond] at eq
+  simp only [toInt_eq_toNat_cond] at eq
   apply eq_of_toNat_eq
   revert eq
   have _xlt := x.isLt
@@ -901,7 +901,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
     rw [Nat.testBit_two_pow_sub_succ (isLt _)]
     · cases w : decide (i < v)
       · simp at w
-        simp [w]
+        simp only [Bool.false_bne, Bool.false_and]
         rw [Nat.testBit_lt_two_pow]
         calc BitVec.toNat x < 2 ^ v := isLt _
           _ ≤ 2 ^ i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two w
@@ -1515,7 +1515,7 @@ theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
 theorem msb_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).msb = bif (w == 0) then (y.msb) else (x.msb) := by
   rw [← append_eq, append]
-  simp [msb_setWidth']
+  simp only [msb_or, msb_shiftLeftZeroExtend, msb_setWidth']
   by_cases h : w = 0
   · subst h
     simp [BitVec.msb, getMsbD]
@@ -1636,13 +1636,13 @@ theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
 
 theorem getLsbD_rev (x : BitVec w) (i : Fin w) :
     x.getLsbD i.rev = x.getMsbD i := by
-  simp [getLsbD, getMsbD]
+  simp only [getLsbD, Fin.val_rev, getMsbD, Fin.is_lt, decide_True, Bool.true_and]
   congr 1
   omega
 
 theorem getElem_rev {x : BitVec w} {i : Fin w}:
     x[i.rev] = x.getMsbD i := by
-  simp [getMsbD]
+  simp only [Fin.getElem_fin, Fin.val_rev, getMsbD, Fin.is_lt, decide_True, Bool.true_and]
   congr 1
   omega
 
@@ -1952,7 +1952,7 @@ theorem toInt_neg {x : BitVec w} :
     Int.bmod_add_cancel]
   by_cases h : x.toNat < ((2 ^ w) + 1) / 2
   · rw [Int.bmod_pos (x := x.toNat)]
-    all_goals simp [toNat_mod_cancel', h]
+    all_goals simp only [toNat_mod_cancel']
     norm_cast
   · rw [Int.bmod_neg (x := x.toNat)]
     · simp only [toNat_mod_cancel']

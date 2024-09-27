@@ -953,7 +953,7 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
     (~~~x).getMsbD i = (decide (i < w) && !(x.getMsbD i)) := by
   simp only [getMsbD]
   by_cases h : i < w
-  · simp_all; omega
+  · simp [h]; omega
   · simp [h];
 
 @[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by

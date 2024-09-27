@@ -1994,9 +1994,8 @@ theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat els
   simp only [BitVec.abs, neg_eq]
   by_cases h : x.msb = true
   · simp only [h, ↓reduceIte, toNat_neg]
-    rw [Nat.mod_eq_of_lt]
     have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
-    omega
+    rw [Nat.mod_eq_of_lt (by omega)]
   · simp [h]
 
 /-! ### mul -/

@@ -164,7 +164,7 @@ jobs:
 
             # Use GitHub API to check if a comment already exists
             existing_comment="$(curl --retry 3 --location --silent \
-                                    -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+                                    -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
                                     | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-mathlib4-bot"))')"
@@ -177,14 +177,14 @@ jobs:
               echo "Posting message to the comments: $MESSAGE"
 
               # Append new result to the existing comment or post a new comment
-              # It's essential we use the MATHLIB4_BOT token here, so that Mathlib CI can subsequently edit the comment.
+              # It's essential we use the MATHLIB4_COMMENT_BOT token here, so that Mathlib CI can subsequently edit the comment.
               if [ -z "$existing_comment_id" ]; then
                 INTRO="Mathlib CI status ([docs](https://leanprover-community.github.io/contribute/tags_and_branches.html)):"
                 # Post new comment with a bullet point
                 echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X POST \
-                  -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+                  -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg intro "$INTRO" --arg val "$MESSAGE" '{"body":($intro + "\n" + $val)}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
@@ -193,7 +193,7 @@ jobs:
                 echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X PATCH \
-                  -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+                  -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"

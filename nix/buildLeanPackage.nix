@@ -155,11 +155,19 @@ with builtins; let
     cPath = relpath + ".c";
     inherit leanFlags leanPluginFlags;
     leanLoadDynlibFlags = map (p: "--load-dynlib=${pathOfSharedLib p}") (loadDynlibsOfDeps deps);
+    passAsFile = [
+      # When building a package with too many dependencies,
+      #   this variable become huge, which cause "Argument list is too large" error,
+      #   so it should be passed as a file to avoid such errors.
+      "leanLoadDynlibFlags"
+    ];
     buildCommand = ''
+      # Increase stack limit to avoid "Argument list is too large" error.
+      ulimit -s unlimited
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
       if [ -d $src ]; then cp -r $src/. .; else cp $src $leanPath; fi
-      lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
+      lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $(cat $leanLoadDynlibFlagsPath)
     '';
   }) // {
     inherit deps;

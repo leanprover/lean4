@@ -1323,6 +1323,41 @@ theorem umod_eq {x y : BitVec n} :
 theorem toNat_umod {x y : BitVec n} :
     (x.umod y).toNat = x.toNat % y.toNat := rfl
 
+/-! ### sdiv -/
+
+/-- Equation theorem for `sdiv` in terms of `udiv`. -/
+theorem sdiv_eq (x y : BitVec w) : x.sdiv y =
+  match x.msb, y.msb with
+  | false, false => udiv x y
+  | false, true  =>  - (x.udiv (- y))
+  | true,  false => - ((- x).udiv y)
+  | true,  true  => (- x).udiv (- y) := by
+  rw [BitVec.sdiv]
+  rcases x.msb <;> rcases y.msb <;> simp
+
+theorem sdiv_eq_and (x y : BitVec 1) : x.sdiv y = x &&& y := by
+  have hx : x = 0#1 ∨ x = 1#1 := by bv_omega
+  have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
+  rcases hx with rfl | rfl <;>
+    rcases hy with rfl | rfl <;>
+      rfl
+
+/-! ### smod -/
+
+/-- Equation theorem for `smod` in terms of `umod`. -/
+theorem smod_eq (x y : BitVec w) : x.smod y =
+  match x.msb, y.msb with
+  | false, false => x.umod y
+  | false, true =>
+    let u := x.umod (- y)
+    (if u = 0#w then u else u + y)
+  | true, false =>
+    let u := umod (- x) y
+    (if u = 0#w then u else y - u)
+  | true, true => - ((- x).umod (- y)) := by
+  rw [BitVec.smod]
+  rcases x.msb <;> rcases y.msb <;> simp
+
 /-! ### signExtend -/
 
 /-- Equation theorem for `Int.sub` when both arguments are `Int.ofNat` -/

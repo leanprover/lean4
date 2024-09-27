@@ -29,6 +29,15 @@ structure SavedContext where
   errToSorry : Bool
   levelNames : List Name
 
+/-- The kind of a tactic metavariable, used for additional error reporting. -/
+inductive TacticMVarKind
+  /-- Standard tactic metavariable, arising from `by ...` syntax. -/
+  | term
+  /-- Tactic metavariable arising from an autoparam for a function application. -/
+  | autoParam (argName : Name)
+  /-- Tactic metavariable arising from an autoparam for a structure field. -/
+  | fieldAutoParam (fieldName structName : Name)
+
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
   /--
@@ -43,7 +52,7 @@ inductive SyntheticMVarKind where
   Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
   | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
   /-- Use tactic to synthesize value for metavariable. -/
-  | tactic (tacticCode : Syntax) (ctx : SavedContext)
+  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
   | postponed (ctx : SavedContext)
   deriving Inhabited
@@ -1190,6 +1199,26 @@ private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : 
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? mvarId
+
+register_builtin_option debug.byAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
+}
+
+/--
+Creates a new metavariable of type `type` that will be synthesized using the tactic code.
+The `tacticCode` syntax is the full `by ..` syntax.
+-/
+def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : TermElabM Expr := do
+  if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
+    mkSorry type false
+  else
+    let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
+    let mvarId := mvar.mvarId!
+    let ref ← getRef
+    registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext) kind
+    return mvar
 
 /--
   Create an auxiliary annotation to make sure we create an `Info` even if `e` is a metavariable.

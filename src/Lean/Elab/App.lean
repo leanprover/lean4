@@ -584,7 +584,6 @@ mutual
         match evalSyntaxConstant env opts tacticDecl with
         | Except.error err       => throwError err
         | Except.ok tacticSyntax =>
-          -- TODO(Leo): does this work correctly for tactic sequences?
           let tacticBlock ← `(by $(⟨tacticSyntax⟩))
           /-
           We insert position information from the current ref into `stx` everywhere, simulating this being
@@ -596,7 +595,12 @@ mutual
           -/
           let info := (← getRef).getHeadInfo
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
-          let argNew := Arg.stx tacticBlock
+          let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
+          -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
+          -- We should look into removing this since terminfo for synthetic syntax is suspect,
+          -- but we noted it was necessary to preserve the behavior of the unused variable linter.
+          addTermInfo' tacticBlock mvar
+          let argNew := Arg.expr mvar
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew
           main

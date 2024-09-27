@@ -52,9 +52,9 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
 theorem eraseP_ne_nil {xs : List α} {p : α → Bool} : xs.eraseP p ≠ [] ↔ xs ≠ [] ∧ ∀ x, p x → xs ≠ [x] := by
   simp
 
-theorem exists_of_eraseP : ∀ {l : List α} {a} (al : a ∈ l) (pa : p a),
+theorem exists_of_eraseP : ∀ {l : List α} {a} (_ : a ∈ l) (_ : p a),
     ∃ a l₁ l₂, (∀ b ∈ l₁, ¬p b) ∧ p a ∧ l = l₁ ++ a :: l₂ ∧ l.eraseP p = l₁ ++ l₂
-  | b :: l, a, al, pa =>
+  | b :: l, _, al, pa =>
     if pb : p b then
       ⟨b, [], l, forall_mem_nil _, pb, by simp [pb]⟩
     else
@@ -168,8 +168,8 @@ theorem eraseP_append_left {a : α} (pa : p a) :
 
 theorem eraseP_append_right :
     ∀ {l₁ : List α} l₂, (∀ b ∈ l₁, ¬p b) → eraseP p (l₁++l₂) = l₁ ++ l₂.eraseP p
-  | [],      l₂, _ => rfl
-  | x :: xs, l₂, h => by
+  | [],     _, _ => rfl
+  | _ :: _, _, h => by
     simp [(forall_mem_cons.1 h).1, eraseP_append_right _ (forall_mem_cons.1 h).2]
 
 theorem eraseP_append (l₁ l₂ : List α) :

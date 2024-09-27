@@ -98,8 +98,8 @@ theorem Perm.append_cons (a : α) {h₁ h₂ t₁ t₂ : List α} (p₁ : h₁ ~
   perm_middle.trans <| by rw [append_nil]
 
 theorem perm_append_comm : ∀ {l₁ l₂ : List α}, l₁ ++ l₂ ~ l₂ ++ l₁
-  | [], l₂ => by simp
-  | a :: t, l₂ => (perm_append_comm.cons _).trans perm_middle.symm
+  | [], _ => by simp
+  | _ :: _, _ => (perm_append_comm.cons _).trans perm_middle.symm
 
 theorem perm_append_comm_assoc (l₁ l₂ l₃ : List α) :
     Perm (l₁ ++ (l₂ ++ l₃)) (l₂ ++ (l₁ ++ l₃)) := by

@@ -512,8 +512,8 @@ theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toN
 
 @[simp] theorem pred_toNat : ∀ i : Int, (i - 1).toNat = i.toNat - 1
   | 0 => rfl
-  | (n+1:Nat) => by simp [ofNat_add]
-  | -[n+1] => rfl
+  | (_+1:Nat) => by simp [ofNat_add]
+  | -[_+1] => rfl
 
 theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
   | 0 => rfl

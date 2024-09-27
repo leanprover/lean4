@@ -154,7 +154,7 @@ theorem erase_range' :
 /-! ### range -/
 
 theorem reverse_range' : ∀ s n : Nat, reverse (range' s n) = map (s + n - 1 - ·) (range n)
-  | s, 0 => rfl
+  | _, 0 => rfl
   | s, n + 1 => by
     rw [range'_1_concat, reverse_append, range_succ_eq_map,
       show s + (n + 1) - 1 = s + n from rfl, map, map_map]

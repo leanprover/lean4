@@ -10,7 +10,7 @@ import Init.Data.List.Erase
 namespace List
 
 theorem getElem?_eraseIdx (l : List α) (i : Nat) (j : Nat) :
-    (l.eraseIdx i)[j]? = if h : j < i then l[j]? else l[j + 1]? := by
+    (l.eraseIdx i)[j]? = if j < i then l[j]? else l[j + 1]? := by
   rw [eraseIdx_eq_take_drop_succ, getElem?_append]
   split <;> rename_i h
   · rw [getElem?_take]

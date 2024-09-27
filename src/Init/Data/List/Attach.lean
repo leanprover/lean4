@@ -73,7 +73,7 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (l H)
   · simp only [*, pmap, map]
 
 theorem pmap_map {p : β → Prop} (g : ∀ b, p b → γ) (f : α → β) (l H) :
-    pmap g (map f l) H = pmap (fun a h => g (f a) h) l fun a h => H _ (mem_map_of_mem _ h) := by
+    pmap g (map f l) H = pmap (fun a h => g (f a) h) l fun _ h => H _ (mem_map_of_mem _ h) := by
   induction l
   · rfl
   · simp only [*, pmap, map]
@@ -84,7 +84,7 @@ theorem attach_congr {l₁ l₂ : List α} (h : l₁ = l₂) :
   simp
 
 theorem attachWith_congr {l₁ l₂ : List α} (w : l₁ = l₂) {P : α → Prop} {H : ∀ x ∈ l₁, P x} :
-    l₁.attachWith P H = l₂.attachWith P fun x h => H _ (w ▸ h) := by
+    l₁.attachWith P H = l₂.attachWith P fun _ h => H _ (w ▸ h) := by
   subst w
   simp
 
@@ -353,7 +353,7 @@ theorem attach_map {l : List α} (f : α → β) :
   induction l <;> simp [*]
 
 theorem attachWith_map {l : List α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ l.map f → P b} :
-    (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun a h => H _ (mem_map_of_mem f h))).map
+    (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   induction l <;> simp [*]
 

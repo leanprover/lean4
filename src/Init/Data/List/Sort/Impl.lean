@@ -102,7 +102,7 @@ def mergeSortTR (l : List α) (le : α → α → Bool := by exact fun a b => a 
 where run : {n : Nat} → { l : List α // l.length = n } → List α
   | 0, ⟨[], _⟩ => []
   | 1, ⟨[a], _⟩ => [a]
-  | n+2, xs =>
+  | _+2, xs =>
     let (l, r) := splitInTwo xs
     mergeTR (run l) (run r) le
 
@@ -136,13 +136,13 @@ where
   run : {n : Nat} → { l : List α // l.length = n } → List α
   | 0, ⟨[], _⟩ => []
   | 1, ⟨[a], _⟩ => [a]
-  | n+2, xs =>
+  | _+2, xs =>
     let (l, r) := splitRevInTwo xs
     mergeTR (run' l) (run r) le
   run' : {n : Nat} → { l : List α // l.length = n } → List α
   | 0, ⟨[], _⟩ => []
   | 1, ⟨[a], _⟩ => [a]
-  | n+2, xs =>
+  | _+2, xs =>
     let (l, r) := splitRevInTwo' xs
     mergeTR (run' r) (run l) le
 

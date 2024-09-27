@@ -248,7 +248,7 @@ protected theorem add_mul (n m k : Nat) : (n + m) * k = n * k + m * k :=
   Nat.right_distrib n m k
 
 protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
-  | n, m, 0      => rfl
+  | _, _, 0      => rfl
   | n, m, succ k => by simp [mul_succ, Nat.mul_assoc n m k, Nat.left_distrib]
 instance : Std.Associative (α := Nat) (· * ·) := ⟨Nat.mul_assoc⟩
 

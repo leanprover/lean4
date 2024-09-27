@@ -235,8 +235,8 @@ theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.g
 theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
   match as, bs with
   | [],    []    => rfl
-  | [],    b::bs => False.elim <| h₂ (List.lt.nil ..)
-  | a::as, []    => False.elim <| h₁ (List.lt.nil ..)
+  | [],    _::_ => False.elim <| h₂ (List.lt.nil ..)
+  | _::_, []    => False.elim <| h₁ (List.lt.nil ..)
   | a::as, b::bs => by
     by_cases hab : a < b
     · exact False.elim <| h₂ (List.lt.head _ _ hab)

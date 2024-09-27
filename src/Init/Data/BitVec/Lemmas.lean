@@ -1335,7 +1335,7 @@ theorem sdiv_eq (x y : BitVec w) : x.sdiv y =
   rw [BitVec.sdiv]
   rcases x.msb <;> rcases y.msb <;> simp
 
-theorem toNat_sdiv (x y : BitVec w) : (x.sdiv y).toNat =
+theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
     match x.msb, y.msb with
     | false, false => (udiv x y).toNat
     | false, true  =>  (- (x.udiv (- y))).toNat

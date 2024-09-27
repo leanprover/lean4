@@ -549,6 +549,56 @@ partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
 where
   eoi s := s.mkUnexpectedError (pushMissing := pushMissingOnError) "unterminated comment"
 
+def checkColZero (errorMsg : String) : ParserFn := fun c s =>
+    let pos      := c.fileMap.toPosition s.pos
+    if pos.column = 0 then s
+    else s.mkError errorMsg
+
+def parseStartDiff (errorMsg : String) : ParserFn :=
+  let p := satisfyFn (· == '<') errorMsg
+  andthenFn (checkColZero errorMsg)
+    (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p
+      (takeUntilFn (fun c => c = '\n')))))))))
+
+def parseMidDiff (errorMsg : String) : ParserFn :=
+  let p := satisfyFn (· == '=') errorMsg
+  andthenFn (checkColZero errorMsg)
+    (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p p))))))
+
+partial def parseIncomingDiffBody : ParserFn := fun c s =>
+  let input := c.input
+  let i     := s.pos
+  if h : input.atEnd i then s.mkUnexpectedError (pushMissing := false) "unterminated git conflict"
+  else
+    let s' := parseMidDiff "mid conflict" c s
+    if s'.hasError then
+      parseIncomingDiffBody c (s.next' input i h)
+    else
+      s'
+
+def parseEndDiff (errorMsg : String) : ParserFn :=
+  let p := satisfyFn (· == '>') errorMsg
+  andthenFn (checkColZero errorMsg)
+    (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p (andthenFn p
+      (takeUntilFn (fun c => c = '\n')))))))))
+
+partial def parseOutgoingDiffBody : ParserFn := fun c s =>
+  let input := c.input
+  let i     := s.pos
+  if h : input.atEnd i then s.mkUnexpectedError (pushMissing := false) "unterminated git conflict"
+  else
+    let s' := parseEndDiff "end conflict" c s
+    if s'.hasError then
+      parseOutgoingDiffBody c (s.next' input i h)
+    else
+      s'
+
+register_builtin_option parser.git.useIncoming : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(parser) for git conflicts, when true parses only the incoming code, and when false parses only the current code"
+}
+
 /-- Consume whitespace and comments -/
 partial def whitespace : ParserFn := fun c s =>
   let input := c.input
@@ -575,7 +625,30 @@ partial def whitespace : ParserFn := fun c s =>
         if curr == '-' || curr == '!' then s -- "/--" and "/-!" doc comment are actual tokens
         else andthenFn (finishCommentBlock (pushMissingOnError := false) 1) whitespace c (s.next input i)
       else s
-    else s
+    else
+      --if parser.git.useIncoming.get c.options then
+      if true then
+        -- `<<<<<<< ... =======` and `>>>>>>>` are comments
+        let s' := parseStartDiff "start conflict" c s
+        if !s'.hasError then
+          (andthenFn parseIncomingDiffBody whitespace) c s'
+        else
+          let s' := parseEndDiff "end conflict" c s
+          if !s'.hasError then
+            whitespace c s'
+          else
+            s
+      else
+        -- `<<<<<<<` and `======= ... >>>>>>>` are comments
+        let s' := parseMidDiff "mid conflict" c s
+        if !s'.hasError then
+          (andthenFn parseOutgoingDiffBody whitespace) c s'
+        else
+          let s' := parseStartDiff "start conflict" c s
+          if !s'.hasError then
+            whitespace c s'
+          else
+            s
 
 def mkEmptySubstringAt (s : String) (p : String.Pos) : Substring := {
   str := s, startPos := p, stopPos := p

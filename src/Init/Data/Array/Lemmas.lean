@@ -91,9 +91,19 @@ abbrev toArray_data := @toArray_toList
 @[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
     a.toArray[i] = a[i]'(by simpa using h) := rfl
 
-@[simp] theorem toArray_concat {as : List α} {x : α} :
+@[deprecated "Use the reverse direction of `List.push_toArray`." (since := "2024-09-27")]
+theorem toArray_concat {as : List α} {x : α} :
     (as ++ [x]).toArray = as.toArray.push x := by
   apply ext'
+  simp
+
+@[simp] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
+  apply Array.ext'
+  simp
+
+/-- Unapplied variant of `push_toArray`, useful for monadic reasoning. -/
+@[simp] theorem push_toArray_fun (l : List α) : l.toArray.push = fun a => (l ++ [a]).toArray := by
+  funext a
   simp
 
 @[simp] theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :

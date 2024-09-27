@@ -788,7 +788,7 @@ syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> synth
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
 -/
-syntax inductionAlts := " with" (ppSpace tactic)? withPosition((colGe inductionAlt)+)
+syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)+)
 
 /--
 Assuming `x` is a variable in the local context with an inductive type,

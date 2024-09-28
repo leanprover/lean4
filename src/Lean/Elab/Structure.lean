@@ -468,7 +468,8 @@ where
     if h : i < view.parents.size then
       let parentStx := view.parents.get ⟨i, h⟩
       withRef parentStx do
-      let parentType ← Term.elabType parentStx
+      let parentType ← Term.withSynthesize <| Term.elabType parentStx
+      let parentType ← whnf parentType
       let parentStructName ← getStructureName parentType
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then

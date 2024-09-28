@@ -1258,6 +1258,39 @@ theorem swap_comm (a : Array α) {i j : Fin a.size} : a.swap i j = a.swap j i :=
     · split <;> simp_all
     · split <;> simp_all
 
+@[simp] theorem set_getElem_eq (as: Array α) (his: i < as.size) (his': i < as.size): as.set ⟨i, his⟩ (as[i]'his') = as := by
+  apply Array.ext
+  · simp only [size_set]
+  · intro k _ _
+    rw [getElem_set]
+    split
+    all_goals
+      try subst k
+      simp only
+
+abbrev swap_getElem (as: Array α) (i j k: Nat) (his: i < as.size) (hjs: j < as.size) (hks: k < as.size): α :=
+  (as.swap ⟨i, his⟩ ⟨j, hjs⟩)[k]'(
+      le_of_le_of_eq hks (Eq.symm (size_swap as ⟨i, his⟩ ⟨j, hjs⟩))
+    )
+theorem getElem_after_swap (as: Array α) (hij: i ≤ j) (hjh: j < high) (hhs: high < as.size):
+    swap_getElem as i j high (Nat.lt_of_le_of_lt hij (Nat.lt_trans hjh hhs)) (Nat.lt_trans hjh hhs) hhs
+    = (as[high]'hhs) := by
+  simp [swap_getElem, swap_def]
+  rw [getElem_set_ne]
+  rw [getElem_set_ne]
+  · exact Nat.ne_of_lt (Nat.lt_of_le_of_lt hij hjh)
+  · exact Nat.ne_of_lt (hjh)
+
+@[simp] theorem size_ite (P: Prop) [Decidable P] (a b: Array α):
+    (if P then a else b).size = (if P then a.size else b.size) := by
+  split
+  all_goals rfl
+
+@[simp] theorem size_dite (P: Prop) [Decidable P] (a: P → Array α) (b: ¬P → Array α):
+    (if h: P then a h else b h).size = (if h: P then (a h).size else (b h).size) := by
+  split
+  all_goals rfl
+
 end Array
 
 

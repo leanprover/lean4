@@ -2404,6 +2404,10 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
 theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsbD_twoPow]
 
+@[simp]
+theorem getElem_one {w i : Nat} (h : i < w) : (1#w)[i] = decide (0 = i) := by
+  rw [← twoPow_zero, getElem_twoPow]
+
 theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
   ext i
@@ -2432,12 +2436,18 @@ When the `(i+1)`th bit of `x` is false,
 keeping the lower `(i + 1)` bits of `x` equals keeping the lower `i` bits.
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
-  {x : BitVec w} {i : Nat} (hx : x.getLsbD i = false) :
+  {x : BitVec w} {i : Nat} (h : i < w) (hx : x[i] = false) :
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) := by
   ext k
-  simp [getElem_setWidth, Fin.is_lt, decide_True, Bool.true_and, getElem_or, getElem_and]
-  by_cases hik' : k < i + 1 <;> simp [hik'] <;> omega
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_setWidth, getLsbD_setWidth, getElem_or,
+    getElem_twoPow]
+  by_cases h' : x[k.val] <;> simp [h']
+  by_cases h'' : i = k.val
+  · subst h''
+    rw [h'] at hx
+    contradiction
+  · omega
 
 /--
 When the `(i+1)`th bit of `x` is true,
@@ -2445,11 +2455,12 @@ keeping the lower `(i + 1)` bits of `x` equalsk eeping the lower `i` bits
 and then performing bitwise-or with `twoPow i = (1 << i)`,
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
-    {x : BitVec w} {i : Nat} (hx : x.getLsbD i = true) :
+    {x : BitVec w} {i : Nat} (h : i < w) (hx : x[i] = true) :
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k
-  simp only [getElem_setWidth, Fin.is_lt, decide_True, Bool.true_and, getElem_or, getElem_and]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_setWidth, getLsbD_setWidth, getElem_or,
+    getElem_twoPow]
   by_cases hik : i = k
   · subst hik
     simp [hx]
@@ -2498,7 +2509,7 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     by_cases hi : i < w * (n + 1)
     · simp only [hi, decide_True, Bool.true_and]
       by_cases hi' : i < w * n
-      · simp [hi', ih]
+      · simp [hi', ih, -getLsbD_eq_getElem]
       · simp only [hi', decide_False, cond_false]
         rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
     · rw [Nat.mul_succ] at hi ⊢

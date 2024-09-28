@@ -30,6 +30,7 @@ attribute [bv_normalize] true_iff
 attribute [bv_normalize] iff_false
 attribute [bv_normalize] false_iff
 attribute [bv_normalize] false_implies
+attribute [bv_normalize] imp_false
 attribute [bv_normalize] implies_true
 attribute [bv_normalize] true_implies
 attribute [bv_normalize] not_true

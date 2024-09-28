@@ -721,6 +721,104 @@ end
 
 end ElabAppArgs
 
+
+/-! # Eliminator-like function application elaborator -/
+
+/--
+Information about an eliminator used by the elab-as-elim elaborator.
+This is not to be confused with `Lean.Meta.ElimInfo`, which is for `induction` and `cases`.
+The elab-as-elim routine is less restrictive in what counts as an eliminator, and it doesn't need
+to have a strict notion of what is a "target" — all it cares about are
+1. that the return type of a function is of the form `m ...` where `m` is a parameter
+   (unlike `induction` and `cases` eliminators, the arguments to `m`, known as "discriminants",
+   can be any expressions, not just parameters), and
+2. which arguments should be eagerly elaborated, to make discriminants be as elaborated as
+   possible for the expected type generalization procedure,
+   and which should be postponed (since they are the "minor premises").
+
+Note that the routine isn't doing induction/cases *on* particular expressions.
+The purpose of elab-as-elim is to successfully solve the higher-order unification problem
+between the return type of the function and the expected type.
+-/
+structure ElabElimInfo where
+  /-- The eliminator. -/
+  elimExpr   : Expr
+  /-- The type of the eliminator. -/
+  elimType   : Expr
+  /-- The position of the motive parameter. -/
+  motivePos  : Nat
+  /--
+  Positions of "major" parameters (those that should be eagerly elaborated
+  because they can contribute to the motive inference procedure).
+  All parameters that are neither the motive nor a major parameter are "minor" parameters.
+  The major parameters include all of the parameters that transitively appear in the motive's arguments,
+  as well as "first-order" arguments that include such parameters,
+  since they too can help with elaborating discriminants.
+
+  For example, in the following theorem the argument `h : a = b`
+  should be elaborated eagerly because it contains `b`, which occurs in `motive b`.
+  ```
+  theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
+  ```
+  For another example, the term `isEmptyElim (α := α)` is an underapplied eliminator, and it needs
+  argument `α` to be elaborated eagerly to create a type-correct motive.
+  ```
+  def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a := ...
+  example {α : Type _} [IsEmpty α] : id (α → False) := isEmptyElim (α := α)
+  ```
+  -/
+  majorsPos : Array Nat := #[]
+  deriving Repr, Inhabited
+
+def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
+  let elimType ← inferType elimExpr
+  trace[Elab.app.elab_as_elim] "eliminator {indentExpr elimExpr}\nhas type{indentExpr elimType}"
+  forallTelescopeReducing elimType fun xs type => do
+    let motive  := type.getAppFn
+    let motiveArgs := type.getAppArgs
+    unless motive.isFVar do
+      throwError "unexpected eliminator resulting type{indentExpr type}"
+    let motiveType ← inferType motive
+    forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
+      unless motiveParams.size == motiveArgs.size do
+        throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
+      unless motiveResultType.isSort do
+        throwError "motive result type must be a sort{indentExpr motiveType}"
+    let some motivePos ← pure (xs.indexOf? motive) |
+      throwError "unexpected eliminator type{indentExpr elimType}"
+    /-
+    Compute transitive closure of fvars appearing in arguments to the motive.
+    These are the primary set of major parameters.
+    -/
+    let initMotiveFVars : CollectFVars.State := motiveArgs.foldl (init := {}) collectFVars
+    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i s => do
+      let x := xs[i]!
+      if s.fvarSet.contains x.fvarId! then
+        return collectFVars s (← inferType x)
+      else
+        return s
+    /- Collect the major parameter positions -/
+    let mut majorsPos := #[]
+    for i in [:xs.size] do
+      let x := xs[i]!
+      unless motivePos == i do
+        let xType ← x.fvarId!.getType
+        /-
+        We also consider "first-order" types because we can reliably "extract" information from them.
+        We say a term is "first-order" if all applications are of the form `f ...` where `f` is a constant.
+        -/
+        let isFirstOrder (e : Expr) : Bool := Option.isNone <| e.find? fun e => e.isApp && !e.getAppFn.isConst
+        if motiveFVars.fvarSet.contains x.fvarId!
+            || (isFirstOrder xType
+                && Option.isSome (xType.find? fun e => e.isFVar && motiveFVars.fvarSet.contains e.fvarId!)) then
+          majorsPos := majorsPos.push i
+    trace[Elab.app.elab_as_elim] "motivePos: {motivePos}"
+    trace[Elab.app.elab_as_elim] "majorsPos: {majorsPos}"
+    return { elimExpr, elimType,  motivePos, majorsPos }
+
+def getElabElimInfo (elimName : Name) : MetaM ElabElimInfo := do
+  getElabElimExprInfo (← mkConstWithFreshMVarLevels elimName)
+
 builtin_initialize elabAsElim : TagAttribute ←
   registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
@@ -735,33 +833,15 @@ builtin_initialize elabAsElim : TagAttribute ←
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
           throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
-        discard <| getElimInfo declName
+        discard <| getElabElimInfo declName
       go.run' {} {}
 
-/-! # Eliminator-like function application elaborator -/
 namespace ElabElim
 
 /-- Context of the `elab_as_elim` elaboration procedure. -/
 structure Context where
-  elimInfo : ElimInfo
+  elimInfo : ElabElimInfo
   expectedType : Expr
-  /--
-  Position of additional arguments that should be elaborated eagerly
-  because they can contribute to the motive inference procedure.
-  For example, in the following theorem the argument `h : a = b`
-  should be elaborated eagerly because it contains `b` which occurs
-  in `motive b`.
-  ```
-  theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
-  ```
-  For another example, the term `isEmptyElim (α := α)` is an underapplied eliminator, and it needs
-  argument `α` to be elaborated eagerly to create a type-correct motive.
-  ```
-  def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a := ...
-  example {α : Type _} [IsEmpty α] : id (α → False) := isEmptyElim (α := α)
-  ```
-  -/
-  extraArgsPos : Array Nat
 
 /-- State of the `elab_as_elim` elaboration procedure. -/
 structure State where
@@ -773,8 +853,6 @@ structure State where
   namedArgs    : List NamedArg
   /-- User-provided arguments that still have to be processed. -/
   args         : List Arg
-  /-- Discriminants (targets) processed so far. -/
-  discrs       : Array (Option Expr)
   /-- Instance implicit arguments collected so far. -/
   instMVars    : Array MVarId := #[]
   /-- Position of the next argument to be processed. We use it to decide whether the argument is the motive or a discriminant. -/
@@ -820,7 +898,7 @@ def finalize : M Expr := do
   let some motive := (← get).motive?
     | throwError "failed to elaborate eliminator, insufficient number of arguments"
   trace[Elab.app.elab_as_elim] "motive: {motive}"
-  forallTelescope (← get).fType fun xs _ => do
+  forallTelescope (← get).fType fun xs fType => do
     trace[Elab.app.elab_as_elim] "xs: {xs}"
     let mut expectedType := (← read).expectedType
     trace[Elab.app.elab_as_elim] "expectedType:{indentD expectedType}"
@@ -829,6 +907,7 @@ def finalize : M Expr := do
     let mut f := (← get).f
     if xs.size > 0 then
       -- under-application, specialize the expected type using `xs`
+      -- Note: if we ever wanted to support optParams and autoParams, this is where it could be.
       assert! (← get).args.isEmpty
       for x in xs do
         let .forallE _ t b _ ← whnf expectedType | throwInsufficient
@@ -845,18 +924,11 @@ def finalize : M Expr := do
     trace[Elab.app.elab_as_elim] "expectedType after processing:{indentD expectedType}"
     let result := mkAppN f xs
     trace[Elab.app.elab_as_elim] "result:{indentD result}"
-    let mut discrs := (← get).discrs
-    let idx := (← get).idx
-    if discrs.any Option.isNone then
-      for i in [idx:idx + xs.size], x in xs do
-        if let some tidx := (← read).elimInfo.targetsPos.indexOf? i then
-          discrs := discrs.set! tidx x
-    if let some idx := discrs.findIdx? Option.isNone then
-      -- This should not happen.
-      trace[Elab.app.elab_as_elim] "Internal error, missing target with index {idx}"
-      throwError "failed to elaborate eliminator, insufficient number of arguments"
-    trace[Elab.app.elab_as_elim] "discrs: {discrs.map Option.get!}"
-    let motiveVal ← mkMotive (discrs.map Option.get!) expectedType
+    unless fType.getAppFn == (← get).motive? do
+      throwError "Internal error, eliminator target type isn't an application of the motive"
+    let discrs := fType.getAppArgs
+    trace[Elab.app.elab_as_elim] "discrs: {discrs}"
+    let motiveVal ← mkMotive discrs expectedType
     unless (← isTypeCorrect motiveVal) do
       throwError "failed to elaborate eliminator, motive is not type correct:{indentD motiveVal}"
     unless (← isDefEq motive motiveVal) do
@@ -889,10 +961,6 @@ def getNextArg? (binderName : Name) (binderInfo : BinderInfo) : M (LOption Arg) 
 /-- Set the `motive` field in the state. -/
 def setMotive (motive : Expr) : M Unit :=
   modify fun s => { s with motive? := motive }
-
-/-- Push the given expression into the `discrs` field in the state, where `i` is which target it is for. -/
-def addDiscr (i : Nat) (discr : Expr) : M Unit :=
-  modify fun s => { s with discrs := s.discrs.set! i discr }
 
 /-- Elaborate the given argument with the given expected type. -/
 private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
@@ -936,18 +1004,13 @@ partial def main : M Expr := do
         mkImplicitArg binderType binderInfo
     setMotive motive
     addArgAndContinue motive
-  else if let some tidx := (← read).elimInfo.targetsPos.indexOf? idx then
+  else if (← read).elimInfo.majorsPos.contains idx then
     match (← getNextArg? binderName binderInfo) with
-    | .some arg => let discr ← elabArg arg binderType; addDiscr tidx discr; addArgAndContinue discr
+    | .some arg => let discr ← elabArg arg binderType; addArgAndContinue discr
     | .undef => finalize
-    | .none => let discr ← mkImplicitArg binderType binderInfo; addDiscr tidx discr; addArgAndContinue discr
+    | .none => let discr ← mkImplicitArg binderType binderInfo; addArgAndContinue discr
   else match (← getNextArg? binderName binderInfo) with
-    | .some (.stx stx) =>
-      if (← read).extraArgsPos.contains idx then
-        let arg ← elabArg (.stx stx) binderType
-        addArgAndContinue arg
-      else
-        addArgAndContinue (← postponeElabTerm stx binderType)
+    | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx binderType)
     | .some (.expr val) => addArgAndContinue (← ensureArgType (← get).f val binderType)
     | .undef => finalize
     | .none => addArgAndContinue (← mkImplicitArg binderType binderInfo)
@@ -1001,13 +1064,10 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     let some expectedType := expectedType? | throwError "failed to elaborate eliminator, expected type is not available"
     let expectedType ← instantiateMVars expectedType
     if expectedType.getAppFn.isMVar then throwError "failed to elaborate eliminator, expected type is not available"
-    let extraArgsPos ← getElabAsElimExtraArgsPos elimInfo
-    trace[Elab.app.elab_as_elim] "extraArgsPos: {extraArgsPos}"
-    ElabElim.main.run { elimInfo, expectedType, extraArgsPos } |>.run' {
+    ElabElim.main.run { elimInfo, expectedType } |>.run' {
       f, fType
       args := args.toList
       namedArgs := namedArgs.toList
-      discrs := mkArray elimInfo.targetsPos.size none
     }
   else
     ElabAppArgs.main.run { explicit, ellipsis, resultIsOutParamSupport } |>.run' {
@@ -1018,12 +1078,12 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     }
 where
   /-- Return `some info` if we should elaborate as an eliminator. -/
-  elabAsElim? : TermElabM (Option ElimInfo) := do
+  elabAsElim? : TermElabM (Option ElabElimInfo) := do
     unless (← read).heedElabAsElim do return none
     if explicit || ellipsis then return none
     let .const declName _ := f | return none
     unless (← shouldElabAsElim declName) do return none
-    let elimInfo ← getElimInfo declName
+    let elimInfo ← getElabElimInfo declName
     forallTelescopeReducing (← inferType f) fun xs _ => do
       /- Process arguments similar to `Lean.Elab.Term.ElabElim.main` to see if the motive has been
          provided, in which case we use the standard app elaborator.
@@ -1054,41 +1114,6 @@ where
             return none
         | _, _ => return some elimInfo
 
-  /--
-  Collect extra argument positions that must be elaborated eagerly when using `elab_as_elim`.
-  The idea is that they contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
-  -/
-  getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
-    forallTelescope elimInfo.elimType fun xs type => do
-      let targets := type.getAppArgs
-      /- Compute transitive closure of fvars appearing in the motive and the targets. -/
-      let initMotiveFVars : CollectFVars.State := targets.foldl (init := {}) collectFVars
-      let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i s => do
-        let x := xs[i]!
-        if elimInfo.motivePos == i || elimInfo.targetsPos.contains i || s.fvarSet.contains x.fvarId! then
-          return collectFVars s (← inferType x)
-        else
-          return s
-      /- Collect the extra argument positions -/
-      let mut extraArgsPos := #[]
-      for i in [:xs.size] do
-        let x := xs[i]!
-        unless elimInfo.motivePos == i || elimInfo.targetsPos.contains i do
-          let xType ← x.fvarId!.getType
-          /- We only consider "first-order" types because we can reliably "extract" information from them. -/
-          if motiveFVars.fvarSet.contains x.fvarId!
-             || (isFirstOrder xType
-                 && Option.isSome (xType.find? fun e => e.isFVar && motiveFVars.fvarSet.contains e.fvarId!)) then
-            extraArgsPos := extraArgsPos.push i
-      return extraArgsPos
-
-  /-
-  Helper function for implementing `elab_as_elim`.
-  We say a term is "first-order" if all applications are of the form `f ...` where `f` is a constant.
-  -/
-  isFirstOrder (e : Expr) : Bool :=
-    Option.isNone <| e.find? fun e =>
-      e.isApp && !e.getAppFn.isConst
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution where

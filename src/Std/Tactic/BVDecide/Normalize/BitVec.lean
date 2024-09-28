@@ -128,7 +128,7 @@ theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
 @[bv_normalize]
 theorem BitVec.zero_sshiftRight : BitVec.sshiftRight 0#w a = 0#w := by
   ext
-  simp [BitVec.getLsbD_sshiftRight]
+  simp [BitVec.getElem_sshiftRight]
 
 @[bv_normalize]
 theorem BitVec.sshiftRight_zero : BitVec.sshiftRight a 0 = a := by

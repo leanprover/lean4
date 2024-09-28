@@ -2436,7 +2436,7 @@ When the `(i+1)`th bit of `x` is false,
 keeping the lower `(i + 1)` bits of `x` equals keeping the lower `i` bits.
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
-  {x : BitVec w} {i : Nat} (h : i < w) (hx : x[i] = false) :
+  {x : BitVec w} {i : Nat} (hx : x.getLsbD i = false) :
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) := by
   ext k
@@ -2445,8 +2445,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
   by_cases h' : x[k.val] <;> simp [h']
   by_cases h'' : i = k.val
   · subst h''
-    rw [h'] at hx
-    contradiction
+    simp [Fin.is_lt, getLsbD_eq_getElem, h'] at hx
   · omega
 
 /--
@@ -2455,7 +2454,7 @@ keeping the lower `(i + 1)` bits of `x` equalsk eeping the lower `i` bits
 and then performing bitwise-or with `twoPow i = (1 << i)`,
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
-    {x : BitVec w} {i : Nat} (h : i < w) (hx : x[i] = true) :
+    {x : BitVec w} {i : Nat} (hx : x.getLsbD i = true) :
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k
@@ -2463,6 +2462,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
     getElem_twoPow]
   by_cases hik : i = k
   · subst hik
+    simp only [Fin.is_lt, getLsbD_eq_getElem] at hx
     simp [hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
 

@@ -321,7 +321,7 @@ theorem go_denote_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
       (hcurr : curr ≤ n - 1) (acc : AIG.RefVec aig w)
     (lhs : BitVec w) (rhs : BitVec n) (assign : α → Bool)
     (hacc : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ushiftRightRec lhs rhs curr).getLsbD idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < n), ⟦aig, distance.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+    (hright : ∀ (idx : Nat) (hidx : idx < n), ⟦aig, distance.get idx hidx, assign⟧ = rhs[idx]) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
           (go aig distance curr hcurr acc).aig,
@@ -329,7 +329,7 @@ theorem go_denote_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
           assign
         ⟧
           =
-        (BitVec.ushiftRightRec lhs rhs (n - 1)).getLsbD idx := by
+        (BitVec.ushiftRightRec lhs rhs (n - 1))[idx] := by
   intro idx hidx
   generalize hgo : go aig distance curr hcurr acc = res
   unfold go at hgo
@@ -341,22 +341,23 @@ theorem go_denote_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
       simp only [BitVec.ushiftRightRec_succ]
       rw [twoPowShift_eq (lhs := BitVec.ushiftRightRec lhs rhs curr)]
       · simp [hacc]
-      · simp [hright]
+      · intros idx hidx
+        simp [hright, hidx]
     · intro idx hidx
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := twoPowShift)]
       · simp [hright]
       · simp [Ref.hgate]
   · have : curr = n - 1 := by omega
     rw [← hgo]
-    simp [hacc, this]
+    simp [hacc, this, hidx]
 termination_by n - 1 - curr
 
 end blastShiftRight
 
 theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig w0)
     (lhs : BitVec w0) (rhs : BitVec target.n) (assign : α → Bool)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w0), ⟦aig, target.target.get idx hidx, assign⟧ = lhs.getLsbD idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.distance.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+    (hleft : ∀ (idx : Nat) (hidx : idx < w0), ⟦aig, target.target.get idx hidx, assign⟧ = lhs[idx])
+    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.distance.get idx hidx, assign⟧ = rhs[idx]) :
     ∀ (idx : Nat) (hidx : idx < w0),
         ⟦
           (blastShiftRight aig target).aig,
@@ -364,7 +365,7 @@ theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig
           assign
         ⟧
           =
-        (lhs >>> rhs).getLsbD idx := by
+        (lhs >>> rhs)[idx] := by
   intro idx hidx
   rw [BitVec.shiftRight_eq_ushiftRightRec]
   generalize hres : blastShiftRight aig target = res
@@ -383,7 +384,11 @@ theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig
       simp only [BitVec.ushiftRightRec_zero]
       rw [blastShiftRight.twoPowShift_eq]
       · simp [hleft]
+        intros idx hdix
+        simp [hdix]
       · simp [hright]
+        intros idx hdix
+        simp [hdix]
     · intros
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRight.twoPowShift)]
       · simp [hright]

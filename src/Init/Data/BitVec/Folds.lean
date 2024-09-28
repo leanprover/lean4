@@ -89,61 +89,14 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
       have hj2 : j.val ≤ w := by simp
       rw [← ind j, ← (ih hj2).2]
 
-theorem iunfoldr_getElem' {f : Fin w → α → α × Bool} (state : Nat → α)
-    (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :
-  (∀ i : Fin w, (iunfoldr f (state 0)).snd[i] = (f i (state i.val)).snd)
-  ∧ (iunfoldr f (state 0)).fst = state w := by
-  unfold iunfoldr
-  simp
-  apply Fin.hIterate_elim
-        (fun j (p : α × BitVec j) => (hj : j ≤ w) →
-         (∀ i : Fin j,  p.snd[i] = (f ⟨i.val, Nat.lt_of_lt_of_le i.isLt hj⟩ (state i.val)).snd)
-          ∧ p.fst = state j)
-  case hj => simp
-  case init =>
-    intro
-    apply And.intro
-    · intro i
-      have := Fin.size_pos i
-      contradiction
-    · rfl
-  case step =>
-    intro j ⟨s, v⟩ ih hj
-    apply And.intro
-    case left =>
-      intro i
-      simp only [getLsbD_cons]
-      have hj2 : j.val ≤ w := by simp
-      cases (Nat.lt_or_eq_of_le (Nat.lt_succ.mp i.isLt)) with
-      | inl h3 => simp [if_neg, (Nat.ne_of_lt h3)]
-                  have haa := (ih hj2).1 ⟨i, h3⟩
-                  simp at haa
-                  --rw [haa]
-                  rw [getElem_cons]
-                  stop
-                  simp
-                  simp [*]
-                  intro
-                  rw [haa]
-
-                  apply haa
-
-                  exact (ih hj2).1
-      | inr h3 => simp [h3, if_pos]
-                  cases (Nat.eq_zero_or_pos j.val) with
-                  | inl hj3 => sorry
-                  | inr hj3 => congr
-                               stop
-                               exact (ih hj2).2
-    case right =>
-      simp
-      have hj2 : j.val ≤ w := by simp
-      rw [← ind j, ← (ih hj2).2]
-
-
 theorem iunfoldr_getLsbD {f : Fin w → α → α × Bool} (state : Nat → α) (i : Fin w)
     (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :
   getLsbD (iunfoldr f (state 0)).snd i.val = (f i (state i.val)).snd := by
+  exact (iunfoldr_getLsbD' state ind).1 i
+
+theorem iunfoldr_getElem {f : Fin w → α → α × Bool} (state : Nat → α) (i : Fin w)
+    (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :
+  (iunfoldr f (state 0)).snd[i.val] = (f i (state i.val)).snd := by
   exact (iunfoldr_getLsbD' state ind).1 i
 
 /--

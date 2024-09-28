@@ -236,26 +236,26 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
 /-! ### Negation -/
 
 theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
-  getLsbD (((iunfoldr (fun (i : Fin w) c => (c, !(x[i])))) ()).snd) i = !(x[i]) := by
+  (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd)[i.val] = !(x[i]) := by
   apply iunfoldr_getLsbD (fun _ => ()) i (by simp)
 
 theorem bit_not_add_self (x : BitVec w) :
-  ((iunfoldr (fun (i : Fin w) c => (c, !(x[i])))) ()).snd + x  = -1 := by
+  ((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd + x  = -1 := by
   simp only [add_eq_adc]
   apply iunfoldr_replace_snd (fun _ => false) (-1) false rfl
-  intro i; simp only [BitVec.not, adcb, testBit_toNat]
+  intro i; simp only [adcb, Fin.is_lt, getLsbD_eq_getElem, atLeastTwo_false_right, bne_false,
+    ofNat_eq_ofNat, Fin.getElem_fin, Prod.mk.injEq, and_eq_false_imp]
   rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x[i])))) ()).snd)]
   <;> simp [bit_not_testBit, negOne_eq_allOnes, getElem_allOnes]
 
-
 theorem bit_not_eq_not (x : BitVec w) :
-  ((iunfoldr (fun i c => (c, !(x[i])))) ()).snd = ~~~ x := by
+  ((iunfoldr (fun i c => (c, !(x[i.val])))) ()).snd = ~~~ x := by
   simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x),
     ←negOne_eq_allOnes]
 
-theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x[i])))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
+theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
   simp only [← add_eq_adc]
-  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x[i])))) ()).snd) _ rfl]
+  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) _ rfl]
   · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
     simp [← sub_toAdd, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
@@ -396,6 +396,10 @@ theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
   · simp
   · omega
 
+theorem getElem_mul (x y : BitVec w) (i : Nat) (h : i < w) :
+    (x * y)[i] = (mulRec x y w)[i] := by
+  simp [mulRec_eq_mul_signExtend_setWidth]
+
 /-! ## shiftLeft recurrence for bitblasting -/
 
 /--
@@ -447,13 +451,13 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow]
     rw [ih]
-    by_cases h : y[n + 1]
+    by_cases h : y.getLsbD (n + 1)
     · simp only [h, ↓reduceIte]
       rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         shiftLeft_or_of_and_eq_zero]
       simp [and_twoPow]
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
-      rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getElemLsbD_false (i := n + 1)]
+      rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)]
       simp [h]
 
 /--

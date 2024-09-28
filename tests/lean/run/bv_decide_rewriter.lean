@@ -9,3 +9,7 @@ example (z : BitVec 64) : True := by
   have : z + (2 * x) = y := by
     bv_decide
   exact True.intro
+
+example :
+  ¬ (0 ≤ 0 + 16#64 ∧ 0 ≤ 0 + 16#64 ∧ (0 + 16#64 ≤ 0 ∨ 0 ≥ 0 + 16#64 ∨ 16#64 = 0 ∨ 16#64 = 0)) := by
+  bv_normalize

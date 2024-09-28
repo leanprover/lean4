@@ -228,8 +228,16 @@ builtin_dsimproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
   if bv.toNat == v then return .continue -- already normalized
   return .done <| toExpr (BitVec.ofNat n v)
 
+/-- Simplification procedure for `=` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceEq  (( _ : BitVec _) = _)  := reduceBinPred ``Eq 3 (. = .)
+/-- Simplification procedure for `≠` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceNe  (( _ : BitVec _) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
+/-- Simplification procedure for `==` on `BitVec`s. -/
+builtin_dsimproc [simp, seval] reduceBEq  (( _ : BitVec _) == _)  :=
+  reduceBoolPred ``BEq.beq 4 (· == ·)
+/-- Simplification procedure for `!=` on `BitVec`s. -/
+builtin_dsimproc [simp, seval] reduceBNe  (( _ : BitVec _) != _)  :=
+  reduceBoolPred ``bne 4 (· != ·)
 
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)

@@ -640,7 +640,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppRev(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Nat_mkInstLE;
 lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_1012_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLiteral;
-static lean_object* l_Lean_Expr_replaceFVar___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Expr_Data_hasLevelParam(uint64_t);
 static lean_object* l_Lean_instInhabitedLiteral___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Expr_Data_hasLevelMVar(uint64_t);
@@ -941,6 +940,7 @@ static lean_object* l_Lean_mkNatLit___closed__4;
 static lean_object* l_Lean_Nat_mkInstHMul___closed__1;
 static lean_object* l_Lean_mkIff___closed__2;
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lean_isLHSGoal_x3f___closed__2;
 lean_object* l_panic___at_Lean_Level_normalize___spec__1(lean_object*);
 static lean_object* l_Lean_instForInFVarIdSetFVarId___closed__2;
@@ -26781,26 +26781,20 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Expr_replaceFVar___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = l_Lean_Expr_replaceFVar___closed__1;
-x_5 = lean_array_push(x_4, x_2);
-x_6 = lean_expr_abstract(x_1, x_5);
-lean_dec(x_5);
-x_7 = lean_expr_instantiate1(x_6, x_3);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_box(0);
+x_5 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_4);
+x_6 = lean_array_mk(x_5);
+x_7 = lean_expr_abstract(x_1, x_6);
 lean_dec(x_6);
-return x_7;
+x_8 = lean_expr_instantiate1(x_7, x_3);
+lean_dec(x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVar___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -34004,8 +33998,6 @@ l_Lean_Expr_getRevArg_x21_x27___closed__1 = _init_l_Lean_Expr_getRevArg_x21_x27_
 lean_mark_persistent(l_Lean_Expr_getRevArg_x21_x27___closed__1);
 l_Lean_Expr_getRevArg_x21_x27___closed__2 = _init_l_Lean_Expr_getRevArg_x21_x27___closed__2();
 lean_mark_persistent(l_Lean_Expr_getRevArg_x21_x27___closed__2);
-l_Lean_Expr_replaceFVar___closed__1 = _init_l_Lean_Expr_replaceFVar___closed__1();
-lean_mark_persistent(l_Lean_Expr_replaceFVar___closed__1);
 l_Lean_Expr_instToString___closed__1 = _init_l_Lean_Expr_instToString___closed__1();
 lean_mark_persistent(l_Lean_Expr_instToString___closed__1);
 l_Lean_Expr_instToString = _init_l_Lean_Expr_instToString();

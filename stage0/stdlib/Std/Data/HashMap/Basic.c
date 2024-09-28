@@ -21,7 +21,6 @@ static lean_object* l_Prod_repr___at_Std_HashMap_instRepr___spec__4___rarg___clo
 LEAN_EXPORT lean_object* l_Std_HashMap_getKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at_Std_HashMap_instRepr___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_filter(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_HashMap_instRepr___spec__11(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Std_HashMap_instRepr___spec__16___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forInStep_go___at_Std_HashMap_instForInProd___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -286,6 +285,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_getD___rarg___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_HashMap_instRepr___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_repr___at_Std_HashMap_instRepr___spec__14(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_groupByKey(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_empty___rarg___boxed(lean_object*);
@@ -4872,8 +4872,8 @@ static lean_object* _init_l_Std_HashMap_toArray___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

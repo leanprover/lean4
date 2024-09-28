@@ -30,7 +30,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_i
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__3;
 LEAN_EXPORT lean_object* l_Lean_setIrreducibleAttribute(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_allowUnsafeReducibility;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda__1___closed__10;
 size_t lean_usize_shift_right(size_t, size_t);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__4;
@@ -278,6 +277,7 @@ lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1381____lambda__1___closed__1;
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_beqReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_133____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____spec__6___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____closed__4;
@@ -959,8 +959,8 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

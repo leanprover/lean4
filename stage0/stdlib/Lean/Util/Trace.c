@@ -221,7 +221,6 @@ LEAN_EXPORT lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Lean_withTraceNodeBefore___rarg___lambda__3___closed__1;
-static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__52;
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_printTraces___spec__2(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -358,6 +357,7 @@ static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__4;
 static double l_Lean_addTrace___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exceptEmoji___rarg(lean_object*);
+static lean_object* l_Lean_addTrace___rarg___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_66____closed__1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_1330_(lean_object*);
@@ -430,6 +430,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_withStartStop___rar
 static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2984____closed__13;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_IO_monoNanosNow___boxed(lean_object*);
 static lean_object* l_Lean_trace_profiler_threshold_unitAdjusted___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2232,6 +2233,15 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_addTrace___rarg___lambda__1___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_addTrace___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2245,7 +2255,7 @@ lean_ctor_set(x_8, 1, x_7);
 lean_ctor_set_float(x_8, sizeof(void*)*2, x_5);
 lean_ctor_set_float(x_8, sizeof(void*)*2 + 8, x_5);
 lean_ctor_set_uint8(x_8, sizeof(void*)*2 + 16, x_6);
-x_9 = l_Lean_instInhabitedTraceState___closed__1;
+x_9 = l_Lean_addTrace___rarg___lambda__1___closed__3;
 x_10 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_2);
@@ -6804,15 +6814,6 @@ x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__52() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -6994,8 +6995,10 @@ x_85 = lean_string_append(x_84, x_83);
 lean_dec(x_83);
 x_86 = lean_box(2);
 x_87 = l_Lean_Syntax_mkNameLit(x_85, x_86);
-x_88 = l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__52;
-x_89 = lean_array_push(x_88, x_87);
+x_88 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_88, 0, x_87);
+lean_ctor_set(x_88, 1, x_19);
+x_89 = lean_array_mk(x_88);
 x_90 = l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__49;
 x_91 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_91, 0, x_86);
@@ -8617,6 +8620,8 @@ lean_mark_persistent(l_Lean_isTracingEnabledFor___rarg___closed__1);
 l_Lean_addTrace___rarg___lambda__1___closed__1 = _init_l_Lean_addTrace___rarg___lambda__1___closed__1();
 l_Lean_addTrace___rarg___lambda__1___closed__2 = _init_l_Lean_addTrace___rarg___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_addTrace___rarg___lambda__1___closed__2);
+l_Lean_addTrace___rarg___lambda__1___closed__3 = _init_l_Lean_addTrace___rarg___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_addTrace___rarg___lambda__1___closed__3);
 l_Lean_initFn____x40_Lean_Util_Trace___hyg_1236____closed__1 = _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1236____closed__1();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_Trace___hyg_1236____closed__1);
 l_Lean_initFn____x40_Lean_Util_Trace___hyg_1236____closed__2 = _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_1236____closed__2();
@@ -8928,8 +8933,6 @@ l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d____
 lean_mark_persistent(l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__50);
 l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__51 = _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__51();
 lean_mark_persistent(l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__51);
-l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__52 = _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__52();
-lean_mark_persistent(l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__52);
 l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__1 = _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__1();
 lean_mark_persistent(l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__1);
 l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__2 = _init_l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__2();

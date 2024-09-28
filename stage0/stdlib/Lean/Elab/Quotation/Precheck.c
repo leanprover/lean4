@@ -27,7 +27,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheck___lambda__2___boxed
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckExplicit__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckChoice__1___closed__1;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckChoice__1(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckRightact__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_Quotation_precheckIdent___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___lambda__1___closed__4;
@@ -287,6 +286,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckBinrelNoProp
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckTypeAscription__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_quotPrecheck;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_runPrecheck(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckApp__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabPrecheckedQuot__1___closed__3;
@@ -1219,8 +1219,8 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Term_Quotation_precheck
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

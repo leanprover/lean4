@@ -22994,7 +22994,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_instBinder_docString__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Instance-implicit binder, like `[C]` or `[inst : C]`.\nIn regular applications without `@` explicit mode, it is automatically inserted\nand solved for by typeclass inference for the specified class `C`.\nIn `@` explicit mode, if `_` is used for an an instance-implicit parameter, then it is still solved for by typeclass inference;\nuse `(_)` to inhibit this and have it be solved for by unification instead, like an implicit argument.\n", 432, 432);
+x_1 = lean_mk_string_unchecked("Instance-implicit binder, like `[C]` or `[inst : C]`.\nIn regular applications without `@` explicit mode, it is automatically inserted\nand solved for by typeclass inference for the specified class `C`.\nIn `@` explicit mode, if `_` is used for an instance-implicit parameter, then it is still solved for by typeclass inference;\nuse `(_)` to inhibit this and have it be solved for by unification instead, like an implicit argument.\n", 429, 429);
 return x_1;
 }
 }
@@ -41633,7 +41633,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Termination_terminationBy_d
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Specify a termination argument for recursive functions.\n```\ntermination_by a - b\n```\nindicates that termination of the currently defined recursive function follows\nbecause the difference between the arguments `a` and `b` decreases.\n\nIf the fuction takes further argument after the colon, you can name them as follows:\n```\ndef example (a : Nat) : Nat → Nat → Nat :=\ntermination_by b c => a - b\n```\n\nBy default, a `termination_by` clause will cause the function to be constructed using well-founded\nrecursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)\nindicates the the function is expected to be structural recursive on the argument. In this case\nthe body of the `termination_by` clause must be one of the function's parameters.\n\nIf omitted, a termination argument will be inferred. If written as `termination_by\?`,\nthe inferrred termination argument will be suggested.\n\n", 915, 911);
+x_1 = lean_mk_string_unchecked("Specify a termination argument for recursive functions.\n```\ntermination_by a - b\n```\nindicates that termination of the currently defined recursive function follows\nbecause the difference between the arguments `a` and `b` decreases.\n\nIf the function takes further argument after the colon, you can name them as follows:\n```\ndef example (a : Nat) : Nat → Nat → Nat :=\ntermination_by b c => a - b\n```\n\nBy default, a `termination_by` clause will cause the function to be constructed using well-founded\nrecursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)\nindicates the function is expected to be structural recursive on the argument. In this case\nthe body of the `termination_by` clause must be one of the function's parameters.\n\nIf omitted, a termination argument will be inferred. If written as `termination_by\?`,\nthe inferrred termination argument will be suggested.\n\n", 912, 908);
 return x_1;
 }
 }
@@ -47480,7 +47480,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_binrel_docString__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`binrel% r a b` elaborates `r a b` as a binary relation using the type propogation protocol in `Lean.Elab.Extra`. ", 114, 114);
+x_1 = lean_mk_string_unchecked("`binrel% r a b` elaborates `r a b` as a binary relation using the type propagation protocol in `Lean.Elab.Extra`. ", 114, 114);
 return x_1;
 }
 }
@@ -48414,7 +48414,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_binop_docString__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`binop% f a b` elaborates `f a b` as a binary operation using the type propogation protocol in `Lean.Elab.Extra`. ", 114, 114);
+x_1 = lean_mk_string_unchecked("`binop% f a b` elaborates `f a b` as a binary operation using the type propagation protocol in `Lean.Elab.Extra`. ", 114, 114);
 return x_1;
 }
 }
@@ -49264,7 +49264,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_leftact_docString__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`leftact% f a b` elaborates `f a b` as a left action using the type propogation protocol in `Lean.Elab.Extra`.\nIn particular, it is like a unary operation with a fixed parameter `a`, where only the right argument `b` participates in the operator coercion elaborator. ", 267, 267);
+x_1 = lean_mk_string_unchecked("`leftact% f a b` elaborates `f a b` as a left action using the type propagation protocol in `Lean.Elab.Extra`.\nIn particular, it is like a unary operation with a fixed parameter `a`, where only the right argument `b` participates in the operator coercion elaborator. ", 267, 267);
 return x_1;
 }
 }
@@ -49689,7 +49689,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_rightact_docString__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`rightact% f a b` elaborates `f a b` as a right action using the type propogation protocol in `Lean.Elab.Extra`.\nIn particular, it is like a unary operation with a fixed parameter `b`, where only the left argument `a` participates in the operator coercion elaborator. ", 268, 268);
+x_1 = lean_mk_string_unchecked("`rightact% f a b` elaborates `f a b` as a right action using the type propagation protocol in `Lean.Elab.Extra`.\nIn particular, it is like a unary operation with a fixed parameter `b`, where only the left argument `a` participates in the operator coercion elaborator. ", 268, 268);
 return x_1;
 }
 }
@@ -50124,7 +50124,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_unop_docString__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`unop% f a` elaborates `f a` as a unary operation using the type propogation protocol in `Lean.Elab.Extra`. ", 108, 108);
+x_1 = lean_mk_string_unchecked("`unop% f a` elaborates `f a` as a unary operation using the type propagation protocol in `Lean.Elab.Extra`. ", 108, 108);
 return x_1;
 }
 }
@@ -61319,7 +61319,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_subst_docString__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`h ▸ e` is a macro built on top of `Eq.rec` and `Eq.symm` definitions.\nGiven `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.\nYou can also view `h ▸ e` as a \"type casting\" operation\nwhere you change the type of `e` by using `h`.\n\nThe macro tries both orientations of `h`. If the context provides an\nexpected type, it rewrites the expeced type, else it rewrites the type of e`.\n\nSee the Chapter \"Quantifiers and Equality\" in the manual\n\"Theorem Proving in Lean\" for additional information.\n", 506, 500);
+x_1 = lean_mk_string_unchecked("`h ▸ e` is a macro built on top of `Eq.rec` and `Eq.symm` definitions.\nGiven `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.\nYou can also view `h ▸ e` as a \"type casting\" operation\nwhere you change the type of `e` by using `h`.\n\nThe macro tries both orientations of `h`. If the context provides an\nexpected type, it rewrites the expected type, else it rewrites the type of e`.\n\nSee the Chapter \"Quantifiers and Equality\" in the manual\n\"Theorem Proving in Lean\" for additional information.\n", 507, 501);
 return x_1;
 }
 }

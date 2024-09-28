@@ -1174,7 +1174,7 @@ static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_toString___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(":", 1, 1);
+x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }

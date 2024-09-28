@@ -22,7 +22,6 @@ lean_object* l_Lean_Meta_isInstHAddNat(lean_object*, lean_object*, lean_object*,
 lean_object* l_Lean_mkNatLit(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExpr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_4____closed__8;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExprCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_279____closed__11;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_358____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExpr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_4____closed__12;
 static lean_object* l_Lean_Meta_Linear_Nat_reflTrue___closed__1;
@@ -238,6 +237,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___lam
 static lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr_visit___closed__15;
 static lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___closed__17;
 lean_object* l_Lean_Meta_isInstLTNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_ToLinear_State_vars___default;
 static lean_object* l_Lean_Meta_Linear_Nat_reflTrue___closed__2;
 static lean_object* l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__3;
@@ -2848,8 +2848,8 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_State_vars___default__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

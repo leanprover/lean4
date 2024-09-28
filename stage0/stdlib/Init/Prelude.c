@@ -65,6 +65,7 @@ LEAN_EXPORT lean_object* l_ReaderT_instMonadLift___rarg___boxed(lean_object*, le
 LEAN_EXPORT lean_object* l_Monad_seqRight___default___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
 static lean_object* l_EStateM_instMonad___closed__4;
+LEAN_EXPORT lean_object* lean_list_to_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toSubstring(lean_object*);
 LEAN_EXPORT lean_object* l_Array_getD___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadQuotation_addMacroScope(lean_object*);
@@ -231,7 +232,6 @@ LEAN_EXPORT lean_object* l_panic___at___private_Init_Prelude_0__Lean_extractImpo
 LEAN_EXPORT lean_object* l_ReaderT_instFunctorOfMonad___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instInhabitedForall__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_getD(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedState;
 LEAN_EXPORT lean_object* l_instHOrElseOfOrElse___rarg(lean_object*, lean_object*, lean_object*);
@@ -293,7 +293,6 @@ LEAN_EXPORT lean_object* l_List_hasDecEq___rarg___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_inferInstance(lean_object*);
 LEAN_EXPORT lean_object* l_instLEFin___boxed(lean_object*);
 static lean_object* l_Array_mkArray4___rarg___closed__1;
-LEAN_EXPORT lean_object* l_instInhabitedForall__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_throwError(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqUInt32___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_namedPattern(lean_object*, lean_object*);
@@ -341,6 +340,7 @@ LEAN_EXPORT lean_object* l_instMonadWithReaderOfMonadWithReaderOf(lean_object*, 
 lean_object* lean_uint16_to_nat(uint16_t);
 LEAN_EXPORT lean_object* l_List_set___rarg(lean_object*, lean_object*, lean_object*);
 uint16_t lean_uint16_of_nat_mk(lean_object*);
+LEAN_EXPORT lean_object* l_List_toArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_modifyThe___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHAddPosChar(lean_object*, uint32_t);
@@ -368,6 +368,7 @@ LEAN_EXPORT lean_object* l_instDecidableEqPos___boxed(lean_object*, lean_object*
 static lean_object* l_Lean_numLitKind___closed__1;
 LEAN_EXPORT lean_object* l_instOfNatNat(lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedExcept___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Pi_instInhabited(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 static lean_object* l_Array_mkArray2___rarg___closed__1;
@@ -437,7 +438,7 @@ static lean_object* l_Lean_nameLitKind___closed__1;
 LEAN_EXPORT lean_object* l_dite(lean_object*, lean_object*);
 static lean_object* l_Lean_identKind___closed__1;
 LEAN_EXPORT lean_object* l_instLEFin(lean_object*);
-LEAN_EXPORT lean_object* lean_list_to_array(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_toArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -519,6 +520,7 @@ LEAN_EXPORT lean_object* l_EStateM_dummySave___boxed(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_instHSub(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isIdent(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_Macro_MethodsRefPointed;
+LEAN_EXPORT lean_object* l_Pi_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__4;
 LEAN_EXPORT lean_object* l_sorryAx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_decEq___boxed(lean_object*, lean_object*);
@@ -1231,7 +1233,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instInhabitedForall__1___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Pi_instInhabited___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -1239,11 +1241,11 @@ x_3 = lean_apply_1(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instInhabitedForall__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Pi_instInhabited(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_instInhabitedForall__1___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Pi_instInhabited___rarg), 2, 0);
 return x_3;
 }
 }
@@ -4265,6 +4267,22 @@ _start:
 lean_object* x_3; 
 x_3 = lean_array_mk(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_toArray___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_toArray(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_toArray___rarg), 1, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mkEmpty___boxed(lean_object* x_1, lean_object* x_2) {

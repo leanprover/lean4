@@ -90,7 +90,7 @@ static lean_object* _init_l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_W
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Shows the raw `decreasing_by` goal including internal implementation detail intead of cleaning it up with the `clean_wf` tactic. Can be enabled for debugging purposes. Please report an issue if you have to use this option for other reasons.", 240, 240);
+x_1 = lean_mk_string_unchecked("Shows the raw `decreasing_by` goal including internal implementation detail instead of cleaning it up with the `clean_wf` tactic. Can be enabled for debugging purposes. Please report an issue if you have to use this option for other reasons.", 241, 241);
 return x_1;
 }
 }

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_instLawfulOperatorTernaryInputMkIfCached(lean_object*);
 lean_object* l_Std_Sat_AIG_mkNotCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,11 +22,11 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_instLawfulOperatorTernaryInputMkIfCached___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkIfCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite_go(lean_object*);
+lean_object* l_Std_Sat_AIG_RefVec_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_instLawfulVecOperatorIfInputIte___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_instLawfulOperatorTernaryInputMkIfCached___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite(lean_object*);
-static lean_object* l_Std_Sat_AIG_RefVec_ite___rarg___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -198,15 +197,6 @@ lean_dec(x_3);
 return x_11;
 }
 }
-static lean_object* _init_l_Std_Sat_AIG_RefVec_ite___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -218,9 +208,9 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_5, 2);
 lean_inc(x_8);
 lean_dec(x_5);
-x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Std_Sat_AIG_RefVec_ite___rarg___closed__1;
-x_11 = l_Std_Sat_AIG_RefVec_ite_go___rarg(x_1, x_2, x_3, x_4, x_9, lean_box(0), x_6, x_7, x_8, x_10);
+x_9 = l_Std_Sat_AIG_RefVec_empty(lean_box(0), x_1, x_2, x_4);
+x_10 = lean_unsigned_to_nat(0u);
+x_11 = l_Std_Sat_AIG_RefVec_ite_go___rarg(x_1, x_2, x_3, x_4, x_10, lean_box(0), x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 return x_11;
@@ -286,8 +276,6 @@ lean_dec_ref(res);
 res = initialize_Std_Sat_AIG_LawfulVecOperator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Sat_AIG_RefVec_ite___rarg___closed__1 = _init_l_Std_Sat_AIG_RefVec_ite___rarg___closed__1();
-lean_mark_persistent(l_Std_Sat_AIG_RefVec_ite___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -21,7 +21,6 @@ LEAN_EXPORT lean_object* l_Lake_Monitor_reportJob___lambda__1___boxed(lean_objec
 static lean_object* l_Lake_Workspace_runFetchM___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_MonitorM_run(lean_object*);
 static lean_object* l_Lake_Monitor_reportJob___lambda__2___closed__3;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lake_instOrdLogLevel;
 static lean_object* l_Lake_Monitor_spinnerFrames___closed__9;
 static lean_object* l_Lake_Workspace_runFetchM___rarg___closed__5;
@@ -193,6 +192,7 @@ lean_object* lean_get_set_stdin(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Monitor_spinnerFrames___closed__7___boxed__const__1;
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFetchM___spec__3___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Monitor_poll___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l_panic___at_Lake_print_x21___spec__1___closed__1;
 static lean_object* l_Lake_Monitor_reportJob___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_Workspace_runFetchM___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -225,7 +225,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_runBuild(lean_object*);
 static lean_object* l_Lake_Monitor_renderProgress___closed__6;
 static lean_object* l_Lake_Monitor_spinnerFrames___closed__3;
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Monitor_spinnerFrames___closed__9___boxed__const__1;
+LEAN_EXPORT lean_object* l_Lake_Monitor_spinnerFrames___closed__1___boxed__const__1;
 static lean_object* l_Lake_Monitor_reportJob___lambda__2___closed__4;
 static lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Monitor_main(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -235,8 +235,8 @@ static lean_object* _init_l_Lake_mkBuildContext___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -354,20 +354,32 @@ return x_32;
 }
 }
 }
+static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__1___boxed__const__1() {
+_start:
+{
+uint32_t x_1; lean_object* x_2; 
+x_1 = 10493;
+x_2 = lean_box_uint32(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lake_Monitor_spinnerFrames___closed__1___boxed__const__1;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__2___boxed__const__1() {
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = 10494;
+x_1 = 10491;
 x_2 = lean_box_uint32(x_1);
 return x_2;
 }
@@ -378,7 +390,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__1;
 x_2 = l_Lake_Monitor_spinnerFrames___closed__2___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -386,7 +400,7 @@ static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__3___boxed__cons
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = 10487;
+x_1 = 10431;
 x_2 = lean_box_uint32(x_1);
 return x_2;
 }
@@ -397,7 +411,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__2;
 x_2 = l_Lake_Monitor_spinnerFrames___closed__3___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -405,7 +421,7 @@ static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__4___boxed__cons
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = 10479;
+x_1 = 10367;
 x_2 = lean_box_uint32(x_1);
 return x_2;
 }
@@ -416,7 +432,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__3;
 x_2 = l_Lake_Monitor_spinnerFrames___closed__4___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -435,7 +453,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__4;
 x_2 = l_Lake_Monitor_spinnerFrames___closed__5___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -443,7 +463,7 @@ static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__6___boxed__cons
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = 10367;
+x_1 = 10479;
 x_2 = lean_box_uint32(x_1);
 return x_2;
 }
@@ -454,7 +474,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__5;
 x_2 = l_Lake_Monitor_spinnerFrames___closed__6___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -462,7 +484,7 @@ static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__7___boxed__cons
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = 10431;
+x_1 = 10487;
 x_2 = lean_box_uint32(x_1);
 return x_2;
 }
@@ -473,7 +495,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__6;
 x_2 = l_Lake_Monitor_spinnerFrames___closed__7___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -481,7 +505,7 @@ static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__8___boxed__cons
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = 10491;
+x_1 = 10494;
 x_2 = lean_box_uint32(x_1);
 return x_2;
 }
@@ -492,27 +516,19 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__7;
 x_2 = l_Lake_Monitor_spinnerFrames___closed__8___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
-}
-}
-static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__9___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 10493;
-x_2 = lean_box_uint32(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lake_Monitor_spinnerFrames___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__8;
-x_2 = l_Lake_Monitor_spinnerFrames___closed__9___boxed__const__1;
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
+x_2 = lean_array_mk(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_Monitor_spinnerFrames() {
@@ -10231,28 +10247,30 @@ return x_2;
 static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__10() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("Computing build jobs", 20, 20);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__11() {
+static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__9;
-x_2 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__10;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = lean_box(0);
+x_2 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__9;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__10;
+x_2 = lean_array_mk(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, uint8_t x_6, uint8_t x_7, uint8_t x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
@@ -11275,7 +11293,7 @@ x_31 = lean_string_append(x_29, x_30);
 lean_dec(x_30);
 x_32 = l_Lake_Workspace_runFetchM___rarg___lambda__5___closed__1;
 x_33 = lean_string_append(x_31, x_32);
-x_34 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__10;
+x_34 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__9;
 x_35 = lean_string_append(x_33, x_34);
 x_36 = lean_string_append(x_35, x_29);
 if (x_8 == 0)
@@ -11501,7 +11519,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Workspace_runFetchM___rarg___closed__1;
-x_2 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__10;
+x_2 = l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__9;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -12089,6 +12107,8 @@ l_Lake_mkBuildContext___closed__2 = _init_l_Lake_mkBuildContext___closed__2();
 lean_mark_persistent(l_Lake_mkBuildContext___closed__2);
 l_Lake_mkBuildContext___closed__3 = _init_l_Lake_mkBuildContext___closed__3();
 lean_mark_persistent(l_Lake_mkBuildContext___closed__3);
+l_Lake_Monitor_spinnerFrames___closed__1___boxed__const__1 = _init_l_Lake_Monitor_spinnerFrames___closed__1___boxed__const__1();
+lean_mark_persistent(l_Lake_Monitor_spinnerFrames___closed__1___boxed__const__1);
 l_Lake_Monitor_spinnerFrames___closed__1 = _init_l_Lake_Monitor_spinnerFrames___closed__1();
 lean_mark_persistent(l_Lake_Monitor_spinnerFrames___closed__1);
 l_Lake_Monitor_spinnerFrames___closed__2___boxed__const__1 = _init_l_Lake_Monitor_spinnerFrames___closed__2___boxed__const__1();
@@ -12119,8 +12139,6 @@ l_Lake_Monitor_spinnerFrames___closed__8___boxed__const__1 = _init_l_Lake_Monito
 lean_mark_persistent(l_Lake_Monitor_spinnerFrames___closed__8___boxed__const__1);
 l_Lake_Monitor_spinnerFrames___closed__8 = _init_l_Lake_Monitor_spinnerFrames___closed__8();
 lean_mark_persistent(l_Lake_Monitor_spinnerFrames___closed__8);
-l_Lake_Monitor_spinnerFrames___closed__9___boxed__const__1 = _init_l_Lake_Monitor_spinnerFrames___closed__9___boxed__const__1();
-lean_mark_persistent(l_Lake_Monitor_spinnerFrames___closed__9___boxed__const__1);
 l_Lake_Monitor_spinnerFrames___closed__9 = _init_l_Lake_Monitor_spinnerFrames___closed__9();
 lean_mark_persistent(l_Lake_Monitor_spinnerFrames___closed__9);
 l_Lake_Monitor_spinnerFrames = _init_l_Lake_Monitor_spinnerFrames();

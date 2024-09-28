@@ -19,7 +19,6 @@ static lean_object* l_Lean_Lsp_Ipc_runWith___rarg___closed__1;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__58;
 lean_object* l_Lean_Json_compress(lean_object*);
 uint8_t l_Lean_Json_isNull(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__12;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__27;
 lean_object* l_Lean_JsonNumber_toString(lean_object*);
@@ -138,6 +137,7 @@ static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__10;
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__3;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__40;
 static lean_object* l_panic___at_Lean_Lsp_Ipc_shutdown___spec__3___closed__2;
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at_Lean_Lsp_Ipc_collectDiagnostics___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop(lean_object*, lean_object*, lean_object*);
@@ -5559,8 +5559,8 @@ static lean_object* _init_l_Lean_Lsp_Ipc_runWith___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

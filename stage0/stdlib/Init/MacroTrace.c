@@ -17,12 +17,10 @@ static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMa
 lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__24;
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__11;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__16;
 static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__12;
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__23;
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__22;
 static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__22;
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__6;
@@ -70,9 +68,9 @@ static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__14;
 static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__3;
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__6;
-static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__26;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__21;
 static lean_object* l_Lean_termMacro_x2etrace_x5b___x5d_____closed__2;
@@ -545,15 +543,6 @@ x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__26() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -655,8 +644,10 @@ x_46 = lean_string_append(x_45, x_44);
 lean_dec(x_44);
 x_47 = lean_box(2);
 x_48 = l_Lean_Syntax_mkNameLit(x_46, x_47);
-x_49 = l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__26;
-x_50 = lean_array_push(x_49, x_48);
+x_49 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_49, 0, x_48);
+lean_ctor_set(x_49, 1, x_19);
+x_50 = lean_array_mk(x_49);
 x_51 = l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__23;
 x_52 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_52, 0, x_47);
@@ -784,8 +775,6 @@ l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x
 lean_mark_persistent(l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__24);
 l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__25 = _init_l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__25();
 lean_mark_persistent(l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__25);
-l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__26 = _init_l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__26();
-lean_mark_persistent(l_Lean___aux__Init__MacroTrace______macroRules__Lean__termMacro_x2etrace_x5b___x5d____1___closed__26);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

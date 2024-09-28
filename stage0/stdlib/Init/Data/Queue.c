@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueue___rarg(lean_object*, lean_object*);
 static lean_object* l_Std_Queue_empty___closed__1;
 LEAN_EXPORT lean_object* l_Std_Queue_empty(lean_object*);
@@ -34,11 +33,10 @@ static lean_object* l_Std_Queue_instEmptyCollection___closed__1;
 LEAN_EXPORT lean_object* l_Std_Queue_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll(lean_object*);
-lean_object* l_List_redLength___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f(lean_object*);
-lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_eList___default(lean_object* x_1) {
 _start:
 {
@@ -407,24 +405,18 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Queue_toArray___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_2 = lean_ctor_get(x_1, 1);
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_List_redLength___rarg(x_2);
-x_4 = lean_mk_empty_array_with_capacity(x_3);
-lean_dec(x_3);
-x_5 = l_List_toArrayAux___rarg(x_2, x_4);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+x_3 = lean_ctor_get(x_1, 1);
+lean_inc(x_3);
 lean_dec(x_1);
-x_7 = l_List_redLength___rarg(x_6);
-x_8 = lean_mk_empty_array_with_capacity(x_7);
-lean_dec(x_7);
-x_9 = l_List_toArrayAux___rarg(x_6, x_8);
-x_10 = l_Array_reverse___rarg(x_9);
-x_11 = l_Array_append___rarg(x_5, x_10);
-lean_dec(x_10);
-return x_11;
+x_4 = lean_array_mk(x_3);
+x_5 = lean_array_mk(x_2);
+x_6 = l_Array_reverse___rarg(x_5);
+x_7 = l_Array_append___rarg(x_4, x_6);
+lean_dec(x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object* x_1) {

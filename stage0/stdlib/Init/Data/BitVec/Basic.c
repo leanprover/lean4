@@ -190,6 +190,7 @@ static lean_object* l_BitVec_instRepr___closed__3;
 static lean_object* l_BitVec_instXor___closed__1;
 lean_object* lean_nat_land(lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_x27_______closed__7;
+LEAN_EXPORT lean_object* l_BitVec_shiftConcat(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__1;
 LEAN_EXPORT lean_object* l_BitVec_sdiv___boxed(lean_object*, lean_object*, lean_object*);
@@ -267,6 +268,7 @@ LEAN_EXPORT lean_object* l_BitVec_extractLsb(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ofNatLt___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instGetElemNatBoolLt(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_rotateLeft(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_shiftConcat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_getLsbD___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_getMsb_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_setWidth_x27(lean_object*, lean_object*, lean_object*);
@@ -3867,6 +3869,31 @@ lean_object* x_2;
 x_2 = l_BitVec_concat(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_shiftConcat(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_add(x_1, x_4);
+x_6 = l_BitVec_concat___rarg(x_2, x_3);
+x_7 = l_BitVec_setWidth(x_5, x_1, x_6);
+lean_dec(x_6);
+lean_dec(x_5);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_shiftConcat___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+lean_dec(x_3);
+x_5 = l_BitVec_shiftConcat(x_1, x_2, x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_BitVec_cons(lean_object* x_1, uint8_t x_2, lean_object* x_3) {

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lake_Workspace_findModuleFacetConfig_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_recBuildStatic___closed__2;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recBuildWithIndex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildShared___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_recBuildStatic___closed__3;
@@ -81,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lake_buildCycleError___at_Lake_FetchM_run___spec__6(l
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lake_recBuildWithIndex___closed__5;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_Lake_BuildKey_quickCmp(lean_object*, lean_object*);
@@ -488,8 +488,8 @@ static lean_object* _init_l_Lake_ExternLib_recBuildShared___lambda__1___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

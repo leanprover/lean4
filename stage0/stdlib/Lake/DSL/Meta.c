@@ -17,7 +17,6 @@ static lean_object* l_Lake_DSL_cmdDo___closed__19;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL___aux__Lake__DSL__Meta______elabRules__Lake__DSL__metaIf__1___lambda__1___closed__2;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_DSL_metaIf___closed__4;
 LEAN_EXPORT lean_object* l_Lake_DSL_runIO;
 lean_object* l_Lean_Elab_Command_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,7 +33,6 @@ LEAN_EXPORT lean_object* l_IO_withStdin___at_Lake_DSL_elabRunIO___spec__3(lean_o
 lean_object* l_Lean_Elab_Term_elabTermEnsuringType(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 static lean_object* l_Lake_DSL_elabRunIO___lambda__3___closed__4;
-lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_DSL_elabRunIO___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_cmdDo___closed__6;
 static lean_object* l_Lake_DSL_cmdDo___closed__13;
@@ -89,7 +87,6 @@ static lean_object* l_Lake_DSL_metaIf___closed__11;
 lean_object* l_Lean_Meta_evalExpr___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_runIO___closed__1;
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_DSL_expandCmdDo___closed__2;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DSL_elabRunIO___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_metaIf___closed__9;
@@ -146,6 +143,7 @@ static lean_object* l_Lake_DSL_elabRunIO___closed__2;
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_DSL_elabRunIO___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lake_DSL_metaIf;
 static lean_object* l_Lake_DSL_metaIf___closed__19;
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Elab_Term_evalTerm___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_cmdDo___closed__11;
@@ -402,17 +400,8 @@ static lean_object* _init_l_Lake_DSL_expandCmdDo___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_DSL_expandCmdDo___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -441,20 +430,23 @@ lean_inc(x_6);
 x_8 = l_Lean_Syntax_isOfKind(x_6, x_7);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; 
-x_9 = l_Lake_DSL_expandCmdDo___closed__2;
-x_10 = lean_array_push(x_9, x_6);
-return x_10;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_box(0);
+x_10 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_10, 0, x_6);
+lean_ctor_set(x_10, 1, x_9);
+x_11 = lean_array_mk(x_10);
+return x_11;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = l_Lean_Syntax_getArg(x_6, x_11);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = l_Lean_Syntax_getArg(x_6, x_12);
 lean_dec(x_6);
-x_13 = l_Lean_Syntax_getArgs(x_12);
-lean_dec(x_12);
-return x_13;
+x_14 = l_Lean_Syntax_getArgs(x_13);
+lean_dec(x_13);
+return x_14;
 }
 }
 }
@@ -2158,8 +2150,11 @@ LEAN_EXPORT lean_object* l_Lake_DSL_elabRunIO___lambda__3(lean_object* x_1, lean
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_13 = l_Lake_DSL_expandCmdDo___closed__2;
-x_14 = lean_array_push(x_13, x_1);
+lean_inc(x_2);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_1);
+lean_ctor_set(x_13, 1, x_2);
+x_14 = lean_array_mk(x_13);
 x_15 = l_Lake_DSL_elabRunIO___lambda__3___closed__2;
 lean_inc(x_11);
 lean_inc(x_10);
@@ -3383,8 +3378,6 @@ l_Lake_DSL_cmdDo = _init_l_Lake_DSL_cmdDo();
 lean_mark_persistent(l_Lake_DSL_cmdDo);
 l_Lake_DSL_expandCmdDo___closed__1 = _init_l_Lake_DSL_expandCmdDo___closed__1();
 lean_mark_persistent(l_Lake_DSL_expandCmdDo___closed__1);
-l_Lake_DSL_expandCmdDo___closed__2 = _init_l_Lake_DSL_expandCmdDo___closed__2();
-lean_mark_persistent(l_Lake_DSL_expandCmdDo___closed__2);
 l_Lake_DSL_metaIf___closed__1 = _init_l_Lake_DSL_metaIf___closed__1();
 lean_mark_persistent(l_Lake_DSL_metaIf___closed__1);
 l_Lake_DSL_metaIf___closed__2 = _init_l_Lake_DSL_metaIf___closed__2();

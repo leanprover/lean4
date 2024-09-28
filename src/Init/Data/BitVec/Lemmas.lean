@@ -165,7 +165,8 @@ theorem getMsbD_eq_getMsb?_getD (x : BitVec w) (i : Nat) :
   · simp [getMsb?, h]
   · rw [getLsbD_eq_getElem?_getD, getMsb?_eq_getLsb?]
     split <;>
-    · simp
+    · simp only [getLsb?_eq_getElem?, Bool.and_iff_right_iff_imp, decide_eq_true_eq,
+        Option.getD_none, Bool.and_eq_false_imp]
       intros
       omega
 
@@ -1041,7 +1042,8 @@ theorem shiftLeft_or_distrib (x y : BitVec w) (n : Nat) :
   simp only [t]
   simp only [decide_True, Nat.sub_sub, Bool.true_and, Nat.add_assoc]
   by_cases h₁ : k < w <;> by_cases h₂ : w - (1 + k) < i <;> by_cases h₃ : k + i < w
-    <;> simp [h₁, h₂, h₃]
+    <;> simp only [h₁, h₂, h₃, decide_False, h₂, decide_True, Bool.not_true, Bool.false_and, Bool.and_self,
+      Bool.true_and, Bool.false_eq, Bool.false_and, Bool.not_false]
     <;> (first | apply getLsbD_ge | apply Eq.symm; apply getLsbD_ge)
     <;> omega
 
@@ -1667,13 +1669,13 @@ theorem toNat_cons' {x : BitVec w} :
 
 theorem getLsbD_cons (b : Bool) {n} (x : BitVec n) (i : Nat) :
     getLsbD (cons b x) i = if i = n then b else getLsbD x i := by
-  simp only [getLsbD, toNat_cons, Nat.testBit_or]
-  rw [Nat.testBit_shiftLeft]
+  simp only [getLsbD, toNat_cons, Nat.testBit_or, Nat.testBit_shiftLeft, ge_iff_le]
   rcases Nat.lt_trichotomy i n with i_lt_n | i_eq_n | n_lt_i
   · have p1 : ¬(n ≤ i) := by omega
     have p2 : i ≠ n := by omega
     simp [p1, p2]
-  · simp [i_eq_n, testBit_toNat]
+  · simp only [i_eq_n, ge_iff_le, Nat.le_refl, decide_True, Nat.sub_self, Nat.testBit_zero,
+    Bool.true_and, testBit_toNat, getLsbD_ge, Bool.or_false, ↓reduceIte]
     cases b <;> trivial
   · have p1 : i ≠ n := by omega
     have p2 : i - n ≠ 0 := by omega
@@ -1687,7 +1689,8 @@ theorem getElem_cons {b : Bool} {n} {x : BitVec n} {i : Nat} (h : i < n + 1) :
   · have p1 : ¬(n ≤ i) := by omega
     have p2 : i ≠ n := by omega
     simp [p1, p2]
-  · simp [i_eq_n, testBit_toNat]
+  · simp only [i_eq_n, ge_iff_le, Nat.le_refl, decide_True, Nat.sub_self, Nat.testBit_zero,
+    Bool.true_and, testBit_toNat, getLsbD_ge, Bool.or_false, ↓reduceIte]
     cases b <;> trivial
   · have p1 : i ≠ n := by omega
     have p2 : i - n ≠ 0 := by omega
@@ -1966,7 +1969,7 @@ theorem toInt_neg {x : BitVec w} :
 
 theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
   apply eq_of_toNat_eq
-  simp
+  simp only [toNat_sub, toNat_add, toNat_neg, Nat.add_mod_mod]
   rw [Nat.add_comm]
 
 @[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp

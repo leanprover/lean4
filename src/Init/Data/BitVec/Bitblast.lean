@@ -451,6 +451,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow]
     rw [ih]
+    stop
     by_cases h : y.getLsbD (n + 1)
     · simp only [h, ↓reduceIte]
       rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
@@ -458,6 +459,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
       simp [and_twoPow]
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
       rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)]
+      stop
       simp [h]
 
 /--
@@ -893,11 +895,13 @@ theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
     simp [twoPow_zero, Nat.reduceAdd, and_one_eq_setWidth_ofBool_getLsbD, setWidth_one]
   case succ n ih =>
     simp only [sshiftRightRec_succ_eq, and_twoPow, ih]
+    stop
     by_cases h : y.getLsbD (n + 1)
     · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         sshiftRight'_or_of_and_eq_zero (by simp [and_twoPow]), h]
       simp
-    · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)
+    · stop
+      rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)
         (by simp [h])]
       simp [h]
 
@@ -958,11 +962,13 @@ theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
   case succ n ih =>
     simp only [ushiftRightRec_succ, and_twoPow]
     rw [ih]
+    stop
     by_cases h : y.getLsbD (n + 1) <;> simp only [h, ↓reduceIte]
     · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         ushiftRight'_or_of_and_eq_zero]
       simp [and_twoPow]
-    · simp [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false, h]
+    · stop
+      simp [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false, h]
 
 /--
 Show that `x >>> y` can be written in terms of `ushiftRightRec`.

@@ -84,8 +84,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       simp [hsplit, decide_False, cond_false, *]
       rw [go_denote_mem_prefix, lih]
       rw [BitVec.getLsbD_eq_getElem]
-  | replicate n expr ih => simp [go, ih, hidx]
-
+  | replicate n expr ih =>
+    simp [go, ih, hidx]
+    rw [← BitVec.getLsbD_eq_getElem]
   | signExtend v inner ih =>
     rename_i originalWidth
     generalize hgo : (go aig (signExtend v inner)).val = res
@@ -121,7 +122,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       BitVec.getElem_extractLsb', hidx, decide_True, Bool.true_and]
     split
     · next hsplit =>
-      rw [ih]
+      simp [ih, hsplit]
     · apply Eq.symm
       apply BitVec.getLsbD_ge
       omega
@@ -133,7 +134,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [go_denote_mem_prefix]
       rw [← lih (aig := aig)]
       · simp
-      · assumption
       · simp [Ref.hgate]
     · intros
       rw [← rih]
@@ -145,7 +145,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [go_denote_mem_prefix]
       rw [← lih (aig := aig)]
       · simp
-      · assumption
       · simp [Ref.hgate]
     · intros
       rw [← rih]
@@ -205,12 +204,23 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       intro h
       apply BitVec.lt_of_getLsbD
       assumption
-    | rotateLeft => simp [go, ih, hidx]
-    | rotateRight => simp [go, ih, hidx]
+    | rotateLeft =>
+      simp [go, ih, hidx, *]
+      split
+      · simp [*]
+      · simp [*]
+    | rotateRight =>
+      simp [go, ih, hidx, *]
+      split
+      · simp [*, ← BitVec.getLsbD_eq_getElem]
+      · simp [*, ← BitVec.getLsbD_eq_getElem]
     | arithShiftRightConst n =>
       rename_i w
       have : ¬(w ≤ idx) := by omega
-      simp [go, ih, this, BitVec.getLsbD_sshiftRight, BitVec.msb_eq_getLsbD_last ]
+      simp [go, ih, this, BitVec.getElem_sshiftRight]
+      rw [← BitVec.getLsbD_eq_getElem]
+      rw [BitVec.msb_eq_getLsbD_last]
+      simp [← BitVec.getLsbD_eq_getElem, show 0 < w by omega]
 
 end bitblast
 

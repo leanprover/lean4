@@ -1507,7 +1507,7 @@ theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
 
 @[simp] theorem getMsbD_append {x : BitVec n} {y : BitVec m} :
     getMsbD (x ++ y) i = bif n ≤ i then getMsbD y (i - n) else getMsbD x i := by
-  simp [append_def]
+  simp only [append_def]
   by_cases h : n ≤ i
   · simp [h]
   · simp [h]

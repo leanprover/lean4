@@ -634,7 +634,7 @@ theorem lt_succ_of_lt (h : a < b) : a < succ b := le_succ_of_le h
 
 theorem lt_add_one_of_lt (h : a < b) : a < b + 1 := le_succ_of_le h
 
-theorem lt_one_iff : n < 1 ↔ n = 0 := Nat.lt_succ_iff.trans <| by rw [le_zero_eq]
+@[simp] theorem lt_one_iff : n < 1 ↔ n = 0 := Nat.lt_succ_iff.trans <| by rw [le_zero_eq]
 
 theorem succ_pred_eq_of_ne_zero : ∀ {n}, n ≠ 0 → succ (pred n) = n
   | _+1, _ => rfl

@@ -216,29 +216,35 @@ end Module
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
-@[inherit_doc cacheFacet]
-abbrev Package.cache (self : Package) : BuildInfo :=
-  self.facet cacheFacet
+@[inherit_doc buildCacheFacet]
+abbrev Package.buildCache (self : Package) : BuildInfo :=
+  self.facet buildCacheFacet
 
-@[inherit_doc optCacheFacet]
-abbrev Package.optCache (self : Package) : BuildInfo :=
-  self.facet optCacheFacet
+@[inherit_doc optBuildCacheFacet]
+abbrev Package.optBuildCache (self : Package) : BuildInfo :=
+  self.facet buildCacheFacet
 
-@[inherit_doc barrelFacet]
-abbrev Package.barrel (self : Package) : BuildInfo :=
-  self.facet barrelFacet
+@[inherit_doc reservoirBarrelFacet]
+abbrev Package.reservoirBarrel (self : Package) : BuildInfo :=
+  self.facet reservoirBarrelFacet
 
-@[inherit_doc optBarrelFacet]
-abbrev Package.optBarrel (self : Package) : BuildInfo :=
-  self.facet optBarrelFacet
+@[inherit_doc optReservoirBarrelFacet]
+abbrev Package.optReservoirBarrel (self : Package) : BuildInfo :=
+  self.facet optReservoirBarrelFacet
 
-@[inherit_doc releaseFacet]
-abbrev Package.release (self : Package) : BuildInfo :=
-  self.facet releaseFacet
+@[inherit_doc gitHubReleaseFacet]
+abbrev Package.gitHubRelease (self : Package) : BuildInfo :=
+  self.facet gitHubReleaseFacet
 
-@[inherit_doc optReleaseFacet]
-abbrev Package.optRelease (self : Package) : BuildInfo :=
-  self.facet optReleaseFacet
+@[inherit_doc optGitHubReleaseFacet]
+abbrev Package.optGitHubRelease (self : Package) : BuildInfo :=
+  self.facet optGitHubReleaseFacet
+
+@[deprecated (since := "2024-09-27")]
+abbrev Package.release := @gitHubRelease
+
+@[deprecated (since := "2024-09-27")]
+abbrev Package.optRelease := @optGitHubRelease
 
 @[inherit_doc extraDepFacet]
 abbrev Package.extraDep (self : Package) : BuildInfo :=

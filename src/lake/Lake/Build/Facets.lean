@@ -117,46 +117,52 @@ module_data o.noexport : BuildJob FilePath
 /-! ## Package Facets -/
 
 /--
-A package's *optional* cloud build archive (e.g., from Reservoir or GitHub).
+A package's *optional* cached build archive (e.g., from Reservoir or GitHub).
 Will NOT cause the whole build to fail if the archive cannot be fetched.
 -/
-abbrev Package.optCacheFacet := `optCache
+abbrev Package.optBuildCacheFacet := `optCache
 package_data optCache : BuildJob Bool
 
 /--
-A package's cloud build archive (e.g., from Reservoir or GitHub).
+A package's cached build archive (e.g., from Reservoir or GitHub).
 Will cause the whole build to fail if the archive cannot be fetched.
 -/
-abbrev Package.cacheFacet := `cache
+abbrev Package.buildCacheFacet := `cache
 package_data cache : BuildJob Unit
 
 /--
-A package's *optional* Reservoir barrel.
+A package's *optional* build archive from Reservoir.
 Will NOT cause the whole build to fail if the barrel cannot be fetched.
 -/
-abbrev Package.optBarrelFacet := `optBarrel
+abbrev Package.optReservoirBarrelFacet := `optBarrel
 package_data optBarrel : BuildJob Bool
 
 /--
-A package's Reservoir barrel.
+A package's Reservoir build archive from Reservoir.
 Will cause the whole build to fail if the barrel cannot be fetched.
 -/
-abbrev Package.barrelFacet := `barrel
+abbrev Package.reservoirBarrelFacet := `barrel
 package_data barrel : BuildJob Unit
 
 /--
 A package's *optional* build archive from a GitHub release.
 Will NOT cause the whole build to fail if the release cannot be fetched.
 -/
-abbrev Package.optReleaseFacet := `optRelease
+abbrev Package.optGitHubReleaseFacet := `optRelease
 package_data optRelease : BuildJob Bool
+
+@[deprecated (since := "2024-09-27")]
+abbrev Package.optReleaseFacet := optGitHubReleaseFacet
 
 /--
 A package's build archive from a GitHub release.
 Will cause the whole build to fail if the release cannot be fetched.
 -/
-abbrev Package.releaseFacet := `release
+abbrev Package.gitHubReleaseFacet := `release
 package_data release : BuildJob Unit
+
+@[deprecated (since := "2024-09-27")]
+abbrev Package.releaseFacet := gitHubReleaseFacet
 
 /-- A package's `extraDepTargets` mixed with its transitive dependencies'. -/
 abbrev Package.extraDepFacet := `extraDep

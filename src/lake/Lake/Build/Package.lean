@@ -31,9 +31,13 @@ Tries to download and unpack the package's cached build archive
 -/
 def Package.fetchOptBuildCache (self : Package) := do
   if self.preferReleaseBuild then
-    self.optRelease.fetch
+    self.optGitHubRelease.fetch
   else
-    self.optBarrel.fetch
+    self.optReservoirBarrel.fetch
+
+/-- The `PackageFacetConfig` for the builtin `optBuildCacheFacet`. -/
+def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
+  mkFacetJobConfig (·.fetchOptBuildCache)
 
 /--
 Tries to download and unpack the package's cached build archive
@@ -43,7 +47,8 @@ def Package.fetchOptBuildCacheWithWarning (self : Package) := do
   let job ← self.fetchOptBuildCache
   job.bindSync fun success t => do
     unless success do
-      let facet := if self.preferReleaseBuild then optReleaseFacet else optBarrelFacet
+      let facet := if self.preferReleaseBuild then
+        optGitHubReleaseFacet else optReservoirBarrelFacet
       logWarning s!"building from source; \
         failed to fetch cloud release (see '{self.name}:{facet}' for details)"
     return ((), t)
@@ -137,32 +142,34 @@ private def Package.mkBuildArchiveFacetConfig
           error s!"failed to fetch {what} (see '{pkg.name}:{optFacet}' for details)"
         return ((), t)
 
-/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
-def Package.optCacheFacetConfig : PackageFacetConfig optCacheFacet :=
-  mkFacetJobConfig (·.fetchOptBuildCache)
+/-- The `PackageFacetConfig` for the builtin `buildCacheFacet`. -/
+def Package.buildCacheFacetConfig : PackageFacetConfig buildCacheFacet :=
+  mkBuildArchiveFacetConfig optBuildCacheFacet "build cache"
 
-/-- The `PackageFacetConfig` for the builtin `barrelFacet`. -/
-def Package.cacheFacetConfig : PackageFacetConfig cacheFacet :=
-  mkBuildArchiveFacetConfig optCacheFacet "build cache"
-
-/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
-def Package.optBarrelFacetConfig : PackageFacetConfig optBarrelFacet :=
+/-- The `PackageFacetConfig` for the builtin `optReservoirBarrelFacet`. -/
+def Package.optBarrelFacetConfig : PackageFacetConfig optReservoirBarrelFacet :=
   mkOptBuildArchiveFacetConfig barrelFile getBarrelUrl
 
-/-- The `PackageFacetConfig` for the builtin `barrelFacet`. -/
-def Package.barrelFacetConfig : PackageFacetConfig barrelFacet :=
-  mkBuildArchiveFacetConfig optBarrelFacet "Reservoir barrel"
+/-- The `PackageFacetConfig` for the builtin `reservoirBarrelFacet`. -/
+def Package.barrelFacetConfig : PackageFacetConfig reservoirBarrelFacet :=
+  mkBuildArchiveFacetConfig optReservoirBarrelFacet "Reservoir barrel"
 
-/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
-def Package.optReleaseFacetConfig : PackageFacetConfig optReleaseFacet :=
+/-- The `PackageFacetConfig` for the builtin `optGitHubReleaseFacet`. -/
+def Package.optGitHubReleaseFacetConfig : PackageFacetConfig optGitHubReleaseFacet :=
   mkOptBuildArchiveFacetConfig buildArchiveFile getReleaseUrl
 
-/-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
-def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
-  mkBuildArchiveFacetConfig optReleaseFacet "GitHub release"
+@[deprecated (since := "2024-09-27")]
+abbrev Package.optReleaseFacetConfig := optGitHubReleaseFacetConfig
+
+/-- The `PackageFacetConfig` for the builtin `gitHubReleaseFacet`. -/
+def Package.gitHubReleaseFacetConfig : PackageFacetConfig gitHubReleaseFacet :=
+  mkBuildArchiveFacetConfig optGitHubReleaseFacet "GitHub release"
+
+@[deprecated (since := "2024-09-27")]
+abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 
 /--
-Perform a build job after first checking for an (optional) cloud build
+Perform a build job after first checking for an (optional) cached build
 for the package (e.g., from Reservoir or GitHub).
 -/
 def Package.afterBuildCacheAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
@@ -175,7 +182,7 @@ def Package.afterBuildCacheAsync (self : Package) (build : SpawnM (Job α)) : Fe
 def Package.afterReleaseAsync := @afterBuildCacheAsync
 
 /--
- Perform a build after first checking for an (optional) cloud build
+ Perform a build after first checking for an (optional) cached build
  for the package (e.g., from Reservoir or GitHub).
 -/
 def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job α) := do
@@ -196,9 +203,9 @@ def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
-  |>.insert optCacheFacet optCacheFacetConfig
-  |>.insert cacheFacet cacheFacetConfig
-  |>.insert optBarrelFacet optBarrelFacetConfig
-  |>.insert barrelFacet barrelFacetConfig
-  |>.insert optReleaseFacet optReleaseFacetConfig
-  |>.insert releaseFacet releaseFacetConfig
+  |>.insert optBuildCacheFacet optBuildCacheFacetConfig
+  |>.insert buildCacheFacet buildCacheFacetConfig
+  |>.insert optReservoirBarrelFacet optBarrelFacetConfig
+  |>.insert reservoirBarrelFacet barrelFacetConfig
+  |>.insert optGitHubReleaseFacet optGitHubReleaseFacetConfig
+  |>.insert gitHubReleaseFacet gitHubReleaseFacetConfig

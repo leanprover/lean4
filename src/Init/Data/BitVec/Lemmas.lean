@@ -900,7 +900,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
     rw [← h]
     rw [Nat.testBit_two_pow_sub_succ (isLt _)]
     · cases w : decide (i < v)
-      · simp at w
+      · simp only [decide_eq_false_iff_not, Nat.not_lt] at w
         simp only [Bool.false_bne, Bool.false_and]
         rw [Nat.testBit_lt_two_pow]
         calc BitVec.toNat x < 2 ^ v := isLt _

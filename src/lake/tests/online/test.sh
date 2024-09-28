@@ -7,9 +7,11 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # Test barrel download
 $LAKE -f barrel.lean update
 ELAN_TOOLCHAIN=leanprover/lean4:v4.12.0-rc1 \
-RESERVOIR_API_URL=https://xmn2falba9t-p7vs9jzud6chgsk--reservoir-lean-lang.netlify.app/api/v1 \
+RESERVOIR_API_URL=https://8erdxqo0tltkd0jcjrbywklubs4--reservoir-lean-lang.netlify.app/api/v1 \
   $LAKE -f barrel.lean build @Cli:barrel -v
+ELAN_TOOLCHAIN=leanprover/lean4:v4.12.0-rc1 \
 LEAN_GITHASH=e9e858a4484905a0bfe97c4f05c3924ead02eed8 \
+RESERVOIR_API_URL=https://8erdxqo0tltkd0jcjrbywklubs4--reservoir-lean-lang.netlify.app/api/v1 \
   $LAKE -f barrel.lean build Cli --no-build
 exit 0
 

@@ -81,8 +81,12 @@ def Package.getBarrelUrl (self : Package) : JobM String := do
   let some rev ← repo.getHeadRevision?
     | error "failed to resolve HEAD revision"
   let pkgName := self.name.toString (escape := false)
-  let baseUrl := Reservoir.pkgApiUrl (← getLakeEnv) self.scope pkgName
-  return s!"{baseUrl}/barrels/{rev}?dev"
+  let env ← getLakeEnv
+  let mut url := Reservoir.pkgApiUrl env self.scope pkgName
+  url := s!"{url}/barrel?dev&rev={rev}"
+  unless env.toolchain.isEmpty do
+    url := s!"{url}&toolchain={uriEncode env.toolchain}"
+  return url
 
 /-- Compute the package's GitHub release URL. -/
 def Package.getReleaseUrl (self : Package) : JobM String := do
@@ -108,13 +112,13 @@ def Package.fetchBuildArchive (self : Package) (url : String) (archiveFile : Fil
 
 @[inline]
 private def Package.mkOptBuildArchiveFacetConfig
-  {facet : Name} (getUrl : Package → JobM String)
+  {facet : Name} (archiveFile : Package → FilePath) (getUrl : Package → JobM String)
   [FamilyDef PackageData facet (BuildJob Bool)]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
   withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
   try
     let url ← getUrl pkg
-    pkg.fetchBuildArchive url pkg.barrelFile
+    pkg.fetchBuildArchive url (archiveFile pkg)
     return (true, .nil)
   catch _ =>
     updateAction .fetch
@@ -143,7 +147,7 @@ def Package.cacheFacetConfig : PackageFacetConfig cacheFacet :=
 
 /-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
 def Package.optBarrelFacetConfig : PackageFacetConfig optBarrelFacet :=
-  mkOptBuildArchiveFacetConfig getBarrelUrl
+  mkOptBuildArchiveFacetConfig barrelFile getBarrelUrl
 
 /-- The `PackageFacetConfig` for the builtin `barrelFacet`. -/
 def Package.barrelFacetConfig : PackageFacetConfig barrelFacet :=
@@ -151,7 +155,7 @@ def Package.barrelFacetConfig : PackageFacetConfig barrelFacet :=
 
 /-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
 def Package.optReleaseFacetConfig : PackageFacetConfig optReleaseFacet :=
-  mkOptBuildArchiveFacetConfig getReleaseUrl
+  mkOptBuildArchiveFacetConfig buildArchiveFile getReleaseUrl
 
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
 def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=

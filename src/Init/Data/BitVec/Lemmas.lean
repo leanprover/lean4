@@ -2352,8 +2352,9 @@ theorem getElem_rotateRight {x : BitVec w} {r i : Nat} (h : i < w) :
     (x.rotateRight r)[i] =
       cond (i < w - (r % w))
       (x.getLsbD ((r % w) + i))
-      (decide (i < w) && x.getLsbD (i - (w - (r % w)))) := by
-  simp [← BitVec.getLsbD_eq_getElem]
+      (x[(i - (w - (r % w)))]) := by
+  simp only [← BitVec.getLsbD_eq_getElem]
+  simp [getLsbD_rotateRight, h]
 
 /- ## twoPow -/
 

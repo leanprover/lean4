@@ -216,6 +216,14 @@ end Module
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
+@[inherit_doc cacheFacet]
+abbrev Package.cache (self : Package) : BuildInfo :=
+  self.facet cacheFacet
+
+@[inherit_doc optCacheFacet]
+abbrev Package.optCache (self : Package) : BuildInfo :=
+  self.facet optCacheFacet
+
 @[inherit_doc barrelFacet]
 abbrev Package.barrel (self : Package) : BuildInfo :=
   self.facet barrelFacet

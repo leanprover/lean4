@@ -25,13 +25,31 @@ def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
   mkFacetConfig Package.recComputeDeps
 
-/-- Tries to download and unpack the package's prebuilt release archive (from GitHub). -/
-def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Unit) := do
-  (← self.optRelease.fetch).bindSync fun success t => do
+/--
+Tries to download and unpack the package's cached build archive
+(e.g., from Reservoir or GitHub).
+-/
+def Package.fetchOptBuildCache (self : Package) := do
+  if self.preferReleaseBuild then
+    self.optRelease.fetch
+  else
+    self.optBarrel.fetch
+
+/--
+Tries to download and unpack the package's cached build archive
+(e.g., from Reservoir or GitHub). Prints a warning on failure.
+-/
+def Package.fetchOptBuildCacheWithWarning (self : Package) := do
+  let job ← self.fetchOptBuildCache
+  job.bindSync fun success t => do
     unless success do
+      let facet := if self.preferReleaseBuild then optReleaseFacet else optBarrelFacet
       logWarning s!"building from source; \
-        failed to fetch cloud release (see '{self.name}:optRelease' for details)"
+        failed to fetch cloud release (see '{self.name}:{facet}' for details)"
     return ((), t)
+
+@[deprecated fetchOptBuildCacheWithWarning (since := "2024-09-27")]
+def Package.fetchOptRelease := @fetchOptBuildCacheWithWarning
 
 /--
 Build the `extraDepTargets` for the package and its transitive dependencies.
@@ -43,9 +61,9 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
   -- Build dependencies' extra dep targets
   for dep in self.deps do
     job := job.mix <| ← dep.extraDep.fetch
-  -- Fetch pre-built release if desired and this package is a dependency
-  if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job := job.add <| ← self.fetchOptRelease
+  -- Fetch build cache if this package is a dependency
+  if self.name ≠ (← getWorkspace).root.name then
+    job := job.add <| ← self.fetchOptBuildCacheWithWarning
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
     job := job.mix <| ← self.fetchTargetJob target
@@ -55,98 +73,115 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
   mkFacetJobConfig Package.recBuildExtraDepTargets
 
-/-- Tries to download and unpack the package's build archive barrel from Reservoir. -/
-def Package.fetchOptBarrelCore (self : Package) : FetchM (BuildJob Bool) :=
-  withRegisterJob s!"{self.name}:optBarrel" (optional := true) <| Job.async do
+/-- Compute the package's Reservoir barrel URL. -/
+def Package.getBarrelUrl (self : Package) : JobM String := do
   if self.scope.isEmpty then
-    logError s!"package has no Reservoir scope"
-    updateAction .fetch
-    return (false, .nil)
+    error "package has no Reservoir scope"
   let repo := GitRepo.mk self.dir
   let some rev ← repo.getHeadRevision?
-    | logError s!"failed to resolve HEAD revision"
-      updateAction .fetch
-      return (false, .nil)
+    | error "failed to resolve HEAD revision"
   let pkgName := self.name.toString (escape := false)
   let baseUrl := Reservoir.pkgApiUrl (← getLakeEnv) self.scope pkgName
-  let url := s!"{baseUrl}/barrels/{rev}?dev"
-  let depTrace := Hash.ofString rev
-  let traceFile := self.barrelFile.addExtension "trace"
-  let upToDate ← buildUnlessUpToDate? (action := .fetch) self.barrelFile depTrace traceFile do
-    logVerbose s!"downloading Reservoir build archive barrel"
-    download url self.barrelFile
-  unless upToDate && (← self.buildDir.pathExists) do
-    updateAction .fetch
-    logVerbose s!"unpacking barrel"
-    untar self.barrelFile self.buildDir
-  return (true, .nil)
+  return s!"{baseUrl}/barrels/{rev}?dev"
 
-/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
-def Package.optBarrelFacetConfig : PackageFacetConfig optBarrelFacet :=
-  mkFacetJobConfig (·.fetchOptBarrelCore)
-
-/-- The `PackageFacetConfig` for the builtin `barrelFacet`. -/
-def Package.barrelFacetConfig : PackageFacetConfig barrelFacet :=
-  mkFacetJobConfig fun pkg =>
-    withRegisterJob s!"{pkg.name}:barrel" do
-      (← pkg.optBarrel.fetch).bindSync fun success t => do
-        unless success do
-          error s!"failed to fetch barrel (see '{pkg.name}:optBarrel for details)"
-        return ((), t)
-
-/-- Tries to download and unpack the package's prebuilt release archive (from GitHub). -/
-def Package.fetchOptReleaseCore (self : Package) : FetchM (BuildJob Bool) :=
-  withRegisterJob s!"{self.name}:optRelease" (optional := true) <| Job.async do
+/-- Compute the package's GitHub release URL. -/
+def Package.getReleaseUrl (self : Package) : JobM String := do
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
-    | logError s!"release repository URL not known; \
+    | error "release repository URL not known; \
         the package may need to set 'releaseRepo'"
-      updateAction .fetch
-      return (false, .nil)
   let some tag ← repo.findTag?
     | let rev ← if let some rev ← repo.getHeadRevision? then pure s!" '{rev}'" else pure ""
-      logError s!"no release tag found for revision{rev}"
-      updateAction .fetch
-      return (false, .nil)
-  let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
+      error s!"no release tag found for revision{rev}"
+  return s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
+
+/-- Tries to download and unpack a build archive for the package from a URL. -/
+def Package.fetchBuildArchive (self : Package) (url : String) (archiveFile : FilePath) : JobM PUnit := do
   let depTrace := Hash.ofString url
-  let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
-  let upToDate ← buildUnlessUpToDate? (action := .fetch) self.buildArchiveFile depTrace traceFile do
-    logVerbose s!"downloading {url}"
-    download url self.buildArchiveFile
+  let traceFile := archiveFile.addExtension "trace"
+  let upToDate ← buildUnlessUpToDate? (action := .fetch) archiveFile depTrace traceFile do
+    download url archiveFile
   unless upToDate && (← self.buildDir.pathExists) do
     updateAction .fetch
-    logVerbose s!"unpacking {self.name}:{tag}:{self.buildArchive}"
-    untar self.buildArchiveFile self.buildDir
-  return (true, .nil)
+    untar archiveFile self.buildDir
+
+@[inline]
+private def Package.mkOptBuildArchiveFacetConfig
+  {facet : Name} (getUrl : Package → JobM String)
+  [FamilyDef PackageData facet (BuildJob Bool)]
+: PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
+  withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
+  try
+    let url ← getUrl pkg
+    pkg.fetchBuildArchive url pkg.barrelFile
+    return (true, .nil)
+  catch _ =>
+    updateAction .fetch
+    return (false, .nil)
+
+@[inline]
+private def Package.mkBuildArchiveFacetConfig
+  {facet : Name} (optFacet : Name) (what : String)
+  [FamilyDef PackageData facet (BuildJob Unit)]
+  [FamilyDef PackageData optFacet (BuildJob Bool)]
+: PackageFacetConfig facet :=
+  mkFacetJobConfig fun pkg =>
+    withRegisterJob s!"{pkg.name}:{facet}" do
+      (← fetch <| pkg.facet optFacet).bindSync fun success t => do
+        unless success do
+          error s!"failed to fetch {what} (see '{pkg.name}:{optFacet}' for details)"
+        return ((), t)
+
+/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
+def Package.optCacheFacetConfig : PackageFacetConfig optCacheFacet :=
+  mkFacetJobConfig (·.fetchOptBuildCache)
+
+/-- The `PackageFacetConfig` for the builtin `barrelFacet`. -/
+def Package.cacheFacetConfig : PackageFacetConfig cacheFacet :=
+  mkBuildArchiveFacetConfig optCacheFacet "build cache"
+
+/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
+def Package.optBarrelFacetConfig : PackageFacetConfig optBarrelFacet :=
+  mkOptBuildArchiveFacetConfig getBarrelUrl
+
+/-- The `PackageFacetConfig` for the builtin `barrelFacet`. -/
+def Package.barrelFacetConfig : PackageFacetConfig barrelFacet :=
+  mkBuildArchiveFacetConfig optBarrelFacet "Reservoir barrel"
 
 /-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
 def Package.optReleaseFacetConfig : PackageFacetConfig optReleaseFacet :=
-  mkFacetJobConfig (·.fetchOptReleaseCore)
+  mkOptBuildArchiveFacetConfig getReleaseUrl
 
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
 def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
-  mkFacetJobConfig fun pkg =>
-    withRegisterJob s!"{pkg.name}:release" do
-      (← pkg.optRelease.fetch).bindSync fun success t => do
-        unless success do
-          error s!"failed to fetch cloud release (see '{pkg.name}:optRelease' for details)"
-        return ((), t)
+  mkBuildArchiveFacetConfig optReleaseFacet "GitHub release"
 
-/-- Perform a build job after first checking for an (optional) cloud release for the package. -/
-def Package.afterReleaseAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
-  if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
-    (← self.optRelease.fetch).bindAsync fun _ _ => build
+/--
+Perform a build job after first checking for an (optional) cloud build
+for the package (e.g., from Reservoir or GitHub).
+-/
+def Package.afterBuildCacheAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
+  if self.name ≠ (← getRootPackage).name then
+    (← self.fetchOptBuildCache).bindAsync fun _ _ => build
   else
     build
 
-/-- Perform a build after first checking for an (optional) cloud release for the package. -/
-def Package.afterReleaseSync (self : Package) (build : JobM α) : FetchM (Job α) := do
-  if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
-    (← self.optRelease.fetch).bindSync fun _ _ => build
+@[deprecated afterBuildCacheAsync (since := "2024-09-27")]
+def Package.afterReleaseAsync := @afterBuildCacheAsync
+
+/--
+ Perform a build after first checking for an (optional) cloud build
+ for the package (e.g., from Reservoir or GitHub).
+-/
+def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job α) := do
+  if self.name ≠ (← getRootPackage).name then
+    (← self.fetchOptBuildCache).bindSync fun _ _ => build
   else
     Job.async build
+
+@[deprecated afterBuildCacheSync (since := "2024-09-27")]
+def Package.afterReleaseSync := @afterBuildCacheSync
 
 open Package in
 /--
@@ -157,6 +192,8 @@ def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
+  |>.insert optCacheFacet optCacheFacetConfig
+  |>.insert cacheFacet cacheFacetConfig
   |>.insert optBarrelFacet optBarrelFacetConfig
   |>.insert barrelFacet barrelFacetConfig
   |>.insert optReleaseFacet optReleaseFacetConfig

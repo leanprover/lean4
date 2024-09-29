@@ -632,6 +632,13 @@ where
           msg := msg ++ "\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the structure resulting universe level"
         throwError msg
 
+/--
+Heuristic: we prefer a `Prop` instead of a `Type` structure when it could be a syntactic subsingleton.
+However, if there are no fields, we prefer `Type`.
+-/
+private def isPropCandidate (fieldInfos : Array StructFieldInfo) : Bool :=
+  !fieldInfos.isEmpty
+
 private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
   let r ← getResultUniverse type
   let rOffset : Nat   := r.getOffset
@@ -639,7 +646,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   match r with
   | Level.mvar mvarId =>
     let us ← collectUniversesFromFields r rOffset fieldInfos
-    let rNew := mkResultUniverse us rOffset
+    let rNew := mkResultUniverse us rOffset (isPropCandidate fieldInfos)
     assignLevelMVar mvarId rNew
     instantiateMVars type
   | _ => throwError "failed to compute resulting universe level of structure, provide universe explicitly"

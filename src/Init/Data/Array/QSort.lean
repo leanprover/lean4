@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
+import Init.Data.Ord
 
 namespace Array
 -- TODO: remove the [Inhabited α] parameters as soon as we have the tactic framework for automating proof generation and using Array.fget
@@ -43,5 +44,12 @@ def qpartition (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × 
         sort as (mid+1) high
     else as
   sort as low high
+
+set_option linter.unusedVariables.funArgs false in
+/--
+Sort an array using `compare` to compare elements.
+-/
+def qsortOrd [ord : Ord α] (xs : Array α) : Array α :=
+  xs.qsort fun x y => compare x y |>.isLT
 
 end Array

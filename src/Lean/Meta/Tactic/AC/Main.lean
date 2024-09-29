@@ -159,7 +159,7 @@ def post (e : Expr) : SimpM Simp.Step := do
       | none => return Simp.Step.done { expr := e }
     | e, _ => return Simp.Step.done { expr := e }
 
-def canonicalizeUnnormalized (mvarId : MVarId) : MetaM MVarId := do
+def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx :=
     {
       simpTheorems  := {}
@@ -172,12 +172,12 @@ def canonicalizeUnnormalized (mvarId : MVarId) : MetaM MVarId := do
 
 @[builtin_tactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
-  let newGoal ← canonicalizeUnnormalized goal
+  let newGoal ← rewriteUnnormalized goal
   goal.withContext <| newGoal.refl
 
 @[builtin_tactic acNf] def acNfTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
-  goal.withContext <| replaceMainGoal [← canonicalizeUnnormalized goal]
+  goal.withContext <| replaceMainGoal [← rewriteUnnormalized goal]
 
 builtin_initialize
   registerTraceClass `Meta.AC

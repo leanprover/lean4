@@ -400,6 +400,19 @@ example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 syntax (name := acRfl) "ac_rfl" : tactic
 
 /--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+syntax (name := acNf) "ac_nf" : tactic
+
+/--
 The `sorry` tactic closes the goal using `sorryAx`. This is intended for stubbing out incomplete
 parts of a proof while still having a syntactically correct proof skeleton. Lean will give
 a warning whenever a proof uses `sorry`, so you aren't likely to miss it, but

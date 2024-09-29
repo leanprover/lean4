@@ -248,6 +248,10 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
 theorem Perm.count_eq [DecidableEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
+/-
+This theorem is a variant of `Perm.foldl_eq` defined in Mathlib which uses typeclasses rather
+than the explicit `comm` argument.
+-/
 theorem Perm.foldl_eq' {f : β → α → β} {l₁ l₂ : List α} (p : l₁ ~ l₂)
     (comm : ∀ x ∈ l₁, ∀ y ∈ l₁, ∀ (z), f (f z x) y = f (f z y) x)
     (init) : foldl f init l₁ = foldl f init l₂ := by
@@ -259,6 +263,28 @@ theorem Perm.foldl_eq' {f : β → α → β} {l₁ l₂ : List α} (p : l₁ ~ 
   | swap' x y _p IH =>
     simp only [foldl]
     rw [comm x (.tail _ <| .head _) y (.head _)]
+    apply IH; intros; apply comm <;> exact .tail _ (.tail _ ‹_›)
+  | trans p₁ _p₂ IH₁ IH₂ =>
+    refine (IH₁ comm init).trans (IH₂ ?_ _)
+    intros; apply comm <;> apply p₁.symm.subset <;> assumption
+
+/-
+This theorem is a variant of `Perm.foldr_eq` defined in Mathlib which uses typeclasses rather
+than the explicit `comm` argument.
+-/
+theorem Perm.foldr_eq' {f : α → β → β} {l₁ l₂ : List α} (p : l₁ ~ l₂)
+    (comm : ∀ x ∈ l₁, ∀ y ∈ l₁, ∀ (z), f y (f x z) = f x (f y z))
+    (init) : foldr f init l₁ = foldr f init l₂ := by
+  induction p using recOnSwap' generalizing init with
+  | nil => simp
+  | cons x _p IH =>
+    simp only [foldr]
+    congr 1
+    apply IH; intros; apply comm <;> exact .tail _ ‹_›
+  | swap' x y _p IH =>
+    simp only [foldr]
+    rw [comm x (.tail _ <| .head _) y (.head _)]
+    congr 2
     apply IH; intros; apply comm <;> exact .tail _ (.tail _ ‹_›)
   | trans p₁ _p₂ IH₁ IH₂ =>
     refine (IH₁ comm init).trans (IH₂ ?_ _)

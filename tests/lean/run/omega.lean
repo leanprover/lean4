@@ -458,6 +458,14 @@ example (a : Nat) :
     (((a + (2 ^ 64 - 1)) % 2 ^ 64 + 1) * 8 - 1 - (a + (2 ^ 64 - 1)) % 2 ^ 64 * 8 + 1) = 8 := by
   omega
 
+/-! ### Int.toNat -/
+
+example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
+  omega
+
+example (z : Int) (a : Fin z.toNat) (h : 0 ≤ z) : ↑↑a ≤ z := by
+  omega
+
 /-! ### BitVec -/
 open BitVec
 

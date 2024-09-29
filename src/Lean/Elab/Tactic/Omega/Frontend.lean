@@ -277,6 +277,7 @@ where
       | _ => mkAtomLinearCombo e
     | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
     | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
+    | (``Int.toNat, #[n]) => rewrite e (mkApp (.const ``Int.toNat_eq_max []) n)
     | (``HShiftLeft.hShiftLeft, #[_, _, _, _, a, b]) =>
       rewrite e (mkApp2 (.const ``Int.ofNat_shiftLeft_eq []) a b)
     | (``HShiftRight.hShiftRight, #[_, _, _, _, a, b]) =>

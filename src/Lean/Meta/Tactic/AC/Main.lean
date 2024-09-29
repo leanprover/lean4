@@ -140,7 +140,18 @@ where
     | .op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
     | .var x => vars[x]!
 
-def post (e : Expr) : SimpM Simp.Step := do
+def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
+  let simpCtx :=
+    {
+      simpTheorems  := {}
+      congrTheorems := (← getSimpCongrTheorems)
+      config        := Simp.neutralConfig
+    }
+  let tgt ← instantiateMVars (← mvarId.getType)
+  let (res, _) ← Simp.main tgt simpCtx (methods := { post })
+  applySimpResultToTarget mvarId tgt res
+where
+  post (e : Expr) : SimpM Simp.Step := do
     let ctx ← Simp.getContext
     match e, ctx.parent? with
     | bin op₁ l r, some (bin op₂ _ _) =>
@@ -158,17 +169,6 @@ def post (e : Expr) : SimpM Simp.Step := do
         return Simp.Step.done { expr := newTgt, proof? := proof }
       | none => return Simp.Step.done { expr := e }
     | e, _ => return Simp.Step.done { expr := e }
-
-def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
-  let simpCtx :=
-    {
-      simpTheorems  := {}
-      congrTheorems := (← getSimpCongrTheorems)
-      config        := Simp.neutralConfig
-    }
-  let tgt ← instantiateMVars (← mvarId.getType)
-  let (res, _) ← Simp.main tgt simpCtx (methods := { post })
-  applySimpResultToTarget mvarId tgt res
 
 @[builtin_tactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal

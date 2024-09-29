@@ -530,7 +530,7 @@ mutual
   /--
   Create a fresh metavariable for the implicit argument, add it to `f`, and thn execute the main loop.
   -/
-  private partial def addImplicitArg (argName : Name) (ellipsis := true) : M Expr := do
+  private partial def addImplicitArg (argName : Name) (ellipsis := false) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
       let arg ← mkFreshExprMVar argType

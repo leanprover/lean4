@@ -2517,7 +2517,8 @@ private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w 
 @[simp]
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getLsbD i =
-    (decide (i < w * n) && x.getLsbD (i % w)) := by
+    -- I do not get the condition i < w * n in the context of the getElem proof. :-(
+    (if i < w * n then x[i % w]'(by rw [Nat.mod_lt]) else false) := by
   induction n generalizing x
   case zero => simp
   case succ n ih =>

@@ -43,7 +43,7 @@ The operations are organized as follow:
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
-* Minima and maxima: `minimum?` and `maximum?`.
+* Minima and maxima: `min?` and `max?`.
 * Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`,
   `removeAll`
   (currently these functions are mostly only used in meta code,
@@ -1464,29 +1464,33 @@ def enum : List α → List (Nat × α) := enumFrom 0
 
 /-! ## Minima and maxima -/
 
-/-! ### minimum? -/
+/-! ### min? -/
 
 /--
 Returns the smallest element of the list, if it is not empty.
-* `[].minimum? = none`
-* `[4].minimum? = some 4`
-* `[1, 4, 2, 10, 6].minimum? = some 1`
+* `[].min? = none`
+* `[4].min? = some 4`
+* `[1, 4, 2, 10, 6].min? = some 1`
 -/
-def minimum? [Min α] : List α → Option α
+def min? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
-/-! ### maximum? -/
+@[inherit_doc min?, deprecated min? (since := "2024-09-29")] abbrev minimum? := @min?
+
+/-! ### max? -/
 
 /--
 Returns the largest element of the list, if it is not empty.
-* `[].maximum? = none`
-* `[4].maximum? = some 4`
-* `[1, 4, 2, 10, 6].maximum? = some 10`
+* `[].max? = none`
+* `[4].max? = some 4`
+* `[1, 4, 2, 10, 6].max? = some 10`
 -/
-def maximum? [Max α] : List α → Option α
+def max? [Max α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl max a
+
+@[inherit_doc max?, deprecated max? (since := "2024-09-29")] abbrev maximum? := @max?
 
 /-! ## Other list operations
 

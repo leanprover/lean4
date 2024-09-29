@@ -878,6 +878,20 @@ theorem foldr_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' :
   · simp
   · simp [*, h]
 
+theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] :
+    ∀ {l : List α} {a₁ a₂}, l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂)
+  | [], a₁, a₂ => rfl
+  | a :: l, a₁, a₂ => by
+    simp only [foldl_cons, ha.assoc]
+    rw [foldl_assoc]
+
+theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
+    ∀ {l : List α} {a₁ a₂}, l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂
+  | [], a₁, a₂ => rfl
+  | a :: l, a₁, a₂ => by
+    simp only [foldr_cons, ha.assoc]
+    rw [foldr_assoc]
+
 theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : List β) (init : α₁)
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
   induction l generalizing init <;> simp [*, H]

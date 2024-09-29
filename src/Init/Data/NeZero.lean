@@ -35,4 +35,4 @@ theorem neZero_iff {n : R} : NeZero n ↔ n ≠ 0 :=
   ⟨fun h ↦ h.out, NeZero.mk⟩
 
 @[simp] theorem neZero_zero_iff_false {α : Type _} [Zero α] : NeZero (0 : α) ↔ False :=
-  ⟨fun h ↦ h.ne rfl, fun h ↦ h.elim⟩
+  ⟨fun _ ↦ NeZero.ne (0 : α) rfl, fun h ↦ h.elim⟩

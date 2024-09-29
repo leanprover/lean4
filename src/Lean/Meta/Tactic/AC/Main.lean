@@ -170,14 +170,21 @@ where
       | none => return Simp.Step.done { expr := e }
     | e, _ => return Simp.Step.done { expr := e }
 
+def rewriteUnnormalizedRefl (goal : MVarId) : MetaM Unit := do
+  let newGoal ← rewriteUnnormalized goal
+  newGoal.refl
+
+def rewriteUnnormalizedNormalForm (goal : MVarId) : TacticM Unit := do
+  let newGoal ← rewriteUnnormalized goal
+  replaceMainGoal [newGoal]
+
 @[builtin_tactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
-  let newGoal ← rewriteUnnormalized goal
-  goal.withContext <| newGoal.refl
+  goal.withContext <| rewriteUnnormalizedRefl goal
 
 @[builtin_tactic acNf] def acNfTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
-  goal.withContext <| replaceMainGoal [← rewriteUnnormalized goal]
+  goal.withContext <| rewriteUnnormalizedNormalForm goal
 
 builtin_initialize
   registerTraceClass `Meta.AC

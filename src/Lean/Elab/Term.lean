@@ -139,11 +139,13 @@ structure LetRecToLift where
 structure State where
   levelNames        : List Name       := []
   syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
-  pendingMVars      : List MVarId := {}
+  pendingMVars      : List MVarId := []
+  /-- Metavariables from ellipses should be natural so that they can be solved for,
+  but at the same time if they are not solved for they should become new goals.
+  This keeps track of natural mvars whose kind should later become syntheticOpaque. -/
+  ellipsisMVars  : List MVarId := []
   /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
   mvarErrorInfos    : List MVarErrorInfo := []
-  /-- List of data to be able to localize universe level metavariable errors to particular expressions. -/
-  levelMVarErrorInfos   : List LevelMVarErrorInfo := []
   /--
     `mvarArgNames` stores the argument names associated to metavariables.
     These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
@@ -156,6 +158,8 @@ structure State where
     but this doesn't work if the argument name is available _before_ the `mvarErrorInfos` is set for that metavariable.
   -/
   mvarArgNames      : MVarIdMap Name := {}
+  /-- List of data to be able to localize universe level metavariable errors to particular expressions. -/
+  levelMVarErrorInfos   : List LevelMVarErrorInfo := []
   letRecsToLift     : List LetRecToLift := []
   deriving Inhabited
 
@@ -865,6 +869,34 @@ def logUnassignedLevelMVarsUsingErrorInfos (pendingLevelMVarIds : Array LMVarId)
     for error in errors do
       error.logError
     return hasNewErrors
+
+def registerEllipsisMVar (mvarId : MVarId) : TermElabM Unit :=
+  modify fun s => { s with ellipsisMVars := mvarId :: s.ellipsisMVars }
+
+/--
+Turn each unassigned ellipsis metavariable into a synthetic opaque metavariable.
+-/
+def processEllipsisMVars : TermElabM Unit := do
+  let mvarIds ← modifyGet fun s => (s.ellipsisMVars, { s with ellipsisMVars := [] })
+  for mvarId in mvarIds do
+    let e ← instantiateMVars (.mvar mvarId)
+    if let .mvar mvarId' := e then
+      if (← mvarId'.getKind).isNatural then
+        mvarId'.setKind .syntheticOpaque
+        if (← mvarId'.getDecl).userName.isAnonymous then
+          mvarId'.setUserName (← mvarId.getDecl).userName
+
+def withProcessEllipsisMVarsImp (k : TermElabM α) : TermElabM α := do
+  let saved := (← get).ellipsisMVars
+  try
+    let res ← k
+    processEllipsisMVars
+    return res
+  finally
+    modify fun s => { s with ellipsisMVars := saved }
+
+@[inline] def withProcessEllipsisMVars [MonadFunctorT TermElabM m] (k : m α) : m α :=
+  monadMap (m := TermElabM) (withProcessEllipsisMVarsImp ·) k
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do

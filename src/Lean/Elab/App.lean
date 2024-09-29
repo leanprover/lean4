@@ -530,7 +530,7 @@ mutual
   /--
   Create a fresh metavariable for the implicit argument, add it to `f`, and thn execute the main loop.
   -/
-  private partial def addImplicitArg (argName : Name) : M Expr := do
+  private partial def addImplicitArg (argName : Name) (ellipsis := true) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← if (← isNextOutParamOfLocalInstanceAndResult) then
       let arg ← mkFreshExprMVar argType
@@ -543,6 +543,10 @@ mutual
     else
       mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
+    if ellipsis then
+      registerEllipsisMVar arg.mvarId!
+      if !argName.isAnonymous && !argName.hasMacroScopes then
+        arg.mvarId!.setUserName argName
     addNewArg argName arg
     main
 
@@ -628,7 +632,7 @@ mutual
         throwError "invalid autoParam, argument must be a constant"
       | _, _, _ =>
         if (← read).ellipsis then
-          addImplicitArg argName
+          addImplicitArg argName (ellipsis := true)
         else if !(← get).namedArgs.isEmpty then
           if let some _ ← findNamedArgDependsOnCurrent? then
             /-

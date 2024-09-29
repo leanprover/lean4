@@ -810,10 +810,26 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
 
-/-! ### Auxiliary functions used in metaprogramming.
+/-! ## Auxiliary functions used in metaprogramming.
 
 We do not intend to provide verification theorems for these functions.
 -/
+
+/-! ### eraseReps -/
+
+/--
+`O(|l|)`. Erase repeated adjacent elements. Keeps the first occurrence of each run.
+* `eraseReps #[1, 3, 2, 2, 2, 3, 5] = #[1, 3, 2, 3, 5]`
+-/
+def eraseReps {α} [BEq α] (as : Array α) : Array α :=
+  if h : 0 < as.size then
+    let ⟨last, r⟩ := as.foldl (init := (as[0], #[])) fun ⟨last, r⟩ a =>
+      if a == last then ⟨last, r⟩ else ⟨a, r.push last⟩
+    r.push last
+  else
+    #[]
+
+/-! ### allDiff -/
 
 private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
   | 0,   _ => true
@@ -831,6 +847,8 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
+
+/-! ### getEvenElems -/
 
 @[inline] def getEvenElems (as : Array α) : Array α :=
   (·.2) <| as.foldl (init := (true, Array.empty)) fun (even, r) a =>

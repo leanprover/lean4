@@ -360,7 +360,8 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
     else
       -- stopped after `tk` => add space
-      push $ tk ++ " "
+      pushLine
+      push tk
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
   else
     -- already separated => use `tk` as is

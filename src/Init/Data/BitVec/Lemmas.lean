@@ -338,6 +338,10 @@ theorem msb_eq_getLsbD_last (x : BitVec w) :
   · simp [BitVec.eq_nil x]
   · simp
 
+theorem msb_eq_getElem_last (x : BitVec w) (h : 0 < w) :
+    x.msb = x[w - 1] := by
+  simp [← getLsbD_eq_getElem, msb_eq_getLsbD_last]
+
 @[bv_toNat] theorem getLsbD_last (x : BitVec w) :
     x.getLsbD (w-1) = decide (2 ^ (w-1) ≤ x.toNat) := by
   rcases w with rfl | w
@@ -525,6 +529,7 @@ theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
   rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
 
+@[simp]
 theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     (setWidth m x)[i] = x.getLsbD i := by
   rw [setWidth]
@@ -589,7 +594,7 @@ theorem getElem?_setWidth (m : Nat) (x : BitVec n) (i : Nat) :
   cases getLsbD x i <;> simp; omega
 
 @[simp] theorem setWidth_cast {h : w = v} : (cast h x).setWidth k = x.setWidth k := by
-  apply eq_of_getLsbD_eq
+  ext
   simp
 
 theorem msb_setWidth (x : BitVec w) : (x.setWidth v).msb = (decide (0 < v) && x.getLsbD (v - 1)) := by
@@ -1288,7 +1293,7 @@ theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
 
 @[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
   ext i
-  simp [getLsbD_sshiftRight]
+  simp [getElem_sshiftRight]
 
 theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
     x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by
@@ -1554,7 +1559,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem cast_append_left (h : w + v = w' + v) (x : BitVec w) (y : BitVec v) :
     cast h (x ++ y) = cast (by omega) x ++ y := by
   ext
-  simp [getLsbD_append]
+  simp [getElem_append]
 
 theorem setWidth_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).setWidth k = if h : k ≤ v then y.setWidth k else (x.setWidth (k - v) ++ y).cast (by omega) := by
@@ -1565,9 +1570,9 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   · have t : i < v := by omega
     simp [t]
   · by_cases t : i < v
-    · simp [t, getLsbD_append]
+    · simp [t, getElem_append]
     · have t' : i - v < k - v := by omega
-      simp [t, t', getLsbD_append]
+      simp [t, t', getElem_append]
 
 @[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) : setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
   subst h
@@ -1594,20 +1599,20 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
   ext i
-  simp only [getLsbD_append, cond_eq_if]
-  split <;> simp [getLsbD_append, *]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_and, getElem_append, cond_eq_if]
+  split <;> simp
 
 @[simp] theorem or_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by
   ext i
-  simp only [getLsbD_append, cond_eq_if]
-  split <;> simp [getLsbD_append, *]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_or, getElem_append, cond_eq_if]
+  split <;> simp
 
 @[simp] theorem xor_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by
   ext i
-  simp only [getLsbD_append, cond_eq_if]
-  split <;> simp [getLsbD_append, *]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_xor, getElem_append, cond_eq_if]
+  split <;> simp
 
 theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
     x >>> (n + m) = (x >>> n) >>> m:= by
@@ -1774,7 +1779,7 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
   · simp [Nat.div_eq_of_lt b.toNat_lt, Nat.testBit_add_one]
 
 @[simp] theorem getLsbD_concat_zero : (concat x b).getLsbD 0 = b := by
-  simp [getLsbD_concat]
+  simp [getElem_concat]
 
 @[simp] theorem getElem_concat_zero : (concat x b)[0] = b := by
   simp [getElem_concat]
@@ -1848,7 +1853,7 @@ theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
 
 @[simp] theorem zero_concat_false : concat 0#w false = 0#(w + 1) := by
   ext
-  simp [getLsbD_concat]
+  simp [getElem_concat]
 
 /-! ### add -/
 
@@ -2260,6 +2265,22 @@ theorem getLsbD_rotateLeft {x : BitVec w} {r i : Nat}  :
   · simp
   · rw [← rotateLeft_mod_eq_rotateLeft, getLsbD_rotateLeft_of_le (Nat.mod_lt _ (by omega))]
 
+@[simp]
+theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
+    (x.rotateLeft r)[i] =
+      cond (i < r % w)
+      (x[(w - (r % w) + i)]'(by sorry))
+      (x[i - (r % w)]'(by omega)) := by
+  rcases w with ⟨rfl, w⟩
+  · simp at h
+  · simp only [← getLsbD_eq_getElem]
+    rw [← rotateLeft_mod_eq_rotateLeft, getLsbD_rotateLeft_of_le (Nat.mod_lt _ (by omega))]
+    rename_i ar
+    by_cases hh : (i < r % (ar + 1))
+    · simp [hh]
+    · simp [hh]
+      intros
+      omega
 /-! ## Rotate Right -/
 
 /--
@@ -2308,6 +2329,7 @@ theorem getLsbD_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i
   apply getLsbD_ge
   omega
 
+
 /-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
 smaller than the bitwidth. -/
 theorem rotateRight_eq_rotateRightAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) :
@@ -2341,6 +2363,14 @@ theorem getLsbD_rotateRight {x : BitVec w} {r i : Nat} :
   · simp
   · rw [← rotateRight_mod_eq_rotateRight, getLsbD_rotateRight_of_le (Nat.mod_lt _ (by omega))]
 
+@[simp]
+theorem getElem_rotateRight {x : BitVec w} {r i : Nat} (hr : i < w) :
+    (x.rotateRight r)[i] =
+      cond (i < w - (r % w))
+      (x.getLsbD ((r % w) + i))
+      (decide (i < w) && x.getLsbD (i - (w - (r % w)))) := by
+  simp only [←getLsbD_eq_getElem, getLsbD_rotateRight]
+
 /- ## twoPow -/
 
 @[simp, bv_toNat]
@@ -2368,6 +2398,12 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
           intro h; subst h
           simp at hi
         simp_all
+
+@[simp]
+theorem getElem_twoPow (i j : Nat) (h : j < w) : (twoPow w i)[j] = decide (i = j) := by
+  rw [←getLsbD_eq_getElem, getLsbD_twoPow]
+  simp
+  omega
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
@@ -2400,6 +2436,10 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
 theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsbD_twoPow]
 
+@[simp]
+theorem getElem_one {w i : Nat} (h : i < w) : (1#w)[i] = decide (0 = i) := by
+  rw [← twoPow_zero, getElem_twoPow]
+
 theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
   ext i
@@ -2409,16 +2449,16 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
 
 @[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by
   ext
-  simp [getLsbD_cons]
+  simp [getElem_cons]
   omega
 
 @[simp] theorem false_cons_zero : cons false 0#w = 0#(w + 1) := by
   ext
-  simp [getLsbD_cons]
+  simp [getElem_cons]
 
 @[simp] theorem zero_concat_true : concat 0#w true = 1#(w + 1) := by
   ext
-  simp [getLsbD_concat]
+  simp [getElem_concat]
   omega
 
 /- ### setWidth, setWidth, and bitwise operations -/
@@ -2428,15 +2468,17 @@ When the `(i+1)`th bit of `x` is false,
 keeping the lower `(i + 1)` bits of `x` equals keeping the lower `i` bits.
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
-  {x : BitVec w} {i : Nat} (hx : x.getLsbD i = false) :
+  {x : BitVec w} {i : Nat} (h : i < w) (hx : x.getLsbD i = false) :
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) := by
   ext k
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and, getLsbD_or, getLsbD_and]
-  by_cases hik : i = k
-  · subst hik
-    simp [hx]
-  · by_cases hik' : k < i + 1 <;> simp [hik'] <;> omega
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_setWidth, getLsbD_setWidth, getElem_or,
+    getElem_twoPow]
+  by_cases h' : x[k.val] <;> simp [h']
+  by_cases h'' : i = k.val
+  · subst h''
+    simp [Fin.is_lt, getLsbD_eq_getElem, h'] at hx
+  · omega
 
 /--
 When the `(i+1)`th bit of `x` is true,
@@ -2444,13 +2486,15 @@ keeping the lower `(i + 1)` bits of `x` equalsk eeping the lower `i` bits
 and then performing bitwise-or with `twoPow i = (1 << i)`,
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
-    {x : BitVec w} {i : Nat} (hx : x.getLsbD i = true) :
+    {x : BitVec w} {i : Nat} (h : i < w) (hx : x.getLsbD i = true) :
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and, getLsbD_or, getLsbD_and]
+  simp only [Fin.is_lt, getLsbD_eq_getElem, getElem_setWidth, getLsbD_setWidth, getElem_or,
+    getElem_twoPow]
   by_cases hik : i = k
   · subst hik
+    simp only [Fin.is_lt, getLsbD_eq_getElem] at hx
     simp [hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik'] <;> omega
 
@@ -2497,12 +2541,20 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     by_cases hi : i < w * (n + 1)
     · simp only [hi, decide_True, Bool.true_and]
       by_cases hi' : i < w * n
-      · simp [hi', ih]
+      · simp [hi', ih, -getLsbD_eq_getElem]
       · simp only [hi', decide_False, cond_false]
         rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_False, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
+
+@[simp]
+theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
+    (x.replicate n)[i] = x.getLsbD (i % w) := by
+  rw [← getLsbD_eq_getElem, getLsbD_replicate]
+  simp only [Bool.and_iff_right_iff_imp, decide_eq_true_eq]
+  intros
+  omega
 
 /-! ### intMin -/
 

@@ -41,7 +41,7 @@ theorem iunfoldr.fst_eq
 private theorem iunfoldr.eq_test
     {f : Fin w → α → α × Bool} (state : Nat → α) (value : BitVec w) (a : α)
     (init : state 0 = a)
-    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value.getLsbD i.val)) :
+    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value[i.val])) :
     iunfoldr f a = (state w, BitVec.truncate w value) := by
   apply Fin.hIterate_eq (fun i => ((state i, BitVec.truncate i value) : α × BitVec i))
   case init =>
@@ -89,10 +89,14 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
       have hj2 : j.val ≤ w := by simp
       rw [← ind j, ← (ih hj2).2]
 
-
 theorem iunfoldr_getLsbD {f : Fin w → α → α × Bool} (state : Nat → α) (i : Fin w)
     (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :
   getLsbD (iunfoldr f (state 0)).snd i.val = (f i (state i.val)).snd := by
+  exact (iunfoldr_getLsbD' state ind).1 i
+
+theorem iunfoldr_getElem {f : Fin w → α → α × Bool} (state : Nat → α) (i : Fin w)
+    (ind : ∀(i : Fin w), (f i (state i.val)).fst = state (i.val+1)) :
+  (iunfoldr f (state 0)).snd[i.val] = (f i (state i.val)).snd := by
   exact (iunfoldr_getLsbD' state ind).1 i
 
 /--
@@ -101,14 +105,14 @@ Correctness theorem for `iunfoldr`.
 theorem iunfoldr_replace
     {f : Fin w → α → α × Bool} (state : Nat → α) (value : BitVec w) (a : α)
     (init : state 0 = a)
-    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value.getLsbD i.val)) :
+    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value[i])) :
     iunfoldr f a = (state w, value) := by
   simp [iunfoldr.eq_test state value a init step]
 
 theorem iunfoldr_replace_snd
   {f : Fin w → α → α × Bool} (state : Nat → α) (value : BitVec w) (a : α)
     (init : state 0 = a)
-    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value.getLsbD i.val)) :
+    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value[i])) :
     (iunfoldr f a).snd = value := by
   simp [iunfoldr.eq_test state value a init step]
 

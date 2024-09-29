@@ -159,10 +159,36 @@ theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool
     ]
   simp [testBit_to_div_mod, carry, Nat.add_assoc]
 
-theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
-    getLsbD (x + y) i =
-      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y false)) := by
-  simpa using getLsbD_add_add_bool i_lt x y false
+theorem getElem_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
+    (x + y + setWidth w (ofBool c))[i] =
+      (x[i] ^^ (y[i] ^^ carry i x y c)) := by
+  let ⟨x, x_lt⟩ := x
+  let ⟨y, y_lt⟩ := y
+  rw [getElem_eq_testBit_toNat]
+  rw [getElem_eq_testBit_toNat]
+
+  simp only [add_ofFin, ofFin_add]
+  simp [getElem_eq_testBit_toNat, toNat_add, toNat_setWidth, i_lt, toNat_ofFin, toNat_ofBool,
+    Nat.mod_add_mod, Nat.add_mod_mod]
+  apply Eq.trans
+  stop
+  rw [← Nat.div_add_mod x (2^i), ← Nat.div_add_mod y (2^i)]
+  simp only
+    [ Nat.testBit_mod_two_pow,
+      Nat.testBit_mul_two_pow_add_eq,
+      i_lt,
+      decide_True,
+      Bool.true_and,
+      Nat.add_assoc,
+      Nat.add_left_comm (_%_) (_ * _) _,
+      testBit_limit (mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ x y i c)
+    ]
+  simp [testBit_to_div_mod, carry, Nat.add_assoc]
+
+theorem getElem_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
+    (x + y)[i] =
+      (x[i] ^^ (y[i] ^^ carry i x y false)) := by
+  simpa using getElem_add_add_bool i_lt x y false
 
 theorem adc_spec (x y : BitVec w) (c : Bool) :
     adc x y c = (carry w x y c, x + y + setWidth w (ofBool c)) := by
@@ -175,7 +201,7 @@ theorem adc_spec (x y : BitVec w) (c : Bool) :
     simp [carry, Nat.mod_one]
     cases c <;> rfl
   case step =>
-    simp [adcb, Prod.mk.injEq, carry_succ, getLsbD_add_add_bool]
+    simp [adcb, Prod.mk.injEq, carry_succ, getElem_add_add_bool]
 
 theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := by
   simp [adc_spec]
@@ -210,24 +236,26 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
 /-! ### Negation -/
 
 theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
-  getLsbD (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd) i.val = !(getLsbD x i.val) := by
+  (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd)[i.val] = !(x[i]) := by
   apply iunfoldr_getLsbD (fun _ => ()) i (by simp)
 
 theorem bit_not_add_self (x : BitVec w) :
-  ((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd + x  = -1 := by
+  ((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd + x  = -1 := by
   simp only [add_eq_adc]
   apply iunfoldr_replace_snd (fun _ => false) (-1) false rfl
-  intro i; simp only [ BitVec.not, adcb, testBit_toNat]
-  rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x.getLsbD i)))) ()).snd)]
-  <;> simp [bit_not_testBit, negOne_eq_allOnes, getLsbD_allOnes]
+  intro i; simp only [adcb, Fin.is_lt, getLsbD_eq_getElem, atLeastTwo_false_right, bne_false,
+    ofNat_eq_ofNat, Fin.getElem_fin, Prod.mk.injEq, and_eq_false_imp]
+  rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x[i])))) ()).snd)]
+  <;> simp [bit_not_testBit, negOne_eq_allOnes, getElem_allOnes]
 
 theorem bit_not_eq_not (x : BitVec w) :
-  ((iunfoldr (fun i c => (c, !(x.getLsbD i)))) ()).snd = ~~~ x := by
-  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←negOne_eq_allOnes]
+  ((iunfoldr (fun i c => (c, !(x[i.val])))) ()).snd = ~~~ x := by
+  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x),
+    ←negOne_eq_allOnes]
 
-theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
+theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
   simp only [← add_eq_adc]
-  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsbD i)))) ()).snd) _ rfl]
+  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) _ rfl]
   · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
     simp [← sub_toAdd, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
@@ -368,6 +396,10 @@ theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
   · simp
   · omega
 
+theorem getElem_mul (x y : BitVec w) (i : Nat) (h : i < w) :
+    (x * y)[i] = (mulRec x y w)[i] := by
+  simp [mulRec_eq_mul_signExtend_setWidth]
+
 /-! ## shiftLeft recurrence for bitblasting -/
 
 /--
@@ -419,6 +451,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
   case succ n ih =>
     simp only [shiftLeftRec_succ, and_twoPow]
     rw [ih]
+    stop
     by_cases h : y.getLsbD (n + 1)
     · simp only [h, ↓reduceIte]
       rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
@@ -426,6 +459,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
       simp [and_twoPow]
     · simp only [h, false_eq_true, ↓reduceIte, shiftLeft_zero']
       rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)]
+      stop
       simp [h]
 
 /--
@@ -861,11 +895,13 @@ theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
     simp [twoPow_zero, Nat.reduceAdd, and_one_eq_setWidth_ofBool_getLsbD, setWidth_one]
   case succ n ih =>
     simp only [sshiftRightRec_succ_eq, and_twoPow, ih]
+    stop
     by_cases h : y.getLsbD (n + 1)
     · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         sshiftRight'_or_of_and_eq_zero (by simp [and_twoPow]), h]
       simp
-    · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)
+    · stop
+      rw [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false (i := n + 1)
         (by simp [h])]
       simp [h]
 
@@ -926,11 +962,13 @@ theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
   case succ n ih =>
     simp only [ushiftRightRec_succ, and_twoPow]
     rw [ih]
+    stop
     by_cases h : y.getLsbD (n + 1) <;> simp only [h, ↓reduceIte]
     · rw [setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true h,
         ushiftRight'_or_of_and_eq_zero]
       simp [and_twoPow]
-    · simp [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false, h]
+    · stop
+      simp [setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false, h]
 
 /--
 Show that `x >>> y` can be written in terms of `ushiftRightRec`.

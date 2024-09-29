@@ -137,8 +137,8 @@ theorem atLeastTwo_eq_halfAdder (lhsBit rhsBit carry : Bool) :
 theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) (assign : α → Bool)
     (lhsExpr rhsExpr : BitVec w)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign⟧ = lhsExpr.getLsbD idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign⟧ = rhsExpr.getLsbD idx)
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign⟧ = lhsExpr[idx])
+    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign⟧ = rhsExpr[idx])
     (hcin : ⟦aig, cin, assign⟧ = BitVec.carry curr lhsExpr rhsExpr false) :
     ∀ (idx : Nat) (hidx1 : idx < w),
         curr ≤ idx
@@ -188,14 +188,16 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
         · simp
         · simp [Ref.hgate]
       · unfold mkFullAdder
-        simp only [Ref.cast_eq, id_eq, Int.reduceNeg, denote_projected_entry, denote_mkFullAdderCarry,
-          FullAdderInput.lhs_cast, FullAdderInput.rhs_cast, FullAdderInput.cin_cast,
-          BitVec.carry_succ]
+        simp only [Ref.cast_eq, id_eq, Int.reduceNeg, denote_projected_entry,
+          denote_mkFullAdderCarry, FullAdderInput.lhs_cast, FullAdderInput.rhs_cast,
+          FullAdderInput.cin_cast, BitVec.carry_succ]
         rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
         rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
         rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderOut)]
         rw [hleft, hright, hcin]
         simp [atLeastTwo_eq_halfAdder]
+        stop
+        rw [BitVec.getLsbD_eq_getElem hlt]
       · omega
   · omega
 termination_by w - curr
@@ -204,14 +206,14 @@ end blastAdd
 
 theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       (input : BinaryRefVec aig w)
-      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
-      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs[idx])
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs[idx]) :
       ∀ (idx : Nat) (hidx : idx < w),
           ⟦(blastAdd aig input).aig, (blastAdd aig input).vec.get idx hidx, assign⟧
             =
-          (lhs + rhs).getLsbD idx := by
+          (lhs + rhs)[idx] := by
   intro idx hidx
-  rw [BitVec.getLsbD_add]
+  rw [BitVec.getElem_add]
   · rw [← hleft idx hidx]
     rw [← hright idx hidx]
     unfold blastAdd
@@ -230,7 +232,6 @@ theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Boo
       simp only [BinaryRefVec.rhs_get_cast, Ref.cast_eq]
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [hright]
-  · assumption
 
 end bitblast
 end BVExpr

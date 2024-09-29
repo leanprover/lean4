@@ -2264,9 +2264,7 @@ theorem getLsbD_rotateLeft {x : BitVec w} {r i : Nat}  :
 @[simp]
 theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
     (x.rotateLeft r)[i] =
-      if (i < r % w) then
-      (x[(w - (r % w) + i)]'(by /- I do not get `i < r % w` here -/ sorry)) else
-      (x[i - (r % w)]'(by omega)) := by
+      if h' : i < r % w then x[(w - (r % w) + i)]'(by omega) else x[i - (r % w)]'(by omega) := by
   simp [← BitVec.getLsbD_eq_getElem, h]
 
 /-! ## Rotate Right -/
@@ -2352,10 +2350,7 @@ theorem getLsbD_rotateRight {x : BitVec w} {r i : Nat} :
 
 @[simp]
 theorem getElem_rotateRight {x : BitVec w} {r i : Nat} (h : i < w) :
-    (x.rotateRight r)[i] =
-      cond (i < w - (r % w))
-      (x.getLsbD ((r % w) + i))
-      (x[(i - (w - (r % w)))]) := by
+    (x.rotateRight r)[i] = if h' : i < w - (r % w) then x[(r % w) + i]'(by omega) else x[(i - (w - (r % w)))] := by
   simp only [← BitVec.getLsbD_eq_getElem]
   simp [getLsbD_rotateRight, h]
 
@@ -2534,16 +2529,10 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
 
 @[simp]
 theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
-    (x.replicate n)[i] = if n = 0 then false else x[i % w]'(by
-
-      sorry
-      --have hh := Nat.mod_lt i
-      --rw [hh]
-    ) := by
-  rw [← getLsbD_eq_getElem, getLsbD_replicate]
-  simp only [Bool.and_iff_right_iff_imp, decide_eq_true_eq]
-  intros
-  omega
+    (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
+  simp only [← getLsbD_eq_getElem, getLsbD_replicate]
+  by_cases h' : w = 0
+  <;> simp [h'] ; omega
 
 /-! ### intMin -/
 

@@ -2388,9 +2388,9 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
         simp_all
 
 @[simp]
-theorem getElem_twoPow {i j : Nat} (h : j < w) : (twoPow w i)[j] = decide (i = j) := by
+theorem getElem_twoPow {i j : Nat} (h : j < w) : (twoPow w i)[j] = decide (j = i) := by
   rw [←getLsbD_eq_getElem, getLsbD_twoPow]
-  simp
+  simp [show i = j ↔ j = i by omega]
   omega
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :
@@ -2425,7 +2425,7 @@ theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0
   rw [← twoPow_zero, getLsbD_twoPow]
 
 @[simp]
-theorem getElem_one {w i : Nat} (h : i < w) : (1#w)[i] = decide (0 = i) := by
+theorem getElem_one {w i : Nat} (h : i < w) : (1#w)[i] = decide (i = 0) := by
   rw [← twoPow_zero, getElem_twoPow]
 
 theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :

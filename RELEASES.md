@@ -70,6 +70,7 @@ v4.12.0
   * [#5018](https://github.com/leanprover/lean4/pull/5018) enables infotrees on the command line for ilean generation.
   * [#5040](https://github.com/leanprover/lean4/pull/5040) and [#5056](https://github.com/leanprover/lean4/pull/5056) improve performance of info trees.
   * [#5090](https://github.com/leanprover/lean4/pull/5090) disables incrementality in the `case .. | ..` tactic.
+  * [#5312](https://github.com/leanprover/lean4/pull/5312) fixes a bug where changing whitespace after the module header could break subsequent commands.
 
 * **Definitions**
   * [#5016](https://github.com/leanprover/lean4/pull/5016) and [#5066](https://github.com/leanprover/lean4/pull/5066) add `clean_wf` tactic to clean up tactic state in `decreasing_by`. This can be disabled with `set_option debug.rawDecreasingByGoal false`.

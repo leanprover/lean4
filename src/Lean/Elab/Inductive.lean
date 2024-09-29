@@ -518,13 +518,13 @@ However, we prefer `Type` in the following cases:
 - if there are no constructors
 - if each constructor has no parameters
 -/
-private def isPropCandidate (indTypes : List InductiveType) : MetaM Bool := do
+private def isPropCandidate (numParams : Nat) (indTypes : List InductiveType) : MetaM Bool := do
   unless indTypes.foldl (fun n indType => max n indType.ctors.length) 0 == 1 do
     return false
   for indType in indTypes do
     for ctor in indType.ctors do
-      let nparams ← forallTelescopeReducing ctor.type fun ctorParams _ => pure ctorParams.size
-      unless nparams == 0 do
+      let cparams ← forallTelescopeReducing ctor.type fun ctorParams _ => pure (ctorParams.size - numParams)
+      unless cparams == 0 do
         return true
   return false
 
@@ -536,7 +536,7 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
     throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r}"
   let us ← collectUniverses views r rOffset numParams indTypes
   trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
-  let rNew := mkResultUniverse us rOffset (← isPropCandidate indTypes)
+  let rNew := mkResultUniverse us rOffset (← isPropCandidate numParams indTypes)
   assignLevelMVar r.mvarId! rNew
   indTypes.mapM fun indType => do
     let type ← instantiateMVars indType.type

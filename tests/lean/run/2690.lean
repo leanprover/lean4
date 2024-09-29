@@ -23,12 +23,17 @@ inductive I1 where
 #guard_msgs in #check I1
 
 /-!
-One constructor, no parameters. Type.
+One constructor, no constructor parameters. Type.
 -/
 inductive I2 where
   | a
 /-- info: I2 : Type -/
 #guard_msgs in #check I2
+
+inductive I2' (_ : Nat) where
+  | a
+/-- info: I2' : Nat → Type -/
+#guard_msgs in #check I2'
 
 /-!
 Two constructors. Type

@@ -84,6 +84,11 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
   pure_bind      := by intros; apply ext; simp [run_bind]
   bind_assoc     := by intros; apply ext; simp [run_bind]; apply bind_congr; intro a; cases a <;> simp
 
+@[simp] theorem map_throw [Monad m] [LawfulMonad m] {α β : Type _} (f : α → β) (e : ε) :
+    f <$> (throw e : ExceptT ε m α) = (throw e : ExceptT ε m β) := by
+  simp only [ExceptT.instMonad, ExceptT.map, ExceptT.mk, throw, throwThe, MonadExceptOf.throw,
+    pure_bind]
+
 end ExceptT
 
 /-! # Except -/

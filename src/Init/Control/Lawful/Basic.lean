@@ -133,6 +133,12 @@ theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y
   rw [← bind_pure_comp]
   simp only [bind_assoc, pure_bind]
 
+@[simp] theorem Functor.map_pure [Monad m] [LawfulMonad m] {a : α} : (f <$> pure a : m β) = pure (f a) := by
+  simp [pure, map]
+
+@[simp] theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUnit.unit) <$> a = a := by
+  simp [map]
+
 /--
 An alternative constructor for `LawfulMonad` which has more
 defaultable fields in the common case.

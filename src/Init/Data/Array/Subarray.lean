@@ -59,6 +59,22 @@ def popFront (s : Subarray α) : Subarray α :=
   else
     s
 
+/--
+The empty subarray.
+-/
+protected def empty : Subarray α where
+  array := #[]
+  start := 0
+  stop := 0
+  start_le_stop := Nat.le_refl 0
+  stop_le_array_size := Nat.le_refl 0
+
+instance : EmptyCollection (Subarray α) :=
+  ⟨Subarray.empty⟩
+
+instance : Inhabited (Subarray α) :=
+  ⟨{}⟩
+
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let sz := USize.ofNat s.stop
   let rec @[specialize] loop (i : USize) (b : β) : m β := do

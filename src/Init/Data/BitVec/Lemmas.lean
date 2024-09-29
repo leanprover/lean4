@@ -2264,8 +2264,8 @@ theorem getLsbD_rotateLeft {x : BitVec w} {r i : Nat}  :
 @[simp]
 theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
     (x.rotateLeft r)[i] =
-      cond (i < r % w)
-      (x.getLsbD (w - (r % w) + i))
+      if (i < r % w) then
+      (x[(w - (r % w) + i)]'(by /- I do not get `i < r % w` here -/ sorry)) else
       (x[i - (r % w)]'(by omega)) := by
   simp [← BitVec.getLsbD_eq_getElem, h]
 
@@ -2517,8 +2517,7 @@ private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w 
 @[simp]
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getLsbD i =
-    -- I do not get the condition i < w * n in the context of the getElem proof. :-(
-    (if i < w * n then x[i % w]'(by rw [Nat.mod_lt]) else false) := by
+    (decide (i < w * n) && x.getLsbD (i % w)) := by
   induction n generalizing x
   case zero => simp
   case succ n ih =>
@@ -2535,7 +2534,12 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
 
 @[simp]
 theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
-    (x.replicate n)[i] = x.getLsbD (i % w) := by
+    (x.replicate n)[i] = if n = 0 then false else x[i % w]'(by
+
+      sorry
+      --have hh := Nat.mod_lt i
+      --rw [hh]
+    ) := by
   rw [← getLsbD_eq_getElem, getLsbD_replicate]
   simp only [Bool.and_iff_right_iff_imp, decide_eq_true_eq]
   intros

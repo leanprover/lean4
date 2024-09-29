@@ -799,7 +799,6 @@ theorem umod_eq_divRec (hd : 0#w < d) :
   have := lawful_divRec this
   apply DivModState.umod_eq_of_lawful this (wn_divRec ..)
 
-@[simp]
 theorem divRec_succ' (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
     divRec (m+1) args qr =
     let wn := qr.wn - 1

@@ -544,9 +544,8 @@ mutual
       mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
     if ellipsis then
-      registerEllipsisMVar arg.mvarId!
-      if !argName.isAnonymous && !argName.hasMacroScopes then
-        arg.mvarId!.setUserName argName
+      let userName := if !argName.isAnonymous && !argName.hasMacroScopes then argName else .anonymous
+      registerEllipsisMVar arg.mvarId! userName
     addNewArg argName arg
     main
 

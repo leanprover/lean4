@@ -26,21 +26,20 @@ Fails with `exact` like before.
 -/
 /--
 error: don't know how to synthesize implicit argument 'm'
-  foo ?n ?m
+  foo ?_ ?_
 context:
-case m
-⊢ Fin ?n
+⊢ Fin ?_
 ---
 error: don't know how to synthesize implicit argument 'n'
-  foo ?n ?m
+  foo ?_ ?_
 context:
-case n
 ⊢ Nat
 ---
 error: unsolved goals
 ⊢ True
 -/
 #guard_msgs in
+set_option pp.mvars false in
 example : True := by
   exact foo ..
 
@@ -51,14 +50,12 @@ Limitation: this feature does not work under binders since the natural metavaria
 error: don't know how to synthesize implicit argument 'm'
   foo (?_ n) (?_ n)
 context:
-case m
 n : Nat
 ⊢ Fin (?_ n)
 ---
 error: don't know how to synthesize implicit argument 'n'
   foo (?_ n) (?_ n)
 context:
-case n
 n : Nat
 ⊢ Nat
 ---
@@ -86,7 +83,6 @@ example : S := by
 /--
 error: don't know how to synthesize placeholder
 context:
-case b
 ⊢ Nat
 ---
 error: unsolved goals
@@ -102,13 +98,11 @@ Limitation: `..` doesn't work underneath binders.
 /--
 error: don't know how to synthesize placeholder
 context:
-case b
 n : Nat
 ⊢ Nat
 ---
 error: don't know how to synthesize placeholder
 context:
-case a
 n : Nat
 ⊢ Nat
 ---

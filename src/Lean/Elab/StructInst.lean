@@ -677,9 +677,9 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
             let val ← ensureHasType d val
             cont val { field with val := FieldVal.nested sNew } (instMVars ++ instMVarsNew)
         | .implicit stx =>
-          let mvar ← mkFreshExprMVar d.consumeTypeAnnotations .natural (userName := fieldName)
+          let mvar ← mkFreshExprMVar d.consumeTypeAnnotations .natural
           registerMVarErrorHoleInfo mvar.mvarId! stx
-          registerEllipsisMVar mvar.mvarId!
+          registerEllipsisMVar mvar.mvarId! fieldName
           cont mvar field
         | .default  =>
           match d.getAutoParamTactic? with

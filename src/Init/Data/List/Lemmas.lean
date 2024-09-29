@@ -2406,6 +2406,10 @@ theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
 @[simp] theorem map_const (l : List α) (b : β) : map (Function.const α b) l = replicate l.length b :=
   map_eq_replicate_iff.mpr fun _ _ => rfl
 
+@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (replicate ·.length x) := by
+  funext l
+  simp
+
 /-- Variant of `map_const` using a lambda rather than `Function.const`. -/
 -- This can not be a `@[simp]` lemma because it would fire on every `List.map`.
 theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.length b :=

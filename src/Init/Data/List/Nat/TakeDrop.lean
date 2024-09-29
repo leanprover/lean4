@@ -42,7 +42,7 @@ theorem getElem_take' (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j)
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-theorem getElem_take (L : List α) {j i : Nat} {h : i < (L.take j).length} :
+@[simp] theorem getElem_take (L : List α) {j i : Nat} {h : i < (L.take j).length} :
     (L.take j)[i] =
     L[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
   rw [length_take, Nat.lt_min] at h; rw [getElem_take' L _ h.1]
@@ -52,7 +52,7 @@ length `> i`. Version designed to rewrite from the big list to the small list. -
 @[deprecated getElem_take' (since := "2024-06-12")]
 theorem get_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
     get L ⟨i, hi⟩ = get (L.take j) ⟨i, length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩⟩ := by
-  simp [getElem_take' _ hi hj]
+  simp
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/

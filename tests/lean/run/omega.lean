@@ -463,6 +463,9 @@ example (a : Nat) :
 example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
   omega
 
+example (z : Int) (a : Fin z.toNat) (h : 0 ≤ z) : ↑↑a ≤ z := by
+  omega
+
 /-! ### BitVec -/
 open BitVec
 

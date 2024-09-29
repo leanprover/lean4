@@ -678,7 +678,7 @@ mutual
         -- This behavior can be suppressed with `(_)`.
         let ty ← getArgExpectedType
         let arg ← mkInstMVar ty
-        addTermInfo' stx arg ty (← getLCtx)
+        addTermInfo' stx arg ty
         modify fun s => { s with args := s.args.tail! }
         main
       else

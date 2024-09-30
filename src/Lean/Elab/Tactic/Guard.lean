@@ -18,7 +18,7 @@ The various `guard_*` tactics have similar matching specifiers for how equal exp
 have to be to pass the tactic.
 This inductive gives the different specifiers that can be selected.
 -/
-inductive MatchKind
+inductive MatchKind where
 /-- A syntactic match means that the `Expr`s are `==` after stripping `MData` -/
 | syntactic
 /-- A defeq match `isDefEqGuarded` returns true. (Note that unification is allowed here.) -/

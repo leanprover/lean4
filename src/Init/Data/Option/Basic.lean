@@ -166,7 +166,7 @@ def liftOrGet (f : α → α → α) : Option α → Option α → Option α
 
 /-- Lifts a relation `α → β → Prop` to a relation `Option α → Option β → Prop` by just adding
 `none ~ none`. -/
-inductive Rel (r : α → β → Prop) : Option α → Option β → Prop
+inductive Rel (r : α → β → Prop) : Option α → Option β → Prop where
   /-- If `a ~ b`, then `some a ~ some b` -/
   | some {a b} : r a b → Rel r (some a) (some b)
   /-- `none ~ none` -/

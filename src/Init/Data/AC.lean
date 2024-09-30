@@ -9,7 +9,7 @@ import Init.Classical
 import Init.ByCases
 
 namespace Lean.Data.AC
-inductive Expr
+inductive Expr where
   | var (x : Nat)
   | op (lhs rhs : Expr)
   deriving Inhabited, Repr, BEq

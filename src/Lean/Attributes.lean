@@ -37,7 +37,7 @@ This is used to indicate how an attribute should be scoped.
 Note that the attribute handler (`AttributeImpl.add`) is responsible for interpreting the kind and
 making sure that these kinds are respected.
 -/
-inductive AttributeKind
+inductive AttributeKind where
   | global | local | scoped
   deriving BEq, Inhabited
 

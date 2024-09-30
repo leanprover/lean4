@@ -21,7 +21,7 @@ open Std.Sat
 An inductive datatype used specifically for the output of the `reduce` function. The intended
 meaning of each constructor is explained in the docstring of the `reduce` function.
 -/
-inductive ReduceResult (α : Type u)
+inductive ReduceResult (α : Type u) where
   | encounteredBoth
   | reducedToEmpty
   | reducedToUnit (l : Literal α)

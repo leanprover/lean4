@@ -156,7 +156,7 @@ private def RewriteResult.ppResult (r : RewriteResult) : MetaM String :=
 
 
 /-- Should we try discharging side conditions? If so, using `assumption`, or `solve_by_elim`? -/
-inductive SideConditions
+inductive SideConditions where
 | none
 | assumption
 | solveByElim

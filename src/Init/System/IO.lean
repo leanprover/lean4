@@ -211,7 +211,7 @@ def sleep (ms : UInt32) : BaseIO Unit :=
 @[extern "lean_io_cancel"] opaque cancel : @& Task α → BaseIO Unit
 
 /-- The current state of a `Task` in the Lean runtime's task manager. -/
-inductive TaskState
+inductive TaskState where
   /--
   The `Task` is waiting to be run.
   It can be waiting for dependencies to complete or

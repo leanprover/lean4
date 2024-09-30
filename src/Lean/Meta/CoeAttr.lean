@@ -24,7 +24,7 @@ is used, then `A.toB a` will be pretty-printed as `↑a`.
 namespace Lean.Meta
 
 /-- The different types of coercions that are supported by the `coe` attribute. -/
-inductive CoeFnType
+inductive CoeFnType where
   /-- The basic coercion `↑x`, see `CoeT.coe` -/
   | coe
   /-- The coercion to a function type, see `CoeFun.coe` -/

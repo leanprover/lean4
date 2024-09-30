@@ -134,7 +134,7 @@ instance : ToString Time := ⟨Time.toString⟩
 end Time
 
 /-- A TOML date-time. -/
-inductive DateTime
+inductive DateTime where
 | offsetDateTime (date : Date) (time : Time) (offset? : Option (Bool × Time) := none)
 | localDateTime (date : Date) (time : Time)
 | localDate (date : Date)

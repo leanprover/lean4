@@ -401,7 +401,7 @@ def complexMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
 
 /-- A `GuessLexRel` described how a recursive call affects a measure; whether it
 decreases strictly, non-strictly, is equal, or else.  -/
-inductive GuessLexRel | lt | eq | le | no_idea
+inductive GuessLexRel where | lt | eq | le | no_idea
 deriving Repr, DecidableEq
 
 instance : ToString GuessLexRel where

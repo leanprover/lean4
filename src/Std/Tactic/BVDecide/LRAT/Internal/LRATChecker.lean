@@ -11,7 +11,7 @@ namespace Std.Tactic.BVDecide
 namespace LRAT
 namespace Internal
 
-inductive Result
+inductive Result where
   | success
   | outOfProof
   | rupFailure

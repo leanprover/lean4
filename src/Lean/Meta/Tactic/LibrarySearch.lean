@@ -54,7 +54,7 @@ A "modifier" for a declaration.
   and we want to consider the forward direction,
 * `mpr` similarly, but for the backward direction.
 -/
-inductive DeclMod
+inductive DeclMod where
   | /-- the original declaration -/ none
   | /-- the forward direction of an `iff` -/ mp
   | /-- the backward direction of an `iff` -/ mpr

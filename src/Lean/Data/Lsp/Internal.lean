@@ -34,7 +34,7 @@ inductive RefIdent where
 namespace RefIdent
 
 /-- Shortened representation of `RefIdent` for more compact serialization. -/
-inductive RefIdentJsonRepr
+inductive RefIdentJsonRepr where
   /-- Shortened representation of `RefIdent.const` for more compact serialization. -/
   | c (m n : String)
   /-- Shortened representation of `RefIdent.fvar` for more compact serialization. -/

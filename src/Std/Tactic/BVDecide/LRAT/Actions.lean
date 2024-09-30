@@ -19,7 +19,7 @@ namespace LRAT
 open Std.Sat
 
 /-- `β` is for the type of a clause, `α` is for the type of variables -/
-inductive Action (β : Type u) (α : Type v)
+inductive Action (β : Type u) (α : Type v) where
   | addEmpty (id : Nat) (rupHints : Array Nat)
   | addRup (id : Nat) (c : β) (rupHints : Array Nat)
   | addRat (id : Nat) (c : β) (pivot : Literal α) (rupHints : Array Nat) (ratHints : Array (Nat × Array (Nat)))

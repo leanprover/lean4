@@ -30,7 +30,7 @@ structure SavedContext where
   levelNames : List Name
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
-inductive TacticMVarKind
+inductive TacticMVarKind where
   /-- Standard tactic metavariable, arising from `by ...` syntax. -/
   | term
   /-- Tactic metavariable arising from an autoparam for a function application. -/
@@ -1449,9 +1449,9 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   Reason: consider the following example
   ```
     mutual
-      inductive Foo
+      inductive Foo where
       | somefoo : Foo | bar : Bar → Foo → Foo
-      inductive Bar
+      inductive Bar where
       | somebar : Bar| foobar : Foo → Bar → Bar
     end
 

@@ -11,7 +11,7 @@ namespace Lake
 Lake equivalent of CMake's
 [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670).
 -/
-inductive BuildType
+inductive BuildType where
   /--
   Debug optimization, asserts enabled, custom debug code enabled, and
   debug info included in executable (so you can step through the code with a
@@ -48,7 +48,7 @@ instance : Max BuildType := maxOfLe
 /--
 Compiler backend with which to compile Lean.
 -/
-inductive Backend
+inductive Backend where
   /--
   Force the C backend.
   -/

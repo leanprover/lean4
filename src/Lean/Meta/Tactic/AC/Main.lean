@@ -56,7 +56,7 @@ def preContext (expr : Expr) : MetaM (Option PreContext) := do
 
   return none
 
-inductive PreExpr
+inductive PreExpr where
 | op (lhs rhs : PreExpr)
 | var (e : Expr)
 

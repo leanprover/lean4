@@ -14,7 +14,7 @@ This module contains the definition of a generic boolean substructure for SMT pr
 
 namespace Std.Tactic.BVDecide
 
-inductive Gate
+inductive Gate where
   | and
   | xor
   | beq
@@ -33,7 +33,7 @@ def eval : Gate → Bool → Bool → Bool
 
 end Gate
 
-inductive BoolExpr (α : Type)
+inductive BoolExpr (α : Type) where
   | literal : α → BoolExpr α
   | const : Bool → BoolExpr α
   | not : BoolExpr α → BoolExpr α

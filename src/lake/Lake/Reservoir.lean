@@ -22,7 +22,7 @@ namespace Lake
 Package source information from a Lake registry (e.g., Reservoir).
 Only contains the subset of fields useful to Lake.
 -/
-inductive RegistrySrc
+inductive RegistrySrc where
 | git (data : JsonObject) (url : String)
   (githubUrl? defaultBranch? : Option String) (subDir? : Option FilePath)
 | other (data : JsonObject)
@@ -156,7 +156,7 @@ def getUrl (url : String) (headers : Array String := #[]) : LogIO String := do
   captureProc {cmd := "curl", args := args.push url}
 
 /-- A Reservoir API response object. -/
-inductive ReservoirResp (α : Type u)
+inductive ReservoirResp (α : Type u) where
 | data (a : α)
 | error (status : Nat) (message : String)
 

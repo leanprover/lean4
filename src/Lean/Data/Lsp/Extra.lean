@@ -52,7 +52,7 @@ instance : FromJson WaitForDiagnostics :=
 instance : ToJson WaitForDiagnostics :=
   ⟨fun _ => mkObj []⟩
 
-inductive LeanFileProgressKind
+inductive LeanFileProgressKind where
   | processing | fatalError
   deriving Inhabited, BEq
 

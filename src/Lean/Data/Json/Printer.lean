@@ -68,7 +68,7 @@ end
 def pretty (j : Json) (lineWidth := 80) : String :=
   Format.pretty (render j) lineWidth
 
-protected inductive CompressWorkItem
+protected inductive CompressWorkItem where
   | json (j : Json)
   | arrayElem (j : Json)
   | arrayEnd

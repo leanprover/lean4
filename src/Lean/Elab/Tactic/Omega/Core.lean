@@ -36,7 +36,7 @@ abbrev Proof : Type := OmegaM Expr
 Our internal representation of an argument "justifying" that a constraint holds on some coefficients.
 We'll use this to construct the proof term once a contradiction is found.
 -/
-inductive Justification : Constraint → Coeffs → Type
+inductive Justification : Constraint → Coeffs → Type where
   /--
   `Problem.assumptions[i]` generates a proof that `s.sat' coeffs atoms`
   -/

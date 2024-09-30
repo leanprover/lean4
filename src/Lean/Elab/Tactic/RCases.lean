@@ -53,7 +53,7 @@ the type being destructed, the extra patterns will match on the last element, me
 `p1 | p2 | p3` will act like `p1 | (p2 | p3)` when matching `a1 ∨ a2 ∨ a3`. If matching against a
 type with 3 constructors,  `p1 | (p2 | p3)` will act like `p1 | (p2 | p3) | _` instead.
 -/
-inductive RCasesPatt : Type
+inductive RCasesPatt : Type where
   /-- A parenthesized expression, used for hovers -/
   | paren (ref : Syntax) : RCasesPatt → RCasesPatt
   /-- A named pattern like `foo` -/

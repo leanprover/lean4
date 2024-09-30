@@ -29,7 +29,7 @@ would be:
 
 Then `hasPosAssignment` could simply query the first bit and `hasNegAssignment` could simply query the second bit.
 -/
-inductive Assignment
+inductive Assignment where
   | pos
   | neg
   | both

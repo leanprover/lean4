@@ -15,7 +15,7 @@ open Lean
 namespace Lake.Toml
 
 /-- A TOML value with optional source info. -/
-inductive Value
+inductive Value where
 | string (ref : Syntax) (s : String)
 | integer (ref : Syntax) (n : Int)
 | float (ref : Syntax) (n : Float)

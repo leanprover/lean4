@@ -15,7 +15,7 @@ namespace Lean.Meta.NormCast
 * move lemma:   LHS has 1 head coe and 0 internal coes,    RHS has 0 head coes and ≥ 1 internal coes
 * squash lemma: LHS has ≥ 1 head coes and 0 internal coes, RHS has fewer head coes
 -/
-inductive Label
+inductive Label where
   /-- elim lemma: LHS has 0 head coes and ≥ 1 internal coe -/
   | elim
   /-- move lemma: LHS has 1 head coe and 0 internal coes,

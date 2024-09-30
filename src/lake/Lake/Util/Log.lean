@@ -12,7 +12,7 @@ open Lean
 
 namespace Lake
 
-inductive Verbosity
+inductive Verbosity where
 | quiet
 | normal
 | verbose
@@ -26,7 +26,7 @@ instance : Max Verbosity := maxOfLe
 instance : Inhabited Verbosity := ⟨.normal⟩
 
 /-- Whether to ANSI escape codes. -/
-inductive AnsiMode
+inductive AnsiMode where
 /--
 Automatically determine whether to use ANSI escape codes
 based on whether the stream written to is a terminal.
@@ -51,7 +51,7 @@ def Ansi.chalk (colorCode text : String) : String :=
   s!"\x1B[1;{colorCode}m{text}\x1B[m"
 
 /-- A pure representation of output stream. -/
-inductive OutStream
+inductive OutStream where
 | stdout
 | stderr
 | stream (s : IO.FS.Stream)
@@ -65,7 +65,7 @@ def OutStream.get : OutStream → BaseIO IO.FS.Stream
 instance : Coe IO.FS.Stream OutStream := ⟨.stream⟩
 instance : Coe IO.FS.Handle OutStream := ⟨fun h => .stream (.ofHandle h)⟩
 
-inductive LogLevel
+inductive LogLevel where
 | trace
 | info
 | warning

@@ -206,6 +206,9 @@ Uses heuristics to generate an informative but terse base name for a term of the
 Makes use of the current namespace.
 It tries to make these names relatively unique ecosystem-wide,
 and it adds suffixes using the current module if the resulting name doesn't refer to anything defined in this module.
+
+If any constant in `type` has a name with macro scopes, then the result will be a name with fresh macro scopes.
+While in this case we could skip the naming heuristics, we still want informative names for debugging purposes.
 -/
 def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
   let (name, st) ← mkBaseName type |>.run {}
@@ -222,7 +225,7 @@ def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
       s!"{name}{moduleToSuffix project}"
     else
       name
-  if Option.isSome <| type.find? fun e => if let .const n _ := e then n.hasMacroScopes else false then
+  if Option.isSome <| type.find? (fun e => if let .const n _ := e then n.hasMacroScopes else false) then
     mkFreshUserName name
   else
     return name

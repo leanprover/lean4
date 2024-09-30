@@ -468,10 +468,10 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
   rcases List.get_of_mem h with ⟨j, h'⟩
   have j_in_bounds : j < ratHints.size := by
     have j_property := j.2
-    simp only [Array.map_toList, List.length_map] at j_property
+    simp only [Array.toList_map, List.length_map] at j_property
     dsimp at *
     omega
-  simp only [List.get_eq_getElem, Array.map_toList, Array.length_toList, List.getElem_map] at h'
+  simp only [List.get_eq_getElem, Array.toList_map, Array.length_toList, List.getElem_map] at h'
   rw [← Array.getElem_eq_getElem_toList] at h'
   rw [← Array.getElem_eq_getElem_toList] at c'_in_f
   exists ⟨j.1, j_in_bounds⟩

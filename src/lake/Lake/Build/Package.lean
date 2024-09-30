@@ -29,7 +29,7 @@ def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
 Tries to download and unpack the package's cached build archive
 (e.g., from Reservoir or GitHub).
 -/
-def Package.fetchOptBuildCache (self : Package) := do
+private def Package.fetchOptBuildCacheCore (self : Package) : FetchM (BuildJob Bool) := do
   if self.preferReleaseBuild then
     self.optGitHubRelease.fetch
   else
@@ -37,14 +37,21 @@ def Package.fetchOptBuildCache (self : Package) := do
 
 /-- The `PackageFacetConfig` for the builtin `optBuildCacheFacet`. -/
 def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
-  mkFacetJobConfig (·.fetchOptBuildCache)
+  mkFacetJobConfig (·.fetchOptBuildCacheCore)
+
+/-- Tries to download the package's build cache (if configured). -/
+def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
+  if (← getNoCache) then
+    return pure true
+  else
+    self.optBuildCache.fetch
 
 /--
 Tries to download and unpack the package's cached build archive
 (e.g., from Reservoir or GitHub). Prints a warning on failure.
 -/
-def Package.fetchOptBuildCacheWithWarning (self : Package) := do
-  let job ← self.fetchOptBuildCache
+def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
+  let job ← self.maybeFetchBuildCache
   job.bindSync fun success t => do
     unless success do
       let facet := if self.preferReleaseBuild then
@@ -53,8 +60,8 @@ def Package.fetchOptBuildCacheWithWarning (self : Package) := do
         failed to fetch cloud release (see '{self.name}:{facet}' for details)"
     return ((), t)
 
-@[deprecated fetchOptBuildCacheWithWarning (since := "2024-09-27")]
-def Package.fetchOptRelease := @fetchOptBuildCacheWithWarning
+@[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
+def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
 
 /--
 Build the `extraDepTargets` for the package and its transitive dependencies.
@@ -68,7 +75,7 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
     job := job.mix <| ← dep.extraDep.fetch
   -- Fetch build cache if this package is a dependency
   if self.name ≠ (← getWorkspace).root.name then
-    job := job.add <| ← self.fetchOptBuildCacheWithWarning
+    job := job.add <| ← self.maybeFetchBuildCacheWithWarning
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
     job := job.mix <| ← self.fetchTargetJob target
@@ -178,7 +185,7 @@ for the package (e.g., from Reservoir or GitHub).
 -/
 def Package.afterBuildCacheAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.fetchOptBuildCache).bindAsync fun _ _ => build
+    (← self.maybeFetchBuildCache).bindAsync fun _ _ => build
   else
     build
 
@@ -191,7 +198,7 @@ def Package.afterReleaseAsync := @afterBuildCacheAsync
 -/
 def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.fetchOptBuildCache).bindSync fun _ _ => build
+    (← self.maybeFetchBuildCache).bindSync fun _ _ => build
   else
     Job.async build
 

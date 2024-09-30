@@ -222,7 +222,7 @@ abbrev Package.buildCache (self : Package) : BuildInfo :=
 
 @[inherit_doc optBuildCacheFacet]
 abbrev Package.optBuildCache (self : Package) : BuildInfo :=
-  self.facet buildCacheFacet
+  self.facet optBuildCacheFacet
 
 @[inherit_doc reservoirBarrelFacet]
 abbrev Package.reservoirBarrel (self : Package) : BuildInfo :=

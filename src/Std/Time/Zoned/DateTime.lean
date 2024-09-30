@@ -62,7 +62,7 @@ def convertTimeZone (date : DateTime tz) (tz₁ : TimeZone) : DateTime tz₁ :=
 
 /--
 Creates a new `DateTime` out of a `PlainDateTime`. It assumes that the `PlainDateTime` is relative
-to UTC. If you're using hte PlainDateTime
+to UTC.
 -/
 @[inline]
 def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=

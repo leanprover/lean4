@@ -2531,8 +2531,7 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
 theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
     (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
-  by_cases h' : w = 0
-  <;> simp [h'] ; omega
+  by_cases h' : w = 0 <;> simp [h'] <;> omega
 
 /-! ### intMin -/
 

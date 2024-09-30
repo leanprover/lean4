@@ -2264,7 +2264,7 @@ theorem getLsbD_rotateLeft {x : BitVec w} {r i : Nat}  :
 @[simp]
 theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
     (x.rotateLeft r)[i] =
-      if h' : i < r % w then x[(w - (r % w) + i)]'(by omega) else x[i - (r % w)]'(by omega) := by
+      if h' : i < r % w then x[(w - (r % w) + i)] else x[i - (r % w)] := by
   simp [← BitVec.getLsbD_eq_getElem, h]
 
 /-! ## Rotate Right -/

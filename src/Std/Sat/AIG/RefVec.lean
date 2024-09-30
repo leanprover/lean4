@@ -104,10 +104,10 @@ def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
     by
       intro i h
       by_cases hsplit : i < lrefs.size
-      · rw [Array.get_append_left]
+      · rw [Array.getElem_append_left]
         apply hl2
         omega
-      · rw [Array.get_append_right]
+      · rw [Array.getElem_append_right]
         · apply hr2
           omega
         · omega
@@ -124,9 +124,9 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
   simp only [get, append]
   split
   · simp [Ref.mk.injEq]
-    rw [Array.get_append_left]
+    rw [Array.getElem_append_left]
   · simp only [Ref.mk.injEq]
-    rw [Array.get_append_right]
+    rw [Array.getElem_append_right]
     · simp [lhs.hlen]
     · rw [lhs.hlen]
       omega

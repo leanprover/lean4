@@ -91,6 +91,8 @@ abbrev toArray_data := @toArray_toList
 @[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
     a.toArray[i] = a[i]'(by simpa using h) := rfl
 
+@[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
+
 @[deprecated "Use the reverse direction of `List.push_toArray`." (since := "2024-09-27")]
 theorem toArray_concat {as : List α} {x : α} :
     (as ++ [x]).toArray = as.toArray.push x := by
@@ -439,6 +441,10 @@ abbrev get?_eq_data_get? := @get?_eq_toList_get?
 theorem get!_eq_get? [Inhabited α] (a : Array α) : a.get! n = (a.get? n).getD default := by
   simp [get!_eq_getD]
 
+theorem getElem?_eq_some_iff {as : Array α} : as[n]? = some a ↔ ∃ h : n < as.size, as[n] = a := by
+  cases as
+  simp [List.getElem?_eq_some_iff]
+
 @[simp] theorem back_eq_back? [Inhabited α] (a : Array α) : a.back = a.back?.getD default := by
   simp [back, back?]
 
@@ -711,12 +717,16 @@ theorem foldr_induction
   simp only [mem_def, map_toList, List.mem_map]
 
 theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : Array α) :
-    arr.mapM f = return mk (← arr.toList.mapM f) := by
+    arr.mapM f = List.toArray <$> (arr.toList.mapM f) := by
   rw [mapM_eq_foldlM, foldlM_eq_foldlM_toList, ← List.foldrM_reverse]
   conv => rhs; rw [← List.reverse_reverse arr.toList]
   induction arr.toList.reverse with
   | nil => simp
   | cons a l ih => simp [ih]
+
+@[simp] theorem toList_mapM [Monad m] [LawfulMonad m] (f : α → m β) (arr : Array α) :
+    toList <$> arr.mapM f = arr.toList.mapM f := by
+  simp [mapM_eq_mapM_toList]
 
 @[deprecated mapM_eq_mapM_toList (since := "2024-09-09")]
 abbrev mapM_eq_mapM_data := @mapM_eq_mapM_toList
@@ -774,16 +784,20 @@ theorem map_spec (as : Array α) (f : α → β) (p : Fin as.size → β → Pro
   simpa using map_induction as f (fun _ => True) trivial p (by simp_all)
 
 @[simp] theorem getElem_map (f : α → β) (as : Array α) (i : Nat) (h) :
-    ((as.map f)[i]) = f (as[i]'(size_map .. ▸ h)) := by
+    (as.map f)[i] = f (as[i]'(size_map .. ▸ h)) := by
   have := map_spec as f (fun i b => b = f (as[i]))
   simp only [implies_true, true_implies] at this
   obtain ⟨eq, w⟩ := this
   apply w
   simp_all
 
+@[simp] theorem getElem?_map (f : α → β) (as : Array α) (i : Nat) :
+    (as.map f)[i]? = as[i]?.map f := by
+  simp [getElem?_def]
+
 /-! ### mapIdx -/
 
--- This could also be prove from `SatisfiesM_mapIdxM`.
+-- This could also be proved from `SatisfiesM_mapIdxM` in Batteries.
 theorem mapIdx_induction (as : Array α) (f : Fin as.size → α → β)
     (motive : Nat → Prop) (h0 : motive 0)
     (p : Fin as.size → β → Prop)
@@ -823,9 +837,16 @@ theorem mapIdx_spec (as : Array α) (f : Fin as.size → α → β)
 
 @[simp] theorem getElem_mapIdx (a : Array α) (f : Fin a.size → α → β) (i : Nat)
     (h : i < (mapIdx a f).size) :
-    haveI : i < a.size := by simp_all
-    (a.mapIdx f)[i] = f ⟨i, this⟩ a[i] :=
+    (a.mapIdx f)[i] = f ⟨i, by simp_all⟩ (a[i]'(by simp_all)) :=
   (mapIdx_spec _ _ (fun i b => b = f i a[i]) fun _ => rfl).2 i _
+
+@[simp] theorem getElem?_mapIdx (a : Array α) (f : Fin a.size → α → β) (i : Nat) :
+    (a.mapIdx f)[i]? =
+      match h : a[i]? with | some b => f ⟨i, (getElem?_eq_some_iff.1 h).1⟩ b | none => none := by
+  simp [getElem?_def]
+  split
+  · simp_all
+  · simp_all
 
 /-! ### modify -/
 

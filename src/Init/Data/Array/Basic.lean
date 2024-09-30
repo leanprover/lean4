@@ -613,12 +613,17 @@ def concatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β
 def concatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
 
-/-- Joins array of array into a single array.
+/--
+Concatenates an array of arrays into a single array.
 
-`flatten #[#[a₁, a₂, ⋯], #[b₁, b₂, ⋯], ⋯]` = `#[a₁, a₂, ⋯, b₁, b₂, ⋯]`
+`O(|join L|)`.
+
+`join #[#[a₁, a₂, ⋯], #[b₁, b₂, ⋯], ⋯]` = `#[a₁, a₂, ⋯, b₁, b₂, ⋯]`
 -/
-def flatten (as : Array (Array α)) : Array α :=
+@[inline] def join (as : Array (Array α)) : Array α :=
   as.foldl (init := empty) fun r a => r ++ a
+
+@[deprecated join (since := "2024-09-30")] abbrev flatten := @join
 
 @[inline]
 def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Array α :=

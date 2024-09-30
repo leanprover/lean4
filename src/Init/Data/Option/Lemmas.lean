@@ -138,6 +138,10 @@ theorem bind_eq_none' {o : Option α} {f : α → Option β} :
     o.bind f = none ↔ ∀ b a, a ∈ o → b ∉ f a := by
   simp only [eq_none_iff_forall_not_mem, not_exists, not_and, mem_def, bind_eq_some]
 
+theorem mem_bind_iff {o : Option α} {f : α → Option β} :
+    b ∈ o.bind f ↔ ∃ a, a ∈ o ∧ b ∈ f a := by
+  cases o <;> simp
+
 theorem bind_comm {f : α → β → Option γ} (a : Option α) (b : Option β) :
     (a.bind fun x => b.bind (f x)) = b.bind fun y => a.bind fun x => f x y := by
   cases a <;> cases b <;> rfl
@@ -232,8 +236,26 @@ theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter
   cases o <;> simp at h ⊢
 
 @[simp] theorem filter_eq_none {p : α → Bool} :
-    Option.filter p o = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
+    o.filter p = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
   cases o <;> simp [filter_some]
+
+@[simp] theorem filter_eq_some {o : Option α} {p : α → Bool} :
+    o.filter p = some a ↔ a ∈ o ∧ p a := by
+  cases o with
+  | none => simp
+  | some a =>
+    simp [filter_some]
+    split <;> rename_i h
+    · simp only [some.injEq, iff_self_and]
+      rintro rfl
+      exact h
+    · simp only [reduceCtorEq, false_iff, not_and, Bool.not_eq_true]
+      rintro rfl
+      simpa using h
+
+theorem mem_filter_iff {p : α → Bool} {a : α} {o : Option α} :
+    a ∈ o.filter p ↔ a ∈ o ∧ p a := by
+  simp
 
 @[simp] theorem all_guard (p : α → Prop) [DecidablePred p] (a : α) :
     Option.all q (guard p a) = (!p a || q a) := by
@@ -349,6 +371,8 @@ end choice
 @[simp] theorem toList_some (a : α) : (a : Option α).toList = [a] := rfl
 
 @[simp] theorem toList_none (α : Type _) : (none : Option α).toList = [] := rfl
+
+-- See `Init.Data.Option.List` for lemmas about `toList`.
 
 @[simp] theorem or_some : (some a).or o = some a := rfl
 @[simp] theorem none_or : none.or o = o := rfl

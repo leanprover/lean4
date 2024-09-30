@@ -16,10 +16,10 @@ $LAKE -f barrel.lean build @Cli:extraDep | grep --color "Cli:optBarrel"
 # Test barrel download
 (ELAN_TOOLCHAIN= $LAKE -f barrel.lean build @Cli:barrel -v && exit 1 || true) |
   grep --color "Lean toolchain not known"
-ELAN_TOOLCHAIN=leanprover/lean4:v4.9.0 \
+ELAN_TOOLCHAIN=leanprover/lean4:v4.11.0 \
   $LAKE -f barrel.lean build @Cli:barrel -v
-ELAN_TOOLCHAIN=leanprover/lean4:v4.9.0 \
-LEAN_GITHASH=8f9843a4a5fe1b0c2f24c74097f296e2818771ee \
+ELAN_TOOLCHAIN=leanprover/lean4:v4.11.0 \
+LEAN_GITHASH=ec3042d94bd11a42430f9e14d39e26b1f880f99b \
   $LAKE -f barrel.lean build Cli --no-build
 
 ./clean.sh

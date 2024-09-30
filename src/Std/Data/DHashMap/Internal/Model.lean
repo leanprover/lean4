@@ -186,7 +186,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
-  rw [updateAllBuckets, toListModel, Array.map_toList, List.bind_eq_foldl, List.foldl_map,
+  rw [updateAllBuckets, toListModel, Array.toList_map, List.bind_eq_foldl, List.foldl_map,
     toListModel, List.bind_eq_foldl]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
       Perm (g l'') l' →

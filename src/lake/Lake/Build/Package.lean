@@ -88,9 +88,9 @@ def Package.getBarrelUrl (self : Package) : JobM String := do
   let pkgName := self.name.toString (escape := false)
   let env ← getLakeEnv
   let mut url := Reservoir.pkgApiUrl env self.scope pkgName
-  url := s!"{url}/barrel?dev&rev={rev}"
-  unless env.toolchain.isEmpty do
-    url := s!"{url}&toolchain={uriEncode env.toolchain}"
+  if env.toolchain.isEmpty then
+    error "Lean toolchain not known; Reservoir only hosts builds for known toolchains"
+  url := s!"{url}/barrel?rev={rev}&toolchain={uriEncode env.toolchain}"
   return url
 
 /-- Compute the package's GitHub release URL. -/
@@ -106,24 +106,28 @@ def Package.getReleaseUrl (self : Package) : JobM String := do
   return s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
 
 /-- Tries to download and unpack a build archive for the package from a URL. -/
-def Package.fetchBuildArchive (self : Package) (url : String) (archiveFile : FilePath) : JobM PUnit := do
+def Package.fetchBuildArchive
+  (self : Package) (url : String) (archiveFile : FilePath)
+  (headers : Array String := #[])
+: JobM PUnit := do
   let depTrace := Hash.ofString url
   let traceFile := archiveFile.addExtension "trace"
   let upToDate ← buildUnlessUpToDate? (action := .fetch) archiveFile depTrace traceFile do
-    download url archiveFile
+    download url archiveFile headers
   unless upToDate && (← self.buildDir.pathExists) do
     updateAction .fetch
     untar archiveFile self.buildDir
 
 @[inline]
 private def Package.mkOptBuildArchiveFacetConfig
-  {facet : Name} (archiveFile : Package → FilePath) (getUrl : Package → JobM String)
+  {facet : Name} (archiveFile : Package → FilePath)
+  (getUrl : Package → JobM String) (headers : Array String := #[])
   [FamilyDef PackageData facet (BuildJob Bool)]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
   withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
   try
     let url ← getUrl pkg
-    pkg.fetchBuildArchive url (archiveFile pkg)
+    pkg.fetchBuildArchive url (archiveFile pkg) headers
     return (true, .nil)
   catch _ =>
     updateAction .fetch
@@ -148,7 +152,7 @@ def Package.buildCacheFacetConfig : PackageFacetConfig buildCacheFacet :=
 
 /-- The `PackageFacetConfig` for the builtin `optReservoirBarrelFacet`. -/
 def Package.optBarrelFacetConfig : PackageFacetConfig optReservoirBarrelFacet :=
-  mkOptBuildArchiveFacetConfig barrelFile getBarrelUrl
+  mkOptBuildArchiveFacetConfig barrelFile getBarrelUrl Reservoir.lakeHeaders
 
 /-- The `PackageFacetConfig` for the builtin `reservoirBarrelFacet`. -/
 def Package.barrelFacetConfig : PackageFacetConfig reservoirBarrelFacet :=

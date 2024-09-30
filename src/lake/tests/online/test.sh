@@ -6,12 +6,10 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 ./clean.sh
 # Test barrel download
 $LAKE -f barrel.lean update
-ELAN_TOOLCHAIN=leanprover/lean4:v4.12.0-rc1 \
-RESERVOIR_API_URL=https://m-cwu-mm-v-jn38r2n-oq4w4b4--reservoir-lean-lang.netlify.app/api/v1 \
+ELAN_TOOLCHAIN=leanprover/lean4:v4.9.0 \
   $LAKE -f barrel.lean build @Cli:barrel -v
-ELAN_TOOLCHAIN=leanprover/lean4:v4.12.0-rc1 \
-LEAN_GITHASH=e9e858a4484905a0bfe97c4f05c3924ead02eed8 \
-RESERVOIR_API_URL=https://m-cwu-mm-v-jn38r2n-oq4w4b4--reservoir-lean-lang.netlify.app/api/v1 \
+ELAN_TOOLCHAIN=leanprover/lean4:v4.9.0 \
+LEAN_GITHASH=8f9843a4a5fe1b0c2f24c74097f296e2818771ee \
   $LAKE -f barrel.lean build Cli --no-build
 
 ./clean.sh

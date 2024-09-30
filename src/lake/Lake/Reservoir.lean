@@ -196,14 +196,16 @@ instance [FromJson α] : FromJson (ReservoirResp α) := ⟨ReservoirResp.fromJso
 def Reservoir.pkgApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
    s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
 
+def Reservoir.lakeHeaders := #[
+  "X-Reservoir-Api-Version:1.0.0",
+  "X-Lake-Registry-Api-Version:0.1.0"
+]
+
 def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
   let url := Reservoir.pkgApiUrl lakeEnv owner pkg
   let out ←
     try
-      getUrl url #[
-        "X-Reservoir-Api-Version:1.0.0",
-        "X-Lake-Registry-Api-Version:0.1.0"
-      ]
+      getUrl url Reservoir.lakeHeaders
     catch _ =>
       logError s!"{owner}/{pkg}: Reservoir lookup failed"
       return none

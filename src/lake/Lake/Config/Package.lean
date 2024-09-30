@@ -376,8 +376,10 @@ structure Package where
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
+  /-- The package's scope (e.g., in Reservoir). -/
+  scope : String := ""
   /-- The URL to this package's Git remote. -/
-  remoteUrl? : Option String := none
+  remoteUrl : String := ""
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Dependency configurations for the package. -/
@@ -555,6 +557,10 @@ namespace Package
 @[inline] def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo <|> self.config.releaseRepo?
 
+/-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
+@[inline] def remoteUrl? (self : Package) : Option String :=
+  if self.remoteUrl.isEmpty then some self.remoteUrl else none
+
 /-- The package's `buildArchive`/`buildArchive?` configuration. -/
 @[inline] def buildArchive (self : Package) : String :=
   self.config.buildArchive
@@ -562,6 +568,10 @@ namespace Package
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=
   self.lakeDir / self.buildArchive
+
+/-- The path where Lake stores the package's barrel (downloaded from Reservoir). -/
+@[inline] def barrelFile (self : Package) : FilePath :=
+  self.lakeDir / "build.barrel"
 
 /-- The package's `preferReleaseBuild` configuration. -/
 @[inline] def preferReleaseBuild (self : Package) : Bool :=

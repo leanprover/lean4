@@ -40,6 +40,7 @@ structure LakeOptions where
   oldMode : Bool := false
   trustHash : Bool := true
   noBuild : Bool := false
+  noCache : Option Bool := none
   failLv : LogLevel := .error
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
@@ -66,7 +67,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
-    |>.adaptExcept fun msg => .invalidEnv msg
+    opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
@@ -173,6 +174,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
+| "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
+| "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})

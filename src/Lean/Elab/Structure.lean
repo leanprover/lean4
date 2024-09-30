@@ -733,7 +733,8 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
         throwError "invalid default value for field, it contains metavariables{indentExpr value}"
       /- The identity function is used as "marker". -/
       let value ← mkId value
-      discard <| mkAuxDefinition declName type value (zetaDelta := true)
+      -- No need to compile the definition, since it is only used during elaboration.
+      discard <| mkAuxDefinition declName type value (zetaDelta := true) (compile := false)
       setReducibleAttribute declName
 
 /--

@@ -847,26 +847,26 @@ theorem mapIdx_spec (as : Array α) (f : Fin as.size → α → β)
   unfold modify modifyM Id.run
   split <;> simp
 
-theorem getElem_modify {as : Array α} {x i} (h : i < as.size) :
-    (as.modify x f)[i]'(by simp [h]) = if x = i then f as[i] else as[i] := by
+theorem getElem_modify {as : Array α} {x i} (h : i < (as.modify x f).size) :
+    (as.modify x f)[i] = if x = i then f (as[i]'(by simpa using h)) else as[i]'(by simpa using h) := by
   simp only [modify, modifyM, get_eq_getElem, Id.run, Id.pure_eq]
   split
-  · simp only [Id.bind_eq, get_set _ _ _ h]; split <;> simp [*]
-  · rw [if_neg (mt (by rintro rfl; exact h) ‹_›)]
+  · simp only [Id.bind_eq, get_set _ _ _ (by simpa using h)]; split <;> simp [*]
+  · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
-theorem getElem_modify_self {as : Array α} {i : Nat} (h : i < as.size) (f : α → α) :
-    (as.modify i f)[i]'(by simp [h]) = f as[i] := by
+theorem getElem_modify_self {as : Array α} {i : Nat} (f : α → α) (h : i < (as.modify i f).size) :
+    (as.modify i f)[i] = f (as[i]'(by simpa using h)) := by
   simp [getElem_modify h]
 
-theorem getElem_modify_of_ne {as : Array α} {i : Nat} (hj : j < as.size)
-    (f : α → α) (h : i ≠ j) :
-    (as.modify i f)[j]'(by rwa [size_modify]) = as[j] := by
+theorem getElem_modify_of_ne {as : Array α} {i : Nat} (h : i ≠ j)
+    (f : α → α) (hj : j < (as.modify i f).size) :
+    (as.modify i f)[j] = as[j]'(by simpa using hj) := by
   simp [getElem_modify hj, h]
 
 @[deprecated getElem_modify (since := "2024-08-08")]
-theorem get_modify {arr : Array α} {x i} (h : i < arr.size) :
-    (arr.modify x f).get ⟨i, by simp [h]⟩ =
-    if x = i then f (arr.get ⟨i, h⟩) else arr.get ⟨i, h⟩ := by
+theorem get_modify {arr : Array α} {x i} (h : i < (arr.modify x f).size) :
+    (arr.modify x f).get ⟨i, h⟩ =
+    if x = i then f (arr.get ⟨i, by simpa using h⟩) else arr.get ⟨i, by simpa using h⟩ := by
   simp [getElem_modify h]
 
 /-! ### filter -/

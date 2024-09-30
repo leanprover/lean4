@@ -98,7 +98,7 @@ theorem toArray_concat {as : List α} {x : α} :
   simp
 
 @[simp] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
-  apply Array.ext'
+  apply ext'
   simp
 
 /-- Unapplied variant of `push_toArray`, useful for monadic reasoning. -/
@@ -136,10 +136,10 @@ attribute [simp] uset
 @[deprecated toArray_toList (since := "2024-09-09")]
 abbrev toArray_data := @toArray_toList
 
-@[simp] theorem toList_length {l : Array α} : l.toList.length = l.size := rfl
+@[simp] theorem length_toList {l : Array α} : l.toList.length = l.size := rfl
 
-@[deprecated toList_length (since := "2024-09-09")]
-abbrev data_length := @toList_length
+@[deprecated length_toList (since := "2024-09-09")]
+abbrev data_length := @length_toList
 
 @[simp] theorem mkEmpty_eq (α n) : @mkEmpty α n = #[] := rfl
 
@@ -175,31 +175,36 @@ where
       mapM.map f arr i r = (arr.toList.drop i).foldlM (fun bs a => bs.push <$> f a) r := by
     unfold mapM.map; split
     · rw [← List.get_drop_eq_drop _ i ‹_›]
-      simp only [aux (i + 1), map_eq_pure_bind, toList_length, List.foldlM_cons, bind_assoc,
+      simp only [aux (i + 1), map_eq_pure_bind, length_toList, List.foldlM_cons, bind_assoc,
         pure_bind]
       rfl
     · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
   decreasing_by decreasing_trivial_pre_omega
 
-@[simp] theorem map_toList (f : α → β) (arr : Array α) : (arr.map f).toList = arr.toList.map f := by
+@[simp] theorem toList_map (f : α → β) (arr : Array α) : (arr.map f).toList = arr.toList.map f := by
   rw [map, mapM_eq_foldlM]
   apply congrArg toList (foldl_eq_foldl_toList (fun bs a => push bs (f a)) #[] arr) |>.trans
   have H (l arr) : List.foldl (fun bs a => push bs (f a)) arr l = ⟨arr.toList ++ l.map f⟩ := by
     induction l generalizing arr <;> simp [*]
   simp [H]
 
-@[deprecated map_toList (since := "2024-09-09")]
-abbrev map_data := @map_toList
+@[deprecated toList_map (since := "2024-09-09")]
+abbrev map_data := @toList_map
 
 @[simp] theorem size_map (f : α → β) (arr : Array α) : (arr.map f).size = arr.size := by
-  simp only [← toList_length]
+  simp only [← length_toList]
   simp
 
 @[simp] theorem appendList_nil (arr : Array α) : arr ++ ([] : List α) = arr := Array.ext' (by simp)
 
 @[simp] theorem appendList_cons (arr : Array α) (a : α) (l : List α) :
     arr ++ (a :: l) = arr.push a ++ l := Array.ext' (by simp)
+
+@[simp] theorem toList_appendList (arr : Array α) (l : List α) :
+    (arr ++ l).toList = arr.toList ++ l := by
+  cases arr
+  simp
 
 theorem foldl_toList_eq_bind (l : List α) (acc : Array β)
     (F : Array β → α → Array β) (G : α → List β)
@@ -292,14 +297,14 @@ theorem getElem_set (a : Array α) (i : Fin a.size) (v : α) (j : Nat)
 @[simp] theorem set!_is_setD : @set! = @setD := rfl
 
 @[simp] theorem size_setD (a : Array α) (index : Nat) (val : α) :
-  (Array.setD a index val).size = a.size := by
+    (Array.setD a index val).size = a.size := by
   if h : index < a.size  then
     simp [setD, h]
   else
     simp [setD, h]
 
 @[simp] theorem getElem_setD_eq (a : Array α) {i : Nat} (v : α) (h : _) :
-  (setD a i v)[i]'h = v := by
+    (setD a i v)[i]'h = v := by
   simp at h
   simp only [setD, h, dite_true, getElem_set, ite_true]
 
@@ -309,7 +314,7 @@ theorem getElem?_setD_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) : (a
 
 /-- Simplifies a normal form from `get!` -/
 @[simp] theorem getD_get?_setD (a : Array α) (i : Nat) (v d : α) :
-  Option.getD (setD a i v)[i]? d = if i < a.size then v else d := by
+    Option.getD (setD a i v)[i]? d = if i < a.size then v else d := by
   by_cases h : i < a.size <;>
     simp [setD, Nat.not_lt_of_le, h,  getD_get?]
 
@@ -507,7 +512,7 @@ theorem get_set (a : Array α) (i : Fin a.size) (j : Nat) (hj : j < a.size) (v :
   simp only [set, getElem_eq_getElem_toList, List.getElem_set_ne h]
 
 theorem getElem_setD (a : Array α) (i : Nat) (v : α) (h : i < (setD a i v).size) :
-  (setD a i v)[i] = v := by
+    (setD a i v)[i] = v := by
   simp at h
   simp only [setD, h, dite_true, get_set, ite_true]
 
@@ -608,7 +613,8 @@ abbrev data_range := @toList_range
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
   simp [getElem_eq_getElem_toList]
 
-@[simp] theorem reverse_toList (a : Array α) : a.reverse.toList = a.toList.reverse := by
+set_option linter.deprecated false in
+@[simp] theorem toList_reverse (a : Array α) : a.reverse.toList = a.toList.reverse := by
   let rec go (as : Array α) (i j hj)
       (h : i + j + 1 = a.size) (h₂ : as.size = a.size)
       (H : ∀ k, as.toList[k]? = if i ≤ k ∧ k ≤ j then a.toList[k]? else a.toList.reverse[k]?)
@@ -648,6 +654,9 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
       simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
         true_and, Nat.not_lt] at h
       rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
+
+@[deprecated toList_reverse (since := "2024-09-30")]
+abbrev reverse_toList := @toList_reverse
 
 /-! ### foldl / foldr -/
 
@@ -713,7 +722,7 @@ theorem foldr_induction
 /-! ### map -/
 
 @[simp] theorem mem_map {f : α → β} {l : Array α} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
-  simp only [mem_def, map_toList, List.mem_map]
+  simp only [mem_def, toList_map, List.mem_map]
 
 theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : Array α) :
     arr.mapM f = return mk (← arr.toList.mapM f) := by
@@ -931,7 +940,7 @@ theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := 
 theorem get_append_left {as bs : Array α} {h : i < (as ++ bs).size} (hlt : i < as.size) :
     (as ++ bs)[i] = as[i] := by
   simp only [getElem_eq_getElem_toList]
-  have h' : i < (as.toList ++ bs.toList).length := by rwa [← toList_length, append_toList] at h
+  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, append_toList] at h
   conv => rhs; rw [← List.getElem_append_left (bs := bs.toList) (h' := h')]
   apply List.get_of_eq; rw [append_toList]
 
@@ -939,7 +948,7 @@ theorem get_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.
     (hlt : i - as.size < bs.size := Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) :
     (as ++ bs)[i] = bs[i - as.size] := by
   simp only [getElem_eq_getElem_toList]
-  have h' : i < (as.toList ++ bs.toList).length := by rwa [← toList_length, append_toList] at h
+  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, append_toList] at h
   conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [append_toList]
 

@@ -502,7 +502,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               have idx_in_bounds2 : idx < f.clauses.size := by
                 conv => rhs; rw [Array.size_mk]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
+              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
                 Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
@@ -535,7 +535,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               have idx_in_bounds2 : idx < f.clauses.size := by
                 conv => rhs; rw [Array.size_mk]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
+              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
                 Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
@@ -595,7 +595,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               have idx_in_bounds2 : idx < f.clauses.size := by
                 conv => rhs; rw [Array.size_mk]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
+              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
                 Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx] at heq
               simp only [Option.some.injEq] at heq

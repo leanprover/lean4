@@ -141,8 +141,9 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
   if structStx[5][0].isToken ":=" then
     -- https://github.com/leanprover/lean4/issues/5236
     if Linter.getLinterValue Linter.linter.deprecated (← getOptions) then
-      withRef structStx[0] <| withRef structStx[5][0] <| logWarning <| .tagged ``Linter.deprecatedAttr "\
-        'structure ... :=' has been deprecated in favor of 'structure ... where'.\n\
+      let cmd := if structStx[0].getKind == ``Parser.Command.classTk then "class" else "structure"
+      withRef structStx[0] <| withRef structStx[5][0] <| logWarning <| .tagged ``Linter.deprecatedAttr s!"\
+        '{cmd} ... :=' has been deprecated in favor of '{cmd} ... where'.\n\
         You can disable this warning with 'set_option linter.deprecated false'."
   let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do

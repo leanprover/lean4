@@ -2,6 +2,8 @@
 # Deprecate `:=` for `inductive` and `structure`
 -/
 
+set_option linter.deprecated true
+
 /--
 warning: 'inductive ... :=' has been deprecated in favor of 'inductive ... where'.
 You can disable this warning with 'set_option linter.deprecated false'.
@@ -17,4 +19,12 @@ You can disable this warning with 'set_option linter.deprecated false'.
 -/
 #guard_msgs in
 structure S :=
+  (n : Nat)
+
+/--
+warning: 'class ... :=' has been deprecated in favor of 'class ... where'.
+You can disable this warning with 'set_option linter.deprecated false'.
+-/
+#guard_msgs in
+class C :=
   (n : Nat)

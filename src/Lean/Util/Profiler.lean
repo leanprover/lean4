@@ -316,7 +316,7 @@ weights. Minimizes profile size while preserving per-stack timing information.
 def Profile.collide (ps : Array Profile) : Option Profile := do
   let base ← ps[0]?
   let thread := Thread.new "collided"
-  let thread := ps.map (·.threads) |>.flatten.foldl collideThreads { thread with }
+  let thread := ps.map (·.threads) |>.join.foldl collideThreads { thread with }
   return { base with threads := #[thread.toThread] }
 
 end Lean.Firefox

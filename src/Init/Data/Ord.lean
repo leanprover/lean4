@@ -187,13 +187,15 @@ def lexOrd [Ord α] [Ord β] : Ord (α × β) where
 def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
-instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
+attribute [local instance] ltOfOrd in
+instance [Ord α] : DecidableRel ((· : α) < ·) :=
   inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
 
 def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
-instance [Ord α] : DecidableRel (@LE.le α leOfOrd) :=
+attribute [local instance] leOfOrd in
+instance [Ord α] : DecidableRel ((· : α) ≤ ·) :=
   inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))
 
 namespace Ord

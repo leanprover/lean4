@@ -136,10 +136,10 @@ attribute [simp] uset
 @[deprecated toArray_toList (since := "2024-09-09")]
 abbrev toArray_data := @toArray_toList
 
-@[simp] theorem toList_length {l : Array α} : l.toList.length = l.size := rfl
+@[simp] theorem length_toList {l : Array α} : l.toList.length = l.size := rfl
 
-@[deprecated toList_length (since := "2024-09-09")]
-abbrev data_length := @toList_length
+@[deprecated length_toList (since := "2024-09-09")]
+abbrev data_length := @length_toList
 
 @[simp] theorem mkEmpty_eq (α n) : @mkEmpty α n = #[] := rfl
 
@@ -175,7 +175,7 @@ where
       mapM.map f arr i r = (arr.toList.drop i).foldlM (fun bs a => bs.push <$> f a) r := by
     unfold mapM.map; split
     · rw [← List.get_drop_eq_drop _ i ‹_›]
-      simp only [aux (i + 1), map_eq_pure_bind, toList_length, List.foldlM_cons, bind_assoc,
+      simp only [aux (i + 1), map_eq_pure_bind, length_toList, List.foldlM_cons, bind_assoc,
         pure_bind]
       rfl
     · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
@@ -193,7 +193,7 @@ where
 abbrev map_data := @map_toList
 
 @[simp] theorem size_map (f : α → β) (arr : Array α) : (arr.map f).size = arr.size := by
-  simp only [← toList_length]
+  simp only [← length_toList]
   simp
 
 @[simp] theorem appendList_nil (arr : Array α) : arr ++ ([] : List α) = arr := Array.ext' (by simp)
@@ -931,7 +931,7 @@ theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := 
 theorem get_append_left {as bs : Array α} {h : i < (as ++ bs).size} (hlt : i < as.size) :
     (as ++ bs)[i] = as[i] := by
   simp only [getElem_eq_getElem_toList]
-  have h' : i < (as.toList ++ bs.toList).length := by rwa [← toList_length, append_toList] at h
+  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, append_toList] at h
   conv => rhs; rw [← List.getElem_append_left (bs := bs.toList) (h' := h')]
   apply List.get_of_eq; rw [append_toList]
 
@@ -939,7 +939,7 @@ theorem get_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.
     (hlt : i - as.size < bs.size := Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) :
     (as ++ bs)[i] = bs[i - as.size] := by
   simp only [getElem_eq_getElem_toList]
-  have h' : i < (as.toList ++ bs.toList).length := by rwa [← toList_length, append_toList] at h
+  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, append_toList] at h
   conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [append_toList]
 

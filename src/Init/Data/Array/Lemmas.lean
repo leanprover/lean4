@@ -98,7 +98,7 @@ theorem toArray_concat {as : List α} {x : α} :
   simp
 
 @[simp] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
-  apply Array.ext'
+  apply ext'
   simp
 
 /-- Unapplied variant of `push_toArray`, useful for monadic reasoning. -/
@@ -512,7 +512,7 @@ theorem get_set (a : Array α) (i : Fin a.size) (j : Nat) (hj : j < a.size) (v :
   simp only [set, getElem_eq_getElem_toList, List.getElem_set_ne h]
 
 theorem getElem_setD (a : Array α) (i : Nat) (v : α) (h : i < (setD a i v).size) :
-  (setD a i v)[i] = v := by
+    (setD a i v)[i] = v := by
   simp at h
   simp only [setD, h, dite_true, get_set, ite_true]
 
@@ -613,7 +613,8 @@ abbrev data_range := @toList_range
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
   simp [getElem_eq_getElem_toList]
 
-@[simp] theorem reverse_toList (a : Array α) : a.reverse.toList = a.toList.reverse := by
+set_option linter.deprecated false in
+@[simp] theorem toList_reverse (a : Array α) : a.reverse.toList = a.toList.reverse := by
   let rec go (as : Array α) (i j hj)
       (h : i + j + 1 = a.size) (h₂ : as.size = a.size)
       (H : ∀ k, as.toList[k]? = if i ≤ k ∧ k ≤ j then a.toList[k]? else a.toList.reverse[k]?)
@@ -653,6 +654,9 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
       simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
         true_and, Nat.not_lt] at h
       rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
+
+@[deprecated toList_reverse (since := "2024-09-30")]
+abbrev reverse_toList := @toList_reverse
 
 /-! ### foldl / foldr -/
 

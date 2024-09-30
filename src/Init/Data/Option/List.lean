@@ -8,7 +8,7 @@ import Init.Data.List.Lemmas
 
 namespace Option
 
-@[simp] theorem mem_toList (a : α) (o : Option α) : a ∈ o.toList ↔ a ∈ o := by
+@[simp] theorem mem_toList {a : α} {o : Option α} : a ∈ o.toList ↔ a ∈ o := by
   cases o <;> simp [eq_comm]
 
 end Option

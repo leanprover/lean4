@@ -138,3 +138,4 @@ example (a b c d : BitVec w) :
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
   ac_nf
+  rfl

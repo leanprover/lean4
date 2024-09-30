@@ -2385,7 +2385,7 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
 @[simp]
 theorem getElem_twoPow {i j : Nat} (h : j < w) : (twoPow w i)[j] = decide (j = i) := by
   rw [←getLsbD_eq_getElem, getLsbD_twoPow]
-  simp [show i = j ↔ j = i by omega]
+  simp [eq_comm]
   omega
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :

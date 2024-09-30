@@ -13,6 +13,7 @@ A Lake configuration file defines the package's basic configuration. It also typ
 * [Creating and Building a Package](#creating-and-building-a-package)
 * [Glossary of Terms](#glossary-of-terms)
 * [Package Configuration Options](#package-configuration-options)
+  + [Metadata](#metadata)
   + [Layout](#layout)
   + [Build & Run](#build--run)
   + [Test & Lint](#test--lint)
@@ -162,6 +163,22 @@ Lake uses a lot of terms common in software development -- like workspace, packa
 ## Package Configuration Options
 
 Lake provides a large assortment of configuration options for packages.
+
+### Metadata
+
+These options describe the package. They are used by Lake's package registry, [Reservoir](https://reservoir.lean-lang.org/), to index and display packages. If a field is left out, Reservoir may use information from the package's GitHub repository to fill in details.
+
+* `name`: The name of the package. Set by `package <name>` in Lean configuration files.
+* `version`: The version of the package. A 3-point version identifier with an optional `-` suffix.
+* `versionTags`: Git tags of this package's repository that should be treated as versions.  Reservoir make use of this information to determine the Git revisions corresponding to released versions. Defaults to tags that are "version-like". That is, start with a `v` followed by a digit.
+* `description`: A short description for the package.
+* `keywords`: An `Array` of custom keywords that identify key aspects of the package. Reservoir can make use of these to group packages and make it easier for potential users to discover them.  For instance, Lake's keywords could be `devtool`, `cli`, `dsl`,  `package-manager`, and `build-system`.
+* `homepage`: A URL to information about the package. Reservoir will already include a link to the package's GitHub repository. Thus, users are advised to specify something else for this link.
+* `license`: An [SPFX license identifier](https://spdx.org/licenses/) for the package's license. For example, `Apache-2.0` or `MIT`.
+* `licenseFiles`: An `Array` of  files that contain license information. For example, `#["LICENSE", "NOTICE"]` for Apache 2.0. Defaults to `#["LICENSE"]`,
+* `readmeFile`: The relative path to the package's README file. A README should be a Markdown file containing an overview of the package. A nonstandard location can be used to provide a different README for Reservoir and GitHub. Defaults to `README.md`.
+* `reservoir`:  Whether Reservoir should index the package. Defaults to `true`. Set this to `false` to have Reservoir exclude the package from its index.
+
 
 ### Layout
 

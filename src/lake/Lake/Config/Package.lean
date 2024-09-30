@@ -283,7 +283,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   the Git revisions corresponding to released versions.
 
   Defaults to tags that are "version-like".
-  That is, start with a `v` and are followed by a digit.
+  That is, start with a `v` followed by a digit.
   -/
   versionTags : StrPat := defaultVersionTags
 
@@ -299,7 +299,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   `devtool`), specific subtopics (e.g., `topology`,  `cryptology`), and
   significant implementation details (e.g., `dsl`, `ffi`, `cli`).
   For instance, Lake's keywords could be `devtool`, `cli`, `dsl`,
-  `package-manager`, `build-system`.
+  `package-manager`, and `build-system`.
   -/
   keywords : Array String := #[]
 
@@ -340,8 +340,10 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The path to the package's README.
-  A README should be a markdown file containing an overview of the package.
+  A README should be a Markdown file containing an overview of the package.
   Reservoir displays the rendered HTML of this README on a package's page.
+  A nonstandard location can be used to provide a different README for Reservoir
+  and GitHub.
 
   Defaults to `README.md`.
   -/

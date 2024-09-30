@@ -424,12 +424,18 @@ theorem getElem_mem_toList (a : Array α) (h : i < a.size) : a[i] ∈ a.toList :
 @[deprecated getElem_mem_toList (since := "2024-09-09")]
 abbrev getElem_mem_data := @getElem_mem_toList
 
+theorem getElem?_eq_toList_getElem? (a : Array α) (i : Nat) : a[i]? = a.toList[i]? := by
+  by_cases i < a.size <;> simp_all [getElem?_pos, getElem?_neg]
+
+@[deprecated getElem?_eq_toList_getElem? (since := "2024-09-30")]
 theorem getElem?_eq_toList_get? (a : Array α) (i : Nat) : a[i]? = a.toList.get? i := by
   by_cases i < a.size <;> simp_all [getElem?_pos, getElem?_neg, List.get?_eq_get, eq_comm]
 
-@[deprecated getElem?_eq_toList_get? (since := "2024-09-09")]
+set_option linter.deprecated false in
+@[deprecated getElem?_eq_toList_getElem? (since := "2024-09-09")]
 abbrev getElem?_eq_data_get? := @getElem?_eq_toList_get?
 
+set_option linter.deprecated false in
 theorem get?_eq_toList_get? (a : Array α) (i : Nat) : a.get? i = a.toList.get? i :=
   getElem?_eq_toList_get? ..
 
@@ -443,7 +449,7 @@ theorem get!_eq_get? [Inhabited α] (a : Array α) : a.get! n = (a.get? n).getD 
   simp [back, back?]
 
 @[simp] theorem back?_push (a : Array α) : (a.push x).back? = some x := by
-  simp [back?, getElem?_eq_toList_get?]
+  simp [back?, getElem?_eq_toList_getElem?]
 
 theorem back_push [Inhabited α] (a : Array α) : (a.push x).back = x := by simp
 
@@ -602,12 +608,11 @@ abbrev data_range := @toList_range
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
   simp [getElem_eq_getElem_toList]
 
-set_option linter.deprecated false in
 @[simp] theorem reverse_toList (a : Array α) : a.reverse.toList = a.toList.reverse := by
   let rec go (as : Array α) (i j hj)
       (h : i + j + 1 = a.size) (h₂ : as.size = a.size)
-      (H : ∀ k, as.toList.get? k = if i ≤ k ∧ k ≤ j then a.toList.get? k else a.toList.reverse.get? k)
-      (k) : (reverse.loop as i ⟨j, hj⟩).toList.get? k = a.toList.reverse.get? k := by
+      (H : ∀ k, as.toList[k]? = if i ≤ k ∧ k ≤ j then a.toList[k]? else a.toList.reverse[k]?)
+      (k : Nat) : (reverse.loop as i ⟨j, hj⟩).toList[k]? = a.toList.reverse[k]? := by
     rw [reverse.loop]; dsimp; split <;> rename_i h₁
     · match j with | j+1 => ?_
       simp only [Nat.add_sub_cancel]
@@ -615,34 +620,34 @@ set_option linter.deprecated false in
       · rwa [Nat.add_right_comm i]
       · simp [size_swap, h₂]
       · intro k
-        rw [← getElem?_eq_toList_get?, get?_swap]
-        simp only [H, getElem_eq_toList_get, ← List.get?_eq_get, Nat.le_of_lt h₁,
-          getElem?_eq_toList_get?]
+        rw [← getElem?_eq_toList_getElem?, get?_swap]
+        simp only [H, getElem_eq_getElem_toList, ← List.getElem?_eq_getElem, Nat.le_of_lt h₁,
+          getElem?_eq_toList_getElem?]
         split <;> rename_i h₂
         · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
-          exact (List.get?_reverse' (j+1) i (Eq.trans (by simp_arith) h)).symm
+          exact (List.getElem?_reverse' (j+1) i (Eq.trans (by simp_arith) h)).symm
         split <;> rename_i h₃
         · simp only [← h₃, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, false_and]
-          exact (List.get?_reverse' i (j+1) (Eq.trans (by simp_arith) h)).symm
+          exact (List.getElem?_reverse' i (j+1) (Eq.trans (by simp_arith) h)).symm
         simp only [Nat.succ_le, Nat.lt_iff_le_and_ne.trans (and_iff_left h₃),
           Nat.lt_succ.symm.trans (Nat.lt_iff_le_and_ne.trans (and_iff_left (Ne.symm h₂)))]
     · rw [H]; split <;> rename_i h₂
       · cases Nat.le_antisymm (Nat.not_lt.1 h₁) (Nat.le_trans h₂.1 h₂.2)
         cases Nat.le_antisymm h₂.1 h₂.2
-        exact (List.get?_reverse' _ _ h).symm
+        exact (List.getElem?_reverse' _ _ h).symm
       · rfl
     termination_by j - i
   simp only [reverse]
   split
   · match a with | ⟨[]⟩ | ⟨[_]⟩ => rfl
   · have := Nat.sub_add_cancel (Nat.le_of_not_le ‹_›)
-    refine List.ext_get? <| go _ _ _ _ (by simp [this]) rfl fun k => ?_
+    refine List.ext_getElem? <| go _ _ _ _ (by simp [this]) rfl fun k => ?_
     split
     · rfl
     · rename_i h
       simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
         true_and, Nat.not_lt] at h
-      rw [List.get?_eq_none.2 ‹_›, List.get?_eq_none.2 (a.toList.length_reverse ▸ ‹_›)]
+      rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
 
 /-! ### foldl / foldr -/
 

@@ -203,6 +203,9 @@ theorem get?_eq_none : l.get? n = none ↔ length l ≤ n :=
 
 @[simp] theorem get_eq_getElem (l : List α) (i : Fin l.length) : l.get i = l[i.1]'i.2 := rfl
 
+theorem getElem?_eq_some {l : List α} : l[i]? = some a ↔ ∃ h : i < l.length, l[i]'h = a := by
+  simpa using get?_eq_some
+
 /--
 If one has `l.get i` in an expression (with `i : Fin l.length`) and `h : l = l'`,
 `rw [h]` will give a "motive it not type correct" error, as it cannot rewrite the

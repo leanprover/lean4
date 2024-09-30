@@ -73,7 +73,7 @@ def Positions.groupAndSort {α β} [Inhabited α] [DecidableEq β]
     (f : α → β) (xs : Array α) (ys : Array β) : Positions :=
   let positions := ys.map fun y => (Array.range xs.size).filter fun i => f xs[i]! = y
   -- Sanity check: is this really a grouped permutation of all the indices?
-  assert! Array.range xs.size == positions.flatten.qsort Nat.blt
+  assert! Array.range xs.size == positions.join.qsort Nat.blt
   positions
 
 /--

@@ -115,7 +115,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         constructor
         · rfl
         · constructor
-          · rw [Array.getElem_modify_self l_in_bounds]
+          · rw [Array.getElem_modify_self]
             simp only [← i_eq_l, h1]
           · constructor
             · simp only [getElem!, l_in_bounds, ↓reduceDIte, Array.get_eq_getElem,
@@ -138,7 +138,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
       · next i_ne_l =>
         apply Or.inl
         simp only [insertUnit, h3, ite_false, reduceCtorEq]
-        rw [Array.getElem_modify_of_ne i_in_bounds _ (Ne.symm i_ne_l)]
+        rw [Array.getElem_modify_of_ne (Ne.symm i_ne_l)]
         constructor
         · exact h1
         · intro j
@@ -197,7 +197,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
               rfl
             · constructor
               · simp only [i_eq_l]
-                rw [Array.getElem_modify_self l_in_bounds]
+                rw [Array.getElem_modify_self]
                 simp only [addAssignment, hl, ← i_eq_l, h2, ite_true, ite_false]
                 apply addNeg_addPos_eq_both
               · constructor
@@ -234,7 +234,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
             · rw [Array.get_push_lt units l j.1 j.2, h1]
             · constructor
               · simp only [i_eq_l]
-                rw [Array.getElem_modify_self l_in_bounds]
+                rw [Array.getElem_modify_self]
                 simp only [addAssignment, hl, ← i_eq_l, h2, ite_true, ite_false]
                 apply addPos_addNeg_eq_both
               · constructor
@@ -277,7 +277,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         constructor
         · rw [Array.get_push_lt units l j.1 j.2, h1]
         · constructor
-          · rw [Array.getElem_modify_of_ne i_in_bounds _ (Ne.symm i_ne_l), h2]
+          · rw [Array.getElem_modify_of_ne (Ne.symm i_ne_l), h2]
           · constructor
             · exact h3
             · intro k k_ne_j
@@ -319,9 +319,9 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
             by_cases i.1 = l.1.1
             · next i_eq_l =>
               simp only [i_eq_l]
-              rw [Array.getElem_modify_self l_in_bounds]
+              rw [Array.getElem_modify_self]
               simp only [← i_eq_l, h3, add_both_eq_both]
-            · next i_ne_l => rw [Array.getElem_modify_of_ne i_in_bounds _ (Ne.symm i_ne_l), h3]
+            · next i_ne_l => rw [Array.getElem_modify_of_ne (Ne.symm i_ne_l), h3]
         · constructor
           · exact h4
           · intro k k_ne_j1 k_ne_j2
@@ -535,7 +535,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
       have i_in_bounds : i.1 < assignments.size := by
         rw [hsize]
         exact i.2
-      have h := Array.getElem_modify_of_ne i_in_bounds (removeAssignment units[idx.val].2) ih2
+      have h := Array.getElem_modify_of_ne ih2 (removeAssignment units[idx.val].2) (by simpa using i_in_bounds)
       simp only [Fin.getElem_fin] at h
       rw [h]
       exact ih1
@@ -546,8 +546,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
       apply Or.inl
       constructor
       · simp only [clearUnit, idx_eq_j, Array.get_eq_getElem, ih1]
-        have i_in_bounds : i.1 < assignments.size := by rw [hsize]; exact i.2
-        rw [Array.getElem_modify_self i_in_bounds, ih2, remove_add_cancel]
+        rw [Array.getElem_modify_self, ih2, remove_add_cancel]
         exact ih3
       · intro k k_ge_idx_add_one
         have k_ge_idx : k.val ≥ idx.val := Nat.le_of_succ_le k_ge_idx_add_one
@@ -568,8 +567,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
         · constructor
           · simp only [clearUnit, Array.get_eq_getElem]
             specialize ih4 idx (Nat.le_refl idx.1) idx_ne_j
-            have i_in_bounds : i.1 < assignments.size := by rw [hsize]; exact i.2
-            rw [Array.getElem_modify_of_ne i_in_bounds _ ih4]
+            rw [Array.getElem_modify_of_ne ih4]
             exact ih2
           · constructor
             · exact ih3
@@ -593,8 +591,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
           exact ih2
         · constructor
           · simp only [clearUnit, idx_eq_j1, Array.get_eq_getElem, ih1]
-            have i_in_bounds : i.1 < assignments.size := hsize ▸ i.2
-            rw [Array.getElem_modify_self i_in_bounds, ih3, ih4]
+            rw [Array.getElem_modify_self, ih3, ih4]
             decide
           · constructor
             · simp [hasAssignment, hasNegAssignment, ih4]
@@ -630,8 +627,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
             exact ih1
           · constructor
             · simp only [clearUnit, idx_eq_j2, Array.get_eq_getElem, ih2]
-              have i_in_bounds : i.1 < assignments.size := hsize ▸ i.2
-              rw [Array.getElem_modify_self i_in_bounds, ih3, ih4]
+              rw [Array.getElem_modify_self, ih3, ih4]
               decide
             · constructor
               · simp only [hasAssignment, hasNegAssignment, ih4, ite_false, not_false_eq_true]
@@ -687,10 +683,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
                       simp only [Bool.not_eq_true] at h2
                       simp only [Fin.getElem_fin, ih2, ← h1, ← h2, ne_eq] at h3
                       exact h3 rfl
-                  have idx_unit_in_bounds : units[idx.1].1.1 < assignments.size := by
-                    rw [hsize]; exact units[idx.1].1.2.2
-                  have i_in_bounds : i.1 < assignments.size := hsize ▸ i.2
-                  rw [Array.getElem_modify_of_ne i_in_bounds _ idx_res_ne_i]
+                  rw [Array.getElem_modify_of_ne idx_res_ne_i]
                   exact ih3
                 · constructor
                   · exact ih4
@@ -796,7 +789,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
       constructor
       · simp only [List.get, l_eq_i]
       · constructor
-        · simp only [l_eq_i, Array.getElem_modify_self i_in_bounds, List.get, h1]
+        · simp only [l_eq_i, Array.getElem_modify_self, List.get, h1]
         · constructor
           · simp only [List.get, Bool.not_eq_true]
             simp only [getElem!, l_in_bounds, ↓reduceDIte, Array.get_eq_getElem,
@@ -826,7 +819,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
     · next l_ne_i =>
       apply Or.inl
       constructor
-      · rw [Array.getElem_modify_of_ne i_in_bounds (addAssignment l.2) l_ne_i]
+      · rw [Array.getElem_modify_of_ne l_ne_i]
         exact h1
       · intro l' l'_in_list
         simp only [List.find?, List.mem_cons] at l'_in_list
@@ -865,7 +858,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
             apply And.intro l_eq_true ∘ And.intro l'_eq_false
             constructor
             · simp only [l'] at l'_eq_false
-              simp only [l_eq_i, addAssignment, l_eq_true, ite_true, Array.getElem_modify_self i_in_bounds, h1,
+              simp only [l_eq_i, addAssignment, l_eq_true, ite_true, Array.getElem_modify_self, h1,
                 l'_eq_false, ite_false]
               apply addPos_addNeg_eq_both
             · constructor
@@ -914,7 +907,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
             apply And.intro l'_eq_true ∘ And.intro l_eq_false
             constructor
             · simp only [l'] at l'_eq_true
-              simp only [l_eq_i, addAssignment, l'_eq_true, ite_true, Array.getElem_modify_self i_in_bounds, h1,
+              simp only [l_eq_i, addAssignment, l'_eq_true, ite_true, Array.getElem_modify_self, h1,
                 l_eq_false, ite_false]
               apply addNeg_addPos_eq_both
             · constructor
@@ -950,7 +943,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
       constructor
       · exact j_eq_i
       · constructor
-        · rw [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i]
+        · rw [Array.getElem_modify_of_ne l_ne_i]
           exact h1
         · apply And.intro h2
           intro k k_ne_j_succ
@@ -1002,7 +995,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
       all_goals
         simp (config := {decide := true}) [getElem!, l_eq_i, i_in_bounds, h1, decidableGetElem?] at h
     constructor
-    · rw [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i]
+    · rw [Array.getElem_modify_of_ne l_ne_i]
       exact h1
     · constructor
       · exact h2

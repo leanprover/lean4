@@ -548,4 +548,131 @@ theorem count_attachWith [DecidableEq α] {p : α → Prop} (l : List α) (H : �
     (l.attachWith p H).count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _ _ _
 
+/-! ## unattach
+
+`List.unattach` is the (one-sided) inverse of `List.attach`. It is a synonym for `List.map Subtype.val`.
+
+We use it by providing a simp lemma `l.attach.unattach = l`, and simp lemmas which recognize higher order
+functions applied to `l : List { x // p x }` which only depend on the value, not the predicate, and rewrite these
+in terms of a simpler function applied to `l.unattach`.
+
+Further, we provide simp lemmas that push `unattach` inwards.
+-/
+
+/--
+A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
+It is used introduced as in intermediate step by lemmas such as `map_subtype`,
+and is ideally subsequently simplified away by `unattach_attach`.
+
+If not, usually the right approach is `simp [List.unattach, -List.map_subtype]` to unfold.
+-/
+def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) := l.map (·.val)
+
+@[simp] theorem unattach_nil {α : Type _} {p : α → Prop} : ([] : List { x // p x }).unattach = [] := rfl
+@[simp] theorem unattach_cons {α : Type _} {p : α → Prop} {a : { x // p x }} {l : List { x // p x }} :
+  (a :: l).unattach = a.val :: l.unattach := rfl
+
+@[simp] theorem length_unattach {α : Type _} {p : α → Prop} {l : List { x // p x }} :
+    l.unattach.length = l.length := by
+  unfold unattach
+  simp
+
+@[simp] theorem unattach_attach {α : Type _} (l : List α) : l.attach.unattach = l := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, Function.comp_def]
+
+@[simp] theorem unattach_attachWith {α : Type _} {p : α → Prop} {l : List α}
+    {H : ∀ a ∈ l, p a} :
+    (l.attachWith p H).unattach = l := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, Function.comp_def]
+
+/-! ### Recognizing higher order functions using a function that only depends on the value. -/
+
+/--
+This lemma identifies folds over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldl_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : β → { x // p x } → β} {g : β → α → β} {x : β}
+    {hf : ∀ b x, f b x = g b x.1} :
+    l.foldl f x = l.unattach.foldl g x := by
+  unfold unattach
+  induction l generalizing x with
+  | nil => simp
+  | cons a l ih => simp [ih, hf]
+
+/--
+This lemma identifies folds over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldr_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → β → β} {g : α → β → β} {x : β}
+    {hf : ∀ x b, f x b = g x.1 b} :
+    l.foldr f x = l.unattach.foldr g x := by
+  unfold unattach
+  induction l generalizing x with
+  | nil => simp
+  | cons a l ih => simp [ih, hf]
+
+/--
+This lemma identifies maps over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem map_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → β} {g : α → β} {hf : ∀ x, f x = g x.1} :
+    l.map f = l.unattach.map g := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, hf]
+
+@[simp] theorem filterMap_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x, f x = g x.1} :
+    l.filterMap f = l.unattach.filterMap g := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, hf, filterMap_cons]
+
+@[simp] theorem bind_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → List β} {g : α → List β} {hf : ∀ x, f x = g x.1} :
+    (l.bind f) = l.unattach.bind g := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, hf]
+
+@[simp] theorem filter_unattach {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x, f x = g x.1} :
+    (l.filter f).unattach = l.unattach.filter g := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [filter_cons, hf, unattach_cons]
+    split <;> simp [ih]
+
+/-! ### Simp lemmas pushing `unattach` inwards. -/
+
+@[simp] theorem reverse_unattach {p : α → Prop} {l : List { x // p x }} :
+    l.reverse.unattach = l.unattach.reverse := by
+  simp [unattach, -map_subtype]
+
+@[simp] theorem append_unattach {p : α → Prop} {l₁ l₂ : List { x // p x }} :
+    (l₁ ++ l₂).unattach = l₁.unattach ++ l₂.unattach := by
+  simp [unattach, -map_subtype]
+
+@[simp] theorem join_unattach {p : α → Prop} {l : List (List { x // p x })} :
+    l.join.unattach = (l.map unattach).join := by
+  unfold unattach
+  induction l <;> simp_all
+
+@[simp] theorem replicate_unattach {p : α → Prop} {n : Nat} {x : { x // p x }} :
+    (List.replicate n x).unattach = List.replicate n x.1 := by
+  simp [unattach, -map_subtype]
+
 end List

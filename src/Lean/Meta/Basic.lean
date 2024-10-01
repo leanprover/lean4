@@ -250,13 +250,14 @@ structure DefEqCache where
   Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
-  inferType      : InferTypeCache := {}
-  funInfo        : FunInfoCache   := {}
-  synthInstance  : SynthInstanceCache := {}
-  whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
-  whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
-  defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
+  inferTypeDefault : InferTypeCache := {}
+  inferTypeAll     : InferTypeCache := {}
+  funInfo          : FunInfoCache   := {}
+  synthInstance    : SynthInstanceCache := {}
+  whnfDefault      : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
+  whnfAll          : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
+  defEqTrans       : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
+  defEqPerm        : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   deriving Inhabited
 
 /--
@@ -478,14 +479,17 @@ variable [MonadControlT MetaM n] [Monad n]
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
   modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
-@[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+@[inline] def modifyInferTypeCacheDefault (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7⟩
+
+@[inline] def modifyInferTypeCacheAll (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, ic, c2, c3, c4, c5, c6, c7⟩ => ⟨c1, f ic, c2, c3, c4, c5, c6, c7⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqTrans, c7⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqTrans, c7⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, c7, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, c6, c7, f defeqPerm⟩
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}

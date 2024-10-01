@@ -166,13 +166,24 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
   | none   => fvarId.throwUnknown
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
-  match (← get).cache.inferType.find? e with
-  | some type => return type
-  | none =>
-    let type ← inferType
-    unless e.hasMVar || type.hasMVar do
-      modifyInferTypeCache fun c => c.insert e type
-    return type
+  match (← getTransparency) with
+  | .default =>
+    match (← get).cache.inferTypeDefault.find? e with
+    | some type => return type
+    | none =>
+      let type ← inferType
+      unless e.hasMVar || type.hasMVar do
+        modifyInferTypeCacheDefault fun c => c.insert e type
+      return type
+  | .all =>
+    match (← get).cache.inferTypeAll.find? e with
+    | some type => return type
+    | none =>
+      let type ← inferType
+      unless e.hasMVar || type.hasMVar do
+        modifyInferTypeCacheAll fun c => c.insert e type
+      return type
+  | _ => panic! "checkInferTypeCache: transparency mode not default or all"
 
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=

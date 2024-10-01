@@ -367,7 +367,7 @@ structure References where
 
 /-- Collect information from the `infoTrees` into `References`.
 See `References` for more information about the return value. -/
-def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range) :
+partial def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range) :
     StateRefT References IO Unit := ReaderT.run (r := false) <| go infoTrees none
 where
   go infoTrees ctx? := do
@@ -383,7 +383,8 @@ where
               children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome) then
             modify fun s => { s with
               assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ ti.expr) }
-            return false
+            withReader (fun _ => true) do
+              go children.toArray ci
           match ti.expr with
           | .const .. =>
             if ti.isBinder then

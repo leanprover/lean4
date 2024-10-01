@@ -1921,8 +1921,8 @@ theorem shiftLeft_add_distrib {x y : BitVec w} {n : Nat} :
     simp [ih, toNat_eq, Nat.shiftLeft_eq, ← Nat.add_mul]
 
 theorem add_eq_xor {a b : BitVec 1} : a + b = a ^^^ b := by
-  have ha : a = 0 ∨ a = 1 := width_one_cases _
-  have hb : b = 0 ∨ b = 1 := width_one_cases _
+  have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _
+  have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
 
 /-! ### sub/neg -/

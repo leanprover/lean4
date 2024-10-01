@@ -73,7 +73,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
       forallTelescope ty fun params _ => do
         let mut p := mkConst p
         let args  := e.getAppArgs
-        for h: i in [:Nat.min params.size args.size] do
+        for i in [:Nat.min params.size args.size] do
           let param := params[i]!
           let arg   := args[i]!
           let paramTy ← inferType param

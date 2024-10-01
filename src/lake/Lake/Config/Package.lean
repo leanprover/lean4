@@ -308,7 +308,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Reservoir will already include a link to the package's GitHub repository
   (if the package is sourced from there). Thus, users are advised to specify
-  something else for this link (if anything).
+  something else for this (if anything).
   -/
   homepage : String := ""
 
@@ -340,8 +340,9 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The path to the package's README.
+
   A README should be a Markdown file containing an overview of the package.
-  Reservoir displays the rendered HTML of this README on a package's page.
+  Reservoir displays the rendered HTML of this file on a package's page.
   A nonstandard location can be used to provide a different README for Reservoir
   and GitHub.
 

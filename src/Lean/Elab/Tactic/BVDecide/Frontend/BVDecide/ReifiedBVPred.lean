@@ -89,7 +89,7 @@ where
       M (Option ReifiedBVPred) := do
     let some lhs ← ReifiedBVExpr.of lhsExpr | return none
     let some rhs ← ReifiedBVExpr.of rhsExpr | return none
-    if h:lhs.width = rhs.width then
+    if h :lhs.width = rhs.width then
       let bvExpr : BVPred := .bin (w := lhs.width) lhs.bvExpr pred (h ▸ rhs.bvExpr)
       let expr :=
         mkApp4

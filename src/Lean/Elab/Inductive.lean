@@ -168,7 +168,7 @@ private def checkHeader (r : ElabHeaderResult) (numParams : Nat) (firstType? : O
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private partial def checkHeaders (rs : Array ElabHeaderResult) (numParams : Nat) (i : Nat) (firstType? : Option Expr) : TermElabM Unit := do
-  if h: i < rs.size then
+  if h : i < rs.size then
     let type ← checkHeader rs[i] numParams firstType?
     checkHeaders rs numParams (i+1) type
 
@@ -222,7 +222,7 @@ private def replaceArrowBinderNames (type : Expr) (newNames : Array Name) : Expr
   go type 0
 where
   go (type : Expr) (i : Nat) : Expr :=
-    if h: i < newNames.size then
+    if h : i < newNames.size then
       match type with
       | .forallE n d b bi =>
         if n.hasMacroScopes then

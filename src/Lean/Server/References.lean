@@ -312,7 +312,7 @@ where
 
   findCanonicalRepresentative (idMap : Std.HashMap RefIdent RefIdent) (id : RefIdent) : RefIdent := Id.run do
     let mut canonicalRepresentative := id
-    while h: idMap.contains canonicalRepresentative do
+    while h : idMap.contains canonicalRepresentative do
       canonicalRepresentative := idMap[canonicalRepresentative]
     return canonicalRepresentative
 

@@ -330,7 +330,7 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
   withReader (fun ctx => { ctx with implicitLambda := false }) do
     let mut patterns  := #[]
     let mut matchType := matchType
-    for h: idx in [:patternStxs.size] do
+    for h : idx in [:patternStxs.size] do
       let patternStx := patternStxs[idx]
       matchType ← whnf matchType
       match matchType with

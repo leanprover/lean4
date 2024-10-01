@@ -155,7 +155,7 @@ where
           if !infos[i]!.isInstImplicit then
             if !(← lt args[i]! b) then
               return false
-        for h: i in [infos.size:args.size] do
+        for h : i in [infos.size:args.size] do
           if !(← lt args[i] b) then
             return false
         return true

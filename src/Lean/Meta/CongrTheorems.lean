@@ -185,7 +185,7 @@ private def getClassSubobjectMask? (f : Expr) : MetaM (Option (Array Bool)) := d
   forallTelescopeReducing val.type (cleanupAnnotations := true) fun xs _ => do
     let env ← getEnv
     let mut mask := #[]
-    for h: i in [:xs.size] do
+    for h : i in [:xs.size] do
       if i < val.numParams then
         mask := mask.push false
       else
@@ -211,7 +211,7 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
   -/
   let mut result := #[]
   let mask? ← getClassSubobjectMask? f
-  for h: i in [:info.paramInfo.size] do
+  for h : i in [:info.paramInfo.size] do
     if info.resultDeps.contains i then
       result := result.push .fixed
     else if info.paramInfo[i].isProp then

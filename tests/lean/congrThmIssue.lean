@@ -17,7 +17,7 @@ namespace ArrayBuffer
 def grow : ArrayBuffer α → ArrayBuffer α :=
 λ ⟨cap, backing, size, h_size, h_full⟩ =>
   ⟨cap + cap,
-    λ i => if h:i < cap then backing ⟨i,h⟩ else none,
+    λ i => if h :i < cap then backing ⟨i,h⟩ else none,
     size,
     Nat.le_trans h_size (Nat.le_add_left _ _),
     by intro i h

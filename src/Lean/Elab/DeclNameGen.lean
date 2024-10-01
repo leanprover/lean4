@@ -64,7 +64,7 @@ private partial def winnowExpr (e : Expr) : MetaM Expr := do
         let mut fty ← inferType f
         let mut j := 0
         let mut e' ← visit f
-        for h: i in [0:args.size] do
+        for h : i in [0:args.size] do
           unless fty.isForall do
             fty ← withTransparency .all <| whnf <| fty.instantiateRevRange j i args
             j := i

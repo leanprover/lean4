@@ -50,7 +50,7 @@ partial def inlineMatchers (e : Expr) : CoreM Expr :=
       let numAlts := info.numAlts
       let altNumParams := info.altNumParams
       let rec inlineMatcher (i : Nat) (args : Array Expr) (letFVars : Array Expr) : MetaM Expr := do
-        if h: i < numAlts then
+        if h : i < numAlts then
           let altIdx := i + info.getFirstAltPos
           let numParams := altNumParams[i]
           let alt ← normalizeAlt args[altIdx]! numParams

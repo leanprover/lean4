@@ -35,7 +35,7 @@ If this returns `some i`, `Cache.find?_poperty` can be used to demonstrate: `dec
 def Cache.find? (cache : Cache decls) (decl : Decl) : Option Nat :=
   match cache.val.find? decl with
   | some hit =>
-    if h1:hit < decls.size then
+    if h1 :hit < decls.size then
       if decls[hit]'h1 = decl then
         some hit
       else

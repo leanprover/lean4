@@ -505,7 +505,7 @@ ones. Return whether any `Value` got updated in the process.
 -/
 def inferStep : InterpM Bool := do
   let ctx ← read
-  for h: idx in [0:ctx.decls.size] do
+  for h : idx in [0:ctx.decls.size] do
     let decl := ctx.decls[idx]
     if !decl.safe then
       continue

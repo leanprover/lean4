@@ -119,7 +119,7 @@ where
       modifyBinders { vars with target := vars.target ++ xs, motives := xs } 0
 
   modifyBinders (vars : Variables) (i : Nat) := do
-    if h: i < vars.args.size then
+    if h : i < vars.args.size then
       let binder := vars.args[i]
       let binderType ← inferType binder
       if (← checkCount binderType) then
@@ -372,7 +372,7 @@ where
       (rest : Expr)
       (belowIndices : Array Nat)
       (xIdx yIdx : Nat) : MetaM $ Array Nat := do
-    if h: xIdx ≥ xs.size then return belowIndices else
+    if h : xIdx ≥ xs.size then return belowIndices else
     let x := xs[xIdx]
     let xTy ← inferType x
     let yTy := rest.bindingDomain!

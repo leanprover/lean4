@@ -385,10 +385,11 @@ where
             -- the body is the only `Expr` we will analyze in this case
             -- NOTE: we include it even if no tactics are present as at least for parameters we want
             -- to lint only truly unused binders
+            let (e, _) := instantiateMVarsCore ci.mctx ti.expr
             modify fun s => { s with
-              assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ ti.expr) }
+              assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
             let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
-            withReader (fun _ => tacticsPresent) do
+            withReader (· || tacticsPresent) do
               go children.toArray ci
             return false
           if ignored then return true

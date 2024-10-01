@@ -247,6 +247,17 @@ endif()
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   # Only on WebAssembly we compile LibUV ourselves
   set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
+
+  # LibUV does not compile on WebAssembly without modifications because
+  # building LibUV on a platform requires including stub implementations
+  # for features not present on the target platform. This patch includes
+  # the minimum amount of stub implementations needed for successfully
+  # running Lean on WebAssembly and using LibUV's temporary file support.
+  # It still leaves several symbols completely undefined: uv__fs_event_close,
+  # uv__hrtime, uv__io_check_fd, uv__io_fork, uv__io_poll, uv__platform_invalidate_fd
+  # uv__platform_loop_delete, uv__platform_loop_init. Making additional
+  # LibUV features available on WebAssembly might require adapting the
+  # patch to include additional LibUV source files.
   set(LIBUV_PATCH_IN "
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 5e8e0166..f3b29134 100644
@@ -273,7 +284,7 @@ index 5e8e0166..f3b29134 100644
     # Sync version with flake.nix
     GIT_TAG v1.48.0
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_AR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=${LIBUV_EMSCRIPTEN_FLAGS}
-	PATCH_COMMAND git reset --hard HEAD && printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
+	  PATCH_COMMAND git reset --hard HEAD && printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")

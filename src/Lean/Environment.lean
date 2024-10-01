@@ -1096,6 +1096,13 @@ def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
 @[extern "lean_kernel_whnf"]
 opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
 
+/--
+  Kernel typecheck function. We use it mainly for debugging purposes.
+  Recall that the Kernel type checker does not support metavariables.
+  When implementing automation, consider using the `MetaM` methods. -/
+@[extern "lean_kernel_check"]
+opaque check (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
+
 end Kernel
 
 class MonadEnv (m : Type → Type) where

@@ -41,7 +41,11 @@ def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
 
 /-- Tries to download the package's build cache (if configured). -/
 def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
-  if !(← getNoCache) && (self.preferReleaseBuild || !self.scope.isEmpty) then
+  let shouldFetch :=
+    (← getTryCache) &&
+    (self.preferReleaseBuild || -- GitHub release
+      (!self.scope.isEmpty && !(← getElanToolchain).isEmpty)) -- Reservoir
+  if shouldFetch then
     self.optBuildCache.fetch
   else
     return pure true

@@ -3,6 +3,8 @@ set -exo pipefail
 
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
+export ELAN_TOOLCHAIN=test
+
 ./clean.sh
 # Tests requiring a package not in the index
 ($LAKE -f bogus-dep.toml update 2>&1 && exit 1 || true) |
@@ -16,6 +18,11 @@ $LAKE -v -f git.toml build @Cli:extraDep |
 
 ./clean.sh
 $LAKE -f barrel.lean update
+# Test that narrels are not fetched without a toolchain
+(ELAN_TOOLCHAIN= $LAKE -v -f barrel.lean build @Cli:extraDep) |
+  grep --color "Cli:optBarrel" && exit 1 || true
+($LAKE -v -f barrel.lean build @Cli:barrel && exit 1 || true) |
+  grep --color "toolchain=test"
 # Test that fetch failures are only shown in verbose mode
 $LAKE -v -f barrel.lean build @Cli:extraDep |
   grep --color "Cli:optBarrel"
@@ -31,10 +38,10 @@ $LAKE -f barrel.lean build @Cli:extraDep |
 (LAKE_NO_CACHE=1 $LAKE -v -f barrel.lean build @Cli:extraDep --try-cache) |
   grep --color "Cli:optBarrel"
 # Test barrel download
-(ELAN_TOOLCHAIN= $LAKE -f barrel.lean build @Cli:barrel -v && exit 1 || true) |
+(ELAN_TOOLCHAIN= $LAKE -v -f barrel.lean build @Cli:barrel && exit 1 || true) |
   grep --color "Lean toolchain not known"
 ELAN_TOOLCHAIN=leanprover/lean4:v4.11.0 \
-  $LAKE -f barrel.lean build @Cli:barrel -v
+  $LAKE -v -f barrel.lean build @Cli:barrel
 ELAN_TOOLCHAIN=leanprover/lean4:v4.11.0 \
 LEAN_GITHASH=ec3042d94bd11a42430f9e14d39e26b1f880f99b \
   $LAKE -f barrel.lean build Cli --no-build

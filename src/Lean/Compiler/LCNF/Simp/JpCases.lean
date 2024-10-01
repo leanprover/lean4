@@ -121,7 +121,7 @@ where
     let mut paramsNew := #[]
     let singleton : FVarIdSet := ({} : FVarIdSet).insert params[targetParamIdx]!.fvarId
     let dependsOnDiscr := k.dependsOn singleton || decls.any (·.dependsOn singleton)
-    for h: i in [:params.size] do
+    for h : i in [:params.size] do
       let param := params[i]
       if targetParamIdx == i then
         if dependsOnDiscr then

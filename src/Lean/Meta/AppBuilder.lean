@@ -277,7 +277,7 @@ private def mkAppMFinal (methodName : Name) (f : Expr) (args : Array Expr) (inst
 
 private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : MetaM Expr :=
   let rec loop (type : Expr) (i : Nat) (j : Nat) (args : Array Expr) (instMVars : Array MVarId) : MetaM Expr := do
-    if h: i >= xs.size then
+    if h : i >= xs.size then
       mkAppMFinal `mkAppM f args instMVars
     else match type with
       | Expr.forallE n d b bi =>

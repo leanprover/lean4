@@ -257,7 +257,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
     unless found.contains (lhs, rhs) do
       found := found.insert (lhs, rhs)
       uniqueEntries := uniqueEntries.push entry
-  for h: i in [1:uniqueEntries.size] do
+  for h : i in [1:uniqueEntries.size] do
     logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i]!)
   throwErrorAt uniqueEntries[0]!.ref (← mkLevelStuckErrorMessage uniqueEntries[0]!)
 

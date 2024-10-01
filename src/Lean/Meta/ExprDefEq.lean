@@ -80,7 +80,7 @@ where
         checkpointDefEq do
           let args := b.getAppArgs
           let params := args[:ctorVal.numParams].toArray
-          for h: i in [ctorVal.numParams : args.size] do
+          for h : i in [ctorVal.numParams : args.size] do
             let j := i - ctorVal.numParams
             let proj ← mkProjFn ctorVal us params j a
             if ← isProof proj then

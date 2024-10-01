@@ -69,7 +69,7 @@ The `type` should be the expected type of the packed argument, as created with `
 partial def pack (type : Expr) (args : Array Expr) : Expr := go 0 type
 where
   go (i : Nat) (type : Expr) : Expr :=
-    if h: i < args.size - 1 then
+    if h : i < args.size - 1 then
       let arg := args[i]
       assert! type.isAppOfArity ``PSigma 2
       let us := type.getAppFn.constLevels!

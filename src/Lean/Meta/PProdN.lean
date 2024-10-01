@@ -115,7 +115,7 @@ It returns a dummy motive `(xs : ) → PUnit` or `(xs : … ) → True` if no ex
 
 -/
 def packLambdas (type : Expr) (es : Array Expr) : MetaM Expr := do
-  if h: es.size = 1 then
+  if h : es.size = 1 then
     return es[0]
   forallTelescope type fun xs sort => do
     assert! sort.isSort
@@ -131,7 +131,7 @@ The value analogue to `PProdN.packLambdas`.
 It is the identity if `es.size = 1`.
 -/
 def mkLambdas (type : Expr) (es : Array Expr) : MetaM Expr := do
-  if h: es.size = 1 then
+  if h : es.size = 1 then
     return es[0]
   forallTelescope type fun xs body => do
     let lvl ← getLevel body

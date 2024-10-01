@@ -385,13 +385,13 @@ def size (lctx : LocalContext) : Nat :=
   Id.run <| lctx.findDeclRevM? f
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
-  if h: i < a₁.size then
+  if h : i < a₁.size then
     match a₁[i] with
     | none       => isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
     | some decl₁ =>
       if exceptFVars.any fun fvar => fvar.fvarId! == decl₁.fvarId then
         isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
-      else if h2: j < a₂.size then
+      else if h2 : j < a₂.size then
         match a₂[j] with
         | none       => isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)
         | some decl₂ => if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) (j+1) else isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)

@@ -68,7 +68,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
       | some targetPos => pure targetPos.val
     let mut altsInfo := #[]
     let env ← getEnv
-    for h: i in [:xs.size] do
+    for h : i in [:xs.size] do
       let x := xs[i]
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl

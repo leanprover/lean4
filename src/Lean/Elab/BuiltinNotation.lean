@@ -55,7 +55,7 @@ open Meta
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
-              for h: i in [cinfo.numParams:xs.size] do
+              for h : i in [cinfo.numParams:xs.size] do
                 if (← getFVarLocalDecl xs[i]).binderInfo.isExplicit then
                   n := n + 1
               return n

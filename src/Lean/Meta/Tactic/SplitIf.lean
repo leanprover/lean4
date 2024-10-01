@@ -11,24 +11,20 @@ import Lean.Meta.Tactic.Simp.Main
 namespace Lean.Meta
 namespace SplitIf
 
-builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
-  registerLazyInitExtension do
-    let mut s : SimpTheorems := {}
-    s ← s.addConst ``if_pos
-    s ← s.addConst ``if_neg
-    s ← s.addConst ``dif_pos
-    s ← s.addConst ``dif_neg
-    return {
-      simpTheorems  := #[s]
-      congrTheorems := (← getSimpCongrTheorems)
-      config        := { Simp.neutralConfig with dsimp := false }
-    }
-
 /--
   Default `Simp.Context` for `simpIf` methods. It contains all congruence theorems, but
   just the rewriting rules for reducing `if` expressions. -/
-def getSimpContext : MetaM Simp.Context :=
-  ext.get
+def getSimpContext : MetaM Simp.Context := do
+  let mut s : SimpTheorems := {}
+  s ← s.addConst ``if_pos
+  s ← s.addConst ``if_neg
+  s ← s.addConst ``dif_pos
+  s ← s.addConst ``dif_neg
+  return {
+    simpTheorems  := #[s]
+    congrTheorems := (← getSimpCongrTheorems)
+    config        := { Simp.neutralConfig with dsimp := false }
+  }
 
 /--
   Default `discharge?` function for `simpIf` methods.

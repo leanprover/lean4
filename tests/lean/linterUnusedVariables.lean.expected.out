@@ -62,11 +62,5 @@ linterUnusedVariables.lean:246:29-248:7: error: unexpected token 'theorem'; expe
 linterUnusedVariables.lean:246:27-246:29: error: unsolved goals
 a : Nat
 ⊢ Nat
-linterUnusedVariables.lean:256:9-256:12: warning: unused variable `ord`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:257:15-257:18: warning: unused variable `ord`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:258:9-258:10: warning: unused variable `h`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:280:41-280:43: warning: unused variable `ha`
+linterUnusedVariables.lean:281:41-281:43: warning: unused variable `ha`
 note: this linter can be disabled with `set_option linter.unusedVariables false`

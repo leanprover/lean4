@@ -374,9 +374,12 @@ where
     for tree in infoTrees do
       tree.visitM' (ctx? := ctx?) (preNode := fun ci info children => do
         -- set if `analyzeTactics` is unset, tactic infos are present, and we're inside the body
-        let ignoreBodyBinders ← read
+        let ignored ← read
         match info with
         | .ofTermInfo ti =>
+          -- NOTE: we have to do this check *before* `ignored` because nested bodies (e.g. from
+          -- nested `let rec`s) do need to be included to find all `Expr` uses of the top-level
+          -- parameters
           if ti.elaborator == `MutualDef.body &&
               !linter.unusedVariables.analyzeTactics.get ci.options then
             -- the body is the only `Expr` we will analyze in this case
@@ -388,6 +391,7 @@ where
             withReader (fun _ => tacticsPresent) do
               go children.toArray ci
             return false
+          if ignored then return true
           match ti.expr with
           | .const .. =>
             if ti.isBinder then
@@ -399,7 +403,7 @@ where
             let .original .. := info.stx.getHeadInfo | return true -- we are not interested in canonical syntax here
             if ti.isBinder then
               -- This is a local variable declaration.
-              if ignoreBodyBinders then return true
+              if ignored then return true
               let some ldecl := ti.lctx.find? id | return true
               -- Skip declarations which are outside the command syntax range, like `variable`s
               -- (it would be confusing to lint these), or those which are macro-generated
@@ -426,11 +430,12 @@ where
         | .ofTacticInfo ti =>
           -- When ignoring new binders, no need to look at intermediate tactic states either as
           -- references to binders outside the body will be covered by the body `Expr`
-          if ignoreBodyBinders then return true
+          if ignored then return true
           -- Keep track of the `MetavarContext` after a tactic for later
           modify fun s => { s with assignments := s.assignments.push ti.mctxAfter.eAssignment }
           return true
         | .ofFVarAliasInfo i =>
+          if ignored then return true
           -- record any aliases we find
           modify fun s =>
             let id := followAliases s.fvarAliases i.baseId

@@ -16,3 +16,13 @@ example :
 
 example (x y z : BitVec 8) (h1 : x = z → False) (h2 : x = y) (h3 : y = z) : False := by
   bv_decide
+
+def mem_subset (a1 a2 b1 b2 : BitVec 64) : Bool :=
+  (b2 - b1 = BitVec.ofNat 64 (2^64 - 1)) ||
+  ((a2 - b1 <= b2 - b1 && a1 - b1 <= a2 - b1))
+
+-- Show that bv_normalize yields the preprocessed goal
+theorem mem_subset_refl : mem_subset a1 a2 a1 a2 := by
+  unfold mem_subset
+  bv_normalize
+  sorry

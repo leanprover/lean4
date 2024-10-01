@@ -266,10 +266,6 @@ The result of calling `bv_decide`.
 -/
 structure Result where
   /--
-  Trace of the `simp` used in `bv_decide`'s normalization procedure.
-  -/
-  simpTrace : Simp.Stats
-  /--
   If the normalization step was not enough to solve the goal this contains the LRAT proof
   certificate.
   -/
@@ -280,10 +276,10 @@ Try to close `g` using a bitblaster. Return either a `CounterExample` if one is 
 if `g` is proven.
 -/
 def bvDecide' (g : MVarId) (cfg : TacticContext) : MetaM (Except CounterExample Result) := do
-  let ⟨g?, simpTrace⟩ ← Normalize.bvNormalize g
-  let some g := g? | return .ok ⟨simpTrace, none⟩
+  let g? ← Normalize.bvNormalize g
+  let some g := g? | return .ok ⟨none⟩
   match ← bvUnsat g cfg with
-  | .ok lratCert => return .ok ⟨simpTrace, some lratCert⟩
+  | .ok lratCert => return .ok ⟨some lratCert⟩
   | .error counterExample => return .error counterExample
 
 /--

@@ -191,7 +191,7 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
     | .forallE ..    => checkInferTypeCache e (inferForallType e)
     | .lam ..        => checkInferTypeCache e (inferLambdaType e)
     | .letE ..       => checkInferTypeCache e (inferLambdaType e)
-  withIncRecDepth <| withTransparency TransparencyMode.default (infer e)
+  withIncRecDepth <| withAtLeastTransparency TransparencyMode.default (infer e)
 
 /--
   Return `LBool.true` if given level is always equivalent to universe level zero.

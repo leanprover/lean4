@@ -525,6 +525,7 @@ theorem getElem_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) (hi : i < v) :
     (setWidth' h x)[i] = x.getLsbD i := by
   rw [getElem_eq_testBit_toNat, toNat_setWidth', getLsbD]
 
+@[simp]
 theorem getElem_setWidth (m : Nat) (x : BitVec n) (i : Nat) (h : i < m) :
     (setWidth m x)[i] = x.getLsbD i := by
   rw [setWidth]
@@ -2260,6 +2261,12 @@ theorem getLsbD_rotateLeft {x : BitVec w} {r i : Nat}  :
   · simp
   · rw [← rotateLeft_mod_eq_rotateLeft, getLsbD_rotateLeft_of_le (Nat.mod_lt _ (by omega))]
 
+@[simp]
+theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
+    (x.rotateLeft r)[i] =
+      if h' : i < r % w then x[(w - (r % w) + i)] else x[i - (r % w)] := by
+  simp [← BitVec.getLsbD_eq_getElem, h]
+
 /-! ## Rotate Right -/
 
 /--
@@ -2341,6 +2348,12 @@ theorem getLsbD_rotateRight {x : BitVec w} {r i : Nat} :
   · simp
   · rw [← rotateRight_mod_eq_rotateRight, getLsbD_rotateRight_of_le (Nat.mod_lt _ (by omega))]
 
+@[simp]
+theorem getElem_rotateRight {x : BitVec w} {r i : Nat} (h : i < w) :
+    (x.rotateRight r)[i] = if h' : i < w - (r % w) then x[(r % w) + i] else x[(i - (w - (r % w)))] := by
+  simp only [← BitVec.getLsbD_eq_getElem]
+  simp [getLsbD_rotateRight, h]
+
 /- ## twoPow -/
 
 @[simp, bv_toNat]
@@ -2368,6 +2381,12 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
           intro h; subst h
           simp at hi
         simp_all
+
+@[simp]
+theorem getElem_twoPow {i j : Nat} (h : j < w) : (twoPow w i)[j] = decide (j = i) := by
+  rw [←getLsbD_eq_getElem, getLsbD_twoPow]
+  simp [eq_comm]
+  omega
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
@@ -2399,6 +2418,10 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
 @[simp]
 theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
   rw [← twoPow_zero, getLsbD_twoPow]
+
+@[simp]
+theorem getElem_one {w i : Nat} (h : i < w) : (1#w)[i] = decide (i = 0) := by
+  rw [← twoPow_zero, getElem_twoPow]
 
 theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
@@ -2503,6 +2526,12 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_False, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
+
+@[simp]
+theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
+    (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
+  simp only [← getLsbD_eq_getElem, getLsbD_replicate]
+  by_cases h' : w = 0 <;> simp [h'] <;> omega
 
 /-! ### intMin -/
 

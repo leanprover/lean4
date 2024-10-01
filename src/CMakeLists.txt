@@ -273,7 +273,7 @@ index 5e8e0166..f3b29134 100644
     # Sync version with flake.nix
     GIT_TAG v1.48.0
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_AR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=${LIBUV_EMSCRIPTEN_FLAGS}
-    PATCH_COMMAND printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
+	PATCH_COMMAND git reset --hard HEAD && printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")

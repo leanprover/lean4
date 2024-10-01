@@ -158,6 +158,7 @@ static FILE * io_get_handle(lean_object * hfile) {
 
 extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_obj_arg fname) {
     object * details = mk_string(strerror(errnum));
+    // Keep in sync with lean_decode_uv_error below
     switch (errnum) {
     case EINTR:
         lean_assert(fname != nullptr);
@@ -254,16 +255,17 @@ extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_obj_arg fname)
 
 extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
+    // Keep in sync with lean_decode_io_error above
     switch (errnum) {
     case UV_EINTR:
         lean_assert(fname != nullptr);
         inc_ref(fname);
         return lean_mk_io_error_interrupted(fname, errnum, details);
+    /* LibUV does not map EDOM, ENOEXEC and ENOSTR as of version 1.48.0 */
     case UV_ELOOP: case UV_ENAMETOOLONG: case UV_EDESTADDRREQ:
     case UV_EBADF: case UV_EINVAL: case UV_EILSEQ:
     case UV_ENOTCONN: case UV_ENOTSOCK:
         if (fname == nullptr) {
-            printf("fname is null\n");
             return lean_mk_io_error_invalid_argument(errnum, details);
         } else {
             inc_ref(fname);
@@ -281,6 +283,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
             inc_ref(fname);
             return lean_mk_io_error_permission_denied_file(fname, errnum, details);
         }
+    /* LibUV does not map ENOLCK and ENOSR as of version 1.48.0 */
     case UV_EMFILE: case UV_ENFILE: case UV_ENOSPC:
     case UV_E2BIG:  case UV_EAGAIN: case UV_EMLINK:
     case UV_EMSGSIZE: case UV_ENOBUFS:
@@ -291,6 +294,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
             inc_ref(fname);
             return lean_mk_io_error_resource_exhausted_file(fname, errnum, details);
         }
+    /* LibUV does not map EBADMSG as of version 1.48.0 */
     case UV_EISDIR: case UV_ENOTDIR:
         if (fname == nullptr) {
             return lean_mk_io_error_inappropriate_type(errnum, details);
@@ -298,6 +302,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
             inc_ref(fname);
             return lean_mk_io_error_inappropriate_type_file(fname, errnum, details);
         }
+    /* LibUV does not map ECHILD as of version 1.48.0 */
     case UV_ENXIO: case UV_EHOSTUNREACH: case UV_ENETUNREACH:
     case UV_ECONNREFUSED:
 #if UV_VERSION_HEX >= 0x014500
@@ -310,6 +315,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
             inc_ref(fname);
             return lean_mk_io_error_no_such_thing_file(fname, errnum, details);
         }
+    /* LibUV does not map EINPROGRESS as of version 1.48.0 */
     case UV_EEXIST: case UV_EISCONN:
         if (fname == nullptr) {
             return lean_mk_io_error_already_exists(errnum, details);
@@ -326,6 +332,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
     case UV_ENOTTY:
         lean_assert(fname == nullptr);
         return lean_mk_io_error_illegal_operation(errnum, details);
+    /* LibUV does not map EIDRM, ENETRESET and ENOLINK as of version 1.48.0 */
     case UV_ECONNRESET: case UV_ENETDOWN:
     case UV_EPIPE:
         lean_assert(fname == nullptr);
@@ -333,9 +340,11 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
     case UV_EPROTO: case UV_EPROTONOSUPPORT: case UV_EPROTOTYPE:
         lean_assert(fname == nullptr);
         return lean_mk_io_error_protocol_error(errnum, details);
+    /* LibUV does not map ETIME as of version 1.48.0 */
     case UV_ETIMEDOUT:
         lean_assert(fname == nullptr);
         return lean_mk_io_error_time_expired(errnum, details);
+    /* LibUV does not map EDEADLK as of version 1.48.0 */
     case UV_EADDRINUSE: case UV_EBUSY: case UV_ETXTBSY:
         lean_assert(fname == nullptr);
         return lean_mk_io_error_resource_busy(errnum, details);

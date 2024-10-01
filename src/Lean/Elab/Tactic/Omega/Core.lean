@@ -513,13 +513,13 @@ def fourierMotzkinSelect (data : Array FourierMotzkinData) : MetaM FourierMotzki
   if bestSize = 0 then
     trace[omega] "Selected variable {data[0]!.var}."
     return data[0]!
-  for i in [1:data.size] do
-    let exact := data[i]!.exact
-    let size := data[i]!.size
+  for h: i in [1:data.size] do
+    let exact := data[i].exact
+    let size := data[i].size
     if size = 0 || !bestExact && exact || (bestExact == exact) && size < bestSize then
       if size = 0 then
-        trace[omega] "Selected variable {data[i]!.var}"
-        return data[i]!
+        trace[omega] "Selected variable {data[i].var}"
+        return data[i]
       bestIdx := i
       bestExact := exact
       bestSize := size

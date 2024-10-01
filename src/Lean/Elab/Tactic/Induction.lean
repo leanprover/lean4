@@ -205,8 +205,8 @@ private def isWildcard (altStx : Syntax) : Bool :=
   getAltName altStx == `_
 
 private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit :=
-  for i in [:altsSyntax.size] do
-    let altStx := altsSyntax[i]!
+  for h: i in [:altsSyntax.size] do
+    let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
       withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
@@ -236,8 +236,8 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
     let altVars := getAltVars altStx
     for fvarId in fvarIds do
       if !useNamesForExplicitOnly || (← fvarId.getDecl).binderInfo.isExplicit then
-        if i < altVars.size then
-          Term.addLocalVarInfo altVars[i]! (mkFVar fvarId)
+        if h: i < altVars.size then
+          Term.addLocalVarInfo altVars[i] (mkFVar fvarId)
           i := i + 1
 
 open Language in
@@ -320,8 +320,8 @@ where
     2- The errors are produced in the same order the appear in the code above. This is not super
     important when using IDEs.
     -/
-    for altStxIdx in [0:altStxs.size] do
-      let altStx := altStxs[altStxIdx]!
+    for h: altStxIdx in [0:altStxs.size] do
+      let altStx := altStxs[altStxIdx]
       let altName := getAltName altStx
       if let some i := alts.findIdx? (·.1 == altName) then
         -- cover named alternative

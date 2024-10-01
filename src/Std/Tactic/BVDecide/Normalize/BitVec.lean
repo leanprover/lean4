@@ -217,5 +217,8 @@ theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
     a[i] = a.getLsbD i := by
   simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
 
+attribute [bv_normalize] BitVec.add_eq_xor
+attribute [bv_normalize] BitVec.mul_eq_and
+
 end Normalize
 end Std.Tactic.BVDecide

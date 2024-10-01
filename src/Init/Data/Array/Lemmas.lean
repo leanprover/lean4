@@ -871,26 +871,26 @@ theorem mapIdx_spec (as : Array α) (f : Fin as.size → α → β)
   unfold modify modifyM Id.run
   split <;> simp
 
-theorem getElem_modify {as : Array α} {x i} (h : i < (as.modify x f).size) :
-    (as.modify x f)[i] = if x = i then f (as[i]'(by simpa using h)) else as[i]'(by simpa using h) := by
+theorem getElem_modify {as : Array α} {x i} (h : i < as.size) :
+    (as.modify x f)[i]'(by simp [h]) = if x = i then f as[i] else as[i] := by
   simp only [modify, modifyM, get_eq_getElem, Id.run, Id.pure_eq]
   split
-  · simp only [Id.bind_eq, get_set _ _ _ (by simpa using h)]; split <;> simp [*]
-  · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
+  · simp only [Id.bind_eq, get_set _ _ _ h]; split <;> simp [*]
+  · rw [if_neg (mt (by rintro rfl; exact h) ‹_›)]
 
-theorem getElem_modify_self {as : Array α} {i : Nat} (f : α → α) (h : i < (as.modify i f).size) :
-    (as.modify i f)[i] = f (as[i]'(by simpa using h)) := by
+theorem getElem_modify_self {as : Array α} {i : Nat} (h : i < as.size) (f : α → α) :
+    (as.modify i f)[i]'(by simp [h]) = f as[i] := by
   simp [getElem_modify h]
 
-theorem getElem_modify_of_ne {as : Array α} {i : Nat} (h : i ≠ j)
-    (f : α → α) (hj : j < (as.modify i f).size) :
-    (as.modify i f)[j] = as[j]'(by simpa using hj) := by
+theorem getElem_modify_of_ne {as : Array α} {i : Nat} (hj : j < as.size)
+    (f : α → α) (h : i ≠ j) :
+    (as.modify i f)[j]'(by rwa [size_modify]) = as[j] := by
   simp [getElem_modify hj, h]
 
 @[deprecated getElem_modify (since := "2024-08-08")]
-theorem get_modify {arr : Array α} {x i} (h : i < (arr.modify x f).size) :
-    (arr.modify x f).get ⟨i, h⟩ =
-    if x = i then f (arr.get ⟨i, by simpa using h⟩) else arr.get ⟨i, by simpa using h⟩ := by
+theorem get_modify {arr : Array α} {x i} (h : i < arr.size) :
+    (arr.modify x f).get ⟨i, by simp [h]⟩ =
+    if x = i then f (arr.get ⟨i, h⟩) else arr.get ⟨i, h⟩ := by
   simp [getElem_modify h]
 
 /-! ### filter -/
@@ -995,6 +995,27 @@ abbrev get_append_right := @getElem_append_right
 
 theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
+
+/-! ### flatten -/
+
+@[simp] theorem toList_flatten {l : Array (Array α)} : l.flatten.toList = (l.toList.map toList).join := by
+  dsimp [flatten]
+  simp only [foldl_eq_foldl_toList]
+  generalize l.toList = l
+  have : ∀ a : Array α, (List.foldl ?_ a l).toList = a.toList ++ ?_ := ?_
+  exact this #[]
+  induction l with
+  | nil => simp
+  | cons h => induction h.toList <;> simp [*]
+
+theorem mem_flatten : ∀ {L : Array (Array α)}, a ∈ L.flatten ↔ ∃ l, l ∈ L ∧ a ∈ l := by
+  simp only [mem_def, toList_flatten, List.mem_join, List.mem_map]
+  intro l
+  constructor
+  · rintro ⟨_, ⟨s, m, rfl⟩, h⟩
+    exact ⟨s, m, h⟩
+  · rintro ⟨s, h₁, h₂⟩
+    refine ⟨s.toList, ⟨⟨s, h₁, rfl⟩, h₂⟩⟩
 
 /-! ### extract -/
 
@@ -1447,6 +1468,10 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
     l.toArray.filterMap f = (l.filterMap f).toArray := by
   apply ext'
   erw [toList_filterMap] -- `erw` required to unify `l.length` with `l.toArray.size`.
+
+@[simp] theorem join_toArray (l : List (List α)) : (l.toArray.map List.toArray).join = l.join.toArray := by
+  apply ext'
+  simp [Function.comp_def]
 
 @[simp] theorem toArray_range (n : Nat) : (range n).toArray = Array.range n := by
   apply ext'

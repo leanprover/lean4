@@ -617,7 +617,7 @@ def concatMap (f : α → Array β) (as : Array α) : Array β :=
 
 `flatten #[#[a₁, a₂, ⋯], #[b₁, b₂, ⋯], ⋯]` = `#[a₁, a₂, ⋯, b₁, b₂, ⋯]`
 -/
-def flatten (as : Array (Array α)) : Array α :=
+@[inline] def flatten (as : Array (Array α)) : Array α :=
   as.foldl (init := empty) fun r a => r ++ a
 
 @[inline]

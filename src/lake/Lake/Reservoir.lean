@@ -148,9 +148,9 @@ abbrev foldlUtf8 (c : Char) (f : σ → UInt8 → σ) (init : σ) : σ :=
 
 example : foldlUtf8 c (fun l b => b::l) List.nil = (String.utf8EncodeChar c).reverse := by
   simp only [foldlUtf8M, String.utf8EncodeChar, Id.run]
-  if h1 :c.val ≤ 0x7f then simp [h1]
-  else if h2 :c.val ≤ 0x7ff then simp [h1, h2]
-  else if h3 :c.val ≤ 0xffff then simp [h1, h2, h3]
+  if h1 : c.val ≤ 0x7f then simp [h1]
+  else if h2 : c.val ≤ 0x7ff then simp [h1, h2]
+  else if h3 : c.val ≤ 0xffff then simp [h1, h2, h3]
   else simp [h1, h2, h3]
 
 /-- Encode a character as a sequence of URI escape codes representing its UTF8 encoding. -/

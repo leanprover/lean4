@@ -27,8 +27,11 @@ extern "C" {
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) _alloca(s)
+#include <stdnoreturn.h>
+#define LEAN_NORETURN _Noreturn
 #else
 #define LEAN_ALLOCA(s) alloca(s)
+#define LEAN_NORETURN __attribute__((noreturn))
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -293,10 +296,10 @@ LEAN_EXPORT void lean_set_panic_messages(bool flag);
 
 LEAN_EXPORT lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic(char const * msg);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_out_of_memory(void);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_unreachable(void);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_rc_overflow(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic(char const * msg);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_out_of_memory(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_unreachable(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_rc_overflow(void);
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);

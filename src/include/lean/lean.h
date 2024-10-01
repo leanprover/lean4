@@ -148,7 +148,7 @@ typedef lean_object * b_lean_obj_res; /* Borrowed object result. */
 
 typedef struct {
     lean_object   m_header;
-    lean_object * m_objs[0];
+    lean_object * m_objs[];
 } lean_ctor_object;
 
 /* Array arrays */
@@ -156,7 +156,7 @@ typedef struct {
     lean_object   m_header;
     size_t        m_size;
     size_t        m_capacity;
-    lean_object * m_data[0];
+    lean_object * m_data[];
 } lean_array_object;
 
 /* Scalar arrays */
@@ -164,7 +164,7 @@ typedef struct {
     lean_object   m_header;
     size_t        m_size;
     size_t        m_capacity;
-    uint8_t       m_data[0];
+    uint8_t       m_data[];
 } lean_sarray_object;
 
 typedef struct {
@@ -172,7 +172,7 @@ typedef struct {
     size_t      m_size;     /* byte length including '\0' terminator */
     size_t      m_capacity;
     size_t      m_length;   /* UTF8 length */
-    char        m_data[0];
+    char        m_data[];
 } lean_string_object;
 
 typedef struct {
@@ -180,7 +180,7 @@ typedef struct {
     void *        m_fun;
     uint16_t      m_arity;     /* Number of arguments expected by m_fun. */
     uint16_t      m_num_fixed; /* Number of arguments that have been already fixed. */
-    lean_object * m_objs[0];
+    lean_object * m_objs[];
 } lean_closure_object;
 
 typedef struct {

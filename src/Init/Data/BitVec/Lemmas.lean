@@ -2035,8 +2035,8 @@ theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
     simp at h
 
 theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
-  have ha : a = 0 ∨ a = 1 := width_one_cases _
-  have hb : b = 0 ∨ b = 1 := width_one_cases _
+  have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _
+  have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
 
 /-! ### abs -/

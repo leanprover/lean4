@@ -84,9 +84,9 @@ register_builtin_option linter.unusedVariables.analyzeTactics : Bool := {
           \n\
           \nBy default, the linter will limit itself to linting a declaration's parameters \
             whenever tactic proofs are present as these can be expensive to analyze. Enabling this \
-            option extends linting to local variables both inside and outside the tactic, though \
-            it can also lead to some false negatives as intermediate tactic states may reference \
-            some variables without the declaration ultimately depending on them."
+            option extends linting to local variables both inside and outside tactic proofs, \
+            though it can also lead to some false negatives as intermediate tactic states may \
+            reference some variables without the declaration ultimately depending on them."
 }
 
 /-- Gets the status of `linter.unusedVariables` -/
@@ -373,18 +373,21 @@ where
   go infoTrees ctx? := do
     for tree in infoTrees do
       tree.visitM' (ctx? := ctx?) (preNode := fun ci info children => do
-        let ignoredInTactic ← read
+        -- set if `analyzeTactics` is unset, tactic infos are present, and we're inside the body
+        let ignoreBodyBinders ← read
         match info with
         | .ofTermInfo ti =>
-          -- `unusedVariables.analyzeTactics` unset and tactics present: skip anything inside the body
-          -- i.e. lint only parameters, include only uses in final body term instead of full mctx
           if ti.elaborator == `MutualDef.body &&
-              !linter.unusedVariables.analyzeTactics.get ci.options &&
-              children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome) then
+              !linter.unusedVariables.analyzeTactics.get ci.options then
+            -- the body is the only `Expr` we will analyze in this case
+            -- NOTE: we include it even if no tactics are present as at least for parameters we want
+            -- to lint only truly unused binders
             modify fun s => { s with
               assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ ti.expr) }
-            withReader (fun _ => true) do
+            let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
+            withReader (fun _ => tacticsPresent) do
               go children.toArray ci
+            return false
           match ti.expr with
           | .const .. =>
             if ti.isBinder then
@@ -396,7 +399,7 @@ where
             let .original .. := info.stx.getHeadInfo | return true -- we are not interested in canonical syntax here
             if ti.isBinder then
               -- This is a local variable declaration.
-              if ignoredInTactic then return true
+              if ignoreBodyBinders then return true
               let some ldecl := ti.lctx.find? id | return true
               -- Skip declarations which are outside the command syntax range, like `variable`s
               -- (it would be confusing to lint these), or those which are macro-generated
@@ -419,8 +422,11 @@ where
               -- Found a direct use, keep track of it
               modify fun s => { s with fvarUses := s.fvarUses.insert id }
           | _ => pure ()
+          return true
         | .ofTacticInfo ti =>
-          if ignoredInTactic then return true
+          -- When ignoring new binders, no need to look at intermediate tactic states either as
+          -- references to binders outside the body will be covered by the body `Expr`
+          if ignoreBodyBinders then return true
           -- Keep track of the `MetavarContext` after a tactic for later
           modify fun s => { s with assignments := s.assignments.push ti.mctxAfter.eAssignment }
           return true
@@ -429,8 +435,8 @@ where
           modify fun s =>
             let id := followAliases s.fvarAliases i.baseId
             { s with fvarAliases := s.fvarAliases.insert i.id id }
-        | _ => pure ()
-        return true)
+          return true
+        | _ => return true)
   /-- Since declarations attach the declaration info to the `declId`,
   we skip that to get to the `.ident` if possible. -/
   skipDeclIdIfPresent (stx : Syntax) : Syntax :=

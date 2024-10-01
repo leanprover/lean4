@@ -2108,8 +2108,7 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
   apply eq_of_toInt_eq
   simp
 
-@[simp]
-theorem mul_eq_and (a b : BitVec 1) : a * b = a &&& b := by
+theorem mul_eq_and {a b : BitVec 1} : a * b = a &&& b := by
   have ha : a = 0 ∨ a = 1 := width_one_cases _
   have hb : b = 0 ∨ b = 1 := width_one_cases _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))

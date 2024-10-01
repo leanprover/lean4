@@ -1469,7 +1469,7 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
   apply ext'
   erw [toList_filterMap] -- `erw` required to unify `l.length` with `l.toArray.size`.
 
-@[simp] theorem join_toArray (l : List (List α)) : (l.toArray.map List.toArray).join = l.join.toArray := by
+@[simp] theorem flatten_toArray (l : List (List α)) : (l.toArray.map List.toArray).flatten = l.join.toArray := by
   apply ext'
   simp [Function.comp_def]
 

@@ -309,7 +309,7 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
-  throw <| Exception.error (← getRef) m!"\
+  throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
     (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\n\
     Use `set_option {optionName} <num>` to set the limit.\
     {useDiagnosticMsg}"
@@ -395,10 +395,7 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   This function is a bit hackish. The heartbeat exception should probably be an internal exception.
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
-  match ex with
-  | Exception.error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) =>
-    "(deterministic) timeout".isPrefixOf msg
-  | _ => false
+  ex matches Exception.error _ (.tagged `runtime.maxHeartbeats _)
 
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=

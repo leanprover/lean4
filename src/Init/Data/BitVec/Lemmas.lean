@@ -463,7 +463,7 @@ theorem toInt_pos_iff {w : Nat} {x : BitVec w} :
     0 ≤ BitVec.toInt x ↔ 2 * x.toNat < 2 ^ w := by
   simp [toInt_eq_toNat_cond]; omega
 
-theorem width_one_cases (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
+theorem eq_zero_or_eq_one {a : BitVec 1} : a = 0#1 ∨ a = 1#1 := by
   obtain ⟨a, ha⟩ := a
   simp only [Nat.reducePow]
   have acases : a = 0 ∨ a = 1 := by omega

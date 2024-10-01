@@ -64,13 +64,13 @@ private partial def winnowExpr (e : Expr) : MetaM Expr := do
         let mut fty ← inferType f
         let mut j := 0
         let mut e' ← visit f
-        for i in [0:args.size] do
+        for h: i in [0:args.size] do
           unless fty.isForall do
             fty ← withTransparency .all <| whnf <| fty.instantiateRevRange j i args
             j := i
           let .forallE _ _ fty' bi := fty | failure
           fty := fty'
-          let arg := args[i]!
+          let arg := args[i]
           if ← pure bi.isExplicit <||> (pure !arg.isSort <&&> isTypeFormer arg) then
             unless (← isProof arg) do
               e' := .app e' (← visit arg)

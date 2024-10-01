@@ -765,8 +765,8 @@ where
   loop (i : Nat) (env : Environment) : IO Environment := do
     -- Recall that the size of the array stored `persistentEnvExtensionRef` may increase when we import user-defined environment extensions.
     let pExtDescrs ← persistentEnvExtensionsRef.get
-    if i < pExtDescrs.size then
-      let extDescr := pExtDescrs[i]!
+    if h: i < pExtDescrs.size then
+      let extDescr := pExtDescrs[i]
       let s := extDescr.toEnvExtension.getState env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes

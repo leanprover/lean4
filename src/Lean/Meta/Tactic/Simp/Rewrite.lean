@@ -320,8 +320,8 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       r ← mkCongrFun r argNew
   unless modified do
     return none
-  for i in [info.numDiscrs : args.size] do
-    let arg := args[i]!
+  for h: i in [info.numDiscrs : args.size] do
+    let arg := args[i]
     r ← mkCongrFun r arg
   return some r
 

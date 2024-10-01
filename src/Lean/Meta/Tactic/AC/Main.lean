@@ -140,7 +140,7 @@ where
     | .op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
     | .var x => vars[x]!
 
-def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
+def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx :=
     {
       simpTheorems  := {}
@@ -149,8 +149,7 @@ def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
     }
   let tgt ← instantiateMVars (← mvarId.getType)
   let (res, _) ← Simp.main tgt simpCtx (methods := { post })
-  let newGoal ← applySimpResultToTarget mvarId tgt res
-  newGoal.refl
+  applySimpResultToTarget mvarId tgt res
 where
   post (e : Expr) : SimpM Simp.Step := do
     let ctx ← Simp.getContext
@@ -171,9 +170,21 @@ where
       | none => return Simp.Step.done { expr := e }
     | e, _ => return Simp.Step.done { expr := e }
 
+def rewriteUnnormalizedRefl (goal : MVarId) : MetaM Unit := do
+  let newGoal ← rewriteUnnormalized goal
+  newGoal.refl
+
+def rewriteUnnormalizedNormalForm (goal : MVarId) : TacticM Unit := do
+  let newGoal ← rewriteUnnormalized goal
+  replaceMainGoal [newGoal]
+
 @[builtin_tactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
-  goal.withContext <| rewriteUnnormalized goal
+  goal.withContext <| rewriteUnnormalizedRefl goal
+
+@[builtin_tactic acNf] def acNfTactic : Lean.Elab.Tactic.Tactic := fun _ => do
+  let goal ← getMainGoal
+  goal.withContext <| rewriteUnnormalizedNormalForm goal
 
 builtin_initialize
   registerTraceClass `Meta.AC

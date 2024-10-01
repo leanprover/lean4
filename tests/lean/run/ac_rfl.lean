@@ -37,3 +37,105 @@ example (p q : Prop) : (p ∨ p ∨ q ∧ True) = (q ∨ p) := by
 example : ∀ x : Nat, x = x := by intro x; ac_rfl
 
 example : [1, 2] ++ ([] ++ [2+4, 8] ++ [4]) = [1, 2] ++ [4+2, 8] ++ [4] := by ac_rfl
+
+/- BitVec arithmetic | commutativity -/
+
+example (a b c d : BitVec w) :
+    a * b * c * d = d * c * b * a := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a * b * c * d = d * c * b * a := by
+  ac_rfl
+
+example (a b c d : BitVec w) :
+    a + b + c + d = d + c + b + a := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a + b + c + d = d + c + b + a := by
+  ac_rfl
+
+/- BitVec arithmetic | associativity -/
+
+example (a b c d : BitVec w) :
+    a * (b * (c * d)) = ((a * b) * c) * d := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a * (b * (c * d)) = ((a * b) * c) * d := by
+  ac_rfl
+
+example (a b c d : BitVec w) :
+    a + (b + (c + d)) = ((a + b) + c) + d := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a + (b + (c + d)) = ((a + b) + c) + d := by
+  ac_rfl
+
+/- BitVec bitwise operations | commutativity -/
+
+example (a b c d : BitVec w) :
+    a ^^^ b ^^^ c ^^^ d = d ^^^ c ^^^ b ^^^ a := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a ^^^ b ^^^ c ^^^ d = d ^^^ c ^^^ b ^^^ a := by
+  ac_rfl
+
+example (a b c d : BitVec w) :
+    a &&& b &&& c &&& d = d &&& c &&& b &&& a := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a &&& b &&& c &&& d = d &&& c &&& b &&& a := by
+  ac_rfl
+
+example (a b c d : BitVec w) :
+    a ||| b ||| c ||| d = d ||| c ||| b ||| a := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a ||| b ||| c ||| d = d ||| c ||| b ||| a := by
+  ac_rfl
+
+/- BitVec bitwise operations | associativity -/
+
+example (a b c d : BitVec w) :
+    a &&& (b &&& (c &&& d)) = ((a &&& b) &&& c) &&& d := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a &&& (b &&& (c &&& d)) = ((a &&& b) &&& c) &&& d := by
+  ac_rfl
+
+example (a b c d : BitVec w) :
+    a ||| (b ||| (c ||| d)) = ((a ||| b) ||| c) ||| d := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a ||| (b ||| (c ||| d)) = ((a ||| b) ||| c) ||| d := by
+  ac_rfl
+
+example (a b c d : BitVec w) :
+    a ^^^ (b ^^^ (c ^^^ d)) = ((a ^^^ b) ^^^ c) ^^^ d := by
+  ac_nf
+  rfl
+
+example (a b c d : BitVec w) :
+    a ^^^ (b ^^^ (c ^^^ d)) = ((a ^^^ b) ^^^ c) ^^^ d := by
+  ac_rfl
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+  ac_nf
+  rfl

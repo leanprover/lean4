@@ -37,14 +37,10 @@ builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => d
     let proof := mkApp2 (mkConst ``Bool.eq_to_beq) lhs rhs
     return .done { expr := new, proof? := some proof }
 
-structure Result where
-  goal : Option MVarId := none
-  stats : Simp.Stats := {}
-
-def bvNormalize (g : MVarId) : MetaM Result := do
+def bvNormalize (g : MVarId) : MetaM (Option MVarId) := do
   withTraceNode `bv (fun _ => return "Normalizing goal") do
     -- Contradiction proof
-    let some g ← g.falseOrByContra | return {}
+    let some g ← g.falseOrByContra | return none
 
     -- Normalization by simp
     let bvThms ← bvNormalizeExt.getTheorems
@@ -59,18 +55,20 @@ def bvNormalize (g : MVarId) : MetaM Result := do
     }
 
     let hyps ← g.getNondepPropHyps
-    let ⟨result?, stats⟩ ← simpGoal g
+    let ⟨result?, _⟩ ← simpGoal g
       (ctx := simpCtx)
       (simprocs := #[bvSimprocs, sevalSimprocs])
       (fvarIdsToSimp := hyps)
-    let some (_, g) := result? | return ⟨none, stats⟩
-    return ⟨some g, stats⟩
+    let some (_, g) := result? | return none
+    return some g
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun
   | `(tactic| bv_normalize) => do
-    liftMetaFinishingTactic fun g => do
-      discard <| bvNormalize g
+    let g ← getMainGoal
+    match ← bvNormalize g with
+    | some g' => setGoals [g']
+    | none => setGoals []
   | _ => throwUnsupportedSyntax
 
 end Frontend.Normalize

@@ -55,9 +55,9 @@ def evalBvCheck : Tactic := fun
   | `(tactic| bv_check%$tk $path:str) => do
     let cfg ← BVDecide.Frontend.BVCheck.mkContext path.getString
     liftMetaFinishingTactic fun g => do
-      let res ← Normalize.bvNormalize g
-      match res.goal with
-      | some g => bvCheck g cfg
+      let g'? ← Normalize.bvNormalize g
+      match g'? with
+      | some g' => bvCheck g' cfg
       | none =>
         let bvNormalizeStx ← `(tactic| bv_normalize)
         TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)

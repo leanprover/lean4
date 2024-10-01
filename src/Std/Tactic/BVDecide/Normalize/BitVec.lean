@@ -51,9 +51,6 @@ section Constant
 
 attribute [bv_normalize] BitVec.add_zero
 attribute [bv_normalize] BitVec.zero_add
-attribute [bv_normalize] BitVec.neg_zero
-attribute [bv_normalize] BitVec.sub_self
-attribute [bv_normalize] BitVec.sub_zero
 attribute [bv_normalize] BitVec.setWidth_eq
 attribute [bv_normalize] BitVec.setWidth_zero
 attribute [bv_normalize] BitVec.getLsbD_zero
@@ -62,7 +59,6 @@ attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 attribute [bv_normalize] BitVec.not_not
-
 
 end Constant
 
@@ -76,13 +72,13 @@ theorem BitVec.and_zero (a : BitVec w) : a &&& 0#w = 0#w := by
   ext
   simp
 
-@[bv_normalize]
-theorem BitVec.and_ones (a : BitVec w) : (-1#w) &&& a = a := by
+-- Used in simproc because of - normalization
+theorem BitVec.ones_and (a : BitVec w) : (-1#w) &&& a = a := by
   ext
   simp [BitVec.negOne_eq_allOnes]
 
-@[bv_normalize]
-theorem BitVec.ones_and (a : BitVec w) : a &&& (-1#w) = a := by
+-- Used in simproc because of - normalization
+theorem BitVec.and_ones (a : BitVec w) : a &&& (-1#w) = a := by
   ext
   simp [BitVec.negOne_eq_allOnes]
 
@@ -112,14 +108,19 @@ theorem BitVec.not_add (a : BitVec w) : ~~~a + a = (-1#w) := by
   rw [BitVec.add_not]
 
 @[bv_normalize]
-theorem BitVec.add_neg (a : BitVec w) : a + (-a) = 0#w := by
+theorem BitVec.add_neg (a : BitVec w) : a + (~~~a + 1#w) = 0#w := by
+  rw [← BitVec.ofNat_eq_ofNat]
+  rw [← BitVec.neg_eq_not_add]
   rw [← BitVec.sub_toAdd]
   rw [BitVec.sub_self]
 
 @[bv_normalize]
-theorem BitVec.neg_add (a : BitVec w) : (-a) + a = 0#w := by
+theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
+  rw [← BitVec.ofNat_eq_ofNat]
+  rw [← BitVec.neg_eq_not_add]
   rw [BitVec.add_comm]
-  rw [BitVec.add_neg]
+  rw [← BitVec.sub_toAdd]
+  rw [BitVec.sub_self]
 
 @[bv_normalize]
 theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
@@ -212,10 +213,9 @@ theorem BitVec.ofBool_getLsbD (a : BitVec w) (i : Nat) :
   simp
 
 @[bv_normalize]
-theorem BitVec.ofBool_getElem (a : BitVec w) (i : Nat) (h : i < w) :
-    BitVec.ofBool a[i] = a.extractLsb' i 1 := by
-  rw [← BitVec.getLsbD_eq_getElem]
-  apply ofBool_getLsbD
+theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
+    a[i] = a.getLsbD i := by
+  simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
 
 end Normalize
 end Std.Tactic.BVDecide

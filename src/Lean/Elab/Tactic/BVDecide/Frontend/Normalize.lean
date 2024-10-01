@@ -37,6 +37,33 @@ builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => d
     let proof := mkApp2 (mkConst ``Bool.eq_to_beq) lhs rhs
     return .done { expr := new, proof? := some proof }
 
+builtin_simproc [bv_normalize] andOnes ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
+  let some ⟨w, rhsValue⟩ ← getBitVecValue? rhs | return .continue
+  if rhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.and_ones) (toExpr w) lhs
+    return .visit { expr := lhs, proof? := some proof }
+  else
+    return .continue
+
+builtin_simproc [bv_normalize] onesAnd ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
+  let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
+  if lhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.ones_and) (toExpr w) rhs
+    return .visit { expr := rhs, proof? := some proof }
+  else
+    return .continue
+
+builtin_simproc [bv_normalize] maxUlt (BitVec.ult (_ : BitVec _) (_ : BitVec _)) := fun e => do
+  let_expr BitVec.ult _ lhs rhs := e | return .continue
+  let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
+  if lhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.max_ult') (toExpr w) rhs
+    return .visit { expr := toExpr Bool.false, proof? := some proof }
+  else
+    return .continue
+
 /--
 A pass in the normalization pipeline. Takes the current goal and produces a refined one or closes
 the goal fully, indicated by returning `none`.

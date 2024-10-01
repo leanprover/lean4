@@ -26,3 +26,42 @@ theorem mem_subset_refl : mem_subset a1 a2 a1 a2 := by
   unfold mem_subset
   bv_normalize
   sorry
+
+example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
+example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
+example {x : BitVec 16} : x.setWidth 16 = x := by bv_normalize
+example : (0#w).setWidth 32 = 0#32 := by bv_normalize
+example : (0#w).getLsbD i = false := by bv_normalize
+example {x : BitVec 0} : x.getLsbD i = false := by bv_normalize
+example {x : BitVec 16} {b : Bool} : (x.concat b).getLsbD 0 = b := by bv_normalize
+example {x : BitVec 16} : 1 * x = x := by bv_normalize
+example {x : BitVec 16} : x * 1 = x := by bv_normalize
+example {x : BitVec 16} : ~~~(~~~x) = x := by bv_normalize
+example {x : BitVec 16} : x &&& 0 = 0 := by bv_normalize
+example {x : BitVec 16} : 0 &&& x = 0 := by bv_normalize
+example {x : BitVec 16} : (-1#16) &&& x = x := by bv_normalize 
+example {x : BitVec 16} : x &&& (-1#16) = x := by bv_normalize
+example {x : BitVec 16} : x &&& x = x := by bv_normalize
+example {x : BitVec 16} : x &&& ~~~x = 0 := by bv_normalize
+example {x : BitVec 16} : ~~~x &&& x = 0 := by bv_normalize
+example {x : BitVec 16} : x + ~~~x = -1 := by bv_normalize
+example {x : BitVec 16} : ~~~x + x = -1 := by bv_normalize
+example {x : BitVec 16} : x + (-x) = 0 := by bv_normalize
+example {x : BitVec 16} : (-x) + x = 0 := by bv_normalize
+example {x : BitVec 16} : x + x = x * 2 := by bv_normalize
+example : BitVec.sshiftRight 0#16 n = 0#16 := by bv_normalize
+example {x : BitVec 16} : BitVec.sshiftRight x 0 = x := by bv_normalize
+example {x : BitVec 16} : 0#16 * x = 0 := by bv_normalize
+example {x : BitVec 16} : x * 0#16 = 0 := by bv_normalize
+example {x : BitVec 16} : x <<< 0#16 = x := by bv_normalize
+example {x : BitVec 16} : x <<< 0 = x := by bv_normalize
+example : 0#16 <<< (n : Nat) = 0 := by bv_normalize
+example : 0#16 >>> (n : Nat) = 0 := by bv_normalize
+example {x : BitVec 16} : x >>> 0#16 = x := by bv_normalize
+example {x : BitVec 16} : x >>> 0 = x := by bv_normalize
+example {x : BitVec 16} : 0 < x ↔ (0 != x) := by bv_normalize
+example {x : BitVec 16} : ¬(-1#16 < x) := by bv_normalize
+example {x : BitVec 16} : BitVec.replicate 0 x = 0 := by bv_normalize
+example {x : BitVec 16} : BitVec.ofBool (x.getLsbD i) = x.extractLsb' i 1 := by bv_normalize
+example {x : BitVec 16} {i} {h} : BitVec.ofBool (x[i]'h) = x.extractLsb' i 1 := by bv_normalize
+example {x : BitVec 16} {i} {h} : x[i] = x.getLsbD i := by bv_normalize

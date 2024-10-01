@@ -518,7 +518,7 @@ example
 -- This used to fail with an unexpected bound variable error.
 
 def simple_foldl (f: β → α → β) (a: Array α) (i: Nat) (b: β): β :=
-  if h : i < a.size then
+  if h: i < a.size then
     simple_foldl f a (i+1) (f b a[i])
   else
     b

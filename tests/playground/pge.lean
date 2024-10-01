@@ -3,7 +3,7 @@ namespace Nat
 
 -- `forallRange i n f` is true if f holds for all indices j from i to n-1.
 def forallRange (i:Nat) (n:Nat) (f: ∀ (j:Nat), j < n → Bool) : Bool :=
-  if h :i < n then
+  if h:i < n then
     f i h && forallRange (i+1) n f
   else
     true

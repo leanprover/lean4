@@ -248,7 +248,7 @@ theorem denote_blastArithShiftRightConst (aig : AIG α) (target : ShiftTarget ai
           assign
         ⟧
           =
-        if hidx:(target.distance + idx) < w then
+        if hidx : (target.distance + idx) < w then
           ⟦aig, target.vec.get (target.distance + idx) (by omega), assign⟧
         else
           ⟦aig, target.vec.get (w - 1) (by omega), assign⟧

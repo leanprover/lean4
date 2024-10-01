@@ -41,10 +41,17 @@ def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
 
 /-- Tries to download the package's build cache (if configured). -/
 def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
-  if (← getNoCache) then
-    return pure true
-  else
+  if !(← getNoCache) && (self.preferReleaseBuild || !self.scope.isEmpty) then
     self.optBuildCache.fetch
+  else
+    return pure true
+
+@[inline]
+private def Package.optFacetDetails (self : Package) (facet : Name) : JobM String := do
+  if (← getIsVerbose) then
+    return s!" (see '{self.name}:{facet}' for details)"
+  else
+    return " (run with '-v' for details)"
 
 /--
 Tries to download and unpack the package's cached build archive
@@ -54,10 +61,9 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
   let job ← self.maybeFetchBuildCache
   job.bindSync fun success t => do
     unless success do
-      let facet := if self.preferReleaseBuild then
-        optGitHubReleaseFacet else optReservoirBarrelFacet
-      logWarning s!"building from source; \
-        failed to fetch cloud release (see '{self.name}:{facet}' for details)"
+      let details ← self.optFacetDetails <| if self.preferReleaseBuild then
+          optGitHubReleaseFacet else optReservoirBarrelFacet
+      logWarning s!"building from source; failed to fetch cloud build{details}"
     return ((), t)
 
 @[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
@@ -150,7 +156,7 @@ private def Package.mkBuildArchiveFacetConfig
     withRegisterJob s!"{pkg.name}:{facet}" do
       (← fetch <| pkg.facet optFacet).bindSync fun success t => do
         unless success do
-          error s!"failed to fetch {what} (see '{pkg.name}:{optFacet}' for details)"
+          error s!"failed to fetch {what}{← pkg.optFacetDetails optFacet}"
         return ((), t)
 
 /-- The `PackageFacetConfig` for the builtin `buildCacheFacet`. -/

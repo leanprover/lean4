@@ -7,7 +7,9 @@ prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 import Lean.Elab.Tactic.BVDecide.LRAT.Trim
 import Lean.Elab.Tactic.BVDecide.External
+import Lean.Meta.Tactic.TryThis
 import Std.Tactic.BVDecide.LRAT.Checker
+import Std.Tactic.BVDecide.Syntax
 import Std.Sat.CNF.Dimacs
 
 /-!
@@ -204,7 +206,14 @@ def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContex
       (mkConst cfg.reflectionDef)
       (toExpr true)
       (← mkEqRefl (toExpr true))
-  return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr nativeProof
+  let proofTerm := mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr nativeProof
+  try 
+    check proofTerm
+  catch err =>
+    let bvDecide?Stx ← `(tactic| bv_decide?)
+    Lean.Meta.Tactic.TryThis.addSuggestion (← getRef) bvDecide?Stx
+    throwError "'bv_check' failed to build a valid Lean proof from the supplied LRAT file ('{cfg.lratPath}'). Consider regenerating the LRAT proof certificate with 'bv_decide?'. Error during proof checking: {indentD err.toMessageData}"
+  return proofTerm
 
 
 end Frontend

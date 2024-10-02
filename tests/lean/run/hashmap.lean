@@ -332,6 +332,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval HashMap.ofList [(1, 2), (1, 4)]
 
+/-- info: Std.HashMap.ofList [(37, 37), (4, 5), (3, 6), (2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m ∪ {(4, 5), (37, 37)}
+
 end HashMap
 
 namespace HashSet.Raw
@@ -431,6 +435,10 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 /-- info: #[1, 2, 1000000000] -/
 #guard_msgs in
 #eval m.toArray
+
+/-- info: Std.HashSet.ofList [1000000000, 2, 1, 16] -/
+#guard_msgs in
+#eval m ∪ {16, 16}
 
 /-- info: [1000000000, 2, 1, 16] -/
 #guard_msgs in

@@ -39,7 +39,10 @@ def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some info                 => return some info
+  | some (info@(.recInfo _))  => return some info
+  -- `.lift` and `.ind` are reducible; no point in finer-grained filtering at this point
+  | some (info@(.quotInfo _)) => return some info
+  | some _                    => return none
   | none                      => throwUnknownConstant constName
 
 /--
@@ -49,7 +52,9 @@ def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := 
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some info                 => return some info
-  | none                      => return none
+  | some (info@(.recInfo _))  => return some info
+  -- `.lift` and `.ind` are reducible; no point in finer-grained filtering at this point
+  | some (info@(.quotInfo _)) => return some info
+  | _                         => return none
 
 end Meta

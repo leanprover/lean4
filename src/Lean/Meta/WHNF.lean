@@ -76,7 +76,7 @@ def isAuxDef (constName : Name) : MetaM Bool := do
 -- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
-  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getUnfoldableConstNoEx? d |
+  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) := (← getEnv).find? d |
     return none
   return some ctor
 
@@ -831,10 +831,12 @@ mutual
           else
             unfoldDefault ()
     | .const declName lvls => do
+      let some cinfo ← getUnfoldableConstNoEx? declName | pure none
+      -- check smart unfolding only after `getUnfoldableConstNoEx?` because `Environment.contains`
+      -- misses are more costly
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        let some cinfo ← getUnfoldableConstNoEx? declName | pure none
         unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)

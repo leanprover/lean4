@@ -20,12 +20,20 @@ open Nat
 
 @[simp] theorem min?_nil [Min α] : ([] : List α).min? = none := rfl
 
--- We don't put `@[simp]` on `min?_cons`,
+-- We don't put `@[simp]` on `min?_cons'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
-theorem min?_cons [Min α] {xs : List α} : (x :: xs).min? = foldl min x xs := rfl
+theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = foldl min x xs := rfl
+
+@[simp] theorem min?_cons [Min α] [Std.Associative (min : α → α → α)] {xs : List α} :
+    (x :: xs).min? = some (xs.min?.elim x (min x)) := by
+  cases xs <;> simp [min?_cons', foldl_assoc]
 
 @[simp] theorem min?_eq_none_iff {xs : List α} [Min α] : xs.min? = none ↔ xs = [] := by
   cases xs <;> simp [min?]
+
+theorem isSome_min?_of_mem {l : List α} [Min α] {a : α} (h : a ∈ l) :
+    l.min?.isSome := by
+  cases l <;> simp_all [List.min?_cons']
 
 theorem min?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
     {xs : List α} → xs.min? = some a → a ∈ xs := by
@@ -33,7 +41,7 @@ theorem min?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b
   match xs with
   | nil => simp
   | x :: xs =>
-    simp only [min?_cons, Option.some.injEq, List.mem_cons]
+    simp only [min?_cons', Option.some.injEq, List.mem_cons]
     intro eq
     induction xs generalizing x with
     | nil =>
@@ -85,7 +93,7 @@ theorem min?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
     (replicate n a).min? = if n = 0 then none else some a := by
   induction n with
   | zero => rfl
-  | succ n ih => cases n <;> simp_all [replicate_succ, min?_cons]
+  | succ n ih => cases n <;> simp_all [replicate_succ, min?_cons']
 
 @[simp] theorem min?_replicate_of_pos [Min α] {n : Nat} {a : α} (w : min a a = a) (h : 0 < n) :
     (replicate n a).min? = some a := by
@@ -95,12 +103,20 @@ theorem min?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
 
 @[simp] theorem max?_nil [Max α] : ([] : List α).max? = none := rfl
 
--- We don't put `@[simp]` on `max?_cons`,
+-- We don't put `@[simp]` on `max?_cons'`,
 -- because the definition in terms of `foldl` is not useful for proofs.
-theorem max?_cons [Max α] {xs : List α} : (x :: xs).max? = foldl max x xs := rfl
+theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = foldl max x xs := rfl
+
+@[simp] theorem max?_cons [Max α] [Std.Associative (max : α → α → α)] {xs : List α} :
+    (x :: xs).max? = some (xs.max?.elim x (max x)) := by
+  cases xs <;> simp [max?_cons', foldl_assoc]
 
 @[simp] theorem max?_eq_none_iff {xs : List α} [Max α] : xs.max? = none ↔ xs = [] := by
   cases xs <;> simp [max?]
+
+theorem isSome_max?_of_mem {l : List α} [Max α] {a : α} (h : a ∈ l) :
+    l.max?.isSome := by
+  cases l <;> simp_all [List.max?_cons']
 
 theorem max?_mem [Max α] (min_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
     {xs : List α} → xs.max? = some a → a ∈ xs
@@ -144,7 +160,7 @@ theorem max?_replicate [Max α] {n : Nat} {a : α} (w : max a a = a) :
     (replicate n a).max? = if n = 0 then none else some a := by
   induction n with
   | zero => rfl
-  | succ n ih => cases n <;> simp_all [replicate_succ, max?_cons]
+  | succ n ih => cases n <;> simp_all [replicate_succ, max?_cons']
 
 @[simp] theorem max?_replicate_of_pos [Max α] {n : Nat} {a : α} (w : max a a = a) (h : 0 < n) :
     (replicate n a).max? = some a := by

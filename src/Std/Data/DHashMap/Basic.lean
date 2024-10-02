@@ -75,8 +75,9 @@ instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
     (b : β a) : DHashMap α β :=
   ⟨Raw₀.insert ⟨m.1, m.2.size_buckets_pos⟩ a b, .insert₀ m.2⟩
 
-instance : Singleton (Σ a, β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ => DHashMap.empty.insert a b⟩
-instance : Insert (Σ a, β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+instance : Singleton ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ => DHashMap.empty.insert a b⟩
+
+instance : Insert ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
 @[inline, inherit_doc Raw.insertIfNew] def insertIfNew (m : DHashMap α β)
     (a : α) (b : β a) : DHashMap α β :=

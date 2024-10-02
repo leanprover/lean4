@@ -65,6 +65,12 @@ Inserts the given mapping into the map, replacing an existing mapping for the ke
     (Raw₀.insert ⟨m, h⟩ a b).1
   else m -- will never happen for well-formed inputs
 
+instance [BEq α] [Hashable α] : Singleton ((a : α) × β a) (Raw α β) :=
+  ⟨fun ⟨a, b⟩ => Raw.empty.insert a b⟩
+
+instance [BEq α] [Hashable α] : Insert ((a : α) × β a) (Raw α β) :=
+  ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+
 /--
 If there is no mapping for the given key, inserts the given mapping into the map. Otherwise,
 returns the map unaltered.
@@ -398,6 +404,12 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
 occurrence takes precedence. -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
   insertMany ∅ l
+
+/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
 
 @[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α (fun _ => β) :=

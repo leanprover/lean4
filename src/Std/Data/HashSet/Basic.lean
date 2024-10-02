@@ -78,6 +78,7 @@ equal (with regard to `==`) to the given element, then the hash set is returned 
   ⟨m.inner.insertIfNew a ()⟩
 
 instance : Singleton α (HashSet α) := ⟨fun a => HashSet.empty.insert a⟩
+
 instance : Insert α (HashSet α) := ⟨fun a s => s.insert a⟩
 
 /--

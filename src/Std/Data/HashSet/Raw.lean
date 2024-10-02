@@ -78,6 +78,10 @@ equal (with regard to `==`) to the given element, then the hash set is returned 
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insertIfNew a ()⟩
 
+instance [BEq α] [Hashable α] : Singleton α (Raw α) := ⟨fun a => Raw.empty.insert a⟩
+
+instance [BEq α] [Hashable α] : Insert α (Raw α) := ⟨fun a s => s.insert a⟩
+
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
 If the hash set already contains an element that is equal (with regard to `==`) to the given
@@ -212,6 +216,20 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
+
+/--
+Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : Raw α :=
+  ⟨HashMap.Raw.unitOfArray l⟩
+
+/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

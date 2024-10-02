@@ -25,7 +25,7 @@ instance [Bind m] [MonadReaderOf ρ m] [MonadLiftT n m] : MonadLiftT (ReaderT ρ
   monadLift act := do act (← read)
 
 instance [Monad m] [MonadStateOf σ m] [MonadLiftT n m] : MonadLiftT (StateT σ n) m where
-  monadLift act := do let (a, s) ← act (← get); set s; pure a
+  monadLift act := do let (a, s) ← act.run (← get); set s; pure a
 
 instance [Monad m] [Alternative m] [MonadLiftT n m] : MonadLiftT (OptionT n) m where
   monadLift act := act.run >>= liftM

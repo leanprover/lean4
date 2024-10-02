@@ -599,7 +599,7 @@ and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldl_subtype {p : α → Prop} {l : List { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
-    {hf : ∀ b x, f b x = g b x.1} :
+    {hf : ∀ b x h, f b ⟨x, h⟩ = g b x} :
     l.foldl f x = l.unattach.foldl g x := by
   unfold unattach
   induction l generalizing x with
@@ -612,7 +612,7 @@ and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldr_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
-    {hf : ∀ x b, f x b = g x.1 b} :
+    {hf : ∀ x h b, f ⟨x, h⟩ b = g x b} :
     l.foldr f x = l.unattach.foldr g x := by
   unfold unattach
   induction l generalizing x with
@@ -624,7 +624,7 @@ This lemma identifies maps over lists of subtypes, where the function only depen
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem map_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → β} {g : α → β} {hf : ∀ x, f x = g x.1} :
+    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     l.map f = l.unattach.map g := by
   unfold unattach
   induction l with
@@ -632,7 +632,7 @@ and simplifies these to the function directly taking the value.
   | cons a l ih => simp [ih, hf]
 
 @[simp] theorem filterMap_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x, f x = g x.1} :
+    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     l.filterMap f = l.unattach.filterMap g := by
   unfold unattach
   induction l with
@@ -640,7 +640,7 @@ and simplifies these to the function directly taking the value.
   | cons a l ih => simp [ih, hf, filterMap_cons]
 
 @[simp] theorem bind_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → List β} {g : α → List β} {hf : ∀ x, f x = g x.1} :
+    {f : { x // p x } → List β} {g : α → List β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     (l.bind f) = l.unattach.bind g := by
   unfold unattach
   induction l with
@@ -648,7 +648,7 @@ and simplifies these to the function directly taking the value.
   | cons a l ih => simp [ih, hf]
 
 @[simp] theorem filter_unattach {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x, f x = g x.1} :
+    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     (l.filter f).unattach = l.unattach.filter g := by
   induction l with
   | nil => simp

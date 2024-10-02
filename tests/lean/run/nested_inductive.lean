@@ -20,6 +20,14 @@ def rev : Tree → Tree
     Tree.rev (.node ts) = .node (ts.reverse.map rev) := by
   simp [Tree.rev]
 
+-- Variant with an explicit `have`, rather than using a pattern match.
+def rev' : Tree → Tree
+  | node ts => .node (ts.attach.reverse.map (fun t => have := t.2; t.1.rev'))
+
+@[simp] theorem rev'_def (ts : List Tree) :
+    Tree.rev' (.node ts) = .node (ts.reverse.map rev') := by
+  simp [Tree.rev']
+
 /-- Define `size` using a `foldl` over `attach`. -/
 def size : Tree → Nat
   | node ts => 1 + ts.attach.foldl (fun acc ⟨t, _⟩ => acc + t.size) 0

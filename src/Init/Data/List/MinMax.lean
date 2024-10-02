@@ -99,6 +99,10 @@ theorem min?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
     (replicate n a).min? = some a := by
   simp [min?_replicate, Nat.ne_of_gt h, w]
 
+theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
+    {l : List α} {a : α} : l.foldl (init := a) min = min a (l.min?.getD a) := by
+  cases l <;> simp [min?, foldl_assoc, Std.IdempotentOp.idempotent]
+
 /-! ### max? -/
 
 @[simp] theorem max?_nil [Max α] : ([] : List α).max? = none := rfl
@@ -165,6 +169,10 @@ theorem max?_replicate [Max α] {n : Nat} {a : α} (w : max a a = a) :
 @[simp] theorem max?_replicate_of_pos [Max α] {n : Nat} {a : α} (w : max a a = a) (h : 0 < n) :
     (replicate n a).max? = some a := by
   simp [max?_replicate, Nat.ne_of_gt h, w]
+
+theorem foldl_max [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
+    {l : List α} {a : α} : l.foldl (init := a) max = max a (l.max?.getD a) := by
+  cases l <;> simp [max?, foldl_assoc, Std.IdempotentOp.idempotent]
 
 @[deprecated min?_nil (since := "2024-09-29")] abbrev minimum?_nil := @min?_nil
 @[deprecated min?_cons (since := "2024-09-29")] abbrev minimum?_cons := @min?_cons

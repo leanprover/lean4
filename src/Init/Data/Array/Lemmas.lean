@@ -996,6 +996,27 @@ abbrev get_append_right := @getElem_append_right
 theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
 
+/-! ### flatten -/
+
+@[simp] theorem toList_flatten {l : Array (Array α)} : l.flatten.toList = (l.toList.map toList).join := by
+  dsimp [flatten]
+  simp only [foldl_eq_foldl_toList]
+  generalize l.toList = l
+  have : ∀ a : Array α, (List.foldl ?_ a l).toList = a.toList ++ ?_ := ?_
+  exact this #[]
+  induction l with
+  | nil => simp
+  | cons h => induction h.toList <;> simp [*]
+
+theorem mem_flatten : ∀ {L : Array (Array α)}, a ∈ L.flatten ↔ ∃ l, l ∈ L ∧ a ∈ l := by
+  simp only [mem_def, toList_flatten, List.mem_join, List.mem_map]
+  intro l
+  constructor
+  · rintro ⟨_, ⟨s, m, rfl⟩, h⟩
+    exact ⟨s, m, h⟩
+  · rintro ⟨s, h₁, h₂⟩
+    refine ⟨s.toList, ⟨⟨s, h₁, rfl⟩, h₂⟩⟩
+
 /-! ### extract -/
 
 theorem extract_loop_zero (as bs : Array α) (start : Nat) : extract.loop as 0 start bs = bs := by
@@ -1447,6 +1468,10 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
     l.toArray.filterMap f = (l.filterMap f).toArray := by
   apply ext'
   erw [toList_filterMap] -- `erw` required to unify `l.length` with `l.toArray.size`.
+
+@[simp] theorem flatten_toArray (l : List (List α)) : (l.toArray.map List.toArray).flatten = l.join.toArray := by
+  apply ext'
+  simp [Function.comp_def]
 
 @[simp] theorem toArray_range (n : Nat) : (range n).toArray = Array.range n := by
   apply ext'

@@ -693,7 +693,7 @@ theorem DivModState.toNat_shiftRight_sub_one_eq
     omega
 
 /--
-This is used when proving the correctness of the divison algorithm,
+This is used when proving the correctness of the division algorithm,
 where we know that `r < d`.
 We then want to show that `((r.shiftConcat b) - d) < d` as the loop invariant.
 In arithmetic, this is the same as showing that

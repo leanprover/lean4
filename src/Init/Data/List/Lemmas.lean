@@ -191,7 +191,7 @@ theorem get?_eq_some : l.get? n = some a ↔ ∃ h, get l ⟨n, h⟩ = a :=
   ⟨fun e =>
     have : n < length l := Nat.gt_of_not_le fun hn => by cases get?_len_le hn ▸ e
     ⟨this, by rwa [get?_eq_get this, Option.some.injEq] at e⟩,
-  fun ⟨h, e⟩ => e ▸ get?_eq_get _⟩
+  fun ⟨_, e⟩ => e ▸ get?_eq_get _⟩
 
 theorem get?_eq_none : l.get? n = none ↔ length l ≤ n :=
   ⟨fun e => Nat.ge_of_not_lt (fun h' => by cases e ▸ get?_eq_some.2 ⟨h', rfl⟩), get?_len_le⟩
@@ -718,9 +718,9 @@ theorem set_eq_of_length_le {l : List α} {n : Nat} (h : l.length ≤ n) {a : α
 theorem set_comm (a b : α) : ∀ {n m : Nat} (l : List α), n ≠ m →
     (l.set n a).set m b = (l.set m b).set n a
   | _, _, [], _ => by simp
-  | n+1, 0, _ :: _, _ => by simp [set]
-  | 0, m+1, _ :: _, _ => by simp [set]
-  | n+1, m+1, x :: t, h =>
+  | _+1, 0, _ :: _, _ => by simp [set]
+  | 0, _+1, _ :: _, _ => by simp [set]
+  | _+1, _+1, _ :: t, h =>
     congrArg _ <| set_comm a b t fun h' => h <| Nat.succ_inj'.mpr h'
 
 @[simp]
@@ -994,8 +994,8 @@ theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),
       match l with
       | [] => contradiction
       | a :: l => exact Nat.le_refl _)
-  | [a], h => rfl
-  | a :: b :: l, h => by
+  | [_], _ => rfl
+  | _ :: _ :: _, _ => by
     simp [getLast, get, Nat.succ_sub_succ, getLast_eq_getElem]
 
 @[deprecated getLast_eq_getElem (since := "2024-07-15")]
@@ -1028,7 +1028,7 @@ theorem getLast!_cons [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := b
 
 theorem getLast_mem_getLast? : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ getLast? l
   | [], h => by contradiction
-  | a :: l, _ => rfl
+  | _ :: _, _ => rfl
 
 theorem getLastD_mem_cons : ∀ (l : List α) (a : α), getLastD l a ∈ a::l
   | [], _ => .head ..
@@ -1134,7 +1134,7 @@ theorem mem_of_mem_head? : ∀ {l : List α} {a : α}, a ∈ l.head? → a ∈ l
 
 theorem head_mem_head? : ∀ {l : List α} (h : l ≠ []), head l h ∈ head? l
   | [], h => by contradiction
-  | a :: l, _ => rfl
+  | _ :: _, _ => rfl
 
 theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
   cases l <;> simp
@@ -1466,7 +1466,7 @@ theorem map_filter_eq_foldr (f : α → β) (p : α → Bool) (as : List α) :
 
 @[simp] theorem filter_append {p : α → Bool} :
     ∀ (l₁ l₂ : List α), filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂
-  | [], l₂ => rfl
+  | [], _ => rfl
   | a :: l₁, l₂ => by simp [filter]; split <;> simp [filter_append l₁]
 
 theorem filter_eq_cons_iff {l} {a} {as} :
@@ -1690,7 +1690,7 @@ theorem getElem?_append_left {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.leng
 
 theorem getElem?_append_right : ∀ {l₁ l₂ : List α} {n : Nat}, l₁.length ≤ n →
   (l₁ ++ l₂)[n]? = l₂[n - l₁.length]?
-| [], _, n, _ => rfl
+| [], _, _, _ => rfl
 | a :: l, _, n+1, h₁ => by
   rw [cons_append]
   simp [Nat.succ_sub_succ_eq_sub, getElem?_append_right (Nat.lt_succ.1 h₁)]
@@ -1755,8 +1755,8 @@ theorem append_of_mem {a : α} {l : List α} : a ∈ l → ∃ s t : List α, l 
 
 theorem append_inj :
     ∀ {s₁ s₂ t₁ t₂ : List α}, s₁ ++ t₁ = s₂ ++ t₂ → length s₁ = length s₂ → s₁ = s₂ ∧ t₁ = t₂
-  | [], [], t₁, t₂, h, _ => ⟨rfl, h⟩
-  | a :: s₁, b :: s₂, t₁, t₂, h, hl => by
+  | [], [], _, _, h, _ => ⟨rfl, h⟩
+  | _ :: _, _ :: _, _, _, h, hl => by
     simp [append_inj (cons.inj h).2 (Nat.succ.inj hl)] at h ⊢; exact h
 
 theorem append_inj_right (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length s₁ = length s₂) : t₁ = t₂ :=
@@ -2707,7 +2707,7 @@ theorem bind_reverse {β} (l : List α) (f : α → List β) : (l.reverse.bind f
 @[simp] theorem reverse_replicate (n) (a : α) : reverse (replicate n a) = replicate n a :=
   eq_replicate_iff.2
     ⟨by rw [length_reverse, length_replicate],
-     fun b h => eq_of_mem_replicate (mem_reverse.1 h)⟩
+     fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
 
 /-! #### Further results about `getLast` and `getLast?` -/
 
@@ -2912,7 +2912,7 @@ theorem head?_dropLast (xs : List α) : xs.dropLast.head? = if 1 < xs.length the
 
 theorem getLast_dropLast {xs : List α} (h) :
    xs.dropLast.getLast h =
-     xs[xs.length - 2]'(match xs, h with | (a :: b :: xs), _ => Nat.lt_trans (Nat.lt_add_one _) (Nat.lt_add_one _)) := by
+     xs[xs.length - 2]'(match xs, h with | (_ :: _ :: _), _ => Nat.lt_trans (Nat.lt_add_one _) (Nat.lt_add_one _)) := by
   rw [getLast_eq_getElem, getElem_dropLast]
   congr 1
   simp; rfl
@@ -2936,8 +2936,8 @@ theorem dropLast_cons_of_ne_nil {α : Type u} {x : α}
 
 theorem dropLast_concat_getLast : ∀ {l : List α} (h : l ≠ []), dropLast l ++ [getLast l h] = l
   | [], h => absurd rfl h
-  | [a], h => rfl
-  | a :: b :: l, h => by
+  | [_], _ => rfl
+  | _ :: b :: l, _ => by
     rw [dropLast_cons₂, cons_append, getLast_cons (cons_ne_nil _ _)]
     congr
     exact dropLast_concat_getLast (cons_ne_nil b l)

@@ -330,8 +330,8 @@ theorem guard_comp {p : α → Prop} [DecidablePred p] {f : β → α} :
 theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
     ∀ o₁ o₂, liftOrGet f o₁ o₂ = o₁ ∨ liftOrGet f o₁ o₂ = o₂
   | none, none => .inl rfl
-  | some a, none => .inl rfl
-  | none, some b => .inr rfl
+  | some _, none => .inl rfl
+  | none, some _ => .inr rfl
   | some a, some b => by have := h a b; simp [liftOrGet] at this ⊢; exact this
 
 @[simp] theorem liftOrGet_none_left {f} {b : Option α} : liftOrGet f none b = b := by

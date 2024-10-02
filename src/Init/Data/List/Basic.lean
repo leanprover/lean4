@@ -218,8 +218,8 @@ def get? : (as : List α) → (i : Nat) → Option α
 
 theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
   | [], [], _ => rfl
-  | a :: l₁, [], h => nomatch h 0
-  | [], a' :: l₂, h => nomatch h 0
+  | _ :: _, [], h => nomatch h 0
+  | [], _ :: _, h => nomatch h 0
   | a :: l₁, a' :: l₂, h => by
     have h0 : some a = some a' := h 0
     injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]

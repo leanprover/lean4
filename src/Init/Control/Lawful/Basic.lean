@@ -183,9 +183,9 @@ end Id
 
 instance : LawfulMonad Option := LawfulMonad.mk'
   (id_map := fun x => by cases x <;> rfl)
-  (pure_bind := fun x f => rfl)
-  (bind_assoc := fun x f g => by cases x <;> rfl)
-  (bind_pure_comp := fun f x => by cases x <;> rfl)
+  (pure_bind := fun _ _ => rfl)
+  (bind_assoc := fun x _ _ => by cases x <;> rfl)
+  (bind_pure_comp := fun _ x => by cases x <;> rfl)
 
 instance : LawfulApplicative Option := inferInstance
 instance : LawfulFunctor Option := inferInstance

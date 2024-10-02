@@ -81,20 +81,3 @@ def depth : Tree → Nat
 end Tree
 
 end Array
-
-namespace Option
-
-inductive Tree where | node : Option Tree → Option Tree → Tree
-
-namespace Tree
-
-def rev : Tree → Tree
-  | node l r => .node (r.attach.map fun ⟨r, _⟩ => r.rev) (l.attach.map fun ⟨l, _⟩ => l.rev)
-
-@[simp] theorem rev_def (l r : Option Tree) :
-    Tree.rev (.node l r) = .node (r.map rev) (l.map rev) := by
-  simp [Tree.rev]
-
-end Tree
-
-end Option

@@ -720,7 +720,7 @@ termination_by a.size - i.val
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
+@[simp] theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with
   | @case1 a i h a' _ ih =>
     unfold feraseIdx

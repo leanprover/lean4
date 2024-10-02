@@ -61,8 +61,8 @@ appear in the local context.
 def _root_.Lean.MVarId.tryClearMany' (goal : MVarId) (fvarIds : Array FVarId) :
     MetaM (MVarId × Array FVarId) :=
   goal.withContext do
-    let hyps ← sortFVarsByContextOrder hyps
-    hyps.foldrM (init := (goal, Array.mkEmpty hyps.size))
+    let fvarIds ← sortFVarsByContextOrder fvarIds
+    fvarIds.foldrM (init := (goal, Array.mkEmpty fvarIds.size))
       fun h (goal, cleared) => do
         let goal' ← goal.tryClear h
         let cleared := if goal == goal' then cleared else cleared.push h

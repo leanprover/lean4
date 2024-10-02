@@ -458,7 +458,7 @@ theorem Decidable.imp_iff_not_or [Decidable a] : (a → b) ↔ (¬a ∨ b) :=
 theorem Decidable.imp_iff_or_not [Decidable b] : b → a ↔ a ∨ ¬b :=
   Decidable.imp_iff_not_or.trans or_comm
 
-theorem Decidable.imp_or [h : Decidable a] : (a → b ∨ c) ↔ (a → b) ∨ (a → c) :=
+theorem Decidable.imp_or [Decidable a] : (a → b ∨ c) ↔ (a → b) ∨ (a → c) :=
   if h : a then by
     rw [imp_iff_right h, imp_iff_right h, imp_iff_right h]
   else by

@@ -181,12 +181,12 @@ theorem subNatNat_add_negSucc (m n k : Nat) :
       Nat.add_comm]
 
 protected theorem add_assoc : ∀ a b c : Int, a + b + c = a + (b + c)
-  | (m:Nat), (n:Nat), c => aux1 ..
+  | (m:Nat), (n:Nat), _ => aux1 ..
   | Nat.cast m, b, Nat.cast k => by
     rw [Int.add_comm, ← aux1, Int.add_comm k, aux1, Int.add_comm b]
   | a, (n:Nat), (k:Nat) => by
     rw [Int.add_comm, Int.add_comm a, ← aux1, Int.add_comm a, Int.add_comm k]
-  | -[m+1], -[n+1], (k:Nat) => aux2 ..
+  | -[_+1], -[_+1], (k:Nat) => aux2 ..
   | -[m+1], (n:Nat), -[k+1] => by
     rw [Int.add_comm, ← aux2, Int.add_comm n, ← aux2, Int.add_comm -[m+1]]
   | (m:Nat), -[n+1], -[k+1] => by

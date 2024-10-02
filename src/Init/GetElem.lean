@@ -156,11 +156,11 @@ theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
 theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] :
     c[i]! = c[i]'h := by
-  simp only [getElem!_def, getElem?_def, h]
+  simp [getElem!_def, getElem?_def, h]
 
 theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) [Decidable (dom c i)] : c[i]! = default := by
-  simp only [getElem!_def, getElem?_def, h]
+  simp [getElem!_def, getElem?_def, h]
 
 namespace Fin
 

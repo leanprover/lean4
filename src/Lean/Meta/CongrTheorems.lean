@@ -319,7 +319,7 @@ where
 /--
 Create a congruence theorem for `f`. The theorem is used in the simplifier.
 
-If `subsingletonInstImplicitRhs = true`, the the `rhs` corresponding to `[Decidable p]` parameters
+If `subsingletonInstImplicitRhs = true`, the `rhs` corresponding to `[Decidable p]` parameters
 is marked as instance implicit. It forces the simplifier to compute the new instance when applying
 the congruence theorem.
 For the `congr` tactic we set it to `false`.

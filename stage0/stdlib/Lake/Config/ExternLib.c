@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l_Lake_ExternLib_staticTargetName___closed__1;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_externLibs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findExternLib_x3f___spec__1(lean_object*, lean_object*, lean_object*);
@@ -23,6 +22,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_externLibs___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_linkArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_linkArgs___boxed(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findExternLib_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_Package_externLibs___spec__1(lean_object*, lean_object*, lean_object*);
@@ -63,8 +63,8 @@ static lean_object* _init_l_Lake_Package_externLibs___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

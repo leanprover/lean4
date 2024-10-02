@@ -66,6 +66,7 @@ LEAN_EXPORT lean_object* l_Lake_resolvePackageTarget___boxed(lean_object*, lean_
 static lean_object* l_Lake_resolvePackageTarget___closed__1;
 lean_object* l_Lake_BuildKey_toSimpleString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_parseExeTargetSpec___boxed__const__1;
+static lean_object* l_Lake_parseTargetSpecs___closed__2;
 static lean_object* l_Lake_mkBuildSpec___rarg___closed__1;
 lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_findPackageFacetConfig_x3f(lean_object*, lean_object*);
@@ -115,6 +116,7 @@ lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_parsePackageSpec(lean_object*, lean_object*);
 static lean_object* l_Lake_BuildData_toBuildJob___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_parseTargetSpecs___lambda__1___boxed(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildSpec_fetch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 static lean_object* l_Lake_resolveExeTarget___closed__1;
@@ -4936,6 +4938,15 @@ return x_3;
 static lean_object* _init_l_Lake_parseTargetSpecs___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lake_parseTargetSpecs___closed__2() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lake_parseTargetSpecs___lambda__1___boxed), 2, 0);
 return x_1;
@@ -4945,7 +4956,7 @@ LEAN_EXPORT lean_object* l_Lake_parseTargetSpecs(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lake_resolveDefaultPackageTarget___closed__1;
+x_3 = l_Lake_parseTargetSpecs___closed__1;
 lean_inc(x_1);
 x_4 = l_List_forIn_loop___at_Lake_parseTargetSpecs___spec__1(x_1, x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
@@ -4974,7 +4985,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 lean_dec(x_4);
-x_9 = l_Lake_parseTargetSpecs___closed__1;
+x_9 = l_Lake_parseTargetSpecs___closed__2;
 x_10 = l_Array_isEmpty___rarg(x_8);
 if (x_10 == 0)
 {
@@ -5121,6 +5132,8 @@ l_Lake_parseTargetSpec___boxed__const__1 = _init_l_Lake_parseTargetSpec___boxed_
 lean_mark_persistent(l_Lake_parseTargetSpec___boxed__const__1);
 l_Lake_parseTargetSpecs___closed__1 = _init_l_Lake_parseTargetSpecs___closed__1();
 lean_mark_persistent(l_Lake_parseTargetSpecs___closed__1);
+l_Lake_parseTargetSpecs___closed__2 = _init_l_Lake_parseTargetSpecs___closed__2();
+lean_mark_persistent(l_Lake_parseTargetSpecs___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

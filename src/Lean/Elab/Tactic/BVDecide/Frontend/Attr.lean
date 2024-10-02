@@ -24,7 +24,7 @@ register_builtin_option sat.solver : String := {
   defValue := ""
   descr :=
     "Name of the SAT solver used by Lean.Elab.Tactic.BVDecide tactics.\n
-     1. If this is set to something besides the emtpy string they will use that binary.\n
+     1. If this is set to something besides the empty string they will use that binary.\n
      2. If this is set to the empty string they will check if there is a cadical binary next to the\
         executing program. Usually that program is going to be `lean` itself and we do ship a\
         `cadical` next to it.\n

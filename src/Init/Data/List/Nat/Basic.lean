@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Count
+import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.Nat.Lemmas
 
@@ -17,6 +18,26 @@ In particular, `omega` is available here.
 open Nat
 
 namespace List
+
+/-! ### dropLast -/
+
+theorem tail_dropLast (l : List α) : tail (dropLast l) = dropLast (tail l) := by
+  ext1
+  simp only [getElem?_tail, getElem?_dropLast, length_tail]
+  split <;> split
+  · rfl
+  · omega
+  · omega
+  · rfl
+
+@[simp] theorem dropLast_reverse (l : List α) : l.reverse.dropLast = l.tail.reverse := by
+  apply ext_getElem
+  · simp
+  · intro i h₁ h₂
+    simp only [getElem_dropLast, getElem_reverse, length_tail, getElem_tail]
+    congr
+    simp only [length_dropLast, length_reverse, length_tail] at h₁ h₂
+    omega
 
 /-! ### filter -/
 
@@ -37,7 +58,8 @@ theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :
 
 /-- The length of the List returned by `List.leftpad n a l` is equal
   to the larger of `n` and `l.length` -/
-@[simp]
+-- We don't mark this as a `@[simp]` lemma since we allow `simp` to unfold `leftpad`,
+-- so the left hand side simplifies directly to `n - l.length + l.length`.
 theorem leftpad_length (n : Nat) (a : α) (l : List α) :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
@@ -64,26 +86,26 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
     obtain ⟨h', -⟩ := getElem?_eq_some_iff.1 h
     exact ⟨h', h⟩
 
-/-! ### minimum? -/
+/-! ### min? -/
 
--- A specialization of `minimum?_eq_some_iff` to Nat.
-theorem minimum?_eq_some_iff' {xs : List Nat} :
-    xs.minimum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  minimum?_eq_some_iff
+-- A specialization of `min?_eq_some_iff` to Nat.
+theorem min?_eq_some_iff' {xs : List Nat} :
+    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
+  min?_eq_some_iff
     (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => by omega)
-    (le_min_iff := fun _ _ _ => by omega)
+    (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
+    (le_min_iff := fun _ _ _ => Nat.le_min)
 
 -- This could be generalized,
 -- but will first require further work on order typeclasses in the core repository.
-theorem minimum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).minimum? = some (match l.minimum? with
+theorem min?_cons' {a : Nat} {l : List Nat} :
+    (a :: l).min? = some (match l.min? with
     | none => a
     | some m => min a m) := by
-  rw [minimum?_eq_some_iff']
+  rw [min?_eq_some_iff']
   split <;> rename_i h m
   · simp_all
-  · rw [minimum?_eq_some_iff'] at m
+  · rw [min?_eq_some_iff'] at m
     obtain ⟨m, le⟩ := m
     rw [Nat.min_def]
     constructor
@@ -97,26 +119,73 @@ theorem minimum?_cons' {a : Nat} {l : List Nat} :
         specialize le b h
         split <;> omega
 
-/-! ### maximum? -/
+theorem foldl_min
+    {α : Type _} [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
+    {l : List α} {a : α} :
+    l.foldl (init := a) min = min a (l.min?.getD a) := by
+  cases l with
+  | nil => simp [Std.IdempotentOp.idempotent]
+  | cons b l =>
+    simp only [min?]
+    induction l generalizing a b with
+    | nil => simp
+    | cons c l ih => simp [ih, Std.Associative.assoc]
 
--- A specialization of `maximum?_eq_some_iff` to Nat.
-theorem maximum?_eq_some_iff' {xs : List Nat} :
-    xs.maximum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
-  maximum?_eq_some_iff
+theorem foldl_min_right {α β : Type _}
+    [Min β] [Std.IdempotentOp (min : β → β → β)] [Std.Associative (min : β → β → β)]
+    {l : List α} {b : β} {f : α → β} :
+    (l.foldl (init := b) fun acc a => min acc (f a)) = min b ((l.map f).min?.getD b) := by
+  rw [← foldl_map, foldl_min]
+
+theorem foldl_min_le {l : List Nat} {a : Nat} : l.foldl (init := a) min ≤ a := by
+  induction l generalizing a with
+  | nil => simp
+  | cons c l ih =>
+    simp only [foldl_cons]
+    exact Nat.le_trans ih (Nat.min_le_left _ _)
+
+theorem foldl_min_min_of_le {l : List Nat} {a b : Nat} (h : a ≤ b) :
+    l.foldl (init := a) min ≤ b :=
+  Nat.le_trans (foldl_min_le) h
+
+theorem min?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
+    l.min?.getD k ≤ a := by
+  cases l with
+  | nil => simp at h
+  | cons b l =>
+    simp [min?_cons]
+    simp at h
+    rcases h with (rfl | h)
+    · exact foldl_min_le
+    · induction l generalizing b with
+      | nil => simp_all
+      | cons c l ih =>
+        simp only [foldl_cons]
+        simp at h
+        rcases h with (rfl | h)
+        · exact foldl_min_min_of_le (Nat.min_le_right _ _)
+        · exact ih _ h
+
+/-! ### max? -/
+
+-- A specialization of `max?_eq_some_iff` to Nat.
+theorem max?_eq_some_iff' {xs : List Nat} :
+    xs.max? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
+  max?_eq_some_iff
     (le_refl := Nat.le_refl)
-    (max_eq_or := fun _ _ => by omega)
-    (max_le_iff := fun _ _ _ => by omega)
+    (max_eq_or := fun _ _ => Nat.max_def .. ▸ by split <;> simp)
+    (max_le_iff := fun _ _ _ => Nat.max_le)
 
 -- This could be generalized,
 -- but will first require further work on order typeclasses in the core repository.
-theorem maximum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).maximum? = some (match l.maximum? with
+theorem max?_cons' {a : Nat} {l : List Nat} :
+    (a :: l).max? = some (match l.max? with
     | none => a
     | some m => max a m) := by
-  rw [maximum?_eq_some_iff']
+  rw [max?_eq_some_iff']
   split <;> rename_i h m
   · simp_all
-  · rw [maximum?_eq_some_iff'] at m
+  · rw [max?_eq_some_iff'] at m
     obtain ⟨m, le⟩ := m
     rw [Nat.max_def]
     constructor
@@ -129,5 +198,59 @@ theorem maximum?_cons' {a : Nat} {l : List Nat} :
       | inr h =>
         specialize le b h
         split <;> omega
+
+theorem foldl_max
+    {α : Type _} [Max α] [Std.IdempotentOp (max : α → α → α)] [Std.Associative (max : α → α → α)]
+    {l : List α} {a : α} :
+    l.foldl (init := a) max = max a (l.max?.getD a) := by
+  cases l with
+  | nil => simp [Std.IdempotentOp.idempotent]
+  | cons b l =>
+    simp only [max?]
+    induction l generalizing a b with
+    | nil => simp
+    | cons c l ih => simp [ih, Std.Associative.assoc]
+
+theorem foldl_max_right {α β : Type _}
+    [Max β] [Std.IdempotentOp (max : β → β → β)] [Std.Associative (max : β → β → β)]
+    {l : List α} {b : β} {f : α → β} :
+    (l.foldl (init := b) fun acc a => max acc (f a)) = max b ((l.map f).max?.getD b) := by
+  rw [← foldl_map, foldl_max]
+
+theorem le_foldl_max {l : List Nat} {a : Nat} : a ≤ l.foldl (init := a) max := by
+  induction l generalizing a with
+  | nil => simp
+  | cons c l ih =>
+    simp only [foldl_cons]
+    exact Nat.le_trans (Nat.le_max_left _ _) ih
+
+theorem le_foldl_max_of_le {l : List Nat} {a b : Nat} (h : a ≤ b) :
+    a ≤ l.foldl (init := b) max :=
+  Nat.le_trans h (le_foldl_max)
+
+theorem le_max?_getD_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
+    a ≤ l.max?.getD k := by
+  cases l with
+  | nil => simp at h
+  | cons b l =>
+    simp [max?_cons]
+    simp at h
+    rcases h with (rfl | h)
+    · exact le_foldl_max
+    · induction l generalizing b with
+      | nil => simp_all
+      | cons c l ih =>
+        simp only [foldl_cons]
+        simp at h
+        rcases h with (rfl | h)
+        · exact le_foldl_max_of_le (Nat.le_max_right b a)
+        · exact ih _ h
+
+@[deprecated min?_eq_some_iff' (since := "2024-09-29")] abbrev minimum?_eq_some_iff' := @min?_eq_some_iff'
+@[deprecated min?_cons' (since := "2024-09-29")] abbrev minimum?_cons' := @min?_cons'
+@[deprecated min?_getD_le_of_mem (since := "2024-09-29")] abbrev minimum?_getD_le_of_mem := @min?_getD_le_of_mem
+@[deprecated max?_eq_some_iff' (since := "2024-09-29")] abbrev maximum?_eq_some_iff' := @max?_eq_some_iff'
+@[deprecated max?_cons' (since := "2024-09-29")] abbrev maximum?_cons' := @max?_cons'
+@[deprecated le_max?_getD_of_mem (since := "2024-09-29")] abbrev le_maximum?_getD_of_mem := @le_max?_getD_of_mem
 
 end List

@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerReservedNameAction(lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___closed__1;
 static lean_object* l_Lean_executeReservedNameAction___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ensureNoOverload___at_Lean_realizeGlobalConstNoOverloadCore___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,6 +112,7 @@ extern lean_object* l_Lean_Core_instMonadCoreM;
 lean_object* l_List_toString___at_Lean_ensureNoOverload___spec__2(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___at_Lean_realizeGlobalConstNoOverload___spec__1___closed__4;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_realizeGlobalConstCore___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_List_mapTR_loop___at_Lean_ensureNonAmbiguous___spec__2(lean_object*, lean_object*);
@@ -149,8 +149,8 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ReservedNameAction___hyg_11_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

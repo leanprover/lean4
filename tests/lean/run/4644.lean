@@ -11,11 +11,10 @@ def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
   sorted_from_var a 0
 
 /--
-error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+error: tactic 'rfl' failed, the left-hand side
+  check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]
+is not definitionally equal to the right-hand side
+  true
 ⊢ check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
 -/
 #guard_msgs in

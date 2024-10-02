@@ -126,7 +126,7 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
     for y in ys.reverse do
       trace[Elab.definition] ">> simpEqnType: {← inferType y}, {type}"
       if proofVars.contains y.fvarId! then
-        let some (_, Expr.fvar fvarId, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
+        let some (_, Expr.fvar fvarId, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in alternative{indentExpr eqnType}"
         eliminated := eliminated.insert fvarId
         type := type.replaceFVarId fvarId rhs
       else if eliminated.contains y.fvarId! then

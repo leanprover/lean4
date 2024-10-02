@@ -98,14 +98,14 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
     refine ⟨?_, ?_⟩
     · apply List.containsKey_bind_eq_false
       intro j hj
-      rw [← List.getElem_append (l₂ := self[i] :: l₂), getElem_congr_coll h₁.symm]
+      rw [List.getElem_append_left' (l₂ := self[i] :: l₂), getElem_congr_coll h₁.symm]
       apply (h.hashes_to j _).containsKey_eq_false h₀ k
       omega
     · apply List.containsKey_bind_eq_false
       intro j hj
       rw [← List.getElem_cons_succ self[i] _ _
         (by simp only [Array.ugetElem_eq_getElem, List.length_cons]; omega)]
-      rw [List.getElem_append_right'' l₁, getElem_congr_coll h₁.symm]
+      rw [List.getElem_append_right' l₁, getElem_congr_coll h₁.symm]
       apply (h.hashes_to (j + 1 + l₁.length) _).containsKey_eq_false h₀ k
       omega
 
@@ -186,7 +186,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
-  rw [updateAllBuckets, toListModel, Array.map_toList, List.bind_eq_foldl, List.foldl_map,
+  rw [updateAllBuckets, toListModel, Array.toList_map, List.bind_eq_foldl, List.foldl_map,
     toListModel, List.bind_eq_foldl]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
       Perm (g l'') l' →

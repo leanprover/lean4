@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix, Scott Morrison
+Authors: Joe Hendrix, Kim Morrison
 -/
 prelude
 import Lean.Meta.CompletionName
@@ -77,7 +77,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
-      return not (← isType a)
+      return !(← isType a)
     else
       isProof a
   else
@@ -839,7 +839,7 @@ private def addConstImportData
     pure tree
 
 /--
-Contains the pre discrimination tree and any errors occuring during initialization of
+Contains the pre discrimination tree and any errors occurring during initialization of
 the library search tree.
 -/
 private structure InitResults (α : Type) where

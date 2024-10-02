@@ -23,7 +23,6 @@ static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__13;
 static lean_object* l_Lean_Meta_litToCtor___lambda__2___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_getCharValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getIntValue_x3f___lambda__2___closed__1;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_litToCtor___lambda__2___closed__4;
 static lean_object* l_Lean_Meta_litToCtor___closed__2;
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__30;
@@ -232,6 +231,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getArrayLitOf_x3f___rarg(lean_object*, lean
 uint8_t lean_uint8_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_getListLitOf_x3f___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getUInt16Value_x3f___closed__1;
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lean_Meta_getOfNatValue_x3f___closed__2;
 static lean_object* l_Lean_Meta_getListLit_x3f___closed__1;
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__23;
@@ -7392,8 +7392,8 @@ static lean_object* _init_l_Lean_Meta_getListLitOf_x3f___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

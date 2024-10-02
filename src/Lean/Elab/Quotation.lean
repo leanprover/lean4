@@ -605,7 +605,7 @@ private partial def hasNoErrorIfUnused : Syntax → Bool
 
 /--
 Given `rhss` the right-hand-sides of a `match`-syntax notation,
-We tag them with with fresh identifiers `alt_idx`. We use them to detect whether an alternative
+We tag them with fresh identifiers `alt_idx`. We use them to detect whether an alternative
 has been used or not.
 The result is a triple `(altIdxMap, ignoreIfUnused, rhssNew)` where
 - `altIdxMap` is a mapping from the `alt_idx` identifiers to right-hand-side indices.

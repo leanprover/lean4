@@ -539,13 +539,13 @@ where
         BaseIO.bindTask elabPromise.result fun elabSnap => do
           let tree := toSnapshotTree elabSnap
           BaseIO.bindTask (← tree.waitAll) fun _ => do
-            let .ok f ← EIO.toBaseIO <| tree.format ctx.fileMap
+            let .ok (_, s) ← EIO.toBaseIO <| tree.trace |>.run { ctx with } { env := cmdState.env }
               | pure <| .pure <| .mk { diagnostics := .empty } #[]
             let msgLog := MessageLog.empty.add {
               fileName := ctx.fileName
               severity := MessageSeverity.information
               pos      := ctx.fileMap.toPosition beginPos
-              data     := .trace { cls := `Elab.snapshotTree } f #[]
+              data     := s.traceState.traces[0]!.msg
             }
             return .pure <| .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
       else

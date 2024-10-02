@@ -308,7 +308,7 @@ with `?m` a fresh metavariable.
 Instance-implicit binder, like `[C]` or `[inst : C]`.
 In regular applications without `@` explicit mode, it is automatically inserted
 and solved for by typeclass inference for the specified class `C`.
-In `@` explicit mode, if `_` is used for an an instance-implicit parameter, then it is still solved for by typeclass inference;
+In `@` explicit mode, if `_` is used for an instance-implicit parameter, then it is still solved for by typeclass inference;
 use `(_)` to inhibit this and have it be solved for by unification instead, like an implicit argument.
 -/
 @[builtin_doc] def instBinder := leading_parser ppGroup <|
@@ -451,6 +451,15 @@ def withAnonymousAntiquot := leading_parser
 @[builtin_term_parser] def «trailing_parser» := leading_parser:leadPrec
   "trailing_parser" >> optExprPrecedence >> optExprPrecedence >> ppSpace >> termParser
 
+/-- 
+Indicates that an argument to a function marked `@[extern]` is borrowed.
+
+Being borrowed only affects the ABI and runtime behavior of the function when compiled or interpreted. From the perspective of Lean's type system, this annotation has no effect. It similarly has no effect on functions not marked `@[extern]`.
+
+When a function argument is borrowed, the function does not consume the value. This means that the function will not decrement the value's reference count or deallocate it, and the caller is responsible for doing so.
+
+Please see https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing for a complete description.
+-/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec
 /-- A literal of type `Name`. -/
@@ -593,7 +602,7 @@ termination_by a - b
 indicates that termination of the currently defined recursive function follows
 because the difference between the arguments `a` and `b` decreases.
 
-If the fuction takes further argument after the colon, you can name them as follows:
+If the function takes further argument after the colon, you can name them as follows:
 ```
 def example (a : Nat) : Nat → Nat → Nat :=
 termination_by b c => a - b
@@ -601,7 +610,7 @@ termination_by b c => a - b
 
 By default, a `termination_by` clause will cause the function to be constructed using well-founded
 recursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)
-indicates the the function is expected to be structural recursive on the argument. In this case
+indicates the function is expected to be structural recursive on the argument. In this case
 the body of the `termination_by` clause must be one of the function's parameters.
 
 If omitted, a termination argument will be inferred. If written as `termination_by?`,
@@ -676,27 +685,27 @@ particular use case, we can ensure this, so `unsafe (evalExpr Foo ``Foo e)` is a
 -/
 @[builtin_term_parser] def «unsafe» := leading_parser:leadPrec "unsafe " >> termParser
 
-/-- `binrel% r a b` elaborates `r a b` as a binary relation using the type propogation protocol in `Lean.Elab.Extra`. -/
+/-- `binrel% r a b` elaborates `r a b` as a binary relation using the type propagation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def binrel := leading_parser
   "binrel% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
 /-- `binrel_no_prop% r a b` is similar to `binrel% r a b`, but it coerces `Prop` arguments into `Bool`. -/
 @[builtin_term_parser] def binrel_no_prop := leading_parser
   "binrel_no_prop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `binop% f a b` elaborates `f a b` as a binary operation using the type propogation protocol in `Lean.Elab.Extra`. -/
+/-- `binop% f a b` elaborates `f a b` as a binary operation using the type propagation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def binop := leading_parser
   "binop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
 /-- `binop_lazy%` is similar to `binop% f a b`, but it wraps `b` as a function from `Unit`. -/
 @[builtin_term_parser] def binop_lazy := leading_parser
   "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `leftact% f a b` elaborates `f a b` as a left action using the type propogation protocol in `Lean.Elab.Extra`.
+/-- `leftact% f a b` elaborates `f a b` as a left action using the type propagation protocol in `Lean.Elab.Extra`.
 In particular, it is like a unary operation with a fixed parameter `a`, where only the right argument `b` participates in the operator coercion elaborator. -/
 @[builtin_term_parser] def leftact := leading_parser
   "leftact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `rightact% f a b` elaborates `f a b` as a right action using the type propogation protocol in `Lean.Elab.Extra`.
+/-- `rightact% f a b` elaborates `f a b` as a right action using the type propagation protocol in `Lean.Elab.Extra`.
 In particular, it is like a unary operation with a fixed parameter `b`, where only the left argument `a` participates in the operator coercion elaborator. -/
 @[builtin_term_parser] def rightact := leading_parser
   "rightact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- `unop% f a` elaborates `f a` as a unary operation using the type propogation protocol in `Lean.Elab.Extra`. -/
+/-- `unop% f a` elaborates `f a` as a unary operation using the type propagation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def unop := leading_parser
   "unop% " >> ident >> ppSpace >> termParser maxPrec
 
@@ -754,7 +763,7 @@ We use them to implement `macro_rules` and `elab_rules`
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
 def ellipsis       := leading_parser (withAnonymousAntiquot := false)
-  ".." >> notFollowedBy "." "`.` immediately after `..`"
+  ".." >> notFollowedBy (checkNoWsBefore >> ".") "`.` immediately after `..`"
 def argument       :=
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>
@@ -826,7 +835,7 @@ You can also view `h ▸ e` as a "type casting" operation
 where you change the type of `e` by using `h`.
 
 The macro tries both orientations of `h`. If the context provides an
-expected type, it rewrites the expeced type, else it rewrites the type of e`.
+expected type, it rewrites the expected type, else it rewrites the type of e`.
 
 See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.

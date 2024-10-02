@@ -549,6 +549,7 @@ LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUn
 extern lean_object* l_Lean_firstFrontendMacroScope;
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_compileDecl___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadInfoTreeCoreM;
 LEAN_EXPORT lean_object* l_Lean_diagnostics_threshold;
 static lean_object* l_Lean_initFn____x40_Lean_CoreM___hyg_4413____closed__2;
@@ -13148,19 +13149,24 @@ return x_3;
 static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__19() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(10u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__18;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__19;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__3;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__17;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__19;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13168,9 +13174,11 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__20;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__5;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__15;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__20;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13178,9 +13186,11 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__21;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__8;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__14;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__21;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13188,9 +13198,11 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__22;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__9;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__13;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__22;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13198,9 +13210,11 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__23;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__11;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__11;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__23;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13208,9 +13222,11 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__24;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__13;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__9;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__24;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13218,9 +13234,11 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__25;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__14;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__8;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__25;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13228,9 +13246,11 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__26;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__15;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__5;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__26;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -13238,20 +13258,21 @@ static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__27;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__17;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__3;
+x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__27;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__29() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__28;
-x_2 = l___private_Lean_CoreM_0__Lean_supportedRecursors___closed__18;
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
+x_2 = lean_array_mk(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___private_Lean_CoreM_0__Lean_supportedRecursors() {

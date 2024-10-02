@@ -336,21 +336,21 @@ variable (h : n ≤ m) in
 -- unzip
 #check_simp unzip (replicate n (x, y)) ~> (replicate n x, replicate n y)
 
--- minimum?
+-- min?
 
 -- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
-#check_simp (replicate (n+1) 7).minimum? ~> some 7
+#check_simp (replicate (n+1) 7).min? ~> some 7
 
 variable (h : 0 < n) in
-#check_tactic (replicate n 7).minimum? ~> some 7 by simp [h]
+#check_tactic (replicate n 7).min? ~> some 7 by simp [h]
 
--- maximum?
+-- max?
 
 -- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
-#check_simp (replicate (n+1) 7).maximum? ~> some 7
+#check_simp (replicate (n+1) 7).max? ~> some 7
 
 variable (h : 0 < n) in
-#check_tactic (replicate n 7).maximum? ~> some 7 by simp [h]
+#check_tactic (replicate n 7).max? ~> some 7 by simp [h]
 
 end
 
@@ -456,9 +456,9 @@ end Pairwise
 
 /-! ### enumFrom -/
 
-/-! ### minimum? -/
+/-! ### min? -/
 
-/-! ### maximum? -/
+/-! ### max? -/
 
 /-! ## Monadic operations -/
 

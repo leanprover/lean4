@@ -57,8 +57,8 @@ theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c 
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
     · split
       · next heq =>
-        simp only [heq, Literal.negate, not, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
-        split at negl_ne_v <;> simp_all
+        simp only [heq, Literal.negate, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
+        simp_all
       · next hne =>
         exact pv
   · exists v
@@ -67,8 +67,8 @@ theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c 
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
     · split
       · next heq =>
-        simp only [heq, Literal.negate, not, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
-        split at negl_ne_v <;> simp_all
+        simp only [heq, Literal.negate, ne_eq, Prod.mk.injEq, true_and] at negl_ne_v
+        simp_all
       · next hne =>
         exact pv
 
@@ -461,19 +461,19 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     constructor
     · rw [← Array.mem_toList]
       apply Array.getElem_mem_toList
-    · rw [← Array.getElem_eq_toList_getElem] at c'_in_f
+    · rw [← Array.getElem_eq_getElem_toList] at c'_in_f
       simp only [getElem!, Array.getElem_range, i_lt_f_clauses_size, dite_true,
         c'_in_f, DefaultClause.contains_iff, Array.get_eq_getElem, decidableGetElem?]
       simpa [Clause.toList] using negPivot_in_c'
   rcases List.get_of_mem h with ⟨j, h'⟩
   have j_in_bounds : j < ratHints.size := by
     have j_property := j.2
-    simp only [Array.map_toList, List.length_map] at j_property
+    simp only [Array.toList_map, List.length_map] at j_property
     dsimp at *
     omega
-  simp only [List.get_eq_getElem, Array.map_toList, Array.toList_length, List.getElem_map] at h'
-  rw [← Array.getElem_eq_toList_getElem] at h'
-  rw [← Array.getElem_eq_toList_getElem] at c'_in_f
+  simp only [List.get_eq_getElem, Array.toList_map, Array.length_toList, List.getElem_map] at h'
+  rw [← Array.getElem_eq_getElem_toList] at h'
+  rw [← Array.getElem_eq_getElem_toList] at c'_in_f
   exists ⟨j.1, j_in_bounds⟩
   simp [getElem!, h', i_lt_f_clauses_size, dite_true, c'_in_f, decidableGetElem?]
 

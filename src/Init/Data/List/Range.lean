@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Pairwise
+import Init.Data.List.Zip
 
 /-!
 # Lemmas about `List.range` and `List.enum`
@@ -35,10 +36,15 @@ theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) 
 theorem range'_ne_nil (s : Nat) {n : Nat} : range' s n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
-@[simp] theorem range'_zero : range' s 0 = [] := by
+@[simp] theorem range'_zero : range' s 0 step = [] := by
   simp
 
 @[simp] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
+
+@[simp] theorem tail_range' (n : Nat) : (range' s n step).tail = range' (s + step) (n - 1) step := by
+  cases n with
+  | zero => simp
+  | succ n => simp [range'_succ]
 
 @[simp] theorem range'_inj : range' s n = range' s' n' ↔ n = n' ∧ (n = 0 ∨ s = s') := by
   constructor
@@ -153,6 +159,9 @@ theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) :=
 theorem range_ne_nil {n : Nat} : range n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
+@[simp] theorem tail_range (n : Nat) : (range n).tail = range' 1 (n - 1) := by
+  rw [range_eq_range', tail_range']
+
 @[simp]
 theorem range_sublist {m n : Nat} : range m <+ range n ↔ m ≤ n := by
   simp only [range_eq_range', range'_sublist_right]
@@ -219,6 +228,12 @@ theorem getElem_enumFrom (l : List α) (n) (i : Nat) (h : i < (l.enumFrom n).len
   simp only [getElem?_enumFrom, getElem?_eq_getElem h]
   simp
 
+@[simp]
+theorem tail_enumFrom (l : List α) (n : Nat) : (enumFrom n l).tail = enumFrom (n + 1) l.tail := by
+  induction l generalizing n with
+  | nil => simp
+  | cons _ l ih => simp [ih, enumFrom_cons]
+
 theorem map_fst_add_enumFrom_eq_enumFrom (l : List α) (n k : Nat) :
     map (Prod.map (· + n) id) (enumFrom k l) = enumFrom (n + k) l :=
   ext_getElem? fun i ↦ by simp [(· ∘ ·), Nat.add_comm, Nat.add_left_comm]; rfl
@@ -226,5 +241,48 @@ theorem map_fst_add_enumFrom_eq_enumFrom (l : List α) (n k : Nat) :
 theorem map_fst_add_enum_eq_enumFrom (l : List α) (n : Nat) :
     map (Prod.map (· + n) id) (enum l) = enumFrom n l :=
   map_fst_add_enumFrom_eq_enumFrom l _ _
+
+theorem enumFrom_cons' (n : Nat) (x : α) (xs : List α) :
+    enumFrom n (x :: xs) = (n, x) :: (enumFrom n xs).map (Prod.map (· + 1) id) := by
+  rw [enumFrom_cons, Nat.add_comm, ← map_fst_add_enumFrom_eq_enumFrom]
+
+@[simp]
+theorem enumFrom_map_fst (n) :
+    ∀ (l : List α), map Prod.fst (enumFrom n l) = range' n l.length
+  | [] => rfl
+  | _ :: _ => congrArg (cons _) (enumFrom_map_fst _ _)
+
+@[simp]
+theorem enumFrom_map_snd : ∀ (n) (l : List α), map Prod.snd (enumFrom n l) = l
+  | _, [] => rfl
+  | _, _ :: _ => congrArg (cons _) (enumFrom_map_snd _ _)
+
+theorem enumFrom_eq_zip_range' (l : List α) {n : Nat} : l.enumFrom n = (range' n l.length).zip l :=
+  zip_of_prod (enumFrom_map_fst _ _) (enumFrom_map_snd _ _)
+
+@[simp]
+theorem unzip_enumFrom_eq_prod (l : List α) {n : Nat} :
+    (l.enumFrom n).unzip = (range' n l.length, l) := by
+  simp only [enumFrom_eq_zip_range', unzip_zip, length_range']
+
+/-! ### enum -/
+
+theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
+
+theorem enum_cons' (x : α) (xs : List α) :
+    enum (x :: xs) = (0, x) :: (enum xs).map (Prod.map (· + 1) id) :=
+  enumFrom_cons' _ _ _
+
+theorem enum_eq_enumFrom {l : List α} : l.enum = l.enumFrom 0 := rfl
+
+theorem enumFrom_eq_map_enum (l : List α) (n : Nat) :
+    enumFrom n l = (enum l).map (Prod.map (· + n) id) := by
+  induction l generalizing n with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [enumFrom_cons, ih, enum_cons, map_cons, Prod.map_apply, Nat.zero_add, id_eq, map_map,
+      cons.injEq, map_inj_left, Function.comp_apply, Prod.forall, Prod.mk.injEq, and_true, true_and]
+    intro a b _
+    exact (succ_add a n).symm
 
 end List

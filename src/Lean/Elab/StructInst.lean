@@ -682,7 +682,12 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
               -- We add info to get reliable positions for messages from evaluating the tactic script.
               let info := field.ref.getHeadInfo
               let stx := stx.raw.rewriteBottomUp (·.setInfo info)
-              cont (← elabTermEnsuringType stx (d.getArg! 0).consumeTypeAnnotations) field
+              let type := (d.getArg! 0).consumeTypeAnnotations
+              let mvar ← mkTacticMVar type stx (.fieldAutoParam fieldName s.structName)
+              -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
+              -- (See the aformentioned `processExplicitArg` for a comment about this.)
+              addTermInfo' stx mvar
+              cont mvar field
           | _ =>
             if bi == .instImplicit then
               let val ← withRef field.ref <| mkFreshExprMVar d .synthetic

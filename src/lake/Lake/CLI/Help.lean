@@ -367,7 +367,7 @@ def helpLean :=
 USAGE:
   lake lean <file> [-- <args>...]
 
-Build the imports of the the given file and then runs `lean` on it using
+Build the imports of the given file and then runs `lean` on it using
 the workspace's root package's additional Lean arguments and the given args
 (in that order). The `lean` process is executed in Lake's environment like
 `lake env lean` (see `lake help env` for how the environment is set up)."

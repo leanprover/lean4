@@ -196,8 +196,10 @@ static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_352____closed__2;
 static lean_object* l_Option_repr___at___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_352____lambda__2(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
+static lean_object* l_Lean_instInhabitedStructureInfo___closed__2;
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__6;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getStructureCtor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_StructureInfo_fieldInfo___default;
 size_t lean_usize_add(size_t, size_t);
@@ -212,7 +214,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_getAllParentStructures_visit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
-lean_object* l_List_redLength___rarg(lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__4;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_registerStructure___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getStructureInfo_x3f___closed__1;
@@ -241,7 +242,6 @@ LEAN_EXPORT uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__19;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_findField_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
-lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_StructureFieldInfo_autoParam_x3f___default() {
 _start:
 {
@@ -804,8 +804,8 @@ static lean_object* _init_l_Lean_StructureInfo_fieldNames___default___closed__1(
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -828,9 +828,18 @@ return x_1;
 static lean_object* _init_l_Lean_instInhabitedStructureInfo___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_instInhabitedStructureInfo___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_StructureInfo_fieldNames___default___closed__1;
+x_2 = l_Lean_instInhabitedStructureInfo___closed__1;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -842,7 +851,7 @@ static lean_object* _init_l_Lean_instInhabitedStructureInfo() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedStructureInfo___closed__1;
+x_1 = l_Lean_instInhabitedStructureInfo___closed__2;
 return x_1;
 }
 }
@@ -1685,19 +1694,16 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_352____lambda__3(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_2 = l_List_redLength___rarg(x_1);
-x_3 = lean_mk_empty_array_with_capacity(x_2);
-lean_dec(x_2);
-x_4 = l_List_toArrayAux___rarg(x_1, x_3);
-x_5 = lean_array_get_size(x_4);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_sub(x_5, x_6);
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_array_mk(x_1);
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_sub(x_3, x_4);
+lean_dec(x_3);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_352____spec__5(x_2, x_6, x_5);
 lean_dec(x_5);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_352____spec__5(x_4, x_8, x_7);
-lean_dec(x_7);
-return x_9;
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_initFn____x40_Lean_Structure___hyg_352____closed__1() {
@@ -1822,7 +1828,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_StructureInfo_fieldNames___default___closed__1;
+x_2 = l_Lean_instInhabitedStructureInfo___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2554,7 +2560,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_getStructureFields___spec__1(lean_obj
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_StructureInfo_fieldNames___default___closed__1;
+x_2 = l_Lean_instInhabitedStructureInfo___closed__1;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }
@@ -4177,6 +4183,8 @@ l_Lean_StructureInfo_fieldInfo___default = _init_l_Lean_StructureInfo_fieldInfo_
 lean_mark_persistent(l_Lean_StructureInfo_fieldInfo___default);
 l_Lean_instInhabitedStructureInfo___closed__1 = _init_l_Lean_instInhabitedStructureInfo___closed__1();
 lean_mark_persistent(l_Lean_instInhabitedStructureInfo___closed__1);
+l_Lean_instInhabitedStructureInfo___closed__2 = _init_l_Lean_instInhabitedStructureInfo___closed__2();
+lean_mark_persistent(l_Lean_instInhabitedStructureInfo___closed__2);
 l_Lean_instInhabitedStructureInfo = _init_l_Lean_instInhabitedStructureInfo();
 lean_mark_persistent(l_Lean_instInhabitedStructureInfo);
 l___private_Lean_Structure_0__Lean_StructureState_map___default___closed__1 = _init_l___private_Lean_Structure_0__Lean_StructureState_map___default___closed__1();

@@ -244,18 +244,19 @@ abbrev SnapshotTree.element : SnapshotTree → Snapshot
 abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
   | mk _ children => children
 
-/-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.format (file : FileMap) : SnapshotTree → IO Format :=
-  go none
+/-- Produces trace of given snapshot tree, synchronously waiting on all children. -/
+partial def SnapshotTree.trace (s : SnapshotTree) : CoreM Unit :=
+  go none s
 where go range? s := do
-  let mut desc := f!"• {s.element.desc}"
+  let file ← getFileMap
+  let mut desc := f!"{s.element.desc}"
   if let some range := range? then
     desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
   desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
   if let some t := s.element.infoTree? then
-    desc := desc ++ f!"\n{← t.format}"
-  desc := desc ++ .prefixJoin "\n" (← s.children.toList.mapM fun c => go c.range? c.get)
-  return .nestD desc
+    trace[Elab.info] (← t.format)
+  withTraceNode `Elab.snapshotTree (fun _ => pure desc) do
+    s.children.toList.forM fun c => go c.range? c.get
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous

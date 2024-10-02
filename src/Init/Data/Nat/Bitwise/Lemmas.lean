@@ -36,7 +36,7 @@ private theorem two_mul_sub_one {n : Nat} (n_pos : n > 0) : (2*n - 1) % 2 = 1 :=
 /-! ### Preliminaries -/
 
 /--
-An induction principal that works on divison by two.
+An induction principal that works on division by two.
 -/
 noncomputable def div2Induction {motive : Nat → Sort u}
     (n : Nat) (ind : ∀(n : Nat), (n > 0 → motive (n/2)) → motive n) : motive n := by
@@ -226,18 +226,18 @@ private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
     simp [Nat.mod_eq (x+2) 2, p, hyp]
     cases Nat.mod_two_eq_zero_or_one x with | _ p => simp [p]
 
-private theorem testBit_succ_zero : testBit (x + 1) 0 = not (testBit x 0) := by
+private theorem testBit_succ_zero : testBit (x + 1) 0 = !(testBit x 0) := by
   simp [testBit_to_div_mod, succ_mod_two]
   cases Nat.mod_two_eq_zero_or_one x with | _ p =>
     simp [p]
 
-theorem testBit_two_pow_add_eq (x i : Nat) : testBit (2^i + x) i = not (testBit x i) := by
+theorem testBit_two_pow_add_eq (x i : Nat) : testBit (2^i + x) i = !(testBit x i) := by
   simp [testBit_to_div_mod, add_div_left, Nat.two_pow_pos, succ_mod_two]
   cases mod_two_eq_zero_or_one (x / 2 ^ i) with
   | _ p => simp [p]
 
 theorem testBit_mul_two_pow_add_eq (a b i : Nat) :
-    testBit (2^i*a + b) i = Bool.xor (a%2 = 1) (testBit b i) := by
+    testBit (2^i*a + b) i = (a%2 = 1 ^^ testBit b i) := by
   match a with
   | 0 => simp
   | a+1 =>
@@ -570,7 +570,7 @@ theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 := by
 /-! ### xor -/
 
 @[simp] theorem testBit_xor (x y i : Nat) :
-    (x ^^^ y).testBit i = Bool.xor (x.testBit i) (y.testBit i) := by
+    (x ^^^ y).testBit i = ((x.testBit i) ^^ (y.testBit i)) := by
   simp [HXor.hXor, Xor.xor, xor, testBit_bitwise ]
 
 @[simp] theorem zero_xor (x : Nat) : 0 ^^^ x = x := by

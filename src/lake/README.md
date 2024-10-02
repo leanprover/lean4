@@ -1,9 +1,9 @@
 # Lake
 
 Lake (Lean Make) is the new build system and package manager for Lean 4.
-With Lake, the package's configuration is written in Lean inside a dedicated `lakefile.lean` stored in the root of the package's directory.
+Lake configurations can be written in Lean or TOML and are conventionally stored in a `lakefile` in the root directory of package.
 
-Each `lakefile.lean` includes a `package` declaration (akin to `main`) which defines the package's basic configuration. It also typically includes build configurations for different targets (e.g., Lean libraries and binary executables) and Lean scripts to run on the command line (via `lake script run`).
+A Lake configuration file defines the package's basic configuration. It also typically includes build configurations for different targets (e.g., Lean libraries and binary executables) and Lean scripts to run on the command line (via `lake script run`).
 
 ***This README provides information about Lake relative to the current commit. If you are looking for documentation for the Lake version shipped with a given Lean release, you should look at the README of that version.***
 
@@ -63,7 +63,7 @@ Hello/         # library source files; accessible via `import Hello.*`
   ...          # additional files should be added here
 Hello.lean     # library root; imports standard modules from Hello
 Main.lean      # main file of the executable (contains `def main`)
-lakefile.lean  # Lake package configuration
+lakefile.toml  # Lake package configuration
 lean-toolchain # the Lean version used by the package
 .gitignore     # excludes system-specific files (e.g. `build`) from Git
 ```
@@ -90,23 +90,21 @@ def main : IO Unit :=
   IO.println s!"Hello, {hello}!"
 ```
 
-Lake also creates a basic `lakefile.lean` for the package along with a `lean-toolchain` file that contains the name of the Lean toolchain Lake belongs to, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
+Lake also creates a basic `lakefile.toml` for the package along with a `lean-toolchain` file that contains the name of the Lean toolchain Lake belongs to, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
 
 
-**lakefile.lean**
-```lean
-import Lake
-open Lake DSL
+**lakefile.toml**
+```toml
+name = "hello"
+version = "0.1.0"
+defaultTargets = ["hello"]
 
-package «hello» where
-  -- add package configuration options here
+[[lean_lib]]
+name = "Hello"
 
-lean_lib «Hello» where
-  -- add library configuration options here
-
-@[default_target]
-lean_exe «hello» where
-  root := `Main
+[[lean_exe]]
+name = "hello"
+root = "Main"
 ```
 
 The command `lake build` is used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `.lake/build/bin`. The command `lake clean` deletes `build`.

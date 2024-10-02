@@ -32,7 +32,7 @@ private theorem or_as_aig : ∀ (a b : Bool), (!(!a && !b)) = (a || b) := by
 /--
 Encoding of XOR as boolean expression in AIG form.
 -/
-private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (xor a b) := by
+private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (a ^^ b) := by
   decide
 
 /--

@@ -17,7 +17,6 @@ static lean_object* l___aux__Init__Core______macroRules__term___x5c____1___close
 static lean_object* l_term___u2229_____closed__2;
 LEAN_EXPORT lean_object* l_toBoolUsing(lean_object*);
 static lean_object* l_term___u222a_____closed__6;
-static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6;
 static lean_object* l___aux__Init__Core______unexpand__Iff__1___closed__1;
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__3;
 static lean_object* l_term_x7b_x7d___closed__7;
@@ -38,7 +37,6 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2283____1___clo
 LEAN_EXPORT lean_object* l_And_elim___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__SSuperset__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableIte(lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7;
 LEAN_EXPORT lean_object* l_Thunk_map___rarg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__2;
 static lean_object* l___aux__Init__Core______macroRules__term___u2287____1___closed__2;
@@ -5114,34 +5112,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__3;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5;
+x_2 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4;
-x_2 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -5184,7 +5160,7 @@ lean_dec(x_2);
 x_17 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__3;
 x_18 = l_Lean_addMacroScope(x_16, x_17, x_15);
 x_19 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__2;
-x_20 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7;
+x_20 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5;
 lean_inc(x_14);
 x_21 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_21, 0, x_14);
@@ -7601,10 +7577,6 @@ l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4 = _init_l__
 lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4);
 l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5 = _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5();
 lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5);
-l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6 = _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6();
-lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6);
-l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7 = _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7();
-lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7);
 l_term___u2260_____closed__1 = _init_l_term___u2260_____closed__1();
 lean_mark_persistent(l_term___u2260_____closed__1);
 l_term___u2260_____closed__2 = _init_l_term___u2260_____closed__2();

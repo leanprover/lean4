@@ -67,7 +67,7 @@ theorem atomToCNF_eval :
 theorem gateToCNF_eval :
     (gateToCNF output lhs rhs linv rinv).eval assign
       =
-    (assign output == ((xor (assign lhs) linv) && (xor (assign rhs) rinv))) := by
+    (assign output == (((assign lhs) ^^ linv) && ((assign rhs) ^^ rinv))) := by
   simp only [CNF.eval, gateToCNF, CNF.Clause.eval, List.all_cons, List.any_cons, beq_false,
     List.any_nil, Bool.or_false, beq_true, List.all_nil, Bool.and_true]
   cases assign output

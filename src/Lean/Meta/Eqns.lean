@@ -32,7 +32,7 @@ These options affect the generation of equational theorems in a significant way.
 value at definition time, not realization time, should matter.
 
 This is implemented by
- * eagerly realizing the equations when they are set to a non-default vaule
+ * eagerly realizing the equations when they are set to a non-default value
  * when realizing them lazily, reset the options to their default
 -/
 def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]

@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_atomsList___rarg___boxed(lean_
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__114;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__110;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__79;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__81;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__48;
 static lean_object* l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__15;
@@ -295,6 +294,7 @@ static size_t l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__9;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Elab_Tactic_Omega_atoms___spec__2___lambda__1___boxed(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_atomsList___boxed(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_CollectMVars_visit___spec__2(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__86;
 static lean_object* l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__11;
@@ -900,8 +900,8 @@ static lean_object* _init_l_Lean_Elab_Tactic_Omega_atoms___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

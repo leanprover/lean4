@@ -20,7 +20,7 @@
  {"start": {"line": 4, "character": 24}, "end": {"line": 4, "character": 29}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Category.index : Lean.Parser.Category\n```\n***\nIndex syntax categoy ",
+  "```lean\nLean.Parser.Category.index : Lean.Parser.Category\n```\n***\nIndex syntax category ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///catHover.lean"},
  "position": {"line": 12, "character": 16}}

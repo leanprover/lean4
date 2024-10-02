@@ -73,7 +73,7 @@ theorem foldr_eq_foldr_toList (f : α → β → β) (init : β) (arr : Array α
 
 @[simp] theorem append_eq_append (arr arr' : Array α) : arr.append arr' = arr ++ arr' := rfl
 
-@[simp] theorem append_toList (arr arr' : Array α) :
+@[simp] theorem toList_append (arr arr' : Array α) :
     (arr ++ arr').toList = arr.toList ++ arr'.toList := by
   rw [← append_eq_append]; unfold Array.append
   rw [foldl_eq_foldl_toList]
@@ -111,8 +111,8 @@ abbrev toList_eq := @toListImpl_eq
 @[deprecated pop_toList (since := "2024-09-09")]
 abbrev pop_data := @pop_toList
 
-@[deprecated append_toList (since := "2024-09-09")]
-abbrev append_data := @append_toList
+@[deprecated toList_append (since := "2024-09-09")]
+abbrev append_data := @toList_append
 
 @[deprecated appendList_toList (since := "2024-09-09")]
 abbrev appendList_data := @appendList_toList

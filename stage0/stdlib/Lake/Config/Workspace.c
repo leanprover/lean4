@@ -147,6 +147,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_relLakeDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Lake_Env_leanPath(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_packageMap___default;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -172,7 +173,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_clean___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_dir___boxed(lean_object*);
-static lean_object* l_Lake_Workspace_augmentedEnvVars___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedLeanSrcPath(lean_object*);
 lean_object* l_Lake_Env_path(lean_object*);
 extern uint8_t l_System_Platform_isWindows;
@@ -11886,19 +11886,10 @@ x_1 = lean_mk_string_unchecked("PATH", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Workspace_augmentedEnvVars___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedEnvVars(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
 x_3 = l_Lake_Env_baseVars(x_2);
@@ -11926,31 +11917,38 @@ x_17 = l_Lake_Workspace_augmentedEnvVars___closed__3;
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_16);
-x_19 = l_Lake_Workspace_augmentedEnvVars___closed__4;
-x_20 = lean_array_push(x_19, x_8);
-x_21 = lean_array_push(x_20, x_13);
-x_22 = lean_array_push(x_21, x_18);
-x_23 = l_Array_append___rarg(x_3, x_22);
-lean_dec(x_22);
-x_24 = l_System_Platform_isWindows;
-if (x_24 == 0)
+x_19 = lean_box(0);
+x_20 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_20, 0, x_18);
+lean_ctor_set(x_20, 1, x_19);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_13);
+lean_ctor_set(x_21, 1, x_20);
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_8);
+lean_ctor_set(x_22, 1, x_21);
+x_23 = lean_array_mk(x_22);
+x_24 = l_Array_append___rarg(x_3, x_23);
+lean_dec(x_23);
+x_25 = l_System_Platform_isWindows;
+if (x_25 == 0)
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_25 = l_Lake_Workspace_augmentedSharedLibPath(x_1);
-x_26 = l_System_SearchPath_toString(x_25);
-x_27 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_27, 0, x_26);
-x_28 = l_Lake_sharedLibPathEnvVar;
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_28);
-lean_ctor_set(x_29, 1, x_27);
-x_30 = lean_array_push(x_23, x_29);
-return x_30;
+lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_26 = l_Lake_Workspace_augmentedSharedLibPath(x_1);
+x_27 = l_System_SearchPath_toString(x_26);
+x_28 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_28, 0, x_27);
+x_29 = l_Lake_sharedLibPathEnvVar;
+x_30 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_30, 0, x_29);
+lean_ctor_set(x_30, 1, x_28);
+x_31 = lean_array_push(x_24, x_30);
+return x_31;
 }
 else
 {
 lean_dec(x_1);
-return x_23;
+return x_24;
 }
 }
 }
@@ -12129,8 +12127,6 @@ l_Lake_Workspace_augmentedEnvVars___closed__2 = _init_l_Lake_Workspace_augmented
 lean_mark_persistent(l_Lake_Workspace_augmentedEnvVars___closed__2);
 l_Lake_Workspace_augmentedEnvVars___closed__3 = _init_l_Lake_Workspace_augmentedEnvVars___closed__3();
 lean_mark_persistent(l_Lake_Workspace_augmentedEnvVars___closed__3);
-l_Lake_Workspace_augmentedEnvVars___closed__4 = _init_l_Lake_Workspace_augmentedEnvVars___closed__4();
-lean_mark_persistent(l_Lake_Workspace_augmentedEnvVars___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

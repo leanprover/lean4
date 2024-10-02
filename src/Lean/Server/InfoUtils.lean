@@ -237,7 +237,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     let _ := @lexOrd
     let _ := @leOfOrd.{0}
     let _ := @maxOfLe
-    results.map (·.1) |>.maximum?
+    results.map (·.1) |>.max?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
   if let some i := res? then
     if let .ofTermInfo ti := i.info then
@@ -380,7 +380,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
               priority := if hoverPos.byteIdx == tailPos.byteIdx + trailSize then 0 else 1
             }]
     return gs
-  let maxPrio? := gs.map (·.priority) |>.maximum?
+  let maxPrio? := gs.map (·.priority) |>.max?
   gs.filter (some ·.priority == maxPrio?)
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool

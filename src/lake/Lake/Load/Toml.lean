@@ -270,7 +270,7 @@ protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : Exc
 instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
 protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Dependency := ensureDecode do
-  let name  ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
+  let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
   let src? : Option DependencySrc ← id do
     if let some dir ← t.tryDecode? `path then
@@ -316,6 +316,7 @@ def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
       let leanLibConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_lib #[]
       let leanExeConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_exe #[]
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
+      let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
         dir, relDir, relConfigFile

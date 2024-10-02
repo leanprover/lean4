@@ -468,7 +468,8 @@ where
     if h : i < view.parents.size then
       let parentStx := view.parents.get ⟨i, h⟩
       withRef parentStx do
-      let parentType ← Term.elabType parentStx
+      let parentType ← Term.withSynthesize <| Term.elabType parentStx
+      let parentType ← whnf parentType
       let parentStructName ← getStructureName parentType
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
@@ -732,7 +733,8 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
         throwError "invalid default value for field, it contains metavariables{indentExpr value}"
       /- The identity function is used as "marker". -/
       let value ← mkId value
-      discard <| mkAuxDefinition declName type value (zetaDelta := true)
+      -- No need to compile the definition, since it is only used during elaboration.
+      discard <| mkAuxDefinition declName type value (zetaDelta := true) (compile := false)
       setReducibleAttribute declName
 
 /--
@@ -772,7 +774,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
           let some fieldInfo := getFieldInfo? env parentStructName fieldName | unreachable!
           if fieldInfo.subobject?.isNone then throwError "failed to build coercion to parent structure"
           let resultType ← whnfD (← inferType result)
-          unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpect type{indentExpr resultType}"
+          unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpected type{indentExpr resultType}"
           let fieldVal ← copyFields resultType.bindingDomain!
           result := mkApp result fieldVal
       return result

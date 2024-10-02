@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lambda__1(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -35,6 +34,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_maxLiteral(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_Clause_maxLiteral___spec__1(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_maxLiteral(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_Sat_CNF_Clause_maxLiteral___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_numLiterals(lean_object*);
@@ -214,8 +214,8 @@ static lean_object* _init_l_Std_Sat_CNF_maxLiteral___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

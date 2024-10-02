@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition_Structural_Eqns___hyg_1464____closed__5;
+static lean_object* l_Lean_Elab_Structural_mkEqns___lambda__2___closed__2;
 extern lean_object* l_Lean_maxRecDepth;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_mkEqns___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -145,6 +146,7 @@ lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*)
 lean_object* l_Lean_Meta_ensureEqnReservedNamesAvailable(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__12;
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Elab_Eqns_whnfReducibleLHS_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_PrettyPrinter_Delaborator_returnsPi___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2575,6 +2577,15 @@ x_1 = l_Lean_maxRecDepth;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Elab_Structural_mkEqns___lambda__2___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_mkEqns___lambda__2(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -2612,7 +2623,7 @@ x_21 = lean_box(0);
 x_22 = lean_array_get_size(x_18);
 x_23 = lean_unsigned_to_nat(0u);
 x_24 = lean_unsigned_to_nat(1u);
-x_25 = l_Lean_Elab_Structural_instInhabitedEqnInfo___closed__3;
+x_25 = l_Lean_Elab_Structural_mkEqns___lambda__2___closed__2;
 lean_inc(x_22);
 x_26 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1(x_6, x_18, x_20, x_21, x_22, x_22, x_23, x_22, x_24, x_25, x_4, x_5, x_8, x_9, x_19);
 lean_dec(x_22);
@@ -2753,7 +2764,7 @@ x_58 = lean_box(0);
 x_59 = lean_array_get_size(x_55);
 x_60 = lean_unsigned_to_nat(0u);
 x_61 = lean_unsigned_to_nat(1u);
-x_62 = l_Lean_Elab_Structural_instInhabitedEqnInfo___closed__3;
+x_62 = l_Lean_Elab_Structural_mkEqns___lambda__2___closed__2;
 lean_inc(x_59);
 x_63 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1(x_6, x_55, x_57, x_58, x_59, x_59, x_60, x_59, x_61, x_62, x_4, x_5, x_52, x_9, x_56);
 lean_dec(x_59);
@@ -4076,6 +4087,8 @@ l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1___closed__4 = 
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1___closed__4);
 l_Lean_Elab_Structural_mkEqns___lambda__2___closed__1 = _init_l_Lean_Elab_Structural_mkEqns___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_mkEqns___lambda__2___closed__1);
+l_Lean_Elab_Structural_mkEqns___lambda__2___closed__2 = _init_l_Lean_Elab_Structural_mkEqns___lambda__2___closed__2();
+lean_mark_persistent(l_Lean_Elab_Structural_mkEqns___lambda__2___closed__2);
 l_Lean_Elab_Structural_mkEqns___closed__1 = _init_l_Lean_Elab_Structural_mkEqns___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_mkEqns___closed__1);
 l_Lean_Elab_Structural_mkEqns___closed__2 = _init_l_Lean_Elab_Structural_mkEqns___closed__2();

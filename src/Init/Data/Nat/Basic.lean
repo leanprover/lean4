@@ -514,6 +514,10 @@ protected theorem add_lt_add_left {n m : Nat} (h : n < m) (k : Nat) : k + n < k 
 protected theorem add_lt_add_right {n m : Nat} (h : n < m) (k : Nat) : n + k < m + k :=
   Nat.add_comm k m ▸ Nat.add_comm k n ▸ Nat.add_lt_add_left h k
 
+protected theorem lt_add_of_pos_left (h : 0 < k) : n < k + n := by
+  rw [Nat.add_comm]
+  exact Nat.add_lt_add_left h n
+
 protected theorem lt_add_of_pos_right (h : 0 < k) : n < n + k :=
   Nat.add_lt_add_left h n
 
@@ -630,6 +634,8 @@ theorem lt_succ_of_lt (h : a < b) : a < succ b := le_succ_of_le h
 
 theorem lt_add_one_of_lt (h : a < b) : a < b + 1 := le_succ_of_le h
 
+@[simp] theorem lt_one_iff : n < 1 ↔ n = 0 := Nat.lt_succ_iff.trans <| by rw [le_zero_eq]
+
 theorem succ_pred_eq_of_ne_zero : ∀ {n}, n ≠ 0 → succ (pred n) = n
   | _+1, _ => rfl
 
@@ -718,7 +724,7 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 
 theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
 
-instance {n : Nat} : NeZero (succ n) := ⟨succ_ne_zero n⟩
+instance instNeZeroSucc {n : Nat} : NeZero (n + 1) := ⟨succ_ne_zero n⟩
 
 /-! # mul + order -/
 

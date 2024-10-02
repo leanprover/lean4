@@ -75,9 +75,7 @@ instance : ToExpr Gate where
   toExpr x :=
     match x with
     | .and => mkConst ``Gate.and
-    | .or => mkConst ``Gate.or
     | .xor => mkConst ``Gate.xor
-    | .imp => mkConst ``Gate.imp
     | .beq => mkConst ``Gate.beq
   toTypeExpr := mkConst ``Gate
 

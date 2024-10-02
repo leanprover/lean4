@@ -8,6 +8,7 @@ import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
+import Lean.Util.CollectLevelMVars
 import Lean.Linter.Deprecated
 import Lean.Elab.Config
 import Lean.Elab.Level
@@ -28,6 +29,15 @@ structure SavedContext where
   errToSorry : Bool
   levelNames : List Name
 
+/-- The kind of a tactic metavariable, used for additional error reporting. -/
+inductive TacticMVarKind
+  /-- Standard tactic metavariable, arising from `by ...` syntax. -/
+  | term
+  /-- Tactic metavariable arising from an autoparam for a function application. -/
+  | autoParam (argName : Name)
+  /-- Tactic metavariable arising from an autoparam for a structure field. -/
+  | fieldAutoParam (fieldName structName : Name)
+
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
   /--
@@ -42,7 +52,7 @@ inductive SyntheticMVarKind where
   Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
   | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
   /-- Use tactic to synthesize value for metavariable. -/
-  | tactic (tacticCode : Syntax) (ctx : SavedContext)
+  | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
   | postponed (ctx : SavedContext)
   deriving Inhabited
@@ -94,6 +104,18 @@ structure MVarErrorInfo where
   deriving Inhabited
 
 /--
+When reporting unexpected universe level metavariables, it is useful to localize the errors
+to particular terms, especially at `let` bindings and function binders,
+where universe polymorphism is not permitted.
+-/
+structure LevelMVarErrorInfo where
+  lctx      : LocalContext
+  expr      : Expr
+  ref       : Syntax
+  msgData?  : Option MessageData := none
+  deriving Inhabited
+
+/--
   Nested `let rec` expressions are eagerly lifted by the elaborator.
   We store the information necessary for performing the lifting here.
 -/
@@ -120,6 +142,8 @@ structure State where
   pendingMVars      : List MVarId := {}
   /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
   mvarErrorInfos    : List MVarErrorInfo := []
+  /-- List of data to be able to localize universe level metavariable errors to particular expressions. -/
+  levelMVarErrorInfos   : List LevelMVarErrorInfo := []
   /--
     `mvarArgNames` stores the argument names associated to metavariables.
     These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
@@ -794,6 +818,54 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
         error.logError extraMsg?
     return hasNewErrors
 
+def registerLevelMVarErrorInfo (levelMVarErrorInfo : LevelMVarErrorInfo) : TermElabM Unit :=
+  modify fun s => { s with levelMVarErrorInfos := levelMVarErrorInfo :: s.levelMVarErrorInfos }
+
+def registerLevelMVarErrorExprInfo (expr : Expr) (ref : Syntax) (msgData? : Option MessageData := none) : TermElabM Unit := do
+  registerLevelMVarErrorInfo { lctx := (← getLCtx), expr, ref, msgData? }
+
+def exposeLevelMVars (e : Expr) : MetaM Expr :=
+  Core.transform e
+    (post := fun e => do
+      match e with
+      | .const _ us     => return .done <| if us.any (·.isMVar) then e.setPPUniverses true else e
+      | .sort u         => return .done <| if u.isMVar then e.setPPUniverses true else e
+      | .lam _ t _ _    => return .done <| if t.hasLevelMVar then e.setOption `pp.funBinderTypes true else e
+      | .letE _ t _ _ _ => return .done <| if t.hasLevelMVar then e.setOption `pp.letVarTypes true else e
+      | _               => return .done e)
+
+def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) : TermElabM Unit :=
+  Meta.withLCtx levelMVarErrorInfo.lctx {} do
+    let e' ← exposeLevelMVars (← instantiateMVars levelMVarErrorInfo.expr)
+    let msg := levelMVarErrorInfo.msgData?.getD m!"don't know how to synthesize universe level metavariables"
+    let msg := m!"{msg}{indentExpr e'}"
+    logErrorAt levelMVarErrorInfo.ref msg
+
+/--
+Try to log errors for unassigned level metavariables `pendingLevelMVarIds`.
+
+Returns `true` if there are any relevant `LevelMVarErrorInfo`s and we should "abort" the declaration.
+
+Remark: we only log unassigned level metavariables as new errors if no error has been logged so far.
+-/
+def logUnassignedLevelMVarsUsingErrorInfos (pendingLevelMVarIds : Array LMVarId) : TermElabM Bool := do
+  if pendingLevelMVarIds.isEmpty then
+    return false
+  else
+    let hasOtherErrors ← MonadLog.hasErrors
+    let mut hasNewErrors := false
+    let mut errors : Array LevelMVarErrorInfo := #[]
+    for levelMVarErrorInfo in (← get).levelMVarErrorInfos do
+      let e ← instantiateMVars levelMVarErrorInfo.expr
+      let lmvars := (collectLevelMVars {} e).result
+      if lmvars.any pendingLevelMVarIds.contains then do
+        unless hasOtherErrors do
+          errors := errors.push levelMVarErrorInfo
+        hasNewErrors := true
+    for error in errors do
+      error.logError
+    return hasNewErrors
+
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
   let pendingMVarIds ← getMVarsAtDecl decl
@@ -1045,7 +1117,7 @@ def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM 
   logException ex
   pure syntheticSorry
 
-/-- If `mayPostpone == true`, throw `Expection.postpone`. -/
+/-- If `mayPostpone == true`, throw `Exception.postpone`. -/
 def tryPostpone : TermElabM Unit := do
   if (← read).mayPostpone then
     throwPostpone
@@ -1127,6 +1199,26 @@ private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : 
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? mvarId
+
+register_builtin_option debug.byAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
+}
+
+/--
+Creates a new metavariable of type `type` that will be synthesized using the tactic code.
+The `tacticCode` syntax is the full `by ..` syntax.
+-/
+def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : TermElabM Expr := do
+  if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
+    mkSorry type false
+  else
+    let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
+    let mvarId := mvar.mvarId!
+    let ref ← getRef
+    registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext) kind
+    return mvar
 
 /--
   Create an auxiliary annotation to make sure we create an `Info` even if `e` is a metavariable.
@@ -1439,7 +1531,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     let localDecl? := lctx.decls.findSomeRev? fun localDecl? => do
       let localDecl ← localDecl?
       if localDecl.isAuxDecl then
-        guard (not skipAuxDecl)
+        guard (!skipAuxDecl)
         if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
         else
@@ -1497,7 +1589,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       foo := 10
     ```
     -/
-    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && not projs.isEmpty) with
+    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && !projs.isEmpty) with
     | some decl => return some (decl.toExpr, projs)
     | none => match n with
       | .str pre s => loop pre (s::projs) globalDeclFoundNext

@@ -24,7 +24,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Server_instInhabitedDocumentMeta___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_foldDocumentChanges___spec__1(lean_object*, size_t, size_t, lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressNotification(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lambda__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -84,6 +83,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_applyDocumentChange___boxed(lean_object*,
 static lean_object* l_Lean_Server_mkPublishDiagnosticsNotification___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__6(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___elambda__5(lean_object*, lean_object*, uint8_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft(lean_object*, lean_object*, uint8_t);
 size_t lean_usize_add(size_t, size_t);
@@ -95,7 +95,6 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__5(lean_object*, siz
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_mkApplyWorkspaceEditRequest___closed__2;
 static lean_object* l_Lean_Server_instInhabitedDocumentMeta___closed__3;
-static lean_object* l_Lean_Server_mkFileProgressAtPosNotification___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___elambda__1(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -106,6 +105,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__5___boxed(lean_obje
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedDocumentMeta___closed__4;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight(lean_object*, lean_object*, uint8_t);
+static lean_object* l_Lean_Server_mkFileProgressDoneNotification___closed__1;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___elambda__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___elambda__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___elambda__3(lean_object*, lean_object*);
@@ -1687,19 +1687,10 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Server_mkFileProgressAtPosNotification___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 lean_inc(x_4);
@@ -1716,11 +1707,14 @@ lean_ctor_set(x_9, 1, x_8);
 x_10 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_3);
-x_11 = l_Lean_Server_mkFileProgressAtPosNotification___closed__1;
-x_12 = lean_array_push(x_11, x_10);
-x_13 = l_Lean_Server_mkFileProgressNotification(x_1, x_12);
+x_11 = lean_box(0);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = lean_array_mk(x_12);
+x_14 = l_Lean_Server_mkFileProgressNotification(x_1, x_13);
 lean_dec(x_1);
-return x_13;
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1734,11 +1728,20 @@ lean_dec(x_2);
 return x_5;
 }
 }
+static lean_object* _init_l_Lean_Server_mkFileProgressDoneNotification___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressDoneNotification(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Server_instInhabitedDocumentMeta___closed__1;
+x_2 = l_Lean_Server_mkFileProgressDoneNotification___closed__1;
 x_3 = l_Lean_Server_mkFileProgressNotification(x_1, x_2);
 return x_3;
 }
@@ -1878,8 +1881,8 @@ l_Lean_Server_mkPublishDiagnosticsNotification___closed__1 = _init_l_Lean_Server
 lean_mark_persistent(l_Lean_Server_mkPublishDiagnosticsNotification___closed__1);
 l_Lean_Server_mkFileProgressNotification___closed__1 = _init_l_Lean_Server_mkFileProgressNotification___closed__1();
 lean_mark_persistent(l_Lean_Server_mkFileProgressNotification___closed__1);
-l_Lean_Server_mkFileProgressAtPosNotification___closed__1 = _init_l_Lean_Server_mkFileProgressAtPosNotification___closed__1();
-lean_mark_persistent(l_Lean_Server_mkFileProgressAtPosNotification___closed__1);
+l_Lean_Server_mkFileProgressDoneNotification___closed__1 = _init_l_Lean_Server_mkFileProgressDoneNotification___closed__1();
+lean_mark_persistent(l_Lean_Server_mkFileProgressDoneNotification___closed__1);
 l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1 = _init_l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1();
 lean_mark_persistent(l_Lean_Server_mkApplyWorkspaceEditRequest___closed__1);
 l_Lean_Server_mkApplyWorkspaceEditRequest___closed__2 = _init_l_Lean_Server_mkApplyWorkspaceEditRequest___closed__2();

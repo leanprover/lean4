@@ -21,7 +21,6 @@ LEAN_EXPORT lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLeanIns
 LEAN_EXPORT lean_object* l_Lake_ElanInstall_binDir___default(lean_object*);
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_436____closed__21;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedLeanInstall;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_LeanInstall_includeDir___default___closed__1;
 extern lean_object* l_Lean_githash;
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_srcDir___default(lean_object*);
@@ -34,7 +33,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanInstall_sharedLibPath(lean_object*);
 lean_object* l_String_quote(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_lean___default(lean_object*);
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_436____closed__40;
-lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lake_leanExe___closed__1;
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_436____closed__13;
 LEAN_EXPORT lean_object* l_Lake_LakeInstall_ofLean(lean_object*);
@@ -126,6 +124,7 @@ static lean_object* l_Lake_findLeanSysroot_x3f___closed__4;
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprElanInstall____x40_Lake_Config_InstallPath___hyg_76____closed__10;
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_leanCc_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_findLakeInstall_x3f___lambda__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lake_LeanInstall_get_getGithash___closed__3;
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_leanc___default(lean_object*);
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_436____closed__22;
 LEAN_EXPORT lean_object* l_Lake_findLakeLeanJointHome_x3f(lean_object*);
@@ -168,6 +167,7 @@ LEAN_EXPORT lean_object* l_Lake_findElanInstall_x3f(lean_object*);
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_436____closed__28;
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprElanInstall____x40_Lake_Config_InstallPath___hyg_76____closed__19;
 static lean_object* l_Lake_initSharedLib___closed__2;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_findLeanInstall_x3f___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_findLakeInstall_x3f___lambda__1___closed__1;
 static lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprElanInstall____x40_Lake_Config_InstallPath___hyg_76____closed__1;
@@ -2474,36 +2474,38 @@ return x_2;
 static lean_object* _init_l_Lake_findLeanSysroot_x3f___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_findLeanSysroot_x3f___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("--print-prefix", 14, 14);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_findLeanSysroot_x3f___closed__4() {
+static lean_object* _init_l_Lake_findLeanSysroot_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_findLeanSysroot_x3f___closed__2;
-x_2 = l_Lake_findLeanSysroot_x3f___closed__3;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = lean_box(0);
+x_2 = l_Lake_findLeanSysroot_x3f___closed__2;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_findLeanSysroot_x3f___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lake_findLeanSysroot_x3f___closed__3;
+x_2 = lean_array_mk(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_findLeanSysroot_x3f___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -2643,10 +2645,21 @@ static lean_object* _init_l_Lake_LeanInstall_get_getGithash___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_findLeanSysroot_x3f___closed__2;
+x_1 = lean_box(0);
 x_2 = l_Lake_LeanInstall_get_getGithash___closed__1;
-x_3 = lean_array_push(x_1, x_2);
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_LeanInstall_get_getGithash___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lake_LeanInstall_get_getGithash___closed__2;
+x_2 = lean_array_mk(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_LeanInstall_get_getGithash(lean_object* x_1, lean_object* x_2) {
@@ -2656,7 +2669,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = l_Lake_leanExe(x_1);
 x_4 = lean_box(0);
 x_5 = l_Lake_findLeanSysroot_x3f___closed__1;
-x_6 = l_Lake_LeanInstall_get_getGithash___closed__2;
+x_6 = l_Lake_LeanInstall_get_getGithash___closed__3;
 x_7 = l_Lake_findLeanSysroot_x3f___closed__5;
 x_8 = 0;
 x_9 = lean_alloc_ctor(0, 5, 1);
@@ -4993,6 +5006,8 @@ l_Lake_LeanInstall_get_getGithash___closed__1 = _init_l_Lake_LeanInstall_get_get
 lean_mark_persistent(l_Lake_LeanInstall_get_getGithash___closed__1);
 l_Lake_LeanInstall_get_getGithash___closed__2 = _init_l_Lake_LeanInstall_get_getGithash___closed__2();
 lean_mark_persistent(l_Lake_LeanInstall_get_getGithash___closed__2);
+l_Lake_LeanInstall_get_getGithash___closed__3 = _init_l_Lake_LeanInstall_get_getGithash___closed__3();
+lean_mark_persistent(l_Lake_LeanInstall_get_getGithash___closed__3);
 l_Lake_LeanInstall_get_findAr___closed__1 = _init_l_Lake_LeanInstall_get_findAr___closed__1();
 lean_mark_persistent(l_Lake_LeanInstall_get_findAr___closed__1);
 l_Lake_LeanInstall_get_findCc___closed__1 = _init_l_Lake_LeanInstall_get_findCc___closed__1();

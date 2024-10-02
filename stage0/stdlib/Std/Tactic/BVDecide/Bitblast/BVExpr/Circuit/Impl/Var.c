@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_insert___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_get_x3f___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go___spec__2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go___spec__5(lean_object*, lean_object*);
@@ -58,6 +57,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkAtomCached___at_Std_Tactic_BVDecide_BVE
 static lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorBVBitBVVarBlastVar___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go___spec__10(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorBVBitBVVarBlastVar;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_get_x3f___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go___spec__2(lean_object*);
@@ -1085,8 +1085,8 @@ static lean_object* _init_l_Std_Sat_AIG_RefVec_empty___at_Std_Tactic_BVDecide_BV
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -1102,9 +1102,9 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar(lean_obj
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_mk_empty_array_with_capacity(x_4);
-x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go(x_2, x_1, x_3, x_4, x_5, lean_box(0));
+x_4 = l_Std_Sat_AIG_RefVec_empty___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar___spec__1(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastVar_go(x_2, x_1, x_3, x_5, x_4, lean_box(0));
 return x_6;
 }
 }

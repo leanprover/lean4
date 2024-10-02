@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l_Lake_loadLeanConfig___closed__2;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 static lean_object* l_Lake_loadLeanConfig___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -24,6 +23,7 @@ lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 lean_object* l_Lake_PackageConfig_loadFromEnv(lean_object*, lean_object*);
 lean_object* l_Lake_importConfigFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_Lake_loadLeanConfig___spec__1(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lake_loadLeanConfig___closed__1;
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -76,8 +76,8 @@ static lean_object* _init_l_Lake_loadLeanConfig___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

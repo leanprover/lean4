@@ -25,7 +25,6 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_8____closed__7;
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__8;
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__12;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_153_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_bvNormalizeExt;
@@ -40,7 +39,6 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Trace___hyg_1518____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_112_(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_379____closed__1;
-lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_8____closed__22;
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__17;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_59____closed__3;
@@ -111,7 +109,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__10;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_8____closed__23;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_194____closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -162,6 +159,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_276____closed__5;
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_8____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_379_(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__4;
@@ -525,7 +523,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_initFn____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Name of the SAT solver used by Lean.Elab.Tactic.BVDecide tactics.\n\n     1. If this is set to something besides the emtpy string they will use that binary.\n\n     2. If this is set to the empty string they will check if there is a cadical binary next to theexecuting program. Usually that program is going to be `lean` itself and we do ship a`cadical` next to it.\n\n     3. If that does not succeed try to call `cadical` from PATH. The empty string default indicatesto use the one that ships with Lean.", 499, 499);
+x_1 = lean_mk_string_unchecked("Name of the SAT solver used by Lean.Elab.Tactic.BVDecide tactics.\n\n     1. If this is set to something besides the empty string they will use that binary.\n\n     2. If this is set to the empty string they will check if there is a cadical binary next to theexecuting program. Usually that program is going to be `lean` itself and we do ship a`cadical` next to it.\n\n     3. If that does not succeed try to call `cadical` from PATH. The empty string default indicatesto use the one that ships with Lean.", 499, 499);
 return x_1;
 }
 }
@@ -1071,31 +1069,22 @@ return x_13;
 static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__2() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("declare", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__3() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__2;
+x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__4() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1103,7 +1092,7 @@ x_1 = lean_mk_string_unchecked("Bool", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__5() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -1111,27 +1100,27 @@ x_1 = lean_mk_string_unchecked("false", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__6() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__4;
-x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__5;
+x_1 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__3;
+x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__4;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__7() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__6;
+x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__5;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__8() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -1139,22 +1128,22 @@ x_1 = lean_mk_string_unchecked("true", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__4;
-x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__8;
+x_1 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__3;
+x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__7;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__10() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9;
+x_2 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__8;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
@@ -1162,27 +1151,34 @@ return x_3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = lean_box(0);
 x_9 = l_Lean_Expr_const___override(x_1, x_8);
 lean_inc(x_2);
 x_10 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux(x_2);
-x_11 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__1;
-x_12 = lean_array_push(x_11, x_10);
-x_13 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__3;
-x_14 = l_Lean_Name_append(x_2, x_13);
-x_15 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_14, x_5, x_6, x_7);
+x_11 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_11, 0, x_4);
+lean_ctor_set(x_11, 1, x_8);
+x_12 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__2;
+x_13 = l_Lean_Name_append(x_2, x_12);
+x_14 = l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(x_13, x_5, x_6, x_7);
 if (x_3 == 0)
 {
+uint8_t x_15; 
+x_15 = !lean_is_exclusive(x_14);
+if (x_15 == 0)
+{
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_16 = lean_ctor_get(x_15, 0);
-lean_inc(x_16);
-x_17 = lean_ctor_get(x_15, 1);
-lean_inc(x_17);
-lean_dec(x_15);
-x_18 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__7;
-x_19 = lean_array_push(x_12, x_18);
-x_20 = lean_array_push(x_19, x_4);
+x_16 = lean_ctor_get(x_14, 0);
+x_17 = lean_ctor_get(x_14, 1);
+x_18 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__6;
+lean_ctor_set_tag(x_14, 1);
+lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 0, x_18);
+x_19 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_19, 0, x_10);
+lean_ctor_set(x_19, 1, x_14);
+x_20 = lean_array_mk(x_19);
 x_21 = l_Lean_mkAppN(x_9, x_20);
 lean_dec(x_20);
 x_22 = l_Lean_declareBuiltin(x_16, x_21, x_5, x_6, x_17);
@@ -1190,19 +1186,69 @@ return x_22;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
-x_23 = lean_ctor_get(x_15, 0);
-lean_inc(x_23);
-x_24 = lean_ctor_get(x_15, 1);
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+x_23 = lean_ctor_get(x_14, 0);
+x_24 = lean_ctor_get(x_14, 1);
 lean_inc(x_24);
-lean_dec(x_15);
-x_25 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__10;
-x_26 = lean_array_push(x_12, x_25);
-x_27 = lean_array_push(x_26, x_4);
-x_28 = l_Lean_mkAppN(x_9, x_27);
-lean_dec(x_27);
-x_29 = l_Lean_declareBuiltin(x_23, x_28, x_5, x_6, x_24);
-return x_29;
+lean_inc(x_23);
+lean_dec(x_14);
+x_25 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__6;
+x_26 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_26, 0, x_25);
+lean_ctor_set(x_26, 1, x_11);
+x_27 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_27, 0, x_10);
+lean_ctor_set(x_27, 1, x_26);
+x_28 = lean_array_mk(x_27);
+x_29 = l_Lean_mkAppN(x_9, x_28);
+lean_dec(x_28);
+x_30 = l_Lean_declareBuiltin(x_23, x_29, x_5, x_6, x_24);
+return x_30;
+}
+}
+else
+{
+uint8_t x_31; 
+x_31 = !lean_is_exclusive(x_14);
+if (x_31 == 0)
+{
+lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
+x_32 = lean_ctor_get(x_14, 0);
+x_33 = lean_ctor_get(x_14, 1);
+x_34 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9;
+lean_ctor_set_tag(x_14, 1);
+lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 0, x_34);
+x_35 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_35, 0, x_10);
+lean_ctor_set(x_35, 1, x_14);
+x_36 = lean_array_mk(x_35);
+x_37 = l_Lean_mkAppN(x_9, x_36);
+lean_dec(x_36);
+x_38 = l_Lean_declareBuiltin(x_32, x_37, x_5, x_6, x_33);
+return x_38;
+}
+else
+{
+lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
+x_39 = lean_ctor_get(x_14, 0);
+x_40 = lean_ctor_get(x_14, 1);
+lean_inc(x_40);
+lean_inc(x_39);
+lean_dec(x_14);
+x_41 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9;
+x_42 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_42, 0, x_41);
+lean_ctor_set(x_42, 1, x_11);
+x_43 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_43, 0, x_10);
+lean_ctor_set(x_43, 1, x_42);
+x_44 = lean_array_mk(x_43);
+x_45 = l_Lean_mkAppN(x_9, x_44);
+lean_dec(x_44);
+x_46 = l_Lean_declareBuiltin(x_39, x_45, x_5, x_6, x_40);
+return x_46;
+}
 }
 }
 }
@@ -2304,8 +2350,6 @@ l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide
 lean_mark_persistent(l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__8);
 l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9 = _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9();
 lean_mark_persistent(l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__9);
-l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__10 = _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__10();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lambda__1___closed__10);
 l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__1 = _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__1);
 l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__2 = _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__2();

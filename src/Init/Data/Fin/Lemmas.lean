@@ -51,10 +51,15 @@ theorem eq_mk_iff_val_eq {a : Fin n} {k : Nat} {hk : k < n} :
 
 theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 
-@[simp] theorem val_ofNat' (a : Nat) (is_pos : n > 0) :
-  (Fin.ofNat' a is_pos).val = a % n := rfl
+@[simp] theorem val_ofNat' (n : Nat) [NeZero n] (a : Nat) :
+  (Fin.ofNat' n a).val = a % n := rfl
 
-@[simp] theorem ofNat'_val_eq_self (x : Fin n) (h) : (Fin.ofNat' x h) = x := by
+@[simp] theorem ofNat'_self {n : Nat} [NeZero n] : Fin.ofNat' n n = 0 := by
+  ext
+  simp
+  congr
+
+@[simp] theorem ofNat'_val_eq_self [NeZero n] (x : Fin n) : (Fin.ofNat' n x) = x := by
   ext
   rw [val_ofNat', Nat.mod_eq_of_lt]
   exact x.2
@@ -67,6 +72,9 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 
 @[simp] theorem modn_val (a : Fin n) (b : Nat) : (a.modn b).val = a.val % b :=
   rfl
+
+@[simp] theorem val_eq_zero (a : Fin 1) : a.val = 0 :=
+  Nat.eq_zero_of_le_zero <| Nat.le_of_lt_succ a.isLt
 
 theorem ite_val {n : Nat} {c : Prop} [Decidable c] {x : c → Fin n} (y : ¬c → Fin n) :
     (if h : c then x h else y h).val = if h : c then (x h).val else (y h).val := by
@@ -120,7 +128,7 @@ theorem mk_le_of_le_val {b : Fin n} {a : Nat} (h : a ≤ b) :
 
 @[simp] theorem mk_lt_mk {x y : Nat} {hx hy} : (⟨x, hx⟩ : Fin n) < ⟨y, hy⟩ ↔ x < y := .rfl
 
-@[simp] theorem val_zero (n : Nat) : (0 : Fin (n + 1)).1 = 0 := rfl
+@[simp] theorem val_zero (n : Nat) [NeZero n] : ((0 : Fin n) : Nat) = 0 := rfl
 
 @[simp] theorem mk_zero : (⟨0, Nat.succ_pos n⟩ : Fin (n + 1)) = 0 := rfl
 
@@ -167,7 +175,23 @@ theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
 @[simp] theorem rev_lt_rev {i j : Fin n} : rev i < rev j ↔ j < i := by
   rw [← Fin.not_le, ← Fin.not_le, rev_le_rev]
 
+/-! ### last -/
+
 @[simp] theorem val_last (n : Nat) : last n = n := rfl
+
+@[simp] theorem last_zero : (Fin.last 0 : Fin 1) = 0 := by
+  ext
+  simp
+
+@[simp] theorem zero_eq_last_iff {n : Nat} : (0 : Fin (n + 1)) = last n ↔ n = 0 := by
+  constructor
+  · intro h
+    simp_all [Fin.ext_iff]
+  · rintro rfl
+    simp
+
+@[simp] theorem last_eq_zero_iff {n : Nat} : Fin.last n = 0 ↔ n = 0 := by
+  simp [eq_comm (a := Fin.last n)]
 
 theorem le_last (i : Fin (n + 1)) : i ≤ last n := Nat.le_of_lt_succ i.is_lt
 
@@ -202,9 +226,27 @@ instance subsingleton_one : Subsingleton (Fin 1) := subsingleton_iff_le_one.2 (b
 
 theorem fin_one_eq_zero (a : Fin 1) : a = 0 := Subsingleton.elim a 0
 
+@[simp] theorem zero_eq_one_iff {n : Nat} [NeZero n] : (0 : Fin n) = 1 ↔ n = 1 := by
+  constructor
+  · intro h
+    simp [Fin.ext_iff] at h
+    change 0 % n = 1 % n at h
+    rw [eq_comm] at h
+    simpa using h
+  · rintro rfl
+    simp
+
+@[simp] theorem one_eq_zero_iff {n : Nat} [NeZero n] : (1 : Fin n) = 0 ↔ n = 1 := by
+  rw [eq_comm]
+  simp
+
 theorem add_def (a b : Fin n) : a + b = Fin.mk ((a + b) % n) (Nat.mod_lt _ a.size_pos) := rfl
 
 theorem val_add (a b : Fin n) : (a + b).val = (a.val + b.val) % n := rfl
+
+@[simp] protected theorem zero_add {n : Nat} [NeZero n] (i : Fin n) : (0 : Fin n) + i = i := by
+  ext
+  simp [Fin.add_def, Nat.mod_eq_of_lt i.2]
 
 theorem val_add_one_of_lt {n : Nat} {i : Fin n.succ} (h : i < last _) : (i + 1).1 = i + 1 := by
   match n with
@@ -329,6 +371,10 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
 
 @[simp] theorem cast_mk (h : n = m) (i : Nat) (hn : i < n) : cast h ⟨i, hn⟩ = ⟨i, h ▸ hn⟩ := rfl
 
+@[simp] theorem cast_refl (n : Nat) (h : n = n) : cast h = id := by
+  ext
+  simp
+
 @[simp] theorem cast_trans {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
     cast h' (cast h i) = cast (Eq.trans h h') i := rfl
 
@@ -437,6 +483,10 @@ theorem succ_castSucc {n : Nat} (i : Fin n) : i.castSucc.succ = castSucc i.succ 
 
 @[simp] theorem coe_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
 
+@[simp] theorem addNat_zero (n : Nat) (i : Fin n) : addNat i 0 = i := by
+  ext
+  simp
+
 @[simp] theorem addNat_one {i : Fin n} : addNat i 1 = i.succ := rfl
 
 theorem le_coe_addNat (m : Nat) (i : Fin n) : m ≤ addNat i m :=
@@ -466,7 +516,7 @@ theorem cast_addNat_left {n n' m : Nat} (i : Fin n') (h : n' + m = n + m) :
 
 theorem le_coe_natAdd (m : Nat) (i : Fin n) : m ≤ natAdd m i := Nat.le_add_right ..
 
-theorem natAdd_zero {n : Nat} : natAdd 0 = cast (Nat.zero_add n).symm := by ext; simp
+@[simp] theorem natAdd_zero {n : Nat} : natAdd 0 = cast (Nat.zero_add n).symm := by ext; simp
 
 /-- For rewriting in the reverse direction, see `Fin.cast_natAdd_right`. -/
 theorem natAdd_cast {n n' : Nat} (m : Nat) (i : Fin n') (h : n' = n) :
@@ -504,8 +554,18 @@ theorem cast_addNat {n : Nat} (m : Nat) (i : Fin n) :
 
 @[simp] theorem natAdd_last {m n : Nat} : natAdd n (last m) = last (n + m) := rfl
 
+@[simp] theorem addNat_last (n : Nat) :
+    addNat (last n) m = cast (by omega) (last (n + m)) := by
+  ext
+  simp
+
 theorem natAdd_castSucc {m n : Nat} {i : Fin m} : natAdd n (castSucc i) = castSucc (natAdd n i) :=
   rfl
+
+@[simp] theorem natAdd_eq_addNat (n : Nat) (i : Fin n) : Fin.natAdd n i = i.addNat n := by
+  ext
+  simp
+  omega
 
 theorem rev_castAdd (k : Fin n) (m : Nat) : rev (castAdd m k) = addNat (rev k) m := Fin.ext <| by
   rw [val_rev, coe_castAdd, coe_addNat, val_rev, Nat.sub_add_comm (Nat.succ_le_of_lt k.is_lt)]
@@ -572,6 +632,15 @@ theorem pred_add_one (i : Fin (n + 2)) (h : (i : Nat) < n + 1) :
 @[simp] theorem subNat_mk {i : Nat} (h₁ : i < n + m) (h₂ : m ≤ i) :
     subNat m ⟨i, h₁⟩ h₂ = ⟨i - m, Nat.sub_lt_right_of_lt_add h₂ h₁⟩ := rfl
 
+@[simp] theorem subNat_zero (i : Fin n) (h : 0 ≤ (i : Nat)): Fin.subNat 0 i h = i := by
+  ext
+  simp
+
+@[simp] theorem subNat_one_succ (i : Fin (n + 1)) (h : 1 ≤ ↑i) : (subNat 1 i h).succ = i := by
+  ext
+  simp
+  omega
+
 @[simp] theorem pred_castSucc_succ (i : Fin n) :
     pred (castSucc i.succ) (Fin.ne_of_gt (castSucc_pos i.succ_pos)) = castSucc i := rfl
 
@@ -582,7 +651,7 @@ theorem pred_add_one (i : Fin (n + 2)) (h : (i : Nat) < n + 1) :
     subNat m (addNat i m) h = i := Fin.ext <| Nat.add_sub_cancel i m
 
 @[simp] theorem natAdd_subNat_cast {i : Fin (n + m)} (h : n ≤ i) :
-    natAdd n (subNat n (cast (Nat.add_comm ..) i) h) = i := by simp [← cast_addNat]; rfl
+    natAdd n (subNat n (cast (Nat.add_comm ..) i) h) = i := by simp [← cast_addNat]
 
 /-! ### recursion and induction principles -/
 
@@ -750,13 +819,13 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 
 /-! ### add -/
 
-@[simp] theorem ofNat'_add (x : Nat) (lt : 0 < n) (y : Fin n) :
-    Fin.ofNat' x lt + y = Fin.ofNat' (x + y.val) lt := by
+theorem ofNat'_add [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat' n x + y = Fin.ofNat' n (x + y.val) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.add_def]
 
-@[simp] theorem add_ofNat' (x : Fin n) (y : Nat) (lt : 0 < n) :
-    x + Fin.ofNat' y lt = Fin.ofNat' (x.val + y) lt := by
+theorem add_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+    x + Fin.ofNat' n y = Fin.ofNat' n (x.val + y) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.add_def]
 
@@ -765,15 +834,20 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = ((n - b) + a) % n := by
   cases a; cases b; rfl
 
-@[simp] theorem ofNat'_sub (x : Nat) (lt : 0 < n) (y : Fin n) :
-    Fin.ofNat' x lt - y = Fin.ofNat' ((n - y.val) + x) lt := by
+theorem ofNat'_sub [NeZero n] (x : Nat) (y : Fin n) :
+    Fin.ofNat' n x - y = Fin.ofNat' n ((n - y.val) + x) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
 
-@[simp] theorem sub_ofNat' (x : Fin n) (y : Nat) (lt : 0 < n) :
-    x - Fin.ofNat' y lt = Fin.ofNat' ((n - y % n) + x.val) lt := by
+theorem sub_ofNat' [NeZero n] (x : Fin n) (y : Nat) :
+    x - Fin.ofNat' n y = Fin.ofNat' n ((n - y % n) + x.val) := by
   apply Fin.eq_of_val_eq
   simp [Fin.ofNat', Fin.sub_def]
+
+@[simp] protected theorem sub_self [NeZero n] {x : Fin n} : x - x = 0 := by
+  ext
+  rw [Fin.sub_def]
+  simp
 
 private theorem _root_.Nat.mod_eq_sub_of_lt_two_mul {x n} (h₁ : n ≤ x) (h₂ : x < 2 * n) :
     x % n = x - n := by

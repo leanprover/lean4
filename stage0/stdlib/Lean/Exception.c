@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstant___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Exception_getRef___boxed(lean_object*);
-static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_throwError___rarg___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___rarg___closed__2;
 static lean_object* l_Lean_termThrowErrorAt___________closed__1;
@@ -128,7 +127,6 @@ static lean_object* l_Lean_termThrowError_______closed__7;
 static lean_object* l_Lean_termThrowErrorAt___________closed__12;
 static lean_object* l_Lean_termThrowError_______closed__6;
 LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT(lean_object*, lean_object*);
-static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__7;
 static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowError______1___closed__9;
 static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowError______1___closed__16;
 static lean_object* l_Lean_termThrowError_______closed__5;
@@ -1649,34 +1647,12 @@ return x_3;
 static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__7() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__6;
+x_2 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__5;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__5;
-x_2 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__7;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -1725,7 +1701,7 @@ lean_dec(x_2);
 x_19 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__4;
 x_20 = l_Lean_addMacroScope(x_18, x_19, x_17);
 x_21 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__2;
-x_22 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__8;
+x_22 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__6;
 lean_inc(x_16);
 x_23 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_23, 0, x_16);
@@ -1758,7 +1734,7 @@ lean_dec(x_2);
 x_34 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__4;
 x_35 = l_Lean_addMacroScope(x_33, x_34, x_32);
 x_36 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__2;
-x_37 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__8;
+x_37 = l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__6;
 lean_inc(x_31);
 x_38 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_38, 0, x_31);
@@ -1960,10 +1936,6 @@ l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1
 lean_mark_persistent(l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__5);
 l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__6 = _init_l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__6();
 lean_mark_persistent(l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__6);
-l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__7 = _init_l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__7();
-lean_mark_persistent(l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__7);
-l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__8 = _init_l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__8();
-lean_mark_persistent(l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__8);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

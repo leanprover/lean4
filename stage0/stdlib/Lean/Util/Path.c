@@ -20,7 +20,6 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_forEachModuleInDir___spec__2___rarg___lambda__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_moduleNameOfFileName___lambda__3___closed__1;
 LEAN_EXPORT lean_object* lean_init_search_path(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_getLibDir___closed__1;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_forEachModuleInDir___spec__2___rarg___lambda__5___closed__2;
 lean_object* l_System_FilePath_walkDir(lean_object*, lean_object*, lean_object*);
@@ -151,6 +150,7 @@ static lean_object* l_Lean_findOLean___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_forEachModuleInDir___spec__2___rarg___lambda__3___boxed(lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_forEachModuleInDir___spec__2___rarg___lambda__2(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 uint8_t l_Substring_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findWithExt___lambda__1___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -1405,8 +1405,8 @@ static lean_object* _init_l_Lean_SearchPath_findAllWithExt___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -2779,28 +2779,30 @@ return x_2;
 static lean_object* _init_l_Lean_findSysroot___lambda__1___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_findSysroot___lambda__1___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_unchecked("--print-prefix", 14, 14);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_findSysroot___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_findSysroot___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_findSysroot___lambda__1___closed__2;
-x_2 = l_Lean_findSysroot___lambda__1___closed__3;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = lean_box(0);
+x_2 = l_Lean_findSysroot___lambda__1___closed__2;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
+}
+}
+static lean_object* _init_l_Lean_findSysroot___lambda__1___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_findSysroot___lambda__1___closed__3;
+x_2 = lean_array_mk(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_findSysroot___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

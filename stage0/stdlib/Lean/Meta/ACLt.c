@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_main_lexSameCtor(uint8_t, lean_object*
 uint8_t lean_uint8_dec_lt(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___rarg___lambda__1___boxed(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_main_allChildrenLt___spec__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
@@ -99,6 +98,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___rarg(uint8_t,
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_main_ltApp___spec__1___closed__4;
 lean_object* l_Lean_Meta_getFunInfoNArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_main_getParamsInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instInhabitedParamInfo;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_ACLt_main_ltApp___spec__1___closed__5;
@@ -397,8 +397,8 @@ static lean_object* _init_l_Lean_Meta_ACLt_main_getParamsInfo___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

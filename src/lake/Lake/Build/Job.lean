@@ -22,6 +22,13 @@ inductive JobAction
 | build
 deriving Inhabited, Repr, DecidableEq, Ord
 
+/--
+Whether this action might be a build.
+If `true`, such an action will cause a `--no-build` invocation to fail.
+-/
+@[inline] def JobAction.isMaybeBuild (self : JobAction) : Bool :=
+  self matches .unknown | .build
+
 instance : LT JobAction := ltOfOrd
 instance : LE JobAction := leOfOrd
 instance : Min JobAction := minOfLe

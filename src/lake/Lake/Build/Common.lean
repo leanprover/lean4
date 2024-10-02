@@ -120,7 +120,7 @@ then `depTrace` / `oldTrace`. No log will be replayed.
       go
 where
   go := do
-    if (← getNoBuild) then
+    if (← getNoBuild) && action.isMaybeBuild then
       IO.Process.exit noBuildCode.toUInt8
     else
       updateAction action

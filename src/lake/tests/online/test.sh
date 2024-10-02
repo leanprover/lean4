@@ -18,7 +18,9 @@ $LAKE -v -f git.toml build @Cli:extraDep |
 
 ./clean.sh
 $LAKE -f barrel.lean update
-# Test that narrels are not fetched without a toolchain
+# Test that failure of an optional barrel fetch does not kill `--no-build`
+$LAKE -f barrel.lean build @Cli:optBarrel --no-build
+# Test that barrels are not fetched without a toolchain
 (ELAN_TOOLCHAIN= $LAKE -v -f barrel.lean build @Cli:extraDep) |
   grep --color "Cli:optBarrel" && exit 1 || true
 ($LAKE -v -f barrel.lean build @Cli:barrel && exit 1 || true) |

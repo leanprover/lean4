@@ -561,7 +561,7 @@ Further, we provide simp lemmas that push `unattach` inwards.
 
 /--
 A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
-It is used introduced as in intermediate step by lemmas such as `map_subtype`,
+It is introduced as an intermediate step by lemmas such as `map_subtype`,
 and is ideally subsequently simplified away by `unattach_attach`.
 
 If not, usually the right approach is `simp [List.unattach, -List.map_subtype]` to unfold.
@@ -591,7 +591,7 @@ def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) := l.map (�
   | nil => simp
   | cons a l ih => simp [ih, Function.comp_def]
 
-/-! ### Recognizing higher order functions using a function that only depends on the value. -/
+/-! ### Recognizing higher order functions on subtypes using a function that only depends on the value. -/
 
 /--
 This lemma identifies folds over lists of subtypes, where the function only depends on the value, not the proposition,

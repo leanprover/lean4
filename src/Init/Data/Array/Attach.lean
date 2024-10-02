@@ -56,7 +56,7 @@ Further, we provide simp lemmas that push `unattach` inwards.
 
 /--
 A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
-It is used introduced as in intermediate step by lemmas such as `map_subtype`,
+It is introduced as in intermediate step by lemmas such as `map_subtype`,
 and is ideally subsequently simplified away by `unattach_attach`.
 
 If not, usually the right approach is `simp [Array.unattach, -Array.map_subtype]` to unfold.
@@ -73,81 +73,81 @@ def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) := l.map (
   unfold unattach
   simp
 
--- @[simp] theorem _root_.List.unattach_toArray {α : Type _} {p : α → Prop} {l : List { x // p x }} :
---     l.toArray.unattach = l.unattach.toArray := by
---   simp [unattach]
+@[simp] theorem _root_.List.unattach_toArray {α : Type _} {p : α → Prop} {l : List { x // p x }} :
+    l.toArray.unattach = l.unattach.toArray := by
+  simp only [Array.unattach, List.map_toArray, List.unattach]
 
--- @[simp] theorem toList_unattach {α : Type _} {p : α → Prop} {l : Array { x // p x }} :
---     l.unattach.toList = l.toList.unattach := by
---   simp [unattach]
+@[simp] theorem toList_unattach {α : Type _} {p : α → Prop} {l : Array { x // p x }} :
+    l.unattach.toList = l.toList.unattach := by
+  simp [unattach]
 
--- @[simp] theorem unattach_attach {α : Type _} (l : Array α) : l.attach.unattach = l := by
---   cases l
---   simp
+@[simp] theorem unattach_attach {α : Type _} (l : Array α) : l.attach.unattach = l := by
+  cases l
+  simp
 
--- @[simp] theorem unattach_attachWith {α : Type _} {p : α → Prop} {l : Array α}
---     {H : ∀ a ∈ l, p a} :
---     (l.attachWith p H).unattach = l := by
---   cases l
---   simp
+@[simp] theorem unattach_attachWith {α : Type _} {p : α → Prop} {l : Array α}
+    {H : ∀ a ∈ l, p a} :
+    (l.attachWith p H).unattach = l := by
+  cases l
+  simp
 
--- /-! ### Recognizing higher order functions using a function that only depends on the value. -/
+/-! ### Recognizing higher order functions using a function that only depends on the value. -/
 
--- /--
--- This lemma identifies folds over arrays of subtypes, where the function only depends on the value, not the proposition,
--- and simplifies these to the function directly taking the value.
--- -/
--- @[simp] theorem foldl_subtype {p : α → Prop} {l : Array { x // p x }}
---     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
---     {hf : ∀ b x, f b x = g b x.1} :
---     l.foldl f x = l.unattach.foldl g x := by
---   cases l
---   simp [hf]
+/--
+This lemma identifies folds over arrays of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldl_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : β → { x // p x } → β} {g : β → α → β} {x : β}
+    {hf : ∀ b x, f b x = g b x.1} :
+    l.foldl f x = l.unattach.foldl g x := by
+  cases l
+  simp [hf]
 
--- /--
--- This lemma identifies folds over arrays of subtypes, where the function only depends on the value, not the proposition,
--- and simplifies these to the function directly taking the value.
--- -/
--- @[simp] theorem foldr_subtype {p : α → Prop} {l : Array { x // p x }}
---     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
---     {hf : ∀ x b, f x b = g x.1 b} :
---     l.foldr f x = l.unattach.foldr g x := by
---   cases l
---   simp [hf]
+/--
+This lemma identifies folds over arrays of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldr_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → β → β} {g : α → β → β} {x : β}
+    {hf : ∀ x b, f x b = g x.1 b} :
+    l.foldr f x = l.unattach.foldr g x := by
+  cases l
+  simp [hf]
 
--- /--
--- This lemma identifies maps over arrays of subtypes, where the function only depends on the value, not the proposition,
--- and simplifies these to the function directly taking the value.
--- -/
--- @[simp] theorem map_subtype {p : α → Prop} {l : Array { x // p x }}
---     {f : { x // p x } → β} {g : α → β} {hf : ∀ x, f x = g x.1} :
---     l.map f = l.unattach.map g := by
---   cases l
---   simp [hf]
+/--
+This lemma identifies maps over arrays of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem map_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → β} {g : α → β} {hf : ∀ x, f x = g x.1} :
+    l.map f = l.unattach.map g := by
+  cases l
+  simp [hf]
 
--- @[simp] theorem filterMap_subtype {p : α → Prop} {l : Array { x // p x }}
---     {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x, f x = g x.1} :
---     l.filterMap f = l.unattach.filterMap g := by
---   cases l
---   simp [hf]
+@[simp] theorem filterMap_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x, f x = g x.1} :
+    l.filterMap f = l.unattach.filterMap g := by
+  cases l
+  simp [hf]
 
--- @[simp] theorem filter_unattach {p : α → Prop} {l : Array { x // p x }}
---     {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x, f x = g x.1} :
---     (l.filter f).unattach = l.unattach.filter g := by
---   cases l
---   simp [hf]
+@[simp] theorem filter_unattach {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x, f x = g x.1} :
+    (l.filter f).unattach = l.unattach.filter g := by
+  cases l
+  simp [hf]
 
--- /-! ### Simp lemmas pushing `unattach` inwards. -/
+/-! ### Simp lemmas pushing `unattach` inwards. -/
 
--- @[simp] theorem reverse_unattach {p : α → Prop} {l : Array { x // p x }} :
---     l.reverse.unattach = l.unattach.reverse := by
---   cases l
---   simp
+@[simp] theorem reverse_unattach {p : α → Prop} {l : Array { x // p x }} :
+    l.reverse.unattach = l.unattach.reverse := by
+  cases l
+  simp
 
--- @[simp] theorem append_unattach {p : α → Prop} {l₁ l₂ : Array { x // p x }} :
---     (l₁ ++ l₂).unattach = l₁.unattach ++ l₂.unattach := by
---   cases l₁
---   cases l₂
---   simp
+@[simp] theorem append_unattach {p : α → Prop} {l₁ l₂ : Array { x // p x }} :
+    (l₁ ++ l₂).unattach = l₁.unattach ++ l₂.unattach := by
+  cases l₁
+  cases l₂
+  simp
 
--- end Array
+end Array

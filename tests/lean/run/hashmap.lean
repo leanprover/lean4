@@ -424,6 +424,22 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
     ans := k :: ans
   return ans
 
+/-- info: true -/
+#guard_msgs in
+#eval m.any fun x => x > 4
+
+/-- info: false -/
+#guard_msgs in
+#eval m.any fun x => x = 0
+
+/-- info: true -/
+#guard_msgs in
+#eval m.all fun x => x < 2^30
+
+/-- info: false -/
+#guard_msgs in
+#eval m.all fun x => x > 4
+
 /-- info: [1000000000, 2, 1] -/
 #guard_msgs in
 #eval m.toList

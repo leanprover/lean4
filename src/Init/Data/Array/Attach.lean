@@ -63,29 +63,29 @@ If not, usually the right approach is `simp [Array.unattach, -Array.map_subtype]
 -/
 def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) := l.map (·.val)
 
-@[simp] theorem unattach_nil {α : Type _} {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
-@[simp] theorem unattach_push {α : Type _} {p : α → Prop} {a : { x // p x }} {l : Array { x // p x }} :
+@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
+@[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {l : Array { x // p x }} :
     (l.push a).unattach = l.unattach.push a.1 := by
   simp [unattach]
 
-@[simp] theorem size_unattach {α : Type _} {p : α → Prop} {l : Array { x // p x }} :
+@[simp] theorem size_unattach {p : α → Prop} {l : Array { x // p x }} :
     l.unattach.size = l.size := by
   unfold unattach
   simp
 
-@[simp] theorem _root_.List.unattach_toArray {α : Type _} {p : α → Prop} {l : List { x // p x }} :
+@[simp] theorem _root_.List.unattach_toArray {p : α → Prop} {l : List { x // p x }} :
     l.toArray.unattach = l.unattach.toArray := by
   simp [unattach, List.unattach]
 
-@[simp] theorem toList_unattach {α : Type _} {p : α → Prop} {l : Array { x // p x }} :
+@[simp] theorem toList_unattach {p : α → Prop} {l : Array { x // p x }} :
     l.unattach.toList = l.toList.unattach := by
   simp [unattach, List.unattach]
 
-@[simp] theorem unattach_attach {α : Type _} (l : Array α) : l.attach.unattach = l := by
+@[simp] theorem unattach_attach {l : Array α} : l.attach.unattach = l := by
   cases l
   simp
 
-@[simp] theorem unattach_attachWith {α : Type _} {p : α → Prop} {l : Array α}
+@[simp] theorem unattach_attachWith {p : α → Prop} {l : Array α}
     {H : ∀ a ∈ l, p a} :
     (l.attachWith p H).unattach = l := by
   cases l

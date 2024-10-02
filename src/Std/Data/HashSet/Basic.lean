@@ -192,6 +192,18 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α
 instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a then return false
+  return true
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if p a then return true
+  return false
+
 /-- Transforms the hash set into a list of elements in some order. -/
 @[inline] def toList (m : HashSet α) : List α :=
   m.inner.keys

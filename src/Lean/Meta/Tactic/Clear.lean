@@ -43,7 +43,38 @@ def _root_.Lean.MVarId.tryClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVar
   mvarId.clear fvarId <|> pure mvarId
 
 /--
-Try to erase the given free variables from the goal `mvarId`.
+Sort the given `FVarId`s by the order in which they appear in the current local
+context. If any of the `FVarId`s do not appear in the current local context, the
+result is unspecified.
+-/
+def sortFVarsByContextOrder [Monad m] [MonadLCtx m]
+    (hyps : Array FVarId) : m (Array FVarId) :=
+  return (← getLCtx).sortFVarsByContextOrder hyps
+
+/--
+Try to clear the given fvars from the local context. Returns the new goal and
+the hypotheses that were cleared.
+
+Does not require the `hyps` to be given in the order in which they
+appear in the local context.
+-/
+def _root_.Lean.MVarId.tryClearMany' (goal : MVarId) (fvarIds : Array FVarId) :
+    MetaM (MVarId × Array FVarId) :=
+  goal.withContext do
+    let hyps ← sortFVarsByContextOrder hyps
+    hyps.foldrM (init := (goal, Array.mkEmpty hyps.size))
+      fun h (goal, cleared) => do
+        let goal' ← goal.tryClear h
+        let cleared := if goal == goal' then cleared else cleared.push h
+        return (goal', cleared)
+
+/--
+Try to clear the given fvars from the local context.
+
+The fvars must be given in the order they appear in the local context.
+
+See also `tryClearMany'` which takes care of reordering internally,
+and returns the cleared hypotheses along with the new goal.
 -/
 def _root_.Lean.MVarId.tryClearMany (mvarId : MVarId) (fvarIds : Array FVarId) : MetaM MVarId := do
   fvarIds.foldrM (init := mvarId) fun fvarId mvarId => mvarId.tryClear fvarId

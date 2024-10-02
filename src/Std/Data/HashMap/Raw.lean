@@ -78,6 +78,8 @@ instance [BEq α] [Hashable α] : Singleton (α × β) (Raw α β) := ⟨fun ⟨
 
 instance [BEq α] [Hashable α] : Insert (α × β) (Raw α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
+instance [BEq α] [Hashable α] : LawfulSingleton (α × β) (Raw α β) := ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc DHashMap.Raw.insertIfNew] def insertIfNew [BEq α] [Hashable α] (m : Raw α β)
     (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insertIfNew a b⟩

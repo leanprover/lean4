@@ -82,6 +82,8 @@ instance [BEq α] [Hashable α] : Singleton α (Raw α) := ⟨fun a => Raw.empty
 
 instance [BEq α] [Hashable α] : Insert α (Raw α) := ⟨fun a s => s.insert a⟩
 
+instance [BEq α] [Hashable α] : LawfulSingleton α (Raw α) := ⟨fun _ => rfl⟩
+
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
 If the hash set already contains an element that is equal (with regard to `==`) to the given

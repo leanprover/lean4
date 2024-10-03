@@ -2047,13 +2047,10 @@ theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
 theorem neg_eq_zero_iff {x : BitVec w} : -x = 0#w ↔ x = 0#w := by
   constructor
   · intro h
-    have : - (- x) = - 0 := by
-      rw [h]
-      simp
+    have : - (- x) = - 0 := by simp [h]
     simpa using this
   · intro h
-    subst h
-    simp
+    simp [h]
 
 theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
   have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _

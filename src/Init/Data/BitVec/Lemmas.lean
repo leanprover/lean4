@@ -433,7 +433,7 @@ theorem toInt_inj {x y : BitVec n} : x.toInt = y.toInt ↔ x = y :=
 theorem toInt_ne {x y : BitVec n} : x.toInt ≠ y.toInt ↔ x ≠ y  := by
   rw [Ne, toInt_inj]
 
-@[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
+@[simp, bv_toNat] theorem toNat_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
   unfold BitVec.ofInt
   simp
@@ -1741,7 +1741,7 @@ theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
 
 theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
 
-@[simp] theorem toNat_sub {n} (x y : BitVec n) :
+@[simp, bv_toNat] theorem toNat_sub {n} (x y : BitVec n) :
     (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
 
 -- We prefer this lemma to `toNat_sub` for the `bv_toNat` simp set.

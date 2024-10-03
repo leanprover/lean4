@@ -248,7 +248,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
       let goals ← ci.runMetaM {} (do
         let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
         let goals ← goals.mapM Widget.goalToInteractive
-        return {goals}
+        return ⟨goals⟩
       )
       -- compute the goal diff
       ciAfter.runMetaM {} (do

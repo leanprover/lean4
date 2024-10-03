@@ -77,6 +77,9 @@ equal (with regard to `==`) to the given element, then the hash set is returned 
 @[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
+instance : Singleton α (HashSet α) := ⟨fun a => HashSet.empty.insert a⟩
+instance : Insert α (HashSet α) := ⟨fun a s => s.insert a⟩
+
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
 If the hash set already contains an element that is equal (with regard to `==`) to the given
@@ -192,6 +195,18 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α
 instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a then return false
+  return true
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if p a then return true
+  return false
+
 /-- Transforms the hash set into a list of elements in some order. -/
 @[inline] def toList (m : HashSet α) : List α :=
   m.inner.keys
@@ -225,9 +240,11 @@ in the collection will be present in the returned hash set.
 @[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : HashSet α :=
   ⟨HashMap.unitOfArray l⟩
 
-/-- Computes the union of the given hash sets. -/
+/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

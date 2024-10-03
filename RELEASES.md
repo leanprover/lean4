@@ -181,7 +181,7 @@ v4.12.0
   * [#4953](https://github.com/leanprover/lean4/pull/4953) defines "and-inverter graphs" (AIGs) as described in section 3 of [Davis-Swords 2013](https://arxiv.org/pdf/1304.7861.pdf).
 
 * **Parsec**
-  * [#4774](https://github.com/leanprover/lean4/pull/4774) generalizes the `Parsec` library, allowing parsing of iterable data beyong `String` such as `ByteArray`. (See breaking changes.)
+  * [#4774](https://github.com/leanprover/lean4/pull/4774) generalizes the `Parsec` library, allowing parsing of iterable data beyond `String` such as `ByteArray`. (See breaking changes.)
   * [#5115](https://github.com/leanprover/lean4/pull/5115) moves `Lean.Data.Parsec` to `Std.Internal.Parsec` for bootstrappng reasons.
 
 * `Thunk`

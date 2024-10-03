@@ -575,7 +575,7 @@ where
 
 /--
 Discharges assumptions of the form `∀ …, a = b` using `rfl`. This is particularly useful for higher
-order assumptions of the form `∀ …, e = ?g x y` to instaniate  a paramter `g` even if that does not
+order assumptions of the form `∀ …, e = ?g x y` to instaniate  a parameter `g` even if that does not
 appear on the lhs of the rule.
 -/
 def dischargeRfl (e : Expr) : SimpM (Option Expr) := do

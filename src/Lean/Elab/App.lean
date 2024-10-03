@@ -528,7 +528,7 @@ mutual
       main
 
   /--
-  Create a fresh metavariable for the implicit argument, add it to `f`, and thn execute the main loop.
+  Create a fresh metavariable for the implicit argument, add it to `f`, and then execute the main loop.
   -/
   private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType

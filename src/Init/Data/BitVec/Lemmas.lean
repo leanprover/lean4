@@ -1316,9 +1316,6 @@ theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
     intros h
     simp [show n = 0 by omega]
 
-@[deprecated sshiftRight_msb_eq_msb (since := "2024-10-03")]
-abbrev msb_sshiftRight := @sshiftRight_msb_eq_msb
-
 @[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
   ext i
   simp [getLsbD_sshiftRight]
@@ -2942,5 +2939,8 @@ abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true
 
 @[deprecated and_one_eq_setWidth_ofBool_getLsbD (since := "2024-09-18")]
 abbrev and_one_eq_zeroExtend_ofBool_getLsbD := @and_one_eq_setWidth_ofBool_getLsbD
+
+@[deprecated sshiftRight_msb_eq_msb (since := "2024-10-03")]
+abbrev msb_sshiftRight := @sshiftRight_msb_eq_msb
 
 end BitVec

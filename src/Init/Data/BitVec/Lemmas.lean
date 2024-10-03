@@ -1209,7 +1209,6 @@ theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
 
 /-! ### sshiftRight -/
 
-
 theorem sshiftRight_eq {x : BitVec n} {i : Nat} :
     x.sshiftRight i = BitVec.ofInt n (x.toInt >>> i) := by
   apply BitVec.eq_of_toInt_eq

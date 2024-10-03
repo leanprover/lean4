@@ -1352,7 +1352,7 @@ theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
 
 @[simp]
-theorem udiv_zero_eq {x : BitVec n} : x.udiv 0#n = 0#n := by
+theorem udiv_zero {x : BitVec n} : x.udiv 0#n = 0#n := by
   simp [udiv]
   rfl
 
@@ -1368,7 +1368,7 @@ theorem toNat_umod {x y : BitVec n} :
     (x.umod y).toNat = x.toNat % y.toNat := rfl
 
 @[simp]
-theorem umod_zero_eq {x : BitVec n} : x.umod 0#n = x := by
+theorem umod_zero {x : BitVec n} : x.umod 0#n = x := by
   simp [umod_eq]
 
 /-! ### sdiv -/

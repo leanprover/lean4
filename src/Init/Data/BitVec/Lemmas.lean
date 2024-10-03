@@ -2057,7 +2057,8 @@ theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
   have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
 
-theorem sdiv_zero_eq (x : BitVec n) : x.sdiv 0#n = 0#n := by
+@[simp]
+theorem sdiv_zero {x : BitVec n} : x.sdiv 0#n = 0#n := by
   simp only [sdiv_eq, msb_zero]
   rcases x.msb with msb | msb <;> apply eq_of_toNat_eq <;> simp
 

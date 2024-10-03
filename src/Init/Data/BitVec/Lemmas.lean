@@ -1179,7 +1179,8 @@ theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
   by_cases h : i < w
   <;> by_cases h₁ : i < n
   <;> by_cases h₂ : i - n < w
-  all_goals (simp [h, h₁, h₂]; try congr; try omega)
+  all_goals (simp only [h, decide_True, ushiftRight_eq, getLsbD_ushiftRight, Bool.true_and, h₁,
+    Bool.not_true, h₂, decide_False, Bool.false_and, Bool.and_false]; try congr; try omega)
   rw [BitVec.getLsbD_ge]
   omega
 

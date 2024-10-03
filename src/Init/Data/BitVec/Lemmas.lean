@@ -1306,7 +1306,7 @@ theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
     <;> simp [*]
 
 /-- The msb after arithmetic shifting right equals the original msb. -/
-theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
+theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
     (x.sshiftRight n).msb = x.msb := by
   rw [msb_eq_getLsbD_last, getLsbD_sshiftRight, msb_eq_getLsbD_last]
   by_cases hw₀ : w = 0
@@ -1317,7 +1317,7 @@ theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
     simp [show n = 0 by omega]
 
 @[deprecated sshiftRight_msb_eq_msb (since := "2024-10-03")]
-abbrev sshiftRight_msb_eq_msb := @msb_sshiftRight
+abbrev msb_sshiftRight := @sshiftRight_msb_eq_msb
 
 @[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
   ext i

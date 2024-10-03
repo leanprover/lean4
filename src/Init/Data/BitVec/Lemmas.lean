@@ -1193,6 +1193,18 @@ theorem getMsbD_ushiftRight_exp {x : BitVec w} {i n : Nat} :
   rw [BitVec.getLsbD_ge]
   omega
 
+theorem getMsbD_ushiftRight_exp2 {x : BitVec w} {i n : Nat} :
+    getMsbD (x.ushiftRight n) i = (decide (i < w) && if i < n then false else getMsbD x (i - n)) := by
+  simp only [getMsbD, Bool.if_false_left]
+  by_cases h : i < n
+  · simp [getLsbD_ge, show w ≤ (n + (w - 1 - i)) by omega]
+    omega
+  · by_cases h₁ : i < w
+    · simp only [h₁, decide_True, ushiftRight_eq, getLsbD_ushiftRight, Bool.true_and, h,
+      decide_False, Bool.not_false, show i - n < w by omega]
+      congr
+      omega
+    · simp [h, h₁]
 
 theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
     (x.ushiftRight n).msb = if n > 0 then false else x.msb := by
@@ -1386,6 +1398,22 @@ theorem getMsbD_sshiftRight_exp {x : BitVec w} {i n : Nat} :
         by_cases h₄ : n + (w - 1 - i) < w <;> (simp only [h₄, ↓reduceIte]; congr; omega)
   · simp [h]
 
+theorem getMsbD_sshiftRight_exp2 {x : BitVec w} {i n : Nat} :
+    getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
+  simp only [getMsbD]
+  rw [BitVec.getLsbD_sshiftRight]
+  by_cases h : i < w <;> by_cases h₁ : w ≤ w - 1 - i
+  · simp [h, h₁]
+    omega
+  · simp only [h, decide_True, h₁, decide_False, Bool.not_false, Bool.true_and]
+    by_cases h₂ : i < n
+    · simp only [h₂, ↓reduceIte, ite_eq_right_iff]
+      intro
+      omega
+    · simp only [show n + (w - 1 - i) < w by omega, ↓reduceIte, h₂, show i - n < w by omega,
+      decide_True, Bool.true_and]
+      congr
+      omega
 
 /-! ### sshiftRight reductions from BitVec to Nat -/
 

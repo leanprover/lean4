@@ -196,6 +196,7 @@ static lean_object* l_Lean_Parser_Attr_simp___closed__1;
 static lean_object* l_Lean_Parser_Tactic_falseOrByContra___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticHaveI__;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRfl__3___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_acNf;
 static lean_object* l_Lean_Parser_Tactic_rename___closed__8;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__12;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__13;
@@ -555,6 +556,7 @@ static lean_object* l_Lean_Parser_Tactic_tacticAssumption__mod__cast___closed__3
 static lean_object* l_Lean_Parser_Tactic_first___closed__11;
 static lean_object* l_Lean_Parser_Tactic_case___closed__13;
 static lean_object* l_Lean_Parser_Syntax_exact_x3f___closed__1;
+static lean_object* l_Lean_Parser_Tactic_acNf___closed__5;
 static lean_object* l_Lean_Parser_Tactic_traceMessage___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_dsimpTraceArgsRest;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_____closed__4;
@@ -594,6 +596,7 @@ static lean_object* l_Lean_Parser_Tactic_withReducibleAndInstances___closed__3;
 static lean_object* l_Lean_Parser_Tactic_rwSeq___closed__5;
 static lean_object* l_Lean_Parser_Tactic_first___closed__9;
 static lean_object* l_Lean_Parser_Tactic_replace___closed__3;
+static lean_object* l_Lean_Parser_Tactic_acNf___closed__2;
 static lean_object* l_Lean_Parser_Tactic_intro___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticLet_x27__;
 static lean_object* l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__6;
@@ -758,6 +761,7 @@ static lean_object* l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__4;
 static lean_object* l_Lean_Parser_Tactic_rename___closed__10;
 static lean_object* l_Lean_Parser_Tactic_pushCast___closed__3;
 static lean_object* l_Lean_Parser_Attr_simp___closed__3;
+static lean_object* l_Lean_Parser_Tactic_acNf___closed__3;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticBv__omega__1___closed__2;
 static lean_object* l_Lean_Parser_Tactic_tacticRepeat_____closed__5;
 static lean_object* l_Lean_Parser_Tactic_pushCast___closed__14;
@@ -1304,6 +1308,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__L
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_normCastLabel;
 static lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__7;
 static lean_object* l_Lean_Parser_Tactic_rotateLeft___closed__3;
+static lean_object* l_Lean_Parser_Tactic_acNf___closed__4;
 static lean_object* l_Lean_Parser_Tactic_case_x27___closed__6;
 static lean_object* l_Lean_Parser_Tactic_acRfl___closed__1;
 static lean_object* l_Lean_Parser_Tactic_tacticLet_x27_____closed__2;
@@ -1695,6 +1700,7 @@ static lean_object* l_Lean_Parser_Tactic_tacticSimpa_x3f_____closed__6;
 static lean_object* l_Lean_Parser_Attr_normCastLabel___closed__7;
 static lean_object* l_Lean_Parser_Tactic_simpAll___closed__6;
 static lean_object* l_Lean_Parser_Attr_normCastLabel___closed__12;
+static lean_object* l_Lean_Parser_Tactic_acNf___closed__1;
 static lean_object* l_Lean_Parser_Tactic_rewrites_x3f___closed__3;
 static lean_object* l_Lean_Parser_Tactic_assumption___closed__1;
 static lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__5;
@@ -6928,6 +6934,68 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Parser_Tactic_acRfl___closed__5;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_acNf___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("acNf", 4, 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_acNf___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
+x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
+x_3 = l_Lean_Parser_Tactic_withAnnotateState___closed__3;
+x_4 = l_Lean_Parser_Tactic_acNf___closed__1;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_acNf___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ac_nf", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_acNf___closed__4() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_acNf___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_acNf___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_acNf___closed__2;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_Lean_Parser_Tactic_acNf___closed__4;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_acNf() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Parser_Tactic_acNf___closed__5;
 return x_1;
 }
 }
@@ -25565,6 +25633,18 @@ l_Lean_Parser_Tactic_acRfl___closed__5 = _init_l_Lean_Parser_Tactic_acRfl___clos
 lean_mark_persistent(l_Lean_Parser_Tactic_acRfl___closed__5);
 l_Lean_Parser_Tactic_acRfl = _init_l_Lean_Parser_Tactic_acRfl();
 lean_mark_persistent(l_Lean_Parser_Tactic_acRfl);
+l_Lean_Parser_Tactic_acNf___closed__1 = _init_l_Lean_Parser_Tactic_acNf___closed__1();
+lean_mark_persistent(l_Lean_Parser_Tactic_acNf___closed__1);
+l_Lean_Parser_Tactic_acNf___closed__2 = _init_l_Lean_Parser_Tactic_acNf___closed__2();
+lean_mark_persistent(l_Lean_Parser_Tactic_acNf___closed__2);
+l_Lean_Parser_Tactic_acNf___closed__3 = _init_l_Lean_Parser_Tactic_acNf___closed__3();
+lean_mark_persistent(l_Lean_Parser_Tactic_acNf___closed__3);
+l_Lean_Parser_Tactic_acNf___closed__4 = _init_l_Lean_Parser_Tactic_acNf___closed__4();
+lean_mark_persistent(l_Lean_Parser_Tactic_acNf___closed__4);
+l_Lean_Parser_Tactic_acNf___closed__5 = _init_l_Lean_Parser_Tactic_acNf___closed__5();
+lean_mark_persistent(l_Lean_Parser_Tactic_acNf___closed__5);
+l_Lean_Parser_Tactic_acNf = _init_l_Lean_Parser_Tactic_acNf();
+lean_mark_persistent(l_Lean_Parser_Tactic_acNf);
 l_Lean_Parser_Tactic_tacticSorry___closed__1 = _init_l_Lean_Parser_Tactic_tacticSorry___closed__1();
 lean_mark_persistent(l_Lean_Parser_Tactic_tacticSorry___closed__1);
 l_Lean_Parser_Tactic_tacticSorry___closed__2 = _init_l_Lean_Parser_Tactic_tacticSorry___closed__2();

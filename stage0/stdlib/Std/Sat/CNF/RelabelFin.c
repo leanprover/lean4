@@ -17,19 +17,18 @@ LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lambda__1(lean_object*, lean
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_relabelFin(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_max_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_Sat_CNF_Clause_maxLiteral___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Sat_CNF_relabel___rarg(lean_object*, lean_object*);
 uint8_t l_List_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter(lean_object*);
 static lean_object* l_Std_Sat_CNF_relabelFin___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Sat_CNF_maxLiteral___closed__1;
 lean_object* l_List_replicateTR___rarg(lean_object*, lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Std_Sat_CNF_instDecidableExistsMemOfDecidableEq___rarg___lambda__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_CNF_Clause_maxLiteral(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_Clause_maxLiteral___spec__1(lean_object*, lean_object*);
@@ -42,6 +41,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at_Std_Sat_CNF_maxLiteral___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_CNF_RelabelFin_0__Std_Sat_CNF_numLiterals_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_max_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Sat_CNF_Clause_maxLiteral___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -122,7 +122,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_max_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -149,7 +149,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_box(0);
 x_3 = l_List_mapTR_loop___at_Std_Sat_CNF_Clause_maxLiteral___spec__1(x_1, x_2);
-x_4 = l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(x_3);
+x_4 = l_List_max_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(x_3);
 lean_dec(x_3);
 return x_4;
 }
@@ -164,11 +164,11 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_max_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(x_1);
+x_2 = l_List_max_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -225,7 +225,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Std_Sat_CNF_maxLiteral___closed__1;
 x_3 = l_List_filterMapTR_go___at_Std_Sat_CNF_maxLiteral___spec__1(x_1, x_2);
-x_4 = l_List_maximum_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(x_3);
+x_4 = l_List_max_x3f___at_Std_Sat_CNF_Clause_maxLiteral___spec__2(x_3);
 lean_dec(x_3);
 return x_4;
 }

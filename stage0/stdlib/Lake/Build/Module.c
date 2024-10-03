@@ -762,7 +762,7 @@ lean_dec(x_62);
 x_66 = l_System_FilePath_join(x_64, x_65);
 lean_dec(x_65);
 x_67 = lean_array_push(x_60, x_66);
-x_68 = lean_ctor_get(x_58, 10);
+x_68 = lean_ctor_get(x_58, 11);
 lean_inc(x_68);
 x_69 = 0;
 x_70 = l_Array_forInUnsafe_loop___at_Lake_recBuildExternDynlibs___spec__3___closed__1;

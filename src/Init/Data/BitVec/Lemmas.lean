@@ -1414,6 +1414,8 @@ theorem getMsbD_sshiftRight_exp2 {x : BitVec w} {i n : Nat} :
       decide_True, Bool.true_and]
       congr
       omega
+  · simp [h, h₁]
+  · simp [h, h₁]
 
 /-! ### sshiftRight reductions from BitVec to Nat -/
 

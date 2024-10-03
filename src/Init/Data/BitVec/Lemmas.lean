@@ -1295,7 +1295,7 @@ theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
     <;> simp [*]
 
 /-- The msb after arithmetic shifting right equals the original msb. -/
-theorem sshiftRight_msb_eq_msb {n : Nat} {x : BitVec w} :
+theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
     (x.sshiftRight n).msb = x.msb := by
   rw [msb_eq_getLsbD_last, getLsbD_sshiftRight, msb_eq_getLsbD_last]
   by_cases hw₀ : w = 0
@@ -1322,7 +1322,7 @@ theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
       by_cases h₃ : m + (n + ↑i) < w
       · simp [h₃]
         omega
-      · simp [h₃, sshiftRight_msb_eq_msb]
+      · simp [h₃, msb_sshiftRight]
 
 theorem not_sshiftRight {b : BitVec w} :
     ~~~b.sshiftRight n = (~~~b).sshiftRight n := by
@@ -1376,7 +1376,7 @@ theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
 
 theorem msb_sshiftRight' {x y: BitVec w} :
     (x.sshiftRight' y).msb = x.msb := by
-  simp [BitVec.sshiftRight', BitVec.sshiftRight_msb_eq_msb]
+  simp [BitVec.sshiftRight', BitVec.msb_sshiftRight]
 
 /-! ### udiv -/
 
@@ -2914,7 +2914,7 @@ abbrev zeroExtend_truncate_succ_eq_zeroExtend_truncate_or_twoPow_of_getLsbD_true
 @[deprecated and_one_eq_setWidth_ofBool_getLsbD (since := "2024-09-18")]
 abbrev and_one_eq_zeroExtend_ofBool_getLsbD := @and_one_eq_setWidth_ofBool_getLsbD
 
-@[deprecated sshiftRight_msb_eq_msb (since := "2024-10-03")]
-abbrev msb_sshiftRight := @sshiftRight_msb_eq_msb
+@[deprecated msb_sshiftRight (since := "2024-10-03")]
+abbrev sshiftRight_msb_eq_msb := @msb_sshiftRight
 
 end BitVec

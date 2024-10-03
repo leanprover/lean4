@@ -79,6 +79,9 @@ instance : Singleton ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ =>
 
 instance : Insert ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
+instance : LawfulSingleton ((a : α) × β a) (DHashMap α β) :=
+  ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc Raw.insertIfNew] def insertIfNew (m : DHashMap α β)
     (a : α) (b : β a) : DHashMap α β :=
   ⟨Raw₀.insertIfNew ⟨m.1, m.2.size_buckets_pos⟩ a b, .insertIfNew₀ m.2⟩

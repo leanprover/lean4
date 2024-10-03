@@ -71,6 +71,9 @@ instance [BEq α] [Hashable α] : Singleton ((a : α) × β a) (Raw α β) :=
 instance [BEq α] [Hashable α] : Insert ((a : α) × β a) (Raw α β) :=
   ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
+instance [BEq α] [Hashable α] : LawfulSingleton ((a : α) × β a) (Raw α β) :=
+  ⟨fun _ => rfl⟩
+
 /--
 If there is no mapping for the given key, inserts the given mapping into the map. Otherwise,
 returns the map unaltered.

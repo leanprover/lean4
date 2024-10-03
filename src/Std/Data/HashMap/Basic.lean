@@ -80,6 +80,8 @@ instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => HashMap.
 
 instance : Insert (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
+instance : LawfulSingleton (α × β) (HashMap α β) := ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc DHashMap.insertIfNew] def insertIfNew (m : HashMap α β)
     (a : α) (b : β) : HashMap α β :=
   ⟨m.inner.insertIfNew a b⟩

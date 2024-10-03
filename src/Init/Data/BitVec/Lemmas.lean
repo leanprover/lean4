@@ -1173,16 +1173,14 @@ theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
     · apply hn
   · apply Nat.pow_pos (by decide)
 
-theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
+theorem getMsbD_ushiftRight {w} {x : BitVec w} {i n : Nat} :
     getMsbD (x.ushiftRight n) i = (decide (i < w) && if i < n then false else getMsbD x (i - n)) := by
-  simp only [getMsbD, Bool.if_false_left]
+  simp only [getMsbD, ushiftRight_eq, getLsbD_ushiftRight, Bool.if_false_left]
   by_cases h : i < w
   <;> by_cases h₁ : i < n
   <;> by_cases h₂ : i - n < w
-  all_goals (simp only [h, decide_True, ushiftRight_eq, getLsbD_ushiftRight, Bool.true_and, h₁,
-    Bool.not_true, h₂, decide_False, Bool.false_and, Bool.and_false]; try congr; try omega)
-  rw [BitVec.getLsbD_ge]
-  omega
+  <;> simp (discharger := omega) [h, h₁, h₂]
+  congr; omega
 
 theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
     (x.ushiftRight n).msb = if n > 0 then false else x.msb := by

@@ -434,7 +434,7 @@ theorem toInt_inj {x y : BitVec n} : x.toInt = y.toInt ↔ x = y :=
 theorem toInt_ne {x y : BitVec n} : x.toInt ≠ y.toInt ↔ x ≠ y  := by
   rw [Ne, toInt_inj]
 
-@[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
+@[simp, bv_toNat] theorem toNat_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
   unfold BitVec.ofInt
   simp

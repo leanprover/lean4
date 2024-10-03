@@ -1741,7 +1741,7 @@ theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
 
 theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
 
-@[simp, bv_toNat] theorem toNat_sub {n} (x y : BitVec n) :
+@[simp] theorem toNat_sub {n} (x y : BitVec n) :
     (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
 
 -- We prefer this lemma to `toNat_sub` for the `bv_toNat` simp set.

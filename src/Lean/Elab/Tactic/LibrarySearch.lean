@@ -24,8 +24,8 @@ Implementation of the `exact?` tactic.
 def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireClose : Bool) :
     TacticM Unit := do
   let mvar ← getMainGoal
-  let (_, goal) ← mvar.intros
-  mvar.withContext do
+  let (_, goal) ← (← getMainGoal).intros
+  goal.withContext do
     let required := (← (required.getD #[]).mapM getFVarId).toList.map .fvar
     let tactic := fun exfalso =>
           solveByElim required (exfalso := exfalso) (maxDepth := 6)

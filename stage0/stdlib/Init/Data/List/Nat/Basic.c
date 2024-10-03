@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_eraseIdx_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_eraseIdx_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_eraseIdx_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
@@ -71,7 +71,7 @@ x_3 = lean_alloc_closure((void*)(l___private_Init_Data_List_Nat_Basic_0__List_er
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -91,19 +91,19 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter___rarg___boxed), 3, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Init_Data_List_Nat_Basic_0__List_minimum_x3f__cons_x27_match__1_splitter___rarg(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_List_Nat_Basic_0__List_min_x3f__cons_x27_match__1_splitter___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }

@@ -7836,7 +7836,7 @@ if (lean_is_exclusive(x_519)) {
  lean_dec_ref(x_519);
  x_523 = lean_box(0);
 }
-x_1153 = lean_ctor_get_uint8(x_1, sizeof(void*)*7);
+x_1153 = lean_ctor_get_uint8(x_1, sizeof(void*)*8);
 if (x_1153 == 0)
 {
 uint8_t x_1154; lean_object* x_1155; 

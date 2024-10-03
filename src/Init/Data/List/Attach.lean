@@ -568,22 +568,22 @@ If not, usually the right approach is `simp [List.unattach, -List.map_subtype]` 
 -/
 def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) := l.map (·.val)
 
-@[simp] theorem unattach_nil {α : Type _} {p : α → Prop} : ([] : List { x // p x }).unattach = [] := rfl
-@[simp] theorem unattach_cons {α : Type _} {p : α → Prop} {a : { x // p x }} {l : List { x // p x }} :
+@[simp] theorem unattach_nil {p : α → Prop} : ([] : List { x // p x }).unattach = [] := rfl
+@[simp] theorem unattach_cons {p : α → Prop} {a : { x // p x }} {l : List { x // p x }} :
   (a :: l).unattach = a.val :: l.unattach := rfl
 
-@[simp] theorem length_unattach {α : Type _} {p : α → Prop} {l : List { x // p x }} :
+@[simp] theorem length_unattach {p : α → Prop} {l : List { x // p x }} :
     l.unattach.length = l.length := by
   unfold unattach
   simp
 
-@[simp] theorem unattach_attach {α : Type _} (l : List α) : l.attach.unattach = l := by
+@[simp] theorem unattach_attach {l : List α} : l.attach.unattach = l := by
   unfold unattach
   induction l with
   | nil => simp
   | cons a l ih => simp [ih, Function.comp_def]
 
-@[simp] theorem unattach_attachWith {α : Type _} {p : α → Prop} {l : List α}
+@[simp] theorem unattach_attachWith {p : α → Prop} {l : List α}
     {H : ∀ a ∈ l, p a} :
     (l.attachWith p H).unattach = l := by
   unfold unattach
@@ -647,7 +647,7 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf]
 
-@[simp] theorem filter_unattach {p : α → Prop} {l : List { x // p x }}
+@[simp] theorem unattach_filter {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     (l.filter f).unattach = l.unattach.filter g := by
   induction l with
@@ -658,20 +658,20 @@ and simplifies these to the function directly taking the value.
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 
-@[simp] theorem reverse_unattach {p : α → Prop} {l : List { x // p x }} :
+@[simp] theorem unattach_reverse {p : α → Prop} {l : List { x // p x }} :
     l.reverse.unattach = l.unattach.reverse := by
   simp [unattach, -map_subtype]
 
-@[simp] theorem append_unattach {p : α → Prop} {l₁ l₂ : List { x // p x }} :
+@[simp] theorem unattach_append {p : α → Prop} {l₁ l₂ : List { x // p x }} :
     (l₁ ++ l₂).unattach = l₁.unattach ++ l₂.unattach := by
   simp [unattach, -map_subtype]
 
-@[simp] theorem join_unattach {p : α → Prop} {l : List (List { x // p x })} :
+@[simp] theorem unattach_join {p : α → Prop} {l : List (List { x // p x })} :
     l.join.unattach = (l.map unattach).join := by
   unfold unattach
   induction l <;> simp_all
 
-@[simp] theorem replicate_unattach {p : α → Prop} {n : Nat} {x : { x // p x }} :
+@[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (List.replicate n x).unattach = List.replicate n x.1 := by
   simp [unattach, -map_subtype]
 

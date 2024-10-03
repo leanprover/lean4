@@ -108,21 +108,50 @@ theorem toArray_concat {as : List α} {x : α} :
   funext a
   simp
 
-@[simp] theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
+theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
     l.toArray.foldrM f init = l.foldrM f init := by
   rw [foldrM_eq_reverse_foldlM_toList]
   simp
 
-@[simp] theorem foldlM_toArray [Monad m] (f : β → α → m β) (init : β) (l : List α) :
+theorem foldlM_toArray [Monad m] (f : β → α → m β) (init : β) (l : List α) :
     l.toArray.foldlM f init = l.foldlM f init := by
   rw [foldlM_eq_foldlM_toList]
 
-@[simp] theorem foldr_toArray (f : α → β → β) (init : β) (l : List α) :
+theorem foldr_toArray (f : α → β → β) (init : β) (l : List α) :
     l.toArray.foldr f init = l.foldr f init := by
   rw [foldr_eq_foldr_toList]
 
-@[simp] theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
+theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
     l.toArray.foldl f init = l.foldl f init := by
+  rw [foldl_eq_foldl_toList]
+
+/-- Variant of `foldrM_toArray` with a side condition for the `start` argument. -/
+@[simp] theorem foldrM_toArray' [Monad m] (f : α → β → m β) (init : β) (l : List α)
+    (h : start = l.toArray.size) :
+    l.toArray.foldrM f init start 0 = l.foldrM f init := by
+  subst h
+  rw [foldrM_eq_reverse_foldlM_toList]
+  simp
+
+/-- Variant of `foldlM_toArray` with a side condition for the `stop` argument. -/
+@[simp] theorem foldlM_toArray' [Monad m] (f : β → α → m β) (init : β) (l : List α)
+    (h : stop = l.toArray.size) :
+    l.toArray.foldlM f init 0 stop = l.foldlM f init := by
+  subst h
+  rw [foldlM_eq_foldlM_toList]
+
+/-- Variant of `foldr_toArray` with a side condition for the `start` argument. -/
+@[simp] theorem foldr_toArray' (f : α → β → β) (init : β) (l : List α)
+    (h : start = l.toArray.size) :
+    l.toArray.foldr f init start 0 = l.foldr f init := by
+  subst h
+  rw [foldr_eq_foldr_toList]
+
+/-- Variant of `foldl_toArray` with a side condition for the `stop` argument. -/
+@[simp] theorem foldl_toArray' (f : β → α → β) (init : β) (l : List α)
+    (h : stop = l.toArray.size) :
+    l.toArray.foldl f init 0 stop = l.foldl f init := by
+  subst h
   rw [foldl_eq_foldl_toList]
 
 @[simp] theorem append_toArray (l₁ l₂ : List α) :
@@ -730,6 +759,18 @@ theorem foldr_induction
   simp [foldr, foldrM]; split; {exact go _ h0}
   · next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
 
+@[congr]
+theorem foldl_congr {as bs : Array α} (h₀ : as = bs) {f g : β → α → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
+    as.foldl f a start stop = bs.foldl g b start' stop' := by
+  congr
+
+@[congr]
+theorem foldr_congr {as bs : Array α} (h₀ : as = bs) {f g : α → β → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
+    as.foldr f a start stop = bs.foldr g b start' stop' := by
+  congr
+
 /-! ### map -/
 
 @[simp] theorem mem_map {f : α → β} {l : Array α} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
@@ -813,6 +854,13 @@ theorem map_spec (as : Array α) (f : α → β) (p : Fin as.size → β → Pro
 @[simp] theorem getElem?_map (f : α → β) (as : Array α) (i : Nat) :
     (as.map f)[i]? = as[i]?.map f := by
   simp [getElem?_def]
+
+@[simp] theorem map_push {f : α → β} {as : Array α} {x : α} :
+    (as.push x).map f = (as.map f).push (f x) := by
+  ext
+  · simp
+  · simp only [getElem_map, get_push, size_map]
+    split <;> rfl
 
 /-! ### mapIdx -/
 
@@ -920,6 +968,13 @@ abbrev filter_data := @toList_filter
 theorem mem_of_mem_filter {a : α} {l} (h : a ∈ filter p l) : a ∈ l :=
   (mem_filter.mp h).1
 
+@[congr]
+theorem filter_congr {as bs : Array α} (h : as = bs)
+    {f : α → Bool} {g : α → Bool} (h' : f = g) {start stop start' stop' : Nat}
+    (h₁ : start = start') (h₂ : stop = stop') :
+    filter f as start stop = filter g bs start' stop' := by
+  congr
+
 /-! ### filterMap -/
 
 @[simp] theorem toList_filterMap (f : α → Option β) (l : Array α) :
@@ -941,6 +996,13 @@ abbrev filterMap_data := @toList_filterMap
 @[simp] theorem mem_filterMap {f : α → Option β} {l : Array α} {b : β} :
     b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
   simp only [mem_def, toList_filterMap, List.mem_filterMap]
+
+@[congr]
+theorem filterMap_congr {as bs : Array α} (h : as = bs)
+    {f : α → Option β} {g : α → Option β} (h' : f = g) {start stop start' stop' : Nat}
+    (h₁ : start = start') (h₂ : stop = stop') :
+    filterMap f as start stop = filterMap g bs start' stop' := by
+  congr
 
 /-! ### empty -/
 
@@ -1432,18 +1494,44 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
   · simp
   · simp_all [List.set_eq_of_length_le]
 
-@[simp] theorem anyM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+theorem anyM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
     l.toArray.anyM p = l.anyM p := by
   rw [← anyM_toList]
 
-@[simp] theorem any_toArray (p : α → Bool) (l : List α) : l.toArray.any p = l.any p := by
+theorem any_toArray (p : α → Bool) (l : List α) : l.toArray.any p = l.any p := by
   rw [any_toList]
 
-@[simp] theorem allM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+theorem allM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
     l.toArray.allM p = l.allM p := by
   rw [← allM_toList]
 
-@[simp] theorem all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p := by
+theorem all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p := by
+  rw [all_toList]
+
+/-- Variant of `anyM_toArray` with a side condition on `stop`. -/
+@[simp] theorem anyM_toArray' [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α)
+    (h : stop = l.toArray.size) :
+    l.toArray.anyM p 0 stop = l.anyM p := by
+  subst h
+  rw [← anyM_toList]
+
+/-- Variant of `any_toArray` with a side condition on `stop`. -/
+@[simp] theorem any_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
+    l.toArray.any p 0 stop = l.any p := by
+  subst h
+  rw [any_toList]
+
+/-- Variant of `allM_toArray` with a side condition on `stop`. -/
+@[simp] theorem allM_toArray' [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α)
+    (h : stop = l.toArray.size) :
+    l.toArray.allM p 0 stop = l.allM p := by
+  subst h
+  rw [← allM_toList]
+
+/-- Variant of `all_toArray` with a side condition on `stop`. -/
+@[simp] theorem all_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
+    l.toArray.all p 0 stop = l.all p := by
+  subst h
   rw [all_toList]
 
 @[simp] theorem swap_toArray (l : List α) (i j : Fin l.toArray.size) :
@@ -1459,15 +1547,25 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
   apply ext'
   simp
 
-@[simp] theorem filter_toArray (p : α → Bool) (l : List α) :
-    l.toArray.filter p = (l.filter p).toArray := by
+@[simp] theorem filter_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
+    l.toArray.filter p 0 stop = (l.filter p).toArray := by
+  subst h
   apply ext'
-  erw [toList_filter] -- `erw` required to unify `l.length` with `l.toArray.size`.
+  rw [toList_filter]
 
-@[simp] theorem filterMap_toArray (f : α → Option β) (l : List α) :
-    l.toArray.filterMap f = (l.filterMap f).toArray := by
+@[simp] theorem filterMap_toArray' (f : α → Option β) (l : List α) (h : stop = l.toArray.size) :
+    l.toArray.filterMap f 0 stop = (l.filterMap f).toArray := by
+  subst h
   apply ext'
-  erw [toList_filterMap] -- `erw` required to unify `l.length` with `l.toArray.size`.
+  rw [toList_filterMap]
+
+theorem filter_toArray (p : α → Bool) (l : List α) :
+    l.toArray.filter p = (l.filter p).toArray := by
+  simp
+
+theorem filterMap_toArray (f : α → Option β) (l : List α) :
+    l.toArray.filterMap f = (l.filterMap f).toArray := by
+  simp
 
 @[simp] theorem flatten_toArray (l : List (List α)) : (l.toArray.map List.toArray).flatten = l.join.toArray := by
   apply ext'

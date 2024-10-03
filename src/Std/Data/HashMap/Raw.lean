@@ -74,6 +74,12 @@ set_option linter.unusedVariables false in
     (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insert a b⟩
 
+instance [BEq α] [Hashable α] : Singleton (α × β) (Raw α β) := ⟨fun ⟨a, b⟩ => Raw.empty.insert a b⟩
+
+instance [BEq α] [Hashable α] : Insert (α × β) (Raw α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+
+instance [BEq α] [Hashable α] : LawfulSingleton (α × β) (Raw α β) := ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc DHashMap.Raw.insertIfNew] def insertIfNew [BEq α] [Hashable α] (m : Raw α β)
     (a : α) (b : β) : Raw α β :=
   ⟨m.inner.insertIfNew a b⟩
@@ -231,9 +237,19 @@ m.inner.values
     (l : List (α × β)) : Raw α β :=
   ⟨DHashMap.Raw.Const.ofList l⟩
 
+/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
 @[inline, inherit_doc DHashMap.Raw.Const.unitOfList] def unitOfList [BEq α] [Hashable α]
     (l : List α) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
+
+@[inline, inherit_doc DHashMap.Raw.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α]
+    (l : Array α) : Raw α Unit :=
+  ⟨DHashMap.Raw.Const.unitOfArray l⟩
 
 @[inherit_doc DHashMap.Raw.Internal.numBuckets] def Internal.numBuckets (m : Raw α β) : Nat :=
   DHashMap.Raw.Internal.numBuckets m.inner

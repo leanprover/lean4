@@ -398,6 +398,10 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
+/-- info: Std.HashSet.Raw.ofList [1000000000, 2, 1, 16] -/
+#guard_msgs in
+#eval m ∪ {16, 16}
+
 /-- info: [1000000000, 2, 1, 16] -/
 #guard_msgs in
 #eval (m.insertMany [16, 16]).toList

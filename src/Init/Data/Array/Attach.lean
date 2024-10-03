@@ -66,7 +66,7 @@ def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) := l.map (
 @[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {l : Array { x // p x }} :
     (l.push a).unattach = l.unattach.push a.1 := by
-  simp [unattach]
+  simp only [unattach, Array.map_push]
 
 @[simp] theorem size_unattach {p : α → Prop} {l : Array { x // p x }} :
     l.unattach.size = l.size := by
@@ -75,11 +75,11 @@ def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) := l.map (
 
 @[simp] theorem _root_.List.unattach_toArray {p : α → Prop} {l : List { x // p x }} :
     l.toArray.unattach = l.unattach.toArray := by
-  simp [unattach, List.unattach]
+  simp only [unattach, List.map_toArray, List.unattach]
 
 @[simp] theorem toList_unattach {p : α → Prop} {l : Array { x // p x }} :
     l.unattach.toList = l.toList.unattach := by
-  simp [unattach, List.unattach]
+  simp only [unattach, toList_map, List.unattach]
 
 @[simp] theorem unattach_attach {l : Array α} : l.attach.unattach = l := by
   cases l
@@ -160,8 +160,6 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     (l.filter f).unattach = l.unattach.filter g := by
   cases l
-  simp [hf]
-  rw [List.unattach_filter]
   simp [hf]
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/

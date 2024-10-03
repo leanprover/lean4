@@ -2062,7 +2062,8 @@ theorem sdiv_zero {x : BitVec n} : x.sdiv 0#n = 0#n := by
   simp only [sdiv_eq, msb_zero]
   rcases x.msb with msb | msb <;> apply eq_of_toNat_eq <;> simp
 
-theorem smod_zero_eq (x : BitVec n) : x.smod 0#n = x := by
+@[simp]
+theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
   simp only [smod_eq, msb_zero]
   rcases x.msb with msb | msb <;> apply eq_of_toNat_eq
   · simp

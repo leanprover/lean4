@@ -36,7 +36,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Hygiene_0__L
 static lean_object* l_Lean_Unhygienic_instMonadQuotation___closed__3;
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_Unhygienic_instMonadQuotation___spec__3(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_340____closed__4;
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_71____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotation___closed__2;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Unhygienic_run___rarg(lean_object*);
@@ -73,6 +72,7 @@ LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1_
 LEAN_EXPORT lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotation___closed__7;
+lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_70____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Hygiene___hyg_340_(lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
@@ -628,7 +628,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_initFn____x40_Lean_Hygiene___hyg_340____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_Hygiene___hyg_340____closed__5;
 x_4 = l_Lean_initFn____x40_Lean_Hygiene___hyg_340____closed__7;
-x_5 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_71____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_70____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }

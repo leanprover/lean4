@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* l_List_countP(lean_object*);
 LEAN_EXPORT lean_object* l_List_unzipTR___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_enum___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_join(lean_object*);
+LEAN_EXPORT lean_object* l_List_min_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWith(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_pure(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x3a_x2b____1___closed__4;
@@ -213,6 +214,7 @@ LEAN_EXPORT lean_object* l_List_isSuffixOf_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_List_partition_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getD___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map___at_List_zipWithAll___spec__2(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_max_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_tail(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_List_unzipTR___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -404,6 +406,7 @@ static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List_
 LEAN_EXPORT lean_object* l_List_reduceOption(lean_object*);
 LEAN_EXPORT lean_object* l_List_findIdx_go___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x3a_x2b____1___closed__5;
+LEAN_EXPORT lean_object* l_List_min_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_rotateLeft___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWith___at_List_zip___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_get_x3f___rarg___boxed(lean_object*, lean_object*);
@@ -493,6 +496,7 @@ LEAN_EXPORT lean_object* l_List_countP___rarg(lean_object*, lean_object*);
 lean_object* l_List_length___rarg(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x2b____1___closed__2;
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x2b____1___closed__3;
+LEAN_EXPORT lean_object* l_List_max_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_set_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -7426,7 +7430,7 @@ x_2 = lean_alloc_closure((void*)(l_List_enum___rarg), 1, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_minimum_x3f___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_min_x3f___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -7449,6 +7453,22 @@ x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
 }
+}
+}
+LEAN_EXPORT lean_object* l_List_min_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_min_x3f___rarg), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_minimum_x3f___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_min_x3f___rarg(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_minimum_x3f(lean_object* x_1) {
@@ -7459,7 +7479,7 @@ x_2 = lean_alloc_closure((void*)(l_List_minimum_x3f___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_maximum_x3f___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_max_x3f___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -7482,6 +7502,22 @@ x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
 }
+}
+}
+LEAN_EXPORT lean_object* l_List_max_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_max_x3f___rarg), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_maximum_x3f___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_max_x3f___rarg(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_maximum_x3f(lean_object* x_1) {

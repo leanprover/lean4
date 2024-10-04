@@ -43,7 +43,6 @@ example : [1, 2] ++ ([] ++ [2+4, 8] ++ [4]) = [1, 2] ++ [4+2, 8] ++ [4] := by ac
 example (a b c d : BitVec w) :
     a * b * c * d = d * c * b * a := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a * b * c * d = d * c * b * a := by
@@ -52,7 +51,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a + b + c + d = d + c + b + a := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a + b + c + d = d + c + b + a := by

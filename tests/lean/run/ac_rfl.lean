@@ -63,7 +63,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a * (b * (c * d)) = ((a * b) * c) * d := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a * (b * (c * d)) = ((a * b) * c) * d := by
@@ -72,7 +71,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a + (b + (c + d)) = ((a + b) + c) + d := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a + (b + (c + d)) = ((a + b) + c) + d := by
@@ -83,7 +81,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a ^^^ b ^^^ c ^^^ d = d ^^^ c ^^^ b ^^^ a := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a ^^^ b ^^^ c ^^^ d = d ^^^ c ^^^ b ^^^ a := by
@@ -92,7 +89,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a &&& b &&& c &&& d = d &&& c &&& b &&& a := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a &&& b &&& c &&& d = d &&& c &&& b &&& a := by
@@ -101,7 +97,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a ||| b ||| c ||| d = d ||| c ||| b ||| a := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a ||| b ||| c ||| d = d ||| c ||| b ||| a := by
@@ -112,7 +107,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a &&& (b &&& (c &&& d)) = ((a &&& b) &&& c) &&& d := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a &&& (b &&& (c &&& d)) = ((a &&& b) &&& c) &&& d := by
@@ -121,7 +115,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a ||| (b ||| (c ||| d)) = ((a ||| b) ||| c) ||| d := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a ||| (b ||| (c ||| d)) = ((a ||| b) ||| c) ||| d := by
@@ -130,7 +123,6 @@ example (a b c d : BitVec w) :
 example (a b c d : BitVec w) :
     a ^^^ (b ^^^ (c ^^^ d)) = ((a ^^^ b) ^^^ c) ^^^ d := by
   ac_nf
-  rfl
 
 example (a b c d : BitVec w) :
     a ^^^ (b ^^^ (c ^^^ d)) = ((a ^^^ b) ^^^ c) ^^^ d := by
@@ -138,4 +130,15 @@ example (a b c d : BitVec w) :
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
   ac_nf
-  rfl
+
+example (a b c d : Nat) (h₁ h₂ : a + b + c + d = d + (b + c) + a) :
+    a + b + c + d = a + (b + c) + d := by
+
+  ac_nf at h₁
+  guard_hyp h₁ :ₛ a + (b + (c + d)) = a + (b + (c + d))
+
+  guard_hyp h₂ :ₛ a + b + c + d = d + (b + c) + a
+  ac_nf at h₂
+  guard_hyp h₂ :ₛ a + (b + (c + d)) = a + (b + (c + d))
+
+  ac_nf at *

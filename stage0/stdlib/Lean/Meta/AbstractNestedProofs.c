@@ -58,7 +58,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_Lean_Meta_AbstractNest
 lean_object* l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_AbstractNestedProofs_State_nextIdx___default;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_AbstractNestedProofs_visit___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AbstractNestedProofs_isNonTrivialProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_abstractNestedProofs___closed__2;
@@ -389,14 +388,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_9;
-}
-}
-static lean_object* _init_l_Lean_Meta_AbstractNestedProofs_State_nextIdx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(1u);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_mkAuxName___at___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -3086,8 +3077,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___closed__1 = _init_l_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___closed__1();
 lean_mark_persistent(l_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___closed__1);
-l_Lean_Meta_AbstractNestedProofs_State_nextIdx___default = _init_l_Lean_Meta_AbstractNestedProofs_State_nextIdx___default();
-lean_mark_persistent(l_Lean_Meta_AbstractNestedProofs_State_nextIdx___default);
 l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___closed__1 = _init_l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___closed__1);
 l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___closed__2 = _init_l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___closed__2();

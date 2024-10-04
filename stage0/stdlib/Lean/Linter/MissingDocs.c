@@ -321,7 +321,6 @@ static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingD
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_805____closed__12;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_lintField___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_elabSetOption___at_Lean_withSetOptionIn___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_handleMutual__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_373____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_805____lambda__1___closed__1;
@@ -464,6 +463,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_SimpleHandler_toHandler(lean_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Linter_MissingDocs_checkDecl___spec__6___at_Lean_Linter_MissingDocs_checkDecl___spec__7(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkMacro__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_handleMutual___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_805____lambda__2___closed__3;
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkMixfix__1___closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -3205,7 +3205,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_805____lambda__5___closed__2;
-x_6 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_5, x_2, x_3, x_4);
+x_6 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }

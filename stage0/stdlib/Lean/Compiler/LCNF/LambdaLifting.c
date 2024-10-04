@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_LambdaLifting___hyg_1770____closed__14;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_hasInstParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_State_nextIdx___default;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_shouldLift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_LambdaLifting___hyg_1770____closed__4;
 lean_object* l_Lean_Compiler_LCNF_Internalize_internalizeCode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,13 +51,11 @@ lean_object* l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(lean_o
 lean_object* l_Lean_Compiler_LCNF_mkForallParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_lambdaLifting___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_LambdaLifting_Context_inheritInlineAttrs___default;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_etaExpandCore___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Decl_setLevelParams(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_Context_minSize___default;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_LambdaLifting___hyg_1770____closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseFunDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +82,6 @@ static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Lambda
 lean_object* l_Lean_Compiler_LCNF_LCtx_addLetDecl(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_eagerLambdaLifting___elambda__1___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_visitCode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_LambdaLifting___hyg_1770____closed__12;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_visitFunDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,6 +98,7 @@ lean_object* l_Lean_Meta_isInstance(lean_object*, lean_object*, lean_object*, le
 lean_object* l_Lean_Compiler_LCNF_Code_size_go(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___closed__1;
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl___lambda__2___closed__3;
 lean_object* l_Lean_RBTree_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -136,66 +133,15 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDeclName___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl_go(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_lambdaLifting___closed__4;
 lean_object* l_Lean_Compiler_LCNF_isArrowClass_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_lambdaLifting___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_LambdaLifting_Context_liftInstParamOnly___default;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_LambdaLifting_visitCode___lambda__1(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Closure_collectFunDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_lambdaLifting___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static uint8_t _init_l_Lean_Compiler_LCNF_LambdaLifting_Context_liftInstParamOnly___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Compiler_LCNF_LambdaLifting_Context_inheritInlineAttrs___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_LambdaLifting_Context_minSize___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_array_mk(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_LambdaLifting_State_nextIdx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_LambdaLifting_hasInstParam___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -3604,8 +3550,17 @@ return x_98;
 static lean_object* _init_l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
+x_1 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3625,7 +3580,7 @@ lean_ctor_set(x_11, 2, x_5);
 lean_ctor_set_uint8(x_11, sizeof(void*)*3, x_2);
 lean_ctor_set_uint8(x_11, sizeof(void*)*3 + 1, x_4);
 x_12 = lean_box(0);
-x_13 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
+x_13 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__2;
 x_14 = lean_st_mk_ref(x_13, x_10);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -3820,7 +3775,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_10 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
+x_10 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_6);
@@ -3838,7 +3793,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_13 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
+x_13 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_6);
@@ -3850,7 +3805,7 @@ size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18;
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
-x_17 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
+x_17 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
 x_18 = l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1(x_1, x_15, x_16, x_17, x_2, x_3, x_4, x_5, x_6);
 return x_18;
 }
@@ -4115,7 +4070,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_10 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
+x_10 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_6);
@@ -4133,7 +4088,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_13 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
+x_13 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_6);
@@ -4145,7 +4100,7 @@ size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18;
 x_15 = 0;
 x_16 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
-x_17 = l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1;
+x_17 = l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1;
 x_18 = l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_eagerLambdaLifting___elambda__1___spec__1(x_1, x_15, x_16, x_17, x_2, x_3, x_4, x_5, x_6);
 return x_18;
 }
@@ -4490,16 +4445,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_AuxDeclCache(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_LambdaLifting_Context_liftInstParamOnly___default = _init_l_Lean_Compiler_LCNF_LambdaLifting_Context_liftInstParamOnly___default();
-l_Lean_Compiler_LCNF_LambdaLifting_Context_inheritInlineAttrs___default = _init_l_Lean_Compiler_LCNF_LambdaLifting_Context_inheritInlineAttrs___default();
-l_Lean_Compiler_LCNF_LambdaLifting_Context_minSize___default = _init_l_Lean_Compiler_LCNF_LambdaLifting_Context_minSize___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_LambdaLifting_Context_minSize___default);
-l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1 = _init_l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default___closed__1);
-l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default = _init_l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_LambdaLifting_State_decls___default);
-l_Lean_Compiler_LCNF_LambdaLifting_State_nextIdx___default = _init_l_Lean_Compiler_LCNF_LambdaLifting_State_nextIdx___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_LambdaLifting_State_nextIdx___default);
 l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDeclName___closed__1 = _init_l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDeclName___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDeclName___closed__1);
 l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl___lambda__2___closed__1 = _init_l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl___lambda__2___closed__1();
@@ -4516,6 +4461,8 @@ l_Lean_Compiler_LCNF_LambdaLifting_visitCode___closed__3 = _init_l_Lean_Compiler
 lean_mark_persistent(l_Lean_Compiler_LCNF_LambdaLifting_visitCode___closed__3);
 l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1 = _init_l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__1);
+l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__2 = _init_l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__2();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Decl_lambdaLifting___closed__2);
 l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___closed__1 = _init_l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___closed__1();
 lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___closed__1);
 l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___closed__2 = _init_l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_lambdaLifting___elambda__1___spec__1___closed__2();

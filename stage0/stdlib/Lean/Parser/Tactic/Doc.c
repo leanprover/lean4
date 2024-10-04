@@ -316,7 +316,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tact
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2557____lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2836____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_824____lambda__6___closed__2;
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_getTacticExtensionString_bullet___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_allTagsWithInfo___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Parser_Tactic_Doc_aliases___spec__3___rarg___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
@@ -442,6 +441,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Parser_Tactic_Doc_initFn__
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Parser_Tactic_Doc_allTags___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_3639____closed__2;
 static lean_object* l_Lean_Parser_Tactic_Doc_isTactic___closed__5;
+lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Parser_Tactic_Doc_getTacticExtensionString___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Parser_Tactic_Doc_aliases___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Parser_Tactic_Doc_allTagsWithInfo___spec__2___rarg___lambda__1(lean_object*, size_t, lean_object*, lean_object*, size_t, lean_object*);
@@ -4228,7 +4228,7 @@ x_13 = l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_824__
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_14, x_5, x_6, x_7);
+x_15 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_14, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_15;
@@ -4659,7 +4659,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_824____lambda__7___closed__2;
-x_6 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_5, x_2, x_3, x_4);
+x_6 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }
@@ -8427,7 +8427,7 @@ x_13 = l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_824__
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_14, x_5, x_6, x_7);
+x_15 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_14, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_15;
 }
@@ -9934,7 +9934,7 @@ x_21 = l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_824__
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_22, x_3, x_4, x_9);
+x_23 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_22, x_3, x_4, x_9);
 return x_23;
 }
 }
@@ -9995,7 +9995,7 @@ x_39 = l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_824__
 x_40 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
-x_41 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_40, x_3, x_4, x_25);
+x_41 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_40, x_3, x_4, x_25);
 return x_41;
 }
 }

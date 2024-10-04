@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Elab_Term_MatchExpr_getPar
 static lean_object* l_Lean_Elab_Term_expandLetExpr___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_toDoubleQuotedName(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_Alt_k___default;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_generate_loop___lambda__2___closed__5;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Term_MatchExpr_generate_loop___spec__1___closed__2;
@@ -75,7 +74,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_expandMatchExpr__1___closed__4
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandLetExpr_declRange__1___closed__4;
 static lean_object* l_Lean_Elab_Term_MatchExpr_generate___closed__11;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Term_MatchExpr_generate_loop___spec__1___closed__12;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MatchExpr_Alt_actuals___default;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_MatchExpr_getParams___spec__2___closed__8;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_Term_MatchExpr_getFunNamesToMatch___spec__2___lambda__1(lean_object*);
 static lean_object* l_Lean_Elab_Term_MatchExpr_generate_loop___lambda__2___closed__17;
@@ -275,22 +273,6 @@ static lean_object* l_Lean_Elab_Term_MatchExpr_toAlt_x3f___closed__3;
 static lean_object* l_Lean_Elab_Term_expandLetExpr___closed__7;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Term_MatchExpr_generate_loop___spec__1___closed__9;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
-static lean_object* _init_l_Lean_Elab_Term_MatchExpr_Alt_k___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_MatchExpr_Alt_actuals___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__1() {
 _start:
 {
@@ -5884,10 +5866,6 @@ _G_initialized = true;
 res = initialize_Lean_Elab_Term(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Term_MatchExpr_Alt_k___default = _init_l_Lean_Elab_Term_MatchExpr_Alt_k___default();
-lean_mark_persistent(l_Lean_Elab_Term_MatchExpr_Alt_k___default);
-l_Lean_Elab_Term_MatchExpr_Alt_actuals___default = _init_l_Lean_Elab_Term_MatchExpr_Alt_actuals___default();
-lean_mark_persistent(l_Lean_Elab_Term_MatchExpr_Alt_actuals___default);
 l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__1 = _init_l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__1);
 l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__2 = _init_l_Lean_Elab_Term_MatchExpr_toElseAlt_x3f___closed__2();

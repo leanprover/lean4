@@ -19,12 +19,11 @@ static lean_object* l_Lean_Compiler_LCNF_pullInstances___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at_Lean_Compiler_LCNF_PullLetDecls_pullDecls___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_PullLetDecls___hyg_1307____closed__17;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Compiler_LCNF_PullLetDecls_pullDecls___spec__1(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_PullLetDecls___hyg_1307_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withFVar(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Compiler_LCNF_PullLetDecls_attachToPull___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Decl_pullInstances___closed__1;
-static lean_object* l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_shouldPull(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateAltsImp___spec__1(lean_object*);
@@ -66,7 +65,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp___a
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_PullLetDecls___hyg_1307____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_pullInstances___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Compiler_LCNF_PullLetDecls_pullDecls___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_Context_included___default;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_pullInstances;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_pullLetDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_PullLetDecls___hyg_1307____closed__16;
@@ -119,31 +117,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withFVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PullLetDecls_shouldPull___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_PullLetDecls___hyg_1307____closed__15;
-static lean_object* _init_l_Lean_Compiler_LCNF_PullLetDecls_Context_included___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_array_mk(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withFVar___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -458,6 +431,15 @@ lean_dec(x_2);
 return x_6;
 }
 }
+static lean_object* _init_l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -493,7 +475,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
-x_22 = l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1;
+x_22 = l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1;
 lean_inc(x_12);
 x_23 = l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint_go(x_17, x_20, x_12, x_14, x_22);
 lean_dec(x_20);
@@ -589,7 +571,7 @@ lean_inc(x_48);
 x_49 = lean_ctor_get(x_47, 1);
 lean_inc(x_49);
 lean_dec(x_47);
-x_50 = l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1;
+x_50 = l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1;
 lean_inc(x_12);
 x_51 = l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint_go(x_45, x_48, x_12, x_41, x_50);
 lean_dec(x_48);
@@ -2973,7 +2955,7 @@ x_8 = lean_box(0);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_2);
 lean_ctor_set(x_9, 1, x_8);
-x_10 = l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1;
+x_10 = l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1;
 x_11 = lean_st_mk_ref(x_10, x_7);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
@@ -3568,12 +3550,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_PassManager(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_PullLetDecls_Context_included___default = _init_l_Lean_Compiler_LCNF_PullLetDecls_Context_included___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_Context_included___default);
-l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1 = _init_l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default___closed__1);
-l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default = _init_l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_State_toPull___default);
+l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1 = _init_l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1();
+lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_withCheckpoint___closed__1);
 l_Lean_Compiler_LCNF_PullLetDecls_shouldPull___closed__1 = _init_l_Lean_Compiler_LCNF_PullLetDecls_shouldPull___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_PullLetDecls_shouldPull___closed__1);
 l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lambda__1___closed__1 = _init_l_Lean_Compiler_LCNF_PullLetDecls_pullDecls___lambda__1___closed__1();

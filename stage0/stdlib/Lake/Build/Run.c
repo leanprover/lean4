@@ -45,7 +45,6 @@ static lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__5___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lake_monitorJobs(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonitorState_jobNo___default;
 uint8_t l_Lake_Log_maxLv(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Monitor_flush(lean_object*, lean_object*, lean_object*);
@@ -114,7 +113,6 @@ LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Workspace_runFetc
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lake_Workspace_runFetchM___rarg___lambda__1___closed__9;
 LEAN_EXPORT lean_object* l_Lake_Monitor_loop(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_MonitorState_spinnerIdx___default;
 lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
 static lean_object* l_Lake_Monitor_reportJob___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Workspace_runFetchM___spec__4(lean_object*);
@@ -536,22 +534,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lake_Monitor_spinnerFrames___closed__9;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_MonitorState_jobNo___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(1u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_MonitorState_spinnerIdx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
@@ -12244,10 +12226,6 @@ l_Lake_Monitor_spinnerFrames___closed__9 = _init_l_Lake_Monitor_spinnerFrames___
 lean_mark_persistent(l_Lake_Monitor_spinnerFrames___closed__9);
 l_Lake_Monitor_spinnerFrames = _init_l_Lake_Monitor_spinnerFrames();
 lean_mark_persistent(l_Lake_Monitor_spinnerFrames);
-l_Lake_MonitorState_jobNo___default = _init_l_Lake_MonitorState_jobNo___default();
-lean_mark_persistent(l_Lake_MonitorState_jobNo___default);
-l_Lake_MonitorState_spinnerIdx___default = _init_l_Lake_MonitorState_spinnerIdx___default();
-lean_mark_persistent(l_Lake_MonitorState_spinnerIdx___default);
 l_Lake_Ansi_resetLine___closed__1 = _init_l_Lake_Ansi_resetLine___closed__1();
 lean_mark_persistent(l_Lake_Ansi_resetLine___closed__1);
 l_Lake_Ansi_resetLine = _init_l_Lake_Ansi_resetLine();

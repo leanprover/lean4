@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___la
 lean_object* lean_name_append_after(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__1;
 static lean_object* l_Lean_Unhygienic_run___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_NameSanitizerState_userName2Sanitized___default;
 LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_Unhygienic_instMonadQuotation___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_Unhygienic_instMonadQuotation___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getSanitizeNames___boxed(lean_object*);
@@ -51,7 +50,6 @@ static lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___cl
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_NameSanitizerState_nameStem2Idx___default;
 static lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__3;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_getSanitizeNames(lean_object*);
@@ -706,22 +704,6 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_NameSanitizerState_nameStem2Idx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameSanitizerState_userName2Sanitized___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Hygiene_0__Lean_mkFreshInaccessibleUserName(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1264,10 +1246,6 @@ lean_mark_persistent(l_Lean_pp_sanitizeNames);
 lean_dec_ref(res);
 }l_Lean_getSanitizeNames___closed__1 = _init_l_Lean_getSanitizeNames___closed__1();
 lean_mark_persistent(l_Lean_getSanitizeNames___closed__1);
-l_Lean_NameSanitizerState_nameStem2Idx___default = _init_l_Lean_NameSanitizerState_nameStem2Idx___default();
-lean_mark_persistent(l_Lean_NameSanitizerState_nameStem2Idx___default);
-l_Lean_NameSanitizerState_userName2Sanitized___default = _init_l_Lean_NameSanitizerState_userName2Sanitized___default();
-lean_mark_persistent(l_Lean_NameSanitizerState_userName2Sanitized___default);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

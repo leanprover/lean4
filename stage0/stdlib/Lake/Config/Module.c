@@ -127,7 +127,6 @@ uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_bcFile(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_dynlibSuffix;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Module_keyName___default(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_backend___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_buildType___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_dynlibFile(lean_object*);
@@ -138,7 +137,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_leanLibPath(lean_object*, lean_object*);
 uint8_t lean_internal_has_llvm_backend(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Module_irPath(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Module_keyName___default___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lake_Package_findModule_x3f___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT uint64_t l_Lake_instHashableModule(lean_object*);
@@ -166,22 +164,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_moreLeanArgs___spec__1(siz
 LEAN_EXPORT lean_object* l_Lake_Module_dynlibName(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_serverOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_shouldPrecompile___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Module_keyName___default(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Module_keyName___default___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_Module_keyName___default(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT uint64_t l_Lake_instHashableModule(lean_object* x_1) {
 _start:
 {

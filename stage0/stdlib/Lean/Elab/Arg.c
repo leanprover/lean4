@@ -34,7 +34,6 @@ static lean_object* l_Lean_Elab_Term_instInhabitedNamedArg___closed__1;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Term_addNamedArg___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_addNamedArg___closed__4;
-LEAN_EXPORT uint8_t l_Lean_Elab_Term_NamedArg_suppressDeps___default;
 static lean_object* l_Lean_Elab_Term_addNamedArg___closed__1;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 static lean_object* l_Lean_Elab_Term_addNamedArg___closed__3;
@@ -52,7 +51,6 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_expandArgs___sp
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_addNamedArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_NamedArg_ref___default;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
@@ -91,22 +89,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Elab_Term_instInhabitedArg___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_NamedArg_ref___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Elab_Term_NamedArg_suppressDeps___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
 return x_1;
 }
 }
@@ -1254,9 +1236,6 @@ l_Lean_Elab_Term_instInhabitedArg___closed__1 = _init_l_Lean_Elab_Term_instInhab
 lean_mark_persistent(l_Lean_Elab_Term_instInhabitedArg___closed__1);
 l_Lean_Elab_Term_instInhabitedArg = _init_l_Lean_Elab_Term_instInhabitedArg();
 lean_mark_persistent(l_Lean_Elab_Term_instInhabitedArg);
-l_Lean_Elab_Term_NamedArg_ref___default = _init_l_Lean_Elab_Term_NamedArg_ref___default();
-lean_mark_persistent(l_Lean_Elab_Term_NamedArg_ref___default);
-l_Lean_Elab_Term_NamedArg_suppressDeps___default = _init_l_Lean_Elab_Term_NamedArg_suppressDeps___default();
 l_Lean_Elab_Term_instInhabitedNamedArg___closed__1 = _init_l_Lean_Elab_Term_instInhabitedNamedArg___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_instInhabitedNamedArg___closed__1);
 l_Lean_Elab_Term_instInhabitedNamedArg = _init_l_Lean_Elab_Term_instInhabitedNamedArg();

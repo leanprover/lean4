@@ -93,7 +93,6 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_LCNF_S
 lean_object* l_Lean_Compiler_LCNF_Decl_instantiateValueLevelParams(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__14(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_findFunDecl_x27_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_InlineCandidateInfo_recursive___default;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__7(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -109,14 +108,6 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_LCNF_S
 static lean_object* l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1399____closed__4;
 static lean_object* l_Lean_Compiler_LCNF_Simp_initFn____x40_Lean_Compiler_LCNF_Simp_InlineCandidate___hyg_1399____closed__11;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static uint8_t _init_l_Lean_Compiler_LCNF_Simp_InlineCandidateInfo_recursive___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_InlineCandidateInfo_arity(lean_object* x_1) {
 _start:
 {
@@ -2054,7 +2045,6 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_LCNF_Simp_SimpM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_Simp_InlineCandidateInfo_recursive___default = _init_l_Lean_Compiler_LCNF_Simp_InlineCandidateInfo_recursive___default();
 l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__2___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__2___closed__1);
 l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__5___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_inlineCandidate_x3f___lambda__5___closed__1();

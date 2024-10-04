@@ -42,6 +42,7 @@ uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3767____closed__5;
+static lean_object* l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3191____closed__30;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3472____spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -220,6 +221,7 @@ static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Tactic_Ext_initFn__
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtHyps___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3767____spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3767____lambda__12___boxed(lean_object*, lean_object*);
+uint8_t l_Lean_MapDeclarationExtension_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__2;
 lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3472____lambda__1(lean_object*, lean_object*);
@@ -684,11 +686,11 @@ extern lean_object* l_Lean_Elab_Tactic_RCases_linter_unusedRCasesPattern;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lambda__1___closed__49;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_ExtTheorems_tree___default;
 extern lean_object* l_Lean_Core_instMonadCoreM;
 lean_object* l_Lean_MVarId_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___closed__1;
 extern lean_object* l_Lean_protectedExt;
+extern lean_object* l_Lean_instInhabitedDeclarationRanges;
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Ext_ExtTheorems_erase___spec__4(lean_object*, lean_object*, size_t, size_t, uint8_t);
@@ -813,7 +815,6 @@ static lean_object* l_Lean_Elab_Tactic_Ext_extCore___closed__1;
 uint8_t l_Lean_Expr_isForall(lean_object*);
 lean_object* l_Lean_Meta_mkConstWithFreshMVarLevels(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getStructureFieldsFlattened(lean_object*, lean_object*, uint8_t);
-extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Match_MatchEqnsExtState_eqns___default___spec__1;
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3767____spec__4___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_tryIntros___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
@@ -844,9 +845,9 @@ lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3767____closed__21;
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
+extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Match_instInhabitedMatchEqnsExtState___spec__1;
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3191____closed__11;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_ExtTheorems_erased___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewBinderInfos___at_Lean_Meta_withInstImplicitAsImplict___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_beqExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3269____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3820,6 +3821,17 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Tactic_Ext_mkExtType___closed__2;
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_Tactic_Ext_mkExtType___closed__2;
 x_2 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -3828,215 +3840,381 @@ lean_ctor_set(x_2, 3, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4() {
+static lean_object* _init_l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Tactic_Ext_mkExtType___closed__2;
-x_2 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__3;
-x_3 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_1);
-lean_ctor_set(x_3, 4, x_1);
-lean_ctor_set(x_3, 5, x_2);
-lean_ctor_set(x_3, 6, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__3;
+x_2 = l_Lean_Elab_Tactic_Ext_mkExtType___closed__2;
+x_3 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_4 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_2);
+lean_ctor_set(x_4, 4, x_2);
+lean_ctor_set(x_4, 5, x_3);
+lean_ctor_set(x_4, 6, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_10 = lean_st_ref_take(x_8, x_9);
-x_11 = lean_ctor_get(x_10, 0);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_10, 1);
-lean_inc(x_12);
-lean_dec(x_10);
-x_13 = !lean_is_exclusive(x_11);
-if (x_13 == 0)
+lean_object* x_10; uint8_t x_11; 
+x_10 = lean_st_ref_get(x_8, x_9);
+x_11 = !lean_is_exclusive(x_10);
+if (x_11 == 0)
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_14 = lean_ctor_get(x_11, 0);
-x_15 = lean_ctor_get(x_11, 4);
-lean_dec(x_15);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_12 = lean_ctor_get(x_10, 0);
+x_13 = lean_ctor_get(x_10, 1);
+x_14 = lean_ctor_get(x_12, 0);
+lean_inc(x_14);
+lean_dec(x_12);
+x_15 = l_Lean_instInhabitedDeclarationRanges;
 x_16 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__1;
-x_17 = l_Lean_MapDeclarationExtension_insert___rarg(x_16, x_14, x_1, x_2);
-x_18 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__2;
-lean_ctor_set(x_11, 4, x_18);
-lean_ctor_set(x_11, 0, x_17);
-x_19 = lean_st_ref_set(x_8, x_11, x_12);
-x_20 = lean_ctor_get(x_19, 1);
+lean_inc(x_1);
+x_17 = l_Lean_MapDeclarationExtension_contains___rarg(x_15, x_16, x_14, x_1);
+lean_dec(x_14);
+if (x_17 == 0)
+{
+lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
+lean_free_object(x_10);
+x_18 = lean_st_ref_take(x_8, x_13);
+x_19 = lean_ctor_get(x_18, 0);
+lean_inc(x_19);
+x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
-lean_dec(x_19);
-x_21 = lean_st_ref_take(x_6, x_20);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-x_23 = lean_ctor_get(x_21, 1);
-lean_inc(x_23);
-lean_dec(x_21);
-x_24 = !lean_is_exclusive(x_22);
-if (x_24 == 0)
+lean_dec(x_18);
+x_21 = !lean_is_exclusive(x_19);
+if (x_21 == 0)
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
-x_25 = lean_ctor_get(x_22, 1);
-lean_dec(x_25);
-x_26 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
-lean_ctor_set(x_22, 1, x_26);
-x_27 = lean_st_ref_set(x_6, x_22, x_23);
-x_28 = !lean_is_exclusive(x_27);
-if (x_28 == 0)
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
+x_22 = lean_ctor_get(x_19, 0);
+x_23 = lean_ctor_get(x_19, 4);
+lean_dec(x_23);
+x_24 = l_Lean_MapDeclarationExtension_insert___rarg(x_16, x_22, x_1, x_2);
+x_25 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__2;
+lean_ctor_set(x_19, 4, x_25);
+lean_ctor_set(x_19, 0, x_24);
+x_26 = lean_st_ref_set(x_8, x_19, x_20);
+x_27 = lean_ctor_get(x_26, 1);
+lean_inc(x_27);
+lean_dec(x_26);
+x_28 = lean_st_ref_take(x_6, x_27);
+x_29 = lean_ctor_get(x_28, 0);
+lean_inc(x_29);
+x_30 = lean_ctor_get(x_28, 1);
+lean_inc(x_30);
+lean_dec(x_28);
+x_31 = !lean_is_exclusive(x_29);
+if (x_31 == 0)
 {
-lean_object* x_29; lean_object* x_30; 
-x_29 = lean_ctor_get(x_27, 0);
-lean_dec(x_29);
-x_30 = lean_box(0);
-lean_ctor_set(x_27, 0, x_30);
-return x_27;
+lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
+x_32 = lean_ctor_get(x_29, 1);
+lean_dec(x_32);
+x_33 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
+lean_ctor_set(x_29, 1, x_33);
+x_34 = lean_st_ref_set(x_6, x_29, x_30);
+x_35 = !lean_is_exclusive(x_34);
+if (x_35 == 0)
+{
+lean_object* x_36; lean_object* x_37; 
+x_36 = lean_ctor_get(x_34, 0);
+lean_dec(x_36);
+x_37 = lean_box(0);
+lean_ctor_set(x_34, 0, x_37);
+return x_34;
 }
 else
 {
-lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_31 = lean_ctor_get(x_27, 1);
-lean_inc(x_31);
-lean_dec(x_27);
-x_32 = lean_box(0);
-x_33 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_33, 0, x_32);
-lean_ctor_set(x_33, 1, x_31);
-return x_33;
+lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+x_38 = lean_ctor_get(x_34, 1);
+lean_inc(x_38);
+lean_dec(x_34);
+x_39 = lean_box(0);
+x_40 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_40, 0, x_39);
+lean_ctor_set(x_40, 1, x_38);
+return x_40;
 }
 }
 else
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_34 = lean_ctor_get(x_22, 0);
-x_35 = lean_ctor_get(x_22, 2);
-x_36 = lean_ctor_get(x_22, 3);
-x_37 = lean_ctor_get(x_22, 4);
-lean_inc(x_37);
-lean_inc(x_36);
-lean_inc(x_35);
-lean_inc(x_34);
-lean_dec(x_22);
-x_38 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
-x_39 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_39, 0, x_34);
-lean_ctor_set(x_39, 1, x_38);
-lean_ctor_set(x_39, 2, x_35);
-lean_ctor_set(x_39, 3, x_36);
-lean_ctor_set(x_39, 4, x_37);
-x_40 = lean_st_ref_set(x_6, x_39, x_23);
-x_41 = lean_ctor_get(x_40, 1);
+lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
+x_41 = lean_ctor_get(x_29, 0);
+x_42 = lean_ctor_get(x_29, 2);
+x_43 = lean_ctor_get(x_29, 3);
+x_44 = lean_ctor_get(x_29, 4);
+lean_inc(x_44);
+lean_inc(x_43);
+lean_inc(x_42);
 lean_inc(x_41);
-if (lean_is_exclusive(x_40)) {
- lean_ctor_release(x_40, 0);
- lean_ctor_release(x_40, 1);
- x_42 = x_40;
+lean_dec(x_29);
+x_45 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
+x_46 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_46, 0, x_41);
+lean_ctor_set(x_46, 1, x_45);
+lean_ctor_set(x_46, 2, x_42);
+lean_ctor_set(x_46, 3, x_43);
+lean_ctor_set(x_46, 4, x_44);
+x_47 = lean_st_ref_set(x_6, x_46, x_30);
+x_48 = lean_ctor_get(x_47, 1);
+lean_inc(x_48);
+if (lean_is_exclusive(x_47)) {
+ lean_ctor_release(x_47, 0);
+ lean_ctor_release(x_47, 1);
+ x_49 = x_47;
 } else {
- lean_dec_ref(x_40);
- x_42 = lean_box(0);
+ lean_dec_ref(x_47);
+ x_49 = lean_box(0);
 }
-x_43 = lean_box(0);
-if (lean_is_scalar(x_42)) {
- x_44 = lean_alloc_ctor(0, 2, 0);
+x_50 = lean_box(0);
+if (lean_is_scalar(x_49)) {
+ x_51 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_44 = x_42;
+ x_51 = x_49;
 }
-lean_ctor_set(x_44, 0, x_43);
-lean_ctor_set(x_44, 1, x_41);
-return x_44;
+lean_ctor_set(x_51, 0, x_50);
+lean_ctor_set(x_51, 1, x_48);
+return x_51;
 }
 }
 else
 {
-lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; 
-x_45 = lean_ctor_get(x_11, 0);
-x_46 = lean_ctor_get(x_11, 1);
-x_47 = lean_ctor_get(x_11, 2);
-x_48 = lean_ctor_get(x_11, 3);
-x_49 = lean_ctor_get(x_11, 5);
-x_50 = lean_ctor_get(x_11, 6);
-lean_inc(x_50);
-lean_inc(x_49);
-lean_inc(x_48);
-lean_inc(x_47);
-lean_inc(x_46);
-lean_inc(x_45);
-lean_dec(x_11);
-x_51 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__1;
-x_52 = l_Lean_MapDeclarationExtension_insert___rarg(x_51, x_45, x_1, x_2);
-x_53 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__2;
-x_54 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_54, 0, x_52);
-lean_ctor_set(x_54, 1, x_46);
-lean_ctor_set(x_54, 2, x_47);
-lean_ctor_set(x_54, 3, x_48);
-lean_ctor_set(x_54, 4, x_53);
-lean_ctor_set(x_54, 5, x_49);
-lean_ctor_set(x_54, 6, x_50);
-x_55 = lean_st_ref_set(x_8, x_54, x_12);
-x_56 = lean_ctor_get(x_55, 1);
+lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
+x_52 = lean_ctor_get(x_19, 0);
+x_53 = lean_ctor_get(x_19, 1);
+x_54 = lean_ctor_get(x_19, 2);
+x_55 = lean_ctor_get(x_19, 3);
+x_56 = lean_ctor_get(x_19, 5);
+x_57 = lean_ctor_get(x_19, 6);
+lean_inc(x_57);
 lean_inc(x_56);
-lean_dec(x_55);
-x_57 = lean_st_ref_take(x_6, x_56);
-x_58 = lean_ctor_get(x_57, 0);
-lean_inc(x_58);
-x_59 = lean_ctor_get(x_57, 1);
-lean_inc(x_59);
-lean_dec(x_57);
-x_60 = lean_ctor_get(x_58, 0);
-lean_inc(x_60);
-x_61 = lean_ctor_get(x_58, 2);
-lean_inc(x_61);
-x_62 = lean_ctor_get(x_58, 3);
+lean_inc(x_55);
+lean_inc(x_54);
+lean_inc(x_53);
+lean_inc(x_52);
+lean_dec(x_19);
+x_58 = l_Lean_MapDeclarationExtension_insert___rarg(x_16, x_52, x_1, x_2);
+x_59 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__2;
+x_60 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_53);
+lean_ctor_set(x_60, 2, x_54);
+lean_ctor_set(x_60, 3, x_55);
+lean_ctor_set(x_60, 4, x_59);
+lean_ctor_set(x_60, 5, x_56);
+lean_ctor_set(x_60, 6, x_57);
+x_61 = lean_st_ref_set(x_8, x_60, x_20);
+x_62 = lean_ctor_get(x_61, 1);
 lean_inc(x_62);
-x_63 = lean_ctor_get(x_58, 4);
-lean_inc(x_63);
-if (lean_is_exclusive(x_58)) {
- lean_ctor_release(x_58, 0);
- lean_ctor_release(x_58, 1);
- lean_ctor_release(x_58, 2);
- lean_ctor_release(x_58, 3);
- lean_ctor_release(x_58, 4);
- x_64 = x_58;
-} else {
- lean_dec_ref(x_58);
- x_64 = lean_box(0);
-}
-x_65 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
-if (lean_is_scalar(x_64)) {
- x_66 = lean_alloc_ctor(0, 5, 0);
-} else {
- x_66 = x_64;
-}
-lean_ctor_set(x_66, 0, x_60);
-lean_ctor_set(x_66, 1, x_65);
-lean_ctor_set(x_66, 2, x_61);
-lean_ctor_set(x_66, 3, x_62);
-lean_ctor_set(x_66, 4, x_63);
-x_67 = lean_st_ref_set(x_6, x_66, x_59);
-x_68 = lean_ctor_get(x_67, 1);
+lean_dec(x_61);
+x_63 = lean_st_ref_take(x_6, x_62);
+x_64 = lean_ctor_get(x_63, 0);
+lean_inc(x_64);
+x_65 = lean_ctor_get(x_63, 1);
+lean_inc(x_65);
+lean_dec(x_63);
+x_66 = lean_ctor_get(x_64, 0);
+lean_inc(x_66);
+x_67 = lean_ctor_get(x_64, 2);
+lean_inc(x_67);
+x_68 = lean_ctor_get(x_64, 3);
 lean_inc(x_68);
-if (lean_is_exclusive(x_67)) {
- lean_ctor_release(x_67, 0);
- lean_ctor_release(x_67, 1);
- x_69 = x_67;
+x_69 = lean_ctor_get(x_64, 4);
+lean_inc(x_69);
+if (lean_is_exclusive(x_64)) {
+ lean_ctor_release(x_64, 0);
+ lean_ctor_release(x_64, 1);
+ lean_ctor_release(x_64, 2);
+ lean_ctor_release(x_64, 3);
+ lean_ctor_release(x_64, 4);
+ x_70 = x_64;
 } else {
- lean_dec_ref(x_67);
- x_69 = lean_box(0);
+ lean_dec_ref(x_64);
+ x_70 = lean_box(0);
 }
-x_70 = lean_box(0);
-if (lean_is_scalar(x_69)) {
- x_71 = lean_alloc_ctor(0, 2, 0);
+x_71 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
+if (lean_is_scalar(x_70)) {
+ x_72 = lean_alloc_ctor(0, 5, 0);
 } else {
- x_71 = x_69;
+ x_72 = x_70;
 }
-lean_ctor_set(x_71, 0, x_70);
-lean_ctor_set(x_71, 1, x_68);
-return x_71;
+lean_ctor_set(x_72, 0, x_66);
+lean_ctor_set(x_72, 1, x_71);
+lean_ctor_set(x_72, 2, x_67);
+lean_ctor_set(x_72, 3, x_68);
+lean_ctor_set(x_72, 4, x_69);
+x_73 = lean_st_ref_set(x_6, x_72, x_65);
+x_74 = lean_ctor_get(x_73, 1);
+lean_inc(x_74);
+if (lean_is_exclusive(x_73)) {
+ lean_ctor_release(x_73, 0);
+ lean_ctor_release(x_73, 1);
+ x_75 = x_73;
+} else {
+ lean_dec_ref(x_73);
+ x_75 = lean_box(0);
+}
+x_76 = lean_box(0);
+if (lean_is_scalar(x_75)) {
+ x_77 = lean_alloc_ctor(0, 2, 0);
+} else {
+ x_77 = x_75;
+}
+lean_ctor_set(x_77, 0, x_76);
+lean_ctor_set(x_77, 1, x_74);
+return x_77;
+}
+}
+else
+{
+lean_object* x_78; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_78 = lean_box(0);
+lean_ctor_set(x_10, 0, x_78);
+return x_10;
+}
+}
+else
+{
+lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; uint8_t x_84; 
+x_79 = lean_ctor_get(x_10, 0);
+x_80 = lean_ctor_get(x_10, 1);
+lean_inc(x_80);
+lean_inc(x_79);
+lean_dec(x_10);
+x_81 = lean_ctor_get(x_79, 0);
+lean_inc(x_81);
+lean_dec(x_79);
+x_82 = l_Lean_instInhabitedDeclarationRanges;
+x_83 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__1;
+lean_inc(x_1);
+x_84 = l_Lean_MapDeclarationExtension_contains___rarg(x_82, x_83, x_81, x_1);
+lean_dec(x_81);
+if (x_84 == 0)
+{
+lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
+x_85 = lean_st_ref_take(x_8, x_80);
+x_86 = lean_ctor_get(x_85, 0);
+lean_inc(x_86);
+x_87 = lean_ctor_get(x_85, 1);
+lean_inc(x_87);
+lean_dec(x_85);
+x_88 = lean_ctor_get(x_86, 0);
+lean_inc(x_88);
+x_89 = lean_ctor_get(x_86, 1);
+lean_inc(x_89);
+x_90 = lean_ctor_get(x_86, 2);
+lean_inc(x_90);
+x_91 = lean_ctor_get(x_86, 3);
+lean_inc(x_91);
+x_92 = lean_ctor_get(x_86, 5);
+lean_inc(x_92);
+x_93 = lean_ctor_get(x_86, 6);
+lean_inc(x_93);
+if (lean_is_exclusive(x_86)) {
+ lean_ctor_release(x_86, 0);
+ lean_ctor_release(x_86, 1);
+ lean_ctor_release(x_86, 2);
+ lean_ctor_release(x_86, 3);
+ lean_ctor_release(x_86, 4);
+ lean_ctor_release(x_86, 5);
+ lean_ctor_release(x_86, 6);
+ x_94 = x_86;
+} else {
+ lean_dec_ref(x_86);
+ x_94 = lean_box(0);
+}
+x_95 = l_Lean_MapDeclarationExtension_insert___rarg(x_83, x_88, x_1, x_2);
+x_96 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__2;
+if (lean_is_scalar(x_94)) {
+ x_97 = lean_alloc_ctor(0, 7, 0);
+} else {
+ x_97 = x_94;
+}
+lean_ctor_set(x_97, 0, x_95);
+lean_ctor_set(x_97, 1, x_89);
+lean_ctor_set(x_97, 2, x_90);
+lean_ctor_set(x_97, 3, x_91);
+lean_ctor_set(x_97, 4, x_96);
+lean_ctor_set(x_97, 5, x_92);
+lean_ctor_set(x_97, 6, x_93);
+x_98 = lean_st_ref_set(x_8, x_97, x_87);
+x_99 = lean_ctor_get(x_98, 1);
+lean_inc(x_99);
+lean_dec(x_98);
+x_100 = lean_st_ref_take(x_6, x_99);
+x_101 = lean_ctor_get(x_100, 0);
+lean_inc(x_101);
+x_102 = lean_ctor_get(x_100, 1);
+lean_inc(x_102);
+lean_dec(x_100);
+x_103 = lean_ctor_get(x_101, 0);
+lean_inc(x_103);
+x_104 = lean_ctor_get(x_101, 2);
+lean_inc(x_104);
+x_105 = lean_ctor_get(x_101, 3);
+lean_inc(x_105);
+x_106 = lean_ctor_get(x_101, 4);
+lean_inc(x_106);
+if (lean_is_exclusive(x_101)) {
+ lean_ctor_release(x_101, 0);
+ lean_ctor_release(x_101, 1);
+ lean_ctor_release(x_101, 2);
+ lean_ctor_release(x_101, 3);
+ lean_ctor_release(x_101, 4);
+ x_107 = x_101;
+} else {
+ lean_dec_ref(x_101);
+ x_107 = lean_box(0);
+}
+x_108 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
+if (lean_is_scalar(x_107)) {
+ x_109 = lean_alloc_ctor(0, 5, 0);
+} else {
+ x_109 = x_107;
+}
+lean_ctor_set(x_109, 0, x_103);
+lean_ctor_set(x_109, 1, x_108);
+lean_ctor_set(x_109, 2, x_104);
+lean_ctor_set(x_109, 3, x_105);
+lean_ctor_set(x_109, 4, x_106);
+x_110 = lean_st_ref_set(x_6, x_109, x_102);
+x_111 = lean_ctor_get(x_110, 1);
+lean_inc(x_111);
+if (lean_is_exclusive(x_110)) {
+ lean_ctor_release(x_110, 0);
+ lean_ctor_release(x_110, 1);
+ x_112 = x_110;
+} else {
+ lean_dec_ref(x_110);
+ x_112 = lean_box(0);
+}
+x_113 = lean_box(0);
+if (lean_is_scalar(x_112)) {
+ x_114 = lean_alloc_ctor(0, 2, 0);
+} else {
+ x_114 = x_112;
+}
+lean_ctor_set(x_114, 0, x_113);
+lean_ctor_set(x_114, 1, x_111);
+return x_114;
+}
+else
+{
+lean_object* x_115; lean_object* x_116; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_115 = lean_box(0);
+x_116 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_116, 0, x_115);
+lean_ctor_set(x_116, 1, x_80);
+return x_116;
+}
 }
 }
 }
@@ -4879,7 +5057,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_48; 
 x_39 = lean_ctor_get(x_36, 1);
 lean_dec(x_39);
-x_40 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_40 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 lean_ctor_set(x_36, 1, x_40);
 x_41 = lean_st_ref_set(x_9, x_36, x_37);
 x_42 = lean_ctor_get(x_41, 1);
@@ -4941,7 +5119,7 @@ lean_inc(x_58);
 lean_inc(x_57);
 lean_inc(x_56);
 lean_dec(x_36);
-x_60 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_60 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 x_61 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_61, 0, x_56);
 lean_ctor_set(x_61, 1, x_60);
@@ -5047,7 +5225,7 @@ if (lean_is_exclusive(x_87)) {
  lean_dec_ref(x_87);
  x_93 = lean_box(0);
 }
-x_94 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_94 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 if (lean_is_scalar(x_93)) {
  x_95 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -7459,7 +7637,7 @@ if (x_36 == 0)
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 x_37 = lean_ctor_get(x_34, 1);
 lean_dec(x_37);
-x_38 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_38 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 lean_ctor_set(x_34, 1, x_38);
 x_39 = lean_st_ref_set(x_9, x_34, x_35);
 x_40 = lean_ctor_get(x_39, 1);
@@ -7482,7 +7660,7 @@ lean_inc(x_45);
 lean_inc(x_44);
 lean_inc(x_43);
 lean_dec(x_34);
-x_47 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_47 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 x_48 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_48, 0, x_43);
 lean_ctor_set(x_48, 1, x_47);
@@ -7556,7 +7734,7 @@ if (lean_is_exclusive(x_66)) {
  lean_dec_ref(x_66);
  x_72 = lean_box(0);
 }
-x_73 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_73 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 if (lean_is_scalar(x_72)) {
  x_74 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -9355,28 +9533,12 @@ x_1 = l_Lean_Elab_Tactic_Ext_instHashableExtTheorem___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Ext_ExtTheorems_tree___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Tactic_Ext_mkExtType___closed__2;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_Ext_ExtTheorems_erased___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Match_MatchEqnsExtState_eqns___default___spec__1;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_Tactic_Ext_instInhabitedExtTheorems___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_Ext_mkExtType___closed__2;
-x_2 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Match_MatchEqnsExtState_eqns___default___spec__1;
+x_2 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Match_instInhabitedMatchEqnsExtState___spec__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -12694,7 +12856,7 @@ if (x_23 == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_24 = lean_ctor_get(x_21, 1);
 lean_dec(x_24);
-x_25 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_25 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 lean_ctor_set(x_21, 1, x_25);
 x_26 = lean_st_ref_set(x_5, x_21, x_22);
 x_27 = !lean_is_exclusive(x_26);
@@ -12732,7 +12894,7 @@ lean_inc(x_35);
 lean_inc(x_34);
 lean_inc(x_33);
 lean_dec(x_21);
-x_37 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_37 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 x_38 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_38, 0, x_33);
 lean_ctor_set(x_38, 1, x_37);
@@ -12816,7 +12978,7 @@ if (lean_is_exclusive(x_56)) {
  lean_dec_ref(x_56);
  x_62 = lean_box(0);
 }
-x_63 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_63 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 if (lean_is_scalar(x_62)) {
  x_64 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -14989,7 +15151,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3767____lambda__11___closed__4;
-x_3 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4;
+x_3 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5;
 x_4 = l_Lean_Elab_Tactic_Ext_mkExtType___closed__5;
 x_5 = l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3767____lambda__11___closed__5;
 x_6 = lean_alloc_ctor(0, 5, 0);
@@ -20691,6 +20853,8 @@ l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__
 lean_mark_persistent(l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__3);
 l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4 = _init_l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4();
 lean_mark_persistent(l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__4);
+l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5 = _init_l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5();
+lean_mark_persistent(l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__4___closed__5);
 l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__1 = _init_l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__1);
 l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__2 = _init_l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__2();
@@ -20997,10 +21161,6 @@ l_Lean_Elab_Tactic_Ext_instHashableExtTheorem___closed__1 = _init_l_Lean_Elab_Ta
 lean_mark_persistent(l_Lean_Elab_Tactic_Ext_instHashableExtTheorem___closed__1);
 l_Lean_Elab_Tactic_Ext_instHashableExtTheorem = _init_l_Lean_Elab_Tactic_Ext_instHashableExtTheorem();
 lean_mark_persistent(l_Lean_Elab_Tactic_Ext_instHashableExtTheorem);
-l_Lean_Elab_Tactic_Ext_ExtTheorems_tree___default = _init_l_Lean_Elab_Tactic_Ext_ExtTheorems_tree___default();
-lean_mark_persistent(l_Lean_Elab_Tactic_Ext_ExtTheorems_tree___default);
-l_Lean_Elab_Tactic_Ext_ExtTheorems_erased___default = _init_l_Lean_Elab_Tactic_Ext_ExtTheorems_erased___default();
-lean_mark_persistent(l_Lean_Elab_Tactic_Ext_ExtTheorems_erased___default);
 l_Lean_Elab_Tactic_Ext_instInhabitedExtTheorems___closed__1 = _init_l_Lean_Elab_Tactic_Ext_instInhabitedExtTheorems___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_Ext_instInhabitedExtTheorems___closed__1);
 l_Lean_Elab_Tactic_Ext_instInhabitedExtTheorems = _init_l_Lean_Elab_Tactic_Ext_instInhabitedExtTheorems();

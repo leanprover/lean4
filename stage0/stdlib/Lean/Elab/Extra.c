@@ -246,7 +246,6 @@ lean_object* l_liftExcept___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTe
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasHeterogeneousDefaultInstances___spec__2(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Op_elabUnOp_declRange__1___closed__6;
 extern lean_object* l_Lean_Elab_Term_termElabAttribute;
-LEAN_EXPORT uint8_t l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUnknown___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Op_elabBinRelCore_toBoolIfNecessary(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Op_elabLeftact_declRange__1___closed__1;
@@ -402,8 +401,6 @@ static lean_object* l_Lean_Elab_Term_Op_elabBinRelCore_toBoolIfNecessary___close
 static lean_object* l_Lean_Elab_Term_elabForIn___closed__20;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabForIn_declRange__1___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Op_elabDefaultOrNonempty__1___closed__1;
-LEAN_EXPORT uint8_t l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUncomparable___default;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_max_x3f___default;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_toTree_processLeaf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Op_elabBinOpLazy__1___closed__1;
@@ -8097,30 +8094,6 @@ x_10 = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___lambda__1(x_1, 
 lean_dec(x_4);
 lean_dec(x_3);
 return x_10;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_max_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static uint8_t _init_l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUncomparable___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUnknown___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
 }
 }
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_isUnknown(lean_object* x_1) {
@@ -20552,10 +20525,6 @@ l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___closed__3 = _init_l___
 lean_mark_persistent(l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___closed__3);
 l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___closed__4 = _init_l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___closed__4();
 lean_mark_persistent(l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_hasCoe___closed__4);
-l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_max_x3f___default = _init_l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_max_x3f___default();
-lean_mark_persistent(l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_max_x3f___default);
-l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUncomparable___default = _init_l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUncomparable___default();
-l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUnknown___default = _init_l___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_AnalyzeResult_hasUnknown___default();
 l_Lean_isTracingEnabledFor___at___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_analyze_go___spec__4___closed__1 = _init_l_Lean_isTracingEnabledFor___at___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_analyze_go___spec__4___closed__1();
 lean_mark_persistent(l_Lean_isTracingEnabledFor___at___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_analyze_go___spec__4___closed__1);
 l_Lean_addTrace___at___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_analyze_go___spec__5___closed__1 = _init_l_Lean_addTrace___at___private_Lean_Elab_Extra_0__Lean_Elab_Term_Op_analyze_go___spec__5___closed__1();

@@ -105,7 +105,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_insertBeforeChange___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_changesBefore___default;
 lean_object* l_Lean_Widget_withGoalCtx___at_Lean_Widget_goalToInteractive___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SubExpr_Pos_pushNthBindingDomain(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -236,7 +235,6 @@ LEAN_EXPORT uint8_t l_Lean_Widget_instAppendExprDiff___lambda__2(lean_object*, u
 LEAN_EXPORT lean_object* l_Lean_Widget_diffInteractiveGoal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Widget_exprDiffCore___spec__3(lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_changesAfter___default;
 lean_object* l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Widget_exprDiffCore___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Widget_exprDiffCore___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -559,22 +557,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Widget_instToStringExprDiffTag___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Widget_ExprDiff_changesBefore___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Widget_ExprDiff_changesAfter___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
 return x_1;
 }
 }
@@ -11011,10 +10993,6 @@ l_Lean_Widget_instToStringExprDiffTag___closed__1 = _init_l_Lean_Widget_instToSt
 lean_mark_persistent(l_Lean_Widget_instToStringExprDiffTag___closed__1);
 l_Lean_Widget_instToStringExprDiffTag = _init_l_Lean_Widget_instToStringExprDiffTag();
 lean_mark_persistent(l_Lean_Widget_instToStringExprDiffTag);
-l_Lean_Widget_ExprDiff_changesBefore___default = _init_l_Lean_Widget_ExprDiff_changesBefore___default();
-lean_mark_persistent(l_Lean_Widget_ExprDiff_changesBefore___default);
-l_Lean_Widget_ExprDiff_changesAfter___default = _init_l_Lean_Widget_ExprDiff_changesAfter___default();
-lean_mark_persistent(l_Lean_Widget_ExprDiff_changesAfter___default);
 l_Lean_Widget_instEmptyCollectionExprDiff___closed__1 = _init_l_Lean_Widget_instEmptyCollectionExprDiff___closed__1();
 lean_mark_persistent(l_Lean_Widget_instEmptyCollectionExprDiff___closed__1);
 l_Lean_Widget_instEmptyCollectionExprDiff = _init_l_Lean_Widget_instEmptyCollectionExprDiff();

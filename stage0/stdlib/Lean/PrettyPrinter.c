@@ -193,6 +193,7 @@ static lean_object* l_Lean_MessageData_ofConst___closed__4;
 static lean_object* l_Lean_MessageData_ofConst___closed__9;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_927____lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatCategory(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_PPContext_runMetaM___rarg___closed__6;
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_927____lambda__1___closed__1;
 extern lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* lean_array_mk(lean_object*);
@@ -1138,6 +1139,17 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_PPContext_runCoreM___rarg___closed__14;
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_PPContext_runMetaM___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_PPContext_runCoreM___rarg___closed__14;
 x_2 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -1146,24 +1158,25 @@ lean_ctor_set(x_2, 3, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_PPContext_runMetaM___rarg___closed__4() {
+static lean_object* _init_l_Lean_PPContext_runMetaM___rarg___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_PPContext_runCoreM___rarg___closed__14;
-x_2 = l_Lean_PPContext_runMetaM___rarg___closed__3;
-x_3 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_1);
-lean_ctor_set(x_3, 4, x_1);
-lean_ctor_set(x_3, 5, x_2);
-lean_ctor_set(x_3, 6, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_PPContext_runMetaM___rarg___closed__3;
+x_2 = l_Lean_PPContext_runCoreM___rarg___closed__14;
+x_3 = l_Lean_PPContext_runMetaM___rarg___closed__4;
+x_4 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_2);
+lean_ctor_set(x_4, 4, x_2);
+lean_ctor_set(x_4, 5, x_3);
+lean_ctor_set(x_4, 6, x_3);
+return x_4;
 }
 }
-static lean_object* _init_l_Lean_PPContext_runMetaM___rarg___closed__5() {
+static lean_object* _init_l_Lean_PPContext_runMetaM___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1199,9 +1212,9 @@ lean_ctor_set_uint8(x_10, sizeof(void*)*6 + 1, x_9);
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 x_12 = lean_box(0);
-x_13 = l_Lean_PPContext_runMetaM___rarg___closed__4;
+x_13 = l_Lean_PPContext_runMetaM___rarg___closed__5;
 x_14 = l_Lean_PPContext_runCoreM___rarg___closed__12;
-x_15 = l_Lean_PPContext_runMetaM___rarg___closed__5;
+x_15 = l_Lean_PPContext_runMetaM___rarg___closed__6;
 x_16 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_16, 0, x_11);
 lean_ctor_set(x_16, 1, x_13);
@@ -2779,9 +2792,9 @@ lean_ctor_set(x_55, 5, x_50);
 lean_ctor_set_uint8(x_55, sizeof(void*)*6, x_54);
 lean_ctor_set_uint8(x_55, sizeof(void*)*6 + 1, x_54);
 x_56 = lean_box(0);
-x_57 = l_Lean_PPContext_runMetaM___rarg___closed__4;
+x_57 = l_Lean_PPContext_runMetaM___rarg___closed__5;
 x_58 = l_Lean_PPContext_runCoreM___rarg___closed__12;
-x_59 = l_Lean_PPContext_runMetaM___rarg___closed__5;
+x_59 = l_Lean_PPContext_runMetaM___rarg___closed__6;
 x_60 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_60, 0, x_2);
 lean_ctor_set(x_60, 1, x_57);
@@ -5359,6 +5372,8 @@ l_Lean_PPContext_runMetaM___rarg___closed__4 = _init_l_Lean_PPContext_runMetaM__
 lean_mark_persistent(l_Lean_PPContext_runMetaM___rarg___closed__4);
 l_Lean_PPContext_runMetaM___rarg___closed__5 = _init_l_Lean_PPContext_runMetaM___rarg___closed__5();
 lean_mark_persistent(l_Lean_PPContext_runMetaM___rarg___closed__5);
+l_Lean_PPContext_runMetaM___rarg___closed__6 = _init_l_Lean_PPContext_runMetaM___rarg___closed__6();
+lean_mark_persistent(l_Lean_PPContext_runMetaM___rarg___closed__6);
 l_Lean_PrettyPrinter_ppTerm___closed__1 = _init_l_Lean_PrettyPrinter_ppTerm___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_ppTerm___closed__1);
 l_Lean_PrettyPrinter_ppTerm___closed__2 = _init_l_Lean_PrettyPrinter_ppTerm___closed__2();

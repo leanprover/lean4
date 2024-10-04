@@ -87,7 +87,6 @@ static lean_object* l_Lean_Option_registerBuiltinOption___closed__16;
 LEAN_EXPORT lean_object* l_Lean_getNatOption(lean_object*);
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_Decl_group___default;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__18;
 static lean_object* l_Lean_Option_registerOption___closed__3;
 static lean_object* l_Lean_registerOption___lambda__3___closed__3;
@@ -104,7 +103,6 @@ static lean_object* l_Lean_Option_registerBuiltinOption___closed__20;
 LEAN_EXPORT lean_object* l_Lean_getOptionDecls(lean_object*);
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_77____closed__29;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Option_Decl_descr___default;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__26;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get(lean_object*);
@@ -164,7 +162,6 @@ LEAN_EXPORT lean_object* l_Lean_Option_set___rarg(lean_object*, lean_object*, le
 lean_object* l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOption(lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__5;
-static lean_object* l_Lean_OptionDecl_group___default___closed__1;
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_77____closed__28;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOptionDecl;
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_1086_;
@@ -182,7 +179,6 @@ static lean_object* l___auto____x40_Lean_Data_Options___hyg_77____closed__13;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_instForInOptionsProdNameDataValue___closed__1;
 LEAN_EXPORT lean_object* lean_get_option_decls_array(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OptionDecl_group___default;
 LEAN_EXPORT lean_object* l_Lean_getOptionDefaultValue(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqOptions;
@@ -191,7 +187,6 @@ static lean_object* l_Lean_Option_registerBuiltinOption___closed__19;
 static lean_object* l_Lean_Option_registerOption___closed__8;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__12;
 lean_object* l_Array_mkArray1___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OptionDecl_descr___default;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__31;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__20;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1___boxed(lean_object*, lean_object*);
@@ -222,6 +217,7 @@ static lean_object* l_Lean_Option_registerBuiltinOption___closed__28;
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_77_;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__15;
+static lean_object* l_Lean_instInhabitedOptionDecl___closed__3;
 LEAN_EXPORT lean_object* l_Lean_getBoolOption___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__11;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__26;
@@ -612,7 +608,7 @@ x_1 = l___auto____x40_Lean_Data_Options___hyg_77____closed__29;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_OptionDecl_group___default___closed__1() {
+static lean_object* _init_l_Lean_instInhabitedOptionDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -620,39 +616,23 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_OptionDecl_group___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_OptionDecl_group___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_OptionDecl_descr___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_OptionDecl_group___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedOptionDecl___closed__1() {
+static lean_object* _init_l_Lean_instInhabitedOptionDecl___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_OptionDecl_group___default___closed__1;
+x_1 = l_Lean_instInhabitedOptionDecl___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_instInhabitedOptionDecl___closed__2() {
+static lean_object* _init_l_Lean_instInhabitedOptionDecl___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
-x_2 = l_Lean_instInhabitedOptionDecl___closed__1;
-x_3 = l_Lean_OptionDecl_group___default___closed__1;
+x_2 = l_Lean_instInhabitedOptionDecl___closed__2;
+x_3 = l_Lean_instInhabitedOptionDecl___closed__1;
 x_4 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -665,7 +645,7 @@ static lean_object* _init_l_Lean_instInhabitedOptionDecl() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedOptionDecl___closed__2;
+x_1 = l_Lean_instInhabitedOptionDecl___closed__3;
 return x_1;
 }
 }
@@ -1512,22 +1492,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_instInhabitedOption___rarg), 1, 0);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Option_Decl_group___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_OptionDecl_group___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Option_Decl_descr___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_OptionDecl_group___default___closed__1;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -3177,16 +3141,12 @@ l___auto____x40_Lean_Data_Options___hyg_77____closed__29 = _init_l___auto____x40
 lean_mark_persistent(l___auto____x40_Lean_Data_Options___hyg_77____closed__29);
 l___auto____x40_Lean_Data_Options___hyg_77_ = _init_l___auto____x40_Lean_Data_Options___hyg_77_();
 lean_mark_persistent(l___auto____x40_Lean_Data_Options___hyg_77_);
-l_Lean_OptionDecl_group___default___closed__1 = _init_l_Lean_OptionDecl_group___default___closed__1();
-lean_mark_persistent(l_Lean_OptionDecl_group___default___closed__1);
-l_Lean_OptionDecl_group___default = _init_l_Lean_OptionDecl_group___default();
-lean_mark_persistent(l_Lean_OptionDecl_group___default);
-l_Lean_OptionDecl_descr___default = _init_l_Lean_OptionDecl_descr___default();
-lean_mark_persistent(l_Lean_OptionDecl_descr___default);
 l_Lean_instInhabitedOptionDecl___closed__1 = _init_l_Lean_instInhabitedOptionDecl___closed__1();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl___closed__1);
 l_Lean_instInhabitedOptionDecl___closed__2 = _init_l_Lean_instInhabitedOptionDecl___closed__2();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl___closed__2);
+l_Lean_instInhabitedOptionDecl___closed__3 = _init_l_Lean_instInhabitedOptionDecl___closed__3();
+lean_mark_persistent(l_Lean_instInhabitedOptionDecl___closed__3);
 l_Lean_instInhabitedOptionDecl = _init_l_Lean_instInhabitedOptionDecl();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl);
 l_Lean_instInhabitedOptionDecls = _init_l_Lean_instInhabitedOptionDecls();
@@ -3220,10 +3180,6 @@ l_Lean_withInPattern___rarg___lambda__1___closed__2 = _init_l_Lean_withInPattern
 lean_mark_persistent(l_Lean_withInPattern___rarg___lambda__1___closed__2);
 l_Lean_withInPattern___rarg___closed__1 = _init_l_Lean_withInPattern___rarg___closed__1();
 lean_mark_persistent(l_Lean_withInPattern___rarg___closed__1);
-l_Lean_Option_Decl_group___default = _init_l_Lean_Option_Decl_group___default();
-lean_mark_persistent(l_Lean_Option_Decl_group___default);
-l_Lean_Option_Decl_descr___default = _init_l_Lean_Option_Decl_descr___default();
-lean_mark_persistent(l_Lean_Option_Decl_descr___default);
 l___auto____x40_Lean_Data_Options___hyg_1086_ = _init_l___auto____x40_Lean_Data_Options___hyg_1086_();
 lean_mark_persistent(l___auto____x40_Lean_Data_Options___hyg_1086_);
 l_Lean_Option_registerBuiltinOption___closed__1 = _init_l_Lean_Option_registerBuiltinOption___closed__1();

@@ -324,7 +324,6 @@ LEAN_EXPORT lean_object* lean_ir_mk_proj_expr(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprVarId____x40_Lean_Compiler_IR_Basic___hyg_34____closed__11;
 static lean_object* l_Option_repr___at___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprIRType____x40_Lean_Compiler_IR_Basic___hyg_320____spec__1___closed__1;
 static lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprIRType____x40_Lean_Compiler_IR_Basic___hyg_320____closed__42;
-LEAN_EXPORT lean_object* l_Lean_IR_DeclInfo_sorryDep_x3f___default;
 LEAN_EXPORT lean_object* l_Lean_IR_LocalContext_getValue(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprIRType____x40_Lean_Compiler_IR_Basic___hyg_320____closed__70;
@@ -5266,7 +5265,7 @@ x_13 = l_Lean_IR_reshapeAux___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Lean_IR_reshapeAux___closed__3;
 x_16 = l_Lean_IR_reshapeAux___closed__4;
-x_17 = lean_unsigned_to_nat(219u);
+x_17 = lean_unsigned_to_nat(220u);
 x_18 = lean_unsigned_to_nat(4u);
 x_19 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_15, x_16, x_17, x_18, x_14);
 lean_dec(x_14);
@@ -5574,14 +5573,6 @@ x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
 return x_8;
-}
-}
-static lean_object* _init_l_Lean_IR_DeclInfo_sorryDep_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_IR_instInhabitedDecl___closed__1() {
@@ -16872,8 +16863,6 @@ l_Lean_IR_reshapeAux___closed__3 = _init_l_Lean_IR_reshapeAux___closed__3();
 lean_mark_persistent(l_Lean_IR_reshapeAux___closed__3);
 l_Lean_IR_reshapeAux___closed__4 = _init_l_Lean_IR_reshapeAux___closed__4();
 lean_mark_persistent(l_Lean_IR_reshapeAux___closed__4);
-l_Lean_IR_DeclInfo_sorryDep_x3f___default = _init_l_Lean_IR_DeclInfo_sorryDep_x3f___default();
-lean_mark_persistent(l_Lean_IR_DeclInfo_sorryDep_x3f___default);
 l_Lean_IR_instInhabitedDecl___closed__1 = _init_l_Lean_IR_instInhabitedDecl___closed__1();
 lean_mark_persistent(l_Lean_IR_instInhabitedDecl___closed__1);
 l_Lean_IR_instInhabitedDecl___closed__2 = _init_l_Lean_IR_instInhabitedDecl___closed__2();

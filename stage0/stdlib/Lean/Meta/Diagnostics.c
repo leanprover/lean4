@@ -49,7 +49,6 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Meta_mkDiagSummary___spec_
 LEAN_EXPORT lean_object* l_Lean_Meta_subCounters___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reportDiag___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_DiagSummary_max___default;
 static double l_Array_forInUnsafe_loop___at_Lean_Meta_mkDiagSummary___spec__8___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSynthPendingFailure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkDiagSummaryForUnfolded___closed__2;
@@ -77,7 +76,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold___at_Lean_Meta_mkDiagSummary___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSummaryForUnfolded(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_subCounters___spec__4(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_DiagSummary_data___default;
 lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reportDiag___closed__14;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_mkDiagSynthPendingFailure___spec__6(lean_object*, lean_object*, lean_object*);
@@ -1401,22 +1399,6 @@ x_6 = l_Lean_PersistentHashMap_forIn___at_Lean_Meta_subCounters___spec__1___rarg
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiagSummary_data___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_collectAboveThreshold___rarg___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiagSummary_max___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedDiagSummary___closed__1() {
@@ -5306,10 +5288,6 @@ l_Lean_Meta_subCounters___rarg___closed__1 = _init_l_Lean_Meta_subCounters___rar
 lean_mark_persistent(l_Lean_Meta_subCounters___rarg___closed__1);
 l_Lean_Meta_subCounters___rarg___closed__2 = _init_l_Lean_Meta_subCounters___rarg___closed__2();
 lean_mark_persistent(l_Lean_Meta_subCounters___rarg___closed__2);
-l_Lean_Meta_DiagSummary_data___default = _init_l_Lean_Meta_DiagSummary_data___default();
-lean_mark_persistent(l_Lean_Meta_DiagSummary_data___default);
-l_Lean_Meta_DiagSummary_max___default = _init_l_Lean_Meta_DiagSummary_max___default();
-lean_mark_persistent(l_Lean_Meta_DiagSummary_max___default);
 l_Lean_Meta_instInhabitedDiagSummary___closed__1 = _init_l_Lean_Meta_instInhabitedDiagSummary___closed__1();
 lean_mark_persistent(l_Lean_Meta_instInhabitedDiagSummary___closed__1);
 l_Lean_Meta_instInhabitedDiagSummary___closed__2 = _init_l_Lean_Meta_instInhabitedDiagSummary___closed__2();

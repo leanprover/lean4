@@ -230,7 +230,6 @@ LEAN_EXPORT lean_object* lean_set_reducibility_status(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____spec__10___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setIrreducibleAttribute___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1422____closed__6;
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ReducibilityStatus_noConfusion___rarg___closed__1;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda__1___closed__11;
 static lean_object* l_Lean_getConstInfo___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__1___closed__3;
@@ -320,6 +319,7 @@ lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_17____closed__5;
+lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1380____closed__11;
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____lambda__4___closed__3;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -4964,7 +4964,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1380____lambda__1___closed__2;
-x_6 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_5, x_2, x_3, x_4);
+x_6 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }

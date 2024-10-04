@@ -123,6 +123,7 @@ uint8_t l_Lean_Expr_isLambda(lean_object*);
 static lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Mutual_unpackType___lambda__2___closed__2;
 lean_object* l_Lean_mkApp6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_curryProj___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_uncurryND(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_casesOn___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ArgsPacker_Unary_pack_go___closed__10;
@@ -359,7 +360,6 @@ lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_curryType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Meta_mkPProdFst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curry_go___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Mutual_casesOn___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1404,7 +1404,7 @@ lean_dec(x_11);
 lean_dec(x_4);
 lean_dec(x_2);
 x_13 = l_Lean_Meta_ArgsPacker_Unary_uncurryType___lambda__2___closed__4;
-x_14 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_13, x_6, x_7, x_8, x_9, x_10);
+x_14 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_13, x_6, x_7, x_8, x_9, x_10);
 return x_14;
 }
 else
@@ -2172,7 +2172,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 x_13 = l_Lean_Meta_ArgsPacker_Unary_uncurry___lambda__1___closed__3;
-x_14 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_13, x_5, x_6, x_7, x_8, x_9);
+x_14 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_13, x_5, x_6, x_7, x_8, x_9);
 return x_14;
 }
 else
@@ -3812,7 +3812,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 x_22 = l_Lean_Expr_withAppAux___at_Lean_Meta_ArgsPacker_Mutual_pack_go___spec__1___closed__4;
-x_23 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_22, x_8, x_9, x_10, x_11, x_12);
+x_23 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_22, x_8, x_9, x_10, x_11, x_12);
 return x_23;
 }
 else
@@ -4868,7 +4868,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_33 = l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___closed__4;
-x_34 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_33, x_5, x_6, x_7, x_8, x_29);
+x_34 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_33, x_5, x_6, x_7, x_8, x_29);
 return x_34;
 }
 else
@@ -7174,7 +7174,7 @@ lean_object* x_12; lean_object* x_13;
 lean_dec(x_3);
 lean_dec(x_1);
 x_12 = l_Lean_Meta_ArgsPacker_Mutual_uncurry___lambda__1___closed__2;
-x_13 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_12, x_4, x_5, x_6, x_7, x_8);
+x_13 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_12, x_4, x_5, x_6, x_7, x_8);
 return x_13;
 }
 else
@@ -7395,7 +7395,7 @@ lean_object* x_12; lean_object* x_13;
 lean_dec(x_3);
 lean_dec(x_1);
 x_12 = l_Lean_Meta_ArgsPacker_Mutual_uncurryND___lambda__1___closed__2;
-x_13 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_12, x_4, x_5, x_6, x_7, x_8);
+x_13 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_12, x_4, x_5, x_6, x_7, x_8);
 return x_13;
 }
 else
@@ -7873,7 +7873,7 @@ lean_dec(x_10);
 lean_dec(x_3);
 lean_dec(x_2);
 x_12 = l_Lean_Meta_ArgsPacker_pack___closed__4;
-x_13 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_12, x_5, x_6, x_7, x_8, x_9);
+x_13 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_12, x_5, x_6, x_7, x_8, x_9);
 return x_13;
 }
 else
@@ -7893,7 +7893,7 @@ lean_dec(x_10);
 lean_dec(x_3);
 lean_dec(x_2);
 x_18 = l_Lean_Meta_ArgsPacker_pack___closed__7;
-x_19 = l_panic___at_Lean_Meta_mkPProdFst___spec__1(x_18, x_5, x_6, x_7, x_8, x_9);
+x_19 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_18, x_5, x_6, x_7, x_8, x_9);
 return x_19;
 }
 else

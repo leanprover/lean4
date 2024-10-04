@@ -538,7 +538,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_addLocalVarInfo(lean_object*, lean_obj
 static lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__25;
 static lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabLetDeclAux___lambda__7(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_FunBinders_State_expectedType_x3f___default;
 static lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_toBinderViews___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_propagateExpectedType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandFunBinders_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -553,7 +552,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabArrow__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabLetDeclAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Elab_Term_traceAtCmdPos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandFun_declRange__1___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_FunBinders_State_fvars___default;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_expandFunBinders_loop___spec__5(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_elabFun___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16439,22 +16437,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_Term_FunBinders_State_fvars___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_Elab_Binders_0__Lean_Elab_Term_elabBindersAux___rarg___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_FunBinders_State_expectedType_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_propagateExpectedType(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -28870,10 +28852,6 @@ l_Lean_Elab_Term_expandFunBinders_loop___closed__12 = _init_l_Lean_Elab_Term_exp
 lean_mark_persistent(l_Lean_Elab_Term_expandFunBinders_loop___closed__12);
 l_Lean_Elab_Term_expandFunBinders_loop___closed__13 = _init_l_Lean_Elab_Term_expandFunBinders_loop___closed__13();
 lean_mark_persistent(l_Lean_Elab_Term_expandFunBinders_loop___closed__13);
-l_Lean_Elab_Term_FunBinders_State_fvars___default = _init_l_Lean_Elab_Term_FunBinders_State_fvars___default();
-lean_mark_persistent(l_Lean_Elab_Term_FunBinders_State_fvars___default);
-l_Lean_Elab_Term_FunBinders_State_expectedType_x3f___default = _init_l_Lean_Elab_Term_FunBinders_State_expectedType_x3f___default();
-lean_mark_persistent(l_Lean_Elab_Term_FunBinders_State_expectedType_x3f___default);
 l_Lean_Elab_Term_expandWhereDecls___lambda__1___closed__1 = _init_l_Lean_Elab_Term_expandWhereDecls___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_expandWhereDecls___lambda__1___closed__1);
 l_Lean_Elab_Term_expandWhereDecls___lambda__1___closed__2 = _init_l_Lean_Elab_Term_expandWhereDecls___lambda__1___closed__2();

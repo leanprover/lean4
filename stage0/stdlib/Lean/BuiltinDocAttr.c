@@ -75,7 +75,6 @@ static lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____closed
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___lambda__1___closed__1;
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____closed__3;
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,6 +99,7 @@ LEAN_EXPORT lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1(lea
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__1;
 lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__14;
+lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isRec___at_Lean_declareBuiltinDocStringAndRanges___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1138,7 +1138,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____lambda__2___closed__2;
-x_6 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_5, x_2, x_3, x_4);
+x_6 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }

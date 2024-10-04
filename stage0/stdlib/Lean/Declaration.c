@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Lean_instBEqConstantVal;
 LEAN_EXPORT lean_object* l_Lean_mkAxiomValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedRecursorVal___closed__1;
 static lean_object* l_Lean_instReprDefinitionSafety___closed__1;
-LEAN_EXPORT lean_object* l_Lean_DefinitionVal_all___default___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_isUnsafeInductiveDeclEx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_inductiveVal_x21(lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqRecursorVal____x40_Lean_Declaration___hyg_3174____spec__1(lean_object*, lean_object*);
@@ -67,7 +66,6 @@ static lean_object* l_Lean_instBEqDeclaration___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedDeclaration;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedQuotVal;
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_getFirstMinorIdx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OpaqueVal_all___default(lean_object*);
 static lean_object* l_Lean_instBEqDefinitionSafety___closed__1;
 LEAN_EXPORT uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstructorVal_isUnsafeEx___boxed(lean_object*);
@@ -95,7 +93,6 @@ static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety___
 LEAN_EXPORT lean_object* lean_mk_inductive_decl(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_instBEqConstantVal___closed__1;
 LEAN_EXPORT uint8_t lean_quot_val_kind(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_TheoremVal_all___default(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_kEx___boxed(lean_object*);
 static lean_object* l_Lean_instInhabitedConstantVal___closed__1;
@@ -146,7 +143,6 @@ LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM(lean_object*, lean_object*
 LEAN_EXPORT lean_object* lean_mk_definition_val(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqInductiveType____x40_Lean_Declaration___hyg_1591____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqRecursorRule;
-LEAN_EXPORT lean_object* l_Lean_TheoremVal_all___default___boxed(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_685____closed__11;
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_685____closed__4;
@@ -182,7 +178,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Declaration_0__Lean_beqConstructorVal_
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_685____closed__15;
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_OpaqueVal_all___default___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqDefinitionVal;
 LEAN_EXPORT uint8_t l_Lean_instInhabitedDefinitionSafety;
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_685____closed__7;
@@ -257,7 +252,6 @@ LEAN_EXPORT lean_object* l_Lean_ReducibilityHints_instOrd;
 LEAN_EXPORT lean_object* l_Lean_QuotKind_noConfusion(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_ConstantInfo_inductiveVal_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_DefinitionVal_all___default(lean_object*);
 static lean_object* l_Lean_instInhabitedDefinitionVal___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOpaqueVal;
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
@@ -1400,28 +1394,6 @@ x_1 = l_Lean_instReprDefinitionSafety___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_DefinitionVal_all___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_box(0);
-lean_inc(x_2);
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_DefinitionVal_all___default___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_DefinitionVal_all___default(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedDefinitionVal___closed__1() {
 _start:
 {
@@ -1582,28 +1554,6 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_TheoremVal_all___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_box(0);
-lean_inc(x_2);
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_TheoremVal_all___default___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_TheoremVal_all___default(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedTheoremVal___closed__1() {
 _start:
 {
@@ -1702,28 +1652,6 @@ lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_4);
 lean_ctor_set(x_7, 2, x_5);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_OpaqueVal_all___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 0);
-x_3 = lean_box(0);
-lean_inc(x_2);
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_OpaqueVal_all___default___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_OpaqueVal_all___default(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_instInhabitedOpaqueVal___closed__1() {

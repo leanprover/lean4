@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_decToMon
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_argToMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetValue_toMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToMonoM_State_typeParams___default;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FunDeclCore_toMono___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_2103____closed__1;
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__8;
@@ -165,14 +164,6 @@ static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ctorAppToMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__6;
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
-static lean_object* _init_l_Lean_Compiler_LCNF_ToMonoM_State_typeParams___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Param_toMono___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -6618,8 +6609,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_InferType(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_ToMonoM_State_typeParams___default = _init_l_Lean_Compiler_LCNF_ToMonoM_State_typeParams___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_ToMonoM_State_typeParams___default);
 l_Lean_Compiler_LCNF_LetValue_toMono___closed__1 = _init_l_Lean_Compiler_LCNF_LetValue_toMono___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_LetValue_toMono___closed__1);
 l_Lean_Compiler_LCNF_LetValue_toMono___closed__2 = _init_l_Lean_Compiler_LCNF_LetValue_toMono___closed__2();

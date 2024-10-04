@@ -77,7 +77,6 @@ LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Parser_parseCommand___
 static lean_object* l___regBuiltin_Lean_Parser_Module_prelude_parenthesizer__1___closed__4;
 static lean_object* l_Lean_Parser_Module_import_parenthesizer___closed__1;
 LEAN_EXPORT lean_object* l_Subarray_findSomeRevM_x3f_find___at___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage_lastTrailing___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parser_ModuleParserState_pos___default;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Module_module_parenthesizer__1___closed__2;
@@ -94,7 +93,6 @@ static lean_object* l_Lean_Parser_Module_header___closed__10;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_Parser_ParserFn_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ppLine_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Parser_ModuleParserState_recovering___default;
 static lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__5;
 lean_object* l_Lean_Parser_getTokenTable(lean_object*);
 static lean_object* l_Lean_Parser_Module_header___closed__1;
@@ -1950,22 +1948,6 @@ lean_inc(x_7);
 lean_dec(x_4);
 return x_7;
 }
-}
-}
-static lean_object* _init_l_Lean_Parser_ModuleParserState_pos___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Parser_ModuleParserState_recovering___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_instInhabitedModuleParserState___closed__1() {
@@ -5315,9 +5297,6 @@ l_Lean_Parser_Module_updateTokens___closed__3 = _init_l_Lean_Parser_Module_updat
 lean_mark_persistent(l_Lean_Parser_Module_updateTokens___closed__3);
 l_Lean_Parser_Module_updateTokens___closed__4 = _init_l_Lean_Parser_Module_updateTokens___closed__4();
 lean_mark_persistent(l_Lean_Parser_Module_updateTokens___closed__4);
-l_Lean_Parser_ModuleParserState_pos___default = _init_l_Lean_Parser_ModuleParserState_pos___default();
-lean_mark_persistent(l_Lean_Parser_ModuleParserState_pos___default);
-l_Lean_Parser_ModuleParserState_recovering___default = _init_l_Lean_Parser_ModuleParserState_recovering___default();
 l_Lean_Parser_instInhabitedModuleParserState___closed__1 = _init_l_Lean_Parser_instInhabitedModuleParserState___closed__1();
 lean_mark_persistent(l_Lean_Parser_instInhabitedModuleParserState___closed__1);
 l_Lean_Parser_instInhabitedModuleParserState = _init_l_Lean_Parser_instInhabitedModuleParserState();

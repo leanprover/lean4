@@ -109,7 +109,6 @@ LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritD
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__7;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3___closed__8;
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___lambda__1___closed__1;
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5___lambda__1___closed__3;
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___lambda__2___closed__4;
@@ -139,6 +138,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____la
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
@@ -1991,7 +1991,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_11; lean_object* x_12; 
 lean_dec(x_2);
 x_11 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2___closed__2;
-x_12 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_11, x_5, x_6, x_7);
+x_12 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_11, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_12;
@@ -2381,7 +2381,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_109; lean_object* x_110; 
 lean_dec(x_2);
 x_109 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2___closed__2;
-x_110 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_109, x_108, x_6, x_7);
+x_110 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_109, x_108, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_108);
 return x_110;
@@ -2654,7 +2654,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_10 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3___closed__7;
-x_11 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_10, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_10, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_11;
@@ -2672,7 +2672,7 @@ lean_dec(x_13);
 lean_dec(x_3);
 lean_dec(x_1);
 x_15 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3___closed__7;
-x_16 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_15, x_5, x_6, x_7);
+x_16 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_15, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_16;
@@ -2696,7 +2696,7 @@ lean_dec(x_18);
 lean_dec(x_13);
 lean_dec(x_3);
 x_21 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3___closed__7;
-x_22 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_21, x_5, x_6, x_7);
+x_22 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_21, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_22;
@@ -2716,7 +2716,7 @@ lean_dec(x_23);
 lean_dec(x_13);
 lean_dec(x_3);
 x_26 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3___closed__7;
-x_27 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_26, x_5, x_6, x_7);
+x_27 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_26, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_27;
@@ -2830,7 +2830,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__5___closed__2;
-x_6 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_5, x_2, x_3, x_4);
+x_6 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }

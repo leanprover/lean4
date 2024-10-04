@@ -113,7 +113,6 @@ lean_object* l_Lean_Compiler_LCNF_eraseCode(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_JpCasesInfo_ctorNames___default;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJpAlt_go___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -387,14 +386,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_7;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_JpCasesInfo_ctorNames___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedJpCasesInfo___closed__1() {
@@ -9226,8 +9217,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Simp_DiscrM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_Simp_JpCasesInfo_ctorNames___default = _init_l_Lean_Compiler_LCNF_Simp_JpCasesInfo_ctorNames___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_JpCasesInfo_ctorNames___default);
 l_Lean_Compiler_LCNF_Simp_instInhabitedJpCasesInfo___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedJpCasesInfo___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedJpCasesInfo___closed__1);
 l_Lean_Compiler_LCNF_Simp_instInhabitedJpCasesInfo = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedJpCasesInfo();

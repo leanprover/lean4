@@ -107,7 +107,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__15;
 static lean_object* l_Lean_Compiler_setInlineAttribute___closed__1;
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_instHashableInlineAttributeKind;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__10;
@@ -144,6 +143,7 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hy
 uint8_t l_Lean_Expr_isConst(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_hasInlineIfReduceAttribute(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_hasNoInlineAttribute(lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isInternal(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__5;
@@ -1062,7 +1062,7 @@ x_21 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____lamb
 x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_6);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_22, x_3, x_4, x_18);
+x_23 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_22, x_3, x_4, x_18);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_23;
@@ -1234,7 +1234,7 @@ x_58 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____lamb
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
-x_60 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_59, x_3, x_4, x_54);
+x_60 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_59, x_3, x_4, x_54);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_60;

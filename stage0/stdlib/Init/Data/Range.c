@@ -122,7 +122,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___rarg(lean_object*, lean_object
 static lean_object* l_Std_Range___aux__Init__Data__Range______macroRules__Std__Range__term_x5b___x3a___x3a___x5d__1___closed__5;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop(lean_object*, lean_object*);
 static lean_object* l_Std_Range___aux__Init__Data__Range______macroRules__Std__Range__term_x5b___x3a___x5d__1___closed__6;
-LEAN_EXPORT lean_object* l_Std_Range_start___default;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__10;
 LEAN_EXPORT lean_object* l_Std_Range_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_term_x5b___x3a___x5d___closed__1;
@@ -158,7 +157,6 @@ static lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d___closed__2;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__12;
 LEAN_EXPORT lean_object* l_Std_Range_forM(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_step___default;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__14;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__20;
 static lean_object* l___aux__Init__Data__Range______macroRules__tacticGet__elem__tactic__trivial__1___closed__14;
@@ -183,22 +181,6 @@ static lean_object* l___aux__Init__Data__Range______macroRules__tacticGet__elem_
 static lean_object* l_Std_Range___aux__Init__Data__Range______macroRules__Std__Range__term_x5b_x3a___x5d__1___closed__17;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__6;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__15;
-static lean_object* _init_l_Std_Range_start___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_step___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(1u);
-return x_1;
-}
-}
 static lean_object* _init_l_Std_instMembershipNatRange() {
 _start:
 {
@@ -2517,10 +2499,6 @@ _G_initialized = true;
 res = initialize_Init_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Range_start___default = _init_l_Std_Range_start___default();
-lean_mark_persistent(l_Std_Range_start___default);
-l_Std_Range_step___default = _init_l_Std_Range_step___default();
-lean_mark_persistent(l_Std_Range_step___default);
 l_Std_instMembershipNatRange = _init_l_Std_instMembershipNatRange();
 lean_mark_persistent(l_Std_instMembershipNatRange);
 l_Std_Range_instForMNat___closed__1 = _init_l_Std_Range_instForMNat___closed__1();

@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_derivingHandlersRef;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_tryApplyDefHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2516____closed__8;
 static lean_object* l___regBuiltin_Lean_Elab_elabDeriving_declRange__1___closed__3;
+static lean_object* l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_processDefDeriving___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_defaultHandler___closed__1;
 lean_object* l_Lean_MessageData_ofList(lean_object*);
@@ -236,30 +237,11 @@ static lean_object* l_Lean_Elab_applyDerivingHandlers___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2516____closed__16;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_MkInstResult_outParams___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_processDefDeriving___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabDeriving___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f_go_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_array_mk(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Term_MkInstResult_outParams___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f_go_x3f___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -633,6 +615,15 @@ lean_dec(x_1);
 return x_11;
 }
 }
+static lean_object* _init_l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -660,7 +651,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1;
+x_14 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1;
 x_15 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f_go_x3f(x_2, x_9, x_12, x_14, x_3, x_4, x_5, x_6, x_13);
 return x_15;
 }
@@ -5930,7 +5921,7 @@ lean_object* x_7; lean_object* x_8;
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_7 = l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1;
+x_7 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1;
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_4);
@@ -5951,7 +5942,7 @@ lean_object* x_13; lean_object* x_14;
 lean_dec(x_10);
 lean_dec(x_3);
 lean_dec(x_2);
-x_13 = l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1;
+x_13 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1;
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_4);
@@ -6016,7 +6007,7 @@ if (lean_obj_tag(x_22) == 0)
 lean_object* x_23; lean_object* x_24; 
 lean_dec(x_3);
 lean_dec(x_2);
-x_23 = l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1;
+x_23 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1;
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_4);
@@ -6035,7 +6026,7 @@ x_28 = l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__4(x_26, x_27, 
 x_29 = l_Array_mapMUnsafe_map___at_Lean_Elab_elabDeriving___spec__5(x_26, x_27, x_25);
 x_30 = lean_array_get_size(x_28);
 x_31 = l_Array_toSubarray___rarg(x_28, x_9, x_30);
-x_32 = l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1;
+x_32 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1;
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
@@ -6354,10 +6345,8 @@ _G_initialized = true;
 res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1 = _init_l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1();
-lean_mark_persistent(l_Lean_Elab_Term_MkInstResult_outParams___default___closed__1);
-l_Lean_Elab_Term_MkInstResult_outParams___default = _init_l_Lean_Elab_Term_MkInstResult_outParams___default();
-lean_mark_persistent(l_Lean_Elab_Term_MkInstResult_outParams___default);
+l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1 = _init_l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_Term_mkInst_x3f___closed__1);
 l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_processDefDeriving___spec__3___closed__1 = _init_l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_processDefDeriving___spec__3___closed__1();
 lean_mark_persistent(l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_processDefDeriving___spec__3___closed__1);
 l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_processDefDeriving___spec__3___closed__2 = _init_l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_processDefDeriving___spec__3___closed__2();

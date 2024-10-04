@@ -76,7 +76,6 @@ uint64_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Hypothesis_kind___default;
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertHypotheses___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
@@ -88,7 +87,6 @@ lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_ForEachExpr_vis
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertHypotheses___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Hypothesis_binderInfo___default;
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_ForEachExpr_visit___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_setKind(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -1531,22 +1529,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_1);
 return x_12;
-}
-}
-static uint8_t _init_l_Lean_Meta_Hypothesis_binderInfo___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Hypothesis_kind___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
@@ -4565,8 +4547,6 @@ l_Lean_MVarId_assertAfter___closed__1 = _init_l_Lean_MVarId_assertAfter___closed
 lean_mark_persistent(l_Lean_MVarId_assertAfter___closed__1);
 l_Lean_MVarId_assertAfter___closed__2 = _init_l_Lean_MVarId_assertAfter___closed__2();
 lean_mark_persistent(l_Lean_MVarId_assertAfter___closed__2);
-l_Lean_Meta_Hypothesis_binderInfo___default = _init_l_Lean_Meta_Hypothesis_binderInfo___default();
-l_Lean_Meta_Hypothesis_kind___default = _init_l_Lean_Meta_Hypothesis_kind___default();
 l_Lean_MVarId_assertHypotheses___closed__1 = _init_l_Lean_MVarId_assertHypotheses___closed__1();
 lean_mark_persistent(l_Lean_MVarId_assertHypotheses___closed__1);
 l_Lean_MVarId_assertHypotheses___closed__2 = _init_l_Lean_MVarId_assertHypotheses___closed__2();

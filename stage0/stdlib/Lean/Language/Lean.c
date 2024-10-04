@@ -21,7 +21,6 @@ static lean_object* l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_
 lean_object* lean_profileit(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Language_Lean_reparseOptions___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Language_Lean_reparseOptions___spec__1___lambda__1___closed__1;
-LEAN_EXPORT uint32_t l_Lean_Language_Lean_SetupImportsResult_trustLevel___default;
 lean_object* l_EIO_toBaseIO___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_processHeader___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, double, double, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -907,14 +906,6 @@ x_2 = l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions_
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-static uint32_t _init_l_Lean_Language_Lean_SetupImportsResult_trustLevel___default() {
-_start:
-{
-uint32_t x_1; 
-x_1 = 0;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_439____closed__1() {
@@ -11880,7 +11871,6 @@ l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg
 lean_mark_persistent(l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__12);
 l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__13 = _init_l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__13();
 lean_mark_persistent(l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__13);
-l_Lean_Language_Lean_SetupImportsResult_trustLevel___default = _init_l_Lean_Language_Lean_SetupImportsResult_trustLevel___default();
 l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_439____closed__1 = _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_439____closed__1();
 lean_mark_persistent(l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_439____closed__1);
 l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_439____closed__2 = _init_l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_439____closed__2();

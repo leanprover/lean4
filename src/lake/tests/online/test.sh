@@ -18,12 +18,7 @@ $LAKE -v -f git.toml build @Cli:extraDep |
 
 ./clean.sh
 $LAKE -f barrel.lean update
-# Test that barrels are not fetched after the build directory is created.
-mkdir -p .lake/packages/Cli/.lake/build
-($LAKE -v -f barrel.lean build @Cli:extraDep) |
-  grep --color "Cli:optBarrel" && exit 1 || true
-rmdir .lake/packages/Cli/.lake/build
-# Test that barrels are not fetched without a toolchain
+# Test that narrels are not fetched without a toolchain
 (ELAN_TOOLCHAIN= $LAKE -v -f barrel.lean build @Cli:extraDep) |
   grep --color "Cli:optBarrel" && exit 1 || true
 ($LAKE -v -f barrel.lean build @Cli:barrel && exit 1 || true) |
@@ -33,6 +28,8 @@ $LAKE -v -f barrel.lean build @Cli:extraDep |
   grep --color "Cli:optBarrel"
 $LAKE -f barrel.lean build @Cli:extraDep |
   grep --color "Cli:optBarrel" && exit 1 || true
+$LAKE -f barrel.lean build @Cli:extraDep |
+  grep --color "(run with '-v' for details)"
 # Test cache toggle
 (LAKE_NO_CACHE=1 $LAKE -v -f barrel.lean build @Cli:extraDep) |
   grep --color "Cli:optBarrel" && exit 1 || true

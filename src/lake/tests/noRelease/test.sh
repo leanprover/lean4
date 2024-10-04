@@ -41,7 +41,7 @@ EOF
 # Test that an indirect fetch on the release does not cause the build to fail
 $LAKE build Test | diff -u --strip-trailing-cr <(cat << EOF
 ⚠ [2/5] Ran dep:extraDep
-warning: building from source; failed to fetch GitHub release (run with '-v' for details)
+warning: building from source; failed to fetch cloud build (run with '-v' for details)
 ✔ [4/5] Built Test
 Build completed successfully.
 EOF

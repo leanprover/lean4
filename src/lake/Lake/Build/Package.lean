@@ -44,9 +44,7 @@ def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
     (self.preferReleaseBuild || -- GitHub release
-      !(self.scope.isEmpty -- no Reservoir
-        || (← getElanToolchain).isEmpty
-        || (← self.buildDir.pathExists)))
+      (!self.scope.isEmpty && !(← getElanToolchain).isEmpty)) -- Reservoir
   if shouldFetch then
     self.optBuildCache.fetch
   else
@@ -67,12 +65,9 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
   let job ← self.maybeFetchBuildCache
   job.bindSync fun success t => do
     unless success do
-      if self.preferReleaseBuild then
-        let details ← self.optFacetDetails optGitHubReleaseFacet
-        logWarning s!"building from source; failed to fetch GitHub release{details}"
-      else
-        let details ← self.optFacetDetails optReservoirBarrelFacet
-        logVerbose s!"building from source; failed to fetch Reservoir build{details}"
+      let details ← self.optFacetDetails <| if self.preferReleaseBuild then
+          optGitHubReleaseFacet else optReservoirBarrelFacet
+      logWarning s!"building from source; failed to fetch cloud build{details}"
     return ((), t)
 
 @[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
@@ -178,7 +173,7 @@ def Package.optBarrelFacetConfig : PackageFacetConfig optReservoirBarrelFacet :=
 
 /-- The `PackageFacetConfig` for the builtin `reservoirBarrelFacet`. -/
 def Package.barrelFacetConfig : PackageFacetConfig reservoirBarrelFacet :=
-  mkBuildArchiveFacetConfig optReservoirBarrelFacet "Reservoir build"
+  mkBuildArchiveFacetConfig optReservoirBarrelFacet "Reservoir barrel"
 
 /-- The `PackageFacetConfig` for the builtin `optGitHubReleaseFacet`. -/
 def Package.optGitHubReleaseFacetConfig : PackageFacetConfig optGitHubReleaseFacet :=

@@ -2082,8 +2082,7 @@ theorem smtSDiv_eq {x y : BitVec n} : x.smtSDiv y =
 
 @[simp]
 theorem smtSDiv_zero {x : BitVec n} : x.smtSDiv 0#n = if x.slt 0#n then 1#n else (allOnes n) := by
-  simp [smtSDiv]
-  rcases hx : x.msb <;> simp [slt_zero_iff_msb_cond x, hx, ← negOne_eq_allOnes]
+  rcases hx : x.msb <;> simp [smtSDiv, slt_zero_iff_msb_cond x, hx, ← negOne_eq_allOnes]
 
 /-! ### abs -/
 

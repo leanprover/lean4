@@ -474,7 +474,7 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
     simp
 
 @[simp]
-theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
+theorem toInt_zero {w : Nat} : (0#w).toInt = 0#w := by
   simp [BitVec.toInt]
   omega
 
@@ -1379,7 +1379,7 @@ theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
 
 /-! ### smtUDiv -/
 
-theorem smtUDiv_eq {x y : BitVec n} : x.smtUDiv y = if y = 0 then allOnes n else udiv x y := rfl
+theorem smtUDiv_eq {x y : BitVec n} : x.smtUDiv y = if y = 0#w then allOnes n else udiv x y := rfl
 
 @[simp]
 theorem smtUDiv_zero {x : BitVec n} : x.smtUDiv 0#n = allOnes n := rfl
@@ -2082,7 +2082,7 @@ theorem smtSDiv_eq {x y : BitVec n} : x.smtSDiv y =
   | true,  true  => smtUDiv (.neg x) (.neg y) := rfl
 
 @[simp]
-theorem smtSDiv_zero {x : BitVec n} : x.smtSDiv 0#n = if x.slt 0#n then 1 else -1 := by
+theorem smtSDiv_zero {x : BitVec n} : x.smtSDiv 0#n = if x.slt 0#n then 1#w else (allOnes w) := by
   simp [smtSDiv]
   rcases hx : x.msb  <;> simp [slt_zero_iff_msb_cond x, hx, ← negOne_eq_allOnes]
 

@@ -61,8 +61,7 @@ If you want a version that can run independently of your MSYS install
 then you need to copy the following dependent DLL's from where ever
 they are installed in your MSYS setup:
 
-- libgcc_s_seh-1.dll
-- libstdc++-6.dll
+- lib++.dll
 - libgmp-10.dll
 - libuv-1.dll
 - libwinpthread-1.dll

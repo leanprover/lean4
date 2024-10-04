@@ -662,8 +662,16 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
   -- Uses of WellFounded.fix can be partially applied. Here we eta-expand the body
-  -- to avoid dealing with this
-  let e ← lambdaTelescope info.value fun params body => do mkLambdaFVars params (← etaExpand body)
+  -- to make sure that `target` indeed the last parameter
+  let e := info.value
+  let e ← lambdaTelescope e fun params body => do
+    if body.isAppOfArity ``WellFounded.fix 5 then
+      forallBoundedTelescope (← inferType body) (some 1) fun xs _ => do
+        unless xs.size = 1 do
+          throwError "functional induction: Failed to eta-expand{indentExpr e}"
+        mkLambdaFVars (params ++ xs) (mkAppN body xs)
+    else
+      pure e
   let e' ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
     match_expr funBody with
     | fix@WellFounded.fix α _motive rel wf body target =>
@@ -710,7 +718,11 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         -- So for now lets just keep them around.
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
         instantiateMVars e'
-    | _ => throwError "Function {name} not defined via WellFounded.fix:{indentExpr funBody}"
+    | _ =>
+      if funBody.isAppOf ``WellFounded.fix then
+        throwError "Function {name} defined via WellFounded.fix with unexpected arity {funBody.getAppNumArgs}:{indentExpr funBody}"
+      else
+        throwError "Function {name} not defined via WellFounded.fix:{indentExpr funBody}"
 
   unless (← isTypeCorrect e') do
     logError m!"failed to derive a type-correct induction principle:{indentExpr e'}"

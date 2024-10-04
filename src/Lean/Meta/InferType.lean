@@ -168,7 +168,7 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
   match (← getTransparency) with
   | .default =>
-    match (← get).cache.inferTypeDefault.find? e with
+    match (← get).cache.inferType.default.find? e with
     | some type => return type
     | none =>
       let type ← inferType
@@ -176,7 +176,7 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
         modifyInferTypeCacheDefault fun c => c.insert e type
       return type
   | .all =>
-    match (← get).cache.inferTypeAll.find? e with
+    match (← get).cache.inferType.all.find? e with
     | some type => return type
     | none =>
       let type ← inferType

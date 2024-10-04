@@ -36,7 +36,6 @@ structure MonitorContext where
   outLv : LogLevel
   failLv : LogLevel
   minAction : JobAction
-  showOptional : Bool
   useAnsi : Bool
   showProgress : Bool
   /-- How often to poll jobs (in milliseconds). -/
@@ -99,7 +98,7 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
 
 def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, ..} ← get
-  let {totalJobs, failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, ..} ← read
+  let {totalJobs, failLv, outLv, out, useAnsi, showProgress, minAction, ..} ← read
   let {task, caption, optional} := job.toJob
   let {log, action, ..} := task.get.state
   let maxLv := log.maxLv
@@ -107,10 +106,7 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   if failed ∧ ¬optional then
     modify fun s => {s with failures := s.failures.push caption}
   let hasOutput := failed ∨ (log.hasEntries ∧ maxLv ≥ outLv)
-  let showJob :=
-    (¬ optional ∨ showOptional) ∧
-    (hasOutput ∨ (showProgress ∧ ¬ useAnsi ∧ action ≥ minAction))
-  if showJob then
+  if hasOutput ∨ (showProgress ∧ ¬ useAnsi ∧ action ≥ minAction) then
     let verb := action.verb failed
     let icon := if hasOutput then maxLv.icon else '✔'
     let opt := if optional then " (Optional)" else ""
@@ -171,14 +167,14 @@ def monitorJobs
   (out : IO.FS.Stream)
   (failLv outLv : LogLevel)
   (minAction : JobAction)
-  (showOptional useAnsi showProgress : Bool)
+  (useAnsi showProgress : Bool)
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
   (totalJobs := jobs.size)
   (updateFrequency := 100)
 : BaseIO (Array String) := do
   let ctx := {
-    totalJobs, out, failLv, outLv, minAction, showOptional
+    totalJobs, out, failLv, outLv, minAction
     useAnsi, showProgress, updateFrequency
   }
   let s := {
@@ -232,8 +228,7 @@ def Workspace.runFetchM
   let jobs ← ctx.registeredJobs.get
   let resetCtrl := if showAnsiProgress then Ansi.resetLine else ""
   let minAction := if cfg.verbosity = .verbose then .unknown else .fetch
-  let showOptional := cfg.verbosity = .verbose
-  let failures ← monitorJobs jobs out failLv outLv minAction showOptional useAnsi showProgress
+  let failures ← monitorJobs jobs out failLv outLv minAction useAnsi showProgress
     (resetCtrl := resetCtrl) (initFailures := failures)
   -- Failure Report
   if failures.isEmpty then

@@ -41,21 +41,10 @@ def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
 
 /-- Tries to download the package's build cache (if configured). -/
 def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
-  let shouldFetch :=
-    (← getTryCache) &&
-    (self.preferReleaseBuild || -- GitHub release
-      (!self.scope.isEmpty && !(← getElanToolchain).isEmpty)) -- Reservoir
-  if shouldFetch then
-    self.optBuildCache.fetch
-  else
+  if (← getNoCache) then
     return pure true
-
-@[inline]
-private def Package.optFacetDetails (self : Package) (facet : Name) : JobM String := do
-  if (← getIsVerbose) then
-    return s!" (see '{self.name}:{facet}' for details)"
   else
-    return " (run with '-v' for details)"
+    self.optBuildCache.fetch
 
 /--
 Tries to download and unpack the package's cached build archive
@@ -65,9 +54,10 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
   let job ← self.maybeFetchBuildCache
   job.bindSync fun success t => do
     unless success do
-      let details ← self.optFacetDetails <| if self.preferReleaseBuild then
-          optGitHubReleaseFacet else optReservoirBarrelFacet
-      logWarning s!"building from source; failed to fetch cloud build{details}"
+      let facet := if self.preferReleaseBuild then
+        optGitHubReleaseFacet else optReservoirBarrelFacet
+      logWarning s!"building from source; \
+        failed to fetch cloud release (see '{self.name}:{facet}' for details)"
     return ((), t)
 
 @[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
@@ -160,7 +150,7 @@ private def Package.mkBuildArchiveFacetConfig
     withRegisterJob s!"{pkg.name}:{facet}" do
       (← fetch <| pkg.facet optFacet).bindSync fun success t => do
         unless success do
-          error s!"failed to fetch {what}{← pkg.optFacetDetails optFacet}"
+          error s!"failed to fetch {what} (see '{pkg.name}:{optFacet}' for details)"
         return ((), t)
 
 /-- The `PackageFacetConfig` for the builtin `buildCacheFacet`. -/

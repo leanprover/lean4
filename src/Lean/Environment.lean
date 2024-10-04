@@ -794,7 +794,6 @@ instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionIn
 def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
   if env.asyncCtx?.isSome then
     let _ : Inhabited Environment := ⟨env⟩
-    dbgStackTrace fun _ =>
     panic! s!"cannot set state of environment extension in an async context"
   else
     { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
@@ -802,7 +801,6 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
   if env.asyncCtx?.isSome then
     let _ : Inhabited Environment := ⟨env⟩
-    dbgStackTrace fun _ =>
     panic! s!"cannot set state of environment extension in an async context"
   else
     { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }

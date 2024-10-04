@@ -55,7 +55,7 @@ private def updateHasFwdDeps (pinfo : Array ParamInfo) (backDeps : Array Nat) : 
 private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
   checkFunInfoCache fn maxArgs? do
     let fnType ← inferType fn
-    withTransparency TransparencyMode.default do
+    withAtLeastTransparency TransparencyMode.default do
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
         let mut paramInfo := #[]
         let mut higherOrderOutParams : FVarIdSet := {}

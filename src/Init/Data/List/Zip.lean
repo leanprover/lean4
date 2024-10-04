@@ -247,9 +247,9 @@ theorem zip_eq_zipWith : ∀ (l₁ : List α) (l₂ : List β), zip l₁ l₂ = 
 
 theorem zip_map (f : α → γ) (g : β → δ) :
     ∀ (l₁ : List α) (l₂ : List β), zip (l₁.map f) (l₂.map g) = (zip l₁ l₂).map (Prod.map f g)
-  | [], l₂ => rfl
-  | l₁, [] => by simp only [map, zip_nil_right]
-  | a :: l₁, b :: l₂ => by
+  | [], _ => rfl
+  | _, [] => by simp only [map, zip_nil_right]
+  | _ :: _, _ :: _ => by
     simp only [map, zip_cons_cons, zip_map, Prod.map]; constructor
 
 theorem zip_map_left (f : α → γ) (l₁ : List α) (l₂ : List β) :
@@ -287,12 +287,12 @@ theorem of_mem_zip {a b} : ∀ {l₁ : List α} {l₂ : List β}, (a, b) ∈ zip
 
 theorem map_fst_zip :
     ∀ (l₁ : List α) (l₂ : List β), l₁.length ≤ l₂.length → map Prod.fst (zip l₁ l₂) = l₁
-  | [], bs, _ => rfl
+  | [], _, _ => rfl
   | _ :: as, _ :: bs, h => by
     simp [Nat.succ_le_succ_iff] at h
     show _ :: map Prod.fst (zip as bs) = _ :: as
     rw [map_fst_zip as bs h]
-  | a :: as, [], h => by simp at h
+  | _ :: _, [], h => by simp at h
 
 theorem map_snd_zip :
     ∀ (l₁ : List α) (l₂ : List β), l₂.length ≤ l₁.length → map Prod.snd (zip l₁ l₂) = l₂
@@ -430,9 +430,9 @@ theorem zip_unzip : ∀ l : List (α × β), zip (unzip l).1 (unzip l).2 = l
 
 theorem unzip_zip_left :
     ∀ {l₁ : List α} {l₂ : List β}, length l₁ ≤ length l₂ → (unzip (zip l₁ l₂)).1 = l₁
-  | [], l₂, _ => rfl
-  | l₁, [], h => by rw [eq_nil_of_length_eq_zero (Nat.eq_zero_of_le_zero h)]; rfl
-  | a :: l₁, b :: l₂, h => by
+  | [], _, _ => rfl
+  | _, [], h => by rw [eq_nil_of_length_eq_zero (Nat.eq_zero_of_le_zero h)]; rfl
+  | _ :: _, _ :: _, h => by
     simp only [zip_cons_cons, unzip_cons, unzip_zip_left (le_of_succ_le_succ h)]
 
 theorem unzip_zip_right :

@@ -59,8 +59,8 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
         let mut paramInfo := #[]
         let mut higherOrderOutParams : FVarIdSet := {}
-        for i in [:fvars.size] do
-          let fvar := fvars[i]!
+        for h : i in [:fvars.size] do
+          let fvar := fvars[i]
           let decl ← getFVarLocalDecl fvar
           let backDeps := collectDeps fvars decl.type
           let dependsOnHigherOrderOutParam :=
@@ -79,9 +79,9 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
               if let some outParamPositions := getOutParamPositions? (← getEnv) className then
                 unless outParamPositions.isEmpty do
                   let args := decl.type.getAppArgs
-                  for i in [:args.size] do
+                  for h2 : i in [:args.size] do
                     if outParamPositions.contains i then
-                      let arg := args[i]!
+                      let arg := args[i]
                       if let some idx := fvars.indexOf? arg then
                         if (← whnf (← inferType arg)).isForall then
                           paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }

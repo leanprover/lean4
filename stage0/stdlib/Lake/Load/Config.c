@@ -15,17 +15,19 @@ extern "C" {
 #endif
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_relConfigFile___default;
+static lean_object* l_Lake_LoadConfig_scope___default___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_pkgDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_relPkgDir___default;
+LEAN_EXPORT lean_object* l_Lake_LoadConfig_scope___default;
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_leanOpts___default;
+LEAN_EXPORT lean_object* l_Lake_LoadConfig_remoteUrl___default;
 static lean_object* l_Lake_LoadConfig_relPkgDir___default___closed__1;
 extern lean_object* l_Lake_defaultLakeDir;
 LEAN_EXPORT uint8_t l_Lake_LoadConfig_reconfigure___default;
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeOpts___default;
 LEAN_EXPORT lean_object* l_Lake_LoadConfig_configFile(lean_object*);
 extern lean_object* l_Lake_defaultConfigFile;
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_remoteUrl_x3f___default;
 static lean_object* _init_l_Lake_LoadConfig_relPkgDir___default___closed__1() {
 _start:
 {
@@ -74,11 +76,27 @@ x_1 = 0;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_LoadConfig_remoteUrl_x3f___default() {
+static lean_object* _init_l_Lake_LoadConfig_scope___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
+x_1 = lean_mk_string_unchecked("", 0, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_LoadConfig_scope___default() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_LoadConfig_scope___default___closed__1;
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_LoadConfig_remoteUrl___default() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_LoadConfig_scope___default___closed__1;
 return x_1;
 }
 }
@@ -170,8 +188,12 @@ lean_mark_persistent(l_Lake_LoadConfig_lakeOpts___default);
 l_Lake_LoadConfig_leanOpts___default = _init_l_Lake_LoadConfig_leanOpts___default();
 lean_mark_persistent(l_Lake_LoadConfig_leanOpts___default);
 l_Lake_LoadConfig_reconfigure___default = _init_l_Lake_LoadConfig_reconfigure___default();
-l_Lake_LoadConfig_remoteUrl_x3f___default = _init_l_Lake_LoadConfig_remoteUrl_x3f___default();
-lean_mark_persistent(l_Lake_LoadConfig_remoteUrl_x3f___default);
+l_Lake_LoadConfig_scope___default___closed__1 = _init_l_Lake_LoadConfig_scope___default___closed__1();
+lean_mark_persistent(l_Lake_LoadConfig_scope___default___closed__1);
+l_Lake_LoadConfig_scope___default = _init_l_Lake_LoadConfig_scope___default();
+lean_mark_persistent(l_Lake_LoadConfig_scope___default);
+l_Lake_LoadConfig_remoteUrl___default = _init_l_Lake_LoadConfig_remoteUrl___default();
+lean_mark_persistent(l_Lake_LoadConfig_remoteUrl___default);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

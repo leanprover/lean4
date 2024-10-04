@@ -80,6 +80,8 @@ noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decid
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
+instance (a : Prop) : Nonempty (Decidable a) := ⟨propDecidable a⟩
+
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
   fun _ _ => inferInstance
 

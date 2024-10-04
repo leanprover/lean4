@@ -582,8 +582,8 @@ theorem rev_succ (k : Fin n) : rev (succ k) = castSucc (rev k) := k.rev_addNat 1
 @[simp] theorem coe_pred (j : Fin (n + 1)) (h : j ≠ 0) : (j.pred h : Nat) = j - 1 := rfl
 
 @[simp] theorem succ_pred : ∀ (i : Fin (n + 1)) (h : i ≠ 0), (i.pred h).succ = i
-  | ⟨0, h⟩, hi => by simp only [mk_zero, ne_eq, not_true] at hi
-  | ⟨n + 1, h⟩, hi => rfl
+  | ⟨0, _⟩, hi => by simp only [mk_zero, ne_eq, not_true] at hi
+  | ⟨_ + 1, _⟩, _ => rfl
 
 @[simp]
 theorem pred_succ (i : Fin n) {h : i.succ ≠ 0} : i.succ.pred h = i := by

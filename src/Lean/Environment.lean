@@ -765,8 +765,8 @@ where
   loop (i : Nat) (env : Environment) : IO Environment := do
     -- Recall that the size of the array stored `persistentEnvExtensionRef` may increase when we import user-defined environment extensions.
     let pExtDescrs ← persistentEnvExtensionsRef.get
-    if i < pExtDescrs.size then
-      let extDescr := pExtDescrs[i]!
+    if h : i < pExtDescrs.size then
+      let extDescr := pExtDescrs[i]
       let s := extDescr.toEnvExtension.getState env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
@@ -858,7 +858,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.empty (capacity := numConsts)
   let mut constantMap : Std.HashMap Name ConstantInfo := Std.HashMap.empty (capacity := numConsts)
-  for h:modIdx in [0:s.moduleData.size] do
+  for h : modIdx in [0:s.moduleData.size] do
     let mod := s.moduleData[modIdx]'h.upper
     for cname in mod.constNames, cinfo in mod.constants do
       match constantMap.getThenInsertIfNew? cname cinfo with
@@ -1095,6 +1095,13 @@ def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
 opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
+
+/--
+  Kernel typecheck function. We use it mainly for debugging purposes.
+  Recall that the Kernel type checker does not support metavariables.
+  When implementing automation, consider using the `MetaM` methods. -/
+@[extern "lean_kernel_check"]
+opaque check (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
 
 end Kernel
 

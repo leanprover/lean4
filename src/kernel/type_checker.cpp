@@ -1203,6 +1203,12 @@ extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * env, lean_ob
     });
 }
 
+extern "C" LEAN_EXPORT lean_object * lean_kernel_check(lean_object * env, lean_object * lctx, lean_object * a) {
+    return catch_kernel_exceptions<object*>([&]() {
+        return type_checker(environment(env), local_ctx(lctx)).check(expr(a)).steal();
+    });
+}
+
 inline static expr * new_persistent_expr_const(name const & n) {
     expr * e = new expr(mk_const(n));
     mark_persistent(e->raw());

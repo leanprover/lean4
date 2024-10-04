@@ -375,12 +375,12 @@ The same as `rfl`, but without trying `eq_refl` at the end.
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
--- We try `apply_rfl` first, beause it produces a nice error message
+-- We try `apply_rfl` first, because it produces a nice error message
 macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
 
 -- But, mostly for backward compatibility, we try `eq_refl` too (reduces more aggressively)
 macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
--- Als for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
+-- Also for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
@@ -398,6 +398,19 @@ example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 ```
 -/
 syntax (name := acRfl) "ac_rfl" : tactic
+
+/--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+syntax (name := acNf) "ac_nf" : tactic
 
 /--
 The `sorry` tactic closes the goal using `sorryAx`. This is intended for stubbing out incomplete

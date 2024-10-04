@@ -164,6 +164,17 @@ theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
       (getLsbD x i ^^ (getLsbD y i ^^ carry i x y false)) := by
   simpa using getLsbD_add_add_bool i_lt x y false
 
+theorem getElem_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
+    (x + y + setWidth w (ofBool c))[i] =
+      (x[i] ^^ (y[i] ^^ carry i x y c)) := by
+  simp only [← getLsbD_eq_getElem]
+  rw [getLsbD_add_add_bool]
+  omega
+
+theorem getElem_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
+    (x + y)[i] = (x[i] ^^ (y[i] ^^ carry i x y false)) := by
+  simpa using getElem_add_add_bool i_lt x y false
+
 theorem adc_spec (x y : BitVec w) (c : Bool) :
     adc x y c = (carry w x y c, x + y + setWidth w (ofBool c)) := by
   simp only [adc]
@@ -367,6 +378,10 @@ theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
   rw [setWidth_setWidth_of_le]
   · simp
   · omega
+
+theorem getElem_mul {x y : BitVec w} {i : Nat} (h : i < w) :
+    (x * y)[i] = (mulRec x y w)[i] := by
+  simp [mulRec_eq_mul_signExtend_setWidth]
 
 /-! ## shiftLeft recurrence for bitblasting -/
 
@@ -678,7 +693,7 @@ theorem DivModState.toNat_shiftRight_sub_one_eq
     omega
 
 /--
-This is used when proving the correctness of the divison algorithm,
+This is used when proving the correctness of the division algorithm,
 where we know that `r < d`.
 We then want to show that `((r.shiftConcat b) - d) < d` as the loop invariant.
 In arithmetic, this is the same as showing that

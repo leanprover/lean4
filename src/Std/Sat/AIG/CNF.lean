@@ -598,9 +598,9 @@ where
     else
       let decl := aig.decls[upper]
       match heq : decl with
-      | .const b => state.addConst upper h heq
-      | .atom a => state.addAtom upper h heq
-      | .gate lhs rhs linv rinv =>
+      | .const _ => state.addConst upper h heq
+      | .atom _ => state.addAtom upper h heq
+      | .gate lhs rhs _ _ =>
         have := aig.invariant h heq
         let ⟨lstate, hlstate⟩ := go aig lhs (by omega) state
         let ⟨rstate, hrstate⟩ := go aig rhs (by omega) lstate

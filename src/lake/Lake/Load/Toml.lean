@@ -305,9 +305,10 @@ instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.
 Load a `Package` from a TOML Lake configuration file.
 The resulting package does not yet include any dependencies.
 -/
-def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
-  let input ← IO.FS.readFile cfg.configFile
-  let ictx := mkInputContext input cfg.relConfigFile.toString
+def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
+  let configFile := dir / relConfigFile
+  let input ← IO.FS.readFile configFile
+  let ictx := mkInputContext input relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
   | .ok table =>
     let (pkg, errs) := Id.run <| StateT.run (s := (#[] : Array DecodeError)) do
@@ -318,11 +319,7 @@ def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        dir := cfg.pkgDir
-        relDir := cfg.relPkgDir
-        relConfigFile := cfg.relConfigFile
-        scope := cfg.scope
-        remoteUrl := cfg.remoteUrl
+        dir, relDir, relConfigFile
         config, depConfigs, leanLibConfigs, leanExeConfigs
         defaultTargets
       }

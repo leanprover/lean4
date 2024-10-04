@@ -128,10 +128,6 @@ variable [MonadLakeEnv m]
 
 variable [Functor m]
 
-/-- Get the `LAKE_NO_CACHE`/`--no-cache` LAke configuration. -/
-@[inline] def getNoCache [Functor m] [MonadBuild m] : m Bool :=
-  (·.noCache) <$> getLakeEnv
-
 /-- Get the `LAKE_PACKAGE_URL_MAP` for the Lake environment. Empty if none. -/
 @[inline] def getPkgUrlMap : m (NameMap String) :=
   (·.pkgUrlMap) <$> getLakeEnv

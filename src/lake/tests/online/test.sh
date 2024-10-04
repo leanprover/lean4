@@ -4,35 +4,16 @@ set -exo pipefail
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./clean.sh
-$LAKE -f barrel.lean update
-# Test cache toggle
-$LAKE -f barrel.lean build @Cli:extraDep | grep --color "Cli:optBarrel"
-(LAKE_NO_CACHE=1 $LAKE -f barrel.lean build @Cli:extraDep) |
-  grep --color "Cli:optBarrel" && exit 1 || true
-($LAKE -f barrel.lean build @Cli:extraDep --no-cache) |
-  grep --color "Cli:optBarrel" && exit 1 || true
-(LAKE_NO_CACHE=1 $LAKE -f barrel.lean build @Cli:extraDep --try-cache) |
-  grep --color "Cli:optBarrel"
-# Test barrel download
-(ELAN_TOOLCHAIN= $LAKE -f barrel.lean build @Cli:barrel -v && exit 1 || true) |
-  grep --color "Lean toolchain not known"
-ELAN_TOOLCHAIN=leanprover/lean4:v4.11.0 \
-  $LAKE -f barrel.lean build @Cli:barrel -v
-ELAN_TOOLCHAIN=leanprover/lean4:v4.11.0 \
-LEAN_GITHASH=ec3042d94bd11a42430f9e14d39e26b1f880f99b \
-  $LAKE -f barrel.lean build Cli --no-build
-
-./clean.sh
 # Tests requiring a package not in the index
-($LAKE -f bogus-dep.toml update 2>&1 && exit 1 || true) |
+($LAKE update -f bogus-dep.toml 2>&1 && exit || true) |
   grep --color "error: bogus/bogus: could not materialize package: dependency has no explicit source and was not found on Reservoir"
 
 ./clean.sh
-$LAKE -f require.lean update -v
+$LAKE update -f lakefile.lean -v
 test -d .lake/packages/doc-gen4
-$LAKE -f require.lean resolve-deps  # validate manifest
+$LAKE resolve-deps -f lakefile.lean # validate manifest
 
 ./clean.sh
-$LAKE -f require.toml update  v
+$LAKE update -f lakefile.toml -v
 test -d .lake/packages/doc-gen4
-$LAKE -f require.toml resolve-deps  # validate manifest
+$LAKE resolve-deps -f lakefile.toml # validate manifest

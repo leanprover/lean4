@@ -35,7 +35,7 @@ REV_STR="'${INIT_REV}'"
 ✖ [1/2] (Optional) Fetching dep:optRelease
 error: no release tag found for revision ${REV_STR}
 ✖ [2/2] Running dep:release
-error: failed to fetch GitHub release (see 'dep:optRelease' for details)
+error: failed to fetch cloud release (see 'dep:optRelease' for details)
 Some required builds logged failures:
 - dep:release
 EOF
@@ -54,7 +54,7 @@ EOF
 
 # Test download failure
 $LAKE update # re-fetch release tag
-($LAKE  build dep:release && exit 1 || true) | grep --color "curl"
+($LAKE build dep:release && exit 1 || true) | grep --color "downloading"
 
 # Test automatic cloud release unpacking
 mkdir -p .lake/packages/dep/.lake/build
@@ -62,7 +62,7 @@ $LAKE -d .lake/packages/dep pack 2>&1 | grep --color "packing"
 test -f .lake/packages/dep/.lake/release.tgz
 echo 4225503363911572621 > .lake/packages/dep/.lake/release.tgz.trace
 rmdir .lake/packages/dep/.lake/build
-$LAKE build dep:release -v | grep --color "tar"
+$LAKE build dep:release -v | grep --color "unpacking"
 test -d .lake/packages/dep/.lake/build
 
 # Test that the job prints nothing if the archive is already fetched and unpacked

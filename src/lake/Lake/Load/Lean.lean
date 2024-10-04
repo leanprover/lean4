@@ -29,7 +29,6 @@ def loadLeanConfig (cfg : LoadConfig)
     relDir := cfg.relPkgDir
     config := pkgConfig
     relConfigFile := cfg.relConfigFile
-    scope := cfg.scope
-    remoteUrl := cfg.remoteUrl
+    remoteUrl? := cfg.remoteUrl?
   }
   return (← pkg.loadFromEnv configEnv cfg.leanOpts, configEnv)

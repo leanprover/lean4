@@ -48,8 +48,6 @@ BASIC OPTIONS:
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
   --no-build            exit immediately if a build target is not up-to-date
-  --no-cache            build packages locally; do not download build caches
-  --try-cache           attempt to download build caches for supported packages
 
 OUTPUT OPTIONS:
   --quiet, -q           hide informational logs and the progress indicator

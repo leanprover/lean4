@@ -34,8 +34,7 @@ def loadDepPackage
     relPkgDir := dep.relPkgDir
     relConfigFile := dep.configFile
     lakeOpts, leanOpts, reconfigure
-    scope := dep.scope
-    remoteUrl := dep.remoteUrl
+    remoteUrl? := dep.remoteUrl?
   }
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts

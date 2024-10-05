@@ -141,23 +141,23 @@ where
     | .var x => vars[x]!
 
 def post (e : Expr) : SimpM Simp.Step := do
-    let ctx ← Simp.getContext
-    match e, ctx.parent? with
-    | bin op₁ l r, some (bin op₂ _ _) =>
-      if ←isDefEq op₁ op₂ then
-        return Simp.Step.done { expr := e }
-      match ←preContext op₁ with
-      | some pc =>
-        let (proof, newTgt) ← buildNormProof pc l r
-        return Simp.Step.done { expr := newTgt, proof? := proof }
-      | none => return Simp.Step.done { expr := e }
-    | bin op l r, _ =>
-      match ←preContext op with
-      | some pc =>
-        let (proof, newTgt) ← buildNormProof pc l r
-        return Simp.Step.done { expr := newTgt, proof? := proof }
-      | none => return Simp.Step.done { expr := e }
-    | e, _ => return Simp.Step.done { expr := e }
+  let ctx ← Simp.getContext
+  match e, ctx.parent? with
+  | bin op₁ l r, some (bin op₂ _ _) =>
+    if ←isDefEq op₁ op₂ then
+      return Simp.Step.done { expr := e }
+    match ←preContext op₁ with
+    | some pc =>
+      let (proof, newTgt) ← buildNormProof pc l r
+      return Simp.Step.done { expr := newTgt, proof? := proof }
+    | none => return Simp.Step.done { expr := e }
+  | bin op l r, _ =>
+    match ←preContext op with
+    | some pc =>
+      let (proof, newTgt) ← buildNormProof pc l r
+      return Simp.Step.done { expr := newTgt, proof? := proof }
+    | none => return Simp.Step.done { expr := e }
+  | e, _ => return Simp.Step.done { expr := e }
 
 def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx :=

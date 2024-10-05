@@ -34,6 +34,7 @@ structure TacticContext where
   timeout : Nat
   trimProofs : Bool
   binaryProofs : Bool
+  ac_nf : Bool
 
 def TacticContext.new (lratPath : System.FilePath) : Lean.Elab.TermElabM TacticContext := do
   let exprDef ← Lean.Elab.Term.mkAuxName `_expr_def
@@ -45,6 +46,7 @@ def TacticContext.new (lratPath : System.FilePath) : Lean.Elab.TermElabM TacticC
   let timeout := sat.timeout.get opts
   let graphviz := debug.bv.graphviz.get opts
   let trimProofs := sat.trimProofs.get opts
+  let ac_nf := bv.ac_nf opts
   let binaryProofs :=
     -- Account for: https://github.com/arminbiere/cadical/issues/112
     if System.Platform.isWindows then
@@ -60,7 +62,8 @@ def TacticContext.new (lratPath : System.FilePath) : Lean.Elab.TermElabM TacticC
     graphviz,
     timeout,
     trimProofs,
-    binaryProofs
+    binaryProofs,
+    ac_nf
   }
 where
   determineSolver : Lean.Elab.TermElabM System.FilePath := do
@@ -181,7 +184,7 @@ function together with a correctness theorem for it.
   `∀ (b : α) (c : LratCert), verifier b c = true → unsat b`
 -/
 def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContext) (reflected : α)
-    (verifier : Name) (unsat_of_verifier_eq_true : Name) : 
+    (verifier : Name) (unsat_of_verifier_eq_true : Name) :
     MetaM Expr := do
   withTraceNode `sat (fun _ => return "Compiling expr term") do
     mkAuxDecl cfg.exprDef (toExpr reflected) (toTypeExpr α)

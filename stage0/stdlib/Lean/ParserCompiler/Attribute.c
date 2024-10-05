@@ -100,7 +100,6 @@ LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute_
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__8;
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__16;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -143,6 +142,7 @@ lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__21;
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__12;
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__28;
+lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -1126,7 +1126,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__3___closed__2;
-x_6 = l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(x_5, x_2, x_3, x_4);
+x_6 = l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(x_5, x_2, x_3, x_4);
 return x_6;
 }
 }

@@ -80,7 +80,6 @@ lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 uint8_t l_Lean_Expr_isHEq(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_UnifyEqResult_numNewEqs___default;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unifyEq_x3f_injection___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
@@ -290,14 +289,6 @@ lean_object* x_8;
 x_8 = l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_heqToEq_x27(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_2);
 return x_8;
-}
-}
-static lean_object* _init_l_Lean_Meta_UnifyEqResult_numNewEqs___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_toOffset_x3f___closed__1() {
@@ -4028,8 +4019,6 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Injection(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_UnifyEqResult_numNewEqs___default = _init_l_Lean_Meta_UnifyEqResult_numNewEqs___default();
-lean_mark_persistent(l_Lean_Meta_UnifyEqResult_numNewEqs___default);
 l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_toOffset_x3f___closed__1 = _init_l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_toOffset_x3f___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_toOffset_x3f___closed__1);
 l_Lean_Meta_unifyEq_x3f_substEq___closed__1 = _init_l_Lean_Meta_unifyEq_x3f_substEq___closed__1();

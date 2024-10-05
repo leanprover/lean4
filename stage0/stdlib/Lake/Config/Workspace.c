@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_instInhabitedOfWorkspace___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findModuleFacetConfig_x3f(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedSharedLibPath(lean_object*);
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findPackage_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -37,7 +36,6 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedPath(lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lake_Workspace_findTargetModule_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_leanSrcPath(lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lake_Workspace_findTargetModule_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Workspace_packages___default;
 LEAN_EXPORT uint8_t l_Lake_Workspace_isLocalModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_instCoeWorkspace__1;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_Workspace_leanSrcPath___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -130,7 +128,6 @@ LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_instCoeWorkspace;
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_unsafeGet___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_binPath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_Workspace_leanPath___spec__1(lean_object*, size_t, size_t, lean_object*);
-static lean_object* l_Lake_Workspace_packages___default___closed__1;
 static lean_object* l_Lake_Workspace_augmentedEnvVars___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lake_Workspace_addModuleFacetConfig___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findLibraryFacetConfig_x3f___spec__1(lean_object*, lean_object*);
@@ -148,7 +145,6 @@ LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Lake_Env_leanPath(lean_object*);
 lean_object* lean_array_mk(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Workspace_packageMap___default;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_Workspace_addPackage___spec__2(lean_object*, lean_object*, lean_object*);
@@ -179,31 +175,6 @@ extern uint8_t l_System_Platform_isWindows;
 static lean_object* l_Lake_Workspace_augmentedEnvVars___closed__1;
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lake_Workspace_findScript_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findModuleFacetConfig_x3f___boxed(lean_object*, lean_object*);
-static lean_object* _init_l_Lake_Workspace_packages___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lake_Workspace_packages___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Workspace_packages___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Workspace_packageMap___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_unsafeMk(lean_object* x_1) {
 _start:
 {
@@ -2952,7 +2923,7 @@ x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
 x_9 = lean_array_fget(x_2, x_8);
-x_10 = lean_ctor_get(x_9, 13);
+x_10 = lean_ctor_get(x_9, 14);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_10, x_1);
@@ -3325,7 +3296,7 @@ x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
 x_9 = lean_array_fget(x_2, x_8);
-x_10 = lean_ctor_get(x_9, 8);
+x_10 = lean_ctor_get(x_9, 9);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -3421,7 +3392,7 @@ x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
 x_9 = lean_array_fget(x_2, x_8);
-x_10 = lean_ctor_get(x_9, 9);
+x_10 = lean_ctor_get(x_9, 10);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -3557,7 +3528,7 @@ x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
 x_9 = lean_array_fget(x_2, x_8);
-x_10 = lean_ctor_get(x_9, 10);
+x_10 = lean_ctor_get(x_9, 11);
 lean_inc(x_10);
 x_11 = l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(x_2, x_8, x_9, x_10, x_1);
 lean_dec(x_10);
@@ -11565,7 +11536,7 @@ size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; l
 x_6 = 1;
 x_7 = lean_usize_sub(x_2, x_6);
 x_8 = lean_array_uget(x_1, x_7);
-x_9 = lean_ctor_get(x_8, 8);
+x_9 = lean_ctor_get(x_8, 9);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
@@ -12107,12 +12078,6 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_Log(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_Workspace_packages___default___closed__1 = _init_l_Lake_Workspace_packages___default___closed__1();
-lean_mark_persistent(l_Lake_Workspace_packages___default___closed__1);
-l_Lake_Workspace_packages___default = _init_l_Lake_Workspace_packages___default();
-lean_mark_persistent(l_Lake_Workspace_packages___default);
-l_Lake_Workspace_packageMap___default = _init_l_Lake_Workspace_packageMap___default();
-lean_mark_persistent(l_Lake_Workspace_packageMap___default);
 l_Lake_OpaqueWorkspace_instCoeWorkspace___closed__1 = _init_l_Lake_OpaqueWorkspace_instCoeWorkspace___closed__1();
 lean_mark_persistent(l_Lake_OpaqueWorkspace_instCoeWorkspace___closed__1);
 l_Lake_OpaqueWorkspace_instCoeWorkspace = _init_l_Lake_OpaqueWorkspace_instCoeWorkspace();

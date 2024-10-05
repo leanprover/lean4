@@ -89,6 +89,10 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
     m.isEmpty = true ↔ ∀ a, ¬a ∈ m :=
   HashMap.isEmpty_iff_forall_not_mem
 
+@[simp] theorem insert_eq_insert {a : α} : Insert.insert a m = m.insert a := rfl
+
+@[simp] theorem singleton_eq_insert {a : α} : Singleton.singleton a = (∅ : HashSet α).insert a := rfl
+
 @[simp]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.insert k).contains a = (k == a || m.contains a) :=

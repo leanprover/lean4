@@ -406,9 +406,9 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-        for i in [0:header.binderIds.size] do
+        for h : i in [0:header.binderIds.size] do
           -- skip auto-bound prefix in `xs`
-          addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
+          addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]!
         let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
           -- synthesize mvars here to force the top-level tactic block (if any) to run
           elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing

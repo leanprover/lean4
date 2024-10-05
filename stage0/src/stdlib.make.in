@@ -70,6 +70,7 @@ ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: $
 	@echo "[    ] Building $@"
 ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
+	@rm -f ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 	@rm -f ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
 # "half-way point" DLL to avoid symbol limit
 # include Lean.Meta.WHNF and leancpp except for `initialize.cpp`
@@ -104,6 +105,8 @@ Lake:
 
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libLean.a.export ${LIB}/temp/libLake.a.export
 	@echo "[    ] Building $@"
+# on Windows, must remove file before writing a new one (since the old one may be in use)
+	@rm -f ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
 	  ${LAKESHARED_LINKER_FLAGS} -lleanshared -lleanshared_1 -lInit_shared ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 

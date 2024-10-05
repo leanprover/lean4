@@ -16,8 +16,8 @@ private partial def mkLocalInstances (params : Array Expr) (k : Array Expr → M
   loop 0 #[]
 where
   loop (i : Nat) (insts : Array Expr) : MetaM α := do
-    if i < params.size then
-      let param := params[i]!
+    if h : i < params.size then
+      let param := params[i]
       let paramType ← inferType param
       let instType? ← forallTelescopeReducing paramType fun xs _ => do
         let type := mkAppN param xs
@@ -67,8 +67,8 @@ private partial def mkSizeOfMotives (motiveFVars : Array Expr) (k : Array Expr �
   loop 0 #[]
 where
   loop (i : Nat) (motives : Array Expr) : MetaM α := do
-    if i < motiveFVars.size then
-      let type ← inferType motiveFVars[i]!
+    if h : i < motiveFVars.size then
+      let type ← inferType motiveFVars[i]
       let motive ← forallTelescopeReducing type fun xs _ => do
         mkLambdaFVars xs <| mkConst ``Nat
       trace[Meta.sizeOf] "motive: {motive}"

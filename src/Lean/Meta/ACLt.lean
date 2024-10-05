@@ -155,8 +155,8 @@ where
           if !infos[i]!.isInstImplicit then
             if !(← lt args[i]! b) then
               return false
-        for i in [infos.size:args.size] do
-          if !(← lt args[i]! b) then
+        for h : i in [infos.size:args.size] do
+          if !(← lt args[i] b) then
             return false
         return true
     | .lam _ d e ..     => lt d b <&&> lt e b

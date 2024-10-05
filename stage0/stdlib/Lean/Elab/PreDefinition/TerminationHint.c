@@ -126,20 +126,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_TerminationBy_checkVars_parameters(lean_obj
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTerminationBy;
 static lean_object* l_Lean_Elab_instInhabitedTerminationBy___closed__2;
-LEAN_EXPORT uint8_t l_Lean_Elab_TerminationBy_synthetic___default;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__4;
 lean_object* l_Lean_Expr_getNumHeadLambdas(lean_object*);
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__8;
-static uint8_t _init_l_Lean_Elab_TerminationBy_synthetic___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_instInhabitedTerminationBy___closed__1() {
 _start:
 {
@@ -2284,7 +2275,6 @@ _G_initialized = true;
 res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_TerminationBy_synthetic___default = _init_l_Lean_Elab_TerminationBy_synthetic___default();
 l_Lean_Elab_instInhabitedTerminationBy___closed__1 = _init_l_Lean_Elab_instInhabitedTerminationBy___closed__1();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTerminationBy___closed__1);
 l_Lean_Elab_instInhabitedTerminationBy___closed__2 = _init_l_Lean_Elab_instInhabitedTerminationBy___closed__2();

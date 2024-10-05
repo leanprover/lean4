@@ -434,7 +434,7 @@ theorem toInt_inj {x y : BitVec n} : x.toInt = y.toInt ↔ x = y :=
 theorem toInt_ne {x y : BitVec n} : x.toInt ≠ y.toInt ↔ x ≠ y  := by
   rw [Ne, toInt_inj]
 
-@[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
+@[simp, bv_toNat] theorem toNat_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
   unfold BitVec.ofInt
   simp
@@ -462,6 +462,16 @@ theorem toInt_neg_iff {w : Nat} {x : BitVec w} :
 theorem toInt_pos_iff {w : Nat} {x : BitVec w} :
     0 ≤ BitVec.toInt x ↔ 2 * x.toNat < 2 ^ w := by
   simp [toInt_eq_toNat_cond]; omega
+
+theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
+  obtain ⟨a, ha⟩ := a
+  simp only [Nat.reducePow]
+  have acases : a = 0 ∨ a = 1 := by omega
+  rcases acases with ⟨rfl | rfl⟩
+  · simp
+  · case inr h =>
+    subst h
+    simp
 
 /-! ### setWidth, zeroExtend and truncate -/
 
@@ -2024,6 +2034,11 @@ theorem shiftLeft_add_distrib {x y : BitVec w} {n : Nat} :
   case succ n ih =>
     simp [ih, toNat_eq, Nat.shiftLeft_eq, ← Nat.add_mul]
 
+theorem add_eq_xor {a b : BitVec 1} : a + b = a ^^^ b := by
+  have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _
+  have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
+  rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
+
 /-! ### sub/neg -/
 
 theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
@@ -2133,6 +2148,11 @@ theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
     subst h'
     simp at h
 
+theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
+  have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _
+  have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
+  rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
+
 /-! ### abs -/
 
 @[simp, bv_toNat]
@@ -2199,6 +2219,11 @@ theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
     BitVec.ofInt n x * BitVec.ofInt n y := by
   apply eq_of_toInt_eq
   simp
+
+theorem mul_eq_and {a b : BitVec 1} : a * b = a &&& b := by
+  have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _
+  have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
+  rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
 
 /-! ### le and lt -/
 

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__1;
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_getIndInfo_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
@@ -37,6 +36,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_findCtorName_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__1___closed__1;
@@ -50,7 +50,6 @@ static lean_object* l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Simp_withDiscrCt
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f___spec__2(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_getIndInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Simp_getIndInfo_x3f___spec__1(size_t, size_t, lean_object*);
@@ -71,7 +70,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LC
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_Simp_simpCtorDiscrCore_x3f___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_DiscrM_Context_discrCtorMap___default;
 lean_object* l_Lean_Compiler_LCNF_LetValue_toExpr(lean_object*);
 uint8_t l_Lean_Expr_isErased(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -107,7 +105,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Compiler_LCNF_Simp_wi
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_findCtorName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default;
+static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3;
 lean_object* l_Lean_Compiler_LCNF_inferType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -291,40 +289,6 @@ lean_object* x_2;
 x_2 = l_Lean_Compiler_LCNF_Simp_CtorInfo_getNumFields(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_discrCtorMap___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__2;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_Simp_findCtor_x3f___spec__1(lean_object* x_1, lean_object* x_2) {
@@ -1340,9 +1304,27 @@ return x_5;
 static lean_object* _init_l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__2;
+x_2 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__2;
 x_3 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_1);
@@ -1383,7 +1365,7 @@ lean_dec(x_16);
 x_18 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_17);
 lean_dec(x_17);
 x_19 = lean_ctor_get(x_5, 2);
-x_20 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+x_20 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3;
 lean_inc(x_19);
 x_21 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_21, 0, x_13);
@@ -1415,7 +1397,7 @@ lean_dec(x_23);
 x_26 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_25);
 lean_dec(x_25);
 x_27 = lean_ctor_get(x_5, 2);
-x_28 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+x_28 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3;
 lean_inc(x_27);
 x_29 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_29, 0, x_13);
@@ -1465,7 +1447,7 @@ lean_dec(x_36);
 x_40 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_39);
 lean_dec(x_39);
 x_41 = lean_ctor_get(x_5, 2);
-x_42 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+x_42 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3;
 lean_inc(x_41);
 x_43 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_43, 0, x_34);
@@ -1642,7 +1624,7 @@ lean_dec(x_16);
 x_18 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_17);
 lean_dec(x_17);
 x_19 = lean_ctor_get(x_5, 2);
-x_20 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+x_20 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3;
 lean_inc(x_19);
 x_21 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_21, 0, x_13);
@@ -1674,7 +1656,7 @@ lean_dec(x_23);
 x_26 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_25);
 lean_dec(x_25);
 x_27 = lean_ctor_get(x_5, 2);
-x_28 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+x_28 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3;
 lean_inc(x_27);
 x_29 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_29, 0, x_13);
@@ -1724,7 +1706,7 @@ lean_dec(x_36);
 x_40 = l_Lean_Compiler_LCNF_LCtx_toLocalContext(x_39);
 lean_dec(x_39);
 x_41 = lean_ctor_get(x_5, 2);
-x_42 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1;
+x_42 = l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3;
 lean_inc(x_41);
 x_43 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_43, 0, x_34);
@@ -3549,18 +3531,14 @@ l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___closed__4 = _init_l_Lean_Compiler_L
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___closed__4);
 l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___closed__5 = _init_l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___closed__5();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_CtorInfo_getName___closed__5);
-l_Lean_Compiler_LCNF_Simp_DiscrM_Context_discrCtorMap___default = _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_discrCtorMap___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_DiscrM_Context_discrCtorMap___default);
-l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__1);
-l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__2 = _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__2();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default___closed__2);
-l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default = _init_l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_DiscrM_Context_ctorDiscrMap___default);
 l_Lean_Compiler_LCNF_Simp_getIndInfo_x3f___lambda__1___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_getIndInfo_x3f___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_getIndInfo_x3f___lambda__1___closed__1);
 l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1 = _init_l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1();
 lean_mark_persistent(l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__1);
+l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__2 = _init_l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__2();
+lean_mark_persistent(l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__2);
+l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3 = _init_l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3();
+lean_mark_persistent(l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__3___closed__3);
 l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__2___closed__1 = _init_l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__2___closed__1();
 lean_mark_persistent(l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__2___closed__1);
 l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__2___closed__2 = _init_l_Lean_getConstInfo___at_Lean_Compiler_LCNF_Simp_withDiscrCtorImp_updateCtx___spec__2___closed__2();

@@ -742,8 +742,8 @@ theorem IsSuffix.eq_of_length_le (h : l₁ <:+ l₂) : l₂.length ≤ l₁.leng
 
 theorem prefix_of_prefix_length_le :
     ∀ {l₁ l₂ l₃ : List α}, l₁ <+: l₃ → l₂ <+: l₃ → length l₁ ≤ length l₂ → l₁ <+: l₂
-  | [], l₂, _, _, _, _ => nil_prefix
-  | a :: l₁, b :: l₂, _, ⟨r₁, rfl⟩, ⟨r₂, e⟩, ll => by
+  | [], _, _, _, _, _ => nil_prefix
+  | _ :: _, b :: _, _, ⟨_, rfl⟩, ⟨_, e⟩, ll => by
     injection e with _ e'; subst b
     rcases prefix_of_prefix_length_le ⟨_, rfl⟩ ⟨_, e'⟩ (le_of_succ_le_succ ll) with ⟨r₃, rfl⟩
     exact ⟨r₃, rfl⟩

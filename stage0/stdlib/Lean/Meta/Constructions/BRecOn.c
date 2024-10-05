@@ -142,6 +142,7 @@ static lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFr
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowOrIBelow___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_setReducibilityStatusCore(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParams(lean_object*, lean_object*, lean_object*);
@@ -1583,6 +1584,17 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__2;
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__2;
 x_2 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -1591,21 +1603,22 @@ lean_ctor_set(x_2, 3, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5() {
+static lean_object* _init_l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__2;
-x_2 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__4;
-x_3 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_1);
-lean_ctor_set(x_3, 4, x_1);
-lean_ctor_set(x_3, 5, x_2);
-lean_ctor_set(x_3, 6, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__4;
+x_2 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__2;
+x_3 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_4 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_2);
+lean_ctor_set(x_4, 4, x_2);
+lean_ctor_set(x_4, 5, x_3);
+lean_ctor_set(x_4, 6, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1647,7 +1660,7 @@ if (x_23 == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_24 = lean_ctor_get(x_21, 1);
 lean_dec(x_24);
-x_25 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_25 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 lean_ctor_set(x_21, 1, x_25);
 x_26 = lean_st_ref_set(x_4, x_21, x_22);
 x_27 = !lean_is_exclusive(x_26);
@@ -1685,7 +1698,7 @@ lean_inc(x_35);
 lean_inc(x_34);
 lean_inc(x_33);
 lean_dec(x_21);
-x_37 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_37 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 x_38 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_38, 0, x_33);
 lean_ctor_set(x_38, 1, x_37);
@@ -1771,7 +1784,7 @@ if (lean_is_exclusive(x_58)) {
  lean_dec_ref(x_58);
  x_64 = lean_box(0);
 }
-x_65 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_65 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 if (lean_is_scalar(x_64)) {
  x_66 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -2839,7 +2852,7 @@ if (x_62 == 0)
 lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; uint8_t x_70; 
 x_63 = lean_ctor_get(x_60, 1);
 lean_dec(x_63);
-x_64 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_64 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 lean_ctor_set(x_60, 1, x_64);
 x_65 = lean_st_ref_set(x_7, x_60, x_61);
 x_66 = lean_ctor_get(x_65, 1);
@@ -3047,7 +3060,7 @@ lean_inc(x_126);
 lean_inc(x_125);
 lean_inc(x_124);
 lean_dec(x_60);
-x_128 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_128 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 x_129 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_129, 0, x_124);
 lean_ctor_set(x_129, 1, x_128);
@@ -3223,7 +3236,7 @@ if (lean_is_exclusive(x_174)) {
  lean_dec_ref(x_174);
  x_180 = lean_box(0);
 }
-x_181 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_181 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 if (lean_is_scalar(x_180)) {
  x_182 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -9214,7 +9227,7 @@ if (x_64 == 0)
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; uint8_t x_72; 
 x_65 = lean_ctor_get(x_62, 1);
 lean_dec(x_65);
-x_66 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_66 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 lean_ctor_set(x_62, 1, x_66);
 x_67 = lean_st_ref_set(x_8, x_62, x_63);
 x_68 = lean_ctor_get(x_67, 1);
@@ -9422,7 +9435,7 @@ lean_inc(x_128);
 lean_inc(x_127);
 lean_inc(x_126);
 lean_dec(x_62);
-x_130 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_130 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 x_131 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_131, 0, x_126);
 lean_ctor_set(x_131, 1, x_130);
@@ -9598,7 +9611,7 @@ if (lean_is_exclusive(x_176)) {
  lean_dec_ref(x_176);
  x_182 = lean_box(0);
 }
-x_183 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5;
+x_183 = l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6;
 if (lean_is_scalar(x_182)) {
  x_184 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -11054,6 +11067,8 @@ l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Le
 lean_mark_persistent(l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__4);
 l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5 = _init_l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5();
 lean_mark_persistent(l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__5);
+l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6 = _init_l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6();
+lean_mark_persistent(l_Lean_setReducibilityStatus___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___spec__7___closed__6);
 l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___lambda__1___closed__1 = _init_l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___lambda__1___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___lambda__1___closed__1);
 l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___lambda__1___closed__2 = _init_l___private_Lean_Meta_Constructions_BRecOn_0__Lean_mkBelowFromRec___lambda__1___closed__2();

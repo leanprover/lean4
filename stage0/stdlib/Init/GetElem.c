@@ -61,7 +61,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_outOfBounds___rarg___closed__2;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__20;
 LEAN_EXPORT lean_object* l_decidableGetElem_x3f___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_GetElem_x3f_getElem_x21___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1321____closed__15;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1321____closed__70;
@@ -252,7 +251,6 @@ static lean_object* l___auto____x40_Init_GetElem___hyg_1321____closed__3;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__12;
 static lean_object* l_term_____x5b___x5d_x27_____closed__8;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1322____closed__16;
-LEAN_EXPORT lean_object* l_GetElem_x3f_getElem_x21___default(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__2;
 LEAN_EXPORT lean_object* l_List_instGetElemNatLtLength(lean_object*);
 static lean_object* l_term_____x5b___x5d___x21___closed__5;
@@ -1139,36 +1137,6 @@ x_5 = lean_unbox(x_4);
 lean_dec(x_4);
 x_6 = l_decidableGetElem_x3f___rarg(x_1, x_2, x_3, x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_GetElem_x3f_getElem_x21___default___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_apply_2(x_1, x_3, x_4);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; 
-x_6 = l_outOfBounds___rarg(x_2);
-return x_6;
-}
-else
-{
-lean_object* x_7; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_5, 0);
-lean_inc(x_7);
-lean_dec(x_5);
-return x_7;
-}
-}
-}
-LEAN_EXPORT lean_object* l_GetElem_x3f_getElem_x21___default(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_GetElem_x3f_getElem_x21___default___rarg), 4, 0);
-return x_4;
 }
 }
 static lean_object* _init_l_term_____x5b___x5d___x3f___closed__1() {

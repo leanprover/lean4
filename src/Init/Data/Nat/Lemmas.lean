@@ -874,15 +874,15 @@ theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
 
 /-- Shiftleft on successor with multiple moved to outside. -/
 theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
-| m, 0 => rfl
-| m, k + 1 => by
+| _, 0 => rfl
+| _, k + 1 => by
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
 /-- Shiftright on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
-| m, 0 => rfl
-| m, k + 1 => by
+| _, 0 => rfl
+| _, k + 1 => by
   rw [shiftRight_succ _ (k+1)]
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
 

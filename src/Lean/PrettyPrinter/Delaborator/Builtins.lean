@@ -207,8 +207,8 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
       `(⟨$[$(stx[1].getArgs)],*⟩)
   let args := e.getAppArgs
   let fieldVals := args.extract s.numParams args.size
-  for idx in [:fieldNames.size] do
-    let fieldName := fieldNames[idx]!
+  for h : idx in [:fieldNames.size] do
+    let fieldName := fieldNames[idx]
     if (← getPPOption getPPStructureInstancesFlatten) && (Lean.isSubobjectField? env s.induct fieldName).isSome then
       match stx[1][idx] with
       | `({ $fields',* $[: $_]?}) =>
@@ -397,9 +397,9 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
 
   -- Field notation
   if let some (fieldIdx, field) := field? then
-    if fieldIdx < args.size then
+    if h : fieldIdx < args.size then
       let obj? : Option Term ← do
-        let arg := args[fieldIdx]!
+        let arg := args[fieldIdx]
         if let .regular s := arg then
           withNaryArg fieldIdx <| some <$> stripParentProjections s
         else
@@ -491,8 +491,8 @@ def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool 
   -- If there was an error collecting ParamKinds, fall back to explicit mode.
   if paramKinds.size < numArgs then return true
 
-  if numArgs < paramKinds.size then
-    let nextParam := paramKinds[numArgs]!
+  if h : numArgs < paramKinds.size then
+    let nextParam := paramKinds[numArgs]
 
     -- If the next parameter is implicit or inst implicit, fall back to explicit mode.
     -- This is necessary for `@Eq` for example.
@@ -741,8 +741,8 @@ where
       m acc
 
   usingNames {α} (varNames : Array Name) (x : DelabM α) (i : Nat := 0) : DelabM α :=
-    if i < varNames.size then
-      withBindingBody varNames[i]! <| usingNames varNames x (i+1)
+    if h : i < varNames.size then
+      withBindingBody varNames[i] <| usingNames varNames x (i+1)
     else
       x
 

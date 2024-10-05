@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_String_split___at_Lake_Toml_Time_ofString_x3f___spec_
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at_Lake_Toml_Time_ofString_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at_Lake_Toml_Time_ofString_x3f___spec__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_fracExponent___default;
 LEAN_EXPORT lean_object* l_Lake_Toml_Date_maxDay___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_DateTime_toString___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Toml_Date_toString(lean_object*);
@@ -46,7 +45,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_lpad___boxed(lean_object*, lean_object*, le
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_splitAux___at_Lake_Toml_DateTime_ofString_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_Time_fracMantissa___default;
 LEAN_EXPORT uint8_t l___private_Lake_Toml_Data_DateTime_0__Lake_Toml_decEqTime____x40_Lake_Toml_Data_DateTime___hyg_794_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instCoeDateDateTime(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Date_ofString_x3f(lean_object*);
@@ -991,22 +989,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lake_Toml_Date_instToString___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Toml_Time_fracExponent___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Toml_Time_fracMantissa___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
@@ -6019,10 +6001,6 @@ l_Lake_Toml_Date_instToString___closed__1 = _init_l_Lake_Toml_Date_instToString_
 lean_mark_persistent(l_Lake_Toml_Date_instToString___closed__1);
 l_Lake_Toml_Date_instToString = _init_l_Lake_Toml_Date_instToString();
 lean_mark_persistent(l_Lake_Toml_Date_instToString);
-l_Lake_Toml_Time_fracExponent___default = _init_l_Lake_Toml_Time_fracExponent___default();
-lean_mark_persistent(l_Lake_Toml_Time_fracExponent___default);
-l_Lake_Toml_Time_fracMantissa___default = _init_l_Lake_Toml_Time_fracMantissa___default();
-lean_mark_persistent(l_Lake_Toml_Time_fracMantissa___default);
 l_Lake_Toml_instInhabitedTime___closed__1 = _init_l_Lake_Toml_instInhabitedTime___closed__1();
 lean_mark_persistent(l_Lake_Toml_instInhabitedTime___closed__1);
 l_Lake_Toml_instInhabitedTime = _init_l_Lake_Toml_instInhabitedTime();

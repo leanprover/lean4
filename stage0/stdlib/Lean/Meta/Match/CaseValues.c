@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_cas
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__1___closed__2;
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_caseValues_loop___closed__9;
 static lean_object* l_Lean_Meta_caseValue___closed__6;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
@@ -60,14 +61,12 @@ lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_appendTagSuffix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_caseValues_loop___closed__1;
-static lean_object* l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1;
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__1;
 static lean_object* l_Lean_Meta_caseValue___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_caseValues___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__9;
 static lean_object* l_Lean_Meta_caseValues_loop___closed__8;
-LEAN_EXPORT lean_object* l_Lean_Meta_CaseValueSubgoal_subst___default;
 static lean_object* l_Lean_Meta_caseValue___closed__3;
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__4;
@@ -80,7 +79,6 @@ static lean_object* l_Lean_Meta_instInhabitedCaseValueSubgoal___closed__1;
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_caseValues_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_caseValues_loop(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_CaseValuesSubgoal_newHs___default;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_caseValues_loop___closed__4;
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__2;
@@ -93,7 +91,6 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Meta_CaseValuesSubgoal_subst___default;
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_caseValues_loop___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__8;
@@ -115,14 +112,6 @@ static lean_object* l_Lean_Meta_caseValue___closed__2;
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedCaseValuesSubgoal;
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__2;
-static lean_object* _init_l_Lean_Meta_CaseValueSubgoal_subst___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Meta_instInhabitedCaseValueSubgoal___closed__1() {
 _start:
 {
@@ -2118,31 +2107,6 @@ return x_38;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_array_mk(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_CaseValuesSubgoal_newHs___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_CaseValuesSubgoal_subst___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Meta_instInhabitedCaseValuesSubgoal___closed__1() {
 _start:
 {
@@ -2520,6 +2484,15 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_caseValues_loop(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
@@ -2727,7 +2700,7 @@ lean_inc(x_50);
 x_51 = lean_ctor_get(x_48, 1);
 lean_inc(x_51);
 lean_dec(x_48);
-x_52 = l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1;
+x_52 = l_Lean_Meta_caseValues_loop___closed__9;
 x_53 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_53, 0, x_51);
 lean_ctor_set(x_53, 1, x_52);
@@ -2889,7 +2862,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_array_to_list(x_3);
 x_12 = lean_unsigned_to_nat(1u);
-x_13 = l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1;
+x_13 = l_Lean_Meta_caseValues_loop___closed__9;
 x_14 = l_Lean_Meta_caseValues_loop(x_2, x_4, x_5, x_12, x_1, x_11, x_13, x_13, x_6, x_7, x_8, x_9, x_10);
 return x_14;
 }
@@ -2921,8 +2894,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Match_Value(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_CaseValueSubgoal_subst___default = _init_l_Lean_Meta_CaseValueSubgoal_subst___default();
-lean_mark_persistent(l_Lean_Meta_CaseValueSubgoal_subst___default);
 l_Lean_Meta_instInhabitedCaseValueSubgoal___closed__1 = _init_l_Lean_Meta_instInhabitedCaseValueSubgoal___closed__1();
 lean_mark_persistent(l_Lean_Meta_instInhabitedCaseValueSubgoal___closed__1);
 l_Lean_Meta_instInhabitedCaseValueSubgoal = _init_l_Lean_Meta_instInhabitedCaseValueSubgoal();
@@ -2973,12 +2944,6 @@ l_Lean_Meta_caseValue___closed__5 = _init_l_Lean_Meta_caseValue___closed__5();
 lean_mark_persistent(l_Lean_Meta_caseValue___closed__5);
 l_Lean_Meta_caseValue___closed__6 = _init_l_Lean_Meta_caseValue___closed__6();
 lean_mark_persistent(l_Lean_Meta_caseValue___closed__6);
-l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1 = _init_l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1();
-lean_mark_persistent(l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1);
-l_Lean_Meta_CaseValuesSubgoal_newHs___default = _init_l_Lean_Meta_CaseValuesSubgoal_newHs___default();
-lean_mark_persistent(l_Lean_Meta_CaseValuesSubgoal_newHs___default);
-l_Lean_Meta_CaseValuesSubgoal_subst___default = _init_l_Lean_Meta_CaseValuesSubgoal_subst___default();
-lean_mark_persistent(l_Lean_Meta_CaseValuesSubgoal_subst___default);
 l_Lean_Meta_instInhabitedCaseValuesSubgoal___closed__1 = _init_l_Lean_Meta_instInhabitedCaseValuesSubgoal___closed__1();
 lean_mark_persistent(l_Lean_Meta_instInhabitedCaseValuesSubgoal___closed__1);
 l_Lean_Meta_instInhabitedCaseValuesSubgoal___closed__2 = _init_l_Lean_Meta_instInhabitedCaseValuesSubgoal___closed__2();
@@ -3001,6 +2966,8 @@ l_Lean_Meta_caseValues_loop___closed__7 = _init_l_Lean_Meta_caseValues_loop___cl
 lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__7);
 l_Lean_Meta_caseValues_loop___closed__8 = _init_l_Lean_Meta_caseValues_loop___closed__8();
 lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__8);
+l_Lean_Meta_caseValues_loop___closed__9 = _init_l_Lean_Meta_caseValues_loop___closed__9();
+lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__9);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

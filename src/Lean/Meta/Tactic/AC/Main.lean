@@ -177,11 +177,8 @@ def rewriteUnnormalizedRefl (goal : MVarId) : MetaM Unit := do
   let goal ← getMainGoal
   goal.withContext <| rewriteUnnormalizedRefl goal
 
-/-- Implementation of the `ac_nf` tactic when operating on the main goal. -/
-def acNfTarget : TacticM Unit :=
-  liftMetaTactic1 fun goal => do return (← rewriteUnnormalized goal)
-
-def acNfHyp' (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
+def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
+  goal.withContext do
     let simpCtx :=
     {
       simpTheorems  := {}
@@ -192,9 +189,13 @@ def acNfHyp' (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
     let (res, _) ← Simp.main tgt simpCtx (methods := { post })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
 
+/-- Implementation of the `ac_nf` tactic when operating on the main goal. -/
+def acNfTargetTactic : TacticM Unit :=
+  liftMetaTactic1 fun goal => do return (← rewriteUnnormalized goal)
+
 /-- Implementation of the `ac_nf` tactic when operating on a hypothesis. -/
-def acNfHyp (fvarId : FVarId) : TacticM Unit :=
-  liftMetaTactic1 fun goal => acNfHyp' goal fvarId
+def acNfHypTactic (fvarId : FVarId) : TacticM Unit :=
+  liftMetaTactic1 fun goal => acNfHypMeta goal fvarId
 
 @[builtin_tactic acNf0]
 def evalNf0 : Tactic := fun stx => do
@@ -204,11 +205,11 @@ def evalNf0 : Tactic := fun stx => do
     withMainContext do
       match loc with
       | Location.targets hyps target =>
-        if target then acNfTarget
-        (← getFVarIds hyps).forM acNfHyp
+        if target then acNfTargetTactic
+        (← getFVarIds hyps).forM acNfHypTactic
       | Location.wildcard =>
-        acNfTarget
-        (← (← getMainGoal).getNondepPropHyps).forM acNfHyp
+        acNfTargetTactic
+        (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic
   | _ => Lean.Elab.throwUnsupportedSyntax
 
 builtin_initialize

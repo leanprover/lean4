@@ -1386,7 +1386,7 @@ theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
     congr
     omega
 
-theorem getMsbD_sshiftRight' {x : BitVec w} {i n : Nat} :
+theorem getMsbD_sshiftRight_v1 {x : BitVec w} {i n : Nat} :
     getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
   simp only [getMsbD]
   rw [BitVec.getLsbD_sshiftRight]
@@ -1398,7 +1398,7 @@ theorem getMsbD_sshiftRight' {x : BitVec w} {i n : Nat} :
   all_goals (simp [h, h₁, h₂, h₃, h₄]; try congr; try omega)
   simp_all
 
-theorem getMsbD_sshiftRight'' {x : BitVec w} {i n : Nat} :
+theorem getMsbD_sshiftRight_v2 {x : BitVec w} {i n : Nat} :
     getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
   simp only [getMsbD]
   rw [BitVec.getLsbD_sshiftRight]

@@ -14,11 +14,11 @@ def testM {α} [BEq α] [ToString α] (x : M α) (expected : α)  : MetaM Unit :
   | Except.error e => throwError m!"FAILED: {e}"
 
 @[noinline] def act1 : M Nat :=
-  throw <| Exception.error Syntax.missing "Error at act1"
+  throwThe Exception <| Exception.error Syntax.missing "Error at act1"
 
 def g1 : M Nat :=
   tryCatchThe Exception
-    (tryCatchThe String act1 (fun ex => pure 100))
+    (tryCatch act1 (fun ex => pure 100))
     (fun ex => pure 200)
 
 /-- info: -/
@@ -26,11 +26,11 @@ def g1 : M Nat :=
 #eval testM g1 200
 
 @[noinline] def act2 : M Nat :=
-  throwThe String "hello world"
+  throw "hello world"
 
 def g2 : M Nat :=
 tryCatchThe Exception
-  (tryCatchThe String act2 (fun ex => pure 100))
+  (tryCatch act2 (fun ex => pure 100))
   (fun ex => pure 200)
 
 /-- info: -/

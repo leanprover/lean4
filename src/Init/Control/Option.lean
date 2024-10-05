@@ -63,7 +63,7 @@ instance : MonadFunctor m (OptionT m) := ⟨fun f x => f x⟩
   let some a ← x | handle ()
   pure a
 
-instance : MonadExceptOf Unit (OptionT m) where
+instance (priority := low) : MonadExceptOf Unit (OptionT m) where
   throw    := fun _ => OptionT.fail
   tryCatch := OptionT.tryCatch
 

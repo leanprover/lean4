@@ -141,7 +141,7 @@ def getType (params : GetTypeParams) : RequestM (RequestTask CodeWithInfos) :=
     runTermElabM snap do
       let name ← resolveGlobalConstNoOverloadCore params.name
       let c ← try getConstInfo name
-        catch _ => throwThe RequestError ⟨.invalidParams, s!"no constant named '{name}'"⟩
+        catch _ : Exception => throw ⟨.invalidParams, s!"no constant named '{name}'"⟩
       Widget.ppExprTagged c.type
 
 /-!

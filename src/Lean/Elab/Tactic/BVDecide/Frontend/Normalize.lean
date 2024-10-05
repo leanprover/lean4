@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.AC.Main
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.BVDecide.Frontend.Attr
@@ -25,6 +26,7 @@ namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize
 
 open Lean.Meta
+open Lean.Meta.AC
 open Std.Tactic.BVDecide.Normalize
 
 builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => do
@@ -113,9 +115,29 @@ def rewriteRulesPass : Pass := fun goal => do
   return newGoal
 
 /--
+Responsible for applying the Bitwuzla style rewrite rules.
+-/
+def acNormalizePass : Pass := fun goal => do
+  let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
+  let sevalSimprocs ← Simp.getSEvalSimprocs
+
+  let simpCtx : Simp.Context := {
+    config := { failIfUnchanged := false, zetaDelta := true }
+    congrTheorems := (← getSimpCongrTheorems)
+  }
+
+  let hyps ← goal.getNondepPropHyps
+  let ⟨result?, _⟩ ← simpGoal goal
+    (ctx := simpCtx)
+    (simprocs := #[bvSimprocs, sevalSimprocs])
+    (fvarIdsToSimp := hyps)
+  let some (_, newGoal) := result? | return none
+  return newGoal
+
+/--
 The normalization passes used by `bv_normalize` and thus `bv_decide`.
 -/
-def defaultPipeline : List Pass := [rewriteRulesPass]
+def defaultPipeline : List Pass := [rewriteRulesPass, acNormalizePass]
 
 end Pass
 
@@ -137,5 +159,3 @@ def evalBVNormalize : Tactic := fun
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide
-
-

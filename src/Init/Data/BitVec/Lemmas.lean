@@ -1183,34 +1183,14 @@ theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
     · apply hn
   · apply Nat.pow_pos (by decide)
 
-theorem getMsbD_ushiftRight {w} {x : BitVec w} {i n : Nat} :
-    getMsbD (x.ushiftRight n) i = (decide (i < w) && if i < n then false else getMsbD x (i - n)) := by
-  simp only [getMsbD, ushiftRight_eq, getLsbD_ushiftRight, Bool.if_false_left]
-  by_cases h : i < w
-  <;> by_cases h₁ : i < n
-  <;> by_cases h₂ : i - n < w
-  <;> simp (discharger := omega) [h, h₁, h₂]
-  congr; omega
-
-theorem getMsbD_ushiftRight_exp {x : BitVec w} {i n : Nat} :
-    getMsbD (x.ushiftRight n) i = (decide (i < w) && if i < n then false else getMsbD x (i - n)) := by
-  simp only [getMsbD, Bool.if_false_left]
-  by_cases h : i < w
-  <;> by_cases h₁ : i < n
-  <;> by_cases h₂ : i - n < w
-  all_goals (simp only [h, decide_False, ushiftRight_eq, getLsbD_ushiftRight, Bool.false_and, h₁,
-     decide_True, Bool.not_true, h₂, Bool.true_and, Bool.and_self, Bool.and_false, Bool.not_false]; try congr; try omega)
-  rw [BitVec.getLsbD_ge]
-  omega
-
-theorem getMsbD_ushiftRight_exp2 {x : BitVec w} {i n : Nat} :
+theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
     getMsbD (x.ushiftRight n) i = (decide (i < w) && if i < n then false else getMsbD x (i - n)) := by
   simp only [getMsbD, Bool.if_false_left]
   by_cases h : i < n
   · simp [getLsbD_ge, show w ≤ (n + (w - 1 - i)) by omega]
     omega
   · by_cases h₁ : i < w
-    ·  simp only [h, ushiftRight_eq, getLsbD_ushiftRight, show i - n < w by omega]
+    · simp only [h, ushiftRight_eq, getLsbD_ushiftRight, show i - n < w by omega]
       congr
       omega
     · simp [h, h₁]

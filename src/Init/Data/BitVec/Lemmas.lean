@@ -1210,8 +1210,7 @@ theorem getMsbD_ushiftRight_exp2 {x : BitVec w} {i n : Nat} :
   · simp [getLsbD_ge, show w ≤ (n + (w - 1 - i)) by omega]
     omega
   · by_cases h₁ : i < w
-    · simp only [h₁, decide_True, ushiftRight_eq, getLsbD_ushiftRight, Bool.true_and, h,
-      decide_False, Bool.not_false, show i - n < w by omega]
+    ·  simp only [h, ushiftRight_eq, getLsbD_ushiftRight, show i - n < w by omega]
       congr
       omega
     · simp [h, h₁]

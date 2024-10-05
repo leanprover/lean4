@@ -140,3 +140,9 @@ example (a b c d : Nat) (h₁ h₂ : a + b + c + d = d + (b + c) + a) :
   guard_hyp h₂ :ₛ a + (b + (c + d)) = a + (b + (c + d))
 
   ac_nf at *
+
+example (x y : BitVec 4096) : ((y == y &&& x) = true) := by
+  ac_nf
+
+example (x y : BitVec w) : ((y == y &&& x) = true) := by
+  ac_nf

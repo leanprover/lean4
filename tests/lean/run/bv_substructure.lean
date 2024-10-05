@@ -20,6 +20,7 @@ theorem substructure_unit_3 (x y : BitVec 8) : (x = y) ^^ (y ≠ x) := by
 theorem substructure_unit_3' (x y : BitVec 8) : Bool.xor (x = y) (y ≠ x) := by
   bv_decide
 
+set_option bv.ac_nf false in
 theorem substructure_unit_4 (a b : Bool) : (a && b) = (b && a) := by
   bv_decide
 

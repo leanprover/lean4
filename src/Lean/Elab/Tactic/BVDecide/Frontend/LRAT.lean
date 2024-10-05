@@ -60,8 +60,7 @@ def TacticContext.new (lratPath : System.FilePath) : Lean.Elab.TermElabM TacticC
     graphviz,
     timeout,
     trimProofs,
-    binaryProofs,
-    ac_nf
+    binaryProofs
   }
 where
   determineSolver : Lean.Elab.TermElabM System.FilePath := do

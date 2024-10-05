@@ -1354,8 +1354,7 @@ theorem not_sshiftRight_not {x : BitVec w} {n : Nat} :
 
 theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
     getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
-  simp only [getMsbD]
-  rw [BitVec.getLsbD_sshiftRight]
+  simp only [getMsbD, BitVec.getLsbD_sshiftRight]
   by_cases h : i < w
   · simp only [h, decide_True, Bool.true_and]
     by_cases h₁ : w ≤ w - 1 - i

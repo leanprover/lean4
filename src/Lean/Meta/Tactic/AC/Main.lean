@@ -181,9 +181,7 @@ def rewriteUnnormalizedRefl (goal : MVarId) : MetaM Unit := do
 def acNfTarget : TacticM Unit :=
   liftMetaTactic1 fun goal => do return (← rewriteUnnormalized goal)
 
-/-- Implementation of the `ac_nf` tactic when operating on a hypothesis. -/
-def acNfHyp (fvarId : FVarId) : TacticM Unit :=
-  liftMetaTactic1 fun goal => do
+def acNfHyp' (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
     let simpCtx :=
     {
       simpTheorems  := {}
@@ -193,6 +191,10 @@ def acNfHyp (fvarId : FVarId) : TacticM Unit :=
     let tgt ← instantiateMVars (← fvarId.getType)
     let (res, _) ← Simp.main tgt simpCtx (methods := { post })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
+
+/-- Implementation of the `ac_nf` tactic when operating on a hypothesis. -/
+def acNfHyp (fvarId : FVarId) : TacticM Unit :=
+  liftMetaTactic1 fun goal => acNfHyp' goal fvarId
 
 @[builtin_tactic acNf0]
 def evalNormCast0 : Tactic := fun stx => do

@@ -115,23 +115,19 @@ def rewriteRulesPass : Pass := fun goal => do
   return newGoal
 
 /--
-Responsible for applying the Bitwuzla style rewrite rules.
+Normalize with respect to Associativity and Commutativity.
 -/
 def acNormalizePass : Pass := fun goal => do
-  let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
-  let sevalSimprocs ← Simp.getSEvalSimprocs
+  let mut newGoal := goal
+  for hyp in (← goal.getNondepPropHyps) do
+    let result ← acNfHyp' newGoal hyp
 
-  let simpCtx : Simp.Context := {
-    config := { failIfUnchanged := false, zetaDelta := true }
-    congrTheorems := (← getSimpCongrTheorems)
-  }
+    if let .some x := result then
+      newGoal := x
+      continue
 
-  let hyps ← goal.getNondepPropHyps
-  let ⟨result?, _⟩ ← simpGoal goal
-    (ctx := simpCtx)
-    (simprocs := #[bvSimprocs, sevalSimprocs])
-    (fvarIdsToSimp := hyps)
-  let some (_, newGoal) := result? | return none
+    return result
+
   return newGoal
 
 /--

@@ -197,7 +197,7 @@ def acNfHyp (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => acNfHyp' goal fvarId
 
 @[builtin_tactic acNf0]
-def evalNormCast0 : Tactic := fun stx => do
+def evalNf0 : Tactic := fun stx => do
   match stx with
   | `(tactic| ac_nf0 $[$loc?]?) =>
     let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true

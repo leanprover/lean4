@@ -26,7 +26,6 @@ namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize
 
 open Lean.Meta
-open Lean.Meta.AC
 open Std.Tactic.BVDecide.Normalize
 
 builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => do
@@ -120,7 +119,7 @@ Normalize with respect to Associativity and Commutativity.
 def acNormalizePass : Pass := fun goal => do
   let mut newGoal := goal
   for hyp in (← goal.getNondepPropHyps) do
-    let result ← acNfHyp' newGoal hyp
+    let result ← Lean.Meta.AC.acNfHyp' newGoal hyp
 
     if let .some x := result then
       newGoal := x

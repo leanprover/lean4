@@ -134,7 +134,7 @@ The normalization passes used by `bv_normalize` and thus `bv_decide`.
 def defaultPipeline : List Pass := [rewriteRulesPass]
 
 def passPipeline : MetaM (List Pass) := do
-  let opts <- getOptions
+  let opts ← getOptions
 
   let mut passPipeline := defaultPipeline
 

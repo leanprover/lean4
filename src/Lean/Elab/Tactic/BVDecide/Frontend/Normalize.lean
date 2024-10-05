@@ -119,7 +119,7 @@ Normalize with respect to Associativity and Commutativity.
 def acNormalizePass : Pass := fun goal => do
   let mut newGoal := goal
   for hyp in (← goal.getNondepPropHyps) do
-    let result ← Lean.Meta.AC.acNfHyp' newGoal hyp
+    let result ← Lean.Meta.AC.acNfHypMeta newGoal hyp
 
     if let .some x := result then
       newGoal := x

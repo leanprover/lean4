@@ -1367,6 +1367,16 @@ theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
     getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
   simp only [getMsbD]
   rw [BitVec.getLsbD_sshiftRight]
+  by_cases h : i < w <;> by_cases h₁ : w ≤ w - 1 - i <;> by_cases h₂ : i < n
+  <;> simp [h, h₁, h₂]; omega; try (intro; omega); try (congr; omega)
+  simp [show n + (w - 1 - i) < w by omega, show i - n < w by omega]
+  congr
+  omega
+
+theorem getMsbD_sshiftRight' {x : BitVec w} {i n : Nat} :
+    getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
+  simp only [getMsbD]
+  rw [BitVec.getLsbD_sshiftRight]
   by_cases h : i < w
   <;> by_cases h₁ : w ≤ w - 1 - i
   <;> by_cases h₂ : ¬(i < n)
@@ -1375,7 +1385,7 @@ theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
   all_goals (simp [h, h₁, h₂, h₃, h₄]; try congr; try omega)
   simp_all
 
-theorem getMsbD_sshiftRight_exp {x : BitVec w} {i n : Nat} :
+theorem getMsbD_sshiftRight'' {x : BitVec w} {i n : Nat} :
     getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
   simp only [getMsbD]
   rw [BitVec.getLsbD_sshiftRight]
@@ -1397,25 +1407,6 @@ theorem getMsbD_sshiftRight_exp {x : BitVec w} {i n : Nat} :
         congr
         by_cases h₄ : n + (w - 1 - i) < w <;> (simp only [h₄, ↓reduceIte]; congr; omega)
   · simp [h]
-
-theorem getMsbD_sshiftRight_exp2 {x : BitVec w} {i n : Nat} :
-    getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
-  simp only [getMsbD]
-  rw [BitVec.getLsbD_sshiftRight]
-  by_cases h : i < w <;> by_cases h₁ : w ≤ w - 1 - i
-  · simp [h, h₁]
-    omega
-  · simp only [h, decide_True, h₁, decide_False, Bool.not_false, Bool.true_and]
-    by_cases h₂ : i < n
-    · simp only [h₂, ↓reduceIte, ite_eq_right_iff]
-      intro
-      omega
-    · simp only [show n + (w - 1 - i) < w by omega, ↓reduceIte, h₂, show i - n < w by omega,
-      decide_True, Bool.true_and]
-      congr
-      omega
-  · simp [h, h₁]
-  · simp [h, h₁]
 
 /-! ### sshiftRight reductions from BitVec to Nat -/
 

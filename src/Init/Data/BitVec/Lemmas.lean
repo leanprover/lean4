@@ -1382,13 +1382,17 @@ theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
     getMsbD (x.sshiftRight' y) i = (decide (i < w) && if i < y.toNat then x.msb else getMsbD x (i - y.toNat)) := by
   simp only [BitVec.sshiftRight', getMsbD, BitVec.getLsbD_sshiftRight]
   by_cases h : i < w
-  <;> by_cases h₁ : w ≤ w - 1 - i
-  <;> by_cases h₂ : i < y.toNat
-  <;> by_cases h₃ : y.toNat + (w - 1 - i) < w
-  <;> by_cases h₄ : (y.toNat + (w - 1 - i)) = (w - 1 - (i - y.toNat))
-  all_goals (simp [h, h₁, h₂, h₃, h₄]; try omega)
-  simp_all
-  omega
+  · simp only [h, decide_True, Bool.true_and]
+    by_cases h₁ : w ≤ w - 1 - i
+    · simp [h₁]
+      omega
+    · simp only [h₁, decide_False, Bool.not_false, Bool.true_and]
+      by_cases h₂ : i < y.toNat
+      · simp only [h₂, ↓reduceIte, ite_eq_right_iff]
+        omega
+      · simp only [show i - y.toNat < w by omega, h₂, ↓reduceIte, decide_True, Bool.true_and]
+        by_cases h₄ : y.toNat + (w - 1 - i) < w <;> (simp only [h₄, ↓reduceIte]; congr; omega)
+  · simp [h]
 
 theorem msb_sshiftRight' {x y: BitVec w} :
     (x.sshiftRight' y).msb = x.msb := by

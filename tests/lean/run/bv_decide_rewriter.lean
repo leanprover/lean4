@@ -17,6 +17,9 @@ example :
 example (x y z : BitVec 8) (h1 : x = z → False) (h2 : x = y) (h3 : y = z) : False := by
   bv_decide
 
+example (x y : BitVec 256) : x * y = y * x := by
+  bv_decide
+
 def mem_subset (a1 a2 b1 b2 : BitVec 64) : Bool :=
   (b2 - b1 = BitVec.ofNat 64 (2^64 - 1)) ||
   ((a2 - b1 <= b2 - b1 && a1 - b1 <= a2 - b1))
@@ -39,7 +42,7 @@ example {x : BitVec 16} : x * 1 = x := by bv_normalize
 example {x : BitVec 16} : ~~~(~~~x) = x := by bv_normalize
 example {x : BitVec 16} : x &&& 0 = 0 := by bv_normalize
 example {x : BitVec 16} : 0 &&& x = 0 := by bv_normalize
-example {x : BitVec 16} : (-1#16) &&& x = x := by bv_normalize 
+example {x : BitVec 16} : (-1#16) &&& x = x := by bv_normalize
 example {x : BitVec 16} : x &&& (-1#16) = x := by bv_normalize
 example {x : BitVec 16} : x &&& x = x := by bv_normalize
 example {x : BitVec 16} : x &&& ~~~x = 0 := by bv_normalize

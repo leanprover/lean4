@@ -1371,7 +1371,8 @@ theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
   <;> simp [h, h₁, h₂]; omega;
   · intro; omega
   · congr; omega
-  · simp [show n + (w - 1 - i) < w by omega, show i - n < w by omega]
+  · simp only [show n + (w - 1 - i) < w by omega, ↓reduceIte, show i - n < w by omega, decide_True,
+    Bool.true_and]
     congr
     omega
 

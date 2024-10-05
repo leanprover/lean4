@@ -46,7 +46,7 @@ def TacticContext.new (lratPath : System.FilePath) : Lean.Elab.TermElabM TacticC
   let timeout := sat.timeout.get opts
   let graphviz := debug.bv.graphviz.get opts
   let trimProofs := sat.trimProofs.get opts
-  let ac_nf := bv.ac_nf opts
+  let ac_nf := bv.ac_nf.get opts
   let binaryProofs :=
     -- Account for: https://github.com/arminbiere/cadical/issues/112
     if System.Platform.isWindows then

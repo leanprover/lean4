@@ -20,6 +20,9 @@ example (x y z : BitVec 8) (h1 : x = z → False) (h2 : x = y) (h3 : y = z) : Fa
 example (x y : BitVec 256) : x * y = y * x := by
   bv_decide
 
+example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
+  bv_decide
+
 def mem_subset (a1 a2 b1 b2 : BitVec 64) : Bool :=
   (b2 - b1 = BitVec.ofNat 64 (2^64 - 1)) ||
   ((a2 - b1 <= b2 - b1 && a1 - b1 <= a2 - b1))

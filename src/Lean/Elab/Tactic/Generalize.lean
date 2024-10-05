@@ -30,7 +30,7 @@ open Meta
       args := args.push { hName?, expr, xName? := arg[3].getId : GeneralizeArg }
     let hyps ← match expandOptLocation stx[2] with
     | .targets hyps _ => getFVarIds hyps
-    | .wildcard => pure (← getLCtx).getFVarIds
+    | .wildcard => pure ((← getLocalHyps).map (·.fvarId!))
     let mvarId ← getMainGoal
     mvarId.withContext do
       let (_, newVars, mvarId) ← mvarId.generalizeHyp args hyps

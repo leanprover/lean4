@@ -191,7 +191,7 @@ def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
 
 /-- Implementation of the `ac_nf` tactic when operating on the main goal. -/
 def acNfTargetTactic : TacticM Unit :=
-  liftMetaTactic1 fun goal => do return (← rewriteUnnormalized goal)
+  liftMetaTactic1 fun goal => rewriteUnnormalized goal
 
 /-- Implementation of the `ac_nf` tactic when operating on a hypothesis. -/
 def acNfHypTactic (fvarId : FVarId) : TacticM Unit :=

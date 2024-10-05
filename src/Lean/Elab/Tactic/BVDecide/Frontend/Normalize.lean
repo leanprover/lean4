@@ -121,11 +121,10 @@ def acNormalizePass : Pass := fun goal => do
   for hyp in (← goal.getNondepPropHyps) do
     let result ← Lean.Meta.AC.acNfHypMeta newGoal hyp
 
-    if let .some x := result then
-      newGoal := x
-      continue
-
-    return result
+    if let .some nextGoal := result then
+      newGoal := nextGoal
+    else
+      return none
 
   return newGoal
 

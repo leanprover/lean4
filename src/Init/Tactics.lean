@@ -1214,6 +1214,10 @@ macro "norm_cast" loc:(location)? : tactic =>
 
 /--
 `ac_nf` normalizes equalities up to application of an associative and commutative operator.
+- `ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
 ```
 instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
 instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩

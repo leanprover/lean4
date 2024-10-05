@@ -1368,10 +1368,12 @@ theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
   simp only [getMsbD]
   rw [BitVec.getLsbD_sshiftRight]
   by_cases h : i < w <;> by_cases h₁ : w ≤ w - 1 - i <;> by_cases h₂ : i < n
-  <;> simp [h, h₁, h₂]; omega; try (intro; omega); try (congr; omega)
-  simp [show n + (w - 1 - i) < w by omega, show i - n < w by omega]
-  congr
-  omega
+  <;> simp [h, h₁, h₂]; omega;
+  · intro; omega
+  · congr; omega
+  · simp [show n + (w - 1 - i) < w by omega, show i - n < w by omega]
+    congr
+    omega
 
 theorem getMsbD_sshiftRight' {x : BitVec w} {i n : Nat} :
     getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by

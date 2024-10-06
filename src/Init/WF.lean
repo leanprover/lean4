@@ -85,11 +85,19 @@ theorem fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : 
 
 end
 
+/--
+Modifies a `WellFounded` proof to reduce without ever (realistically) starting to actually
+reduce the proofs. This is used in `WellFounded.fix` so that reducing concrete terms works
+reasonably efficiently.
+--/
+theorem boost (wf : WellFounded r) : WellFounded r := ⟨go 4611686018427387904⟩
+where go : Nat → ∀ x, Acc r x := Nat.rec (fun x => wf.apply x) (fun _ ih x => .intro x (fun y _ => ih y))
+
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
 noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
-  fixF F x (apply hwf x)
+  fixF F x (hwf.boost.apply x)
 
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :

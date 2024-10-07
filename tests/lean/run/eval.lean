@@ -134,7 +134,11 @@ Testing delta deriving
 def Foo := List Nat
 def Foo.mk (l : List Nat) : Foo := l
 
-#eval Foo.mk [1,2,3]
+/-- info: [1, 2, 3] : Foo -/
+#guard_msgs in #eval Foo.mk [1,2,3]
+
+/-- info: [1, 2, 3] : Foo -/
+#guard_msgs in #eval do return Foo.mk [1,2,3]
 
 /-!
 Testing auto-deriving

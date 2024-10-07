@@ -140,11 +140,62 @@ def optSemicolon (p : Parser) : Parser :=
 /-- The universe of propositions. `Prop ≡ Sort 0`. -/
 @[builtin_term_parser] def prop := leading_parser
   "Prop"
-/-- A placeholder term, to be synthesized by unification. -/
+/--
+A *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.
+For example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.
+
+The way this works is that holes create fresh metavariables.
+The elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.
+This is often known as *unification*.
+
+Normally, all holes must be solved for. However, there are a few contexts where this is not necessary:
+* In `match` patterns, holes are catch-all patterns.
+* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.
+
+Related concept: implicit parameters are automatically filled in with holes during the elaboration process.
+
+See also `?m` syntax (synthetic holes).
+-/
 @[builtin_term_parser] def hole := leading_parser
   "_"
-/-- Parses a "synthetic hole", that is, `?foo` or `?_`.
-This syntax is used to construct named metavariables. -/
+/--
+A *synthetic hole* (or *synthetic placeholder*), which stands for an unknown term that should should be synthesized using tactics.
+- `?_` creates a fresh metavariable with an auto-generated name.
+- `?m` either refers to a pre-existing metavariable named `m` or creates a fresh metavariable with that name.
+
+In particular, the synthetic hole syntax creates "synthetic opaque metavariables",
+the same kind of metavariable used to represent goals in the tactic state.
+
+Synthetic holes are similar to holes in that `_` also creates metavariables,
+but synthetic opaque metavariables have some different properties:
+- In tactics such as `refine`, only synthetic holes yield new goals.
+- When synthetic holes appear under binders, they capture local variables using a more complicated mechanism known as delayed assignment.
+- During elaboration, unification will not solve for synthetic opaque metavariables, they are "opaque".
+  This is to prevent counterintuitive behavior such as disappearing goals.
+
+## Delayed assigned metavariables
+
+This section gives a high-level overview of technical details of synthetic holes, which you should feel free to skip.
+When a synthetic hole appears under a binding construct, such as for example `fun (x : α) (y : β) => ?s`,
+the system creates a construct called a *delayed assignment*. This consists of
+1. A metavariable `?m` of type `α → β → γ` and whole local context is from the local context outside the `fun`,
+  where `γ` is the type of `?s`. (The type `γ` can depend on `α` and `β`.)
+2. A delayed assigment record associating `?m` to `?s` and the variables `#[x, y]` in the local context of `?s`
+
+Then, this function elaborates as `fun (x : α) (y : β) => ?m x y`, where one should understand `x` and `y` here
+as being De Bruijn indexes, since Lean uses the locally nameless encoding of lambda calculus.
+
+Once `?s` is fully solved for, in the sense that it can be fully instantiated as a metavariable-free term `e`,
+then we can make the assignment `?m := fun (x' : α) (y' : β) => e[x := x', y := y']`.
+(Implementation note: in practice, Lean only instantiates full applications `?m x' y'` of delayed assigned metavariables.)
+This delayed assignment mechanism is essential to the operation of basic tactics like `intro`,
+and a good mental model is that it is a way to "apply" the metavariable `?s` by substituting values in for some of its local variables.
+
+By default, delayed assigned metavariables pretty print with what they are delayed assigned to.
+The delayed assigned metavariables themselves can be pretty printed using `set_option pp.mvars.delayed true`.
+
+For more details, see the module docstrings in `Lean.MetavarContext`.
+-/
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> "_")
 /--
@@ -451,7 +502,7 @@ def withAnonymousAntiquot := leading_parser
 @[builtin_term_parser] def «trailing_parser» := leading_parser:leadPrec
   "trailing_parser" >> optExprPrecedence >> optExprPrecedence >> ppSpace >> termParser
 
-/-- 
+/--
 Indicates that an argument to a function marked `@[extern]` is borrowed.
 
 Being borrowed only affects the ABI and runtime behavior of the function when compiled or interpreted. From the perspective of Lean's type system, this annotation has no effect. It similarly has no effect on functions not marked `@[extern]`.

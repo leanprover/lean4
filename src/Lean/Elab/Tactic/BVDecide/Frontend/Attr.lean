@@ -52,6 +52,11 @@ register_builtin_option debug.bv.graphviz : Bool := {
   descr := "Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the Lean process."
 }
 
+register_builtin_option bv.ac_nf : Bool := {
+  defValue := true
+  descr := "Canonicalize with respect to associativity and commutativitiy."
+}
+
 builtin_initialize bvNormalizeExt : Meta.SimpExtension ←
   Meta.registerSimpAttr `bv_normalize "simp theorems used by bv_normalize"
 

@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.AC.Main
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.BVDecide.Frontend.Attr
@@ -113,9 +114,34 @@ def rewriteRulesPass : Pass := fun goal => do
   return newGoal
 
 /--
+Normalize with respect to Associativity and Commutativity.
+-/
+def acNormalizePass : Pass := fun goal => do
+  let mut newGoal := goal
+  for hyp in (← goal.getNondepPropHyps) do
+    let result ← Lean.Meta.AC.acNfHypMeta newGoal hyp
+
+    if let .some nextGoal := result then
+      newGoal := nextGoal
+    else
+      return none
+
+  return newGoal
+
+/--
 The normalization passes used by `bv_normalize` and thus `bv_decide`.
 -/
 def defaultPipeline : List Pass := [rewriteRulesPass]
+
+def passPipeline : MetaM (List Pass) := do
+  let opts ← getOptions
+
+  let mut passPipeline := defaultPipeline
+
+  if bv.ac_nf.get opts then
+    passPipeline := passPipeline ++ [acNormalizePass]
+
+  return passPipeline
 
 end Pass
 
@@ -124,7 +150,7 @@ def bvNormalize (g : MVarId) : MetaM (Option MVarId) := do
     -- Contradiction proof
     let some g ← g.falseOrByContra | return none
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
-    Pass.fixpointPipeline Pass.defaultPipeline g
+    Pass.fixpointPipeline (← Pass.passPipeline) g
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun
@@ -137,5 +163,3 @@ def evalBVNormalize : Tactic := fun
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide
-
-

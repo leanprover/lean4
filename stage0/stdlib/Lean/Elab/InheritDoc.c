@@ -85,6 +85,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_warningAsError;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__4;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_docStringExt;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__2___closed__3;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -99,7 +100,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda_
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__4___lambda__2___boxed(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__3___closed__4;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
-extern lean_object* l___private_Lean_DocString_Extension_0__Lean_docStringExt;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__5;
 LEAN_EXPORT lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1359,7 +1359,7 @@ static lean_object* _init_l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_DocString_Extension_0__Lean_docStringExt;
+x_1 = l_Lean_docStringExt;
 return x_1;
 }
 }

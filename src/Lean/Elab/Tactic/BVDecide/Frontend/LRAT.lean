@@ -181,7 +181,7 @@ function together with a correctness theorem for it.
   `∀ (b : α) (c : LratCert), verifier b c = true → unsat b`
 -/
 def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContext) (reflected : α)
-    (verifier : Name) (unsat_of_verifier_eq_true : Name) : 
+    (verifier : Name) (unsat_of_verifier_eq_true : Name) :
     MetaM Expr := do
   withTraceNode `sat (fun _ => return "Compiling expr term") do
     mkAuxDecl cfg.exprDef (toExpr reflected) (toTypeExpr α)

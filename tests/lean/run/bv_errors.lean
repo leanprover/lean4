@@ -2,6 +2,8 @@ import Std.Tactic.BVDecide
 
 open BitVec
 
+set_option bv.ac_nf false
+
 /--
 error: The SAT solver timed out while solving the problem.
 Consider increasing the timeout with `set_option sat.timeout <sec>`

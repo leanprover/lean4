@@ -2,6 +2,8 @@ import Std.Tactic.BVDecide
 
 open BitVec
 
+set_option bv.ac_nf false
+
 theorem bitwise_unit_1 {x y : BitVec 64} : ~~~(x &&& y) = (~~~x ||| ~~~y) := by
   bv_decide
 

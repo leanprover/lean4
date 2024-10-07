@@ -660,8 +660,8 @@ section MainLoop
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
         : IO PendingRequestMap := do
       if (← hasFinished task) then
-        /- Handler tasks are constructed so that the only possible errors here
-        are failures of writing a response into the stream. -/
+        -- Handler tasks are constructed so that the only possible errors here
+        -- are failures of writing a response into the stream.
         if let Except.error e := task.get then
           throwServerError s!"Failed responding to request {id}: {e}"
         pure <| acc.erase id
@@ -709,37 +709,34 @@ def runRefreshTask : WorkerM (Task (Except IO.Error Unit)) := do
       sendServerRequest ctx "workspace/semanticTokens/refresh" (none : Option Nat)
       IO.sleep 2000
 
-def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
+def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
-  /- Note (kmill): LSP always refers to characters by (line, column),
-     so converting CRLF to LF preserves line and column numbers. -/
+  -- LSP always refers to characters by (line, column),
+  -- so converting CRLF to LF preserves line and column numbers.
   let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.crlfToLf.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try
     initializeWorker meta o e initParams.param opts
   catch err =>
-    writeError meta err
-    return (1 : UInt32)
-  let exitCode ← StateRefT'.run' (s := st) <| ReaderT.run (r := ctx) do
+    writeErrorDiag meta err
+    throw err
+  StateRefT'.run' (s := st) <| ReaderT.run (r := ctx) do
     try
       let refreshTask ← runRefreshTask
       mainLoop i
       IO.cancel refreshTask
-      return 0
     catch err =>
       let st ← get
-      writeError st.doc.meta err
-      return 1
-  return exitCode
+      writeErrorDiag st.doc.meta err
+      throw err
 where
-  writeError (meta : DocumentMeta) (err : Error) : IO Unit := do
-    IO.eprintln err
-    e.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
+  writeErrorDiag (meta : DocumentMeta) (err : Error) : IO Unit := do
+    o.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
       range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
       fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
       severity? := DiagnosticSeverity.error
@@ -751,14 +748,10 @@ def workerMain (opts : Options) : IO UInt32 := do
   let o ← IO.getStdout
   let e ← IO.getStderr
   try
-    let exitCode ← initAndRunWorker i o e opts
-    -- HACK: all `Task`s are currently "foreground", i.e. we join on them on main thread exit, but we definitely don't
-    -- want to do that in the case of the worker processes, which can produce non-terminating tasks evaluating user code
-    o.flush
-    e.flush
-    IO.Process.exit exitCode.toUInt8
+    initAndRunWorker i o e opts
+    IO.Process.exit 0 -- Terminate all tasks of this process
   catch err =>
-    e.putStrLn s!"worker initialization error: {err}"
-    return (1 : UInt32)
+    e.putStrLn err.toString
+    IO.Process.exit 1 -- Terminate all tasks of this process
 
 end Lean.Server.FileWorker

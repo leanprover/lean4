@@ -18,6 +18,80 @@ as vectors of bits into proofs about Lean `BitVec` values.
 The module is named for the bit-blasting operation in an SMT solver that converts bitvector
 expressions into expressions about individual bits in each vector.
 
+### Example: How bitblasting works for multiplication
+
+We explain how the lemmas here are used for bitblasting,
+by using multiplication as a prototypical example.
+Other bitblasters for other operations follow the same pattern.
+To bitblast a multiplication of the form `x * y`,
+we must unfold the above into a form that the SAT solver understands.
+
+We assume that the solver already knows how to bitblast addition.
+This is known to `bv_decide`, by exploiting the lemma `add_eq_adc`,
+which says that `x + y : BitVec w` equals `(adc x y false).2`,
+where `adc` builds an add-carry circuit in terms of the primitive operations
+(bitwise and, bitwise or, bitwise xor) that bv_decide already understands.
+In this way, we layer bitblasters on top of each other,
+by reducing the multiplication bitblaster to an addition operation.
+
+The core lemma is given by `getLsbD_mul`:
+
+```lean
+ x y : BitVec w ⊢ (x * y).getLsbD i = (mulRec x y w).getLsbD i
+```
+
+Which says that the `i`th bit of `x * y` can be obtained by
+evaluating the `i`th bit of `(mulRec x y w)`.
+Once again, we assume that `bv_decide` knows how to implement `getLsbD`,
+given that `mulRec` can be understood by `bv_decide`.
+
+We write two lemmas to enable `bv_decide` to unfold `(mulRec x y w)`
+into a complete circuit, **when `w` is a known constant**`.
+This is given by two recurrence lemmas, `mulRec_zero_eq` and `mulRec_succ_eq`,
+which are applied repeatedly when the width is `0` and when the width is `w' + 1`:
+
+```lean
+mulRec_zero_eq :
+    mulRec x y 0 =
+      if y.getLsbD 0 then x else 0
+
+mulRec_succ_eq
+    mulRec x y (s + 1) =
+      mulRec x y s +
+      if y.getLsbD (s + 1) then (x <<< (s + 1)) else 0 := rfl
+```
+
+By repeatedly applying the lemmas `mulRec_zero_eq` and `mulRec_succ_eq`,
+one obtains a circuit for multiplication.
+Note that this circuit uses `BitVec.add`, `BitVec.getLsbD`, `BitVec.shiftLeft`.
+Here, `BitVec.add` and `BitVec.shiftLeft` are (recursively) bitblasted by `bv_decide`,
+using the lemmas `add_eq_adc` and `shiftLeft_eq_shiftLeftRec`,
+and `BitVec.getLsbD` is a primitive that `bv_decide` knows how to reduce to SAT.
+
+The two lemmas, `mulRec_zero_eq`, and `mulRec_succ_eq`,
+are used in `Std.Tactic.BVDecide.BVExpr.bitblast.blastMul`
+to prove the correctness of the circuit that is built by `bv_decide`.
+
+```lean
+def blastMul (aig : AIG BVBit) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry BVBit w
+theorem denote_blastMul (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment) :
+   ...
+   ⟦(blastMul aig input).aig, (blastMul aig input).vec.get idx hidx, assign.toAIGAssignment⟧
+     =
+   (lhs * rhs).getLsbD idx
+```
+
+The definition and theorem above are internal to `bv_decide`,
+and use `mulRec_{zero,succ}_eq` to prove that the circuit built by `bv_decide`
+computes the correct value for multiplication.
+
+To zoom out, therefore, we follow two steps:
+First, we prove bitvector lemmas to unfold a high-level operation (such as multiplication)
+into already bitblastable operations (such as addition and left shift).
+We then use these lemmas to prove the correctness of the circuit that `bv_decide` builds.
+
+We use this workflow to implement bitblasting for all SMT-LIB2 operations.
+
 ## Main results
 * `x + y : BitVec w` is `(adc x y false).2`.
 

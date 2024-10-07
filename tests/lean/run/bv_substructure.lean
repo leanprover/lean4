@@ -2,6 +2,8 @@ import Std.Tactic.BVDecide
 
 open BitVec
 
+set_option bv.ac_nf false
+
 theorem substructure_unit_1 (x y z : BitVec 8) : ((x = y) ∧ (y = z)) ↔ ¬(¬(x =y) ∨ (¬(y = z))) := by
   bv_decide
 

@@ -356,3 +356,9 @@
   run_config:
     <<: *time
     cmd: lean bv_decide_mod.lean
+- attributes:
+    description: omega1
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega1.lean

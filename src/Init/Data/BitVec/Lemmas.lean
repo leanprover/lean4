@@ -1351,6 +1351,11 @@ theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
   · rw [toNat_ofNat, Nat.mod_eq_of_lt]
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
 
+@[simp]
+theorem udiv_zero {x : BitVec n} : x.udiv 0#n = 0#n := by
+  simp only [udiv, toNat_ofNat, Nat.zero_mod, Nat.div_zero]
+  rfl
+
 /-! ### umod -/
 
 theorem umod_eq {x y : BitVec n} :
@@ -1361,6 +1366,10 @@ theorem umod_eq {x y : BitVec n} :
 @[simp, bv_toNat]
 theorem toNat_umod {x y : BitVec n} :
     (x.umod y).toNat = x.toNat % y.toNat := rfl
+
+@[simp]
+theorem umod_zero {x : BitVec n} : x.umod 0#n = x := by
+  simp [umod_eq]
 
 /-! ### sdiv -/
 
@@ -2034,10 +2043,31 @@ theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
     subst h'
     simp at h
 
+@[simp]
+theorem neg_eq_zero_iff {x : BitVec w} : -x = 0#w ↔ x = 0#w := by
+  constructor
+  · intro h
+    have : - (- x) = - 0 := by simp [h]
+    simpa using this
+  · intro h
+    simp [h]
+
 theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
   have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _
   have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
+
+@[simp]
+theorem sdiv_zero {x : BitVec n} : x.sdiv 0#n = 0#n := by
+  simp only [sdiv_eq, msb_zero]
+  rcases x.msb with msb | msb <;> apply eq_of_toNat_eq <;> simp
+
+@[simp]
+theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
+  simp only [smod_eq, msb_zero]
+  rcases x.msb with msb | msb <;> apply eq_of_toNat_eq
+  · simp
+  · by_cases h : x = 0#n <;> simp [h]
 
 /-! ### abs -/
 

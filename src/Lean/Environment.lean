@@ -856,6 +856,10 @@ structure ImportM.Context where
 
 abbrev ImportM := ReaderT Lean.ImportM.Context IO
 
+inductive PersistenEnvExtension.ExportEntriesFn (α σ : Type) where
+  | sync (fn : σ → Array α)
+  | async (fn : Array σ → Array α)
+
 /--
 An environment extension with support for storing/retrieving entries from a .olean file.
  - α is the type of the entries that are stored in .olean files.
@@ -906,7 +910,7 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   name            : Name
   addImportedFn   : Array (Array α) → ImportM σ
   addEntryFn      : σ → β → σ
-  exportEntriesFn : σ → Array α
+  exportEntriesFn : PersistenEnvExtension.ExportEntriesFn α σ
   statsFn         : σ → Format
 
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
@@ -918,7 +922,7 @@ instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ)
      name := default,
      addImportedFn := fun _ => default,
      addEntryFn := fun s _ => s,
-     exportEntriesFn := fun _ => #[],
+     exportEntriesFn := .sync fun _ => #[],
      statsFn := fun _ => Format.nil
   }
 
@@ -955,15 +959,22 @@ end PersistentEnvExtension
 
 builtin_initialize persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 
-structure PersistentEnvExtensionDescr (α β σ : Type) where
+structure PersistentEnvExtensionDescrBase (α β σ : Type) where
   name            : Name := by exact decl_name%
   mkInitial       : IO σ
   addImportedFn   : Array (Array α) → ImportM σ
   addEntryFn      : σ → β → σ
-  exportEntriesFn : σ → Array α
   statsFn         : σ → Format := fun _ => Format.nil
 
-unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := do
+structure PersistentEnvExtensionDescr (α β σ : Type) extends PersistentEnvExtensionDescrBase α β σ where
+  exportEntriesFn : σ → Array α
+
+structure AsyncPersistentEnvExtensionDescr (α β σ : Type) extends PersistentEnvExtensionDescrBase α β σ where
+  exportEntriesAsyncFn : Array σ → Array α
+
+private unsafe def registerPersistentEnvExtensionBaseUnsafe {α β σ : Type} [Inhabited σ]
+    (descr : PersistentEnvExtensionDescrBase α β σ)
+    (exportEntriesFn : PersistenEnvExtension.ExportEntriesFn α σ) : IO (PersistentEnvExtension α β σ) := do
   let pExts ← persistentEnvExtensionsRef.get
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
   let ext ← registerEnvExtension do
@@ -978,14 +989,22 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
     name            := descr.name,
     addImportedFn   := descr.addImportedFn,
     addEntryFn      := descr.addEntryFn,
-    exportEntriesFn := descr.exportEntriesFn,
+    exportEntriesFn
     statsFn         := descr.statsFn
   }
   persistentEnvExtensionsRef.modify fun pExts => pExts.push (unsafeCast pExt)
   return pExt
 
-@[implemented_by registerPersistentEnvExtensionUnsafe]
-opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
+@[implemented_by registerPersistentEnvExtensionBaseUnsafe]
+private opaque registerPersistentEnvExtensionBase {α β σ : Type} [Inhabited σ]
+    (descr : PersistentEnvExtensionDescrBase α β σ)
+    (exportEntriesFn : PersistenEnvExtension.ExportEntriesFn α σ) : IO (PersistentEnvExtension α β σ)
+
+def registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) :=
+  registerPersistentEnvExtensionBase descr.toPersistentEnvExtensionDescrBase (.sync descr.exportEntriesFn)
+
+def registerAsyncPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : AsyncPersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) :=
+  registerPersistentEnvExtensionBase descr.toPersistentEnvExtensionDescrBase (.async descr.exportEntriesAsyncFn)
 
 /-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
 def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
@@ -1138,8 +1157,15 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
 def mkModuleData (env : Environment) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt =>
-    let state := pExt.getState env
-    (pExt.name, pExt.exportEntriesFn state)
+    match pExt.exportEntriesFn with
+    | .sync fn =>
+      let state := pExt.getState env
+      (pExt.name, fn state)
+    | .async fn =>
+      let states := env.asyncConsts.map fun aconst =>
+        EnvExtensionInterfaceImp.getState pExt.toEnvExtension aconst.exts.get |>.state
+      let states := states.push (pExt.getState env)
+      (pExt.name, fn states)
   let kenv := env.toKernelEnvNoAsync
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   let constants  := kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]

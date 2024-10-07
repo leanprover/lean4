@@ -97,7 +97,7 @@ Displays all available tactic tags, with documentation.
 @[builtin_command_elab printTacTags] def elabPrintTacTags : CommandElab := fun _stx => do
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (tacticTagExt.getState (← getEnv)))
+      |>.importedEntries |>.push (tacticTagExt.getEntries (← getEnv)).toArray
   let mut mapping : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do
@@ -147,7 +147,7 @@ def allTacticDocs : MetaM (Array TacticDoc) := do
   let env ← getEnv
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (tacticTagExt.getState (← getEnv)))
+      |>.importedEntries |>.push (tacticTagExt.getEntries (← getEnv)).toArray
   let mut tacTags : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do

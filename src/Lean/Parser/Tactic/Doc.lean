@@ -163,17 +163,10 @@ some other purpose, consider a new representation.
 The first projection in each pair is the tactic name, and the second is the tag name.
 -/
 builtin_initialize tacticTagExt
-    : PersistentEnvExtension (Name × Name) (Name × Name) (NameMap NameSet) ←
-  registerPersistentEnvExtension {
-    mkInitial := pure {},
-    addImportedFn := fun _ => pure {},
+    : SimplePersistentEnvExtension (Name × Name) (NameMap NameSet) ←
+  registerSimplePersistentEnvExtension {
+    addImportedFn := fun _ => {},
     addEntryFn := fun tags (decl, newTag) => tags.insert decl (tags.findD decl {} |>.insert newTag)
-    exportEntriesFn := fun tags => Id.run do
-      let mut exported := #[]
-      for (decl, dTags) in tags do
-        for t in dTags do
-          exported := exported.push (decl, t)
-      exported
   }
 
 builtin_initialize

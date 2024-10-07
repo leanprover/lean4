@@ -9,9 +9,10 @@ def foo {n : Nat} := 2*n
 
 /--
 error: don't know how to synthesize implicit argument 'n'
-  @foo ?m.64
+  @foo ?_
 context:
 ⊢ Nat
 -/
 #guard_msgs in
+set_option pp.mvars false in
 #eval foo

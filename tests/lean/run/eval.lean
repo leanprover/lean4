@@ -3,7 +3,11 @@ import Lean
 # Tests of the `#eval` command
 -/
 
-/-! Basic values -/
+set_option eval.type true
+
+/-!
+Basic values
+-/
 /-- info: 2 : Nat -/
 #guard_msgs in #eval 2
 /-- info: some 2 : Option Nat -/
@@ -11,27 +15,33 @@ import Lean
 /-- info: [2, 3, 4] : List Nat -/
 #guard_msgs in #eval [1,2,3].map (· + 1)
 
-/-! Deciding a proposition -/
+/-!
+Deciding a proposition
+-/
 /-- info: true : Bool -/
 #guard_msgs in #eval True
 
-/-! Can't evaluate proofs -/
+/-!
+Can't evaluate proofs
+-/
 /-- error: cannot evaluate, proofs are not computationally relevant -/
 #guard_msgs in #eval trivial
 
-/-! Can't evaluate types-/
+/-!
+Can't evaluate types
+-/
 /-- error: cannot evaluate, types are not computationally relevant -/
 #guard_msgs in #eval Nat
 
 
-/-! Capturing `dbg_trace` -/
+/-!
+Capturing `dbg_trace` output
+-/
 def Nat.choose : Nat → Nat → Nat
   | _, 0 => dbg_trace "(_, 0)"; 1
   | 0, _ + 1 => dbg_trace "(0, _ + 1)"; 0
   | n + 1, k + 1 => dbg_trace "(_ + 1, _ + 1)"; choose n k + choose n (k + 1)
 /--
-info: 1 : Nat
----
 info: (_ + 1, _ + 1)
 (_ + 1, _ + 1)
 (_, 0)
@@ -39,17 +49,20 @@ info: (_ + 1, _ + 1)
 (_ + 1, _ + 1)
 (0, _ + 1)
 (0, _ + 1)
+---
+info: 1 : Nat
 -/
 #guard_msgs in #eval Nat.choose 2 2
 
-/-! Custom monad -/
+/-!
+Custom monad
+-/
 
 abbrev MyMonad := ReaderT Nat IO
 /--
-error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
+error: unable to synthesize 'MonadEval' instance to adapt
   MyMonad Nat
-
-This is due to a missing 'MonadEval' instance to adapt this monad to 'IO' or 'Lean.Elab.Command.CommandElabM'.
+to 'IO' or 'Lean.Elab.Command.CommandElabM'.
 -/
 #guard_msgs in #eval (pure 2 : MyMonad Nat)
 
@@ -73,21 +86,29 @@ error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
 -/
 #guard_msgs in #eval (pure id : MyMonad (Nat → _))
 
-/-! Elaboration error, does not attempt to evaluate. -/
+/-!
+Elaboration error, does not attempt to evaluate.
+-/
 /-- error: unknown identifier 'x' -/
 #guard_msgs in #eval 2 + x
 
-/-! Defaulting to the CommandElabM monad -/
+/-!
+Defaulting to the CommandElabM monad
+-/
 /-- info: 2 : Nat -/
 #guard_msgs in #eval do pure 2
 /-- info: true : Bool -/
 #guard_msgs in #eval do return (← Lean.getEnv).contains ``Lean.MessageData
 
-/-! Defaulting does not affect postponed elaborators. -/
+/-!
+Defaulting does not affect postponed elaborators.
+-/
 /-- info: 1 : Nat -/
 #guard_msgs in #eval if True then 1 else 2
 
-/-! Testing that dbg_trace and logs carry over from all the major meta monads. -/
+/-!
+Testing that dbg_trace and logs carry over from all the major meta monads.
+-/
 /--
 info: hi
 ---
@@ -106,3 +127,49 @@ info: hi
 info: dbg
 -/
 #guard_msgs in #eval show Lean.CoreM Unit from do dbg_trace "dbg"; Lean.logInfo m!"hi"
+
+/-!
+Testing delta deriving
+-/
+def Foo := List Nat
+def Foo.mk (l : List Nat) : Foo := l
+
+#eval Foo.mk [1,2,3]
+
+/-!
+Testing auto-deriving
+-/
+
+inductive Baz
+  | a | b
+
+/-- info: Baz.a : Baz -/
+#guard_msgs in #eval Baz.a
+
+/-!
+Returning after printing
+-/
+def returns : Lean.CoreM Nat := do
+  IO.println "hi"
+  return 2
+
+/--
+info: hi
+---
+info: 2 : Nat
+-/
+#guard_msgs in #eval returns
+
+/-!
+Throwing an exception after printing
+-/
+def throwsEx : Lean.CoreM Nat := do
+  IO.println "hi"
+  throwError "ex"
+
+/--
+info: hi
+---
+error: ex
+-/
+#guard_msgs in #eval throwsEx

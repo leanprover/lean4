@@ -160,6 +160,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instToFormatCustomInfo;
 LEAN_EXPORT lean_object* l_Lean_Elab_CommandContextInfo_save___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withSaveParentDeclInfoContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6;
 static lean_object* l_Lean_Elab_TacticInfo_format___closed__1;
 static lean_object* l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f___closed__4;
 extern lean_object* l_Lean_Elab_instInhabitedInfoTree;
@@ -3736,6 +3737,17 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_ContextInfo_runCoreM___rarg___closed__8;
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_ContextInfo_runCoreM___rarg___closed__8;
 x_2 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -3744,24 +3756,25 @@ lean_ctor_set(x_2, 3, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_ContextInfo_runCoreM___rarg___closed__8;
-x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__3;
-x_3 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_1);
-lean_ctor_set(x_3, 4, x_1);
-lean_ctor_set(x_3, 5, x_2);
-lean_ctor_set(x_3, 6, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__3;
+x_2 = l_Lean_Elab_ContextInfo_runCoreM___rarg___closed__8;
+x_3 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4;
+x_4 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_2);
+lean_ctor_set(x_4, 4, x_2);
+lean_ctor_set(x_4, 5, x_3);
+lean_ctor_set(x_4, 6, x_3);
+return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__5() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -3798,9 +3811,9 @@ x_12 = lean_ctor_get(x_11, 2);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = lean_box(0);
-x_14 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4;
+x_14 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__5;
 x_15 = l_Lean_Elab_ContextInfo_runCoreM___rarg___closed__6;
-x_16 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__5;
+x_16 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6;
 x_17 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_17, 0, x_12);
 lean_ctor_set(x_17, 1, x_14);
@@ -13262,6 +13275,8 @@ l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4 = _init_l_Lean_Elab_ContextI
 lean_mark_persistent(l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4);
 l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__5 = _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__5();
 lean_mark_persistent(l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__5);
+l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6 = _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6();
+lean_mark_persistent(l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6);
 l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__1 = _init_l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__1);
 l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__2 = _init_l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__2();

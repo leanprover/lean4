@@ -400,19 +400,6 @@ example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 syntax (name := acRfl) "ac_rfl" : tactic
 
 /--
-`ac_nf` normalizes equalities up to application of an associative and commutative operator.
-```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
-
-example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
- ac_nf
- -- goal: a + (b + (c + d)) = a + (b + (c + d))
-```
--/
-syntax (name := acNf) "ac_nf" : tactic
-
-/--
 The `sorry` tactic closes the goal using `sorryAx`. This is intended for stubbing out incomplete
 parts of a proof while still having a syntactically correct proof skeleton. Lean will give
 a warning whenever a proof uses `sorry`, so you aren't likely to miss it, but
@@ -1172,6 +1159,9 @@ Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
 -/
 macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
 
+/-- Implementation of `ac_nf` (the full `ac_nf` calls `trivial` afterwards). -/
+syntax (name := acNf0) "ac_nf0" (location)? : tactic
+
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
 
@@ -1221,6 +1211,24 @@ See also `push_cast`, which moves casts inwards rather than lifting them outward
 -/
 macro "norm_cast" loc:(location)? : tactic =>
   `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+
+/--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+- `ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+macro "ac_nf" loc:(location)? : tactic =>
+  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
 
 /--
 `push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.

@@ -11,6 +11,7 @@ import Init.Data.UInt.Basic
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
+import Init.Data.List.ToArray
 universe u v w
 
 /-! ### Array literal syntax -/

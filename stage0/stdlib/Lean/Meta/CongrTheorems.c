@@ -106,6 +106,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f_go___lambda__1(l
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_getCongrSimpKinds___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_getFVar_x21(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___spec__16(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,7 +120,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_getCongrSimpK
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Meta_whnfCore_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_arrowDomainsN___spec__6___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___spec__7(lean_object*, lean_object*);
@@ -5401,7 +5401,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 x_18 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__4;
-x_19 = l_panic___at_Lean_Meta_whnfCore_go___spec__1(x_18, x_6, x_7, x_8, x_9, x_14);
+x_19 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_18, x_6, x_7, x_8, x_9, x_14);
 return x_19;
 }
 else
@@ -7914,7 +7914,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 x_44 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__2;
-x_45 = l_panic___at_Lean_Meta_whnfCore_go___spec__1(x_44, x_6, x_7, x_8, x_9, x_10);
+x_45 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_44, x_6, x_7, x_8, x_9, x_10);
 return x_45;
 }
 case 2:
@@ -7932,7 +7932,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 x_47 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__2;
-x_48 = l_panic___at_Lean_Meta_whnfCore_go___spec__1(x_47, x_6, x_7, x_8, x_9, x_10);
+x_48 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_47, x_6, x_7, x_8, x_9, x_10);
 return x_48;
 }
 case 5:
@@ -8023,7 +8023,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 x_69 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__2;
-x_70 = l_panic___at_Lean_Meta_whnfCore_go___spec__1(x_69, x_6, x_7, x_8, x_9, x_10);
+x_70 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_69, x_6, x_7, x_8, x_9, x_10);
 return x_70;
 }
 case 2:
@@ -8041,7 +8041,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 x_72 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__2;
-x_73 = l_panic___at_Lean_Meta_whnfCore_go___spec__1(x_72, x_6, x_7, x_8, x_9, x_10);
+x_73 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_72, x_6, x_7, x_8, x_9, x_10);
 return x_73;
 }
 case 5:
@@ -8257,7 +8257,7 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; 
 lean_dec(x_3);
 x_16 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___closed__1;
-x_17 = l_panic___at_Lean_Meta_whnfCore_go___spec__1(x_16, x_4, x_5, x_6, x_7, x_8);
+x_17 = l_panic___at___private_Lean_Meta_InferType_0__Lean_Meta_checkInferTypeCache___spec__8(x_16, x_4, x_5, x_6, x_7, x_8);
 return x_17;
 }
 else

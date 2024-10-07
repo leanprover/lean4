@@ -247,11 +247,19 @@ structure DefEqCache where
   deriving Inhabited
 
 /--
+  A cache for `inferType` at transparency levels `.default` an `.all`.
+-/
+structure InferTypeCaches where
+  default   : InferTypeCache
+  all       : InferTypeCache
+  deriving Inhabited
+
+/--
   Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
-  inferType      : InferTypeCache := {}
-  funInfo        : FunInfoCache   := {}
+  inferType      : InferTypeCaches := ⟨{}, {}⟩
+  funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
@@ -478,8 +486,11 @@ variable [MonadControlT MetaM n] [Monad n]
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
   modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
-@[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+@[inline] def modifyInferTypeCacheDefault (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨⟨icd, ica⟩, c1, c2, c3, c4, c5, c6⟩ => ⟨⟨f icd, ica⟩, c1, c2, c3, c4, c5, c6⟩
+
+@[inline] def modifyInferTypeCacheAll (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨⟨icd, ica⟩, c1, c2, c3, c4, c5, c6⟩ => ⟨⟨icd, f ica⟩, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6⟩

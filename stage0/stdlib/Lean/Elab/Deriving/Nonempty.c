@@ -114,7 +114,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000_(lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__4___closed__14;
@@ -125,9 +124,11 @@ lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__8;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__29;
+LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999_(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__4___closed__11;
 static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__38;
 LEAN_EXPORT lean_object* l_Lean_isInductive___at_Lean_Elab_mkNonemptyInstanceHandler___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999____closed__1;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__3___closed__3;
 static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__26;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -168,7 +169,6 @@ static lean_object* l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonem
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__4___closed__16;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__3___closed__12;
-static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000____closed__1;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__3___closed__15;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__3___closed__9;
 lean_object* lean_array_get_size(lean_object*);
@@ -4275,7 +4275,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000____closed__1() {
+static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -4283,12 +4283,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_mkNonemptyInstanceHandler___boxed),
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___spec__3___closed__18;
-x_3 = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000____closed__1;
+x_3 = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999____closed__1;
 x_4 = l_Lean_Elab_registerDerivingHandler(x_2, x_3, x_1);
 return x_4;
 }
@@ -4504,9 +4504,9 @@ l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda
 lean_mark_persistent(l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__50);
 l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__51 = _init_l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__51();
 lean_mark_persistent(l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance___lambda__1___closed__51);
-l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000____closed__1 = _init_l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000____closed__1();
-lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000____closed__1);
-if (builtin) {res = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_1000_(lean_io_mk_world());
+l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999____closed__1 = _init_l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999____closed__1();
+lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999____closed__1);
+if (builtin) {res = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Nonempty___hyg_999_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

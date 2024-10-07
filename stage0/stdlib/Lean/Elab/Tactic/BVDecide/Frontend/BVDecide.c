@@ -601,7 +601,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__13(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__6___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_unusedRelevantHypotheses___default;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
@@ -620,7 +619,6 @@ size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__3;
 lean_object* l_Std_Sat_AIG_toGraphviz_invEdgeStyle(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_uninterpretedSymbols___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableNat___boxed(lean_object*);
 double lean_float_sub(double, double);
@@ -4930,22 +4928,6 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_uninterpretedSymbols___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__3;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_unusedRelevantHypotheses___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__3;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1() {
@@ -22694,10 +22676,6 @@ lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExam
 l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__4 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__4();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__4);
 l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__5 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__5();
-l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_uninterpretedSymbols___default = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_uninterpretedSymbols___default();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_uninterpretedSymbols___default);
-l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_unusedRelevantHypotheses___default = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_unusedRelevantHypotheses___default();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Diagnosis_unusedRelevantHypotheses___default);
 l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1();

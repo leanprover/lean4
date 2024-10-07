@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Util_Paths_0
 static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____closed__16;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_instToJsonLeanPaths___closed__1;
-LEAN_EXPORT lean_object* l_Lean_LeanPaths_loadDynlibPaths___default;
 static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_System_SearchPath_parse(lean_object*);
@@ -47,13 +46,13 @@ static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40
 static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____closed__4;
 static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____closed__3;
 static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____closed__5;
+static lean_object* l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__4;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____lambda__1___boxed(lean_object*);
 static lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____spec__1___closed__1;
 LEAN_EXPORT uint8_t l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____lambda__1(lean_object*);
 static lean_object* l_Lean_initSrcSearchPath___closed__4;
 static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____closed__12;
-static lean_object* l_Lean_LeanPaths_loadDynlibPaths___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instToJsonLeanPaths;
 static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40_Lean_Util_Paths___hyg_106____closed__15;
 static lean_object* l_Lean_initSrcSearchPath___closed__2;
@@ -84,23 +83,6 @@ static lean_object* l___private_Lean_Util_Paths_0__Lean_fromJsonLeanPaths____x40
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_instFromJsonLeanPaths___closed__1;
-static lean_object* _init_l_Lean_LeanPaths_loadDynlibPaths___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_array_mk(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_LeanPaths_loadDynlibPaths___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_LeanPaths_loadDynlibPaths___default___closed__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
@@ -175,6 +157,15 @@ x_1 = lean_mk_string_unchecked("loadDynlibPaths", 15, 15);
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40_(lean_object* x_1) {
 _start:
 {
@@ -232,7 +223,7 @@ lean_ctor_set(x_28, 1, x_27);
 x_29 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_29, 0, x_13);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_Lean_LeanPaths_loadDynlibPaths___default___closed__1;
+x_30 = l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__4;
 x_31 = l_List_bindTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(x_29, x_30);
 x_32 = l_Lean_Json_mkObj(x_31);
 return x_32;
@@ -1359,16 +1350,14 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_Path(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_LeanPaths_loadDynlibPaths___default___closed__1 = _init_l_Lean_LeanPaths_loadDynlibPaths___default___closed__1();
-lean_mark_persistent(l_Lean_LeanPaths_loadDynlibPaths___default___closed__1);
-l_Lean_LeanPaths_loadDynlibPaths___default = _init_l_Lean_LeanPaths_loadDynlibPaths___default();
-lean_mark_persistent(l_Lean_LeanPaths_loadDynlibPaths___default);
 l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__1 = _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__1();
 lean_mark_persistent(l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__1);
 l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__2 = _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__2();
 lean_mark_persistent(l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__2);
 l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__3 = _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__3();
 lean_mark_persistent(l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__3);
+l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__4 = _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__4();
+lean_mark_persistent(l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____closed__4);
 l_Lean_instToJsonLeanPaths___closed__1 = _init_l_Lean_instToJsonLeanPaths___closed__1();
 lean_mark_persistent(l_Lean_instToJsonLeanPaths___closed__1);
 l_Lean_instToJsonLeanPaths = _init_l_Lean_instToJsonLeanPaths();

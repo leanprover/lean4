@@ -125,6 +125,15 @@ example : 1 + 1 = 2 := by rfl
 @[builtin_tactic_parser] def decide := leading_parser
   nonReservedSymbol "decide"
 
+/--
+A variant of `decide` that does not check the proposition at the time of elaboration, and just
+assumes it is true. The proposition is of course still checked by the kernel.
+
+This is useful to speed up the processing of large proofs, by halfing the processing time.
+-/
+@[builtin_tactic_parser] def decideBang := leading_parser
+  nonReservedSymbol "decide!"
+
 /-- `native_decide` will attempt to prove a goal of type `p` by synthesizing an instance
 of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
 uses `#eval` to evaluate the decidability instance.

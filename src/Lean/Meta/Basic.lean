@@ -498,6 +498,9 @@ variable [MonadControlT MetaM n] [Monad n]
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
 
+@[inline] def resetSynthInstanceCache : MetaM Unit :=
+  modifyCache fun c => {c with synthInstance := {}}
+
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
     modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache, zetaDeltaFVarIds, postponed, diag := f diag }

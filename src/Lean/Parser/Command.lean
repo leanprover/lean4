@@ -470,14 +470,19 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   to the `CommandElabM` monad.
   Users can define a `MonadEval m CommandElabM` instance to add support for `m`.
 
+The `#eval` command gracefully degrades in capability depending on what is imported.
+Import the `Lean.Elab.Command` module for full capabilities.
+
 Due to unsoundness, `#eval` refuses to evaluate expressions that depend on `sorry`, even indirectly,
 since the presence of `sorry` can lead to runtime instability and crashes.
 This check can be overridden with the `#eval! e` command.
 
 Options:
-* If `eval.pp` is true (default) then tries to use `ToExpr` instances to make use of the
+* If `eval.pp` is true (default: true) then tries to use `ToExpr` instances to make use of the
   usual pretty printer. Otherwise, it only tries using `Repr` and `ToString` instances.
-* If `eval.type` is true (default) then pretty prints the type of the evaluated value.
+* If `eval.type` is true (default: false) then pretty prints the type of the evaluated value.
+* If `eval.derive.repr` is true (default: true) then attempts to auto-derive a `Repr` instance
+  when there is no other way to print the result.
 
 See also: `#reduce e` for evaluation by term reduction.
 -/

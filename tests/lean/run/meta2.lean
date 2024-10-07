@@ -2,6 +2,8 @@ import Lean.Meta
 open Lean
 open Lean.Meta
 
+set_option pp.mvars false
+
 -- set_option trace.Meta true
 --set_option trace.Meta.isDefEq.step false
 -- set_option trace.Meta.isDefEq.delta false
@@ -181,7 +183,11 @@ do print "----- tst7 -----";
      checkM $ pure $ v == x;
      pure ()
 
-/-- info: [Meta.debug] ----- tst7 ----- -/
+/--
+error: check failed
+---
+info: [Meta.debug] ----- tst7 -----
+-/
 #guard_msgs in
 #eval tst7
 
@@ -591,9 +597,9 @@ withLocalDeclD `x nat $ fun x => do
 
 /--
 info: [Meta.debug] ----- tst30 -----
-[Meta.debug] (?m.2 x).succ
-[Meta.debug] ?m.4.succ
-[Meta.debug] fun x => ?m.4
+[Meta.debug] (?_ x).succ
+[Meta.debug] ?_.succ
+[Meta.debug] fun x => ?_
 -/
 #guard_msgs in
 #eval tst30
@@ -670,7 +676,7 @@ withLocalDeclD `α type $ fun α => do
 
 /--
 info: [Meta.debug] ----- tst34 -----
-[Meta.debug] fun α => ?m.3 α → ?m.3 α
+[Meta.debug] fun α => ?_ α → ?_ α
 -/
 #guard_msgs in
 #eval tst34
@@ -694,7 +700,7 @@ withLocalDeclD `α type $ fun α => do
 
 /--
 info: [Meta.debug] ----- tst35 -----
-[Meta.debug] fun α => ?m.4 α → ?m.4 α
+[Meta.debug] fun α => ?_ α → ?_ α
 [Meta.debug] fun α => α → α
 -/
 #guard_msgs in
@@ -730,7 +736,7 @@ withLocalDeclD `v nat $ fun v => do
 
 /--
 info: [Meta.debug] ----- tst37 -----
-[Meta.debug] ?m.1 v (?m.2 v)
+[Meta.debug] ?_ v (?_ v)
 [Meta.debug] StateM Nat Nat
 -/
 #guard_msgs in

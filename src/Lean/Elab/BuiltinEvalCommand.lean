@@ -6,6 +6,7 @@ Authors: Kyle Miller
 prelude
 import Lean.Util.CollectLevelParams
 import Lean.Util.CollectAxioms
+import Lean.Meta.Reduce
 import Lean.Elab.Eval
 import Lean.Elab.Deriving.Basic
 
@@ -104,14 +105,19 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
 /--
 Try to make a `@projFn ty inst e` application, even if it takes unfolding the type `ty` of `e` to synthesize the instance `inst`.
 -/
-private partial def mkDeltaInstProj (inst projFn : Name) (e : Expr) (ty? : Option Expr := none) : MetaM Expr := do
+private partial def mkDeltaInstProj (inst projFn : Name) (e : Expr) (ty? : Option Expr := none) (tryReduce : Bool := true) : MetaM Expr := do
   let ty ← ty?.getDM (inferType e)
   if let .some inst ← trySynthInstance (← mkAppM inst #[ty]) then
     mkAppOptM projFn #[ty, inst, e]
   else
     let ty ← whnfCore ty
-    let some ty ← unfoldDefinition? ty | failure
-    mkDeltaInstProj inst projFn e ty
+    let some ty ← unfoldDefinition? ty
+      | guard tryReduce
+        -- Reducing the type is a strategy `#eval` used before the refactor of #5627.
+        -- The test lean/run/hlistOverload.lean depends on it, so we preserve the behavior.
+        let ty ← reduce (skipTypes := false) ty
+        mkDeltaInstProj inst projFn e ty (tryReduce := false)
+    mkDeltaInstProj inst projFn e ty tryReduce
 
 /-- Try to make a `toString e` application, even if it takes unfolding the type of `e` to find a `ToString` instance. -/
 private def mkToString (e : Expr) (ty? : Option Expr := none) : MetaM Expr := do

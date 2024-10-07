@@ -62,7 +62,8 @@ info: 1
 2
 3
 4
-[12, 14]
+---
+info: [12, 14]
 -/
 #guard_msgs in
 #eval tst

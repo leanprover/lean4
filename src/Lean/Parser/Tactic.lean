@@ -129,7 +129,7 @@ example : 1 + 1 = 2 := by rfl
 A variant of `decide` that does not check the proposition at the time of elaboration, and just
 assumes it is true. The proposition is of course still checked by the kernel.
 
-This is useful to speed up the processing of large proofs, by halfing the processing time.
+This is useful to speed up the processing of large proofs, by halving the processing time.
 -/
 @[builtin_tactic_parser] def decideBang := leading_parser
   nonReservedSymbol "decide!"

@@ -1200,12 +1200,29 @@ def delabDo : Delab := whenPPOption getPPNotation do
   `(do $items:doSeqItem*)
 
 def reifyName : Expr → DelabM Name
-  | .const ``Lean.Name.anonymous .. => return Name.anonymous
-  | .app (.app (.const ``Lean.Name.str ..) n) (.lit (.strVal s)) => return (← reifyName n).mkStr s
-  | .app (.app (.const ``Lean.Name.num ..) n) (.lit (.natVal i)) => return (← reifyName n).mkNum i
+  | .const ``Lean.Name.anonymous _ => return Name.anonymous
+  | mkApp2 (.const ``Lean.Name.str _) n (.lit (.strVal s)) => return (← reifyName n).mkStr s
+  | mkApp2 (.const ``Lean.Name.num _) n (.lit (.natVal i)) => return (← reifyName n).mkNum i
+  | mkApp (.const ``Lean.Name.mkStr1 _) (.lit (.strVal a)) => return Lean.Name.mkStr1 a
+  | mkApp2 (.const ``Lean.Name.mkStr2 _) (.lit (.strVal a1)) (.lit (.strVal a2)) =>
+    return Lean.Name.mkStr2 a1 a2
+  | mkApp3 (.const ``Lean.Name.mkStr3 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) =>
+    return Lean.Name.mkStr3 a1 a2 a3
+  | mkApp4 (.const ``Lean.Name.mkStr4 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) =>
+    return Lean.Name.mkStr4 a1 a2 a3 a4
+  | mkApp5 (.const ``Lean.Name.mkStr5 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) =>
+    return Lean.Name.mkStr5 a1 a2 a3 a4 a5
+  | mkApp6 (.const ``Lean.Name.mkStr6 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) =>
+    return Lean.Name.mkStr6 a1 a2 a3 a4 a5 a6
+  | mkApp7 (.const ``Lean.Name.mkStr7 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) =>
+    return Lean.Name.mkStr7 a1 a2 a3 a4 a5 a6 a7
+  | mkApp8 (.const ``Lean.Name.mkStr8 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) (.lit (.strVal a8)) =>
+    return Lean.Name.mkStr8 a1 a2 a3 a4 a5 a6 a7 a8
   | _ => failure
 
-@[builtin_delab app.Lean.Name.str]
+@[builtin_delab app.Lean.Name.str,
+  builtin_delab app.Lean.Name.mkStr1, builtin_delab app.Lean.Name.mkStr2, builtin_delab app.Lean.Name.mkStr3, builtin_delab app.Lean.Name.mkStr4,
+  builtin_delab app.Lean.Name.mkStr5, builtin_delab app.Lean.Name.mkStr6, builtin_delab app.Lean.Name.mkStr7, builtin_delab app.Lean.Name.mkStr8]
 def delabNameMkStr : Delab := whenPPOption getPPNotation do
   let n ← reifyName (← getExpr)
   -- not guaranteed to be a syntactically valid name, but usually more helpful than the explicit version

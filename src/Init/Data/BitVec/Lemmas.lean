@@ -1353,7 +1353,7 @@ theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
 
 @[simp]
 theorem udiv_zero {x : BitVec n} : x.udiv 0#n = 0#n := by
-  simp [udiv]
+  simp only [udiv, toNat_ofNat, Nat.zero_mod, Nat.div_zero]
   rfl
 
 /-! ### umod -/

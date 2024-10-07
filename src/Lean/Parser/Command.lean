@@ -462,9 +462,28 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
-@[builtin_command_parser] def eval           := leading_parser
+/--
+`#eval e` evaluates the expression `e` by compiling and evaluating it.
+
+* The command attempts to use a `ToExpr`, `Repr`, or `ToString` instance to print the result.
+* If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`
+  to the `CommandElabM` monad.
+  Users can define a `MonadEval m CommandElabM` instance to add support for `m`.
+
+Due to unsoundness, `#eval` refuses to evaluate expressions that depend on `sorry`, even indirectly,
+since the presence of `sorry` can lead to runtime instability and crashes.
+This check can be overridden with the `#eval! e` command.
+
+Options:
+* If `eval.pp` is true (default) then tries to use `ToExpr` instances to make use of the
+  usual pretty printer. Otherwise, it only tries using `Repr` and `ToString` instances.
+* If `eval.type` is true (default) then pretty prints the type of the evaluated value.
+
+See also: `#reduce e` for evaluation by term reduction.
+-/
+@[builtin_command_parser, builtin_doc] def eval := leading_parser
   "#eval " >> termParser
-@[builtin_command_parser] def evalBang       := leading_parser
+@[builtin_command_parser, inherit_doc eval] def evalBang := leading_parser
   "#eval! " >> termParser
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser

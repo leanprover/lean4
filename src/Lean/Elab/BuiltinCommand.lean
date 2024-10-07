@@ -311,123 +311,170 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     failIfSucceeds <| elabCheckCore (ignoreStuckTC := false) (← `(#check $term))
   | _ => throwUnsupportedSyntax
 
-private def mkEvalInstCore (evalClassName : Name) (e : Expr) : MetaM Expr := do
-  let α    ← inferType e
-  let u    ← getDecLevel α
-  let inst := mkApp (Lean.mkConst evalClassName [u]) α
-  try
-    synthInstance inst
-  catch _ =>
-    -- Put `α` in WHNF and try again
+/--
+Elaborates the term, ensuring the result has no expression metavariables.
+If there would be unsolved-for metavariables, tries hinting that the resulting type
+is a monadic value with the `CommandElabM` monad or the `IO` monad.
+-/
+private def elabTermForEval (term : Syntax) : TermElabM Expr := do
+  let ty ← mkFreshTypeMVar
+  let e ← Term.elabTerm term ty
+  synthesizeWithHinting ty
+  let e ← instantiateMVars e
+  if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
+  if ← isProof e then
+    throwError m!"cannot evaluate, proofs are not computationally relevant"
+  let e ← if (← isProp e) then mkDecide e else pure e
+  if ← isType e then
+    throwError m!"cannot evaluate, types are not computationally relevant"
+  return e
+where
+  /-- Try different strategies to make `Term.synthesizeSyntheticMVarsNoPostponing` succeed. -/
+  synthesizeWithHinting (ty : Expr) : TermElabM Unit := do
+    Term.synthesizeSyntheticMVarsUsingDefault
+    let s ← saveState
     try
-      let α ← whnf α
-      synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
-    catch _ =>
-      -- Fully reduce `α` and try again
-      try
-        let α ← reduce (skipTypes := false) α
-        synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
-      catch _ =>
-        throwError "expression{indentExpr e}\nhas type{indentExpr α}\nbut instance{indentExpr inst}\nfailed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `{evalClassName}` class"
-
-private def mkRunMetaEval (e : Expr) : MetaM Expr :=
-  withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
-  withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
-    let α ← inferType e
-    let u ← getDecLevel α
-    let instVal ← mkEvalInstCore ``Lean.MetaEval e
-    let e := mkAppN (mkConst ``Lean.runMetaEval [u]) #[α, instVal, env, opts, e]
-    instantiateMVars (← mkLambdaFVars #[env, opts] e)
-
-private def mkRunEval (e : Expr) : MetaM Expr := do
-  let α ← inferType e
-  let u ← getDecLevel α
-  let instVal ← mkEvalInstCore ``Lean.Eval e
-  instantiateMVars (mkAppN (mkConst ``Lean.runEval [u]) #[α, instVal, mkSimpleThunk e])
-
-unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax): CommandElabM Unit := do
-    let declName := `_eval
-    let addAndCompile (value : Expr) : TermElabM Unit := do
-      let value ← Term.levelMVarToParam (← instantiateMVars value)
-      let type ← inferType value
-      let us := collectLevelParams {} value |>.params
-      let value ← instantiateMVars value
-      let decl := Declaration.defnDecl {
-        name        := declName
-        levelParams := us.toList
-        type        := type
-        value       := value
-        hints       := ReducibilityHints.opaque
-        safety      := DefinitionSafety.unsafe
-      }
-      Term.ensureNoUnassignedMVars decl
-      addAndCompile decl
-    -- Check for sorry axioms
-    let checkSorry (declName : Name) : MetaM Unit := do
-      unless bang do
-        let axioms ← collectAxioms declName
-        if axioms.contains ``sorryAx then
-          throwError ("cannot evaluate expression that depends on the `sorry` axiom.\nUse `#eval!` to " ++
-            "evaluate nevertheless (which may cause lean to crash).")
-    -- Elaborate `term`
-    let elabEvalTerm : TermElabM Expr := do
-      let e ← Term.elabTerm term none
       Term.synthesizeSyntheticMVarsNoPostponing
-      if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
-      if (← isProp e) then
-        mkDecide e
-      else
-        return e
-    -- Evaluate using term using `MetaEval` class.
-    let elabMetaEval : CommandElabM Unit := do
-      -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
-      -- we don't pollute the environment with auxliary declarations.
-      -- We have special support for `CommandElabM` to ensure `#eval` can be used to execute commands
-      -- that modify `CommandElabM` state not just the `Environment`.
-      let act : Sum (CommandElabM Unit) (Environment → Options → IO (String × Except IO.Error Environment)) ←
-        runTermElabM fun _ => Term.withDeclName declName do withoutModifyingEnv do
-          let e ← elabEvalTerm
-          let eType ← instantiateMVars (← inferType e)
-          if eType.isAppOfArity ``CommandElabM 1 then
-            let mut stx ← Term.exprToSyntax e
-            unless (← isDefEq eType.appArg! (mkConst ``Unit)) do
-              stx ← `($stx >>= fun v => IO.println (repr v))
-            let act ← Lean.Elab.Term.evalTerm (CommandElabM Unit) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)) stx
-            pure <| Sum.inl act
-          else
-            let e ← mkRunMetaEval e
-            addAndCompile e
-            checkSorry declName
-            let act ← evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName
-            pure <| Sum.inr act
-      match act with
-      | .inl act => act
-      | .inr act =>
-        let (out, res) ← act (← getEnv) (← getOptions)
-        logInfoAt tk out
-        match res with
-        | Except.error e => throwError e.toString
-        | Except.ok env  => setEnv env; pure ()
-    -- Evaluate using term using `Eval` class.
-    let elabEval : CommandElabM Unit := runTermElabM fun _ => Term.withDeclName declName do withoutModifyingEnv do
-      -- fall back to non-meta eval if MetaEval hasn't been defined yet
-      -- modify e to `runEval e`
-      let e ← mkRunEval (← elabEvalTerm)
-      addAndCompile e
-      checkSorry declName
-      let act ← evalConst (IO (String × Except IO.Error Unit)) declName
-      let (out, res) ← liftM (m := IO) act
-      logInfoAt tk out
-      match res with
-      | Except.error e => throwError e.toString
-      | Except.ok _    => pure ()
-    if (← getEnv).contains ``Lean.MetaEval then do
-      elabMetaEval
+    catch ex =>
+      let exS ← saveState
+      s.restore true
+      -- See if we can make `ty` be a monad application of `CommandElabM` or `IO`.
+      try
+        if ← isDefEq ty (← mkFreshMonadApp ``CommandElabM) then
+          Term.synthesizeSyntheticMVarsNoPostponing
+          return
+      catch _ =>
+        s.restore true
+        try
+          if ← isDefEq ty (← mkFreshMonadApp ``IO) then
+            Term.synthesizeSyntheticMVarsNoPostponing
+            return
+        catch _ =>
+          -- Neither strategy worked, so throw the original error.
+          exS.restore true
+          throw ex
+  mkFreshMonadApp (n : Name) : MetaM Expr := do
+    let m ← mkConstWithFreshMVarLevels n
+    let (args, _, _) ← forallMetaBoundedTelescope (← inferType m) 1
+    return mkAppN m args
+
+private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorry := false) : TermElabM Unit := do
+  if value.hasSyntheticSorry then
+    -- There is an elaboration error, don't evaluate!
+    throwAbortTerm
+  let value ← Term.levelMVarToParam (← instantiateMVars value)
+  let type ← inferType value
+  let us := collectLevelParams {} value |>.params
+  let value ← instantiateMVars value
+  let decl := Declaration.defnDecl {
+    name        := declName
+    levelParams := us.toList
+    type        := type
+    value       := value
+    hints       := ReducibilityHints.opaque
+    safety      := DefinitionSafety.unsafe
+  }
+  Term.ensureNoUnassignedMVars decl
+  addAndCompile decl
+  unless allowSorry do
+    let axioms ← collectAxioms declName
+    if axioms.contains ``sorryAx then
+      throwError "\
+        aborting evaluation since the expression depends on the 'sorry' axiom, \
+        which can lead to runtime instability and crashes.\n\n\
+        To evaluate anyway despite the risks, use the '#eval!' command."
+
+register_builtin_option eval.pp : Bool := {
+  defValue := true
+  descr    := "('#eval' command) enables using 'ToExpr' instances to pretty print the result"
+}
+
+register_builtin_option eval.type : Bool := {
+  defValue := true
+  descr    := "('#eval' command) enables pretty printing the type of the result"
+}
+
+/-- Returns a representation of `e` using `MessageData`, or fails. -/
+private def mkMessageData (e : Expr) (extraMsg : MetaM MessageData := pure "") : MetaM Expr := do
+  (do guard <| eval.pp.get (← getOptions); mkAppM ``MessageData.ofExpr #[← mkAppM ``toExpr #[e]])
+  <|> (do mkAppM ``MessageData.ofFormat #[← mkAppM ``repr #[e]])
+  <|> (do mkAppM ``MessageData.ofFormat #[← mkAppM ``Std.Format.text #[← mkAppM ``toString #[e]]])
+  <|> do throwError m!"could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type{indentExpr (← inferType e)}{← extraMsg}"
+
+/-- Returns a representation of `e` using `Format`, or fails. This is a fallback to `mkMessageData` in case `MessageData` isn't imported. -/
+private def mkFormat (e : Expr) (extraMsg : MetaM MessageData := pure "") : MetaM Expr := do
+  (mkAppM ``repr #[e]) <|> (do mkAppM ``Std.Format.text #[← mkAppM ``toString #[e]])
+  <|> do throwError m!"could not synthesize a 'Repr' or 'ToString' instance for type{indentExpr (← inferType e)}{← extraMsg}"
+
+unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) : CommandElabM Unit := withRef tk do
+  let declName := `_eval
+  let log (ty : Expr) (f : MessageData) : CommandElabM Unit := do
+    if eval.type.get (← getOptions) then
+      logInfo m!"{f} : {ty}"
     else
-      elabEval
+      logInfo f
+  -- Create an action given the name of the monad `mc`, the monad `m` itself,
+  -- and an expression `e` to try to evaluate in this monad.
+  let mkAct? (mc : Name) (m : Type → Type) [Monad m] [MonadEvalT m CommandElabM] (e : Expr) : TermElabM (Option (CommandElabM Unit)) := do
+    let some e ← observing? (mkAppOptM ``MonadEvalT.monadEval #[none, mkConst mc, none, none, e])
+      | return none
+    let eType := e.appFn!.appArg!
+    if ← isDefEq eType (mkConst ``Unit) then
+      addAndCompileExprForEval declName e (allowSorry := bang)
+      let mf ← evalConst (m Unit) declName
+      return some do MonadEvalT.monadEval mf
+    else
+      let mf : m MessageData ←
+        if (← getEnv).contains ``Lean.MessageData then
+          let rf ← withLocalDeclD `x eType fun x => do mkLambdaFVars #[x] (← mkMessageData x)
+          let mut r ← mkAppM ``Functor.map #[rf, e]
+          addAndCompileExprForEval declName r (allowSorry := bang)
+          evalConst (m MessageData) declName
+        else
+          let rf ← withLocalDeclD `x eType fun x => do mkLambdaFVars #[x] (← mkFormat x)
+          let mut r ← mkAppM ``Functor.map #[rf, e]
+          addAndCompileExprForEval declName r (allowSorry := bang)
+          evalConst (m Format) declName
+      return some do MonadEvalT.monadEval mf >>= log eType
+  -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
+  -- we don't pollute the environment with auxiliary declarations.
+  let act : CommandElabM Unit ← liftTermElabM do Term.withDeclName declName do withoutModifyingEnv do
+    let e ← elabTermForEval term
+    if let some act ← mkAct? ``CommandElabM CommandElabM e
+                    -- Fallbacks in case we are in the Lean package
+                    <||> mkAct? ``TermElabM TermElabM e <||> mkAct? ``MetaM MetaM e <||> mkAct? ``CoreM CoreM e
+                    -- Fallback in case nothing is imported
+                    <||> mkAct? ``IO IO e then
+      return act
+    else
+      -- No need to adapt pure values to `CommandElabM`
+      let mkMonadDiagnosticMsg := do
+        -- Augment the error message if this is a monad containing a value that is representable.
+        try
+          let some (m, ty) ← isTypeApp? (← inferType e) | failure
+          guard <| (← isMonad? m).isSome
+          -- Verify that there is a way to form some MessageData:
+          (discard <| withLocalDeclD `x ty fun x => mkMessageData x)
+            <|> (discard <| withLocalDeclD `x ty fun x => mkFormat x)
+          pure m!"\n\nThis is due to a missing '{MessageData.ofConstName ``MonadEval}' instance \
+            to adapt this monad to '{MessageData.ofConstName ``IO}' or '{MessageData.ofConstName ``CommandElabM}'."
+        catch _ =>
+          pure m!""
+      let d : MessageData ←
+        if (← getEnv).contains ``Lean.MessageData then
+          let r ← mkMessageData e mkMonadDiagnosticMsg
+          addAndCompileExprForEval declName r (allowSorry := bang)
+          evalConst MessageData declName
+        else
+          let r ← mkFormat e mkMonadDiagnosticMsg
+          addAndCompileExprForEval declName r (allowSorry := bang)
+          evalConst Format declName
+      let eType ← inferType e
+      return do log eType d
+  act
 
 @[implemented_by elabEvalCoreUnsafe]
-opaque elabEvalCore (bang : Bool) (tk term : Syntax): CommandElabM Unit
+opaque elabEvalCore (bang : Bool) (tk term : Syntax) : CommandElabM Unit
 
 @[builtin_command_elab «eval»]
 def elabEval : CommandElab

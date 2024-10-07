@@ -456,9 +456,6 @@ instance : MonadBacktrack SavedState MetaM where
   let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
   pure (a, sCore, s)
 
-instance [MetaEval α] : MetaEval (MetaM α) :=
-  ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
-
 protected def throwIsDefEqStuck : MetaM α :=
   throw <| Exception.internal isDefEqStuckExceptionId
 

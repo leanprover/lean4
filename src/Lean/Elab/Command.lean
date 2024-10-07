@@ -619,6 +619,9 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let ((ea, _), _) ← runCore x
   MonadExcept.ofExcept ea
 
+instance : MonadEval TermElabM CommandElabM where
+  monadEval := liftTermElabM
+
 /--
 Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
 corresponding to all active scoped variables declared using the `variable` command.

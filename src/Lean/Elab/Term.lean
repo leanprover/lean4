@@ -2047,13 +2047,6 @@ def TermElabM.toIO (x : TermElabM α)
   let ((a, s), sCore, sMeta) ← (x.run ctx s).toIO ctxCore sCore ctxMeta sMeta
   return (a, sCore, sMeta, s)
 
-instance [MetaEval α] : MetaEval (TermElabM α) where
-  eval env opts x _ := do
-    let x : TermElabM α := do
-      try x finally
-        (← Core.getMessageLog).forM fun msg => do IO.println (← msg.toString)
-    MetaEval.eval env opts (hideUnit := true) <| x.run' {}
-
 /--
   Execute `x` and then tries to solve pending universe constraints.
   Note that, stuck constraints will not be discarded.

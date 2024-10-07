@@ -1198,7 +1198,7 @@ theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
 
 @[simp]
 theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
-    (x.ushiftRight n).msb = if n > 0 then false else x.msb := by
+    (x >>> n).msb = (!decide (0 < n) && x.msb) := by
   induction n
   case zero =>
     simp

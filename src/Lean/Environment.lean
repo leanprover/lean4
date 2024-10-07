@@ -10,6 +10,7 @@ import Init.Data.Stream
 import Init.System.Promise
 import Lean.ImportingFlag
 import Lean.Data.HashMap
+import Lean.Data.NameTrie
 import Lean.Data.SMap
 import Lean.Declaration
 import Lean.LocalContext
@@ -288,6 +289,7 @@ def ConstantKind.ofConstantInfo : ConstantInfo → ConstantKind
   | .recInfo    _ => .recursor
 
 structure AsyncConstantInfo where
+  name : Name
   kind : ConstantKind
   sig  : Task ConstantVal
   info : Task ConstantInfo
@@ -301,6 +303,7 @@ def toConstantInfo (c : AsyncConstantInfo) : ConstantInfo :=
   c.info.get
 
 def ofConstantInfo (c : ConstantInfo) : AsyncConstantInfo where
+  name := c.name
   kind := .ofConstantInfo c
   sig := .pure c.toConstantVal
   info := .pure c
@@ -381,7 +384,8 @@ structure AsyncConst where
 structure Environment extends EnvironmentBase where
   private mk ::
   private checkedSync : Task EnvironmentBase := .pure toEnvironmentBase
-  asyncConsts             : NameMap AsyncConst := {}
+  asyncConsts             : Array AsyncConst := #[]
+  asyncConstMap           : NameTrie AsyncConst := {}
   private asyncCtx?       : Option AsyncContext := none
   private realizedExternConsts : IO.Ref (NameMap AsyncConst)
   private realizedLocalConsts  : NameMap (IO.Ref (NameMap AsyncConst)) := {}
@@ -427,7 +431,7 @@ def toKernelEnvUnchecked (env : Environment) : Kernel.Environment := Id.run do
       match kenv.addDeclWithoutChecking subDecl.toDecl with
       | .ok kenv' => kenv := kenv'
       | .error _ => panic! "oh no"; return kenv
-  for (_, asyncConst) in env.asyncConsts do
+  for asyncConst in env.asyncConsts do
     kenv := kenv.add asyncConst.info.info.get
   kenv
 
@@ -452,7 +456,7 @@ def getImportedConstants (env : Environment) : Std.HashMap Name ConstantInfo :=
 
 def getLocalConstantsUnchecked (env : Environment) : NameMap AsyncConstantInfo := Id.run do
   let mut map := env.base.constants.map₂.foldl (fun m n c => m.insert n (.ofConstantInfo c)) .empty
-  map := env.asyncConsts.fold (fun m n c => m.insert n c.info) map
+  map := env.asyncConsts.foldl (fun m c => m.insert c.info.name c.info) map
   if let some asyncCtx := env.asyncCtx? then
     for subDecl in asyncCtx.subDecls do
       map := map.insert subDecl.toConstantInfo.name (.ofConstantInfo subDecl.toConstantInfo)
@@ -532,6 +536,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
   let checkedEnvPromise ← IO.Promise.new
   let asyncConst := {
     info := {
+      name := constName
       kind
       sig := sigPromise.result
       info := infoPromise.result.map (sync := true) (·.1)
@@ -541,7 +546,8 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
   return {
     constName, kind
     mainEnv := { env with
-      asyncConsts := env.asyncConsts.insert constName asyncConst
+      asyncConsts := env.asyncConsts.push asyncConst
+      asyncConstMap := env.asyncConstMap.insert constName asyncConst
       checkedSync := checkedEnvPromise.result }
     asyncEnv := { env with asyncCtx? := some {
       declPrefix := constName, subDecls := #[]
@@ -558,7 +564,7 @@ def enableRealizationsForConst (env : Environment) (c : Name) : BaseIO Environme
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
   if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.toConstantInfo.name == n)) then
     return subDecl.toConstantInfo
-  else if env.asyncConsts.any (fun c _ => c.isPrefixOf n) then
+  else if let #[_] := env.asyncConstMap.matchingToArray n then
     env.checkedSync.get.base.constants.find?' n
   else
     none
@@ -567,21 +573,21 @@ def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
   /- It is safe to use `find?'` because we never overwrite imported declarations. -/
   if let some c := env.base.constants.find?' n then
     some <| .ofConstantInfo c
-  else if let some asyncConst := env.asyncConsts.find? n then
+  else if let some asyncConst := env.asyncConstMap.find? n then
     return asyncConst.info
   else env.findNoAsyncTheorem n |>.map .ofConstantInfo
 
 def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
   if let some c := env.base.constants.find?' n then
     some c.toConstantVal
-  else if let some asyncConst := env.asyncConsts.find? n then
+  else if let some asyncConst := env.asyncConstMap.find? n then
     return asyncConst.info.toConstantVal
   else env.findNoAsyncTheorem n |>.map (·.toConstantVal)
 
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
   if let some c := env.base.constants.find?' n then
     some c
-  else if let some asyncConst := env.asyncConsts.find? n then
+  else if let some asyncConst := env.asyncConstMap.find? n then
     return asyncConst.info.toConstantInfo
   else
     env.findNoAsyncTheorem n
@@ -627,6 +633,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
   let prom ← IO.Promise.new
   let asyncConst := Thunk.mk fun _ => {
     info := {
+      name := constName
       kind
       sig := sig?.getD (prom.result.map (sync := true) (·.1.toConstantVal))
       info := prom.result.map (sync := true) (·.1)
@@ -641,7 +648,10 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     | some prom' => (some prom', m)
     | none       => (none, m.insert constName asyncConst.get)
   if let some existingConst := existingConst? then
-    let env := { env with asyncConsts := env.asyncConsts.insert constName existingConst }
+    let env := { env with
+      asyncConsts := env.asyncConsts.push existingConst
+      asyncConstMap := env.asyncConstMap.insert constName existingConst
+    }
     return (env, none)
   else
     let env := { env with realizingConst := true }
@@ -653,7 +663,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
         throw <| .userError s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
       prom.resolve (const, env.extensions)
       return { env with
-        asyncConsts := env.asyncConsts.insert constName asyncConst.get
+        asyncConsts := env.asyncConsts.push asyncConst.get
+        asyncConstMap := env.asyncConstMap.insert constName asyncConst.get
         realizingConst := false
       })
 
@@ -791,15 +802,15 @@ private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
 namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
 
-def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-  if env.asyncCtx?.isSome then
+def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (allowAsync := false) : Environment :=
+  if env.asyncCtx?.isSome && !allowAsync then
     let _ : Inhabited Environment := ⟨env⟩
     panic! s!"cannot set state of environment extension in an async context"
   else
     { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
 
-def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
-  if env.asyncCtx?.isSome then
+def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)  (allowAsync := false) : Environment :=
+  if env.asyncCtx?.isSome && !allowAsync then
     let _ : Inhabited Environment := ⟨env⟩
     panic! s!"cannot set state of environment extension in an async context"
   else
@@ -916,8 +927,8 @@ namespace PersistentEnvExtension
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
   (ext.toEnvExtension.getState env).importedEntries.get! m
 
-def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-  ext.toEnvExtension.modifyState env fun s =>
+def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) (allowAsync := false) : Environment :=
+  ext.toEnvExtension.modifyState (allowAsync := allowAsync) env fun s =>
     let state   := ext.addEntryFn s.state b;
     { s with state := state }
 
@@ -932,6 +943,13 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 /-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with state := f (ps.state) }
+
+def findStateAsync {α β σ : Type} [Inhabited σ]
+    (ext : PersistentEnvExtension α β σ) (env : Environment) (declName : Name) : σ :=
+  if let #[aconst] := env.asyncConstMap.matchingToArray declName then
+    EnvExtensionInterfaceImp.getState ext.toEnvExtension aconst.exts.get |>.state
+  else
+    ext.getState env
 
 end PersistentEnvExtension
 
@@ -1013,6 +1031,13 @@ def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : En
 /-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
 def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
   PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
+
+def SimplePersistentEnvExtension.findStateAsync {α σ : Type} [Inhabited σ]
+    (ext : SimplePersistentEnvExtension α σ) (env : Environment) (declName : Name) : σ :=
+  if let #[aconst] := env.asyncConstMap.matchingToArray declName then
+    EnvExtensionInterfaceImp.getState ext.toEnvExtension aconst.exts.get |>.state.2
+  else
+    ext.getState env
 
 end SimplePersistentEnvExtension
 

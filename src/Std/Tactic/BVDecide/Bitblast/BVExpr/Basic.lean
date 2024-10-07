@@ -78,7 +78,7 @@ def toString : BVBinOp → String
   | xor => "^"
   | add => "+"
   | mul => "*"
-  | udiv => "u/"
+  | udiv => "/ᵤ"
 
 instance : ToString BVBinOp := ⟨toString⟩
 

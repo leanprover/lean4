@@ -13,7 +13,7 @@ import Std.Sat.AIG.If
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.udiv`. The implemented
-circuit is a ripple carry adder.
+circuit is a shift subtractor.
 -/
 
 namespace Std.Tactic.BVDecide

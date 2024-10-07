@@ -26,6 +26,9 @@ def hasBind : Bind Id :=
 @[always_inline, inline]
 protected def run (x : Id α) : α := x
 
+instance [Pure m] : MonadLift Id m where
+  monadLift := pure
+
 instance [OfNat α n] : OfNat (Id α) n :=
   inferInstanceAs (OfNat α n)
 

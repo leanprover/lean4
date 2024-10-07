@@ -1183,9 +1183,10 @@ theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
     · apply hn
   · apply Nat.pow_pos (by decide)
 
+@[simp]
 theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
-    getMsbD (x.ushiftRight n) i = (decide (i < w) && if i < n then false else getMsbD x (i - n)) := by
-  simp only [getMsbD, Bool.if_false_left]
+    (x >>> n).getMsbD i = (decide (i < w) && (!decide (i < n) && x.getMsbD (i - n))) := by
+  simp only [getMsbD, getLsbD_ushiftRight]
   by_cases h : i < n
   · simp [getLsbD_ge, show w ≤ (n + (w - 1 - i)) by omega]
     omega
@@ -1195,13 +1196,14 @@ theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
       omega
     · simp [h, h₁]
 
+@[simp]
 theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
     (x.ushiftRight n).msb = if n > 0 then false else x.msb := by
   induction n
   case zero =>
     simp
-  case succ n ih =>
-    simp [ih, ← BitVec.ushiftRight_eq, getMsbD_ushiftRight, BitVec.msb]
+  case succ nn ih =>
+    simp [BitVec.ushiftRight_eq, getMsbD_ushiftRight, BitVec.msb, ih, show nn + 1 > 0 by omega]
 
 /-! ### ushiftRight reductions from BitVec to Nat -/
 
@@ -1307,6 +1309,7 @@ theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
     <;> simp [*]
 
 /-- The msb after arithmetic shifting right equals the original msb. -/
+@[simp]
 theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
     (x.sshiftRight n).msb = x.msb := by
   rw [msb_eq_getLsbD_last, getLsbD_sshiftRight, msb_eq_getLsbD_last]
@@ -1352,6 +1355,7 @@ theorem not_sshiftRight_not {x : BitVec w} {n : Nat} :
     ~~~((~~~x).sshiftRight n) = x.sshiftRight n := by
   simp [not_sshiftRight]
 
+@[simp]
 theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
     getMsbD (x.sshiftRight n) i = (decide (i < w) && if i < n then x.msb else getMsbD x (i - n)) := by
   simp only [getMsbD, BitVec.getLsbD_sshiftRight]
@@ -1373,13 +1377,15 @@ theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
 @[simp]
 theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNat := rfl
 
+@[simp]
 theorem getLsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
     getLsbD (x.sshiftRight' y) i =
       (!decide (w ≤ i) && if y.toNat + i < w then x.getLsbD (y.toNat + i) else x.msb) := by
   simp only [BitVec.sshiftRight', BitVec.getLsbD_sshiftRight]
 
+@[simp]
 theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
-    getMsbD (x.sshiftRight' y) i = (decide (i < w) && if i < y.toNat then x.msb else getMsbD x (i - y.toNat)) := by
+    (x.sshiftRight y.toNat).getMsbD i = (decide (i < w) && if i < y.toNat then x.msb else x.getMsbD (i - y.toNat)) := by
   simp only [BitVec.sshiftRight', getMsbD, BitVec.getLsbD_sshiftRight]
   by_cases h : i < w
   · simp only [h, decide_True, Bool.true_and]
@@ -1394,6 +1400,7 @@ theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
         by_cases h₄ : y.toNat + (w - 1 - i) < w <;> (simp only [h₄, ↓reduceIte]; congr; omega)
   · simp [h]
 
+@[simp]
 theorem msb_sshiftRight' {x y: BitVec w} :
     (x.sshiftRight' y).msb = x.msb := by
   simp [BitVec.sshiftRight', BitVec.msb_sshiftRight]
@@ -1701,6 +1708,7 @@ theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
       · simp [hi₂]
       · simp [Nat.lt_one_iff, hi₂, show 1 + (i.val - 1) = i by omega]
 
+@[simp]
 theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
     (x <<< n).msb = x.getMsbD n := by
   simp [BitVec.msb]

@@ -473,6 +473,31 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
     subst h
     simp
 
+@[simp]
+theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
+  simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
+
+/-! ### slt -/
+
+/--
+A bitvector, when interpreted as an integer, is less than zero iff
+its most significant bit is true.
+-/
+theorem slt_zero_iff_msb_cond (x : BitVec w) : x.slt 0#w ↔ x.msb = true := by
+  have := toInt_eq_msb_cond x
+  constructor
+  · intros h
+    apply Classical.byContradiction
+    intros hmsb
+    simp only [Bool.not_eq_true] at hmsb
+    simp only [hmsb, Bool.false_eq_true, ↓reduceIte] at this
+    simp only [BitVec.slt, toInt_zero, decide_eq_true_eq] at h
+    omega /- Can't have `x.toInt` which is equal to `x.toNat` be strictly less than zero -/
+  · intros h
+    simp only [h, ↓reduceIte] at this
+    simp [BitVec.slt, this]
+    omega
+
 /-! ### setWidth, zeroExtend and truncate -/
 
 @[simp]
@@ -1351,6 +1376,13 @@ theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
   · rw [toNat_ofNat, Nat.mod_eq_of_lt]
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
 
+/-! ### smtUDiv -/
+
+theorem smtUDiv_eq {x y : BitVec n} : x.smtUDiv y = if y = 0#n then allOnes n else udiv x y := rfl
+
+@[simp]
+theorem smtUDiv_zero {x : BitVec n} : x.smtUDiv 0#n = allOnes n := rfl
+
 /-! ### umod -/
 
 theorem umod_eq {x y : BitVec n} :
@@ -2038,6 +2070,19 @@ theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
   have ha : a = 0 ∨ a = 1 := eq_zero_or_eq_one _
   have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
+
+/-! ### smtSDiv -/
+
+theorem smtSDiv_eq {x y : BitVec n} : x.smtSDiv y =
+  match x.msb, y.msb with
+  | false, false => smtUDiv x y
+  | false, true  => .neg (smtUDiv x (.neg y))
+  | true,  false => .neg (smtUDiv (.neg x) y)
+  | true,  true  => smtUDiv (.neg x) (.neg y) := rfl
+
+@[simp]
+theorem smtSDiv_zero {x : BitVec n} : x.smtSDiv 0#n = if x.slt 0#n then 1#n else (allOnes n) := by
+  rcases hx : x.msb <;> simp [smtSDiv, slt_zero_iff_msb_cond x, hx, ← negOne_eq_allOnes]
 
 /-! ### abs -/
 

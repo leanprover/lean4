@@ -15,8 +15,9 @@ circuit mirrors the behavior of `BitVec.mulRec`.
 
 Note that the implementation performs a symbolic branch over the bits of the right hand side.
 Thus if the right hand side is (partially) known through constant propagation etc. the symbolic
-branches will be (partially) constant folded away by the AIG optimizer. The preprocessing simp set
-of `bv_decide` ensures that constants always end up on the right hand side for this reason.
+branches will be (partially) constant folded away by the AIG optimizer. The preprocessing of
+`blastMul` ensures that the value with more known bits always end up on the right hand side for
+this reason.
 -/
 
 namespace Std.Tactic.BVDecide

@@ -435,7 +435,8 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
       rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
       rw [denote_blastConst]
-      sorry -- trivial after x / 0 = 0
+      simp only [(· / ·), Div.div] -- TODO replace with lemma
+      simp
     · intro idx hidx
       rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
       rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
@@ -452,7 +453,9 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
   · next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
-    · have hzero : 0#w < rhs := by sorry -- follows from hdiscr
+    · have hzero : 0#w < rhs := by
+        rw [Normalize.BitVec.zero_lt_iff_zero_neq]
+        simpa using hdiscr
       rw [blastUdiv.denote_go (hzero := hzero)]
       · intro idx hidx
         rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]

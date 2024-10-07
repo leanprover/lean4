@@ -1040,6 +1040,7 @@ LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Elab_Term_expan
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___lambda__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_19493____closed__2;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_docStringExt;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_applyResult___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Elab_Term_resolveLocalName___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_instInhabitedLetRecToLift___closed__1;
@@ -1157,7 +1158,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_isMVarApp___boxed(lean_object*, lean_o
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkDeclName___at_Lean_Elab_Term_expandDeclId___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Term_exposeLevelMVars___spec__7___rarg___closed__2;
-extern lean_object* l___private_Lean_DocString_Extension_0__Lean_docStringExt;
 LEAN_EXPORT lean_object* l_Lean_profileitM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__11(lean_object*);
 lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_addAutoBoundImplicits_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78744,7 +78744,7 @@ static lean_object* _init_l_Lean_addDocString___at_Lean_Elab_Term_expandDeclId__
 _start:
 {
 lean_object* x_1; 
-x_1 = l___private_Lean_DocString_Extension_0__Lean_docStringExt;
+x_1 = l_Lean_docStringExt;
 return x_1;
 }
 }

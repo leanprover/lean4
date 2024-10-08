@@ -16,7 +16,7 @@ but is expected to have type
   A : outParam (Type _)
 ---
 error: type mismatch
-  h✝
+  ih
 has type
   i < as.length : Prop
 but is expected to have type

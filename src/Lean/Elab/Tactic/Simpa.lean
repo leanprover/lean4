@@ -46,22 +46,35 @@ deriving instance Repr for UseImplicitLambdaResult
           return {}
       g.withContext do
       let stats ← if let some stx := usingArg then
-        setGoals [g]
-        g.withContext do
+        let mvarCounterSaved := (← getMCtx).mvarCounter
         let e ← Tactic.elabTerm stx none (mayPostpone := true)
-        let (h, g) ← if let .fvar h ← instantiateMVars e then
-          pure (h, g)
-        else
-          (← g.assert `h (← inferType e) e).intro1
+        unless ← occursCheck g e do
+          throwError "occurs check failed, expression{indentExpr e}\ncontains the goal {Expr.mvar g}"
+        let (h, g) ←
+          if let .fvar h := e then
+            pure (h, g)
+          else
+            (← g.assert `h (← inferType e) e).intro1
         let (result?, stats) ← simpGoal g ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
           (simplifyTarget := false) (stats := stats) (discharge? := discharge?)
         match result? with
         | some (xs, g) =>
-          let h := match xs with | #[h] | #[] => h | _ => unreachable!
-          let name ← mkFreshBinderNameForTactic `h
-          let g ← g.rename h name
-          g.assign <|← g.withContext do
-            Tactic.elabTermEnsuringType (mkIdent name) (← g.getType)
+          setGoals [g]
+          g.withContext do
+            let h := Expr.fvar (xs[0]?.getD h)
+            let gType ← g.getType
+            let hType ← inferType h
+            unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
+              Term.throwTypeMismatchError none gType hType h
+            let unassigned ← filterOldMVars (← getMVars e) mvarCounterSaved
+            unless unassigned.isEmpty do
+              -- Admit the goal to ensure that the original goal metavariable doesn't turn up with an error.
+              -- Recall that `logUnassignedAndAbort` says a metavariable could not be synthesized if
+              -- the instantiated metavariable contains one of the metavariables from the `unassigned` array.
+              admitGoal g
+              logUnassignedAndAbort unassigned
+              throwError m!"expression contains metavariables{indentExpr e}"
+            closeMainGoal `simpa (checkUnassigned := false) h
         | none =>
           if getLinterUnnecessarySimpa (← getOptions) then
             if (← getLCtx).getRoundtrippingUserName? h |>.isSome then

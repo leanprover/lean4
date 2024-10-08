@@ -98,6 +98,7 @@ attribute [bv_normalize] BitVec.sub_eq
 attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
+attribute [bv_normalize] BitVec.umod_eq
 
 @[bv_normalize]
 theorem Bool.and_eq_and (x y : Bool) : x.and y = (x && y) := by

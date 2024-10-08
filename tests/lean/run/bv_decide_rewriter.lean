@@ -74,3 +74,4 @@ example {x : BitVec 16} {i} {h} : x[i] = x.getLsbD i := by bv_normalize
 example {x y : BitVec 1} : x + y = x ^^^ y := by bv_normalize
 example {x y : BitVec 1} : x * y = x &&& y := by bv_normalize
 example {x y : BitVec 16} : x / 0 = 0 := by bv_normalize
+example {x y : BitVec 16} : x % 0 = x := by bv_normalize

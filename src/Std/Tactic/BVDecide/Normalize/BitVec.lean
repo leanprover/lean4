@@ -221,6 +221,7 @@ attribute [bv_normalize] BitVec.add_eq_xor
 attribute [bv_normalize] BitVec.mul_eq_and
 
 attribute [bv_normalize] BitVec.udiv_zero
+attribute [bv_normalize] BitVec.umod_zero
 
 end Normalize
 end Std.Tactic.BVDecide

@@ -1,2 +1,1 @@
-
-1240.lean:4:0-5:65: error: import failed, trying to import module with anonymous name
+1240.lean:4:0-4:5: error: import failed, trying to import module with anonymous name

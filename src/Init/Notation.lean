@@ -535,24 +535,21 @@ syntax (name := includeStr) "include_str " term : term
 
 /--
 The `run_cmd doSeq` command executes code in `CommandElabM Unit`.
-This is almost the same as `#eval show CommandElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show CommandElabM Unit from discard do doSeq`.
 -/
 syntax (name := runCmd) "run_cmd " doSeq : command
 
 /--
 The `run_elab doSeq` command executes code in `TermElabM Unit`.
-This is almost the same as `#eval show TermElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show TermElabM Unit from discard do doSeq`.
 -/
 syntax (name := runElab) "run_elab " doSeq : command
 
 /--
 The `run_meta doSeq` command executes code in `MetaM Unit`.
-This is almost the same as `#eval show MetaM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show MetaM Unit from do discard doSeq`.
 
-(This is effectively a synonym for `run_elab`.)
+(This is effectively a synonym for `run_elab` since `MetaM` lifts to `TermElabM`.)
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 

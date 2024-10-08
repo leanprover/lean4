@@ -456,9 +456,6 @@ instance : MonadBacktrack SavedState MetaM where
   let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
   pure (a, sCore, s)
 
-instance [MetaEval α] : MetaEval (MetaM α) :=
-  ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
-
 protected def throwIsDefEqStuck : MetaM α :=
   throw <| Exception.internal isDefEqStuckExceptionId
 
@@ -500,6 +497,9 @@ variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
+
+@[inline] def resetSynthInstanceCache : MetaM Unit :=
+  modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then

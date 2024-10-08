@@ -2870,6 +2870,32 @@ instance (m) : MonadLiftT m m where
   monadLift x := x
 
 /--
+Typeclass used for adapting monads. This is similar to `MonadLift`, but instances are allowed to
+make use of default state for the purpose of synthesizing such an instance, if necessary.
+Every `MonadLift` instance gives a `MonadEval` instance.
+
+The purpose of this class is for the `#eval` command,
+which looks for a `MonadEval m CommandElabM` or `MonadEval m IO` instance.
+-/
+class MonadEval (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
+  /-- Evaluates a value from monad `m` into monad `n`. -/
+  monadEval : {α : Type u} → m α → n α
+
+instance [MonadLift m n] : MonadEval m n where
+  monadEval := MonadLift.monadLift
+
+/-- The transitive closure of `MonadEval`. -/
+class MonadEvalT (m : Type u → Type v) (n : Type u → Type w) where
+  /-- Evaluates a value from monad `m` into monad `n`. -/
+  monadEval : {α : Type u} → m α → n α
+
+instance (m n o) [MonadEval n o] [MonadEvalT m n] : MonadEvalT m o where
+  monadEval x := MonadEval.monadEval (m := n) (MonadEvalT.monadEval x)
+
+instance (m) : MonadEvalT m m where
+  monadEval x := x
+
+/--
 A functor in the category of monads. Can be used to lift monad-transforming functions.
 Based on [`MFunctor`] from the `pipes` Haskell package, but not restricted to
 monad transformers. Alternatively, an implementation of [`MonadTransFunctor`].

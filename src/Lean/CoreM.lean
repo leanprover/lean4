@@ -7,7 +7,6 @@ prelude
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Log
-import Lean.Eval
 import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
@@ -276,12 +275,6 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   | Except.error (Exception.error _ msg)   => throw <| IO.userError (← msg.toString)
   | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
   | Except.ok a                            => return a
-
-instance [MetaEval α] : MetaEval (CoreM α) where
-  eval env opts x _ := do
-    let x : CoreM α := do try x finally printTraces
-    let (a, s) ← (withConsistentCtx x).toIO { fileName := "<CoreM>", fileMap := default, options := opts } { env := env }
-    MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=

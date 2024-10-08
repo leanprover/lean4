@@ -619,6 +619,9 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let ((ea, _), _) ← runCore x
   MonadExcept.ofExcept ea
 
+instance : MonadEval TermElabM CommandElabM where
+  monadEval := liftTermElabM
+
 /--
 Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
 corresponding to all active scoped variables declared using the `variable` command.
@@ -727,6 +730,12 @@ Commands that modify the processing of subsequent commands,
 such as `open` and `namespace` commands,
 only have an effect for the remainder of the `CommandElabM` computation passed here,
 and do not affect subsequent commands.
+
+*Warning:* when using this from `MetaM` monads, the caches are *not* reset.
+If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
+to reset the instance cache.
+While the `modifyEnv` function for `MetaM` clears its caches entirely,
+`liftCommandElabM` has no way to reset these caches.
 -/
 def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
   let (a, commandState) ←

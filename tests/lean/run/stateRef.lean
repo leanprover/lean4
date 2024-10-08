@@ -8,14 +8,16 @@ f 5 |>.run' 20
 
 /--
 info: hello
-15
+---
+info: 15
 -/
 #guard_msgs in
 #eval (f 5).run' 20
 
 /--
 info: hello
-95
+---
+info: 95
 -/
 #guard_msgs in
 #eval (do set 100; f 5 : StateRefT Nat IO Nat).run' 0
@@ -27,7 +29,8 @@ get
 
 /--
 info: context 10
-30
+---
+info: 30
 -/
 #guard_msgs in
 #eval (f2.run 10).run' 20
@@ -43,7 +46,8 @@ getThe Nat
 
 /--
 info: test, 10
-11
+---
+info: 11
 -/
 #guard_msgs in
 #eval (f3.run' "test").run' 10
@@ -74,7 +78,8 @@ pure (a0 + a1 + a2)
 info: state0 10
 state1 20
 state1 30
-60
+---
+info: 60
 -/
 #guard_msgs in
 #eval f4.run' ⟨10⟩ |>.run' ⟨20⟩ |>.run' ⟨30⟩

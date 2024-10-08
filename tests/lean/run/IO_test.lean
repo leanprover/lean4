@@ -32,7 +32,6 @@ withFile "foo.txt" Mode.read fun h => do
     check_eq "5" [] ys.toList
 pure ()
 
-/-- info: -/
 #guard_msgs in
 #eval test
 
@@ -135,6 +134,5 @@ check_eq "1" [] ys.toList
 let ys ← withFile fn4 Mode.read $ fun h => h.read 1;
 check_eq "2" [] ys.toList
 
-/-- info: -/
 #guard_msgs in
 #eval test4

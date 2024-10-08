@@ -883,7 +883,7 @@ def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
   else DefKind.«def»
 
 def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers := {
-  stx             := ⟨.missing⟩
+  stx             := ⟨mkNullNode #[]⟩  -- ignore when computing declaration range
   isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable
   recKind         := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe

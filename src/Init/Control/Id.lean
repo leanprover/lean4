@@ -29,7 +29,4 @@ protected def run (x : Id α) : α := x
 instance [OfNat α n] : OfNat (Id α) n :=
   inferInstanceAs (OfNat α n)
 
-instance [Pure m] : MonadLift Id m where
-  monadLift := pure
-
 end Id

@@ -15,9 +15,9 @@ has type
 but is expected to have type
   A : outParam (Type _)
 ---
-error: type mismatch
-  h✝
-has type
+error: type mismatch, term
+  ih
+after simplification has type
   i < as.length : Prop
 but is expected to have type
   ?_ : Type _
@@ -34,7 +34,7 @@ xm : List (Vect m A)
 h0 : xm.length = as.length
 ih : i < (List.zipWith cons as xm).length
 jh : j < m
-⊢ ?_ (sorryAx (i < as.length → ?_) true ⋯) j
+⊢ ?_ (sorryAx ?_ true) j
 -/
 #guard_msgs in
 theorem Vect.aux

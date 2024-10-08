@@ -16,12 +16,13 @@ import Lean.Elab.SetOption
 namespace Lean.Elab.Command
 
 @[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
-   match stx[1] with
-   | Syntax.atom _ val =>
-     let doc := val.extract 0 (val.endPos - ⟨2⟩)
-     let range ← Elab.getDeclarationRange stx
-     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
-   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
+  match stx[1] with
+  | Syntax.atom _ val =>
+    let doc := val.extract 0 (val.endPos - ⟨2⟩)
+    let some range ← Elab.getDeclarationRange? stx
+      | return  -- must be from partial syntax, ignore
+    modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
+  | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
   modify fun s => { s with

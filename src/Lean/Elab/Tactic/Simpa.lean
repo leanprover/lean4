@@ -57,35 +57,33 @@ deriving instance Repr for UseImplicitLambdaResult
         -- be synthesized; recall that this function reports that a metavariable could not be
         -- synthesized if, after mvar instantiation, it contains one of the provided mvars.
         let gCopy ← mkFreshExprSyntheticOpaqueMVar (← g.getType) (← g.getTag)
-        try
-          let (h, g') ← gCopy.mvarId!.note (← mkFreshBinderNameForTactic `h) e
-          let (result?, stats) ← simpGoal g' ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
-            (simplifyTarget := false) (stats := stats) (discharge? := discharge?)
-          match result? with
-          | some (xs, g') =>
-            let h := xs[0]?.getD h
-            let name ← mkFreshUserName `h
-            let g' ← g'.rename h name
-            setGoals [g']
-            g'.withContext do
-              let gType ← g'.getType
-              let h ← Term.elabTerm (mkIdent name) gType
-              Term.synthesizeSyntheticMVarsNoPostponing
-              let hType ← inferType h
-              unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
-                -- `e` still is valid in this new local context
-                Term.throwTypeMismatchError gType hType h
-                  (header? := some m!"type mismatch, term{indentExpr e}\nafter simplification")
-              logUnassignedAndAbort (← filterOldMVars (← getMVars e) mvarCounterSaved)
-              closeMainGoal `simpa (checkUnassigned := false) h
-          | none =>
-            if getLinterUnnecessarySimpa (← getOptions) then
-              if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
-                logLint linter.unnecessarySimpa (← getRef)
-                  m!"try 'simp at {Expr.fvar h}' instead of 'simpa using {Expr.fvar h}'"
-          pure stats
-        finally
-          g.assign gCopy
+        let (h, g') ← gCopy.mvarId!.note `h e
+        let (result?, stats) ← simpGoal g' ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
+          (simplifyTarget := false) (stats := stats) (discharge? := discharge?)
+        match result? with
+        | some (xs, g') =>
+          let h := xs[0]?.getD h
+          let name ← mkFreshUserName `h
+          let g' ← g'.rename h name
+          setGoals [g']
+          g'.withContext do
+            let gType ← g'.getType
+            let h ← Term.elabTerm (mkIdent name) gType
+            Term.synthesizeSyntheticMVarsNoPostponing
+            let hType ← inferType h
+            unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
+              -- `e` still is valid in this new local context
+              Term.throwTypeMismatchError gType hType h
+                (header? := some m!"type mismatch, term{indentExpr e}\nafter simplification")
+            logUnassignedAndAbort (← filterOldMVars (← getMVars e) mvarCounterSaved)
+            closeMainGoal `simpa (checkUnassigned := false) h
+        | none =>
+          if getLinterUnnecessarySimpa (← getOptions) then
+            if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
+              logLint linter.unnecessarySimpa (← getRef)
+                m!"try 'simp at {Expr.fvar h}' instead of 'simpa using {Expr.fvar h}'"
+        g.assign gCopy
+        pure stats
       else if let some ldecl := (← getLCtx).findFromUserName? `this then
         if let (some (_, g), stats) ← simpGoal g ctx (simprocs := simprocs)
             (fvarIdsToSimp := #[ldecl.fvarId]) (simplifyTarget := false) (stats := stats)

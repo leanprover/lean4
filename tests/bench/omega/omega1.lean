@@ -1,14 +1,6 @@
-/-
-tactic execution of Lean.Parser.Tactic.omega took 6.04s
-instantiate metavars took 31.6s
-share common exprs took 5.61s
-type checking took 1.36s
-process pre-definitions took 1.02s
--/
-set_option maxHeartbeats 0 
-set_option trace.profiler true 
 set_option profiler true 
-theorem memcpy_extracted_2 (six0 s0x0 : BitVec 64)
+theorem t
+(six0 s0x0 : BitVec 64)
 (h_six0_nonzero : six0 ≠ 0)
 (h_s0x1 : s0x1 + 16#64 * (s0x0 - six0) + 16#64 = s0x1 + 16#64 * (s0x0 - (six0 - 1#64)))
 (h_s0x2 : s0x2 + 16#64 * (s0x0 - six0) + 16#64 = s0x2 + 16#64 * (s0x0 - (six0 - 1#64)))

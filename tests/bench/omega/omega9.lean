@@ -1,16 +1,5 @@
-/-
-time
-1627
-endtime
-goal
-case hsep.h.h₁.h.refine_3
--/
-
-
-set_option maxHeartbeats 0 
-set_option trace.profiler true 
 set_option profiler true 
-theorem foo
+theorem t
 (h_si_x0_nonzero : six0 ≠ 0)
 (h_s0_x1 : s0x1 + 0x10#64 * (s0x0 - six0) + 0x10#64 = s0x1 + 0x10#64 * (s0x0 - (six0 - 0x1#64)))
 (h_s0_x2 : s0x2 + 0x10#64 * (s0x0 - six0) + 0x10#64 = s0x2 + 0x10#64 * (s0x0 - (six0 - 0x1#64)))

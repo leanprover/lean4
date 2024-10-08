@@ -410,3 +410,9 @@
   run_config:
     <<: *time
     cmd: lean omega/omega9.lean
+- attributes:
+    description: omega10
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega10.lean

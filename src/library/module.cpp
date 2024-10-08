@@ -49,17 +49,26 @@ namespace lean {
 struct olean_header {
     // 5 bytes: magic number
     char marker[5] = {'o', 'l', 'e', 'a', 'n'};
-    // 1 byte: version, currently always `1`
-    uint8_t version = 1;
-    // 42 bytes: build githash, padded with `\0` to the right
-    char githash[42];
+    // 1 byte: version, incremented on structural changes to header
+    uint8_t version = 2;
+    // 1 byte flags:
+    // - whether persisted bignums use GMP or Lean-native encoding
+    bool:1 uses_gmp =
+#ifdef LEAN_USE_GMP
+        true;
+#else
+        false;
+#endif
+    bool:7 unused = 0;
+    // 41 bytes: build githash, padded with `\0` to the right
+    char githash[41];
     // address at which the beginning of the file (including header) is attempted to be mmapped
     size_t base_addr;
     // payload, a serialize Lean object graph; `size_t` has same alignment requirements as Lean objects
     size_t data[];
 };
 // make sure we don't have any padding bytes, which also ensures `data` is properly aligned
-static_assert(sizeof(olean_header) == 5 + 1 + 42 + sizeof(size_t), "olean_header must be packed");
+static_assert(sizeof(olean_header) == 5 + 1 + 1 + 41 + sizeof(size_t), "olean_header must be packed");
 
 extern "C" LEAN_EXPORT object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_arg mdata, object *) {
     std::string olean_fn(string_cstr(fname));
@@ -140,16 +149,16 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
 
         olean_header default_header = {};
         olean_header header;
-        if (!in.read(reinterpret_cast<char *>(&header), sizeof(header))) {
+        if (!in.read(reinterpret_cast<char *>(&header), sizeof(header))
+            || memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        if (memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0
-            || header.version != default_header.version
+        if (header.version != default_header.version || header.uses_gmp != default_header.uses_gmp
 #ifdef LEAN_CHECK_OLEAN_VERSION
             || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
 #endif
         ) {
-            return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
+            return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', incompatible header").str());
         }
         char * base_addr = reinterpret_cast<char *>(header.base_addr);
         char * buffer = nullptr;

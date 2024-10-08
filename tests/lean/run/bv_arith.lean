@@ -33,3 +33,6 @@ theorem arith_unit_7 (x : BitVec 32) : x / 1 = x := by
 
 theorem arith_unit_8 (x y : BitVec 32) : x / y ≤ x := by
   bv_decide
+
+theorem arith_unit_8' (x y : BitVec 32) : x.udiv y ≤ x := by
+  bv_decide

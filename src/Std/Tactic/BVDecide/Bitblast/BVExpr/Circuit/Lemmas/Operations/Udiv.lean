@@ -344,35 +344,6 @@ theorem denote_go_eq_divRec_q (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · simp [htrue]
         · simp [Ref.hgate]
 
-theorem denote_go_udiv (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
-    (falseRef trueRef : AIG.Ref aig) (n d q r : AIG.RefVec aig w)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, n.get idx hidx, assign⟧ = lhs.getLsbD idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, d.get idx hidx, assign⟧ = rhs.getLsbD idx)
-    (hq : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, q.get idx hidx, assign⟧ = false)
-    (hr : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, r.get idx hidx, assign⟧ = false)
-    (hfalse : ⟦aig, falseRef, assign⟧ = false)
-    (htrue : ⟦aig, trueRef, assign⟧ = true)
-    (hzero : 0#w < rhs)
-      :
-    ∀ (idx : Nat) (hidx : idx < w),
-      ⟦
-        (go aig w falseRef trueRef n d w 0 q r).aig,
-        (go aig w falseRef trueRef n d w 0 q r).q.get idx hidx,
-        assign
-      ⟧
-        =
-      (lhs.udiv rhs).getLsbD idx := by
-  intro idx hidx
-  rw [BitVec.udiv_eq_divRec hzero]
-  rw [BitVec.DivModState.init]
-  rw [denote_go_eq_divRec_q (lhs := lhs) (rhs := rhs) (qbv := 0#w) (rbv := 0#w)]
-  · exact hleft
-  · exact hright
-  · simp [hq]
-  · simp [hr]
-  · exact hfalse
-  · exact htrue
-
 theorem denote_go (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
     (falseRef trueRef : AIG.Ref aig) (n d q r : AIG.RefVec aig w)
     (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, n.get idx hidx, assign⟧ = lhs.getLsbD idx)
@@ -391,8 +362,16 @@ theorem denote_go (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
       ⟧
         =
       (lhs / rhs).getLsbD idx := by
-  simp only [(· / ·), Div.div] -- TODO replace with lemma
-  apply denote_go_udiv <;> assumption
+  intro idx hidx
+  rw [BitVec.udiv_eq_divRec hzero]
+  rw [BitVec.DivModState.init]
+  rw [denote_go_eq_divRec_q (lhs := lhs) (rhs := rhs) (qbv := 0#w) (rbv := 0#w)]
+  · exact hleft
+  · exact hright
+  · simp [hq]
+  · simp [hr]
+  · exact hfalse
+  · exact htrue
 
 theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (falseRef trueRef : AIG.Ref aig)
     (n d q r : AIG.RefVec aig w) (wn wr : Nat) (start : Nat) (hstart) :
@@ -435,7 +414,6 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
       rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
       rw [denote_blastConst]
-      simp only [(· / ·), Div.div] -- TODO replace with lemma
       simp
     · intro idx hidx
       rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]

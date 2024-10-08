@@ -675,6 +675,13 @@ Message ordering:
 
 For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
 everything else.
+
+The command elaborator has special support for `#guard_msgs` for linting.
+The `#guard_msgs` itself wants to capture linter warnings,
+so it elaborates the command it is attached to as if it were a top-level command.
+However, the command elaborator runs linters for *all* top-level commands,
+which would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.
+The top-level command elaborator only runs the linters if `#guard_msgs` is not present.
 -/
 syntax (name := guardMsgsCmd)
   (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command

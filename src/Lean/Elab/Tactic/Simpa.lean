@@ -73,7 +73,7 @@ deriving instance Repr for UseImplicitLambdaResult
               -- Admit the goal to ensure that the original goal metavariable doesn't turn up with an error.
               -- Recall that `logUnassignedAndAbort` says a metavariable could not be synthesized if
               -- the instantiated metavariable contains one of the metavariables from the `unassigned` array,
-              -- and the `g.assert` step earlier makes `g` depend on any metavariables contained in `e`.
+              -- and the `g.note` step earlier makes `g` depend on any metavariables contained in `e`.
               admitGoal g
               logUnassignedAndAbort unassigned
               throwError m!"expression contains metavariables{indentExpr e}"

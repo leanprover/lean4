@@ -2710,6 +2710,31 @@ theorem toNat_mul_of_lt {w} {x y : BitVec w} (h : x.toNat * y.toNat < 2^w) :
     (x * y).toNat = x.toNat * y.toNat := by
   rw [BitVec.toNat_mul, Nat.mod_eq_of_lt h]
 
+
+/--
+`(a ≤ b + c)` if and only if `(a - c ≤ b)`
+when `a - c` and `b + c` do not overflow.
+-/
+theorem le_add_iff_sub_le {a b c : BitVec w₁}
+   (hac : c ≤ a) (hbc : b.toNat + c.toNat < 2^w₁) :
+    (a ≤ b + c) ↔ (a - c ≤ b) := by
+  simp_all only [BitVec.le_def]
+  rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
+    BitVec.toNat_add_of_lt (by omega)]
+  omega
+
+/--
+`(a - c ≤ b - c)` if and only if `(a ≤ b)`
+when `a - c` and `b - c` do not overflow.
+-/
+theorem sub_le_sub_iff_le (a b c : BitVec w₁) (hac : c ≤ a)
+    (hbc : c ≤ b) : (a - c ≤ b - c) ↔ a ≤ b := by
+  simp_all only [BitVec.le_def]
+  rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
+    BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
+  omega
+
+
 /-! ### Decidable quantifiers -/
 
 theorem forall_zero_iff {P : BitVec 0 → Prop} :

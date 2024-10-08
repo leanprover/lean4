@@ -4,6 +4,8 @@
 https://github.com/leanprover/lean4/issues/5634
 -/
 
+set_option linter.unnecessarySimpa true
+
 /-!
 This used to have a "don't know how to synthesize placeholder" error on the `have` line too.
 This is because `have` is `refine_lift have ...; ?_`, so it indeed had a placeholder.

@@ -374,3 +374,39 @@
   run_config:
     <<: *time
     cmd: lean omega/omega3.lean
+- attributes:
+    description: omega4
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega4.lean
+- attributes:
+    description: omega5
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega5.lean
+- attributes:
+    description: omega6
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega6.lean
+- attributes:
+    description: omega7
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega7.lean
+- attributes:
+    description: omega8
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega8.lean
+- attributes:
+    description: omega9
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega9.lean

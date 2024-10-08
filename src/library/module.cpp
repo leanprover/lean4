@@ -49,8 +49,8 @@ namespace lean {
 struct olean_header {
     // 5 bytes: magic number
     char marker[5] = {'o', 'l', 'e', 'a', 'n'};
-    // 1 byte: version, currently always `1`
-    uint8_t version = 1;
+    // 1 byte: version, currently `2`
+    uint8_t version = 2;
     // 42 bytes: build githash, padded with `\0` to the right
     char githash[42];
     // address at which the beginning of the file (including header) is attempted to be mmapped
@@ -144,8 +144,8 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
         if (memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0
-            || header.version != default_header.version
 #ifdef LEAN_CHECK_OLEAN_VERSION
+            || header.version != default_header.version
             || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
 #endif
         ) {

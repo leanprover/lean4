@@ -632,6 +632,19 @@ where
           msg := msg ++ "\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the structure resulting universe level"
         throwError msg
 
+/--
+Decides whether the structure should be `Prop`-valued when the universe is not given
+and when the universe inference algorithm `collectUniversesFromFields` determines
+that the inductive type could naturally be `Prop`-valued.
+
+See `Lean.Elab.Command.isPropCandidate` for an explanation.
+Specialized to structures, the heuristic is that we prefer a `Prop` instead of a `Type` structure
+when it could be a syntactic subsingleton.
+Exception: no-field structures are `Type` since they are likely stubbed-out declarations.
+-/
+private def isPropCandidate (fieldInfos : Array StructFieldInfo) : Bool :=
+  !fieldInfos.isEmpty
+
 private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
   let r ← getResultUniverse type
   let rOffset : Nat   := r.getOffset
@@ -639,7 +652,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   match r with
   | Level.mvar mvarId =>
     let us ← collectUniversesFromFields r rOffset fieldInfos
-    let rNew := mkResultUniverse us rOffset
+    let rNew := mkResultUniverse us rOffset (isPropCandidate fieldInfos)
     assignLevelMVar mvarId rNew
     instantiateMVars type
   | _ => throwError "failed to compute resulting universe level of structure, provide universe explicitly"

@@ -425,9 +425,9 @@ where
   levelMVarToParam' (type : Expr) : TermElabM Expr := do
     Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
-def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
+def mkResultUniverse (us : Array Level) (rOffset : Nat) (preferProp : Bool) : Level :=
   if us.isEmpty && rOffset == 0 then
-    levelOne
+    if preferProp then levelZero else levelOne
   else
     let r := Level.mkNaryMax us.toList
     if rOffset == 0 && !r.isZero && !r.isNeverZero then
@@ -512,6 +512,31 @@ where
           for ctorParam in ctorParams[numParams:] do
             accLevelAtCtor ctor ctorParam r rOffset
 
+/--
+Decides whether the inductive type should be `Prop`-valued when the universe is not given
+and when the universe inference algorithm `collectUniverses` determines
+that the inductive type could naturally be `Prop`-valued.
+Recall: the natural universe level is the mimimum universe level for all the types of all the constructor parameters.
+
+Heuristic:
+- We want `Prop` when each inductive type is a syntactic subsingleton.
+  That's to say, when each inductive type has at most one constructor.
+  Such types carry no data anyway.
+- Exception: if no inductive type has any constructors, these are likely stubbed-out declarations,
+  so we prefer `Type` instead.
+- Exception: if each constructor has no parameters, then these are likely partially-written enumerations,
+  so we prefer `Type` instead.
+-/
+private def isPropCandidate (numParams : Nat) (indTypes : List InductiveType) : MetaM Bool := do
+  unless indTypes.foldl (fun n indType => max n indType.ctors.length) 0 == 1 do
+    return false
+  for indType in indTypes do
+    for ctor in indType.ctors do
+      let cparams ← forallTelescopeReducing ctor.type fun ctorParams _ => pure (ctorParams.size - numParams)
+      unless cparams == 0 do
+        return true
+  return false
+
 private def updateResultingUniverse (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
   let r ← getResultingUniverse indTypes
   let rOffset : Nat   := r.getOffset
@@ -520,7 +545,7 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
     throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r}"
   let us ← collectUniverses views r rOffset numParams indTypes
   trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
-  let rNew := mkResultUniverse us rOffset
+  let rNew := mkResultUniverse us rOffset (← isPropCandidate numParams indTypes)
   assignLevelMVar r.mvarId! rNew
   indTypes.mapM fun indType => do
     let type ← instantiateMVars indType.type

@@ -82,6 +82,8 @@ partial def of (x : Expr) : M (Option ReifiedBVExpr) := do
     binaryReflection lhsExpr rhsExpr .mul ``Std.Tactic.BVDecide.Reflect.BitVec.mul_congr
   | HDiv.hDiv _ _ _ _ lhsExpr rhsExpr =>
     binaryReflection lhsExpr rhsExpr .udiv ``Std.Tactic.BVDecide.Reflect.BitVec.udiv_congr
+  | HMod.hMod _ _ _ _ lhsExpr rhsExpr =>
+    binaryReflection lhsExpr rhsExpr .umod ``Std.Tactic.BVDecide.Reflect.BitVec.umod_congr
   | Complement.complement _ _ innerExpr =>
     unaryReflection innerExpr .not ``Std.Tactic.BVDecide.Reflect.BitVec.not_congr
   | HShiftLeft.hShiftLeft _ β _ _ innerExpr distanceExpr =>

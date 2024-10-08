@@ -13,6 +13,11 @@ error: don't know how to synthesize placeholder for argument 'a'
 context:
 htrue : True
 ⊢ False
+---
+error: unsolved goals
+htrue : True
+h✝ : False
+⊢ False
 -/
 #guard_msgs in
 example : False := by
@@ -25,6 +30,10 @@ Simplified version of the test.
 /--
 error: don't know how to synthesize placeholder for argument 'a'
 context:
+⊢ False
+---
+error: unsolved goals
+h✝ : False
 ⊢ False
 -/
 #guard_msgs in
@@ -66,16 +75,13 @@ noncomputable example (α : Type) [Nonempty α] : α := by
   simpa using fun {β : Type} [inst : Nonempty β] => Classical.choice inst
 
 /-!
-Updated error message to show the elaborated term rather than `h✝`
+Regression test: make sure `simpa?` reports lemmas for both the goal and the `using` clause
 -/
-/--
-error: type mismatch, term
-  fun x => x
-after simplification has type
-  True : Prop
-but is expected to have type
-  False : Prop
--/
-#guard_msgs in
-example : False := by
-  simpa using (fun x : True => x)
+
+/-- info: Try this: simpa only [id] using h -/
+#guard_msgs in example (h : False) : id False := by
+  simpa? only [id] using h
+
+/-- info: Try this: simpa only [id] using h -/
+#guard_msgs in example (h : id False) : False := by
+  simpa? only [id] using h

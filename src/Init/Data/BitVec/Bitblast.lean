@@ -571,7 +571,7 @@ then `n.udiv d = q`. -/
 theorem udiv_eq_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
     (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
-    n.udiv d = q := by
+    n / d = q := by
   apply BitVec.eq_of_toNat_eq
   rw [toNat_udiv]
   replace hdqnr : (d.toNat * q.toNat + r.toNat) / d.toNat = n.toNat / d.toNat := by
@@ -587,7 +587,7 @@ theorem udiv_eq_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
 then `n.umod d = r`. -/
 theorem umod_eq_of_mul_add_toNat {d n q r : BitVec w} (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
-    n.umod d = r := by
+    n % d = r := by
   apply BitVec.eq_of_toNat_eq
   rw [toNat_umod]
   replace hdqnr : (d.toNat * q.toNat + r.toNat) % d.toNat = n.toNat % d.toNat := by
@@ -688,7 +688,7 @@ quotient has been correctly computed.
 theorem DivModState.udiv_eq_of_lawful {n d : BitVec w} {qr : DivModState w}
     (h_lawful : DivModState.Lawful {n, d} qr)
     (h_final  : qr.wn = 0) :
-    n.udiv d = qr.q := by
+    n / d = qr.q := by
   apply udiv_eq_of_mul_add_toNat h_lawful.hdPos h_lawful.hrLtDivisor
   have hdiv := h_lawful.hdiv
   simp only [h_final] at *
@@ -701,7 +701,7 @@ remainder has been correctly computed.
 theorem DivModState.umod_eq_of_lawful {qr : DivModState w}
     (h : DivModState.Lawful {n, d} qr)
     (h_final  : qr.wn = 0) :
-    n.umod d = qr.r := by
+    n % d = qr.r := by
   apply umod_eq_of_mul_add_toNat h.hrLtDivisor
   have hdiv := h.hdiv
   simp only [shiftRight_zero] at hdiv
@@ -875,7 +875,7 @@ theorem wn_divRec (args : DivModArgs w) (qr : DivModState w) :
 /-- The result of `udiv` agrees with the result of the division recurrence. -/
 theorem udiv_eq_divRec (hd : 0#w < d) :
     let out := divRec w {n, d} (DivModState.init w)
-    n.udiv d = out.q := by
+    n / d = out.q := by
   have := DivModState.lawful_init {n, d} hd
   have := lawful_divRec this
   apply DivModState.udiv_eq_of_lawful this (wn_divRec ..)
@@ -883,7 +883,7 @@ theorem udiv_eq_divRec (hd : 0#w < d) :
 /-- The result of `umod` agrees with the result of the division recurrence. -/
 theorem umod_eq_divRec (hd : 0#w < d) :
     let out := divRec w {n, d} (DivModState.init w)
-    n.umod d = out.r := by
+    n % d = out.r := by
   have := DivModState.lawful_init {n, d} hd
   have := lawful_divRec this
   apply DivModState.umod_eq_of_lawful this (wn_divRec ..)

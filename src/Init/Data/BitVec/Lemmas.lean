@@ -1339,37 +1339,38 @@ theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNa
 
 /-! ### udiv -/
 
-theorem udiv_eq {x y : BitVec n} : x.udiv y = BitVec.ofNat n (x.toNat / y.toNat) := by
+theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) := by
   have h : x.toNat / y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+  rw [← udiv_eq]
   simp [udiv, bv_toNat, h, Nat.mod_eq_of_lt]
 
 @[simp, bv_toNat]
-theorem toNat_udiv {x y : BitVec n} : (x.udiv y).toNat = x.toNat / y.toNat := by
-  simp only [udiv_eq]
+theorem toNat_udiv {x y : BitVec n} : (x / y).toNat = x.toNat / y.toNat := by
+  rw [udiv_def]
   by_cases h : y = 0
   · simp [h]
   · rw [toNat_ofNat, Nat.mod_eq_of_lt]
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
 
 @[simp]
-theorem udiv_zero {x : BitVec n} : x.udiv 0#n = 0#n := by
-  simp only [udiv, toNat_ofNat, Nat.zero_mod, Nat.div_zero]
-  rfl
+theorem udiv_zero {x : BitVec n} : x / 0#n = 0#n := by
+  simp [udiv_def]
 
 /-! ### umod -/
 
-theorem umod_eq {x y : BitVec n} :
-    x.umod y = BitVec.ofNat n (x.toNat % y.toNat) := by
+theorem umod_def {x y : BitVec n} :
+    x % y = BitVec.ofNat n (x.toNat % y.toNat) := by
+  rw [← umod_eq]
   have h : x.toNat % y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt
   simp [umod, bv_toNat, Nat.mod_eq_of_lt h]
 
 @[simp, bv_toNat]
 theorem toNat_umod {x y : BitVec n} :
-    (x.umod y).toNat = x.toNat % y.toNat := rfl
+    (x % y).toNat = x.toNat % y.toNat := rfl
 
 @[simp]
-theorem umod_zero {x : BitVec n} : x.umod 0#n = x := by
-  simp [umod_eq]
+theorem umod_zero {x : BitVec n} : x % 0#n = x := by
+  simp [umod_def]
 
 /-! ### sdiv -/
 
@@ -2203,7 +2204,7 @@ protected theorem ne_of_lt {x y : BitVec n} : x < y → x ≠ y := by
   simp only [lt_def, ne_eq, toNat_eq]
   apply Nat.ne_of_lt
 
-protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x.umod y < y := by
+protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x % y < y := by
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod, umod, toNat_ofNatLt]
   apply Nat.mod_lt
 

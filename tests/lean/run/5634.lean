@@ -77,7 +77,7 @@ noncomputable example (α : Type) [Nonempty α] : α := by
 /-!
 Regression test: elaborates using implicit lambda feature
 -/
-example (h : False) : ∀ {_ : Nat}, False := by
+example (p : Prop) (h : p) : ∀ {_ : Nat}, p := by
   simpa using h
 
 /-!
@@ -85,9 +85,23 @@ Regression test: make sure `simpa?` reports lemmas for both the goal and the `us
 -/
 
 /-- info: Try this: simpa only [id] using h -/
-#guard_msgs in example (h : False) : id False := by
+#guard_msgs in example (p : Prop) (h : p) : id p := by
   simpa? only [id] using h
 
 /-- info: Try this: simpa only [id] using h -/
-#guard_msgs in example (h : id False) : False := by
+#guard_msgs in example (p : Prop) (h : id p) : p := by
   simpa? only [id] using h
+
+/-!
+Regression test: unnecessary `simpa`
+-/
+
+def foo (n : α) := [n]
+
+/--
+warning: try 'simp at h' instead of 'simpa using h'
+note: this linter can be disabled with `set_option linter.unnecessarySimpa false`
+-/
+#guard_msgs in
+example (h : foo n ≠ [n]) : False := by
+  simpa [foo] using h

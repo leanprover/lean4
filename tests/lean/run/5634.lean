@@ -52,3 +52,9 @@ contains the goal ?foo
 example : False := by
   refine ?foo
   simpa using ?foo
+
+/-!
+Regression test: need to synthesize postponed metavariables before metavariable checks.
+-/
+example (α : Type) (x : α) : Nonempty α := by
+  simpa using ⟨x⟩

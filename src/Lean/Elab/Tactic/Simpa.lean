@@ -64,6 +64,8 @@ deriving instance Repr for UseImplicitLambdaResult
             let h := Expr.fvar (xs[0]?.getD h)
             let gType ← g.getType
             let hType ← inferType h
+            discard <| isDefEq gType hType
+            Term.synthesizeSyntheticMVarsNoPostponing
             unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
               Term.throwTypeMismatchError none gType hType h
             let unassigned ← filterOldMVars (← getMVars e) mvarCounterSaved

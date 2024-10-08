@@ -159,7 +159,7 @@ See also `?m` syntax (synthetic holes).
 @[builtin_term_parser] def hole := leading_parser
   "_"
 /--
-A *synthetic hole* (or *synthetic placeholder*), which stands for an unknown term that should should be synthesized using tactics.
+A *synthetic hole* (or *synthetic placeholder*), which stands for an unknown term that should be synthesized using tactics.
 - `?_` creates a fresh metavariable with an auto-generated name.
 - `?m` either refers to a pre-existing metavariable named `m` or creates a fresh metavariable with that name.
 
@@ -169,32 +169,38 @@ the same kind of metavariable used to represent goals in the tactic state.
 Synthetic holes are similar to holes in that `_` also creates metavariables,
 but synthetic opaque metavariables have some different properties:
 - In tactics such as `refine`, only synthetic holes yield new goals.
-- When synthetic holes appear under binders, they capture local variables using a more complicated mechanism known as delayed assignment.
 - During elaboration, unification will not solve for synthetic opaque metavariables, they are "opaque".
   This is to prevent counterintuitive behavior such as disappearing goals.
+- When synthetic holes appear under binders, they capture local variables using a more complicated mechanism known as delayed assignment.
 
 ## Delayed assigned metavariables
 
-This section gives a high-level overview of technical details of synthetic holes, which you should feel free to skip.
+This section gives an overview of some technical details of synthetic holes, which you should feel free to skip.
+Understanding delayed assignments is mainly useful for those who are working on tactics and other metaprogramming.
+It is included here until there is a suitable place for it in the reference manual.
+
 When a synthetic hole appears under a binding construct, such as for example `fun (x : α) (y : β) => ?s`,
-the system creates a construct called a *delayed assignment*. This consists of
-1. A metavariable `?m` of type `α → β → γ` and whole local context is from the local context outside the `fun`,
-  where `γ` is the type of `?s`. (The type `γ` can depend on `α` and `β`.)
+the system creates a *delayed assignment*. This consists of
+1. A metavariable `?m` of type `(x : α) → (y : β) → γ x y` whose local context is the local context outside the `fun`,
+  where `γ x y` is the type of `?s`. Recall that `x` and `y` appear in the local context of `?s`.
 2. A delayed assigment record associating `?m` to `?s` and the variables `#[x, y]` in the local context of `?s`
 
 Then, this function elaborates as `fun (x : α) (y : β) => ?m x y`, where one should understand `x` and `y` here
 as being De Bruijn indexes, since Lean uses the locally nameless encoding of lambda calculus.
 
-Once `?s` is fully solved for, in the sense that it can be fully instantiated as a metavariable-free term `e`,
+Once `?s` is fully solved for, in the sense that after metavariable instantiation it is a metavariable-free term `e`,
 then we can make the assignment `?m := fun (x' : α) (y' : β) => e[x := x', y := y']`.
-(Implementation note: in practice, Lean only instantiates full applications `?m x' y'` of delayed assigned metavariables.)
+(Implementation note: Lean only instantiates full applications `?m x' y'` of delayed assigned metavariables, to skip forming this function.)
 This delayed assignment mechanism is essential to the operation of basic tactics like `intro`,
 and a good mental model is that it is a way to "apply" the metavariable `?s` by substituting values in for some of its local variables.
+While it would be easier to immediately assign `?s := ?m x y`,
+delayed assigment preserves `?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,
+which is exactly what tactics like `intro` need.
 
 By default, delayed assigned metavariables pretty print with what they are delayed assigned to.
 The delayed assigned metavariables themselves can be pretty printed using `set_option pp.mvars.delayed true`.
 
-For more details, see the module docstrings in `Lean.MetavarContext`.
+For more information, see the "Gruesome details" module docstrings in `Lean.MetavarContext`.
 -/
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> "_")

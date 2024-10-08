@@ -465,13 +465,13 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 /--
 `#eval e` evaluates the expression `e` by compiling and evaluating it.
 
-* The command attempts to use a `ToExpr`, `Repr`, or `ToString` instance to print the result.
+* The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
 * If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`
-  to the `CommandElabM` monad.
-  Users can define a `MonadEval m CommandElabM` instance to add support for `m`.
+  to one of the monads that `#eval` supports, which include `IO`, `CoreM`, `MetaM`, `TermElabM`, and `CommandElabM`.
+  Users can define `MonadEval` instances to extend the list of supported monads.
 
 The `#eval` command gracefully degrades in capability depending on what is imported.
-Import the `Lean.Elab.Command` module for full capabilities.
+Importing the `Lean.Elab.Command` module provides full capabilities.
 
 Due to unsoundness, `#eval` refuses to evaluate expressions that depend on `sorry`, even indirectly,
 since the presence of `sorry` can lead to runtime instability and crashes.
@@ -479,7 +479,7 @@ This check can be overridden with the `#eval! e` command.
 
 Options:
 * If `eval.pp` is true (default: true) then tries to use `ToExpr` instances to make use of the
-  usual pretty printer. Otherwise, it only tries using `Repr` and `ToString` instances.
+  usual pretty printer. Otherwise, only tries using `Repr` and `ToString` instances.
 * If `eval.type` is true (default: false) then pretty prints the type of the evaluated value.
 * If `eval.derive.repr` is true (default: true) then attempts to auto-derive a `Repr` instance
   when there is no other way to print the result.

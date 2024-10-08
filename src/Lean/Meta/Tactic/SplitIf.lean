@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.LazyInitExtension
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Simp.Main
 

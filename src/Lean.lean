@@ -30,7 +30,6 @@ import Lean.Server
 import Lean.ScopedEnvExtension
 import Lean.DocString
 import Lean.DeclarationRange
-import Lean.LazyInitExtension
 import Lean.LoadDynlib
 import Lean.Widget
 import Lean.Log

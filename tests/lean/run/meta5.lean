@@ -28,8 +28,8 @@ info: [Meta.debug] ?_
 [Meta.debug] fun y =>
       let x := 0;
       x.add y
-[Meta.debug] ?_uniq.3551 : Nat
-[Meta.debug] ?_uniq.3552 : Nat →
+[Meta.debug] ?_uniq.3014 : Nat
+[Meta.debug] ?_uniq.3015 : Nat →
       Nat →
         let x := 0;
         Nat

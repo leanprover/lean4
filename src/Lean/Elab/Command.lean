@@ -520,8 +520,12 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
     -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
     elabCommand stx
-    withLogging do
-      runLinters stx
+    -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
+    -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
+    -- rather than engineer a general solution.
+    unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+      withLogging do
+        runLinters stx
   finally
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages

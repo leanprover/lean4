@@ -75,6 +75,12 @@ noncomputable example (α : Type) [Nonempty α] : α := by
   simpa using fun {β : Type} [inst : Nonempty β] => Classical.choice inst
 
 /-!
+Regression test: elaborates using implicit lambda feature
+-/
+example (h : False) : ∀ {_ : Nat}, False := by
+  simpa using h
+
+/-!
 Regression test: make sure `simpa?` reports lemmas for both the goal and the `using` clause
 -/
 

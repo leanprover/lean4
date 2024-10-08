@@ -63,12 +63,13 @@ deriving instance Repr for UseImplicitLambdaResult
             (simplifyTarget := false) (stats := stats) (discharge? := discharge?)
           match result? with
           | some (xs, g') =>
+            let h := xs[0]?.getD h
+            let name ← mkFreshUserName `h
+            let g' ← g'.rename h name
             setGoals [g']
             g'.withContext do
-              let h := Expr.fvar (xs[0]?.getD h)
               let gType ← g'.getType
-              -- `h` may have implicit arguments, so run it through the app elaborator:
-              let h ← Term.elabAppArgs h #[] #[] gType (explicit := false) (ellipsis := false)
+              let h ← Term.elabTerm (mkIdent name) gType
               Term.synthesizeSyntheticMVarsNoPostponing
               let hType ← inferType h
               unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do

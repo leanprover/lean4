@@ -176,13 +176,13 @@ theorem BitVec.shiftRight_zero' (n : BitVec w) : n >>> 0 = n := by
   ext i
   simp
 
-theorem BitVec.zero_lt_iff_zero_neq (a : BitVec w) : (0#w < a) ↔ (0#w ≠ a) := by
+theorem BitVec.zero_lt_iff_zero_neq (a : BitVec w) : (0#w < a) ↔ (a ≠ 0#w) := by
   constructor <;>
     simp_all only [BitVec.lt_def, BitVec.toNat_ofNat, Nat.zero_mod, ne_eq, BitVec.toNat_eq] <;>
     omega
 
 @[bv_normalize]
-theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (0#w != a) := by
+theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (a != 0#w) := by
   have := BitVec.zero_lt_iff_zero_neq a
   rw [BitVec.lt_ult] at this
   match h:BitVec.ult 0#w a with
@@ -219,6 +219,8 @@ theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
 
 attribute [bv_normalize] BitVec.add_eq_xor
 attribute [bv_normalize] BitVec.mul_eq_and
+
+attribute [bv_normalize] BitVec.udiv_zero
 
 end Normalize
 end Std.Tactic.BVDecide

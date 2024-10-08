@@ -18,6 +18,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.SignExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).
@@ -97,6 +98,13 @@ where
         let res := bitblast.blastMul aig ⟨lhs, rhs⟩
         have := by
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastMul)
+          dsimp only at hlaig hraig
+          omega
+        ⟨res, this⟩
+      | .udiv =>
+        let res := bitblast.blastUdiv aig ⟨lhs, rhs⟩
+        have := by
+          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastUdiv)
           dsimp only at hlaig hraig
           omega
         ⟨res, this⟩
@@ -210,7 +218,7 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
     rw [AIG.LawfulVecOperator.decl_eq (f := blastConst)]
   | bin lhs op rhs lih rih =>
     match op with
-    | .and | .or | .xor | .add | .mul =>
+    | .and | .or | .xor | .add | .mul | .udiv =>
       dsimp only [go]
       have := (bitblast.go aig lhs).property
       have := (go (go aig lhs).1.aig rhs).property

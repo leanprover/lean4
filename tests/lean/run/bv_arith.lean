@@ -27,3 +27,12 @@ theorem arith_unit_5 (x : BitVec 64) : x * 32 = 32 * x := by
 
 theorem arith_unit_6 (x : BitVec 64) : x + x = 2 * x := by
   bv_decide
+
+theorem arith_unit_7 (x : BitVec 32) : x / 1 = x := by
+  bv_decide
+
+theorem arith_unit_8 (x y : BitVec 32) : x / y ≤ x := by
+  bv_decide
+
+theorem arith_unit_8' (x y : BitVec 32) : x.udiv y ≤ x := by
+  bv_decide

@@ -570,6 +570,25 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
       withAnnotateTermInfo x
     delabAppCore (n - arity) delabHead (unexpand := false)
 
+@[builtin_delab app]
+def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
+  let .mvar mvarId := (← getExpr).getAppFn | failure
+  let some decl ← getDelayedMVarAssignment? mvarId | failure
+  withOverApp decl.fvars.size do
+    let args := (← getExpr).getAppArgs
+    -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
+    guard <| args.all Expr.isFVar
+    withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+      if ← getPPOption getPPMVars then
+        let mvarDecl ← decl.mvarIdPending.getDecl
+        let n :=
+          match mvarDecl.userName with
+          | .anonymous => decl.mvarIdPending.name.replacePrefix `_uniq `m
+          | n => n
+        `(?$(mkIdent n))
+      else
+        `(?_)
+
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
   info        : MatcherInfo

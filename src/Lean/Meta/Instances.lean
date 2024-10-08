@@ -208,11 +208,9 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
           let typeLines := ("" : MessageData).joinSep <| Array.toList <| ← toSynth.mapM fun i => do
             let ty ← instantiateMVars (← inferType argMVars[i]!)
             return indentExpr (ty.setPPExplicit true)
-          logWarning m!"\
+          throwError m!"\
             cannot find synthesization order for instance {inst} with type{indentExpr instTy}\n\
-            all remaining arguments have metavariables:{typeLines}\n\n\
-            The instance will still be added, but it likely will have issues being applied. \
-            This warning can be disabled with `set_option synthInstance.checkSynthOrder false`."
+            all remaining arguments have metavariables:{typeLines}"
         pure toSynth[0]!
     synthed := synthed.push next
     toSynth := toSynth.filter (· != next)
@@ -222,10 +220,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   if synthInstance.checkSynthOrder.get (← getOptions) then
     let ty ← instantiateMVars ty
     if ty.hasExprMVar then
-      logWarning m!"\
-        instance does not provide concrete values for (semi-)out-params{indentExpr (ty.setPPExplicit true)}\n\n\
-        The instance will still be added, but it likely will have issues being applied. \
-        This warning can be disabled with `set_option synthInstance.checkSynthOrder false`."
+      throwError m!"instance does not provide concrete values for (semi-)out-params{indentExpr (ty.setPPExplicit true)}"
 
   trace[Meta.synthOrder] "synthesizing the arguments of {inst} in the order {synthed}:\
     {("" : MessageData).joinSep (← synthed.mapM fun i => return indentExpr (← inferType argVars[i]!)).toList}"

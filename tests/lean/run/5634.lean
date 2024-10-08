@@ -60,6 +60,12 @@ example (α : Type) (x : α) : Nonempty α := by
   simpa using ⟨x⟩
 
 /-!
+Regression test: elaborates implicit arguments in the `using` clause
+-/
+noncomputable example (α : Type) [Nonempty α] : α := by
+  simpa using fun {β : Type} [inst : Nonempty β] => Classical.choice inst
+
+/-!
 Updated error message to show the elaborated term rather than `h✝`
 -/
 /--

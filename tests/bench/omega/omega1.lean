@@ -1,8 +1,3 @@
-set_option maxHeartbeats 0 
-set_option trace.profiler true 
-set_option profiler true 
-
-
 /-
 tactic execution of Lean.Parser.Tactic.omega took 6.04s
 instantiate metavars took 31.6s

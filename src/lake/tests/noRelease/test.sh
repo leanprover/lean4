@@ -40,9 +40,10 @@ EOF
 
 # Test that an indirect fetch on the release does not cause the build to fail
 $LAKE build Test | diff -u --strip-trailing-cr <(cat << EOF
-⚠ [2/5] Ran dep:extraDep
+⚠ [3/6] Ran dep:extraDep
 warning: building from source; failed to fetch GitHub release (run with '-v' for details)
-✔ [4/5] Built Test
+✔ [4/6] Built Dep
+✔ [5/6] Built Test
 Build completed successfully.
 EOF
 ) -
@@ -56,7 +57,7 @@ mkdir -p .lake/packages/dep/.lake/build
 $LAKE -d .lake/packages/dep pack 2>&1 | grep --color "packing"
 test -f .lake/packages/dep/.lake/release.tgz
 echo 4225503363911572621 > .lake/packages/dep/.lake/release.tgz.trace
-rmdir .lake/packages/dep/.lake/build
+rm -rf .lake/packages/dep/.lake/build
 $LAKE build dep:release -v | grep --color "tar"
 test -d .lake/packages/dep/.lake/build
 

@@ -58,3 +58,18 @@ Regression test: need to synthesize postponed metavariables before metavariable 
 -/
 example (α : Type) (x : α) : Nonempty α := by
   simpa using ⟨x⟩
+
+/-!
+Updated error message to show the elaborated term rather than `h✝`
+-/
+/--
+error: type mismatch, term
+  fun x => x
+after simplification has type
+  True : Prop
+but is expected to have type
+  False : Prop
+-/
+#guard_msgs in
+example : False := by
+  simpa using (fun x : True => x)

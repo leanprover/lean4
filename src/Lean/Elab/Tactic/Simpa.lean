@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.Simp
+import Lean.Elab.App
 import Lean.Linter.Basic
 
 /--
@@ -50,11 +51,7 @@ deriving instance Repr for UseImplicitLambdaResult
         let e ← Tactic.elabTerm stx none (mayPostpone := true)
         unless ← occursCheck g e do
           throwError "occurs check failed, expression{indentExpr e}\ncontains the goal {Expr.mvar g}"
-        let (h, g) ←
-          if let .fvar h := e then
-            pure (h, g)
-          else
-            (← g.assert `h (← inferType e) e).intro1
+        let (h, g) ← g.note (← mkFreshBinderNameForTactic `h) e
         let (result?, stats) ← simpGoal g ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
           (simplifyTarget := false) (stats := stats) (discharge? := discharge?)
         match result? with
@@ -63,16 +60,20 @@ deriving instance Repr for UseImplicitLambdaResult
           g.withContext do
             let h := Expr.fvar (xs[0]?.getD h)
             let gType ← g.getType
-            let hType ← inferType h
-            discard <| isDefEq gType hType
+            -- `h` may have implicit arguments, so run it through the app elaborator:
+            let h ← Term.elabAppArgs h #[] #[] gType (explicit := false) (ellipsis := false)
             Term.synthesizeSyntheticMVarsNoPostponing
+            let hType ← inferType h
             unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
-              Term.throwTypeMismatchError none gType hType h
+              -- `e` still is valid in this new local context
+              Term.throwTypeMismatchError gType hType h
+                (header? := some m!"type mismatch, term{indentExpr e}\nafter simplification")
             let unassigned ← filterOldMVars (← getMVars e) mvarCounterSaved
             unless unassigned.isEmpty do
               -- Admit the goal to ensure that the original goal metavariable doesn't turn up with an error.
               -- Recall that `logUnassignedAndAbort` says a metavariable could not be synthesized if
-              -- the instantiated metavariable contains one of the metavariables from the `unassigned` array.
+              -- the instantiated metavariable contains one of the metavariables from the `unassigned` array,
+              -- and the `g.assert` step earlier makes `g` depend on any metavariables contained in `e`.
               admitGoal g
               logUnassignedAndAbort unassigned
               throwError m!"expression contains metavariables{indentExpr e}"

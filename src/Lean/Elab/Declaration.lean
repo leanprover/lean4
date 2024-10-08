@@ -169,10 +169,8 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let classes ← liftCoreM <| getOptDerivingClasses decl[6]
   if decl[3][0].isToken ":=" then
     -- https://github.com/leanprover/lean4/issues/5236
-    if Linter.getLinterValue Linter.linter.deprecated (← getOptions) then
-      withRef decl[0] <| withRef decl[3] <| logWarning <| .tagged ``Linter.deprecatedAttr "\
-        'inductive ... :=' has been deprecated in favor of 'inductive ... where'.\n\
-        You can disable this warning with 'set_option linter.deprecated false'."
+    withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
+      "'inductive ... :=' has been deprecated in favor of 'inductive ... where'."
   return {
     ref             := decl
     shortDeclName   := name

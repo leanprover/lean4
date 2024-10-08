@@ -6,7 +6,7 @@ set_option linter.deprecated true
 
 /--
 warning: 'inductive ... :=' has been deprecated in favor of 'inductive ... where'.
-You can disable this warning with 'set_option linter.deprecated false'.
+note: this linter can be disabled with `set_option linter.deprecated false`
 -/
 #guard_msgs in
 inductive DogSound' :=
@@ -14,16 +14,16 @@ inductive DogSound' :=
   | grr
 
 /--
-warning: 'structure ... :=' has been deprecated in favor of 'structure ... where'.
-You can disable this warning with 'set_option linter.deprecated false'.
+warning: structure ... :=' has been deprecated in favor of 'structure ... where'.
+note: this linter can be disabled with `set_option linter.deprecated false`
 -/
 #guard_msgs in
 structure S :=
   (n : Nat)
 
 /--
-warning: 'class ... :=' has been deprecated in favor of 'class ... where'.
-You can disable this warning with 'set_option linter.deprecated false'.
+warning: class ... :=' has been deprecated in favor of 'class ... where'.
+note: this linter can be disabled with `set_option linter.deprecated false`
 -/
 #guard_msgs in
 class C :=

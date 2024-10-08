@@ -362,3 +362,15 @@
   run_config:
     <<: *time
     cmd: lean omega/omega1.lean
+- attributes:
+    description: omega2
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega2.lean
+- attributes:
+    description: omega3
+    tags: [fast, omega]
+  run_config:
+    <<: *time
+    cmd: lean omega/omega3.lean

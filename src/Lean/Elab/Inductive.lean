@@ -513,10 +513,19 @@ where
             accLevelAtCtor ctor ctorParam r rOffset
 
 /--
-Heuristic: we prefer a `Prop` over `Type` if the inductive type could be a syntactic subsingleton.
-However, we prefer `Type` in the following cases:
-- if there are no constructors
-- if each constructor has no parameters
+Decides whether the inductive type should be `Prop`-valued when the universe is not given
+and when the universe inference algorithm `collectUniverses` determines
+that the inductive type could naturally be `Prop`-valued.
+Recall: the natural universe level is the mimimum universe level for all the types of all the constructor parameters.
+
+Heuristic:
+- We want `Prop` when each inductive type is a syntactic subsingleton.
+  That's to say, when each inductive type has at most one constructor.
+  Such types carry no data anyway.
+- Exception: if no inductive type has any constructors, these are likely stubbed-out declarations,
+  so we prefer `Type` instead.
+- Exception: if each constructor has no parameters, then these are likely partially-written enumerations,
+  so we prefer `Type` instead.
 -/
 private def isPropCandidate (numParams : Nat) (indTypes : List InductiveType) : MetaM Bool := do
   unless indTypes.foldl (fun n indType => max n indType.ctors.length) 0 == 1 do

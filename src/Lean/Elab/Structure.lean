@@ -633,8 +633,14 @@ where
         throwError msg
 
 /--
-Heuristic: we prefer a `Prop` instead of a `Type` structure when it could be a syntactic subsingleton.
-However, if there are no fields, we prefer `Type`.
+Decides whether the structure should be `Prop`-valued when the universe is not given
+and when the universe inference algorithm `collectUniversesFromFields` determines
+that the inductive type could naturally be `Prop`-valued.
+
+See `Lean.Elab.Command.isPropCandidate` for an explanation.
+Specialized to structures, the heuristic is that we prefer a `Prop` instead of a `Type` structure
+when it could be a syntactic subsingleton.
+Exception: no-field structures are `Type` since they are likely stubbed-out declarations.
 -/
 private def isPropCandidate (fieldInfos : Array StructFieldInfo) : Bool :=
   !fieldInfos.isEmpty

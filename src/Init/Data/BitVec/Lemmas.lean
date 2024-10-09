@@ -2712,23 +2712,23 @@ theorem toNat_mul_of_lt {w} {x y : BitVec w} (h : x.toNat * y.toNat < 2^w) :
 
 
 /--
-`(a ≤ b + c)` if and only if `(a - c ≤ b)`
-when `a - c` and `b + c` do not overflow.
+`x ≤ y + z` if and only if `x - z ≤ y`
+when `x - z` and `y + z` do not overflow.
 -/
-theorem le_add_iff_sub_le {a b c : BitVec w₁}
-   (hac : c ≤ a) (hbc : b.toNat + c.toNat < 2^w₁) :
-    (a ≤ b + c) ↔ (a - c ≤ b) := by
+theorem le_add_iff_sub_le {x y z : BitVec w}
+   (hxz : z ≤ x) (hbz : y.toNat + z.toNat < 2^w) :
+    (x ≤ y + z) ↔ (x - z ≤ y) := by
   simp_all only [BitVec.le_def]
   rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
     BitVec.toNat_add_of_lt (by omega)]
   omega
 
 /--
-`(a - c ≤ b - c)` if and only if `(a ≤ b)`
-when `a - c` and `b - c` do not overflow.
+`x - z ≤ y - z` if and only if `x ≤ y`
+when `x - z` and `yl - z` do not overflow.
 -/
-theorem sub_le_sub_iff_le (a b c : BitVec w₁) (hac : c ≤ a)
-    (hbc : c ≤ b) : (a - c ≤ b - c) ↔ a ≤ b := by
+theorem sub_le_sub_iff_le (x y z : BitVec w) (hxz : z ≤ x)
+    (hyz : z ≤ y) : (x - z ≤ y - z) ↔ x ≤ y := by
   simp_all only [BitVec.le_def]
   rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]

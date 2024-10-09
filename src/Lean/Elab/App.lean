@@ -1394,8 +1394,6 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
 
 private def elabAppLVals (f : Expr) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis : Bool) : TermElabM Expr := do
-  if !lvals.isEmpty && explicit then
-    throwError "invalid use of field notation with `@` modifier"
   elabAppLValsAux namedArgs args expectedType? explicit ellipsis f lvals
 
 def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
@@ -1494,19 +1492,21 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     withReader (fun ctx => { ctx with errToSorry := false }) do
       f.getArgs.foldlM (init := acc) fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc
   else
-    let elabFieldName (e field : Syntax) := do
+    let elabFieldName (e field : Syntax) (explicit : Bool) := do
       let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
         LVal.fieldName comp comp.getId.getString! none f
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-    let elabFieldIdx (e idxStx : Syntax) := do
+    let elabFieldIdx (e idxStx : Syntax) (explicit : Bool) := do
       let some idx := idxStx.isFieldIdx? | throwError "invalid field index"
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     match f with
-    | `($(e).$idx:fieldIdx) => elabFieldIdx e idx
-    | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx
-    | `($(e).$field:ident) => elabFieldName e field
-    | `($e |>.$field:ident) => elabFieldName e field
+    | `($(e).$idx:fieldIdx) => elabFieldIdx e idx explicit
+    | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx explicit
+    | `($(e).$field:ident) => elabFieldName e field explicit
+    | `($e |>.$field:ident) => elabFieldName e field explicit
+    | `(@$(e).$idx:fieldIdx) => elabFieldIdx e idx (explicit := true)
+    | `(@$(e).$field:ident) => elabFieldName e field (explicit := true)
     | `($_:ident@$_:term) =>
       throwError "unexpected occurrence of named pattern"
     | `($id:ident) => do
@@ -1663,8 +1663,10 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
-  | `(@$_:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$_:ident)          => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
   | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
+  | `(@$(_).$_:fieldIdx)  => elabAtom stx expectedType?
+  | `(@$(_).$_:ident)     => elabAtom stx expectedType?
   | `(@($t))             => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
   | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
   | _                    => throwUnsupportedSyntax

@@ -23,8 +23,14 @@ def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
   let disable := m!"note: this linter can be disabled with `set_option {linterOption.name} false`"
   logWarningAt stx (.tagged linterOption.name m!"{msg}\n{disable}")
 
-/-- If `linterOption` is true, print a linter warning message at the position determined by `stx`.
+/--
+If `linterOption` is enabled, print a linter warning message at the position determined by `stx`.
+
+Whether a linter option is enabled or not is determined by the following sequence:
+1. If it is set, then the value determines whether or not it is enabled.
+2. Otherwise, if `linter.all` is set, then its value determines whether or not the option is enabled.
+3. Otherwise, the default value determines whether or not it is enabled.
 -/
 def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
-  if linterOption.get (← getOptions) then logLint linterOption stx msg
+  if getLinterValue linterOption (← getOptions) then logLint linterOption stx msg

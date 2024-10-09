@@ -80,8 +80,9 @@ structure SyntheticMVarDecl where
   We have three different kinds of error context.
 -/
 inductive MVarErrorKind where
-  /-- Metavariable for implicit arguments. `ctx` is the parent application. -/
-  | implicitArg (ctx : Expr)
+  /-- Metavariable for implicit arguments. `ctx` is the parent application,
+  `lctx` is a local context where it is valid (necessary for eta feature for named arguments). -/
+  | implicitArg (lctx : LocalContext) (ctx : Expr)
   /-- Metavariable for explicit holes provided by the user (e.g., `_` and `?m`) -/
   | hole
   /-- "Custom", `msgData` stores the additional error messages. -/
@@ -90,7 +91,7 @@ inductive MVarErrorKind where
 
 instance : ToString MVarErrorKind where
   toString
-    | .implicitArg _   => "implicitArg"
+    | .implicitArg _ _ => "implicitArg"
     | .hole            => "hole"
     | .custom _        => "custom"
 
@@ -735,7 +736,7 @@ def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit 
   registerMVarErrorInfo { mvarId, ref, kind := .hole }
 
 def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
-  registerMVarErrorInfo { mvarId, ref, kind := .implicitArg app }
+  registerMVarErrorInfo { mvarId, ref, kind := .implicitArg (← getLCtx) app }
 
 def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
   registerMVarErrorInfo { mvarId, ref, kind := .custom msgData }
@@ -761,7 +762,7 @@ def throwMVarError (m : MessageData) : TermElabM α := do
 
 def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match mvarErrorInfo.kind with
-  | MVarErrorKind.implicitArg app => do
+  | MVarErrorKind.implicitArg lctx app => withLCtx lctx {} do
     let app ← instantiateMVars app
     let msg ← addArgName "don't know how to synthesize implicit argument"
     let msg := msg ++ m!"{indentExpr app.setAppPPExplicitForExposingMVars}" ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId

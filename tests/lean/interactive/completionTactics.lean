@@ -1,17 +1,16 @@
-/-
-This test is fragile because it tests that the full list of tactic completions works correctly.
-When adding a new tactic or adjusting the docstring of an existing tactic, this test will break.
+prelude
+import Init.Notation
 
-If you didn't touch the elaboration infrastructure or the language server,
-you can safely assume that this test is still correct and replace the
-`completionTactics.lean.expected.out` file with the `completionTactics.lean.produced.out` file
-in order to un-break it.
--/
+/-- A docstring -/
+syntax (name := skip) "skip" : tactic
+
+/-- Another docstring -/
+syntax (name := exact) "exact " term : tactic
 
 example : True := by  -- No completions expected
                   --^ textDocument/completion
 
-example : True := by  -- All tactic completions expected
+example : True := by   -- All tactic completions expected
                    --^ textDocument/completion
 
 example : True := by ski  -- Tactic completions matching `ski` expected
@@ -26,9 +25,6 @@ example : True := by skip;  -- All tactic completions expected
 example : True := by skip;  -- All tactic completions expected
                          --^ textDocument/completion
 
-example : True := by skip; ski  -- Tactic completions matching `ski` expected
-                            --^ textDocument/completion
-
 example : True := by
   skip
   skip;  -- All tactic completions expected
@@ -39,92 +35,68 @@ example : True := by
 --^ textDocument/completion
 
 example : True := by
-  sorry
+  skip
     -- All tactic completions expected
 --^ textDocument/completion
 
 example : True := by
     -- All tactic completions expected
 --^ textDocument/completion
-  sorry
+  skip
 
 example : True := by
-  have : True := by
+  exact by
       -- All tactic completions expected
   --^ textDocument/completion
 
 example : True := by
-  have : True := by
+  exact by
       -- All tactic completions expected
 --^ textDocument/completion
 
 example : True := by
-  have : True := by
-    sorry
+  exact by
+    skip
       -- All tactic completions expected
   --^ textDocument/completion
 
 example : True := by
-  have : True := by
-    sorry
+  exact by
+    skip
       -- All tactic completions expected
 --^ textDocument/completion
 
 example : True := by
-  have : True :=
+  exact
       -- No completions expected
   --^ textDocument/completion
 
 example : True := by
-  have : True :=
+  exact
       -- All tactic completions expected
 --^ textDocument/completion
 
 example : True :=
-  have : True := by
+  let foo := by
       -- All tactic completions expected
   --^ textDocument/completion
 
 example : True :=
-  have : True := by
+  let foo := by
       -- All tactic completions expected
 --^ textDocument/completion
 
 example : True :=
-  have : True := by
-    sorry
+  let foo := by
+    skip
       -- All tactic completions expected
   --^ textDocument/completion
 
 example : True :=
-  have : True := by
-    sorry
+  let foo := by
+    skip
       -- No completions expected
 --^ textDocument/completion
-
-example (n : Nat) : True := by
-  induction n with
-  | zero =>   -- All tactic completions expected
-          --^ textDocument/completion
-
-example (n : Nat) : True := by
-  induction n with
-  | zero =>
-    sorry
-      -- All tactic completions expected
-  --^ textDocument/completion
-
-example (n : Nat) : True := by
-  induction n with
-  | zero =>
-    sorry
-      -- All tactic completions expected
-  --^ textDocument/completion
-
-example (n : Nat) : True := by
-  induction n
-  ·   -- All tactic completions expected
-  --^ textDocument/completion
 
 example : True := by {
     -- All tactic completions expected

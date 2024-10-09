@@ -74,6 +74,12 @@ example : True := by
   guard_hyp h : True; trivial
 
 example : True := by
+  obtain h | ⟨⟨⟩⟩ : ?ty ∨ False
+  case ty => exact True
+  · exact Or.inl trivial
+  guard_hyp h : True; trivial
+
+example : True := by
   obtain h | ⟨⟨⟩⟩ : True ∨ False := Or.inl trivial
   guard_hyp h : True; trivial
 
@@ -209,3 +215,57 @@ example (b c : Nat) : True := by
   obtain h : b = c ^ 2 := test_sorry
   subst h
   trivial
+
+
+/-!
+Issue #4331, rcases was not keeping track of new goals from term elaboration,
+leading to "goal teleportation" outside the `have`.
+-/
+
+example : True := by
+  have : ∃ k, 5 = 2 + k := by
+    rcases Nat.exists_eq_add_of_le (?_ : 2 ≤ 5) with ⟨k, hk⟩
+    · exact ⟨k, hk⟩
+    · guard_target =ₛ 2 ≤ 5
+      decide
+  guard_target =ₛ True; trivial
+
+-- Checking that the goal from the `let` is not captured by `rcases`:
+example : True := by
+  have : ∃ k, 5 = 2 + k :=
+    let h := Nat.exists_eq_add_of_le (?_ : 2 ≤ 5)
+    by
+      rcases h with ⟨k, hk⟩
+      exact ⟨k, hk⟩
+  guard_target =ₛ True; trivial
+  guard_target =ₛ 2 ≤ 5; decide
+
+example (f : (n : Nat) → n = 1 → ∃ m, n = m) : False := by
+  let n : Nat := 1
+  obtain ⟨m, hm⟩ := f n ?g1
+  guard_target =ₛ False; sorry
+  guard_target =ₛ n = 1; sorry
+
+/-!
+Occurs check
+-/
+/--
+error: tactic 'obtain' failed, occurs check failed, goal appears in patterns or targets
+case goal
+⊢ False ∨ False
+-/
+#guard_msgs in
+example : False ∨ False := by
+  refine ?goal
+  obtain _ | _ := ?goal
+
+def typeof {α : Sort _} (x : α) := α
+/--
+error: tactic 'obtain' failed, occurs check failed, goal appears in patterns
+case goal
+⊢ False ∨ False
+-/
+#guard_msgs in
+example : False ∨ False := by
+  refine ?goal
+  obtain _ | _ : typeof ?goal

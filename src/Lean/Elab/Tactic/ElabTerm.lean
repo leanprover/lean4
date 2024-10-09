@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.AuxLemma
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Rename
 import Lean.Elab.Tactic.Basic
@@ -375,7 +376,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
 Given the decidable instance `inst`, reduces it and returns a decidable instance expression
 in whnf that can be regarded as the reason for the failure of `inst` to fully reduce.
 -/
-private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
+private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := withIncRecDepth do
   let inst ← whnf inst
   -- If it's the Decidable recursor, then blame the major premise.
   if inst.isAppOfArity ``Decidable.rec 5 then
@@ -393,74 +394,100 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
               return ← blameDecideReductionFailure inst''
   return inst
 
-@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
-  closeMainGoalUsing `decide fun expectedType => do
+def evalDecideCore (tacticName : Name) (kernelOnly : Bool) : TacticM Unit :=
+  closeMainGoalUsing tacticName fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
-    let d ← mkDecide expectedType
-    let d ← instantiateMVars d
-    -- Get instance from `d`
-    let s := d.appArg!
-    -- Reduce the instance rather than `d` itself for diagnostics purposes.
-    let r ← withAtLeastTransparency .default <| whnf s
-    if r.isAppOf ``isTrue then
-      -- Success!
-      -- While we have a proof from reduction, we do not embed it in the proof term,
-      -- and instead we let the kernel recompute it during type checking from the following more
-      -- efficient term. The kernel handles the unification `e =?= true` specially.
-      let rflPrf ← mkEqRefl (toExpr true)
-      return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
+    let pf ← mkDecideProof expectedType
+    -- Get instance from `pf`
+    let s := pf.appFn!.appArg!
+    if kernelOnly then
+      -- Reduce the decidable instance to (hopefully!) `isTrue` by passing `pf` to the kernel.
+      -- The `mkAuxLemma` function caches the result in two ways:
+      -- 1. First, the function makes use of a `type`-indexed cache per module.
+      -- 2. Second, once the proof is added to the environment, the kernel doesn't need to check the proof again.
+      let levelsInType := (collectLevelParams {} expectedType).params
+      -- Level variables occurring in `expectedType`, in ambient order
+      let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
+      try
+        let lemmaName ← mkAuxLemma lemmaLevels expectedType pf
+        return mkConst lemmaName (lemmaLevels.map .param)
+      catch _ =>
+        diagnose expectedType s none
     else
-      -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
-      throwError MessageData.ofLazyM (es := #[expectedType]) do
-        if r.isAppOf ``isFalse then
-          return m!"\
-          tactic 'decide' proved that the proposition\
+      let r ← withAtLeastTransparency .default <| whnf s
+      if r.isAppOf ``isTrue then
+        -- Success!
+        -- While we have a proof from reduction, we do not embed it in the proof term,
+        -- and instead we let the kernel recompute it during type checking from the following more
+        -- efficient term. The kernel handles the unification `e =?= true` specially.
+        return pf
+      else
+        diagnose expectedType s r
+where
+  diagnose {α : Type} (expectedType s : Expr) (r? : Option Expr) : TacticM α :=
+    -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
+    throwError MessageData.ofLazyM (es := #[expectedType]) do
+      let r ← r?.getDM (withAtLeastTransparency .default <| whnf s)
+      if r.isAppOf ``isTrue then
+        return m!"\
+          tactic '{tacticName}' failed. internal error: the elaborator is able to reduce the \
+          '{MessageData.ofConstName ``Decidable}' instance, but the kernel is not able to"
+      else if r.isAppOf ``isFalse then
+        return m!"\
+          tactic '{tacticName}' proved that the proposition\
           {indentExpr expectedType}\n\
           is false"
-        -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
-        let (reason, unfoldedInsts) ← withoutModifyingState <| withOptions (fun opt => diagnostics.set opt true) do
-          modifyDiag (fun _ => {})
-          let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure s
-          let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
-          let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
-            let e ← mkConstWithLevelParams n
-            if (← Meta.isClass? (← inferType e)) == ``Decidable then
-              return m!"'{MessageData.ofConst e}'"
-            else
-              return none
-          return (reason, unfoldedInsts)
-        let stuckMsg :=
-          if unfoldedInsts.isEmpty then
-            m!"Reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
+      -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
+      let (reason, unfoldedInsts) ← withoutModifyingState <| withOptions (fun opt => diagnostics.set opt true) do
+        modifyDiag (fun _ => {})
+        let reason ← withAtLeastTransparency .default <| blameDecideReductionFailure s
+        let unfolded := (← get).diag.unfoldCounter.foldl (init := #[]) fun cs n _ => cs.push n
+        let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
+          let e ← mkConstWithLevelParams n
+          if (← Meta.isClass? (← inferType e)) == ``Decidable then
+            return m!"'{MessageData.ofConst e}'"
           else
-            let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
-            m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
-            reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
-        let hint :=
-          if reason.isAppOf ``Eq.rec then
-            m!"\n\n\
-            Hint: Reduction got stuck on '▸' ({MessageData.ofConstName ``Eq.rec}), \
-            which suggests that one of the '{MessageData.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
-            To avoid tactics, make use of functions such as \
-            '{MessageData.ofConstName ``inferInstanceAs}' or '{MessageData.ofConstName ``decidable_of_decidable_of_iff}' \
-            to alter a proposition."
-          else if reason.isAppOf ``Classical.choice then
-            m!"\n\n\
-            Hint: Reduction got stuck on '{MessageData.ofConstName ``Classical.choice}', \
-            which indicates that a '{MessageData.ofConstName ``Decidable}' instance \
-            is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
-            The 'decide' tactic works by evaluating a decision procedure via reduction, and it cannot make progress with such instances. \
-            This can occur due to the 'opened scoped Classical' command, which enables the instance \
-            '{MessageData.ofConstName ``Classical.propDecidable}'."
-          else
-            MessageData.nil
-        return m!"\
-          tactic 'decide' failed for proposition\
-          {indentExpr expectedType}\n\
-          since its '{MessageData.ofConstName ``Decidable}' instance\
-          {indentExpr s}\n\
-          did not reduce to '{MessageData.ofConstName ``isTrue}' or '{MessageData.ofConstName ``isFalse}'.\n\n\
-          {stuckMsg}{hint}"
+            return none
+        return (reason, unfoldedInsts)
+      let stuckMsg :=
+        if unfoldedInsts.isEmpty then
+          m!"Reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
+        else
+          let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
+          m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
+          reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
+      let hint :=
+        if reason.isAppOf ``Eq.rec then
+          m!"\n\n\
+          Hint: Reduction got stuck on '▸' ({MessageData.ofConstName ``Eq.rec}), \
+          which suggests that one of the '{MessageData.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+          To avoid tactics, make use of functions such as \
+          '{MessageData.ofConstName ``inferInstanceAs}' or '{MessageData.ofConstName ``decidable_of_decidable_of_iff}' \
+          to alter a proposition."
+        else if reason.isAppOf ``Classical.choice then
+          m!"\n\n\
+          Hint: Reduction got stuck on '{MessageData.ofConstName ``Classical.choice}', \
+          which indicates that a '{MessageData.ofConstName ``Decidable}' instance \
+          is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
+          The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
+          and it cannot make progress with such instances. \
+          This can occur due to the 'opened scoped Classical' command, which enables the instance \
+          '{MessageData.ofConstName ``Classical.propDecidable}'."
+        else
+          MessageData.nil
+      return m!"\
+        tactic '{tacticName}' failed for proposition\
+        {indentExpr expectedType}\n\
+        since its '{MessageData.ofConstName ``Decidable}' instance\
+        {indentExpr s}\n\
+        did not reduce to '{MessageData.ofConstName ``isTrue}' or '{MessageData.ofConstName ``isFalse}'.\n\n\
+        {stuckMsg}{hint}"
+
+@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
+  evalDecideCore `decide false
+
+@[builtin_tactic Lean.Parser.Tactic.decideBang] def evalDecideBang : Tactic := fun _ =>
+  evalDecideCore `decide! true
 
 private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do
   let auxName ← Term.mkAuxName baseName

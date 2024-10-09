@@ -145,7 +145,7 @@ def zetaReduce (e : Expr) : MetaM Expr := do
       | none => return TransformStep.done e
       | some localDecl =>
         if let some value := localDecl.value? then
-          return TransformStep.visit value
+          return TransformStep.visit (← instantiateMVars value)
         else
           return TransformStep.done e
     | _ => return .continue

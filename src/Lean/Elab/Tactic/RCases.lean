@@ -372,8 +372,8 @@ earlier arguments. For example `⟨a | b, ⟨c, d⟩⟩` performs the `⟨c, d�
 `a` branch and once on `b`.
 -/
 partial def rcasesContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (a : α)
-  (pats : ListΠ (RCasesPatt × Expr)) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
-  TermElabM α :=
+    (pats : ListΠ (RCasesPatt × Expr)) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
+    TermElabM α :=
   match pats with
   | []  => cont g fs clears a
   | ((pat, e) :: ps) =>
@@ -442,43 +442,67 @@ Given a list of targets of the form `e` or `h : e`, and a pattern, match all the
 against the pattern. Returns the list of produced subgoals.
 -/
 def rcases (tgts : Array (Option Ident × Syntax))
-  (pat : RCasesPatt) (g : MVarId) : TacticM (List MVarId) := Term.withSynthesize do
+    (pat : RCasesPatt) (g : MVarId) (tagSuffix : Name) : TacticM (List MVarId) := do
+  let mvarCounterSaved := (← getMCtx).mvarCounter
   let pats' ←
     match tgts.size with
-    | 0 => return [g]
+    | 0 => return []
     | 1 => pure [pat]
     | _ => pure (processConstructor pat.ref (tgts.map fun _ => {}) false 0 pat.asTuple.2).2
   let mut pats : Array RCasesPatt := #[]
   let mut args : Array GeneralizeArg := #[]
-  let mut auxGoals : Array MVarId := #[]
   for (hName?, tgt) in tgts, pat in pats' do
     let (pat, ty) ←
       match pat with
       | .typed ref pat ty => withRef ref do
-        let ty ← Term.withSynthesize <| Term.elabType ty
+        let ty ← Term.elabType ty
         pure (.typed ref pat (← Term.exprToSyntax ty), some ty)
       | _ => pure (pat, none)
-    let (expr, exprGoals) ← elabTermWithHoles tgt ty `rcases
+    let expr ← Term.elabTermEnsuringType tgt ty
     pats := pats.push pat
     args := args.push { expr, xName? := pat.name?, hName? := hName?.map (·.getId) : GeneralizeArg }
-    auxGoals := auxGoals ++ exprGoals
-  let (vs, hs, g) ← generalizeExceptFVar g args
+  -- Make a copy of `g` so that we can properly report natural mvars in `logUnassignedAndAbort`.
+  -- We don't want to assign `g` at this point since that could cause `g` itself to be highlighted with "cannot synthesize placeholder" errors
+  let gCopy ← mkFreshExprSyntheticOpaqueMVar (← g.getType) (← g.getTag)
+  let (vs, hs, g') ← generalizeExceptFVar gCopy.mvarId! args
   let toTag := tgts.filterMap (·.1) |>.zip hs
-  let gs ← rcasesContinue g {} #[] #[] (pats.zip vs).toList (finish (toTag := toTag))
-  pure (gs ++ auxGoals).toList
+  let gs ← rcasesContinue g' {} #[] #[] (pats.zip vs).toList (finish (toTag := toTag))
+  -- The rcases process is now done. Time to finish elaboration then collect and report on metavariables.
+  -- We disallow natural metavariables and collect the rest as goals.
+  Term.synthesizeSyntheticMVarsNoPostponing
+  let newMVars ← filterOldMVars (← getMVarsNoDelayed gCopy) mvarCounterSaved
+  logUnassignedAndAbort (← newMVars.filterM fun mvarId => return (← mvarId.getKind).isNatural)
+  let newMVars ← sortMVarIdsByIndex newMVars.toList
+  tagUntaggedGoals (← getMainTag) tagSuffix newMVars
+  unless ← occursCheck g gCopy do
+    throwTacticEx `rcases g "occurs check failed, goal appears in patterns or targets"
+  g.assign gCopy
+  pure (gs.toList ++ newMVars)
 
 /--
 The `obtain` tactic in the no-target case. Given a type `T`, create a goal `|- T` and
 and pattern match `T` against the given pattern. Returns the list of goals, with the assumed goal
 first followed by the goals produced by the pattern match.
 -/
-def obtainNone (pat : RCasesPatt) (ty : Syntax) (g : MVarId) : TermElabM (List MVarId) :=
-  Term.withSynthesize do
-    let ty ← Term.elabType ty
-    let g₁ ← mkFreshExprMVar (some ty)
-    let (v, g₂) ← (← g.assert (pat.name?.getD default) ty g₁).intro1
-    let gs ← rcasesCore g₂ {} #[] (.fvar v) #[] pat finish
-    pure (g₁.mvarId! :: gs.toList)
+def obtainNone (pat : RCasesPatt) (ty : Syntax) (g : MVarId) (tagSuffix : Name) : TacticM (List MVarId) := do
+  let mvarCounterSaved := (← getMCtx).mvarCounter
+  let ty ← Term.elabType ty
+  let g₁ ← mkFreshExprSyntheticOpaqueMVar ty
+  -- Make a copy like in `Lean.Elab.Tactic.RCases.rcases`
+  let gCopy ← mkFreshExprSyntheticOpaqueMVar (← g.getType) (← g.getTag)
+  let (v, g₂) ← (← gCopy.mvarId!.assert (pat.name?.getD default) ty g₁).intro1
+  let gs ← rcasesCore g₂ {} #[] (.fvar v) #[] pat finish
+  -- Finish elaborating.
+  -- We disallow natural metavariables and collect the rest as goals.
+  Term.synthesizeSyntheticMVarsNoPostponing
+  let newMVars ← filterOldMVars (← getMVarsNoDelayed gCopy) mvarCounterSaved
+  logUnassignedAndAbort (← newMVars.filterM fun mvarId => return (← mvarId.getKind).isNatural)
+  let newMVars ← sortMVarIdsByIndex newMVars.toList
+  tagUntaggedGoals (← getMainTag) tagSuffix newMVars
+  unless ← occursCheck g gCopy do
+    throwTacticEx `rcases g "occurs check failed, goal appears in patterns"
+  g.assign gCopy
+  pure (g₁.mvarId! :: gs.toList ++ newMVars)
 
 mutual
 variable [Monad m] [MonadQuotation m]
@@ -555,7 +579,7 @@ def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
     let tgts := tgts.getElems.map fun tgt =>
       (if tgt.raw[0].isNone then none else some ⟨tgt.raw[0][0]⟩, tgt.raw[1])
     let g ← getMainGoal
-    g.withContext do replaceMainGoal (← RCases.rcases tgts pat g)
+    g.withContext do replaceMainGoal (← RCases.rcases tgts pat g `rcases)
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.obtain] def evalObtain : Tactic := fun stx => do
@@ -567,11 +591,11 @@ def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
       let pat  := pat.typed? tk ty?
       let tgts := val.getElems.map fun val => (none, val.raw)
       let g ← getMainGoal
-      g.withContext do replaceMainGoal (← RCases.rcases tgts pat g)
+      g.withContext do replaceMainGoal (← RCases.rcases tgts pat g `obtain)
     else if let some ty := ty? then
       let pat := pat?.getD (RCasesPatt.one tk `this)
       let g ← getMainGoal
-      g.withContext do replaceMainGoal (← RCases.obtainNone pat ty g)
+      g.withContext do replaceMainGoal (← RCases.obtainNone pat ty g `obtain)
     else
       throwError "\
         `obtain` requires either an expected type or a value.\n\

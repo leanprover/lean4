@@ -74,6 +74,12 @@ example : True := by
   guard_hyp h : True; trivial
 
 example : True := by
+  obtain h | ⟨⟨⟩⟩ : ?ty ∨ False
+  case ty => exact True
+  · exact Or.inl trivial
+  guard_hyp h : True; trivial
+
+example : True := by
   obtain h | ⟨⟨⟩⟩ : True ∨ False := Or.inl trivial
   guard_hyp h : True; trivial
 

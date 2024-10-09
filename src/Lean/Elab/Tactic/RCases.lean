@@ -471,6 +471,7 @@ def rcases (tgts : Array (Option Ident × Syntax))
   -- We disallow natural metavariables and collect the rest as goals.
   Term.synthesizeSyntheticMVarsNoPostponing
   let newMVars ← filterOldMVars (← getMVarsNoDelayed gCopy) mvarCounterSaved
+  let newMVars := newMVars.filter (!gs.contains ·)
   logUnassignedAndAbort (← newMVars.filterM fun mvarId => return (← mvarId.getKind).isNatural)
   let newMVars ← sortMVarIdsByIndex newMVars.toList
   tagUntaggedGoals (← getMainTag) tacticName newMVars
@@ -492,17 +493,19 @@ def obtainNone (pat : RCasesPatt) (ty : Syntax) (g : MVarId) (tacticName : Name)
   let gCopy ← mkFreshExprSyntheticOpaqueMVar (← g.getType) (← g.getTag)
   let (v, g₂) ← (← gCopy.mvarId!.assert (pat.name?.getD default) ty g₁).intro1
   let gs ← rcasesCore g₂ {} #[] (.fvar v) #[] pat finish
+  let gs := g₁.mvarId! :: gs.toList
   -- Finish elaborating.
   -- We disallow natural metavariables and collect the rest as goals.
   Term.synthesizeSyntheticMVarsNoPostponing
   let newMVars ← filterOldMVars (← getMVarsNoDelayed gCopy) mvarCounterSaved
+  let newMVars := newMVars.filter (!gs.contains ·)
   logUnassignedAndAbort (← newMVars.filterM fun mvarId => return (← mvarId.getKind).isNatural)
   let newMVars ← sortMVarIdsByIndex newMVars.toList
   tagUntaggedGoals (← getMainTag) tacticName newMVars
   unless ← occursCheck g gCopy do
     throwTacticEx tacticName g "occurs check failed, goal appears in patterns"
   g.assign gCopy
-  pure (g₁.mvarId! :: gs.toList ++ newMVars)
+  pure (gs ++ newMVars)
 
 mutual
 variable [Monad m] [MonadQuotation m]

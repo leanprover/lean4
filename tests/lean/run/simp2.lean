@@ -4,7 +4,7 @@ def p (x : Prop) := x
  rfl
 
 theorem ex1 (x : Prop) (h : x) : p x := by
-  simp
+  simp (config := { implicitDefEqProofs := true })
   assumption
 
 /--
@@ -13,6 +13,17 @@ fun x h => id h
 -/
 #guard_msgs in
 #print ex1
+
+theorem ex1' (x : Prop) (h : x) : p x := by
+  simp (config := { implicitDefEqProofs := false })
+  assumption
+
+/--
+info: theorem ex1' : ∀ (x : Prop), x → p x :=
+fun x h => Eq.mpr (id (lemma1 x)) h
+-/
+#guard_msgs in
+#print ex1'
 
 theorem ex2 (x : Prop) (q : Prop → Prop) (h₁ : x) (h₂ : q x = x) : q x := by
   simp [h₂]

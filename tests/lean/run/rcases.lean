@@ -245,3 +245,27 @@ example (f : (n : Nat) → n = 1 → ∃ m, n = m) : False := by
   obtain ⟨m, hm⟩ := f n ?g1
   guard_target =ₛ False; sorry
   guard_target =ₛ n = 1; sorry
+
+/-!
+Occurs check
+-/
+/--
+error: tactic 'obtain' failed, occurs check failed, goal appears in patterns or targets
+case goal
+⊢ False ∨ False
+-/
+#guard_msgs in
+example : False ∨ False := by
+  refine ?goal
+  obtain _ | _ := ?goal
+
+def typeof {α : Sort _} (x : α) := α
+/--
+error: tactic 'obtain' failed, occurs check failed, goal appears in patterns
+case goal
+⊢ False ∨ False
+-/
+#guard_msgs in
+example : False ∨ False := by
+  refine ?goal
+  obtain _ | _ : typeof ?goal

@@ -442,7 +442,7 @@ Given a list of targets of the form `e` or `h : e`, and a pattern, match all the
 against the pattern. Returns the list of produced subgoals.
 -/
 def rcases (tgts : Array (Option Ident × Syntax))
-    (pat : RCasesPatt) (g : MVarId) (tagSuffix : Name) : TacticM (List MVarId) := do
+    (pat : RCasesPatt) (g : MVarId) (tacticName : Name) : TacticM (List MVarId) := do
   let mvarCounterSaved := (← getMCtx).mvarCounter
   let pats' ←
     match tgts.size with
@@ -473,9 +473,9 @@ def rcases (tgts : Array (Option Ident × Syntax))
   let newMVars ← filterOldMVars (← getMVarsNoDelayed gCopy) mvarCounterSaved
   logUnassignedAndAbort (← newMVars.filterM fun mvarId => return (← mvarId.getKind).isNatural)
   let newMVars ← sortMVarIdsByIndex newMVars.toList
-  tagUntaggedGoals (← getMainTag) tagSuffix newMVars
+  tagUntaggedGoals (← getMainTag) tacticName newMVars
   unless ← occursCheck g gCopy do
-    throwTacticEx `rcases g "occurs check failed, goal appears in patterns or targets"
+    throwTacticEx tacticName g "occurs check failed, goal appears in patterns or targets"
   g.assign gCopy
   pure (gs.toList ++ newMVars)
 
@@ -484,7 +484,7 @@ The `obtain` tactic in the no-target case. Given a type `T`, create a goal `|- T
 and pattern match `T` against the given pattern. Returns the list of goals, with the assumed goal
 first followed by the goals produced by the pattern match.
 -/
-def obtainNone (pat : RCasesPatt) (ty : Syntax) (g : MVarId) (tagSuffix : Name) : TacticM (List MVarId) := do
+def obtainNone (pat : RCasesPatt) (ty : Syntax) (g : MVarId) (tacticName : Name) : TacticM (List MVarId) := do
   let mvarCounterSaved := (← getMCtx).mvarCounter
   let ty ← Term.elabType ty
   let g₁ ← mkFreshExprSyntheticOpaqueMVar ty
@@ -498,9 +498,9 @@ def obtainNone (pat : RCasesPatt) (ty : Syntax) (g : MVarId) (tagSuffix : Name) 
   let newMVars ← filterOldMVars (← getMVarsNoDelayed gCopy) mvarCounterSaved
   logUnassignedAndAbort (← newMVars.filterM fun mvarId => return (← mvarId.getKind).isNatural)
   let newMVars ← sortMVarIdsByIndex newMVars.toList
-  tagUntaggedGoals (← getMainTag) tagSuffix newMVars
+  tagUntaggedGoals (← getMainTag) tacticName newMVars
   unless ← occursCheck g gCopy do
-    throwTacticEx `rcases g "occurs check failed, goal appears in patterns"
+    throwTacticEx tacticName g "occurs check failed, goal appears in patterns"
   g.assign gCopy
   pure (g₁.mvarId! :: gs.toList ++ newMVars)
 

@@ -131,7 +131,6 @@ It has the following properties:
 - Since it uses kernel reduction instead of elaboratior reduction, it ignores transparancy and can unfold everything.
 - While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,
   and once during kernel type checking), the `decide!` tactic reduces it exactly once.
-- When `decide!` is successful, the result is cached for the current module.
 -/
 @[builtin_tactic_parser] def decideBang := leading_parser
   nonReservedSymbol "decide!"

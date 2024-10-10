@@ -67,6 +67,7 @@ deriving instance SizeOf for PLift
 deriving instance SizeOf for ULift
 deriving instance SizeOf for Decidable
 deriving instance SizeOf for Fin
+deriving instance SizeOf for BitVec
 deriving instance SizeOf for UInt8
 deriving instance SizeOf for UInt16
 deriving instance SizeOf for UInt32

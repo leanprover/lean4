@@ -7,7 +7,7 @@ prelude
 import Init.WFTactics
 import Init.Data.Nat.Basic
 import Init.Data.Fin.Basic
-import Init.Data.UInt.Basic
+import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem

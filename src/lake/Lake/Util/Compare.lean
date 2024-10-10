@@ -64,7 +64,7 @@ instance : LawfulCmpEq Nat compare where
 
 instance : LawfulCmpEq UInt64 compare where
   eq_of_cmp h := eq_of_compareOfLessAndEq h
-  cmp_rfl := compareOfLessAndEq_rfl <| Nat.lt_irrefl _
+  cmp_rfl := compareOfLessAndEq_rfl <| UInt64.lt_irrefl _
 
 instance : LawfulCmpEq String compare where
   eq_of_cmp := eq_of_compareOfLessAndEq

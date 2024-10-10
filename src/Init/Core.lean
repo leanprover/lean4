@@ -1385,6 +1385,7 @@ gen_injective_theorems% Except
 gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
+gen_injective_theorems% BitVec
 
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id

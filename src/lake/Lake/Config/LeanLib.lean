@@ -64,6 +64,10 @@ The names of the library's root modules
 @[inline] def staticExportLibFile (self : LeanLib) : FilePath :=
   self.pkg.nativeLibDir / self.staticLibFileName.addExtension "export"
 
+/-- The path to the static fat library in the package's `libDir`. -/
+@[inline] def staticFatLibFile (self : LeanLib) : FilePath :=
+  self.pkg.nativeLibDir / nameToStaticLib s!"{self.config.libName}Fat"
+
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
   nameToSharedLib self.config.libName

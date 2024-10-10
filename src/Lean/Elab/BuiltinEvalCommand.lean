@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
 prelude
-import Lean.Util.CollectLevelParams
 import Lean.Util.CollectAxioms
-import Lean.Meta.Reduce
-import Lean.Elab.Eval
 import Lean.Elab.Deriving.Basic
+import Lean.Elab.MutualDef
 
 /-!
 # Implementation of `#eval` command
@@ -81,19 +79,12 @@ where
     return mkAppN m args
 
 private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorry := false) : TermElabM Unit := do
-  let value ← Term.levelMVarToParam (← instantiateMVars value)
-  let type ← inferType value
-  let us := collectLevelParams {} value |>.params
-  let decl := Declaration.defnDecl {
-    name        := declName
-    levelParams := us.toList
-    type        := type
-    value       := value
-    hints       := ReducibilityHints.opaque
-    safety      := DefinitionSafety.unsafe
-  }
-  Term.ensureNoUnassignedMVars decl
-  addAndCompile decl
+  -- Use the `elabMutualDef` machinery to be able to support `let rec`.
+  -- Hack: since we are using the `TermElabM` version, we can insert the `value` as a metavariable via `exprToSyntax`.
+  let defView := mkDefViewOfDef { isUnsafe := true }
+    (← `(Parser.Command.definition|
+          def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
+  Term.elabMutualDef #[] { header := "" } #[defView]
   unless allowSorry do
     let axioms ← collectAxioms declName
     if axioms.contains ``sorryAx then

@@ -177,3 +177,19 @@ info: hi
 error: ex
 -/
 #guard_msgs in #eval throwsEx
+
+/-!
+Let rec support (issue #2374)
+-/
+/-- info: 37 : Nat -/
+#guard_msgs in #eval
+  let rec bar : Nat := 1
+  37
+
+/-- info: 120 : Nat -/
+#guard_msgs in #eval
+  let rec fact (n : Nat) : Nat :=
+    match n with
+    | 0 => 1
+    | n' + 1 => n * fact n'
+  fact 5

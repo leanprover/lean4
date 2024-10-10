@@ -179,7 +179,7 @@ jobs:
 "
 
 /-- Lake package template identifier. -/
-inductive InitTemplate
+inductive InitTemplate where
 | std | exe | lib | math
 deriving Repr, DecidableEq
 

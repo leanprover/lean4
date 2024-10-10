@@ -682,7 +682,7 @@ def notElem [BEq α] (a : α) (as : List α) : Bool :=
 Unlike `elem`, this uses `=` instead of `==` and is suited for mathematical reasoning.
 * `a ∈ [x, y, z] ↔ a = x ∨ a = y ∨ a = z`
 -/
-inductive Mem (a : α) : List α → Prop
+inductive Mem (a : α) : List α → Prop where
   /-- The head of a list is a member: `a ∈ a :: as`. -/
   | head (as : List α) : Mem a (a::as)
   /-- A member of the tail of a list is a member of the list: `a ∈ l → a ∈ b :: l`. -/
@@ -882,7 +882,7 @@ instance [DecidableEq α] : DecidableRel (Subset : List α → List α → Prop)
 /-! ### Sublist and isSublist -/
 
 /-- `l₁ <+ l₂`, or `Sublist l₁ l₂`, says that `l₁` is a (non-contiguous) subsequence of `l₂`. -/
-inductive Sublist {α} : List α → List α → Prop
+inductive Sublist {α} : List α → List α → Prop where
   /-- the base case: `[]` is a sublist of `[]` -/
   | slnil : Sublist [] []
   /-- If `l₁` is a subsequence of `l₂`, then it is also a subsequence of `a :: l₂`. -/
@@ -1040,7 +1040,7 @@ Pairwise R [1, 2, 3] ↔ R 1 2 ∧ R 1 3 ∧ R 2 3
 For example if `R = (·≠·)` then it asserts `l` has no duplicates,
 and if `R = (·<·)` then it asserts that `l` is (strictly) sorted.
 -/
-inductive Pairwise : List α → Prop
+inductive Pairwise : List α → Prop where
   /-- All elements of the empty list are vacuously pairwise related. -/
   | nil : Pairwise []
   /-- `a :: l` is `Pairwise R` if `a` `R`-relates to every element of `l`,
@@ -1252,7 +1252,7 @@ theorem lookup_cons [BEq α] {k : α} :
 `Perm l₁ l₂` or `l₁ ~ l₂` asserts that `l₁` and `l₂` are permutations
 of each other. This is defined by induction using pairwise swaps.
 -/
-inductive Perm : List α → List α → Prop
+inductive Perm : List α → List α → Prop where
   /-- `[] ~ []` -/
   | nil : Perm [] []
   /-- `l₁ ~ l₂ → x::l₁ ~ x::l₂` -/

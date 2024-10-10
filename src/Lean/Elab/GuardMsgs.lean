@@ -40,7 +40,7 @@ private def messageToStringWithoutPos (msg : Message) : IO String := do
   return str
 
 /-- The decision made by a specification for a message. -/
-inductive SpecResult
+inductive SpecResult where
   /-- Capture the message and check it matches the docstring. -/
   | check
   /-- Drop the message and delete it. -/
@@ -49,7 +49,7 @@ inductive SpecResult
   | passthrough
 
 /-- The method to use when normalizing whitespace, after trimming. -/
-inductive WhitespaceMode
+inductive WhitespaceMode where
   /-- Exact equality. -/
   | exact
   /-- Equality after normalizing newlines into spaces. -/
@@ -58,7 +58,7 @@ inductive WhitespaceMode
   | lax
 
 /-- Method to use when combining multiple messages. -/
-inductive MessageOrdering
+inductive MessageOrdering where
   /-- Use the exact ordering of the produced messages. -/
   | exact
   /-- Sort the produced messages. -/

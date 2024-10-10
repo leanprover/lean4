@@ -8,7 +8,7 @@ import Lake.Util.Name
 namespace Lake
 
 /-- The type of keys in the Lake build store. -/
-inductive BuildKey
+inductive BuildKey where
 | moduleFacet (module : Name) (facet : Name)
 | packageFacet (package : Name) (facet : Name)
 | targetFacet (package : Name) (target : Name) (facet : Name)

@@ -6,7 +6,7 @@ Authors: Mac Malone
 namespace Lake
 
 /-- Lake configuration language identifier. -/
-inductive ConfigLang
+inductive ConfigLang where
 | lean | toml
 deriving Repr, DecidableEq
 

@@ -8,7 +8,7 @@ import Lean.Data.PrefixTree
 
 namespace Lean
 
-inductive NamePart
+inductive NamePart where
   | str (s : String)
   | num (n : Nat)
 

@@ -12,7 +12,7 @@ import Lean.Widget.InteractiveGoal
 namespace Lean.Widget
 open Lsp Server
 
-inductive StrictOrLazy (α β : Type) : Type
+inductive StrictOrLazy (α β : Type) : Type where
   | strict : α → StrictOrLazy α β
   | lazy : β → StrictOrLazy α β
   deriving Inhabited, RpcEncodable
@@ -93,7 +93,7 @@ that would effectively require reimplementing the (stateful, to keep track of in
 `Format.prettyM` algorithm.
 -/
 
-private inductive EmbedFmt
+private inductive EmbedFmt where
   /-- Nested tags denote `Info` objects in `infos`. -/
   | code (ctx : Elab.ContextInfo) (infos : RBMap Nat Elab.Info compare)
   /-- Nested text is ignored. -/

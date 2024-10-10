@@ -334,7 +334,7 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
     return Syntax.mkApp fnStx argStxs
 
 /-- Records how a particular argument to a function is delaborated, in non-explicit mode. -/
-inductive AppImplicitArg
+inductive AppImplicitArg where
   /-- An argument to skip, like an implicit argument. -/
   | skip
   /-- A regular argument. -/

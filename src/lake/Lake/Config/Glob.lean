@@ -12,7 +12,7 @@ open System (FilePath)
 namespace Lake
 
 /-- A specification of a set of module names. -/
-inductive Glob
+inductive Glob where
   /-- Selects just the specified module name. -/
   | one : Name → Glob
   /-- Selects all submodules of the specified module, but not the module itself. -/

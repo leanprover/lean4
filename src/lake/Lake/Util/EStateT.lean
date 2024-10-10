@@ -10,7 +10,7 @@ namespace Lake
 `EResult ε σ α` is equivalent to `Except ε α × σ`, but using a single
 combined inductive yields a more efficient data representation.
 -/
-inductive EResult (ε : Type u) (σ : Type v) (α : Type w) : Type max u v w
+inductive EResult (ε : Type u) (σ : Type v) (α : Type w) : Type max u v w where
 /-- A success value of type `α`, and a new state `σ`. -/
 | ok    : α → σ → EResult ε σ α
 /-- A failure value of type `ε`, and a new state `σ`. -/

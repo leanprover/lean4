@@ -44,7 +44,7 @@ A code action which calls all `@[hole_code_action]` code actions on each hole
 The return value of `findTactic?`.
 This is the syntax for which code actions will be triggered.
 -/
-inductive FindTacticResult
+inductive FindTacticResult where
   /-- The nearest enclosing tactic is a tactic, with the given syntax stack. -/
   | tactic : Syntax.Stack → FindTacticResult
   /-- The cursor is between tactics, and the nearest enclosing range is a tactic sequence.

@@ -1124,7 +1124,7 @@ The transitive closure `TransGen r` of a relation `r` is the smallest relation w
 transitive and contains `r`. `TransGen r a z` if and only if there exists a sequence
 `a r b r ... r z` of length at least 1 connecting `a` to `z`.
 -/
-inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
+inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop where
   /-- If `r a b` then `TransGen r a b`. This is the base case of the transitive closure. -/
   | single {a b} : r a b → TransGen r a b
   /-- The transitive closure is transitive. -/

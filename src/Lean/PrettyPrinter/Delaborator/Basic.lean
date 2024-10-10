@@ -267,7 +267,7 @@ def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
   let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
-inductive OmissionReason
+inductive OmissionReason where
   | deep
   | proof
   | maxSteps

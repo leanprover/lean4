@@ -52,7 +52,7 @@ That is, Lake ignores the `-` suffix.
 @[inline] def Manifest.version : StdVer := v!"1.1.0"
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
-inductive PackageEntryV6
+inductive PackageEntryV6 where
 | path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
     (inputRev? : Option String) (subDir? : Option FilePath)
@@ -62,7 +62,7 @@ deriving FromJson, ToJson, Inhabited
 The package source for an entry in the manifest.
 Describes exactly how Lake should materialize the package.
 -/
-inductive PackageEntrySrc
+inductive PackageEntrySrc where
   /--
   A local filesystem package. `dir` is relative to the package directory
   of the package containing the manifest.

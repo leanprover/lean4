@@ -14,13 +14,13 @@ def Attributes := RBMap String String compare
 instance : ToString Attributes := ⟨λ as => as.fold (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual
-inductive Element
+inductive Element where
 | Element
   (name : String)
   (attributes : Attributes)
   (content : Array Content)
 
-inductive Content
+inductive Content where
 | Element (element : Element)
 | Comment (comment : String)
 | Character (content : String)

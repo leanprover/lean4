@@ -11,7 +11,7 @@ open System
 namespace Lake
 
 /-- Information on what this job did. -/
-inductive JobAction
+inductive JobAction where
 /-- No information about this job's action is available. -/
 | unknown
 /-- Tried to replay a cached build action (set by `buildFileUnlessUpToDate`) -/

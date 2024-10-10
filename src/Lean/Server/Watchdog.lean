@@ -91,7 +91,7 @@ section Utils
     | crashed (e : IO.Error)
     | ioError (e : IO.Error)
 
-  inductive CrashOrigin
+  inductive CrashOrigin where
     | fileWorkerToClientForwarding
     | clientToFileWorkerForwarding
 

@@ -1646,7 +1646,7 @@ def Nat.ble : @& Nat → @& Nat → Bool
 An inductive definition of the less-equal relation on natural numbers,
 characterized as the least relation `≤` such that `n ≤ n` and `n ≤ m → n ≤ m + 1`.
 -/
-protected inductive Nat.le (n : Nat) : Nat → Prop
+protected inductive Nat.le (n : Nat) : Nat → Prop where
   /-- Less-equal is reflexive: `n ≤ n` -/
   | refl     : Nat.le n n
   /-- If `n ≤ m`, then `n ≤ m + 1`. -/

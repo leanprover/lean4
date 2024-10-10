@@ -16,7 +16,7 @@ open Lean
 namespace Lake.Toml
 
 /-- The manner in which a TOML key was declared. -/
-inductive KeyTy
+inductive KeyTy where
 /-- A key declared via `key = v`. -/
 | value
 /-- A key declared via `[key]`. -/

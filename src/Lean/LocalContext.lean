@@ -15,7 +15,7 @@ namespace Lean
 Whether a local declaration should be found by type class search, tactics, etc.
 and shown in the goal display.
 -/
-inductive LocalDeclKind
+inductive LocalDeclKind where
   /--
   Participates fully in type class search, tactics, and is shown even if inaccessible.
 

@@ -11,6 +11,7 @@ import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.MutualDef
 import Lean.Elab.DeclarationRange
+import Lean.Linter.Deprecated
 namespace Lean.Elab.Command
 
 open Meta
@@ -136,7 +137,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
-leading_parser "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
+leading_parser "inductive " >> declId >> optDeclSig >> optional (":=" <|> "where") >> many ctor
 leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor >> optDeriving
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView := do
@@ -167,6 +168,12 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
   let classes ← liftCoreM <| getOptDerivingClasses decl[6]
+  unless ctors.isEmpty || decl[3][0].isToken "where" do
+   -- https://github.com/leanprover/lean4/issues/5236 decided to deprecate all other variants
+    if Linter.getLinterValue Linter.linter.deprecated (← getOptions) then
+      withRef decl[0] <| withRef decl[3] <| logWarning <| .tagged ``Linter.deprecatedAttr "\
+        Variants other than 'inductive ... where' have been deprecated.\n\
+        You can disable this warning with 'set_option linter.deprecated false'."
   return {
     ref             := decl
     shortDeclName   := name

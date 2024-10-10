@@ -7,7 +7,7 @@ Authors: Mac Malone
 namespace Lake
 open Lean (Name)
 
-inductive CliError
+inductive CliError where
 /- CLI Errors -/
 | missingCommand
 | unknownCommand (cmd : String)

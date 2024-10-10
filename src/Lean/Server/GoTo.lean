@@ -13,7 +13,7 @@ namespace Lean.Server
 
 open Lsp
 
-inductive GoToKind
+inductive GoToKind where
   | declaration | definition | type
   deriving BEq, ToJson, FromJson
 

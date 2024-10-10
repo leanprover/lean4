@@ -25,7 +25,7 @@ namespace Lake
   s!"{name.toString false}-{System.Platform.target}.tar.gz"
 
 /-- A `String` pattern. Matches some subset of strings. -/
-inductive StrPat
+inductive StrPat where
 /--
 Matches a string that satisfies an arbitrary predicate
 (optionally identified by a `Name`).

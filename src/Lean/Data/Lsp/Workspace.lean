@@ -41,7 +41,7 @@ structure DidChangeWatchedFilesRegistrationOptions where
   watchers : Array FileSystemWatcher
   deriving FromJson, ToJson
 
-inductive FileChangeType
+inductive FileChangeType where
   | Created
   | Changed
   | Deleted

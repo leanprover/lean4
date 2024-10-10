@@ -18,7 +18,7 @@ the build.
 namespace Lake
 
 /-- The type of Lake's build info. -/
-inductive BuildInfo
+inductive BuildInfo where
 | moduleFacet (module : Module) (facet : Name)
 | packageFacet (package : Package) (facet : Name)
 | libraryFacet (lib : LeanLib) (facet : Name)

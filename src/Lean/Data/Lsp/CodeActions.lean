@@ -32,7 +32,7 @@ You can make your own code action kinds, the ones supported by LSP are:
 -/
 abbrev CodeActionKind := String
 
-inductive CodeActionTriggerKind
+inductive CodeActionTriggerKind where
   /-- Code actions were explicitly requested by the user or by an extension. -/
   | invoked
   /-- Code actions were requested automatically.

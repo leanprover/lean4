@@ -65,6 +65,7 @@ structure State where
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
+  postponedCompiles : Array Declaration := #[]
   deriving Nonempty
 
 /-- Context for the CoreM monad. -/
@@ -193,7 +194,7 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache, messages, infoState⟩ => ⟨env, next, ngen, trace, f cache, messages, infoState⟩
+  modify fun ⟨env, next, ngen, trace, cache, messages, infoState, pc⟩ => ⟨env, next, ngen, trace, f cache, messages, infoState, pc⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -436,6 +437,9 @@ register_builtin_option compiler.enableNew : Bool := {
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
+  if (← getEnv).isAsync then
+    modify fun s => { s with postponedCompiles := s.postponedCompiles.push decl }
+    return
   let opts ← getOptions
   let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
@@ -449,6 +453,12 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     throwError msg
   | Except.error ex =>
     throwKernelException ex
+
+def unlockAsync : CoreM Unit := do
+  modifyEnv (·.unlockAsync)
+  for decl in (← get).postponedCompiles do
+    compileDecl decl
+  modify fun s => { s with postponedCompiles := #[] }
 
 def compileDecls (decls : List Name) : CoreM Unit := do
   let opts ← getOptions

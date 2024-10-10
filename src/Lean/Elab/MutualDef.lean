@@ -1084,6 +1084,7 @@ where
             addPreDefinitions preDefs
             if let some async := async? then
               async.commitConst (← getEnv)
+            unlockAsync
             processDeriving headers
             if let some async := async? then
               (← async.checkAndCommitEnv (← getEnv) (← getOptions) (← readThe Core.Context).cancelTk? |>.toBaseIO) |> ofExceptKernelException

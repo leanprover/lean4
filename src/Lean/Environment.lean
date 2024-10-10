@@ -555,6 +555,9 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
     sigPromise, infoPromise, checkedEnvPromise
   }
 
+def isAsync (env : Environment) : Bool :=
+  env.asyncCtx?.isSome
+
 def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
 

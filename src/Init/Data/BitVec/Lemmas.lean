@@ -961,7 +961,7 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
   ext i
   simp
 
-theorem not_eq_iff_eq_not {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
+theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
   constructor
   · intro h
     rw [← h]

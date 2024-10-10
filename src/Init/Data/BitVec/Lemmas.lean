@@ -2088,11 +2088,11 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
       Nat.add_mod_mod]
     by_cases hx : x.toNat = 0
     · simp [hx]
-    · rw [show (_ - 1 % _) = _ by rw [Nat.mod_eq_of_lt (by omega)]]
-      rw [show _ + (_ - 1) = (x.toNat - 1) + 2^(w + 1) by omega]
-      rw [Nat.add_mod_right]
-      rw [show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
-      rw [show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
+    · rw [show (_ - 1 % _) = _ by rw [Nat.mod_eq_of_lt (by omega)],
+        show _ + (_ - 1) = (x.toNat - 1) + 2^(w + 1) by omega,
+        Nat.add_mod_right,
+        show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)],
+        show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
 
 /-! ### abs -/

@@ -65,6 +65,69 @@ builtin_simproc [bv_normalize] maxUlt (BitVec.ult (_ : BitVec _) (_ : BitVec _))
   else
     return .continue
 
+-- A specialised version of BitVec.neg_eq_not_add so it doesn't trigger on -constant
+builtin_simproc [bv_normalize] neg_eq_not_add (-(_ : BitVec _)) := fun e => do
+  let_expr Neg.neg typ _ val := e | return .continue
+  let_expr BitVec widthExpr := typ | return .continue
+  let some w ← getNatValue? widthExpr | return .continue
+  match ← getBitVecValue? val with
+  | some _ => return .continue
+  | none =>
+    let proof := mkApp2 (mkConst ``BitVec.neg_eq_not_add) (toExpr w) val
+    let expr ← mkAppM ``HAdd.hAdd #[← mkAppM ``Complement.complement #[val], (toExpr 1#w)]
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_add_const ((_ : BitVec _) + ((_ : BitVec _) + (_ : BitVec _))) :=
+  fun e => do
+    let_expr HAdd.hAdd _ _ _ _ exp1 rhs := e | return .continue
+    let_expr HAdd.hAdd _ _ _ _ exp2 exp3 := rhs | return .continue
+    let some ⟨w, exp1Val⟩ ←  getBitVecValue? exp1 | return .continue
+    let proofBuilder thm := mkApp4 (mkConst thm) (toExpr w) exp1 exp2 exp3
+    match ← getBitVecValue? exp2 with
+    | some ⟨w', exp2Val⟩ =>
+      if h : w = w' then
+        let newLhs := exp1Val + h ▸ exp2Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp3]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_left
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+    | none =>
+      let some ⟨w', exp3Val⟩ ← getBitVecValue? exp3 | return .continue
+      if h : w = w' then
+        let newLhs := exp1Val + h ▸ exp3Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp2]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_right
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+
+builtin_simproc [bv_normalize] bv_add_const' (((_ : BitVec _) + (_ : BitVec _)) + (_ : BitVec _)) :=
+  fun e => do
+    let_expr HAdd.hAdd _ _ _ _ lhs exp3 := e | return .continue
+    let_expr HAdd.hAdd _ _ _ _ exp1 exp2 := lhs | return .continue
+    let some ⟨w, exp3Val⟩ ←  getBitVecValue? exp3 | return .continue
+    let proofBuilder thm := mkApp4 (mkConst thm) (toExpr w) exp1 exp2 exp3
+    match ← getBitVecValue? exp1 with
+    | some ⟨w', exp1Val⟩ =>
+      if h : w = w' then
+        let newLhs := exp3Val + h ▸ exp1Val
+        -- TODO
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp2]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_left'
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+    | none =>
+      let some ⟨w', exp2Val⟩ ← getBitVecValue? exp2 | return .continue
+      if h : w = w' then
+        let newLhs := exp3Val + h ▸ exp2Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp1]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_right'
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+
 /--
 A pass in the normalization pipeline. Takes the current goal and produces a refined one or closes
 the goal fully, indicated by returning `none`.

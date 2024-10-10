@@ -73,5 +73,14 @@ example {x : BitVec 16} {i} {h} : BitVec.ofBool (x[i]'h) = x.extractLsb' i 1 := 
 example {x : BitVec 16} {i} {h} : x[i] = x.getLsbD i := by bv_normalize
 example {x y : BitVec 1} : x + y = x ^^^ y := by bv_normalize
 example {x y : BitVec 1} : x * y = x &&& y := by bv_normalize
-example {x y : BitVec 16} : x / 0 = 0 := by bv_normalize
-example {x y : BitVec 16} : x % 0 = x := by bv_normalize
+example {x : BitVec 16} : x / 0 = 0 := by bv_normalize
+example {x : BitVec 16} : x % 0 = x := by bv_normalize
+example {x : BitVec 16} : ~~~(-x) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(~~~x + 1#16) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(x + 1#16) = ~~~x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(1#16 + ~~~x) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(1#16 + x) = ~~~x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : (10 + x) + 2 = 12 + x := by bv_normalize
+example {x : BitVec 16} : (x + 10) + 2 = 12 + x := by bv_normalize
+example {x : BitVec 16} : 2 + (x + 10) = 12 + x := by bv_normalize
+example {x : BitVec 16} : 2 + (10 + x) = 12 + x := by bv_normalize

@@ -961,6 +961,15 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
   ext i
   simp
 
+theorem not_eq_iff_eq_not {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
+  constructor
+  · intro h
+    rw [← h]
+    simp
+  · intro h
+    rw [h]
+    simp
+
 @[simp] theorem getMsb_not {x : BitVec w} :
     (~~~x).getMsbD i = (decide (i < w) && !(x.getMsbD i)) := by
   simp only [getMsbD]
@@ -2024,7 +2033,7 @@ theorem negOne_eq_allOnes : -1#w = allOnes w := by
     have r : (2^w - 1) < 2^w := by omega
     simp [Nat.mod_eq_of_lt q, Nat.mod_eq_of_lt r]
 
-theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1 := by
+theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1#w := by
   apply eq_of_toNat_eq
   simp only [toNat_neg, ofNat_eq_ofNat, toNat_add, toNat_not, toNat_ofNat, Nat.add_mod_mod]
   congr
@@ -2069,6 +2078,22 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
   rcases x.msb with msb | msb <;> apply eq_of_toNat_eq
   · simp
   · by_cases h : x = 0#n <;> simp [h]
+
+theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
+  rcases w with _ | w
+  · apply Subsingleton.elim
+  · rw [BitVec.not_eq_iff_eq_not]
+    apply BitVec.eq_of_toNat_eq
+    simp only [BitVec.toNat_neg, BitVec.toNat_not, BitVec.toNat_add, BitVec.toNat_ofNat,
+      Nat.add_mod_mod]
+    by_cases hx : x.toNat = 0
+    · simp [hx]
+    · rw [show (_ - 1 % _) = _ by rw [Nat.mod_eq_of_lt (by omega)]]
+      rw [show _ + (_ - 1) = (x.toNat - 1) + 2^(w + 1) by omega]
+      rw [Nat.add_mod_right]
+      rw [show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
+      rw [show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
+      omega
 
 /-! ### abs -/
 

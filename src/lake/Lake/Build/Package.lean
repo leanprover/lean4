@@ -44,9 +44,9 @@ def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
     (self.preferReleaseBuild || -- GitHub release
-      !(self.scope.isEmpty -- no Reservoir
-        || (← getElanToolchain).isEmpty
-        || (← self.buildDir.pathExists)))
+      ((self.scope == "leanprover" || self.scope == "leanprover-community")
+        && !(← getElanToolchain).isEmpty
+        && !(← self.buildDir.pathExists))) -- Reservoir
   if shouldFetch then
     self.optBuildCache.fetch
   else

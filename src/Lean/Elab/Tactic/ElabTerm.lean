@@ -393,13 +393,18 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
               return ← blameDecideReductionFailure inst''
   return inst
 
-@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
+def evalDecideCore (bang : Bool) : TacticM Unit :=
   closeMainGoalUsing `decide fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let d ← instantiateMVars d
     -- Get instance from `d`
     let s := d.appArg!
+    let rflPrf ← mkEqRefl (toExpr true)
+    let prf := mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
+    if bang then
+      return prf
+
     -- Reduce the instance rather than `d` itself for diagnostics purposes.
     let r ← withAtLeastTransparency .default <| whnf s
     if r.isAppOf ``isTrue then
@@ -407,7 +412,6 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
       -- While we have a proof from reduction, we do not embed it in the proof term,
       -- and instead we let the kernel recompute it during type checking from the following more
       -- efficient term. The kernel handles the unification `e =?= true` specially.
-      let rflPrf ← mkEqRefl (toExpr true)
       return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
     else
       -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
@@ -461,6 +465,12 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := do
           {indentExpr s}\n\
           did not reduce to '{MessageData.ofConstName ``isTrue}' or '{MessageData.ofConstName ``isFalse}'.\n\n\
           {stuckMsg}{hint}"
+
+@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
+  evalDecideCore false
+
+@[builtin_tactic Lean.Parser.Tactic.decideBang] def evalDecideBang : Tactic := fun _ =>
+  evalDecideCore true
 
 private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do
   let auxName ← Term.mkAuxName baseName

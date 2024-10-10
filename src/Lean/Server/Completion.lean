@@ -778,6 +778,7 @@ private partial def isSyntheticTacticCompletion
   let hoverFilePos := fileMap.toPosition hoverPos
   let mut hoverLineIndentation := getIndentationAmount fileMap hoverFilePos.line
   if hoverFilePos.column < hoverLineIndentation then
+    -- Ignore trailing whitespace after the cursor
     hoverLineIndentation := hoverFilePos.column
   go hoverFilePos hoverLineIndentation cmdStx 0
 where
@@ -798,11 +799,21 @@ where
       for arg in stx.getArgs do
         if go hoverFilePos hoverLineIndentation arg wsBeforeArg then
           return true
+        -- We must account for the whitespace before an argument because the syntax nodes we use
+        -- to identify tactic blocks only start *after* the whitespace following a `by`, and we
+        -- want to provide tactic completions in that whitespace as well.
+        -- This method of computing whitespace assumes that there are no syntax nodes without tokens
+        -- after `by` and before the first proper tactic syntax.
         wsBeforeArg := arg.getTrailingSize
       return isCompletionInEmptyTacticBlock stx
         || isCompletionAfterSemicolon stx
         || isCompletionOnTacticBlockIndentation hoverFilePos hoverLineIndentation stx
     | _, _ =>
+      -- Empty tactic blocks typically lack ranges since they do not contain any tokens.
+      -- We do not perform more precise range checking in this case because we assume that empty
+      -- tactic blocks always occur within other syntax with ranges that let us narrow down the
+      -- search to the degree that we can be sure that the cursor is indeed in this empty tactic
+      -- block.
       return isCompletionInEmptyTacticBlock stx
 
   isCompletionOnTacticBlockIndentation
@@ -812,6 +823,8 @@ where
       : Bool := Id.run do
     let isCursorInIndentation := hoverFilePos.column <= hoverLineIndentation
     if ! isCursorInIndentation then
+      -- Do not trigger tactic completion at the end of a properly indented tactic block line since
+      -- that line might already have entered term mode by that point.
       return false
     let some tacticsNode := getTacticsNode? stx
       | return false
@@ -819,6 +832,9 @@ where
       | return false
     let firstTacticLine := fileMap.toPosition firstTacticPos |>.line
     let firstTacticIndentation := getIndentationAmount fileMap firstTacticLine
+    -- This ensures that we do not accidentally provide tactic completions in a term mode proof -
+    -- tactic completions are only provided at the same indentation level as the other tactics in
+    -- that tactic block.
     let isCursorInTacticBlock := hoverLineIndentation == firstTacticIndentation
     return isCursorInProperWhitespace && isCursorInTacticBlock
 
@@ -826,6 +842,8 @@ where
     let some tacticsNode := getTacticsNode? stx
       | return false
     let tactics := tacticsNode.getArgs
+    -- We want to provide completions in the case of `skip;<CURSOR>`, so the cursor must only be on
+    -- whitespace, not in proper whitespace.
     return isCursorOnWhitspace && tactics.any fun tactic => Id.run do
       let some tailPos := tactic.getTailPos?
         | return false
@@ -871,8 +889,12 @@ where
     match i with
   | .context ctx i =>
     match ctx with
-    | .commandCtx ctxInfo => some { ctxInfo with }
-    | _ => go i
+    | .commandCtx ctxInfo =>
+      some { ctxInfo with }
+    | _ =>
+      -- This shouldn't happen (see the `PartialContextInfo` docstring),
+      -- but let's continue searching regardless
+      go i
   | .node _ cs =>
     cs.findSome? go
   | .hole .. =>
@@ -887,6 +909,7 @@ private def findSyntheticTacticCompletion?
   let ctx ← findOutermostContextInfo? infoTree
   if ! isSyntheticTacticCompletion fileMap hoverPos cmdStx then
     none
+  -- Neither `HoverInfo` nor the syntax in `.tactic` are important for tactic completion.
   return (HoverInfo.after, ctx, .tactic .missing)
 
 private def findCompletionInfoAt?

@@ -1,6 +1,17 @@
 prelude
 import Init.Notation
 
+/-
+This test is a bit brittle because it checks that tactic completion works correctly for all
+tactic completions that we get in `prelude` + `import Init.Notation`.
+When changing the docstring of any of these tactics, this test will break.
+
+If you didn't touch the elaboration infrastructure or the language server, then you can safely
+assume that this test is still correct and unbreak it by overwriting
+`completionTactics.lean.expected.out` with `completionTactics.lean.produced.out` after running
+this test.
+-/
+
 /-- A docstring -/
 syntax (name := skip) "skip" : tactic
 

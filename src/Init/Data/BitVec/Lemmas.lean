@@ -2082,7 +2082,7 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
 theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
   rcases w with _ | w
   · apply Subsingleton.elim
-  · rw [BitVec.not_eq_iff_eq_not]
+  · rw [BitVec.not_eq_comm]
     apply BitVec.eq_of_toNat_eq
     simp only [BitVec.toNat_neg, BitVec.toNat_not, BitVec.toNat_add, BitVec.toNat_ofNat,
       Nat.add_mod_mod]

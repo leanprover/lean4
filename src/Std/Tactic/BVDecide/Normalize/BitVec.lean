@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.BitVec.Bitblast
+import Init.Data.AC
 import Std.Tactic.BVDecide.Normalize.Bool
 import Std.Tactic.BVDecide.Normalize.Canonicalize
 
@@ -18,7 +19,6 @@ namespace Normalize
 
 section Reduce
 
-attribute [bv_normalize] BitVec.neg_eq_not_add
 attribute [bv_normalize] BitVec.sub_toAdd
 
 @[bv_normalize]
@@ -109,22 +109,56 @@ theorem BitVec.not_add (a : BitVec w) : ~~~a + a = (-1#w) := by
 
 @[bv_normalize]
 theorem BitVec.add_neg (a : BitVec w) : a + (~~~a + 1#w) = 0#w := by
-  rw [← BitVec.ofNat_eq_ofNat]
   rw [← BitVec.neg_eq_not_add]
   rw [← BitVec.sub_toAdd]
   rw [BitVec.sub_self]
 
 @[bv_normalize]
+theorem BitVec.add_neg' (a : BitVec w) : a + (1#w + ~~~a) = 0#w := by
+  rw [BitVec.add_comm 1#w (~~~a)]
+  rw [BitVec.add_neg]
+
+@[bv_normalize]
 theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
-  rw [← BitVec.ofNat_eq_ofNat]
   rw [← BitVec.neg_eq_not_add]
   rw [BitVec.add_comm]
   rw [← BitVec.sub_toAdd]
   rw [BitVec.sub_self]
 
 @[bv_normalize]
+theorem BitVec.neg_add' (a : BitVec w) : (1#w + ~~~a) + a = 0#w := by
+  rw [BitVec.add_comm 1#w (~~~a)]
+  rw [BitVec.neg_add]
+
+@[bv_normalize]
+theorem BitVec.not_neg (x : BitVec w) : ~~~(~~~x + 1#w) = x + -1#w := by
+  rw [← BitVec.neg_eq_not_add x]
+  rw [_root_.BitVec.not_neg]
+
+@[bv_normalize]
+theorem BitVec.not_neg' (x : BitVec w) : ~~~(1#w + ~~~x) = x + -1#w := by
+  rw [BitVec.add_comm 1#w (~~~x)]
+  rw [BitVec.not_neg]
+
+@[bv_normalize]
+theorem BitVec.not_neg'' (x : BitVec w) : ~~~(x + 1#w) = ~~~x + -1#w := by
+  rw [← BitVec.not_not (b := x)]
+  rw [BitVec.not_neg]
+  simp
+
+@[bv_normalize]
+theorem BitVec.not_neg''' (x : BitVec w) : ~~~(1#w + x) = ~~~x + -1#w := by
+  rw [BitVec.add_comm 1#w x]
+  rw [BitVec.not_neg'']
+
+@[bv_normalize]
 theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
   rw [BitVec.mul_two]
+
+theorem BitVec.add_const_left (a b c : BitVec w) : a + (b + c) = (a + b) + c := by ac_rfl
+theorem BitVec.add_const_right (a b c : BitVec w) : a + (b + c) = (a + c) + b := by ac_rfl
+theorem BitVec.add_const_left' (a b c : BitVec w) : (a + b) + c = (a + c) + b := by ac_rfl
+theorem BitVec.add_const_right' (a b c : BitVec w) : (a + b) + c = (b + c) + a := by ac_rfl
 
 @[bv_normalize]
 theorem BitVec.zero_sshiftRight : BitVec.sshiftRight 0#w a = 0#w := by

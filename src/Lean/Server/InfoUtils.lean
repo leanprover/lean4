@@ -172,11 +172,6 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursDirectlyBefore (i : Info) (hoverPos : String.Pos) : Bool := Id.run do
-  let some tailPos := i.tailPos?
-    | return false
-  return tailPos == hoverPos
-
 def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
   let headPos ← i.pos?
   let tailPos ← i.tailPos?
@@ -359,26 +354,28 @@ structure GoalsAtResult where
     where to show intermediate states by calling `withTacticInfoContext`) -/
 partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult :=
   let gs := t.collectNodesBottomUp fun ctx i cs gs => Id.run do
-    if let Info.ofTacticInfo ti := i then
-      if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
-        let trailSize := i.stx.getTrailingSize
-        -- show info at EOF even if strictly outside token + trail
-        let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
-        -- include at least one trailing character (see also `priority` below)
-        if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
-          -- overwrite bottom-up results according to "innermost" heuristics documented above
-          if gs.isEmpty || hoverPos ≥ tailPos && gs.all (·.indented) then
-            return [{
-              ctxInfo := ctx
-              tacticInfo := ti
-              useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
-              -- consider every position unindented after an empty `by` to support "hanging" `by` uses
-              indented := (text.toPosition pos).column > (text.toPosition hoverPos).column && !isEmptyBy ti.stx
-              -- use goals just before cursor as fall-back only
-              -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
-              -- as there is no state on `)`
-              priority := if hoverPos.byteIdx == tailPos.byteIdx + trailSize then 0 else 1
-            }]
+    let Info.ofTacticInfo ti := i
+      | return gs
+    let (some pos, some tailPos) := (i.pos?, i.tailPos?)
+      | return gs
+    let trailSize := i.stx.getTrailingSize
+    -- show info at EOF even if strictly outside token + trail
+    let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
+    -- include at least one trailing character (see also `priority` below)
+    if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
+      -- overwrite bottom-up results according to "innermost" heuristics documented above
+      if gs.isEmpty || hoverPos ≥ tailPos && gs.all (·.indented) then
+        return [{
+          ctxInfo := ctx
+          tacticInfo := ti
+          useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
+          -- consider every position unindented after an empty `by` to support "hanging" `by` uses
+          indented := (text.toPosition pos).column > (text.toPosition hoverPos).column && !isEmptyBy ti.stx
+          -- use goals just before cursor as fall-back only
+          -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
+          -- as there is no state on `)`
+          priority := if hoverPos.byteIdx == tailPos.byteIdx + trailSize then 0 else 1
+        }]
     return gs
   let maxPrio? := gs.map (·.priority) |>.max?
   gs.filter (some ·.priority == maxPrio?)

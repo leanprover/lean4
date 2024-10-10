@@ -313,7 +313,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtin_tactic skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtin_tactic unknown] def evalUnknown : Tactic := fun stx => do
-  addCompletionInfo <| CompletionInfo.tactic stx (← getGoals)
+  addCompletionInfo <| CompletionInfo.tactic stx
 
 @[builtin_tactic failIfSuccess] def evalFailIfSuccess : Tactic := fun stx =>
   Term.withoutErrToSorry <| withoutRecover do

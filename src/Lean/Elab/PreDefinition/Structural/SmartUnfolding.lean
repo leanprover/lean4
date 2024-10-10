@@ -15,7 +15,7 @@ partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recArgPos : Nat) :
   return { preDef with
     declName  := mkSmartUnfoldingNameFor preDef.declName
     value     := (← visit preDef.value)
-    modifiers := {}
+    modifiers := default
   }
 where
   /--

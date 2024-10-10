@@ -1,8 +1,8 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 19, "character": 20}}
+ "position": {"line": 20, "character": 20}}
 {"items": [], "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 22, "character": 21}}
+ "position": {"line": 23, "character": 21}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -11,7 +11,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -22,7 +22,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -33,7 +33,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -44,7 +44,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -55,14 +55,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -73,7 +73,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -84,14 +84,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}},
+     "position": {"line": 23, "character": 21}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -99,10 +99,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 22, "character": 21}}}}],
+     "position": {"line": 23, "character": 21}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 25, "character": 24}}
+ "position": {"line": 26, "character": 24}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -111,7 +111,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -122,7 +122,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -133,7 +133,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -144,7 +144,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -155,14 +155,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -173,7 +173,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -184,14 +184,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}},
+     "position": {"line": 26, "character": 24}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -199,13 +199,13 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 25, "character": 24}}}}],
+     "position": {"line": 26, "character": 24}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 28, "character": 25}}
+ "position": {"line": 29, "character": 25}}
 {"items": [], "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 31, "character": 26}}
+ "position": {"line": 32, "character": 26}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -214,7 +214,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -225,7 +225,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -236,7 +236,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -247,7 +247,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -258,14 +258,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -276,7 +276,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -287,14 +287,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}},
+     "position": {"line": 32, "character": 26}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -302,10 +302,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 31, "character": 26}}}}],
+     "position": {"line": 32, "character": 26}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 34, "character": 27}}
+ "position": {"line": 35, "character": 27}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -314,7 +314,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -325,7 +325,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -336,7 +336,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -347,7 +347,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -358,14 +358,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -376,7 +376,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -387,14 +387,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}},
+     "position": {"line": 35, "character": 27}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -402,10 +402,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 34, "character": 27}}}}],
+     "position": {"line": 35, "character": 27}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 39, "character": 7}}
+ "position": {"line": 40, "character": 7}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -414,7 +414,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -425,7 +425,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -436,7 +436,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -447,7 +447,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -458,14 +458,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -476,7 +476,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -487,14 +487,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}},
+     "position": {"line": 40, "character": 7}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -502,10 +502,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 39, "character": 7}}}}],
+     "position": {"line": 40, "character": 7}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 43, "character": 2}}
+ "position": {"line": 44, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -514,7 +514,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -525,7 +525,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -536,7 +536,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -547,7 +547,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -558,14 +558,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -576,7 +576,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -587,14 +587,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}},
+     "position": {"line": 44, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -602,10 +602,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 43, "character": 2}}}}],
+     "position": {"line": 44, "character": 2}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 48, "character": 2}}
+ "position": {"line": 49, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -614,7 +614,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -625,7 +625,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -636,7 +636,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -647,7 +647,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -658,14 +658,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -676,7 +676,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -687,14 +687,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}},
+     "position": {"line": 49, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -702,10 +702,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 48, "character": 2}}}}],
+     "position": {"line": 49, "character": 2}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 52, "character": 2}}
+ "position": {"line": 53, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -714,7 +714,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -725,7 +725,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -736,7 +736,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -747,7 +747,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -758,14 +758,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -776,7 +776,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -787,14 +787,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}},
+     "position": {"line": 53, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -802,10 +802,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 52, "character": 2}}}}],
+     "position": {"line": 53, "character": 2}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 58, "character": 4}}
+ "position": {"line": 59, "character": 4}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -814,7 +814,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -825,7 +825,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -836,7 +836,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -847,7 +847,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -858,14 +858,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -876,7 +876,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -887,14 +887,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}},
+     "position": {"line": 59, "character": 4}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -902,10 +902,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 58, "character": 4}}}}],
+     "position": {"line": 59, "character": 4}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 63, "character": 2}}
+ "position": {"line": 64, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -914,7 +914,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -925,7 +925,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -936,7 +936,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -947,7 +947,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -958,14 +958,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -976,7 +976,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -987,14 +987,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}},
+     "position": {"line": 64, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1002,10 +1002,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 63, "character": 2}}}}],
+     "position": {"line": 64, "character": 2}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 69, "character": 4}}
+ "position": {"line": 70, "character": 4}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -1014,7 +1014,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -1025,7 +1025,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -1036,7 +1036,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -1047,7 +1047,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -1058,14 +1058,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -1076,7 +1076,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -1087,14 +1087,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}},
+     "position": {"line": 70, "character": 4}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1102,10 +1102,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 69, "character": 4}}}}],
+     "position": {"line": 70, "character": 4}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 75, "character": 2}}
+ "position": {"line": 76, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -1114,7 +1114,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -1125,7 +1125,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -1136,7 +1136,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -1147,7 +1147,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -1158,14 +1158,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -1176,7 +1176,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -1187,14 +1187,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}},
+     "position": {"line": 76, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1202,13 +1202,13 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 75, "character": 2}}}}],
+     "position": {"line": 76, "character": 2}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 80, "character": 4}}
+ "position": {"line": 81, "character": 4}}
 {"items": [], "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 85, "character": 2}}
+ "position": {"line": 86, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -1217,7 +1217,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -1228,7 +1228,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -1239,7 +1239,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -1250,7 +1250,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -1261,14 +1261,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -1279,7 +1279,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -1290,14 +1290,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}},
+     "position": {"line": 86, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1305,10 +1305,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 85, "character": 2}}}}],
+     "position": {"line": 86, "character": 2}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 90, "character": 4}}
+ "position": {"line": 91, "character": 4}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -1317,7 +1317,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -1328,7 +1328,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -1339,7 +1339,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -1350,7 +1350,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -1361,14 +1361,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -1379,7 +1379,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -1390,14 +1390,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}},
+     "position": {"line": 91, "character": 4}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1405,10 +1405,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 90, "character": 4}}}}],
+     "position": {"line": 91, "character": 4}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 95, "character": 2}}
+ "position": {"line": 96, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -1417,7 +1417,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -1428,7 +1428,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -1439,7 +1439,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -1450,7 +1450,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -1461,14 +1461,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -1479,7 +1479,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -1490,14 +1490,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}},
+     "position": {"line": 96, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1505,10 +1505,10 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 95, "character": 2}}}}],
+     "position": {"line": 96, "character": 2}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 101, "character": 4}}
+ "position": {"line": 102, "character": 4}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -1517,7 +1517,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -1528,7 +1528,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -1539,7 +1539,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -1550,7 +1550,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -1561,14 +1561,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -1579,7 +1579,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -1590,14 +1590,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}},
+     "position": {"line": 102, "character": 4}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1605,13 +1605,13 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 101, "character": 4}}}}],
+     "position": {"line": 102, "character": 4}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 107, "character": 2}}
+ "position": {"line": 108, "character": 2}}
 {"items": [], "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 111, "character": 2}}
+ "position": {"line": 112, "character": 2}}
 {"items":
  [{"sortText": "0",
    "label": "exact",
@@ -1620,7 +1620,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "1",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
@@ -1631,7 +1631,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "2",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
@@ -1642,7 +1642,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "3",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
@@ -1653,7 +1653,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "4",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
@@ -1664,14 +1664,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "5",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "6",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
@@ -1682,7 +1682,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "7",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
@@ -1693,14 +1693,14 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "8",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}},
+     "position": {"line": 112, "character": 2}}}},
   {"sortText": "9",
    "label": "skip",
    "kind": 14,
@@ -1708,5 +1708,5 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 111, "character": 2}}}}],
+     "position": {"line": 112, "character": 2}}}}],
  "isIncomplete": true}

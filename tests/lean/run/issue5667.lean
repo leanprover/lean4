@@ -27,6 +27,7 @@ info: optimize.eq_def :
 #check optimize.eq_def
 
 
+/-
 /--
 info: optimize.eq_2 (e1 : Expr) :
   ∀ (bop : Unit) (i : BitVec 32), optimize e1 = Expr.const i → optimize (Expr.op bop e1) = Expr.op bop (Expr.const 0)
@@ -42,8 +43,8 @@ def optimize2 : Expr → Expr
     | _, _ => .const 0
 termination_by e => e
 
-set_option trace.Elab.definition.structural.eqns true
-set_option trace.Elab.definition.wf.eqns true
 
 #check optimize2.eq_unfold
 #check optimize2.eq_2
+
+-/

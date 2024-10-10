@@ -26,6 +26,12 @@ structure EqnInfo extends EqnInfoCore where
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
+def injections? (mvarId : MVarId) : MetaM (Option InjectionsResult) := do
+  match ← injections mvarId with
+  | .solved => return InjectionsResult.solved
+  | .subgoal mvarId' ns =>
+    if mvarId != mvarId' then return some (.subgoal mvarId' ns) else return none
+
 private partial def mkProof (declName : Name) (unfold : MVarId → MetaM MVarId) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
@@ -47,15 +53,20 @@ where
       go mvarId
     else if let some mvarId ← simpIf? mvarId then
       go mvarId
+    else if let some res ← injections? mvarId then
+      if let .subgoal mvarId _ := res then
+        go mvarId
+      else
+        return
     else match (← simpTargetStar mvarId {} (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go mvarId
       | TacticResultCNM.noChange =>
         if let some mvarId ← deltaRHS? mvarId declName then
           go mvarId
-        else if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
         else if let some mvarIds ← splitTarget? mvarId then
+          mvarIds.forM go
+        else if let some mvarIds ← casesOnStuckLHS? mvarId then
           mvarIds.forM go
         else
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"

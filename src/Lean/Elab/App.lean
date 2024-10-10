@@ -777,7 +777,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
   forallTelescopeReducing elimType fun xs type => do
     let motive  := type.getAppFn
     let motiveArgs := type.getAppArgs
-    unless motive.isFVar do
+    unless motive.isFVar && motiveArgs.size > 0 do
       throwError "unexpected eliminator resulting type{indentExpr type}"
     let motiveType ← inferType motive
     forallTelescopeReducing motiveType fun motiveParams motiveResultType => do

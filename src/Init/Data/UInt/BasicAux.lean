@@ -7,6 +7,13 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.BitVec.BasicAux
 
+/-!
+This module exists to provide the very basic `UInt8` etc. definitions required for
+`Init.Data.Char.Basic` and `Init.Data.Array.Basic`. These are very important as they are used in
+meta code that is then (transitively) used in `Init.Data.UInt.Basic` and `Init.Data.BitVec.Basic`.
+This file thus breaks the import cycle that would be created by this dependency.
+-/
+
 open Nat
 
 def UInt8.val (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin

@@ -11,10 +11,10 @@ import Init.Data.Int.Bitwise
 import Init.Data.BitVec.BasicAux
 
 /-!
-We define bitvectors. We choose the `Fin` representation over others for its relative efficiency
-(Lean has special support for `Nat`), alignment with `UIntXY` types which are also represented
-with `Fin`, and the fact that bitwise operations on `Fin` are already defined. Some other possible
-representations are `List Bool`, `{ l : List Bool // l.length = w }`, `Fin w → Bool`.
+We define the basic algebraic structure of bitvectors. We choose the `Fin` representation over
+others for its relative efficiency (Lean has special support for `Nat`),  and the fact that bitwise
+operations on `Fin` are already defined. Some other possible representations are `List Bool`,
+`{ l : List Bool // l.length = w }`, `Fin w → Bool`.
 
 We define many of the bitvector operations from the
 [`QF_BV` logic](https://smtlib.cs.uiowa.edu/logics-all.shtml#QF_BV).

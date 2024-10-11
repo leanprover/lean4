@@ -8,6 +8,11 @@ import Init.Data.Fin.Basic
 
 set_option linter.missingDocs true
 
+/-!
+This module exists to provide the very basic `BitVec` definitions required for
+`Init.Data.UInt.BasicAux`.
+-/
+
 namespace BitVec
 
 section Nat

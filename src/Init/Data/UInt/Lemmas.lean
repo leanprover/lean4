@@ -45,21 +45,13 @@ theorem lt_def {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
 
 @[simp] protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
 
-protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := by
-  simp only [le_def, lt_def]
-  apply BitVec.le_trans
+protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := BitVec.le_trans
 
-protected theorem lt_trans {a b c : $typeName} : a < b → b < c → a < c := by
-  simp only [le_def, lt_def]
-  apply BitVec.lt_trans
+protected theorem lt_trans {a b c : $typeName} : a < b → b < c → a < c := BitVec.lt_trans
 
-protected theorem le_total (a b : $typeName) : a ≤ b ∨ b ≤ a := by
-  simp only [le_def, lt_def]
-  apply BitVec.le_total
+protected theorem le_total (a b : $typeName) : a ≤ b ∨ b ≤ a := BitVec.le_total ..
 
-protected theorem lt_asymm {a b : $typeName} : a < b → ¬ b < a := by
-  simp only [le_def, lt_def]
-  apply BitVec.lt_asymm
+protected theorem lt_asymm {a b : $typeName} : a < b → ¬ b < a := BitVec.lt_asymm
 
 protected theorem toBitVec_eq_of_eq {a b : $typeName} (h : a = b) : a.toBitVec = b.toBitVec := h ▸ rfl
 

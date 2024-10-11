@@ -62,14 +62,4 @@ LEAN_EXPORT void check_interrupted();
    be a fatal error.
 */
 LEAN_EXPORT void check_system(char const * component_name, bool do_check_interrupted = false);
-
-constexpr unsigned g_small_sleep = 10;
-
-/**
-   \brief Put the current thread to sleep for \c ms milliseconds.
-
-   \remark check_interrupted is invoked every \c step_ms milliseconds;
-*/
-LEAN_EXPORT void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
-LEAN_EXPORT inline void sleep_for(chrono::milliseconds const & ms) { sleep_for(ms.count(), 10); }
 }

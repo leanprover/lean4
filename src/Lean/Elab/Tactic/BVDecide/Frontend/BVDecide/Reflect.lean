@@ -91,16 +91,15 @@ where
   | .getLsbD (w := w) expr idx =>
     mkApp3 (mkConst ``BVPred.getLsbD) (toExpr w) (toExpr expr) (toExpr idx)
 
-
-instance [ToExpr α] : ToExpr (BoolExpr α) where
+instance : ToExpr BVLogicalExpr where
   toExpr x := go x
-  toTypeExpr := mkApp (mkConst ``BoolExpr) (toTypeExpr α)
+  toTypeExpr := (mkConst ``BVLogicalExpr)
 where
-  go : (BoolExpr α) → Expr
-  | .literal lit => mkApp2 (mkConst ``BoolExpr.literal) (toTypeExpr α) (toExpr lit)
-  | .const b => mkApp2 (mkConst ``BoolExpr.const) (toTypeExpr α) (toExpr b)
-  | .not x => mkApp2 (mkConst ``BoolExpr.not) (toTypeExpr α) (go x)
-  | .gate g x y => mkApp4 (mkConst ``BoolExpr.gate) (toTypeExpr α) (toExpr g) (go x) (go y)
+  go : BVLogicalExpr → Expr
+  | .literal lit => mkApp (mkConst ``BVLogicalExpr.literal) (toExpr lit)
+  | .const b => mkApp (mkConst ``BVLogicalExpr.const) (toExpr b)
+  | .not x => mkApp (mkConst ``BVLogicalExpr.not) (go x)
+  | .gate g x y => mkApp3 (mkConst ``BVLogicalExpr.gate) (toExpr g) (go x) (go y)
 
 
 open Lean.Meta

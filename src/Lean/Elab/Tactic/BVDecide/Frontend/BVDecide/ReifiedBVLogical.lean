@@ -48,18 +48,18 @@ partial def of (t : Expr) : M (Option ReifiedBVLogical) := do
   match_expr t with
   | Bool.true =>
     let boolExpr := .const true
-    let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr Bool.true)
+    let expr := mkApp (mkConst ``BVLogicalExpr.const) (toExpr Bool.true)
     let proof := return mkRefl (mkConst ``Bool.true)
     return some ⟨boolExpr, proof, expr⟩
   | Bool.false =>
     let boolExpr := .const false
-    let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr Bool.false)
+    let expr := mkApp (mkConst ``BVLogicalExpr.const) (toExpr Bool.false)
     let proof := return mkRefl (mkConst ``Bool.false)
     return some ⟨boolExpr, proof, expr⟩
   | Bool.not subExpr =>
     let some sub ← of subExpr | return none
     let boolExpr := .not sub.bvExpr
-    let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
+    let expr := mkApp (mkConst ``BVLogicalExpr.not) sub.expr
     let proof := do
       let subEvalExpr ← mkEvalExpr sub.expr
       let subProof ← sub.evalsAtAtoms
@@ -80,9 +80,8 @@ where
     let some rhs ← of rhsExpr | return none
     let boolExpr := .gate  gate lhs.bvExpr rhs.bvExpr
     let expr :=
-      mkApp4
-        (mkConst ``BoolExpr.gate)
-        (mkConst ``BVPred)
+      mkApp3
+        (mkConst ``BVLogicalExpr.gate)
         (toExpr gate)
         lhs.expr
         rhs.expr
@@ -101,7 +100,7 @@ where
   goPred (t : Expr) : M (Option ReifiedBVLogical) := do
     let some bvPred ← ReifiedBVPred.of t | return none
     let boolExpr := .literal bvPred.bvPred
-    let expr := mkApp2 (mkConst ``BoolExpr.literal) (mkConst ``BVPred) bvPred.expr
+    let expr := mkApp (mkConst ``BVLogicalExpr.literal) bvPred.expr
     let proof := bvPred.evalsAtAtoms
     return some ⟨boolExpr, proof, expr⟩
 

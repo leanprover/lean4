@@ -6,8 +6,15 @@ Authors: Henrik Böving
 prelude
 import Init.Data.Hashable
 import Init.Data.BitVec
-import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
+import Init.Notation
+import Init.Data.Bool
 
+-- TODO
+
+/-!
+This module contains the definition of a generic boolean substructure for SMT problems with
+`BoolExpr`. For verification purposes `BoolExpr.Sat` and `BoolExpr.Unsat` are provided.
+-/
 /-!
 This module contains the definition of the `BitVec` fragment that `bv_decide` internally operates
 on as `BVLogicalExpr`. The preprocessing steps of `bv_decide` reduce all supported `BitVec`
@@ -16,6 +23,26 @@ operations to the ones provided in this file. For verification purposes `BVLogic
 -/
 
 namespace Std.Tactic.BVDecide
+
+inductive Gate
+  | and
+  | xor
+  | beq
+
+namespace Gate
+
+def toString : Gate → String
+  | and => "&&"
+  | xor => "^^"
+  | beq => "=="
+
+def eval : Gate → Bool → Bool → Bool
+  | and => (· && ·)
+  | xor => (· ^^ ·)
+  | beq => (· == ·)
+
+end Gate
+
 
 /--
 The variable definition used by the bitblaster.
@@ -196,6 +223,7 @@ theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshi
   rfl
 
 end BVUnOp
+
 
 /--
 All supported expressions involving `BitVec` and operations on them.
@@ -424,35 +452,43 @@ theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getL
 
 end BVPred
 
-/--
-Boolean substructure of problems involving predicates on BitVec as atoms.
--/
-abbrev BVLogicalExpr := BoolExpr BVPred
+-- TODO: docs
+inductive BVLogicalExpr
+  | literal : BVPred → BVLogicalExpr
+  | const : Bool → BVLogicalExpr
+  | not : BVLogicalExpr → BVLogicalExpr
+  | gate : Gate → BVLogicalExpr → BVLogicalExpr → BVLogicalExpr
 
 namespace BVLogicalExpr
 
-/--
-The semantics of boolean problems involving BitVec predicates as atoms.
--/
-def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
-  BoolExpr.eval (·.eval assign) expr
+def toString : BVLogicalExpr → String
+  | literal a => ToString.toString a
+  | const b => ToString.toString b
+  | not x => "!" ++ toString x
+  | gate g x y => "(" ++ toString x ++ " " ++ g.toString ++ " " ++ toString y ++ ")"
 
-@[simp] theorem eval_literal : eval assign (.literal pred) = pred.eval assign := rfl
-@[simp] theorem eval_const : eval assign (.const b) = b := rfl
-@[simp] theorem eval_not : eval assign (.not x) = !eval assign x := rfl
-@[simp] theorem eval_gate : eval assign (.gate g x y) = g.eval (eval assign x) (eval assign y) := rfl
+instance : ToString BVLogicalExpr := ⟨toString⟩
 
-def Sat (x : BVLogicalExpr) (assign : BVExpr.Assignment) : Prop := eval assign x = true
+def eval (a : BVExpr.Assignment) : BVLogicalExpr → Bool
+  | .literal l => l.eval a
+  | .const b => b
+  | .not x => !eval a x
+  | .gate g x y => g.eval (eval a x) (eval a y)
 
+@[simp] theorem eval_literal : eval a (.literal l) = l.eval a := rfl
+@[simp] theorem eval_const : eval a (.const b) = b := rfl
+@[simp] theorem eval_not : eval a (.not x) = !eval a x := rfl
+@[simp] theorem eval_gate : eval a (.gate g x y) = g.eval (eval a x) (eval a y) := rfl
+
+def Sat (a : BVExpr.Assignment) (x : BVLogicalExpr) : Prop := eval a x = true
 def Unsat (x : BVLogicalExpr) : Prop := ∀ f, eval f x = false
 
-theorem sat_and {x y : BVLogicalExpr} {assign} (hx : Sat x assign) (hy : Sat y assign) :
-    Sat (.gate .and x y) assign := by
+theorem sat_and {x y : BVLogicalExpr} {a : BVExpr.Assignment} (hx : Sat a x) (hy : Sat a y) :
+    Sat a (BVLogicalExpr.gate .and x y) := by
   simp only [Sat] at *
   simp [hx, hy, Gate.eval]
 
-theorem sat_true : Sat (.const true) assign := rfl
+theorem sat_true {a : BVExpr.Assignment} : Sat a (BVLogicalExpr.const true) := rfl
 
 end BVLogicalExpr
-
 end Std.Tactic.BVDecide

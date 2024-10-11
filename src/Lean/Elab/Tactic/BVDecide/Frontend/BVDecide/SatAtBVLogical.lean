@@ -66,7 +66,7 @@ Logical conjunction of two `ReifiedBVLogical`.
 -/
 def and (x y : SatAtBVLogical) : SatAtBVLogical where
   bvExpr := .gate .and x.bvExpr y.bvExpr
-  expr := mkApp4 (mkConst ``BoolExpr.gate) (mkConst ``BVPred) (mkConst ``Gate.and) x.expr y.expr
+  expr := mkApp3 (mkConst ``BVLogicalExpr.gate) (mkConst ``Gate.and) x.expr y.expr
   satAtAtoms :=
     return mkApp5
       (mkConst ``BVLogicalExpr.sat_and)

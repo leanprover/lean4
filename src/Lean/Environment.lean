@@ -863,6 +863,8 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
 structure PersistentEnvExtensionState (α : Type) (σ : Type) where
   importedEntries : Array (Array α)  -- entries per imported module
   state : σ
+  async : Bool := false
+deriving Inhabited
 
 structure ImportM.Context where
   env  : Environment
@@ -872,7 +874,7 @@ abbrev ImportM := ReaderT Lean.ImportM.Context IO
 
 inductive PersistenEnvExtension.ExportEntriesFn (α σ : Type) where
   | sync (fn : σ → Array α)
-  | async (fn : Array σ → Array α)
+  | async (fn : Array σ → Array α) (resetExports : σ → σ)
 
 /--
 An environment extension with support for storing/retrieving entries from a .olean file.
@@ -927,9 +929,6 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   exportEntriesFn : PersistenEnvExtension.ExportEntriesFn α σ
   statsFn         : σ → Format
 
-instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
-  ⟨{importedEntries := #[], state := default }⟩
-
 instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) where
   default := {
      toEnvExtension := default,
@@ -945,8 +944,18 @@ namespace PersistentEnvExtension
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
   (ext.toEnvExtension.getState env).importedEntries.get! m
 
+def checkTransformStateAsync {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) : Environment :=
+  if env.isAsync then
+    ext.toEnvExtension.modifyState (allowAsync := true) env fun s => Id.run do
+      let mut s := s
+      if let .async _ resetExports := ext.exportEntriesFn then
+        s := { s with state := resetExports s.state, async := true }
+      s
+  else env
+
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β)
     (allowAsync := ext.exportEntriesFn matches .async ..) : Environment :=
+  let env := checkTransformStateAsync ext env
   ext.toEnvExtension.modifyState (allowAsync := allowAsync) env fun s =>
     let state   := ext.addEntryFn s.state b;
     { s with state := state }
@@ -986,6 +995,7 @@ structure PersistentEnvExtensionDescr (α β σ : Type) extends PersistentEnvExt
 
 structure AsyncPersistentEnvExtensionDescr (α β σ : Type) extends PersistentEnvExtensionDescrBase α β σ where
   exportEntriesAsyncFn : Array σ → Array α
+  resetExportsFn : σ → σ
 
 private unsafe def registerPersistentEnvExtensionBaseUnsafe {α β σ : Type} [Inhabited σ]
     (descr : PersistentEnvExtensionDescrBase α β σ)
@@ -1019,7 +1029,7 @@ def registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : Per
   registerPersistentEnvExtensionBase descr.toPersistentEnvExtensionDescrBase (.sync descr.exportEntriesFn)
 
 def registerAsyncPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : AsyncPersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) :=
-  registerPersistentEnvExtensionBase descr.toPersistentEnvExtensionDescrBase (.async descr.exportEntriesAsyncFn)
+  registerPersistentEnvExtensionBase descr.toPersistentEnvExtensionDescrBase (.async descr.exportEntriesAsyncFn descr.resetExportsFn)
 
 /-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
 def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
@@ -1041,6 +1051,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
     exportEntriesAsyncFn := fun states => states.concatMap (descr.toArrayFn ·.1.reverse),
+    resetExportsFn := fun s => ([], s.2)
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
   }
 
@@ -1052,6 +1063,7 @@ instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension
 /-- Get the list of values used to update the state of the given
 `SimplePersistentEnvExtension` in the current file. -/
 def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
+  let env := PersistentEnvExtension.checkTransformStateAsync ext env
   (PersistentEnvExtension.getState ext env).1
 
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
@@ -1173,9 +1185,10 @@ def mkModuleData (env : Environment) : IO ModuleData := do
     | .sync fn =>
       let state := pExt.getState env
       (pExt.name, fn state)
-    | .async fn =>
-      let states := env.asyncConsts.map fun aconst =>
-        EnvExtensionInterfaceImp.getState pExt.toEnvExtension aconst.exts.get |>.state
+    | .async fn _ =>
+      let states := env.asyncConsts.filterMap fun aconst =>
+        let s := EnvExtensionInterfaceImp.getState pExt.toEnvExtension aconst.exts.get
+        guard s.async *> some s.state
       let states := states.push (pExt.getState env)
       (pExt.name, fn states)
   let kenv := env.toKernelEnvNoAsync

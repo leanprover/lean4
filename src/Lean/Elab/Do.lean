@@ -1483,6 +1483,15 @@ mutual
     else
       throwError "unexpected kind of `do` reassignment"
 
+  private partial def emptyElse? (elseBranch : List Syntax) : M Bool  := do
+    if elseBranch.isEmpty then
+      return true
+    else if let some expr := isDoExpr? (elseBranch.head!) then
+      let pexp ← ``(pure PUnit.unit)
+      return expr == pexp.raw
+
+    return false
+
   /-- Generate `CodeBlock` for `doIf; doElems`
      `doIf` is of the form
      ```
@@ -1492,10 +1501,25 @@ mutual
      ```  -/
   partial def doIfToCode (doIf : Syntax) (doElems : List Syntax) : M CodeBlock := do
     let view := mkDoIfView doIf
-    let thenBranch ← doSeqToCode (getDoSeqElems view.thenBranch)
-    let elseBranch ← doSeqToCode (getDoSeqElems view.elseBranch)
+    let mut rest := doElems
+
+    let thenElems := getDoSeqElems view.thenBranch
+    let mut elseElems := getDoSeqElems view.elseBranch
+    if (← emptyElse? elseElems) && !thenElems.isEmpty then
+      let last := thenElems.getLast!
+      if last.getKind == ``Parser.Term.doReturn || last.getKind == ``Parser.Term.doBreak ||
+          last.getKind == ``Parser.Term.doContinue then
+          -- If the else branch is empty, and the then branch ends with a return, break or continue
+          -- we know we can't move past this point and can shift the remainer of the doElems into the
+          -- else branch.
+          elseElems := doElems
+          rest := []
+
+    let thenBranch ← doSeqToCode thenElems
+    let elseBranch ← doSeqToCode elseElems
+
     let ite ← mkIte view.ref view.optIdent view.cond thenBranch elseBranch
-    concatWith ite doElems
+    concatWith ite rest
 
   /-- Generate `CodeBlock` for `doUnless; doElems`
      `doUnless` is of the form

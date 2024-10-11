@@ -197,13 +197,20 @@ def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContex
     let auxValue := mkApp2 (mkConst verifier) reflectedExpr certExpr
     mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
 
-  let nativeProof :=
+  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
+  let auxProof :=
     mkApp3
       (mkConst ``Lean.ofReduceBool)
       (mkConst cfg.reflectionDef)
       (toExpr true)
       (← mkEqRefl (toExpr true))
-  return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr nativeProof
+  try
+    let auxLemma ←
+      withTraceNode `sat (fun _ => return "Verifying LRAT certificate") do
+        mkAuxLemma [] auxType auxProof
+    return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr (mkConst auxLemma)
+  catch e =>
+    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
 
 
 end Frontend

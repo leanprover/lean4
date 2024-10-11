@@ -224,6 +224,40 @@ theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshi
 
 end BVUnOp
 
+/--
+Supported binary predicates on `BVExpr`.
+-/
+inductive BVBinPred where
+  /--
+  Equality.
+  -/
+  | eq
+  /--
+  Unsigned Less Than
+  -/
+  | ult
+
+namespace BVBinPred
+
+def toString : BVBinPred → String
+  | eq => "=="
+  | ult => "<u"
+
+instance : ToString BVBinPred := ⟨toString⟩
+
+/--
+The semantics for `BVBinPred`.
+-/
+def eval : BVBinPred → (BitVec w → BitVec w → Bool)
+  | .eq => (· == ·)
+  | .ult => BitVec.ult
+
+@[simp] theorem eval_eq : eval .eq = ((· == ·) : BitVec w → BitVec w → Bool) := by rfl
+@[simp] theorem eval_ult : eval .ult = (BitVec.ult : BitVec w → BitVec w → Bool) := by rfl
+
+end BVBinPred
+
+mutual
 
 /--
 All supported expressions involving `BitVec` and operations on them.
@@ -237,6 +271,10 @@ inductive BVExpr : Nat → Type where
   A constant `BitVec` value.
   -/
   | const (val : BitVec w) : BVExpr w
+  /--
+  Creating a `BitVec 1` from a `Bool`.
+  -/
+  | ofBool (logical : BVLogicalExpr) : BVExpr 1
   /--
   zero extend a `BitVec` by some constant amount.
   -/
@@ -274,23 +312,61 @@ inductive BVExpr : Nat → Type where
   -/
   | shiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
 
-namespace BVExpr
+/--
+Supported predicates on `BVExpr`.
+-/
+inductive BVPred where
+  /--
+  A binary predicate on `BVExpr`.
+  -/
+  | bin (lhs : BVExpr w) (op : BVBinPred) (rhs : BVExpr w)
+  /--
+  Getting a constant LSB from a `BitVec`.
+  -/
+  | getLsbD (expr : BVExpr w) (idx : Nat)
 
-def toString : BVExpr w → String
+-- TODO: docs
+inductive BVLogicalExpr
+  | literal : BVPred → BVLogicalExpr
+  | const : Bool → BVLogicalExpr
+  | not : BVLogicalExpr → BVLogicalExpr
+  | gate : Gate → BVLogicalExpr → BVLogicalExpr → BVLogicalExpr
+
+end
+
+mutual
+
+def BVExpr.toString : BVExpr w → String
   | .var idx => s!"var{idx}"
   | .const val => ToString.toString val
+  | .ofBool logical => logical.toString
   | .zeroExtend v expr => s!"(zext {v} {expr.toString})"
   | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
-  | .un op operand => s!"({op.toString} {toString operand})"
-  | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"
-  | .replicate n expr => s!"(replicate {n} {toString expr})"
+  | .un op operand => s!"({op.toString} {operand.toString})"
+  | .append lhs rhs => s!"({lhs.toString} ++ {rhs.toString})"
+  | .replicate n expr => s!"(replicate {n} {expr.toString})"
   | .signExtend v expr => s!"(sext {v} {expr.toString})"
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
 
+def BVPred.toString : BVPred → String
+  | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
+  | .getLsbD expr idx => s!"{expr.toString}[{idx}]"
 
-instance : ToString (BVExpr w) := ⟨toString⟩
+def BVLogicalExpr.toString : BVLogicalExpr → String
+  | .literal a => a.toString
+  | .const b => ToString.toString b
+  | .not x => "!" ++ x.toString
+  | .gate g x y => "(" ++ x.toString ++ " " ++ g.toString ++ " " ++ y.toString ++ ")"
+
+end
+
+instance : ToString (BVExpr w) := ⟨BVExpr.toString⟩
+instance : ToString BVPred := ⟨BVPred.toString⟩
+instance : ToString BVLogicalExpr := ⟨BVLogicalExpr.toString⟩
+
+namespace BVExpr
 
 /--
 Pack a `BitVec` with its width into a single parameter-less structure.
@@ -310,23 +386,49 @@ Get the value of a `BVExpr.var` from an `Assignment`.
 def Assignment.getD (assign : Assignment) (idx : Nat) : PackedBitVec :=
   List.getD assign idx ⟨BitVec.zero 0⟩
 
+end BVExpr
+
+mutual
+
 /--
 The semantics for `BVExpr`.
 -/
-def eval (assign : Assignment) : BVExpr w → BitVec w
+def BVExpr.eval (assign : BVExpr.Assignment) : BVExpr w → BitVec w
   | .var idx =>
     let ⟨bv⟩ := assign.getD idx
     bv.truncate w
+  | .ofBool logical => BitVec.ofBool <| logical.eval assign
   | .const val => val
-  | .zeroExtend v expr => BitVec.zeroExtend v (eval assign expr)
-  | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
-  | .bin lhs op rhs => op.eval (eval assign lhs) (eval assign rhs)
-  | .un op operand => op.eval (eval assign operand)
-  | .append lhs rhs => (eval assign lhs) ++ (eval assign rhs)
-  | .replicate n expr => BitVec.replicate n (eval assign expr)
-  | .signExtend v expr => BitVec.signExtend v (eval assign expr)
-  | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
-  | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
+  | .zeroExtend v expr => BitVec.zeroExtend v (expr.eval assign)
+  | .extract start len expr => BitVec.extractLsb' start len (expr.eval assign)
+  | .bin lhs op rhs => op.eval (lhs.eval assign) (rhs.eval assign)
+  | .un op operand => op.eval (operand.eval assign)
+  | .append lhs rhs => (lhs.eval assign) ++ (rhs.eval assign)
+  | .replicate n expr => BitVec.replicate n (expr.eval assign)
+  | .signExtend v expr => BitVec.signExtend v (expr.eval assign)
+  | .shiftLeft lhs rhs => (lhs.eval assign) <<< (rhs.eval assign)
+  | .shiftRight lhs rhs => (lhs.eval assign) >>> (rhs.eval assign)
+
+/--
+The semantics for `BVPred`.
+-/
+def BVPred.eval (assign : BVExpr.Assignment) : BVPred → Bool
+  | .bin lhs op rhs => op.eval (lhs.eval assign) (rhs.eval assign)
+  | .getLsbD expr idx => (expr.eval assign).getLsbD idx
+
+/--
+The semantics for `BVLogicalExpr`.
+-/
+def BVLogicalExpr.eval (assign : BVExpr.Assignment) : BVLogicalExpr → Bool
+  | .literal l => l.eval assign
+  | .const b => b
+  | .not x => !x.eval assign
+  | .gate g x y => g.eval (x.eval assign) (y.eval assign)
+
+end
+
+
+namespace BVExpr
 
 @[simp]
 theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.getD idx).bv.truncate _ := by
@@ -373,74 +475,7 @@ theorem eval_shiftRight : eval assign (.shiftRight lhs rhs) = (eval assign lhs) 
 
 end BVExpr
 
-/--
-Supported binary predicates on `BVExpr`.
--/
-inductive BVBinPred where
-  /--
-  Equality.
-  -/
-  | eq
-  /--
-  Unsigned Less Than
-  -/
-  | ult
-
-namespace BVBinPred
-
-def toString : BVBinPred → String
-  | eq => "=="
-  | ult => "<u"
-
-instance : ToString BVBinPred := ⟨toString⟩
-
-/--
-The semantics for `BVBinPred`.
--/
-def eval : BVBinPred → (BitVec w → BitVec w → Bool)
-  | .eq => (· == ·)
-  | .ult => BitVec.ult
-
-@[simp] theorem eval_eq : eval .eq = ((· == ·) : BitVec w → BitVec w → Bool) := by rfl
-@[simp] theorem eval_ult : eval .ult = (BitVec.ult : BitVec w → BitVec w → Bool) := by rfl
-
-end BVBinPred
-
-/--
-Supported predicates on `BVExpr`.
--/
-inductive BVPred where
-  /--
-  A binary predicate on `BVExpr`.
-  -/
-  | bin (lhs : BVExpr w) (op : BVBinPred) (rhs : BVExpr w)
-  /--
-  Getting a constant LSB from a `BitVec`.
-  -/
-  | getLsbD (expr : BVExpr w) (idx : Nat)
-
 namespace BVPred
-
-/--
-Pack two `BVExpr` of equivalent width into one parameter-less structure.
--/
-structure ExprPair where
-  {w : Nat}
-  lhs : BVExpr w
-  rhs : BVExpr w
-
-def toString : BVPred → String
-  | bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
-  | getLsbD expr idx => s!"{expr.toString}[{idx}]"
-
-instance : ToString BVPred := ⟨toString⟩
-
-/--
-The semantics for `BVPred`.
--/
-def eval (assign : BVExpr.Assignment) : BVPred → Bool
-  | bin lhs op rhs => op.eval (lhs.eval assign) (rhs.eval assign)
-  | getLsbD expr idx => (expr.eval assign).getLsbD idx
 
 @[simp]
 theorem eval_bin : eval assign (.bin lhs op rhs) = op.eval (lhs.eval assign) (rhs.eval assign) := by
@@ -452,28 +487,8 @@ theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getL
 
 end BVPred
 
--- TODO: docs
-inductive BVLogicalExpr
-  | literal : BVPred → BVLogicalExpr
-  | const : Bool → BVLogicalExpr
-  | not : BVLogicalExpr → BVLogicalExpr
-  | gate : Gate → BVLogicalExpr → BVLogicalExpr → BVLogicalExpr
-
 namespace BVLogicalExpr
 
-def toString : BVLogicalExpr → String
-  | literal a => ToString.toString a
-  | const b => ToString.toString b
-  | not x => "!" ++ toString x
-  | gate g x y => "(" ++ toString x ++ " " ++ g.toString ++ " " ++ toString y ++ ")"
-
-instance : ToString BVLogicalExpr := ⟨toString⟩
-
-def eval (a : BVExpr.Assignment) : BVLogicalExpr → Bool
-  | .literal l => l.eval a
-  | .const b => b
-  | .not x => !eval a x
-  | .gate g x y => g.eval (eval a x) (eval a y)
 
 @[simp] theorem eval_literal : eval a (.literal l) = l.eval a := rfl
 @[simp] theorem eval_const : eval a (.const b) = b := rfl

@@ -268,9 +268,9 @@ syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
 inaccessible names to the given names.
 -/
-macro "next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
+macro nextTk:"next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
   -- Limit ref variability for incrementality; see Note [Incremental Macros]
-  withRef arrowTk `(tactic| case _ $args* =>%$arrowTk $tac)
+  withRef arrowTk <| `(tactic| case%$nextTk _ $args* =>%$arrowTk $tac)
 
 /-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic

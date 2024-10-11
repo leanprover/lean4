@@ -1,0 +1,31 @@
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 2, "character": 3}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 8, "character": 2}}
+{"rendered": "```lean\ncase succ\nn✝ : Nat\na✝ : True\n⊢ True\n```",
+ "goals": ["case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 13, "character": 3}}
+{"rendered": "```lean\ncase zero\n⊢ True\n```", "goals": ["case zero\n⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 19, "character": 2}}
+{"rendered": "```lean\ncase succ\nn✝ : Nat\na✝ : True\n⊢ True\n```",
+ "goals": ["case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 24, "character": 3}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 30, "character": 2}}
+{"rendered": "```lean\ncase succ\nn✝ : Nat\na✝ : True\n⊢ True\n```",
+ "goals": ["case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 35, "character": 3}}
+{"rendered": "```lean\ncase zero\n⊢ True\n```", "goals": ["case zero\n⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 41, "character": 2}}
+{"rendered": "```lean\nn : Nat\n⊢ True\n```", "goals": ["n : Nat\n⊢ True"]}
+{"textDocument": {"uri": "file:///2881.lean"},
+ "position": {"line": 46, "character": 4}}
+{"rendered": "```lean\nthis : True\n⊢ True\n```",
+ "goals": ["this : True\n⊢ True"]}

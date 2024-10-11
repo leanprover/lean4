@@ -65,7 +65,7 @@ structure State where
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
-  postponedCompiles : Array Declaration := #[]
+  postponedCompiles : Array Name := #[]
   deriving Nonempty
 
 /-- Context for the CoreM monad. -/
@@ -437,11 +437,11 @@ register_builtin_option compiler.enableNew : Bool := {
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
-  if (← getEnv).isAsync then
-    modify fun s => { s with postponedCompiles := s.postponedCompiles.push decl }
-    return
   let opts ← getOptions
   let decls := Compiler.getDeclNamesForCodeGen decl
+  if (← getEnv).isAsync then
+    modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
+    return
   if compiler.enableNew.get opts then
     compileDeclsNew decls
   let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
@@ -454,13 +454,10 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
   | Except.error ex =>
     throwKernelException ex
 
-def unlockAsync : CoreM Unit := do
-  modifyEnv (·.unlockAsync)
-  for decl in (← get).postponedCompiles do
-    compileDecl decl
-  modify fun s => { s with postponedCompiles := #[] }
-
 def compileDecls (decls : List Name) : CoreM Unit := do
+  if (← getEnv).isAsync then
+    modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
+    return
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls
@@ -470,6 +467,11 @@ def compileDecls (decls : List Name) : CoreM Unit := do
     throwError msg
   | Except.error ex =>
     throwKernelException ex
+
+def unlockAsync : CoreM Unit := do
+  modifyEnv (·.unlockAsync)
+  compileDecls (← get).postponedCompiles.toList
+  modify fun s => { s with postponedCompiles := #[] }
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

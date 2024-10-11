@@ -519,12 +519,11 @@ def AddConstAsyncResult.checkAndCommitEnv (res : AddConstAsyncResult) (env : Env
     (opts : Options) (cancelTk? : Option IO.CancelToken := none) : EIO Kernel.Exception Unit := do
   let some asyncCtx := env.asyncCtx?
     | throw <| .other "AddConstAsyncResult.commitSuccess: environment does not have an async context"
-  let some decl := asyncCtx.subDecls.find? (·.toConstantInfo.name == res.constName)
+  let some _ := asyncCtx.subDecls.find? (·.toConstantInfo.name == res.constName)
     | throw <| .other s!"AddConstAsyncResult.commitSuccess: constant {res.constName} not found in async context"
-  let mut env := { env with asyncCtx? := some { asyncCtx with subDecls := #[] } }
+  let mut env := { env with asyncCtx? := none }
   for subDecl in asyncCtx.subDecls do
     env ← EIO.ofExcept <| addDecl env opts subDecl.toDecl cancelTk?
-  env ← EIO.ofExcept <| addDecl env opts decl.toDecl cancelTk?
   res.checkedEnvPromise.resolve env.toEnvironmentBase
 
 def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit := do

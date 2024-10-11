@@ -946,7 +946,8 @@ namespace PersistentEnvExtension
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
   (ext.toEnvExtension.getState env).importedEntries.get! m
 
-def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) (allowAsync := false) : Environment :=
+def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β)
+    (allowAsync := ext.exportEntriesFn matches .async ..) : Environment :=
   ext.toEnvExtension.modifyState (allowAsync := allowAsync) env fun s =>
     let state   := ext.addEntryFn s.state b;
     { s with state := state }
@@ -1034,13 +1035,13 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   toArrayFn     : List α → Array α := fun es => es.toArray
 
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
-  registerPersistentEnvExtension {
+  registerAsyncPersistentEnvExtension {
     name            := descr.name,
     mkInitial       := pure ([], descr.addImportedFn #[]),
     addImportedFn   := fun as => pure ([], descr.addImportedFn as),
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
+    exportEntriesAsyncFn := fun states => states.concatMap (descr.toArrayFn ·.1.reverse),
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
   }
 

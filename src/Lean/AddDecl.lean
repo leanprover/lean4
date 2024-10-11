@@ -19,7 +19,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
       if !(← MonadLog.hasErrors) && decl.hasSorry then
         logWarning "declaration uses 'sorry'"
       match (← getEnv).addDecl (← getOptions) decl (← read).cancelTk? with
-      | .ok    env => setEnv env
+      | .ok    env => setEnv (← decl.getNames.foldlM (m := BaseIO) (·.enableRealizationsForConst) env)
       | .error ex  => throwKernelException ex
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do

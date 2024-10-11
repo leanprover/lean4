@@ -531,10 +531,16 @@ def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit 
   res.infoPromise.resolve (/- TODO -/ default, #[])
   res.checkedEnvPromise.resolve res.mainEnv.toEnvironmentBase
 
+def enableRealizationsForConst (env : Environment) (c : Name) : BaseIO Environment := do
+  if env.realizedLocalConsts.contains c then
+    return env
+  return { env with realizedLocalConsts := env.realizedLocalConsts.insert c (← IO.mkRef {}) }
+
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
     IO AddConstAsyncResult := do
   if env.realizingConst then
     throw <| .userError "cannot add an async constant during realization"
+  let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
   let checkedEnvPromise ← IO.Promise.new
@@ -564,9 +570,6 @@ def isAsync (env : Environment) : Bool :=
 
 def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
-
-def enableRealizationsForConst (env : Environment) (c : Name) : BaseIO Environment :=
-  return { env with realizedLocalConsts := env.realizedLocalConsts.insert c (← IO.mkRef {}) }
 
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
   if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.toConstantInfo.name == n)) then

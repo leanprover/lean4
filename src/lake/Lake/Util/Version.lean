@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Elab.Eval
+import Lake.Util.Date
 
 /-! # Version
 
@@ -117,6 +118,109 @@ instance : ToExpr StdVer where
     #[toExpr ver.toSemVerCore, toExpr ver.specialDescr]
   toTypeExpr := mkConst ``StdVer
 
+/-- A Lean toolchain version. -/
+inductive ToolchainVer
+| release (ver : LeanVer)
+| nightly (date : Date)
+| pr (no : Nat)
+| other (name : String)
+deriving Repr, DecidableEq
+
+instance : Coe LeanVer ToolchainVer := ⟨ToolchainVer.release⟩
+
+def ToolchainVer.defaultOrigin := "leanprover/lean4"
+def ToolchainVer.prOrigin := "leanprover/lean4-pr-releases"
+
+def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
+  let colonPos := ver.posOf ':'
+  let (origin, tag) :=
+    if h : colonPos < ver.endPos then
+      let pos := ver.next' colonPos (by simp_all [h, String.endPos, String.atEnd])
+      (ver.extract 0 colonPos, ver.extract pos ver.endPos)
+    else
+      ("", ver)
+  if tag.startsWith "v" then
+    if let .ok ver := StdVer.parse (tag.drop 1) then
+      if origin.isEmpty || origin == defaultOrigin then
+        return .release ver
+    return .other ver
+  else if tag.startsWith "nightly-" then
+    if let some date := Date.ofString? (tag.drop "nightly-".length) then
+      if origin.isEmpty || origin == defaultOrigin then
+        return .nightly date
+  else if tag.startsWith "pr-release-" then
+    if let some n := (tag.drop "pr-release-".length).toNat? then
+      if origin.isEmpty || origin == prOrigin then
+        return .pr n
+  else
+    if let .ok ver := StdVer.parse ver then
+      if origin.isEmpty || origin == defaultOrigin then
+        return .release ver
+  return .other ver
+
+protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
+  match ver with
+  | .release ver => s!"{defaultOrigin}/v{ver}"
+  | .nightly date => s!"{defaultOrigin}/nightly-{date}"
+  | .pr n => s!"{prOrigin}/pr-release-{n}"
+  | .other s => s
+
+instance : ToString ToolchainVer := ⟨ToolchainVer.toString⟩
+instance : ToJson ToolchainVer := ⟨(·.toString)⟩
+instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJson? ·)⟩
+
+/-
+#eval repr <| ToolchainVer.ofString "leanprover/lean4:v4.13.0-rc1"
+#eval repr <| ToolchainVer.ofString "leanprover/lean4:nightly-2024-09-15"
+#eval repr <| ToolchainVer.ofString "leanprover/lean4-pr-releases:pr-release-101"
+#eval repr <| ToolchainVer.ofString "leanprover/lean:v4.1.0"
+#eval repr <| ToolchainVer.ofString "4.12.0"
+-/
+
+protected def ToolchainVer.lt (a b : ToolchainVer) : Prop :=
+  match a, b with
+  | .release v1, .release v2 => v1 < v2
+  | .nightly d1, .nightly d2 => d1 < d2
+  | _, _ => False
+
+instance : LT ToolchainVer := ⟨ToolchainVer.lt⟩
+
+instance ToolchainVer.decLt (a b : ToolchainVer) : Decidable (a < b) :=
+  match a, b with
+  | .release v1, .release v2 => inferInstanceAs (Decidable (v1 < v2))
+  | .nightly d1, .nightly d2 => inferInstanceAs (Decidable (d1 < d2))
+  | .release _, .pr _ | .release _, .nightly _ | .release _, .other _
+  | .nightly _, .release _ | .nightly _, .pr _ | .nightly _, .other _
+  | .pr _, _ | .other _, _ => .isFalse (by simp [LT.lt, ToolchainVer.lt])
+
+protected def ToolchainVer.le (a b : ToolchainVer) : Prop :=
+  match a, b with
+  | .release v1, .release v2 => v1 ≤ v2
+  | .nightly d1, .nightly d2 => d1 ≤ d2
+  | .pr n1, .pr n2 => n1 = n2
+  | .other v1, .other v2 => v1 = v2
+  | _, _ => False
+
+instance : LE ToolchainVer := ⟨ToolchainVer.le⟩
+
+instance ToolchainVer.decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
+  match a, b with
+  | .release v1, .release v2 => inferInstanceAs (Decidable (v1 ≤ v2))
+  | .nightly d1, .nightly d2 => inferInstanceAs (Decidable (d1 ≤ d2))
+  | .pr n1, .pr n2 => inferInstanceAs (Decidable (n1 = n2))
+  | .other v1, .other v2 => inferInstanceAs (Decidable (v1 = v2))
+  | .release _, .pr _ | .release _, .nightly _ | .release _, .other _
+  | .nightly _, .release _ | .nightly _, .pr _ | .nightly _, other _
+  | .pr _, .release _ | .pr _, .nightly _ |  .pr _, .other _
+  | .other _, .release _ | .other _, .nightly _ | .other _, .pr _ =>
+    .isFalse (by simp [LE.le, ToolchainVer.le])
+
+/-
+#eval ToolchainVer.ofString "4.12.0" < ToolchainVer.ofString "leanprover/lean4:v4.13.0-rc1"
+#eval ToolchainVer.ofString "nightly-2024-09-08" < ToolchainVer.ofString "nightly-2024-10-09"
+#eval ToolchainVer.ofString "nightly-2024-09-08" < ToolchainVer.ofString "4.0.0"
+-/
+
 /-! ## Version Literals
 
 Defines the `v!"<ver>"` syntax for version literals.
@@ -134,6 +238,7 @@ export DecodeVersion (decodeVersion)
 
 instance : DecodeVersion SemVerCore := ⟨SemVerCore.parse⟩
 @[default_instance] instance : DecodeVersion StdVer := ⟨StdVer.parse⟩
+instance : DecodeVersion ToolchainVer := ⟨(pure <| ToolchainVer.ofString ·)⟩
 
 private def toResultExpr [ToExpr α] (x : Except String α) : Except String Expr :=
   Functor.map toExpr x

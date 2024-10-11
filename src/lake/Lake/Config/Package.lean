@@ -383,6 +383,8 @@ structure Package where
   scope : String := ""
   /-- The URL to this package's Git remote. -/
   remoteUrl : String := ""
+  /-- Toolchain version from the package's `lean-toolchain` file. -/
+  targetToolchain? : Option ToolchainVer := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Dependency configurations for the package. -/

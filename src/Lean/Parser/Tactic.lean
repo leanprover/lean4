@@ -128,7 +128,7 @@ example : 1 + 1 = 2 := by rfl
 /--
 `decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.
 It has the following properties:
-- Since it uses kernel reduction instead of elaboratior reduction, it ignores transparancy and can unfold everything.
+- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.
 - While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,
   and once during kernel type checking), the `decide!` tactic reduces it exactly once.
 -/

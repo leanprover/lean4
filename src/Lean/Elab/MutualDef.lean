@@ -1051,7 +1051,8 @@ where
           addLocalVarInfo view.declId funFVar
         if let some async := async? then
           let header := headers[0]!
-          let type ← mkForallFVars vars header.type >>= instantiateMVars
+          let type ← withHeaderSecVars vars sc #[header] fun vars => do
+            mkForallFVars vars header.type >>= instantiateMVars
           let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
           let mut s : CollectLevelParams.State := {}
           s := collectLevelParams s type

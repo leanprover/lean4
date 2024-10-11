@@ -4,7 +4,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 23, "character": 21}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -12,7 +12,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -23,7 +23,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 23, "character": 21}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -34,7 +45,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -45,7 +56,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -56,14 +67,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -74,7 +85,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -85,14 +96,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -104,7 +115,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 26, "character": 24}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -112,7 +123,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -123,7 +134,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 26, "character": 24}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -134,7 +156,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -145,7 +167,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -156,14 +178,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -174,7 +196,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -185,14 +207,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -207,7 +229,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 32, "character": 26}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -215,7 +237,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -226,7 +248,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 32, "character": 26}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -237,7 +270,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -248,7 +281,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -259,14 +292,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -277,7 +310,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -288,14 +321,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -307,7 +340,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 35, "character": 27}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -315,7 +348,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -326,7 +359,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 35, "character": 27}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -337,7 +381,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -348,7 +392,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -359,14 +403,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -377,7 +421,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -388,14 +432,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -407,7 +451,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 40, "character": 7}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -415,7 +459,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -426,7 +470,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 40, "character": 7}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -437,7 +492,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -448,7 +503,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -459,14 +514,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -477,7 +532,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -488,14 +543,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -507,7 +562,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 44, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -515,7 +570,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -526,7 +581,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 44, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -537,7 +603,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -548,7 +614,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -559,14 +625,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -577,7 +643,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -588,14 +654,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -607,7 +673,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 49, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -615,7 +681,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -626,7 +692,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 49, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -637,7 +714,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -648,7 +725,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -659,14 +736,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -677,7 +754,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -688,14 +765,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -707,7 +784,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 53, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -715,7 +792,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -726,7 +803,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 53, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -737,7 +825,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -748,7 +836,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -759,14 +847,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -777,7 +865,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -788,14 +876,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -807,7 +895,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 59, "character": 4}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -815,7 +903,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -826,7 +914,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 59, "character": 4}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -837,7 +936,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -848,7 +947,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -859,14 +958,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -877,7 +976,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -888,14 +987,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -907,7 +1006,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 64, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -915,7 +1014,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -926,7 +1025,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 64, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -937,7 +1047,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -948,7 +1058,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -959,14 +1069,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -977,7 +1087,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -988,14 +1098,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1007,7 +1117,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 70, "character": 4}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1015,7 +1125,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -1026,7 +1136,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 70, "character": 4}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1037,7 +1158,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1048,7 +1169,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -1059,14 +1180,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1077,7 +1198,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1088,14 +1209,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1107,7 +1228,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 76, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1115,7 +1236,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -1126,7 +1247,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 76, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1137,7 +1269,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1148,7 +1280,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -1159,14 +1291,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1177,7 +1309,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1188,14 +1320,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1210,7 +1342,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 86, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1218,7 +1350,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -1229,7 +1361,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 86, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1240,7 +1383,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1251,7 +1394,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -1262,14 +1405,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1280,7 +1423,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1291,14 +1434,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1310,7 +1453,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 91, "character": 4}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1318,7 +1461,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -1329,7 +1472,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 91, "character": 4}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1340,7 +1494,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1351,7 +1505,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -1362,14 +1516,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1380,7 +1534,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1391,14 +1545,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1410,7 +1564,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 96, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1418,7 +1572,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -1429,7 +1583,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 96, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1440,7 +1605,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1451,7 +1616,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -1462,14 +1627,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1480,7 +1645,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1491,14 +1656,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1510,7 +1675,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 102, "character": 4}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1518,7 +1683,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -1529,7 +1694,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 102, "character": 4}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1540,7 +1716,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1551,7 +1727,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -1562,14 +1738,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1580,7 +1756,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1591,14 +1767,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1613,7 +1789,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 112, "character": 2}}
 {"items":
- [{"sortText": "0",
+ [{"sortText": "00",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1621,7 +1797,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "1",
+  {"sortText": "01",
    "label": "Lean.Parser.Tactic.decide",
    "kind": 14,
    "documentation":
@@ -1632,7 +1808,18 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "2",
+  {"sortText": "02",
+   "label": "Lean.Parser.Tactic.decideBang",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 112, "character": 2}}}},
+  {"sortText": "03",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1643,7 +1830,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "3",
+  {"sortText": "04",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1654,7 +1841,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "4",
+  {"sortText": "05",
    "label": "Lean.Parser.Tactic.nativeDecide",
    "kind": 14,
    "documentation":
@@ -1665,14 +1852,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "5",
+  {"sortText": "06",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "6",
+  {"sortText": "07",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1683,7 +1870,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "7",
+  {"sortText": "08",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1694,14 +1881,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "8",
+  {"sortText": "09",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "9",
+  {"sortText": "10",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},

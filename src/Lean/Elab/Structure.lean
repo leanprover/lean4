@@ -137,7 +137,12 @@ def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) 
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
-private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) :=
+private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) := do
+  if structStx[5][0].isToken ":=" then
+    -- https://github.com/leanprover/lean4/issues/5236
+    let cmd := if structStx[0].getKind == ``Parser.Command.classTk then "class" else "structure"
+    withRef structStx[0] <| Linter.logLintIf Linter.linter.deprecated structStx[5][0]
+      s!"{cmd} ... :=' has been deprecated in favor of '{cmd} ... where'."
   let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let mut fieldBinder := fieldBinder
@@ -879,7 +884,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         addDefaults lctx defaultAuxDecls
 
 /-
-leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields >> optDeriving
+leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >>
+  optional (("where" <|> ":=") >> optional structCtor >> structFields) >> optDeriving
 
 where
 def «extends» := leading_parser " extends " >> sepBy1 termParser ", "

@@ -136,8 +136,8 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
-leading_parser "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
-leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor >> optDeriving
+leading_parser "inductive " >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor
+leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor >> optDeriving
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView := do
   checkValidInductiveModifier modifiers
@@ -167,6 +167,10 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
   let classes ← liftCoreM <| getOptDerivingClasses decl[6]
+  if decl[3][0].isToken ":=" then
+    -- https://github.com/leanprover/lean4/issues/5236
+    withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
+      "'inductive ... :=' has been deprecated in favor of 'inductive ... where'."
   return {
     ref             := decl
     shortDeclName   := name

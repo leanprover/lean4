@@ -372,8 +372,8 @@ def fromLeanDateTimeWithZoneString (input : String) : Except String ZonedDateTim
 /--
 Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notationg.
 -/
-def toLeanDateTimeWithZoneString (pdt : ZonedDateTime) : String :=
-  Formats.leanDateTimeWithZone.format pdt.snd
+def toLeanDateTimeWithZoneString (zdt : ZonedDateTime) : String :=
+  Formats.leanDateTimeWithZone.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute zdt.snd.date.get.time.second zdt.nanosecond zdt.fst.offset
 
 /--
 Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
@@ -453,7 +453,7 @@ def fromDateTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a `DateTime` format string.
 -/
 def toDateTimeString (pdt : PlainDateTime) : String :=
-  Formats.dateTime24Hour.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
+  Formats.dateTime24Hour.formatBuilder pdt.year pdt.month pdt.day pdt.hour pdt.minute pdt.time.second pdt.nanosecond
 
 /--
 Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.
@@ -466,7 +466,7 @@ def fromLeanDateTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a `DateTime` format string.
 -/
 def toLeanDateTimeString (pdt : PlainDateTime) : String :=
-  Formats.leanDateTime24Hour.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
+  Formats.leanDateTime24Hour.formatBuilder pdt.year pdt.month pdt.day pdt.hour pdt.minute pdt.time.second pdt.nanosecond
 
 /--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `PlainDateTime`.

@@ -5,11 +5,9 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Zoned.DateTime
-import Std.Time.Zoned.Database
 import Std.Time.Zoned.ZoneRules
 import Std.Time.Zoned.ZonedDateTime
 import Std.Time.Zoned.ZonedDateTime
-import Std.Time.Zoned.Database.Basic
 
 namespace Std
 namespace Time
@@ -148,3 +146,4 @@ def since [ToTimestamp α] (date : ZonedDateTime) (since : α) : Duration :=
   Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
 end ZonedDateTime
+

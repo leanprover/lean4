@@ -5,6 +5,7 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Zoned.ZoneRules
+import Std.Time.Zoned.Database.Leap
 import Std.Time.Zoned.Database.TzIf
 
 namespace Std
@@ -23,9 +24,14 @@ class Database (α : Type) where
   load : α → String → IO TimeZone.ZoneRules
 
   /--
-  Loads a `ZoneRules` that is set by the local computer.
+  Loads a `ZoneRules` that is set by the local machine.
   -/
   localRules : α → IO TimeZone.ZoneRules
+
+  /--
+  Loads a `LeapSecond` array from the local machine.
+  -/
+  leapSeconds : α → IO (Array TimeZone.LeapSecond)
 
 namespace TimeZone
 
@@ -44,15 +50,9 @@ def convertUt : Bool → UTLocal
   | false => .local
 
 /--
-Converts a `TZif.LeapSecond` structure to a `LeapSecond` structure.
+Converts a given time index into a `LocalTimeType` by using a time zone (`tz`) and its identifier.
 -/
-def convertLeapSecond (tz : TZif.LeapSecond) : LeapSecond :=
-  { transitionTime := .ofInt tz.transitionTime, correction := Second.Offset.ofInt tz.correction }
-
-/--
-Converts a PlainTime.
--/
-def convertPlainTime (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
+def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
   let localType ← tz.localTimeTypes.get? index
   let abbreviation ← tz.abbreviations.getD index "Unknown"
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)
@@ -83,19 +83,18 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
   let mut times : Array LocalTimeType := #[]
 
   for i in [0:tz.header.typecnt.toNat] do
-    if let some result := convertPlainTime i tz id
+    if let some result := convertLocalTimeType i tz id
       then times := times.push result
       else .error s!"cannot convert local time {i} of the file"
 
   let mut transitions := #[]
-  let leapSeconds := tz.leapSeconds.map convertLeapSecond
 
   for i in [0:tz.transitionTimes.size] do
     if let some result := convertTransition times i tz
       then transitions := transitions.push result
       else .error s!"cannot convert transtiion {i} of the file"
 
-  .ok { leapSeconds, transitions, localTimes := times }
+  .ok { transitions, localTimes := times }
 
 /--
 Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.

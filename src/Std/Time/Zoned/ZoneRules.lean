@@ -91,22 +91,6 @@ def getTimeZone (time : LocalTimeType) : TimeZone :=
 end LocalTimeType
 
 /--
-Represents a leap second event, including the time of the transition and the correction applied.
--/
-structure LeapSecond where
-
-  /--
-  The time when the leap second transition occurs.
-  -/
-  transitionTime : Second.Offset
-
-  /--
-  The correction applied during the leap second event.
-  -/
-  correction : Second.Offset
-  deriving Repr, Inhabited
-
-/--
 Represents a time zone transition, mapping a time to a local time type.
 -/
 structure Transition where
@@ -123,7 +107,8 @@ structure Transition where
   deriving Repr, Inhabited
 
 /--
-Represents the rules for a time zone, abstracting away binary data and focusing on key transitions and types.
+Represents the rules for a time zone, abstracting away binary data and focusing on key transitions
+and types.
 -/
 structure ZoneRules where
 
@@ -137,10 +122,6 @@ structure ZoneRules where
   -/
   transitions : Array Transition
 
-  /--
-  The array of leap seconds affecting the time zone.
-  -/
-  leapSeconds : Array LeapSecond
   deriving Repr, Inhabited
 
 namespace Transition
@@ -159,8 +140,7 @@ Applies the transition to a Timestamp.
 -/
 def apply (timestamp : Timestamp) (transition : Transition) : Timestamp :=
   let offsetInSeconds := transition.localTimeType.gmtOffset.hour.mul 3600 |>.add transition.localTimeType.gmtOffset.second
-  let PlainTimestamp := timestamp.addSeconds offsetInSeconds
-  PlainTimestamp
+  timestamp.addSeconds offsetInSeconds
 
 end Transition
 
@@ -183,24 +163,3 @@ def timezoneAt (rules : ZoneRules) (tm : Timestamp) : Except String TimeZone :=
   if let some transition := rules.findTransitionForTimestamp tm
     then .ok transition.createTimeZoneFromTransition
     else .error "cannot find local timezone."
-
-/--
-Applies a `LeapSecond` sequence in a `Timestamp`.
--/
-def applyLeapSeconds (tm : Timestamp) (leapSeconds : ZoneRules) : Timestamp := Id.run do
-    let mut currentTime := tm
-    let leapSeconds := leapSeconds.leapSeconds
-    for i in [:leapSeconds.size] do
-      let leapSec := leapSeconds.get! i
-      if currentTime.toSecondsSinceUnixEpoch.val >= leapSec.transitionTime.val then
-        currentTime := tm.addSeconds (.ofInt leapSec.correction.val)
-    return currentTime
-
-/--
-Adjust a UTC timestamp according to `ZoneRules`.
--/
-protected def applyToTimestamp (rules : ZoneRules) (tm : Timestamp) : Timestamp :=
-    let tm := applyLeapSeconds tm rules
-    if let some transition := findTransitionForTimestamp rules tm
-      then transition.apply tm
-      else tm

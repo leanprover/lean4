@@ -955,7 +955,10 @@ private def parseMonthLong : Parser Month.Ordinal
   <|> pstring "November" *> pure ⟨11, by decide⟩
   <|> pstring "December" *> pure ⟨12, by decide⟩
 
-private def parseMonthShort : Parser Month.Ordinal
+/--
+Parses a short value of a `Month.Ordinal`
+-/
+def parseMonthShort : Parser Month.Ordinal
    := pstring "Jan" *> pure ⟨1, by decide⟩
   <|> pstring "Feb" *> pure ⟨2, by decide⟩
   <|> pstring "Mar" *> pure ⟨3, by decide⟩

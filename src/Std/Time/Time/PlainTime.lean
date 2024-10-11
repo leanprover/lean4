@@ -36,6 +36,7 @@ structure PlainTime where
   `Nanoseconds` component of the `PlainTime`
   -/
   nano : Nanosecond.Ordinal
+  deriving Repr
 
 instance : Inhabited PlainTime where
   default := ⟨0, 0, Sigma.mk false 0, 0, by decide⟩

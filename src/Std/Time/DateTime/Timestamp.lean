@@ -27,6 +27,12 @@ structure Timestamp where
   val : Duration
   deriving Repr, BEq, Inhabited
 
+instance : LE Timestamp where
+  le x y := x.val ≤ y.val
+
+instance { x y : Timestamp } : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
 instance : OfNat Timestamp n where
   ofNat := ⟨OfNat.ofNat n⟩
 
@@ -237,5 +243,11 @@ instance : HSub Timestamp Nanosecond.Offset Timestamp where
 
 instance : HSub Timestamp Timestamp Duration where
   hSub x y := x.val - y.val
+
+instance : HAdd Timestamp Duration Timestamp where
+  hAdd x y := x.addNanoseconds y.toNanoseconds
+
+instance : HSub Timestamp Duration Timestamp where
+  hSub x y := x.subNanoseconds y.toNanoseconds
 
 end Timestamp

@@ -10,6 +10,7 @@ import Std.Time.Format
 import Std.Time.DateTime
 import Std.Time.Notation
 import Std.Time.Duration
+import Std.Time.Zoned.Database
 
 namespace Std
 namespace Time
@@ -17,7 +18,7 @@ namespace Time
 /-!
 # Time
 
-The Lean4 API for date, time, and duration functionalities, following the ISO8601 standards.
+The Lean4 API for date, time, and duration functionalities.
 
 # Overview
 

@@ -26,6 +26,12 @@ structure UnitVal (α : Rat) where
   val : Int
   deriving Inhabited, BEq
 
+instance : LE (UnitVal x) where
+  le x y := x.val ≤ y.val
+
+instance { x y : UnitVal z }: Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
 namespace UnitVal
 
 /--

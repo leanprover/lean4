@@ -57,8 +57,14 @@ Creates a new `ZonedDateTime` out of a `Timestamp`
 @[inline]
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
   let transition ← rules.findTransitionForTimestamp tm
-  let tm := rules.applyLeapSeconds tm
   return ofTimestamp tm transition.localTimeType.getTimeZone
+
+/--
+Converts a `PlainDateTime` to a `ZonedDateTime` using the given `ZoneRules`.
+-/
+@[inline]
+def ofLocalDateTimeWithZoneRules (pdt : PlainDateTime) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
+  ofZoneRules (pdt.toTimestampAssumingUTC) rules
 
 /--
 Changes the `TimeZone` to a new one.
@@ -127,7 +133,7 @@ def second (zdt : ZonedDateTime) : Second.Ordinal zdt.snd.date.get.time.second.f
 Getter for the `Nanosecond` inside of a `ZonedDateTime`
 -/
 @[inline]
-def nano (zdt : ZonedDateTime) : Nanosecond.Ordinal :=
+def nanosecond (zdt : ZonedDateTime) : Nanosecond.Ordinal :=
   zdt.snd.date.get.time.nano
 
 /--

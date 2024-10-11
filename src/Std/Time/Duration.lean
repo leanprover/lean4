@@ -34,6 +34,7 @@ structure Duration where
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
   deriving Repr
 
+
 instance : ToString Duration where
   toString s :=
     let (sign, secs, nanos) :=
@@ -114,6 +115,12 @@ def toNanoseconds (duration : Duration) : Nanosecond.Offset :=
   let nanos := duration.second.mul 1000000000
   let nanos := nanos + (.ofInt duration.nano.val)
   nanos
+
+instance : LE Duration where
+  le d1 d2 := d1.toNanoseconds ≤ d2.toNanoseconds
+
+instance {x y : Duration} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.toNanoseconds ≤ y.toNanoseconds))
 
 /--
 Converts a `Duration` to a `Minute.Offset`
@@ -303,11 +310,13 @@ instance : Coe Day.Offset Duration where
   coe := ofSeconds ∘ Day.Offset.toSeconds
 
 instance : HMul Int Duration Duration where
-  hMul x y := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (y.toNanoseconds.val * x)
+  hMul i d := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
 
 instance : HMul Duration Int Duration where
-  hMul y x := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (y.toNanoseconds.val * x)
+  hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
 
+instance : HAdd PlainTime Duration PlainTime where
+   hAdd pt d := PlainTime.ofNanoseconds (d.toNanoseconds + pt.toNanoseconds)
 
 end Duration
 end Time

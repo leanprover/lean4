@@ -574,7 +574,7 @@ def unlockAsync (env : Environment) : Environment :=
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
   if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.toConstantInfo.name == n)) then
     return subDecl.toConstantInfo
-  else if let #[_] := env.asyncConstMap.matchingToArray n then
+  else if let some _ := env.asyncConstMap.findLongestPrefix? n then
     env.checkedSync.get.base.constants.find?' n
   else
     none

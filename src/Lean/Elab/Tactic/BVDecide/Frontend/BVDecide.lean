@@ -84,6 +84,10 @@ A counter example generated from the bitblaster.
 -/
 structure CounterExample where
   /--
+  The goal in which to interpret this counter example.
+  -/
+  goal : MVarId
+  /--
   The set of unused but potentially relevant hypotheses. Useful for diagnosing spurious counter
   examples.
   -/
@@ -97,7 +101,7 @@ structure UnsatProver.Result where
   proof : Expr
   lratCert : LratCert
 
-abbrev UnsatProver := ReflectionResult → Std.HashMap Nat (Nat × Expr) →
+abbrev UnsatProver := MVarId → ReflectionResult → Std.HashMap Nat (Nat × Expr) →
     MetaM (Except CounterExample UnsatProver.Result)
 
 /--
@@ -112,8 +116,9 @@ abbrev DiagnosisM : Type → Type := ReaderT CounterExample <| StateRefT Diagnos
 namespace DiagnosisM
 
 def run (x : DiagnosisM Unit) (counterExample : CounterExample) : MetaM Diagnosis := do
-  let (_, issues) ← ReaderT.run x counterExample |>.run {}
-  return issues
+  counterExample.goal.withContext do
+    let (_, issues) ← ReaderT.run x counterExample |>.run {}
+    return issues
 
 def unusedHyps : DiagnosisM (Std.HashSet FVarId) := do
   return (← read).unusedHypotheses
@@ -177,7 +182,7 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
     err := err ++ m!"Consider the following assignment:\n"
     return err
 
-def lratBitblaster (cfg : TacticContext) (reflectionResult : ReflectionResult)
+def lratBitblaster (goal : MVarId) (cfg : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr)) :
     MetaM (Except CounterExample UnsatProver.Result) := do
   let bvExpr := reflectionResult.bvExpr
@@ -206,11 +211,13 @@ def lratBitblaster (cfg : TacticContext) (reflectionResult : ReflectionResult)
 
   match res with
   | .ok cert =>
+    trace[Meta.Tactic.sat] "SAT solver found a proof."
     let proof ← cert.toReflectionProof cfg bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
     return .ok ⟨proof, cert⟩
   | .error assignment =>
+    trace[Meta.Tactic.sat] "SAT solver found a counter example."
     let equations := reconstructCounterExample map assignment aigSize atomsAssignment
-    return .error { unusedHypotheses := reflectionResult.unusedHypotheses, equations }
+    return .error { goal, unusedHypotheses := reflectionResult.unusedHypotheses, equations }
 
 
 def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
@@ -248,7 +255,7 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
 
     let atomsPairs := (← getThe State).atoms.toList.map (fun (expr, ⟨width, ident⟩) => (ident, (width, expr)))
     let atomsAssignment := Std.HashMap.ofList atomsPairs
-    match ← unsatProver reflectionResult atomsAssignment with
+    match ← unsatProver g reflectionResult atomsAssignment with
     | .ok ⟨bvExprUnsat, cert⟩ =>
       let proveFalse ← reflectionResult.proveFalse bvExprUnsat
       g.assign proveFalse
@@ -256,9 +263,9 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
     | .error counterExample => return .error counterExample
 
 def bvUnsat (g : MVarId) (cfg : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
-  let unsatProver : UnsatProver := fun reflectionResult atomsAssignment => do
+  let unsatProver : UnsatProver := fun g reflectionResult atomsAssignment => do
     withTraceNode `bv (fun _ => return "Preparing LRAT reflection term") do
-      lratBitblaster cfg reflectionResult atomsAssignment
+      lratBitblaster g cfg reflectionResult atomsAssignment
   closeWithBVReflection g unsatProver
 
 /--
@@ -289,9 +296,11 @@ def bvDecide (g : MVarId) (cfg : TacticContext) : MetaM Result := do
   match ← bvDecide' g cfg with
   | .ok result => return result
   | .error counterExample =>
-    let error ← explainCounterExampleQuality counterExample
-    let folder := fun error (var, value) => error ++ m!"{var} = {value.bv}\n"
-    throwError counterExample.equations.foldl (init := error) folder
+    counterExample.goal.withContext do
+      let error ← explainCounterExampleQuality counterExample
+      let folder := fun error (var, value) => error ++ m!"{var} = {value.bv}\n"
+      let errorMessage := counterExample.equations.foldl (init := error) folder
+      throwError (← addMessageContextFull errorMessage)
 
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
 def evalBvTrace : Tactic := fun

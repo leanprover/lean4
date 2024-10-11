@@ -81,6 +81,9 @@ where
 private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorry := false) : TermElabM Unit := do
   -- Use the `elabMutualDef` machinery to be able to support `let rec`.
   -- Hack: since we are using the `TermElabM` version, we can insert the `value` as a metavariable via `exprToSyntax`.
+  -- An alternative design would be to make `elabTermForEval` into a term elaborator and elaborate the command all at once
+  -- with `unsafe def _eval := term_for_eval% $t`, which we did try, but unwanted error messages
+  -- such as "failed to infer definition type" can surface.
   let defView := mkDefViewOfDef { isUnsafe := true }
     (← `(Parser.Command.definition|
           def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))

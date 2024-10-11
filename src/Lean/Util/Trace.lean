@@ -213,35 +213,6 @@ invocations, which is the common case."
     -- milliseconds to seconds
     (trace.profiler.threshold.get o).toFloat / 1000
 
-/--
-`MonadExcept` variant that is expected to catch all exceptions of the given type in case the
-standard instance doesn't.
-
-In most circumstances, we want to let runtime exceptions during term elaboration bubble up to the
-command elaborator (see `Core.tryCatch`). However, in a few cases like building the trace tree, we
-really need to handle (and then re-throw) every exception lest we end up with a broken tree.
--/
-class MonadAlwaysExcept (ε : outParam (Type u)) (m : Type u → Type v) where
-  except : MonadExceptOf ε m
-
--- instances sufficient for inferring `MonadAlwaysExcept` for the elaboration monads
-
-instance : MonadAlwaysExcept ε (EIO ε) where
-  except := inferInstance
-
-instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateT σ m) where
-  except := let _ := always.except; inferInstance
-
-instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateRefT' ω σ m) where
-  except := let _ := always.except; inferInstance
-
-instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (ReaderT ρ m) where
-  except := let _ := always.except; inferInstance
-
-instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α] :
-    MonadAlwaysExcept ε (MonadCacheT α β m) where
-  except := let _ := always.except; inferInstance
-
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
     (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except

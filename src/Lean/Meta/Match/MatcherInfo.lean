@@ -87,13 +87,6 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
   extension.addEntry (allowAsync := true) env { name := matcherName, info := info }
 
-def _root_.Lean.SimplePersistentEnvExtension.findStateAsync {α σ : Type} [Inhabited σ]
-    (ext : SimplePersistentEnvExtension α σ) (env : Environment) (declName : Name) : σ :=
-  if let #[aconst] := env.asyncConstMap.matchingToArray declName then
-    EnvExtensionInterfaceImp.getState ext.toEnvExtension aconst.exts.get |>.state.2
-  else
-    ext.getState env
-
 def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
   (extension.findStateAsync env declName).map.find? declName
 

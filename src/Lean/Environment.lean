@@ -953,7 +953,7 @@ def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env :
 
 def findStateAsync {α β σ : Type} [Inhabited σ]
     (ext : PersistentEnvExtension α β σ) (env : Environment) (declName : Name) : σ :=
-  if let #[aconst] := env.asyncConstMap.matchingToArray declName then
+  if let some aconst := env.asyncConstMap.findLongestPrefix? declName then
     EnvExtensionInterfaceImp.getState ext.toEnvExtension aconst.exts.get |>.state
   else
     ext.getState env
@@ -1054,12 +1054,9 @@ def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : En
 def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
   PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
 
-def SimplePersistentEnvExtension.findStateAsync {α σ : Type} [Inhabited σ]
+def findStateAsync {α σ : Type} [Inhabited σ]
     (ext : SimplePersistentEnvExtension α σ) (env : Environment) (declName : Name) : σ :=
-  if let #[aconst] := env.asyncConstMap.matchingToArray declName then
-    EnvExtensionInterfaceImp.getState ext.toEnvExtension aconst.exts.get |>.state.2
-  else
-    ext.getState env
+  PersistentEnvExtension.findStateAsync ext env declName |>.2
 
 end SimplePersistentEnvExtension
 

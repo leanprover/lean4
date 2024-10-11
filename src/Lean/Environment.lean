@@ -324,14 +324,17 @@ instance [Nonempty α] [Nonempty β] : Nonempty (α × β) :=
 inductive SubDecl
   | thm (val : TheoremVal)
   | defn (val : DefinitionVal)
+  | axiom (val : AxiomVal)
 
 def SubDecl.toDecl : SubDecl → Declaration
   | .thm val => .thmDecl val
   | .defn val => .defnDecl val
+  | .axiom val => .axiomDecl val
 
 def SubDecl.toConstantInfo : SubDecl → ConstantInfo
   | .thm val => .thmInfo val
   | .defn val => .defnInfo val
+  | .axiom val => .axiomInfo val
 
 /--
 Extension of `Kernel.Environment` that adds tracking of compiler IR, asynchronously elaborated
@@ -409,9 +412,11 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
   let mut env := env
   if let some asyncCtx := env.asyncCtx? then
     let (name, val) ← match decl with
-      | Declaration.thmDecl thm => pure (thm.name, .thm thm)
-      | Declaration.defnDecl defn => pure (defn.name, .defn defn)
-      | _ => throw <| .other s!"cannot add non-definition/non-theorem declaration {decl.getNames} in async context"
+      | .thmDecl thm => pure (thm.name, .thm thm)
+      | .defnDecl defn => pure (defn.name, .defn defn)
+      | .mutualDefnDecl [defn] => pure (defn.name, .defn defn)
+      | .axiomDecl ax => pure (ax.name, .axiom ax)
+      | _ => dbgStackTrace fun _ => throw <| .other s!"cannot add non-definition/non-theorem declaration {decl.getNames} in async context"
     if !asyncCtx.declPrefix.isPrefixOf name then
       dbgStackTrace fun _ =>
       throw <| .other s!"declaration '{name}' cannot be added to the environment because the context \
@@ -628,7 +633,7 @@ def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
 
 def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind : ConstantKind)
     (sig? : Option (Task ConstantVal) := none) :
-    IO (Environment × Option (ConstantInfo → IO Environment)) := do
+    IO (Environment × Option (Option ConstantInfo → IO Environment)) := do
   if env.contains constName then
     return (env, none)
   if env.realizingConst then
@@ -658,18 +663,25 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     return (env, none)
   else
     let env := { env with realizingConst := true }
-    return (env, some fun const => do
-      if const.name != constName then
-        throw <| .userError s!"Environment.realizeCosnt: realized constant has name {const.name} but expected {constName}"
-      let kind' := .ofConstantInfo const
-      if kind != kind' then
-        throw <| .userError s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
-      prom.resolve (const, env.extensions)
-      return { env with
-        asyncConsts := env.asyncConsts.push asyncConst.get
-        asyncConstMap := env.asyncConstMap.insert constName asyncConst.get
-        realizingConst := false
-      })
+    return (env, some fun
+      | none => do
+        prom.resolve (/- TODO -/ default, #[])
+        return env
+      | some const => do
+        try
+          if const.name != constName then
+            throw <| .userError s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
+          let kind' := .ofConstantInfo const
+          if kind != kind' then
+            throw <| .userError s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
+          prom.resolve (const, env.extensions)
+        finally
+          prom.resolve (/- TODO -/ default, #[])
+        return { env with
+          asyncConsts := env.asyncConsts.push asyncConst.get
+          asyncConstMap := env.asyncConstMap.insert constName asyncConst.get
+          realizingConst := false
+        })
 
 end Environment
 

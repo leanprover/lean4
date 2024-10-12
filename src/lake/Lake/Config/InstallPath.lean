@@ -11,14 +11,10 @@ namespace Lake
 
 /-! ## Data Structures -/
 
-/-- Standard path of `elan` in a Elan installation. -/
-def elanExe (home : FilePath) :=
-  home / "bin" / "elan" |>.addExtension FilePath.exeExtension
-
 /-- Information about the local Elan setup. -/
 structure ElanInstall where
   home : FilePath
-  elan := elanExe home
+  elan : FilePath
   binDir := home / "bin"
   toolchainsDir := home / "toolchains"
   deriving Inhabited, Repr
@@ -115,7 +111,8 @@ environment variable for a installation location.
 -/
 def findElanInstall? : BaseIO (Option ElanInstall) := do
   if let some home ← IO.getEnv "ELAN_HOME" then
-    return some {home}
+    let elan := (← IO.getEnv "ELAN").getD "elan"
+    return some {elan, home}
   return none
 
 /--

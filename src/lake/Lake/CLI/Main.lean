@@ -26,6 +26,7 @@ namespace Lake
 /-! ## General options for top-level `lake` -/
 
 structure LakeOptions where
+  args : List String := []
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
   elanInstall? : Option ElanInstall := none
@@ -36,6 +37,7 @@ structure LakeOptions where
   wantsHelp : Bool := false
   verbosity : Verbosity := .normal
   updateDeps : Bool := false
+  updateToolchain : Bool := true
   reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
@@ -72,12 +74,15 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   return {
+    lakeArgs? := opts.args.toArray
     lakeEnv := ← opts.computeEnv
     wsDir := opts.rootDir
     relConfigFile := opts.configFile
     lakeOpts := opts.configOpts
     leanOpts := Lean.Options.empty
     reconfigure := opts.reconfigure
+    updateDeps := opts.updateDeps
+    updateToolchain := opts.updateToolchain
     targetToolchain? := ← (ToolchainVer.ofDir? opts.rootDir).adaptExcept .readToolchainFailed
   }
 
@@ -102,7 +107,7 @@ abbrev CliM := ArgsT CliStateM
 
 def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
-  let main := self.run' args |>.run' {elanInstall?, leanInstall?, lakeInstall?}
+  let main := self.run' args |>.run' {args, elanInstall?, leanInstall?, lakeInstall?}
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
@@ -172,6 +177,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
 | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
 | "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
+| "--keep-toolchain" => modifyThe LakeOptions ({· with updateToolchain := false})
 | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
@@ -332,7 +338,7 @@ protected def build : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
-  let ws ← loadWorkspace config opts.updateDeps
+  let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
   let buildConfig := mkBuildConfig opts (out := .stdout)
@@ -351,7 +357,7 @@ protected def resolveDeps : CliM PUnit := do
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   noArgsRem do
-  discard <| loadWorkspace config opts.updateDeps
+  discard <| loadWorkspace config
 
 protected def update : CliM PUnit := do
   processOptions lakeOption

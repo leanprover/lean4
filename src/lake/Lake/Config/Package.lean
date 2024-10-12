@@ -385,8 +385,6 @@ structure Package where
   remoteUrl : String := ""
   /-- Toolchain version from the package's `lean-toolchain` file. -/
   targetToolchain? : Option ToolchainVer := none
-  /-- (Opaque references to) the package's direct dependencies. -/
-  opaqueDeps : Array OpaquePackage := #[]
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
@@ -509,10 +507,6 @@ namespace Package
 /-- The package's `dir` joined with its `relReadmeFile`. -/
 @[inline] def readmeFile (self : Package) : FilePath  :=
   self.dir / self.config.readmeFile
-
-/-- The package's direct dependencies. -/
-@[inline] def deps (self : Package) : Array Package  :=
-  self.opaqueDeps.map (·.get)
 
 /-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
 @[inline] def relLakeDir (_ : Package) : FilePath :=

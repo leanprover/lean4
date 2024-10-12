@@ -18,8 +18,14 @@ open Lean (Name)
 structure Workspace : Type where
   /-- The root package of the workspace. -/
   root : Package
-  /-- The detect `Lake.Env` of the workspace. -/
+  /-- The detected `Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
+  /--
+  The CLI arguments Lake was run with.
+  Used by `lake update` to perform a restart of Lake on a toolchain update.
+  A value of `none` means that Lake is not restartable via the CLI.
+  -/
+  lakeArgs? : Option (Array String) := none
   /-- The packages within the workspace (in `require` declaration order). -/
   packages : Array Package := {}
   /-- Name-package map of packages within the workspace. -/

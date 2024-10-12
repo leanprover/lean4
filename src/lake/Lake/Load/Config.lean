@@ -46,8 +46,6 @@ structure LoadConfig where
   scope : String := ""
   /-- The URL to this package's Git remote (if any). -/
   remoteUrl : String := ""
-  /-- The package's `lean-toolchain` version. -/
-  targetToolchain? : Option ToolchainVer := none
 
 /-- The full path to loaded package's directory. -/
 @[inline] def LoadConfig.pkgDir (cfg : LoadConfig) : FilePath :=

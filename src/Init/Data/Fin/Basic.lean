@@ -5,6 +5,7 @@ Author: Leonardo de Moura, Robert Y. Lewis, Keeley Hoek, Mario Carneiro
 -/
 prelude
 import Init.Data.Nat.Bitwise.Basic
+import Init.Data.Cast
 
 open Nat
 
@@ -151,10 +152,14 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
+/-- Given a positive `n`, `Fin.ofNat' i` is `i % n` as an element of `Fin n`. -/
+def ofNat'' [NeZero n] (i : Nat) : Fin n :=
+  ⟨i % n, mod_lt _ n.pos_of_neZero⟩
+
 instance instNatCast [NeZero n] : NatCast (Fin n) where
   natCast n := Fin.ofNat'' n
 
-theorem natCast_def [NeZero n] (a : Nat) : (a : Fin n) = ⟨a % n, mod_lt _ n.pos_of_neZero⟩ := r
+--theorem natCast_def [NeZero n] (a : Nat) : (a : Fin n) = ⟨a % n, mod_lt _ n.pos_of_neZero⟩ := r
 
 instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin n) i where
   ofNat := Fin.ofNat' n i
@@ -178,9 +183,6 @@ theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
 
 protected theorem pos (i : Fin n) : 0 < n :=
   Nat.lt_of_le_of_lt (Nat.zero_le _) i.2
-
-def ofNat'' [NeZero n] (i : Nat) : Fin n :=
-  ⟨i % n, mod_lt _ n.pos_of_neZero⟩
 
 /-- The greatest value of `Fin (n+1)`. -/
 @[inline] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩

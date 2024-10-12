@@ -380,11 +380,11 @@ structure Package where
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The package's scope (e.g., in Reservoir). -/
-  scope : String := ""
+  scope : String
   /-- The URL to this package's Git remote. -/
-  remoteUrl : String := ""
+  remoteUrl : String
   /-- Toolchain version from the package's `lean-toolchain` file. -/
-  targetToolchain? : Option ToolchainVer := none
+  targetToolchain? : Option ToolchainVer
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/

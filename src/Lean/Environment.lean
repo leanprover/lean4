@@ -636,6 +636,7 @@ def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
 def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind : ConstantKind)
     (sig? : Option (Task ConstantVal) := none) :
     IO (Environment × Option (Option ConstantInfo → EIO Kernel.Exception Environment)) := do
+  let mut env := env
   if env.contains constName then
     return (env, none)
   if env.realizingConst then
@@ -653,18 +654,25 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
   let ref ← if env.const2ModIdx.contains forConst then pure env.realizedExternConsts else
     match env.realizedLocalConsts.find? forConst with
     | some ref => pure ref
-    | none     => throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
+    | none     =>
+      if env.asyncCtx?.any (·.declPrefix.isPrefixOf forConst) then
+        let ref ← IO.mkRef {}
+        env := { env with realizedLocalConsts := env.realizedLocalConsts.insert forConst ref }
+        pure ref
+      else
+        throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
+      throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
   let existingConst? ← ref.modifyGet fun m => match m.find? constName with
     | some prom' => (some prom', m)
     | none       => (none, m.insert constName asyncConst.get)
   if let some existingConst := existingConst? then
-    let env := { env with
+    env := { env with
       asyncConsts := env.asyncConsts.push existingConst
       asyncConstMap := env.asyncConstMap.insert constName existingConst
     }
     return (env, none)
   else
-    let env := { env with realizingConst := true }
+    env := { env with realizingConst := true }
     return (env, some fun
       | none => do
         prom.resolve (/- TODO -/ default, #[])

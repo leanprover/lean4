@@ -147,6 +147,7 @@ def sharedLibPath (env : Env) : SearchPath :=
 /-- Environment variable settings that are not augmented by a Lake workspace. -/
 def baseVars (env : Env) : Array (String × Option String)  :=
   #[
+    ("ELAN", env.elan?.map (·.elan.toString)),
     ("ELAN_HOME", env.elan?.map (·.home.toString)),
     ("ELAN_TOOLCHAIN", if env.toolchain.isEmpty then none else env.toolchain),
     ("LAKE", env.lake.lake.toString),

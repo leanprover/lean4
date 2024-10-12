@@ -95,6 +95,9 @@ we are trying to minimize the number of Nat theorems
 needed to bootstrap Lean.
 -/
 
+protected def neg : Fin n → Fin n
+  | ⟨a, h⟩ => ⟨((n-a) % n), Nat.mod_lt _ (Nat.lt_of_le_of_lt (Nat.zero_le _) h)⟩
+
 protected def mod : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b,  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
@@ -124,6 +127,9 @@ instance : Add (Fin n) where
 
 instance : Sub (Fin n) where
   sub := Fin.sub
+
+instance : Neg (Fin n) where
+  neg := Fin.neg
 
 instance : Mul (Fin n) where
   mul := Fin.mul
@@ -167,6 +173,9 @@ theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
 
 protected theorem pos (i : Fin n) : 0 < n :=
   Nat.lt_of_le_of_lt (Nat.zero_le _) i.2
+
+def ofNat'' [NeZero n] (i : Nat) : Fin n :=
+  ⟨i % n, mod_lt _ n.pos_of_neZero⟩
 
 /-- The greatest value of `Fin (n+1)`. -/
 @[inline] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩

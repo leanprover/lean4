@@ -219,8 +219,31 @@ theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false 
 theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by
   subst h; simp [msb_zero_length]
 
+@[simp] theorem ofFin_neg : ofFin (-x) = -(ofFin x) := by
+  ext; simp; rfl
+
+@[simp] theorem ofFin_ofNat (n : Nat) :
+    ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
+  simp only [OfNat.ofNat, Fin.ofNat', BitVec.ofNat, Nat.and_pow_two_sub_one_eq_mod]
+
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+
+theorem toFin_inj {x y : BitVec w} : x.toFin = y.toFin ↔ x = y := by
+  apply Iff.intro
+  case mp =>
+    exact @eq_of_toFin_eq w x y
+  case mpr =>
+    intro h
+    simp [toFin, h]
+
+@[simp] theorem ofFin_natCast {n : Nat} : ofFin (n : Fin (2^w)) = n := by
+  simp only [Nat.cast, NatCast.natCast, OfNat.ofNat, BitVec.ofNat, Nat.and_pow_two_sub_one_eq_mod]
+  rfl
+
+theorem toFin_natCast {n : Nat} : toFin (n : BitVec w) = n := by
+  simp? [toFin_inj]
+  simp only [ofFin_natCast]
 
 @[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
   cases b <;> rfl
@@ -229,7 +252,7 @@ theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   cases b <;> simp [BitVec.msb, getMsbD, getLsbD]
 
 theorem ofNat_one (n : Nat) : BitVec.ofNat 1 n = BitVec.ofBool (n % 2 = 1) :=  by
-  rcases (Nat.mod_two_eq_zero_or_one n) with h | h <;> simp [h, BitVec.ofNat, Fin.ofNat']
+  rcases (Nat.mod_two_eq_zero_or_one n) with h | h <;> simp [h, BitVec.ofNat, Fin.ofNat', -ofFin_ofNat]
 
 theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b' ↔ b = b' := by
   decide
@@ -918,6 +941,20 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
         calc BitVec.toNat x < 2 ^ v := isLt _
           _ ≤ 2 ^ i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two w
       · simp
+
+@[simp] theorem ofInt_negSucc_eq_not_ofNat {w n : Nat} :
+    BitVec.ofInt w (Int.negSucc n) = ~~~.ofNat w n := by
+  simp only [BitVec.ofInt, Int.toNat, Int.ofNat_eq_coe, toNat_eq, toNat_ofNatLt, toNat_not,
+    toNat_ofNat]
+  cases h : Int.negSucc n % ((2 ^ w : Nat) : Int)
+  case ofNat =>
+    rw [Int.ofNat_eq_coe, Int.negSucc_emod] at h
+    simp only
+    all_goals omega
+  case negSucc a =>
+    have neg := Int.negSucc_lt_zero a
+    have _ : 0 ≤ Int.negSucc n % ((2 ^ w : Nat) : Int) := Int.emod_nonneg _ (by omega)
+    omega
 
 @[simp] theorem toFin_not (x : BitVec w) :
     (~~~x).toFin = x.toFin.rev := by

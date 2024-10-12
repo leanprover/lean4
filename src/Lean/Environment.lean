@@ -18,6 +18,7 @@ import Lean.Util.Path
 import Lean.Util.FindExpr
 import Lean.Util.Profile
 import Lean.Util.InstantiateLevelParams
+import Lean.PrivateName
 
 namespace Lean
 /-- Opaque environment extension state. -/
@@ -655,7 +656,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     match env.realizedLocalConsts.find? forConst with
     | some ref => pure ref
     | none     =>
-      if env.asyncCtx?.any (·.declPrefix.isPrefixOf forConst) then
+      if env.asyncCtx?.any (·.declPrefix.isPrefixOf <| privateToUserName forConst) then
         let ref ← IO.mkRef {}
         env := { env with realizedLocalConsts := env.realizedLocalConsts.insert forConst ref }
         pure ref

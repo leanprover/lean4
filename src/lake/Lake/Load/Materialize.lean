@@ -80,8 +80,6 @@ structure MaterializedDep where
   Used as the endpoint from which to fetch cloud releases for the package.
   -/
   remoteUrl : String
-  /-- The materialized's package `lean-toolchain` version. -/
-  targetToolchain? : Option ToolchainVer
   /-- The manifest entry for the dependency. -/
   manifestEntry : PackageEntry
   deriving Inhabited
@@ -147,7 +145,6 @@ where
   @[inline] mkDep relPkgDir remoteUrl src : LogIO MaterializedDep := do
     return {
       relPkgDir, remoteUrl,
-      targetToolchain? := ← ToolchainVer.ofDir? (wsDir / relPkgDir)
       manifestEntry := {name := dep.name, scope := dep.scope, inherited, src}
     }
 
@@ -187,7 +184,4 @@ def PackageEntry.materialize
     mkDep relPkgDir (Git.filterUrl? url |>.getD "")
 where
   @[inline] mkDep relPkgDir remoteUrl : LogIO MaterializedDep := do
-    return {
-      relPkgDir, remoteUrl, manifestEntry
-      targetToolchain? := ← ToolchainVer.ofDir? (wsDir / relPkgDir)
-    }
+    return {relPkgDir, remoteUrl, manifestEntry}

@@ -383,8 +383,6 @@ structure Package where
   scope : String
   /-- The URL to this package's Git remote. -/
   remoteUrl : String
-  /-- Toolchain version from the package's `lean-toolchain` file. -/
-  targetToolchain? : Option ToolchainVer
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/

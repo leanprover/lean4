@@ -51,7 +51,6 @@ def loadDepPackage
     lakeOpts, leanOpts, reconfigure
     scope := dep.scope
     remoteUrl := dep.remoteUrl
-    targetToolchain? := dep.targetToolchain?
   }
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
@@ -204,21 +203,21 @@ def Workspace.updateToolchain
 : LogIO PUnit := do
   logInfo "checking for toolchain updates..."
   let rootToolchainFile := ws.root.dir / toolchainFileName
-  let rootTc? := ws.root.targetToolchain?
-  let (src, tc?, tcs) := rootDeps.foldl (init := (ws.root.name, rootTc?, #[])) fun (src, tc?, tcs) dep =>
-    let depTc? := dep.targetToolchain?
+  let rootTc? ← ToolchainVer.ofDir? ws.dir
+  let (src, tc?, tcs) ← rootDeps.foldlM (init := (ws.root.name, rootTc?, #[])) fun (src, tc?, tcs) dep => do
+    let depTc? ← ToolchainVer.ofDir? (ws.dir / dep.relPkgDir)
     if let some depTc := depTc? then
       if let some tc := tc? then
         if depTc ≤ tc then
-          (src, some tc, tcs)
+          return (src, some tc, tcs)
         else if tc < depTc then
-          (dep.name, some depTc, tcs)
+          return (dep.name, some depTc, tcs)
         else
-          (src, tc, tcs.push (dep.name, depTc))
+          return (src, tc, tcs.push (dep.name, depTc))
       else
-        (dep.name, depTc?, tcs)
+        return (dep.name, depTc?, tcs)
     else
-      (src, tc?, tcs)
+      return (src, tc?, tcs)
   if 0 < tcs.size then
     let s := "toolchain not updated; multiple toolchain candidates:"
     let s := if let some tc := tc? then s!"{s}\n  {tc}\n    from {src}" else s

@@ -7,6 +7,8 @@ Authors: Mac Malone
 namespace Lake
 open Lean (Name)
 
+deriving instance Repr for IO.Error
+
 inductive CliError
 /- CLI Errors -/
 | missingCommand
@@ -44,6 +46,7 @@ inductive CliError
 | unknownLakeInstall
 | leanRevMismatch (expected actual : String)
 | invalidEnv (msg : String)
+| readToolchainFailed (e : IO.Error)
 deriving Inhabited, Repr
 
 namespace CliError
@@ -78,5 +81,6 @@ def toString : CliError → String
 | unknownLakeInstall      => "could not detect the configuration of the Lake installation"
 | leanRevMismatch e a     => s!"expected Lean commit {e}, but got {if a.isEmpty then "nothing" else a}"
 | invalidEnv msg          => msg
+| readToolchainFailed e   => s!"failed to read package toolchain: {e}"
 
 instance : ToString CliError := ⟨toString⟩

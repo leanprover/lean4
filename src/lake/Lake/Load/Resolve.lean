@@ -51,6 +51,7 @@ def loadDepPackage
     lakeOpts, leanOpts, reconfigure
     scope := dep.scope
     remoteUrl := dep.remoteUrl
+    targetToolchain? := dep.targetToolchain?
   }
   if let some env := env? then
     let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts

@@ -12,7 +12,7 @@ This module contains useful definitions for manipulating versions.
 It also defines a `v!"<ver>"` syntax for version literals.
 -/
 
-open Lean
+open System Lean
 
 namespace Lake
 
@@ -157,6 +157,23 @@ def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
       if origin.isEmpty || origin == defaultOrigin then
         return .release ver
   return .other ver
+
+/-- Parse a toolchain from a `lean-toolchain` file. -/
+def ToolchainVer.ofFile? (toolchainFile : System.FilePath) : IO (Option ToolchainVer) := do
+  try
+    let toolchainString ← IO.FS.readFile toolchainFile
+    return some <| ToolchainVer.ofString toolchainString
+  catch
+    | .noFileOrDirectory .. =>
+      return none
+    | e => throw e
+
+/-- The `elan` toolchain file name (i.e., `lean-toolchain`). -/
+def toolchainFileName : FilePath := "lean-toolchain"
+
+/-- Parse a toolchain from the `lean-toolchain` file of the directory `dir`. -/
+@[inline] def ToolchainVer.ofDir? (dir : FilePath) : IO (Option ToolchainVer) :=
+  ToolchainVer.ofFile? (dir / toolchainFileName)
 
 protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
   match ver with

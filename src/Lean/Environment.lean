@@ -635,7 +635,7 @@ def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
 
 def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind : ConstantKind)
     (sig? : Option (Task ConstantVal) := none) :
-    IO (Environment × Option (Option ConstantInfo → IO Environment)) := do
+    IO (Environment × Option (Option ConstantInfo → EIO Kernel.Exception Environment)) := do
   if env.contains constName then
     return (env, none)
   if env.realizingConst then
@@ -670,20 +670,19 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
         prom.resolve (/- TODO -/ default, #[])
         return env
       | some const => do
-        try
-          if const.name != constName then
-            throw <| .userError s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
-          let kind' := .ofConstantInfo const
-          if kind != kind' then
-            throw <| .userError s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
-          prom.resolve (const, env.extensions)
-        finally
-          prom.resolve (/- TODO -/ default, #[])
-        return { env with
-          asyncConsts := env.asyncConsts.push asyncConst.get
-          asyncConstMap := env.asyncConstMap.insert constName asyncConst.get
-          realizingConst := false
-        })
+        let env := { env with realizingConst := false }
+        let decl ← match const with
+          | .thmInfo thm   => pure <| .thmDecl thm
+          | .defnInfo defn => pure <| .defnDecl defn
+          | _              => throw <| .other s!"Environment.realizeConst: {constName} must be definition/theorem"
+        let env ← EIO.ofExcept <| addDecl env {} decl
+        if const.name != constName then
+          throw <| .other s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
+        let kind' := .ofConstantInfo const
+        if kind != kind' then
+          throw <| .other s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
+        prom.resolve (const, env.extensions)
+        return env)
 
 end Environment
 

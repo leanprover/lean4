@@ -153,7 +153,7 @@ def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool
   else
     return false
 
-def realizeConst [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadAlwaysExcept ε m]
+def realizeConst [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m] [MonadLiftT IO m] [MonadAlwaysExcept ε m]
     (forConst : Name) (constName : Name) (kind : ConstantKind)
     (doRealize : m ConstantInfo) (sig? : Option (Task ConstantVal) := none) : m Unit := do
   let env ← getEnv
@@ -163,8 +163,8 @@ def realizeConst [Monad m] [MonadEnv m] [MonadLiftT IO m] [MonadAlwaysExcept ε 
     let _ := MonadAlwaysExcept.except (m := m)
     try
       let x ← doRealize
-      setEnv <| (← resolve x)
+      setEnv <| (← ofExceptKernelException (← resolve x |>.toBaseIO |> liftM (m := IO)))
     catch _ =>
-      setEnv <| (← resolve none)
+      setEnv <| (← ofExceptKernelException (← resolve none |>.toBaseIO |> liftM (m := IO)))
 
 end Lean

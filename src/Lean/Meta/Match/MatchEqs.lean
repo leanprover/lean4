@@ -720,7 +720,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
-    realizeConst baseName splitterName .thm do
+    realizeConst baseName splitterName .defn do
       -- Define splitter with conditional/refined alternatives
       withSplitterAlts splitterAltTypes fun altsNew => do
         let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew

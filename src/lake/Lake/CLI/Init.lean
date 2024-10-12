@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Util.Sugar
+import Lake.Util.Version
 import Lake.Config.Lang
 import Lake.Config.Package
 import Lake.Config.Workspace
@@ -16,9 +17,6 @@ open Git System
 
 /-- The default module of an executable in `std` package. -/
 def defaultExeRoot : Name := `Main
-
-/-- `elan` toolchain file name -/
-def toolchainFileName : FilePath := "lean-toolchain"
 
 def gitignoreContents :=
 s!"/{defaultLakeDir}

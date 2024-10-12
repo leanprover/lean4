@@ -323,6 +323,7 @@ def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
         relConfigFile := cfg.relConfigFile
         scope := cfg.scope
         remoteUrl := cfg.remoteUrl
+        targetToolchain? := cfg.targetToolchain?
         config, depConfigs, leanLibConfigs, leanExeConfigs
         defaultTargets
       }

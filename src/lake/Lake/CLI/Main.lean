@@ -78,6 +78,7 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
     lakeOpts := opts.configOpts
     leanOpts := Lean.Options.empty
     reconfigure := opts.reconfigure
+    targetToolchain? := ← (ToolchainVer.ofDir? opts.rootDir).adaptExcept .readToolchainFailed
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/

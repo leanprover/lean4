@@ -6,6 +6,7 @@ Authors: Mac Malone, Mario Carneiro
 import Lake.Build.Fetch
 
 namespace Lake
+open Lean (Name)
 
 /-- A facet's declarative configuration. -/
 structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type where

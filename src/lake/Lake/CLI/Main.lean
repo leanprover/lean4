@@ -19,7 +19,7 @@ import Lake.CLI.Serve
 -- # CLI
 
 open System
-open Lean (Json toJson fromJson? LeanPaths)
+open Lean (Json toJson fromJson? LeanPaths NameMap)
 
 namespace Lake
 

@@ -16,6 +16,7 @@ the build.
 -/
 
 namespace Lake
+open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo

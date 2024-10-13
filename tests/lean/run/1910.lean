@@ -16,7 +16,7 @@ structure Equiv (α β : Sort _) where
 
 infixl:25 " ≃ " => Equiv
 
-instance: CoeFun (α ≃ β) fun _ => α → β where
+instance : CoeFun (α ≃ β) fun _ => α → β where
   coe := Equiv.toFun
 
 structure Foo where
@@ -29,6 +29,35 @@ variable (f : Foo)
 #guard_msgs in #check f.n'
 
 example (f : Foo) : f.n' = f.n := rfl
+
+/-!
+Fail dot notation if it requires using a named argument from the CoeFun instance.
+-/
+structure F where
+  f : Bool → Nat → Nat
+
+instance : CoeFun F (fun _ => (x : Bool) → (y : Nat) → Nat) where
+  coe x := fun (a : Bool) (b : Nat) => x.f a b
+
+-- Recall CoeFun oddity: it uses the unfolded *value* to figure out argument names.
+/-- info: fun x => (fun a b => x.f a b) true 2 : F → Nat -/
+#guard_msgs in #check fun (x : F) => x (a := true) (b := 2)
+
+def Nat.foo : F := { f := fun _ b => b }
+
+-- Ok:
+/-- info: fun n x => (fun a b => Nat.foo.f a b) x n : Nat → Bool → Nat -/
+#guard_msgs in #check fun (n : Nat) => (Nat.foo · n)
+
+-- Intentionally fails:
+/--
+error: invalid field notation, function 'Nat.foo' has argument with the expected type
+  Nat
+but it cannot be used
+---
+info: fun n => sorryAx (?_ n) true : (n : Nat) → ?_ n
+-/
+#guard_msgs in #check fun (n : Nat) => n.foo
 
 /-!
 Make sure that dot notation does not use the wrong CoeFun instance.

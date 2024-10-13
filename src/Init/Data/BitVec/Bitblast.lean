@@ -272,6 +272,7 @@ theorem getMsbD_add {i : Nat} {i_lt : i < w} {x y : BitVec w} :
       Bool.xor (getMsbD x i) (Bool.xor (getMsbD y i) (carry (w - 1 - i) x y false)) := by
   simp [getMsbD, getLsbD_add, i_lt, show w - 1 - i < w by omega]
 
+@[simp]
 theorem msb_add {w : Nat} {x y: BitVec w} :
     (x + y).msb =
       Bool.xor (getMsbD x 0) (Bool.xor (getMsbD y 0) (carry (w - 1) x y false)) := by
@@ -281,23 +282,6 @@ theorem msb_add {w : Nat} {x y: BitVec w} :
   · rw [getLsbD_add (x := x)]
     simp [show w > 0 by omega]
     omega
-theorem msb_sub {x y: BitVec w} :
-    (x - y).msb
-      = (x.getMsbD 0 ^^ ((~~~y + 1#w).getMsbD 0 ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
-  simp [sub_toAdd, BitVec.neg_eq_not_add, msb_add]
-
-theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
-    (x - y).getMsbD i =
-      (x.getMsbD i ^^ ((~~~y + 1).getMsbD i ^^ carry (w - 1 - i) x (~~~y + 1) false)) := by
-  rw [sub_toAdd, neg_eq_not_add, getMsbD_add]
-  rfl
-  omega
-
-theorem getLsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
-    (x - y).getLsbD i
-      = (x.getLsbD i ^^ ((~~~y + 1#w).getLsbD i ^^ carry i x (~~~y + 1#w) false)) := by
-  rw [sub_toAdd, BitVec.neg_eq_not_add, getLsbD_add]
-  omega
 
 /-- Adding a bitvector to its own complement yields the all ones bitpattern -/
 @[simp] theorem add_not_self (x : BitVec w) : x + ~~~x = allOnes w := by
@@ -323,6 +307,27 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     · intros hx
       simp_all [hx]
     · by_cases hx : x.getLsbD i <;> simp_all [hx]
+
+/-! ### Sub-/
+
+theorem getLsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getLsbD i
+      = (x.getLsbD i ^^ ((~~~y + 1#w).getLsbD i ^^ carry i x (~~~y + 1#w) false)) := by
+  rw [sub_toAdd, BitVec.neg_eq_not_add, getLsbD_add]
+  omega
+
+theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getMsbD i =
+      (x.getMsbD i ^^ ((~~~y + 1).getMsbD i ^^ carry (w - 1 - i) x (~~~y + 1) false)) := by
+  rw [sub_toAdd, neg_eq_not_add, getMsbD_add]
+  · rfl
+  · omega
+
+@[simp]
+theorem msb_sub {x y: BitVec w} :
+    (x - y).msb
+      = (x.getMsbD 0 ^^ ((~~~y + 1#w).getMsbD 0 ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
+  simp [sub_toAdd, BitVec.neg_eq_not_add, msb_add]
 
 /-! ### Negation -/
 

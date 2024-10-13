@@ -39,7 +39,8 @@ structure F where
 instance : CoeFun F (fun _ => (x : Bool) → (y : Nat) → Nat) where
   coe x := fun (a : Bool) (b : Nat) => x.f a b
 
--- Recall CoeFun oddity: it uses the unfolded *value* to figure out argument names.
+-- Recall CoeFun oddity: it uses the unfolded *value* to figure out parameter names.
+-- That's why this is `a` and `b` rather than `x` and `y`.
 /-- info: fun x => (fun a b => x.f a b) true 2 : F → Nat -/
 #guard_msgs in #check fun (x : F) => x (a := true) (b := 2)
 

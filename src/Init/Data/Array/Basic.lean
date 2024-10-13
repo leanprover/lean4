@@ -25,6 +25,8 @@ variable {α : Type u}
 
 namespace Array
 
+@[deprecated size (since := "2024-10-13")] abbrev data := @toList
+
 /-! ### Preliminary theorems -/
 
 @[simp] theorem size_set (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=

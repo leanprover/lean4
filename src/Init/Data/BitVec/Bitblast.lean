@@ -349,21 +349,6 @@ theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c
     simp [← sub_toAdd, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
 
-theorem getMsbD_neg {i : Nat} {i_lt : i < w} {x : BitVec w} :
-    getMsbD (~~~x) i = (getMsbD x i).not := by
-  simp
-  omega
-
-theorem getLsbD_neg {i : Nat} {i_lt : i < w} {x : BitVec w} :
-    getLsbD (~~~x) i = (getLsbD x i).not := by
-  simp
-  omega
-
-theorem msb_neg {w : Nat} {x y: BitVec w} (h : 0 < w):
-    (~~~x).msb = (getMsbD x 0).not := by
-  rw [BitVec.msb, BitVec.getMsbD_neg]
-  omega
-
 /-! ### Inequalities (le / lt) -/
 
 theorem ult_eq_not_carry (x y : BitVec w) : x.ult y = !carry w x (~~~y) true := by

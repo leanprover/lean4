@@ -78,9 +78,7 @@ instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
   to
       `@LT.lt (Fin USize.size) instLTFin i.val ↑xs.size : Prop`
   -/
-  getElem xs i h := xs.uget i (
-    by exact h
-  )
+  getElem xs i (h : @LT.lt Nat instLTNat (↑i.val) xs.size) := xs.uget i h
 
 @[extern "lean_float_array_uset"]
 def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray

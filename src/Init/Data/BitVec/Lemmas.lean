@@ -219,8 +219,24 @@ theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false 
 theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by
   subst h; simp [msb_zero_length]
 
+theorem ofFin_ofNat (n : Nat) :
+    ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
+  simp only [OfNat.ofNat, Fin.ofNat', BitVec.ofNat, Nat.and_pow_two_sub_one_eq_mod]
+
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+
+theorem toFin_inj {x y : BitVec w} : x.toFin = y.toFin ↔ x = y := by
+  apply Iff.intro
+  case mp =>
+    exact @eq_of_toFin_eq w x y
+  case mpr =>
+    intro h
+    simp [toFin, h]
+
+theorem toFin_zero : toFin (0 : BitVec w) = 0 := rfl
+theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
+  rw [toFin_inj]; simp only [ofNat_eq_ofNat, ofFin_ofNat]
 
 @[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
   cases b <;> rfl
@@ -918,6 +934,21 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
         calc BitVec.toNat x < 2 ^ v := isLt _
           _ ≤ 2 ^ i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two w
       · simp
+
+@[simp] theorem ofInt_negSucc_eq_not_ofNat {w n : Nat} :
+    BitVec.ofInt w (Int.negSucc n) = ~~~.ofNat w n := by
+  simp only [BitVec.ofInt, Int.toNat, Int.ofNat_eq_coe, toNat_eq, toNat_ofNatLt, toNat_not,
+    toNat_ofNat]
+  cases h : Int.negSucc n % ((2 ^ w : Nat) : Int)
+  case ofNat =>
+    rw [Int.ofNat_eq_coe, Int.negSucc_emod] at h
+    · dsimp only
+      omega
+    · omega
+  case negSucc a =>
+    have neg := Int.negSucc_lt_zero a
+    have _ : 0 ≤ Int.negSucc n % ((2 ^ w : Nat) : Int) := Int.emod_nonneg _ (by omega)
+    omega
 
 @[simp] theorem toFin_not (x : BitVec w) :
     (~~~x).toFin = x.toFin.rev := by

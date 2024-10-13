@@ -1350,7 +1350,6 @@ where
           unusableNamedArgs := unusableNamedArgs.push xDecl.userName
       if let fType'@(.forallE ..) ← whnf fType' then
         return ← go (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs
-      synthesizeSyntheticMVars
       if let some f' ← coerceToFunction? (mkAppN f xs) then
         return ← go f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs
       throwError "\

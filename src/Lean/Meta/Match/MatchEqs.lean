@@ -695,7 +695,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
           notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
         notAlt ← mkForallFVars (discrs ++ ys) notAlt
-        realizeConst baseName thmName .thm do
+        realizeConst matchDeclName thmName .thm do
           /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
             Thus, we need to create new `alts`. -/
           withNewAlts numDiscrEqs discrs patterns alts fun alts => do
@@ -720,7 +720,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
-    realizeConst baseName splitterName .defn do
+    realizeConst matchDeclName splitterName .defn do
       -- Define splitter with conditional/refined alternatives
       withSplitterAlts splitterAltTypes fun altsNew => do
         let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew

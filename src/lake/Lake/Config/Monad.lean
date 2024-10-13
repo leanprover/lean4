@@ -7,7 +7,7 @@ import Lake.Config.Context
 import Lake.Config.Workspace
 
 open System
-open Lean (Name)
+open Lean (Name NameMap)
 
 /-! # Lake Configuration Monads
 Definitions and helpers for interacting with the Lake configuration monads.

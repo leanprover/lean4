@@ -10,6 +10,8 @@ Utilities for fetching package, library, module, and executable targets and face
 -/
 
 namespace Lake
+open Lean (Name)
+open System (FilePath)
 
 /-! ## Package Facets & Targets -/
 

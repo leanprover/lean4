@@ -13,6 +13,7 @@ import Lake.Build.Actions
 
 namespace Lake
 open Git System
+open Lean (Name)
 
 /-- The default module of an executable in `std` package. -/
 def defaultExeRoot : Name := `Main

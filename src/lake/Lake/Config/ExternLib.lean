@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.Config.Package
 
 namespace Lake
+open Lean (Name)
 
 /-- An external library -- its package plus its configuration. -/
 structure ExternLib where

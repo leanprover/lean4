@@ -11,6 +11,7 @@ Build function definitions for a library's builtin facets.
 -/
 
 namespace Lake
+open System (FilePath)
 
 /-! ## Build Lean & Static Lib -/
 

@@ -237,13 +237,13 @@ theorem toFin_inj {x y : BitVec w} : x.toFin = y.toFin ↔ x = y := by
     intro h
     simp [toFin, h]
 
-@[simp] theorem ofFin_natCast {n : Nat} : ofFin (n : Fin (2^w)) = n := by
-  simp only [Nat.cast, NatCast.natCast, OfNat.ofNat, BitVec.ofNat, Nat.and_pow_two_sub_one_eq_mod]
-  rfl
+--@[simp] theorem ofFin_natCast {n : Nat} : ofFin (n : Fin (2^w)) = n := by
+--  simp only [Nat.cast, NatCast.natCast, OfNat.ofNat, BitVec.ofNat, Nat.and_pow_two_sub_one_eq_mod]
+--  rfl
 
-theorem toFin_natCast {n : Nat} : toFin (n : BitVec w) = n := by
-  simp? [toFin_inj]
-  simp only [ofFin_natCast]
+--theorem toFin_natCast {n : Nat} : toFin (n : BitVec w) = n := by
+--  simp? [toFin_inj]
+--  simp only [ofFin_natCast]
 
 @[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
   cases b <;> rfl

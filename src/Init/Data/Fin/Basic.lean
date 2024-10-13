@@ -156,8 +156,8 @@ instance : ShiftRight (Fin n) where
 def ofNat'' [NeZero n] (i : Nat) : Fin n :=
   ⟨i % n, mod_lt _ n.pos_of_neZero⟩
 
-instance instNatCast [NeZero n] : NatCast (Fin n) where
-  natCast n := Fin.ofNat'' n
+--instance instNatCast [NeZero n] : NatCast (Fin n) where
+--  natCast n := Fin.ofNat'' n
 
 --theorem natCast_def [NeZero n] (a : Nat) : (a : Fin n) = ⟨a % n, mod_lt _ n.pos_of_neZero⟩ := r
 

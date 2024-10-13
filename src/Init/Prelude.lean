@@ -1592,9 +1592,6 @@ def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | succ _, zero   => false
   | succ n, succ m => beq n m
 
-instance : BEq Nat where
-  beq := Nat.beq
-
 theorem Nat.eq_of_beq_eq_true : {n m : Nat} → Eq (beq n m) true → Eq n m
   | zero,   zero,   _ => rfl
   | zero,   succ _, h => Bool.noConfusion h

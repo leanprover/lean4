@@ -407,7 +407,11 @@ def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name
     match (← resolveGlobalName n₀) with
       | [(potentialMatch, _)] => if (privateToUserName? potentialMatch).getD potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
       | _ => return n₀ -- if can't resolve, return the original
-  let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
+  let mut initialNames := List.toArray <|
+    -- Some projects use `export` so that some names become permanently available inside a namespace.
+    -- These aren't "API exports" (i.e., intentional exports that should be referred to by fully qualified name)
+    -- so filter them out. Heuristic: an "API export" is one that goes into a parent namespace.
+    (getRevAliases (← getEnv) n₀).filter fun n => n.getPrefix.isPrefixOf n₀.getPrefix
   initialNames := initialNames.push (rootNamespace ++ n₀)
   for initialName in initialNames do
     if let some n ← unresolveNameCore initialName then

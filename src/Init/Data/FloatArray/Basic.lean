@@ -63,20 +63,7 @@ instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
 instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
-  /-
-  type mismatch
-    fun xs i h => xs.uget i h
-  has type
-    (xs : FloatArray) → (i : USize) → ↑i.val < xs.size → Float : Type
-  but is expected to have type
-    (xs : FloatArray) → (i : USize) → i.val < ↑xs.size → Float : Type
-
-  This worked before, but fails after adding:
-
-  instance instNatCast [NeZero n] : NatCast (Fin n) where
-  natCast n := Fin.ofNat'' n
-  -/
-  getElem xs i (h : @LT.lt Nat instLTNat (↑i.val) xs.size) := xs.uget i h
+  getElem xs i h := xs.uget i h
 
 @[extern "lean_float_array_uset"]
 def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray

@@ -152,15 +152,6 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
-/-- Given a positive `n`, `Fin.ofNat' i` is `i % n` as an element of `Fin n`. -/
-def ofNat'' [NeZero n] (i : Nat) : Fin n :=
-  ⟨i % n, mod_lt _ n.pos_of_neZero⟩
-
-instance instNatCast [NeZero n] : NatCast (Fin n) where
-  natCast n := Fin.ofNat'' n
-
---theorem natCast_def [NeZero n] (a : Nat) : (a : Fin n) = ⟨a % n, mod_lt _ n.pos_of_neZero⟩ := r
-
 instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin n) i where
   ofNat := Fin.ofNat' n i
 

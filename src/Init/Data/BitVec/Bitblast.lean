@@ -267,6 +267,34 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 
 /-! ### add -/
 
+theorem getMsbD_add {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    getMsbD (x + y) i =
+      Bool.xor (getMsbD x i) (Bool.xor (getMsbD y i) (carry (w - 1 - i) x y false)) := by
+  simp [getMsbD, getLsbD_add, i_lt, show w - 1 - i < w by omega]
+
+theorem msb_add {w : Nat} {x y: BitVec w} :
+    (x + y).msb =
+      Bool.xor (getMsbD x 0) (Bool.xor (getMsbD y 0) (carry (w - 1) x y false)) := by
+  simp only [BitVec.msb, BitVec.getMsbD]
+  by_cases h : w ≤ 0
+  · simp [h, show w = 0 by omega]
+  · rw [getLsbD_add (x := x)]
+    simp [show w > 0 by omega]
+    omega
+
+theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getMsbD i =
+      (x.getMsbD i ^^ ((~~~y + 1).getMsbD i ^^ carry (w - 1 - i) x (~~~y + 1) false)) := by
+  rw [sub_toAdd, neg_eq_not_add, getMsbD_add]
+  rfl
+  omega
+
+theorem getLsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getLsbD i
+      = (x.getLsbD i ^^ ((~~~y + 1#w).getLsbD i ^^ carry i x (~~~y + 1#w) false)) := by
+  rw [sub_toAdd, BitVec.neg_eq_not_add, getLsbD_add]
+  omega
+
 /-- Adding a bitvector to its own complement yields the all ones bitpattern -/
 @[simp] theorem add_not_self (x : BitVec w) : x + ~~~x = allOnes w := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (allOnes w)]
@@ -316,6 +344,21 @@ theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c
   · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
     simp [← sub_toAdd, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
+
+theorem getMsbD_neg {i : Nat} {i_lt : i < w} {x : BitVec w} :
+    getMsbD (~~~x) i = (getMsbD x i).not := by
+  simp
+  omega
+
+theorem getLsbD_neg {i : Nat} {i_lt : i < w} {x : BitVec w} :
+    getLsbD (~~~x) i = (getLsbD x i).not := by
+  simp
+  omega
+
+theorem msb_neg {w : Nat} {x y: BitVec w} (h : 0 < w):
+    (~~~x).msb = (getMsbD x 0).not := by
+  rw [BitVec.msb, BitVec.getMsbD_neg]
+  omega
 
 /-! ### Inequalities (le / lt) -/
 

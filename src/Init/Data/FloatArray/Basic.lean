@@ -64,19 +64,17 @@ instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
 
 instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
   /-
-  application type mismatch
-    xs.uget i h
-  argument
-    h
+  type mismatch
+    fun xs i h => xs.uget i h
   has type
-    i.val < ↑xs.size : Prop
+    (xs : FloatArray) → (i : USize) → ↑i.val < xs.size → Float : Type
   but is expected to have type
-    i.toNat < xs.size : Prop
+    (xs : FloatArray) → (i : USize) → i.val < ↑xs.size → Float : Type
 
-  The hypothesis `h` has changed its type from
-      `@LT.lt Nat instLTNat (↑i.val) xs.size : Prop`
-  to
-      `@LT.lt (Fin USize.size) instLTFin i.val ↑xs.size : Prop`
+  This worked before, but fails after adding:
+
+  instance instNatCast [NeZero n] : NatCast (Fin n) where
+  natCast n := Fin.ofNat'' n
   -/
   getElem xs i (h : @LT.lt Nat instLTNat (↑i.val) xs.size) := xs.uget i h
 

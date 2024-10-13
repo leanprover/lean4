@@ -219,7 +219,7 @@ theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false 
 theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by
   subst h; simp [msb_zero_length]
 
-@[simp] theorem ofFin_neg : ofFin (-x) = -(ofFin x) := by
+@[simp] theorem ofFin_neg : ofFin (-x) = -ofFin x := by
   ext; simp; rfl
 
 @[simp] theorem ofFin_ofNat (n : Nat) :

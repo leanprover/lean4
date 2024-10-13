@@ -234,6 +234,10 @@ theorem toFin_inj {x y : BitVec w} : x.toFin = y.toFin ↔ x = y := by
     intro h
     simp [toFin, h]
 
+theorem toFin_zero : toFin (0 : BitVec w) = 0 := rfl
+theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
+  rw [toFin_inj]; simp only [ofNat_eq_ofNat, ofFin_ofNat]
+
 @[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
   cases b <;> rfl
 
@@ -938,8 +942,9 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   cases h : Int.negSucc n % ((2 ^ w : Nat) : Int)
   case ofNat =>
     rw [Int.ofNat_eq_coe, Int.negSucc_emod] at h
-    dsimp only
-    all_goals omega
+    · dsimp only
+      omega
+    · omega
   case negSucc a =>
     have neg := Int.negSucc_lt_zero a
     have _ : 0 ≤ Int.negSucc n % ((2 ^ w : Nat) : Int) := Int.emod_nonneg _ (by omega)

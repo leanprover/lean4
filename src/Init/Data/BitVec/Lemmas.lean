@@ -938,7 +938,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   cases h : Int.negSucc n % ((2 ^ w : Nat) : Int)
   case ofNat =>
     rw [Int.ofNat_eq_coe, Int.negSucc_emod] at h
-    simp only
+    dsimp only
     all_goals omega
   case negSucc a =>
     have neg := Int.negSucc_lt_zero a

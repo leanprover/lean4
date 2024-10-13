@@ -63,7 +63,24 @@ instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
 instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
-  getElem xs i h := xs.uget i h
+  /-
+  application type mismatch
+    xs.uget i h
+  argument
+    h
+  has type
+    i.val < ↑xs.size : Prop
+  but is expected to have type
+    i.toNat < xs.size : Prop
+
+  The hypothesis `h` has changed its type from
+      `@LT.lt Nat instLTNat (↑i.val) xs.size : Prop`
+  to
+      `@LT.lt (Fin USize.size) instLTFin i.val ↑xs.size : Prop`
+  -/
+  getElem xs i h := xs.uget i (
+    by exact h
+  )
 
 @[extern "lean_float_array_uset"]
 def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray

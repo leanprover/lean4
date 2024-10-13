@@ -1307,54 +1307,61 @@ Otherwise, if there isn't another parameter with the same name, we add `e` to `n
 Remark: `fullName` is the name of the resolved "field" access function. It is used for reporting errors
 -/
 private partial def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr) :
-    TermElabM (Array Arg × Array NamedArg) := do
-  go f (← inferType f) 0 namedArgs (namedArgs.map (·.name))
+    MetaM (Array Arg × Array NamedArg) := do
+  withoutModifyingState <| go f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
 where
   /--
   * `argIdx` is the position into `args` for the next place an explicit argument can be inserted.
   * `remainingNamedArgs` keeps track of named arguments that haven't been visited yet,
     for handling the case where multiple parameters have the same name.
   * `unusableNamedArgs` keeps track of names that can't be used as named arguments. This is initialized with user-provided named arguments.
+  * `allowNamed` is whether or not to allow using named arguments.
+    Disabled after using `CoeFun` since those parameter names unlikely to be meaningful,
+    and otherwise whether dot notation works or not could feel random.
   -/
-  go (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) := withIncRecDepth do
-    forallTelescope fType fun xs fType' => do
-      let mut argIdx := argIdx
-      let mut remainingNamedArgs := remainingNamedArgs
-      let mut unusableNamedArgs := unusableNamedArgs
-      for x in xs do
-        let xDecl ← x.fvarId!.getDecl
-        if let some idx := remainingNamedArgs.findIdx? (·.name == xDecl.userName) then
-          /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
-          remainingNamedArgs := remainingNamedArgs.eraseIdx idx
-        else
-          if (← typeMatchesBaseName xDecl.type baseName) then
-            /- We found a type of the form (baseName ...).
-               First, we check if the current argument is an explicit one,
-               and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
-            if argIdx ≤ args.size && xDecl.binderInfo.isExplicit then
-              /- We can insert `e` as an explicit argument -/
-              return (args.insertAt! argIdx (Arg.expr e), namedArgs)
+  go (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) (allowNamed : Bool) := withIncRecDepth do
+    /- Use metavariables (rather than `forallTelescope`) to prevent `coerceToFunction?` from succeeding when multiple instances could apply -/
+    let (xs, bInfos, fType') ← forallMetaTelescope fType
+    let mut argIdx := argIdx
+    let mut remainingNamedArgs := remainingNamedArgs
+    let mut unusableNamedArgs := unusableNamedArgs
+    for x in xs, bInfo in bInfos do
+      let xDecl ← x.mvarId!.getDecl
+      if let some idx := remainingNamedArgs.findIdx? (·.name == xDecl.userName) then
+        /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
+        remainingNamedArgs := remainingNamedArgs.eraseIdx idx
+      else
+        if (← typeMatchesBaseName xDecl.type baseName) then
+          /- We found a type of the form (baseName ...).
+             First, we check if the current argument is an explicit one,
+             and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
+          if argIdx ≤ args.size && bInfo.isExplicit then
+            /- We can insert `e` as an explicit argument -/
+            return (args.insertAt! argIdx (Arg.expr e), namedArgs)
+          else
+            /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
+               if there isn't an argument with the same name occurring before it. -/
+            if !allowNamed || unusableNamedArgs.contains xDecl.userName then
+              throwError "\
+                invalid field notation, function '{fullName}' has argument with the expected type\
+                {indentExpr xDecl.type}\n\
+                but it cannot be used"
             else
-              /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
-                 if there isn't an argument with the same name occurring before it. -/
-              if unusableNamedArgs.contains xDecl.userName then
-                throwError "\
-                  invalid field notation, function '{fullName}' has argument with the expected type\
-                  {indentExpr xDecl.type}\n\
-                  but it cannot be used"
-              else
-                return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
-          -- Update state
-          if xDecl.binderInfo.isExplicit then
-            argIdx := argIdx + 1
-          unusableNamedArgs := unusableNamedArgs.push xDecl.userName
+              return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
+        /- Advance `argIdx` and update seen named arguments. -/
+        if bInfo.isExplicit then
+          argIdx := argIdx + 1
+        unusableNamedArgs := unusableNamedArgs.push xDecl.userName
+    /- If named arguments aren't allowed, then it must still be possible to pass the value as an explicit argument.
+       Otherwise, we can abort now. -/
+    if allowNamed || argIdx ≤ args.size then
       if let fType'@(.forallE ..) ← whnf fType' then
-        return ← go (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs
+        return ← go (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
       if let some f' ← coerceToFunction? (mkAppN f xs) then
-        return ← go f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs
-      throwError "\
-        invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, \
-        it must be explicit or implicit with a unique name"
+        return ← go f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
+    throwError "\
+      invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, \
+      it must be explicit or implicit with a unique name"
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
 private def addProjTermInfo

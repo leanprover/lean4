@@ -508,7 +508,10 @@ with
         (t.data.hasLevelMVar || v.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || v.data.hasLevelParam || b.data.hasLevelParam)
     | .lit l => mkData (mixHash 3 (hash l))
-deriving Inhabited, Repr
+deriving Repr
+
+instance : Inhabited Expr where
+  default := .const `_inhabitedExprDummy []
 
 namespace Expr
 

@@ -2717,7 +2717,7 @@ when `x - z` and `y + z` do not overflow.
 -/
 theorem le_add_iff_sub_le {x y z : BitVec w}
     (hxz : z ≤ x) (hbz : y.toNat + z.toNat < 2^w) :
-      (x ≤ y + z) ↔ (x - z ≤ y) := by
+      x ≤ y + z ↔ x - z ≤ y := by
   simp_all only [BitVec.le_def]
   rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
     BitVec.toNat_add_of_lt (by omega)]

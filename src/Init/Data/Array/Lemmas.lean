@@ -1060,7 +1060,7 @@ theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) :
 
 /-! ### flatten -/
 
-@[simp] theorem toList_flatten {l : Array (Array α)} : l.flatten.toList = (l.toList.map toList).join := by
+@[simp] theorem toList_flatten {l : Array (Array α)} : l.flatten.toList = (l.toList.map toList).flatten := by
   dsimp [flatten]
   simp only [foldl_eq_foldl_toList]
   generalize l.toList = l
@@ -1071,7 +1071,7 @@ theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) :
   | cons h => induction h.toList <;> simp [*]
 
 theorem mem_flatten : ∀ {L : Array (Array α)}, a ∈ L.flatten ↔ ∃ l, l ∈ L ∧ a ∈ l := by
-  simp only [mem_def, toList_flatten, List.mem_join, List.mem_map]
+  simp only [mem_def, toList_flatten, List.mem_flatten, List.mem_map]
   intro l
   constructor
   · rintro ⟨_, ⟨s, m, rfl⟩, h⟩
@@ -1567,7 +1567,7 @@ theorem filterMap_toArray (f : α → Option β) (l : List α) :
     l.toArray.filterMap f = (l.filterMap f).toArray := by
   simp
 
-@[simp] theorem flatten_toArray (l : List (List α)) : (l.toArray.map List.toArray).flatten = l.join.toArray := by
+@[simp] theorem flatten_toArray (l : List (List α)) : (l.toArray.map List.toArray).flatten = l.flatten.toArray := by
   apply ext'
   simp [Function.comp_def]
 

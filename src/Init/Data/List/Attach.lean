@@ -666,10 +666,12 @@ and simplifies these to the function directly taking the value.
     (l₁ ++ l₂).unattach = l₁.unattach ++ l₂.unattach := by
   simp [unattach, -map_subtype]
 
-@[simp] theorem unattach_join {p : α → Prop} {l : List (List { x // p x })} :
-    l.join.unattach = (l.map unattach).join := by
+@[simp] theorem unattach_flatten {p : α → Prop} {l : List (List { x // p x })} :
+    l.flatten.unattach = (l.map unattach).flatten := by
   unfold unattach
   induction l <;> simp_all
+
+@[deprecated unattach_flatten (since := "2024-10-14")] abbrev unattach_join := @unattach_flatten
 
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (List.replicate n x).unattach = List.replicate n x.1 := by

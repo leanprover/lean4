@@ -2068,106 +2068,98 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
     | _, .inl rfl => .inr ⟨[], a, rfl⟩
     | _, .inr ⟨L, b, rfl⟩ => .inr ⟨a::L, b, rfl⟩
 
-/-! ### join -/
+/-! ### flatten -/
 
-@[simp] theorem length_join (L : List (List α)) : (join L).length = Nat.sum (L.map length) := by
+
+@[simp] theorem length_flatten (L : List (List α)) : (flatten L).length = Nat.sum (L.map length) := by
   induction L with
   | nil => rfl
   | cons =>
-    simp [join, length_append, *]
+    simp [flatten, length_append, *]
 
-theorem join_singleton (l : List α) : [l].join = l := by simp
+theorem flatten_singleton (l : List α) : [l].flatten = l := by simp
 
-@[simp] theorem mem_join : ∀ {L : List (List α)}, a ∈ L.join ↔ ∃ l, l ∈ L ∧ a ∈ l
+@[simp] theorem mem_flatten : ∀ {L : List (List α)}, a ∈ L.flatten ↔ ∃ l, l ∈ L ∧ a ∈ l
   | [] => by simp
-  | b :: l => by simp [mem_join, or_and_right, exists_or]
+  | b :: l => by simp [mem_flatten, or_and_right, exists_or]
 
-@[simp] theorem join_eq_nil_iff {L : List (List α)} : L.join = [] ↔ ∀ l ∈ L, l = [] := by
+@[simp] theorem flatten_eq_nil_iff {L : List (List α)} : L.flatten = [] ↔ ∀ l ∈ L, l = [] := by
   induction L <;> simp_all
 
-@[deprecated join_eq_nil_iff (since := "2024-09-05")] abbrev join_eq_nil := @join_eq_nil_iff
-
-theorem join_ne_nil_iff {xs : List (List α)} : xs.join ≠ [] ↔ ∃ x, x ∈ xs ∧ x ≠ [] := by
+theorem flatten_ne_nil_iff {xs : List (List α)} : xs.flatten ≠ [] ↔ ∃ x, x ∈ xs ∧ x ≠ [] := by
   simp
 
-@[deprecated join_ne_nil_iff (since := "2024-09-05")] abbrev join_ne_nil := @join_ne_nil_iff
+theorem exists_of_mem_flatten : a ∈ flatten L → ∃ l, l ∈ L ∧ a ∈ l := mem_flatten.1
 
-theorem exists_of_mem_join : a ∈ join L → ∃ l, l ∈ L ∧ a ∈ l := mem_join.1
+theorem mem_flatten_of_mem (lL : l ∈ L) (al : a ∈ l) : a ∈ flatten L := mem_flatten.2 ⟨l, lL, al⟩
 
-theorem mem_join_of_mem (lL : l ∈ L) (al : a ∈ l) : a ∈ join L := mem_join.2 ⟨l, lL, al⟩
-
-theorem forall_mem_join {p : α → Prop} {L : List (List α)} :
-    (∀ (x) (_ : x ∈ join L), p x) ↔ ∀ (l) (_ : l ∈ L) (x) (_ : x ∈ l), p x := by
-  simp only [mem_join, forall_exists_index, and_imp]
+theorem forall_mem_flatten {p : α → Prop} {L : List (List α)} :
+    (∀ (x) (_ : x ∈ flatten L), p x) ↔ ∀ (l) (_ : l ∈ L) (x) (_ : x ∈ l), p x := by
+  simp only [mem_flatten, forall_exists_index, and_imp]
   constructor <;> (intros; solve_by_elim)
 
-theorem join_eq_bind {L : List (List α)} : join L = L.bind id := by
+theorem flatten_eq_bind {L : List (List α)} : flatten L = L.bind id := by
   induction L <;> simp [List.bind]
 
-theorem head?_join {L : List (List α)} : (join L).head? = L.findSome? fun l => l.head? := by
+theorem head?_flatten {L : List (List α)} : (flatten L).head? = L.findSome? fun l => l.head? := by
   induction L with
   | nil => rfl
   | cons =>
     simp only [findSome?_cons]
     split <;> simp_all
 
--- `getLast?_join` is proved later, after the `reverse` section.
--- `head_join` and `getLast_join` are proved in `Init.Data.List.Find`.
+-- `getLast?_flatten` is proved later, after the `reverse` section.
+-- `head_flatten` and `getLast_flatten` are proved in `Init.Data.List.Find`.
 
-theorem foldl_join (f : β → α → β) (b : β) (L : List (List α)) :
-    (join L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
+theorem foldl_flatten (f : β → α → β) (b : β) (L : List (List α)) :
+    (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
   induction L generalizing b <;> simp_all
 
-theorem foldr_join (f : α → β → β) (b : β) (L : List (List α)) :
-    (join L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
+theorem foldr_flatten (f : α → β → β) (b : β) (L : List (List α)) :
+    (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
   induction L <;> simp_all
 
-@[simp] theorem map_join (f : α → β) (L : List (List α)) : map f (join L) = join (map (map f) L) := by
+@[simp] theorem map_flatten (f : α → β) (L : List (List α)) : map f (flatten L) = flatten (map (map f) L) := by
   induction L <;> simp_all
 
-@[simp] theorem filterMap_join (f : α → Option β) (L : List (List α)) :
-    filterMap f (join L) = join (map (filterMap f) L) := by
+@[simp] theorem filterMap_flatten (f : α → Option β) (L : List (List α)) :
+    filterMap f (flatten L) = flatten (map (filterMap f) L) := by
   induction L <;> simp [*, filterMap_append]
 
-@[simp] theorem filter_join (p : α → Bool) (L : List (List α)) :
-    filter p (join L) = join (map (filter p) L) := by
+@[simp] theorem filter_flatten (p : α → Bool) (L : List (List α)) :
+    filter p (flatten L) = flatten (map (filter p) L) := by
   induction L <;> simp [*, filter_append]
 
-theorem join_filter_not_isEmpty  :
-    ∀ {L : List (List α)}, join (L.filter fun l => !l.isEmpty) = L.join
+theorem flatten_filter_not_isEmpty  :
+    ∀ {L : List (List α)}, flatten (L.filter fun l => !l.isEmpty) = L.flatten
   | [] => rfl
   | [] :: L
   | (a :: l) :: L => by
-      simp [join_filter_not_isEmpty (L := L)]
+      simp [flatten_filter_not_isEmpty (L := L)]
 
-theorem join_filter_ne_nil [DecidablePred fun l : List α => l ≠ []] {L : List (List α)} :
-    join (L.filter fun l => l ≠ []) = L.join := by
+theorem flatten_filter_ne_nil [DecidablePred fun l : List α => l ≠ []] {L : List (List α)} :
+    flatten (L.filter fun l => l ≠ []) = L.flatten := by
   simp only [ne_eq, ← isEmpty_iff, Bool.not_eq_true, Bool.decide_eq_false,
-    join_filter_not_isEmpty]
+    flatten_filter_not_isEmpty]
 
-@[deprecated filter_join (since := "2024-08-26")]
-theorem join_map_filter (p : α → Bool) (l : List (List α)) :
-    (l.map (filter p)).join = (l.join).filter p := by
-  rw [filter_join]
-
-@[simp] theorem join_append (L₁ L₂ : List (List α)) : join (L₁ ++ L₂) = join L₁ ++ join L₂ := by
+@[simp] theorem flatten_append (L₁ L₂ : List (List α)) : flatten (L₁ ++ L₂) = flatten L₁ ++ flatten L₂ := by
   induction L₁ <;> simp_all
 
-theorem join_concat (L : List (List α)) (l : List α) : join (L ++ [l]) = join L ++ l := by
+theorem flatten_concat (L : List (List α)) (l : List α) : flatten (L ++ [l]) = flatten L ++ l := by
   simp
 
-theorem join_join {L : List (List (List α))} : join (join L) = join (map join L) := by
+theorem flatten_flatten {L : List (List (List α))} : flatten (flatten L) = flatten (map flatten L) := by
   induction L <;> simp_all
 
-theorem join_eq_cons_iff {xs : List (List α)} {y : α} {ys : List α} :
-    xs.join = y :: ys ↔
-      ∃ as bs cs, xs = as ++ (y :: bs) :: cs ∧ (∀ l, l ∈ as → l = []) ∧ ys = bs ++ cs.join := by
+theorem flatten_eq_cons_iff {xs : List (List α)} {y : α} {ys : List α} :
+    xs.flatten = y :: ys ↔
+      ∃ as bs cs, xs = as ++ (y :: bs) :: cs ∧ (∀ l, l ∈ as → l = []) ∧ ys = bs ++ cs.flatten := by
   constructor
   · induction xs with
     | nil => simp
     | cons x xs ih =>
       intro h
-      simp only [join_cons] at h
+      simp only [flatten_cons] at h
       replace h := h.symm
       rw [cons_eq_append_iff] at h
       obtain (⟨rfl, h⟩ | ⟨z⟩) := h
@@ -2178,23 +2170,23 @@ theorem join_eq_cons_iff {xs : List (List α)} {y : α} {ys : List α} :
         refine ⟨[], a', xs, ?_⟩
         simp
   · rintro ⟨as, bs, cs, rfl, h₁, rfl⟩
-    simp [join_eq_nil_iff.mpr h₁]
+    simp [flatten_eq_nil_iff.mpr h₁]
 
-theorem join_eq_append_iff {xs : List (List α)} {ys zs : List α} :
-    xs.join = ys ++ zs ↔
-      (∃ as bs, xs = as ++ bs ∧ ys = as.join ∧ zs = bs.join) ∨
-        ∃ as bs c cs ds, xs = as ++ (bs ++ c :: cs) :: ds ∧ ys = as.join ++ bs ∧
-          zs = c :: cs ++ ds.join := by
+theorem flatten_eq_append_iff {xs : List (List α)} {ys zs : List α} :
+    xs.flatten = ys ++ zs ↔
+      (∃ as bs, xs = as ++ bs ∧ ys = as.flatten ∧ zs = bs.flatten) ∨
+        ∃ as bs c cs ds, xs = as ++ (bs ++ c :: cs) :: ds ∧ ys = as.flatten ++ bs ∧
+          zs = c :: cs ++ ds.flatten := by
   constructor
   · induction xs generalizing ys with
     | nil =>
-      simp only [join_nil, nil_eq, append_eq_nil, and_false, cons_append, false_and, exists_const,
+      simp only [flatten_nil, nil_eq, append_eq_nil, and_false, cons_append, false_and, exists_const,
         exists_false, or_false, and_imp, List.cons_ne_nil]
       rintro rfl rfl
       exact ⟨[], [], by simp⟩
     | cons x xs ih =>
       intro h
-      simp only [join_cons] at h
+      simp only [flatten_cons] at h
       rw [append_eq_append_iff] at h
       obtain (⟨ys, rfl, h⟩ | ⟨c', rfl, h⟩) := h
       · obtain (⟨as, bs, rfl, rfl, rfl⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, rfl⟩) := ih h
@@ -2208,18 +2200,15 @@ theorem join_eq_append_iff {xs : List (List α)} {ys zs : List α} :
     · simp
     · simp
 
-@[deprecated join_eq_cons_iff (since := "2024-09-05")] abbrev join_eq_cons := @join_eq_cons_iff
-@[deprecated join_eq_append_iff (since := "2024-09-05")] abbrev join_eq_append := @join_eq_append_iff
-
-/-- Two lists of sublists are equal iff their joins coincide, as well as the lengths of the
+/-- Two lists of sublists are equal iff their flattens coincide, as well as the lengths of the
 sublists. -/
-theorem eq_iff_join_eq : ∀ {L L' : List (List α)},
-    L = L' ↔ L.join = L'.join ∧ map length L = map length L'
+theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
+    L = L' ↔ L.flatten = L'.flatten ∧ map length L = map length L'
   | _, [] => by simp_all
   | [], x' :: L' => by simp_all
   | x :: L, x' :: L' => by
     simp
-    rw [eq_iff_join_eq]
+    rw [eq_iff_flatten_eq]
     constructor
     · rintro ⟨rfl, h₁, h₂⟩
       simp_all
@@ -2229,12 +2218,12 @@ theorem eq_iff_join_eq : ∀ {L L' : List (List α)},
 
 /-! ### bind -/
 
-theorem bind_def (l : List α) (f : α → List β) : l.bind f = join (map f l) := by rfl
+theorem bind_def (l : List α) (f : α → List β) : l.bind f = flatten (map f l) := by rfl
 
-@[simp] theorem bind_id (l : List (List α)) : List.bind l id = l.join := by simp [bind_def]
+@[simp] theorem bind_id (l : List (List α)) : List.bind l id = l.flatten := by simp [bind_def]
 
 @[simp] theorem mem_bind {f : α → List β} {b} {l : List α} : b ∈ l.bind f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
-  simp [bind_def, mem_join]
+  simp [bind_def, mem_flatten]
   exact ⟨fun ⟨_, ⟨a, h₁, rfl⟩, h₂⟩ => ⟨a, h₁, h₂⟩, fun ⟨a, h₁, h₂⟩ => ⟨_, ⟨a, h₁, rfl⟩, h₂⟩⟩
 
 theorem exists_of_mem_bind {b : β} {l : List α} {f : α → List β} :
@@ -2245,7 +2234,7 @@ theorem mem_bind_of_mem {b : β} {l : List α} {f : α → List β} {a} (al : a 
 
 @[simp]
 theorem bind_eq_nil_iff {l : List α} {f : α → List β} : List.bind l f = [] ↔ ∀ x ∈ l, f x = [] :=
-  join_eq_nil_iff.trans <| by
+  flatten_eq_nil_iff.trans <| by
     simp only [mem_map, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
 
 @[deprecated bind_eq_nil_iff (since := "2024-09-05")] abbrev bind_eq_nil := @bind_eq_nil_iff
@@ -2483,23 +2472,23 @@ theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
     (replicate n a).filterMap f = [] := by
   simp [filterMap_replicate, h]
 
-@[simp] theorem join_replicate_nil : (replicate n ([] : List α)).join = [] := by
+@[simp] theorem flatten_replicate_nil : (replicate n ([] : List α)).flatten = [] := by
   induction n <;> simp_all [replicate_succ]
 
-@[simp] theorem join_replicate_singleton : (replicate n [a]).join = replicate n a := by
+@[simp] theorem flatten_replicate_singleton : (replicate n [a]).flatten = replicate n a := by
   induction n <;> simp_all [replicate_succ]
 
-@[simp] theorem join_replicate_replicate : (replicate n (replicate m a)).join = replicate (n * m) a := by
+@[simp] theorem flatten_replicate_replicate : (replicate n (replicate m a)).flatten = replicate (n * m) a := by
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [replicate_succ, join_cons, ih, append_replicate_replicate, replicate_inj, or_true,
+    simp only [replicate_succ, flatten_cons, ih, append_replicate_replicate, replicate_inj, or_true,
       and_true, add_one_mul, Nat.add_comm]
 
-theorem bind_replicate {β} (f : α → List β) : (replicate n a).bind f = (replicate n (f a)).join := by
+theorem bind_replicate {β} (f : α → List β) : (replicate n a).bind f = (replicate n (f a)).flatten := by
   induction n with
   | zero => simp
-  | succ n ih => simp only [replicate_succ, bind_cons, ih, join_cons]
+  | succ n ih => simp only [replicate_succ, bind_cons, ih, flatten_cons]
 
 @[simp] theorem isEmpty_replicate : (replicate n a).isEmpty = decide (n = 0) := by
   cases n <;> simp [replicate_succ]
@@ -2674,14 +2663,14 @@ theorem reverse_eq_concat {xs ys : List α} {a : α} :
     xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by
   rw [reverse_eq_iff, reverse_concat]
 
-/-- Reversing a join is the same as reversing the order of parts and reversing all parts. -/
-theorem reverse_join (L : List (List α)) :
-    L.join.reverse = (L.map reverse).reverse.join := by
+/-- Reversing a flatten is the same as reversing the order of parts and reversing all parts. -/
+theorem reverse_flatten (L : List (List α)) :
+    L.flatten.reverse = (L.map reverse).reverse.flatten := by
   induction L <;> simp_all
 
-/-- Joining a reverse is the same as reversing all parts and reversing the joined result. -/
-theorem join_reverse (L : List (List α)) :
-    L.reverse.join = (L.map reverse).join.reverse := by
+/-- Flattening a reverse is the same as reversing all parts and reversing the flattened result. -/
+theorem flatten_reverse (L : List (List α)) :
+    L.reverse.flatten = (L.map reverse).flatten.reverse := by
   induction L <;> simp_all
 
 theorem reverse_bind {β} (l : List α) (f : α → List β) : (l.bind f).reverse = l.reverse.bind (reverse ∘ f) := by
@@ -2801,8 +2790,8 @@ theorem getLast?_bind {L : List α} {f : α → List β} :
   rw [head?_bind]
   rfl
 
-theorem getLast?_join {L : List (List α)} :
-    (join L).getLast? = L.reverse.findSome? fun l => l.getLast? := by
+theorem getLast?_flatten {L : List (List α)} :
+    (flatten L).getLast? = L.reverse.findSome? fun l => l.getLast? := by
   simp [← bind_id, getLast?_bind]
 
 theorem getLast?_replicate (a : α) (n : Nat) : (replicate n a).getLast? = if n = 0 then none else some a := by
@@ -3302,11 +3291,15 @@ theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!
   | nil => rfl
   | cons h t ih => simp_all [Bool.and_assoc]
 
-@[simp] theorem any_join {l : List (List α)} : l.join.any f = l.any (any · f) := by
+@[simp] theorem any_flatten {l : List (List α)} : l.flatten.any f = l.any (any · f) := by
   induction l <;> simp_all
 
-@[simp] theorem all_join {l : List (List α)} : l.join.all f = l.all (all · f) := by
+@[deprecated any_flatten (since := "2024-10-14")] abbrev any_join := @any_flatten
+
+@[simp] theorem all_flatten {l : List (List α)} : l.flatten.all f = l.all (all · f) := by
   induction l <;> simp_all
+
+@[deprecated all_flatten (since := "2024-10-14")] abbrev all_join := @all_flatten
 
 @[simp] theorem any_bind {l : List α} {f : α → List β} :
     (l.bind f).any p = l.any fun a => (f a).any p := by
@@ -3337,5 +3330,48 @@ theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!
 @[simp] theorem all_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.insert a).all f = (f a && l.all f) := by
   simp [all_eq]
+
+/-! ### Deprecations -/
+
+
+@[deprecated flatten_nil (since := "2024-10-14")] abbrev join_nil := @flatten_nil
+@[deprecated flatten_cons (since := "2024-10-14")] abbrev join_cons := @flatten_cons
+@[deprecated length_flatten (since := "2024-10-14")] abbrev length_join := @length_flatten
+@[deprecated flatten_singleton (since := "2024-10-14")] abbrev join_singleton := @flatten_singleton
+@[deprecated mem_flatten (since := "2024-10-14")] abbrev mem_join := @mem_flatten
+@[deprecated flatten_eq_nil_iff (since := "2024-09-05")] abbrev join_eq_nil := @flatten_eq_nil_iff
+@[deprecated flatten_eq_nil_iff (since := "2024-10-14")] abbrev join_eq_nil_iff := @flatten_eq_nil_iff
+@[deprecated flatten_ne_nil_iff (since := "2024-09-05")] abbrev join_ne_nil := @flatten_ne_nil_iff
+@[deprecated flatten_ne_nil_iff (since := "2024-10-14")] abbrev join_ne_nil_iff := @flatten_ne_nil_iff
+@[deprecated exists_of_mem_flatten (since := "2024-10-14")] abbrev exists_of_mem_join := @exists_of_mem_flatten
+@[deprecated mem_flatten_of_mem (since := "2024-10-14")] abbrev mem_join_of_mem := @mem_flatten_of_mem
+@[deprecated forall_mem_flatten (since := "2024-10-14")] abbrev forall_mem_join := @forall_mem_flatten
+@[deprecated flatten_eq_bind (since := "2024-10-14")] abbrev join_eq_bind := @flatten_eq_bind
+@[deprecated head?_flatten (since := "2024-10-14")] abbrev head?_join := @head?_flatten
+@[deprecated foldl_flatten (since := "2024-10-14")] abbrev foldl_join := @foldl_flatten
+@[deprecated foldr_flatten (since := "2024-10-14")] abbrev foldr_join := @foldr_flatten
+@[deprecated map_flatten (since := "2024-10-14")] abbrev map_join := @map_flatten
+@[deprecated filterMap_flatten (since := "2024-10-14")] abbrev filterMap_join := @filterMap_flatten
+@[deprecated filter_flatten (since := "2024-10-14")] abbrev filter_join := @filter_flatten
+@[deprecated flatten_filter_not_isEmpty (since := "2024-10-14")] abbrev join_filter_not_isEmpty := @flatten_filter_not_isEmpty
+@[deprecated flatten_filter_ne_nil (since := "2024-10-14")] abbrev join_filter_ne_nil := @flatten_filter_ne_nil
+@[deprecated filter_flatten (since := "2024-08-26")]
+theorem join_map_filter (p : α → Bool) (l : List (List α)) :
+    (l.map (filter p)).flatten = (l.flatten).filter p := by
+  rw [filter_flatten]
+@[deprecated flatten_append (since := "2024-10-14")] abbrev join_append := @flatten_append
+@[deprecated flatten_concat (since := "2024-10-14")] abbrev join_concat := @flatten_concat
+@[deprecated flatten_flatten (since := "2024-10-14")] abbrev join_join := @flatten_flatten
+@[deprecated flatten_eq_cons_iff (since := "2024-09-05")] abbrev join_eq_cons_iff := @flatten_eq_cons_iff
+@[deprecated flatten_eq_cons_iff (since := "2024-09-05")] abbrev join_eq_cons := @flatten_eq_cons_iff
+@[deprecated flatten_eq_append_iff (since := "2024-09-05")] abbrev join_eq_append := @flatten_eq_append_iff
+@[deprecated flatten_eq_append_iff (since := "2024-10-14")] abbrev join_eq_append_iff := @flatten_eq_append_iff
+@[deprecated eq_iff_flatten_eq (since := "2024-10-14")] abbrev eq_iff_join_eq := @eq_iff_flatten_eq
+@[deprecated flatten_replicate_nil (since := "2024-10-14")] abbrev join_replicate_nil := @flatten_replicate_nil
+@[deprecated flatten_replicate_singleton (since := "2024-10-14")] abbrev join_replicate_singleton := @flatten_replicate_singleton
+@[deprecated flatten_replicate_replicate (since := "2024-10-14")] abbrev join_replicate_replicate := @flatten_replicate_replicate
+@[deprecated reverse_flatten (since := "2024-10-14")] abbrev reverse_join := @reverse_flatten
+@[deprecated flatten_reverse (since := "2024-10-14")] abbrev join_reverse := @flatten_reverse
+@[deprecated getLast?_flatten (since := "2024-10-14")] abbrev getLast?_join := @getLast?_flatten
 
 end List

@@ -261,7 +261,6 @@ attribute [bv_normalize] BitVec.udiv_eq_and
 attribute [bv_normalize] BitVec.zero_umod
 attribute [bv_normalize] BitVec.umod_zero
 attribute [bv_normalize] BitVec.umod_one
-attribute [bv_normalize] BitVec.umod_self
 attribute [bv_normalize] BitVec.umod_eq_and
 
 end Normalize

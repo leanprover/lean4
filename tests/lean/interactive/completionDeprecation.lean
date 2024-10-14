@@ -19,6 +19,7 @@ def SomeStructure.foo2 (s : SomeStructure) : Nat := s.n
 @[deprecated "`SomeStructure.foo7` has been deprecated; please use `SomeStructure.foo1` instead."]
 def SomeStructure.foo7 (s : SomeStructure) : Nat := s.n
 
+/-- A docstring. -/
 @[deprecated "`SomeStructure.foo8` has been deprecated; please use `SomeStructure.foo1` instead."]
 def SomeStructure.foo8 (s : SomeStructure) : Nat := s.n
 

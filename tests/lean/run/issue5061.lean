@@ -18,7 +18,7 @@ set_option pp.mvars false
 /--
 error: failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
 a : Array Nat

@@ -105,7 +105,7 @@ instance : ToExpr LRAT.IntAction where
       mkApp3 (mkConst ``LRAT.Action.del [.zero, .zero]) beta alpha (toExpr ids)
   toTypeExpr := mkConst ``LRAT.IntAction
 
-def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : MetaM LratCert := do
+def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM LratCert := do
   let proofInput ← IO.FS.readBinFile lratPath
   let proof ←
     withTraceNode `sat (fun _ => return s!"Parsing LRAT file") do
@@ -139,12 +139,13 @@ Run an external SAT solver on the `CNF` to obtain an LRAT proof.
 This will obtain an `LratCert` if the formula is UNSAT and throw errors otherwise.
 -/
 def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.FilePath)
-    (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool)
-    : MetaM (Except (Array (Bool × Nat)) LratCert) := do
-  IO.FS.withTempFile fun _ cnfPath => do
+    (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool) :
+    CoreM (Except (Array (Bool × Nat)) LratCert) := do
+  IO.FS.withTempFile fun cnfHandle cnfPath => do
     withTraceNode `sat (fun _ => return "Serializing SAT problem to DIMACS file") do
       -- lazyPure to prevent compiler lifting
-      IO.FS.writeFile cnfPath (← IO.lazyPure (fun _ => cnf.dimacs))
+      cnfHandle.putStr  (← IO.lazyPure (fun _ => cnf.dimacs))
+      cnfHandle.flush
 
     let res ←
       withTraceNode `sat (fun _ => return "Running SAT solver") do
@@ -161,7 +162,7 @@ def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.Fi
 /--
 Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
 -/
-def mkAuxDecl (name : Name) (value type : Expr) : MetaM Unit :=
+def mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
   addAndCompile <| .defnDecl {
     name := name,
     levelParams := [],
@@ -180,8 +181,7 @@ function together with a correctness theorem for it.
   `∀ (b : α) (c : LratCert), verifier b c = true → unsat b`
 -/
 def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContext) (reflected : α)
-    (verifier : Name) (unsat_of_verifier_eq_true : Name) : 
-    MetaM Expr := do
+    (verifier : Name) (unsat_of_verifier_eq_true : Name) : MetaM Expr := do
   withTraceNode `sat (fun _ => return "Compiling expr term") do
     mkAuxDecl cfg.exprDef (toExpr reflected) (toTypeExpr α)
 
@@ -197,13 +197,20 @@ def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContex
     let auxValue := mkApp2 (mkConst verifier) reflectedExpr certExpr
     mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
 
-  let nativeProof :=
+  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
+  let auxProof :=
     mkApp3
       (mkConst ``Lean.ofReduceBool)
       (mkConst cfg.reflectionDef)
       (toExpr true)
       (← mkEqRefl (toExpr true))
-  return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr nativeProof
+  try
+    let auxLemma ←
+      withTraceNode `sat (fun _ => return "Verifying LRAT certificate") do
+        mkAuxLemma [] auxType auxProof
+    return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr (mkConst auxLemma)
+  catch e =>
+    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
 
 
 end Frontend

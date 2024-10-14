@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Int.DivMod
@@ -136,26 +136,26 @@ theorem neg_le_natAbs {a : Int} : -a ≤ a.natAbs := by
   simp at t
   exact t
 
-theorem add_le_iff_le_sub (a b c : Int) : a + b ≤ c ↔ a ≤ c - b := by
+theorem add_le_iff_le_sub {a b c : Int} : a + b ≤ c ↔ a ≤ c - b := by
   conv =>
     lhs
     rw [← Int.add_zero c, ← Int.sub_self (-b), Int.sub_eq_add_neg, ← Int.add_assoc, Int.neg_neg,
       Int.add_le_add_iff_right]
-  try rfl -- stage0 update TODO: Change this to rfl or remove
+  rfl
 
-theorem le_add_iff_sub_le (a b c : Int) : a ≤ b + c ↔ a - c ≤ b := by
+theorem le_add_iff_sub_le {a b c : Int} : a ≤ b + c ↔ a - c ≤ b := by
   conv =>
     lhs
     rw [← Int.neg_neg c, ← Int.sub_eq_add_neg, ← add_le_iff_le_sub]
-  try rfl -- stage0 update TODO: Change this to rfl or remove
+  rfl
 
-theorem add_le_zero_iff_le_neg (a b : Int) : a + b ≤ 0 ↔ a ≤ - b := by
+theorem add_le_zero_iff_le_neg {a b : Int} : a + b ≤ 0 ↔ a ≤ - b := by
   rw [add_le_iff_le_sub, Int.zero_sub]
-theorem add_le_zero_iff_le_neg' (a b : Int) : a + b ≤ 0 ↔ b ≤ -a := by
+theorem add_le_zero_iff_le_neg' {a b : Int} : a + b ≤ 0 ↔ b ≤ -a := by
   rw [Int.add_comm, add_le_zero_iff_le_neg]
-theorem add_nonnneg_iff_neg_le (a b : Int) : 0 ≤ a + b ↔ -b ≤ a := by
+theorem add_nonnneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
   rw [le_add_iff_sub_le, Int.zero_sub]
-theorem add_nonnneg_iff_neg_le' (a b : Int) : 0 ≤ a + b ↔ -a ≤ b := by
+theorem add_nonnneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
   rw [Int.add_comm, add_nonnneg_iff_neg_le]
 
 theorem ofNat_fst_mk {β} {x : Nat} {y : β} : (Prod.mk x y).fst = (x : Int) := rfl
@@ -206,7 +206,7 @@ end Fin
 namespace Prod
 
 theorem of_lex (w : Prod.Lex r s p q) : r p.fst q.fst ∨ p.fst = q.fst ∧ s p.snd q.snd :=
-  (Prod.lex_def r s).mp w
+  Prod.lex_def.mp w
 
 theorem of_not_lex {α} {r : α → α → Prop} [DecidableEq α] {β} {s : β → β → Prop}
     {p q : α × β} (w : ¬ Prod.Lex r s p q) :

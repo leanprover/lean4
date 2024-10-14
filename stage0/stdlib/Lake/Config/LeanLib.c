@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_sharedLibFileName(lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_precompileModules___boxed(lean_object*);
 static lean_object* l_Lake_LeanLib_staticExportLibFile___closed__1;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_weakLinkArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_serverOptions(lean_object*);
 extern lean_object* l_Lake_instOrdBuildType;
@@ -69,6 +68,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_srcDir(lean_object*);
 uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findLeanLib_x3f(lean_object*, lean_object*);
 lean_object* l_Lake_nameToStaticLib(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -114,8 +114,8 @@ static lean_object* _init_l_Lake_Package_leanLibs___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -123,7 +123,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_leanLibs(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_2 = lean_ctor_get(x_1, 8);
+x_2 = lean_ctor_get(x_1, 9);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
@@ -224,7 +224,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findLeanLib_x3f(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 8);
+x_3 = lean_ctor_get(x_2, 9);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -591,7 +591,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_2, 2);
-x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*21);
+x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*29);
 if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 

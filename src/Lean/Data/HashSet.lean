@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Power2
-import Init.Data.List.Control
 import Std.Data.HashSet.Basic
 import Std.Data.HashSet.Raw
 namespace Lean

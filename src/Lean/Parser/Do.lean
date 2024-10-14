@@ -30,7 +30,7 @@ def doSeqBracketed := leading_parser
 do elements that take blocks. It can either have the form `"{" (doElem ";"?)* "}"` or
 `many1Indent (doElem ";"?)`, where `many1Indent` ensures that all the items are at
 the same or higher indentation level as the first line. -/
-def doSeq          :=
+@[builtin_doc] def doSeq :=
   withAntiquot (mkAntiquot "doSeq" decl_name% (isPseudoKind := true)) <|
     doSeqBracketed <|> doSeqIndent
 /-- `termBeforeDo` is defined as `withForbidden("do", term)`, which will parse a term but

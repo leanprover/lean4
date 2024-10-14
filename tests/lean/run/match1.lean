@@ -23,7 +23,6 @@ xs.map fun
   | 0 => true
   | _ => false
 
-/-- info: -/
 #guard_msgs in
 #eval checkWithMkMatcherInput ``f.match_1
 

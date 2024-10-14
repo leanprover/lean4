@@ -72,7 +72,7 @@ structure Config where
   constApprox        : Bool := false
   /--
     When the following flag is set,
-    `isDefEq` throws the exception `Exeption.isDefEqStuck`
+    `isDefEq` throws the exception `Exception.isDefEqStuck`
     whenever it encounters a constraint `?m ... =?= t` where
     `?m` is read only.
     This feature is useful for type class resolution where
@@ -247,11 +247,19 @@ structure DefEqCache where
   deriving Inhabited
 
 /--
+  A cache for `inferType` at transparency levels `.default` an `.all`.
+-/
+structure InferTypeCaches where
+  default   : InferTypeCache
+  all       : InferTypeCache
+  deriving Inhabited
+
+/--
   Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
-  inferType      : InferTypeCache := {}
-  funInfo        : FunInfoCache   := {}
+  inferType      : InferTypeCaches := ⟨{}, {}⟩
+  funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
@@ -448,9 +456,6 @@ instance : MonadBacktrack SavedState MetaM where
   let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
   pure (a, sCore, s)
 
-instance [MetaEval α] : MetaEval (MetaM α) :=
-  ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
-
 protected def throwIsDefEqStuck : MetaM α :=
   throw <| Exception.internal isDefEqStuckExceptionId
 
@@ -478,8 +483,11 @@ variable [MonadControlT MetaM n] [Monad n]
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
   modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
-@[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
+@[inline] def modifyInferTypeCacheDefault (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨⟨icd, ica⟩, c1, c2, c3, c4, c5, c6⟩ => ⟨⟨f icd, ica⟩, c1, c2, c3, c4, c5, c6⟩
+
+@[inline] def modifyInferTypeCacheAll (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨⟨icd, ica⟩, c1, c2, c3, c4, c5, c6⟩ => ⟨⟨icd, f ica⟩, c1, c2, c3, c4, c5, c6⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6⟩
@@ -489,6 +497,9 @@ variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
+
+@[inline] def resetSynthInstanceCache : MetaM Unit :=
+  modifyCache fun c => {c with synthInstance := {}}
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
@@ -560,16 +571,72 @@ def useEtaStruct (inductName : Name) : MetaM Bool := do
   | .all  => return true
   | .notClasses => return !isClass (← getEnv) inductName
 
-/-! WARNING: The following 4 constants are a hack for simulating forward declarations.
-   They are defined later using the `export` attribute. This is hackish because we
-   have to hard-code the true arity of these definitions here, and make sure the C names match.
-   We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient. -/
+/-!
+WARNING: The following 4 constants are a hack for simulating forward declarations.
+They are defined later using the `export` attribute. This is hackish because we
+have to hard-code the true arity of these definitions here, and make sure the C names match.
+We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient.
+-/
 
-/-- Reduces an expression to its Weak Head Normal Form.
-This is when the topmost expression has been fully reduced,
-but may contain subexpressions which have not been reduced. -/
+/--
+Reduces an expression to its *weak head normal form*.
+This is when the "head" of the top-level expression has been fully reduced.
+The result may contain subexpressions that have not been reduced.
+
+See `Lean.Meta.whnfImp` for the implementation.
+-/
 @[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
-/-- Returns the inferred type of the given expression, or fails if it is not type-correct. -/
+/--
+Returns the inferred type of the given expression. Assumes the expression is type-correct.
+
+The type inference algorithm does not do general type checking.
+Type inference only looks at subterms that are necessary for determining an expression's type,
+and as such if `inferType` succeeds it does *not* mean the term is type-correct.
+If an expression is sufficiently ill-formed that it prevents `inferType` from computing a type,
+then it will fail with a type error.
+
+For typechecking during elaboration, see `Lean.Meta.check`.
+(Note that we do not guarantee that the elaborator typechecker is as correct or as efficient as
+the kernel typechecker. The kernel typechecker is invoked when a definition is added to the environment.)
+
+Here are examples of type-incorrect terms for which `inferType` succeeds:
+```lean
+import Lean
+
+open Lean Meta
+
+/--
+`@id.{1} Bool Nat.zero`.
+In general, the type of `@id α x` is `α`.
+-/
+def e1 : Expr := mkApp2 (.const ``id [1]) (.const ``Bool []) (.const ``Nat.zero [])
+#eval inferType e1
+-- Lean.Expr.const `Bool []
+#eval check e1
+-- error: application type mismatch
+
+/--
+`let x : Int := Nat.zero; true`.
+In general, the type of `let x := v; e`, if `e` does not reference `x`, is the type of `e`.
+-/
+def e2 : Expr := .letE `x (.const ``Int []) (.const ``Nat.zero []) (.const ``true []) false
+#eval inferType e2
+-- Lean.Expr.const `Bool []
+#eval check e2
+-- error: invalid let declaration
+```
+Here is an example of a type-incorrect term that makes `inferType` fail:
+```lean
+/--
+`Nat.zero Nat.zero`
+-/
+def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
+#eval inferType e3
+-- error: function expected
+```
+
+See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
+-/
 @[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
 @[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
 @[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
@@ -1493,7 +1560,7 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 /--
-Runs `k` in a local envrionment with the `fvarIds` erased.
+Runs `k` in a local environment with the `fvarIds` erased.
 -/
 def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) (k : n α) : n α := do
   let lctx ← getLCtx
@@ -1710,7 +1777,7 @@ private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
     | .sort u     => if p u then some (e.setPPUniverses true) else none
     | _           => none
 
-private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
+private def mkLevelErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
   match entry.ctx? with
   | none =>
     return m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}"
@@ -1727,10 +1794,10 @@ private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : 
         addMessageContext m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD lhs}\nwith{indentD rhs}"
 
 def mkLevelStuckErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
-  mkLeveErrorMessageCore "stuck at solving universe constraint" entry
+  mkLevelErrorMessageCore "stuck at solving universe constraint" entry
 
 def mkLevelErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
-  mkLeveErrorMessageCore "failed to solve universe constraint" entry
+  mkLevelErrorMessageCore "failed to solve universe constraint" entry
 
 private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool := do
   let ps ← getResetPostponed
@@ -1763,7 +1830,7 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
               return true
             else if numPostponed' < numPostponed then
               loop
-            -- If we cannot pospone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
+            -- If we cannot postpone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
             -- then try approximations before failing.
             else if !mayPostpone && (← getConfig).univApprox && !(← read).univApprox then
               withReader (fun ctx => { ctx with univApprox := true }) loop

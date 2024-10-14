@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.Data.List.Zip
@@ -318,7 +318,7 @@ theorem dvd_gcd (xs : IntList) (c : Nat) (w : ∀ {a : Int}, a ∈ xs → (c : I
       apply w
       exact List.mem_cons_of_mem x m
 
-theorem gcd_eq_iff (xs : IntList) (g : Nat) :
+theorem gcd_eq_iff {xs : IntList} {g : Nat} :
     xs.gcd = g ↔
       (∀ {a : Int}, a ∈ xs → (g : Int) ∣ a) ∧
         (∀ (c : Nat), (∀ {a : Int}, a ∈ xs → (c : Int) ∣ a) → c ∣ g) := by
@@ -334,7 +334,7 @@ theorem gcd_eq_iff (xs : IntList) (g : Nat) :
 
 attribute [simp] Int.zero_dvd
 
-@[simp] theorem gcd_eq_zero (xs : IntList) : xs.gcd = 0 ↔ ∀ x, x ∈ xs → x = 0 := by
+@[simp] theorem gcd_eq_zero {xs : IntList} : xs.gcd = 0 ↔ ∀ x, x ∈ xs → x = 0 := by
   simp [gcd_eq_iff, Nat.dvd_zero]
 
 @[simp] theorem dot_mod_gcd_left (xs ys : IntList) : dot xs ys % xs.gcd = 0 := by

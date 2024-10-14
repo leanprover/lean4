@@ -76,6 +76,12 @@ instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
+instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => HashMap.empty.insert a b⟩
+
+instance : Insert (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+
+instance : LawfulSingleton (α × β) (HashMap α β) := ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc DHashMap.insertIfNew] def insertIfNew (m : HashMap α β)
     (a : α) (b : β) : HashMap α β :=
   ⟨m.inner.insertIfNew a b⟩
@@ -160,6 +166,18 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
+@[inline, inherit_doc DHashMap.getKey?] def getKey? (m : HashMap α β) (a : α) : Option α :=
+  DHashMap.getKey? m.inner a
+
+@[inline, inherit_doc DHashMap.getKey] def getKey (m : HashMap α β) (a : α) (h : a ∈ m) : α :=
+  DHashMap.getKey m.inner a h
+
+@[inline, inherit_doc DHashMap.getKeyD] def getKeyD (m : HashMap α β) (a : α) (fallback : α) : α :=
+  DHashMap.getKeyD m.inner a fallback
+
+@[inline, inherit_doc DHashMap.getKey!] def getKey! [Inhabited α] (m : HashMap α β) (a : α) : α :=
+  DHashMap.getKey! m.inner a
+
 @[inline, inherit_doc DHashMap.erase] def erase (m : HashMap α β) (a : α) :
     HashMap α β :=
   ⟨m.inner.erase a⟩
@@ -177,6 +195,11 @@ section Unverified
 @[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
     (m : HashMap α β) : HashMap α β :=
   ⟨m.inner.filter f⟩
+
+@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β × HashMap α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 @[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
@@ -234,9 +257,19 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     HashMap α β :=
   ⟨DHashMap.Const.ofList l⟩
 
+/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
+
 @[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] (l : List α) :
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
+
+@[inline, inherit_doc DHashMap.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α] (l : Array α) :
+    HashMap α Unit :=
+  ⟨DHashMap.Const.unitOfArray l⟩
 
 @[inline, inherit_doc DHashMap.Internal.numBuckets] def Internal.numBuckets
     (m : HashMap α β) : Nat :=

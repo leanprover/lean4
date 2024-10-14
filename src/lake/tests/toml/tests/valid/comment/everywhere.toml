@@ -7,7 +7,7 @@
 [group] # Comment
 answer = 42 # Comment
 # no-extraneous-keys-please = 999
-# Inbetween comment.
+# In between comment.
 more = [ # Comment
   # What about multiple # comments?
   # Can you handle it?

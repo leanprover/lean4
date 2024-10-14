@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, Jannis Limperg, Scott Morrison
+Authors: Leonardo de Moura, Jannis Limperg, Kim Morrison
 -/
 prelude
 import Lean.Meta.WHNF
@@ -211,7 +211,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
-      return not (← isType a)
+      return !(← isType a)
     else
       isProof a
   else

@@ -27,8 +27,11 @@ extern "C" {
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) _alloca(s)
+#include <stdnoreturn.h>
+#define LEAN_NORETURN _Noreturn
 #else
 #define LEAN_ALLOCA(s) alloca(s)
+#define LEAN_NORETURN __attribute__((noreturn))
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -148,7 +151,7 @@ typedef lean_object * b_lean_obj_res; /* Borrowed object result. */
 
 typedef struct {
     lean_object   m_header;
-    lean_object * m_objs[0];
+    lean_object * m_objs[];
 } lean_ctor_object;
 
 /* Array arrays */
@@ -156,7 +159,7 @@ typedef struct {
     lean_object   m_header;
     size_t        m_size;
     size_t        m_capacity;
-    lean_object * m_data[0];
+    lean_object * m_data[];
 } lean_array_object;
 
 /* Scalar arrays */
@@ -164,7 +167,7 @@ typedef struct {
     lean_object   m_header;
     size_t        m_size;
     size_t        m_capacity;
-    uint8_t       m_data[0];
+    uint8_t       m_data[];
 } lean_sarray_object;
 
 typedef struct {
@@ -172,7 +175,7 @@ typedef struct {
     size_t      m_size;     /* byte length including '\0' terminator */
     size_t      m_capacity;
     size_t      m_length;   /* UTF8 length */
-    char        m_data[0];
+    char        m_data[];
 } lean_string_object;
 
 typedef struct {
@@ -180,7 +183,7 @@ typedef struct {
     void *        m_fun;
     uint16_t      m_arity;     /* Number of arguments expected by m_fun. */
     uint16_t      m_num_fixed; /* Number of arguments that have been already fixed. */
-    lean_object * m_objs[0];
+    lean_object * m_objs[];
 } lean_closure_object;
 
 typedef struct {
@@ -293,10 +296,10 @@ LEAN_EXPORT void lean_set_panic_messages(bool flag);
 
 LEAN_EXPORT lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic(char const * msg);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_out_of_memory(void);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_unreachable(void);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_rc_overflow(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic(char const * msg);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_out_of_memory(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_unreachable(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_rc_overflow(void);
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);
@@ -703,7 +706,7 @@ static inline void lean_array_set_core(u_lean_obj_arg o, size_t i, lean_obj_arg 
     lean_to_array(o)->m_data[i] = v;
 }
 LEAN_EXPORT lean_object * lean_array_mk(lean_obj_arg l);
-LEAN_EXPORT lean_object * lean_array_data(lean_obj_arg a);
+LEAN_EXPORT lean_object * lean_array_to_list(lean_obj_arg a);
 
 /* Arrays of objects (high level API) */
 

@@ -322,7 +322,7 @@ theorem lt_next (s : String) (i : Pos) : i.1 < (s.next i).1 :=
 
 theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
     (utf8PrevAux cs i p).1 < p.1
-  | [], i, p, h =>
+  | [], _, _, h =>
     Nat.lt_of_le_of_lt (Nat.zero_le _)
       (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.mk) h))
   | c::cs, i, p, h => by
@@ -1124,7 +1124,7 @@ theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := 
 
 attribute [simp] toList -- prefer `String.data` over `String.toList` in lemmas
 
-theorem lt_iff (s t : String) : s < t ↔ s.data < t.data := .rfl
+theorem lt_iff {s t : String} : s < t ↔ s.data < t.data := .rfl
 
 namespace Pos
 

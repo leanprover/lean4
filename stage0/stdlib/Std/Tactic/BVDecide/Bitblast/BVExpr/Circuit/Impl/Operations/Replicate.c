@@ -13,13 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg___boxed(lean_object*, lean_object*);
-static lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Replicate_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Sat_AIG_RefVec_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Replicate_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,15 +75,6 @@ lean_dec(x_1);
 return x_10;
 }
 }
-static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -92,9 +82,9 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_5, 0);
 x_7 = lean_ctor_get(x_5, 1);
 x_8 = lean_ctor_get(x_5, 2);
-x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg___closed__1;
-x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate_go___rarg(x_1, x_2, x_4, x_6, x_7, x_8, x_9, lean_box(0), x_10);
+x_9 = l_Std_Sat_AIG_RefVec_empty(lean_box(0), x_1, x_2, x_4);
+x_10 = lean_unsigned_to_nat(0u);
+x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate_go___rarg(x_1, x_2, x_4, x_6, x_7, x_8, x_10, lean_box(0), x_9);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_4);
 lean_ctor_set(x_12, 1, x_11);
@@ -195,8 +185,6 @@ lean_dec_ref(res);
 res = initialize_Std_Sat_AIG_LawfulVecOperator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg___closed__1 = _init_l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg___closed__1();
-lean_mark_persistent(l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -149,26 +149,27 @@ syntax (name := assumption) "assumption" : tactic
 
 /--
 `contradiction` closes the main goal if its hypotheses are "trivially contradictory".
+
 - Inductive type/family with no applicable constructors
-```lean
-example (h : False) : p := by contradiction
-```
+  ```lean
+  example (h : False) : p := by contradiction
+  ```
 - Injectivity of constructors
-```lean
-example (h : none = some true) : p := by contradiction  --
-```
+  ```lean
+  example (h : none = some true) : p := by contradiction  --
+  ```
 - Decidable false proposition
-```lean
-example (h : 2 + 2 = 3) : p := by contradiction
-```
+  ```lean
+  example (h : 2 + 2 = 3) : p := by contradiction
+  ```
 - Contradictory hypotheses
-```lean
-example (h : p) (h' : ¬ p) : q := by contradiction
-```
+  ```lean
+  example (h : p) (h' : ¬ p) : q := by contradiction
+  ```
 - Other simple contradictions such as
-```lean
-example (x : Nat) (h : x ≠ x) : p := by contradiction
-```
+  ```lean
+  example (x : Nat) (h : x ≠ x) : p := by contradiction
+  ```
 -/
 syntax (name := contradiction) "contradiction" : tactic
 
@@ -363,31 +364,24 @@ syntax (name := fail) "fail" (ppSpace str)? : tactic
 syntax (name := eqRefl) "eq_refl" : tactic
 
 /--
-`rfl` tries to close the current goal using reflexivity.
-This is supposed to be an extensible tactic and users can add their own support
-for new reflexive relations.
-
-Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
-reflexivity theorems (e.g., `Iff.rfl`).
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is equality, heterogeneous equality or any relation that
+has a reflexivity lemma tagged with the attribute @[refl].
 -/
-macro "rfl" : tactic => `(tactic| case' _ => fail "The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.")
-
-macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
-macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
+syntax "rfl" : tactic
 
 /--
-This tactic applies to a goal whose target has the form `x ~ x`,
-where `~` is a reflexive relation other than `=`,
-that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
+The same as `rfl`, but without trying `eq_refl` at the end.
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
+-- We try `apply_rfl` first, because it produces a nice error message
 macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
 
+-- But, mostly for backward compatibility, we try `eq_refl` too (reduces more aggressively)
+macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
+-- Also for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
+macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).
@@ -456,7 +450,7 @@ syntax (name := change) "change " term (location)? : tactic
 
 /--
 * `change a with b` will change occurrences of `a` to `b` in the goal,
-  assuming `a` and `b` are are definitionally equal.
+  assuming `a` and `b` are definitionally equal.
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
@@ -676,12 +670,16 @@ compiled by Lean.
 syntax (name := delta) "delta" (ppSpace colGt ident)+ (location)? : tactic
 
 /--
-* `unfold id` unfolds definition `id`.
+* `unfold id` unfolds all occurrences of definition `id` in the target.
 * `unfold id1 id2 ...` is equivalent to `unfold id1; unfold id2; ...`.
+* `unfold id at h` unfolds at the hypothesis `h`.
 
-For non-recursive definitions, this tactic is identical to `delta`. For recursive definitions,
-it uses the "unfolding lemma" `id.eq_def`, which is generated for each recursive definition,
-to unfold according to the recursive definition given by the user.
+Definitions can be either global or local definitions.
+
+For non-recursive global definitions, this tactic is identical to `delta`.
+For recursive global definitions, it uses the "unfolding lemma" `id.eq_def`,
+which is generated for each recursive definition, to unfold according to the recursive definition given by the user.
+Only one level of unfolding is performed, in contrast to `simp only [id]`, which unfolds definition `id` recursively.
 -/
 syntax (name := unfold) "unfold" (ppSpace colGt ident)+ (location)? : tactic
 
@@ -769,8 +767,9 @@ macro_rules
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
-/-- Similar to `have`, but using `refine'` -/
+set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
+attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 
@@ -789,7 +788,7 @@ syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> synth
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
 -/
-syntax inductionAlts := " with" (ppSpace tactic)? withPosition((colGe inductionAlt)+)
+syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)+)
 
 /--
 Assuming `x` is a variable in the local context with an inductive type,
@@ -1160,6 +1159,9 @@ Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
 -/
 macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
 
+/-- Implementation of `ac_nf` (the full `ac_nf` calls `trivial` afterwards). -/
+syntax (name := acNf0) "ac_nf0" (location)? : tactic
+
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
 
@@ -1209,6 +1211,24 @@ See also `push_cast`, which moves casts inwards rather than lifting them outward
 -/
 macro "norm_cast" loc:(location)? : tactic =>
   `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+
+/--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+- `ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+macro "ac_nf" loc:(location)? : tactic =>
+  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
 
 /--
 `push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.
@@ -1584,7 +1604,7 @@ macro "get_elem_tactic" : tactic =>
       There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
       If `omega` is used to "fill" this proof, we will have a more complex proof term that
       cannot be inferred by unification.
-      We hardcoded `assumption` here to ensure users cannot accidentaly break this IF
+      We hardcoded `assumption` here to ensure users cannot accidentally break this IF
       they add new `macro_rules` for `get_elem_tactic_trivial`.
 
       TODO: Implement priorities for `macro_rules`.
@@ -1594,7 +1614,7 @@ macro "get_elem_tactic" : tactic =>
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )

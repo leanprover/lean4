@@ -24,7 +24,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27(lean_object*);
 static lean_object* l_Lean_Meta_forEachExpr_x27___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27_visit___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_setMVarUserNamesAt___spec__3___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit___at_Lean_Meta_setMVarUserNamesAt___spec__12___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -208,6 +207,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_setMVarUserNames
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_setMVarUserNamesAt___spec__16___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr___rarg___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_forEachExpr_x27___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLet___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -426,8 +426,8 @@ static lean_object* _init_l_Lean_Meta_visitLambda___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

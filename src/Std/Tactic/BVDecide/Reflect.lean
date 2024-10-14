@@ -79,8 +79,8 @@ theorem replicate_congr (n : Nat) (w : Nat) (expr expr' : BitVec w) (h : expr' =
     BitVec.replicate n expr' = BitVec.replicate n expr := by
   simp[*]
 
-theorem extract_congr (hi lo : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x') :
-    BitVec.extractLsb hi lo x' = BitVec.extractLsb hi lo x := by
+theorem extract_congr (start len : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x') :
+    BitVec.extractLsb' start len x' = BitVec.extractLsb' start len x := by
   simp[*]
 
 theorem rotateLeft_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
@@ -110,6 +110,14 @@ theorem getLsbD_congr (i : Nat) (w : Nat) (e e' : BitVec w) (h : e' = e) :
 theorem ofBool_congr (b : Bool) (e' : BitVec 1) (h : e' = BitVec.ofBool b) : e'.getLsbD 0 = b := by
   cases b <;> simp [h]
 
+theorem udiv_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (lhs' / rhs') = (lhs / rhs) := by
+  simp[*]
+
+theorem umod_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (lhs' % rhs') = (lhs % rhs) := by
+  simp[*]
+
 end BitVec
 
 namespace Bool
@@ -121,12 +129,8 @@ theorem and_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs)
     (lhs' && rhs') = (lhs && rhs) := by
   simp[*]
 
-theorem or_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (lhs' || rhs') = (lhs || rhs) := by
-  simp[*]
-
 theorem xor_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (xor lhs' rhs') = (xor lhs rhs) := by
+    (lhs' ^^ rhs') = (lhs ^^ rhs) := by
   simp[*]
 
 theorem beq_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :

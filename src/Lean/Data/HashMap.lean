@@ -195,7 +195,7 @@ def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
 
 /--
 Similar to `insert`, but returns `some old` if the map already had an entry `α → old`.
-If the result is `some old`, the the resulting map is equal to `m`. -/
+If the result is `some old`, the resulting map is equal to `m`. -/
 def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option β :=
   match m with
   | ⟨ m, hw ⟩ =>

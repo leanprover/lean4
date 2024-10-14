@@ -65,6 +65,14 @@ inductive BVBinOp where
   Multiplication.
   -/
   | mul
+  /--
+  Unsigned division.
+  -/
+  | udiv
+  /--
+  Unsigned modulo.
+  -/
+  | umod
 
 namespace BVBinOp
 
@@ -74,6 +82,8 @@ def toString : BVBinOp → String
   | xor => "^"
   | add => "+"
   | mul => "*"
+  | udiv => "/ᵤ"
+  | umod => "%ᵤ"
 
 instance : ToString BVBinOp := ⟨toString⟩
 
@@ -86,12 +96,16 @@ def eval : BVBinOp → (BitVec w → BitVec w → BitVec w)
   | xor => (· ^^^ ·)
   | add => (· + ·)
   | mul => (· * ·)
+  | udiv => (· / ·)
+  | umod => (· % · )
 
 @[simp] theorem eval_and : eval .and = ((· &&& ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_or : eval .or = ((· ||| ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_xor : eval .xor = ((· ^^^ ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_add : eval .add = ((· + ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_mul : eval .mul = ((· * ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_udiv : eval .udiv = ((· / ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_umod : eval .umod = ((· % ·) : BitVec w → BitVec w → BitVec w) := by rfl
 
 end BVBinOp
 
@@ -142,8 +156,8 @@ def toString : BVUnOp → String
   | not => "~"
   | shiftLeftConst n => s!"<< {n}"
   | shiftRightConst n => s!">> {n}"
-  | rotateLeft n => s! "rotL {n}"
-  | rotateRight n => s! "rotR {n}"
+  | rotateLeft n => s!"rotL {n}"
+  | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
 
 instance : ToString BVUnOp := ⟨toString⟩
@@ -202,7 +216,7 @@ inductive BVExpr : Nat → Type where
   /--
   Extract a slice from a `BitVec`.
   -/
-  | extract (hi lo : Nat) (expr : BVExpr w) : BVExpr (hi - lo + 1)
+  | extract (start len : Nat) (expr : BVExpr w) : BVExpr len
   /--
   A binary operation on two `BVExpr`.
   -/
@@ -238,7 +252,7 @@ def toString : BVExpr w → String
   | .var idx => s!"var{idx}"
   | .const val => ToString.toString val
   | .zeroExtend v expr => s!"(zext {v} {expr.toString})"
-  | .extract hi lo expr => s!"{expr.toString}[{hi}:{lo}]"
+  | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
   | .un op operand => s!"({op.toString} {toString operand})"
   | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"
@@ -277,7 +291,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
     bv.truncate w
   | .const val => val
   | .zeroExtend v expr => BitVec.zeroExtend v (eval assign expr)
-  | .extract hi lo expr => BitVec.extractLsb hi lo (eval assign expr)
+  | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
   | .bin lhs op rhs => op.eval (eval assign lhs) (eval assign rhs)
   | .un op operand => op.eval (eval assign operand)
   | .append lhs rhs => (eval assign lhs) ++ (eval assign rhs)
@@ -298,7 +312,7 @@ theorem eval_zeroExtend : eval assign (.zeroExtend v expr) = BitVec.zeroExtend v
   rfl
 
 @[simp]
-theorem eval_extract : eval assign (.extract hi lo expr) = BitVec.extractLsb hi lo (eval assign expr) := by
+theorem eval_extract : eval assign (.extract start len expr) = BitVec.extractLsb' start len (eval assign expr) := by
   rfl
 
 @[simp]

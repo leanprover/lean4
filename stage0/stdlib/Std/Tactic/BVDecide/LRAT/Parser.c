@@ -26,7 +26,6 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parsePos___closed__
 static uint8_t l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__1;
 static lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHint___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT_lratProofToBinary_go___spec__3(lean_object*, size_t, size_t, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString_serialize(lean_object*);
 uint8_t lean_uint8_lor(uint8_t, uint8_t);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
@@ -187,6 +186,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT
 static lean_object* l_Std_Tactic_BVDecide_LRAT_loadLRATProof___closed__1;
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseNeg(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed__8;
 lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
@@ -1258,8 +1258,8 @@ static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

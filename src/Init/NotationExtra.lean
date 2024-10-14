@@ -223,38 +223,6 @@ end Lean
   | `($_ $array $index) => `($array[$index]?)
   | _ => throw ()
 
-@[app_unexpander Name.mkStr1] def unexpandMkStr1 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++  a.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr2] def unexpandMkStr2 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr3] def unexpandMkStr3 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr4] def unexpandMkStr4 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr5] def unexpandMkStr5 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr6] def unexpandMkStr6 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr7] def unexpandMkStr7 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr8] def unexpandMkStr8 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString ++ "." ++ a8.getString)]
-  | _  => throw ()
-
 @[app_unexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
   | _ => `(#[])
 

@@ -155,7 +155,7 @@ def mapMono (as : List α) (f : α → α) : List α :=
 
 /-! ## Additional lemmas required for bootstrapping `Array`. -/
 
-theorem getElem_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs)[i] = as[i] := by
+theorem getElem_append_left {as bs : List α} (h : i < as.length) {h'} : (as ++ bs)[i] = as[i] := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
@@ -163,12 +163,14 @@ theorem getElem_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ 
     | zero => rfl
     | succ i => apply ih
 
-theorem getElem_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs)[i]'h' = bs[i - as.length]'h'' := by
+theorem getElem_append_right {as bs : List α} {i : Nat} (h₁ : as.length ≤ i) {h₂} :
+    (as ++ bs)[i]'h₂ =
+      bs[i - as.length]'(by rw [length_append] at h₂; exact Nat.sub_lt_left_of_lt_add h₁ h₂) := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
-    cases i with simp [get, Nat.succ_sub_succ] <;> simp_arith [Nat.succ_sub_succ] at h
-    | succ i => apply ih; simp_arith [h]
+    cases i with simp [get, Nat.succ_sub_succ] <;> simp [Nat.succ_sub_succ] at h₁
+    | succ i => apply ih; simp [h₁]
 
 theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.length) : (as ++ [a] : List _).get i = a := by
   cases i; rename_i i h'
@@ -177,8 +179,8 @@ theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.
     | zero => simp [List.get]
     | succ => simp_arith at h'
   | cons a as ih =>
-    cases i with simp_arith at h
-    | succ i => apply ih; simp_arith [h]
+    cases i with simp at h
+    | succ i => apply ih; simp [h]
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   induction h with
@@ -233,8 +235,8 @@ theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.g
 theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
   match as, bs with
   | [],    []    => rfl
-  | [],    b::bs => False.elim <| h₂ (List.lt.nil ..)
-  | a::as, []    => False.elim <| h₁ (List.lt.nil ..)
+  | [],    _::_ => False.elim <| h₂ (List.lt.nil ..)
+  | _::_, []    => False.elim <| h₁ (List.lt.nil ..)
   | a::as, b::bs => by
     by_cases hab : a < b
     · exact False.elim <| h₂ (List.lt.head _ _ hab)

@@ -266,7 +266,7 @@ instance [FromJson α] : FromJson (Notification α) where
       let params := params?
       let param : α ← fromJson? (toJson params)
       pure $ ⟨method, param⟩
-    else throw "not a notfication"
+    else throw "not a notification"
 
 end Lean.JsonRpc
 

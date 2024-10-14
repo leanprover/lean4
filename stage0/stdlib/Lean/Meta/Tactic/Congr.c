@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_MVarId_assumptionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_hcongr_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrImplies_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_congrPre___lambda__3___closed__1;
@@ -60,7 +59,7 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 lean_object* l_Lean_Meta_getTransparency(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrN_post___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_congrCore___closed__4;
@@ -99,6 +98,7 @@ static lean_object* l_Lean_MVarId_congrN___closed__1;
 static lean_object* l_Lean_MVarId_hcongr_x3f___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_MVarId_congrN_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___at_Lean_MVarId_congr_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3360,8 +3360,8 @@ static lean_object* _init_l_Lean_MVarId_congrN___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -3390,7 +3390,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_ctor_get(x_16, 0);
-x_19 = lean_array_to_list(lean_box(0), x_18);
+x_19 = lean_array_to_list(x_18);
 lean_ctor_set(x_16, 0, x_19);
 return x_16;
 }
@@ -3402,7 +3402,7 @@ x_21 = lean_ctor_get(x_16, 1);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_16);
-x_22 = lean_array_to_list(lean_box(0), x_20);
+x_22 = lean_array_to_list(x_20);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_21);

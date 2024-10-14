@@ -79,13 +79,16 @@ structure MaterializedDep where
   URL for the materialized package.
   Used as the endpoint from which to fetch cloud releases for the package.
   -/
-  remoteUrl? : Option String
+  remoteUrl : String
   /-- The manifest entry for the dependency. -/
   manifestEntry : PackageEntry
   deriving Inhabited
 
 @[inline] def MaterializedDep.name (self : MaterializedDep) :=
   self.manifestEntry.name
+
+@[inline] def MaterializedDep.scope (self : MaterializedDep) :=
+  self.manifestEntry.scope
 
 /-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
 @[inline] def MaterializedDep.manifestFile? (self : MaterializedDep) :=
@@ -109,13 +112,13 @@ def Dependency.materialize
       let relPkgDir := relParentDir / dir
       return {
         relPkgDir
-        remoteUrl? := none
+        remoteUrl := ""
         manifestEntry := mkEntry <| .path relPkgDir
       }
     | .git url inputRev? subDir? => do
       let sname := dep.name.toString (escape := false)
-      let repoUrl? := Git.filterUrl? url
-      materializeGit sname (relPkgsDir / sname) url repoUrl? inputRev? subDir?
+      let repoUrl := Git.filterUrl? url |>.getD ""
+      materializeGit sname (relPkgsDir / sname) url repoUrl inputRev? subDir?
   else
     if dep.scope.isEmpty then
       error s!"{dep.name}: ill-formed dependency: \
@@ -126,26 +129,26 @@ def Dependency.materialize
       else
         error s!"{dep.name} unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
     let depName := dep.name.toString (escape := false)
-    let some pkg ← fetchReservoirPkg? lakeEnv dep.scope depName
+    let some pkg ← Reservoir.fetchPkg? lakeEnv dep.scope depName
       | error s!"{dep.scope}/{depName}: could not materialize package: \
         dependency has no explicit source and was not found on Reservoir"
     let relPkgDir := relPkgsDir / pkg.name
     match pkg.gitSrc? with
     | some (.git _ url githubUrl? defaultBranch? subDir?) =>
-      materializeGit pkg.fullName relPkgDir url githubUrl? (verRev? <|> defaultBranch?) subDir?
+      materializeGit pkg.fullName relPkgDir url
+        (githubUrl?.getD "") (verRev? <|> defaultBranch?) subDir?
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
   mkEntry src : PackageEntry :=
     {name := dep.name, scope := dep.scope, inherited, src}
-  materializeGit name relPkgDir gitUrl remoteUrl? inputRev? subDir? : LogIO MaterializedDep := do
+  materializeGit name relPkgDir gitUrl remoteUrl inputRev? subDir? : LogIO MaterializedDep := do
     let repo := GitRepo.mk (wsDir / relPkgDir)
     let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl
     materializeGitRepo name repo gitUrl inputRev?
     let rev ← repo.getHeadRevision
     let relPkgDir := if let some subDir := subDir? then relPkgDir / subDir else relPkgDir
     return {
-      relPkgDir
-      remoteUrl? := remoteUrl?
+      relPkgDir, remoteUrl
       manifestEntry := mkEntry <| .git gitUrl rev inputRev? subDir?
     }
 
@@ -160,7 +163,7 @@ def PackageEntry.materialize
   | .path (dir := relPkgDir) .. =>
     return {
       relPkgDir
-      remoteUrl? := none
+      remoteUrl := ""
       manifestEntry
     }
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
@@ -187,6 +190,6 @@ def PackageEntry.materialize
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     return {
       relPkgDir
-      remoteUrl? := Git.filterUrl? url
+      remoteUrl := Git.filterUrl? url |>.getD ""
       manifestEntry
     }

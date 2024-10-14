@@ -1019,6 +1019,7 @@ if (x_42 == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
 x_43 = l_Lean_mkOptionalNode(x_3);
+lean_dec(x_3);
 x_44 = l_Lean_Elab_Tactic_expandOptLocation(x_43);
 lean_dec(x_43);
 x_45 = l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Change______elabRules__Lean__Parser__Tactic__change__1___lambda__4___closed__17;
@@ -1035,6 +1036,7 @@ lean_dec(x_3);
 x_48 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_48, 0, x_47);
 x_49 = l_Lean_mkOptionalNode(x_48);
+lean_dec(x_48);
 x_50 = l_Lean_Elab_Tactic_expandOptLocation(x_49);
 lean_dec(x_49);
 x_51 = l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Change______elabRules__Lean__Parser__Tactic__change__1___lambda__4___closed__17;
@@ -1120,6 +1122,7 @@ if (lean_is_scalar(x_78)) {
 }
 lean_ctor_set(x_79, 0, x_77);
 x_80 = l_Lean_mkOptionalNode(x_79);
+lean_dec(x_79);
 x_81 = l_Lean_Elab_Tactic_expandOptLocation(x_80);
 lean_dec(x_80);
 x_82 = l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Change______elabRules__Lean__Parser__Tactic__change__1___lambda__4___closed__17;

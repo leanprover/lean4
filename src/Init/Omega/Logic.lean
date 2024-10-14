@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.PropLemmas
@@ -20,7 +20,7 @@ theorem and_not_not_of_not_or (h : ¬ (p ∨ q)) : ¬ p ∧ ¬ q := not_or.mp h
 
 theorem Decidable.or_not_not_of_not_and [Decidable p] [Decidable q]
     (h : ¬ (p ∧ q)) : ¬ p ∨ ¬ q :=
-  (Decidable.not_and_iff_or_not _ _).mp h
+  Decidable.not_and_iff_or_not.mp h
 
 theorem Decidable.and_or_not_and_not_of_iff {p q : Prop} [Decidable q] (h : p ↔ q) :
     (p ∧ q) ∨ (¬p ∧ ¬q) := Decidable.iff_iff_and_or_not_and_not.mp h

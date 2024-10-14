@@ -182,13 +182,13 @@ private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl :
 private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices majorPos : Nat) (motive : Expr) : MetaM (List Bool × Bool) := do
   let mut produceMotive := #[]
   let mut recursor      := false
-  for i in [:xs.size] do
+  for h : i in [:xs.size] do
     if i < numParams + 1 then
       continue --skip parameters and motive
     if majorPos - numIndices ≤ i && i ≤ majorPos then
       continue -- skip indices and major premise
     -- process minor premise
-    let x := xs[i]!
+    let x := xs[i]
     let xType ← inferType x
     (produceMotive, recursor) ← forallTelescopeReducing xType fun minorArgs minorResultType => minorResultType.withApp fun res _ => do
       let produceMotive := produceMotive.push (res == motive)

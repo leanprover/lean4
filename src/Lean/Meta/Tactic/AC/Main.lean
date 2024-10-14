@@ -140,7 +140,26 @@ where
     | .op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
     | .var x => vars[x]!
 
-def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
+def post (e : Expr) : SimpM Simp.Step := do
+  let ctx ← Simp.getContext
+  match e, ctx.parent? with
+  | bin op₁ l r, some (bin op₂ _ _) =>
+    if ←isDefEq op₁ op₂ then
+      return Simp.Step.done { expr := e }
+    match ←preContext op₁ with
+    | some pc =>
+      let (proof, newTgt) ← buildNormProof pc l r
+      return Simp.Step.done { expr := newTgt, proof? := proof }
+    | none => return Simp.Step.done { expr := e }
+  | bin op l r, _ =>
+    match ←preContext op with
+    | some pc =>
+      let (proof, newTgt) ← buildNormProof pc l r
+      return Simp.Step.done { expr := newTgt, proof? := proof }
+    | none => return Simp.Step.done { expr := e }
+  | e, _ => return Simp.Step.done { expr := e }
+
+def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
   let simpCtx :=
     {
       simpTheorems  := {}
@@ -149,31 +168,49 @@ def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
     }
   let tgt ← instantiateMVars (← mvarId.getType)
   let (res, _) ← Simp.main tgt simpCtx (methods := { post })
-  let newGoal ← applySimpResultToTarget mvarId tgt res
-  newGoal.refl
-where
-  post (e : Expr) : SimpM Simp.Step := do
-    let ctx ← Simp.getContext
-    match e, ctx.parent? with
-    | bin op₁ l r, some (bin op₂ _ _) =>
-      if ←isDefEq op₁ op₂ then
-        return Simp.Step.done { expr := e }
-      match ←preContext op₁ with
-      | some pc =>
-        let (proof, newTgt) ← buildNormProof pc l r
-        return Simp.Step.done { expr := newTgt, proof? := proof }
-      | none => return Simp.Step.done { expr := e }
-    | bin op l r, _ =>
-      match ←preContext op with
-      | some pc =>
-        let (proof, newTgt) ← buildNormProof pc l r
-        return Simp.Step.done { expr := newTgt, proof? := proof }
-      | none => return Simp.Step.done { expr := e }
-    | e, _ => return Simp.Step.done { expr := e }
+  applySimpResultToTarget mvarId tgt res
+
+def rewriteUnnormalizedRefl (goal : MVarId) : MetaM Unit := do
+  (← rewriteUnnormalized goal).refl
 
 @[builtin_tactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
-  goal.withContext <| rewriteUnnormalized goal
+  goal.withContext <| rewriteUnnormalizedRefl goal
+
+def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
+  goal.withContext do
+    let simpCtx :=
+    {
+      simpTheorems  := {}
+      congrTheorems := (← getSimpCongrTheorems)
+      config        := Simp.neutralConfig
+    }
+    let tgt ← instantiateMVars (← fvarId.getType)
+    let (res, _) ← Simp.main tgt simpCtx (methods := { post })
+    return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
+
+/-- Implementation of the `ac_nf` tactic when operating on the main goal. -/
+def acNfTargetTactic : TacticM Unit :=
+  liftMetaTactic1 fun goal => rewriteUnnormalized goal
+
+/-- Implementation of the `ac_nf` tactic when operating on a hypothesis. -/
+def acNfHypTactic (fvarId : FVarId) : TacticM Unit :=
+  liftMetaTactic1 fun goal => acNfHypMeta goal fvarId
+
+@[builtin_tactic acNf0]
+def evalNf0 : Tactic := fun stx => do
+  match stx with
+  | `(tactic| ac_nf0 $[$loc?]?) =>
+    let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
+    withMainContext do
+      match loc with
+      | Location.targets hyps target =>
+        if target then acNfTargetTactic
+        (← getFVarIds hyps).forM acNfHypTactic
+      | Location.wildcard =>
+        acNfTargetTactic
+        (← (← getMainGoal).getNondepPropHyps).forM acNfHypTactic
+  | _ => Lean.Elab.throwUnsupportedSyntax
 
 builtin_initialize
   registerTraceClass `Meta.AC

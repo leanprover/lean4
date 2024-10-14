@@ -16,10 +16,6 @@ namespace Normalize
 
 attribute [bv_normalize] Bool.not_true
 attribute [bv_normalize] Bool.not_false
-attribute [bv_normalize] Bool.or_true
-attribute [bv_normalize] Bool.true_or
-attribute [bv_normalize] Bool.or_false
-attribute [bv_normalize] Bool.false_or
 attribute [bv_normalize] Bool.and_true
 attribute [bv_normalize] Bool.true_and
 attribute [bv_normalize] Bool.and_false
@@ -46,7 +42,10 @@ attribute [bv_normalize] Bool.and_self_left
 attribute [bv_normalize] Bool.and_self_right
 
 @[bv_normalize]
-theorem Bool.not_xor : ∀ (a b : Bool), !(xor a b) = (a == b) := by decide
+theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide
+
+@[bv_normalize]
+theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
 
 end Normalize
 end Std.Tactic.BVDecide

@@ -6,7 +6,6 @@ def f1 (x : Nat) : IO Unit :=
 #guard_msgs in
 #eval f1 0
 
-/-- info: -/
 #guard_msgs in
 #eval f1 100
 
@@ -28,7 +27,8 @@ def f3 (x : Nat) : IO Nat :=
 /--
 info: 5
 at catch: failed
-0
+---
+info: 0
 -/
 #guard_msgs in
 #eval f3 5

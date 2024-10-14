@@ -19,7 +19,8 @@ return sum
 info: x: 2
 x: 4
 x: 10
-16
+---
+info: 16
 -/
 #guard_msgs in
 #eval f1 [1, 2, 3, 4, 5, 10, 20].toPArray' 10

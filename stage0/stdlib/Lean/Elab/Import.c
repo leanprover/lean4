@@ -14,12 +14,10 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_IO_println___at_Lean_Elab_printImports___spec__1(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports___boxed(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_print_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
@@ -46,6 +44,7 @@ lean_object* l_Lean_findOLean(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -114,8 +113,8 @@ static lean_object* _init_l_Lean_Elab_headerToImports___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -152,20 +151,22 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_headerToImports___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_headerToImports___closed__4;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_headerToImports___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_headerToImports___closed__5;
-x_2 = l_Lean_Elab_headerToImports___closed__4;
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
+x_2 = lean_array_mk(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports(lean_object* x_1) {

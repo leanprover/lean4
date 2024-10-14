@@ -80,6 +80,10 @@ partial def of (x : Expr) : M (Option ReifiedBVExpr) := do
     binaryReflection lhsExpr rhsExpr .add ``Std.Tactic.BVDecide.Reflect.BitVec.add_congr
   | HMul.hMul _ _ _ _ lhsExpr rhsExpr =>
     binaryReflection lhsExpr rhsExpr .mul ``Std.Tactic.BVDecide.Reflect.BitVec.mul_congr
+  | HDiv.hDiv _ _ _ _ lhsExpr rhsExpr =>
+    binaryReflection lhsExpr rhsExpr .udiv ``Std.Tactic.BVDecide.Reflect.BitVec.udiv_congr
+  | HMod.hMod _ _ _ _ lhsExpr rhsExpr =>
+    binaryReflection lhsExpr rhsExpr .umod ``Std.Tactic.BVDecide.Reflect.BitVec.umod_congr
   | Complement.complement _ _ innerExpr =>
     unaryReflection innerExpr .not ``Std.Tactic.BVDecide.Reflect.BitVec.not_congr
   | HShiftLeft.hShiftLeft _ β _ _ innerExpr distanceExpr =>
@@ -203,27 +207,27 @@ partial def of (x : Expr) : M (Option ReifiedBVExpr) := do
         innerEval
         innerProof
     return some ⟨inner.width * n, bvExpr, proof, expr⟩
-  | BitVec.extractLsb _ hiExpr loExpr innerExpr =>
-    let some hi ← getNatValue? hiExpr | return ← ofAtom x
-    let some lo ← getNatValue? loExpr | return ← ofAtom x
+  | BitVec.extractLsb' _ startExpr lenExpr innerExpr =>
+    let some start ← getNatValue? startExpr | return ← ofAtom x
+    let some len ← getNatValue? lenExpr | return ← ofAtom x
     let some inner ← ofOrAtom innerExpr | return none
-    let bvExpr := .extract hi lo inner.bvExpr
+    let bvExpr := .extract start len inner.bvExpr
     let expr := mkApp4 (mkConst ``BVExpr.extract)
       (toExpr inner.width)
-      hiExpr
-      loExpr
+      startExpr
+      lenExpr
       inner.expr
     let proof := do
       let innerEval ← mkEvalExpr inner.width inner.expr
       let innerProof ← inner.evalsAtAtoms
       return mkApp6 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.extract_congr)
-        hiExpr
-        loExpr
+        startExpr
+        lenExpr
         (toExpr inner.width)
         innerExpr
         innerEval
         innerProof
-    return some ⟨hi - lo + 1, bvExpr, proof, expr⟩
+    return some ⟨len, bvExpr, proof, expr⟩
   | BitVec.rotateLeft _ innerExpr distanceExpr =>
     rotateReflection
       distanceExpr
@@ -343,7 +347,7 @@ where
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
   goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
-    let some ⟨width, bvVal⟩ ← getBitVecValue? x | return none
+    let some ⟨width, bvVal⟩ ← getBitVecValue? x | return ← ofAtom x
     let bvExpr : BVExpr width := .const bvVal
     let expr := mkApp2 (mkConst ``BVExpr.const) (toExpr width) (toExpr bvVal)
     let proof := do

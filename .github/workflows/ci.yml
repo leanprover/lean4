@@ -114,7 +114,7 @@ jobs:
           elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
             check_level=1
           else
-            labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }}) --jq '.labels'"
+            labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels')"
             if echo "$labels" | grep -q "release-ci"; then
               check_level=2
             elif echo "$labels" | grep -q "merge-ci"; then
@@ -316,7 +316,7 @@ jobs:
           git fetch --depth=1 origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock
         if: github.event_name == 'pull_request'
-      # (needs to be after "Checkout" so files don't get overriden)
+      # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v12
         with:

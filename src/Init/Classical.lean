@@ -80,6 +80,8 @@ noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decid
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
+instance (a : Prop) : Nonempty (Decidable a) := ⟨propDecidable a⟩
+
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
   fun _ _ => inferInstance
 
@@ -121,11 +123,11 @@ theorem propComplete (a : Prop) : a = True ∨ a = False :=
   | Or.inl ha => Or.inl (eq_true ha)
   | Or.inr hn => Or.inr (eq_false hn)
 
--- this supercedes byCases in Decidable
+-- this supersedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
   Decidable.byCases (dec := propDecidable _) hpq hnpq
 
--- this supercedes byContradiction in Decidable
+-- this supersedes byContradiction in Decidable
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 
@@ -133,6 +135,30 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 The left-to-right direction, double negation elimination (DNE),
 is classically true but not constructively. -/
 @[simp] theorem not_not : ¬¬a ↔ a := Decidable.not_not
+
+/-- Transfer decidability of `¬ p` to decidability of `p`. -/
+-- This can not be an instance as it would be tried everywhere.
+def decidable_of_decidable_not (p : Prop) [h : Decidable (¬ p)] : Decidable p :=
+  match h with
+  | isFalse h => isTrue (Classical.not_not.mp h)
+  | isTrue h => isFalse h
+
+attribute [local instance] decidable_of_decidable_not in
+/-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
+@[simp low] protected theorem dite_not [hn : Decidable (¬p)] (x : ¬p → α) (y : ¬¬p → α) :
+    dite (¬p) x y = dite p (fun h => y (not_not_intro h)) x := by
+  cases hn <;> rename_i g
+  · simp [not_not.mp g]
+  · simp [g]
+
+attribute [local instance] decidable_of_decidable_not in
+/-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
+@[simp low] protected theorem ite_not (p : Prop) [Decidable (¬ p)] (x y : α) : ite (¬p) x y = ite p y x :=
+  dite_not (fun _ => x) (fun _ => y)
+
+attribute [local instance] decidable_of_decidable_not in
+@[simp low] protected theorem decide_not (p : Prop) [Decidable (¬ p)] : decide (¬p) = !decide p :=
+  byCases (fun h : p => by simp_all) (fun h => by simp_all)
 
 @[simp low] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x := Decidable.not_forall
 
@@ -160,7 +186,7 @@ theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 
 @[simp] theorem not_imp : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-@[simp] theorem imp_and_neg_imp_iff (p q : Prop) : (p → q) ∧ (¬p → q) ↔ q :=
+@[simp] theorem imp_and_neg_imp_iff (p : Prop) {q : Prop} : (p → q) ∧ (¬p → q) ↔ q :=
   Iff.intro (fun (a : _ ∧ _) => (Classical.em p).rec a.left a.right)
             (fun a => And.intro (fun _ => a) (fun _ => a))
 

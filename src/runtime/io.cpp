@@ -567,10 +567,11 @@ extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
     lean_ctor_set(lean_offset, 0, lean_int_to_int(offset_hour));
     lean_ctor_set(lean_offset, 1, lean_int_to_int(offset_seconds));
 
-    lean_object *lean_tz = lean_alloc_ctor(0, 2, 1);
+    lean_object *lean_tz = lean_alloc_ctor(0, 3, 1);
     lean_ctor_set(lean_tz, 0, lean_offset);
     lean_ctor_set(lean_tz, 1, lean_mk_ascii_string_unchecked("Unknown"));
-    lean_ctor_set_uint8(lean_tz, sizeof(void*)*2, tm_info.tm_isdst);
+    lean_ctor_set(lean_tz, 2, lean_mk_ascii_string_unchecked("Unknown"));
+    lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, tm_info.tm_isdst);
 
     return lean_io_result_mk_ok(lean_tz);
 }

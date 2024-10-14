@@ -79,8 +79,8 @@ Calculates the duration between a given `PlainDate` and a specified date.
 
 ```lean
 def example : Duration :=
-  let startDate := date% 2023-1-1
-  let endDate := date% 2023-3-15
+  let startDate := date("2023-1-1")
+  let endDate := date("2023-3-15")
   endDate.since startDate
 ```
 -/
@@ -137,8 +137,8 @@ Calculates the duration between a given `PlainDateTime` and a specified date.
 
 ```lean
 example : Duration :=
-  let startDate := date% 2023-1-1:05:10:20
-  let endDate := date% 2023-3-15:05:10:20
+  let startDate := datetime("2023-1-1:05:10:20")
+  let endDate := datetime("2023-3-15:05:10:20")
   endDate.since startDate
 ```
 -/

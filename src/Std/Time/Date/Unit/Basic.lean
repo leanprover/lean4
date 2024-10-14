@@ -39,21 +39,3 @@ def toWeeks (day : Day.Offset) : Week.Offset :=
   day.ediv 7
 
 end Day.Offset
-
-namespace Week.Offset
-
-/--
-Convert `Week.Offset` into `Day.Offset`.
--/
-@[inline]
-def toDays (week : Week.Offset) : Day.Offset :=
-  week.mul 7
-
-/--
-Convert `Day.Offset` into `Week.Offset`.
--/
-@[inline]
-def ofDays (day : Day.Offset) : Week.Offset :=
-  day.ediv 7
-
-end Week.Offset

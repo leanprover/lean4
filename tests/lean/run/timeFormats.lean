@@ -1,16 +1,16 @@
 import Std.Time
 open Std.Time
 
-def ISO8601UTC : Format .any := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
-def RFC1123 : Format .any := datespec("eee, dd MMM yyyy HH:mm:ss ZZZ")
-def ShortDate : Format .any := datespec("MM/dd/yyyy")
-def LongDate : Format .any := datespec("MMMM D, yyyy")
-def ShortDateTime : Format .any := datespec("MM/dd/yyyy HH:mm:ss")
-def LongDateTime : Format .any := datespec("MMMM D, yyyy h:mm aa")
-def Time24Hour : Format .any := datespec("HH:mm:ss")
-def Time12Hour : Format .any := datespec("hh:mm:ss aa")
-def FullDayTimeZone : Format .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss ZZZ")
-def CustomDayTime : Format .any := datespec("EEE dd MMM yyyy HH:mm")
+def ISO8601UTC : GenericFormat .any := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ")
+def RFC1123 : GenericFormat .any := datespec("eee, dd MMM yyyy HH:mm:ss ZZZ")
+def ShortDate : GenericFormat .any := datespec("MM/dd/yyyy")
+def LongDate : GenericFormat .any := datespec("MMMM D, yyyy")
+def ShortDateTime : GenericFormat .any := datespec("MM/dd/yyyy HH:mm:ss")
+def LongDateTime : GenericFormat .any := datespec("MMMM D, yyyy h:mm aa")
+def Time24Hour : GenericFormat .any := datespec("HH:mm:ss")
+def Time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
+def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss ZZZ")
+def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM yyyy HH:mm")
 
 -- Dates
 
@@ -37,7 +37,7 @@ info: "Monday, June 16, 2014 03:03:03 -0300"
 #guard_msgs in
 #eval FullDayTimeZone.format date₂
 
-def tm₃ := date₁.toTimestamp
+def tm₃ := date₁.toUTCTimestamp
 def date₃ := DateTime.ofTimestamp tm₃ brTZ
 
 /--

@@ -43,7 +43,7 @@ inductive Weekday
 namespace Weekday
 
 /--
-`Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7..
+`Ordinal` represents a bounded value for weekdays, which ranges between 1 and 7.
 -/
 def Ordinal := Bounded.LE 1 7
 

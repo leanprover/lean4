@@ -14,6 +14,8 @@ namespace Time
 
 namespace PlainDateTime
 
+set_option linter.all true
+
 /--
 Creaates a new `PlainDateTime` out of a `Timestamp` and a `TimeZone`.
 -/
@@ -22,7 +24,7 @@ def ofTimestamp (stamp : Timestamp) (tz : TimeZone) : PlainDateTime :=
   PlainDateTime.ofUTCTimestamp stamp
 
 /--
-Get the current monotonic time.
+Get the current time.
 -/
 @[inline]
 def now : IO PlainDateTime := do
@@ -35,7 +37,7 @@ end PlainDateTime
 namespace DateTime
 
 /--
-Converts a `PlainDate` to a `DateTime`
+Converts a `PlainDate` with a `TimeZone` to a `DateTime`
 -/
 @[inline]
 def ofPlainDate (pd : PlainDate) (tz : TimeZone) : DateTime tz :=
@@ -46,10 +48,10 @@ Converts a `DateTime` to a `PlainDate`
 -/
 @[inline]
 def toPlainDate (dt : DateTime tz) : PlainDate :=
-  Timestamp.toPlainDateAssumingUTC dt.toTimestamp
+  Timestamp.toPlainDateAssumingUTC dt.toUTCTimestamp
 
 /--
-Converts a `PlainTime` to a `DateTime`
+Converts a `PlainTime` and a `TimeZone` to a `DateTime`
 -/
 @[inline]
 def ofPlainTime (pt : PlainTime) (tz : TimeZone) : DateTime tz :=
@@ -76,7 +78,7 @@ example : Duration :=
 -/
 @[inline]
 def since [ToTimestamp α] (date : DateTime tz) (since : α) : Duration :=
-  let date  := date.toTimestamp
+  let date  := date.toUTCTimestamp
   let since := ToTimestamp.toTimestamp since
   Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
@@ -141,9 +143,8 @@ def example : Duration :=
 -/
 @[inline]
 def since [ToTimestamp α] (date : ZonedDateTime) (since : α) : Duration :=
-  let date  := date.toTimestamp
+  let date  := date.toUTCTimestamp
   let since := ToTimestamp.toTimestamp since
   Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
 end ZonedDateTime
-

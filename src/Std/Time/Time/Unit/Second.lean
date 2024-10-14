@@ -60,17 +60,17 @@ instance : OfNat Offset n :=
 namespace Offset
 
 /--
-Creates an `Offset` from a natural number.
+Creates an `Second.Offset` from a natural number.
 -/
 @[inline]
-def ofNat (data : Nat) : Offset :=
+def ofNat (data : Nat) : Second.Offset :=
   UnitVal.mk data
 
 /--
-Creates an `Offset` from an integer.
+Creates an `Second.Offset` from an integer.
 -/
 @[inline]
-def ofInt (data : Int) : Offset :=
+def ofInt (data : Int) : Second.Offset :=
   UnitVal.mk data
 
 end Offset
@@ -101,10 +101,10 @@ def ofFin (data : Fin (if leap then 61 else 60)) : Ordinal leap :=
   | false => Bounded.LE.ofFin data
 
 /--
-Converts an `Ordinal` to an `Offset`.
+Converts an `Ordinal` to an `Second.Offset`.
 -/
 @[inline]
-def toOffset (ordinal : Ordinal leap) : Offset :=
+def toOffset (ordinal : Ordinal leap) : Second.Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal

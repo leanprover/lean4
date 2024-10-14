@@ -14,7 +14,7 @@ set_option linter.all true
 
 /--
 An existential version of `DateTime` that encapsulates a `DateTime` value without explicitly storing
-the time zone.
+the time zone in the type.
 -/
 def ZonedDateTime := Sigma DateTime
 
@@ -31,28 +31,28 @@ namespace ZonedDateTime
 open DateTime
 
 /--
-Creates a new `ZonedDateTime` out of a `DateTime` and `TimeZone`
+Creates a new `ZonedDateTime` out of a `DateTime` and `TimeZone`.
 -/
 @[inline]
 def mk (tz : TimeZone) (datetime : DateTime tz) : ZonedDateTime :=
   ⟨tz, datetime⟩
 
 /--
-Creates a new `ZonedDateTime` out of a `Timestamp`
+Creates a new `ZonedDateTime` out of a `Timestamp` and a `TimeZone`.
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
   ⟨tz, DateTime.ofTimestamp tm tz⟩
 
 /--
-Creates a new `Timestamp` out of a `ZonedDateTime`
+Creates a new UTC `Timestamp` out of a `ZonedDateTime`.
 -/
 @[inline]
-def toTimestamp (date : ZonedDateTime) : Timestamp :=
-  date.snd.toTimestamp
+def toUTCTimestamp (date : ZonedDateTime) : Timestamp :=
+  date.snd.toUTCTimestamp
 
 /--
-Creates a new `ZonedDateTime` out of a `Timestamp`
+Creates a new `ZonedDateTime` out of a `Timestamp` and `ZoneRules`.
 -/
 @[inline]
 def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
@@ -71,7 +71,7 @@ Changes the `TimeZone` to a new one.
 -/
 @[inline]
 def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
-  ofTimestamp date.toTimestamp tz₁
+  ofTimestamp date.toUTCTimestamp tz₁
 
 /--
 Creates a new `ZonedDateTime` out of a `PlainDateTime`
@@ -293,14 +293,11 @@ def subNanoseconds (dt : ZonedDateTime) (nanoseconds : Nanosecond.Offset) : Zone
   Sigma.mk dt.fst (dt.snd.subNanoseconds nanoseconds)
 
 /--
-Determines the era of the given `PlainDate` based on its year.
+Determines the era of the given `ZonedDateTime` based on its year.
 -/
 @[inline]
 def era (date : ZonedDateTime) : Year.Era :=
-  if date.year.toInt ≥ 0 then
-    .ce
-  else
-    .bce
+  date.snd.era
 
 /--
 Creates a new `ZonedDateTime` by adjusting the day of the month to the given `days` value, with any
@@ -354,38 +351,38 @@ def withYearRollOver (dt : ZonedDateTime) (year : Year.Offset) : ZonedDateTime :
 Creates a new `ZonedDateTime` by adjusting the `hour` component.
 -/
 @[inline]
-def withHour (dt : ZonedDateTime) (hour : Hour.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withHour hour⟩
+def withHours (dt : ZonedDateTime) (hour : Hour.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withHours hour⟩
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `minute` component.
 -/
 @[inline]
-def withMinute (dt : ZonedDateTime) (minute : Minute.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withMinute minute⟩
+def withMinutes (dt : ZonedDateTime) (minute : Minute.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withMinutes minute⟩
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `second` component.
 -/
 @[inline]
-def withSecond (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withSecond second⟩
+def withSeconds (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withSeconds second⟩
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `nano` component.
 -/
 @[inline]
-def withNano (dt : ZonedDateTime) (nano : Nanosecond.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withNano nano⟩
+def withNanoseconds (dt : ZonedDateTime) (nano : Nanosecond.Ordinal) : ZonedDateTime :=
+  ⟨dt.fst, dt.snd.withNanoseconds nano⟩
 
 /--
-Checks if the `DateTime` is in a leap year.
+Checks if the `ZonedDateTime` is in a leap year.
 -/
 def inLeapYear (date : ZonedDateTime) : Bool :=
   date.year.isLeap
 
 instance : ToTimestamp ZonedDateTime where
-  toTimestamp dt := dt.toTimestamp
+  toTimestamp dt := dt.toUTCTimestamp
 
 instance : HAdd ZonedDateTime Day.Offset ZonedDateTime where
   hAdd := addDays
@@ -424,7 +421,7 @@ instance : HSub ZonedDateTime Nanosecond.Offset ZonedDateTime where
   hSub := subNanoseconds
 
 instance : HSub ZonedDateTime ZonedDateTime Duration where
-  hSub x y := x.toTimestamp - y.toTimestamp
+  hSub x y := x.toUTCTimestamp - y.toUTCTimestamp
 
 end ZonedDateTime
 end Time

@@ -47,10 +47,10 @@ def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds).toPlainDateTimeAssumingUTC)
 
 /--
-Creates a new zone aware `Timestamp` out of a `DateTime`.
+Creates a UTC `Timestamp` out of a `DateTime`.
 -/
 @[inline]
-def toTimestamp (date : DateTime tz) : Timestamp :=
+def toUTCTimestamp (date : DateTime tz) : Timestamp :=
   date.timestamp
 
 /--
@@ -272,29 +272,29 @@ def withYearRollOver (dt : DateTime tz) (year : Year.Offset) : DateTime tz :=
 Creates a new `DateTime tz` by adjusting the `hour` component.
 -/
 @[inline]
-def withHour (dt : DateTime tz) (hour : Hour.Ordinal) : DateTime tz :=
-  .ofLocalDateTime (dt.date.get.withHour hour) tz
+def withHours (dt : DateTime tz) (hour : Hour.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withHours hour) tz
 
 /--
 Creates a new `DateTime tz` by adjusting the `minute` component.
 -/
 @[inline]
-def withMinute (dt : DateTime tz) (minute : Minute.Ordinal) : DateTime tz :=
-  .ofLocalDateTime (dt.date.get.withMinute minute) tz
+def withMinutes (dt : DateTime tz) (minute : Minute.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withMinutes minute) tz
 
 /--
 Creates a new `DateTime tz` by adjusting the `second` component.
 -/
 @[inline]
-def withSecond (dt : DateTime tz) (second : Sigma Second.Ordinal) : DateTime tz :=
-  .ofLocalDateTime (dt.date.get.withSecond second) tz
+def withSeconds (dt : DateTime tz) (second : Sigma Second.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withSeconds second) tz
 
 /--
 Creates a new `DateTime tz` by adjusting the `nano` component.
 -/
 @[inline]
-def withNano (dt : DateTime tz) (nano : Nanosecond.Ordinal) : DateTime tz :=
-  .ofLocalDateTime (dt.date.get.withNano nano) tz
+def withNanoseconds (dt : DateTime tz) (nano : Nanosecond.Ordinal) : DateTime tz :=
+  .ofLocalDateTime (dt.date.get.withNanoseconds nano) tz
 
 /--
 Converts a `Timestamp` to a `PlainDateTime`
@@ -371,8 +371,8 @@ Gets the `Period` of a `DateTime`, corresponding to the part of the day (e.g. ni
 afternoon, evening) based on the hour.
 -/
 @[inline]
-def period (dt : DateTime tz) : Day.Ordinal.Period :=
-  Day.Ordinal.Period.fromHour dt.hour
+def period (dt : DateTime tz) : Day.Period :=
+  Day.Period.fromHour dt.hour
 
 /--
 Determines the era of the given `DateTime` based on its year.
@@ -417,7 +417,7 @@ def quarter (date : DateTime tz) : Bounded.LE 1 4 :=
   date.month.sub 1 |>.ediv 3 (by decide) |>.add 1
 
 instance : ToTimestamp (DateTime tz) where
-  toTimestamp dt := dt.toTimestamp
+  toTimestamp dt := dt.toUTCTimestamp
 
 instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where
   hAdd := addDays
@@ -456,7 +456,7 @@ instance : HSub (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
   hSub := subNanoseconds
 
 instance : HSub (DateTime tz) (DateTime tz₁) Duration where
-  hSub x y := x.toTimestamp - y.toTimestamp
+  hSub x y := x.toUTCTimestamp - y.toUTCTimestamp
 
 end DateTime
 end Time

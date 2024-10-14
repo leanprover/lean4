@@ -107,8 +107,7 @@ structure Transition where
   deriving Repr, Inhabited
 
 /--
-Represents the rules for a time zone, abstracting away binary data and focusing on key transitions
-and types.
+Represents the rules for a time zone.
 -/
 structure ZoneRules where
 

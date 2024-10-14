@@ -34,7 +34,6 @@ structure PlainDate where
   /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
 
-
 instance : BEq PlainDate where
   beq x y := x.day == y.day && x.month == y.month && x.year == y.year
 
@@ -110,11 +109,9 @@ def weekday (date : PlainDate) : Weekday :=
 /--
 Determines the era of the given `PlainDate` based on its year.
 -/
+@[inline]
 def era (date : PlainDate) : Year.Era :=
-  if date.year.toInt ≥ 0 then
-    .ce
-  else
-    .bce
+  date.year.era
 
 /--
 Checks if the `PlainDate` is in a leap year.
@@ -162,7 +159,6 @@ def subDays (date : PlainDate) (days : Day.Offset) : PlainDate :=
 /--
 Adds a given number of weeks to a `PlainDate`.
 -/
-
 @[inline]
 def addWeeks (date : PlainDate) (weeks : Week.Offset) : PlainDate :=
   let dateDays := date.toDaysSinceUNIXEpoch
@@ -175,6 +171,7 @@ Subtracts a given number of weeks from a `PlainDate`.
 @[inline]
 def subWeeks (date : PlainDate) (weeks : Week.Offset) : PlainDate :=
   addWeeks date (-weeks)
+
 /--
 Adds a given number of months to a `PlainDate`, clipping the day to the last valid day of the month.
 -/
@@ -197,6 +194,56 @@ Creates a `PlainDate` by rolling over the extra days to the next month.
 -/
 def rollOver (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate :=
   clip year month 1 |>.addDays (day.toOffset - 1)
+
+/--
+Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day are rolled
+over to the next valid month and day if necessary.
+-/
+@[inline]
+def withYearRollOver (dt : PlainDate) (year : Year.Offset) : PlainDate :=
+  rollOver year dt.month dt.day
+
+/--
+Adds a given number of months to a `PlainDate`, rolling over any excess days into the following month.
+-/
+def addMonthsRollOver (date : PlainDate) (months : Month.Offset) : PlainDate :=
+  addMonthsClip (clip date.year date.month 1) months
+  |>.addDays (date.day.toOffset - 1)
+
+/--
+Subtracts `Month.Offset` from a `PlainDate`, rolling over excess days as needed.
+-/
+@[inline]
+def subMonthsRollOver (date : PlainDate) (months : Month.Offset) : PlainDate :=
+  addMonthsRollOver date (-months)
+
+/--
+Adds `Year.Offset` to a `PlainDate`, rolling over excess days to the next month, or next year.
+-/
+@[inline]
+def addYearsRollOver (date : PlainDate) (years : Year.Offset) : PlainDate :=
+  addMonthsRollOver date (years.mul 12)
+
+/--
+Subtracts `Year.Offset` from a `PlainDate`, rolling over excess days to the next month.
+-/
+@[inline]
+def subYearsRollOver (date : PlainDate) (years : Year.Offset) : PlainDate :=
+  addMonthsRollOver date (- years.mul 12)
+
+/--
+Adds `Year.Offset` to a `PlainDate`, clipping the day to the last valid day of the month.
+-/
+@[inline]
+def addYearsClip (date : PlainDate) (years : Year.Offset) : PlainDate :=
+  addMonthsClip date (years.mul 12)
+
+/--
+Subtracts `Year.Offset` from a `PlainDate`, clipping the day to the last valid day of the month.
+-/
+@[inline]
+def subYearsClip (date : PlainDate) (years : Year.Offset) : PlainDate :=
+  addMonthsClip date (- years.mul 12)
 
 /--
 Creates a new `PlainDate` by adjusting the day of the month to the given `days` value, with any
@@ -237,55 +284,6 @@ and any invalid days for the new year will be handled according to the `clip` be
 @[inline]
 def withYearClip (dt : PlainDate) (year : Year.Offset) : PlainDate :=
   clip year dt.month dt.day
-
-/--
-Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day are rolled
-over to the next valid month and day if necessary.
--/
-@[inline]
-def withYearRollOver (dt : PlainDate) (year : Year.Offset) : PlainDate :=
-  rollOver year dt.month dt.day
-
-/--
-Adds a given number of months to a `PlainDate`, rolling over any excess days into the following month.
--/
-def addMonthsRollOver (date : PlainDate) (months : Month.Offset) : PlainDate :=
-  addMonthsClip (clip date.year date.month 1) months |>.addDays (date.day.toOffset - 1)
-
-/--
-Subtracts `Month.Offset` from a `PlainDate`, rolling over excess days as needed.
--/
-@[inline]
-def subMonthsRollOver (date : PlainDate) (months : Month.Offset) : PlainDate :=
-  addMonthsRollOver date (-months)
-
-/--
-Adds `Year.Offset` to a `PlainDate`, rolling over excess days to the next month, or next year.
--/
-@[inline]
-def addYearsRollOver (date : PlainDate) (years : Year.Offset) : PlainDate :=
-  addMonthsRollOver date (years.mul 12)
-
-/--
-Subtracts `Year.Offset` from a `PlainDate`, rolling over excess days to the next month.
--/
-@[inline]
-def subYearsRollOver (date : PlainDate) (years : Year.Offset) : PlainDate :=
-  addMonthsRollOver date (- years.mul 12)
-
-/--
-Adds `Year.Offset` to a `PlainDate`, clipping the day to the last valid day of the month.
--/
-@[inline]
-def addYearsClip (date : PlainDate) (years : Year.Offset) : PlainDate :=
-  addMonthsClip date (years.mul 12)
-
-/--
-Subtracts `Year.Offset` from a `PlainDate`, clipping the day to the last valid day of the month.
--/
-@[inline]
-def subYearsClip (date : PlainDate) (years : Year.Offset) : PlainDate :=
-  addMonthsClip date (- years.mul 12)
 
 instance : HAdd PlainDate Day.Offset PlainDate where
   hAdd := addDays

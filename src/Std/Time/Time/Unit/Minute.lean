@@ -38,7 +38,7 @@ instance {x y : Ordinal} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
 /--
-`Offset` represents a duration offset in minutes. It is defined as an `Int` value.
+`Offset` represents a duration offset in minutes.
 -/
 def Offset : Type := UnitVal 60
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString

@@ -43,7 +43,7 @@ def toAbsolute (marker : HourMarker) (time : Bounded.LE 1 12) : Hour.Ordinal :=
   | .pm => if time.val = 12 then 12 else time.add 12 |>.emod 24 (by decide)
 
 /--
-Converts a 24-hour clock time to a 12-hour clock time with an `HourMarker`.
+Converts a 24-hour clock time to a 12-hour clock time with a `HourMarker`.
 -/
 def toRelative (hour : Hour.Ordinal) : Bounded.LE 1 12 × HourMarker :=
   if h₀ : hour.val = 0 then
@@ -53,8 +53,8 @@ def toRelative (hour : Hour.Ordinal) : Bounded.LE 1 12 × HourMarker :=
       (⟨12, by decide⟩, .pm)
     else
       Int.ne_iff_lt_or_gt.mp h₀ |>.by_cases
-        (λh => nomatch (Int.not_le.mpr h) hour.property.left)
-        (λh => (⟨hour.val, And.intro h h₁⟩, .am))
+        (nomatch Int.not_le.mpr · <| hour.property.left)
+        (⟨hour.val, And.intro · h₁⟩, .am)
   else
     let h := Int.not_le.mp h₁
     let t := hour |>.truncateBottom h |>.sub 12

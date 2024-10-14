@@ -31,7 +31,15 @@ inductive Era
 `Offset` represents a year offset, defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE
+  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
+
+instance {x y : Offset} : Decidable (x ≤ y) :=
+  let x : Int := x
+  inferInstanceAs (Decidable (x ≤ y))
+
+instance {x y : Offset} : Decidable (x < y) :=
+  let x : Int := x
+  inferInstanceAs (Decidable (x < y))
 
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
 

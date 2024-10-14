@@ -34,7 +34,6 @@ structure Duration where
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
   deriving Repr
 
-
 instance : ToString Duration where
   toString s :=
     let (sign, secs, nanos) :=
@@ -94,6 +93,13 @@ def ofNanoseconds (s : Nanosecond.Offset) : Duration := by
     | 0, n, _, _ => Int.eq_iff_le_and_ge.mp (Int.zero_tmod n) |>.left
 
 /--
+Creates a new `Duration` out of `Millisecond.Offset`.
+-/
+@[inline]
+def ofMillisecond (s : Millisecond.Offset) : Duration :=
+  ofNanoseconds (s.mul 1000000)
+
+/--
 Checks if the duration is zero seconds and zero nanoseconds.
 -/
 @[inline]
@@ -101,14 +107,24 @@ def isZero (d : Duration) : Bool :=
   d.second.val = 0 ∧ d.nano.val = 0
 
 /--
-Converts a `Duration` from a `Nanosecond.Offset`
+Converts a `Duration` to a `Second.Offset`
 -/
 @[inline]
 def toSeconds (duration : Duration) : Second.Offset :=
    duration.second
 
 /--
-Converts a `Duration` from a `Nanosecond.Offset`
+Converts a `Duration` to a `Millisecond.Offset`
+-/
+@[inline]
+def toMilliseconds (duration : Duration) : Millisecond.Offset :=
+  let secMillis := duration.second.mul 1000
+  let nanosMillis := duration.nano.ediv 1000000 (by decide)
+  let millis := secMillis + (.ofInt nanosMillis.val)
+  millis
+
+/--
+Converts a `Duration` to a `Nanosecond.Offset`
 -/
 @[inline]
 def toNanoseconds (duration : Duration) : Nanosecond.Offset :=

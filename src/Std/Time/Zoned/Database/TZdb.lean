@@ -71,9 +71,9 @@ def idFromPath (path : System.FilePath) : Option String := do
 Retrieves the timezone rules from the local timezone data file.
 -/
 def localRules (path : System.FilePath) : IO ZoneRules := do
-  let PlainTimePath ← IO.Process.run { cmd := "readlink", args := #["-f", path.toString] }
+  let localTimePath ← IO.Process.run { cmd := "readlink", args := #["-f", path.toString] }
 
-  if let some id := idFromPath PlainTimePath
+  if let some id := idFromPath localTimePath
     then parseTZIfFromDisk path id
     else throw (IO.userError "cannot read the id of the path.")
 

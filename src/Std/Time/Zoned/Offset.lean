@@ -27,7 +27,18 @@ structure Offset where
   The same timezone offset in seconds.
   -/
   second : Second.Offset
-  deriving Repr, Inhabited, BEq
+
+  /--
+  The proof that both are equal
+  -/
+  proof : second.toHours = hour
+  deriving Repr
+
+instance : Inhabited Offset where
+  default := ⟨0, 0, rfl⟩
+
+instance : BEq Offset where
+  beq x y := BEq.beq x.second y.second
 
 namespace Offset
 
@@ -48,26 +59,26 @@ def toIsoString (offset : Offset) (colon : Bool) : String :=
 A zero `Offset` representing UTC (no offset).
 -/
 def zero : Offset :=
-  { hour := 0, second := 0 }
+  { hour := 0, second := 0, proof := rfl }
 
 /--
 Creates an `Offset` from a given number of hour.
 -/
 def ofHours (n : Hour.Offset) : Offset :=
-  mk n n.toSeconds
+  mk n n.toSeconds (by simp [Hour.Offset.toSeconds, Second.Offset.toHours, UnitVal.mul, UnitVal.div]; rfl)
 
 /--
 Creates an `Offset` from a given number of hour and minuets.
 -/
 def ofHoursAndMinutes (n : Hour.Offset) (m : Minute.Offset) : Offset :=
   let secs := n.toSeconds + m.toSeconds
-  mk secs.toHours secs
+  mk secs.toHours secs rfl
 
 /--
 Creates an `Offset` from a given number of second.
 -/
 def ofSeconds (n : Second.Offset) : Offset :=
-  mk n.toHours n
+  mk n.toHours n rfl
 
 end Offset
 end TimeZone

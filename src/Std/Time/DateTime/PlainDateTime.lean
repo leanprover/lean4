@@ -143,8 +143,8 @@ def withDaysRollOver (dt : PlainDateTime) (days : Day.Ordinal) : PlainDateTime :
   { dt with date := PlainDate.rollOver dt.date.year dt.date.month days }
 
 /--
-Creates a new `PlainDateTime` by adjusting the month to the given `month` value.
-The day remains unchanged, and any invalid days for the new month will be handled according to the `clip` behavior.
+Creates a new `PlainDateTime` by adjusting the month to the given `month` value, with any
+out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
 def withMonthClip (dt : PlainDateTime) (month : Month.Ordinal) : PlainDateTime :=
@@ -159,8 +159,8 @@ def withMonthRollOver (dt : PlainDateTime) (month : Month.Ordinal) : PlainDateTi
   { dt with date := PlainDate.rollOver dt.date.year month dt.date.day }
 
 /--
-Creates a new `PlainDateTime` by adjusting the year to the given `year` value. The month and day remain unchanged,
-and any invalid days for the new year will be handled according to the `clip` behavior.
+Creates a new `PlainDateTime` by adjusting the year to the given `year` value. The month and day
+remain unchanged, with any out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
 def withYearClip (dt : PlainDateTime) (year : Year.Offset) : PlainDateTime :=
@@ -178,28 +178,28 @@ def withYearRollOver (dt : PlainDateTime) (year : Year.Offset) : PlainDateTime :
 Creates a new `PlainDateTime` by adjusting the `hour` component of its `time` to the given value.
 -/
 @[inline]
-def withHour (dt : PlainDateTime) (hour : Hour.Ordinal) : PlainDateTime :=
+def withHours (dt : PlainDateTime) (hour : Hour.Ordinal) : PlainDateTime :=
   { dt with time := { dt.time with hour := hour } }
 
 /--
 Creates a new `PlainDateTime` by adjusting the `minute` component of its `time` to the given value.
 -/
 @[inline]
-def withMinute (dt : PlainDateTime) (minute : Minute.Ordinal) : PlainDateTime :=
+def withMinutes (dt : PlainDateTime) (minute : Minute.Ordinal) : PlainDateTime :=
   { dt with time := { dt.time with minute := minute } }
 
 /--
 Creates a new `PlainDateTime` by adjusting the `second` component of its `time` to the given value.
 -/
 @[inline]
-def withSecond (dt : PlainDateTime) (second : Sigma Second.Ordinal) : PlainDateTime :=
+def withSeconds (dt : PlainDateTime) (second : Sigma Second.Ordinal) : PlainDateTime :=
   { dt with time := { dt.time with second := second } }
 
 /--
 Creates a new `PlainDateTime` by adjusting the `nano` component of its `time` to the given value.
 -/
 @[inline]
-def withNano (dt : PlainDateTime) (nano : Nanosecond.Ordinal) : PlainDateTime :=
+def withNanoseconds (dt : PlainDateTime) (nano : Nanosecond.Ordinal) : PlainDateTime :=
   { dt with time := { dt.time with nano := nano } }
 
 /--
@@ -412,11 +412,9 @@ def nanosecond (dt : PlainDateTime) : Nanosecond.Ordinal :=
 /--
 Determines the era of the given `PlainDateTime` based on its year.
 -/
+@[inline]
 def era (date : PlainDateTime) : Year.Era :=
-  if date.year.toInt ≥ 0 then
-    .ce
-  else
-    .bce
+  date.date.era
 
 /--
 Checks if the `PlainDateTime` is in a leap year.

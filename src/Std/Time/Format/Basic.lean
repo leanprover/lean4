@@ -570,7 +570,7 @@ end Awareness
 /--
 A specification on how to format a data or parse some string.
 -/
-structure Format (awareness : Awareness) where
+structure GenericFormat (awareness : Awareness) where
 
   /--
   The format that is not aware of the timezone.
@@ -731,19 +731,19 @@ private def formatMarkerNarrow (marker : HourMarker) : String :=
   | .am => "A"
   | .pm => "P"
 
-private def formatPeriodOfDayLong : Day.Ordinal.Period → String
+private def formatPeriodOfDayLong : Day.Period → String
   | .morning => "in the morning"
   | .afternoon => "in the afternoon"
   | .evening => "in the evening"
   | .night => "at night"
 
-private def formatPeriodOfDayShort : Day.Ordinal.Period → String
+private def formatPeriodOfDayShort : Day.Period → String
   | .morning => "AM"
   | .afternoon => "PM"
   | .evening => "Eve"
   | .night => "Night"
 
-private def formatPeriodOfDayNarrow : Day.Ordinal.Period → String
+private def formatPeriodOfDayNarrow : Day.Period → String
   | .morning => "M"
   | .afternoon => "A"
   | .evening => "E"
@@ -776,7 +776,7 @@ private def TypeFormat : Modifier → Type
   | .eorc _ => Weekday
   | .F _ => Week.Ordinal.OfMonth
   | .a _ => HourMarker
-  | .B _ => Day.Ordinal.Period
+  | .B _ => Day.Period
   | .h _ => Bounded.LE 1 12
   | .K _ => Bounded.LE 0 11
   | .k _ => Bounded.LE 1 24
@@ -1055,19 +1055,19 @@ private def parseMarkerNarrow : Parser HourMarker
    := pstring "A" *> pure HourMarker.am
   <|> pstring "P" *> pure HourMarker.pm
 
-private def parsePeriodOfDayLong : Parser Day.Ordinal.Period
+private def parsePeriodOfDayLong : Parser Day.Period
    := pstring "in the morning" *> pure .morning
   <|> pstring "in the afternoon" *> pure .afternoon
   <|> pstring "in the evening" *> pure .evening
   <|> pstring "at night" *> pure .night
 
-private def parsePeriodOfDayShort : Parser Day.Ordinal.Period
+private def parsePeriodOfDayShort : Parser Day.Period
    := pstring "AM" *> pure .morning
   <|> pstring "PM" *> pure .afternoon
   <|> pstring "Eve" *> pure .evening
   <|> pstring "Night" *> pure .night
 
-private def parsePeriodOfDayNarrow : Parser Day.Ordinal.Period
+private def parsePeriodOfDayNarrow : Parser Day.Period
    := pstring "M" *> pure .morning
   <|> pstring "A" *> pure .afternoon
   <|> pstring "E" *> pure .evening
@@ -1255,7 +1255,7 @@ private def FormatType (result : Type) : FormatString → Type
   | .string _ :: xs => (FormatType result xs)
   | [] => result
 
-namespace Format
+namespace GenericFormat
 
 private structure DateBuilder where
   G : Option Year.Era := none
@@ -1270,7 +1270,7 @@ private structure DateBuilder where
   eorc : Option Weekday := none
   F : Option Week.Ordinal.OfMonth := none
   a : Option HourMarker := none
-  B : Option Day.Ordinal.Period := none
+  B : Option Day.Period := none
   h : Option (Bounded.LE 1 12) := none
   K : Option (Bounded.LE 0 11) := none
   k : Option (Bounded.LE 1 24) := none
@@ -1388,25 +1388,25 @@ private def parseWithDate (date : DateBuilder) (mod : FormatPart) : Parser DateB
   | .string s => pstring s *> pure date
 
 /--
-Constructs a new `Format` specification for a date-time string. Modifiers can be combined to create
+Constructs a new `GenericFormat` specification for a date-time string. Modifiers can be combined to create
 custom formats, such as "YYYY, MMMM, D".
 -/
-def spec (input : String) : Except String (Format tz) := do
+def spec (input : String) : Except String (GenericFormat tz) := do
   let string ← specParser.run input
   return ⟨string⟩
 
 /--
-Builds a new `Format` specification for a Date-time, panics if the input string results in an error.
+Builds a `GenericFormat` from the input string. If parsing fails, it will panic
 -/
-def spec! (input : String) : Format tz :=
+def spec! (input : String) : GenericFormat tz :=
   match specParser.run input with
   | .ok res => ⟨res⟩
   | .error res => panic! res
 
 /--
-Formats the date using the format into a String.
+Formats a `DateTime` value into a string using the given `GenericFormat`.
 -/
-def format (format : Format aw) (date : DateTime tz) : String :=
+def format (format : GenericFormat aw) (date : DateTime tz) : String :=
   let mapper (part : FormatPart) :=
     match aw with
     | .any => formatPartWithDate date part
@@ -1442,39 +1442,37 @@ def builderParser (format: FormatString) (func: FormatType (Option α) format) :
   go format func
 
 /--
-Parses the input string into a `ZoneDateTime`
+Parses the input string into a `ZoneDateTime`.
 -/
-def parse (format : Format aw) (input : String) : Except String aw.type :=
+def parse (format : GenericFormat aw) (input : String) : Except String aw.type :=
   (parser format.string aw <* eof).run input
 
 /--
-Parses the input string into a `ZoneDateTime`, panics if its wrong
+Parses the input string into a `ZoneDateTime` and panics if its wrong.
 -/
-def parse! (format : Format aw) (input : String) : aw.type :=
+def parse! (format : GenericFormat aw) (input : String) : aw.type :=
   match parse format input with
   | .ok res => res
   | .error err => panic! err
 
 /--
-Parses and instead of using a builder to build a date, it uses a builder function instead.
+Parses an input string using a builder function to produce a value.
 -/
-def parseBuilder (format : Format aw)  (builder : FormatType (Option α) format.string) (input : String) : Except String α :=
+def parseBuilder (format : GenericFormat aw)  (builder : FormatType (Option α) format.string) (input : String) : Except String α :=
   (builderParser format.string builder).run input
 
-
 /--
-Parses and instead of using a builder to build a date, it uses a builder function instead.
+Parses an input string using a builder function, panicking on errors.
 -/
-def parseBuilder! [Inhabited α] (format : Format aw)  (builder : FormatType (Option α) format.string) (input : String) : α :=
+def parseBuilder! [Inhabited α] (format : GenericFormat aw)  (builder : FormatType (Option α) format.string) (input : String) : α :=
   match parseBuilder format builder input with
   | .ok res => res
   | .error err => panic! err
 
-
 /--
-Formats the date using the format into a String.
+Formats the date using the format into a String, using a `getInfo` function to get the information needed to build the `String`.
 -/
-def formatGeneric (format : Format aw) (getInfo : (typ : Modifier) → Option (TypeFormat typ)) : Option String :=
+def formatGeneric (format : GenericFormat aw) (getInfo : (typ : Modifier) → Option (TypeFormat typ)) : Option String :=
   let rec go (data : String) : (format : FormatString) → Option String
     | .modifier x :: xs => do go (data ++ formatWith x (← getInfo x)) xs
     | .string x :: xs => go (data ++ x) xs
@@ -1482,11 +1480,33 @@ def formatGeneric (format : Format aw) (getInfo : (typ : Modifier) → Option (T
   go "" format.string
 
 /--
-Formats the date using the format into a String.
+Constructs a `FormatType` function to format a date into a string using a `GenericFormat`.
 -/
-def formatBuilder (format : Format aw) : FormatType String format.string :=
+def formatBuilder (format : GenericFormat aw) : FormatType String format.string :=
   let rec go (data : String) : (format : FormatString) → FormatType String format
     | .modifier x :: xs => fun res => go (data ++ formatWith x res) xs
     | .string x :: xs => go (data ++ x) xs
     | [] => data
   go "" format.string
+
+end GenericFormat
+
+/--
+Typeclass for formatting and parsing values with the given format type.
+-/
+class Format (f : Type) (typ : Type → f → Type) where
+  /--
+  Converts a format `f` into a string.
+  -/
+  format : (fmt : f) → typ String fmt
+
+  /--
+  Parses a string into a format using the provided format type `f`.
+  -/
+  parse : (fmt : f) → typ (Option α) fmt → String → Except String α
+
+instance : Format (GenericFormat aw) (FormatType · ·.string) where
+  format := GenericFormat.formatBuilder
+  parse := GenericFormat.parseBuilder
+
+end Time

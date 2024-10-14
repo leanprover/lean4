@@ -30,6 +30,12 @@ instance : OfNat Ordinal n :=
 instance : Inhabited Ordinal where
   default := 1
 
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
 /--
 `Offset` represents an offset in months. It is defined as an `Int`.
 -/
@@ -39,13 +45,21 @@ def Offset : Type := Int
 instance : OfNat Offset n :=
   ⟨Int.ofNat n⟩
 
-
 /--
 `Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of a year.
 -/
 def Quarter := Bounded.LE 1 4
 
 namespace Quarter
+
+/--
+Determine the `Quarter` by the month.
+-/
+def ofMonth (month : Month.Ordinal) : Quarter :=
+  month
+  |>.sub 1
+  |>.ediv 3 (by decide)
+  |>.add 1
 
 end Quarter
 

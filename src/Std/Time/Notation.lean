@@ -14,6 +14,8 @@ namespace Std
 namespace Time
 open Lean Parser Command Std
 
+set_option linter.all true
+
 private def convertText : Text → MacroM (TSyntax `term)
   | .short  => `(Std.Time.Text.short)
   | .full   => `(Std.Time.Text.full)
@@ -95,54 +97,96 @@ private def convertFormatPart : FormatPart → MacroM (TSyntax `term)
   | .string s => `(.string $(Syntax.mkStrLit s))
   | .modifier mod => do `(.modifier $(← convertModifier mod))
 
-def syntaxNat (n : Nat) : MacroM (TSyntax `term) := do
+private def syntaxNat (n : Nat) : MacroM (TSyntax `term) := do
   let info ← MonadRef.mkInfoFromRefPos
   pure { raw := Syntax.node1 info `num (Lean.Syntax.atom info (toString n)) }
 
-def syntaxString (n : String) : MacroM (TSyntax `term) := do
+private def syntaxString (n : String) : MacroM (TSyntax `term) := do
   let info ← MonadRef.mkInfoFromRefPos
   pure { raw := Syntax.node1 info `str (Lean.Syntax.atom info (toString n)) }
 
-def syntaxInt (n : Int) : MacroM (TSyntax `term) := do
+private def syntaxInt (n : Int) : MacroM (TSyntax `term) := do
   match n with
   | .ofNat n => `(Int.ofNat $(Syntax.mkNumLit <| toString n))
   | .negSucc n => `(Int.negSucc $(Syntax.mkNumLit <| toString n))
 
-def syntaxBounded (n : Int) : MacroM (TSyntax `term) := do
+private def syntaxBounded (n : Int) : MacroM (TSyntax `term) := do
  `(Std.Time.Internal.Bounded.LE.ofNatWrapping $(← syntaxInt n) (by decide))
 
-def syntaxVal (n : Int) : MacroM (TSyntax `term) := do
+private def syntaxVal (n : Int) : MacroM (TSyntax `term) := do
  `(Std.Time.Internal.UnitVal.ofInt $(← syntaxInt n))
 
-def convertOffset (offset : Std.Time.TimeZone.Offset) : MacroM (TSyntax `term) := do
- `(Std.Time.TimeZone.Offset.mk $(← syntaxVal offset.hour.val) $(← syntaxVal offset.second.val))
+private def convertOffset (offset : Std.Time.TimeZone.Offset) : MacroM (TSyntax `term) := do
+ `(Std.Time.TimeZone.Offset.ofSeconds $(← syntaxVal offset.second.val))
 
-def convertTimezone (tz : Std.Time.TimeZone) : MacroM (TSyntax `term) := do
+private def convertTimezone (tz : Std.Time.TimeZone) : MacroM (TSyntax `term) := do
  `(Std.Time.TimeZone.mk $(← convertOffset tz.offset) $(Syntax.mkStrLit tz.name) $(Syntax.mkStrLit tz.abbreviation) false)
 
-def convertPlainDate (d : Std.Time.PlainDate) : MacroM (TSyntax `term) := do
+private def convertPlainDate (d : Std.Time.PlainDate) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainDate.clip $(← syntaxInt d.year) $(← syntaxBounded d.month.val) $(← syntaxBounded d.day.val))
 
-def convertPlainTime (d : Std.Time.PlainTime) : MacroM (TSyntax `term) := do
+private def convertPlainTime (d : Std.Time.PlainTime) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainTime.mk $(← syntaxBounded d.hour.val) $(← syntaxBounded d.minute.val) ⟨true, $(← syntaxBounded d.second.snd.val)⟩ $(← syntaxBounded d.nano.val))
 
-def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do
+private def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainDateTime.mk $(← convertPlainDate d.date) $(← convertPlainTime d.time))
 
-def convertZonedDateTime (d : Std.Time.ZonedDateTime) : MacroM (TSyntax `term) := do
+private def convertZonedDateTime (d : Std.Time.ZonedDateTime) : MacroM (TSyntax `term) := do
  `(Std.Time.ZonedDateTime.mk $(← convertTimezone d.timezone) (DateTime.ofLocalDateTime $(← convertPlainDateTime d.snd.date.get) $(← convertTimezone d.timezone)))
 
+/--
+Defines a syntax for zoned datetime values. It expects a string representing a datetime with
+timezone information.
+
+Example:
+`zoned("2024-10-13T15:00:00-03:00")`
+-/
 syntax "zoned(" str ")" : term
 
+/--
+Defines a syntax for datetime values without timezone. The input should be a string in an
+ISO8601-like format.
+
+Example:
+`datetime("2024-10-13T15:00:00")`
+-/
 syntax "datetime(" str ")" : term
 
+/--
+Defines a syntax for date-only values. The input string represents a date in formats like "YYYY-MM-DD".
+
+Example:
+`date("2024-10-13")`
+-/
 syntax "date(" str ")" : term
 
+/--
+Defines a syntax for time-only values. The string should represent a time, either in 24-hour or
+12-hour format.
+
+Example:
+`time("15:00:00")` or `time("03:00:00 PM")`
+-/
 syntax "time(" str ")" : term
 
+/--
+Defines a syntax for UTC offset values. The string should indicate the time difference from UTC
+(e.g., "-03:00").
+
+Example:
+`offset("-03:00")`
+-/
 syntax "offset(" str ")" : term
 
+/--
+Defines a syntax for timezone identifiers. The input string should be a valid timezone name or
+abbreviation.
+
+Example:
+`timezone("America/Sao_Paulo")`
+-/
 syntax "timezone(" str ")" : term
+
 
 macro_rules
   | `(zoned( $date:str )) => do

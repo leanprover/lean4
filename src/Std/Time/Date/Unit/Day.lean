@@ -48,6 +48,46 @@ instance {x y : Offset} : Decidable (x ≤ y) :=
 instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
+/--
+`Period` is an enumeration representing different times of the day : morning, afternoon, evening, and night.
+-/
+inductive Period
+  /-- Represents the morning period. -/
+  | morning
+
+  /-- Represents the afternoon period. -/
+  | afternoon
+
+  /-- Represents the evening period. -/
+  | evening
+
+  /-- Represents the night period. -/
+  | night
+  deriving Repr, BEq, Inhabited
+
+namespace Period
+
+/--
+Determines the `Period` of the day based on the given hour.
+
+- If the hour is between 20 and 4, it returns `night`.
+- If the hour is between 17 and 20, it returns `evening`.
+- If the hour is between 12 and 17, it returns `afternoon`.
+- If the hour is between 5 and 12, it reutrns `morning`.
+-/
+@[inline]
+def fromHour (hour : Hour.Ordinal) : Day.Period :=
+  if hour ≥ 20 ∨ hour ≤ 4 then
+    .night
+  else if hour ≥ 17 then
+    .evening
+  else if hour ≥ 12 then
+    .afternoon
+  else
+    .morning
+
+end Period
+
 namespace Ordinal
 
 /--
@@ -67,46 +107,6 @@ def ofNat (data : Nat) (h : data ≥ 1 ∧ data ≤ (if leap then 366 else 365) 
   Bounded.LE.ofNat' data h
 
 end OfYear
-
-/--
-`Period` is an enumeration representing different times of the day : morning, afternoon, evening, and night.
--/
-inductive Period
-  /--Represents the morning period. -/
-  | morning
-
-  /--Represents the afternoon period. -/
-  | afternoon
-
-  /--Represents the evening period. -/
-  | evening
-
-  /--Represents the night period. -/
-  | night
-  deriving Repr, BEq, Inhabited
-
-namespace Period
-
-/--
-Determines the `Period` of the day based on the given hour
-
-- If the hour is between 20 and 4, it returns `night`.
-- If the hour is between 17 and 20, it returns `evening`.
-- If the hour is between 12 and 17, it returns `afternoon`.
-- If the hour is between 5 and 12, it reutrns `morning`.
--/
-@[inline]
-def fromHour (hour : Hour.Ordinal) : Day.Ordinal.Period :=
-  if hour ≥ 20 ∨ hour ≤ 4 then
-    .night
-  else if hour ≥ 17 then
-    .evening
-  else if hour ≥ 12 then
-    .afternoon
-  else
-    .morning
-
-end Period
 
 instance : OfNat (Ordinal.OfYear leap) n :=
   match leap with
@@ -155,94 +155,94 @@ end Ordinal
 namespace Offset
 
 /--
-Converts an `Ordinal` to an `Offset`.
+Converts an `Offset` to an `Ordinal`.
 -/
 @[inline]
-def toOrdinal (off : Offset) (h : off.val ≥ 1 ∧ off.val ≤ 31) : Ordinal :=
+def toOrdinal (off : Day.Offset) (h : off.val ≥ 1 ∧ off.val ≤ 31) : Ordinal :=
   Bounded.LE.mk off.val h
 
 /--
 Creates an `Offset` from a natural number.
 -/
 @[inline]
-def ofNat (data : Nat) : Offset :=
+def ofNat (data : Nat) : Day.Offset :=
   UnitVal.mk data
 
 /--
 Creates an `Offset` from an integer.
 -/
 @[inline]
-def ofInt (data : Int) : Offset :=
+def ofInt (data : Int) : Day.Offset :=
   UnitVal.mk data
 
 /--
 Convert `Day.Offset` into `Nanosecond.Offset`.
 -/
 @[inline]
-def toNanoseconds (days : Offset) : Nanosecond.Offset :=
+def toNanoseconds (days : Day.Offset) : Nanosecond.Offset :=
   days.mul 86400000000000
 
 /--
 Convert `Nanosecond.Offset` into `Day.Offset`.
 -/
 @[inline]
-def ofNanoseconds (ns : Nanosecond.Offset) : Offset :=
+def ofNanoseconds (ns : Nanosecond.Offset) : Day.Offset :=
   ns.ediv 86400000000000
 
 /--
 Convert `Day.Offset` into `Millisecond.Offset`.
 -/
 @[inline]
-def toMilliseconds (days : Offset) : Millisecond.Offset :=
+def toMilliseconds (days : Day.Offset) : Millisecond.Offset :=
   days.mul 86400000
 
 /--
 Convert `Millisecond.Offset` into `Day.Offset`.
 -/
 @[inline]
-def ofMilliseconds (ms : Millisecond.Offset) : Offset :=
+def ofMilliseconds (ms : Millisecond.Offset) : Day.Offset :=
   ms.ediv 86400000
 
 /--
 Convert `Day.Offset` into `Second.Offset`.
 -/
 @[inline]
-def toSeconds (days : Offset) : Second.Offset :=
+def toSeconds (days : Day.Offset) : Second.Offset :=
   days.mul 86400
 
 /--
 Convert `Second.Offset` into `Day.Offset`.
 -/
 @[inline]
-def ofSeconds (secs : Second.Offset) : Offset :=
+def ofSeconds (secs : Second.Offset) : Day.Offset :=
   secs.ediv 86400
 
 /--
 Convert `Day.Offset` into `Minute.Offset`.
 -/
 @[inline]
-def toMinutes (days : Offset) : Minute.Offset :=
+def toMinutes (days : Day.Offset) : Minute.Offset :=
   days.mul 1440
 
 /--
 Convert `Minute.Offset` into `Day.Offset`.
 -/
 @[inline]
-def ofMinutes (minutes : Minute.Offset) : Offset :=
+def ofMinutes (minutes : Minute.Offset) : Day.Offset :=
   minutes.ediv 1440
 
 /--
 Convert `Day.Offset` into `Hour.Offset`.
 -/
 @[inline]
-def toHours (days : Offset) : Hour.Offset :=
+def toHours (days : Day.Offset) : Hour.Offset :=
   days.mul 24
 
 /--
 Convert `Hour.Offset` into `Day.Offset`.
 -/
 @[inline]
-def ofHours (hours : Hour.Offset) : Offset :=
+def ofHours (hours : Hour.Offset) : Day.Offset :=
   hours.ediv 24
 
 end Offset

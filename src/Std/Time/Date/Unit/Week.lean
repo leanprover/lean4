@@ -27,6 +27,12 @@ instance : ToString Ordinal where
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (52 : Nat))) n)
 
+instance {x y : Ordinal} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Ordinal} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
 instance : Inhabited Ordinal where
   default := 1
 
@@ -66,6 +72,9 @@ Converts an `Ordinal` to an `Offset`.
 @[inline]
 def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
+
+end Ordinal
+namespace Offset
 
 /--
 Convert `Week.Offset` into `Millisecond.Offset`.
@@ -151,8 +160,7 @@ Convert `Day.Offset` into `Week.Offset`.
 def ofDays (hours : Day.Offset) : Week.Offset :=
   hours.ediv 7
 
-end Ordinal
-
+end Offset
 end Week
 end Time
 end Std

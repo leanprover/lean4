@@ -103,7 +103,7 @@ syntax "datespec(" str ")" : term
 macro_rules
   | `(datespec( $format_string:str )) => do
     let input := format_string.getString
-    let format : Except String (Format .any) := Format.spec input
+    let format : Except String (GenericFormat .any) := GenericFormat.spec input
     match format with
     | .ok res =>
       let alts ← res.string.mapM convertFormatPart

@@ -17,121 +17,121 @@ set_option linter.all true
 
 /--
 The ISO8601 format, which is always 24 or 27 characters long, used for representing date and time in
-a standardized format. The format follows the pattern `yyyy-MM-dd:HH::mm:ss.SSSZ`.
+a standardized format. The format follows the pattern `yyyy-MM-dd'T'HH:mm:ssZ`.
 -/
-def iso8601 : Format .any := datespec("yyyy-MM-dd:HH::mm:ss.SSSZ")
+def iso8601 : GenericFormat .any := datespec("yyyy-MM-dd'T'HH:mm.ssZ")
 
 /--
 The americanDate format, which follows the pattern `MM-dd-yyyy`.
 -/
-def americanDate : Format .any := datespec("MM-dd-yyyy")
+def americanDate : GenericFormat .any := datespec("MM-dd-yyyy")
 
 /--
 The europeanDate format, which follows the pattern `dd-MM-yyyy`.
 -/
-def europeanDate : Format .any := datespec("dd-MM-yyyy")
+def europeanDate : GenericFormat .any := datespec("dd-MM-yyyy")
 
 /--
 The time12Hour format, which follows the pattern `hh:mm:ss aa` for representing time
 in a 12-hour clock format with an upper case AM/PM marker.
 -/
-def time12Hour : Format .any := datespec("hh:mm:ss aa")
+def time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
 
 /--
-The Time24Hour format, which follows the pattern `HH:mm:ss:SSSSSSSSS` for representing time
+The Time24Hour format, which follows the pattern `HH:mm:ss` for representing time
 in a 24-hour clock format.
 -/
-def time24Hour : Format .any := datespec("HH:mm:ss.SSSSSSSSS")
+def time24Hour : GenericFormat .any := datespec("HH:mm:ss")
 
 /--
 The DateTimeZone24Hour format, which follows the pattern `yyyy-MM-dd:HH:mm:ss.SSSSSSSSS` for
 representing date, time, and time zone.
 -/
-def dateTime24Hour : Format (.only .GMT) := datespec("yyyy-MM-dd:HH:mm:ss.SSSSSSSSS")
+def dateTime24Hour : GenericFormat (.only .GMT) := datespec("yyyy-MM-dd:HH:mm:ss.SSSSSSSSS")
 
 /--
 The DateTimeWithZone format, which follows the pattern `yyyy-MM-dd:HH:mm:ss.SSSSSSSSSZZZ`
 for representing date, time, and time zone.
 -/
-def dateTimeWithZone : Format .any := datespec("yyyy-MM-dd:HH:mm:ss.SSSSSSSSSZZZ")
+def dateTimeWithZone : GenericFormat .any := datespec("yyyy-MM-dd:HH:mm:ss.SSSSSSSSSZZZ")
 
 /--
-The Time24Hour format, which follows the pattern `HH:mm:ss` for representing time
+The leanTime24Hour format, which follows the pattern `HH:mm:ss.SSSSSSSSS` for representing time
 in a 24-hour clock format. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanTime24Hour : Format .any := datespec("HH:mm:ss.SSSSSSSSS")
+def leanTime24Hour : GenericFormat .any := datespec("HH:mm:ss.SSSSSSSSS")
 
 /--
-The Time24Hour format, which follows the pattern `HH:mm:ss` for representing time
+The leanTime24HourNoNanos format, which follows the pattern `HH:mm:ss` for representing time
 in a 24-hour clock format. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanTime24HourNoNanos : Format .any := datespec("HH:mm:ss")
+def leanTime24HourNoNanos : GenericFormat .any := datespec("HH:mm:ss")
 
 /--
-The DateTimeZone24Hour format, which follows the pattern `YYYY-MM-DD HH:mm:ss:sssssssss` for
+The leanDateTime24Hour format, which follows the pattern `yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS` for
 representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTime24Hour : Format (.only .GMT) := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
+def leanDateTime24Hour : GenericFormat (.only .GMT) := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
 
 /--
-The DateTime24HourNoNanos format, which follows the pattern `YYYY-MM-DD HH:mm:ss` for
+The leanDateTime24HourNoNanos format, which follows the pattern `yyyy-MM-dd'T'HH:mm:ss` for
 representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTime24HourNoNanos : Format (.only .GMT) := datespec("yyyy-MM-dd'T'HH:mm:ss")
+def leanDateTime24HourNoNanos : GenericFormat (.only .GMT) := datespec("yyyy-MM-dd'T'HH:mm:ss")
 
 /--
-The DateTimeWithZone format, which follows the pattern `YYYY-MM-DD HH:mm:ss.SSSSSSSSS`
+The DateTimeWithZone format, which follows the pattern `yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZZZ`
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTimeWithZone : Format .any := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZZZ")
+def leanDateTimeWithZone : GenericFormat .any := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZZZ")
 
 /--
-The DateTimeWithZoneNoNanos format, which follows the pattern `YYYY-MM-DD HH:mm:ssZZZZZ`
+The DateTimeWithZoneNoNanos format, which follows the pattern `yyyy-MM-dd'T'HH:mm:ssZZZZZ`
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTimeWithZoneNoNanos : Format .any := datespec("yyyy-MM-dd'T'HH:mm:ssZZZZZ")
+def leanDateTimeWithZoneNoNanos : GenericFormat .any := datespec("yyyy-MM-dd'T'HH:mm:ssZZZZZ")
 
 /--
-The Lean Date format, which follows the pattern `yyyy-MM-DD`. It uses the default value that can be parsed with the
+The Lean Date format, which follows the pattern `yyyy-MM-dd`. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDate : Format .any := datespec("yyyy-MM-dd")
+def leanDate : GenericFormat .any := datespec("yyyy-MM-dd")
 
 /--
-The SQLDate format, which follows the pattern `yyyy-MM-DD` and is commonly used
+The SQLDate format, which follows the pattern `yyyy-MM-dd` and is commonly used
 in SQL databases to represent dates.
 -/
-def sqlDate : Format .any := datespec("yyyy-MM-dd")
+def sqlDate : GenericFormat .any := datespec("yyyy-MM-dd")
 
 /--
 The LongDateFormat, which follows the pattern `EEEE, MMMM D, yyyy HH:mm:ss` for
 representing a full date and time with the day of the week and month name.
 -/
-def longDateFormat : Format (.only .GMT) := datespec("EEEE, MMMM D, yyyy HH:mm:ss")
+def longDateFormat : GenericFormat (.only .GMT) := datespec("EEEE, MMMM D, yyyy HH:mm:ss")
 
 /--
 The AscTime format, which follows the pattern `EEE MMM d HH:mm:ss yyyy`. This format
 is often used in older systems for logging and time-stamping events.
 -/
-def ascTime : Format (.only .GMT) := datespec("EEE MMM d HH:mm:ss yyyy")
+def ascTime : GenericFormat (.only .GMT) := datespec("EEE MMM d HH:mm:ss yyyy")
 
 /--
 The RFC822 format, which follows the pattern `eee, dd MMM yyyy HH:mm:ss ZZZ`.
 This format is used in email headers and HTTP headers.
 -/
-def rfc822 : Format .any := datespec("eee, dd MMM yyyy HH:mm:ss ZZZ")
+def rfc822 : GenericFormat .any := datespec("eee, dd MMM yyyy HH:mm:ss ZZZ")
 
 /--
 The RFC850 format, which follows the pattern `eee, dd-MMM-YY HH:mm:ss ZZZ`.
 This format is an older standard for representing date and time in headers.
 -/
-def rfc850 : Format .any := datespec("eee, dd-MM-yyyy HH:mm:ss ZZZ")
+def rfc850 : GenericFormat .any := datespec("eee, dd-MM-yyyy HH:mm:ss ZZZ")
 
 end Formats
 
@@ -141,7 +141,7 @@ namespace TimeZone
 Parses a string into a `TimeZone` object. The input string must be in the format `"VV ZZZZZ"`.
 -/
 def fromTimeZone (input : String) : Except String TimeZone := do
-  let spec : Format .any := datespec("VV ZZZZZ")
+  let spec : GenericFormat .any := datespec("VV ZZZZZ")
   spec.parseBuilder (λid off => some (TimeZone.mk off id "Unknown" false)) input
 
 namespace Offset
@@ -150,7 +150,7 @@ namespace Offset
 Parses a string representing an offset into an `Offset` object. The input string must follow the `"xxx"` format.
 -/
 def fromOffset (input : String) : Except String Offset := do
-  let spec : Format .any := datespec("xxx")
+  let spec : GenericFormat .any := datespec("xxx")
   spec.parseBuilder some input
 
 end Offset
@@ -162,7 +162,7 @@ namespace PlainDate
 Formats a `PlainDate` using a specific format.
 -/
 def format (date : PlainDate) (format : String) : String :=
-  let format : Except String (Format .any) := Format.spec format
+  let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
   | .ok res =>
@@ -177,40 +177,40 @@ def format (date : PlainDate) (format : String) : String :=
     | none => "invalid time"
 
 /--
-Parses a date string in the American format (`MM/DD/yyyy`) and returns a `PlainDate`.
+Parses a date string in the American format (`MM-dd-yyyy`) and returns a `PlainDate`.
 -/
 def fromAmericanDateString (input : String) : Except String PlainDate := do
   Formats.americanDate.parseBuilder (fun m d y => PlainDate.ofYearMonthDay y m d) input
 
 /--
-Converts a Date in the American format (`MM/DD/yyyy`) into a `String`.
+Converts a date in the American format (`MM-dd-yyyy`) into a `String`.
 -/
 def toAmericanDateString (input : PlainDate) : String :=
   Formats.americanDate.formatBuilder input.month input.day input.year
 
 /--
-Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
+Parses a date string in the SQL format (`yyyy-MM-dd`) and returns a `PlainDate`.
 -/
 def fromSQLDateString (input : String) : Except String PlainDate := do
   Formats.sqlDate.parseBuilder (PlainDate.ofYearMonthDay) input
 
 /--
-Converts a Date in the SQL format (`YYYY-MM-DD`) into a `String`.
+Converts a date in the SQL format (`yyyy-MM-dd`) into a `String`.
 -/
 def toSQLDateString (input : PlainDate) : String :=
   Formats.sqlDate.formatBuilder input.year input.month input.day
 
 /--
-Parses a date string into a `PlainDate` object. The input string must be in the SQL date format.
+Parses a date string in the Lean format (`yyyy-MM-dd`) and returns a `PlainDate`.
 -/
 def fromLeanDateString (input : String) : Except String PlainDate := do
-  Formats.sqlDate.parseBuilder (PlainDate.ofYearMonthDay) input
+  Formats.leanDate.parseBuilder (PlainDate.ofYearMonthDay) input
 
 /--
-Converts a Date in the Lean format (`YYYY-MM-DD`) into a `String` with the format `date% YYY-MM-DD`.
+Converts a date in the Lean format (`yyyy-MM-dd`) into a `String`.
 -/
 def toLeanDateString (input : PlainDate) : String :=
-  Formats.sqlDate.formatBuilder input.year input.month input.day
+  Formats.leanDate.formatBuilder input.year input.month input.day
 
 /--
 Parses a `String` in the `AmericanDate` or `SQLDate` format and returns a `PlainDate`.
@@ -233,7 +233,7 @@ namespace PlainTime
 Formats a `PlainTime` using a specific format.
 -/
 def format (time : PlainTime) (format : String) : String :=
-  let format : Except String (Format .any) := Format.spec format
+  let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
   | .ok res =>
@@ -248,26 +248,26 @@ def format (time : PlainTime) (format : String) : String :=
     | none => "invalid time"
 
 /--
-Parses a time string in the 24-hour format (`hh:mm:ss.sssssssss`) and returns a `PlainTime`.
+Parses a time string in the 24-hour format (`HH:mm:ss`) and returns a `PlainTime`.
 -/
 def fromTime24Hour (input : String) : Except String PlainTime :=
-  Formats.time24Hour.parseBuilder (fun h m s n => some (PlainTime.ofHourMinuteSecondsNano h m s.snd n)) input
+  Formats.time24Hour.parseBuilder (fun h m s => some (PlainTime.ofHourMinuteSeconds h m s.snd)) input
 
 /--
-Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss.sssssssss`).
+Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss`).
 -/
 def toTime24Hour (input : PlainTime) : String :=
-  Formats.time24Hour.formatBuilder input.hour input.minute input.second input.nano
+  Formats.time24Hour.formatBuilder input.hour input.minute input.second
 
 /--
-Parses a time string in the 24-hour format (`hh:mm:ss.sssssssss`) and returns a `PlainTime`.
+Parses a time string in the lean 24-hour format (`HH:mm:ss.SSSSSSSSS` or `HH:mm:ss`) and returns a `PlainTime`.
 -/
 def fromLeanTime24Hour (input : String) : Except String PlainTime :=
   Formats.leanTime24Hour.parseBuilder (fun h m s n => some (PlainTime.ofHourMinuteSecondsNano h m s.snd n)) input
   <|> Formats.leanTime24HourNoNanos.parseBuilder (fun h m s => some (PlainTime.ofHourMinuteSecondsNano h m s.snd 0)) input
 
 /--
-Formats a `PlainTime` value into a 24-hour format string (`hh:mm:ss.sssssssss`).
+Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss.SSSSSSSSS`).
 -/
 def toLeanTime24Hour (input : PlainTime) : String :=
   Formats.leanTime24Hour.formatBuilder input.hour input.minute input.second input.nano
@@ -309,7 +309,7 @@ namespace ZonedDateTime
 Formats a `ZonedDateTime` using a specific format.
 -/
 def format (data: ZonedDateTime) (format : String) : String :=
-  let format : Except String (Format .any) := Format.spec format
+  let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
   | .ok res => res.format data.snd
@@ -397,7 +397,7 @@ namespace PlainDateTime
 Formats a `PlainDateTime` using a specific format.
 -/
 def format (date : PlainDateTime) (format : String) : String :=
-  let format : Except String (Format .any) := Format.spec format
+  let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
   | .ok res =>
@@ -490,7 +490,7 @@ namespace DateTime
 Formats a `DateTime` using a specific format.
 -/
 def format (data: DateTime tz) (format : String) : String :=
-  let format : Except String (Format .any) := Format.spec format
+  let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
   | .ok res => res.format data

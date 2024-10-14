@@ -12,7 +12,8 @@ namespace Time
 set_option linter.all true
 
 /--
-An enumeration representing different time zones.
+A TimeZone structure that stores the timezone offset, the name, abbreviation and if it's in daylight
+saving time.
 -/
 structure TimeZone where
 
@@ -27,7 +28,7 @@ structure TimeZone where
   name : String
 
   /--
-  The abbreviation of the time zone/
+  The abbreviation of the time zone.
   -/
   abbreviation : String
 
@@ -40,7 +41,7 @@ structure TimeZone where
 namespace TimeZone
 
 /--
-Fetches the current timestamp from the system.
+Fetches the current timzeon from the system.
 -/
 @[extern "lean_get_timezone_offset"]
 opaque getSystemTimezone : IO TimeZone

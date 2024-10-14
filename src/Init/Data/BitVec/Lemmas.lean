@@ -2263,7 +2263,12 @@ theorem udiv_one {x : BitVec w} : x / 1#w = x := by
 
 @[simp]
 theorem udiv_eq_and {x y : BitVec 1} :
-    x / y = (x &&& y) := by revert x y; decide
+    x / y = (x &&& y) := by
+  have hx : x = 0#1 ∨ x = 1#1 := by bv_omega
+  have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
+  rcases hx with rfl | rfl <;>
+    rcases hy with rfl | rfl <;>
+      rfl
 
 @[simp]
 theorem udiv_self {x : BitVec w} :

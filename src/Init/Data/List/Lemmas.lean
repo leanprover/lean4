@@ -1343,12 +1343,12 @@ theorem set_map {f : α → β} {l : List α} {n : Nat} {a : α} :
   simp
 
 @[simp] theorem head_map (f : α → β) (l : List α) (w) :
-    head (map f l) w = f (head l (by simpa using w)) := by
+    (map f l).head w = f (l.head (by simpa using w)) := by
   cases l
   · simp at w
   · simp_all
 
-@[simp] theorem head?_map (f : α → β) (l : List α) : head? (map f l) = (head? l).map f := by
+@[simp] theorem head?_map (f : α → β) (l : List α) : (map f l).head? = l.head?.map f := by
   cases l <;> rfl
 
 @[simp] theorem map_tail? (f : α → β) (l : List α) : (tail? l).map (map f) = tail? (map f l) := by

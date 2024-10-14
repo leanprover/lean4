@@ -32,6 +32,7 @@ The operations are organized as follow:
   `map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and
   `reverse`.
 * Additional functions defined in terms of these: `leftpad`, `rightPad`, and `reduceOption`.
+* Operations using indexes: `mapIdx`.
 * List membership: `isEmpty`, `elem`, `contains`, `mem` (and the `∈` notation),
   and decidability for predicates quantifying over membership in a `List`.
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,

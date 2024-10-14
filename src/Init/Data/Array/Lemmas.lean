@@ -582,6 +582,13 @@ theorem get?_swap (a : Array α) (i j : Fin a.size) (k : Nat) : (a.swap i j)[k]?
 theorem swapAt!_def (a : Array α) (i : Nat) (v : α) (h : i < a.size) :
     a.swapAt! i v = (a[i], a.set ⟨i, h⟩ v) := by simp [swapAt!, h]
 
+@[simp] theorem size_swapAt! (a : Array α) (i : Nat) (v : α) :
+    (a.swapAt! i v).2.size = a.size := by
+  simp only [swapAt!]
+  split
+  · simp
+  · rfl
+
 @[simp] theorem toList_pop (a : Array α) : a.pop.toList = a.toList.dropLast := by simp [pop]
 
 @[deprecated toList_pop (since := "2024-09-09")]

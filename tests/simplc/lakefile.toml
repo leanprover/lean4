@@ -1,0 +1,12 @@
+name = "simplc"
+defaultTargets = ["Simplc", "SimplcLean"]
+
+[[lean_lib]]
+name = "Simplc"
+globs = ["Simplc.*"]
+precompileModules = true
+
+[[lean_lib]]
+name = "SimplcLean"
+globs = ["SimplcLean.*"]
+precompileModules = true

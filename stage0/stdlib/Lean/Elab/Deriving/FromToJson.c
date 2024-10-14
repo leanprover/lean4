@@ -2046,7 +2046,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonBodyForStruct_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("List.join", 9, 9);
+x_1 = lean_mk_string_unchecked("List.flatten", 12, 12);
 return x_1;
 }
 }
@@ -2071,7 +2071,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonBodyForStruct_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("join", 4, 4);
+x_1 = lean_mk_string_unchecked("flatten", 7, 7);
 return x_1;
 }
 }

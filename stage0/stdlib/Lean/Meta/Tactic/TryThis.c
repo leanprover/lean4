@@ -129,7 +129,6 @@ static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_Try
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_replaceMVarsByUnderscores___spec__1___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__59;
-lean_object* l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getIndentAndColumn(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_replaceMVarsByUnderscores___spec__1___rarg___lambda__3___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__72;
@@ -156,6 +155,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_re
 static lean_object* l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisWidget__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getInputWidth(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__2;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__34;
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCommand____x40_Lean_Data_Lsp_Basic___hyg_1627____spec__2(size_t, size_t, lean_object*);
@@ -5731,7 +5731,7 @@ lean_ctor_set(x_21, 0, x_16);
 lean_ctor_set(x_21, 1, x_12);
 x_22 = 0;
 lean_inc(x_8);
-x_23 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_1, x_21, x_22, x_6, x_7, x_8, x_9, x_10);
+x_23 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_1, x_21, x_22, x_6, x_7, x_8, x_9, x_10);
 x_24 = !lean_is_exclusive(x_23);
 if (x_24 == 0)
 {
@@ -5781,7 +5781,7 @@ lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_12);
 x_43 = 0;
 lean_inc(x_8);
-x_44 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_1, x_42, x_43, x_6, x_7, x_8, x_9, x_10);
+x_44 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_1, x_42, x_43, x_6, x_7, x_8, x_9, x_10);
 x_45 = lean_ctor_get(x_44, 1);
 lean_inc(x_45);
 if (lean_is_exclusive(x_44)) {
@@ -5825,7 +5825,7 @@ lean_ctor_set(x_56, 0, x_55);
 lean_ctor_set(x_56, 1, x_12);
 x_57 = 0;
 lean_inc(x_8);
-x_58 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_1, x_56, x_57, x_6, x_7, x_8, x_9, x_10);
+x_58 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_1, x_56, x_57, x_6, x_7, x_8, x_9, x_10);
 x_59 = !lean_is_exclusive(x_58);
 if (x_59 == 0)
 {
@@ -5877,7 +5877,7 @@ lean_ctor_set(x_78, 0, x_77);
 lean_ctor_set(x_78, 1, x_12);
 x_79 = 0;
 lean_inc(x_8);
-x_80 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_1, x_78, x_79, x_6, x_7, x_8, x_9, x_10);
+x_80 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_1, x_78, x_79, x_6, x_7, x_8, x_9, x_10);
 x_81 = lean_ctor_get(x_80, 1);
 lean_inc(x_81);
 if (lean_is_exclusive(x_80)) {
@@ -5919,7 +5919,7 @@ lean_ctor_set(x_91, 0, x_90);
 lean_ctor_set(x_91, 1, x_12);
 x_92 = 0;
 lean_inc(x_8);
-x_93 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_1, x_91, x_92, x_6, x_7, x_8, x_9, x_10);
+x_93 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_1, x_91, x_92, x_6, x_7, x_8, x_9, x_10);
 x_94 = !lean_is_exclusive(x_93);
 if (x_94 == 0)
 {
@@ -6197,7 +6197,7 @@ lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_20);
 x_26 = 0;
 lean_inc(x_10);
-x_27 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_3, x_25, x_26, x_8, x_9, x_10, x_11, x_12);
+x_27 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_3, x_25, x_26, x_8, x_9, x_10, x_11, x_12);
 x_28 = lean_ctor_get(x_27, 1);
 lean_inc(x_28);
 lean_dec(x_27);
@@ -6223,7 +6223,7 @@ lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_20);
 x_35 = 0;
 lean_inc(x_10);
-x_36 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_3, x_34, x_35, x_8, x_9, x_10, x_11, x_12);
+x_36 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_3, x_34, x_35, x_8, x_9, x_10, x_11, x_12);
 x_37 = lean_ctor_get(x_36, 1);
 lean_inc(x_37);
 lean_dec(x_36);
@@ -6247,7 +6247,7 @@ lean_ctor_set(x_44, 0, x_43);
 lean_ctor_set(x_44, 1, x_20);
 x_45 = 0;
 lean_inc(x_10);
-x_46 = l_Lean_logAt___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__7(x_3, x_44, x_45, x_8, x_9, x_10, x_11, x_12);
+x_46 = l_Lean_logAt___at_Lean_Elab_Term_reportUnsolvedGoals___spec__2(x_3, x_44, x_45, x_8, x_9, x_10, x_11, x_12);
 x_47 = lean_ctor_get(x_46, 1);
 lean_inc(x_47);
 lean_dec(x_46);

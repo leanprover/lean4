@@ -87,17 +87,23 @@ def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
     | PreExpr.var x => Data.AC.Expr.var (varMap x)
 
 def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × Lean.Expr) := do
-  let (vars, acExpr) ← toACExpr preContext.op l r
-
-  let α ← inferType vars[0]!
+  let (atoms, acExpr) ← toACExpr preContext.op l r
+  let α ← inferType atoms[0]!
   let u ← getLevel α
-  let (isNeutrals, context) ← mkContext α u vars
-  let acExprNormed := Data.AC.evalList ACExpr preContext $ Data.AC.norm (preContext, isNeutrals) acExpr
-  let tgt := convertTarget vars acExprNormed
-  let lhs := convert acExpr
-  let rhs := convert acExprNormed
-  let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
-  return (proof, tgt)
+  let decls : Array (Name × (Array Expr → MetaM Expr)) ← atoms.mapM fun n => do
+    return ((← mkFreshUserName `x), fun _ => pure α)
+  withLocalDeclsD decls fun vars => do
+    let (isNeutrals, context) ← mkContext α u vars
+    let acExprNormed := Data.AC.evalList ACExpr preContext $ Data.AC.norm (preContext, isNeutrals) acExpr
+    let lhs := convert acExpr
+    let rhs := convert acExprNormed
+    let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
+    let proof ← mkLambdaFVars vars proof
+    let proofType ← mkForallFVars vars (← mkEq (convertTarget vars acExpr) (convertTarget vars acExprNormed))
+    let proof ← mkExpectedTypeHint proof proofType
+    let proof := mkAppN proof atoms
+    let tgt := convertTarget atoms acExprNormed
+    return (proof, tgt)
 where
   mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
     let arbitrary := vars[0]!

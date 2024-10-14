@@ -1063,7 +1063,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     addImportedFn   := fun as => pure ([], descr.addImportedFn as),
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesAsyncFn := fun states => states.concatMap (descr.toArrayFn ·.1.reverse),
+    exportEntriesAsyncFn := fun states => states.toList.bind (·.1.reverse) |> descr.toArrayFn,
     resetExportsFn := fun s => ([], s.2)
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
   }

@@ -153,7 +153,7 @@ theorem countP_filterMap (p : β → Bool) (f : α → Option β) (l : List α) 
   simp only [length_filterMap_eq_countP]
   congr
   ext a
-  simp (config := { contextual := true }) [Option.getD_eq_iff]
+  simp (config := { contextual := true }) [Option.getD_eq_iff, Option.isSome_eq_isSome]
 
 @[simp] theorem countP_join (l : List (List α)) :
     countP p l.join = Nat.sum (l.map (countP p)) := by

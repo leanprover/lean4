@@ -2727,8 +2727,8 @@ theorem le_add_iff_sub_le {x y z : BitVec w}
 `x - z ≤ y - z` if and only if `x ≤ y`
 when `x - z` and `y - z` do not overflow.
 -/
-theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x)
-    (hyz : z ≤ y) : (x - z ≤ y - z) ↔ x ≤ y := by
+theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
+    (x - z ≤ y - z) ↔ x ≤ y := by
   simp_all only [BitVec.le_def]
   rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]

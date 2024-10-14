@@ -33,7 +33,7 @@ structure TextDocumentClientCapabilities where
   deriving ToJson, FromJson
 
 structure ShowDocumentClientCapabilities where
-  support : Bool
+  support? : Option Bool := none
   deriving ToJson, FromJson
 
 structure WindowClientCapabilities where
@@ -54,7 +54,7 @@ structure WorkspaceEditClientCapabilities where
   deriving ToJson, FromJson
 
 structure WorkspaceClientCapabilities where
-  applyEdit: Bool
+  applyEdit?     : Option Bool                            := none
   workspaceEdit? : Option WorkspaceEditClientCapabilities := none
   deriving ToJson, FromJson
 

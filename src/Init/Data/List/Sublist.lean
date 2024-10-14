@@ -945,7 +945,7 @@ theorem infix_of_mem_flatten : ∀ {L : List (List α)}, l ∈ L → l <:+: flat
     | List.Mem.tail _ hlMemL =>
       IsInfix.trans (infix_of_mem_flatten hlMemL) <| (suffix_append _ _).isInfix
 
-theorem prefix_append_right_inj (l) : l ++ l₁ <+: l ++ l₂ ↔ l₁ <+: l₂ :=
+@[simp] theorem prefix_append_right_inj (l) : l ++ l₁ <+: l ++ l₂ ↔ l₁ <+: l₂ :=
   exists_congr fun r => by rw [append_assoc, append_right_inj]
 
 theorem prefix_cons_inj (a) : a :: l₁ <+: a :: l₂ ↔ l₁ <+: l₂ :=

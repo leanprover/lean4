@@ -630,6 +630,61 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_ar
     }
 }
 
+/* Std.Time.Timestamp.now : IO Timestamp */
+extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
+    using namespace std::chrono;
+
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    long long timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+
+    long long secs = timestamp / 1000000000;
+    long long nano = timestamp % 1000000000;
+
+    lean_object *lean_ts = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(lean_ts, 0, lean_int_to_int(static_cast<int>(secs)));
+    lean_ctor_set(lean_ts, 1, lean_int_to_int(static_cast<int>(nano)));
+
+    return lean_io_result_mk_ok(lean_ts);
+}
+
+/* Std.Time.TimeZone.getCurrentTimezone : IO Timezone */
+extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset(obj_arg /* w */) {
+    using namespace std::chrono;
+
+    auto now = system_clock::now();
+    auto now_time_t = system_clock::to_time_t(now);
+
+    std::tm tm_info;
+#if defined(LEAN_WINDOWS)
+    errno_t err = localtime_s(&tm_info, &now_time_t);
+
+    if (err != 0) {
+        return lean_io_result_mk_error(lean_decode_io_error(err, mk_string("")));
+    }
+#else
+    struct tm *tm_ptr = localtime_r(&now_time_t, &tm_info);
+
+    if (tm_ptr == NULL) {
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("")));
+    }
+#endif
+
+    int offset_hour = tm_info.tm_gmtoff / 3600;
+    int offset_seconds = tm_info.tm_gmtoff;
+
+    lean_object *lean_offset = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(lean_offset, 0, lean_int_to_int(offset_hour));
+    lean_ctor_set(lean_offset, 1, lean_int_to_int(offset_seconds));
+
+    lean_object *lean_tz = lean_alloc_ctor(0, 3, 1);
+    lean_ctor_set(lean_tz, 0, lean_offset);
+    lean_ctor_set(lean_tz, 1, lean_mk_ascii_string_unchecked("Unknown"));
+    lean_ctor_set(lean_tz, 2, lean_mk_ascii_string_unchecked("Unknown"));
+    lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, tm_info.tm_isdst);
+
+    return lean_io_result_mk_ok(lean_tz);
+}
+
 /* monoMsNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
     static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");

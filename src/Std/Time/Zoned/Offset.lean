@@ -1,0 +1,86 @@
+/-
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sofia Rodrigues
+-/
+prelude
+import Std.Time.Time
+
+namespace Std
+namespace Time
+namespace TimeZone
+open Internal
+
+set_option linter.all true
+
+/--
+Represents a timezone offset with an hour and second component.
+-/
+structure Offset where
+
+  /--
+  The timezone offset in Hours.
+  -/
+  hour : Hour.Offset
+
+  /--
+  The same timezone offset in seconds.
+  -/
+  second : Second.Offset
+
+  /--
+  The proof that both are equal
+  -/
+  proof : second.toHours = hour
+  deriving Repr
+
+instance : Inhabited Offset where
+  default := ⟨0, 0, rfl⟩
+
+instance : BEq Offset where
+  beq x y := BEq.beq x.second y.second
+
+namespace Offset
+
+/--
+Converts an `Offset` to a string in ISO 8601 format. The `colon` parameter determines if the hour
+and minute components are separated by a colon (e.g., "+01:00" or "+0100").
+-/
+def toIsoString (offset : Offset) (colon : Bool) : String :=
+  let (sign, time) := if offset.second.val > 0 then ("+", offset.second) else ("-", -offset.second)
+  let hour : Hour.Offset := time.ediv 3600
+  let minute := Int.ediv (Int.tmod time.val 3600) 60
+  let hourStr := if hour.val < 10 then s!"0{hour.val}" else toString hour.val
+  let minuteStr := if minute < 10 then s!"0{minute}" else toString minute
+    if colon then s!"{sign}{hourStr}:{minuteStr}"
+    else s!"{sign}{hourStr}{minuteStr}"
+
+/--
+A zero `Offset` representing UTC (no offset).
+-/
+def zero : Offset :=
+  { hour := 0, second := 0, proof := rfl }
+
+/--
+Creates an `Offset` from a given number of hour.
+-/
+def ofHours (n : Hour.Offset) : Offset :=
+  mk n n.toSeconds (by simp [Hour.Offset.toSeconds, Second.Offset.toHours, UnitVal.mul, UnitVal.div]; rfl)
+
+/--
+Creates an `Offset` from a given number of hour and minuets.
+-/
+def ofHoursAndMinutes (n : Hour.Offset) (m : Minute.Offset) : Offset :=
+  let secs := n.toSeconds + m.toSeconds
+  mk secs.toHours secs rfl
+
+/--
+Creates an `Offset` from a given number of second.
+-/
+def ofSeconds (n : Second.Offset) : Offset :=
+  mk n.toHours n rfl
+
+end Offset
+end TimeZone
+end Time
+end Std

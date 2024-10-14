@@ -90,7 +90,8 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
   let (atoms, acExpr) ← toACExpr preContext.op l r
   let α ← inferType atoms[0]!
   let u ← getLevel α
-  let decls : Array (Name × (Array Expr → MetaM Expr)) ← atoms.mapM fun n => do
+  let decls : Array (Name × (Array Expr → MetaM Expr)) ← atoms.mapM fun _ => do
+    -- TODO: Name them x, y, z etc.
     return ((← mkFreshUserName `x), fun _ => pure α)
   withLocalDeclsD decls fun vars => do
     let (isNeutrals, context) ← mkContext α u vars

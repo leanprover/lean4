@@ -97,14 +97,14 @@ theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.
 
 theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? := by simp
 
-@[simp] theorem drop_drop (n : Nat) : ∀ (m) (l : List α), drop n (drop m l) = drop (n + m) l
+@[simp] theorem drop_drop (n : Nat) : ∀ (m) (l : List α), drop n (drop m l) = drop (m + n) l
   | m, [] => by simp
   | 0, l => by simp
   | m + 1, a :: l =>
     calc
       drop n (drop (m + 1) (a :: l)) = drop n (drop m l) := rfl
-      _ = drop (n + m) l := drop_drop n m l
-      _ = drop (n + (m + 1)) (a :: l) := rfl
+      _ = drop (m + n) l := drop_drop n m l
+      _ = drop ((m + 1) + n) (a :: l) := by rw [Nat.add_right_comm]; rfl
 
 theorem take_drop : ∀ (m n : Nat) (l : List α), take n (drop m l) = drop m (take (m + n) l)
   | 0, _, _ => by simp
@@ -112,7 +112,7 @@ theorem take_drop : ∀ (m n : Nat) (l : List α), take n (drop m l) = drop m (t
   | _+1, _, _ :: _ => by simpa [Nat.succ_add, take_succ_cons, drop_succ_cons] using take_drop ..
 
 @[deprecated drop_drop (since := "2024-06-15")]
-theorem drop_add (m n) (l : List α) : drop (m + n) l = drop m (drop n l) := by
+theorem drop_add (m n) (l : List α) : drop (m + n) l = drop n (drop m l) := by
   simp [drop_drop]
 
 @[simp]
@@ -126,7 +126,7 @@ theorem tail_drop (l : List α) (n : Nat) : (l.drop n).tail = l.drop (n + 1) := 
 
 @[simp]
 theorem drop_tail (l : List α) (n : Nat) : l.tail.drop n = l.drop (n + 1) := by
-  rw [← drop_drop, drop_one]
+  rw [Nat.add_comm, ← drop_drop, drop_one]
 
 @[simp]
 theorem drop_eq_nil_iff {l : List α} {k : Nat} : l.drop k = [] ↔ l.length ≤ k := by

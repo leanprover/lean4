@@ -407,9 +407,10 @@ opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declar
 opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
 
 def addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
+    (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) :
+    Except Kernel.Exception Environment := do
   if env.realizingConst then
-    throw <| .other "cannot add a declaration while adding a global theorem"
+    panic! "cannot add a declaration while adding a global theorem"
   let mut env := env
   if let some asyncCtx := env.asyncCtx? then
     let (name, val) ← match decl with
@@ -417,10 +418,11 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
       | .defnDecl defn => pure (defn.name, .defn defn)
       | .mutualDefnDecl [defn] => pure (defn.name, .defn defn)
       | .axiomDecl ax => pure (ax.name, .axiom ax)
-      | _ => dbgStackTrace fun _ => throw <| .other s!"cannot add non-definition/non-theorem declaration {decl.getNames} in async context"
-    if !asyncCtx.declPrefix.isPrefixOf name then
-      dbgStackTrace fun _ =>
-      throw <| .other s!"declaration '{name}' cannot be added to the environment because the context \
+      | _ =>
+        panic! s!"cannot add non-definition/non-theorem declaration {decl.getNames} in async context"
+        return env
+    if checkAsyncPrefix && !asyncCtx.declPrefix.isPrefixOf name then
+      panic! s!"declaration '{name}' cannot be added to the environment because the context \
         is restricted to the prefix {asyncCtx.declPrefix}"
     else
       return { env with asyncCtx? := some { asyncCtx with subDecls := asyncCtx.subDecls.push val } }
@@ -684,7 +686,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
           | .thmInfo thm   => pure <| .thmDecl thm
           | .defnInfo defn => pure <| .defnDecl defn
           | _              => throw <| .other s!"Environment.realizeConst: {constName} must be definition/theorem"
-        let env ← EIO.ofExcept <| addDecl env {} decl
+        let env ← EIO.ofExcept <| addDecl (checkAsyncPrefix := false) env {} decl
         if const.name != constName then
           throw <| .other s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
         let kind' := .ofConstantInfo const

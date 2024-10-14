@@ -48,6 +48,7 @@ $CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/
 $CP -r llvm/include/*-*-* llvm-host/include/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
+# libpthread_nonshared.a must be linked in order to be able to use `pthread_atfork(3)`. LibUV uses this function.
 $CP $GLIBC/lib/libpthread_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()

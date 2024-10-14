@@ -36,7 +36,7 @@ def mkToJsonBodyForStruct (header : Header) (indName : Name) : TermElabM Term :=
     let target := mkIdent header.targetNames[0]!
     if isOptField then ``(opt $nm $target.$(mkIdent field))
     else ``([($nm, toJson ($target).$(mkIdent field))])
-  `(mkObj <| List.join [$fields,*])
+  `(mkObj <| List.flatten [$fields,*])
 
 def mkToJsonBodyForInduct (ctx : Context) (header : Header) (indName : Name) : TermElabM Term := do
   let indVal ← getConstInfoInduct indName

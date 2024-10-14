@@ -29,7 +29,7 @@ The operations are organized as follow:
 * Lexicographic ordering: `lt`, `le`, and instances.
 * Head and tail operators: `head`, `head?`, `headD?`, `tail`, `tail?`, `tailD`.
 * Basic operations:
-  `map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and
+  `map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `bind`, `replicate`, and
   `reverse`.
 * Additional functions defined in terms of these: `leftpad`, `rightPad`, and `reduceOption`.
 * Operations using indexes: `mapIdx`.
@@ -369,7 +369,7 @@ def tailD (list fallback : List α) : List α :=
 /-! ## Basic `List` operations.
 
 We define the basic functional programming operations on `List`:
-`map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and `reverse`.
+`map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `bind`, `replicate`, and `reverse`.
 -/
 
 /-! ### map -/
@@ -543,18 +543,20 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
   simp [reverse, reverseAux]
   rw [← reverseAux_eq_append]
 
-/-! ### join -/
+/-! ### flatten -/
 
 /--
-`O(|join L|)`. `join L` concatenates all the lists in `L` into one list.
-* `join [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
+`O(|flatten L|)`. `join L` concatenates all the lists in `L` into one list.
+* `flatten [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
 -/
-def join : List (List α) → List α
+def flatten : List (List α) → List α
   | []      => []
-  | a :: as => a ++ join as
+  | a :: as => a ++ flatten as
 
-@[simp] theorem join_nil : List.join ([] : List (List α)) = [] := rfl
-@[simp] theorem join_cons : (l :: ls).join = l ++ ls.join := rfl
+@[simp] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
+@[simp] theorem flatten_cons : (l :: ls).flatten = l ++ ls.flatten := rfl
+
+@[deprecated flatten (since := "2024-10-14"), inherit_doc flatten] abbrev join := @flatten
 
 /-! ### pure -/
 
@@ -568,11 +570,11 @@ def join : List (List α) → List α
 to get a list of lists, and then concatenates them all together.
 * `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
 -/
-@[inline] protected def bind {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := join (map b a)
+@[inline] protected def bind {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := flatten (map b a)
 
-@[simp] theorem bind_nil (f : α → List β) : List.bind [] f = [] := by simp [join, List.bind]
+@[simp] theorem bind_nil (f : α → List β) : List.bind [] f = [] := by simp [flatten, List.bind]
 @[simp] theorem bind_cons x xs (f : α → List β) :
-  List.bind (x :: xs) f = f x ++ List.bind xs f := by simp [join, List.bind]
+  List.bind (x :: xs) f = f x ++ List.bind xs f := by simp [flatten, List.bind]
 
 set_option linter.missingDocs false in
 @[deprecated bind_nil (since := "2024-06-15")] abbrev nil_bind := @bind_nil
@@ -1528,7 +1530,7 @@ def intersperse (sep : α) : List α → List α
 * `intercalate sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
 -/
 def intercalate (sep : List α) (xs : List (List α)) : List α :=
-  join (intersperse sep xs)
+  (intersperse sep xs).flatten
 
 /-! ### eraseDups -/
 

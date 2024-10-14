@@ -121,7 +121,7 @@ def toUTF8 (a : @& String) : ByteArray :=
 
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
   simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.bind]
-  induction s.data <;> simp [List.map, List.join, utf8ByteSize.go, Nat.add_comm, *]
+  induction s.data <;> simp [List.map, List.flatten, utf8ByteSize.go, Nat.add_comm, *]
 
 /-- Accesses a byte in the UTF-8 encoding of the `String`. O(1) -/
 @[extern "lean_string_get_byte_fast"]

@@ -298,8 +298,6 @@ def checkSimpLCAll (cmdStx : TSyntax `command) (root_only : Bool) (pfixs? : Opti
     return false
   logInfo m!"Checking {thms.size} simp lemmas for critical pairs"
   let filtered_sthms := thms.foldl Lean.Meta.addSimpTheoremEntry (init := {})
-  -- logInfo m!"{names}"
-  -- let thms := thms[:104] ++ thms[105:]
   reportBadPairs (stats := true) cmdStx do
     for thm1 in thms do
       try

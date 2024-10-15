@@ -216,7 +216,7 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
     swapAt a ⟨i, h⟩ v
   else
-    have : Inhabited α := ⟨v⟩
+    have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
 def shrink (a : Array α) (n : Nat) : Array α :=

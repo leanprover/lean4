@@ -2120,7 +2120,7 @@ theorem msb_neg {x : BitVec w} :
 
 theorem getLsbD_neg {i : Nat} {x : BitVec w} :
     getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
-  simp [neg_eq_not_add]
+  rw [neg_eq_not_add]
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by

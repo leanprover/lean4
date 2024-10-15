@@ -156,7 +156,7 @@ theorem countP_filterMap (p : β → Bool) (f : α → Option β) (l : List α) 
   simp (config := { contextual := true }) [Option.getD_eq_iff, Option.isSome_eq_isSome]
 
 @[simp] theorem countP_flatten (l : List (List α)) :
-    countP p l.flatten = Nat.sum (l.map (countP p)) := by
+    countP p l.flatten = (l.map (countP p)).sum := by
   simp only [countP_eq_length_filter, filter_flatten]
   simp [countP_eq_length_filter']
 
@@ -232,7 +232,7 @@ theorem count_singleton (a b : α) : count a [b] = if b == a then 1 else 0 := by
 @[simp] theorem count_append (a : α) : ∀ l₁ l₂, count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
   countP_append _
 
-theorem count_flatten (a : α) (l : List (List α)) : count a l.flatten = Nat.sum (l.map (count a)) := by
+theorem count_flatten (a : α) (l : List (List α)) : count a l.flatten = (l.map (count a)).sum := by
   simp only [count_eq_countP, countP_flatten, count_eq_countP']
 
 @[deprecated count_flatten (since := "2024-10-14")] abbrev count_join := @count_flatten

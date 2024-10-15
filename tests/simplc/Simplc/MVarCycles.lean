@@ -29,7 +29,7 @@ def raiseCyclicMVarError (path : Path) : MetaM Unit := do
   throwError msg
 
 /-!
-Checks the current MVar assignemnts and types for cycles and if it finds one, throws an exception
+Checks the current MVar assignments and types for cycles and if it finds one, throws an exception.
 with a pretty representation thereof. Level MVars are ignored for now.
 -/
 

@@ -11,7 +11,7 @@ Term-mode `calc`. Errors about LHS, RHS, and relation not matching expected type
 -/
 
 /--
-error: invalid 'calc' step, left-hand-side is
+error: invalid 'calc' step, left-hand side is
   1 + n - n : Nat
 but is expected to be
   0 : Nat
@@ -22,7 +22,7 @@ example (n : Nat) : 0 = 1 :=
     1 + n - n = 1 := testSorry
 
 /--
-error: invalid 'calc' step, right-hand-side is
+error: invalid 'calc' step, right-hand side is
   n - n : Nat
 but is expected to be
   1 : Nat
@@ -33,10 +33,10 @@ example (n : Nat) : 0 = 1 :=
     0 = n - n := testSorry
 
 /--
-error: 'calc' expression has the relation
-  _ = _
-but is expected to have the relation
-  _ < _
+error: 'calc' expression has type
+  0 = 1 : Prop
+but is expected to have type
+  0 < 1 : Prop
 -/
 #guard_msgs in
 example : 0 < 1 :=
@@ -44,13 +44,15 @@ example : 0 < 1 :=
     0 = 1 := testSorry
 
 /-!
-Postponement. Tries to wait until it has an interpretable expected type.
+No postponement.
 -/
 /--
-error: 'calc' expression has the relation
-  _ = _
-but is expected to have the relation
-  _ < _
+error: type mismatch
+  h
+has type
+  0 = 1 : Prop
+but is expected to have type
+  0 < 1 : Prop
 -/
 #guard_msgs in
 example : 0 < 1 :=
@@ -61,7 +63,7 @@ example : 0 < 1 :=
 Tactic-mode `calc`. LHS failure.
 -/
 /--
-error: invalid 'calc' step, left-hand-side is
+error: invalid 'calc' step, left-hand side is
   1 + n - n : Nat
 but is expected to be
   0 : Nat
@@ -81,13 +83,13 @@ example (n : Nat) : 0 ≤ 1 := by
   exact testSorry
 
 /-!
-Tactic mode `calc`. RHS failure, and calc extension fails, so report the RHS failure.
+Tactic mode `calc`. Calc extension fails, so report general failure.
 -/
 /--
-error: invalid 'calc' step, right-hand-side is
-  n - n : Nat
-but is expected to be
-  1 : Nat
+error: 'calc' expression has type
+  0 < n - n : Prop
+but is expected to have type
+  0 ≤ 1 : Prop
 -/
 #guard_msgs in
 example (n : Nat) : 0 ≤ 1 := by
@@ -105,31 +107,15 @@ example : 0 < 1 := by
   exact testSorry
 
 /-!
-Tactic mode `calc`. Relation failure and calc extension fails, so report the relation failure.
+Tactic mode `calc`. Calc extension fails, so report general failure.
 -/
 /--
-error: 'calc' expression has the relation
-  _ < _
-but is expected to have the relation
-  _ ≤ _
+error: 'calc' expression has type
+  0 < 1 : Prop
+but is expected to have type
+  0 ≤ 1 : Prop
 -/
 #guard_msgs in
 example : 0 ≤ 1 := by
   calc
     0 < 1 := testSorry
-
-
-/-!
-Taking the RHS from the expected type.
-This used to fail with
-```
-invalid 'calc' step, failed to synthesize `Trans` instance
-  Trans Eq Eq ?m.151985
-```
-because there was no type information.
--/
-
-example : (1 : Int) = 1 := by
-  calc
-    _ = 1 := rfl
-    _ = 1 := rfl

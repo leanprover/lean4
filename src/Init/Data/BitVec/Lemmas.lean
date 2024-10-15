@@ -2367,8 +2367,7 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
 @[simp]
 theorem zero_sdiv {x : BitVec w} : (0#w).sdiv x = 0#w := by
   simp only [sdiv_eq]
-  rcases x.msb with msb | msb
-  <;> simp
+  rcases x.msb with msb | msb <;> simp
 
 @[simp]
 theorem sdiv_zero {x : BitVec n} : x.sdiv 0#n = 0#n := by

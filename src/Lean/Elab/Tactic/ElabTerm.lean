@@ -113,11 +113,10 @@ def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List
 /--
 Execute `k`, and collect new "holes" in the resulting expression.
 
-* `parentTag?` and `tagSuffix` are used to tag untagged goals with `Lean.Elab.Tactic.tagUntaggedGoals`.
-  If `mainTag?` is `none`, then the default is the result of `getMainTag`.
+* `parentTag` and `tagSuffix` are used to tag untagged goals with `Lean.Elab.Tactic.tagUntaggedGoals`.
 * If `allowNaturalHoles` is true, then `_`'s are allowed and create new goals.
 -/
-def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) (parentTag? : Option Name := none) : TacticM (Expr × List MVarId) :=
+def withCollectingNewGoalsFrom (k : TacticM Expr) (parentTag : Name) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) :=
   /-
   When `allowNaturalHoles = true`, unassigned holes should become new metavariables, including `_`s.
   Thus, we set `holesAsSyntheticOpaque` to true if it is not already set to `true`.
@@ -166,7 +165,6 @@ where
     appear in the `.lean` file. We should tell users to prefer tagged goals.
     -/
     let newMVarIds ← sortMVarIdsByIndex newMVarIds.toList
-    let parentTag ← parentTag?.getDM getMainTag
     tagUntaggedGoals parentTag tagSuffix newMVarIds
     return (val, newMVarIds)
 
@@ -176,8 +174,8 @@ With `allowNaturalHoles := false` (the default), any new natural holes (`_`) whi
 be synthesized during elaboration cause `elabTermWithHoles` to fail. (Natural goals appearing in
 `stx` which were created prior to elaboration are permitted.)
 
-Unnamed `MVarId`s are renamed to share the main goal's tag. If multiple unnamed goals are
-encountered, `tagSuffix` is appended to the main goal's tag along with a numerical index.
+Unnamed `MVarId`s are renamed to share the tag `parentTag?` (or the main goal's tag if `parentTag?` is `none`).
+If multiple unnamed goals are encountered, `tagSuffix` is appended to this tag along with a numerical index.
 
 Note:
 * Previously-created `MVarId`s which appear in `stx` are not returned.
@@ -186,8 +184,8 @@ metavariables.
 * When `allowNaturalHoles := true`, `stx` is elaborated under `withAssignableSyntheticOpaque`,
 meaning that `.syntheticOpaque` metavariables might be assigned during elaboration. This is a
 consequence of the implementation. -/
-def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
-  withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) tagSuffix allowNaturalHoles
+def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) (parentTag? : Option Name := none) : TacticM (Expr × List MVarId) := do
+  withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) (← parentTag?.getDM getMainTag) tagSuffix allowNaturalHoles
 
 /-- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
    Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be

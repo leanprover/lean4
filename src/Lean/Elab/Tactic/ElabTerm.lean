@@ -56,11 +56,6 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (mayPostpo
       Term.throwTypeMismatchError none expectedType eType e
     return e
 
-/-- Try to close main goal using `x target`, where `target` is the type of the main goal.  -/
-def closeMainGoalUsing (tacName : Name) (x : Expr → TacticM Expr) (checkUnassigned := true) : TacticM Unit :=
-  withMainContext do
-    closeMainGoal (tacName := tacName) (checkUnassigned := checkUnassigned) (← x (← getMainTarget))
-
 def logUnassignedAndAbort (mvarIds : Array MVarId) : TacticM Unit := do
    if (← Term.logUnassignedUsingErrorInfos mvarIds) then
      throwAbortTactic
@@ -69,14 +64,37 @@ def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Ar
   let mctx ← getMCtx
   return mvarIds.filter fun mvarId => (mctx.getDecl mvarId |>.index) >= mvarCounterSaved
 
+/--
+Try to close main goal using `x target tag`, where `target` is the type of the main goal and `tag` is its user name.
+
+If `checkNewUnassigned` is true, then throws an error if the resulting value has metavariables that were created during the execution of `x`.
+If it is false, then it is the responsibility of `x` to add such metavariables to the goal list.
+
+During the execution of `x`:
+* The local context is that of the main goal.
+* The goal list has the main goal removed.
+* It is allowable to modify the goal list, for example with `Lean.Elab.Tactic.pushGoals`.
+
+On failure, the main goal remains at the front of the goal list.
+-/
+def closeMainGoalUsing (tacName : Name) (x : Expr → Name → TacticM Expr) (checkNewUnassigned := true) : TacticM Unit := do
+  let mvarCounterSaved := (← getMCtx).mvarCounter
+  let mvarId ← popMainGoal
+  Tactic.tryCatch
+    (mvarId.withContext do
+      let val ← x (← mvarId.getType) (← mvarId.getTag)
+      if checkNewUnassigned then
+        let mvars ← filterOldMVars (← getMVars val) mvarCounterSaved
+        logUnassignedAndAbort mvars
+      unless (← mvarId.checkedAssign val) do
+        throwTacticEx tacName mvarId m!"attempting to close the goal using{indentExpr val}\nthis is often due occurs-check failure")
+    (fun ex => do
+      pushGoal mvarId
+      throw ex)
+
 @[builtin_tactic «exact»] def evalExact : Tactic := fun stx => do
   match stx with
-  | `(tactic| exact $e) =>
-    closeMainGoalUsing `exact (checkUnassigned := false) fun type => do
-      let mvarCounterSaved := (← getMCtx).mvarCounter
-      let r ← elabTermEnsuringType e type
-      logUnassignedAndAbort (← filterOldMVars (← getMVars r) mvarCounterSaved)
-      return r
+  | `(tactic| exact $e) => closeMainGoalUsing `exact fun type _ => elabTermEnsuringType e type
   | _ => throwUnsupportedSyntax
 
 def sortMVarIdArrayByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m (Array MVarId) := do
@@ -93,9 +111,13 @@ def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List
   return (← sortMVarIdArrayByIndex mvarIds.toArray).toList
 
 /--
-  Execute `k`, and collect new "holes" in the resulting expression.
+Execute `k`, and collect new "holes" in the resulting expression.
+
+* `parentTag?` and `tagSuffix` are used to tag untagged goals with `Lean.Elab.Tactic.tagUntaggedGoals`.
+  If `mainTag?` is `none`, then the default is the result of `getMainTag`.
+* If `allowNaturalHoles` is true, then `_`'s are allowed and create new goals.
 -/
-def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) :=
+def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) (parentTag? : Option Name := none) : TacticM (Expr × List MVarId) :=
   /-
   When `allowNaturalHoles = true`, unassigned holes should become new metavariables, including `_`s.
   Thus, we set `holesAsSyntheticOpaque` to true if it is not already set to `true`.
@@ -144,7 +166,8 @@ where
     appear in the `.lean` file. We should tell users to prefer tagged goals.
     -/
     let newMVarIds ← sortMVarIdsByIndex newMVarIds.toList
-    tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
+    let parentTag ← parentTag?.getDM getMainTag
+    tagUntaggedGoals parentTag tagSuffix newMVarIds
     return (val, newMVarIds)
 
 /-- Elaborates `stx` and collects the `MVarId`s of any holes that were created during elaboration.
@@ -395,7 +418,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
   return inst
 
 def evalDecideCore (tacticName : Name) (kernelOnly : Bool) : TacticM Unit :=
-  closeMainGoalUsing tacticName fun expectedType => do
+  closeMainGoalUsing tacticName fun expectedType _ => do
     let expectedType ← preprocessPropToDecide expectedType
     let pf ← mkDecideProof expectedType
     -- Get instance from `pf`
@@ -501,7 +524,7 @@ private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Na
   pure auxName
 
 @[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun _ =>
-  closeMainGoalUsing `nativeDecide fun expectedType => do
+  closeMainGoalUsing `nativeDecide fun expectedType _ => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d

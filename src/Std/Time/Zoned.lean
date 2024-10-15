@@ -8,6 +8,7 @@ import Std.Time.Zoned.DateTime
 import Std.Time.Zoned.ZoneRules
 import Std.Time.Zoned.ZonedDateTime
 import Std.Time.Zoned.ZonedDateTime
+import Std.Time.Zoned.Database
 
 namespace Std
 namespace Time
@@ -29,7 +30,7 @@ Get the current time.
 @[inline]
 def now : IO PlainDateTime := do
   let tm ← Timestamp.now
-  let tz ← TimeZone.getSystemTimezone
+  let tz ← Database.defaultGetCurrentTimeZone
   return PlainDateTime.ofTimestamp tm tz
 
 end PlainDateTime
@@ -86,12 +87,12 @@ end DateTime
 namespace ZonedDateTime
 
 /--
-Gets the current `DateTime`.
+Gets the current `ZonedDateTime`.
 -/
 @[inline]
 def now : IO ZonedDateTime := do
   let date ← Timestamp.now
-  let tz ← TimeZone.getSystemTimezone
+  let tz ← Database.defaultGetCurrentTimeZone
   return ofTimestamp date tz
 
 /--

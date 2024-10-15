@@ -7,6 +7,8 @@ prelude
 import Std.Time.Zoned.ZonedDateTime
 import Std.Time.Zoned.Database.Basic
 import Std.Time.Zoned.Database.TZdb
+import Std.Time.Zoned.Database.Windows
+import Init.System.Platform
 
 namespace Std
 namespace Time
@@ -16,21 +18,26 @@ open TimeZone.ZoneRules
 set_option linter.all true
 
 /--
-Gets the `TimeZone` at the local timezone.
+Gets the time zone for a given location and timestamp, handling Windows and non-Windows platforms.
 -/
-def getLocalTimeZoneAt [Database α] (db : α) (tm : Timestamp) : IO TimeZone := do
-  (IO.ofExcept <| timezoneAt · tm) =<< Database.localRules db
+def defaultGetTimeZoneAt : String → Timestamp → IO TimeZone :=
+  if System.Platform.isWindows
+    then Database.getTimeZoneAt WindowsDb.default
+    else Database.getTimeZoneAt TZdb.default
 
 /--
-Gets the TimeZone at a timezone using a `Database`.
+Gets the local time zone for a specific timestamp, accounting for platform differences.
 -/
-def getTimeZoneAt [Database α] (db : α) (id : String) (tm : Timestamp) : IO TimeZone := do
-  (IO.ofExcept <| timezoneAt · tm) =<< Database.load db id
+def defaultGetLocalTimeZoneAt : Timestamp → IO TimeZone :=
+  if System.Platform.isWindows
+    then Database.getLocalTimeZoneAt WindowsDb.default
+    else Database.getLocalTimeZoneAt TZdb.default
 
 /--
-Get the local `ZonedDataTime` given a UTC `Timestamp`.
+Retrieves the current local time zone based on the system platform and the current timestamp.
 -/
-def ofUTCTimestamp [Database α] (db : α) (tm : Timestamp) : IO ZonedDateTime := do
-  let rules ← Database.localRules db
-  let tz ← IO.ofExcept <| timezoneAt rules tm
-  return ZonedDateTime.ofTimestamp tm tz
+def defaultGetCurrentTimeZone : IO TimeZone := do
+  let now <- Timestamp.now
+  if System.Platform.isWindows
+    then Database.getLocalTimeZoneAt WindowsDb.default now
+    else Database.getLocalTimeZoneAt TZdb.default now

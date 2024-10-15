@@ -8,9 +8,9 @@ import Std.Internal.Parsec
 import Std.Internal.Parsec.ByteArray
 
 import Std.Time.Internal.Bounded
-import Std.Time.Format.Basic
 import Std.Time.Time
 import Std.Time.Date
+import Std.Time.DateTime
 
 namespace Std
 namespace Time
@@ -52,12 +52,26 @@ private def failWith (opt : Option α) : Parser α :=
   | none => fail "invalid number"
   | some res => pure res
 
+def parseMonthShort : Parser Month.Ordinal
+   := pstring "Jan" *> pure ⟨1, by decide⟩
+  <|> pstring "Feb" *> pure ⟨2, by decide⟩
+  <|> pstring "Mar" *> pure ⟨3, by decide⟩
+  <|> pstring "Apr" *> pure ⟨4, by decide⟩
+  <|> pstring "May" *> pure ⟨5, by decide⟩
+  <|> pstring "Jun" *> pure ⟨6, by decide⟩
+  <|> pstring "Jul" *> pure ⟨7, by decide⟩
+  <|> pstring "Aug" *> pure ⟨8, by decide⟩
+  <|> pstring "Sep" *> pure ⟨9, by decide⟩
+  <|> pstring "Oct" *> pure ⟨10, by decide⟩
+  <|> pstring "Nov" *> pure ⟨11, by decide⟩
+  <|> pstring "Dec" *> pure ⟨12, by decide⟩
+
 private def parseLeapSecond : Parser LeapSecond := do
   skipString "Leap"
   ws
   let year ← digits
   ws
-  let month ← Std.Time.parseMonthShort
+  let month ← parseMonthShort
   ws
   let day ← digits
   ws

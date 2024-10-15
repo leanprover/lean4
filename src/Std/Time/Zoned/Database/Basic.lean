@@ -21,17 +21,12 @@ class Database (α : Type) where
   /--
   Loads a `ZoneRules` by its id.
   -/
-  load : α → String → IO TimeZone.ZoneRules
+  getTimeZoneAt : α → String → Timestamp → IO TimeZone
 
   /--
   Loads a `ZoneRules` that is set by the local machine.
   -/
-  localRules : α → IO TimeZone.ZoneRules
-
-  /--
-  Loads a `LeapSecond` array from the local machine.
-  -/
-  leapSeconds : α → IO (Array TimeZone.LeapSecond)
+  getLocalTimeZoneAt : α → Timestamp → IO TimeZone
 
 namespace TimeZone
 

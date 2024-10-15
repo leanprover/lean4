@@ -35,9 +35,9 @@ cp /clang64/lib/lib{m,bcrypt,mingw32,moldname,mingwex,msvcrt,pthread,advapi32,sh
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_C_COMPILER_WORKS=1 -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++.exe -DCMAKE_CXX_COMPILER_WORKS=1 -DLEAN_CXX_STDLIB='-lc++ -lc++abi'"
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter /clang64/include/'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='-idirafter \"${WINDOWS_SDK_DIR}/Include/10.0.22621.0/um\" --sysroot $PWD/llvm -idirafter /clang64/include/'"
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang.exe"
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -static-libgcc -Wl,-Bstatic -lgmp -luv -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -static-libgcc -Wl,-Bstatic -lgmp -luv -licu -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
 # when not using the above flags, link GMP dynamically/as usual
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lucrtbase'"
 # do not set `LEAN_CC` for tests

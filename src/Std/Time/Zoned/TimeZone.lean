@@ -41,12 +41,6 @@ structure TimeZone where
 namespace TimeZone
 
 /--
-Fetches the current timzeon from the system.
--/
-@[extern "lean_get_timezone_offset"]
-opaque getSystemTimezone : IO TimeZone
-
-/--
 A zeroed `Timezone` representing UTC (no offset).
 -/
 def UTC : TimeZone :=

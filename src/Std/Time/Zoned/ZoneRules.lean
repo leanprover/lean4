@@ -141,24 +141,20 @@ def apply (timestamp : Timestamp) (transition : Transition) : Timestamp :=
   let offsetInSeconds := transition.localTimeType.gmtOffset.hour.mul 3600 |>.add transition.localTimeType.gmtOffset.second
   timestamp.addSeconds offsetInSeconds
 
-end Transition
-
-namespace ZoneRules
-
 /--
-Finds the transition corresponding to a given timestamp in `ZoneRules`.
+Finds the transition corresponding to a given timestamp in `Array Transition`.
 If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
 -/
-def findTransitionForTimestamp (zoneRules : ZoneRules) (timestamp : Timestamp) : Option Transition :=
+def findTransitionForTimestamp (transitions : Array Transition) (timestamp : Timestamp) : Option Transition :=
   let value := timestamp.toSecondsSinceUnixEpoch
-  if let some idx := zoneRules.transitions.findIdx? (fun t => t.time.val > value.val)
-    then zoneRules.transitions.get? (idx - 1)
-    else zoneRules.transitions.back?
+  if let some idx := transitions.findIdx? (fun t => t.time.val > value.val)
+    then transitions.get? (idx - 1)
+    else transitions.back?
 
 /--
-Find the current `TimeZone` out of a `Transition` in a `ZoneRules`
+Find the current `TimeZone` out of a `Transition` in a `Array Transition`
 -/
-def timezoneAt (rules : ZoneRules) (tm : Timestamp) : Except String TimeZone :=
-  if let some transition := rules.findTransitionForTimestamp tm
+def timezoneAt(transitions : Array Transition) (tm : Timestamp) : Except String TimeZone :=
+  if let some transition := findTransitionForTimestamp transitions tm
     then .ok transition.createTimeZoneFromTransition
     else .error "cannot find local timezone."

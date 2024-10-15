@@ -135,7 +135,7 @@ def throwCalcFailure (steps : Array CalcStepView) (expectedType resultType resul
           but is expected to be{indentD m!"{elhs} : {← inferType elhs}"}"
         failed := true
       unless ← isDefEqGuarded rhs erhs do
-        logErrorAt steps[0]!.term m!"\
+        logErrorAt steps.back.term m!"\
           invalid 'calc' step, right-hand side is{indentD m!"{rhs} : {← inferType rhs}"}\n\
           but is expected to be{indentD m!"{erhs} : {← inferType erhs}"}"
         failed := true

@@ -1864,7 +1864,8 @@ section
 variable {α : Type u}
 variable (r : α → α → Prop)
 
-instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
+instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
+    : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>

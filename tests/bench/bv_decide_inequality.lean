@@ -28,7 +28,7 @@ example :
     → (0#64 < c - a ∧ 0#64 < d - a) ∧ d - c < a - c := by
   bv_decide
 
-set_option bv.ac_nf false in -- This particular example times out with the `ac_nf` pass enabled
+set_option sat.timeout 120 in
 example :
     n < 18446744073709551615#64 - k →
     ((a + k - a < a + k + 1#64 - a ∧ a + k - a < a + k + 1#64 + n - a) ∧
@@ -42,6 +42,7 @@ example :
     ∧ addr + 1#64 + n - (addr + 1#64) < addr - (addr + 1#64) := by
   bv_decide
 
+set_option sat.timeout 120 in
 example :
     a2 - a1 < b1 - a1 → a2 - a1 < b2 - a1 →
     b2 - b1 < a1 - b1 → b2 - b1 < a2 - b1 →

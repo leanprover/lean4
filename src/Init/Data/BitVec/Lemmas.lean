@@ -286,6 +286,21 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 
 @[simp] theorem getMsbD_zero : (0#w).getMsbD i = false := by simp [getMsbD]
 
+@[simp] theorem getLsbD_one : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
+  simp only [getLsbD, toNat_ofNat, Nat.testBit_mod_two_pow]
+  by_cases h : i = 0
+  <;> simp [h, Nat.testBit_to_div_mod, Nat.div_eq_of_lt]
+  omega
+
+@[simp] theorem getElem_one (h : i < w) : (1#w)[i] = decide (0 = i) := by
+  simp [← getLsbD_eq_getElem, getLsbD_one, h, show 0 < w by omega]
+
+@[simp] theorem getMsbD_one : (1#w).getMsbD i = decide (0 = w - 1 - i ∧ i < w) := by
+  simp only [getMsbD]
+  by_cases h : i < w
+  · simp [h, show 0 < w by omega]
+  · simp [h]
+
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
   Nat.mod_eq_of_lt x.isLt
 
@@ -346,6 +361,10 @@ theorem getElem_ofBool {b : Bool} {i : Nat} : (ofBool b)[0] = b := by
 /-! ### msb -/
 
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsbD]
+
+@[simp] theorem msb_one : (1#w).msb = if w == 1 then true else false := by
+  simp [BitVec.msb, getMsbD_one, ← Bool.decide_and]
+  omega
 
 theorem msb_eq_getLsbD_last (x : BitVec w) :
     x.msb = x.getLsbD (w - 1) := by
@@ -2073,6 +2092,11 @@ theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
   have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
 
+@[simp]
+theorem sub_eq_self {x : BitVec 1} : -x = x := by
+  have ha : x = 0 ∨ x = 1 := eq_zero_or_eq_one _
+  rcases ha with h | h <;> (simp [h])
+
 theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
   rcases w with _ | w
   · apply Subsingleton.elim
@@ -2341,6 +2365,25 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
   simp only [sdiv_eq, toNat_udiv]
   by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
 
+@[simp]
+theorem zero_sdiv {x : BitVec w} : (0#w).sdiv x = 0#w := by
+  simp only [sdiv_eq]
+  rcases x.msb with msb | msb
+  <;> simp
+
+@[simp]
+theorem sdiv_zero {x : BitVec n} : x.sdiv 0#n = 0#n := by
+  simp only [sdiv_eq, msb_zero]
+  rcases x.msb with msb | msb <;> apply eq_of_toNat_eq <;> simp
+
+@[simp]
+theorem sdiv_one {x : BitVec w} : x.sdiv 1#w = x := by
+  simp only [sdiv_eq]
+  · by_cases h : w = 1
+    · subst h
+      rcases x.msb with msb | msb <;> simp
+    · rcases x.msb with msb | msb <;> simp [h]
+
 theorem sdiv_eq_and (x y : BitVec 1) : x.sdiv y = x &&& y := by
   have hx : x = 0#1 ∨ x = 1#1 := by bv_omega
   have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
@@ -2349,9 +2392,13 @@ theorem sdiv_eq_and (x y : BitVec 1) : x.sdiv y = x &&& y := by
       rfl
 
 @[simp]
-theorem sdiv_zero {x : BitVec n} : x.sdiv 0#n = 0#n := by
-  simp only [sdiv_eq, msb_zero]
-  rcases x.msb with msb | msb <;> apply eq_of_toNat_eq <;> simp
+theorem sdiv_self {x : BitVec w} :
+    x.sdiv x = if x == 0#w then 0#w else 1#w := by
+  simp [sdiv_eq]
+  · by_cases h : w = 1
+    · subst h
+      rcases x.msb with msb | msb <;> simp
+    · rcases x.msb with msb | msb <;> simp [h]
 
 /-! ### smod -/
 
@@ -2652,14 +2699,6 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
 theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   apply eq_of_toNat_eq
   simp
-
-@[simp]
-theorem getLsbD_one {w i : Nat} : (1#w).getLsbD i = (decide (0 < w) && decide (0 = i)) := by
-  rw [← twoPow_zero, getLsbD_twoPow]
-
-@[simp]
-theorem getElem_one {w i : Nat} (h : i < w) : (1#w)[i] = decide (i = 0) := by
-  rw [← twoPow_zero, getElem_twoPow]
 
 theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by

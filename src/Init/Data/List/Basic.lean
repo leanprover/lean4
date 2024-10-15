@@ -1398,8 +1398,17 @@ def unzip : List (α × β) → List α × List β
 
 /-! ## Ranges and enumeration -/
 
+/-- Sum of a list.
+
+`List.sum [a, b, c] = a + (b + (c + 0))` -/
+def sum {α} [Add α] [Zero α] : List α → α :=
+  foldr (· + ·) 0
+
+@[simp] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
+@[simp] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
+
 /-- Sum of a list of natural numbers. -/
--- This is not in the `List` namespace as later `List.sum` will be defined polymorphically.
+-- We intend to subsequently deprecate this in favor of `List.sum`.
 protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
 
 @[simp] theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl

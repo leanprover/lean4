@@ -2070,8 +2070,7 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
 
 /-! ### flatten -/
 
-
-@[simp] theorem length_flatten (L : List (List α)) : (flatten L).length = Nat.sum (L.map length) := by
+@[simp] theorem length_flatten (L : List (List α)) : (flatten L).length = (L.map length).sum := by
   induction L with
   | nil => rfl
   | cons =>

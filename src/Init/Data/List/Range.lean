@@ -20,7 +20,6 @@ open Nat
 
 /-! ## Ranges and enumeration -/
 
-
 /-! ### range' -/
 
 theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) n step := by

@@ -789,7 +789,7 @@ theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
 theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
     l.flatten.findIdx? p =
       (l.findIdx? (·.any p)).map
-        fun i => Nat.sum ((l.take i).map List.length) +
+        fun i => ((l.take i).map List.length).sum +
           (l[i]?.map fun xs => xs.findIdx p).getD 0 := by
   induction l with
   | nil => simp

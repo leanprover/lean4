@@ -232,15 +232,10 @@ theorem count_singleton (a b : α) : count a [b] = if b == a then 1 else 0 := by
 @[simp] theorem count_append (a : α) : ∀ l₁ l₂, count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
   countP_append _
 
-<<<<<<< HEAD
-theorem count_flatten (a : α) (l : List (List α)) : count a l.flatten = Nat.sum (l.map (count a)) := by
+theorem count_flatten (a : α) (l : List (List α)) : count a l.flatten = (l.map (count a)).sum := by
   simp only [count_eq_countP, countP_flatten, count_eq_countP']
 
 @[deprecated count_flatten (since := "2024-10-14")] abbrev count_join := @count_flatten
-=======
-theorem count_join (a : α) (l : List (List α)) : count a l.join = (l.map (count a)).sum := by
-  simp only [count_eq_countP, countP_join, count_eq_countP']
->>>>>>> 93be5ed5ed (chore: introduce List.sum, to later replace Nat.sum)
 
 @[simp] theorem count_reverse (a : α) (l : List α) : count a l.reverse = count a l := by
   simp only [count_eq_countP, countP_eq_length_filter, filter_reverse, length_reverse]

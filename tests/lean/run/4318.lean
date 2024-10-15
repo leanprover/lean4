@@ -7,7 +7,7 @@ RFC https://github.com/leanprover/lean4/issues/4318
 axiom testSorry {α : Sort _} : α
 
 /-!
-Term-mode `calc`. Errors about LHS, RHS, and relation not matching expected type.
+Term-mode `calc`. Errors about LHS and RHS not matching expected type.
 -/
 
 /--
@@ -44,22 +44,6 @@ example : 0 < 1 :=
     0 = 1 := testSorry
 
 /-!
-No postponement.
--/
-/--
-error: type mismatch
-  h
-has type
-  0 = 1 : Prop
-but is expected to have type
-  0 < 1 : Prop
--/
-#guard_msgs in
-example : 0 < 1 :=
-  have h := calc 0 = 1 := testSorry;
-  h
-
-/-!
 Tactic-mode `calc`. LHS failure.
 -/
 /--
@@ -83,7 +67,7 @@ example (n : Nat) : 0 ≤ 1 := by
   exact testSorry
 
 /-!
-Tactic mode `calc`. Calc extension fails, so report general failure.
+Tactic mode `calc`. Calc extension fails due to expected type mismatch, so report original failure.
 -/
 /--
 error: 'calc' expression has type
@@ -97,7 +81,21 @@ example (n : Nat) : 0 ≤ 1 := by
     0 < n - n := testSorry
 
 /-!
-Tactic mode `calc`. Relation failure and calc extension succeeds.
+Tactic mode `calc`. Calc extension fails due to nontransitivity, so report original failure.
+-/
+/--
+error: invalid 'calc' step, right-hand side is
+  1 : Nat
+but is expected to be
+  2 : Nat
+-/
+#guard_msgs in
+example (n : Nat) : 0 ≠ 2 := by
+  calc 0
+    _ ≠ 1 := testSorry
+
+/-!
+Tactic mode `calc`. Calc extension succeeds.
 -/
 #guard_msgs in
 example : 0 < 1 := by
@@ -105,17 +103,3 @@ example : 0 < 1 := by
     _ ≤ 1 := testSorry
   guard_target =ₛ 1 < 1
   exact testSorry
-
-/-!
-Tactic mode `calc`. Calc extension fails, so report general failure.
--/
-/--
-error: 'calc' expression has type
-  0 < 1 : Prop
-but is expected to have type
-  0 ≤ 1 : Prop
--/
-#guard_msgs in
-example : 0 ≤ 1 := by
-  calc
-    0 < 1 := testSorry

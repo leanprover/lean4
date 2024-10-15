@@ -22,23 +22,26 @@ def evalCalc : Tactic
       let (val, mvarIds) ← withCollectingNewGoalsFrom (parentTag := tag) (tagSuffix := `calc) <| runTermElab do
         let (val, valType) ← Term.elabCalcSteps steps
         if (← isDefEq valType target) then
+          -- Immediately the right type, no need for further processing.
           return val
 
         let some (_, lhs, rhs) ← Term.getCalcRelation? valType | unreachable!
-        let some (er, elhs, erhs) ← Term.getCalcRelation? target
-          | throwError "'calc' tactic failed, goal is not a relation{indentExpr target}"
+        if let some (er, elhs, erhs) ← Term.getCalcRelation? target then
+          -- Feature: if the goal is `x ~ y`, try extending the `calc` with `_ ~ y` with a new "last step" goal.
+          if ← isDefEq lhs elhs <&&> isDefEq (← inferType rhs) (← inferType elhs) then
+            let lastStep := mkApp2 er rhs erhs
+            let lastStepGoal ← mkFreshExprSyntheticOpaqueMVar lastStep (tag := tag ++ `calc.step)
+            try
+              let (val', valType') ← Term.mkCalcTrans val valType lastStepGoal lastStep
+              if (← isDefEq valType' target) then
+                return val'
+            catch _ =>
+              pure ()
 
-        -- Feature: if the goal is `x ~ y`, try extending the `calc` with `_ ~ y` with a new "last step" goal.
-        -- We so far have that the LHSs are the same.
-        if ← isDefEq lhs elhs <&&> isDefEq (← inferType rhs) (← inferType elhs) then
-          let lastStep := mkApp2 er rhs erhs
-          let lastStepGoal ← mkFreshExprSyntheticOpaqueMVar lastStep (tag := tag ++ `calc.step)
-          let (val', valType') ← Term.mkCalcTrans val valType lastStepGoal lastStep
-          if (← isDefEq valType' target) then
-            return val'
-
-        -- Calc extension failed, so let's go back and throw an error relevant to the original `valType`.
-        Term.throwCalcFailure steps target valType val
+        -- Calc extension failed, so let's go back and mimick the `calc` expression
+        Term.ensureHasTypeWithErrorMsgs target val
+          (mkImmedErrorMsg := fun _ => Term.throwCalcFailure steps)
+          (mkErrorMsg := fun _ => Term.throwCalcFailure steps)
       pushGoals mvarIds
       return val
   | _ => throwUnsupportedSyntax

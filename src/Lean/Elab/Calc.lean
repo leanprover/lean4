@@ -124,7 +124,8 @@ def elabCalcSteps (steps : Array CalcStepView) : TermElabM (Expr × Expr) := do
   synthesizeSyntheticMVarsUsingDefault
   return result?.get!
 
-def throwCalcFailure (steps : Array CalcStepView) (expectedType resultType result : Expr) : TermElabM α := do
+def throwCalcFailure (steps : Array CalcStepView) (expectedType result : Expr) : MetaM α := do
+  let resultType := (← instantiateMVars (← inferType result)).headBeta
   let some (r, lhs, rhs) ← getCalcRelation? resultType | unreachable!
   if let some (er, elhs, erhs) ← getCalcRelation? expectedType then
     if ← isDefEqGuarded r er then
@@ -148,11 +149,10 @@ def throwCalcFailure (steps : Array CalcStepView) (expectedType resultType resul
 def elabCalc : TermElab
   | `(calc%$tk $steps:calcSteps), expectedType? => withRef tk do
     let steps ← mkCalcStepViews steps
-    let (result, resultType) ← elabCalcSteps steps
-    if let some expectedType := expectedType? then
-      unless (← isDefEqGuarded expectedType resultType) do
-        throwCalcFailure steps expectedType resultType result
-    return result
+    let (result, _) ← elabCalcSteps steps
+    ensureHasTypeWithErrorMsgs expectedType? result
+      (mkImmedErrorMsg := fun _ => throwCalcFailure steps)
+      (mkErrorMsg := fun _ => throwCalcFailure steps)
   | _, _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

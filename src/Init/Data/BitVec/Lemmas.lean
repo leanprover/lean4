@@ -2100,6 +2100,32 @@ theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat els
     rw [Nat.mod_eq_of_lt (by omega)]
   · simp [h]
 
+theorem getLsbD_abs {i : Nat} {x : BitVec w} :
+   getLsbD x.abs i = getLsbD (if x.msb = true then -x else x) i := by
+  simp [BitVec.abs]
+
+theorem getMsbD_abs {i : Nat} {x : BitVec w} :
+    getMsbD (x.abs) i = getMsbD (if x.msb = true then -x else x) i := by
+  simp [BitVec.abs]
+
+theorem msb_abs {w : Nat} {x : BitVec w} :
+    (x.abs).msb = (if x.msb = true then -x else x).msb := by
+  simp [BitVec.abs]
+
+/-! ### neg -/
+
+theorem msb_neg {x : BitVec w} :
+    (-x).msb = (~~~x + 1#w).msb := by
+  rw [neg_eq_not_add]
+
+theorem getLsbD_neg {i : Nat} {x : BitVec w} :
+    getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
+  simp [neg_eq_not_add]
+
+theorem getMsbD_neg {i : Nat} {x : BitVec w} :
+    getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by
+  rw [neg_eq_not_add]
+
 /-! ### mul -/
 
 theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := by rfl

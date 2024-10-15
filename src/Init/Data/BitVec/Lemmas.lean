@@ -2101,16 +2101,16 @@ theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat els
   · simp [h]
 
 theorem getLsbD_abs {i : Nat} {x : BitVec w} :
-   getLsbD x.abs i = getLsbD (if x.msb = true then -x else x) i := by
-  simp [BitVec.abs]
+   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 theorem getMsbD_abs {i : Nat} {x : BitVec w} :
-    getMsbD (x.abs) i = getMsbD (if x.msb = true then -x else x) i := by
-  simp [BitVec.abs]
+    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 theorem msb_abs {w : Nat} {x : BitVec w} :
-    (x.abs).msb = (if x.msb = true then -x else x).msb := by
-  simp [BitVec.abs]
+    (x.abs).msb = if x.msb then (-x).msb else x.msb := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 /-! ### neg -/
 

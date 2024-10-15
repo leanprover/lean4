@@ -33,7 +33,7 @@ structure TextDocumentClientCapabilities where
   deriving ToJson, FromJson
 
 structure ShowDocumentClientCapabilities where
-  support? : Option Bool := none
+  support : Bool
   deriving ToJson, FromJson
 
 structure WindowClientCapabilities where

@@ -286,15 +286,15 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 
 @[simp] theorem getMsbD_zero : (0#w).getMsbD i = false := by simp [getMsbD]
 
-@[simp] theorem getLsbD_one' : (1#w).getLsbD i = (decide (0 < w) && decide (i = 0)) := by
+@[simp] theorem getLsbD_one : (1#w).getLsbD i = (decide (0 < w) && decide (i = 0)) := by
   simp only [getLsbD, toNat_ofNat, Nat.testBit_mod_two_pow]
   by_cases h : i = 0
     <;> simp [h, Nat.testBit_to_div_mod, Nat.div_eq_of_lt]
 
-@[simp] theorem getElem_one (h : i < w) : (1#w)[i] = decide (0 = i) := by
+@[simp] theorem getElem_one (h : i < w) : (1#w)[i] = decide (i = 0) := by
   simp [← getLsbD_eq_getElem, getLsbD_one, h, show 0 < w by omega]
 
-/-- The msb at index `w-1` is the least significant bit, and is true when the width is nonzero.
+/-- The msb at index `w-1` is the least significant bit, and is true when the width is nonzero. -/
 @[simp] theorem getMsbD_one : (1#w).getMsbD i = decide (i = w - 1 ∧ 0 < w) := by
   simp only [getMsbD]
   by_cases h : 0 < w <;> by_cases h' : i = w - 1 <;> simp [h, h'] <;> omega

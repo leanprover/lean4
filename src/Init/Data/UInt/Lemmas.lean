@@ -61,6 +61,9 @@ protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
 protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.1.2
 @[simp] protected theorem ofNat_one : ofNat 1 = 1 := rfl
 
+@[simp]
+protected theorem val_ofNat_eq_ofNat (n : Nat) : val (no_index (OfNat.ofNat n)) = OfNat.ofNat n := rfl
+
 end $typeName
 )
 

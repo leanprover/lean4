@@ -295,7 +295,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   simp [← getLsbD_eq_getElem, getLsbD_one, h, show 0 < w by omega]
 
 /-- The msb at index `w-1` is the least significant bit, and is true when the width is nonzero. -/
-@[simp] theorem getMsbD_one : (1#w).getMsbD i = decide (i = w - 1 ∧ 0 < w) := by
+@[simp] theorem getMsbD_one : (1#w).getMsbD i = (decide (i = w - 1) && decide (0 < w)) := by
   simp only [getMsbD]
   by_cases h : 0 < w <;> by_cases h' : i = w - 1 <;> simp [h, h'] <;> omega
 

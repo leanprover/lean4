@@ -295,11 +295,10 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 @[simp] theorem getElem_one (h : i < w) : (1#w)[i] = decide (0 = i) := by
   simp [← getLsbD_eq_getElem, getLsbD_one, h, show 0 < w by omega]
 
-@[simp] theorem getMsbD_one : (1#w).getMsbD i = decide (0 = w - 1 - i ∧ i < w) := by
+/-- The msb at index `w-1` is the least significant bit, and is true when the width is nonzero.
+@[simp] theorem getMsbD_one : (1#w).getMsbD i = decide (i = w - 1 ∧ 0 < w) := by
   simp only [getMsbD]
-  by_cases h : i < w
-  · simp [h, show 0 < w by omega]
-  · simp [h]
+  by_cases h : 0 < w <;> by_cases h' : i = w - 1 <;> simp [h, h'] <;> omega
 
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
   Nat.mod_eq_of_lt x.isLt

@@ -71,6 +71,7 @@ where
 
 /-- View of a `calcStep`. -/
 structure CalcStepView where
+  ref : Syntax
   /-- A relation term like `a ≤ b` -/
   term : Term
   /-- A proof of `term` -/
@@ -80,8 +81,8 @@ structure CalcStepView where
 def mkCalcFirstStepView (step0 : TSyntax ``calcFirstStep) : TermElabM CalcStepView :=
   withRef step0 do
   match step0  with
-  | `(calcFirstStep| $term:term)      => return { term := ← `($term = _), proof := ← ``(rfl)}
-  | `(calcFirstStep| $term := $proof) => return { term, proof}
+  | `(calcFirstStep| $term:term)      => return { ref := step0, term := ← `($term = _), proof := ← ``(rfl)}
+  | `(calcFirstStep| $term := $proof) => return { ref := step0, term, proof}
   | _ => throwUnsupportedSyntax
 
 def mkCalcStepViews (steps : TSyntax ``calcSteps) : TermElabM (Array CalcStepView) :=
@@ -92,7 +93,7 @@ def mkCalcStepViews (steps : TSyntax ``calcSteps) : TermElabM (Array CalcStepVie
     let mut steps := #[← mkCalcFirstStepView step0]
     for step in rest do
       let `(calcStep| $term := $proof) := step | throwUnsupportedSyntax
-      steps := steps.push { term, proof }
+      steps := steps.push { ref := step, term, proof }
     return steps
   | _ => throwUnsupportedSyntax
 

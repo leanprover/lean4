@@ -51,19 +51,25 @@ def delabBVar : Delab := do
   let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
+def delabMVarAux (m : MVarId) : DelabM Term := do
+  let mkMVarPlaceholder : DelabM Term := `(?_)
+  let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
+  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+    if ← getPPOption getPPMVars then
+      match (← m.getDecl).userName with
+      | .anonymous =>
+        if ← getPPOption getPPMVarsAnonymous then
+          mkMVar <| m.name.replacePrefix `_uniq `m
+        else
+          mkMVarPlaceholder
+      | n => mkMVar n
+    else
+      mkMVarPlaceholder
+
 @[builtin_delab mvar]
 def delabMVar : Delab := do
   let Expr.mvar n ← getExpr | unreachable!
-  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
-    if ← getPPOption getPPMVars then
-      let mvarDecl ← n.getDecl
-      let n :=
-        match mvarDecl.userName with
-        | .anonymous => n.name.replacePrefix `_uniq `m
-        | n => n
-      `(?$(mkIdent n))
-    else
-      `(?_)
+  delabMVarAux n
 
 @[builtin_delab sort]
 def delabSort : Delab := do
@@ -72,7 +78,7 @@ def delabSort : Delab := do
   | Level.zero => `(Prop)
   | Level.succ .zero => `(Type)
   | _ =>
-    let mvars ← getPPOption getPPMVars
+    let mvars ← getPPOption getPPMVarsLevels
     match l.dec with
     | some l' => `(Type $(Level.quote l' (prec := max_prec) (mvars := mvars)))
     | none    => `(Sort $(Level.quote l (prec := max_prec) (mvars := mvars)))
@@ -98,7 +104,7 @@ def delabConst : Delab := do
         c := c₀
     pure <| mkIdent c
   else
-    let mvars ← getPPOption getPPMVars
+    let mvars ← getPPOption getPPMVarsLevels
     `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
 
   let stx ← maybeAddBlockImplicit stx
@@ -578,16 +584,7 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
     let args := (← getExpr).getAppArgs
     -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
     guard <| args.all Expr.isFVar
-    withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
-      if ← getPPOption getPPMVars then
-        let mvarDecl ← decl.mvarIdPending.getDecl
-        let n :=
-          match mvarDecl.userName with
-          | .anonymous => decl.mvarIdPending.name.replacePrefix `_uniq `m
-          | n => n
-        `(?$(mkIdent n))
-      else
-        `(?_)
+    delabMVarAux decl.mvarIdPending
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where

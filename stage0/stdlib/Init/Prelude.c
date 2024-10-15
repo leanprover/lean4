@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_ReaderT_read(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_cond(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_isIdent___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_appendCore___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadEvalT___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_modifyThe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt32_ofNatCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_instOrElse___rarg(lean_object*, lean_object*);
@@ -29,6 +30,7 @@ LEAN_EXPORT lean_object* l_Array_appendCore_loop___rarg___boxed(lean_object*, le
 LEAN_EXPORT lean_object* l_instPowNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNullNode(lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_instMonadEvalOfMonadLift___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_letFun___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_size;
 LEAN_EXPORT lean_object* l_minOfLe___rarg(lean_object*, lean_object*, lean_object*);
@@ -54,6 +56,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedForallOfMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_mkMethodsImp(lean_object*);
 static size_t l_instInhabitedUSize___closed__1;
+LEAN_EXPORT lean_object* l_instMonadEvalTOfMonadEval(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_toUSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos(lean_object*);
 LEAN_EXPORT lean_object* l_panicCore___boxed(lean_object*, lean_object*, lean_object*);
@@ -508,6 +511,7 @@ LEAN_EXPORT lean_object* l_sorryAx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux(lean_object*);
 static lean_object* l_UInt64_size___closed__1;
+LEAN_EXPORT lean_object* l_instMonadEvalOfMonadLift(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadExceptOf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static uint64_t l_Lean_Name_hash___override___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getHeadInfo_x3f_loop___boxed(lean_object*, lean_object*);
@@ -657,6 +661,7 @@ LEAN_EXPORT lean_object* l_ReaderT_instFunctorOfMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instAddNat;
 uint32_t lean_uint32_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_instMonadEvalT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instHMod___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_decLt___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__2___boxed(lean_object*, lean_object*);
@@ -667,6 +672,7 @@ LEAN_EXPORT lean_object* l_EStateM_instMonadExceptOfOfBacktrackable(lean_object*
 static lean_object* l_Lean_Macro_instMonadRefMacroM___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getTailPos_x3f_loop___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_id___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instMonadEvalTOfMonadEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_decLe(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_anonymous___override;
 LEAN_EXPORT lean_object* l_instMonadFunctorTOfMonadFunctor(lean_object*, lean_object*, lean_object*);
@@ -713,6 +719,7 @@ LEAN_EXPORT lean_object* l_instHShiftLeftOfShiftLeft(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadReaderOfMonadReaderOf___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_withFreshMacroScope___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instInhabitedResult___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadEvalT(lean_object*, lean_object*);
 static lean_object* l_Array_mkArray5___rarg___closed__1;
 LEAN_EXPORT lean_object* l_decEq(lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instOrElseOfBacktrackable(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5052,6 +5059,63 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_instMonadLiftT___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadEvalOfMonadLift___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, lean_box(0), x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadEvalOfMonadLift(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_instMonadEvalOfMonadLift___rarg), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadEvalTOfMonadEval___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_2(x_2, lean_box(0), x_4);
+x_6 = lean_apply_2(x_1, lean_box(0), x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadEvalTOfMonadEval(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_instMonadEvalTOfMonadEval___rarg), 4, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadEvalT___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadEvalT(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_instMonadEvalT___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_instMonadEvalT___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_instMonadEvalT___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

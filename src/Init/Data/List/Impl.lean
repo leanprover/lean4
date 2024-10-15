@@ -109,12 +109,12 @@ The following operations are given `@[csimp]` replacements below:
     | x::xs, acc => by simp [bindTR.go, bind, go xs]
   exact (go as #[]).symm
 
-/-! ### join -/
+/-! ### flatten -/
 
-/-- Tail recursive version of `List.join`. -/
-@[inline] def joinTR (l : List (List α)) : List α := bindTR l id
+/-- Tail recursive version of `List.flatten`. -/
+@[inline] def flattenTR (l : List (List α)) : List α := bindTR l id
 
-@[csimp] theorem join_eq_joinTR : @join = @joinTR := by
+@[csimp] theorem flatten_eq_flattenTR : @flatten = @flattenTR := by
   funext α l; rw [← List.bind_id, List.bind_eq_bindTR]; rfl
 
 /-! ## Sublists -/
@@ -322,7 +322,7 @@ where
   | [_] => simp
   | x::y::xs =>
     let rec go {acc x} : ∀ xs,
-      intercalateTR.go sep.toArray x xs acc = acc.toList ++ join (intersperse sep (x::xs))
+      intercalateTR.go sep.toArray x xs acc = acc.toList ++ flatten (intersperse sep (x::xs))
     | [] => by simp [intercalateTR.go]
     | _::_ => by simp [intercalateTR.go, go]
     simp [intersperse, go]

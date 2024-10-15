@@ -2247,8 +2247,38 @@ theorem toNat_udiv {x y : BitVec n} : (x / y).toNat = x.toNat / y.toNat := by
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
 
 @[simp]
+theorem zero_udiv {x : BitVec w} : (0#w) / x = 0#w := by
+  simp [bv_toNat]
+
+@[simp]
 theorem udiv_zero {x : BitVec n} : x / 0#n = 0#n := by
   simp [udiv_def]
+
+@[simp]
+theorem udiv_one {x : BitVec w} : x / 1#w = x := by
+  simp only [udiv_eq, toNat_eq, toNat_udiv, toNat_ofNat]
+  cases w
+  · simp [eq_nil x]
+  · simp
+
+@[simp]
+theorem udiv_eq_and {x y : BitVec 1} :
+    x / y = (x &&& y) := by
+  have hx : x = 0#1 ∨ x = 1#1 := by bv_omega
+  have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
+  rcases hx with rfl | rfl <;>
+    rcases hy with rfl | rfl <;>
+      rfl
+
+@[simp]
+theorem udiv_self {x : BitVec w} :
+    x / x = if x == 0#w then 0#w else 1#w := by
+  by_cases h : x = 0#w
+  · simp [h]
+  · simp only [toNat_eq, toNat_ofNat, Nat.zero_mod] at h
+    simp only [udiv_eq, beq_iff_eq, toNat_eq, toNat_ofNat, Nat.zero_mod, h,
+      ↓reduceIte, toNat_udiv]
+    rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
 
 /-! ### umod -/
 
@@ -2265,6 +2295,29 @@ theorem toNat_umod {x y : BitVec n} :
 @[simp]
 theorem umod_zero {x : BitVec n} : x % 0#n = x := by
   simp [umod_def]
+
+@[simp]
+theorem zero_umod {x : BitVec w} : (0#w) % x = 0#w := by
+  simp [bv_toNat]
+
+@[simp]
+theorem umod_one {x : BitVec w} : x % (1#w) = 0#w := by
+  simp only [toNat_eq, toNat_umod, toNat_ofNat, Nat.zero_mod]
+  cases w
+  · simp [eq_nil x]
+  · simp [Nat.mod_one]
+
+@[simp]
+theorem umod_self {x : BitVec w} : x % x = 0#w := by
+  simp [bv_toNat]
+
+@[simp]
+theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
+  have hx : x = 0#1 ∨ x = 1#1 := by bv_omega
+  have hy : y = 0#1 ∨ y = 1#1 := by bv_omega
+  rcases hx with rfl | rfl <;>
+    rcases hy with rfl | rfl <;>
+      rfl
 
 /-! ### sdiv -/
 

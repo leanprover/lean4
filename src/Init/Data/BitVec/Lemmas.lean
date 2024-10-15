@@ -2716,7 +2716,6 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
 @[simp] theorem zero_concat_true : concat 0#w true = 1#(w + 1) := by
   ext
   simp [getLsbD_concat]
-  omega
 
 /- ### setWidth, setWidth, and bitwise operations -/
 
@@ -2757,7 +2756,7 @@ theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
   ext i
   simp only [getLsbD_and, getLsbD_one, getLsbD_setWidth, Fin.is_lt, decide_True, getLsbD_ofBool,
     Bool.true_and]
-  by_cases h : (0 = (i : Nat)) <;> simp [h] <;> omega
+  by_cases h : ((i : Nat) = 0) <;> simp [h] <;> omega
 
 @[simp]
 theorem replicate_zero_eq {x : BitVec w} : x.replicate 0 = 0#0 := by

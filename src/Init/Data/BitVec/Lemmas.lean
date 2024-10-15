@@ -360,7 +360,7 @@ theorem getElem_ofBool {b : Bool} {i : Nat} : (ofBool b)[0] = b := by
 
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsbD]
 
-@[simp] theorem msb_one : (1#w).msb = decide (w == 1) := by
+@[simp] theorem msb_one : (1#w).msb = decide (w = 1) := by
   simp [BitVec.msb, getMsbD_one, ← Bool.decide_and]
   omega
 

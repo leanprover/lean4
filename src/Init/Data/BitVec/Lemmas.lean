@@ -2094,7 +2094,7 @@ theorem sub_eq_xor {a b : BitVec 1} : a - b = a ^^^ b := by
 @[simp]
 theorem sub_eq_self {x : BitVec 1} : -x = x := by
   have ha : x = 0 ∨ x = 1 := eq_zero_or_eq_one _
-  rcases ha with h | h <;> (simp [h])
+  rcases ha with h | h <;> simp [h]
 
 theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
   rcases w with _ | w

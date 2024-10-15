@@ -40,7 +40,7 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     else
       let c₂ : LinearCnstr := c₂.toExpr
       let r ← c₂.toArith ctx
-      if r != e then
+      if r != lhs then
         let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
         return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
       else

@@ -396,7 +396,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabOmission__1___closed__1;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabSetOption_declRange__1___closed__6;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabTypeStx_declRange__1(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabDeclName__1___closed__5;
 lean_object* l_Lean_Elab_Term_mkInstMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabSort_declRange__1___closed__1;
@@ -4928,7 +4927,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabOmission___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. It logs this warning and then elaborates like `_`.\n\nThe presence of `⋯` in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`.", 365, 361);
+x_1 = lean_mk_string_unchecked("The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. It logs this warning and then elaborates like '_'.\n\nThe presence of '⋯' in pretty printing output is controlled by the 'pp.maxSteps', 'pp.deepTerms' and 'pp.proofs' options. These options can be further adjusted using 'pp.deepTerms.threshold' and 'pp.proofs.threshold'. If this '⋯' was copied from the Infoview, the hover there for the original '⋯' explains which of these options led to the omission.", 516, 508);
 return x_1;
 }
 }

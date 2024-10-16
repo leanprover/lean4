@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___auto____x40_Lean_ScopedEnvExtension___hyg_2312_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_ScopedEnvExtension_activateScoped___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_addEntryFn(lean_object*, lean_object*, lean_object*);
@@ -251,6 +250,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Sco
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__20___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_instInhabitedScopedEntries___closed__1;
+LEAN_EXPORT lean_object* l___auto____x40_Lean_ScopedEnvExtension___hyg_2327_;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__9___rarg___lambda__1(lean_object*, lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_exportEntriesFn___rarg(lean_object*);
@@ -309,7 +309,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_S
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_mkInitial(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ScopedEnvExtension___hyg_1023_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__21(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__25(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -323,6 +322,7 @@ lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 static lean_object* l___auto____x40_Lean_ScopedEnvExtension___hyg_209____closed__21;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_ScopedEnvExtension_activateScoped___spec__4(lean_object*);
 static lean_object* l_Lean_instInhabitedScopedEnvExtension___rarg___closed__5;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ScopedEnvExtension___hyg_1025_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_activateScoped___spec__1___rarg___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__24(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__6(lean_object*);
@@ -5298,7 +5298,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ScopedEnvExtension___hyg_1023_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ScopedEnvExtension___hyg_1025_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -8246,7 +8246,7 @@ x_11 = l_Array_forInUnsafe_loop___at_Lean_activateScoped___spec__1___rarg(x_1, x
 return x_11;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_ScopedEnvExtension___hyg_2312_() {
+static lean_object* _init_l___auto____x40_Lean_ScopedEnvExtension___hyg_2327_() {
 _start:
 {
 lean_object* x_1; 
@@ -8446,7 +8446,7 @@ l_Lean_instInhabitedScopedEnvExtension___rarg___closed__5 = _init_l_Lean_instInh
 lean_mark_persistent(l_Lean_instInhabitedScopedEnvExtension___rarg___closed__5);
 l_Lean_instInhabitedScopedEnvExtension___rarg___closed__6 = _init_l_Lean_instInhabitedScopedEnvExtension___rarg___closed__6();
 lean_mark_persistent(l_Lean_instInhabitedScopedEnvExtension___rarg___closed__6);
-if (builtin) {res = l_Lean_initFn____x40_Lean_ScopedEnvExtension___hyg_1023_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_ScopedEnvExtension___hyg_1025_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_scopedEnvExtensionsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_scopedEnvExtensionsRef);
@@ -8475,8 +8475,8 @@ l_Array_forInUnsafe_loop___at_Lean_pushScope___spec__1___rarg___lambda__1___clos
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_pushScope___spec__1___rarg___lambda__1___closed__1);
 l_Lean_pushScope___rarg___closed__1 = _init_l_Lean_pushScope___rarg___closed__1();
 lean_mark_persistent(l_Lean_pushScope___rarg___closed__1);
-l___auto____x40_Lean_ScopedEnvExtension___hyg_2312_ = _init_l___auto____x40_Lean_ScopedEnvExtension___hyg_2312_();
-lean_mark_persistent(l___auto____x40_Lean_ScopedEnvExtension___hyg_2312_);
+l___auto____x40_Lean_ScopedEnvExtension___hyg_2327_ = _init_l___auto____x40_Lean_ScopedEnvExtension___hyg_2327_();
+lean_mark_persistent(l___auto____x40_Lean_ScopedEnvExtension___hyg_2327_);
 l_Lean_registerSimpleScopedEnvExtension___rarg___closed__1 = _init_l_Lean_registerSimpleScopedEnvExtension___rarg___closed__1();
 lean_mark_persistent(l_Lean_registerSimpleScopedEnvExtension___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

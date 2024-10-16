@@ -291,7 +291,6 @@ static lean_object* l_Lean_IR_EmitLLVM_callLeanCtorSet___closed__1;
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_IR_emitLLVM___spec__2(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitDeclInit___closed__3;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitProj(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_add_attribute_at_index(size_t, size_t, uint64_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_addJpTostate(size_t, lean_object*, size_t, lean_object*, lean_object*, lean_object*);

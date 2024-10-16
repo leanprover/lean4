@@ -47,7 +47,6 @@ static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___clo
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__6;
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__4;
 static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionCore___spec__4___closed__2;
 static lean_object* l_Lean_mkNoConfusionCore___lambda__1___closed__5;

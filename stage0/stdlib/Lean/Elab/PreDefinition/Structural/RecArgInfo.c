@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Array_contains___at_Lean_Elab_Structural_RecArgInfo_p
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo;
 size_t lean_usize_of_nat(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__1;

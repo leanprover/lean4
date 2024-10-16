@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__2_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast;
 lean_object* l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__4(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter(lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVPred_mkEq___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__8(lean_object*, lean_object*, lean_object*);
@@ -27,11 +26,9 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit
 lean_object* l_Std_Tactic_BVDecide_BVPred_mkUlt___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__20(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1(lean_object*, lean_object*);
-static lean_object* l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__2;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__2_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_bitblast(lean_object*, lean_object*);
-static lean_object* l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__1;
 static lean_object* _init_l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1___closed__1() {
 _start:
 {
@@ -281,30 +278,6 @@ lean_dec(x_2);
 return x_5;
 }
 }
-static lean_object* _init_l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_BVPred_bitblast), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__2;
-return x_1;
-}
-}
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Eq(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Ult(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_GetLsbD(uint8_t builtin, lean_object*);
@@ -328,12 +301,6 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1___closed__1 = _init_l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1___closed__1();
 lean_mark_persistent(l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1___closed__1);
-l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__1 = _init_l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__1();
-lean_mark_persistent(l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__1);
-l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__2 = _init_l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__2();
-lean_mark_persistent(l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast___closed__2);
-l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast = _init_l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast();
-lean_mark_persistent(l_Std_Tactic_BVDecide_BVPred_instLawfulOperatorBVBitBitblast);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

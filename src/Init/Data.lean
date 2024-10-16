@@ -19,6 +19,7 @@ import Init.Data.ByteArray
 import Init.Data.FloatArray
 import Init.Data.Fin
 import Init.Data.UInt
+import Init.Data.IntX
 import Init.Data.Float
 import Init.Data.Option
 import Init.Data.Ord

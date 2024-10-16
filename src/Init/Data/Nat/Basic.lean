@@ -796,6 +796,8 @@ theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   | zero => cases h
   | succ n => simp [Nat.pow_succ]
 
+protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
+
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
   ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pos_pow_of_pos m (pos_of_neZero _))⟩
 

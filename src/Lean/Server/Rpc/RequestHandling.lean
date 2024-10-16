@@ -88,7 +88,7 @@ def wrapRpcProcedure (method : Name) paramType respType
       | Except.error e => throw e
       | Except.ok ret =>
         seshRef.modifyGet fun st =>
-          rpcEncode ret st.objects |>.map id ({st with objects := ·})⟩
+          rpcEncode ret |>.run st.objects |>.map id ({st with objects := ·})⟩
 
 def registerBuiltinRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]

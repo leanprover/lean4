@@ -55,7 +55,7 @@ where
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
   containsRecFn (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Bool := do
-    modifyGet (·.contains e)
+    modifyGet (HasConstCache.contains e |>.run)
 
   loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if !(← containsRecFn e) then

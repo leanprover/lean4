@@ -1093,6 +1093,16 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
 
+/-- Like `getAppNumArgs` but ignores metadata. -/
+def getAppNumArgs' (e : Expr) : Nat :=
+  go e 0
+where
+  /-- Auxiliary definition for `getAppNumArgs'`. -/
+  go : Expr → Nat → Nat
+    | mdata _ b, n => go b n
+    | app f _  , n => go f (n + 1)
+    | _        , n => n
+
 /--
 Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
 If there are any more arguments than this, then they are returned by `getAppFn` as part of the function.

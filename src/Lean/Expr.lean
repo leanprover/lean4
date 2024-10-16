@@ -1039,6 +1039,14 @@ def getForallBinderNames : Expr → List Name
   | _ => []
 
 /--
+Returns the number of leading `∀` binders of an expression. Ignores metadata.
+-/
+def getNumHeadForall : Expr → Nat
+  | mdata _ b => getNumHeadForall b
+  | forallE _ _ body _ => getNumHeadForall body + 1
+  | _ => 0
+
+/--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.
 Otherwise return the input expression.

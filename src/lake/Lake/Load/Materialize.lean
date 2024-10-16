@@ -110,7 +110,7 @@ def Dependency.materialize
     match src with
     | .path dir =>
       let relPkgDir := relParentDir / dir
-      mkDep relPkgDir "" (.path relPkgDir)
+      return mkDep relPkgDir "" (.path relPkgDir)
     | .git url inputRev? subDir? => do
       let sname := dep.name.toString (escape := false)
       let repoUrl := Git.filterUrl? url |>.getD ""
@@ -141,13 +141,11 @@ where
     materializeGitRepo name repo gitUrl inputRev?
     let rev ← repo.getHeadRevision
     let relPkgDir := if let some subDir := subDir? then relPkgDir / subDir else relPkgDir
-    mkDep relPkgDir remoteUrl <| .git gitUrl rev inputRev? subDir?
-  @[inline] mkDep relPkgDir remoteUrl src : LogIO MaterializedDep := do
-    return {
-      relPkgDir, remoteUrl,
-      manifestEntry := {name := dep.name, scope := dep.scope, inherited, src}
-    }
-
+    return mkDep relPkgDir remoteUrl <| .git gitUrl rev inputRev? subDir?
+  @[inline] mkDep relPkgDir remoteUrl src : MaterializedDep := {
+    relPkgDir, remoteUrl,
+    manifestEntry := {name := dep.name, scope := dep.scope, inherited, src}
+  }
 
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
@@ -158,7 +156,7 @@ def PackageEntry.materialize
 : LogIO MaterializedDep :=
   match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
-    mkDep relPkgDir ""
+    return mkDep relPkgDir ""
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
     let sname := manifestEntry.name.toString (escape := false)
     let relGitDir := relPkgsDir / sname
@@ -181,7 +179,7 @@ def PackageEntry.materialize
       let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
       cloneGitPkg sname repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
-    mkDep relPkgDir (Git.filterUrl? url |>.getD "")
+    return mkDep relPkgDir (Git.filterUrl? url |>.getD "")
 where
-  @[inline] mkDep relPkgDir remoteUrl : LogIO MaterializedDep := do
-    return {relPkgDir, remoteUrl, manifestEntry}
+  @[inline] mkDep relPkgDir remoteUrl : MaterializedDep :=
+    {relPkgDir, remoteUrl, manifestEntry}

@@ -639,13 +639,15 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf, filterMap_cons]
 
-@[simp] theorem bind_subtype {p : α → Prop} {l : List { x // p x }}
+@[simp] theorem flatMap_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → List β} {g : α → List β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
-    (l.bind f) = l.unattach.bind g := by
+    (l.flatMap f) = l.unattach.flatMap g := by
   unfold unattach
   induction l with
   | nil => simp
   | cons a l ih => simp [ih, hf]
+
+@[deprecated flatMap_subtype (since := "2024-10-16")] abbrev bind_subtype := @flatMap_subtype
 
 @[simp] theorem unattach_filter {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :

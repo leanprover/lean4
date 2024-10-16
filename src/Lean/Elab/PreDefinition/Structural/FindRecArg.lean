@@ -226,7 +226,7 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
   else
     let rec go i acc : Array (Array α):=
       if h : i < xss.size then
-        xss[i].concatMap fun x => go (i + 1) (acc.push x)
+        xss[i].flatMap fun x => go (i + 1) (acc.push x)
       else
         #[acc]
     some (go 0 #[])

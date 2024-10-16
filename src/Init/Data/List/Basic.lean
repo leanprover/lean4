@@ -563,23 +563,30 @@ def flatten : List (List α) → List α
 /-- `pure x = [x]` is the `pure` operation of the list monad. -/
 @[inline] protected def pure {α : Type u} (a : α) : List α := [a]
 
-/-! ### bind -/
+/-! ### flatMap -/
 
 /--
-`bind xs f` is the bind operation of the list monad. It applies `f` to each element of `xs`
+`flatMap xs f` applies `f` to each element of `xs`
 to get a list of lists, and then concatenates them all together.
 * `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
 -/
-@[inline] protected def bind {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := flatten (map b a)
+@[inline] def flatMap {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := flatten (map b a)
 
-@[simp] theorem bind_nil (f : α → List β) : List.bind [] f = [] := by simp [flatten, List.bind]
-@[simp] theorem bind_cons x xs (f : α → List β) :
-  List.bind (x :: xs) f = f x ++ List.bind xs f := by simp [flatten, List.bind]
+@[simp] theorem flatMap_nil (f : α → List β) : List.flatMap [] f = [] := by simp [flatten, List.flatMap]
+@[simp] theorem flatMap_cons x xs (f : α → List β) :
+  List.flatMap (x :: xs) f = f x ++ List.flatMap xs f := by simp [flatten, List.flatMap]
 
 set_option linter.missingDocs false in
-@[deprecated bind_nil (since := "2024-06-15")] abbrev nil_bind := @bind_nil
+@[deprecated flatMap (since := "2024-10-16")] abbrev bind := @flatMap
 set_option linter.missingDocs false in
-@[deprecated bind_cons (since := "2024-06-15")] abbrev cons_bind := @bind_cons
+@[deprecated flatMap_nil (since := "2024-10-16")] abbrev nil_flatMap := @flatMap_nil
+set_option linter.missingDocs false in
+@[deprecated flatMap_cons (since := "2024-10-16")] abbrev cons_flatMap := @flatMap_cons
+
+set_option linter.missingDocs false in
+@[deprecated flatMap_nil (since := "2024-06-15")] abbrev nil_bind := @flatMap_nil
+set_option linter.missingDocs false in
+@[deprecated flatMap_cons (since := "2024-06-15")] abbrev cons_bind := @flatMap_cons
 
 /-! ### replicate -/
 

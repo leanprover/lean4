@@ -31,14 +31,14 @@ namespace Std.DHashMap.Internal
 @[simp]
 theorem toListModel_mkArray_nil {c} :
     toListModel (mkArray c (AssocList.nil : AssocList α β)) = [] := by
-  suffices ∀ d, (List.replicate d AssocList.nil).bind AssocList.toList = [] from this _
+  suffices ∀ d, (List.replicate d AssocList.nil).flatMap AssocList.toList = [] from this _
   intro d
   induction d <;> simp_all [List.replicate]
 
 @[simp]
 theorem computeSize_eq {buckets : Array (AssocList α β)} :
     computeSize buckets = (toListModel buckets).length := by
-  rw [computeSize, toListModel, List.bind_eq_foldl, Array.foldl_eq_foldl_toList]
+  rw [computeSize, toListModel, List.flatMap_eq_foldl, Array.foldl_eq_foldl_toList]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a : α) × β a)),
       l.foldl (fun d b => d + b.toList.length) l'.length =
         (l.foldl (fun acc a => acc ++ a.toList) l').length
@@ -129,7 +129,7 @@ theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array
     (target : {d : Array (AssocList α β) // 0 < d.size}) : expand.go 0 source target =
       (toListModel source).foldl (fun acc p => reinsertAux hash acc p.1 p.2) target := by
   suffices ∀ i, expand.go i source target =
-    ((source.toList.drop i).bind AssocList.toList).foldl
+    ((source.toList.drop i).flatMap AssocList.toList).foldl
       (fun acc p => reinsertAux hash acc p.1 p.2) target by
     simpa using this 0
   intro i
@@ -139,10 +139,10 @@ theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array
     rw [expand.go_pos hi]
     refine ih.trans ?_
     simp only [Array.get_eq_getElem, AssocList.foldl_eq, Array.toList_set]
-    rw [List.drop_eq_getElem_cons hi, List.bind_cons, List.foldl_append,
+    rw [List.drop_eq_getElem_cons hi, List.flatMap_cons, List.foldl_append,
       List.drop_set_of_lt _ _ (by omega), Array.getElem_eq_getElem_toList]
   · next i source target hi =>
-    rw [expand.go_neg hi, List.drop_eq_nil_of_le, bind_nil, foldl_nil]
+    rw [expand.go_neg hi, List.drop_eq_nil_of_le, flatMap_nil, foldl_nil]
     rwa [Array.size_eq_length_toList, Nat.not_lt] at hi
 
 theorem isHashSelf_expand [BEq α] [Hashable α] [LawfulHashable α] [EquivBEq α]

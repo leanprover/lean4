@@ -669,7 +669,7 @@ where
     let grouped := incomingCalls.groupByKey (·.«from»)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       «from» := group[0]!.«from»
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -716,7 +716,7 @@ where
     let grouped := outgoingCalls.groupByKey (·.to)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       to := group[0]!.to
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 

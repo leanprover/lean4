@@ -607,12 +607,16 @@ protected def appendList (as : Array α) (bs : List α) : Array α :=
 instance : HAppend (Array α) (List α) (Array α) := ⟨Array.appendList⟩
 
 @[inline]
-def concatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
+def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
+@[deprecated concatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
+
 @[inline]
-def concatMap (f : α → Array β) (as : Array α) : Array β :=
+def flatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
+
+@[deprecated flatMap (since := "2024-10-16")] abbrev concatMap := @flatMap
 
 /-- Joins array of array into a single array.
 

@@ -242,14 +242,17 @@ abbrev map_data := @toList_map
   cases arr
   simp
 
-theorem foldl_toList_eq_bind (l : List α) (acc : Array β)
+theorem foldl_toList_eq_flatMap (l : List α) (acc : Array β)
     (F : Array β → α → Array β) (G : α → List β)
     (H : ∀ acc a, (F acc a).toList = acc.toList ++ G a) :
-    (l.foldl F acc).toList = acc.toList ++ l.bind G := by
-  induction l generalizing acc <;> simp [*, List.bind]
+    (l.foldl F acc).toList = acc.toList ++ l.flatMap G := by
+  induction l generalizing acc <;> simp [*, List.flatMap]
 
-@[deprecated foldl_toList_eq_bind (since := "2024-09-09")]
-abbrev foldl_data_eq_bind := @foldl_toList_eq_bind
+@[deprecated foldl_toList_eq_flatMap (since := "2024-10-16")]
+abbrev foldl_toList_eq_bind := @foldl_toList_eq_flatMap
+
+@[deprecated foldl_toList_eq_flatMap (since := "2024-10-16")]
+abbrev foldl_data_eq_bind := @foldl_toList_eq_flatMap
 
 theorem foldl_toList_eq_map (l : List α) (acc : Array β) (G : α → β) :
     (l.foldl (fun acc a => acc.push (G a)) acc).toList = acc.toList ++ l.map G := by

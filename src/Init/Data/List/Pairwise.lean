@@ -173,10 +173,12 @@ theorem pairwise_flatten {L : List (List α)} :
 
 @[deprecated pairwise_flatten (since := "2024-10-14")] abbrev pairwise_join := @pairwise_flatten
 
-theorem pairwise_bind {R : β → β → Prop} {l : List α} {f : α → List β} :
-    List.Pairwise R (l.bind f) ↔
+theorem pairwise_flatMap {R : β → β → Prop} {l : List α} {f : α → List β} :
+    List.Pairwise R (l.flatMap f) ↔
       (∀ a ∈ l, Pairwise R (f a)) ∧ Pairwise (fun a₁ a₂ => ∀ x ∈ f a₁, ∀ y ∈ f a₂, R x y) l := by
-  simp [List.bind, pairwise_flatten, pairwise_map]
+  simp [List.flatMap, pairwise_flatten, pairwise_map]
+
+@[deprecated pairwise_flatMap (since := "2024-10-14")] abbrev pairwise_bind := @pairwise_flatMap
 
 theorem pairwise_reverse {l : List α} :
     l.reverse.Pairwise R ↔ l.Pairwise (fun a b => R b a) := by

@@ -109,7 +109,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_Raw_union___
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instSingletonProdOfBEqOfHashable___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_Internal_numBuckets___rarg(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_Raw_filter___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_HashMap_Raw_filterMap___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_Raw_keys___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,6 +225,7 @@ LEAN_EXPORT lean_object* l_List_foldl___at_Std_HashMap_Raw_instRepr___spec__11(l
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_get_x3f(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_instDecidableMem___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_Raw_toArray___spec__2(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);

@@ -131,7 +131,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Std_HashMap_instForInProd
 LEAN_EXPORT lean_object* l_Std_HashMap_unitOfArray(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_getKey_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_groupByKey___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_erase(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
@@ -243,6 +242,7 @@ LEAN_EXPORT lean_object* l_Std_HashMap_insertIfNew(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_isEmpty___rarg___boxed(lean_object*);
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashMap_toList___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at_Std_HashMap_instRepr___spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_size(lean_object*, lean_object*, lean_object*, lean_object*);

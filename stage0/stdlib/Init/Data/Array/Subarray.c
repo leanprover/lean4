@@ -114,7 +114,6 @@ LEAN_EXPORT lean_object* l_instAppendSubarray___rarg(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Subarray_allM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Subarray_toArray(lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__17;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b_x3a___x5d__1___closed__3;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);

@@ -201,7 +201,6 @@ LEAN_EXPORT lean_object* l_Nat_anyTR_loop___at_Lean_IR_EmitC_overwriteParam___sp
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__3;
 static lean_object* l_Lean_IR_EmitC_emitInc___closed__2;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_getModName(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitFileHeader___closed__3;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitReuse___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -75,7 +75,6 @@ static lean_object* l_Lean_Compiler_natFoldFns___closed__11;
 static lean_object* l_Lean_Compiler_natFoldFns___closed__37;
 static lean_object* l_Lean_Compiler_boolFoldFns___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatPow(uint8_t);
-static lean_object* l_Lean_Compiler_foldNatBeq___rarg___closed__1;
 static lean_object* l_Lean_Compiler_mkNatLt___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatDiv(uint8_t);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__18;
@@ -166,7 +165,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntAdd(uint8_t, lean_object*, lean
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__23;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__18;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
-lean_object* l_Nat_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_getBoolLit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_numScalarTypes;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntAdd___boxed(lean_object*, lean_object*, lean_object*);
@@ -2733,19 +2731,11 @@ return x_13;
 }
 }
 }
-static lean_object* _init_l_Lean_Compiler_foldNatBeq___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_beq___boxed), 2, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatBeq___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Compiler_foldNatBeq___rarg___closed__1;
+x_3 = l_Lean_Compiler_foldNatDecEq___closed__2;
 x_4 = l_Lean_Compiler_foldNatBinBoolPred(x_3, x_1, x_2);
 return x_4;
 }
@@ -4786,8 +4776,6 @@ l_Lean_Compiler_foldNatBinBoolPred___closed__1 = _init_l_Lean_Compiler_foldNatBi
 lean_mark_persistent(l_Lean_Compiler_foldNatBinBoolPred___closed__1);
 l_Lean_Compiler_foldNatBinBoolPred___closed__2 = _init_l_Lean_Compiler_foldNatBinBoolPred___closed__2();
 lean_mark_persistent(l_Lean_Compiler_foldNatBinBoolPred___closed__2);
-l_Lean_Compiler_foldNatBeq___rarg___closed__1 = _init_l_Lean_Compiler_foldNatBeq___rarg___closed__1();
-lean_mark_persistent(l_Lean_Compiler_foldNatBeq___rarg___closed__1);
 l_Lean_Compiler_natFoldFns___closed__1 = _init_l_Lean_Compiler_natFoldFns___closed__1();
 lean_mark_persistent(l_Lean_Compiler_natFoldFns___closed__1);
 l_Lean_Compiler_natFoldFns___closed__2 = _init_l_Lean_Compiler_natFoldFns___closed__2();

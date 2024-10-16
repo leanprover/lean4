@@ -94,7 +94,6 @@ LEAN_EXPORT lean_object* l_Lean_Json_isNull___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_fromInt(lean_object*);
 extern lean_object* l_Nat_instMod;
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27___spec__3___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static double l_Lean_JsonNumber_toFloat___closed__2;
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_shiftl___boxed(lean_object*, lean_object*);
 extern lean_object* l_Int_instNegInt;

@@ -130,7 +130,6 @@ static size_t l_Lean_PersistentHashMap_insertAux___at_Lean_initFn____x40_Lean_Re
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lambda__1___closed__8;
 static lean_object* l_Lean_instReprReducibilityStatus___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_noConfusion(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_getReducibilityStatusCore___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1417____closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_185____lambda__4___closed__1;
@@ -228,6 +227,7 @@ static lean_object* l_Lean_getConstInfo___at___private_Lean_ReducibilityAttrs_0_
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatusCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_185____closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__7;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);

@@ -63,7 +63,6 @@ static lean_object* l_Lean_termThrowErrorAt___________closed__11;
 static lean_object* l_Lean_instInhabitedException___closed__2;
 static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowError______1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowErrorAt___________closed__10;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg(lean_object*);
@@ -120,6 +119,7 @@ LEAN_EXPORT lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_obj
 static lean_object* l_Lean_termThrowError_______closed__1;
 LEAN_EXPORT lean_object* l_Lean_Exception_isMaxRecDepth___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowErrorAt___________closed__8;

@@ -72,6 +72,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3____spec__3(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____lambda__1(lean_object*);
+lean_object* l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____lambda__1___boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__35;
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3_(lean_object*, lean_object*);
@@ -82,8 +83,8 @@ LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodabl
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__19;
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__17;
 lean_object* l_Lean_bignumToJson(lean_object*);
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__8;
-lean_object* l_List_flatten___rarg(lean_object*);
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__2;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3____spec__3___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__10;
@@ -94,6 +95,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3____lambda__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__32;
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__5;
+static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261____closed__1;
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__28;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_62____closed__34;
@@ -530,10 +532,19 @@ x_1 = l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hy
 return x_1;
 }
 }
+static lean_object* _init_l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261____closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_1, 2);
@@ -571,9 +582,10 @@ lean_ctor_set(x_16, 1, x_15);
 x_17 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_17, 0, x_8);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_List_flatten___rarg(x_17);
-x_19 = l_Lean_Json_mkObj(x_18);
-return x_19;
+x_18 = l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261____closed__1;
+x_19 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_17, x_18);
+x_20 = l_Lean_Json_mkObj(x_19);
+return x_20;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261____boxed(lean_object* x_1) {
@@ -1620,6 +1632,8 @@ l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_258_
 lean_mark_persistent(l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_258____closed__1);
 l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_258_ = _init_l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_258_();
 lean_mark_persistent(l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_258_);
+l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261____closed__1 = _init_l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261____closed__1();
+lean_mark_persistent(l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_261____closed__1);
 l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_324____closed__1 = _init_l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_324____closed__1();
 lean_mark_persistent(l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_324____closed__1);
 l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_324_ = _init_l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_324_();

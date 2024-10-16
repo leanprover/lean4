@@ -73,7 +73,6 @@ static lean_object* l_panic___at_Std_Format_pretty___spec__8___closed__1;
 static lean_object* l_Std_Format_instMonadPrettyFormatStateMState___closed__5;
 LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at_Std_Format_pretty___spec__6(uint32_t, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Format_instMonadPrettyFormatStateMState___closed__4;
 lean_object* lean_nat_to_int(lean_object*);

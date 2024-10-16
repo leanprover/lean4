@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__2___
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__7___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__5(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__3___rarg(lean_object*, lean_object*);
@@ -67,6 +66,7 @@ static lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__4___closed_
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);

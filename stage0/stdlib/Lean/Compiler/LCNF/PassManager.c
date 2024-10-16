@@ -62,7 +62,6 @@ uint8_t l_instDecidableNot___rarg(uint8_t);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_139____closed__23;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassInstaller_getPassInstallerUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_139____closed__1;
 LEAN_EXPORT uint8_t l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__1___lambda__2(lean_object*);

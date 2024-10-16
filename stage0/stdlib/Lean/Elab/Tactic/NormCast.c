@@ -178,7 +178,6 @@ lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_processPostponed___spec__2___rarg(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalPushCast_declRange__1___closed__2;
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsing___closed__13;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__12;
@@ -343,6 +342,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambda
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0_declRange__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_splittingProcedure___spec__2___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__2;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalConvNormCast_declRange__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambda__1___closed__3;

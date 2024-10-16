@@ -372,7 +372,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabInitQuot___rarg___boxed(lean_ob
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabEoi_declRange__1(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabAddDeclDoc___closed__4;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabSetOption___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_checkAnonymousScope(lean_object*);
 LEAN_EXPORT uint8_t l_Array_forInUnsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__4___lambda__1(lean_object*, lean_object*);

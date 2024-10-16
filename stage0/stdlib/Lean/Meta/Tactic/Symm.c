@@ -94,7 +94,6 @@ lean_object* l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(lean_obje
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_103____closed__22;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_symmSaturate___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_20____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_103____closed__20;
 lean_object* l_Lean_registerSimpleScopedEnvExtension___rarg(lean_object*, lean_object*);
@@ -171,6 +170,7 @@ extern lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MVarId_symmSaturate___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_20____spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_103____spec__1___closed__4;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_103____closed__8;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_20____closed__9;
@@ -1508,7 +1508,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_20____spec__1___closed__1;
 x_2 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_20____spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(488u);
+x_3 = lean_unsigned_to_nat(484u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_20____spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

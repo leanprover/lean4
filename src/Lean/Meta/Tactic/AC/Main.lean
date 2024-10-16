@@ -86,35 +86,63 @@ def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
     | PreExpr.op l r => Data.AC.Expr.op (toACExpr varMap l) (toACExpr varMap r)
     | PreExpr.var x => Data.AC.Expr.var (varMap x)
 
-def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × Lean.Expr) := do
-  let (vars, acExpr) ← toACExpr preContext.op l r
-
-  let α ← inferType vars[0]!
+/--
+In order to prevent the kernel trying to reduce the atoms of the expression, we abstract the proof
+over them. But `ac_rfl` proofs are not completely abstract in the value of the atoms – it recognizes
+neutral elements. So we have to abstract over these proofs as well.
+-/
+def abstractAtoms (preContext : PreContext) (atoms : Array Expr)
+    (k : Array (Expr × Option Expr) → MetaM Expr) : MetaM Expr := do
+  let α ← inferType atoms[0]!
   let u ← getLevel α
-  let (isNeutrals, context) ← mkContext α u vars
-  let acExprNormed := Data.AC.evalList ACExpr preContext $ Data.AC.norm (preContext, isNeutrals) acExpr
-  let tgt := convertTarget vars acExprNormed
-  let lhs := convert acExpr
-  let rhs := convert acExprNormed
-  let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
+  let rec go i (acc : Array (Expr × Option Expr)) (vars : Array Expr) (args : Array Expr) := do
+    if h : i < atoms.size then
+      withLocalDeclD `x α fun v => do
+        match (← getInstance ``LawfulIdentity #[preContext.op, atoms[i]]) with
+        | none =>
+          go (i+1) (acc.push (v, .none)) (vars.push v) (args.push atoms[i])
+        | some inst =>
+          withLocalDeclD `inst (mkApp3 (mkConst ``LawfulIdentity [u]) α preContext.op v) fun iv =>
+            go (i+1) (acc.push (v, .some iv)) (vars ++ #[v,iv]) (args ++ #[atoms[i], inst])
+    else
+      let proof ← k acc
+      let proof ← mkLambdaFVars vars proof
+      let proof := mkAppN proof args
+      return proof
+  go 0 #[] #[] #[]
+
+def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × Lean.Expr) := do
+  let (atoms, acExpr) ← toACExpr preContext.op l r
+  let proof ← abstractAtoms preContext atoms fun varsData => do
+    let α ← inferType atoms[0]!
+    let u ← getLevel α
+    let context ← mkContext α u varsData
+    let isNeutrals := varsData.map (·.2.isSome)
+    let vars := varsData.map (·.1)
+    let acExprNormed := Data.AC.evalList ACExpr preContext $ Data.AC.norm (preContext, isNeutrals) acExpr
+    let lhs := convert acExpr
+    let rhs := convert acExprNormed
+    let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
+    let proofType ← mkEq (convertTarget vars acExpr) (convertTarget vars acExprNormed)
+    let proof ← mkExpectedTypeHint proof proofType
+    return proof
+  let some (_, _, tgt) := (← inferType proof).eq? | panic! "unexpected proof type"
   return (proof, tgt)
 where
-  mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
-    let arbitrary := vars[0]!
+  mkContext (α : Expr) (u : Level) (vars : Array (Expr × Option Expr)) : MetaM Expr := do
+    let arbitrary := vars[0]!.1
     let plift := mkApp (mkConst ``PLift [.zero])
     let pliftUp := mkApp2 (mkConst ``PLift.up [.zero])
     let noneE tp   := mkApp  (mkConst ``Option.none [.zero]) (plift tp)
     let someE tp v := mkApp2 (mkConst ``Option.some [.zero]) (plift tp) (pliftUp tp v)
-    let vars ← vars.mapM fun x => do
+    let vars ← vars.mapM fun ⟨x, inst?⟩ =>
       let isNeutral :=
         let isNeutralClass := mkApp3 (mkConst ``LawfulIdentity [u]) α preContext.op x
-        match ←getInstance ``LawfulIdentity #[preContext.op, x] with
-        | none => (false, noneE isNeutralClass)
-        | some isNeutral => (true, someE isNeutralClass isNeutral)
+        match inst? with
+        | none => noneE isNeutralClass
+        | some isNeutral => someE isNeutralClass isNeutral
+      return mkApp4 (mkConst ``Variable.mk [u]) α preContext.op x isNeutral
 
-      return (isNeutral.1, mkApp4 (mkConst ``Variable.mk [u]) α preContext.op x isNeutral.2)
-
-    let (isNeutrals, vars) := vars.unzip
     let vars := vars.toList
     let vars ← mkListLit (mkApp2 (mkConst ``Variable [u]) α preContext.op) vars
 
@@ -130,7 +158,7 @@ where
       | none => noneE idemClass
       | some idem => someE idemClass idem
 
-    return (isNeutrals, mkApp7 (mkConst ``Lean.Data.AC.Context.mk [u]) α preContext.op preContext.assoc comm idem vars arbitrary)
+    return mkApp7 (mkConst ``Lean.Data.AC.Context.mk [u]) α preContext.op preContext.assoc comm idem vars arbitrary
 
   convert : ACExpr → Expr
     | .op l r => mkApp2 (mkConst ``Data.AC.Expr.op) (convert l) (convert r)

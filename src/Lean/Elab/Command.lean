@@ -528,11 +528,12 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     let mut msgs := (← get).messages
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
-    if let some snap := (← read).snap? then
-      -- We can assume that the root command snapshot is not involved in parallelism yet, so this
-      -- should be true iff the command supports incrementality
-      if (← IO.hasFinished snap.new.result) then
-        liftCoreM <| Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.trace
+    if (← isTracingEnabledFor `Elab.snapshotTree) then
+      if let some snap := (← read).snap? then
+        -- We can assume that the root command snapshot is not involved in parallelism yet, so this
+        -- should be true iff the command supports incrementality
+        if (← IO.hasFinished snap.new.result) then
+          liftCoreM <| Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.trace
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }

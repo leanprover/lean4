@@ -58,36 +58,68 @@ def loadDepPackage
   else
     return (pkg, ws)
 
-/-- The monad of the dependency resolver. -/
-abbrev ResolveT m := CallStackT Name <| StateT Workspace m
+/--
+A monad transformer for recursive dependency resolution.
+It equips the monad with the stack of dependencies currently being resolved.
+-/
+abbrev DepStackT m := CallStackT Name m
 
-@[inline] nonrec def ResolveT.run (ws : Workspace) (x : ResolveT m α) (stack : CallStack Name := {}) : m (α × Workspace) :=
-  x.run stack |>.run ws
+@[inline] nonrec def DepStackT.run (x : DepStackT m α) (stack : CallStack Name := {}) : m α :=
+  x.run stack
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
   error s!"dependency cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
 
-instance [Monad m] [MonadError m] : MonadCycleOf Name (ResolveT m) where
+instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
   throwCycle := depCycleError
+
+/-- The monad of the dependency resolver. -/
+abbrev ResolveT m := DepStackT <| StateT Workspace m
+
+@[inline] nonrec def ResolveT.run (ws : Workspace) (x : ResolveT m α) (stack : CallStack Name := {}) : m (α × Workspace) :=
+  x.run stack |>.run ws
 
 /-- Recursively run a `ResolveT` monad starting from the workspace's root. -/
 @[specialize] private def Workspace.runResolveT
   [Monad m] [MonadError m] (ws : Workspace)
   (go : RecFetchFn Package PUnit (ResolveT m))
+  (root := ws.root) (stack : CallStack Name := {})
 : m Workspace := do
-  let (_, ws) ← ResolveT.run ws do
-    inline <| recFetchAcyclic (·.name) go ws.root
+  let (_, ws) ← ResolveT.run ws (stack := stack) do
+    inline <| recFetchAcyclic (·.name) go root
   return ws
 
-/--
-Adds monad state that tracks package materialization.
-It equips the monad with a map of materialized dependencies.
--/
-abbrev MaterializeT := StateT (NameMap MaterializedDep)
+/-
+Recursively visits each node in a package's dependency graph, starting from
+the workspace package `root`. Each dependency missing from the workspace is
+resolved using the `resolve` function and added into the workspace.
 
-@[inline] nonrec def MaterializeT.run' [Functor m] (x : MaterializeT m α) (init : NameMap MaterializedDep := {}) : m α :=
-  x.run' init
+Recursion occurs breadth-first. Each direct dependency of a package is
+resolved in reverse order before recursing to the dependencies' dependencies.
+
+See `Workspace.updateAndMaterializeCore` for more details.
+-/
+@[inline] private def Workspace.resolveDepsCore
+  [Monad m] [MonadError m] (ws : Workspace)
+  (load : Package → Dependency → StateT Workspace m Package)
+  (root : Package := ws.root) (stack : CallStack Name := {})
+: m Workspace := do
+  ws.runResolveT go root stack
+where
+  @[specialize] go pkg recurse : ResolveT m Unit := do
+    let start := (← getWorkspace).packages.size
+    -- Materialize and load the missing direct dependencies of `pkg`
+    pkg.depConfigs.forRevM fun dep => do
+      let ws ← getWorkspace
+      if ws.packageMap.contains dep.name then
+        return -- already handled in another branch
+      if pkg.name = dep.name then
+        error s!"{pkg.name}: package requires itself (or a package with the same name)"
+      let depPkg ← load pkg dep
+      modifyThe Workspace (·.addPackage depPkg)
+    -- Recursively load the dependencies' dependencies
+    (← getWorkspace).packages.forM recurse start
 
 /--
 Adds monad state used to update the manifest.
@@ -150,7 +182,16 @@ private def updateAndMaterializeDep
     entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
   else
     let inherited := pkg.name ≠ ws.root.name
-    let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir pkg.relDir
+    /-
+    NOTE: A path dependency inherited from another dependency's manifest
+    will always be of the form a `./<relPath>` (i.e., be relative to its
+    workspace).  Thus, when relativized to this workspace, it will have the
+    path  `<relPkgDir>/./<relPath>`. However, if defining dependency lacks
+    a manifest, it will instead be locked as `<relPkgDir>/<relPath>`.
+    Adding a `.` here eliminates this difference.
+    -/
+    let relPkgDir := if pkg.relDir == "." then pkg.relDir else pkg.relDir / "."
+    let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir relPkgDir
     store matDep.name matDep.manifestEntry
     return matDep
 
@@ -171,19 +212,6 @@ private def validateDep
         logError s!"'{dep.name}' was downloaded incorrectly; \
           you will need to manually delete '{depPkg.dir}': {e}"
     error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
-
-private def updateAndMaterializeDeps
-  (ws : Workspace) (pkg : Package)
-: MaterializeT (UpdateT LogIO) PUnit := do
-  pkg.depConfigs.forM fun dep => do
-    if (← get).contains dep.name then
-      return
-    if ws.packageMap.contains dep.name then
-      return -- already handled in another branch
-    if pkg.name = dep.name then
-      error s!"{pkg.name}: package requires itself (or a package with the same name)"
-    let matDep ← updateAndMaterializeDep ws pkg dep
-    store dep.name matDep
 
 /--
 Exit code returned if Lake needs a manual restart.
@@ -242,9 +270,9 @@ def Workspace.updateToolchain
       logInfo s!"toolchain updated to '{tc}'; \
         you will need to manually restart Lake (no Elan detected)"
       IO.Process.exit restartCode.toUInt8
-  else if !ws.lakeEnv.toolchain.isEmpty then
-    IO.FS.writeFile rootToolchainFile ws.lakeEnv.toolchain
-    logInfo s!"toolchain not updated; wrote current toolchain to {rootToolchainFile}"
+  -- else if !ws.lakeEnv.toolchain.isEmpty then
+  --   IO.FS.writeFile rootToolchainFile ws.lakeEnv.toolchain
+  --   logInfo s!"toolchain not updated; wrote current toolchain to {rootToolchainFile}"
   else
     logInfo s!"toolchain not updated; no toolchain information found"
 
@@ -267,8 +295,8 @@ restart from the user and exit immediately with `restartCode`.
 
 **Dependency Traversal Order**
 
-All dependencies of a package are visited in order before recursing to the
-dependencies' dependencies. For example, given the dependency graph:
+All dependencies of a package are visited in reverse order before recursing
+to the dependencies' dependencies. For example, given the dependency graph:
 
 ```
 R
@@ -279,14 +307,14 @@ R
 |- C
 ```
 
-Lake follows the order `R`, `A`, `B`, `C`, `X`, `Y`.
+Lake follows the order `R`, `C`, `A`, `B`, `Y`, `X`.
 
-The logic behind this design is that users would expect the dependencies
-they write in a package configuration to be resolved accordingly and would be
-surprised if they are overridden by nested dependencies referring to the same
-package.
+The reason for this is two-fold:
+1. Like targets, later requires should shadow earlier definitions.
+2. Requires written by a user should take priority over those inherited
+from dependencies.
 
-For example, were Lake to use a pure depth-first traversal, Lake would follow
+Were Lake to use a depth-first traversal, for example, Lake would follow
 the order `R`, `A`, `B`, `X`, `Y`, `C`. If `X` and `C` are both the package
 `foo`, Lake would use the configuration of `foo` found in `B` rather than in
 the root `R`, which would likely confuse the user.
@@ -297,40 +325,31 @@ def Workspace.updateAndMaterializeCore
   (updateToolchain := true)
 : LogIO  (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
-  let depMap ← id do
-    if updateToolchain then
-      let rootDeps ← ws.root.depConfigs.mapM fun dep =>
-        updateAndMaterializeDep ws ws.root dep
-      ws.updateToolchain rootDeps
-      return rootDeps.foldl (init := {}) fun m d => m.insert d.name d
-    else
-      return {}
-  MaterializeT.run' (init := depMap) do ws.runResolveT go
+  let ws := ws.addPackage ws.root
+  if updateToolchain then
+    let deps := ws.root.depConfigs.reverse
+    let matDeps ← deps.mapM fun dep => do
+      logVerbose s!"{ws.root.name}: updating '{dep.name}' with {toJson dep.opts}"
+      updateAndMaterializeDep ws ws.root dep
+    ws.updateToolchain matDeps
+    let start := ws.packages.size
+    let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
+      let (depPkg, ws) ← loadUpdatedDep ws.root dep matDep ws
+      let ws := ws.addPackage depPkg
+      return ws
+    ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
+      ws.resolveDepsCore (stack := [ws.root.name]) updateAndLoadDep pkg
+  else
+    ws.resolveDepsCore updateAndLoadDep
 where
-  @[specialize] go pkg recurse := do
-    -- Materialize the missing direct dependencies of `pkg`, updating them if desired.
-    pkg.depConfigs.forM fun dep => do
-      if (← getThe (NameMap MaterializedDep)).contains dep.name then
-        return
-      if ws.packageMap.contains dep.name then
-        return -- already handled in another branch
-      if pkg.name = dep.name then
-        error s!"{pkg.name}: package requires itself (or a package with the same name)"
-      let matDep ← updateAndMaterializeDep ws pkg dep
-      store dep.name matDep
-    -- Recursively load the dependency of `pkg` into the workspace.
-    pkg.depConfigs.forM fun dep => do
-      if let some matDep ← fetch? dep.name then
-        modifyThe (NameMap MaterializedDep) (·.erase dep.name) -- for `dep` linearity
-        let depPkg ← loadDepPackage matDep dep.opts leanOpts true
-        validateDep pkg dep matDep depPkg
-        addDependencyEntries depPkg
-        recurse depPkg
-      else if (← getThe Workspace).packageMap.contains dep.name then
-        return -- already loaded in another branch
-      else
-        error s!"{dep.name}: impossible resolution state reached"
-    modifyThe Workspace (·.addPackage pkg)
+  @[inline] updateAndLoadDep pkg dep := do
+    let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
+    loadUpdatedDep pkg dep matDep
+  @[inline] loadUpdatedDep pkg dep matDep : StateT Workspace (UpdateT LogIO) Package  := do
+    let depPkg ← loadDepPackage matDep dep.opts leanOpts true
+    validateDep pkg dep matDep depPkg
+    addDependencyEntries depPkg
+    return depPkg
 
 /-- Write package entries to the workspace manifest. -/
 def Workspace.writeManifest
@@ -394,26 +413,6 @@ def validateManifest
     | _, _ => warnOutOfDate "source kind (git/path)"
 
 /--
-Recursively visits the workspace dependency graph, starting from `root`,
-loading dependencies as packages via the `load` function.
-
-This is a simpler version of the `updateDeps` function used
-when the dependencies have already been resolved.
--/
-@[inline] private def Workspace.loadDeps
-  [Monad m] [MonadError m] (ws : Workspace)
-  (load : Package → Dependency → StateT Workspace m Package)
-: m Workspace := do
-  ws.runResolveT go
-where
-  @[specialize] go pkg recurse : ResolveT m Unit := do
-    pkg.depConfigs.forM fun dep => do
-      unless (← getWorkspace).packageMap.contains dep.name do
-        let depPkg ← load pkg dep
-        recurse depPkg
-    modifyThe Workspace (·.addPackage pkg)
-
-/--
 Resolving a workspace's dependencies using a manifest,
 downloading and/or updating them as necessary.
 -/
@@ -430,7 +429,8 @@ def Workspace.materializeDeps
   let pkgEntries : NameMap PackageEntry := manifest.packages.foldl (init := {})
     fun map entry => map.insert entry.name entry
   validateManifest pkgEntries ws.root.depConfigs
-  ws.loadDeps fun pkg dep => do
+  let ws := ws.addPackage ws.root
+  ws.resolveDepsCore fun pkg dep => do
     let ws ← getWorkspace
     if let some entry := pkgEntries.find? dep.name then
       let result ← entry.materialize ws.lakeEnv ws.dir relPkgsDir

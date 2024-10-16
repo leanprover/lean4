@@ -115,6 +115,15 @@ protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
 
 @[simp] protected theorem ofNat_one : ofNat 1 = 1 := rfl
 
+@[simp]
+theorem val_ofNat (n : Nat) : val (no_index (OfNat.ofNat n)) = OfNat.ofNat n := rfl
+
+@[simp]
+theorem toBitVec_ofNat (n : Nat) : toBitVec (no_index (OfNat.ofNat n)) = BitVec.ofNat _ n := rfl
+
+@[simp]
+theorem mk_ofNat (n : Nat) : mk (BitVec.ofNat _ n) = OfNat.ofNat n := rfl
+
 end $typeName
 )
 

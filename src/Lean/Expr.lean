@@ -1041,9 +1041,9 @@ def getForallBinderNames : Expr → List Name
 /--
 Returns the number of leading `∀` binders of an expression. Ignores metadata.
 -/
-def getNumHeadForall : Expr → Nat
-  | mdata _ b => getNumHeadForall b
-  | forallE _ _ body _ => getNumHeadForall body + 1
+def getNumHeadForalls : Expr → Nat
+  | mdata _ b => getNumHeadForalls b
+  | forallE _ _ body _ => getNumHeadForalls body + 1
   | _ => 0
 
 /--

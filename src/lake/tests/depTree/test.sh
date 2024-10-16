@@ -75,8 +75,8 @@ pushd d
 git init
 git checkout -b master
 cat >>lakefile.lean <<EOF
-require b from git "../b" @ "master"
 require c from git "../c" @ "master"
+require b from git "../b" @ "master"
 EOF
 # make sure we pick up the version from b's manifest (a@1)
 $LAKE update -v 2>&1 | grep --color 'first commit in a'

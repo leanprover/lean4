@@ -558,10 +558,13 @@ def flatten : List (List α) → List α
 
 @[deprecated flatten (since := "2024-10-14"), inherit_doc flatten] abbrev join := @flatten
 
-/-! ### pure -/
+/-! ### singleton -/
 
-/-- `pure x = [x]` is the `pure` operation of the list monad. -/
-@[inline] protected def pure {α : Type u} (a : α) : List α := [a]
+/-- `singleton x = [x]`. -/
+@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
+
+set_option linter.missingDocs false in
+@[deprecated singleton (since := "2024-10-16")] protected abbrev pure := @singleton
 
 /-! ### flatMap -/
 

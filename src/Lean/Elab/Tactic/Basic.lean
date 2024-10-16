@@ -366,7 +366,7 @@ def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
 
 /--
 Discard the first goal and replace it by the given list of goals,
-keeping the other goals. This is used in conjection with `getMainGoal`.
+keeping the other goals. This is used in conjunction with `getMainGoal`.
 
 Contract: between `getMainGoal` and `replaceMainGoal`, nothing manipulates the goal list.
 

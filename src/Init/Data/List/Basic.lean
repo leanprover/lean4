@@ -561,7 +561,7 @@ def flatten : List (List α) → List α
 /-! ### singleton -/
 
 /-- `singleton x = [x]`. -/
-@[inline] def singleton {α : Type u} (a : α) : List α := [a]
+@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
 
 set_option linter.missingDocs false in
 @[deprecated singleton (since := "2024-10-16")] protected abbrev pure := @singleton

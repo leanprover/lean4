@@ -18,7 +18,7 @@ mkdir hello
 pushd hello
 $LAKE init hello
 $LAKE update
-rm lean-toolchain
+rm -f lean-toolchain
 git checkout -b master
 git config user.name test
 git config user.email test@example.com

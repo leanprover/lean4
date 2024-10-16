@@ -88,7 +88,7 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
           containsKey k l = false) := by
   have h₀ : 0 < self.size := by omega
   obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_uset self i d hi
-  refine ⟨l₁.bind AssocList.toList ++ l₂.bind AssocList.toList, ?_, ?_, ?_⟩
+  refine ⟨l₁.flatMap AssocList.toList ++ l₂.flatMap AssocList.toList, ?_, ?_, ?_⟩
   · rw [toListModel, h₁]
     simpa using perm_append_comm_assoc _ _ _
   · rw [toListModel, h₃]
@@ -96,12 +96,12 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
   · intro _ h k hki
     simp only [containsKey_append, Bool.or_eq_false_iff]
     refine ⟨?_, ?_⟩
-    · apply List.containsKey_bind_eq_false
+    · apply List.containsKey_flatMap_eq_false
       intro j hj
       rw [List.getElem_append_left' (l₂ := self[i] :: l₂), getElem_congr_coll h₁.symm]
       apply (h.hashes_to j _).containsKey_eq_false h₀ k
       omega
-    · apply List.containsKey_bind_eq_false
+    · apply List.containsKey_flatMap_eq_false
       intro j hj
       rw [← List.getElem_cons_succ self[i] _ _
         (by simp only [Array.ugetElem_eq_getElem, List.length_cons]; omega)]
@@ -121,7 +121,7 @@ theorem exists_bucket_of_update [BEq α] [Hashable α] (m : Array (AssocList α 
 
 theorem exists_bucket' [BEq α] [Hashable α]
     (self : Array (AssocList α β)) (i : USize) (hi : i.toNat < self.size) :
-      ∃ l, Perm (self.toList.bind AssocList.toList) (self[i.toNat].toList ++ l) ∧
+      ∃ l, Perm (self.toList.flatMap AssocList.toList) (self[i.toNat].toList ++ l) ∧
         (∀ [LawfulHashable α], IsHashSelf self → ∀ k,
           (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat → containsKey k l = false) := by
   obtain ⟨l, h₁, -, h₂⟩ := exists_bucket_of_uset self i hi .nil
@@ -186,8 +186,8 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
-  rw [updateAllBuckets, toListModel, Array.toList_map, List.bind_eq_foldl, List.foldl_map,
-    toListModel, List.bind_eq_foldl]
+  rw [updateAllBuckets, toListModel, Array.toList_map, List.flatMap_eq_foldl, List.foldl_map,
+    toListModel, List.flatMap_eq_foldl]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
       Perm (g l'') l' →
       Perm (l.foldl (fun acc a => acc ++ (f a).toList) l')

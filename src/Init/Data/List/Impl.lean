@@ -93,29 +93,29 @@ The following operations are given `@[csimp]` replacements below:
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
   funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_toList, -Array.size_toArray]
 
-/-! ### bind  -/
+/-! ### flatMap  -/
 
-/-- Tail recursive version of `List.bind`. -/
-@[inline] def bindTR (as : List α) (f : α → List β) : List β := go as #[] where
-  /-- Auxiliary for `bind`: `bind.go f as = acc.toList ++ bind f as` -/
+/-- Tail recursive version of `List.flatMap`. -/
+@[inline] def flatMapTR (as : List α) (f : α → List β) : List β := go as #[] where
+  /-- Auxiliary for `flatMap`: `flatMap.go f as = acc.toList ++ bind f as` -/
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
   | x::xs, acc => go xs (acc ++ f x)
 
-@[csimp] theorem bind_eq_bindTR : @List.bind = @bindTR := by
+@[csimp] theorem flatMap_eq_flatMapTR : @List.flatMap = @flatMapTR := by
   funext α β as f
-  let rec go : ∀ as acc, bindTR.go f as acc = acc.toList ++ as.bind f
-    | [], acc => by simp [bindTR.go, bind]
-    | x::xs, acc => by simp [bindTR.go, bind, go xs]
+  let rec go : ∀ as acc, flatMapTR.go f as acc = acc.toList ++ as.flatMap f
+    | [], acc => by simp [flatMapTR.go, flatMap]
+    | x::xs, acc => by simp [flatMapTR.go, flatMap, go xs]
   exact (go as #[]).symm
 
 /-! ### flatten -/
 
 /-- Tail recursive version of `List.flatten`. -/
-@[inline] def flattenTR (l : List (List α)) : List α := bindTR l id
+@[inline] def flattenTR (l : List (List α)) : List α := flatMapTR l id
 
 @[csimp] theorem flatten_eq_flattenTR : @flatten = @flattenTR := by
-  funext α l; rw [← List.bind_id, List.bind_eq_bindTR]; rfl
+  funext α l; rw [← List.flatMap_id, List.flatMap_eq_flatMapTR]; rfl
 
 /-! ## Sublists -/
 

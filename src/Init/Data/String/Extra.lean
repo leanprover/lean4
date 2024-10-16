@@ -125,10 +125,10 @@ def utf8EncodeChar (c : Char) : List UInt8 :=
 /-- Converts the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
 @[extern "lean_string_to_utf8"]
 def toUTF8 (a : @& String) : ByteArray :=
-  ⟨⟨a.data.bind utf8EncodeChar⟩⟩
+  ⟨⟨a.data.flatMap utf8EncodeChar⟩⟩
 
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
-  simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.bind]
+  simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.flatMap]
   induction s.data <;> simp [List.map, List.flatten, utf8ByteSize.go, Nat.add_comm, *]
 
 /-- Accesses a byte in the UTF-8 encoding of the `String`. O(1) -/

@@ -571,7 +571,7 @@ def getBracketedBinderIds : Syntax → CommandElabM (Array Name)
 private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Context := do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
-  for id in (← scope.varDecls.concatMapM getBracketedBinderIds), uid in scope.varUIds do
+  for id in (← scope.varDecls.flatMapM getBracketedBinderIds), uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
   return {
     macroStack             := ctx.macroStack
@@ -714,7 +714,7 @@ def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM Expand
   let currNamespace ← getCurrNamespace
   let currLevelNames ← getLevelNames
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
-  for id in (← (← getScope).varDecls.concatMapM getBracketedBinderIds) do
+  for id in (← (← getScope).varDecls.flatMapM getBracketedBinderIds) do
     if id == r.shortName then
       throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
   return r

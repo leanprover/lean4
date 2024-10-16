@@ -272,7 +272,6 @@ theorem getMsbD_add {i : Nat} {i_lt : i < w} {x y : BitVec w} :
       Bool.xor (getMsbD x i) (Bool.xor (getMsbD y i) (carry (w - 1 - i) x y false)) := by
   simp [getMsbD, getLsbD_add, i_lt, show w - 1 - i < w by omega]
 
-@[simp]
 theorem msb_add {w : Nat} {x y: BitVec w} :
     (x + y).msb =
       Bool.xor x.msb (Bool.xor y.msb (carry (w - 1) x y false)) := by
@@ -323,7 +322,6 @@ theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
   · rfl
   · omega
 
-@[simp]
 theorem msb_sub {x y: BitVec w} :
     (x - y).msb
       = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by

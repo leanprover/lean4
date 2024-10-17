@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.Build.Common
 
 namespace Lake
+open System (FilePath)
 
 /-! # Lean Executable Build
 The build function definition for a Lean executable.

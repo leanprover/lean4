@@ -11,8 +11,7 @@ import Lake.Util.RBArray
 open Lean
 
 namespace Lake
-
-export Lean (Name NameMap)
+open Lean (Name NameMap)
 
 /--
 First tries to convert a string into a legal name.

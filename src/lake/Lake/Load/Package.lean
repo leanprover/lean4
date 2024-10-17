@@ -15,6 +15,7 @@ from Lake configuration file (either Lean or TOML).
 open Lean
 
 namespace Lake
+open System (FilePath)
 
 /--
 Return whether a configuration file with the given name

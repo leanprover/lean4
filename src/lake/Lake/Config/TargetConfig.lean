@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.Build.Fetch
 
 namespace Lake
+open Lean (Name)
 
 /-- A custom target's declarative configuration. -/
 structure TargetConfig (pkgName name : Name) : Type where

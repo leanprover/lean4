@@ -15,6 +15,7 @@ topological-based build of an initial key's dependencies).
 -/
 
 namespace Lake
+open Lean (Name NameMap)
 
 /-- A monad equipped with a Lake build store. -/
 abbrev MonadBuildStore (m) := MonadDStore BuildKey BuildData m

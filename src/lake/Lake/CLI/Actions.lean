@@ -8,6 +8,8 @@ import Lake.Build.Targets
 import Lake.CLI.Build
 
 namespace Lake
+open Lean (Name)
+open System (FilePath)
 
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)

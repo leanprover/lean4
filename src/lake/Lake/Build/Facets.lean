@@ -16,7 +16,8 @@ definitions.
 -/
 
 namespace Lake
-export System (SearchPath FilePath)
+open Lean (Name)
+open System (SearchPath FilePath)
 
 /-- A dynamic/shared library for linking. -/
 structure Dynlib where

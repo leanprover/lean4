@@ -7,6 +7,7 @@ import Lake.Build.Index
 import Lake.CLI.Error
 
 namespace Lake
+open Lean (Name)
 
 /-! ## Build Target Specifiers -/
 

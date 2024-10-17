@@ -1,20 +1,18 @@
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.append
-                           #[Lean.Widget.TaggedText.tag
-                               { subexprPos := "/0", diffStatus? := none }
-                               (Lean.Widget.TaggedText.append
-                                 #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x"),
-                                   Lean.Widget.TaggedText.text " = ",
-                                   Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x")]),
-                             Lean.Widget.TaggedText.text " → ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.text "True")]),
+{ goals := #[{ type := Lean.Widget.TaggedText.append
+                         #[Lean.Widget.TaggedText.tag
+                             { subexprPos := "/0", diffStatus? := none }
+                             (Lean.Widget.TaggedText.append
+                               #[Lean.Widget.TaggedText.tag
+                                   { subexprPos := "/0/0/1", diffStatus? := none }
+                                   (Lean.Widget.TaggedText.text "x"),
+                                 Lean.Widget.TaggedText.text " = ",
+                                 Lean.Widget.TaggedText.tag
+                                   { subexprPos := "/0/1", diffStatus? := none }
+                                   (Lean.Widget.TaggedText.text "x")]),
+                           Lean.Widget.TaggedText.text " → ",
+                           Lean.Widget.TaggedText.tag
+                             { subexprPos := "/1", diffStatus? := none }
+                             (Lean.Widget.TaggedText.text "True")],
                isInserted? := some false,
                isRemoved? := none,
                hyps := #[{ type := Lean.Widget.TaggedText.tag
@@ -24,23 +22,21 @@
                            isInserted? := some true,
                            isRemoved? := none }] }] }
 
-{ goals := #[{ type := Lean.Widget.TaggedText.tag
-                         { subexprPos := "/", diffStatus? := none }
-                         (Lean.Widget.TaggedText.append
-                           #[Lean.Widget.TaggedText.tag
-                               { subexprPos := "/0", diffStatus? := some "willDelete" }
-                               (Lean.Widget.TaggedText.append
-                                 #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x"),
-                                   Lean.Widget.TaggedText.text " = ",
-                                   Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/0/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "x")]),
-                             Lean.Widget.TaggedText.text " → ",
-                             Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
-                               (Lean.Widget.TaggedText.text "True")]),
+{ goals := #[{ type := Lean.Widget.TaggedText.append
+                         #[Lean.Widget.TaggedText.tag
+                             { subexprPos := "/0", diffStatus? := some "willDelete" }
+                             (Lean.Widget.TaggedText.append
+                               #[Lean.Widget.TaggedText.tag
+                                   { subexprPos := "/0/0/1", diffStatus? := none }
+                                   (Lean.Widget.TaggedText.text "x"),
+                                 Lean.Widget.TaggedText.text " = ",
+                                 Lean.Widget.TaggedText.tag
+                                   { subexprPos := "/0/1", diffStatus? := none }
+                                   (Lean.Widget.TaggedText.text "x")]),
+                           Lean.Widget.TaggedText.text " → ",
+                           Lean.Widget.TaggedText.tag
+                             { subexprPos := "/1", diffStatus? := none }
+                             (Lean.Widget.TaggedText.text "True")],
                isInserted? := some false,
                isRemoved? := none,
                hyps := #[{ type := Lean.Widget.TaggedText.tag
@@ -63,22 +59,19 @@
                                (Lean.Widget.TaggedText.text "Nat"),
                              Lean.Widget.TaggedText.text "), ",
                              Lean.Widget.TaggedText.tag
-                               { subexprPos := "/1", diffStatus? := none }
+                               { subexprPos := "/1/0", diffStatus? := some "willDelete" }
                                (Lean.Widget.TaggedText.append
                                  #[Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/1/0", diffStatus? := some "willDelete" }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1/0/0/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "x"),
-                                         Lean.Widget.TaggedText.text " = ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1/0/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "x")]),
-                                   Lean.Widget.TaggedText.text " → ",
+                                     { subexprPos := "/1/0/0/1", diffStatus? := none }
+                                     (Lean.Widget.TaggedText.text "x"),
+                                   Lean.Widget.TaggedText.text " = ",
                                    Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/1/1", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.text "True")])]),
+                                     { subexprPos := "/1/0/1", diffStatus? := none }
+                                     (Lean.Widget.TaggedText.text "x")]),
+                             Lean.Widget.TaggedText.text " → ",
+                             Lean.Widget.TaggedText.tag
+                               { subexprPos := "/1/1", diffStatus? := none }
+                               (Lean.Widget.TaggedText.text "True")]),
                isInserted? := some false,
                isRemoved? := none,
                hyps := #[] }] }
@@ -100,23 +93,21 @@
                            names := #["x", "y"],
                            isInserted? := none,
                            isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/0", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "α"),
-                                         Lean.Widget.TaggedText.text " → ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.append
-                                             #[Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/0/1", diffStatus? := none }
-                                                 (Lean.Widget.TaggedText.text "x"),
-                                               Lean.Widget.TaggedText.text " = ",
-                                               Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/1", diffStatus? := some "willChange" }
-                                                 (Lean.Widget.TaggedText.text "y")])]),
+                         { type := Lean.Widget.TaggedText.append
+                                     #[Lean.Widget.TaggedText.tag
+                                         { subexprPos := "/0", diffStatus? := none }
+                                         (Lean.Widget.TaggedText.text "α"),
+                                       Lean.Widget.TaggedText.text " → ",
+                                       Lean.Widget.TaggedText.tag
+                                         { subexprPos := "/1", diffStatus? := none }
+                                         (Lean.Widget.TaggedText.append
+                                           #[Lean.Widget.TaggedText.tag
+                                               { subexprPos := "/1/0/1", diffStatus? := none }
+                                               (Lean.Widget.TaggedText.text "x"),
+                                             Lean.Widget.TaggedText.text " = ",
+                                             Lean.Widget.TaggedText.tag
+                                               { subexprPos := "/1/1", diffStatus? := some "willChange" }
+                                               (Lean.Widget.TaggedText.text "y")])],
                            names := #["f"],
                            isInserted? := none,
                            isRemoved? := none },
@@ -151,23 +142,21 @@
                            names := #["x", "y"],
                            isInserted? := none,
                            isRemoved? := none },
-                         { type := Lean.Widget.TaggedText.tag
-                                     { subexprPos := "/", diffStatus? := none }
-                                     (Lean.Widget.TaggedText.append
-                                       #[Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/0", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.text "α"),
-                                         Lean.Widget.TaggedText.text " → ",
-                                         Lean.Widget.TaggedText.tag
-                                           { subexprPos := "/1", diffStatus? := none }
-                                           (Lean.Widget.TaggedText.append
-                                             #[Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/0/1", diffStatus? := none }
-                                                 (Lean.Widget.TaggedText.text "x"),
-                                               Lean.Widget.TaggedText.text " = ",
-                                               Lean.Widget.TaggedText.tag
-                                                 { subexprPos := "/1/1", diffStatus? := some "wasChanged" }
-                                                 (Lean.Widget.TaggedText.text "x")])]),
+                         { type := Lean.Widget.TaggedText.append
+                                     #[Lean.Widget.TaggedText.tag
+                                         { subexprPos := "/0", diffStatus? := none }
+                                         (Lean.Widget.TaggedText.text "α"),
+                                       Lean.Widget.TaggedText.text " → ",
+                                       Lean.Widget.TaggedText.tag
+                                         { subexprPos := "/1", diffStatus? := none }
+                                         (Lean.Widget.TaggedText.append
+                                           #[Lean.Widget.TaggedText.tag
+                                               { subexprPos := "/1/0/1", diffStatus? := none }
+                                               (Lean.Widget.TaggedText.text "x"),
+                                             Lean.Widget.TaggedText.text " = ",
+                                             Lean.Widget.TaggedText.tag
+                                               { subexprPos := "/1/1", diffStatus? := some "wasChanged" }
+                                               (Lean.Widget.TaggedText.text "x")])],
                            names := #["f"],
                            isInserted? := none,
                            isRemoved? := none },

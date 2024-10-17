@@ -41,7 +41,6 @@ BASIC OPTIONS:
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
-  --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)

@@ -26,5 +26,5 @@ popd
 # Test Lake runs under the new toolchain after Lake updates it
 rm -f foo/lake-manifest.json
 echo $TOOLCHAIN > foo/lean-toolchain
-ELAN_TOOLCHAIN= $LAKE update
+$LAKE update
 grep --color -F '"version": 5' lake-manifest.json

@@ -197,6 +197,14 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
             for inst in (← extractInstances instArg) do
               results := results.append (← ci.runMetaM i.lctx <| locationLinksFromDecl i inst)
             results := results.append elaborators -- put elaborators at the end of the results
+        if let some view := Meta.isUniqueSorry? expr then
+          if let (some module, some range) := (view.module?, view.range?) then
+            let targetUri := (← documentUriFromModule rc.srcSearchPath module).getD doc.meta.uri
+            let result := {
+              targetUri, targetRange := range, targetSelectionRange := range,
+              originSelectionRange? := (·.toLspRange text) <$> i.range?
+            }
+            results := results.insertAt 0 result
         return results
   | .ofFieldInfo fi =>
     if kind == type then

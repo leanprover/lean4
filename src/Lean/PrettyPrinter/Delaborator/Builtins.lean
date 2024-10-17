@@ -1226,6 +1226,16 @@ def delabNameMkStr : Delab := whenPPOption getPPNotation do
 @[builtin_delab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
 
+@[builtin_delab app.sorryAx]
+def delabSorry : Delab := whenPPOption getPPNotation do
+  guard <| (← getExpr).getAppNumArgs ≥ 2
+  let mut arity := 2
+  -- If this is constructed by `Lean.Meta.mkUniqueSorry`, then don't print the unique tag.
+  if isUniqueSorry? (← getExpr) |>.isSome then
+    arity := 3
+  withOverApp arity do
+    `(sorry)
+
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`

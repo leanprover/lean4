@@ -1148,23 +1148,23 @@ namespace String
 /--
 If `pre` is a prefix of `s`, i.e. `s = pre ++ t`, returns the remainder `t`.
 -/
-def dropPrefix? (s : String) (pre : Substring) : Option Substring :=
-  s.toSubstring.dropPrefix? pre
+def dropPrefix? (s : String) (pre : String) : Option Substring :=
+  s.toSubstring.dropPrefix? pre.toSubstring
 
 /--
 If `suff` is a suffix of `s`, i.e. `s = t ++ suff`, returns the remainder `t`.
 -/
-def dropSuffix? (s : String) (suff : Substring) : Option Substring :=
-  s.toSubstring.dropSuffix? suff
+def dropSuffix? (s : String) (suff : String) : Option Substring :=
+  s.toSubstring.dropSuffix? suff.toSubstring
 
 /-- `s.stripPrefix pre` will remove `pre` from the beginning of `s` if it occurs there,
 or otherwise return `s`. -/
-def stripPrefix (s : String) (pre : Substring) : String :=
+def stripPrefix (s : String) (pre : String) : String :=
   s.dropPrefix? pre |>.map Substring.toString |>.getD s
 
 /-- `s.stripSuffix suff` will remove `suff` from the end of `s` if it occurs there,
 or otherwise return `s`. -/
-def stripSuffix (s : String) (suff : Substring) : String :=
+def stripSuffix (s : String) (suff : String) : String :=
   s.dropSuffix? suff |>.map Substring.toString |>.getD s
 
 end String

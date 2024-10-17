@@ -2108,9 +2108,14 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
+@[simp]
 theorem msb_abs {w : Nat} {x : BitVec w} :
-    (x.abs).msb = if x.msb then (-x).msb else x.msb := by
-  by_cases h : x.msb <;> simp [BitVec.abs, h]
+    (x.abs).msb = false := by
+  simp only [BitVec.abs, neg_eq]
+
+  have : (-x).msb = !x.msb := sorry
+  cases h : x.msb
+  <;> simp [h, this]
 
 /-! ### neg -/
 

@@ -144,6 +144,18 @@ Combines the initial path of the environment with that of the Lean installation.
 def sharedLibPath (env : Env) : SearchPath :=
   env.lean.sharedLibPath ++ env.initSharedLibPath
 
+/-- Unset toolchain-specific environment variables. -/
+def noToolchainVars : Array (String × Option String) :=
+  #[
+    ("ELAN_TOOLCHAIN", none),
+    ("LAKE", none),
+    ("LAKE_HOME", none),
+    ("LEAN", none),
+    ("LEAN_GITHASH", none),
+    ("LEAN_SYSROOT", none),
+    ("LEAN_AR", none)
+  ]
+
 /-- Environment variable settings that are not augmented by a Lake workspace. -/
 def baseVars (env : Env) : Array (String × Option String)  :=
   #[
@@ -153,6 +165,7 @@ def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
+    ("LEAN", env.lean.lean.toString),
     ("LEAN_GITHASH", env.leanGithash),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),

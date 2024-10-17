@@ -146,10 +146,6 @@ def noArgsRem (act : CliStateM α) : CliM α := do
 def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
-def setLean (lean : String) : CliStateM PUnit := do
-  let leanInstall? ← findLeanCmdInstall? lean
-  modify ({·  with leanInstall?})
-
 def setConfigOpt (kvPair : String) : CliM PUnit :=
   let pos := kvPair.posOf '='
   let (key, val) :=
@@ -199,7 +195,6 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--file"        => do
   let configFile ← takeOptArg "--file" "path"
   modifyThe LakeOptions ({· with configFile})
-| "--lean"        => do setLean <| ← takeOptArg "--lean" "path or command"
 | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
 | "--"            => do
   let subArgs ← takeArgs

@@ -13,6 +13,7 @@ $LAKE env | grep ".*=.*"
 # NOTE: `printenv` exits with code 1 if the variable is not set
 $LAKE env printenv LAKE
 $LAKE env printenv LAKE_HOME
+$LAKE env printenv LEAN
 $LAKE env printenv LEAN_GITHASH
 $LAKE env printenv LEAN_SYSROOT
 $LAKE env printenv LEAN_AR | grep --color ar

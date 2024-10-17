@@ -106,13 +106,16 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
 /-! ## Detection Functions -/
 
 /--
-Attempt to detect a Elan installation by checking the `ELAN_HOME`
-environment variable for a installation location.
+Attempt to detect an Elan installation by checking the `ELAN` and `ELAN_HOME`
+environment variables. If `ELAN` is set but empty, Elan is considered disabled.
 -/
 def findElanInstall? : BaseIO (Option ElanInstall) := do
   if let some home ← IO.getEnv "ELAN_HOME" then
     let elan := (← IO.getEnv "ELAN").getD "elan"
-    return some {elan, home}
+    if elan.trim.isEmpty then
+      return none
+    else
+      return some {elan, home}
   return none
 
 /--

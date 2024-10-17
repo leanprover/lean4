@@ -37,9 +37,9 @@ echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_C_COMPILER_WORKS=
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='-idirafter \"${WINDOWS_SDK_DIR}/Include/10.0.22621.0/um\" --sysroot $PWD/llvm -idirafter /clang64/include/'"
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang.exe"
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -static-libgcc -Wl,-Bstatic -lgmp -luv -licu -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
-# when not using the above flags, link GMP dynamically/as usual
-echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-lgmp -luv -lucrtbase'"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -static-libgcc -Wl,-Bstatic -lgmp $(pkg-config --static --libs libuv) -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
+# when not using the above flags, link GMP dynamically/as usual. Always link ICU dynamically.
+echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-licu -lgmp $(pkg-config --libs libuv) -lucrtbase'"
 # do not set `LEAN_CC` for tests
 echo -n " -DAUTO_THREAD_FINALIZATION=OFF -DSTAGE0_AUTO_THREAD_FINALIZATION=OFF"
 echo -n " -DLEAN_TEST_VARS=''"

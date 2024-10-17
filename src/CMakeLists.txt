@@ -252,9 +252,20 @@ if(NOT LEAN_STANDALONE)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
 endif()
 
-set(WINDOWS_SDK_DIR "/c/Program Files (x86)/Windows Kits/10")
-string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
-string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWS_SDK_DIR}/Include/10.0.22621.0/um\"")
+# Windows SDK (for ICU)
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
+  find_package(WindowsSDK REQUIRED)
+  get_windowssdk_include_dirs(${WINDOWSSDK_LATEST_DIR} WINDOWSSDK_INCLUDE_DIR)
+
+  # To successfully build against Windows SDK headers, the Windows SDK headers must have lower
+  # priority than other system headers, so use `-idirafter`. Unfortunately, CMake does not
+  # support this using `include_directories`.
+  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIR}\"")
+  set(WINDOWSSDK_LIBRARIES "-licu")
+  if(NOT LEAN_STANDALONE)
+    string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${WINDOWSSDK_LIBRARIES}")
+  endif()
+endif()
 
 # ccache
 if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)

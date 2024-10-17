@@ -15,6 +15,13 @@ Mode](https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-devi
 which will allow Lean to create symlinks that e.g. enable go-to-definition in
 the stdlib.
 
+## Installing the Windows SDK
+
+Install the Windows SDK from [https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/].
+The oldest supported version is 10.0.18362.0. If you installed the Windows SDK to the default location,
+then there should be a directory with the version number at `C:\Program Files (x86)\Windows Kits\10\Include`.
+If there are multiple directories, only the highest version number matters.
+
 ## Installing dependencies
 
 [The official webpage of MSYS2][msys2] provides one-click installers.

@@ -54,7 +54,6 @@ LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToFormat___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Position_instToString(lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_179____closed__8;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_179____closed__17;

@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_
 static lean_object* l_Lean_Widget_ppExprTagged___lambda__2___closed__1;
 static lean_object* l_Lean_Widget_ppExprTagged___lambda__2___closed__3;
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonDiffTag____x40_Lean_Widget_InteractiveCode___hyg_10____closed__8;
-extern lean_object* l_Lean_pp_mvars;
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at_Lean_Widget_CodeWithInfos_mergePosMap___spec__2(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_352____closed__29;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -200,6 +199,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_CodeWithInfos_mergePosMap(lean_object*, l
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_List_bindTR_go___at___private_Lean_Data_Position_0__Lean_toJsonPosition____x40_Lean_Data_Position___hyg_237____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_CodeWithInfos_mergePosMap___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_pp_mvars_anonymous;
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_352____closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_352____lambda__1___boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_352____closed__22;
@@ -3306,7 +3306,7 @@ static lean_object* _init_l_Lean_Widget_ppExprTagged___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_pp_mvars;
+x_1 = l_Lean_pp_mvars_anonymous;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = l_Lean_Widget_ppExprTagged___lambda__2___closed__1;

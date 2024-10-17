@@ -79,7 +79,7 @@ theorem eq_none_iff_forall_not_mem : o = none ↔ ∀ a, a ∉ o :=
 
 theorem isSome_iff_exists : isSome x ↔ ∃ a, x = some a := by cases x <;> simp [isSome]
 
-@[simp] theorem isSome_eq_isSome : (isSome x = isSome y) ↔ (x = none ↔ y = none) := by
+theorem isSome_eq_isSome : (isSome x = isSome y) ↔ (x = none ↔ y = none) := by
   cases x <;> cases y <;> simp
 
 @[simp] theorem isNone_none : @isNone α none = true := rfl

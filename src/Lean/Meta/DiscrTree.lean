@@ -76,7 +76,7 @@ def Key.format : Key → Format
   | .const k _       => Std.format k
   | .proj s i _      => Std.format s ++ "." ++ Std.format i
   | .fvar k _        => Std.format k.name
-  | .arrow           => "→"
+  | .arrow           => "∀"
 
 instance : ToFormat Key := ⟨Key.format⟩
 
@@ -113,7 +113,8 @@ where
       mkApp m!"{mkFVar fvarId}" (← goN nargs) parenIfNonAtomic
     | .proj _ i nargs =>
       mkApp m!"{← go}.{i+1}" (← goN nargs) parenIfNonAtomic
-    | .arrow => return "<arrow>"
+    | .arrow =>
+      mkApp m!"∀ " (← goN 1) parenIfNonAtomic
     | .star => return "_"
     | .other => return "<other>"
     | .lit (.natVal v) => return m!"{v}"
@@ -129,21 +130,15 @@ def Key.arity : Key → Nat
   | .const _ a  => a
   | .fvar _ a   => a
   /-
-  Remark: `.arrow` used to have arity 2, and was used to encode non-dependent arrows.
-  However, this feature was a recurrent source of bugs. For example, a theorem about
-  a dependent arrow can be applied to a non-dependent one. The reverse direction may
-  also happen. See issue #2835.
-  ```
-  -- A theorem about the non-dependent arrow `a → a`
-  theorem imp_self' {a : Prop} : (a → a) ↔ True := ⟨fun _ => trivial, fun _ => id⟩
-
-  -- can be applied to the dependent one `(h : P a) → P (f h)`.
-  example {α : Prop} {P : α → Prop} {f : ∀ {a}, P a → α} {a : α} : (h : P a) → P (f h) := by
-    simp only [imp_self']
-  ```
-  Thus, we now index dependent and non-dependent arrows using the key `.arrow` with arity 0.
+  Remark: `.arrow` used to have arity 2, and was used to encode only **non**-dependent
+  arrows. However, this feature was a recurrent source of bugs. For example, a
+  theorem about a dependent arrow can be applied to a non-dependent one. The
+  reverse direction may also happen. See issue #2835. Therefore, `.arrow` was made
+  to have arity 0. But this throws away easy to use information, and makes it so
+  that ∀ and ∃ behave quite differently. So now `.arrow` at least indexes the
+  domain of the forall (whether dependent or non-dependent).
   -/
-  | .arrow      => 0
+  | .arrow      => 1
   | .proj _ _ a => 1 + a
   | _           => 0
 
@@ -422,7 +417,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
         return (.other, todo)
       else
         return (.star, todo)
-    | .forallE .. => return (.arrow, todo)
+    | .forallE _n d _ _ =>
+      return (.arrow, todo.push d)
     | _ => return (.other, todo)
 
 @[inherit_doc pushArgs]
@@ -581,7 +577,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
   | .proj s i a .. =>
     let nargs := e.getAppNumArgs
     return (.proj s i nargs, #[a] ++ e.getAppRevArgs)
-  | .forallE .. => return (.arrow, #[])
+  | .forallE _ d _ _ => return (.arrow, #[d])
   | _ => return (.other, #[])
 
 private abbrev getMatchKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) :=

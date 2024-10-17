@@ -229,7 +229,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
-    let binders ← binders.concatMapM replaceBinderAnnotation
+    let binders ← binders.flatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
@@ -348,7 +348,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
   | `(Lean.Parser.Command.include| include $ids*) => do
     let sc ← getScope
-    let vars ← sc.varDecls.concatMapM getBracketedBinderIds
+    let vars ← sc.varDecls.flatMapM getBracketedBinderIds
     let mut uids := #[]
     for id in ids do
       if let some idx := vars.findIdx? (· == id.getId) then

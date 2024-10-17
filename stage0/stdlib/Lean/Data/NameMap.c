@@ -62,7 +62,6 @@ LEAN_EXPORT lean_object* l_Lean_SMap_contains___at_Lean_NameSSet_contains___spec
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at_Lean_NameSSet_contains___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_NameSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_NameSet_instAppend___closed__1;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_NameSSet_insert___spec__7(lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
@@ -99,6 +98,7 @@ static lean_object* l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___close
 LEAN_EXPORT lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_NameSSet_insert___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_MacroScopesView_isPrefixOf(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_RBTree_forIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameSet_instForInName(lean_object*);

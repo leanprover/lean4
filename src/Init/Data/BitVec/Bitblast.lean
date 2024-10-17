@@ -267,6 +267,21 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 
 /-! ### add -/
 
+theorem getMsbD_add {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    getMsbD (x + y) i =
+      Bool.xor (getMsbD x i) (Bool.xor (getMsbD y i) (carry (w - 1 - i) x y false)) := by
+  simp [getMsbD, getLsbD_add, i_lt, show w - 1 - i < w by omega]
+
+theorem msb_add {w : Nat} {x y: BitVec w} :
+    (x + y).msb =
+      Bool.xor x.msb (Bool.xor y.msb (carry (w - 1) x y false)) := by
+  simp only [BitVec.msb, BitVec.getMsbD]
+  by_cases h : w ≤ 0
+  · simp [h, show w = 0 by omega]
+  · rw [getLsbD_add (x := x)]
+    simp [show w > 0 by omega]
+    omega
+
 /-- Adding a bitvector to its own complement yields the all ones bitpattern -/
 @[simp] theorem add_not_self (x : BitVec w) : x + ~~~x = allOnes w := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (allOnes w)]
@@ -291,6 +306,26 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     · intros hx
       simp_all [hx]
     · by_cases hx : x.getLsbD i <;> simp_all [hx]
+
+/-! ### Sub-/
+
+theorem getLsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getLsbD i
+      = (x.getLsbD i ^^ ((~~~y + 1#w).getLsbD i ^^ carry i x (~~~y + 1#w) false)) := by
+  rw [sub_toAdd, BitVec.neg_eq_not_add, getLsbD_add]
+  omega
+
+theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getMsbD i =
+      (x.getMsbD i ^^ ((~~~y + 1).getMsbD i ^^ carry (w - 1 - i) x (~~~y + 1) false)) := by
+  rw [sub_toAdd, neg_eq_not_add, getMsbD_add]
+  · rfl
+  · omega
+
+theorem msb_sub {x y: BitVec w} :
+    (x - y).msb
+      = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
+  simp [sub_toAdd, BitVec.neg_eq_not_add, msb_add]
 
 /-! ### Negation -/
 

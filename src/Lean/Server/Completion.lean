@@ -167,14 +167,33 @@ private def addUnresolvedCompletionItem
     (kind          : CompletionItemKind)
     (score         : Float)
     : M Unit := do
-  let doc? ← do
-    match id with
-    | .const declName =>
-      let docString? ← findDocString? (← getEnv) declName
-      pure <| docString?.map fun docString =>
-        { value := docString, kind := MarkupKind.markdown : MarkupContent }
-    | .fvar _ => pure none
-  let item := { label := label.toString, kind? := kind, documentation? := doc? }
+  let env ← getEnv
+  let (docStringPrefix?, tags?) := Id.run do
+    let .const declName := id
+      | (none, none)
+    let some param := Linter.deprecatedAttr.getParam? env declName
+      | (none, none)
+    let docstringPrefix :=
+      if let some text := param.text? then
+        text
+      else if let some newName := param.newName? then
+        s!"`{declName}` has been deprecated, use `{newName}` instead."
+      else
+        s!"`{declName}` has been deprecated."
+    (some docstringPrefix, some #[CompletionItemTag.deprecated])
+  let docString? ← do
+    let .const declName := id
+      | pure none
+    findDocString? env declName
+  let doc? := do
+    let docValue ←
+      match docStringPrefix?, docString? with
+      | none,                 none           => none
+      | some docStringPrefix, none           => docStringPrefix
+      | none,                 docString      => docString
+      | some docStringPrefix, some docString => s!"{docStringPrefix}\n\n{docString}"
+    pure { value := docValue , kind := MarkupKind.markdown : MarkupContent }
+  let item := { label := label.toString, kind? := kind, documentation? := doc?, tags?}
   addItem item score id
 
 private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionItemKind := do

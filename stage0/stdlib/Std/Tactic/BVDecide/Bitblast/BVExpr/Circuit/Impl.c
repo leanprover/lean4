@@ -24,7 +24,6 @@ static lean_object* l_Std_Sat_AIG_Cache_empty___at_Std_Tactic_BVDecide_BVLogical
 lean_object* l_Std_Sat_AIG_mkNotCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__30(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_Cache_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__3___closed__2;
 lean_object* l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__20(lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__2(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__2___closed__2;
 lean_object* l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__2___closed__1;
@@ -32,6 +31,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_ofBoolExprCached___at_Std_Tactic_
 lean_object* l_Std_Tactic_BVDecide_BVPred_bitblast(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast(lean_object*);
+lean_object* l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__9(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_Cache_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__3___closed__3;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__3___boxed(lean_object*);
 static lean_object* _init_l_Std_Sat_AIG_Cache_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__3___closed__1() {
@@ -177,7 +177,7 @@ return x_22;
 default: 
 {
 lean_object* x_23; 
-x_23 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__2(x_20, x_18);
+x_23 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__9(x_20, x_18);
 return x_23;
 }
 }
@@ -209,7 +209,7 @@ return x_28;
 default: 
 {
 lean_object* x_29; 
-x_29 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__2(x_24, x_26);
+x_29 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__9(x_24, x_26);
 return x_29;
 }
 }

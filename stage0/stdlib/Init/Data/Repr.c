@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Repr
-// Imports: Init.Data.Format.Basic Init.Data.Int.Basic Init.Data.Nat.Div Init.Data.UInt.Basic Init.Control.Id
+// Imports: Init.Data.Format.Basic Init.Data.Int.Basic Init.Data.Nat.Div Init.Data.UInt.BasicAux Init.Control.Id
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -259,7 +259,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprList___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instReprOption___rarg(lean_object*);
 static lean_object* l_instReprSigma___rarg___closed__5;
-static lean_object* l___private_Init_Data_Repr_0__Nat_reprFast___closed__3;
 LEAN_EXPORT lean_object* l_instReprId___rarg(lean_object*);
 lean_object* lean_string_of_usize(size_t);
 LEAN_EXPORT lean_object* l_instReprAtomUInt64;
@@ -281,7 +280,6 @@ static lean_object* l_List_repr___rarg___closed__6;
 static lean_object* l_instReprIterator___closed__4;
 LEAN_EXPORT uint32_t l_Nat_subDigitChar(lean_object*);
 static lean_object* l_Char_quoteCore___closed__4;
-static lean_object* l___private_Init_Data_Repr_0__Nat_reprFast___closed__2;
 LEAN_EXPORT lean_object* l_instReprAtomString;
 LEAN_EXPORT lean_object* l_repr___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -1816,26 +1814,6 @@ x_3 = lean_nat_pow(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__Nat_reprFast___closed__1;
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_sub(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Init_Data_Repr_0__Nat_reprFast___closed__2;
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_add(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object* x_1) {
 _start:
 {
@@ -1845,7 +1823,7 @@ x_3 = lean_nat_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l___private_Init_Data_Repr_0__Nat_reprFast___closed__3;
+x_4 = l___private_Init_Data_Repr_0__Nat_reprFast___closed__1;
 x_5 = lean_nat_dec_lt(x_1, x_4);
 if (x_5 == 0)
 {
@@ -4185,7 +4163,7 @@ return x_1;
 lean_object* initialize_Init_Data_Format_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Div(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Repr(uint8_t builtin, lean_object* w) {
@@ -4201,7 +4179,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Div(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_Id(builtin, lean_io_mk_world());
@@ -4291,10 +4269,6 @@ l___private_Init_Data_Repr_0__Nat_reprArray = _init_l___private_Init_Data_Repr_0
 lean_mark_persistent(l___private_Init_Data_Repr_0__Nat_reprArray);
 l___private_Init_Data_Repr_0__Nat_reprFast___closed__1 = _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__1();
 lean_mark_persistent(l___private_Init_Data_Repr_0__Nat_reprFast___closed__1);
-l___private_Init_Data_Repr_0__Nat_reprFast___closed__2 = _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__2();
-lean_mark_persistent(l___private_Init_Data_Repr_0__Nat_reprFast___closed__2);
-l___private_Init_Data_Repr_0__Nat_reprFast___closed__3 = _init_l___private_Init_Data_Repr_0__Nat_reprFast___closed__3();
-lean_mark_persistent(l___private_Init_Data_Repr_0__Nat_reprFast___closed__3);
 l_Int_repr___closed__1 = _init_l_Int_repr___closed__1();
 lean_mark_persistent(l_Int_repr___closed__1);
 l_Int_repr___closed__2 = _init_l_Int_repr___closed__2();

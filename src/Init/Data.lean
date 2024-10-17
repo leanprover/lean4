@@ -40,3 +40,4 @@ import Init.Data.ULift
 import Init.Data.PLift
 import Init.Data.Zero
 import Init.Data.NeZero
+import Init.Data.Function

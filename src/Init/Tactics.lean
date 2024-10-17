@@ -911,6 +911,15 @@ macro_rules | `(tactic| trivial) => `(tactic| simp)
 syntax "trivial" : tactic
 
 /--
+`classical tacs` runs `tacs` in a scope where `Classical.propDecidable` is a low priority
+local instance.
+
+Note that `classical` is a scoping tactic: it adds the instance only within the
+scope of the tactic.
+-/
+syntax (name := classical) "classical" ppDedent(tacticSeq) : tactic
+
+/--
 The `split` tactic is useful for breaking nested if-then-else and `match` expressions into separate cases.
 For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals.
 

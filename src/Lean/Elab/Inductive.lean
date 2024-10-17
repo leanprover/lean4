@@ -770,7 +770,7 @@ private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array Ind
   forallBoundedTelescope indTypes[0]!.type numParams fun params type => do
     let otherTypes ← indTypes[1:].toArray.mapM fun indType => do whnfD (← instantiateForall indType.type params)
     let ctorTypes ← indTypes.toList.mapM fun indType => indType.ctors.mapM fun ctor => do whnfD (← instantiateForall ctor.type params)
-    let typesToCheck := otherTypes.toList ++ ctorTypes.join
+    let typesToCheck := otherTypes.toList ++ ctorTypes.flatten
     let rec go (i : Nat) (type : Expr) (typesToCheck : List Expr) : MetaM Nat := do
       if i < mask.size then
         if !masks.all fun mask => i < mask.size && mask[i]! then

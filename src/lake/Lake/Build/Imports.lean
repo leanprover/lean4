@@ -29,7 +29,7 @@ def buildImportsAndDeps (leanFile : FilePath) (imports : Array Module) : FetchM 
     let precompileImports ← computePrecompileImportsAux leanFile imports
     let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
     let externLibJob ← BuildJob.collectArray <| ←
-      pkgs.concatMapM (·.externLibs.mapM (·.dynlib.fetch))
+      pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
     let precompileJob ← BuildJob.collectArray <| ←
       precompileImports.mapM (·.dynlib.fetch)
     let job ←

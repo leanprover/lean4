@@ -102,7 +102,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_findPackage_x3f(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_Workspace_isLocalModule___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findLeanExe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_Workspace_binPath___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_Workspace_addPackageFacetConfig___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findScript_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_clean___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -141,7 +141,7 @@ LEAN_EXPORT uint8_t l_Lake_Workspace_isBuildableModule(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedPath___boxed(lean_object*);
 extern lean_object* l_Lake_sharedLibPathEnvVar;
 LEAN_EXPORT lean_object* l_Lake_Workspace_relLakeDir(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Lake_Env_leanPath(lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -3475,40 +3475,40 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean_obj_tag(x_4) == 0)
+if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_6; 
-x_6 = lean_box(0);
-return x_6;
+lean_object* x_5; 
+x_5 = lean_box(0);
+return x_5;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_7 = lean_ctor_get(x_4, 0);
-x_8 = lean_ctor_get(x_4, 1);
-x_9 = lean_ctor_get(x_4, 2);
-x_10 = lean_ctor_get(x_4, 3);
-x_11 = l_Lean_Name_quickCmp(x_5, x_8);
-switch (x_11) {
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_6 = lean_ctor_get(x_3, 0);
+x_7 = lean_ctor_get(x_3, 1);
+x_8 = lean_ctor_get(x_3, 2);
+x_9 = lean_ctor_get(x_3, 3);
+x_10 = l_Lean_Name_quickCmp(x_4, x_7);
+switch (x_10) {
 case 0:
 {
-x_4 = x_7;
+x_3 = x_6;
 goto _start;
 }
 case 1:
 {
-lean_object* x_13; 
-lean_inc(x_9);
-x_13 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_13, 0, x_9);
-return x_13;
+lean_object* x_12; 
+lean_inc(x_8);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_8);
+return x_12;
 }
 default: 
 {
-x_4 = x_10;
+x_3 = x_9;
 goto _start;
 }
 }
@@ -3530,7 +3530,7 @@ lean_dec(x_3);
 x_9 = lean_array_fget(x_2, x_8);
 x_10 = lean_ctor_get(x_9, 11);
 lean_inc(x_10);
-x_11 = l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(x_2, x_8, x_9, x_10, x_1);
+x_11 = l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(x_2, x_8, x_10, x_1);
 lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -3591,17 +3591,16 @@ x_5 = l_Array_findSomeRevM_x3f_find___at_Lake_Workspace_findExternLib_x3f___spec
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-x_6 = l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
+lean_object* x_5; 
+x_5 = l_Lake_RBNode_dFind___at_Lake_Workspace_findExternLib_x3f___spec__2(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_6;
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lake_Workspace_findExternLib_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

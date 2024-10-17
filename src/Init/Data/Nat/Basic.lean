@@ -131,7 +131,7 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
 instance : LawfulBEq Nat where
-  eq_of_beq h := Nat.eq_of_beq_eq_true h
+  eq_of_beq h := by simpa using h
   rfl := by simp [BEq.beq]
 
 theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp
@@ -490,10 +490,10 @@ protected theorem le_antisymm_iff {a b : Nat} : a = b ↔ a ≤ b ∧ b ≤ a :=
             (fun ⟨hle, hge⟩ => Nat.le_antisymm hle hge)
 protected theorem eq_iff_le_and_ge : ∀{a b : Nat}, a = b ↔ a ≤ b ∧ b ≤ a := @Nat.le_antisymm_iff
 
-instance : Antisymm ( . ≤ . : Nat → Nat → Prop) where
+instance : Std.Antisymm ( . ≤ . : Nat → Nat → Prop) where
   antisymm h₁ h₂ := Nat.le_antisymm h₁ h₂
 
-instance : Antisymm (¬ . < . : Nat → Nat → Prop) where
+instance : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
   antisymm h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
 
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
@@ -795,6 +795,8 @@ theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   cases n with
   | zero => cases h
   | succ n => simp [Nat.pow_succ]
+
+protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
 
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
   ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pos_pow_of_pos m (pos_of_neZero _))⟩

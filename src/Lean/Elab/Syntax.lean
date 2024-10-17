@@ -146,7 +146,7 @@ where
       let args ← args.mapM fun arg => withNestedParser do process arg
       mkParserSeq args
     else
-      let args ← args.mapIdxM fun i arg => withReader (fun ctx => { ctx with first := ctx.first && i.val == 0 }) do process arg
+      let args ← args.mapIdxM fun i arg => withReader (fun ctx => { ctx with first := ctx.first && i == 0 }) do process arg
       mkParserSeq args
 
   ensureNoPrec (stx : Syntax) :=

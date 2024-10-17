@@ -24,8 +24,8 @@ opaque Windows.getTimeZoneAt : String -> UInt64 -> IO TimeZone
 /--
 Fetches the timezone at a timestamp.
 -/
-@[extern "lean_get_timezone_offset_at"]
-opaque Windows.getLocalTimezoneAt : UInt64 -> IO TimeZone
+@[extern "lean_get_windows_local_timezone_id_at"]
+opaque Windows.getLocalTimeZoneIdentifierAt : UInt64 → IO String
 
 /--
 Represents a Time Zone Database that we get from ICU available on Windows SDK.
@@ -42,5 +42,10 @@ Returns a default `WindowsDb` instance.
 def default : WindowsDb := {}
 
 instance : Database WindowsDb where
-  getTimeZoneAt _ id tm := Windows.getTimeZoneAt id (tm.toSecondsSinceUnixEpoch |>.toInt |>.toNat |>.toUInt64)
-  getLocalTimeZoneAt _ tm := Windows.getLocalTimezoneAt (tm.toSecondsSinceUnixEpoch |>.toInt |>.toNat |>.toUInt64)
+  getTimeZoneAt _ id tm :=
+    Windows.getTimeZoneAt id (tm.toSecondsSinceUnixEpoch |>.toInt |>.toNat |>.toUInt64)
+
+  getLocalTimeZoneAt _ tm := do
+    let time := tm.toSecondsSinceUnixEpoch |>.toInt |>.toNat |>.toUInt64
+    let id ← Windows.getLocalTimeZoneIdentifierAt time
+    Windows.getTimeZoneAt id time

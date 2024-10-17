@@ -346,11 +346,6 @@ inductive Modifier
   | a (presentation : Text)
 
   /--
-  `B`: Period of day (e.g., in the morning).
-  -/
-  | B (presentation : Text)
-
-  /--
   `h`: Clock hour of AM/PM (1-12) (e.g., 12).
   -/
   | h (presentation : Number)
@@ -463,7 +458,7 @@ private def parseOffsetO (constructor : OffsetO → Modifier) (p : String) : Par
   parseMod constructor OffsetO.classify p
 
 private def parseZoneId (p : String) : Parser Modifier :=
-  if p.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.get 0}'"
+  if p.length = 1 then pure .V else fail s!"invalid quantity of characters for '{p.get 0}'"
 
 private def parseNumberText (constructor : (Number ⊕ Text) → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor classifyNumberText p
@@ -490,7 +485,6 @@ private def parseModifier : Parser Modifier
   <|> parseNumberText Modifier.eorc =<< many1Chars (pchar 'c')
   <|> parseNumber Modifier.F =<< many1Chars (pchar 'F')
   <|> parseText Modifier.a =<< many1Chars (pchar 'a')
-  <|> parseText Modifier.B =<< many1Chars (pchar 'B')
   <|> parseNumber Modifier.h =<< many1Chars (pchar 'h')
   <|> parseNumber Modifier.K =<< many1Chars (pchar 'K')
   <|> parseNumber Modifier.k =<< many1Chars (pchar 'k')
@@ -731,24 +725,6 @@ private def formatMarkerNarrow (marker : HourMarker) : String :=
   | .am => "A"
   | .pm => "P"
 
-private def formatPeriodOfDayLong : Day.Period → String
-  | .morning => "in the morning"
-  | .afternoon => "in the afternoon"
-  | .evening => "in the evening"
-  | .night => "at night"
-
-private def formatPeriodOfDayShort : Day.Period → String
-  | .morning => "AM"
-  | .afternoon => "PM"
-  | .evening => "Eve"
-  | .night => "Night"
-
-private def formatPeriodOfDayNarrow : Day.Period → String
-  | .morning => "M"
-  | .afternoon => "A"
-  | .evening => "E"
-  | .night => "N"
-
 private def toSigned (data : Int) : String :=
   if data < 0 then toString data else "+" ++ toString data
 
@@ -771,12 +747,11 @@ private def TypeFormat : Modifier → Type
   | .d _ => Day.Ordinal
   | .Qorq _ => Month.Quarter
   | .w _ => Week.Ordinal
-  | .W _ => Week.Ordinal.OfMonth
+  | .W _ => Bounded.LE 1 5
   | .E _ => Weekday
   | .eorc _ => Weekday
   | .F _ => Week.Ordinal.OfMonth
   | .a _ => HourMarker
-  | .B _ => Day.Period
   | .h _ => Bounded.LE 1 12
   | .K _ => Bounded.LE 0 11
   | .k _ => Bounded.LE 1 24
@@ -844,11 +819,6 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     | .short => formatMarkerShort data
     | .full => formatMarkerLong data
     | .narrow => formatMarkerNarrow data
-  | .B format =>
-    match format with
-    | .short => formatPeriodOfDayLong data
-    | .full => formatPeriodOfDayShort data
-    | .narrow => formatPeriodOfDayNarrow data
   | .h format => truncate format.padding (data.val % 12)
   | .K format => truncate format.padding (data.val % 12)
   | .k format => truncate format.padding (data.val)
@@ -872,7 +842,7 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     | .full => data
   | .O format =>
     match format with
-    | .short => s!"GMT{toSigned data.hour.val}"
+    | .short => s!"GMT{toSigned data.second.toHours.toInt}"
     | .full => s!"GMT{toIsoString data true false true}"
   | .X format =>
     if data.second == 0 then
@@ -921,9 +891,8 @@ private def dateFromModifier (date : DateTime tz) : TypeFormat modifier :=
   | .W _ => date.weekOfMonth
   | .E _ =>  date.weekday
   | .eorc _ => date.weekday
-  | .F _ => date.weekOfMonth
+  | .F _ => date.alignedWeekOfMonth
   | .a _ => HourMarker.ofOrdinal date.hour
-  | .B _ => date.period
   | .h _ => HourMarker.toRelative date.hour |>.fst
   | .K _ => date.hour.emod 12 (by decide)
   | .k _ => date.hour.add 1
@@ -1055,24 +1024,6 @@ private def parseMarkerNarrow : Parser HourMarker
    := pstring "A" *> pure HourMarker.am
   <|> pstring "P" *> pure HourMarker.pm
 
-private def parsePeriodOfDayLong : Parser Day.Period
-   := pstring "in the morning" *> pure .morning
-  <|> pstring "in the afternoon" *> pure .afternoon
-  <|> pstring "in the evening" *> pure .evening
-  <|> pstring "at night" *> pure .night
-
-private def parsePeriodOfDayShort : Parser Day.Period
-   := pstring "AM" *> pure .morning
-  <|> pstring "PM" *> pure .afternoon
-  <|> pstring "Eve" *> pure .evening
-  <|> pstring "Night" *> pure .night
-
-private def parsePeriodOfDayNarrow : Parser Day.Period
-   := pstring "M" *> pure .morning
-  <|> pstring "A" *> pure .afternoon
-  <|> pstring "E" *> pure .evening
-  <|> pstring "N" *> pure .night
-
 private def exactly (parse : Parser α) (size : Nat) : Parser (Array α) :=
   let rec go (acc : Array α) (count : Nat) : Parser (Array α) :=
     if count ≥ size then
@@ -1184,11 +1135,6 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
     | .short => parseMarkerShort
     | .full => parseMarkerLong
     | .narrow => parseMarkerNarrow
-  | .B format =>
-    match format with
-    | .short => parsePeriodOfDayLong
-    | .full => parsePeriodOfDayShort
-    | .narrow => parsePeriodOfDayNarrow
   | .h format => parseNatToBounded (parseNum format.padding)
   | .K format => parseNatToBounded (parseNum format.padding)
   | .k format => parseNatToBounded (parseNum format.padding)
@@ -1265,12 +1211,11 @@ private structure DateBuilder where
   d : Option Day.Ordinal := none
   Qorq : Option Month.Quarter := none
   w : Option Week.Ordinal := none
-  W : Option Week.Ordinal.OfMonth := none
+  W : Option (Bounded.LE 1 5) := none
   E : Option Weekday := none
   eorc : Option Weekday := none
   F : Option Week.Ordinal.OfMonth := none
   a : Option HourMarker := none
-  B : Option Day.Period := none
   h : Option (Bounded.LE 1 12) := none
   K : Option (Bounded.LE 0 11) := none
   k : Option (Bounded.LE 1 24) := none
@@ -1306,7 +1251,6 @@ private def insert (date : DateBuilder) (modifier : Modifier) (data : TypeFormat
   | .eorc _ => { date with eorc := some data }
   | .F _ => { date with F := some data }
   | .a _ => { date with a := some data }
-  | .B _ => { date with B := some data }
   | .h _ => { date with h := some data }
   | .K _ => { date with K := some data }
   | .k _ => { date with k := some data }

@@ -15,7 +15,7 @@ open Internal
 set_option linter.all true
 
 /--
-It stores a `Timestamp`, a `PlainDateTime` and a `TimeZone`
+Represents a specific point in time associated with a `TimeZone`.
 -/
 structure DateTime (tz : TimeZone) where
   private mk ::
@@ -367,14 +367,6 @@ def weekday (dt : DateTime tz) : Weekday :=
   dt.date.get.date.weekday
 
 /--
-Gets the `Period` of a `DateTime`, corresponding to the part of the day (e.g. night, morning,
-afternoon, evening) based on the hour.
--/
-@[inline]
-def period (dt : DateTime tz) : Day.Period :=
-  Day.Period.fromHour dt.hour
-
-/--
 Determines the era of the given `DateTime` based on its year.
 -/
 def era (date : DateTime tz) : Year.Era :=
@@ -395,26 +387,31 @@ def toOrdinal (date : DateTime tz) : Day.Ordinal.OfYear date.year.isLeap :=
 /--
 Determines the week of the year for the given `DateTime`.
 -/
+@[inline]
 def weekOfYear (date : DateTime tz) : Week.Ordinal :=
-  let res := Month.Ordinal.toOrdinal ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩ |>.ediv 7 (by decide) |>.add 1
-  match date.date.get.date.year.isLeap, res with
-  | true, res => res
-  | false, res => res
+  date.date.get.weekOfYear
+
+/--
+Returns the unaligned week of the month for a `DateTime` (day divided by 7, plus 1).
+-/
+def weekOfMonth (date : DateTime tz) : Bounded.LE 1 5 :=
+  date.date.get.weekOfMonth
 
 /--
 Determines the week of the month for the given `DateTime`. The week of the month is calculated based
 on the day of the month and the weekday. Each week starts on Sunday because the entire library is
 based on the Gregorian Calendar.
 -/
-def weekOfMonth (date : DateTime tz) : Week.Ordinal.OfMonth :=
-  let weekday := date.weekday.toOrdinal
-  date.day.addBounds (weekday.sub 1) |>.ediv 7 (by decide) |>.add 1
+@[inline]
+def alignedWeekOfMonth (date : DateTime tz) : Week.Ordinal.OfMonth :=
+  date.date.get.alignedWeekOfMonth
 
 /--
 Determines the quarter of the year for the given `DateTime`.
 -/
+@[inline]
 def quarter (date : DateTime tz) : Bounded.LE 1 4 :=
-  date.month.sub 1 |>.ediv 3 (by decide) |>.add 1
+  date.date.get.quarter
 
 instance : ToTimestamp (DateTime tz) where
   toTimestamp dt := dt.toUTCTimestamp

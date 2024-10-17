@@ -95,9 +95,6 @@ Checks if the given date is valid for the specified year, month, and day.
 abbrev Valid (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
   day ≤ month.days year.isLeap
 
-instance : Decidable (Valid year month day) :=
-  dite (day ≤ month.days year.isLeap) isTrue isFalse
-
 end Offset
 end Year
 end Time

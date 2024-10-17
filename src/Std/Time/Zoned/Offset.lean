@@ -19,23 +19,13 @@ Represents a timezone offset with an hour and second component.
 structure Offset where
 
   /--
-  The timezone offset in Hours.
-  -/
-  hour : Hour.Offset
-
-  /--
   The same timezone offset in seconds.
   -/
   second : Second.Offset
-
-  /--
-  The proof that both are equal
-  -/
-  proof : second.toHours = hour
   deriving Repr
 
 instance : Inhabited Offset where
-  default := ⟨0, 0, rfl⟩
+  default := ⟨0⟩
 
 instance : BEq Offset where
   beq x y := BEq.beq x.second y.second
@@ -59,26 +49,25 @@ def toIsoString (offset : Offset) (colon : Bool) : String :=
 A zero `Offset` representing UTC (no offset).
 -/
 def zero : Offset :=
-  { hour := 0, second := 0, proof := rfl }
+  { second := 0 }
 
 /--
 Creates an `Offset` from a given number of hour.
 -/
 def ofHours (n : Hour.Offset) : Offset :=
-  mk n n.toSeconds (by simp [Hour.Offset.toSeconds, Second.Offset.toHours, UnitVal.mul, UnitVal.div]; rfl)
+  mk n.toSeconds
 
 /--
-Creates an `Offset` from a given number of hour and minuets.
+Creates an `Offset` from a given number of hours and minutes.
 -/
 def ofHoursAndMinutes (n : Hour.Offset) (m : Minute.Offset) : Offset :=
-  let secs := n.toSeconds + m.toSeconds
-  mk secs.toHours secs rfl
+  mk (n.toSeconds + m.toSeconds)
 
 /--
-Creates an `Offset` from a given number of second.
+Creates an `Offset` from a given number of seconds.
 -/
 def ofSeconds (n : Second.Offset) : Offset :=
-  mk n.toHours n rfl
+  ⟨n⟩
 
 end Offset
 end TimeZone

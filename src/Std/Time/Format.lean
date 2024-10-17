@@ -141,8 +141,8 @@ namespace TimeZone
 Parses a string into a `TimeZone` object. The input string must be in the format `"VV ZZZZZ"`.
 -/
 def fromTimeZone (input : String) : Except String TimeZone := do
-  let spec : GenericFormat .any := datespec("VV ZZZZZ")
-  spec.parseBuilder (λid off => some (TimeZone.mk off id "Unknown" false)) input
+  let spec : GenericFormat .any := datespec("V ZZZZZ")
+  spec.parseBuilder (fun id off => some (TimeZone.mk off id "Unknown" false)) input
 
 namespace Offset
 
@@ -167,10 +167,17 @@ def format (date : PlainDate) (format : String) : String :=
   | .error err => s!"error: {err}"
   | .ok res =>
     let res := res.formatGeneric fun
+      | .G _ => some date.era
       | .y _ => some date.year
+      | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
+      | .Qorq _ => some date.quarter
+      | .w _ => some date.weekOfYear
+      | .W _ => some date.weekOfMonth
       | .MorL _ => some date.month
       | .d _ => some date.day
       | .E _ => some date.weekday
+      | .eorc _ => some date.weekday
+      | .F _ => some date.alignedWeekOfMonth
       | _ => none
     match res with
     | some res => res
@@ -180,7 +187,7 @@ def format (date : PlainDate) (format : String) : String :=
 Parses a date string in the American format (`MM-dd-yyyy`) and returns a `PlainDate`.
 -/
 def fromAmericanDateString (input : String) : Except String PlainDate := do
-  Formats.americanDate.parseBuilder (fun m d y => PlainDate.ofYearMonthDay y m d) input
+  Formats.americanDate.parseBuilder (fun m d y => PlainDate.ofYearMonthDay? y m d) input
 
 /--
 Converts a date in the American format (`MM-dd-yyyy`) into a `String`.
@@ -192,7 +199,7 @@ def toAmericanDateString (input : PlainDate) : String :=
 Parses a date string in the SQL format (`yyyy-MM-dd`) and returns a `PlainDate`.
 -/
 def fromSQLDateString (input : String) : Except String PlainDate := do
-  Formats.sqlDate.parseBuilder (PlainDate.ofYearMonthDay) input
+  Formats.sqlDate.parseBuilder PlainDate.ofYearMonthDay? input
 
 /--
 Converts a date in the SQL format (`yyyy-MM-dd`) into a `String`.
@@ -204,7 +211,7 @@ def toSQLDateString (input : PlainDate) : String :=
 Parses a date string in the Lean format (`yyyy-MM-dd`) and returns a `PlainDate`.
 -/
 def fromLeanDateString (input : String) : Except String PlainDate := do
-  Formats.leanDate.parseBuilder (PlainDate.ofYearMonthDay) input
+  Formats.leanDate.parseBuilder PlainDate.ofYearMonthDay? input
 
 /--
 Converts a date in the Lean format (`yyyy-MM-dd`) into a `String`.
@@ -239,9 +246,16 @@ def format (time : PlainTime) (format : String) : String :=
   | .ok res =>
     let res := res.formatGeneric fun
       | .H _ => some time.hour
+      | .k _ => some (time.hour.add 1)
       | .m _ => some time.minute
       | .n _ => some time.nano
       | .s _ => some time.second
+      | .a _ => some (HourMarker.ofOrdinal time.hour)
+      | .h _ => some time.hour.toRelative
+      | .K _ => some (time.hour.emod 12 (by decide))
+      | .S _ => some time.nano
+      | .A _ => some time.toMilliseconds
+      | .N _ => some time.toNanoseconds
       | _ => none
     match res with
     | some res => res
@@ -402,15 +416,28 @@ def format (date : PlainDateTime) (format : String) : String :=
   | .error err => s!"error: {err}"
   | .ok res =>
     let res := res.formatGeneric fun
-      | .y _ => some date.date.year
-      | .MorL _ => some date.date.month
-      | .d _ => some date.date.day
-      | .E _ => some date.date.weekday
-      | .H _ => some date.time.hour
-      | .m _ => some date.time.minute
-      | .n _ => some date.time.nano
-      | .S _ => some date.time.nano
+      | .G _ => some date.era
+      | .y _ => some date.year
+      | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
+      | .Qorq _ => some date.quarter
+      | .w _ => some date.weekOfYear
+      | .W _ => some date.weekOfMonth
+      | .MorL _ => some date.month
+      | .d _ => some date.day
+      | .E _ => some date.weekday
+      | .eorc _ => some date.weekday
+      | .F _ => some date.alignedWeekOfMonth
+      | .H _ => some date.hour
+      | .k _ => some (date.hour.add 1)
+      | .m _ => some date.minute
+      | .n _ => some date.nanosecond
       | .s _ => some date.time.second
+      | .a _ => some (HourMarker.ofOrdinal date.hour)
+      | .h _ => some date.hour.toRelative
+      | .K _ => some (date.hour.emod 12 (by decide))
+      | .S _ => some date.nanosecond
+      | .A _ => some date.time.toMilliseconds
+      | .N _ => some date.time.toNanoseconds
       | _ => none
     match res with
     | some res => res

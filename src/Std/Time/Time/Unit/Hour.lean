@@ -23,9 +23,6 @@ set_option linter.all true
 def Ordinal := Bounded.LE 0 23
   deriving Repr, BEq, LE, LT
 
-instance : ToString Ordinal where
-  toString x := toString x.val
-
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 0 (0 + (23 : Nat))) n)
 
@@ -78,6 +75,23 @@ def toOffset (ordinal : Ordinal) : Offset :=
   UnitVal.ofInt ordinal.val
 
 end Ordinal
+namespace Offset
+
+/--
+Creates an `Offset` from a natural number.
+-/
+@[inline]
+def ofNat (data : Nat) : Offset :=
+  UnitVal.mk data
+
+/--
+Creates an `Offset` from an integer.
+-/
+@[inline]
+def ofInt (data : Int) : Offset :=
+  UnitVal.mk data
+
+end Offset
 end Hour
 end Time
 end Std

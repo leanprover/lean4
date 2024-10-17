@@ -138,7 +138,7 @@ def createTimeZoneFromTransition (transition : Transition) : TimeZone :=
 Applies the transition to a Timestamp.
 -/
 def apply (timestamp : Timestamp) (transition : Transition) : Timestamp :=
-  let offsetInSeconds := transition.localTimeType.gmtOffset.hour.mul 3600 |>.add transition.localTimeType.gmtOffset.second
+  let offsetInSeconds := transition.localTimeType.gmtOffset.second |>.add transition.localTimeType.gmtOffset.second
   timestamp.addSeconds offsetInSeconds
 
 /--

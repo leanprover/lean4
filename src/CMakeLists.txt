@@ -252,9 +252,11 @@ if(NOT LEAN_STANDALONE)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
 endif()
 
-set(WINDOWS_SDK_DIR "/c/Program Files (x86)/Windows Kits/10")
-string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
-string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWS_SDK_DIR}/Include/10.0.22621.0/um\"")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(WINDOWS_SDK_DIR "/c/Program Files (x86)/Windows Kits/10")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
+  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWS_SDK_DIR}/Include/10.0.22621.0/um\"")
+endif()
 
 # ccache
 if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)

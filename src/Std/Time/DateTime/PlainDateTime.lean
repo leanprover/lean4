@@ -382,6 +382,13 @@ def day (dt : PlainDateTime) : Day.Ordinal :=
   dt.date.day
 
 /--
+Getter for the `Weekday` inside of a `PlainDateTime`.
+-/
+@[inline]
+def weekday (dt : PlainDateTime) : Weekday :=
+  dt.date.weekday
+
+/--
 Getter for the `Hour` inside of a `PlainDateTime`.
 -/
 @[inline]
@@ -422,6 +429,42 @@ Checks if the `PlainDateTime` is in a leap year.
 @[inline]
 def inLeapYear (date : PlainDateTime) : Bool :=
   date.year.isLeap
+
+/--
+Determines the week of the year for the given `PlainDateTime`.
+-/
+@[inline]
+def weekOfYear (date : PlainDateTime) : Week.Ordinal :=
+  date.date.weekOfYear
+
+/--
+Returns the unaligned week of the month for a `PlainDateTime` (day divided by 7, plus 1).
+-/
+def weekOfMonth (date : PlainDateTime) : Bounded.LE 1 5 :=
+  date.date.weekOfMonth
+
+/--
+Determines the week of the month for the given `PlainDateTime`. The week of the month is calculated based
+on the day of the month and the weekday. Each week starts on Sunday because the entire library is
+based on the Gregorian Calendar.
+-/
+@[inline]
+def alignedWeekOfMonth (date : PlainDateTime) : Week.Ordinal.OfMonth :=
+  date.date.alignedWeekOfMonth
+
+/--
+Transforms a tuple of a `PlainDateTime` into a `Day.Ordinal.OfYear`.
+-/
+@[inline]
+def toOrdinal (date : PlainDateTime) : Day.Ordinal.OfYear date.year.isLeap :=
+  Month.Ordinal.toOrdinal ⟨(date.month, date.day), date.date.valid⟩
+
+/--
+Determines the quarter of the year for the given `PlainDateTime`.
+-/
+@[inline]
+def quarter (date : PlainDateTime) : Bounded.LE 1 4 :=
+  date.date.quarter
 
 instance : HAdd PlainDateTime Day.Offset PlainDateTime where
   hAdd := addDays

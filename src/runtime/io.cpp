@@ -6,8 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_WINDOWS)
 #include <icu.h>
-#include <icucommon.h>
-#include <icui18n.h>
 #include <windows.h>
 #include <io.h>
 #define NOMINMAX // prevent ntdef.h from defining min/max macros
@@ -541,8 +539,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_ts);
 }
 
-/* Std.Time.TimeZone.getWindowsTimeZoneAt : String -> UInt64 -> IO Timezone */
-extern "C" LEAN_EXPORT obj_res lean_get_windows_timezone_at(obj_arg timezone_str, uint64_t timestamp_secs, obj_arg /* w */) {
+/* Std.Time.Database.Windows.getLocalTimeZoneIdentifier : IO String */
+extern "C" LEAN_EXPORT obj_res lean_get_windows_timezone_at(obj_arg timezone_str, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     const char* dst_name = lean_string_cstr(timezone_str);
@@ -593,10 +591,13 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_timezone_at(obj_arg timezone_str
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
 
     zone_offset += dst_offset;
-    
+
     if (U_FAILURE(status)) {
+        ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get dst_offset")));
     }
+
+    ucal_close(cal);
 
     int offset_hour = zone_offset / 3600000;
     int offset_seconds = zone_offset / 1000;
@@ -611,19 +612,18 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_timezone_at(obj_arg timezone_str
     lean_ctor_set(lean_tz, 1, lean_mk_ascii_string_unchecked(dst_name));
     lean_ctor_set(lean_tz, 2, lean_mk_ascii_string_unchecked(display_name_str));
     lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, is_dst);
-    
+
     return lean_io_result_mk_ok(lean_tz);
 #else
     return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get timezone, its windows only.")));
 #endif
 }
 
-/* Std.Time.TimeZone.getCurrentTimezone : IO Timezone */
-extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset_at(uint64_t timestamp_secs, obj_arg /* w */) {
-    using namespace std::chrono;
+/* SStd.Time.Database.Windows.getLocalTimeZoneIdentifierAt : UInt64 → IO String */
+extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t timestamp_secs, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
-    UCalendar *cal = ucal_open(NULL, -1, NULL, UCAL_GREGORIAN, &status);
+    UCalendar* cal = ucal_open(NULL, -1, NULL, UCAL_GREGORIAN, &status);
 
     if (U_FAILURE(status)) {
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
@@ -636,80 +636,24 @@ extern "C" LEAN_EXPORT obj_res lean_get_timezone_offset_at(uint64_t timestamp_se
     }
 
     UChar tzId[256];
-    int32_t tzIdLength = ucal_getTimeZoneID(cal, tzId, sizeof(tzId)/sizeof(tzId[0]), &status);
+    int32_t tzIdLength = ucal_getTimeZoneID(cal, tzId, sizeof(tzId) / sizeof(tzId[0]), &status);
+    ucal_close(cal);
 
     if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get zone_offset")));
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get timezone ID")));
     }
 
-    char dst_name[256];
-    u_strToUTF8(dst_name, sizeof(dst_name), NULL, tzId, tzIdLength, &status);
-    if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get zone_offset")));
-    }
-
-    UChar display_name[32];
-    int32_t display_name_len = ucal_getTimeZoneDisplayName(cal, UCAL_SHORT_STANDARD, "en_US", display_name, 32, &status);
+    char tzIdStr[256];
+    u_strToUTF8(tzIdStr, sizeof(tzIdStr), NULL, tzId, tzIdLength, &status);
 
     if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to read abbreaviation")));
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to convert timezone ID to UTF-8")));
     }
 
-    char display_name_str[32];
-    u_strToUTF8(display_name_str, sizeof(display_name_str), NULL, display_name, display_name_len, &status);
-
-    if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get abbreviation to cstr")));
-    }
-
-    int32_t zone_offset = ucal_get(cal, UCAL_ZONE_OFFSET, &status);
-
-    if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get zone_offset")));
-    }
-
-    int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
-
-    zone_offset += dst_offset;
-    
-    if (U_FAILURE(status)) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get dst_offset")));
-    }
-
-    int offset_hour = zone_offset / 3600000;
-    int offset_seconds = zone_offset / 1000;
-    int is_dst = dst_offset != 0;
+    return lean_io_result_mk_ok(lean_mk_ascii_string_unchecked(tzIdStr));
 #else
-    std::time_t input_time = static_cast<std::time_t>(timestamp_secs);
-    std::tm tm_info;
-    struct tm *tm_ptr = localtime_r(&input_time, &tm_info);
-
-    if (tm_ptr == NULL) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("")));
-    }
-    
-    int offset_hour = tm_info.tm_gmtoff / 3600;
-    int offset_seconds = tm_info.tm_gmtoff;
-    int is_dst = tm_info.tm_isdst;
-    char dst_name[] = "Unknown";
-    char display_name_str[32] = "Unknown";
+    return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("timezone retrieval is Windows-only")));
 #endif
-    lean_object *lean_offset = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(lean_offset, 0, lean_int_to_int(offset_hour));
-    lean_ctor_set(lean_offset, 1, lean_int_to_int(offset_seconds));
-
-    lean_object *lean_tz = lean_alloc_ctor(0, 3, 1);
-    lean_ctor_set(lean_tz, 0, lean_offset);
-    lean_ctor_set(lean_tz, 1, lean_mk_ascii_string_unchecked(dst_name));
-    lean_ctor_set(lean_tz, 2, lean_mk_ascii_string_unchecked(display_name_str));
-    lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, is_dst);
-
-    return lean_io_result_mk_ok(lean_tz);
 }
 
 /* monoMsNow : BaseIO Nat */

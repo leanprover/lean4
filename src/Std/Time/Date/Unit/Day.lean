@@ -19,9 +19,6 @@ set_option linter.all true
 def Ordinal := Bounded.LE 1 31
   deriving Repr, BEq, LE, LT
 
-instance : ToString Ordinal where
-  toString x := toString x.val
-
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (30 : Nat))) n)
 
@@ -47,46 +44,6 @@ instance {x y : Offset} : Decidable (x ≤ y) :=
 
 instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
-
-/--
-`Period` is an enumeration representing different times of the day : morning, afternoon, evening, and night.
--/
-inductive Period
-  /-- Represents the morning period. -/
-  | morning
-
-  /-- Represents the afternoon period. -/
-  | afternoon
-
-  /-- Represents the evening period. -/
-  | evening
-
-  /-- Represents the night period. -/
-  | night
-  deriving Repr, BEq, Inhabited
-
-namespace Period
-
-/--
-Determines the `Period` of the day based on the given hour.
-
-- If the hour is between 20 and 4, it returns `night`.
-- If the hour is between 17 and 20, it returns `evening`.
-- If the hour is between 12 and 17, it returns `afternoon`.
-- If the hour is between 5 and 12, it reutrns `morning`.
--/
-@[inline]
-def fromHour (hour : Hour.Ordinal) : Day.Period :=
-  if hour ≥ 20 ∨ hour ≤ 4 then
-    .night
-  else if hour ≥ 17 then
-    .evening
-  else if hour ≥ 12 then
-    .afternoon
-  else
-    .morning
-
-end Period
 
 namespace Ordinal
 

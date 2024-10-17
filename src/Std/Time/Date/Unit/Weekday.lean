@@ -55,49 +55,49 @@ Converts a `Ordinal` representing a day index into a corresponding `Weekday`. Th
 for mapping numerical representations to days of the week.
 -/
 def ofOrdinal : Ordinal → Weekday
-  | 1 => .sunday
-  | 2 => .monday
-  | 3 => .tuesday
-  | 4 => .wednesday
-  | 5 => .thursday
-  | 6 => .friday
-  | 7 => .saturday
+  | 1 => .monday
+  | 2 => .tuesday
+  | 3 => .wednesday
+  | 4 => .thursday
+  | 5 => .friday
+  | 6 => .saturday
+  | 7 => .sunday
 
 /--
 Converts a `Weekday` to a `Ordinal`.
 -/
 def toOrdinal : Weekday → Ordinal
-  | .sunday => 1
-  | .monday => 2
-  | .tuesday => 3
-  | .wednesday => 4
-  | .thursday => 5
-  | .friday => 6
-  | .saturday => 7
+  | .monday => 1
+  | .tuesday => 2
+  | .wednesday => 3
+  | .thursday => 4
+  | .friday => 5
+  | .saturday => 6
+  | .sunday => 7
 
 /--
 Converts a `Weekday` to a `Nat`.
 -/
 def toNat : Weekday → Nat
-  | .sunday => 1
-  | .monday => 2
-  | .tuesday => 3
-  | .wednesday => 4
-  | .thursday => 5
-  | .friday => 6
-  | .saturday => 7
+  | .monday => 1
+  | .tuesday => 2
+  | .wednesday => 3
+  | .thursday => 4
+  | .friday => 5
+  | .saturday => 6
+  | .sunday => 7
 
 /--
 Converts a `Nat` to an `Option Weekday`.
 -/
 def ofNat? : Nat → Option Weekday
-  | 1 => some .sunday
-  | 2 => some .monday
-  | 3 => some .tuesday
-  | 4 => some .wednesday
-  | 5 => some .thursday
-  | 6 => some .friday
-  | 7 => some .saturday
+  | 1 => some .monday
+  | 2 => some .tuesday
+  | 3 => some .wednesday
+  | 4 => some .thursday
+  | 5 => some .friday
+  | 6 => some .saturday
+  | 7 => some .sunday
   | _ => none
 
 /--
@@ -122,9 +122,9 @@ def next : Weekday → Weekday
   | .sunday => .monday
 
 /--
-Check if it's a Weekend.
+Check if it's a weekend.
 -/
-def weekend : Weekday → Bool
+def isWeekend : Weekday → Bool
   | .saturday => true
   | .sunday => true
   | _ => false

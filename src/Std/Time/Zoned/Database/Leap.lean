@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+prelude
 import Init.Data.Range
 import Std.Internal.Parsec
 import Std.Internal.Parsec.ByteArray
@@ -52,7 +53,7 @@ private def failWith (opt : Option α) : Parser α :=
   | none => fail "invalid number"
   | some res => pure res
 
-def parseMonthShort : Parser Month.Ordinal
+private def parseMonthShort : Parser Month.Ordinal
    := pstring "Jan" *> pure ⟨1, by decide⟩
   <|> pstring "Feb" *> pure ⟨2, by decide⟩
   <|> pstring "Mar" *> pure ⟨3, by decide⟩
@@ -88,11 +89,11 @@ private def parseLeapSecond : Parser LeapSecond := do
   let stationary ← manyChars (satisfy Char.isAlpha)
   skipChar '\n'
 
-  dbg_trace s!"{year}--{month}--{day}"
+  dbg_trace s!"{repr year}--{repr month}--{day}"
 
   let day ← failWith <| Internal.Bounded.ofInt? day
   let time : PlainTime ← failWith <| PlainTime.ofHourMinuteSeconds hour minute second
-  let date : PlainDate ← failWith <| PlainDate.ofYearMonthDay (Year.Offset.ofNat year) month day
+  let date : PlainDate ← failWith <| PlainDate.ofYearMonthDay? (Year.Offset.ofNat year) month day
   let pdt := PlainDateTime.mk date time
 
   return { timestamp := pdt.toTimestampAssumingUTC, positive, stationary }

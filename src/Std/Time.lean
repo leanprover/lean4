@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+prelude
 import Std.Time.Time
 import Std.Time.Date
 import Std.Time.Zoned
@@ -18,7 +19,7 @@ namespace Time
 /-!
 # Time
 
-The Lean4 API for date, time, and duration functionalities.
+The Lean API for date, time, and duration functionalities.
 
 # Overview
 
@@ -56,15 +57,15 @@ converted because they use an internal type called `UnitVal`.
 
 Ordinal types represent specific bounded values in reference to another unit, e.g., `Day.Ordinal`
 represents a day in a month, ranging from 1 to 31. Some ordinal types like `Hour.Ordinal` and `Second.Ordinal`,
-allow for values beyond the normal range (e.g, 24 hours and 61 seconds) to accomodate special cases
-with leap seconds like `24:00:00` that is valid in ISO 8601.
+allow for values beyond the normal range (e.g, 60 seconds) to accomodate special cases with leap seconds
+like `23:59:60` that is valid in ISO 8601.
 
 - Ordinal types:
   - `Day.Ordinal`: Ranges from 1 to 31.
   - `Day.Ordinal.OfYear`: Ranges from 1 to (365 or 366).
   - `Month.Ordinal`: Ranges from 1 to 12.
   - `WeekOfYear.Ordinal`: Ranges from 1 to 53.
-  - `Hour.Ordinal`: Ranges from 0 to 24.
+  - `Hour.Ordinal`: Ranges from 0 to 23.
   - `Millisecond.Ordinal`: Ranges from 0 to 999.
   - `Minute.Ordinal`: Ranges from 0 to 59.
   - `Nanosecond.Ordinal`: Ranges from 0 to 999,999,999.
@@ -82,9 +83,13 @@ nanoseconds corresponds to one second.
 
 # Date and Time Types
 
-Dates and times are composed of these components. Dates are "absolute" value in contrast with Offsets
-that are just shifts in dates and times. Types like `Date` are made using of components such as `Year.Offset`,
-`Month.Ordinal`, and `Day.Ordinal`, with a proof of the date's validity.
+Dates and times are made up of different parts. an `Ordinal` is an absolute value, like a specific day in a month,
+while an `Offset` is a shift forward or backward in time, used in arithmetic operations to add or subtract days, months or years.
+Dates use components like `Year.Ordinal`, `Month.Ordinal`, and `Day.Ordinal` to ensure they represent
+valid points in time.
+
+Some types, like `Duration`, include a `Span` to represent ranges over other types, such as `Second.Offset`.
+This type can have a fractional nanosecond part that can be negative or positive that is represented as a `Nanosecond.Span`.
 
 ## Date
 These types provide precision down to the day level, useful for representing and manipulating dates.
@@ -101,8 +106,8 @@ These types offer precision down to the nanosecond level, useful for representin
 Combines date and time into a single representation, useful for precise timestamps and scheduling.
 
 - **`PlainDateTime`**: Represents both date and time in the format `YYYY-MM-DDTHH:mm:ss,sssssssss`.
-- **`Timestamp`**: Represents a point in time with nanosecond-level precision. It starts on the UNIX
-epoch and it should be used when you receive or need to send timestamps to other systems.
+- **`Timestamp`**: Represents a specific point in time with nanosecond precision. Its zero value corresponds
+to the UNIX epoch. This type should be used when sending or receiving timestamps between systems.
 
 ## Zoned date and times.
 Combines date, time and time zones.
@@ -117,10 +122,9 @@ Represents spans of time and the difference between two points in time.
 
 # Formats
 
-Format strings are used to convert between `String` representations and date/time types, such as `yyyy-MM-dd'T'HH:mm:ss.sssZ`.
-The table below outlines the available format specifiers. Some specifiers can be modified by repeating characters to
-adjust truncation and offsets. Some of them when a character is repeated `n` times, it truncates the corresponding value to
-`n` characters, usually when not specified a quantity.
+Format strings are used to convert between `String` representations and date/time types, like `yyyy-MM-dd'T'HH:mm:ss.sssZ`.
+The table below shows the available format specifiers. Some specifiers can be repeated to control truncation or offsets.
+When a character is repeated `n` times, it usually truncates the value to `n` characters.
 
 The supported formats include:
 - `G`: Represents the era, such as AD (Anno Domini) or BC (Before Christ).
@@ -142,24 +146,20 @@ The supported formats include:
   - `Q`, `QQ`: Displays the quarter as a number (e.g., "3", "03").
   - `QQQ` (short): Displays the quarter as an abbreviated text (e.g., "Q3").
   - `QQQQ` (full): Displays the full quarter text (e.g., "3rd quarter").
-  - `QQQQQ` (narrow): Displays the full quarter text (e.g., "3rd quarter").
+  - `QQQQQ` (narrow): Displays the quarter as a short number (e.g., "3").
 - `w`: Represents the week of the week-based year (e.g., "27").
 - `W`: Represents the week of the month (e.g., "4").
 - `E`: Represents the day of the week as text.
-  - `E`, `EE`, `EEE`: Displays the abbreviated day name (e.g., "Tue").
+  - `E`, `EE`, `EEE`: Displays the abbreviated weekday name (e.g., "Tue").
   - `EEEE`: Displays the full day name (e.g., "Tuesday").
   - `EEEEE`: Displays the narrow day name (e.g., "T" for Tuesday).
-- `e`: Represents the localized day of the week.
-  - `e`, `ee`: Displays the day of the week as a number, starting from 1 (Monday) to 7 (Sunday).
-  - `eee`, `eeee`, `eeeee`: Displays the localized day of the week as text (same format as `E`).
+- `e`: Represents the weekday as number or text.
+  - `e`, `ee`: Displays the the as a number, starting from 1 (Monday) to 7 (Sunday).
+  - `eee`, `eeee`, `eeeee`: Displays the weekday as text (same format as `E`).
 - `F`: Represents the aligned week of the month (e.g., "3").
 - `a`: Represents the AM or PM designation of the day.
   - `a`, `aa`, `aaa`: Displays AM or PM in a concise format (e.g., "PM").
   - `aaaa`: Displays the full AM/PM designation (e.g., "PM").
-- `B`: Represents the period of the day (e.g., "in the morning", "at night").
-  - `b`, `bb`, `bbb` (short): Displays the abbreviated period of the day (e.g., "morning").
-  - `bbbb` (full): Displays the full period of the day (e.g., "in the morning").
-  - `bbbbb` (narrow): Displays a narrow version of the period of the day (e.g., "m" for morning).
 - `h`: Represents the hour of the AM/PM clock (1-12) (e.g., "12").
 - `K`: Represents the hour of the AM/PM clock (0-11) (e.g., "0").
 - `k`: Represents the hour of the day in a 1-24 format (e.g., "24").
@@ -170,7 +170,7 @@ The supported formats include:
 - `A`: Represents the millisecond of the day (e.g., "1234").
 - `n`: Represents the nanosecond of the second (e.g., "987654321").
 - `N`: Represents the nanosecond of the day (e.g., "1234000000").
-- `V`: Represents the time zone ID, which could be a city-based zone (e.g., "America/Los_Angeles"), a UTC marker (`"Z"`), or a specific offset (e.g., "-08:30").
+- `VV`: Represents the time zone ID, which could be a city-based zone (e.g., "America/Los_Angeles"), a UTC marker (`"Z"`), or a specific offset (e.g., "-08:30").
 - `z`: Represents the time zone name.
   - `z`, `zz`, `zzz`: Shows an abbreviated time zone name (e.g., "PST" for Pacific Standard Time).
   - `zzzz`: Displays the full time zone name (e.g., "Pacific Standard Time").
@@ -200,9 +200,9 @@ The supported formats include:
 In order to help the user build dates easily, there are a lot of macros available for creating dates.
 The `.sssssssss` can be ommited in most cases.
 
-- **`date(yyyy-MM-dd)`**: Defines a date in the `YYYY-MM-DD` format.
-- **`time(HH:mm:ss.sssssssss)`**: Defines a time in the `HH:mm:ss:sssssssss` format, including fractional seconds.
-- **`datetime("yyy-MM-ddTHH:mm:ss.sssssssss")`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss:sssssssss` format.
+- **`date("yyyy-MM-dd")`**: Defines a date in the `yyyy-MM-DD` format.
+- **`time("HH:mm:ss.sssssssss")`**: Defines a time in the `HH:mm:ss.sssssssss` format, including fractional seconds.
+- **`datetime("yyy-MM-ddTHH:mm:ss.sssssssss")`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss.sssssssss` format.
 - **`offset("+HH:mm")`**: Defines a timezone offset in the format `+HH:mm`.
 - **`timezone("NAME/ID ZZZ")`**: Defines a timezone with a name and an offset.
 - **`datespec("format")`**: Defines a date specification format at compile time using the provided format string.

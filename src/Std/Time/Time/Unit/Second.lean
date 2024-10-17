@@ -30,9 +30,6 @@ instance : LE (Ordinal leap) where
 instance : LT (Ordinal leap) where
   lt x y := LT.lt x.val y.val
 
-instance : ToString (Ordinal leap) where
-  toString x := toString x.val
-
 instance : Repr (Ordinal l) where
   reprPrec r := reprPrec r.val
 

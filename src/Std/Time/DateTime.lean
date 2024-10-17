@@ -47,18 +47,10 @@ def toPlainDateAssumingUTC (timestamp : Timestamp) : PlainDate :=
   PlainDate.ofDaysSinceUNIXEpoch days
 
 /--
-Converts a `PlainTime` to a `Timestamp`
--/
-@[inline]
-def ofPlainTime (pt : PlainTime) : Timestamp :=
-  let nanos := pt.toNanoseconds
-  Timestamp.ofNanosecondsSinceUnixEpoch nanos
-
-/--
 Converts a `Timestamp` to a `PlainTime`
 -/
 @[inline]
-def getTime (timestamp : Timestamp) : PlainTime :=
+def getTimeAssumingUTC (timestamp : Timestamp) : PlainTime :=
   let nanos := timestamp.toNanosecondsSinceUnixEpoch
   PlainTime.ofNanoseconds nanos
 

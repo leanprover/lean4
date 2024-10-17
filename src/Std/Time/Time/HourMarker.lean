@@ -17,9 +17,15 @@ set_option linter.all true
 11:59 AM, and `pm` for hours between 12:00 PM and 11:59 PM.
 -/
 inductive HourMarker
-  /-- Ante meridiem. -/
+
+  /--
+  Ante meridiem.
+  -/
   | am
-  /-- Post meridiem. -/
+
+  /--
+  Post meridiem.
+  -/
   | pm
   deriving Repr, BEq
 

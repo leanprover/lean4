@@ -269,3 +269,477 @@ info: "14-13-12"
 -/
 #guard_msgs in
 #eval zoned("2002-07-14T14:13:12+09:00").format "HH-mm-ss"
+
+/-
+Format
+-/
+
+def time₄ := time("23:13:12.324354679")
+def date₄ := date("2002-07-14")
+def datetime₄ := datetime("2002-07-14T23:13:12.324354679")
+def zoned₄ := zoned("2002-07-14T23:13:12.324354679+09:00")
+
+/--
+info: "CE CE CE Common Era C"
+-/
+#guard_msgs in
+#eval zoned₄.format "G GG GGG GGGG GGGGG"
+
+/--
+info: "02 2002 000002002"
+-/
+#guard_msgs in
+#eval zoned₄.format "yy yyyy yyyyyyyyy"
+
+/--
+info: "5 95 195"
+-/
+#guard_msgs in
+#eval zoned₄.format "D DD DDD"
+
+/--
+info: "7 07 Jul J"
+-/
+#guard_msgs in
+#eval zoned₄.format "M MM MMM MMMMM"
+
+/--
+info: "4 14 014 0014 00014"
+-/
+#guard_msgs in
+#eval zoned₄.format "d dd ddd dddd ddddd"
+
+/--
+info: "7 07 Jul July J"
+-/
+#guard_msgs in
+#eval zoned₄.format "M MM MMM MMMM MMMMM"
+
+/--
+info: "4 14 0014 0014"
+-/#guard_msgs in
+#eval zoned₄.format "d dd dddd dddd"
+
+/--
+info: "3 03 3rd quarter 3"
+-/
+#guard_msgs in
+#eval zoned₄.format "Q QQ QQQQ QQQQQ"
+
+/--
+info: "8 28 028 0028"
+-/
+#guard_msgs in
+#eval zoned₄.format "w ww www wwww"
+
+/--
+info: "3 03 003 0003"
+-/
+#guard_msgs in
+#eval zoned₄.format "W WW WWW WWWW"
+
+/--
+info: "Sun Sun Sun Sunday S"
+-/
+#guard_msgs in
+#eval zoned₄.format "E EE EEE EEEE EEEEE"
+
+/--
+info: "7 07 Sun Sunday S"
+-/
+#guard_msgs in
+#eval zoned₄.format "e ee eee eeee eeeee"
+
+/--
+info: "3 03 003 0003"
+-/
+#guard_msgs in
+#eval zoned₄.format "F FF FFF FFFF"
+
+/--
+info: "1 11 011 0011 0011"
+-/
+#guard_msgs in
+#eval zoned₄.format "h hh hhh hhhh hhhh"
+
+/--
+info: "1 11 011 0011 000011"
+-/
+#guard_msgs in
+#eval zoned₄.format "K KK KKK KKKK KKKKKK"
+
+/--
+info: "4 24 024 0024 000024"
+-/
+#guard_msgs in
+#eval zoned₄.format "k kk kkk kkkk kkkkkk"
+
+/--
+info: "3 23 023 0023 00023"
+-/
+#guard_msgs in
+#eval zoned₄.format "H HH HHH HHHH HHHHH"
+
+/--
+info: "3 13 013 0013 00013"
+-/
+#guard_msgs in
+#eval zoned₄.format "m mm mmm mmmm mmmmm"
+
+/--
+info: "2 12 012 0012 00012"
+-/
+#guard_msgs in
+#eval zoned₄.format "s ss sss ssss sssss"
+
+
+/--
+info: "9 79 679 4679 54679"
+-/#guard_msgs in
+#eval zoned₄.format "S SS SSS SSSS SSSSS"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval zoned₄.format "S SS SSS SSSS SSSSSSSSS"
+
+/--
+info: "4 24 324 2324 083592324"
+-/
+#guard_msgs in
+#eval zoned₄.format "A AA AAA AAAA AAAAAAAAA"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval zoned₄.format "n nn nnn nnnn nnnnnnnnn"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval zoned₄.format "N NN NNN NNNN NNNNNNNNN"
+
+/--
+info: "Unknown"
+-/
+#guard_msgs in
+#eval zoned₄.format "V"
+
+/--
+info: "Unknown Unknown Unknown Unknown"
+-/
+#guard_msgs in
+#eval zoned₄.format "z zz zzzz zzzz"
+
+/--
+info: "GMT+9 GMT+09:00"
+-/
+#guard_msgs in
+#eval zoned₄.format "O OOOO"
+
+/--
+info: "+09 +0900 +09:00 +090000 +09:00:00"
+-/
+#guard_msgs in
+#eval zoned₄.format "X XX XXX XXXX XXXXX"
+
+/--
+info: "+09 +0900 +09:00 +0900 +09:00:00"
+-/
+#guard_msgs in
+#eval zoned₄.format "x xx xxx xxxx xxxxx"
+
+/--
+info: "+0900 +0900 +0900 GMT+09:00 +09:00"
+-/
+#guard_msgs in
+#eval zoned₄.format "Z ZZ ZZZ ZZZZ ZZZZZ"
+
+/--
+info: "CE CE CE Common Era C"
+-/
+#guard_msgs in
+#eval datetime₄.format "G GG GGG GGGG GGGGG"
+
+/--
+info: "02 2002 000002002"
+-/
+#guard_msgs in
+#eval datetime₄.format "yy yyyy yyyyyyyyy"
+
+/--
+info: "5 95 195"
+-/
+#guard_msgs in
+#eval datetime₄.format "D DD DDD"
+
+/--
+info: "7 07 Jul J"
+-/
+#guard_msgs in
+#eval datetime₄.format "M MM MMM MMMMM"
+
+/--
+info: "4 14 014 0014 00014"
+-/
+#guard_msgs in
+#eval datetime₄.format "d dd ddd dddd ddddd"
+
+/--
+info: "7 07 Jul July J"
+-/
+#guard_msgs in
+#eval datetime₄.format "M MM MMM MMMM MMMMM"
+
+/--
+info: "4 14 0014 0014"
+-/#guard_msgs in
+#eval datetime₄.format "d dd dddd dddd"
+
+/--
+info: "3 03 3rd quarter 3"
+-/
+#guard_msgs in
+#eval datetime₄.format "Q QQ QQQQ QQQQQ"
+
+/--
+info: "8 28 028 0028"
+-/
+#guard_msgs in
+#eval datetime₄.format "w ww www wwww"
+
+/--
+info: "3 03 003 0003"
+-/
+#guard_msgs in
+#eval datetime₄.format "W WW WWW WWWW"
+
+/--
+info: "Sun Sun Sun Sunday S"
+-/
+#guard_msgs in
+#eval datetime₄.format "E EE EEE EEEE EEEEE"
+
+/--
+info: "7 07 Sun Sunday S"
+-/
+#guard_msgs in
+#eval datetime₄.format "e ee eee eeee eeeee"
+
+/--
+info: "3 03 003 0003"
+-/
+#guard_msgs in
+#eval datetime₄.format "F FF FFF FFFF"
+
+/--
+info: "1 11 011 0011 0011"
+-/
+#guard_msgs in
+#eval datetime₄.format "h hh hhh hhhh hhhh"
+
+/--
+info: "1 11 011 0011 000011"
+-/
+#guard_msgs in
+#eval datetime₄.format "K KK KKK KKKK KKKKKK"
+
+/--
+info: "4 24 024 0024 000024"
+-/
+#guard_msgs in
+#eval datetime₄.format "k kk kkk kkkk kkkkkk"
+
+/--
+info: "3 23 023 0023 00023"
+-/
+#guard_msgs in
+#eval datetime₄.format "H HH HHH HHHH HHHHH"
+
+/--
+info: "3 13 013 0013 00013"
+-/
+#guard_msgs in
+#eval datetime₄.format "m mm mmm mmmm mmmmm"
+
+/--
+info: "2 12 012 0012 00012"
+-/
+#guard_msgs in
+#eval datetime₄.format "s ss sss ssss sssss"
+
+
+/--
+info: "9 79 679 4679 54679"
+-/#guard_msgs in
+#eval datetime₄.format "S SS SSS SSSS SSSSS"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval datetime₄.format "S SS SSS SSSS SSSSSSSSS"
+
+/--
+info: "4 24 324 2324 083592324"
+-/
+#guard_msgs in
+#eval datetime₄.format "A AA AAA AAAA AAAAAAAAA"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval datetime₄.format "n nn nnn nnnn nnnnnnnnn"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval datetime₄.format "N NN NNN NNNN NNNNNNNNN"
+
+/--
+info: "1 11 011 0011 0011"
+-/
+#guard_msgs in
+#eval time₄.format "h hh hhh hhhh hhhh"
+
+/--
+info: "1 11 011 0011 000011"
+-/
+#guard_msgs in
+#eval time₄.format "K KK KKK KKKK KKKKKK"
+
+/--
+info: "4 24 024 0024 000024"
+-/
+#guard_msgs in
+#eval time₄.format "k kk kkk kkkk kkkkkk"
+
+/--
+info: "3 23 023 0023 00023"
+-/
+#guard_msgs in
+#eval time₄.format "H HH HHH HHHH HHHHH"
+
+/--
+info: "3 13 013 0013 00013"
+-/
+#guard_msgs in
+#eval time₄.format "m mm mmm mmmm mmmmm"
+
+/--
+info: "2 12 012 0012 00012"
+-/
+#guard_msgs in
+#eval time₄.format "s ss sss ssss sssss"
+
+
+/--
+info: "9 79 679 4679 54679"
+-/#guard_msgs in
+#eval time₄.format "S SS SSS SSSS SSSSS"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval time₄.format "S SS SSS SSSS SSSSSSSSS"
+
+/--
+info: "4 24 324 2324 083592324"
+-/
+#guard_msgs in
+#eval time₄.format "A AA AAA AAAA AAAAAAAAA"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval time₄.format "n nn nnn nnnn nnnnnnnnn"
+
+/--
+info: "9 79 679 4679 324354679"
+-/
+#guard_msgs in
+#eval time₄.format "N NN NNN NNNN NNNNNNNNN"
+
+/--
+info: "CE CE CE Common Era C"
+-/
+#guard_msgs in
+#eval date₄.format "G GG GGG GGGG GGGGG"
+
+/--
+info: "02 2002 000002002"
+-/
+#guard_msgs in
+#eval date₄.format "yy yyyy yyyyyyyyy"
+
+/--
+info: "5 95 195"
+-/
+#guard_msgs in
+#eval date₄.format "D DD DDD"
+
+/--
+info: "7 07 Jul J"
+-/
+#guard_msgs in
+#eval date₄.format "M MM MMM MMMMM"
+
+/--
+info: "4 14 014 0014 00014"
+-/
+#guard_msgs in
+#eval date₄.format "d dd ddd dddd ddddd"
+
+/--
+info: "7 07 Jul July J"
+-/
+#guard_msgs in
+#eval date₄.format "M MM MMM MMMM MMMMM"
+
+/--
+info: "4 14 0014 0014"
+-/#guard_msgs in
+#eval date₄.format "d dd dddd dddd"
+
+/--
+info: "3 03 3rd quarter 3"
+-/
+#guard_msgs in
+#eval date₄.format "Q QQ QQQQ QQQQQ"
+
+/--
+info: "8 28 028 0028"
+-/
+#guard_msgs in
+#eval date₄.format "w ww www wwww"
+
+/--
+info: "3 03 003 0003"
+-/
+#guard_msgs in
+#eval date₄.format "W WW WWW WWWW"
+
+/--
+info: "Sun Sun Sun Sunday S"
+-/
+#guard_msgs in
+#eval date₄.format "E EE EEE EEEE EEEEE"
+
+/--
+info: "7 07 Sun Sunday S"
+-/
+#guard_msgs in
+#eval date₄.format "e ee eee eeee eeeee"
+
+/--
+info: "3 03 003 0003"
+-/
+#guard_msgs in
+#eval date₄.format "F FF FFF FFFF"

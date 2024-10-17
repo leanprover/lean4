@@ -21,9 +21,6 @@ set_option linter.all true
 def Ordinal := Bounded.LE 1 12
   deriving Repr, BEq, LE, LT
 
-instance : ToString Ordinal where
-  toString x := toString x.val
-
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (11 : Nat))) n)
 
@@ -236,11 +233,10 @@ Gets the number of days in a month.
 def days (leap : Bool) (month : Ordinal) : Day.Ordinal :=
   if month.val = 2 then
     if leap then 29 else 28
-  else by
+  else
     let ⟨months, p⟩ := monthSizesNonLeap
     let index : Fin 12 := (month.sub 1).toFin (by decide) (by decide)
-    rw [← p] at index
-    exact months.get index
+    months.get (index.cast (by rw [p]))
 
 theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
   match i with
@@ -262,7 +258,7 @@ def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   let res := months.get index
   exact res + (if leap ∧ month.val > 2 then 1 else 0)
 
-theorem cumulativeDays_le_335 (leap : Bool) (month : Month.Ordinal) : cumulativeDays leap month ≥ 0 ∧ cumulativeDays leap month ≤ 334 + (if leap then 1 else 0) := by
+theorem cumulativeDays_le (leap : Bool) (month : Month.Ordinal) : cumulativeDays leap month ≥ 0 ∧ cumulativeDays leap month ≤ 334 + (if leap then 1 else 0) := by
   match month with
   | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩  | ⟨4, _⟩  | ⟨5, _⟩  | ⟨6, _⟩  | ⟨7, _⟩  | ⟨8, _⟩  | ⟨9, _⟩  | ⟨10, _⟩  | ⟨11, _⟩ | ⟨12, _⟩ =>
     simp [cumulativeSizes, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin, cumulativeDays]
@@ -280,13 +276,15 @@ theorem difference_eq (p : month.val ≤ 11) :
   | ⟨12, _⟩ => contradiction
 
 /--
-Check if the day is valid in a month and a leap year.
+Checks if a given day is valid for the specified month and year. For example, `29/02` is valid only
+if the year is a leap year.
 -/
 abbrev Valid (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Prop :=
   day.val ≤ (days leap month).val
 
 /--
-Type for dates and months that are valid within a leap year.
+Represents a valid date for a given year, considering whether it is a leap year. Example: `(2, 29)`
+is valid only if `leap` is `true`.
 -/
 def ValidDate (leap : Bool) := { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) }
 
@@ -298,7 +296,7 @@ Transforms a tuple of a `Month` and a `Day` into a `Day.Ordinal.OfYear`.
 -/
 def toOrdinal (ordinal : ValidDate leap) : Day.Ordinal.OfYear leap :=
   let days := cumulativeDays leap ordinal.val.fst
-  let proof := cumulativeDays_le_335 leap ordinal.val.fst
+  let proof := cumulativeDays_le leap ordinal.val.fst
   let bounded := Bounded.LE.mk days.toInt proof |>.addBounds ordinal.val.snd
   match leap, bounded with
   | true, bounded => bounded
@@ -361,7 +359,7 @@ def clipDay (leap : Bool) (month : Month.Ordinal) (day : Day.Ordinal) : Day.Ordi
 /--
 Proves that every value provided by a clipDay is a valid day in a year.
 -/
-theorem clipDay_valid : Valid leap month (clipDay leap month day) := by
+theorem valid_clipDay : Valid leap month (clipDay leap month day) := by
   simp [Valid, clipDay]
   split
   exact Int.le_refl (days leap month).val

@@ -158,6 +158,13 @@ def weekday (zdt : ZonedDateTime) : Weekday :=
   zdt.snd.weekday
 
 /--
+Transforms a tuple of a `ZonedDateTime` into a `Day.Ordinal.OfYear`.
+-/
+@[inline]
+def toOrdinal (date : ZonedDateTime) : Day.Ordinal.OfYear date.year.isLeap :=
+  Month.Ordinal.toOrdinal ⟨(date.month, date.day), date.snd.date.get.date.valid⟩
+
+/--
 Add `Day.Offset` to a `ZonedDateTime`.
 -/
 def addDays (dt : ZonedDateTime) (days : Day.Offset) : ZonedDateTime :=

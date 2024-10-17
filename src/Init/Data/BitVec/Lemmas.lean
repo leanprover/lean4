@@ -2111,48 +2111,6 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
 
-/-! ### abs -/
-
-@[simp, bv_toNat]
-theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
-  simp only [BitVec.abs, neg_eq]
-  by_cases h : x.msb = true
-  · simp only [h, ↓reduceIte, toNat_neg]
-    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
-    rw [Nat.mod_eq_of_lt (by omega)]
-  · simp [h]
-
-theorem getLsbD_abs {i : Nat} {x : BitVec w} :
-   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
-  by_cases h : x.msb <;> simp [BitVec.abs, h]
-
-theorem getMsbD_abs {i : Nat} {x : BitVec w} :
-    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
-  by_cases h : x.msb <;> simp [BitVec.abs, h]
-
-@[simp]
-theorem msb_abs {w : Nat} {x : BitVec w} :
-    (x.abs).msb = false := by
-  simp only [BitVec.abs, neg_eq]
-
-  have : (-x).msb = !x.msb := sorry
-  cases h : x.msb
-  <;> simp [h, this]
-
-/-! ### neg -/
-
-theorem msb_neg {x : BitVec w} :
-    (-x).msb = (~~~x + 1#w).msb := by
-  rw [neg_eq_not_add]
-
-theorem getLsbD_neg {i : Nat} {x : BitVec w} :
-    getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
-  rw [neg_eq_not_add]
-
-theorem getMsbD_neg {i : Nat} {x : BitVec w} :
-    getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by
-  rw [neg_eq_not_add]
-
 /-! ### mul -/
 
 theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := by rfl
@@ -2846,6 +2804,14 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
 
+@[simp]
+theorem intMin_zero_iif_width_zero : intMin w = 0#w ↔ w = 0 := by
+  sorry
+
+@[simp]
+theorem msb_intMin : (intMin w).msb = decide (0 < w) := by
+  sorry
+
 /--
 The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
 -/
@@ -2983,6 +2949,74 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
 
+/-! ### neg -/
+
+theorem msb_neg {x : BitVec w} :
+    (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
+  by_cases h₀ : x = 0#w
+  · simp [h₀]
+  · by_cases h₁ : x = intMin w
+    · simp only [h₁, neg_intMin, decide_True, Bool.true_or, Bool.and_true]
+      by_cases h₂ : w = 0
+      · simp [h₂]
+      · simp [h₂]
+        omega
+    · simp only [show ¬x = 0#w by simp [h₀], decide_False, Bool.not_false, h₁, Bool.false_or,
+        Bool.true_and]
+      by_cases h₂ : x.msb
+      · simp [h₂]
+        rw [neg_eq_not_add]
+        rw [msb_add]
+        sorry
+      · simp [h₂]
+        sorry
+
+theorem getLsbD_neg {i : Nat} {x : BitVec w} :
+    getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
+  rw [neg_eq_not_add]
+
+theorem getMsbD_neg {i : Nat} {x : BitVec w} :
+    getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by
+  rw [neg_eq_not_add]
+
+/-! ### abs -/
+
+@[simp, bv_toNat]
+theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
+  simp only [BitVec.abs, neg_eq]
+  by_cases h : x.msb = true
+  · simp only [h, ↓reduceIte, toNat_neg]
+    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
+    rw [Nat.mod_eq_of_lt (by omega)]
+  · simp [h]
+
+theorem getLsbD_abs {i : Nat} {x : BitVec w} :
+   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+theorem getMsbD_abs {i : Nat} {x : BitVec w} :
+    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+@[simp]
+theorem msb_abs {w : Nat} {x : BitVec w} :
+    x.abs.msb = false := by
+  by_cases h : 0 < w
+  ·
+
+    sorry
+  · simp only [Nat.not_lt, Nat.le_zero_eq] at h
+    sorry
+
+  -- simp only [BitVec.abs, neg_eq]
+  -- by_cases h : x.msb
+  -- · simp [h, msb_neg]
+  --   intro
+
+
+
+  --   sorry
+  -- · simp [h]
 
 /-! ### Decidable quantifiers -/
 

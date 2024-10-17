@@ -298,14 +298,19 @@ if(NOT LEAN_STANDALONE)
 endif()
 
 # Windows SDK (for ICU)
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
-  find_package(WindowsSDK REQUIRED)
-  get_windowssdk_include_dirs(${WINDOWSSDK_LATEST_DIR} WINDOWSSDK_INCLUDE_DIR)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # Pass 'tools' to skip MSVC version check (as MSVC/Visual Studio is not necessarily installed)
+  find_package(WindowsSDK REQUIRED COMPONENTS tools)
+
+  # This will give a semicolon-separated list of include directories
+  get_windowssdk_include_dirs(${WINDOWSSDK_LATEST_DIR} WINDOWSSDK_INCLUDE_DIRS)
 
   # To successfully build against Windows SDK headers, the Windows SDK headers must have lower
   # priority than other system headers, so use `-idirafter`. Unfortunately, CMake does not
   # support this using `include_directories`.
-  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIR}\"")
+  string(REPLACE ";" "\" -idirafter \"" WINDOWSSDK_INCLUDE_DIRS "${WINDOWSSDK_INCLUDE_DIRS}")
+  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIRS}\"")
+
   set(WINDOWSSDK_LIBRARIES "-licu")
   if(NOT LEAN_STANDALONE)
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${WINDOWSSDK_LIBRARIES}")

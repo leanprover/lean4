@@ -378,9 +378,6 @@ partial def delab : Delab := do
 
   let e ← getExpr
 
-  if ← getPPOption getPPAnalysisHole then
-    return ← `(_)
-
   if ← shouldOmitExpr e then
     return ← omission .deep
 

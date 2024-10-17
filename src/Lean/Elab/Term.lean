@@ -1107,7 +1107,7 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
   let expectedType ← match expectedType? with
     | none              => mkFreshTypeMVar
     | some expectedType => pure expectedType
-  mkSyntheticSorry expectedType
+  mkSorry expectedType (synthetic := true)
 
 /--
   Log the given exception, and create a synthetic sorry for representing the failed

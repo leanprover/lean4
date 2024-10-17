@@ -45,7 +45,7 @@ StxQuot.lean:83:7-83:19: error: unknown identifier 'sufficesDecl'
 "#[(num \"1\"), [(num \"2\") (num \"3\")], (num \"4\")]"
 "#[(num \"2\")]"
 StxQuot.lean:97:39-97:44: error: unexpected antiquotation splice
-fun x => sorryAx (?m x) true : (x : ?m) → ?m x
+fun x => sorry : (x : ?m) → ?m x
 "#[(some 1), (some 2)]"
 StxQuot.lean:104:13-104:14: error: unknown identifier 'x' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
 "`id._@.UnhygienicMain._hyg.1"

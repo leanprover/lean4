@@ -56,7 +56,7 @@ error: invalid field notation, function 'Nat.foo' has argument with the expected
   Nat
 but it cannot be used
 ---
-info: fun n => sorryAx (?_ n) true : (n : Nat) → ?_ n
+info: fun n => sorry : (n : Nat) → ?_ n
 -/
 #guard_msgs in #check fun (n : Nat) => n.foo
 
@@ -81,7 +81,7 @@ def Bar.bar : Bar true := {}
 /--
 error: invalid field notation, function 'Bar.bar' does not have argument with type (Bar ...) that can be used, it must be explicit or implicit with a unique name
 ---
-info: fun f => sorryAx (?_ f) true : (f : Bar false) → ?_ f
+info: fun f => sorry : (f : Bar false) → ?_ f
 -/
 #guard_msgs in #check fun (f : Bar false) => f.bar false
 
@@ -90,6 +90,6 @@ info: fun f => sorryAx (?_ f) true : (f : Bar false) → ?_ f
 /--
 error: invalid field notation, function 'Bar.bar' does not have argument with type (Bar ...) that can be used, it must be explicit or implicit with a unique name
 ---
-info: fun f => sorryAx (?_ f) true : (f : Bar false) → ?_ f
+info: fun f => sorry : (f : Bar false) → ?_ f
 -/
 #guard_msgs in #check fun (f : Bar false) => f.bar true false

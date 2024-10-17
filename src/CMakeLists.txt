@@ -311,10 +311,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   string(REPLACE ";" "\" -idirafter \"" WINDOWSSDK_INCLUDE_DIRS "${WINDOWSSDK_INCLUDE_DIRS}")
   string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIRS}\"")
 
-  set(WINDOWSSDK_LIBRARIES "-licu")
-  if(NOT LEAN_STANDALONE)
-    string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${WINDOWSSDK_LIBRARIES}")
-  endif()
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
 endif()
 
 # ccache

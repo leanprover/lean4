@@ -159,10 +159,10 @@ def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
   return .other ver
 
 /-- Parse a toolchain from a `lean-toolchain` file. -/
-def ToolchainVer.ofFile? (toolchainFile : System.FilePath) : IO (Option ToolchainVer) := do
+def ToolchainVer.ofFile? (toolchainFile : FilePath) : IO (Option ToolchainVer) := do
   try
     let toolchainString ← IO.FS.readFile toolchainFile
-    return some <| ToolchainVer.ofString toolchainString
+    return some <| ToolchainVer.ofString toolchainString.trim
   catch
     | .noFileOrDirectory .. =>
       return none
@@ -177,22 +177,14 @@ def toolchainFileName : FilePath := "lean-toolchain"
 
 protected def ToolchainVer.toString (ver : ToolchainVer) : String :=
   match ver with
-  | .release ver => s!"{defaultOrigin}/v{ver}"
-  | .nightly date => s!"{defaultOrigin}/nightly-{date}"
-  | .pr n => s!"{prOrigin}/pr-release-{n}"
+  | .release ver => s!"{defaultOrigin}:v{ver}"
+  | .nightly date => s!"{defaultOrigin}:nightly-{date}"
+  | .pr n => s!"{prOrigin}:pr-release-{n}"
   | .other s => s
 
 instance : ToString ToolchainVer := ⟨ToolchainVer.toString⟩
 instance : ToJson ToolchainVer := ⟨(·.toString)⟩
 instance : FromJson ToolchainVer := ⟨(ToolchainVer.ofString <$> fromJson? ·)⟩
-
-/-
-#eval repr <| ToolchainVer.ofString "leanprover/lean4:v4.13.0-rc1"
-#eval repr <| ToolchainVer.ofString "leanprover/lean4:nightly-2024-09-15"
-#eval repr <| ToolchainVer.ofString "leanprover/lean4-pr-releases:pr-release-101"
-#eval repr <| ToolchainVer.ofString "leanprover/lean:v4.1.0"
-#eval repr <| ToolchainVer.ofString "4.12.0"
--/
 
 protected def ToolchainVer.lt (a b : ToolchainVer) : Prop :=
   match a, b with
@@ -231,12 +223,6 @@ instance ToolchainVer.decLe (a b : ToolchainVer) : Decidable (a ≤ b) :=
   | .pr _, .release _ | .pr _, .nightly _ |  .pr _, .other _
   | .other _, .release _ | .other _, .nightly _ | .other _, .pr _ =>
     .isFalse (by simp [LE.le, ToolchainVer.le])
-
-/-
-#eval ToolchainVer.ofString "4.12.0" < ToolchainVer.ofString "leanprover/lean4:v4.13.0-rc1"
-#eval ToolchainVer.ofString "nightly-2024-09-08" < ToolchainVer.ofString "nightly-2024-10-09"
-#eval ToolchainVer.ofString "nightly-2024-09-08" < ToolchainVer.ofString "4.0.0"
--/
 
 /-! ## Version Literals
 

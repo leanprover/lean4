@@ -135,6 +135,10 @@ Both reduce to `b = false ∧ c = false` via `not_or`.
 
 theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.1)) (mt (·.2))
 
+/-! ## not equal -/
+
+theorem ne_of_apply_ne {α β : Sort _} (f : α → β) {x y : α} : f x ≠ f y → x ≠ y :=
+  mt <| congrArg _
 
 /-! ## Ite -/
 

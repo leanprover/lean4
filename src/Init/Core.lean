@@ -1935,15 +1935,6 @@ instance : Subsingleton (Squash α) where
     apply Quot.sound
     trivial
 
-/-! # Relations -/
-
-/--
-`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
--/
-class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
-  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
-  antisymm {a b : α} : r a b → r b a → a = b
-
 namespace Lean
 /-! # Kernel reduction hints -/
 
@@ -2118,5 +2109,15 @@ class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commuta
 instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
 instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
 instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
+
+/--
+`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
+-/
+class Antisymm (r : α → α → Prop) : Prop where
+  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
+  antisymm {a b : α} : r a b → r b a → a = b
+
+@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
+abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
 
 end Std

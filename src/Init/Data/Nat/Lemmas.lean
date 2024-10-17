@@ -786,6 +786,16 @@ theorem two_pow_pred_mul_two (h : 0 < w) :
 theorem log2_zero : Nat.log2 0 = 0 := by
   simp [Nat.log2]
 
+@[simp]
+theorem log2_two_pow : (2 ^ n).log2 = n := by
+  match n with
+  | 0 => simp [log2]
+  | n+1 =>
+    unfold log2
+    have if_true : 2 ^ (n + 1) ≥ 2 := Nat.one_lt_two_pow (by simp)
+    simp [if_true]
+    rw [Nat.pow_succ, Nat.mul_div_cancel _ (by simp), log2_two_pow]
+
 theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   match k with
   | 0 => simp [show 1 ≤ n from Nat.pos_of_ne_zero h]

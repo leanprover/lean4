@@ -95,7 +95,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let declName := structDeclName ++ defaultCtorName
     let ref := structStx[1].mkSynthetic
     addAuxDeclarationRanges declName ref ref
-    pure { ref, modifiers := {}, name := defaultCtorName, declName }
+    pure { ref, modifiers := default, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
   else
@@ -912,7 +912,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
       let scopeLevelNames ← Term.getLevelNames
       let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
       Term.withAutoBoundImplicitForbiddenPred (fun n => name == n) do
-        addDeclarationRanges declName stx
+        addDeclarationRanges declName modifiers.stx stx
         Term.withDeclName declName do
           let ctor ← expandCtor stx modifiers declName
           let fields ← expandFields stx modifiers declName

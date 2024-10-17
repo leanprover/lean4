@@ -163,7 +163,6 @@ uint8_t l_instDecidableNot___rarg(uint8_t);
 static lean_object* l_Lake_StrPat_decodeToml___closed__2;
 static lean_object* l_Lake_Toml_Table_decodeNameMap___at_Lake_Dependency_decodeToml___spec__1___closed__1;
 static lean_object* l_Lake_PackageConfig_decodeToml___closed__18;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeArray___at_Lake_LeanLibConfig_decodeToml___spec__1___boxed(lean_object*);
 static lean_object* l_Lake_PackageConfig_decodeToml___closed__8;
 static lean_object* l_Lake_PackageConfig_decodeToml___closed__50;

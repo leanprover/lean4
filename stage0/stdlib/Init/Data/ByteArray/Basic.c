@@ -75,7 +75,6 @@ LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toByteArray_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_empty;
 uint64_t lean_uint8_to_uint64(uint8_t);

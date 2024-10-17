@@ -93,7 +93,6 @@ uint8_t l_instDecidableNot___rarg(uint8_t);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_ofList___rarg(lean_object*, lean_object*, lean_object*);
 static uint8_t l_Std_HashSet_Raw_instSingletonOfBEqOfHashable___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_toArray___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_instForM___spec__2___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashSet_Raw_toArray___spec__1(lean_object*);
@@ -174,6 +173,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_HashSet_Raw_filter___sp
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_instForM___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_fold(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instDecidableMem(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_all___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_forM___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instUnionOfBEqOfHashable___rarg(lean_object*, lean_object*);

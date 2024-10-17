@@ -532,11 +532,12 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     let mut msgs := (← get).messages
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
-    if let some snap := (← read).snap? then
-      -- We can assume that the root command snapshot is not involved in parallelism yet, so this
-      -- should be true iff the command supports incrementality
-      if (← IO.hasFinished snap.new.result) then
-        liftCoreM <| Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.trace
+    if (← isTracingEnabledFor `Elab.snapshotTree) then
+      if let some snap := (← read).snap? then
+        -- We can assume that the root command snapshot is not involved in parallelism yet, so this
+        -- should be true iff the command supports incrementality
+        if (← IO.hasFinished snap.new.result) then
+          liftCoreM <| Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.trace
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
@@ -571,7 +572,7 @@ def getBracketedBinderIds : Syntax → CommandElabM (Array Name)
 private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Context := do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
-  for id in (← scope.varDecls.concatMapM getBracketedBinderIds), uid in scope.varUIds do
+  for id in (← scope.varDecls.flatMapM getBracketedBinderIds), uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
   return {
     macroStack             := ctx.macroStack
@@ -714,7 +715,7 @@ def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM Expand
   let currNamespace ← getCurrNamespace
   let currLevelNames ← getLevelNames
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
-  for id in (← (← getScope).varDecls.concatMapM getBracketedBinderIds) do
+  for id in (← (← getScope).varDecls.flatMapM getBracketedBinderIds) do
     if id == r.shortName then
       throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
   return r

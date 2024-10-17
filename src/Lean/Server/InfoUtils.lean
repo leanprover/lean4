@@ -197,7 +197,7 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) (omitIdentApps := false) : Option InfoWithCtx := Id.run do
   let results := t.visitM (m := Id) (postNode := fun ctx info children results => do
-    let mut results := results.bind (·.getD [])
+    let mut results := results.flatMap (·.getD [])
     if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
         results := results.filter (·.2.info.stx != info.stx[0])
     if omitIdentApps && info.stx.isIdent then

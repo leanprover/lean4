@@ -46,7 +46,6 @@ LEAN_EXPORT lean_object* l_Lean_Rat_instLT;
 uint8_t l_instDecidableNot___rarg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Rat_instNeg;
 LEAN_EXPORT lean_object* l_Lean_Rat_instDecidableLt___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_inv(lean_object*);

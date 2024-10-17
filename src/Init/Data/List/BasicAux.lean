@@ -232,7 +232,8 @@ theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.g
     apply Nat.lt_trans ih
     simp_arith
 
-theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
+theorem le_antisymm [LT α] [s : Std.Antisymm (¬ · < · : α → α → Prop)]
+    {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
   match as, bs with
   | [],    []    => rfl
   | [],    _::_ => False.elim <| h₂ (List.lt.nil ..)
@@ -248,7 +249,8 @@ theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as
         have : a = b := s.antisymm hab hba
         simp [this, ih]
 
-instance [LT α] [Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
+instance [LT α] [Std.Antisymm (¬ · < · : α → α → Prop)] :
+    Std.Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm h₁ h₂ := le_antisymm h₁ h₂
 
 end List

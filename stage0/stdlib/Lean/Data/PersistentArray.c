@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.PersistentArray
-// Imports: Init.Data.Array.Basic Init.NotationExtra Init.Data.ToString.Macro
+// Imports: Init.Data.Array.Basic Init.NotationExtra Init.Data.ToString.Macro Init.Data.UInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -81,7 +81,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_PersistentArray_allM__
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_PersistentArray_filter___spec__10(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_PersistentArray_any___spec__3___rarg(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentArray_toList___spec__12___rarg(lean_object*, size_t, size_t, lean_object*);
-static lean_object* l_Lean_PersistentArray_tooBig___closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentArray_filter___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_PersistentArray_foldr___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn(lean_object*, lean_object*);
@@ -242,7 +241,6 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_PersistentArray_fol
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentArray_toList___spec__8(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_PersistentArray_all___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mkEmptyArray(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_PersistentArray_allM___spec__4(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentArray_getAux___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_PersistentArray_findSomeRev_x3f___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -324,7 +322,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentArray_toL
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_div2Shift___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___at_Lean_PersistentArray_findSome_x3f___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Array_anyMUnsafe_any___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t);
-static lean_object* l_Lean_PersistentArray_tooBig___closed__4;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_PersistentArray_findSome_x3f___spec__4___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_PersistentArray_foldr___spec__14(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux(lean_object*, lean_object*, lean_object*);
@@ -1944,26 +1941,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PersistentArray_tooBig___closed__1;
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_sub(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_PersistentArray_tooBig___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_PersistentArray_tooBig___closed__2;
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_add(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_PersistentArray_tooBig___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_PersistentArray_tooBig___closed__3;
 x_2 = lean_unsigned_to_nat(8u);
 x_3 = lean_nat_div(x_1, x_2);
 return x_3;
@@ -1973,7 +1950,7 @@ static lean_object* _init_l_Lean_PersistentArray_tooBig() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_PersistentArray_tooBig___closed__4;
+x_1 = l_Lean_PersistentArray_tooBig___closed__2;
 return x_1;
 }
 }
@@ -13848,6 +13825,7 @@ return x_2;
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -13860,6 +13838,9 @@ res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedPersistentArrayNode___closed__1 = _init_l_Lean_instInhabitedPersistentArrayNode___closed__1();
@@ -13885,10 +13866,6 @@ l_Lean_PersistentArray_tooBig___closed__1 = _init_l_Lean_PersistentArray_tooBig_
 lean_mark_persistent(l_Lean_PersistentArray_tooBig___closed__1);
 l_Lean_PersistentArray_tooBig___closed__2 = _init_l_Lean_PersistentArray_tooBig___closed__2();
 lean_mark_persistent(l_Lean_PersistentArray_tooBig___closed__2);
-l_Lean_PersistentArray_tooBig___closed__3 = _init_l_Lean_PersistentArray_tooBig___closed__3();
-lean_mark_persistent(l_Lean_PersistentArray_tooBig___closed__3);
-l_Lean_PersistentArray_tooBig___closed__4 = _init_l_Lean_PersistentArray_tooBig___closed__4();
-lean_mark_persistent(l_Lean_PersistentArray_tooBig___closed__4);
 l_Lean_PersistentArray_tooBig = _init_l_Lean_PersistentArray_tooBig();
 lean_mark_persistent(l_Lean_PersistentArray_tooBig);
 l_Lean_PersistentArray_popLeaf___rarg___closed__1 = _init_l_Lean_PersistentArray_popLeaf___rarg___closed__1();

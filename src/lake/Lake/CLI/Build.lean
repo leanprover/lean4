@@ -113,7 +113,7 @@ def resolveTargetInPackage (ws : Workspace)
     throw <| CliError.missingTarget pkg.name (target.toString false)
 
 def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError (Array BuildSpec) :=
-  pkg.defaultTargets.concatMapM (resolveTargetInPackage ws pkg · .anonymous)
+  pkg.defaultTargets.flatMapM (resolveTargetInPackage ws pkg · .anonymous)
 
 def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then

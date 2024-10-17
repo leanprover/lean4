@@ -156,7 +156,7 @@ namespace DHashMap.Internal
 
 /-- Internal implementation detail of the hash map -/
 def toListModel (buckets : Array (AssocList α β)) : List ((a : α) × β a) :=
-  buckets.toList.bind AssocList.toList
+  buckets.toList.flatMap AssocList.toList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def computeSize (buckets : Array (AssocList α β)) : Nat :=

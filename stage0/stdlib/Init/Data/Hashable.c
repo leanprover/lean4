@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_instHashableUInt32___boxed(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_instHashableProd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instLawfulHashableOfLawfulBEq(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_foldl___at_instHashableList___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_hash64___boxed(lean_object*);
@@ -47,14 +46,12 @@ LEAN_EXPORT uint64_t l_instHashable(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableBool(uint8_t);
 LEAN_EXPORT lean_object* l_instHashableUInt16___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableUSize___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instLawfulHashableOfLawfulBEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
 uint64_t lean_uint16_to_uint64(uint16_t);
 LEAN_EXPORT uint64_t l_instHashableProd___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableUInt64___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instLawfulHashableOfLawfulBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableFin___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHashable___boxed(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
@@ -615,32 +612,6 @@ x_2 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_3 = l_hash64(x_2);
 x_4 = lean_box_uint64(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_instLawfulHashableOfLawfulBEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_box(0);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_instLawfulHashableOfLawfulBEq(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instLawfulHashableOfLawfulBEq___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_instLawfulHashableOfLawfulBEq___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_instLawfulHashableOfLawfulBEq___rarg(x_1, x_2, x_3);
-lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }

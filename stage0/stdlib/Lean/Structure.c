@@ -91,7 +91,6 @@ static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo___
 static lean_object* l_Lean_instInhabitedStructureState___closed__2;
 static lean_object* l_Lean_findField_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_getStructureInfo_x3f___spec__2(lean_object*, size_t, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_351____closed__1;
 LEAN_EXPORT lean_object* l_Array_contains___at_Lean_findField_x3f___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_registerStructure___spec__1(size_t, size_t, lean_object*);

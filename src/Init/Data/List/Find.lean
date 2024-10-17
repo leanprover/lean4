@@ -378,13 +378,17 @@ theorem find?_flatten_eq_some {xs : List (List α)} {p : α → Bool} {a : α} :
     · exact h₁ l ml a m
     · exact h₂ a m
 
-@[simp] theorem find?_bind (xs : List α) (f : α → List β) (p : β → Bool) :
-    (xs.bind f).find? p = xs.findSome? (fun x => (f x).find? p) := by
-  simp [bind_def, findSome?_map]; rfl
+@[simp] theorem find?_flatMap (xs : List α) (f : α → List β) (p : β → Bool) :
+    (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
+  simp [flatMap_def, findSome?_map]; rfl
 
-theorem find?_bind_eq_none {xs : List α} {f : α → List β} {p : β → Bool} :
-    (xs.bind f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
+@[deprecated find?_flatMap (since := "2024-10-16")] abbrev find?_bind := @find?_flatMap
+
+theorem find?_flatMap_eq_none {xs : List α} {f : α → List β} {p : β → Bool} :
+    (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
+
+@[deprecated find?_flatMap_eq_none (since := "2024-10-16")] abbrev find?_bind_eq_none := @find?_flatMap_eq_none
 
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n
@@ -789,7 +793,7 @@ theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
 theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
     l.flatten.findIdx? p =
       (l.findIdx? (·.any p)).map
-        fun i => Nat.sum ((l.take i).map List.length) +
+        fun i => ((l.take i).map List.length).sum +
           (l[i]?.map fun xs => xs.findIdx p).getD 0 := by
   induction l with
   | nil => simp

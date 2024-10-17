@@ -976,7 +976,7 @@ theorem mem_of_mem_drop {n} {l : List α} (h : a ∈ l.drop n) : a ∈ l :=
   drop_subset _ _ h
 
 theorem drop_suffix_drop_left (l : List α) {m n : Nat} (h : m ≤ n) : drop n l <:+ drop m l := by
-  rw [← Nat.sub_add_cancel h, ← drop_drop]
+  rw [← Nat.sub_add_cancel h, Nat.add_comm, ← drop_drop]
   apply drop_suffix
 
 -- See `Init.Data.List.Nat.TakeDrop` for `take_prefix_take_left`.

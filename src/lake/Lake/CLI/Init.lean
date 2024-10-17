@@ -126,7 +126,8 @@ package {repr pkgName} where
   version := v!\"0.1.0\"
   keywords := #[\"math\"]
   leanOptions := #[
-    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`
+    ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
+    ⟨`autoImplicit, false⟩
   ]
 
 require \"leanprover-community\" / \"mathlib\"
@@ -144,6 +145,7 @@ defaultTargets = [{repr libRoot}]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false
 
 [[require]]
 name = \"mathlib\"

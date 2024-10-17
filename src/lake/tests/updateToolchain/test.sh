@@ -3,6 +3,9 @@ set -euxo pipefail
 
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
+# Ensure Lake thinks there is a elan environment configured
+export ELAN_HOME=
+
 # Tests the toolchain update functionality of `lake update`
 
 RESTART_CODE=4

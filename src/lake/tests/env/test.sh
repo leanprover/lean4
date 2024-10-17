@@ -24,7 +24,7 @@ $LAKE -d ../../examples/hello env printenv LEAN_SRC_PATH | grep --color examples
 $LAKE -d ../../examples/hello env printenv PATH | grep --color examples/hello
 
 # Test that `env` preserves the input environment for certain variables
-test "`ELAN=foo $LAKE env printenv ELAN`" = foo
+test "`$LAKE env env ELAN=foo ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN`" = foo
 test "`$LAKE env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN`" = foo
 test "`LEAN_GITHASH=foo $LAKE env printenv LEAN_GITHASH`" = foo
 test "`LEAN_AR=foo $LAKE env printenv LEAN_AR`" = foo

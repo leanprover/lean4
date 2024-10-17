@@ -44,7 +44,7 @@ theorem attach_congr {o₁ o₂ : Option α} (h : o₁ = o₂) :
   simp
 
 theorem attachWith_congr {o₁ o₂ : Option α} (w : o₁ = o₂) {P : α → Prop} {H : ∀ x ∈ o₁, P x} :
-    o₁.attachWith P H = o₂.attachWith P fun x h => H _ (w ▸ h) := by
+    o₁.attachWith P H = o₂.attachWith P fun _ h => H _ (w ▸ h) := by
   subst w
   simp
 
@@ -128,12 +128,12 @@ theorem attach_map {o : Option α} (f : α → β) :
   cases o <;> simp
 
 theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ o.map f → P b} :
-    (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun a h => H _ (mem_map_of_mem f h))).map
+    (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
 theorem map_attach {o : Option α} (f : { x // x ∈ o } → β) :
-    o.attach.map f = o.pmap (fun a (h : a ∈ o) => f ⟨a, h⟩) (fun a h => h) := by
+    o.attach.map f = o.pmap (fun a (h : a ∈ o) => f ⟨a, h⟩) (fun _ h => h) := by
   cases o <;> simp
 
 theorem map_attachWith {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}

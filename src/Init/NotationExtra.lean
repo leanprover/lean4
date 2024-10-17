@@ -168,9 +168,9 @@ end Lean
   | _                => throw ()
 
 @[app_unexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
-  | `($(_) _)   => `(sorry)
-  | `($(_) _ _) => `(sorry)
-  | _           => throw ()
+  | `($(_) $_)    => `(sorry)
+  | `($(_) $_ $_) => `(sorry)
+  | _             => throw ()
 
 @[app_unexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
   | `($(_) $m $h) => `($h ▸ $m)

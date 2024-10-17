@@ -1525,6 +1525,9 @@ abbrev mkArray_data := @toList_mkArray
 @[deprecated mem_toList (since := "2024-09-09")]
 abbrev mem_data := @mem_toList
 
+@[deprecated getElem_mem (since := "2024-10-17")]
+abbrev getElem?_mem := @getElem_mem
+
 @[deprecated getElem_fin_eq_getElem_toList (since := "2024-10-17")]
 abbrev getElem_fin_eq_toList_get := @getElem_fin_eq_getElem_toList
 

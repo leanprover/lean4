@@ -258,8 +258,11 @@ def Workspace.updateToolchain
     if let some elanInstall := ws.lakeEnv.elan? then
       if let some lakeArgs := ws.lakeArgs? then
         logInfo s!"toolchain updated to '{tc}'; restarting Lake"
-        let args := #["run", "--install", tc.toString, "lake"] ++ lakeArgs
-        let child ← IO.Process.spawn {cmd := elanInstall.elan.toString, args}
+        let child ← IO.Process.spawn {
+          cmd := elanInstall.elan.toString
+          args := #["run", "--install", tc.toString, "lake"] ++ lakeArgs
+          env := Env.noToolchainVars
+        }
         IO.Process.exit (← child.wait).toUInt8
       else
         logInfo s!"toolchain updated to '{tc}'; \

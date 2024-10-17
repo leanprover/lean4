@@ -149,9 +149,9 @@ set to the empty string.
 
 For (2), if `LEAN_AR` or `LEAN_CC` are defined, it uses those paths.
 Otherwise, if Lean is packaged with an `llvm-ar` and/or `clang`, use them.
-If not, use the `ar` and/or `cc` in the system's `PATH`. This last step is
-needed because internal builds of Lean do not bundle these tools
-(unlike user-facing releases).
+If not, use the `ar` and/or `cc` from the `AR` / `CC` environment variables
+or the system's `PATH`. This last step is needed because internal builds of
+Lean do not bundle these tools (unlike user-facing releases).
 
 We also track whether `LEAN_CC` was set to determine whether it should
 be set in the future for `lake env`. This is because if `LEAN_CC` was not set,
@@ -187,18 +187,29 @@ where
       return FilePath.mk ar
     else
       let ar := leanArExe sysroot
-      if (← ar.pathExists) then pure ar else pure "ar"
+      if (← ar.pathExists) then
+        return ar
+      else if let some ar ← IO.getEnv "AR" then
+        return ar
+      else
+        return "ar"
   findCc := do
     if let some cc ← IO.getEnv "LEAN_CC" then
       return (FilePath.mk cc, true)
     else
       let cc := leanCcExe sysroot
-      let cc := if (← cc.pathExists) then cc else "cc"
+      let cc ←
+        if (← cc.pathExists) then
+          pure cc
+        else if let some cc ← IO.getEnv "CC" then
+          pure cc
+        else
+          pure "cc"
       return (cc, false)
 
 /--
 Attempt to detect the installation of the given `lean` command
-by calling `findLeanCmdHome?`. See `LeanInstall.get` for how it assumes the
+by calling `findLeanSysroot?`. See `LeanInstall.get` for how it assumes the
 Lean install is organized.
 -/
 def findLeanCmdInstall? (lean := "lean") : BaseIO (Option LeanInstall) :=
@@ -235,14 +246,28 @@ def getLakeInstall? (lake : FilePath) : BaseIO (Option LakeInstall) := do
   return none
 
 /--
-Attempt to detect Lean's installation by first checking the
-`LEAN_SYSROOT` environment variable and then by trying `findLeanCmdHome?`.
+Attempt to detect Lean's installation by using the `LEAN` and `LEAN_SYSROOT`
+environment variables.
+
+If `LEAN_SYSROOT` is set, use it. Otherwise, check `LEAN` for the `lean`
+executable. If `LEAN` is set but empty, Lean will be considered disabled.
+Otherwise, Lean's location will be determined by trying `findLeanSysroot?`
+using value of `LEAN` or, if unset, the `lean` in `PATH`.
+
 See `LeanInstall.get` for how it assumes the Lean install is organized.
 -/
 def findLeanInstall? : BaseIO (Option LeanInstall) := do
   if let some sysroot ← IO.getEnv "LEAN_SYSROOT" then
     return some <| ← LeanInstall.get sysroot
-  if let some sysroot ← findLeanSysroot? then
+  let lean ← do
+    if let some lean ← IO.getEnv "LEAN" then
+      if lean.trim.isEmpty then
+        return none
+      else
+        pure lean
+    else
+      pure "lean"
+  if let some sysroot ← findLeanSysroot? lean then
     return some <| ← LeanInstall.get sysroot
   return none
 

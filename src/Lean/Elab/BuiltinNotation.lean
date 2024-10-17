@@ -139,6 +139,8 @@ open Meta
   | `(suffices%$tk _%$x          : $type from $val; $body)   => `(have%$tk _%$x : $type := $body; $val)
   | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)   => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
   | `(suffices%$tk $x:ident      : $type $b:byTactic'; $body) =>
+    -- Pass on `SourceInfo` of `b` to `have`. This is necessary to display the goal state in the
+    -- trailing whitespace of `by` and sound since `byTactic` and `byTactic'` are identical.
     let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
     `(have%$tk $x : $type := $body; $b:byTactic)
   | `(suffices%$tk _%$x          : $type $b:byTactic'; $body) =>

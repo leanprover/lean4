@@ -10,41 +10,55 @@ set_option linter.missingDocs true -- keep it documented
 
 /-! # Unused variable Linter
 
-This file implements the unused variable linter, which runs automatically on all commands
-and reports any local variables that are never referred to, using information from the info tree.
+This file implements the unused variable linter, which runs automatically on all
+commands and reports any local variables that are never referred to, using
+information from the info tree.
 
-It is not immediately obvious but this is a surprisingly expensive check without some optimizations.
-The main complication is that it can be difficult to determine what constitutes a "use".
-For example, we would like this to be considered a use of `x`:
+It is not immediately obvious but this is a surprisingly expensive check without
+some optimizations.  The main complication is that it can be difficult to
+determine what constitutes a "use" apart from direct references to a variable
+that we can easily find in the info tree.  For example, we would like this to be
+considered a use of `x`: 
 ```
 def foo (x : Nat) : Nat := by assumption
 ```
 
-The final proof term is `fun x => x` so clearly `x` was used, but we can't make use of this because
-the final proof term is after we have abstracted over the original `fvar` for `x`. If we look
-further into the tactic state we can see the `fvar` show up in the instantiation to the original
-goal metavariable `?m : Nat := x`, but it is not always the case that we can follow metavariable
-instantiations to determine what happened after the fact, because tactics might skip the goal
-metavariable and instantiate some other metavariable created prior to it instead.
+The final proof term is `fun x => x` so clearly `x` was used, but we can't make
+use of this because the final proof term is after we have abstracted over the
+original `fvar` for `x`. Instead, we make sure to store the proof term before
+abstraction but after instantiation of mvars in the info tree and retrieve it in
+the linter. Using the instantiated term is very important as redoing that step
+in the linter can be prohibitively expensive. The downside of special-casing the
+definition body in this way is that while it works for parameters, it does not
+work for local variables in the body, so we ignore them by default if any tactic
+infos are present (`linter.unusedVariables.analyzeTactics`).
 
-Instead, we use a (much more expensive) overapproximation, which is just to look through the entire
-metavariable context looking for occurrences of `x`. We use caching to ensure that this is still
-linear in the size of the info tree, even though there are many metavariable contexts in all the
-intermediate stages of elaboration; these are highly similar and make use of `PersistentHashMap`
-so there is a lot of subterm sharing we can take advantage of.
+If we do turn on this option and look further into the tactic state, we can see
+the `fvar` show up in the instantiation to the original goal metavariable
+`?m : Nat := x`, but it is not always the case that we can follow metavariable
+instantiations to determine what happened after the fact, because tactics might
+skip the goal metavariable and instantiate some other metavariable created prior
+to it instead.  Instead, we use a (much more expensive) overapproximation, which
+is just to look through the entire metavariable context looking for occurrences
+of `x`. We use caching to ensure that this is still linear in the size of the
+info tree, even though there are many metavariable contexts in all the
+intermediate stages of elaboration; these are highly similar and make use of
+`PersistentHashMap` so there is a lot of subterm sharing we can take advantage
+of.
 
 ## The `@[unused_variables_ignore_fn]` attribute
 
-Some occurrences of variables are deliberately unused, or at least we don't want to lint on unused
-variables in these positions. For example:
+Some occurrences of variables are deliberately unused, or at least we don't want
+to lint on unused variables in these positions. For example:
 
 ```
 def foo (x : Nat) : (y : Nat) → Nat := fun _ => x
                   -- ^ don't lint this unused variable because it is public API
 ```
 
-They are generally a syntactic criterion, so we allow adding custom `IgnoreFunction`s so that
-external syntax can also opt in to lint suppression, like so:
+They are generally a syntactic criterion, so we allow adding custom
+`IgnoreFunction`s so that external syntax can also opt in to lint suppression,
+like so:
 
 ```
 macro (name := foobarKind) "foobar " name:ident : command => `(def foo ($name : Nat) := 0)

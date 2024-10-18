@@ -1418,11 +1418,15 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 @[simp] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 
 /-- Sum of a list of natural numbers. -/
--- We intend to subsequently deprecate this in favor of `List.sum`.
+@[deprecated List.sum (since := "2024-10-17")]
 protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
 
-@[simp] theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
-@[simp] theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
+set_option linter.deprecated false in
+@[simp, deprecated sum_nil (since := "2024-10-17")]
+theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
+set_option linter.deprecated false in
+@[simp, deprecated sum_cons (since := "2024-10-17")]
+theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
     Nat.sum (a::l) = a + Nat.sum l := rfl
 
 /-! ### range -/

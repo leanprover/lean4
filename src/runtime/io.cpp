@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 */
 #if defined(LEAN_WINDOWS)
-#include <icu.h> // for reasons unknown, this must be included before windows.h
+#include <icu.h> // for reasons unknown, this must be included before windows.h.
 #include <windows.h>
 #include <io.h>
 #define NOMINMAX // prevent ntdef.h from defining min/max macros

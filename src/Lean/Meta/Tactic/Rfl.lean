@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Newell Jensen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Newell Jensen, Thomas Murrills
+Authors: Newell Jensen, Thomas Murrills, Joachim Breitner
 -/
 prelude
 import Lean.Meta.Tactic.Apply
@@ -50,33 +50,62 @@ open Elab Tactic
 
 /-- `MetaM` version of the `rfl` tactic.
 
-This tactic applies to a goal whose target has the form `x ~ x`,
-where `~` is a reflexive relation other than `=`,
-that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
+This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
+relation, that is, equality or another relation which has a reflexive lemma tagged with the
+attribute [refl].
 -/
-def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := do
-  let .app (.app rel _) _ ← whnfR <|← instantiateMVars <|← goal.getType
-    | throwError "reflexivity lemmas only apply to binary relations, not{
-        indentExpr (← goal.getType)}"
-  if let .app (.const ``Eq [_]) _ := rel then
-    throwError "MVarId.applyRfl does not solve `=` goals. Use `MVarId.refl` instead."
+def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext do
+  -- NB: uses whnfR, we do not want to unfold the relation itself
+  let t ← whnfR <|← instantiateMVars <|← goal.getType
+  if t.getAppNumArgs < 2 then
+    throwTacticEx `rfl goal "expected goal to be a binary relation"
+
+  -- Special case HEq here as it has a different argument order.
+  if t.isAppOfArity ``HEq 4 then
+    let gs ← goal.applyConst ``HEq.refl
+    unless gs.isEmpty do
+      throwTacticEx `rfl goal <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
+        goalsToMessageData gs}"
+    return
+
+  let rel := t.appFn!.appFn!
+  let lhs := t.appFn!.appArg!
+  let rhs := t.appArg!
+
+  let success ← approxDefEq <| isDefEqGuarded lhs rhs
+  unless success do
+    let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+      let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+      return m!"the left-hand side{indentExpr lhs}\nis not definitionally equal to the right-hand side{indentExpr rhs}"
+    throwTacticEx `rfl goal explanation
+
+  if rel.isAppOfArity `Eq 1 then
+    -- The common case is equality: just use `Eq.refl`
+    let us := rel.appFn!.constLevels!
+    let α :=  rel.appArg!
+    goal.assign (mkApp2 (mkConst ``Eq.refl us) α lhs)
   else
+    -- Else search through `@refl` keyed by the relation
+    -- We change the type to `lhs ~ lhs` so that we do not the (possibly costly) `lhs =?= rhs` check
+    -- again.
+    goal.setType (.app t.appFn! lhs)
     let s ← saveState
     let mut ex? := none
     for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
       try
         let gs ← goal.apply (← mkConstWithFreshMVarLevels lem)
         if gs.isEmpty then return () else
-          logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
+          throwError MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
             goalsToMessageData gs}"
       catch e =>
-        ex? := ex? <|> (some (← saveState, e)) -- stash the first failure of `apply`
+        unless ex?.isSome do
+          ex? := some (← saveState, e) -- stash the first failure of `apply`
       s.restore
     if let some (sErr, e) := ex? then
       sErr.restore
       throw e
     else
-      throwError "rfl failed, no lemma with @[refl] applies"
+      throwTacticEx `rfl goal m!"no @[refl] lemma registered for relation{indentExpr rel}"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
 private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}

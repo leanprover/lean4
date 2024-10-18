@@ -82,7 +82,7 @@ where
         return (a, b)
       else if a.getAppNumArgs != b.getAppNumArgs then
         return (a, b)
-      else if not (← isDefEq a.getAppFn b.getAppFn) then
+      else if !(← isDefEq a.getAppFn b.getAppFn) then
         return (a, b)
       else
         let fType ← inferType a.getAppFn

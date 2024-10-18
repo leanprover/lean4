@@ -17,7 +17,7 @@ register_builtin_option autoImplicit : Bool := {
 
 register_builtin_option relaxedAutoImplicit : Bool := {
     defValue := true
-    descr    := "When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see optin `autoBoundImplicitLocal`."
+    descr    := "When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see option `autoImplicit`)."
   }
 
 

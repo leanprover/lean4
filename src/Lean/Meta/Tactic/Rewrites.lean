@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2023 Scott Morrison. All rights reserved.
+Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.Meta.LazyDiscrTree
@@ -102,7 +102,7 @@ private builtin_initialize ext : EnvExtension ExtState ←
 /--
 The maximum number of constants an individual task may perform.
 
-The value was picked because it roughly correponded to 50ms of work on the
+The value was picked because it roughly corresponded to 50ms of work on the
 machine this was developed on.  Smaller numbers did not seem to improve
 performance when importing Std and larger numbers (<10k) seemed to degrade
 initialization performance.

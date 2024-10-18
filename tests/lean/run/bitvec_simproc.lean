@@ -43,13 +43,13 @@ example (h : x = (1 : BitVec 32)) : x = - smtSDiv 9 0 := by
   simp; guard_target =ₛ x = 1#32; assumption
 example (h : x = (1 : BitVec 32)) : x = smtSDiv (-9) 0 := by
   simp; guard_target =ₛ x = 1#32; assumption
-example (h : x = false) : x = (4#3).getLsb 0:= by
+example (h : x = false) : x = (4#3).getLsbD 0:= by
   simp; guard_target =ₛ x = false; assumption
-example (h : x = true) : x = (4#3).getLsb 2:= by
+example (h : x = true) : x = (4#3).getLsbD 2:= by
   simp; guard_target =ₛ x = true; assumption
-example (h : x = true) : x = (4#3).getMsb 0:= by
+example (h : x = true) : x = (4#3).getMsbD 0:= by
   simp; guard_target =ₛ x = true; assumption
-example (h : x = false) : x = (4#3).getMsb 2:= by
+example (h : x = false) : x = (4#3).getMsbD 2:= by
   simp; guard_target =ₛ x = false; assumption
 example (h : x = (24 : BitVec 32)) : x = 6#32 <<< 2 := by
   simp; guard_target =ₛ x = 24#32; assumption
@@ -99,7 +99,7 @@ example (h : x) : x = (3#3 ≥ 1#3) := by
   simp; guard_target =ₛ x; assumption
 example (h : ¬x) : x = (3#3 ≥ 4#3) := by
   simp; guard_target =ₛ ¬x; assumption
-example (h : x = (5 : BitVec 7)) : x = (5#3).zeroExtend' (by decide) := by
+example (h : x = (5 : BitVec 7)) : x = (5#3).setWidth' (by decide) := by
   simp; guard_target =ₛ x = 5#7; assumption
 example (h : x = (80 : BitVec 7)) : x = (5#3).shiftLeftZeroExtend 4 := by
   simp; guard_target =ₛ x = 80#7; assumption

@@ -7,7 +7,7 @@ theorem write_simplify_test_0 (a x y : BitVec 64)
   write (2 * ((8 * 8) / 8)) a (BitVec.cast h (zeroExtend (8 * 8) x ++ (zeroExtend (8 * 8) y))) s
   =
   write 16 a (x ++ y) s := by
-  simp only [zeroExtend_eq, BitVec.cast_eq]
+  simp only [setWidth_eq, BitVec.cast_eq]
 
 /--
 warning: declaration uses 'sorry'

@@ -43,3 +43,5 @@
 /src/Init/Guard.lean @digama0
 /src/Lean/Server/CodeActions/ @digama0
 /src/Std/ @TwoFX
+/src/Std/Tactic/BVDecide/ @hargoniX
+/src/Lean/Elab/Tactic/BVDecide/ @hargoniX

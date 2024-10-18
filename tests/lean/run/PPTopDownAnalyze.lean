@@ -275,8 +275,8 @@ set_option pp.proofs.withType false in
 
 end proofs
 
-#testDelab ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 : Array α }
-  expecting ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 }
+#testDelab ∀ (α : Type u) (vals vals_1 : List α), { toList := vals : Array α } = { toList := vals_1 : Array α }
+  expecting ∀ (α : Type u) (vals vals_1 : List α), { toList := vals : Array α } = { toList := vals_1 }
 
 #testDelab (do let ctxCore ← readThe Core.Context; pure ctxCore.currNamespace : MetaM Name)
   expecting do

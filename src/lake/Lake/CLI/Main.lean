@@ -40,6 +40,7 @@ structure LakeOptions where
   oldMode : Bool := false
   trustHash : Bool := true
   noBuild : Bool := false
+  noCache : Option Bool := none
   failLv : LogLevel := .error
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
@@ -66,7 +67,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
-    |>.adaptExcept fun msg => .invalidEnv msg
+    opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
@@ -173,6 +174,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
+| "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
+| "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
@@ -337,6 +340,11 @@ protected def build : CliM PUnit := do
   if showProgress then
     IO.println "Build completed successfully."
 
+protected def checkBuild : CliM PUnit := do
+  processOptions lakeOption
+  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
+
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -500,6 +508,66 @@ protected def translateConfig : CliM PUnit := do
   if outFile?.isNone then
     IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
+def ReservoirConfig.currentSchemaVersion : StdVer := v!"1.0.0"
+
+structure ReservoirConfig where
+  name : String
+  version : StdVer
+  versionTags : List String
+  description : String
+  keywords : Array String
+  homepage : String
+  platformIndependent : Option Bool
+  license : String
+  licenseFiles : Array FilePath
+  readmeFile : Option FilePath
+  doIndex : Bool
+  schemaVersion := ReservoirConfig.currentSchemaVersion
+  deriving Lean.ToJson
+
+protected def reservoirConfig : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let cfg ← mkLoadConfig opts
+  let _ ← id do
+    let some verStr ← takeArg?
+      | return ReservoirConfig.currentSchemaVersion
+    match StdVer.parse verStr with
+    | .ok ver => return ver
+    | .error e => error s!"invalid target version: {e}"
+  noArgsRem do
+  let pkg ← loadPackage cfg
+  let repoTags ← GitRepo.getTags pkg.dir
+  let licenseFiles ← pkg.licenseFiles.filterMapM fun relPath => do
+    return if (← (pkg.dir / relPath).pathExists) then some relPath else none
+  let readmeFile :=
+    if (← pkg.readmeFile.pathExists) then some pkg.relReadmeFile else none
+  let cfg : ReservoirConfig := {
+    name := pkg.name.toString
+    version := pkg.version
+    versionTags := repoTags.filter pkg.versionTags.matches
+    description := pkg.description
+    homepage := pkg.homepage
+    keywords := pkg.keywords
+    platformIndependent := pkg.platformIndependent
+    license := pkg.license
+    licenseFiles := licenseFiles
+    readmeFile := readmeFile
+    doIndex := pkg.reservoir
+  }
+  IO.println (toJson cfg).pretty
+
+protected def versionTags : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let cfg ← mkLoadConfig opts
+  noArgsRem do
+  let pkg ← loadPackage cfg
+  let tags ← GitRepo.getTags pkg.dir
+  for tag in tags do
+    if pkg.versionTags.matches tag then
+      IO.println tag
+
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
   noArgsRem do verifyInstall (← getThe LakeOptions)
@@ -513,6 +581,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "new"                 => lake.new
 | "init"                => lake.init
 | "build"               => lake.build
+| "check-build"         => lake.checkBuild
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "pack"                => lake.pack
@@ -532,6 +601,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "exe" | "exec"        => lake.exe
 | "lean"                => lake.lean
 | "translate-config"    => lake.translateConfig
+| "reservoir-config"    => lake.reservoirConfig
+| "version-tags"        => lake.versionTags
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help
 | cmd                   => throw <| CliError.unknownCommand cmd

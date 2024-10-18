@@ -146,7 +146,7 @@ where
     |>.insert ``packageFacetAttr
     |>.insert ``libraryFacetAttr
     -- Docstring Extension (e.g., for scripts)
-    |>.insert `Lean.docStringExt
+    |>.insert ``docStringExt
     -- IR Extension (for constant evaluation)
     |>.insert ``IR.declMapExt
 

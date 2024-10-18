@@ -27,6 +27,8 @@ class Input (ι : Type) (elem : outParam Type) (idx : outParam Type) [DecidableE
   next : ι → ι
   curr : ι → elem
   hasNext : ι → Bool
+  next' (it : ι) : (hasNext it) → ι
+  curr' (it : ι) : (hasNext it) → elem
 
 variable {α : Type} {ι : Type} {elem : Type} {idx : Type}
 variable [DecidableEq idx] [DecidableEq elem] [Input ι elem idx]
@@ -34,21 +36,22 @@ variable [DecidableEq idx] [DecidableEq elem] [Input ι elem idx]
 instance : Inhabited (Parsec ι α) where
   default := fun it => .error it ""
 
-@[inline]
+@[always_inline, inline]
 protected def pure (a : α) : Parsec ι α := fun it =>
   .success it a
 
-@[inline]
+@[always_inline, inline]
 def bind {α β : Type} (f : Parsec ι α) (g : α → Parsec ι β) : Parsec ι β := fun it =>
   match f it with
   | .success rem a => g a rem
   | .error pos msg => .error pos msg
 
+@[always_inline]
 instance : Monad (Parsec ι) where
   pure := Parsec.pure
   bind := Parsec.bind
 
-@[inline]
+@[always_inline, inline]
 def fail (msg : String) : Parsec ι α := fun it =>
   .error it msg
 
@@ -61,16 +64,17 @@ def tryCatch (p : Parsec ι α) (csuccess : α → Parsec ι β) (cerror : Unit 
     -- We assume that it.s never changes as the `Parsec` monad only modifies `it.pos`.
     if Input.pos it = Input.pos rem then cerror () rem else .error rem err
 
-@[inline]
+@[always_inline, inline]
 def orElse (p : Parsec ι α) (q : Unit → Parsec ι α) : Parsec ι α :=
   tryCatch p pure q
 
-@[inline]
+@[always_inline, inline]
 def attempt (p : Parsec ι α) : Parsec ι α := fun it =>
   match p it with
   | .success rem res => .success rem res
   | .error _ err => .error it err
 
+@[always_inline]
 instance : Alternative (Parsec ι) where
   failure := fail ""
   orElse := orElse
@@ -85,7 +89,7 @@ def eof : Parsec ι Unit := fun it =>
     .success it ()
 
 @[inline]
-def eof? : Parsec ι Bool := fun it =>
+def isEof : Parsec ι Bool := fun it =>
   .success it (!Input.hasNext it)
 
 @[specialize]
@@ -102,8 +106,10 @@ def unexpectedEndOfInput := "unexpected end of input"
 
 @[inline]
 def any : Parsec ι elem := fun it =>
-  if Input.hasNext it then
-    .success (Input.next it) (Input.curr it)
+  if h : Input.hasNext it then
+    let c := Input.curr' it h
+    let it' := Input.next' it h
+    .success it' c
   else
     .error it unexpectedEndOfInput
 
@@ -120,19 +126,31 @@ def notFollowedBy (p : Parsec ι α) : Parsec ι Unit := fun it =>
 
 @[inline]
 def peek? : Parsec ι (Option elem) := fun it =>
-  if Input.hasNext it then
-    .success it (Input.curr it)
+  if h : Input.hasNext it then
+    .success it (Input.curr' it h)
   else
     .success it none
 
 @[inline]
-def peek! : Parsec ι elem := do
-  let some c ← peek? | fail unexpectedEndOfInput
-  return c
+def peek! : Parsec ι elem := fun it =>
+  if h : Input.hasNext it then
+    .success it (Input.curr' it h)
+  else
+    .error it unexpectedEndOfInput
+
+@[inline]
+def peekD (default : elem) : Parsec ι elem := fun it =>
+  if h : Input.hasNext it then
+    .success it (Input.curr' it h)
+  else
+    .success it default
 
 @[inline]
 def skip : Parsec ι Unit := fun it =>
-  .success (Input.next it) ()
+  if h : Input.hasNext it then
+    .success (Input.next' it h) ()
+  else
+    .error it unexpectedEndOfInput
 
 @[specialize]
 partial def manyCharsCore (p : Parsec ι Char) (acc : String) : Parsec ι String :=

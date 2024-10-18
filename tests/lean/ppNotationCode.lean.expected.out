@@ -1,10 +1,10 @@
 [Elab.definition.body] «term_+++_» : Lean.TrailingParserDescr :=
-    Lean.ParserDescr.trailingNode `term_+++_ 45 46
+    Lean.ParserDescr.trailingNode `«term_+++_» 45 46
       (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "+++") (Lean.ParserDescr.cat `term 46))
 [Elab.definition.body] «_aux_ppNotationCode___macroRules_term_+++__1» : Lean.Macro :=
     fun x =>
       let_fun __discr := x;
-      if __discr.isOfKind `term_+++_ = true then
+      if __discr.isOfKind `«term_+++_» = true then
         let_fun __discr_1 := __discr.getArg 0;
         let_fun __discr_2 := __discr.getArg 1;
         let_fun __discr := __discr.getArg 2;
@@ -41,7 +41,7 @@
               let info ← Lean.MonadRef.mkInfoFromRefPos
               let _ ← Lean.getCurrMacroScope
               let _ ← Lean.getMainModule
-              pure { raw := Lean.Syntax.node3 info `term_+++_ lhs.raw (Lean.Syntax.atom info "+++") rhs.raw }.raw
+              pure { raw := Lean.Syntax.node3 info `«term_+++_» lhs.raw (Lean.Syntax.atom info "+++") rhs.raw }.raw
           else
             let_fun __discr := __discr.getArg 1;
             throw ()

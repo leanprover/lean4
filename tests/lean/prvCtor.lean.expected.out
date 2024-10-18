@@ -1,8 +1,5 @@
 a : Nat
-
 prvCtor.lean:25:23-25:61: error: invalid {...} notation, constructor for `Lean.Environment` is marked as private
-prvCtor.lean:23:0-25:61: error: cannot evaluate expression that depends on the `sorry` axiom.
-Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 prvCtor.lean:27:7-27:8: error: unknown identifier 'a'
 prvCtor.lean:29:25-29:27: error: overloaded, errors 
   failed to synthesize

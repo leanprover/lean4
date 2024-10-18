@@ -10,7 +10,7 @@ import Std.Sat.AIG.LawfulVecOperator
 Besides introducing a way to construct an if statement in an `AIG`, this module also demonstrates
 a style of writing Lean code that minimizes the risk of linearity issues on the `AIG`.
 
-The idea is to always keep one `aig` variable around that contains the `AIG` and continously
+The idea is to always keep one `aig` variable around that contains the `AIG` and continuously
 shadow it. However, applying multiple operations to the `AIG` does often require `Ref.cast` to use
 other inputs or `Ref`s created by previous operations in later ones. Applying a `Ref.cast` would
 usually require keeping around the old `AIG` to state the theorem statement. Luckily in this

@@ -7,7 +7,7 @@ And.rec
 And.casesOn
 Array
 Array.sz
-Array.data
+Array.toList
 autoParam
 bit0
 bit1

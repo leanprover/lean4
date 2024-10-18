@@ -239,7 +239,7 @@ structure InductiveVal extends ConstantVal where
   all : List Name
   /-- List of the names of the constructors for this inductive datatype. -/
   ctors : List Name
-  /-- Number of auxillary data types produced from nested occurrences.
+  /-- Number of auxiliary data types produced from nested occurrences.
   An inductive definition `T` is nested when there is a constructor with an argument `x : F T`,
    where `F : Type → Type` is some suitably behaved (ie strictly positive) function (Eg `Array T`, `List T`, `T × T`, ...).  -/
   numNested : Nat

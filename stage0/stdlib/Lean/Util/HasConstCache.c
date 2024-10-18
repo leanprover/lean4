@@ -13,14 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_HasConstCache_cache___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache___rarg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
@@ -34,9 +32,6 @@ uint64_t l_Lean_Expr_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache(lean_object*);
-static lean_object* l_Lean_HasConstCache_cache___default___closed__2;
-static lean_object* l_Lean_HasConstCache_cache___default___closed__3;
-LEAN_EXPORT lean_object* l_Lean_HasConstCache_cache___default;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_HasConstCache_containsUnsafe_cache___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_HasConstCache_containsUnsafe___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -59,46 +54,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache___boxed(lean_object*);
-static lean_object* _init_l_Lean_HasConstCache_cache___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(10u);
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = l_Nat_nextPowerOfTwo_go(x_1, x_2, lean_box(0));
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_HasConstCache_cache___default___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_HasConstCache_cache___default___closed__1;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_HasConstCache_cache___default___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_HasConstCache_cache___default___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_HasConstCache_cache___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_HasConstCache_cache___default___closed__3;
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_HasConstCache_containsUnsafe_cache___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1046,14 +1001,6 @@ lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Raw(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_HasConstCache_cache___default___closed__1 = _init_l_Lean_HasConstCache_cache___default___closed__1();
-lean_mark_persistent(l_Lean_HasConstCache_cache___default___closed__1);
-l_Lean_HasConstCache_cache___default___closed__2 = _init_l_Lean_HasConstCache_cache___default___closed__2();
-lean_mark_persistent(l_Lean_HasConstCache_cache___default___closed__2);
-l_Lean_HasConstCache_cache___default___closed__3 = _init_l_Lean_HasConstCache_cache___default___closed__3();
-lean_mark_persistent(l_Lean_HasConstCache_cache___default___closed__3);
-l_Lean_HasConstCache_cache___default = _init_l_Lean_HasConstCache_cache___default();
-lean_mark_persistent(l_Lean_HasConstCache_cache___default);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

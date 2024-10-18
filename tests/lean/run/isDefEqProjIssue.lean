@@ -54,34 +54,6 @@ where
 error: (deterministic) timeout at `whnf`, maximum number of heartbeats (400) has been reached
 Use `set_option maxHeartbeats <num>` to set the limit.
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (400) has been reached
-Use `set_option maxHeartbeats <num>` to set the limit.
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: (deterministic) timeout at `elaborator`, maximum number of heartbeats (400) has been reached
-Use `set_option maxHeartbeats <num>` to set the limit.
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (400) has been reached
-Use `set_option maxHeartbeats <num>` to set the limit.
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (400) has been reached
-Use `set_option maxHeartbeats <num>` to set the limit.
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: (deterministic) timeout at `elaborator`, maximum number of heartbeats (400) has been reached
-Use `set_option maxHeartbeats <num>` to set the limit.
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (400) has been reached
-Use `set_option maxHeartbeats <num>` to set the limit.
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
----
-error: (deterministic) timeout at `whnf`, maximum number of heartbeats (400) has been reached
-Use `set_option maxHeartbeats <num>` to set the limit.
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 set_option backward.isDefEq.lazyWhnfCore false in

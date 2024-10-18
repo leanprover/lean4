@@ -20,7 +20,7 @@ fi
 # https://github.com/leanprover/lake/issues/119
 
 # a@1/init
-$LAKE new a lib
+$LAKE new a lib.lean
 pushd a
 git checkout -b master
 git add .
@@ -31,7 +31,7 @@ git tag init
 popd
 
 # b@1: require a@master, manifest a@1
-$LAKE new b lib
+$LAKE new b lib.lean
 pushd b
 git checkout -b master
 cat >>lakefile.lean <<EOF
@@ -52,7 +52,7 @@ git commit -am 'second commit in a'
 popd
 
 # c@1: require a@master, manifest a@2
-$LAKE new c lib
+$LAKE new c lib.lean
 pushd c
 git checkout -b master
 cat >>lakefile.lean <<EOF
@@ -67,7 +67,7 @@ git commit -am 'first commit in c'
 popd
 
 # d@1: require b@master c@master => a, manifest a@1 b@1 c@1
-$LAKE new d lib
+$LAKE new d lib.lean
 pushd d
 git checkout -b master
 cat >>lakefile.lean <<EOF

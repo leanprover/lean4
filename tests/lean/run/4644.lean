@@ -10,9 +10,16 @@ termination_by a.size - i
 def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
   sorted_from_var a 0
 
--- works (because `rfl` of closed terms resorts to kernel defeq, see #3772)
-example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
-  rfl
+/--
+error: tactic 'rfl' failed, the left-hand side
+  check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]
+is not definitionally equal to the right-hand side
+  true
+⊢ check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
+-/
+#guard_msgs in
+example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true := by
+  rfl -- fails because `rfl` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
 /--
 error: tactic 'decide' failed for proposition

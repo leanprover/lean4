@@ -1,6 +1,3 @@
-class Zero (α : Type) where
-  zero : α
-
 class AddCommGroup (α : Type) extends Zero α where
 
 class Ring (α : Type) extends Zero α, AddCommGroup α

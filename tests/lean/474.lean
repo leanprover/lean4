@@ -1,6 +1,13 @@
 import Lean
 open Lean Meta
 
+open PrettyPrinter Delaborator SubExpr in
+@[delab fvar]
+def delabFVar : Delab := do
+  let Expr.fvar fvarId ← getExpr | unreachable!
+  let none := (← getLCtx).find? fvarId | failure
+  return mkIdent `FREE
+
 #eval do
   let e ← withLetDecl `y (mkConst ``Nat) (mkConst ``Nat.zero) fun y => do
     let m ← mkFreshExprMVar (mkConst ``Nat)

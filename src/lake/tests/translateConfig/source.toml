@@ -27,6 +27,15 @@ moreLinkArgs = []
 weakLinkArgs = []
 backend = "default"
 platformIndependent = true
+version = "0.0.0"
+versionTags = {preset = "default"}
+description = ""
+keywords = []
+homepage = ""
+license = ""
+licenseFiles = ["LICENSE"]
+readmeFile = "README.md"
+reservoir = true
 
 [[lean_lib]]
 name = "A"

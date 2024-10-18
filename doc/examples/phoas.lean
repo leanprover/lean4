@@ -225,7 +225,7 @@ We now define the constant folding optimization that traverses a term if replace
 /-!
 The correctness of the `constFold` is proved using induction, case-analysis, and the term simplifier.
 We prove all cases but the one for `plus` using `simp [*]`. This tactic instructs the term simplifier to
-use hypotheses such as `a = b` as rewriting/simplications rules.
+use hypotheses such as `a = b` as rewriting/simplifications rules.
 We use the `split` to break the nested `match` expression in the `plus` case into two cases.
 The local variables `iha` and `ihb` are the induction hypotheses for `a` and `b`.
 The modifier `←` in a term simplifier argument instructs the term simplifier to use the equation as a rewriting rule in

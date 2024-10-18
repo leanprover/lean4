@@ -73,7 +73,7 @@ update the archived C source code of the stage 0 compiler in `stage0/src`.
 The github repository will automatically update stage0 on `master` once
 `src/stdlib_flags.h` and `stage0/src/stdlib_flags.h` are out of sync.
 
-If you have write access to the lean4 repository, you can also also manually
+If you have write access to the lean4 repository, you can also manually
 trigger that process, for example to be able to use new features in the compiler itself.
 You can do that on <https://github.com/leanprover/lean4/actions/workflows/update-stage0.yml>
 or using Github CLI with

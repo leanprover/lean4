@@ -121,8 +121,8 @@ where
     let mut paramsNew := #[]
     let singleton : FVarIdSet := ({} : FVarIdSet).insert params[targetParamIdx]!.fvarId
     let dependsOnDiscr := k.dependsOn singleton || decls.any (·.dependsOn singleton)
-    for i in [:params.size] do
-      let param := params[i]!
+    for h : i in [:params.size] do
+      let param := params[i]
       if targetParamIdx == i then
         if dependsOnDiscr then
           paramsNew := paramsNew.push (← internalizeParam param)
@@ -300,4 +300,3 @@ builtin_initialize
   registerTraceClass `Compiler.simp.jpCases
 
 end Lean.Compiler.LCNF
-

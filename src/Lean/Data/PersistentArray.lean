@@ -7,6 +7,7 @@ prelude
 import Init.Data.Array.Basic
 import Init.NotationExtra
 import Init.Data.ToString.Macro
+import Init.Data.UInt.Basic
 
 universe u v w
 
@@ -317,8 +318,8 @@ variable {m : Type → Type w} [Monad m]
   anyMAux p t.root <||> t.tail.anyM p
 
 @[inline] def allM (a : PersistentArray α) (p : α → m Bool) : m Bool := do
-  let b ← anyM a (fun v => do let b ← p v; pure (not b))
-  pure (not b)
+  let b ← anyM a (fun v => do let b ← p v; pure (!b))
+  pure (!b)
 
 end
 

@@ -68,8 +68,8 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
       | some targetPos => pure targetPos.val
     let mut altsInfo := #[]
     let env ← getEnv
-    for i in [:xs.size] do
-      let x := xs[i]!
+    for h : i in [:xs.size] do
+      let x := xs[i]
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then

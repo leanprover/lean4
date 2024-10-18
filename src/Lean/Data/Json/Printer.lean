@@ -6,6 +6,7 @@ Authors: Gabriel Ebner, Marc Huisinga, Wojciech Nawrocki
 prelude
 import Lean.Data.Format
 import Lean.Data.Json.Basic
+import Init.Data.List.Impl
 
 namespace Lean
 namespace Json
@@ -27,22 +28,24 @@ private def escapeAux (acc : String) (c : Char) : String :=
   -- and encoding it with multiple \u is allowed, and it is up to parsers to make the
   -- decision.
   else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then
-    acc ++ String.singleton c
+    acc.push c
   else
     let n := c.toNat;
     -- since c.val < 0x20 in this case, this conversion is more involved than necessary
     -- (but we keep it for completeness)
-    acc ++ "\\u" ++
-    [ Nat.digitChar (n / 4096),
-      Nat.digitChar ((n % 4096) / 256),
-      Nat.digitChar ((n % 256) / 16),
-      Nat.digitChar (n % 16) ].asString
+    let d1 := Nat.digitChar (n / 4096)
+    let d2 := Nat.digitChar ((n % 4096) / 256)
+    let d3 := Nat.digitChar ((n % 256) / 16)
+    let d4 := Nat.digitChar (n % 16)
+    acc ++ "\\u" |>.push d1 |>.push d2 |>.push d3 |>.push d4
 
-def escape (s : String) : String :=
-  s.foldl escapeAux ""
+def escape (s : String) (acc : String := "") : String :=
+  s.foldl escapeAux acc
 
-def renderString (s : String) : String :=
-  "\"" ++ escape s ++ "\""
+def renderString (s : String) (acc : String := "") : String :=
+  let acc := acc ++ "\""
+  let acc := escape s acc
+  acc ++ "\""
 
 section
 
@@ -84,14 +87,14 @@ where go (acc : String) : List Json.CompressWorkItem → String
     | bool true  => go (acc ++ "true") is
     | bool false => go (acc ++ "false") is
     | num s      => go (acc ++ s.toString) is
-    | str s      => go (acc ++ renderString s) is
-    | arr elems  => go (acc ++ "[") (elems.toList.map arrayElem ++ [arrayEnd] ++ is)
+    | str s      => go (renderString s acc) is
+    | arr elems  => go (acc ++ "[") ((elems.map arrayElem).toListAppend (arrayEnd :: is))
     | obj kvs    => go (acc ++ "{") (kvs.fold (init := []) (fun acc k j => objectField k j :: acc) ++ [objectEnd] ++ is)
   | arrayElem j :: arrayEnd :: is      => go acc (json j :: arrayEnd :: is)
   | arrayElem j :: is                  => go acc (json j :: comma :: is)
   | arrayEnd :: is                     => go (acc ++ "]") is
-  | objectField k j :: objectEnd :: is => go (acc ++ renderString k ++ ":") (json j :: objectEnd :: is)
-  | objectField k j :: is              => go (acc ++ renderString k ++ ":") (json j :: comma :: is)
+  | objectField k j :: objectEnd :: is => go (renderString k acc ++ ":") (json j :: objectEnd :: is)
+  | objectField k j :: is              => go (renderString k acc ++ ":") (json j :: comma :: is)
   | objectEnd :: is                    => go (acc ++ "}") is
   | comma :: is                        => go (acc ++ ",") is
 

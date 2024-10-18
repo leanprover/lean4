@@ -37,38 +37,26 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
     f (ite P x y) = ite P (f x) (f y) :=
   apply_dite f P (fun _ => x) (fun _ => y)
 
-@[simp] theorem dite_eq_left_iff {P : Prop} [Decidable P] {B : ¬ P → α} :
-    dite P (fun _ => a) B = a ↔ ∀ h, B h = a := by
-  by_cases P <;> simp [*, forall_prop_of_true, forall_prop_of_false]
-
-@[simp] theorem dite_eq_right_iff {P : Prop} [Decidable P] {A : P → α} :
-    (dite P A fun _ => b) = b ↔ ∀ h, A h = b := by
-  by_cases P <;> simp [*, forall_prop_of_true, forall_prop_of_false]
-
-@[simp] theorem ite_eq_left_iff {P : Prop} [Decidable P] : ite P a b = a ↔ ¬P → b = a :=
-  dite_eq_left_iff
-
-@[simp] theorem ite_eq_right_iff {P : Prop} [Decidable P] : ite P a b = b ↔ P → a = b :=
-  dite_eq_right_iff
-
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
 @[simp] theorem dite_eq_ite [Decidable P] : (dite P (fun _ => a) fun _ => b) = ite P a b := rfl
 
--- We don't mark this as `simp` as it is already handled by `ite_eq_right_iff`.
+@[deprecated "Use `ite_eq_right_iff`" (since := "2024-09-18")]
 theorem ite_some_none_eq_none [Decidable P] :
     (if P then some x else none) = none ↔ ¬ P := by
-  simp only [ite_eq_right_iff]
+  simp only [ite_eq_right_iff, reduceCtorEq]
   rfl
 
-@[simp] theorem ite_some_none_eq_some [Decidable P] :
+@[deprecated "Use `Option.ite_none_right_eq_some`" (since := "2024-09-18")]
+theorem ite_some_none_eq_some [Decidable P] :
     (if P then some x else none) = some y ↔ P ∧ x = y := by
   split <;> simp_all
 
--- This is not marked as `simp` as it is already handled by `dite_eq_right_iff`.
+@[deprecated "Use `dite_eq_right_iff" (since := "2024-09-18")]
 theorem dite_some_none_eq_none [Decidable P] {x : P → α} :
     (if h : P then some (x h) else none) = none ↔ ¬P := by
   simp
 
-@[simp] theorem dite_some_none_eq_some [Decidable P] {x : P → α} {y : α} :
+@[deprecated "Use `Option.dite_none_right_eq_some`" (since := "2024-09-18")]
+theorem dite_some_none_eq_some [Decidable P] {x : P → α} {y : α} :
     (if h : P then some (x h) else none) = some y ↔ ∃ h : P, x h = y := by
   by_cases h : P <;> simp [h]

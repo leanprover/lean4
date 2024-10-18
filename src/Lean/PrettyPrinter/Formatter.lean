@@ -360,7 +360,8 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
     else
       -- stopped after `tk` => add space
-      push $ tk ++ " "
+      pushLine
+      push tk
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
   else
     -- already separated => use `tk` as is
@@ -420,7 +421,9 @@ def identNoAntiquot.formatter : Formatter := do
   let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
   let id := id.simpMacroScopes
-  withMaybeTag (getExprPos? stx) (pushToken info id.toString)
+  let table := (← read).table
+  let isToken (s : String) : Bool := (table.find? s).isSome
+  withMaybeTag (getExprPos? stx) (pushToken info (id.toString (isToken := isToken)))
   goLeft
 
 @[combinator_formatter rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do
@@ -535,7 +538,7 @@ register_builtin_option pp.oneline : Bool := {
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
   trace[PrettyPrinter.format.input] "{Std.format stx}"
   let options ← getOptions
-  let table ← Parser.builtinTokenTable.get
+  let table := Parser.getTokenTable (← getEnv)
   catchInternalId backtrackExceptionId
     (do
       let (_, st) ← (concat formatter { table, options }).run { stxTrav := .fromSyntax stx }

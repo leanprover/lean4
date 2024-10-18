@@ -74,11 +74,11 @@ theorem dvd_of_mod_eq_zero {m n : Nat} (H : n % m = 0) : m ∣ n := by
   have := (mod_add_div n m).symm
   rwa [H, Nat.zero_add] at this
 
-theorem dvd_iff_mod_eq_zero (m n : Nat) : m ∣ n ↔ n % m = 0 :=
+theorem dvd_iff_mod_eq_zero {m n : Nat} : m ∣ n ↔ n % m = 0 :=
   ⟨mod_eq_zero_of_dvd, dvd_of_mod_eq_zero⟩
 
 instance decidable_dvd : @DecidableRel Nat (·∣·) :=
-  fun _ _ => decidable_of_decidable_of_iff (dvd_iff_mod_eq_zero _ _).symm
+  fun _ _ => decidable_of_decidable_of_iff dvd_iff_mod_eq_zero.symm
 
 theorem emod_pos_of_not_dvd {a b : Nat} (h : ¬ a ∣ b) : 0 < b % a := by
   rw [dvd_iff_mod_eq_zero] at h

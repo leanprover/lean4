@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.Omega.Constraint
@@ -49,7 +49,7 @@ inductive Justification : Constraint → Coeffs → Type
   | combo {s t x y} (a : Int) (j : Justification s x) (b : Int) (k : Justification t y) :
     Justification (Constraint.combo a s b t) (Coeffs.combo a x b y)
   /--
-  The justification for the constraing constructed using "balanced mod" while
+  The justification for the constraint constructed using "balanced mod" while
   eliminating an equality.
   -/
   | bmod (m : Nat) (r : Int) (i : Nat) {x} (j : Justification (.exact r) x) :
@@ -513,13 +513,13 @@ def fourierMotzkinSelect (data : Array FourierMotzkinData) : MetaM FourierMotzki
   if bestSize = 0 then
     trace[omega] "Selected variable {data[0]!.var}."
     return data[0]!
-  for i in [1:data.size] do
-    let exact := data[i]!.exact
-    let size := data[i]!.size
+  for h : i in [1:data.size] do
+    let exact := data[i].exact
+    let size := data[i].size
     if size = 0 || !bestExact && exact || (bestExact == exact) && size < bestSize then
       if size = 0 then
-        trace[omega] "Selected variable {data[i]!.var}"
-        return data[i]!
+        trace[omega] "Selected variable {data[i].var}"
+        return data[i]
       bestIdx := i
       bestExact := exact
       bestSize := size

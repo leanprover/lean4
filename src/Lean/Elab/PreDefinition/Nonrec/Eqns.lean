@@ -77,9 +77,9 @@ def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=
     withReducible do
       mkEqnTypes #[] goal.mvarId!
   let mut thmNames := #[]
-  for i in [: eqnTypes.size] do
-    let type := eqnTypes[i]!
-    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]!}"
+  for h : i in [: eqnTypes.size] do
+    let type := eqnTypes[i]
+    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName type
@@ -94,7 +94,7 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then
     return none
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    if eqns.nonrecursive.get (← getOptions) then
+    if backward.eqns.nonrecursive.get (← getOptions) then
       mkEqns declName info
     else
       let o ← mkSimpleEqThm declName

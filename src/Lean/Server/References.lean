@@ -81,7 +81,7 @@ def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
         let parentDeclName ← parentDeclName?
         let parentDeclRange := (← parentDeclRanges?).range.toLspRange
         let parentDeclSelectionRange := (← parentDeclRanges?).selectionRange.toLspRange
-        return ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩
+        return ⟨parentDeclName.toString, parentDeclRange, parentDeclSelectionRange⟩
     }
   let definition? ← i.definition.mapM refToRefInfoLocation
   let usages ← i.usages.mapM refToRefInfoLocation
@@ -219,14 +219,14 @@ def identOf (ci : ContextInfo) (i : Info) : Option (RefIdent × Bool) := do
   match i with
   | Info.ofTermInfo ti => match ti.expr with
     | Expr.const n .. =>
-      some (RefIdent.const (← getModuleContainingDecl? ci.env n) n, ti.isBinder)
+      some (RefIdent.const (← getModuleContainingDecl? ci.env n).toString n.toString, ti.isBinder)
     | Expr.fvar id =>
-      some (RefIdent.fvar ci.env.header.mainModule id, ti.isBinder)
+      some (RefIdent.fvar ci.env.header.mainModule.toString id.name.toString, ti.isBinder)
     | _ => none
   | Info.ofFieldInfo fi =>
-    some (RefIdent.const (← getModuleContainingDecl? ci.env fi.projName) fi.projName, false)
+    some (RefIdent.const (← getModuleContainingDecl? ci.env fi.projName).toString fi.projName.toString, false)
   | Info.ofOptionInfo oi =>
-    some (RefIdent.const (← getModuleContainingDecl? ci.env oi.declName) oi.declName, false)
+    some (RefIdent.const (← getModuleContainingDecl? ci.env oi.declName).toString oi.declName.toString, false)
   | _ => none
 
 /-- Finds all references in `trees`. -/
@@ -312,8 +312,8 @@ where
 
   findCanonicalRepresentative (idMap : Std.HashMap RefIdent RefIdent) (id : RefIdent) : RefIdent := Id.run do
     let mut canonicalRepresentative := id
-    while idMap.contains canonicalRepresentative do
-      canonicalRepresentative := idMap[canonicalRepresentative]!
+    while h : idMap.contains canonicalRepresentative do
+      canonicalRepresentative := idMap[canonicalRepresentative]
     return canonicalRepresentative
 
   buildIdMap posMap := Id.run <| StateT.run' (s := Std.HashMap.empty) do
@@ -328,7 +328,7 @@ where
       if let .ofFVarAliasInfo ai := info then
         -- FVars can only be aliases of FVars of the same file / module
         let mod := ci.env.header.mainModule
-        insertIdMap (.fvar mod ai.id) (.fvar mod ai.baseId)))
+        insertIdMap (.fvar mod.toString ai.id.name.toString) (.fvar mod.toString ai.baseId.name.toString)))
 
     get
 
@@ -445,9 +445,10 @@ def allRefsFor
   let refsToCheck := match ident with
     | RefIdent.const .. => self.allRefs.toArray
     | RefIdent.fvar identModule .. =>
-      match self.allRefs[identModule]? with
+      let identModuleName := identModule.toName
+      match self.allRefs[identModuleName]? with
       | none => #[]
-      | some refs => #[(identModule, refs)]
+      | some refs => #[(identModuleName, refs)]
   let mut result := #[]
   for (module, refs) in refsToCheck do
     let some info := refs.get? ident
@@ -518,9 +519,9 @@ def definitionsMatching
       | continue
     let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
     for (ident, info) in refs.toList do
-      let (RefIdent.const _ name, some ⟨definitionRange, _⟩) := (ident, info.definition?)
+      let (RefIdent.const _ nameString, some ⟨definitionRange, _⟩) := (ident, info.definition?)
         | continue
-      let some a := filter name
+      let some a := filter nameString.toName
         | continue
       result := result.push (a, ⟨uri, definitionRange⟩)
       if let some maxAmount := maxAmount? then

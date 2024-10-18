@@ -54,7 +54,7 @@ structure WorkspaceEditClientCapabilities where
   deriving ToJson, FromJson
 
 structure WorkspaceClientCapabilities where
-  applyEdit: Bool
+  applyEdit? : Option Bool := none
   workspaceEdit? : Option WorkspaceEditClientCapabilities := none
   deriving ToJson, FromJson
 

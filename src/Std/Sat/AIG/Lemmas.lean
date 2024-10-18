@@ -92,11 +92,7 @@ instance : LawfulOperator α GateInput mkGate where
 theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
     ⟦aig.mkGate input, assign⟧
       =
-    (
-      (xor ⟦aig, input.lhs.ref, assign⟧ input.lhs.inv)
-        &&
-      (xor ⟦aig, input.rhs.ref, assign⟧ input.rhs.inv)
-    ) := by
+    ((⟦aig, input.lhs.ref, assign⟧ ^^ input.lhs.inv) && (⟦aig, input.rhs.ref, assign⟧ ^^ input.rhs.inv)) := by
   conv =>
     lhs
     unfold denote denote.go
@@ -224,9 +220,9 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
     ⟦aig, ⟨start, hstart⟩, assign⟧
       =
     (
-      (xor ⟦aig, ⟨lhs, by have := aig.invariant hstart h; omega⟩, assign⟧ linv)
+      (⟦aig, ⟨lhs, by have := aig.invariant hstart h; omega⟩, assign⟧ ^^ linv)
         &&
-      (xor ⟦aig, ⟨rhs, by have := aig.invariant hstart h; omega⟩, assign⟧ rinv)
+      (⟦aig, ⟨rhs, by have := aig.invariant hstart h; omega⟩, assign⟧ ^^ rinv)
     ) := by
   unfold denote
   conv =>
@@ -277,7 +273,7 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
     simp only [denote_idx_atom heq]
     apply h
     rw [mem_def, ← heq, Array.mem_def]
-    apply Array.getElem_mem_data
+    apply Array.getElem_mem_toList
   · intro lhs rhs linv rinv heq
     simp only [denote_idx_gate heq]
     have := aig.invariant hidx heq

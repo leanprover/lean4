@@ -78,7 +78,7 @@ def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mv
 
 /--
 Clear auxiliary decls used to encode recursive declarations.
-`grind` eliminates them to ensure they are not accidentaly used by its proof automation.
+`grind` eliminates them to ensure they are not accidentally used by its proof automation.
 -/
 def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind.clear_aux_decls

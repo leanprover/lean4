@@ -146,18 +146,14 @@ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 #guard_msgs in
 #eval tstGetLine ("".pushn 'a' 128)
 
-/-- info: -/
 #guard_msgs in
 #eval tstGetLine2 ("".pushn 'α' 20) ("".pushn 'β' 20)
 
-/-- info: -/
 #guard_msgs in
 #eval tstGetLine2 ("".pushn 'α' 40) ("".pushn 'β' 40)
 
-/-- info: -/
 #guard_msgs in
 #eval tstGetLine2 ("".pushn 'a' 61) ("".pushn 'b' 61)
 
-/-- info: -/
 #guard_msgs in
 #eval tstGetLine2 ("".pushn 'a' 61) ("".pushn 'b' 62)

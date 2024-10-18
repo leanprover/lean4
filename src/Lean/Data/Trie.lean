@@ -76,7 +76,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         let c := s.getUtf8Byte i h
         if c == c'
         then node1 v c' (loop (i + 1) t')
-        else 
+        else
           let t := insertEmpty (i + 1)
           node v (.mk #[c, c']) #[t, t']
       else
@@ -190,7 +190,7 @@ private partial def toStringAux {α : Type} : Trie α → List Format
   | node1 _ c t =>
     [ format (repr c), Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t ]
   | node _ cs ts =>
-    List.join $ List.zipWith (fun c t =>
+    List.flatten $ List.zipWith (fun c t =>
       [ format (repr c), (Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t) ]
     ) cs.toList ts.toList
 

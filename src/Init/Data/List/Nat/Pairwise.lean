@@ -50,7 +50,7 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
   | cons₂ _ _ IH =>
     rcases IH with ⟨is,IH⟩
     refine ⟨⟨0, by simp [Nat.zero_lt_succ]⟩ :: is.map (·.succ), ?_⟩
-    simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem]
+    simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
 
 @[deprecated sublist_eq_map_getElem (since := "2024-07-30")]
 theorem sublist_eq_map_get (h : l' <+ l) : ∃ is : List (Fin l.length),

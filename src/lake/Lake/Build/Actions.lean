@@ -108,15 +108,16 @@ def compileExe
   }
 
 /-- Download a file using `curl`, clobbering any existing file. -/
-def download  (url : String) (file : FilePath) : LogIO PUnit := do
+def download
+  (url : String) (file : FilePath) (headers : Array String := #[])
+: LogIO PUnit := do
   if (← file.pathExists) then
     IO.FS.removeFile file
   else
     createParentDirs file
-  proc (quiet := true) {
-    cmd := "curl"
-    args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
-  }
+  let args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
+  let args := headers.foldl (init := args) (· ++ #["-H", ·])
+  proc (quiet := true) {cmd := "curl", args}
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do

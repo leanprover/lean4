@@ -134,7 +134,7 @@ jobs:
               MESSAGE=""
 
               if [[ -n "$MATHLIB_REMOTE_TAGS" ]]; then
-                echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."    
+                echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
               else
                 echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
                 MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
@@ -149,7 +149,7 @@ jobs:
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
             git -C lean4.git log -10 origin/master
 
-            git -C lean4.git fetch origin nightly-with-mathlib 
+            git -C lean4.git fetch origin nightly-with-mathlib
             NIGHTLY_WITH_MATHLIB_SHA="$(git -C lean4.git rev-parse "origin/nightly-with-mathlib")"
             MESSAGE="- ❗ Batteries/Mathlib CI will not be attempted unless your PR branches off the \`nightly-with-mathlib\` branch. Try \`git rebase $MERGE_BASE_SHA --onto $NIGHTLY_WITH_MATHLIB_SHA\`."
           fi
@@ -164,10 +164,10 @@ jobs:
 
             # Use GitHub API to check if a comment already exists
             existing_comment="$(curl --retry 3 --location --silent \
-                                    -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+                                    -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
-                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-mathlib4-bot"))')"
+                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-bot"))')"
             existing_comment_id="$(echo "$existing_comment" | jq -r .id)"
             existing_comment_body="$(echo "$existing_comment" | jq -r .body)"
 
@@ -177,14 +177,14 @@ jobs:
               echo "Posting message to the comments: $MESSAGE"
 
               # Append new result to the existing comment or post a new comment
-              # It's essential we use the MATHLIB4_BOT token here, so that Mathlib CI can subsequently edit the comment.
+              # It's essential we use the MATHLIB4_COMMENT_BOT token here, so that Mathlib CI can subsequently edit the comment.
               if [ -z "$existing_comment_id" ]; then
                 INTRO="Mathlib CI status ([docs](https://leanprover-community.github.io/contribute/tags_and_branches.html)):"
                 # Post new comment with a bullet point
                 echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X POST \
-                  -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+                  -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg intro "$INTRO" --arg val "$MESSAGE" '{"body":($intro + "\n" + $val)}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
@@ -193,7 +193,7 @@ jobs:
                 echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X PATCH \
-                  -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+                  -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"
@@ -329,16 +329,18 @@ jobs:
             git switch -c lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} "$BASE"
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
             git add lean-toolchain
-            sed -i 's,require "leanprover-community" / "batteries" @ git ".\+",require "leanprover-community" / "batteries" @ git "nightly-testing-'"${MOST_RECENT_NIGHTLY}"'",' lakefile.lean
+            sed -i 's,require "leanprover-community" / "batteries" @ git ".\+",require "leanprover-community" / "batteries" @ git "lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}",' lakefile.lean
             lake update batteries
             git add lakefile.lean lake-manifest.json
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else
-            echo "Branch already exists, pushing an empty commit."
+            echo "Branch already exists, merging $BASE and bumping Batteries."
             git switch lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
             # The Mathlib `nightly-testing` branch or `nightly-testing-YYYY-MM-DD` tag may have moved since this branch was created, so merge their changes.
             # (This should no longer be possible once `nightly-testing-YYYY-MM-DD` is a tag, but it is still safe to merge.)
             git merge "$BASE" --strategy-option ours --no-commit --allow-unrelated-histories
+            lake update batteries
+            git add lake-manifest.json
             git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 

@@ -150,8 +150,8 @@ partial def lcs (left right : Subarray α) : Array α := Id.run do
   let some (_, v, li, ri) := best
     | return pref ++ suff
 
-  let lefts := left.split ⟨li.val, by cases li; simp_arith; omega⟩
-  let rights := right.split ⟨ri.val, by cases ri; simp_arith; omega⟩
+  let lefts := left.split ⟨li.val, by cases li; omega⟩
+  let rights := right.split ⟨ri.val, by cases ri; omega⟩
 
   pref ++ lcs lefts.1 rights.1 ++ #[v] ++ lcs (lefts.2.drop 1) (rights.2.drop 1) ++ suff
 

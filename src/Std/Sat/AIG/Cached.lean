@@ -21,7 +21,7 @@ variable {α : Type} [Hashable α] [DecidableEq α]
 
 /--
 A version of `AIG.mkAtom` that uses the subterm cache in `AIG`. This version is meant for
-programmming, for proving purposes use `AIG.mkAtom` and equality theorems to this one.
+programming, for proving purposes use `AIG.mkAtom` and equality theorems to this one.
 -/
 def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
   let ⟨decls, cache, inv⟩ := aig
@@ -43,7 +43,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
 
 /--
 A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is meant for
-programmming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
+programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 -/
 def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
   let ⟨decls, cache, inv⟩ := aig
@@ -65,7 +65,7 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
 
 /--
 A version of `AIG.mkGate` that uses the subterm cache in `AIG`. This version is meant for
-programmming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
+programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 
 Beyond caching this function also implements a subset of the optimizations presented in:
 -/

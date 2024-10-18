@@ -8,7 +8,7 @@ n : Nat
 v : Fin n
 n' : Nat
 v' : Fin n'
-h₁ : n.succ = n'
+h₁ : n + 1 = n'
 h₂ : HEq v.succ v'
 ⊢ p n' v'
 -/
@@ -16,7 +16,7 @@ h₂ : HEq v.succ v'
 example (p : (n : Nat) → Fin n → Prop)
         (n : Nat)
         (v : Fin n)
-        : p n.succ v.succ := by
-  generalize h₁ : n.succ = n', h₂ : v.succ = v'
+        : p (n + 1) v.succ := by
+  generalize h₁ : (n + 1) = n', h₂ : v.succ = v'
   trace_state
   admit

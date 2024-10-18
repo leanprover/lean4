@@ -9,6 +9,5 @@ def tst1 : IO Unit := do
   check (Nat.toFloat (10^80) > Nat.toFloat (10^40));
   pure ()
 
-/-- info: -/
 #guard_msgs in
 #eval tst1

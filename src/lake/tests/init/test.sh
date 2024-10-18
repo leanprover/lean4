@@ -13,7 +13,7 @@ fi
 LAKE1=${LAKE:-../../../.lake/build/bin/lake}
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-# Test `new` and `init` with bad template/langauge (should error)
+# Test `new` and `init` with bad template/language (should error)
 
 ($LAKE new foo bar 2>&1 && exit 1 || true) | grep --color "unknown package template"
 ($LAKE new foo .baz 2>&1 && exit 1 || true) | grep --color "unknown configuration language"
@@ -38,7 +38,7 @@ done
 
 # Test default (std) template
 
-$LAKE new hello
+$LAKE new hello .lean
 $LAKE -d hello exe hello
 test -f hello/.lake/build/lib/Hello.olean
 rm -rf hello
@@ -49,7 +49,7 @@ rm -rf hello
 
 # Test exe template
 
-$LAKE new hello exe
+$LAKE new hello exe.lean
 test -f hello/Main.lean
 $LAKE -d hello exe hello
 rm -rf hello
@@ -60,7 +60,7 @@ rm -rf hello
 
 # Test lib template
 
-$LAKE new hello lib
+$LAKE new hello lib.lean
 $LAKE -d hello build Hello
 test -f hello/.lake/build/lib/Hello.olean
 rm -rf hello
@@ -71,7 +71,7 @@ rm -rf hello
 
 # Test math template
 
-$LAKE new qed math || true # ignore toolchain download errors
+$LAKE new qed math.lean || true # ignore toolchain download errors
 # Remove the require, since we do not wish to download mathlib during tests
 sed_i '/^require.*/{N;d;}' qed/lakefile.lean
 $LAKE -d qed build Qed

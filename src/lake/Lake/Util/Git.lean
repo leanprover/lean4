@@ -38,6 +38,7 @@ end Git
 structure GitRepo where
   dir : FilePath
 
+instance : Coe FilePath GitRepo := ⟨(⟨·⟩)⟩
 instance : ToString GitRepo := ⟨(·.dir.toString)⟩
 
 namespace GitRepo
@@ -96,6 +97,10 @@ def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote :
 
 @[inline] def revisionExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["rev-parse", "--verify", rev ++ "^{commit}"]
+
+@[inline] def getTags (repo : GitRepo) : BaseIO (List String) := do
+  let some out ← repo.captureGit? #["tag"] | return []
+  return out.split (· == '\n')
 
 @[inline] def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO (Option String) := do
   repo.captureGit? #["describe", "--tags", "--exact-match", rev]

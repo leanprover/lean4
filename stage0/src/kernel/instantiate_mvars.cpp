@@ -34,7 +34,7 @@ option_ref<level> get_lmvar_assignment(metavar_ctx & mctx, name const & mid) {
 class instantiate_lmvars_fn {
     metavar_ctx & m_mctx;
     std::unordered_map<lean_object *, level> m_cache;
-    std::vector<level> m_saved; // Helper vector to prevent values from being garbagge collected
+    std::vector<level> m_saved; // Helper vector to prevent values from being garbage collected
 
     inline level cache(level const & l, level r, bool shared) {
         if (shared) {
@@ -142,7 +142,7 @@ class instantiate_mvars_fn {
     instantiate_lmvars_fn m_level_fn;
     name_set m_already_normalized; // Store metavariables whose assignment has already been normalized.
     std::unordered_map<lean_object *, expr> m_cache;
-    std::vector<expr> m_saved; // Helper vector to prevent values from being garbagge collected
+    std::vector<expr> m_saved; // Helper vector to prevent values from being garbage collected
 
     level visit_level(level const & l) {
         return m_level_fn(l);

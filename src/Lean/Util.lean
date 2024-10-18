@@ -7,6 +7,7 @@ prelude
 import Lean.Util.CollectFVars
 import Lean.Util.CollectLevelParams
 import Lean.Util.CollectMVars
+import Lean.Util.CollectLevelMVars
 import Lean.Util.FindMVar
 import Lean.Util.FindLevelMVar
 import Lean.Util.MonadCache

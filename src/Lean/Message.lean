@@ -420,7 +420,7 @@ def indentExpr (e : Expr) : MessageData :=
 
 class AddMessageContext (m : Type → Type) where
   /--
-  Without context, a `MessageData` object may be be missing information
+  Without context, a `MessageData` object may be missing information
   (e.g. hover info) for pretty printing, or may print an error. Hence,
   `addMessageContext` should be called on all constructed `MessageData`
   (e.g. via `m!`) before taking it out of context (e.g. leaving `MetaM` or

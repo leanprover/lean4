@@ -53,7 +53,7 @@ structure Foo where
   {mk4 mk5 : Nat}
   [mk6 mk7 : Nat]
 
-class Bar (α : Prop) := mk ::
+class Bar (α : Prop) where mk ::
   (foo bar := 1)
 
 class Bar2 (α : Prop) where

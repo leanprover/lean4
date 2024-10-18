@@ -72,21 +72,35 @@ instance floatDecLt (a b : Float) : Decidable (a < b) := Float.decLt a b
 instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 
 @[extern "lean_float_to_string"] opaque Float.toString : Float → String
-
-/-- If the given float is positive, truncates the value to the nearest positive integer.
-If negative or larger than the maximum value for UInt8, returns 0. -/
+/-- If the given float is non-negative, truncates the value to the nearest non-negative integer.
+If negative or NaN, returns `0`.
+If larger than the maximum value for `UInt8` (including Inf), returns the maximum value of `UInt8`
+(i.e. `UInt8.size - 1`).
+-/
 @[extern "lean_float_to_uint8"] opaque Float.toUInt8 : Float → UInt8
-/-- If the given float is positive, truncates the value to the nearest positive integer.
-If negative or larger than the maximum value for UInt16, returns 0. -/
+/-- If the given float is non-negative, truncates the value to the nearest non-negative integer.
+If negative or NaN, returns `0`.
+If larger than the maximum value for `UInt16` (including Inf), returns the maximum value of `UInt16`
+(i.e. `UInt16.size - 1`).
+-/
 @[extern "lean_float_to_uint16"] opaque Float.toUInt16 : Float → UInt16
-/-- If the given float is positive, truncates the value to the nearest positive integer.
-If negative or larger than the maximum value for UInt32, returns 0. -/
+/-- If the given float is non-negative, truncates the value to the nearest non-negative integer.
+If negative or NaN, returns `0`.
+If larger than the maximum value for `UInt32` (including Inf), returns the maximum value of `UInt32`
+(i.e. `UInt32.size - 1`).
+-/
 @[extern "lean_float_to_uint32"] opaque Float.toUInt32 : Float → UInt32
-/-- If the given float is positive, truncates the value to the nearest positive integer.
-If negative or larger than the maximum value for UInt64, returns 0. -/
+/-- If the given float is non-negative, truncates the value to the nearest non-negative integer.
+If negative or NaN, returns `0`.
+If larger than the maximum value for `UInt64` (including Inf), returns the maximum value of `UInt64`
+(i.e. `UInt64.size - 1`).
+-/
 @[extern "lean_float_to_uint64"] opaque Float.toUInt64 : Float → UInt64
-/-- If the given float is positive, truncates the value to the nearest positive integer.
-If negative or larger than the maximum value for USize, returns 0. -/
+/-- If the given float is non-negative, truncates the value to the nearest non-negative integer.
+If negative or NaN, returns `0`.
+If larger than the maximum value for `USize` (including Inf), returns the maximum value of `USize`
+(i.e. `USize.size - 1`). This value is platform dependent).
+-/
 @[extern "lean_float_to_usize"] opaque Float.toUSize : Float → USize
 
 @[extern "lean_float_isnan"] opaque Float.isNaN : Float → Bool

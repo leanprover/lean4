@@ -23,7 +23,7 @@ abbrev ScriptFn := (args : List String) → ScriptM ExitCode
 
 /--
 A package `Script` is a `ScriptFn` definition that is
-indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
+indexed by a `String` key and can be run by `lake run <key> [-- <args>]`.
 -/
 structure Script where
   /-- The full name of the `Script` (e.g., `pkg/script`). -/

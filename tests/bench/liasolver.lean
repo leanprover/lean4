@@ -392,5 +392,5 @@ def main (args : List String) : IO UInt32 := do
       IO.println "UNSAT"
     | Solution.sat assignment =>
       IO.println "SAT"
-      IO.println <| String.intercalate " " <| assignment.data.map toString
+      IO.println <| String.intercalate " " <| assignment.toList.map toString
   return 0

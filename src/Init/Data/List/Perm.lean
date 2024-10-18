@@ -98,8 +98,8 @@ theorem Perm.append_cons (a : α) {h₁ h₂ t₁ t₂ : List α} (p₁ : h₁ ~
   perm_middle.trans <| by rw [append_nil]
 
 theorem perm_append_comm : ∀ {l₁ l₂ : List α}, l₁ ++ l₂ ~ l₂ ++ l₁
-  | [], l₂ => by simp
-  | a :: t, l₂ => (perm_append_comm.cons _).trans perm_middle.symm
+  | [], _ => by simp
+  | _ :: _, _ => (perm_append_comm.cons _).trans perm_middle.symm
 
 theorem perm_append_comm_assoc (l₁ l₂ l₃ : List α) :
     Perm (l₁ ++ (l₂ ++ l₃)) (l₂ ++ (l₁ ++ l₃)) := by
@@ -123,10 +123,8 @@ theorem Perm.nil_eq {l : List α} (p : [] ~ l) : [] = l := p.symm.eq_nil.symm
 
 @[simp] theorem nil_perm {l₁ : List α} : [] ~ l₁ ↔ l₁ = [] := perm_comm.trans perm_nil
 
-@[simp]
 theorem not_perm_nil_cons (x : α) (l : List α) : ¬[] ~ x :: l := (nomatch ·.symm.eq_nil)
 
-@[simp]
 theorem not_perm_cons_nil {l : List α} {a : α} : ¬(Perm (a::l) []) :=
   fun h => by simpa using h.length_eq
 
@@ -142,7 +140,7 @@ theorem perm_cons_append_cons {l l₁ l₂ : List α} (a : α) (p : l ~ l₁ ++ 
 
 @[simp] theorem perm_replicate {n : Nat} {a : α} {l : List α} :
     l ~ replicate n a ↔ l = replicate n a := by
-  refine ⟨fun p => eq_replicate.2 ?_, fun h => h ▸ .rfl⟩
+  refine ⟨fun p => eq_replicate_iff.2 ?_, fun h => h ▸ .rfl⟩
   exact ⟨p.length_eq.trans <| length_replicate .., fun _b m => eq_of_mem_replicate <| p.subset m⟩
 
 @[simp] theorem replicate_perm {n : Nat} {a : α} {l : List α} :
@@ -250,6 +248,10 @@ theorem countP_eq_countP_filter_add (l : List α) (p q : α → Bool) :
 theorem Perm.count_eq [DecidableEq α] {l₁ l₂ : List α} (p : l₁ ~ l₂) (a) :
     count a l₁ = count a l₂ := p.countP_eq _
 
+/-
+This theorem is a variant of `Perm.foldl_eq` defined in Mathlib which uses typeclasses rather
+than the explicit `comm` argument.
+-/
 theorem Perm.foldl_eq' {f : β → α → β} {l₁ l₂ : List α} (p : l₁ ~ l₂)
     (comm : ∀ x ∈ l₁, ∀ y ∈ l₁, ∀ (z), f (f z x) y = f (f z y) x)
     (init) : foldl f init l₁ = foldl f init l₂ := by
@@ -261,6 +263,28 @@ theorem Perm.foldl_eq' {f : β → α → β} {l₁ l₂ : List α} (p : l₁ ~ 
   | swap' x y _p IH =>
     simp only [foldl]
     rw [comm x (.tail _ <| .head _) y (.head _)]
+    apply IH; intros; apply comm <;> exact .tail _ (.tail _ ‹_›)
+  | trans p₁ _p₂ IH₁ IH₂ =>
+    refine (IH₁ comm init).trans (IH₂ ?_ _)
+    intros; apply comm <;> apply p₁.symm.subset <;> assumption
+
+/-
+This theorem is a variant of `Perm.foldr_eq` defined in Mathlib which uses typeclasses rather
+than the explicit `comm` argument.
+-/
+theorem Perm.foldr_eq' {f : α → β → β} {l₁ l₂ : List α} (p : l₁ ~ l₂)
+    (comm : ∀ x ∈ l₁, ∀ y ∈ l₁, ∀ (z), f y (f x z) = f x (f y z))
+    (init) : foldr f init l₁ = foldr f init l₂ := by
+  induction p using recOnSwap' generalizing init with
+  | nil => simp
+  | cons x _p IH =>
+    simp only [foldr]
+    congr 1
+    apply IH; intros; apply comm <;> exact .tail _ ‹_›
+  | swap' x y _p IH =>
+    simp only [foldr]
+    rw [comm x (.tail _ <| .head _) y (.head _)]
+    congr 2
     apply IH; intros; apply comm <;> exact .tail _ (.tail _ ‹_›)
   | trans p₁ _p₂ IH₁ IH₂ =>
     refine (IH₁ comm init).trans (IH₂ ?_ _)
@@ -350,7 +374,7 @@ theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l�
       specialize H b
       simp at H
   | cons a l₁ IH =>
-    have : a ∈ l₂ := count_pos_iff_mem.mp (by rw [← H]; simp)
+    have : a ∈ l₂ := count_pos_iff.mp (by rw [← H]; simp)
     refine ((IH fun b => ?_).cons a).trans (perm_cons_erase this).symm
     specialize H b
     rw [(perm_cons_erase this).count_eq] at H
@@ -437,15 +461,19 @@ theorem Perm.nodup {l l' : List α} (hl : l ~ l') (hR : l.Nodup) : l'.Nodup := h
 theorem Perm.nodup_iff {l₁ l₂ : List α} : l₁ ~ l₂ → (Nodup l₁ ↔ Nodup l₂) :=
   Perm.pairwise_iff <| @Ne.symm α
 
-theorem Perm.join {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.join ~ l₂.join := by
+theorem Perm.flatten {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.flatten ~ l₂.flatten := by
   induction h with
   | nil => rfl
-  | cons _ _ ih => simp only [join_cons, perm_append_left_iff, ih]
-  | swap => simp only [join_cons, ← append_assoc, perm_append_right_iff]; exact perm_append_comm ..
+  | cons _ _ ih => simp only [flatten_cons, perm_append_left_iff, ih]
+  | swap => simp only [flatten_cons, ← append_assoc, perm_append_right_iff]; exact perm_append_comm ..
   | trans _ _ ih₁ ih₂ => exact trans ih₁ ih₂
 
-theorem Perm.bind_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.bind f ~ l₂.bind f :=
-  (p.map _).join
+@[deprecated Perm.flatten (since := "2024-10-14")] abbrev Perm.join := @Perm.flatten
+
+theorem Perm.flatMap_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.flatMap f ~ l₂.flatMap f :=
+  (p.map _).flatten
+
+@[deprecated Perm.flatMap_right (since := "2024-10-16")] abbrev Perm.bind_right := @Perm.flatMap_right
 
 theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     (H : Pairwise (fun a b => f a → f b → False) l₁) (p : l₁ ~ l₂) : eraseP f l₁ ~ eraseP f l₂ := by

@@ -374,7 +374,7 @@ class csimp_fn {
     }
 
     /* The `float_cases_on` transformation may produce code duplication.
-       The term `e` is "copied" in each branch of the the `cases_on` expression `c`.
+       The term `e` is "copied" in each branch of the `cases_on` expression `c`.
        This method creates one (or more) join-point(s) for `e` (if needed).
        Return `none` if the code size increase is above the threshold.
        Remark: it may produce type incorrect terms. */
@@ -1376,7 +1376,7 @@ class csimp_fn {
     }
 
     /*
-      Given `let x := f as in ... x.i`, where where `f` is defined as
+      Given `let x := f as in ... x.i`, where `f` is defined as
       ```
       def f (xs) :=
       ...

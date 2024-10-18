@@ -138,6 +138,7 @@ variable [ToString α] in
 omit [ToString α] in
 theorem t13 (a : α) : toString a = toString a := rfl
 
+set_option pp.mvars false in
 /--
 error: application type mismatch
   ToString True
@@ -146,7 +147,7 @@ argument
 has type
   Prop : Type
 but is expected to have type
-  Type ?u.1758 : Type (?u.1758 + 1)
+  Type _ : Type (_ + 1)
 -/
 #guard_msgs in
 omit [ToString True]

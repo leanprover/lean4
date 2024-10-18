@@ -103,14 +103,29 @@ def getCast [BEq α] [LawfulBEq α] (a : α) : (l : AssocList α β) → l.conta
       else es.getCast a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
 
 /-- Internal implementation detail of the hash map -/
+def getKey [BEq α] (a : α) : (l : AssocList α β) → l.contains a → α
+  | cons k _ es, h => if hka : k == a then k
+      else es.getKey a (by rw [← h, contains, Bool.of_not_eq_true hka, Bool.false_or])
+
+/-- Internal implementation detail of the hash map -/
 def getCast! [BEq α] [LawfulBEq α] (a : α) [Inhabited (β a)] : AssocList α β → β a
   | nil => panic! "key is not present in hash table"
   | cons k v es => if h : k == a then cast (congrArg β (eq_of_beq h)) v else es.getCast! a
 
 /-- Internal implementation detail of the hash map -/
+def getKey? [BEq α] (a : α) : AssocList α β → Option α
+  | nil => none
+  | cons k _ es => if k == a then some k else es.getKey? a
+
+/-- Internal implementation detail of the hash map -/
 def get! {β : Type v} [BEq α] [Inhabited β] (a : α) : AssocList α (fun _ => β) → β
   | nil => panic! "key is not present in hash table"
   | cons k v es => bif k == a then v else es.get! a
+
+/-- Internal implementation detail of the hash map -/
+def getKey! [BEq α] [Inhabited α] (a : α) : AssocList α β → α
+  | nil => panic! "key is not present in hash table"
+  | cons k _ es => if k == a then k else es.getKey! a
 
 /-- Internal implementation detail of the hash map -/
 def getCastD [BEq α] [LawfulBEq α] (a : α) (fallback : β a) : AssocList α β → β a
@@ -122,6 +137,11 @@ def getCastD [BEq α] [LawfulBEq α] (a : α) (fallback : β a) : AssocList α �
 def getD {β : Type v} [BEq α] (a : α) (fallback : β) : AssocList α (fun _ => β) → β
   | nil => fallback
   | cons k v es => bif k == a then v else es.getD a fallback
+
+/-- Internal implementation detail of the hash map -/
+def getKeyD [BEq α] (a : α) (fallback : α) : AssocList α β → α
+  | nil => fallback
+  | cons k _ es => if k == a then k else es.getKeyD a fallback
 
 /-- Internal implementation detail of the hash map -/
 def replace [BEq α] (a : α) (b : β a) : AssocList α β → AssocList α β

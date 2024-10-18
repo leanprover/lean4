@@ -101,7 +101,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
     DiscrTree.mkPath type tcDtConfig
 
 /--
-Compute the order the arguments of `inst` should by synthesized.
+Compute the order the arguments of `inst` should be synthesized.
 
 The synthesization order makes sure that all mvars in non-out-params of the
 subgoals are assigned before we try to synthesize it.  Otherwise it goes left
@@ -113,8 +113,34 @@ For example:
     (because A B are out-params and are only filled in once we synthesize 2)
 
 (The type of `inst` must not contain mvars.)
+
+Remark: `projInfo?` is `some` if the instance is a projection.
+We need this information because of the heuristic we use to annotate binder
+information in projections. See PR #5376 and issue #5333. Before PR
+#5376, given a class `C` at
+```
+class A (n : Nat) where
+
+instance [A n] : A n.succ where
+
+class B [A 20050] where
+
+class C [A 20000] extends B where
+```
+we would get the following instance
+```
+C.toB [inst : A 20000] [self : @C inst] : @B ...
+```
+After the PR, we have
+```
+C.toB {inst : A 20000} [self : @C inst] : @B ...
+```
+Note the attribute `inst` is now just a regular implicit argument.
+To ensure `computeSynthOrder` works as expected, we should take
+this change into account while processing field `self`.
+This field is the one at position `projInfo?.numParams`.
 -/
-private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
+private partial def computeSynthOrder (inst : Expr) (projInfo? : Option ProjectionFunctionInfo) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 
@@ -151,7 +177,8 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   let tyOutParams ← getSemiOutParamPositionsOf ty
   let tyArgs := ty.getAppArgs
   for tyArg in tyArgs, i in [:tyArgs.size] do
-    unless tyOutParams.contains i do assignMVarsIn tyArg
+    unless tyOutParams.contains i do
+      assignMVarsIn tyArg
 
   -- Now we successively try to find the next ready subgoal, where all
   -- non-out-params are mvar-free.
@@ -159,7 +186,13 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
   while !toSynth.isEmpty do
     let next? ← toSynth.findM? fun i => do
-      forallTelescopeReducing (← instantiateMVars (← inferType argMVars[i]!)) fun _ argTy => do
+      let argTy ← instantiateMVars (← inferType argMVars[i]!)
+      if let some projInfo := projInfo? then
+        if projInfo.numParams == i then
+          -- See comment regarding `projInfo?` at the beginning of this function
+          assignMVarsIn argTy
+          return true
+      forallTelescopeReducing argTy fun _ argTy => do
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
@@ -175,7 +208,9 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
           let typeLines := ("" : MessageData).joinSep <| Array.toList <| ← toSynth.mapM fun i => do
             let ty ← instantiateMVars (← inferType argMVars[i]!)
             return indentExpr (ty.setPPExplicit true)
-          logError m!"cannot find synthesization order for instance {inst} with type{indentExpr instTy}\nall remaining arguments have metavariables:{typeLines}"
+          throwError m!"\
+            cannot find synthesization order for instance {inst} with type{indentExpr instTy}\n\
+            all remaining arguments have metavariables:{typeLines}"
         pure toSynth[0]!
     synthed := synthed.push next
     toSynth := toSynth.filter (· != next)
@@ -185,9 +220,10 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   if synthInstance.checkSynthOrder.get (← getOptions) then
     let ty ← instantiateMVars ty
     if ty.hasExprMVar then
-      logError m!"instance does not provide concrete values for (semi-)out-params{indentExpr (ty.setPPExplicit true)}"
+      throwError m!"instance does not provide concrete values for (semi-)out-params{indentExpr (ty.setPPExplicit true)}"
 
-  trace[Meta.synthOrder] "synthesizing the arguments of {inst} in the order {synthed}:{("" : MessageData).joinSep (← synthed.mapM fun i => return indentExpr (← inferType argVars[i]!)).toList}"
+  trace[Meta.synthOrder] "synthesizing the arguments of {inst} in the order {synthed}:\
+    {("" : MessageData).joinSep (← synthed.mapM fun i => return indentExpr (← inferType argVars[i]!)).toList}"
 
   return synthed
 
@@ -195,7 +231,8 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
-  let synthOrder ← computeSynthOrder c
+  let projInfo? ← getProjectionFnInfo? declName
+  let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 builtin_initialize

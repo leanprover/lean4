@@ -19,12 +19,29 @@ def tst1 : IO Unit := do
   IO.println (0 / 0 : Float).toUInt16
   IO.println (0 / 0 : Float).toUInt32
   IO.println (0 / 0 : Float).toUInt64
+  IO.println (0 / 0 : Float).toUSize
+
   IO.println (-1 : Float).toUInt8
   IO.println (256 : Float).toUInt8
   IO.println (1 / 0 : Float).toUInt8
+
+  IO.println (-1 : Float).toUInt16
+  IO.println (2^16 : Float).toUInt16
+  IO.println (1 / 0 : Float).toUInt16
+
+  IO.println (-1 : Float).toUInt32
+  IO.println (2^32 : Float).toUInt32
+  IO.println (1 / 0 : Float).toUInt32
+
   IO.println (-1 : Float).toUInt64
   IO.println (2^64 : Float).toUInt64
   IO.println (1 / 0 : Float).toUInt64
+
+  let platBits := USize.size.log2.toFloat
+  IO.println (-1 : Float).toUSize
+  IO.println ((2^platBits).toUSize.toNat == (USize.size - 1))
+  IO.println ((1 / 0 : Float).toUSize.toNat == (USize.size - 1))
+
   IO.println (let x : Float := 1.4; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))
   IO.println (let x : Float := 0 / 0; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))
   IO.println (let x : Float := -0 / 0; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))

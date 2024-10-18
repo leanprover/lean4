@@ -23,7 +23,6 @@ static lean_object* l___private_Lean_Server_FileWorker_Utils_0__Lean_Server_File
 static lean_object* l_Lean_Server_FileWorker_RpcSession_new___closed__3;
 lean_object* lean_io_mono_ms_now(lean_object*);
 lean_object* lean_task_pure(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_EditableDocumentCore_cmdSnaps___default(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_RpcSession_keptAlive(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_Utils_0__Lean_Server_FileWorker_mkCmdSnaps(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_RpcSession_new___closed__1;
@@ -398,14 +397,6 @@ x_4 = l___private_Lean_Server_FileWorker_Utils_0__Lean_Server_FileWorker_mkCmdSn
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_EditableDocumentCore_cmdSnaps___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lean_Server_FileWorker_Utils_0__Lean_Server_FileWorker_mkCmdSnaps(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_EditableDocument_versionedIdentifier(lean_object* x_1) {

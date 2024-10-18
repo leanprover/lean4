@@ -223,7 +223,7 @@ def empty : AIG α := { decls := #[], cache := Cache.empty #[], invariant := IsD
 /--
 The atom `a` occurs in `aig`.
 -/
-def Mem (a : α) (aig : AIG α) : Prop := (.atom a) ∈ aig.decls
+def Mem (aig : AIG α) (a : α) : Prop := (.atom a) ∈ aig.decls
 
 instance : Membership α (AIG α) where
   mem := Mem

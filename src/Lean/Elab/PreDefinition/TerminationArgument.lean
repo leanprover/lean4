@@ -112,7 +112,7 @@ def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : Termi
       let stxBody ← Delaborator.delab
       let hole : TSyntax `Lean.Parser.Term.hole ← `(hole|_)
 
-      -- any variable not mentioned syntatically (it may appear in the `Expr`, so do not just use
+      -- any variable not mentioned syntactically (it may appear in the `Expr`, so do not just use
       -- `e.bindingBody!.hasLooseBVar`) should be delaborated as a hole.
       let vars  : TSyntaxArray [`ident, `Lean.Parser.Term.hole] :=
         Array.map (fun (i : Ident) => if stxBody.raw.hasIdent i.getId then i else hole) vars

@@ -63,6 +63,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
             // 1. The original binder before `mk_outparam_args_implicit` is not an instance implicit.
             // 2. It is not originally an outparam. Outparams must be implicit.
             bi = mk_binder_info();
+        } else if (is_inst_implicit(bi_orig) && inst_implicit) {
+            bi = mk_implicit_binder_info();
         }
         expr param = lctx.mk_local_decl(ngen, binding_name(cnstr_type), type, bi);
         cnstr_type = instantiate(binding_body(cnstr_type), param);

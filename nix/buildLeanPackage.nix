@@ -30,7 +30,7 @@ lib.makeOverridable (
   pluginDeps ? [],
   # `overrideAttrs` for `buildMod`
   overrideBuildModAttrs ? null,
-  debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name, libName ? name,
+  debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name, libName ? name, sharedLibName ? libName,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }@args:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
@@ -233,7 +233,7 @@ in rec {
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   iTree     = symlinkJoin { name = "${name}-iTree"; paths = map (mod: mod.ilean) (attrValues mods); };
-  sharedLib = mkSharedLib "lib${libName}" ''
+  sharedLib = mkSharedLib "lib${sharedLibName}" ''
     ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${libName}.a" else "-Wl,--whole-archive ${staticLib}/lib${libName}.a -Wl,--no-whole-archive"} \
     ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
   executable = lib.makeOverridable ({ withSharedStdlib ? true }: let

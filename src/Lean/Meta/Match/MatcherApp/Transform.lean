@@ -49,7 +49,7 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
   - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
   - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
 
-  This is used in in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+  This is used in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
   the argument provided by `fix` to refine the termination argument, which may mention `major`.
   See there for how to use this function.
 -/
@@ -108,8 +108,8 @@ def addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
   This is similar to `MatcherApp.addArg` when you only have an expression to
   refined, and not a type with a value.
 
-  This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
-  calls to refine the functions' paramter, which may mention `major`.
+  This is used in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
+  calls to refine the functions' parameter, which may mention `major`.
   See there for how to use this function.
 -/
 def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
@@ -199,11 +199,10 @@ Performs a possibly type-changing transformation to a `MatcherApp`.
 If `useSplitter` is true, the matcher is replaced with the splitter.
 NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitter.
 
-The array `addEqualities`, if provided, indicates for which of the discriminants an equality
-connecting the discriminant to the parameters of the alternative (like in `match h : x with …`)
-should be added (if it is isn't already there).
+If `addEqualities` is true, then equalities connecting the discriminant to the parameters of the
+alternative (like in `match h : x with …`) are be added, if not already there.
 
-This function works even if the the type of alternatives do *not* fit the inferred type. This
+This function works even if the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
 infer a type, given all the alternatives.
 -/
@@ -212,19 +211,12 @@ def transform
     [AddMessageContext n] [MonadOptions n]
     (matcherApp : MatcherApp)
     (useSplitter := false)
-    (addEqualities : Array Bool := mkArray matcherApp.discrs.size false)
+    (addEqualities : Bool := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
     (onAlt : Expr → Expr → n Expr := fun _ e => pure e)
     (onRemaining : Array Expr → n (Array Expr) := pure) :
     n MatcherApp := do
-
-  if addEqualities.size != matcherApp.discrs.size then
-    throwError "MatcherApp.transform: addEqualities has wrong size"
-
-  -- Do not add equalities when the matcher already does so
-  let addEqualities := Array.zipWith addEqualities matcherApp.discrInfos fun b di =>
-    if di.hName?.isSome then false else b
 
   -- We also handle CasesOn applications here, and need to treat them specially in a
   -- few places.
@@ -241,17 +233,26 @@ def transform
   let params' ← matcherApp.params.mapM onParams
   let discrs' ← matcherApp.discrs.mapM onParams
 
-
-  let (motive', uElim) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
+  let (motive', uElim, addHEqualities) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
     unless motiveArgs.size == matcherApp.discrs.size do
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let mut motiveBody' ← onMotive motiveArgs motiveBody
 
-    -- Prepend (x = e) → to the motive when an equality is requested
-    for arg in motiveArgs, discr in discrs', b in addEqualities do if b then
-      motiveBody' ← liftMetaM <| mkArrow (← mkEq discr arg) motiveBody'
+    -- Prepend `(x = e) →` or `(HEq x e) → ` to the motive when an equality is requested
+    -- and not already present, and remember whether we added an Eq or a HEq
+    let mut addHEqualities : Array (Option Bool) := #[]
+    for arg in motiveArgs, discr in discrs', di in matcherApp.discrInfos do
+      if addEqualities && di.hName?.isNone then
+        if ← isProof arg then
+          addHEqualities := addHEqualities.push none
+        else
+          let heq ← mkEqHEq discr arg
+          motiveBody' ← liftMetaM <| mkArrow heq motiveBody'
+          addHEqualities := addHEqualities.push heq.isHEq
+      else
+        addHEqualities := addHEqualities.push none
 
-    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody')
+    return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody', addHEqualities)
 
   let matcherLevels ← match matcherApp.uElimPos? with
     | none     => pure matcherApp.matcherLevels
@@ -261,15 +262,14 @@ def transform
   -- (and count them along the way)
   let mut remaining' := #[]
   let mut extraEqualities : Nat := 0
-  for discr in discrs'.reverse, b in addEqualities.reverse do if b then
-    remaining' := remaining'.push (← mkEqRefl discr)
-    extraEqualities := extraEqualities + 1
+  for discr in discrs'.reverse, b in addHEqualities.reverse do
+    match b with
+    | none => pure ()
+    | some is_heq =>
+        remaining' := remaining'.push (← (if is_heq then mkHEqRefl else mkEqRefl) discr)
+        extraEqualities := extraEqualities + 1
 
   if useSplitter && !isCasesOn then
-    -- We replace the matcher with the splitter
-    let matchEqns ← Match.getEquationsFor matcherApp.matcherName
-    let splitter := matchEqns.splitterName
-
     let aux1 := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) params'
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
@@ -277,6 +277,10 @@ def transform
       logError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}"
       check aux1
     let origAltTypes ← inferArgumentTypesN matcherApp.alts.size aux1
+
+    -- We replace the matcher with the splitter
+    let matchEqns ← Match.getEquationsFor matcherApp.matcherName
+    let splitter := matchEqns.splitterName
 
     let aux2 := mkAppN (mkConst splitter matcherLevels.toList) params'
     let aux2 := mkApp aux2 motive'
@@ -375,12 +379,12 @@ The given `MatcherApp` must not use a splitter in `matcherName`.
 The resulting expression *will* use the splitter corresponding to `matcherName` (this is necessary
 for the construction).
 
-Interally, this needs to reduce the matcher in a given branch; this is done using
+Internally, this needs to reduce the matcher in a given branch; this is done using
 `Split.simpMatchTarget`.
 -/
 def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
   -- In matcherApp.motive, replace the (dummy) matcher body with a type
-  -- derived from the inferred types of the alterantives
+  -- derived from the inferred types of the alternatives
   let nExtra := matcherApp.remaining.size
   matcherApp.transform (useSplitter := true)
     (onMotive := fun motiveArgs body => do

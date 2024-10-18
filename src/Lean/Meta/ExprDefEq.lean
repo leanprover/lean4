@@ -28,7 +28,7 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   This function is used to filter unification problems in
   `isDefEqArgs`/`isDefEqEtaStruct` where we can assign proofs.
   If one side is of the form described above, then we can likely assign `?m`.
-  But it it's not, we would most likely apply proof irrelevance, which is
+  But if it's not, we would most likely apply proof irrelevance, which is
   usually very expensive since it needs to unify the types as well.
 -/
 def isAbstractedUnassignedMVar : Expr → MetaM Bool
@@ -80,19 +80,19 @@ where
         checkpointDefEq do
           let args := b.getAppArgs
           let params := args[:ctorVal.numParams].toArray
-          for i in [ctorVal.numParams : args.size] do
+          for h : i in [ctorVal.numParams : args.size] do
             let j := i - ctorVal.numParams
             let proj ← mkProjFn ctorVal us params j a
             if ← isProof proj then
-              unless ← isAbstractedUnassignedMVar args[i]! do
+              unless ← isAbstractedUnassignedMVar args[i] do
                 -- Skip expensive unification problem that is likely solved
                 -- using proof irrelevance.  We already know that `proj` and
-                -- `args[i]!` have the same type, so they're defeq in any case.
+                -- `args[i]` have the same type, so they're defeq in any case.
                 -- See comment at `isAbstractedUnassignedMVar`.
                 continue
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]!}"
-            unless (← isDefEq proj args[i]!) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]!}"
+            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
+            unless (← isDefEq proj args[i]) do
+              trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
               return false
           return true
       else
@@ -418,7 +418,7 @@ This method assumes that for any `xs[i]` and `xs[j]` where `i < j`, we have that
 where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
-  if not (← hasLetDeclsInBetween) then
+  if !(← hasLetDeclsInBetween) then
     mkLambdaFVars xs v (etaReduce := true)
   else
     let ys ← addLetDeps
@@ -895,23 +895,27 @@ end CheckAssignment
 
 namespace CheckAssignmentQuick
 
-partial def check
+unsafe def checkImpl
     (hasCtxLocals : Bool)
     (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
-  let rec visit (e : Expr) : Bool := Id.run do
+  let rec visit (e : Expr) : StateM (PtrSet Expr) Bool := do
     if !e.hasExprMVar && !e.hasFVar then
       return true
+    if (← get).contains e then
+      return true
+    modify fun visited => visited.insert e
     match e with
     | .mdata _ b       => visit b
     | .proj _ _ s      => visit s
-    | .app f a         => visit f && visit a
-    | .lam _ d b _     => visit d && visit b
-    | .forallE _ d b _ => visit d && visit b
-    | .letE _ t v b _  => visit t && visit v && visit b
+    | .app f a         => visit f <&&> visit a
+    | .lam _ d b _     => visit d <&&> visit b
+    | .forallE _ d b _ => visit d <&&> visit b
+    | .letE _ t v b _  => visit t <&&> visit v <&&> visit b
     | .bvar .. | .sort .. | .const ..
     | .lit .. => return true
     | .fvar fvarId ..  =>
-      if mvarDecl.lctx.contains fvarId then return true
+      if mvarDecl.lctx.contains fvarId then
+        return true
       if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
         return false -- need expensive CheckAssignment.check
       if fvars.any fun x => x.fvarId! == fvarId then
@@ -925,7 +929,13 @@ partial def check
       if !mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then return false -- use CheckAssignment.check
       let none := mctx.getDelayedMVarAssignmentCore? mvarId' | return false -- use CheckAssignment.check
       return true
-  visit e
+  if !e.hasExprMVar && !e.hasFVar then
+    true
+  else
+    visit e |>.run' mkPtrSet
+
+def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
+  unsafe checkImpl hasCtxLocals mctx lctx mvarDecl mvarId fvars e
 
 end CheckAssignmentQuick
 
@@ -968,7 +978,7 @@ where
   occursCheck (type : Expr) : Bool :=
     let go : StateM MetavarContext Bool := do
       Lean.occursCheck mvarId type
-    -- Remark: it is ok to discard the the "updated" `MetavarContext` because
+    -- Remark: it is ok to discard the "updated" `MetavarContext` because
     -- this function assumes all assigned metavariables have already been
     -- instantiated.
     go.run' mctx
@@ -1476,7 +1486,7 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
   ```
   Foo.pow x 256 =?= Pow.pow x 256
   ```
-  where the the `Pow` instance is wrapping `Foo.pow`
+  where the `Pow` instance is wrapping `Foo.pow`
   See issue #1419 for the complete example.
 -/
 private partial def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
@@ -1869,7 +1879,7 @@ inductive DeltaStepResult where
 
 /--
 Perform one step of lazy delta reduction. This function decides whether to perform delta-reduction on `t`, `s`, or both.
-It is currently used to solve contraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
+It is currently used to solve constraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
 It is also a simpler version of `isDefEqDelta`. In the future, we may decide to combine these two functions like we do
 in the kernel.
 -/
@@ -1909,7 +1919,7 @@ where
     | .undef => return .cont t s
 
 /--
-Helper function for solving contraints of the form `t.i =?= s.i`.
+Helper function for solving constraints of the form `t.i =?= s.i`.
 -/
 private partial def isDefEqProjDelta (t s : Expr) (i : Nat) : MetaM Bool := do
   let t ← whnfCore t

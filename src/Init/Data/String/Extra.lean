@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.ByteArray
+import Init.Data.UInt.Lemmas
 
 namespace String
 
@@ -20,14 +21,14 @@ def toNat! (s : String) : Nat :=
 def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
   let c ← a[i]?
   if c &&& 0x80 == 0 then
-    some ⟨c.toUInt32, .inl (Nat.lt_trans c.1.2 (by decide))⟩
+    some ⟨c.toUInt32, .inl (Nat.lt_trans c.toBitVec.isLt (by decide))⟩
   else if c &&& 0xe0 == 0xc0 then
     let c1 ← a[i+1]?
     guard (c1 &&& 0xc0 == 0x80)
     let r := ((c &&& 0x1f).toUInt32 <<< 6) ||| (c1 &&& 0x3f).toUInt32
     guard (0x80 ≤ r)
     -- TODO: Prove h from the definition of r once we have the necessary lemmas
-    if h : r < 0xd800 then some ⟨r, .inl h⟩ else none
+    if h : r < 0xd800 then some ⟨r, .inl (UInt32.toNat_lt_of_lt (by decide) h)⟩ else none
   else if c &&& 0xf0 == 0xe0 then
     let c1 ← a[i+1]?
     let c2 ← a[i+2]?
@@ -38,7 +39,14 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
       (c2 &&& 0x3f).toUInt32
     guard (0x800 ≤ r)
     -- TODO: Prove `r < 0x110000` from the definition of r once we have the necessary lemmas
-    if h : r < 0xd800 ∨ 0xdfff < r ∧ r < 0x110000 then some ⟨r, h⟩ else none
+    if h : r < 0xd800 ∨ 0xdfff < r ∧ r < 0x110000 then
+      have :=
+        match h with
+        | .inl h => Or.inl (UInt32.toNat_lt_of_lt (by decide) h)
+        | .inr h => Or.inr ⟨UInt32.lt_toNat_of_lt (by decide) h.left, UInt32.toNat_lt_of_lt (by decide) h.right⟩
+      some ⟨r, this⟩
+    else
+      none
   else if c &&& 0xf8 == 0xf0 then
     let c1 ← a[i+1]?
     let c2 ← a[i+2]?
@@ -50,7 +58,7 @@ def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
       ((c2 &&& 0x3f).toUInt32 <<< 6) |||
       (c3 &&& 0x3f).toUInt32
     if h : 0x10000 ≤ r ∧ r < 0x110000 then
-      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) h.1, h.2⟩⟩
+      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) (UInt32.le_toNat_of_le (by decide) h.left), UInt32.toNat_lt_of_lt (by decide) h.right⟩⟩
     else none
   else
     none
@@ -117,11 +125,11 @@ def utf8EncodeChar (c : Char) : List UInt8 :=
 /-- Converts the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
 @[extern "lean_string_to_utf8"]
 def toUTF8 (a : @& String) : ByteArray :=
-  ⟨⟨a.data.bind utf8EncodeChar⟩⟩
+  ⟨⟨a.data.flatMap utf8EncodeChar⟩⟩
 
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
-  simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.bind]
-  induction s.data <;> simp [List.map, List.join, utf8ByteSize.go, Nat.add_comm, *]
+  simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.flatMap]
+  induction s.data <;> simp [List.map, List.flatten, utf8ByteSize.go, Nat.add_comm, *]
 
 /-- Accesses a byte in the UTF-8 encoding of the `String`. O(1) -/
 @[extern "lean_string_get_byte_fast"]

@@ -1,6 +1,7 @@
-# This workflow allows any user to add one of the `awaiting-review`, `awaiting-author`, or `WIP` labels,
-# by commenting on the PR or issue.
-# Other labels from this set are removed automatically at the same time.
+# This workflow allows any user to add one of the `awaiting-review`, `awaiting-author`, `WIP`,
+# or `release-ci` labels by commenting on the PR or issue.
+# If any labels from the set {`awaiting-review`, `awaiting-author`, `WIP`} are added, other labels
+# from that set are removed automatically at the same time.
 
 name: Label PR based on Comment
 
@@ -10,7 +11,7 @@ on:
 
 jobs:
   update-label:
-    if: github.event.issue.pull_request != null && (contains(github.event.comment.body, 'awaiting-review') || contains(github.event.comment.body, 'awaiting-author') || contains(github.event.comment.body, 'WIP'))
+    if: github.event.issue.pull_request != null && (contains(github.event.comment.body, 'awaiting-review') || contains(github.event.comment.body, 'awaiting-author') || contains(github.event.comment.body, 'WIP') || contains(github.event.comment.body, 'release-ci'))
     runs-on: ubuntu-latest
 
     steps:
@@ -25,6 +26,7 @@ jobs:
           const awaitingReview = commentLines.includes('awaiting-review');
           const awaitingAuthor = commentLines.includes('awaiting-author');
           const wip = commentLines.includes('WIP');
+          const releaseCI = commentLines.includes('release-ci');
 
           if (awaitingReview || awaitingAuthor || wip) {
             await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'awaiting-review' }).catch(() => {});
@@ -40,4 +42,8 @@ jobs:
           }
           if (wip) {
             await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['WIP'] });
+          }
+
+          if (releaseCI) {
+            await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['release-ci'] });
           }

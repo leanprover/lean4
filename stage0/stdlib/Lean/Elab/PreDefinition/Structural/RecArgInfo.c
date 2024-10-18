@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Array_contains___at_Lean_Elab_Structural_RecArgInfo_p
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo;
 size_t lean_usize_of_nat(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__1;
@@ -34,8 +33,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_RecArgInfo_indName_x21(lean_obje
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___spec__2(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -327,7 +328,16 @@ static lean_object* _init_l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__1;
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -346,7 +356,7 @@ x_6 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_3);
 lean_ctor_set(x_6, 2, x_5);
-x_7 = l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1;
+x_7 = l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2;
 lean_inc(x_3);
 x_8 = l_Std_Range_forIn_x27_loop___at_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___spec__3(x_1, x_2, x_3, x_6, x_4, x_3, x_5, x_3, x_4, lean_box(0), x_7);
 lean_dec(x_6);
@@ -486,6 +496,8 @@ l_Lean_Elab_Structural_instInhabitedRecArgInfo = _init_l_Lean_Elab_Structural_in
 lean_mark_persistent(l_Lean_Elab_Structural_instInhabitedRecArgInfo);
 l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1 = _init_l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1);
+l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2 = _init_l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2();
+lean_mark_persistent(l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

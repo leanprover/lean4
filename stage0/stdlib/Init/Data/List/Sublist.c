@@ -16,9 +16,10 @@ extern "C" {
 LEAN_EXPORT uint8_t l_List_instDecidableIsPrefixOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_isSublist_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_instDecidableIsSuffixOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_instTransMemSubset(lean_object*);
 LEAN_EXPORT lean_object* l_List_instDecidableIsPrefixOfDecidableEq(lean_object*);
 LEAN_EXPORT uint8_t l_List_instDecidableSublistOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_instTransSublistMem(lean_object*);
+LEAN_EXPORT lean_object* l_List_instTransSubsetMem(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_isSublist_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isSublist___at_List_instDecidableSublistOfDecidableEq___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instDecidableSublistOfDecidableEq(lean_object*);
@@ -26,7 +27,6 @@ LEAN_EXPORT lean_object* l_List_instTransSubsetSublist(lean_object*);
 LEAN_EXPORT lean_object* l_List_instTransSublist(lean_object*);
 LEAN_EXPORT lean_object* l_List_isSuffixOf___at_List_instDecidableIsSuffixOfDecidableEq___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_match__1_splitter(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_instTransMemSublist(lean_object*);
 LEAN_EXPORT lean_object* l_List_isPrefixOf___at_List_instDecidableIsSuffixOfDecidableEq___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_isSublist___at_List_instDecidableSublistOfDecidableEq___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
@@ -46,7 +46,7 @@ LEAN_EXPORT lean_object* l_List_isPrefixOf___at_List_instDecidableIsSuffixOfDeci
 LEAN_EXPORT lean_object* l_List_instDecidableIsSuffixOfDecidableEq(lean_object*);
 LEAN_EXPORT lean_object* l_List_instDecidableIsPrefixOfDecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sublist_0__List_filterMap_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_instTransMemSubset(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_instTransSubsetMem(lean_object* x_1) {
 _start:
 {
 return lean_box(0);
@@ -76,7 +76,7 @@ _start:
 return lean_box(0);
 }
 }
-LEAN_EXPORT lean_object* l_List_instTransMemSublist(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_instTransSublistMem(lean_object* x_1) {
 _start:
 {
 return lean_box(0);

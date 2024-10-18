@@ -5,19 +5,18 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.ShareCommon
-import Lean.Data.HashSet
-import Lean.Data.HashMap
+import Std.Data.HashSet
+import Std.Data.HashMap
 import Lean.Data.PersistentHashMap
 import Lean.Data.PersistentHashSet
 
 open ShareCommon
 namespace Lean.ShareCommon
 
-set_option linter.deprecated false in
 def objectFactory :=
   StateFactory.mk {
-    Map := HashMap, mkMap := (mkHashMap ·), mapFind? := (·.find?), mapInsert := (·.insert)
-    Set := HashSet, mkSet := (mkHashSet ·), setFind? := (·.find?), setInsert := (·.insert)
+    Map := Std.HashMap, mkMap := (Std.HashMap.empty ·), mapFind? := (·.get?), mapInsert := (·.insert)
+    Set := Std.HashSet, mkSet := (Std.HashSet.empty ·), setFind? := (·.get?), setInsert := (·.insert)
   }
 
 def persistentObjectFactory :=

@@ -1,3 +1,5 @@
+set_option pp.mvars false
+
 universe u
 
 structure Fn (E I : Sort u) := (exp : E) (imp : I)
@@ -19,7 +21,7 @@ variable (Bp : Bar.fn p)
 error: function expected at
   fn.imp
 term has type
-  Bar.fn ?m.744
+  Bar.fn ?_
 -/
 #guard_msgs in
 #check fn Bp
@@ -28,7 +30,7 @@ term has type
 error: function expected at
   fn.imp
 term has type
-  Bar.fn ?m.828
+  Bar.fn ?_
 -/
 #guard_msgs in
 #check fn p
@@ -47,7 +49,7 @@ argument
 has type
   P : Sort u
 but is expected to have type
-  Bar.fn ?m.1225 : Sort ?u.1170
+  Bar.fn ?_ : Sort _
 -/
 #guard_msgs in
 #check fn' p

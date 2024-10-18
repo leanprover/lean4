@@ -16,8 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_instLawfulOperatorBinaryInputMkAndCached___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_FoldTarget_mkAnd___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,29 +23,21 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_FoldTarget_mkAnd(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_FoldTarget_mkAnd___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkConstCached___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold_go(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkAndCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_FoldTarget_mkAnd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_object* x_6; lean_object* x_7; 
 x_6 = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkAndCached___rarg), 4, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_2);
-x_7 = l_Std_Sat_AIG_instLawfulOperatorBinaryInputMkAndCached___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_8 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_8, 0, x_3);
-lean_ctor_set(x_8, 1, x_5);
-lean_ctor_set(x_8, 2, x_6);
-lean_ctor_set(x_8, 3, x_7);
-return x_8;
+x_7 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_7, 0, x_3);
+lean_ctor_set(x_7, 1, x_5);
+lean_ctor_set(x_7, 2, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_FoldTarget_mkAnd(lean_object* x_1) {
@@ -102,6 +92,7 @@ lean_dec(x_16);
 x_3 = x_17;
 x_4 = x_18;
 x_5 = x_13;
+x_9 = lean_box(0);
 goto _start;
 }
 }
@@ -119,7 +110,6 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Sat_AIG_RefVec_fold_go___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_9);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_2);
@@ -130,7 +120,7 @@ return x_10;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = 1;
 lean_inc(x_2);
 lean_inc(x_1);
@@ -146,17 +136,14 @@ x_10 = lean_ctor_get(x_4, 1);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_4, 2);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_4, 3);
-lean_inc(x_12);
 lean_dec(x_4);
-x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Std_Sat_AIG_RefVec_fold_go___rarg(x_1, x_2, x_7, x_8, x_13, x_9, x_10, x_11, x_12);
-lean_dec(x_12);
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = l_Std_Sat_AIG_RefVec_fold_go___rarg(x_1, x_2, x_7, x_8, x_12, x_9, x_10, x_11, lean_box(0));
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_14;
+return x_13;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_fold(lean_object* x_1) {
@@ -165,32 +152,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Std_Sat_AIG_RefVec_fold___rarg), 4, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Sat_AIG_RefVec_instLawfulOperatorFoldTargetFold___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

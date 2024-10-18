@@ -20,47 +20,25 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedNameGenerator;
 LEAN_EXPORT uint8_t l_Lean_Meta_instInhabitedEtaStructMode;
 LEAN_EXPORT lean_object* l___private_Init_MetaTypes_0__Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes___hyg_104____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg___lambda__1(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_failIfUnchanged___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_zeta___default;
 LEAN_EXPORT uint8_t l___private_Init_MetaTypes_0__Lean_Meta_Simp_beqConfig____x40_Init_MetaTypes___hyg_719_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_NameGenerator_idx___default;
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Config_maxDischargeDepth___default;
 LEAN_EXPORT lean_object* l_List_hasDecEq___at___private_Init_MetaTypes_0__Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1158____spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_autoUnfold___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_index___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_implicitDefEqProofs___default;
-static lean_object* l_Lean_NameGenerator_namePrefix___default___closed__2;
 static lean_object* l_Lean_Meta_instBEqTransparencyMode___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_iota___default;
 LEAN_EXPORT lean_object* l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_72____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_instBEqConfig;
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_proj___default;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_neutralConfig;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_contextual___default;
 LEAN_EXPORT uint8_t l___private_Init_MetaTypes_0__Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1158_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_instInhabitedConfig___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_etaStruct___default;
 LEAN_EXPORT lean_object* l___private_Init_MetaTypes_0__Lean_Meta_Simp_beqConfig____x40_Init_MetaTypes___hyg_719____boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_memoize___default;
-static lean_object* l_Lean_NameGenerator_namePrefix___default___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_MetaTypes_0__Lean_Meta_DSimp_beqConfig____x40_Init_MetaTypes___hyg_256____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_MetaTypes_0__Lean_Meta_beqEtaStructMode____x40_Init_MetaTypes___hyg_104_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_instBEqOccurrences___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_eta___default;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_zeta___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_ConfigCtx_contextual___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg___lambda__1___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_index___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_noConfusion(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_autoUnfold___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_arith___default;
 static lean_object* l_Lean_Meta_DSimp_instBEqConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedConfig;
 LEAN_EXPORT uint8_t l_Lean_Meta_instInhabitedTransparencyMode;
@@ -68,73 +46,21 @@ static lean_object* l_Lean_Meta_instBEqEtaStructMode___closed__1;
 static lean_object* l_Lean_instInhabitedNameGenerator___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_MetaTypes_0__Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1158____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_toCtorIdx(uint8_t);
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_zetaDelta___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqOccurrences;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_decide___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_dsimp___default;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_zetaDelta___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_etaStruct___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqEtaStructMode;
 static lean_object* l_Lean_Meta_Simp_instBEqConfig___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_unfoldPartialApp___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_proj___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_singlePass___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedOccurrences;
-LEAN_EXPORT lean_object* l_Lean_NameGenerator_namePrefix___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_ground___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_decide___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqTransparencyMode;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_eta___default;
-LEAN_EXPORT uint8_t l_Lean_Meta_DSimp_Config_beta___default;
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Config_maxSteps___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_instInhabitedConfig;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_defaultMaxSteps;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_iota___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instBEqConfig;
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_unfoldPartialApp___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_toCtorIdx(uint8_t);
 LEAN_EXPORT uint8_t l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_72_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_failIfUnchanged___default;
 static lean_object* l_Lean_Meta_DSimp_instInhabitedConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_beta___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-static lean_object* _init_l_Lean_NameGenerator_namePrefix___default___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_uniq", 5, 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameGenerator_namePrefix___default___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_NameGenerator_namePrefix___default___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_NameGenerator_namePrefix___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameGenerator_namePrefix___default___closed__2;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_NameGenerator_idx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(1u);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedNameGenerator___closed__1() {
 _start:
 {
@@ -406,102 +332,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Meta_instBEqEtaStructMode___closed__1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_zeta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_beta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_eta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_etaStruct___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_iota___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_proj___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_decide___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_autoUnfold___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_failIfUnchanged___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_unfoldPartialApp___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_zetaDelta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_DSimp_Config_index___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
 return x_1;
 }
 }
@@ -1087,174 +917,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = lean_unsigned_to_nat(100000u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_Config_maxSteps___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Simp_defaultMaxSteps;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_Config_maxDischargeDepth___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(2u);
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_contextual___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_memoize___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_singlePass___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_zeta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_beta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_eta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_etaStruct___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_iota___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_proj___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_decide___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_arith___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_autoUnfold___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_dsimp___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_failIfUnchanged___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_ground___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_unfoldPartialApp___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_zetaDelta___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_index___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_Meta_Simp_Config_implicitDefEqProofs___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
 return x_1;
 }
 }
@@ -2206,14 +1868,6 @@ x_1 = l_Lean_Meta_Simp_instBEqConfig___closed__1;
 return x_1;
 }
 }
-static uint8_t _init_l_Lean_Meta_Simp_ConfigCtx_contextual___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 1;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Meta_Simp_neutralConfig___closed__1() {
 _start:
 {
@@ -2417,14 +2071,6 @@ _G_initialized = true;
 res = initialize_Init_Core(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_NameGenerator_namePrefix___default___closed__1 = _init_l_Lean_NameGenerator_namePrefix___default___closed__1();
-lean_mark_persistent(l_Lean_NameGenerator_namePrefix___default___closed__1);
-l_Lean_NameGenerator_namePrefix___default___closed__2 = _init_l_Lean_NameGenerator_namePrefix___default___closed__2();
-lean_mark_persistent(l_Lean_NameGenerator_namePrefix___default___closed__2);
-l_Lean_NameGenerator_namePrefix___default = _init_l_Lean_NameGenerator_namePrefix___default();
-lean_mark_persistent(l_Lean_NameGenerator_namePrefix___default);
-l_Lean_NameGenerator_idx___default = _init_l_Lean_NameGenerator_idx___default();
-lean_mark_persistent(l_Lean_NameGenerator_idx___default);
 l_Lean_instInhabitedNameGenerator___closed__1 = _init_l_Lean_instInhabitedNameGenerator___closed__1();
 lean_mark_persistent(l_Lean_instInhabitedNameGenerator___closed__1);
 l_Lean_instInhabitedNameGenerator = _init_l_Lean_instInhabitedNameGenerator();
@@ -2441,18 +2087,6 @@ l_Lean_Meta_instBEqEtaStructMode___closed__1 = _init_l_Lean_Meta_instBEqEtaStruc
 lean_mark_persistent(l_Lean_Meta_instBEqEtaStructMode___closed__1);
 l_Lean_Meta_instBEqEtaStructMode = _init_l_Lean_Meta_instBEqEtaStructMode();
 lean_mark_persistent(l_Lean_Meta_instBEqEtaStructMode);
-l_Lean_Meta_DSimp_Config_zeta___default = _init_l_Lean_Meta_DSimp_Config_zeta___default();
-l_Lean_Meta_DSimp_Config_beta___default = _init_l_Lean_Meta_DSimp_Config_beta___default();
-l_Lean_Meta_DSimp_Config_eta___default = _init_l_Lean_Meta_DSimp_Config_eta___default();
-l_Lean_Meta_DSimp_Config_etaStruct___default = _init_l_Lean_Meta_DSimp_Config_etaStruct___default();
-l_Lean_Meta_DSimp_Config_iota___default = _init_l_Lean_Meta_DSimp_Config_iota___default();
-l_Lean_Meta_DSimp_Config_proj___default = _init_l_Lean_Meta_DSimp_Config_proj___default();
-l_Lean_Meta_DSimp_Config_decide___default = _init_l_Lean_Meta_DSimp_Config_decide___default();
-l_Lean_Meta_DSimp_Config_autoUnfold___default = _init_l_Lean_Meta_DSimp_Config_autoUnfold___default();
-l_Lean_Meta_DSimp_Config_failIfUnchanged___default = _init_l_Lean_Meta_DSimp_Config_failIfUnchanged___default();
-l_Lean_Meta_DSimp_Config_unfoldPartialApp___default = _init_l_Lean_Meta_DSimp_Config_unfoldPartialApp___default();
-l_Lean_Meta_DSimp_Config_zetaDelta___default = _init_l_Lean_Meta_DSimp_Config_zetaDelta___default();
-l_Lean_Meta_DSimp_Config_index___default = _init_l_Lean_Meta_DSimp_Config_index___default();
 l_Lean_Meta_DSimp_instInhabitedConfig___closed__1 = _init_l_Lean_Meta_DSimp_instInhabitedConfig___closed__1();
 lean_mark_persistent(l_Lean_Meta_DSimp_instInhabitedConfig___closed__1);
 l_Lean_Meta_DSimp_instInhabitedConfig = _init_l_Lean_Meta_DSimp_instInhabitedConfig();
@@ -2463,29 +2097,6 @@ l_Lean_Meta_DSimp_instBEqConfig = _init_l_Lean_Meta_DSimp_instBEqConfig();
 lean_mark_persistent(l_Lean_Meta_DSimp_instBEqConfig);
 l_Lean_Meta_Simp_defaultMaxSteps = _init_l_Lean_Meta_Simp_defaultMaxSteps();
 lean_mark_persistent(l_Lean_Meta_Simp_defaultMaxSteps);
-l_Lean_Meta_Simp_Config_maxSteps___default = _init_l_Lean_Meta_Simp_Config_maxSteps___default();
-lean_mark_persistent(l_Lean_Meta_Simp_Config_maxSteps___default);
-l_Lean_Meta_Simp_Config_maxDischargeDepth___default = _init_l_Lean_Meta_Simp_Config_maxDischargeDepth___default();
-lean_mark_persistent(l_Lean_Meta_Simp_Config_maxDischargeDepth___default);
-l_Lean_Meta_Simp_Config_contextual___default = _init_l_Lean_Meta_Simp_Config_contextual___default();
-l_Lean_Meta_Simp_Config_memoize___default = _init_l_Lean_Meta_Simp_Config_memoize___default();
-l_Lean_Meta_Simp_Config_singlePass___default = _init_l_Lean_Meta_Simp_Config_singlePass___default();
-l_Lean_Meta_Simp_Config_zeta___default = _init_l_Lean_Meta_Simp_Config_zeta___default();
-l_Lean_Meta_Simp_Config_beta___default = _init_l_Lean_Meta_Simp_Config_beta___default();
-l_Lean_Meta_Simp_Config_eta___default = _init_l_Lean_Meta_Simp_Config_eta___default();
-l_Lean_Meta_Simp_Config_etaStruct___default = _init_l_Lean_Meta_Simp_Config_etaStruct___default();
-l_Lean_Meta_Simp_Config_iota___default = _init_l_Lean_Meta_Simp_Config_iota___default();
-l_Lean_Meta_Simp_Config_proj___default = _init_l_Lean_Meta_Simp_Config_proj___default();
-l_Lean_Meta_Simp_Config_decide___default = _init_l_Lean_Meta_Simp_Config_decide___default();
-l_Lean_Meta_Simp_Config_arith___default = _init_l_Lean_Meta_Simp_Config_arith___default();
-l_Lean_Meta_Simp_Config_autoUnfold___default = _init_l_Lean_Meta_Simp_Config_autoUnfold___default();
-l_Lean_Meta_Simp_Config_dsimp___default = _init_l_Lean_Meta_Simp_Config_dsimp___default();
-l_Lean_Meta_Simp_Config_failIfUnchanged___default = _init_l_Lean_Meta_Simp_Config_failIfUnchanged___default();
-l_Lean_Meta_Simp_Config_ground___default = _init_l_Lean_Meta_Simp_Config_ground___default();
-l_Lean_Meta_Simp_Config_unfoldPartialApp___default = _init_l_Lean_Meta_Simp_Config_unfoldPartialApp___default();
-l_Lean_Meta_Simp_Config_zetaDelta___default = _init_l_Lean_Meta_Simp_Config_zetaDelta___default();
-l_Lean_Meta_Simp_Config_index___default = _init_l_Lean_Meta_Simp_Config_index___default();
-l_Lean_Meta_Simp_Config_implicitDefEqProofs___default = _init_l_Lean_Meta_Simp_Config_implicitDefEqProofs___default();
 l_Lean_Meta_Simp_instInhabitedConfig___closed__1 = _init_l_Lean_Meta_Simp_instInhabitedConfig___closed__1();
 lean_mark_persistent(l_Lean_Meta_Simp_instInhabitedConfig___closed__1);
 l_Lean_Meta_Simp_instInhabitedConfig = _init_l_Lean_Meta_Simp_instInhabitedConfig();
@@ -2494,7 +2105,6 @@ l_Lean_Meta_Simp_instBEqConfig___closed__1 = _init_l_Lean_Meta_Simp_instBEqConfi
 lean_mark_persistent(l_Lean_Meta_Simp_instBEqConfig___closed__1);
 l_Lean_Meta_Simp_instBEqConfig = _init_l_Lean_Meta_Simp_instBEqConfig();
 lean_mark_persistent(l_Lean_Meta_Simp_instBEqConfig);
-l_Lean_Meta_Simp_ConfigCtx_contextual___default = _init_l_Lean_Meta_Simp_ConfigCtx_contextual___default();
 l_Lean_Meta_Simp_neutralConfig___closed__1 = _init_l_Lean_Meta_Simp_neutralConfig___closed__1();
 lean_mark_persistent(l_Lean_Meta_Simp_neutralConfig___closed__1);
 l_Lean_Meta_Simp_neutralConfig = _init_l_Lean_Meta_Simp_neutralConfig();

@@ -43,7 +43,6 @@ static lean_object* l_List_toString___at_instToStringFloatArray___spec__1___clos
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemUSizeFloatLtNatValValSize___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_usize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_toFloatArray_loop(lean_object*, lean_object*);

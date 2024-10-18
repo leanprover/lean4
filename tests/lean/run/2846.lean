@@ -47,7 +47,7 @@ def foo' (n n : Nat) (a : Fin ((by clear n; exact n) + 1)) : Fin (n + 1) := 0
 #guard_msgs in #check foo'
 
 /-!
-Named argument after inaccesible name, still stays after the colon.
+Named argument after inaccessible name, still stays after the colon.
 But, it does not print using named pi notation since this is not a dependent type.
 -/
 def foo'' : String → (needle : String) → String := fun _ yo => yo

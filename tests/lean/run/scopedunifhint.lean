@@ -23,30 +23,32 @@ scoped unif_hint (s : Magma) where
 
 end Algebra
 
+set_option pp.mvars false
+
 def x : Nat := 10
 
 /--
 error: application type mismatch
-  mul ?m.742 x
+  mul ?_ x
 argument
   x
 has type
   Nat : Type
 but is expected to have type
-  ?m.730.α : Type ?u.729
+  ?_.α : Type _
 -/
 #guard_msgs in
 #check mul x x           -- Error: unification hint is not active
 
 /--
 error: application type mismatch
-  mul ?m.833 (x, x)
+  mul ?_ (x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?m.817.α : Type ?u.816
+  ?_.α : Type _
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- Error: no unification hint
@@ -55,13 +57,13 @@ local infix:65 (priority := high) "*" => mul
 
 /--
 error: application type mismatch
-  ?m.2484*x
+  ?_*x
 argument
   x
 has type
   Nat : Type
 but is expected to have type
-  ?m.2472.α : Type ?u.2471
+  ?_.α : Type _
 -/
 #guard_msgs in
 #check x*x -- Error: unification hint is not active
@@ -73,13 +75,13 @@ open Algebra -- activate unification hints
 
 /--
 error: application type mismatch
-  ?m.2585*(x, x)
+  ?_*(x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?m.2565.α : Type ?u.2564
+  ?_.α : Type _
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- still error
@@ -101,13 +103,13 @@ end Sec1
 
 /--
 error: application type mismatch
-  ?m.2832*(x, x)
+  ?_*(x, x)
 argument
   (x, x)
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?m.2812.α : Type ?u.2811
+  ?_.α : Type _
 -/
 #guard_msgs in
 #check (x, x) * (x, x) -- error, local hint is not active after end of section anymore

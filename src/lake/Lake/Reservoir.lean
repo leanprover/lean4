@@ -121,19 +121,41 @@ def hexEncodeByte (b : UInt8) : Char :=
 def uriEscapeByte (b : UInt8) (s := "") : String :=
   s.push '%' |>.push (hexEncodeByte <| b >>> 4) |>.push (hexEncodeByte <| b &&& 0xF)
 
-@[specialize] def utf8EncodeCharM [Monad m] (c : Char) (f : σ → UInt8 → m σ) (init : σ) : m σ := do
+/-- Folds a monadic function over the UTF-8 bytes of `Char` from most significant to least significant. -/
+@[specialize] def foldlUtf8M [Monad m] (c : Char) (f : σ → UInt8 → m σ) (init : σ) : m σ := do
+  let s := init
   let v := c.val
-  let s ← f init <| v.toUInt8 &&& 0x3f ||| 0x80
-  if v ≤ 0x7f then return s
-  let s ← f s <| (v >>>  6).toUInt8 &&& 0x1f ||| 0xc0
-  if v ≤ 0x7ff then return s
-  let s ← f s <| (v >>> 12).toUInt8 &&& 0x0f ||| 0xe0
-  if v ≤ 0xffff then return s
-  f s <| (v >>> 18).toUInt8 &&& 0x07 ||| 0xf0
+  if v ≤ 0x7f then
+    f s v.toUInt8
+  else if v ≤ 0x7ff then
+    let s ← f s <| (v >>>  6).toUInt8 &&& 0x1f ||| 0xc0
+    let s ← f s <| v.toUInt8 &&& 0x3f ||| 0x80
+    return s
+  else if v ≤ 0xffff then
+    let s ← f s <| (v >>> 12).toUInt8 &&& 0x0f ||| 0xe0
+    let s ← f s <| (v >>>  6).toUInt8 &&& 0x3f ||| 0x80
+    let s ← f s <| v.toUInt8 &&& 0x3f ||| 0x80
+    return s
+  else
+    let s ← f s <| (v >>> 18).toUInt8 &&& 0x07 ||| 0xf0
+    let s ← f s <| (v >>> 12).toUInt8 &&& 0x3f ||| 0x80
+    let s ← f s <| (v >>>  6).toUInt8 &&& 0x3f ||| 0x80
+    let s ← f s <| v.toUInt8 &&& 0x3f ||| 0x80
+    return s
+
+abbrev foldlUtf8 (c : Char) (f : σ → UInt8 → σ) (init : σ) : σ :=
+  Id.run <| foldlUtf8M c f init
+
+example : foldlUtf8 c (fun l b => b::l) List.nil = (String.utf8EncodeChar c).reverse := by
+  simp only [foldlUtf8M, String.utf8EncodeChar, Id.run]
+  if h1 : c.val ≤ 0x7f then simp [h1]
+  else if h2 : c.val ≤ 0x7ff then simp [h1, h2]
+  else if h3 : c.val ≤ 0xffff then simp [h1, h2, h3]
+  else simp [h1, h2, h3]
 
 /-- Encode a character as a sequence of URI escape codes representing its UTF8 encoding. -/
 def uriEscapeChar (c : Char) (s := "") : String :=
-  Id.run <| utf8EncodeCharM c (init := s) fun s b => uriEscapeByte b s
+  foldlUtf8 c (init := s) fun s b => uriEscapeByte b s
 
 /-- A URI unreserved mark as specified in [RFC2396](https://datatracker.ietf.org/doc/html/rfc2396#section-2.3). -/
 def isUriUnreservedMark (c : Char)  : Bool :=
@@ -171,14 +193,19 @@ protected def ReservoirResp.fromJson? [FromJson α] (val : Json) : Except String
 
 instance [FromJson α] : FromJson (ReservoirResp α) := ⟨ReservoirResp.fromJson?⟩
 
-def fetchReservoirPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
-  let url := s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
+def Reservoir.pkgApiUrl (lakeEnv : Lake.Env) (owner pkg : String) :=
+   s!"{lakeEnv.reservoirApiUrl}/packages/{uriEncode owner}/{uriEncode pkg}"
+
+def Reservoir.lakeHeaders := #[
+  "X-Reservoir-Api-Version:1.0.0",
+  "X-Lake-Registry-Api-Version:0.1.0"
+]
+
+def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Option RegistryPkg) := do
+  let url := Reservoir.pkgApiUrl lakeEnv owner pkg
   let out ←
     try
-      getUrl url #[
-        "X-Reservoir-Api-Version:1.0.0",
-        "X-Lake-Registry-Api-Version:0.1.0"
-      ]
+      getUrl url Reservoir.lakeHeaders
     catch _ =>
       logError s!"{owner}/{pkg}: Reservoir lookup failed"
       return none

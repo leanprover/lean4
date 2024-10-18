@@ -605,7 +605,7 @@ private partial def hasNoErrorIfUnused : Syntax → Bool
 
 /--
 Given `rhss` the right-hand-sides of a `match`-syntax notation,
-We tag them with with fresh identifiers `alt_idx`. We use them to detect whether an alternative
+We tag them with fresh identifiers `alt_idx`. We use them to detect whether an alternative
 has been used or not.
 The result is a triple `(altIdxMap, ignoreIfUnused, rhssNew)` where
 - `altIdxMap` is a mapping from the `alt_idx` identifiers to right-hand-side indices.
@@ -655,9 +655,9 @@ The parameter `alts` provides position information for alternatives.
 -/
 private def checkUnusedAlts (stx : Syntax) (alts : Array Syntax) (altIdxMap : NameMap Nat) (ignoreIfUnused : IdxSet) : TermElabM Syntax := do
   let (stx, used) ← findUsedAlts stx altIdxMap
-  for i in [:alts.size] do
+  for h : i in [:alts.size] do
     unless used.contains i || ignoreIfUnused.contains i do
-      logErrorAt alts[i]! s!"redundant alternative #{i+1}"
+      logErrorAt alts[i] s!"redundant alternative #{i+1}"
   return stx
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do

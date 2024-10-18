@@ -1,0 +1,96 @@
+{"textDocument": {"uri": "file:///completionDeprecation.lean"},
+ "position": {"line": 25, "character": 28}}
+{"items":
+ [{"sortText": "0",
+   "label": "foo1",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo1"}}}},
+  {"sortText": "1",
+   "label": "foo2",
+   "kind": 3,
+   "documentation": {"value": "A docstring. ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo2"}}}},
+  {"tags": [1],
+   "sortText": "2",
+   "label": "foo3",
+   "kind": 3,
+   "documentation":
+   {"value": "`SomeStructure.foo3` has been deprecated.", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo3"}}}},
+  {"tags": [1],
+   "sortText": "3",
+   "label": "foo4",
+   "kind": 3,
+   "documentation":
+   {"value": "`SomeStructure.foo4` has been deprecated.\n\nA docstring. ",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo4"}}}},
+  {"tags": [1],
+   "sortText": "4",
+   "label": "foo5",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`SomeStructure.foo5` has been deprecated, use `SomeStructure.foo1` instead.",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo5"}}}},
+  {"tags": [1],
+   "sortText": "5",
+   "label": "foo6",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`SomeStructure.foo6` has been deprecated, use `SomeStructure.foo1` instead.\n\nA docstring. ",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo6"}}}},
+  {"tags": [1],
+   "sortText": "6",
+   "label": "foo7",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`SomeStructure.foo7` has been deprecated; please use `SomeStructure.foo1` instead.",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo7"}}}},
+  {"tags": [1],
+   "sortText": "7",
+   "label": "foo8",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`SomeStructure.foo8` has been deprecated; please use `SomeStructure.foo1` instead.\n\nA docstring. ",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDeprecation.lean"},
+     "position": {"line": 25, "character": 28}},
+    "id": {"const": {"declName": "SomeStructure.foo8"}}}}],
+ "isIncomplete": true}

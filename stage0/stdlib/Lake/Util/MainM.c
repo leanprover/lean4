@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLiftLogIO___rarg___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_toBaseIO(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_exit(lean_object*);
 lean_object* l_Lake_AnsiMode_isEnabled(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_MainM_instAlternative___closed__2;
@@ -82,6 +81,7 @@ static lean_object* l_Lake_instMonadLiftBaseIOMainM___closed__1;
 LEAN_EXPORT lean_object* l_Lake_MainM_failure(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadError___rarg___boxed__const__1;
 lean_object* l_EStateM_instMonadFinally(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MainM_toEIO(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_MainM_instMonadLiftLogIO___rarg(lean_object*, lean_object*);
@@ -1153,8 +1153,8 @@ static lean_object* _init_l_Lake_MainM_runLogIO___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

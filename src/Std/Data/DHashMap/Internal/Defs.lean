@@ -57,11 +57,11 @@ non-internal `*.Lemmas` files and immediately reduce them to the results about `
 
 There are some additional indirections to this high-level strategy. First, we have an additional
 layer of so-called "model functions" on `Raw₀`, defined in the file `Internal.Model`. These have the
-same signature as their counterparts defined in this file, but may have a slighly simpler
+same signature as their counterparts defined in this file, but may have a slightly simpler
 implementation. For example, `Raw₀.erase` has a linearity optimization which is not present in the
 model function `Raw₀.eraseₘ`. We prove that the functions are equal to their model implementations
 in `Internal.Model`, then verify the model implementation. This makes the verification more robust
-against implemenation details, future performance improvements, etc.
+against implementation details, future performance improvements, etc.
 
 Second, reducing hash maps to lists only works if the hash map is well-formed. Our internal
 well-formedness predicate is called `Raw.WFImp` (defined in this file) and states that (a) each
@@ -100,9 +100,9 @@ Here is a summary of the steps required to add and verify a new operation:
   * Connect the implementation on lists and associative lists in `Internal.AssocList.Lemmas` via a
     lemma `AssocList.operation_eq`.
 3. Write the model implementation
-  * Write the model implementation `Raw₀.operationₘ` in `Internal.List.Model`
+  * Write the model implementation `Raw₀.operationₘ` in `Internal.Model`
   * Prove that the model implementation is equal to the actual implementation in
-    `Internal.List.Model` via a lemma `operation_eq_operationₘ`.
+    `Internal.Model` via a lemma `operation_eq_operationₘ`.
 4. Verify the model implementation
   * In `Internal.WF`, prove `operationₘ_eq_List.operation` (for access operations) or
     `wfImp_operationₘ` and `toListModel_operationₘ`
@@ -121,18 +121,18 @@ Here is a summary of the steps required to add and verify a new operation:
     might also have to prove that your list operation is invariant under permutation and add that to
     the tactic.
 7. State and prove the user-facing lemmas
-  * Restate all of your lemmas for `DHashMap.Raw` in `DHashMap.Lemmas` and prove them using the
+  * Restate all of your lemmas for `DHashMap.Raw` in `DHashMap.RawLemmas` and prove them using the
     provided tactic after hooking in your `operation_eq` and `operation_val` from step 5.
   * Restate all of your lemmas for `DHashMap` in `DHashMap.Lemmas` and prove them by reducing to
     `Raw₀`.
-  * Restate all of your lemmas for `HashMap.Raw` in `HashMap.Lemmas` and prove them by reducing to
+  * Restate all of your lemmas for `HashMap.Raw` in `HashMap.RawLemmas` and prove them by reducing to
     `DHashMap.Raw`.
   * Restate all of your lemmas for `HashMap` in `HashMap.Lemmas` and prove them by reducing to
     `DHashMap`.
-  * Restate all of your lemmas for `HashSet.Raw` in `HashSet.Lemmas` and prove them by reducing to
-    `DHashSet.Raw`.
+  * Restate all of your lemmas for `HashSet.Raw` in `HashSet.RawLemmas` and prove them by reducing to
+    `HashMap.Raw`.
   * Restate all of your lemmas for `HashSet` in `HashSet.Lemmas` and prove them by reducing to
-    `DHashSet`.
+    `HashMap`.
 
 This sounds like a lot of work (and it is if you have to add a lot of user-facing lemmas), but the
 framework is set up in such a way that each step is really easy and the proofs are all really short
@@ -156,7 +156,7 @@ namespace DHashMap.Internal
 
 /-- Internal implementation detail of the hash map -/
 def toListModel (buckets : Array (AssocList α β)) : List ((a : α) × β a) :=
-  buckets.data.bind AssocList.toList
+  buckets.toList.flatMap AssocList.toList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def computeSize (buckets : Array (AssocList α β)) : Nat :=
@@ -419,6 +419,30 @@ variable {β : Type v}
   return r
 
 end
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKey? [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let ⟨i, h⟩ := mkIdx buckets.size h (hash a)
+  buckets[i].getKey? a
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKey [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (hma : m.contains a) : α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getKey a hma
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKeyD [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) : α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getKeyD a fallback
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) : α :=
+  let ⟨⟨_, buckets⟩, h⟩ := m
+  let idx := mkIdx buckets.size h (hash a)
+  buckets[idx.1].getKey! a
 
 end Raw₀
 

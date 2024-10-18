@@ -62,11 +62,12 @@ builtin_simproc [simp, seval] reduceNe  (( _ : Fin _) ≠ _)  := reduceBinPred `
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : Fin _) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : Fin _) != _)  := reduceBoolPred ``bne 4 (. != .)
 
-/-- Simplification procedure for ensuring `Fin` literals are normalized. -/
+/-- Simplification procedure for ensuring `Fin n` literals are normalized. -/
 builtin_dsimproc [simp, seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
+  let_expr OfNat.ofNat _ m _ ← e | return .continue
   let some ⟨n, v⟩ ← getFinValue? e | return .continue
-  let some m ← getNatValue? e.appFn!.appArg! | return .continue
-  if n == m then
+  let some m ← getNatValue? m | return .continue
+  if m < n then
     -- Design decision: should we return `.continue` instead of `.done` when simplifying.
     -- In the symbolic evaluator, we must return `.done`, otherwise it will unfold the `OfNat.ofNat`
     return .done e
@@ -76,8 +77,9 @@ builtin_dsimproc [simp, seval] reduceFinMk (Fin.mk _ _)  := fun e => do
   let_expr Fin.mk n v _ ← e | return .continue
   let some n ← evalNat n |>.run | return .continue
   let some v ← getNatValue? v | return .continue
-  if h : n > 0 then
-    return .done <| toExpr (Fin.ofNat' v h)
+  if h : n ≠ 0 then
+    have : NeZero n := ⟨h⟩
+    return .done <| toExpr (Fin.ofNat' n v)
   else
     return .continue
 

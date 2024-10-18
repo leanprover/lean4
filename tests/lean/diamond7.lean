@@ -39,12 +39,6 @@ class AddSemigroup (α : Type u) extends Add α where
 class AddCommSemigroup (α : Type u) extends AddSemigroup α where
   add_comm (a b : α) : a + b = b + a
 
-class Zero (α : Type u) where
-  zero : α
-
-instance [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := Zero.zero
-
 class AddMonoid (α : Type u) extends AddSemigroup α, Zero α where
   zero_add (a : α) : 0 + a = a
   add_zero (a : α) : a + 0 = a

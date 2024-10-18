@@ -15,6 +15,12 @@ def whnf (a : Name) : CoreM Unit := do
   let r ← ofExceptKernelException (Kernel.whnf env {} a)
   IO.println (toString a ++ " ==> " ++ toString r)
 
+def check (a : Name) : CoreM Unit := do
+  let env ← getEnv
+  let a := mkConst a
+  let r ← ofExceptKernelException (Kernel.check env {} a)
+  IO.println (toString a ++ " ==> " ++ toString r)
+
 partial def fact : Nat → Nat
 | 0     => 1
 | (n+1) => (n+1)*fact n
@@ -93,3 +99,7 @@ def c12 : Nat := 'a'.toNat
 /-- info: c12 ==> 97 -/
 #guard_msgs in
 #eval whnf `c12
+
+/-- info: c11 ==> Bool -/
+#guard_msgs in
+#eval check `c11

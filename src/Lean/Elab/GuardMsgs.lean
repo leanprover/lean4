@@ -140,6 +140,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
         |>.trim |> removeTrailingWhitespaceMarker
     let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
+    -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
     elabCommandTopLevel cmd
     let msgs := (← get).messages
     let mut toCheck : MessageLog := .empty
@@ -163,7 +164,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
           let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
           Diff.linesToString diff
         else res
-      logErrorAt tk m!"❌ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"
+      logErrorAt tk m!"❌️ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"
       pushInfoLeaf (.ofCustomInfo { stx := ← getRef, value := Dynamic.mk (GuardMsgFailure.mk res) })
   | _ => throwUnsupportedSyntax
 

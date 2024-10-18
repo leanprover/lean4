@@ -9,7 +9,7 @@ import Lean.Meta.Basic
 namespace Lean.Meta
 
 /--
-Provides an iterface for iterating over values that are bundled with the `Meta` state
+Provides an interface for iterating over values that are bundled with the `Meta` state
 they are valid in.
 -/
 protected structure Iterator (α : Type) where

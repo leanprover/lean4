@@ -85,7 +85,7 @@ theorem go_denote_eq (aig : AIG BVBit) (a : Nat) (assign : Assignment) (curr : N
           assign.toAIGAssignment
         ⟧
           =
-        ((BVExpr.var (w := w) a).eval assign).getLsb idx := by
+        ((BVExpr.var (w := w) a).eval assign).getLsbD idx := by
   intro idx hidx1 hidx2
   generalize hgo : go aig w a curr s hcurr = res
   unfold go at hgo
@@ -118,7 +118,7 @@ theorem denote_blastVar (aig : AIG BVBit) (var : BVVar w) (assign : Assignment) 
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastVar aig var).aig, (blastVar aig var).vec.get idx hidx, assign.toAIGAssignment⟧
           =
-        ((BVExpr.var (w := w) var.ident).eval assign).getLsb idx := by
+        ((BVExpr.var (w := w) var.ident).eval assign).getLsbD idx := by
   intros
   apply blastVar.go_denote_eq
   omega

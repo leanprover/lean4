@@ -16,7 +16,7 @@ import Init.Data.String.Extra
 namespace Lean
 
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
-private builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension
+builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension
 
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit :=
   builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)

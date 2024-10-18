@@ -1,11 +1,5 @@
 universe u
 
-class Zero (α : Type u) where
-  zero : α
-
-instance (priority := 300) Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-
 class One (α : Type u) where
   one : α
 

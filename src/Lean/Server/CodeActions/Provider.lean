@@ -38,7 +38,7 @@ A code action which calls all `@[hole_code_action]` code actions on each hole
     unless head ≤ endPos && startPos ≤ tail do return result
     result.push (ctx, info)
   let #[(ctx, info)] := holes | return #[]
-  (holeCodeActionExt.getState snap.env).2.concatMapM (· params snap ctx info)
+  (holeCodeActionExt.getState snap.env).2.flatMapM (· params snap ctx info)
 
 /--
 The return value of `findTactic?`.

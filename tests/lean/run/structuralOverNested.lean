@@ -11,7 +11,7 @@ end
 
 example : Tree.list_size (t :: ts) = t.size + Tree.list_size ts := rfl
 
--- If we only look at the nested type at a finite depth we don't need an auxillary definition:
+-- If we only look at the nested type at a finite depth we don't need an auxiliary definition:
 
 def Tree.isList : Tree → Bool
   | .node [] => true

@@ -15,14 +15,12 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_IO_Channel_close___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Channel_0__IO_Channel_Sync_forIn___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_Channel_State_consumers___default(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_send(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_recv_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Mutex_new___rarg(lean_object*, lean_object*);
 lean_object* lean_io_promise_new(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_IO_Channel_close___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_recv_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_IO_Channel_State_values___default(lean_object*);
 static lean_object* l_IO_Channel_recvAllCurrent___rarg___closed__1;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_IO_Channel_recv_x3f___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_send___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,7 +40,6 @@ lean_object* l_Std_Queue_enqueue___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_Sync_recv_x3f(lean_object*);
 lean_object* lean_io_promise_result(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Channel_0__IO_Channel_Sync_forIn(lean_object*, lean_object*, lean_object*);
-static lean_object* l_IO_Channel_State_values___default___closed__1;
 lean_object* l_Std_Queue_empty(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_Sync_recv_x3f___rarg(lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
@@ -54,6 +51,7 @@ LEAN_EXPORT lean_object* l_IO_Channel_forAsync___rarg___lambda__1(lean_object*, 
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_instInhabitedState(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Mutex_atomically___at_IO_Channel_recvAllCurrent___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_IO_Channel_instInhabitedState___closed__2;
 LEAN_EXPORT lean_object* l_IO_Channel_sync___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Mutex_atomically___at_IO_Channel_send___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_send___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,7 +70,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Channel_0__IO_Channel_Sync_forIn_
 LEAN_EXPORT lean_object* l_IO_Channel_recvAllCurrent___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Mutex_atomically___at_IO_Channel_close___spec__4___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Mutex_atomically___at_IO_Channel_send___spec__3___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_IO_Channel_State_closed___default;
 lean_object* l_Std_Queue_toArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_send___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_close___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -104,7 +101,7 @@ LEAN_EXPORT lean_object* l_IO_Channel_send___rarg___lambda__1(lean_object*, lean
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_IO_Channel_close___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_forAsync___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_send___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_IO_Channel_State_values___default___closed__1() {
+static lean_object* _init_l_IO_Channel_instInhabitedState___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -112,35 +109,11 @@ x_1 = l_Std_Queue_empty(lean_box(0));
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_IO_Channel_State_values___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_IO_Channel_State_values___default___closed__1;
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_IO_Channel_State_consumers___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_IO_Channel_State_values___default___closed__1;
-return x_2;
-}
-}
-static uint8_t _init_l_IO_Channel_State_closed___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static lean_object* _init_l_IO_Channel_instInhabitedState___closed__1() {
+static lean_object* _init_l_IO_Channel_instInhabitedState___closed__2() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_IO_Channel_State_values___default___closed__1;
+x_1 = l_IO_Channel_instInhabitedState___closed__1;
 x_2 = 0;
 x_3 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_3, 0, x_1);
@@ -153,7 +126,7 @@ LEAN_EXPORT lean_object* l_IO_Channel_instInhabitedState(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_IO_Channel_instInhabitedState___closed__1;
+x_2 = l_IO_Channel_instInhabitedState___closed__2;
 return x_2;
 }
 }
@@ -161,7 +134,7 @@ LEAN_EXPORT lean_object* l_IO_Channel_new___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_Channel_instInhabitedState___closed__1;
+x_2 = l_IO_Channel_instInhabitedState___closed__2;
 x_3 = l_IO_Mutex_new___rarg(x_2, x_1);
 return x_3;
 }
@@ -1022,7 +995,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15;
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
-x_13 = l_IO_Channel_State_values___default___closed__1;
+x_13 = l_IO_Channel_instInhabitedState___closed__1;
 x_14 = 1;
 lean_ctor_set(x_1, 1, x_13);
 lean_ctor_set_uint8(x_1, sizeof(void*)*2, x_14);
@@ -1074,7 +1047,7 @@ lean_object* x_27; lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_obje
 x_27 = lean_ctor_get(x_26, 1);
 lean_inc(x_27);
 lean_dec(x_26);
-x_28 = l_IO_Channel_State_values___default___closed__1;
+x_28 = l_IO_Channel_instInhabitedState___closed__1;
 x_29 = 1;
 x_30 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_30, 0, x_20);
@@ -2310,7 +2283,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_ctor_get(x_4, 0);
 x_8 = l_Std_Queue_toArray___rarg(x_7);
-x_9 = l_IO_Channel_State_values___default___closed__1;
+x_9 = l_IO_Channel_instInhabitedState___closed__1;
 lean_ctor_set(x_4, 0, x_9);
 x_10 = lean_st_ref_set(x_1, x_4, x_5);
 if (lean_obj_tag(x_10) == 0)
@@ -2371,7 +2344,7 @@ lean_inc(x_20);
 lean_inc(x_19);
 lean_dec(x_4);
 x_22 = l_Std_Queue_toArray___rarg(x_19);
-x_23 = l_IO_Channel_State_values___default___closed__1;
+x_23 = l_IO_Channel_instInhabitedState___closed__1;
 x_24 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_20);
@@ -2689,11 +2662,10 @@ lean_dec_ref(res);
 res = initialize_Init_System_Mutex(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_IO_Channel_State_values___default___closed__1 = _init_l_IO_Channel_State_values___default___closed__1();
-lean_mark_persistent(l_IO_Channel_State_values___default___closed__1);
-l_IO_Channel_State_closed___default = _init_l_IO_Channel_State_closed___default();
 l_IO_Channel_instInhabitedState___closed__1 = _init_l_IO_Channel_instInhabitedState___closed__1();
 lean_mark_persistent(l_IO_Channel_instInhabitedState___closed__1);
+l_IO_Channel_instInhabitedState___closed__2 = _init_l_IO_Channel_instInhabitedState___closed__2();
+lean_mark_persistent(l_IO_Channel_instInhabitedState___closed__2);
 l_IO_Channel_close___rarg___closed__1 = _init_l_IO_Channel_close___rarg___closed__1();
 lean_mark_persistent(l_IO_Channel_close___rarg___closed__1);
 l_IO_Channel_recv_x3f___rarg___lambda__1___closed__1 = _init_l_IO_Channel_recv_x3f___rarg___lambda__1___closed__1();

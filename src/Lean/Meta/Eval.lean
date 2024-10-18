@@ -6,6 +6,7 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 prelude
 import Lean.AddDecl
 import Lean.Meta.Check
+import Lean.Util.CollectLevelParams
 
 namespace Lean.Meta
 
@@ -13,12 +14,13 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (s
   withoutModifyingEnv do
     let name ← mkFreshUserName `_tmp
     let value ← instantiateMVars value
+    let us := collectLevelParams {} value |>.params
     if value.hasMVar then
       throwError "failed to evaluate expression, it contains metavariables{indentExpr value}"
     let type ← inferType value
     checkType type
     let decl := Declaration.defnDecl {
-       name, levelParams := [], type
+       name, levelParams := us.toList, type
        value, hints := ReducibilityHints.opaque,
        safety
     }

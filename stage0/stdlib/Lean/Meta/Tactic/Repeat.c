@@ -15,9 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Meta_repeat1_x27___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat1_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at_Lean_Meta_repeat_x27___spec__1(lean_object*);
-lean_object* l_not___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core_go(lean_object*, lean_object*, lean_object*);
@@ -41,7 +39,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core___rarg___lambda__1(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat1_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at_Lean_Meta_repeat_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Meta_repeat_x27Core_go___spec__1(lean_object*, lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_repeat_x27Core___spec__1___rarg___lambda__2(size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_repeat_x27Core___spec__1___rarg___closed__1;
@@ -50,11 +48,13 @@ LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27___rarg___lambda__1___boxed(lean_
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core_go___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_repeat_x27___rarg___closed__1;
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Bool_not___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Array_appendList___spec__1___rarg(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core_go___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -338,7 +338,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_repeat_x27Cor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_not___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Bool_not___boxed), 1, 0);
 return x_1;
 }
 }
@@ -419,7 +419,7 @@ lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = lean_array_to_list(lean_box(0), x_3);
+x_6 = lean_array_to_list(x_3);
 x_7 = lean_box(x_2);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -498,8 +498,8 @@ static lean_object* _init_l_Lean_Meta_repeat_x27Core___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

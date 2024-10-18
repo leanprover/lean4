@@ -61,6 +61,7 @@ def LeanConfig.toToml (cfg : LeanConfig) (t : Table := {}) : Table :=
   |>.smartInsert `weakLinkArgs cfg.weakLinkArgs
 
 instance : ToToml LeanConfig := ⟨(toToml ·.toToml)⟩
+instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
 
 protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Table :=
   t.insert `name cfg.name
@@ -75,8 +76,25 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.smartInsert `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
   |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
   |>.insertD `preferReleaseBuild cfg.preferReleaseBuild false
+  |>.insertD `version cfg.version v!"0.0.0"
+  |> smartInsertVerTags cfg.versionTags
+  |>.smartInsert `keywords cfg.description
+  |>.smartInsert `keywords cfg.keywords
+  |>.smartInsert `homepage cfg.homepage
+  |>.smartInsert `license cfg.license
+  |>.insertD `licenseFiles cfg.licenseFiles #["LICENSE"]
+  |>.insertD `readmeFile cfg.readmeFile "README.md"
+  |>.insertD `reservoir cfg.reservoir true
   |> cfg.toWorkspaceConfig.toToml
   |> cfg.toLeanConfig.toToml
+where
+  smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
+    match pat with
+    | .mem s => t.insert `versionTags (toToml s)
+    | .startsWith p => t.insert `versionTags.startsWith (toToml p)
+    | .satisfies _ n =>
+      if n.isAnonymous || n == `default then t else
+      t.insert `versionTags.preset (toToml n)
 
 instance : ToToml PackageConfig := ⟨(toToml ·.toToml)⟩
 

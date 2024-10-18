@@ -8,8 +8,6 @@ import Init.Data.Nat.Linear
 
 namespace Nat
 
-protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
-
 theorem nextPowerOfTwo_dec {n power : Nat} (h₁ : power > 0) (h₂ : power < n) : n - power * 2 < n - power := by
   have : power * 2 = power + power := by simp_arith
   rw [this, Nat.sub_add_eq]

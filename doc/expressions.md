@@ -396,7 +396,7 @@ Every expression in Lean has a natural computational interpretation, unless it i
 
 * *β-reduction* : An expression ``(λ x, t) s`` β-reduces to ``t[s/x]``, that is, the result of replacing ``x`` by ``s`` in ``t``.
 * *ζ-reduction* : An expression ``let x := s in t`` ζ-reduces to ``t[s/x]``.
-* *δ-reduction* : If ``c`` is a defined constant with definition ``t``, then ``c`` δ-reduces to to ``t``.
+* *δ-reduction* : If ``c`` is a defined constant with definition ``t``, then ``c`` δ-reduces to ``t``.
 * *ι-reduction* : When a function defined by recursion on an inductive type is applied to an element given by an explicit constructor, the result ι-reduces to the specified function value, as described in [Inductive Types](inductive.md).
 
 The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`` and ``t`` reduces to ``t'``, then ``s t`` reduces to ``s' t'``, ``λ x, s`` reduces to ``λ x, s'``, and so on. If ``s`` and ``t`` reduce to a common term, they are said to be *definitionally equal*. Definitional equality is defined to be the smallest equivalence relation that satisfies all these properties and also includes α-equivalence and the following two relations:

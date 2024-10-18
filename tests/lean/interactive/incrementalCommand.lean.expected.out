@@ -10,7 +10,7 @@ w
    "severity": 3,
    "range":
    {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}},
-   "message": "\"import\"\n",
+   "message": "\"import\"",
    "fullRange":
    {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}}}]}
 {"version": 2,
@@ -20,7 +20,7 @@ w
    "severity": 3,
    "range":
    {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}},
-   "message": "\"import\"\n",
+   "message": "\"import\"",
    "fullRange":
    {"start": {"line": 5, "character": 0}, "end": {"line": 5, "character": 5}}}]}
 {"version": 2,
@@ -33,3 +33,4 @@ w
    "message": "tactic 'assumption' failed\n⊢ False",
    "fullRange":
    {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 9}}}]}
+{"version": 3, "uri": "file:///incrementalCommand.lean", "diagnostics": []}

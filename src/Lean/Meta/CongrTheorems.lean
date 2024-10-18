@@ -77,7 +77,7 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
 where
   withNewEqs {α} (xs ys : Array Expr) (k : Array Expr → Array CongrArgKind → MetaM α) : MetaM α :=
     let rec loop (i : Nat) (eqs : Array Expr) (kinds : Array CongrArgKind) := do
-      if  i < xs.size then
+      if i < xs.size then
         let x := xs[i]!
         let y := ys[i]!
         let xType := (← inferType x).cleanupAnnotations
@@ -185,11 +185,11 @@ private def getClassSubobjectMask? (f : Expr) : MetaM (Option (Array Bool)) := d
   forallTelescopeReducing val.type (cleanupAnnotations := true) fun xs _ => do
     let env ← getEnv
     let mut mask := #[]
-    for i in [:xs.size] do
+    for h : i in [:xs.size] do
       if i < val.numParams then
         mask := mask.push false
       else
-        let localDecl ← xs[i]!.fvarId!.getDecl
+        let localDecl ← xs[i].fvarId!.getDecl
         mask := mask.push (isSubobjectField? env val.induct localDecl.userName).isSome
     return some mask
 
@@ -211,14 +211,14 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
   -/
   let mut result := #[]
   let mask? ← getClassSubobjectMask? f
-  for i in [:info.paramInfo.size] do
+  for h : i in [:info.paramInfo.size] do
     if info.resultDeps.contains i then
       result := result.push .fixed
-    else if info.paramInfo[i]!.isProp then
+    else if info.paramInfo[i].isProp then
       result := result.push .cast
-    else if info.paramInfo[i]!.isInstImplicit then
+    else if info.paramInfo[i].isInstImplicit then
       if let some mask := mask? then
-        if h : i < mask.size then
+        if h2 : i < mask.size then
           if mask[i] then
             -- Parameter is a subobect field of a class constructor. See comment above.
             result := result.push .eq
@@ -319,7 +319,7 @@ where
 /--
 Create a congruence theorem for `f`. The theorem is used in the simplifier.
 
-If `subsingletonInstImplicitRhs = true`, the the `rhs` corresponding to `[Decidable p]` parameters
+If `subsingletonInstImplicitRhs = true`, the `rhs` corresponding to `[Decidable p]` parameters
 is marked as instance implicit. It forces the simplifier to compute the new instance when applying
 the congruence theorem.
 For the `congr` tactic we set it to `false`.

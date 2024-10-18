@@ -928,41 +928,6 @@ def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m 
 end FS
 end IO
 
-universe u
-
-namespace Lean
-
-/-- Typeclass used for presenting the output of an `#eval` command. -/
-class Eval (α : Type u) where
-  -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
-  -- so that `()` output is hidden in chained instances such as for some `IO Unit`.
-  -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbg_trace`)
-  eval : (Unit → α) → (hideUnit : Bool := true) → IO Unit
-
-instance instEval [ToString α] : Eval α where
-  eval a _ := IO.println (toString (a ()))
-
-instance [Repr α] : Eval α where
-  eval a _ := IO.println (repr (a ()))
-
-instance : Eval Unit where
-  eval u hideUnit := if hideUnit then pure () else IO.println (repr (u ()))
-
-instance [Eval α] : Eval (IO α) where
-  eval x _ := do
-    let a ← x ()
-    Eval.eval fun _ => a
-
-instance [Eval α] : Eval (BaseIO α) where
-  eval x _ := do
-    let a ← x ()
-    Eval.eval fun _ => a
-
-def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
-  IO.FS.withIsolatedStreams (Eval.eval a false |>.toBaseIO)
-
-end Lean
-
 syntax "println! " (interpolatedStr(term) <|> term) : term
 
 macro_rules

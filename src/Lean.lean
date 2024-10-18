@@ -20,7 +20,6 @@ import Lean.MetavarContext
 import Lean.AuxRecursor
 import Lean.Meta
 import Lean.Util
-import Lean.Eval
 import Lean.Structure
 import Lean.PrettyPrinter
 import Lean.CoreM
@@ -38,3 +37,4 @@ import Lean.Linter
 import Lean.SubExpr
 import Lean.LabelAttribute
 import Lean.AddDecl
+import Lean.Replay

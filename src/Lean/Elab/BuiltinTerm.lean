@@ -103,9 +103,11 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtin_term_elab Lean.Parser.Term.omission] def elabOmission : TermElab := fun stx expectedType? => do
   logWarning m!"\
     The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. \
-    It logs this warning and then elaborates like `_`.\
-    \n\nThe presence of `⋯` in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
-    These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
+    It logs this warning and then elaborates like '_'.\
+    \n\n\
+    The presence of '⋯' in pretty printing output is controlled by the 'pp.maxSteps', 'pp.deepTerms' and 'pp.proofs' options. \
+    These options can be further adjusted using 'pp.deepTerms.threshold' and 'pp.proofs.threshold'. \
+    If this '⋯' was copied from the Infoview, the hover there for the original '⋯' explains which of these options led to the omission."
   elabHole stx expectedType?
 
 @[builtin_term_elab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do
@@ -150,26 +152,10 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
-private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
-  let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
-  let mvarId := mvar.mvarId!
-  let ref ← getRef
-  registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
-  return mvar
-
-register_builtin_option debug.byAsSorry : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "replace `by ..` blocks with `sorry` IF the expected type is a proposition"
-}
-
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
-    if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp expectedType then
-      mkSorry expectedType false
-    else
-      mkTacticMVar expectedType stx
+    mkTacticMVar expectedType stx .term
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")

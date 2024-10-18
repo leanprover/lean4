@@ -24,7 +24,6 @@ class LawfulZipOperator (α : Type) [Hashable α] [DecidableEq α]
 
 namespace LawfulZipOperator
 
-@[simp]
 theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : BinaryInput aig}
     {f : (aig : AIG α) → BinaryInput aig → Entrypoint α} [LawfulOperator α BinaryInput f]
     [LawfulZipOperator α f] {h} :
@@ -86,7 +85,7 @@ where
   @[specialize]
   go (aig : AIG α) (idx : Nat) (s : RefVec aig idx) (hidx : idx ≤ len)
       (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
-      [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
+      [LawfulOperator α BinaryInput f] [LawfulZipOperator α f] :
       RefVecEntry α len :=
     if hidx : idx < len then
       let res := f aig ⟨lhs.get idx hidx, rhs.get idx hidx⟩
@@ -214,6 +213,7 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
   · intros
     apply go_le_size
 
+attribute [local simp] LawfulZipOperator.denote_prefix_cast_ref in
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
     (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :

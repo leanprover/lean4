@@ -103,7 +103,7 @@ private def mkFresh : M VarId := do
 
 /--
 Helper function for applying `S`. We only introduce a `reset` if we managed
-to replace a `ctor` withe `reuse` in `b`.
+to replace a `ctor` with `reuse` in `b`.
 -/
 private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
   let w ← mkFresh

@@ -1,6 +1,8 @@
 prelude
 import Init.MetaTypes
-import Init.Data.List.Basic
+import Init.Data.List.Lemmas
+
+attribute [-simp] List.map_map -- Turn off the global simp lemma so we can turn on and off the local version.
 
 @[simp] theorem map_comp_map (f : α → β) (g : β → γ) : List.map g ∘ List.map f = List.map (g ∘ f) :=
   sorry

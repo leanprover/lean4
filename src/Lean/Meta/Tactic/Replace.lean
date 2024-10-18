@@ -190,10 +190,6 @@ def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (type
     | _ => throwTacticEx `changeLocalDecl mvarId "unexpected auxiliary target"
   return mvarId
 
-@[deprecated MVarId.changeLocalDecl (since := "2022-07-15")]
-def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkDefEq := true) : MetaM MVarId := do
-  mvarId.changeLocalDecl fvarId typeNew checkDefEq
-
 /--
 Modify `mvarId` target type using `f`.
 -/

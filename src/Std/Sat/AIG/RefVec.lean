@@ -104,10 +104,10 @@ def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
     by
       intro i h
       by_cases hsplit : i < lrefs.size
-      · rw [Array.get_append_left]
+      · rw [Array.getElem_append_left]
         apply hl2
         omega
-      · rw [Array.get_append_right]
+      · rw [Array.getElem_append_right]
         · apply hr2
           omega
         · omega
@@ -124,9 +124,9 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
   simp only [get, append]
   split
   · simp [Ref.mk.injEq]
-    rw [Array.get_append_left]
+    rw [Array.getElem_append_left]
   · simp only [Ref.mk.injEq]
-    rw [Array.get_append_right]
+    rw [Array.getElem_append_right]
     · simp [lhs.hlen]
     · rw [lhs.hlen]
       omega
@@ -149,6 +149,14 @@ theorem get_out_bound (s : RefVec aig len) (idx : Nat) (alt : Ref aig) (hidx : l
   split
   · omega
   · rfl
+
+def countKnown [Inhabited α] (aig : AIG α) (s : RefVec aig len) : Nat := Id.run do
+  let folder acc ref :=
+    let decl := aig.decls[ref]!
+    match decl with
+    | .const .. => acc + 1
+    | _ => acc
+  return s.refs.foldl (init := 0) folder
 
 end RefVec
 

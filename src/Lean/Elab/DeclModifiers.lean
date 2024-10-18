@@ -120,7 +120,7 @@ section Methods
 
 variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
-/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `proctected`, `unsafe`, `noncomputable`, doc string)-/
+/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `noncomputable`, doc string)-/
 def elabModifiers (stx : Syntax) : m Modifiers := do
   let docCommentStx := stx[0]
   let attrsStx      := stx[1]

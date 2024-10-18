@@ -215,7 +215,7 @@ class erase_irrelevant_fn {
         expr minor       = visit_minor(args[3]);
         lean_always_assert(is_lambda(minor));
         return
-            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_data_name()), mk_enf_neutral(), major),
+            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_to_list_name()), mk_enf_neutral(), major),
                            binding_body(minor));
     }
 

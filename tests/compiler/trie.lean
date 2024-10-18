@@ -43,11 +43,11 @@ def T.insert : T → String → T := fun (t,a) s =>
 def Array.sorted : Array String → Array String := fun a =>
   a.qsort (fun s1 s2 => s1 < s2)
 
-/-- The intendend semanics of `Trie.findPrefix` -/
+/-- The intended semanics of `Trie.findPrefix` -/
 def Array.findPrefix : Array String → String → Array String := fun a s =>
   a.filter (fun s' => s.isPrefixOf s')
 
-/-- The intendend semanics of `Trie.matchPrefix`: Longest prefix found in trie -/
+/-- The intended semanics of `Trie.matchPrefix`: Longest prefix found in trie -/
 def Array.matchPrefix : Array String → String → Option String := fun a s => Id.run do
   for i in List.reverse (List.range (s.length + 1)) do
     let pfix := s.take i

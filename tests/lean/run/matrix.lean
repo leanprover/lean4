@@ -10,15 +10,6 @@ instance [OfNat α (nat_lit 1)] : One α where
 instance [One α] : OfNat α (nat_lit 1) where
   ofNat := One.one
 
-class Zero (α : Type u) where
-  zero : α
-
-instance [OfNat α (nat_lit 0)] : Zero α where
-  zero := 0
-
-instance [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := Zero.zero
-
 /- Simple Matrix -/
 
 def Matrix (m n : Nat) (α : Type u) : Type u :=

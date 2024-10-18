@@ -43,4 +43,16 @@ def unfoldLocalDecl (mvarId : MVarId) (fvarId : FVarId) (declName : Name) : Meta
   let some (_, mvarId) ← applySimpResultToLocalDecl mvarId fvarId r (mayCloseGoal := false) | unreachable!
   return mvarId
 
+def zetaDeltaTarget (mvarId : MVarId) (declFVarId : FVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← instantiateMVars (← mvarId.getType)
+  let target' ← Meta.zetaDeltaFVars target #[declFVarId]
+  if target' == target then throwError "tactic 'unfold' failed to unfold '{Expr.fvar declFVarId}' at{indentExpr target}"
+  mvarId.replaceTargetDefEq target'
+
+def zetaDeltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (declFVarId : FVarId) : MetaM MVarId := mvarId.withContext do
+  let type ← fvarId.getType
+  let type' ← Meta.zetaDeltaFVars (← instantiateMVars type) #[declFVarId]
+  if type' == type then throwError "tactic 'unfold' failed to unfold '{Expr.fvar fvarId}' at{indentExpr type}"
+  mvarId.replaceLocalDeclDefEq fvarId type'
+
 end Lean.Meta

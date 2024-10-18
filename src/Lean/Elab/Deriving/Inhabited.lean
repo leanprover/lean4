@@ -86,8 +86,8 @@ where
       addLocalInstancesForParams xs[:ctorVal.numParams] fun localInst2Index => do
         let mut usedInstIdxs := {}
         let mut ok := true
-        for i in [ctorVal.numParams:xs.size] do
-          let x := xs[i]!
+        for h : i in [ctorVal.numParams:xs.size] do
+          let x := xs[i]
           let instType ← mkAppM `Inhabited #[(← inferType x)]
           trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"
           match (← trySynthInstance instType) with

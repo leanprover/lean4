@@ -294,9 +294,9 @@ macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
 
-def bombEmoji := "💥"
-def checkEmoji := "✅"
-def crossEmoji := "❌"
+def bombEmoji := "💥️"
+def checkEmoji := "✅️"
+def crossEmoji := "❌️"
 
 def exceptBoolEmoji : Except ε Bool → String
   | .error _ => bombEmoji
@@ -326,7 +326,7 @@ instance : ExceptToEmoji ε (Option α) where
 Similar to `withTraceNode`, but msg is constructed **before** executing `k`.
 This is important when debugging methods such as `isDefEq`, and we want to generate the message
 before `k` updates the metavariable assignment. The class `ExceptToEmoji` is used to convert
-the result produced by `k` into an emoji (e.g., `💥`, `✅`, `❌`).
+the result produced by `k` into an emoji (e.g., `💥️`, `✅️`, `❌️`).
 
 TODO: find better name for this function.
 -/

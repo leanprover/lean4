@@ -14,8 +14,8 @@ Greet the entity with the given name. Otherwise, greet the whole world.
 Hello from Dep!
 Hello from Dep!
 Goodbye!
-error: unknown script nonexistant
-error: unknown script nonexistant
+error: unknown script nonexistent
+error: unknown script nonexistent
 dep/hello
 scripts/say-goodbye
 scripts/greet

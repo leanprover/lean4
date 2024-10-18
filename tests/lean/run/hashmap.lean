@@ -332,6 +332,10 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval HashMap.ofList [(1, 2), (1, 4)]
 
+/-- info: Std.HashMap.ofList [(37, 37), (4, 5), (3, 6), (2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m ∪ {(4, 5), (37, 37)}
+
 end HashMap
 
 namespace HashSet.Raw
@@ -370,6 +374,22 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
     ans := k :: ans
   return ans
 
+/-- info: true -/
+#guard_msgs in
+#eval m.any fun x => x > 4
+
+/-- info: false -/
+#guard_msgs in
+#eval m.any fun x => x = 0
+
+/-- info: true -/
+#guard_msgs in
+#eval m.all fun x => x < 2^30
+
+/-- info: false -/
+#guard_msgs in
+#eval m.all fun x => x > 4
+
 /-- info: [1000000000, 2, 1] -/
 #guard_msgs in
 #eval m.toList
@@ -377,6 +397,10 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 /-- info: #[1, 2, 1000000000] -/
 #guard_msgs in
 #eval m.toArray
+
+/-- info: Std.HashSet.Raw.ofList [1000000000, 2, 1, 16] -/
+#guard_msgs in
+#eval m ∪ {16, 16}
 
 /-- info: [1000000000, 2, 1, 16] -/
 #guard_msgs in
@@ -424,6 +448,22 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
     ans := k :: ans
   return ans
 
+/-- info: true -/
+#guard_msgs in
+#eval m.any fun x => x > 4
+
+/-- info: false -/
+#guard_msgs in
+#eval m.any fun x => x = 0
+
+/-- info: true -/
+#guard_msgs in
+#eval m.all fun x => x < 2^30
+
+/-- info: false -/
+#guard_msgs in
+#eval m.all fun x => x > 4
+
 /-- info: [1000000000, 2, 1] -/
 #guard_msgs in
 #eval m.toList
@@ -431,6 +471,10 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 /-- info: #[1, 2, 1000000000] -/
 #guard_msgs in
 #eval m.toArray
+
+/-- info: Std.HashSet.ofList [1000000000, 2, 1, 16] -/
+#guard_msgs in
+#eval m ∪ {16, 16}
 
 /-- info: [1000000000, 2, 1, 16] -/
 #guard_msgs in

@@ -259,7 +259,6 @@ def tst10 : MetaM Unit := do
   assert! (← getConstInfoInduct `Foo).isNested
   assert! !(← getConstInfoInduct `Prod).isNested
 
-/-- info: -/
 #guard_msgs in
 #eval tst10
 

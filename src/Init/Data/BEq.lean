@@ -56,5 +56,5 @@ theorem BEq.neq_of_beq_of_neq [BEq α] [PartialEquivBEq α] {a b c : α} :
 
 instance (priority := low) [BEq α] [LawfulBEq α] : EquivBEq α where
   refl := LawfulBEq.rfl
-  symm h := (beq_iff_eq _ _).2 <| Eq.symm <| (beq_iff_eq _ _).1 h
-  trans hab hbc := (beq_iff_eq _ _).2 <| ((beq_iff_eq _ _).1 hab).trans <| (beq_iff_eq _ _).1 hbc
+  symm h := beq_iff_eq.2 <| Eq.symm <| beq_iff_eq.1 h
+  trans hab hbc := beq_iff_eq.2 <| (beq_iff_eq.1 hab).trans <| beq_iff_eq.1 hbc

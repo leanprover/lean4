@@ -35,7 +35,7 @@ def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find? n with
   | (some (ConstantInfo.defnInfo _))   => Except.ok ()
   | (some (ConstantInfo.opaqueInfo _)) => Except.ok ()
-  | none => Except.error s!"unknow declaration '{n}'"
+  | none => Except.error s!"unknown declaration '{n}'"
   | _    => Except.error s!"declaration is not a definition '{n}'"
 
 /--

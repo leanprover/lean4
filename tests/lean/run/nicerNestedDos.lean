@@ -7,7 +7,8 @@ def f (x : Nat) : IO Nat := do
 
 /--
 info: hello
-3
+---
+info: 3
 -/
 #guard_msgs in
 #eval f 2
@@ -16,7 +17,8 @@ info: hello
 info: hello
 x: 10
 done
-11
+---
+info: 11
 -/
 #guard_msgs in
 #eval f 10

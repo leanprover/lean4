@@ -41,7 +41,7 @@ def elimOptParam (type : Expr) : CoreM Expr := do
   inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
   | app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)```
   ```
-  When looking for fixed arguments in `Tmₛ.app`, if we only consider occurences in the term `Tmₛ (A arg)`,
+  When looking for fixed arguments in `Tmₛ.app`, if we only consider occurrences in the term `Tmₛ (A arg)`,
   `T` is considered non-fixed despite the fact that `A : T -> Tyₛ`.
   This leads to an ill-typed injectivity theorem signature:
   ```lean

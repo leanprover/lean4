@@ -82,7 +82,13 @@ def constructorApp'? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) 
       else return some (val, #[mkNatAdd e (toExpr (k-1))])
   else if let some r ← constructorApp? e then
     return some r
-  else
+  else try
+    /-
+    We added the `try` block here because `whnf` fails at terms `n ^ m`
+    when `m` is a big numeral, and `n` is a numeral. This is a little bit hackish.
+    -/
     constructorApp? (← whnf e)
+  catch _ =>
+    return none
 
 end Lean.Meta

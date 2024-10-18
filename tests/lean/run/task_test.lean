@@ -23,7 +23,8 @@ pure 0
 
 /--
 info: 12 11
-0
+---
+info: 0
 -/
 #guard_msgs in
 #eval tst 10

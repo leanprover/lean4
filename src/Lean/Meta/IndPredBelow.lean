@@ -119,8 +119,8 @@ where
       modifyBinders { vars with target := vars.target ++ xs, motives := xs } 0
 
   modifyBinders (vars : Variables) (i : Nat) := do
-    if i < vars.args.size then
-      let binder := vars.args[i]!
+    if h : i < vars.args.size then
+      let binder := vars.args[i]
       let binderType ← inferType binder
       if (← checkCount binderType) then
         mkBelowBinder vars binder binderType fun indValIdx x =>
@@ -372,8 +372,8 @@ where
       (rest : Expr)
       (belowIndices : Array Nat)
       (xIdx yIdx : Nat) : MetaM $ Array Nat := do
-    if xIdx ≥ xs.size then return belowIndices else
-    let x := xs[xIdx]!
+    if h : xIdx ≥ xs.size then return belowIndices else
+    let x := xs[xIdx]
     let xTy ← inferType x
     let yTy := rest.bindingDomain!
     if (← isDefEq xTy yTy) then
@@ -384,7 +384,7 @@ where
       loop xs rest belowIndices xIdx (yIdx + 1)
 
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do
-  (← inferType xs[idx]!).withApp fun type args => do
+  (← whnf (← inferType xs[idx]!)).withApp fun type args => do
     let indName := type.constName!
     let indInfo ← getConstInfoInduct indName
     let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]!]
@@ -561,8 +561,7 @@ where
 
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
-  let xTy ← inferType x
-  xTy.withApp fun f _ =>
+  (← whnf (← inferType x)).withApp fun f _ =>
   match f.constName?, xs.indexOf? x with
   | some name, some idx => do
     if (← isInductivePredicate name) then

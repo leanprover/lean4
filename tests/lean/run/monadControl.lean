@@ -20,7 +20,8 @@ pure a
 info: started
 hello
 ended
-((Except.error "ERROR", "world"), 1011)
+---
+info: ((Except.error "ERROR", "world"), 1011)
 -/
 #guard_msgs in
 #eval (((tst.run true).run "world").run 1000).run 11
@@ -44,7 +45,8 @@ pure a
 info: started
 hello
 ended
-((Except.ok (1015, true), "world"), 1016)
+---
+info: ((Except.ok (1015, true), "world"), 1016)
 -/
 #guard_msgs in
 #eval (((tst2.run true).run "world").run 1000).run 10

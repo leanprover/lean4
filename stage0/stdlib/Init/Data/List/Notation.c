@@ -40,7 +40,6 @@ static lean_object* l_term_x25_x5b___x7c___x5d___closed__9;
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__2;
 static lean_object* l_term_x25_x5b___x7c___x5d___closed__10;
 static lean_object* l_term_x25_x5b___x7c___x5d___closed__3;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_term_x25_x5b___x7c___x5d___closed__1;
 static lean_object* l_term_x5b___x5d___closed__15;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);

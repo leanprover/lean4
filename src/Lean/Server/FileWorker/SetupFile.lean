@@ -28,7 +28,7 @@ partial def runLakeSetupFile
     : IO LakeSetupFileOutput := do
   let mut args := #["setup-file", filePath.toString] ++ imports.map (toString ·.module)
   if m.dependencyBuildMode matches .never then
-    args := args.push "--no-build"
+    args := args.push "--no-build" |>.push "--no-cache"
   let spawnArgs : Process.SpawnArgs := {
     stdin  := Process.Stdio.null
     stdout := Process.Stdio.piped

@@ -448,7 +448,7 @@ behavior.
 
 General goals for simp are that the normal forms are sensible to a wide
 range of users and that it performs well.  We also strive for Mathlib
-compatiblity.
+compatibility.
 -/
 
 inductive BoolType where

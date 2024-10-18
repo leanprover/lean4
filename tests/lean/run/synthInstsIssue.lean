@@ -4,18 +4,6 @@ https://github.com/leanprover/lean4/pull/2793.
 We find that we need to either specify a named argument or use `..` in certain rewrites.
 -/
 
-section Mathlib.Init.ZeroOne
-
-set_option autoImplicit true
-
-class Zero.{u} (α : Type u) where
-  zero : α
-
-instance (priority := 300) Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
 
 universe u v w

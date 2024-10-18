@@ -28,8 +28,10 @@ structure LoadConfig where
   leanOpts : Options := {}
   /-- If `true`, Lake will elaborate configuration files instead of using OLeans. -/
   reconfigure : Bool := false
+  /-- The package's scope (e.g., in Reservoir). -/
+  scope : String := ""
   /-- The URL to this package's Git remote (if any). -/
-  remoteUrl? : Option String := none
+  remoteUrl : String := ""
 
 /-- The full path to loaded package's directory. -/
 @[inline] def LoadConfig.pkgDir (cfg : LoadConfig) : FilePath :=

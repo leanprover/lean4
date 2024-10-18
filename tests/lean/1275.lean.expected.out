@@ -5,7 +5,7 @@ fun x => do
   pure
       {
         raw :=
-          Syntax.node2 info `term👉__ (Syntax.atom info "👉")
+          Syntax.node2 info `«term👉__» (Syntax.atom info "👉")
             x.raw } : (x : TSyntax [`ident, `token._]) → ?m x (TSyntax `term)
 true
 true

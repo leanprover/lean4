@@ -29,6 +29,5 @@ let e ← elabTermAndSynthesize stx none;
 trace[Elab.debug] m!">>> {e}";
 throwErrorIfErrors
 
-/-- info: -/
 #guard_msgs in
 #eval tst2

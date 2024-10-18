@@ -14,9 +14,9 @@ open Meta
 @[builtin_tactic Lean.calcTactic]
 def evalCalc : Tactic := fun stx => withMainContext do
   let steps : TSyntax ``calcSteps := ⟨stx[1]⟩
-  let (val, mvarIds) ← withCollectingNewGoalsFrom (tagSuffix := `calc) do
-    let target := (← getMainTarget).consumeMData
-    let tag ← getMainTag
+  let target := (← getMainTarget).consumeMData
+  let tag ← getMainTag
+  let (val, mvarIds) ← withCollectingNewGoalsFrom (parentTag := tag) (tagSuffix := `calc) do
     runTermElab do
     let mut val ← Term.elabCalcSteps steps
     let mut valType ← instantiateMVars (← inferType val)

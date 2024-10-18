@@ -27,6 +27,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_instInhabitedKExprMap___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_KExprMap_find_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_KExprMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Meta_KExprMap_insert___spec__4___rarg(lean_object*, lean_object*, lean_object*);
@@ -62,9 +63,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_KExpr
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedKExprMap(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_68_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_KExprMap_map___default(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_KExprMap_map___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_KExprMap_insert___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_KExprMap_insert___spec__10(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_KExprMap_insert___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,13 +77,13 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_KExpr
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_KExprMap_find_x3f___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 size_t lean_usize_shift_left(size_t, size_t);
+static lean_object* l_Lean_Meta_instInhabitedKExprMap___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_KExprMap_insert___spec__6___rarg(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_KExprMap_insert___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_KExprMap_find_x3f___spec__3(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
-static lean_object* l_Lean_Meta_KExprMap_map___default___closed__2;
 uint64_t l_Lean_HeadIndex_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_KExprMap_insert___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_KExprMap_insert___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -93,7 +92,7 @@ static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_KExprMap_i
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_KExprMap_insert___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_KExprMap_find_x3f___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_KExprMap_map___default___closed__1() {
+static lean_object* _init_l_Lean_Meta_instInhabitedKExprMap___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -101,21 +100,13 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_KExprMap_map___default___closed__2() {
+static lean_object* _init_l_Lean_Meta_instInhabitedKExprMap___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_KExprMap_map___default___closed__1;
+x_1 = l_Lean_Meta_instInhabitedKExprMap___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_KExprMap_map___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_KExprMap_map___default___closed__2;
 return x_2;
 }
 }
@@ -123,7 +114,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedKExprMap(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Meta_KExprMap_map___default___closed__2;
+x_2 = l_Lean_Meta_instInhabitedKExprMap___closed__2;
 return x_2;
 }
 }
@@ -2526,10 +2517,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_KExprMap_map___default___closed__1 = _init_l_Lean_Meta_KExprMap_map___default___closed__1();
-lean_mark_persistent(l_Lean_Meta_KExprMap_map___default___closed__1);
-l_Lean_Meta_KExprMap_map___default___closed__2 = _init_l_Lean_Meta_KExprMap_map___default___closed__2();
-lean_mark_persistent(l_Lean_Meta_KExprMap_map___default___closed__2);
+l_Lean_Meta_instInhabitedKExprMap___closed__1 = _init_l_Lean_Meta_instInhabitedKExprMap___closed__1();
+lean_mark_persistent(l_Lean_Meta_instInhabitedKExprMap___closed__1);
+l_Lean_Meta_instInhabitedKExprMap___closed__2 = _init_l_Lean_Meta_instInhabitedKExprMap___closed__2();
+lean_mark_persistent(l_Lean_Meta_instInhabitedKExprMap___closed__2);
 l_Lean_PersistentHashMap_findAux___at_Lean_Meta_KExprMap_find_x3f___spec__2___rarg___closed__1 = _init_l_Lean_PersistentHashMap_findAux___at_Lean_Meta_KExprMap_find_x3f___spec__2___rarg___closed__1();
 l_Lean_PersistentHashMap_findAux___at_Lean_Meta_KExprMap_find_x3f___spec__2___rarg___closed__2 = _init_l_Lean_PersistentHashMap_findAux___at_Lean_Meta_KExprMap_find_x3f___spec__2___rarg___closed__2();
 l_Lean_Meta_KExprMap_find_x3f___rarg___closed__1 = _init_l_Lean_Meta_KExprMap_find_x3f___rarg___closed__1();

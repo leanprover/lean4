@@ -2,7 +2,7 @@
   Array.casesOn (motive := fun _ => Nat) a (fun data => data.length)
 
 @[noinline] def g (a : Array Nat) : List Nat :=
-  a.data
+  a.toList
 
 @[noinline] def h (a : List Nat) : List Nat :=
   g (Array.mk a)

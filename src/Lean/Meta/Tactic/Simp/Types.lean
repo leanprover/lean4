@@ -63,7 +63,7 @@ structure Context where
   then it is its reponsability to set `Result.cache := false`.
 
   Motivation for this field:
-  Suppose we have a simplication procedure for normalizing arithmetic terms.
+  Suppose we have a simplification procedure for normalizing arithmetic terms.
   Then, given a term such as `t_1 + ... + t_n`, we don't want to apply the procedure
   to every subterm `t_1 + ... + t_i` for `i < n` for performance issues. The procedure
   can accomplish this by checking whether the parent term is also an arithmetical expression
@@ -169,7 +169,7 @@ opaque dsimp (e : Expr) : SimpM Expr
     modify fun { cache, congrCache, usedTheorems, numSteps, diag } => { cache, congrCache, usedTheorems, numSteps, diag := f diag }
 
 /--
-Result type for a simplification procedure. We have `pre` and `post` simplication procedures.
+Result type for a simplification procedure. We have `pre` and `post` simplification procedures.
 -/
 inductive Step where
   /--
@@ -539,7 +539,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   for arg in args, kind in cgrThm.argKinds do
     if h : config.ground ∧ i < infos.size then
       if (infos[i]'h.2).isInstImplicit then
-        -- Do not visit instance implict arguments when `ground := true`
+        -- Do not visit instance implicit arguments when `ground := true`
         -- See comment at `congrArgs`
         argsNew := argsNew.push arg
         i := i + 1

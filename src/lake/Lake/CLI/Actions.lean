@@ -78,7 +78,7 @@ def Package.lint (pkg : Package) (args : List String := []) (buildConfig : Build
   let cfgArgs := pkg.lintDriverArgs
   let (pkg, driver) ← pkg.resolveDriver "lint" pkg.lintDriver
   if let some script := pkg.scripts.find? driver.toName then
-    script.run (cfgArgs.data ++ args)
+    script.run (cfgArgs.toList ++ args)
   else if let some exe := pkg.findLeanExe? driver.toName  then
     let exeFile ← runBuild exe.fetch buildConfig
     env exeFile.toString (cfgArgs ++ args.toArray)

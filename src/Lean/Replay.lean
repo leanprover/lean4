@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2023 Scott Morrison. All rights reserved.
+Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.CoreM
@@ -15,7 +15,7 @@ import Lean.Util.FoldConsts
 sending each declaration to the kernel for checking.
 
 `replay` does not send constructors or recursors in `constantMap` to the kernel,
-but rather checks that they are identical to constructors or recursors generated in the enviroment
+but rather checks that they are identical to constructors or recursors generated in the environment
 after replaying any inductive definitions occurring in `constantMap`.
 
 `replay` can be used either as:

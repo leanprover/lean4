@@ -41,6 +41,18 @@ structure InsertReplaceEdit where
   replace : Range
   deriving FromJson, ToJson
 
+inductive CompletionItemTag where
+  | deprecated
+  deriving Inhabited, DecidableEq, Repr
+
+instance : ToJson CompletionItemTag where
+  toJson t := toJson (t.toCtorIdx + 1)
+
+instance : FromJson CompletionItemTag where
+  fromJson? v := do
+    let i : Nat ← fromJson? v
+    return CompletionItemTag.ofNat (i-1)
+
 structure CompletionItem where
   label          : String
   detail?        : Option String := none
@@ -49,8 +61,8 @@ structure CompletionItem where
   textEdit?      : Option InsertReplaceEdit := none
   sortText?      : Option String := none
   data?          : Option Json := none
+  tags?          : Option (Array CompletionItemTag) := none
   /-
-  tags? : CompletionItemTag[]
   deprecated? : boolean
   preselect? : boolean
   filterText? : string
@@ -59,7 +71,8 @@ structure CompletionItem where
   insertTextMode? : InsertTextMode
   additionalTextEdits? : TextEdit[]
   commitCharacters? : string[]
-  command? : Command -/
+  command? : Command
+  -/
   deriving FromJson, ToJson, Inhabited
 
 structure CompletionList where

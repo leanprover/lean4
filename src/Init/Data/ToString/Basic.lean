@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.String.Basic
-import Init.Data.UInt.Basic
+import Init.Data.UInt.BasicAux
 import Init.Data.Nat.Div
 import Init.Data.Repr
 import Init.Data.Int.Basic

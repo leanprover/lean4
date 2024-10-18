@@ -42,7 +42,19 @@
             # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
             hardeningDisable = [ "stackprotector" ];
           });
-          LIBUV = pkgsDist.libuv.overrideAttrs (attrs: { configureFlags = ["--enable-static"]; });
+          LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
+            configureFlags = ["--enable-static"];
+            hardeningDisable = [ "stackprotector" ];
+            # Sync version with CMakeLists.txt
+            version = "1.48.0";
+            src = pkgs.fetchFromGitHub {
+              owner = "libuv";
+              repo = "libuv";
+              rev = "v1.48.0";
+              sha256 = "100nj16fg8922qg4m2hdjh62zv4p32wyrllsvqr659hdhjc03bsk";
+            };
+            doCheck = false;
+          });
           GLIBC = pkgsDist.glibc;
           GLIBC_DEV = pkgsDist.glibc.dev;
           GCC_LIB = pkgsDist.gcc.cc.lib;

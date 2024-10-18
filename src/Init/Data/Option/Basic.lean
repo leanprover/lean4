@@ -202,7 +202,7 @@ result.
 instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
   rfl {x} :=
     match x with
-    | some x => LawfulBEq.rfl (α := α)
+    | some _ => LawfulBEq.rfl (α := α)
     | none => rfl
   eq_of_beq {x y h} := by
     match x, y with

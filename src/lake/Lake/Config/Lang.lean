@@ -10,7 +10,10 @@ inductive ConfigLang
 | lean | toml
 deriving Repr, DecidableEq
 
-instance : Inhabited ConfigLang := ⟨.lean⟩
+/-- Lake's default configuration language. -/
+abbrev ConfigLang.default : ConfigLang := .toml
+
+instance : Inhabited ConfigLang := ⟨.default⟩
 
 def ConfigLang.ofString? : String → Option ConfigLang
 | "lean" => some .lean

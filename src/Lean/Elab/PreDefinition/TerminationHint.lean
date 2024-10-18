@@ -45,7 +45,7 @@ structure TerminationHints where
   decreasingBy?  : Option DecreasingBy
   /--
   Here we record the number of parameters past the `:`. It is set by
-  `TerminationHints.rememberExtraParams` and used as folows:
+  `TerminationHints.rememberExtraParams` and used as follows:
 
   * When we guess the termination argument in `GuessLex` and want to print it in surface-syntax
     compatible form.

@@ -19,19 +19,20 @@ withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
     trace[Meta.debug] m!"?{mvarId.name} : {mvarDecl.type}"
 }
 
+set_option pp.mvars false
 set_option trace.Meta.debug true
 
 /--
-info: [Meta.debug] ?m.3
+info: [Meta.debug] ?_
 [Meta.debug] x.add y
 [Meta.debug] fun y =>
       let x := 0;
       x.add y
-[Meta.debug] ?_uniq.4 : Nat →
+[Meta.debug] ?_uniq.3019 : Nat →
       Nat →
         let x := 0;
         Nat
-[Meta.debug] ?_uniq.3 : Nat
+[Meta.debug] ?_uniq.3018 : Nat
 -/
 #guard_msgs in
 #eval tst1

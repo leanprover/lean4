@@ -22,7 +22,7 @@ This demonstrates that the optimization does do good things to monadic
 code. In this snippet Lean would usually perform a cases on the result
 of `throwMyError` in order to figure out whether it has to:
 - raise an error and exit right now
-- jump to the the `return x + y` continuation
+- jump to the `return x + y` continuation
 Since the abstract interpreter knows that `throwMyError` always returns
 an `Except.error` it will drop the branch where we jump to the continuation.
 This will in turn allow the simplifier to drop the join point that represents

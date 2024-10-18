@@ -71,6 +71,12 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - There is no `stable` branch; skip this step
+    - [Verso](https://github.com/leanprover/verso)
+      - Dependencies: exist, but they're not part of the release workflow
+      - The `SubVerso` dependency should be compatible with _every_ Lean release simultaneously, rather than following this workflow
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - There is no `stable` branch; skip this step
     - [import-graph](https://github.com/leanprover-community/import-graph)
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag

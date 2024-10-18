@@ -75,7 +75,7 @@ def getAliasState (env : Environment) : AliasState :=
 
 /--
   Retrieve aliases for `a`. If `skipProtected` is `true`, then the resulting list only includes
-  declarations that are not marked as `proctected`.
+  declarations that are not marked as `protected`.
 -/
 def getAliases (env : Environment) (a : Name) (skipProtected : Bool) : List Name :=
   match aliasExtension.getState env |>.find? a with

@@ -38,12 +38,12 @@ lean_object* l_Lean_IR_FnBody_hasLiveVar(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_insertResetReuseCore(lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at_Lean_IR_ResetReuse_R___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_IR_ResetReuse_R___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__1;
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_IR_ResetReuse_R___spec__6(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_ResetReuse_R___spec__8(lean_object*, uint8_t, size_t, size_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_Context_lctx___default;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,6 +68,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_Rese
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar___spec__1(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S_go___spec__1(lean_object*, lean_object*, uint8_t, size_t, size_t, lean_object*);
+static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 uint8_t l_Lean_IR_FnBody_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_tryS___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,9 +78,9 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at_Lean_IR_Reset
 lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_argsContainsVar(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_D(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_ResetReuse_Context_alreadyFound___default;
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_tryS(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -96,13 +97,10 @@ size_t lean_array_size(lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S(lean_object*, lean_object*, uint8_t, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__1;
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_ResetReuse_R___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mayReuse(lean_object*, lean_object*, uint8_t);
@@ -110,7 +108,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_Dmain___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
-LEAN_EXPORT uint8_t l_Lean_IR_ResetReuse_Context_relaxedReuse___default;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_IR_ResetReuse_R___spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mayReuse(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
@@ -615,56 +612,6 @@ lean_dec(x_3);
 x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 return x_6;
-}
-}
-static lean_object* _init_l_Lean_IR_ResetReuse_Context_lctx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__2;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_ResetReuse_Context_alreadyFound___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1;
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_IR_ResetReuse_Context_relaxedReuse___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mkFresh___rarg(lean_object* x_1) {
@@ -3718,6 +3665,32 @@ lean_dec(x_1);
 return x_8;
 }
 }
+static lean_object* _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__1;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__2;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_insertResetReuseCore(lean_object* x_1, uint8_t x_2) {
 _start:
 {
@@ -3736,7 +3709,7 @@ x_8 = lean_box(0);
 if (x_2 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1;
+x_9 = l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1;
 x_10 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
@@ -3751,7 +3724,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_14 = l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1;
+x_14 = l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1;
 lean_inc(x_3);
 x_15 = l_Lean_IR_ResetReuse_collectResets(x_3, x_14);
 x_16 = lean_ctor_get(x_15, 1);
@@ -3813,21 +3786,16 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Format(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_ResetReuse_Context_lctx___default = _init_l_Lean_IR_ResetReuse_Context_lctx___default();
-lean_mark_persistent(l_Lean_IR_ResetReuse_Context_lctx___default);
-l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__1 = _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__1();
-lean_mark_persistent(l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__1);
-l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__2 = _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__2();
-lean_mark_persistent(l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1___closed__2);
-l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1 = _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1();
-lean_mark_persistent(l_Lean_PersistentHashMap_empty___at_Lean_IR_ResetReuse_Context_alreadyFound___default___spec__1);
-l_Lean_IR_ResetReuse_Context_alreadyFound___default = _init_l_Lean_IR_ResetReuse_Context_alreadyFound___default();
-lean_mark_persistent(l_Lean_IR_ResetReuse_Context_alreadyFound___default);
-l_Lean_IR_ResetReuse_Context_relaxedReuse___default = _init_l_Lean_IR_ResetReuse_Context_relaxedReuse___default();
 l_Lean_PersistentHashMap_containsAux___at_Lean_IR_ResetReuse_R___spec__2___closed__1 = _init_l_Lean_PersistentHashMap_containsAux___at_Lean_IR_ResetReuse_R___spec__2___closed__1();
 l_Lean_PersistentHashMap_containsAux___at_Lean_IR_ResetReuse_R___spec__2___closed__2 = _init_l_Lean_PersistentHashMap_containsAux___at_Lean_IR_ResetReuse_R___spec__2___closed__2();
 l_Lean_PersistentHashMap_insertAux___at_Lean_IR_ResetReuse_R___spec__5___closed__1 = _init_l_Lean_PersistentHashMap_insertAux___at_Lean_IR_ResetReuse_R___spec__5___closed__1();
 lean_mark_persistent(l_Lean_PersistentHashMap_insertAux___at_Lean_IR_ResetReuse_R___spec__5___closed__1);
+l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__1 = _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__1();
+lean_mark_persistent(l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__1);
+l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__2 = _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__2();
+lean_mark_persistent(l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1___closed__2);
+l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1 = _init_l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1();
+lean_mark_persistent(l_Lean_PersistentHashMap_empty___at_Lean_IR_Decl_insertResetReuseCore___spec__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

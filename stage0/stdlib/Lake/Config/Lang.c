@@ -55,6 +55,7 @@ static lean_object* l_Lake_instReprConfigLang___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_noConfusion___rarg___lambda__1___boxed(lean_object*);
 static lean_object* l___private_Lake_Config_Lang_0__Lake_reprConfigLang____x40_Lake_Config_Lang___hyg_8____closed__12;
 LEAN_EXPORT lean_object* l_Lake_ConfigLang_fileExtension___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lake_ConfigLang_default;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Lang_0__Lake_reprConfigLang____x40_Lake_Config_Lang___hyg_8_(uint8_t, lean_object*);
 static lean_object* l___private_Lake_Config_Lang_0__Lake_reprConfigLang____x40_Lake_Config_Lang___hyg_8____closed__10;
 LEAN_EXPORT lean_object* l___private_Lake_Config_Lang_0__Lake_reprConfigLang____x40_Lake_Config_Lang___hyg_8____boxed(lean_object*, lean_object*);
@@ -416,11 +417,19 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
+static uint8_t _init_l_Lake_ConfigLang_default() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 1;
+return x_1;
+}
+}
 static uint8_t _init_l_Lake_instInhabitedConfigLang() {
 _start:
 {
 uint8_t x_1; 
-x_1 = 0;
+x_1 = 1;
 return x_1;
 }
 }
@@ -589,6 +598,7 @@ l_Lake_instReprConfigLang___closed__1 = _init_l_Lake_instReprConfigLang___closed
 lean_mark_persistent(l_Lake_instReprConfigLang___closed__1);
 l_Lake_instReprConfigLang = _init_l_Lake_instReprConfigLang();
 lean_mark_persistent(l_Lake_instReprConfigLang);
+l_Lake_ConfigLang_default = _init_l_Lake_ConfigLang_default();
 l_Lake_instInhabitedConfigLang = _init_l_Lake_instInhabitedConfigLang();
 l_Lake_ConfigLang_ofString_x3f___closed__1 = _init_l_Lake_ConfigLang_ofString_x3f___closed__1();
 lean_mark_persistent(l_Lake_ConfigLang_ofString_x3f___closed__1);

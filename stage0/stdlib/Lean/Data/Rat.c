@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_gcd(lean_object*, lean_object*);
+lean_object* lean_int_mod(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Data_Rat_0__Lean_beqRat____x40_Lean_Data_Rat___hyg_36_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_instLE;
 LEAN_EXPORT lean_object* l_Lean_Rat_instOfNat(lean_object*);
@@ -45,10 +46,8 @@ LEAN_EXPORT lean_object* l_Lean_Rat_instLT;
 uint8_t l_instDecidableNot___rarg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Rat_instNeg;
 LEAN_EXPORT lean_object* l_Lean_Rat_instDecidableLt___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Rat_den___default;
 LEAN_EXPORT lean_object* l_Lean_Rat_inv(lean_object*);
 static lean_object* l_Lean_Rat_instNeg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedRat;
@@ -56,6 +55,7 @@ static lean_object* l_Lean_Rat_instAdd___closed__1;
 static lean_object* l_Lean_instReprRat___closed__2;
 static lean_object* l_Lean_instReprRat___closed__1;
 lean_object* l_Int_repr(lean_object*);
+lean_object* lean_int_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringRat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_instDecidableLe___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringRat___closed__1;
@@ -64,7 +64,6 @@ LEAN_EXPORT lean_object* l_Lean_instReprRat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Rat_0__Lean_decEqRat____x40_Lean_Data_Rat___hyg_110____boxed(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_isInt___boxed(lean_object*);
-lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 static lean_object* l_Lean_Rat_floor___closed__1;
@@ -77,7 +76,6 @@ lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Lean_instToStringRat___closed__3;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* lean_int_mod(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_floor(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_ceil(lean_object*);
@@ -94,14 +92,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_instDiv(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqRat;
-static lean_object* _init_l_Lean_Rat_den___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(1u);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedRat___closed__1() {
 _start:
 {
@@ -1379,8 +1369,6 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Gcd(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Rat_den___default = _init_l_Lean_Rat_den___default();
-lean_mark_persistent(l_Lean_Rat_den___default);
 l_Lean_instInhabitedRat___closed__1 = _init_l_Lean_instInhabitedRat___closed__1();
 lean_mark_persistent(l_Lean_instInhabitedRat___closed__1);
 l_Lean_instInhabitedRat___closed__2 = _init_l_Lean_instInhabitedRat___closed__2();

@@ -192,9 +192,9 @@ static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Miscellaneous:\n";
     std::cout << "  -h, --help             display this message\n";
-    std::cout << "  -f, --features         display features compiler provides (eg. LLVM support)\n";
+    std::cout << "      --features         display features compiler provides (eg. LLVM support)\n";
     std::cout << "  -v, --version          display version number\n";
-    std::cout << "      --githash          display the git commit hash number used to build this binary\n";
+    std::cout << "  -g, --githash          display the git commit hash number used to build this binary\n";
     std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
     std::cout << "  -o, --o=oname          create olean file\n";
     std::cout << "  -i, --i=iname          create ilean file\n";
@@ -362,7 +362,7 @@ pair_ref<environment, object_ref> run_new_frontend(
     name const & main_module_name,
     uint32_t trust_level,
     optional<std::string> const & ilean_file_name,
-    uint8_t json
+    uint8_t json_output
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {

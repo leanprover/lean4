@@ -20,13 +20,13 @@ macro "simp_wf" : tactic =>
 
 /--
 This tactic is used internally by lean before presenting the proof obligations from a well-founded
-definition to the user via `decreasing_by`. It is not necessary to use this tactic manuall.
+definition to the user via `decreasing_by`. It is not necessary to use this tactic manually.
 -/
 macro "clean_wf" : tactic =>
   `(tactic| simp
      (config := { unfoldPartialApp := true, zetaDelta := true, failIfUnchanged := false })
      only [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel,
-           WellFoundedRelation.rel, sizeOf_nat])
+           WellFoundedRelation.rel, sizeOf_nat, reduceCtorEq])
 
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
 reasoning after applying lexicographic order lemmas.

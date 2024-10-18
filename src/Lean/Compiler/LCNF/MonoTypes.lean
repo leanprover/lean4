@@ -48,8 +48,8 @@ def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo)
   let [ctorName] := info.ctors | return none
   let mask ← getRelevantCtorFields ctorName
   let mut result := none
-  for i in [:mask.size] do
-    if mask[i]! then
+  for h : i in [:mask.size] do
+    if mask[i] then
       if result.isSome then return none
       result := some { ctorName, fieldIdx := i, numParams := info.numParams }
   return result

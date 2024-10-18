@@ -442,7 +442,7 @@ private def hasUnusedArguments : Expr → Bool
 
 /--
   If the type of the metavariable `mvar` has unused argument, return a pair `(α, transformer)`
-  where `α` is a new type without the unused arguments and the `transformer` is a function for coverting a
+  where `α` is a new type without the unused arguments and the `transformer` is a function for converting a
   solution with type `α` into a value that can be assigned to `mvar`.
   Example: suppose `mvar` has type `(a : A) → (b : B a) → (c : C a) → D a c`, the result is the pair
   ```
@@ -752,7 +752,7 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
   let some abstResult := abstResult? | return none
   if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty then
     /-
-    Result does not instroduce new metavariables, thus we don't need to perform (again)
+    Result does not introduce new metavariables, thus we don't need to perform (again)
     the `check` at `applyAbstractResult?`.
     This is an optimization.
     -/

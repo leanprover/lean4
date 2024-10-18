@@ -185,7 +185,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     // This needs some thought, on Windows we must pass a command string
     // which is a valid command, that is a fully assembled command to be executed.
     //
-    // We must escape the arguments to preseving spacing and other characters,
+    // We must escape the arguments to preserving spacing and other characters,
     // we might need to revisit escaping here.
     for (auto arg : args) {
         command += " \"";

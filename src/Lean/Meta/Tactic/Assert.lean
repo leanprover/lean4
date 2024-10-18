@@ -82,6 +82,10 @@ structure Hypothesis where
   userName : Name
   type     : Expr
   value    : Expr
+  /-- The hypothesis' `BinderInfo` -/
+  binderInfo : BinderInfo := .default
+  /-- The hypothesis' `LocalDeclKind` -/
+  kind : LocalDeclKind := .default
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx, (hs[0].userName : hs[0].type) ... |-target`.
@@ -94,11 +98,19 @@ def _root_.Lean.MVarId.assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis
     let tag    ← mvarId.getTag
     let target ← mvarId.getType
     let targetNew := hs.foldr (init := target) fun h targetNew =>
-      mkForall h.userName BinderInfo.default h.type targetNew
+      .forallE h.userName h.type targetNew h.binderInfo
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
-    let val := hs.foldl (init := mvarNew) fun val h => mkApp val h.value
+    let val := hs.foldl (init := mvarNew) fun val h => .app val h.value
     mvarId.assign val
-    mvarNew.mvarId!.introNP hs.size
+    let (fvarIds, mvarId) ← mvarNew.mvarId!.introNP hs.size
+    mvarId.modifyLCtx fun lctx => Id.run do
+      let mut lctx := lctx
+      for h : i in [:hs.size] do
+        let h := hs[i]
+        if h.kind != .default then
+          lctx := lctx.setKind fvarIds[i]! h.kind
+      pure lctx
+    return (fvarIds, mvarId)
 
 /--
 Replace hypothesis `hyp` in goal `g` with `proof : typeNew`.

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Marc Huisinga
 -/
 prelude
-import Init.Data.List.Control
 import Init.Data.Range
 import Init.Data.OfScientific
 import Init.Data.Hashable

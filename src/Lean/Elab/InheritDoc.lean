@@ -21,7 +21,7 @@ builtin_initialize
         let some id := id?
           | throwError "invalid `[inherit_doc]` attribute, could not infer doc source"
         let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
-        if (← findSimpleDocString? (← getEnv) decl).isSome then
+        if (← findSimpleDocString? (← getEnv) decl (includeBuiltin := false)).isSome then
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
         let some doc ← findSimpleDocString? (← getEnv) declName
           | logWarningAt id m!"{← mkConstWithLevelParams declName} does not have a doc string"

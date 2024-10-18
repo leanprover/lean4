@@ -13,10 +13,10 @@ open Lean
 namespace Lean
 namespace Xml
 
-namespace Parser
-
 open Std.Internal.Parsec
 open Std.Internal.Parsec.String
+
+namespace Parser
 
 abbrev LeanChar := Char
 
@@ -459,7 +459,7 @@ mutual
 
       let z ← optional (Content.Character <$> CharData)
       pure #[y, z]
-    let xs := #[x] ++ xs.concatMap id |>.filterMap id
+    let xs := #[x] ++ xs.flatMap id |>.filterMap id
     let mut res := #[]
     for x in xs do
       if res.size > 0 then
@@ -482,8 +482,6 @@ def document : Parser Element := prolog *> element <* many Misc <* eof
 end Parser
 
 def parse (s : String) : Except String Element :=
-  match Xml.Parser.document s.mkIterator with
-  | .success _ res => Except.ok res
-  | .error it err  => Except.error s!"offset {it.i.byteIdx.repr}: {err}\n{(it.prevn 10).extract it}"
+  Parser.run Xml.Parser.document s
 
 end Xml

@@ -34,7 +34,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_existsIntro___lambda__1___boxed(lean_obje
 static lean_object* l_Lean_MVarId_existsIntro___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MVarId_existsIntro___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_existsIntro___lambda__2___closed__2;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_existsIntro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_existsIntro___lambda__2___closed__5;
 static lean_object* l_Lean_MVarId_constructor___lambda__2___closed__1;
@@ -55,6 +54,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_constructor___lambda__1___boxed(lean_obje
 static lean_object* l_Lean_MVarId_constructor___closed__1;
 static lean_object* l_Lean_MVarId_existsIntro___lambda__1___closed__5;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_existsIntro___lambda__2___closed__8;
 static lean_object* l_Lean_MVarId_existsIntro___lambda__1___closed__3;

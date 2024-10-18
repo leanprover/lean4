@@ -67,29 +67,6 @@ instance : ToString RecursorInfo := ⟨fun info =>
 
 end RecursorInfo
 
-private def mkRecursorInfoForKernelRec (declName : Name) (val : RecursorVal) : MetaM RecursorInfo := do
-  let ival ← getConstInfoInduct val.getInduct
-  let numLParams    := ival.levelParams.length
-  let univLevelPos  := (List.range numLParams).map RecursorUnivLevelPos.majorType
-  let univLevelPos  := if val.levelParams.length == numLParams then univLevelPos else RecursorUnivLevelPos.motive :: univLevelPos
-  let produceMotive := List.replicate val.numMinors true
-  let paramsPos     := (List.range val.numParams).map some
-  let indicesPos    := (List.range val.numIndices).map fun pos => val.numParams + pos
-  let numArgs       := val.numIndices + val.numParams + val.numMinors + val.numMotives + 1
-  pure {
-    recursorName  := declName,
-    typeName      := val.getInduct,
-    univLevelPos  := univLevelPos,
-    majorPos      := val.getMajorIdx,
-    depElim       := true,
-    recursive     := ival.isRec,
-    produceMotive := produceMotive,
-    paramsPos     := paramsPos,
-    indicesPos    := indicesPos,
-    numArgs       := numArgs
-  }
-
-
 private def getMajorPosIfAuxRecursor? (declName : Name) (majorPos? : Option Nat) : MetaM (Option Nat) :=
   if majorPos?.isSome then pure majorPos?
   else do
@@ -182,13 +159,13 @@ private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl :
 private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices majorPos : Nat) (motive : Expr) : MetaM (List Bool × Bool) := do
   let mut produceMotive := #[]
   let mut recursor      := false
-  for i in [:xs.size] do
+  for h : i in [:xs.size] do
     if i < numParams + 1 then
       continue --skip parameters and motive
     if majorPos - numIndices ≤ i && i ≤ majorPos then
       continue -- skip indices and major premise
     -- process minor premise
-    let x := xs[i]!
+    let x := xs[i]
     let xType ← inferType x
     (produceMotive, recursor) ← forallTelescopeReducing xType fun minorArgs minorResultType => minorResultType.withApp fun res _ => do
       let produceMotive := produceMotive.push (res == motive)
@@ -202,8 +179,8 @@ private def checkMotiveResultType (declName : Name) (motiveArgs : Array Expr) (m
   if !motiveResultType.isSort || motiveArgs.size != motiveTypeParams.size then
     throwError "invalid user defined recursor '{declName}', motive must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant"
 
-private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : MetaM RecursorInfo := do
-  let declName := cinfo.name
+private def mkRecursorInfoCore (declName : Name) (majorPos? : Option Nat) : MetaM RecursorInfo := do
+  let cinfo ← getConstInfo declName
   let majorPos? ← getMajorPosIfAuxRecursor? declName majorPos?
   forallTelescopeReducing cinfo.type fun xs type => type.withApp fun motive motiveArgs => do
     checkMotive declName motive motiveArgs
@@ -250,12 +227,6 @@ def Attribute.Recursor.getMajorPos (stx : Syntax) : AttrM Nat := do
   else
     throwErrorAt stx "unexpected attribute argument, numeral expected"
 
-private def mkRecursorInfoCore (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
-  let cinfo ← getConstInfo declName
-  match cinfo with
-  | ConstantInfo.recInfo val => mkRecursorInfoForKernelRec declName val
-  | _                        => mkRecursorInfoAux cinfo majorPos?
-
 builtin_initialize recursorAttribute : ParametricAttribute Nat ←
   registerParametricAttribute {
     name := `recursor,
@@ -269,11 +240,7 @@ def getMajorPos? (env : Environment) (declName : Name) : Option Nat :=
   recursorAttribute.getParam? env declName
 
 def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM RecursorInfo := do
-  let cinfo ← getConstInfo declName
-  match cinfo with
-  | ConstantInfo.recInfo val => mkRecursorInfoForKernelRec declName val
-  | _                        => match majorPos? with
-    | none => do mkRecursorInfoAux cinfo (getMajorPos? (← getEnv) declName)
-    | _    => mkRecursorInfoAux cinfo majorPos?
+  let majorPos? := majorPos? <|> getMajorPos? (← getEnv) declName
+  mkRecursorInfoCore declName majorPos?
 
 end Lean.Meta

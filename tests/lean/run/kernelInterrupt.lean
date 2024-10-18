@@ -7,7 +7,6 @@ In particular, runtime exceptions such as `interrupted_exception` should properl
  -/
 
 open Lean
-/-- info: -/
 #guard_msgs in
 #eval show CoreM _ from do
   let env ← getEnv

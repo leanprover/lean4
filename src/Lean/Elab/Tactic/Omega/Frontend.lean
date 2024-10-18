@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.Elab.Tactic.Omega.Core
@@ -277,6 +277,7 @@ where
       | _ => mkAtomLinearCombo e
     | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
     | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
+    | (``Int.toNat, #[n]) => rewrite e (mkApp (.const ``Int.toNat_eq_max []) n)
     | (``HShiftLeft.hShiftLeft, #[_, _, _, _, a, b]) =>
       rewrite e (mkApp2 (.const ``Int.ofNat_shiftLeft_eq []) a b)
     | (``HShiftRight.hShiftRight, #[_, _, _, _, a, b]) =>
@@ -322,7 +323,7 @@ where
 end
 namespace MetaProblem
 
-/-- The trivial `MetaProblem`, with no facts to processs and a trivial `Problem`. -/
+/-- The trivial `MetaProblem`, with no facts to process and a trivial `Problem`. -/
 def trivial : MetaProblem where
   problem := {}
 
@@ -422,10 +423,11 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
     trace[omega] "adding fact: {t}"
     match t with
     | .forallE _ x y _ =>
-      if (← isProp x) && (← isProp y) then
+      if ← pure t.isArrow <&&> isProp x <&&> isProp y then
         p.addFact (mkApp4 (.const ``Decidable.not_or_of_imp []) x y
           (.app (.const ``Classical.propDecidable []) x) h)
       else
+        trace[omega] "rejecting forall: it's not an arrow, or not propositional"
         return (p, 0)
     | .app _ _ =>
       match_expr t with
@@ -682,7 +684,7 @@ open Lean Elab Tactic Parser.Tactic
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
   liftMetaFinishingTactic fun g => do
-    let g ← g.falseOrByContra
+    let some g ← g.falseOrByContra | return ()
     g.withContext do
       let hyps := (← getLocalHyps).toList
       trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"

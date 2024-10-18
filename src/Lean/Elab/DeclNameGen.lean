@@ -64,13 +64,13 @@ private partial def winnowExpr (e : Expr) : MetaM Expr := do
         let mut fty ← inferType f
         let mut j := 0
         let mut e' ← visit f
-        for i in [0:args.size] do
+        for h : i in [0:args.size] do
           unless fty.isForall do
             fty ← withTransparency .all <| whnf <| fty.instantiateRevRange j i args
             j := i
           let .forallE _ _ fty' bi := fty | failure
           fty := fty'
-          let arg := args[i]!
+          let arg := args[i]
           if ← pure bi.isExplicit <||> (pure !arg.isSort <&&> isTypeFormer arg) then
             unless (← isProof arg) do
               e' := .app e' (← visit arg)
@@ -206,8 +206,11 @@ Uses heuristics to generate an informative but terse base name for a term of the
 Makes use of the current namespace.
 It tries to make these names relatively unique ecosystem-wide,
 and it adds suffixes using the current module if the resulting name doesn't refer to anything defined in this module.
+
+If any constant in `type` has a name with macro scopes, then the result will be a name with fresh macro scopes.
+While in this case we could skip the naming heuristics, we still want informative names for debugging purposes.
 -/
-def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM String := do
+def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
   let (name, st) ← mkBaseName type |>.run {}
   let name := pre ++ name
   let project := (← getMainModule).getRoot
@@ -217,8 +220,13 @@ def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM String := do
   let isModuleLocal := modules.any Option.isNone
   -- We can also avoid adding the full module suffix if the instance refers to "project"-local names.
   let isProjectLocal := isModuleLocal || modules.any fun mod? => mod?.map (·.getRoot) == project
-  if !isProjectLocal then
-    return s!"{name}{moduleToSuffix project}"
+  let name := Name.mkSimple <|
+    if !isProjectLocal then
+      s!"{name}{moduleToSuffix project}"
+    else
+      name
+  if Option.isSome <| type.find? (fun e => if let .const n _ := e then n.hasMacroScopes else false) then
+    mkFreshUserName name
   else
     return name
 
@@ -233,8 +241,8 @@ def mkBaseNameWithSuffix' (pre : String) (binders : Array Syntax) (type : Syntax
         let ty ← mkForallFVars binds (← Term.elabType type)
         mkBaseNameWithSuffix pre ty
     catch _ =>
-      pure pre
-  liftMacroM <| mkUnusedBaseName <| Name.mkSimple name
+      mkFreshUserName <| Name.mkSimple pre
+  liftMacroM <| mkUnusedBaseName name
 
 end NameGen
 

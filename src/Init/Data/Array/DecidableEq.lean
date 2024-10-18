@@ -5,43 +5,49 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
+import Init.Data.BEq
 import Init.ByCases
 
 namespace Array
 
-theorem eq_of_isEqvAux [DecidableEq α] (a b : Array α) (hsz : a.size = b.size) (i : Nat) (hi : i ≤ a.size) (heqv : Array.isEqvAux a b hsz (fun x y => x = y) i) (j : Nat) (low : i ≤ j) (high : j < a.size) : a[j] = b[j]'(hsz ▸ high) := by
-  by_cases h : i < a.size
-  · unfold Array.isEqvAux at heqv
-    simp [h] at heqv
-    have hind := eq_of_isEqvAux a b hsz (i+1) (Nat.succ_le_of_lt h) heqv.2
-    by_cases heq : i = j
-    · subst heq; exact heqv.1
-    · exact hind j (Nat.succ_le_of_lt (Nat.lt_of_le_of_ne low heq)) high
-  · have heq : i = a.size := Nat.le_antisymm hi (Nat.ge_of_not_lt h)
-    subst heq
-    exact absurd (Nat.lt_of_lt_of_le high low) (Nat.lt_irrefl j)
-termination_by a.size - i
-decreasing_by decreasing_trivial_pre_omega
+theorem rel_of_isEqvAux
+    (r : α → α → Bool) (a b : Array α) (hsz : a.size = b.size) (i : Nat) (hi : i ≤ a.size)
+    (heqv : Array.isEqvAux a b hsz r i hi)
+    (j : Nat) (hj : j < i) : r (a[j]'(Nat.lt_of_lt_of_le hj hi)) (b[j]'(Nat.lt_of_lt_of_le hj (hsz ▸ hi))) := by
+  induction i with
+  | zero => contradiction
+  | succ i ih =>
+    simp only [Array.isEqvAux, Bool.and_eq_true, decide_eq_true_eq] at heqv
+    by_cases hj' : j < i
+    next =>
+      exact ih _ heqv.right hj'
+    next =>
+      replace hj' : j = i := Nat.eq_of_le_of_lt_succ (Nat.not_lt.mp hj') hj
+      subst hj'
+      exact heqv.left
 
+theorem rel_of_isEqv (r : α → α → Bool) (a b : Array α) :
+    Array.isEqv a b r → ∃ h : a.size = b.size, ∀ (i : Nat) (h' : i < a.size), r (a[i]) (b[i]'(h ▸ h')) := by
+  simp only [isEqv]
+  split <;> rename_i h
+  · exact fun h' => ⟨h, rel_of_isEqvAux r a b h a.size (Nat.le_refl ..) h'⟩
+  · intro; contradiction
 
-theorem eq_of_isEqv [DecidableEq α] (a b : Array α) : Array.isEqv a b (fun x y => x = y) → a = b := by
-  simp [Array.isEqv]
-  split
-  next hsz =>
-   intro h
-   have aux := eq_of_isEqvAux a b hsz 0 (Nat.zero_le ..) h
-   exact ext a b hsz fun i h _ => aux i (Nat.zero_le ..) _
-  next => intro; contradiction
+theorem eq_of_isEqv [DecidableEq α] (a b : Array α) (h : Array.isEqv a b (fun x y => x = y)) : a = b := by
+  have ⟨h, h'⟩ := rel_of_isEqv (fun x y => x = y) a b h
+  exact ext _ _ h (fun i lt _ => by simpa using h' i lt)
 
-theorem isEqvAux_self [DecidableEq α] (a : Array α) (i : Nat) : Array.isEqvAux a a rfl (fun x y => x = y) i = true := by
-  unfold Array.isEqvAux
-  split
-  next h => simp [h, isEqvAux_self a (i+1)]
-  next h => simp [h]
-termination_by a.size - i
-decreasing_by decreasing_trivial_pre_omega
+theorem isEqvAux_self (r : α → α → Bool) (hr : ∀ a, r a a) (a : Array α) (i : Nat) (h : i ≤ a.size) :
+    Array.isEqvAux a a rfl r i h = true := by
+  induction i with
+  | zero => simp [Array.isEqvAux]
+  | succ i ih =>
+    simp_all only [isEqvAux, Bool.and_self]
 
-theorem isEqv_self [DecidableEq α] (a : Array α) : Array.isEqv a a (fun x y => x = y) = true := by
+theorem isEqv_self_beq [BEq α] [ReflBEq α] (a : Array α) : Array.isEqv a a (· == ·) = true := by
+  simp [isEqv, isEqvAux_self]
+
+theorem isEqv_self [DecidableEq α] (a : Array α) : Array.isEqv a a (· = ·) = true := by
   simp [isEqv, isEqvAux_self]
 
 instance [DecidableEq α] : DecidableEq (Array α) :=

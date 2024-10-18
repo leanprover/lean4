@@ -49,7 +49,7 @@ That is, Lake ignores the `-` suffix.
 - `"1.0.0"`: Switches to a semantic versioning scheme
 - `"1.1.0"`: Add optional `scope` package entry field
 -/
-@[inline] def Manifest.version : LeanVer := v!"1.1.0"
+@[inline] def Manifest.version : StdVer := v!"1.1.0"
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 inductive PackageEntryV6
@@ -195,7 +195,7 @@ protected def fromJson? (json : Json) : Except String Manifest := do
   let ver : SemVerCore ←
     match (← obj.get "version" : Json) with
     | (n : Nat) => pure {minor := n}
-    | (s : String) => LeanVer.parse s
+    | (s : String) => StdVer.parse s
     | ver => throw s!"unknown manifest version format '{ver}'; \
       you may need to update your 'lean-toolchain'"
   if ver.major > 1 then

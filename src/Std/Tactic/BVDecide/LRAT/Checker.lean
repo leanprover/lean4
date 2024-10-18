@@ -62,7 +62,7 @@ theorem check_sound (lratProof : Array IntAction) (cnf : CNF Nat) :
       _
       (by
         intro action h
-        simp only [Array.toList_eq, List.filterMap_map, List.mem_filterMap, Function.comp_apply] at h
+        simp only [List.filterMap_map, List.mem_filterMap, Function.comp_apply] at h
         rcases h with ⟨WellFormedActions, _, h2⟩
         split at h2
         . contradiction
@@ -72,7 +72,7 @@ theorem check_sound (lratProof : Array IntAction) (cnf : CNF Nat) :
           simp [← h2, WellFormedAction]
         . simp only [Option.some.injEq] at h2
           simp [← h2, WellFormedAction]
-        . simp only [ite_some_none_eq_some] at h2
+        . simp only [Option.ite_none_right_eq_some, Option.some.injEq] at h2
           rcases h2 with ⟨hleft, hright⟩
           simp [WellFormedAction, hleft, ← hright, Clause.limplies_iff_mem]
       )

@@ -42,8 +42,9 @@ builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ← 
 def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRanges) : IO Unit :=
   builtinDeclRanges.modify (·.insert declName declRanges)
 
-def addDeclarationRanges [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit :=
-  modifyEnv fun env => declRangeExt.insert env declName declRanges
+def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit := do
+  unless declRangeExt.contains (← getEnv) declName do
+    modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
   return declRangeExt.find? (← getEnv) declName

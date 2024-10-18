@@ -8,24 +8,43 @@ import Lean.Meta.Tactic.LinearArith.Nat.Basic
 
 namespace Lean.Meta.Linear.Nat
 
+/-
+To prevent the kernel from accidentially reducing the atoms in the equation while typechecking,
+we abstract over them.
+-/
+def withAbstractAtoms (atoms : Array Expr) (k : Array Expr → MetaM (Option (Expr × Expr))) :
+    MetaM (Option (Expr × Expr)) := do
+  let atoms := atoms
+  let decls : Array (Name × (Array Expr → MetaM Expr)) ← atoms.mapM fun _ => do
+    return ((← mkFreshUserName `x), fun _ => pure (mkConst ``Nat))
+  withLocalDeclsD decls fun ctxt => do
+    let some (r, p) ← k ctxt | return none
+    let r := (← mkLambdaFVars ctxt r).beta atoms
+    let p := mkAppN (← mkLambdaFVars ctxt p) atoms
+    return some (r, p)
+
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (some c, ctx) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
-  let c₁ := c.toPoly
-  let c₂ := c₁.norm
-  if c₂.isUnsat then
-    let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (← toContextExpr ctx) (toExpr c) reflTrue
-    return some (mkConst ``False, p)
-  else if c₂.isValid then
-    let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr ctx) (toExpr c) reflTrue
-    return some (mkConst ``True, p)
-  else
-    let c₂ : LinearCnstr := c₂.toExpr
-    let r ← c₂.toArith ctx
-    if r != e then
-      let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
-      return some (r, ← mkExpectedTypeHint p (← mkEq e r))
+  let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
+  withAbstractAtoms atoms fun ctx => do
+    let lhs ← c.toArith ctx
+    let c₁ := c.toPoly
+    let c₂ := c₁.norm
+    if c₂.isUnsat then
+      let r := mkConst ``False
+      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (← toContextExpr ctx) (toExpr c) reflTrue
+      return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
+    else if c₂.isValid then
+      let r := mkConst ``True
+      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr ctx) (toExpr c) reflTrue
+      return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else
-      return none
+      let c₂ : LinearCnstr := c₂.toExpr
+      let r ← c₂.toArith ctx
+      if r != lhs then
+        let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
+        return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
+      else
+        return none
 
 def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then

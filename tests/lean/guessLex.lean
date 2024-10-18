@@ -155,13 +155,13 @@ def oddNat : OddNat → Nat
   | ⟨.succ n⟩ => oddNat ⟨n⟩
 decreasing_by decreasing_tactic
 
--- Shadowing `sizeOf`, as a varying paramter
+-- Shadowing `sizeOf`, as a varying parameter
 def shadowSizeOf1 (sizeOf : Nat) : OddNat → Nat
   | ⟨0⟩ => 0
   | ⟨.succ n⟩ => shadowSizeOf1 (sizeOf + 1) ⟨n⟩
 decreasing_by decreasing_tactic
 
--- Shadowing `sizeOf`, as a fixed paramter
+-- Shadowing `sizeOf`, as a fixed parameter
 def shadowSizeOf2 (sizeOf : Nat) : OddNat → Nat → Nat
   | ⟨0⟩, m => m
   | ⟨.succ n⟩, m => shadowSizeOf2 sizeOf ⟨n⟩ m
@@ -215,7 +215,7 @@ end
 end MutualNotNat2
 
 namespace MutualNotNat3
--- A varant of the above, but where the type of the parameter refined to `Nat`.
+-- A variant of the above, but where the type of the parameter refined to `Nat`.
 -- Previously `GuessLex` was inferring the `SizeOf` instance based on the type of the
 -- *concrete* parameter or argument, which was wrong.
 -- The inference needs to be based on the parameter type in the function's signature.

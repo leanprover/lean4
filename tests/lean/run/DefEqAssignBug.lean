@@ -26,10 +26,8 @@ withLocalDeclD `x nat fun x => do
 
 set_option trace.Meta true
 
-/-- info: -/
 #guard_msgs in
 #eval tst1
 
-/-- info: -/
 #guard_msgs in
 #eval tst2

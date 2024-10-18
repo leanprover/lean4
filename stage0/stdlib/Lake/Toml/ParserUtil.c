@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_lit_formatter___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lake_Toml_atom_formatter(lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_dynamicNode_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_trim(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_strAtom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -137,7 +136,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_instAndThenParserFn__lake(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lake_Toml_atom_formatter___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_satisfyFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_sepByChar1AuxFn(lean_object*, uint32_t, lean_object*, lean_object*, lean_object*);
-uint8_t l_Char_isDigit(uint32_t);
+lean_object* l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_trailing___elambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_chAtom_formatter(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____rarg(lean_object*, lean_object*, lean_object*);
@@ -150,6 +149,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_dynamicNode_formatter___boxed(lean_object*)
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_digitFn___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withCache(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_sepByChar1Fn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -763,34 +763,49 @@ x_6 = lean_ctor_get(x_5, 0);
 x_7 = lean_string_utf8_at_end(x_6, x_4);
 if (x_7 == 0)
 {
-uint32_t x_8; uint8_t x_9; 
+uint32_t x_8; uint32_t x_9; uint8_t x_10; 
 x_8 = lean_string_utf8_get_fast(x_6, x_4);
-x_9 = l_Char_isDigit(x_8);
-if (x_9 == 0)
+x_9 = 48;
+x_10 = lean_uint32_dec_le(x_9, x_8);
+if (x_10 == 0)
 {
-uint8_t x_10; lean_object* x_11; 
+uint8_t x_11; lean_object* x_12; 
 lean_dec(x_4);
-x_10 = 1;
-x_11 = l_Lake_Toml_mkUnexpectedCharError(x_3, x_8, x_1, x_10);
-return x_11;
-}
-else
-{
-lean_object* x_12; 
-lean_dec(x_1);
-x_12 = l_Lean_Parser_ParserState_next_x27(x_3, x_6, x_4, lean_box(0));
-lean_dec(x_4);
+x_11 = 1;
+x_12 = l_Lake_Toml_mkUnexpectedCharError(x_3, x_8, x_1, x_11);
 return x_12;
 }
+else
+{
+uint32_t x_13; uint8_t x_14; 
+x_13 = 57;
+x_14 = lean_uint32_dec_le(x_8, x_13);
+if (x_14 == 0)
+{
+uint8_t x_15; lean_object* x_16; 
+lean_dec(x_4);
+x_15 = 1;
+x_16 = l_Lake_Toml_mkUnexpectedCharError(x_3, x_8, x_1, x_15);
+return x_16;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+lean_object* x_17; 
+lean_dec(x_1);
+x_17 = l_Lean_Parser_ParserState_next_x27(x_3, x_6, x_4, lean_box(0));
 lean_dec(x_4);
-x_13 = l_Lake_Toml_satisfyFn___closed__1;
-x_14 = 1;
-x_15 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_13, x_1, x_14);
-return x_15;
+return x_17;
+}
+}
+}
+else
+{
+lean_object* x_18; uint8_t x_19; lean_object* x_20; 
+lean_dec(x_4);
+x_18 = l_Lake_Toml_satisfyFn___closed__1;
+x_19 = 1;
+x_20 = l_Lean_Parser_ParserState_mkUnexpectedError(x_3, x_18, x_1, x_19);
+return x_20;
 }
 }
 }
@@ -1780,13 +1795,19 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lake_Toml_strAtom(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_String_trim(x_1);
-x_5 = lean_alloc_closure((void*)(l_Lake_Toml_strFn), 4, 2);
-lean_closure_set(x_5, 0, x_4);
-lean_closure_set(x_5, 1, x_2);
-x_6 = l_Lake_Toml_atom(x_5, x_3);
-return x_6;
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_4 = lean_string_utf8_byte_size(x_1);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(x_1, x_4, x_5);
+x_7 = l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(x_1, x_6, x_4);
+x_8 = lean_string_utf8_extract(x_1, x_6, x_7);
+lean_dec(x_7);
+lean_dec(x_6);
+x_9 = lean_alloc_closure((void*)(l_Lake_Toml_strFn), 4, 2);
+lean_closure_set(x_9, 0, x_8);
+lean_closure_set(x_9, 1, x_2);
+x_10 = l_Lake_Toml_atom(x_9, x_3);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Toml_strAtom___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -129,9 +129,9 @@ See comment at `.fixedNeutral`.
 -/
 private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat) : Bool := Id.run do
   let param := decl.params[j]!
-  for k in [j+1 : decl.params.size] do
+  for h : k in [j+1 : decl.params.size] do
     if paramsInfo[k]! matches .user | .fixedHO | .fixedInst then
-      let param' := decl.params[k]!
+      let param' := decl.params[k]
       if param'.type.containsFVar param.fvarId then
         return true
   return false
@@ -214,4 +214,3 @@ builtin_initialize
   registerTraceClass `Compiler.specialize.info
 
 end Lean.Compiler.LCNF
-

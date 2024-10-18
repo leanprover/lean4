@@ -54,7 +54,7 @@ termination_by structural x => x
 
 /--
 info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} (motive : List α → List β → Prop)
-  (case1 : ∀ (x : List β), motive [] x) (case2 : ∀ (x : List α), (x = [] → False) → motive x [])
+  (case1 : ∀ (x : List β), motive [] x) (case2 : ∀ (t : List α), (t = [] → False) → motive t [])
   (case3 : ∀ (x : α) (xs : List α) (y : β) (ys : List β), motive xs ys → motive (x :: xs) (y :: ys)) :
   ∀ (a : List α) (a_1 : List β), motive a a_1
 -/

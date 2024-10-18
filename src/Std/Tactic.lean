@@ -8,7 +8,7 @@ import Std.Tactic.BVDecide
 
 /-!
 This directory is mainly used for bootstrapping reasons. Suppose a tactic generates a proof term
-that contains either directly things from `Std` or custom lemmas/defininitions that make use of
+that contains either directly things from `Std` or custom lemmas/definitions that make use of
 things from `Std`. These lemmas/definitions could not be put into `Init` for dependency reasons but
 storing them in `Lean` directly is also not perfect because we do not want end users to import the
 compiler. This directory offers a place for such definitions to live, such that the user only has

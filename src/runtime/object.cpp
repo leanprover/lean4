@@ -364,14 +364,14 @@ object * array_mk_empty() {
 }
 
 extern "C" object * lean_list_to_array(object *, object *);
-extern "C" object * lean_array_to_list(object *, object *);
+extern "C" object * lean_array_to_list_impl(object *, object *);
 
 extern "C" LEAN_EXPORT object * lean_array_mk(lean_obj_arg lst) {
     return lean_list_to_array(lean_box(0), lst);
 }
 
-extern "C" LEAN_EXPORT lean_object * lean_array_data(lean_obj_arg a) {
-    return lean_array_to_list(lean_box(0), a);
+extern "C" LEAN_EXPORT lean_object * lean_array_to_list(lean_obj_arg a) {
+    return lean_array_to_list_impl(lean_box(0), a);
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {

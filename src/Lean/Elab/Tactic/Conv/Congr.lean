@@ -75,20 +75,28 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
 @[builtin_tactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
+-- mvarIds is the list of goals produced by congr. We only want to change the one at position `i`
+-- so this closes all other equality goals with `rfl.`. There are non-equality goals produced
+-- by `congr` (e.g. dependent instances), these are kept as goals.
 private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
   TacticM Unit := do
   if i >= 0 then
     let i := i.toNat
     if h : i < mvarIds.length then
+      let mut otherGoals := #[]
       for mvarId? in mvarIds, j in [:mvarIds.length] do
         match mvarId? with
         | none => pure ()
         | some mvarId =>
           if i != j then
-            mvarId.refl
+            if (← mvarId.getType').isEq then
+              mvarId.refl
+            else
+              -- If its not an equality, it's likely a class constraint, to be left open
+              otherGoals := otherGoals.push mvarId
       match mvarIds[i] with
       | none => throwError "cannot select argument"
-      | some mvarId => replaceMainGoal [mvarId]
+      | some mvarId => replaceMainGoal (mvarId :: otherGoals.toList)
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
 

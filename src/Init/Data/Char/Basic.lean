@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Data.UInt.Basic
+import Init.Data.UInt.BasicAux
 
 /-- Determines if the given integer is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
 
@@ -42,8 +42,10 @@ theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < UInt32.size := by
 
 theorem isValidChar_of_isValidCharNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
   match h with
-  | Or.inl h        => Or.inl h
-  | Or.inr ⟨h₁, h₂⟩ => Or.inr ⟨h₁, h₂⟩
+  | Or.inl h =>
+    Or.inl (UInt32.ofNat'_lt_of_lt _ (by decide) h)
+  | Or.inr ⟨h₁, h₂⟩ =>
+    Or.inr ⟨UInt32.lt_ofNat'_of_lt _ (by decide) h₁, UInt32.ofNat'_lt_of_lt _ (by decide) h₂⟩
 
 theorem isValidChar_zero : isValidChar 0 :=
   Or.inl (by decide)
@@ -57,33 +59,33 @@ theorem isValidChar_zero : isValidChar 0 :=
   c.val.toUInt8
 
 /-- The numbers from 0 to 256 are all valid UTF-8 characters, so we can embed one in the other. -/
-def ofUInt8 (n : UInt8) : Char := ⟨n.toUInt32, .inl (Nat.lt_trans n.1.2 (by decide))⟩
+def ofUInt8 (n : UInt8) : Char := ⟨n.toUInt32, .inl (Nat.lt_trans n.toBitVec.isLt (by decide))⟩
 
 instance : Inhabited Char where
   default := 'A'
 
 /-- Is the character a space (U+0020) a tab (U+0009), a carriage return (U+000D) or a newline (U+000A)? -/
-def isWhitespace (c : Char) : Bool :=
+@[inline] def isWhitespace (c : Char) : Bool :=
   c = ' ' || c = '\t' || c = '\r' || c = '\n'
 
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZ`? -/
-def isUpper (c : Char) : Bool :=
+@[inline] def isUpper (c : Char) : Bool :=
   c.val ≥ 65 && c.val ≤ 90
 
 /-- Is the character in `abcdefghijklmnopqrstuvwxyz`? -/
-def isLower (c : Char) : Bool :=
+@[inline] def isLower (c : Char) : Bool :=
   c.val ≥ 97 && c.val ≤ 122
 
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`? -/
-def isAlpha (c : Char) : Bool :=
+@[inline] def isAlpha (c : Char) : Bool :=
   c.isUpper || c.isLower
 
 /-- Is the character in `0123456789`? -/
-def isDigit (c : Char) : Bool :=
+@[inline] def isDigit (c : Char) : Bool :=
   c.val ≥ 48 && c.val ≤ 57
 
 /-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`? -/
-def isAlphanum (c : Char) : Bool :=
+@[inline] def isAlphanum (c : Char) : Bool :=
   c.isAlpha || c.isDigit
 
 /-- Convert an upper case character to its lower case character.

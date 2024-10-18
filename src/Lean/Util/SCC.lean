@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.List.Control
 import Lean.Data.HashMap
 import Std.Data.HashMap.Basic
 namespace Lean.SCC

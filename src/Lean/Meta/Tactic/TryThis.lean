@@ -135,16 +135,9 @@ def getIndentAndColumn (map : FileMap) (range : String.Range) : Nat × Nat :=
   let body := map.source.findAux (· ≠ ' ') range.start start
   ((body - start).1, (range.start - start).1)
 
-/-- Replace subexpressions like `?m.1234` with `?_` so it can be copy-pasted. -/
-partial def replaceMVarsByUnderscores [Monad m] [MonadQuotation m]
-    (s : Syntax) : m Syntax :=
-  s.replaceM fun s => do
-    let `(?$id:ident) := s | pure none
-    if id.getId.hasNum || id.getId.isInternal then `(?_) else pure none
-
 /-- Delaborate `e` into syntax suitable for use by `refine`. -/
 def delabToRefinableSyntax (e : Expr) : MetaM Term :=
-  return ⟨← replaceMVarsByUnderscores (← delab e)⟩
+  withOptions (pp.mvars.anonymous.set · false) do delab e
 
 /--
 An option allowing the user to customize the ideal input width. Defaults to 100.

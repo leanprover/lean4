@@ -3,7 +3,7 @@ Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ : Nat
 ⋯.succ.succ.succ.succ.succ.succ.succ.succ.succ : Nat
 [1, 2, 3, 4, 5, 6, 7, 8] : List Nat
 [1, 2, 3, 4, 5, 6, 7, 8, ⋯] : List Nat
-ppDeepTerms.lean:39:32-39:33: warning: The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. It logs this warning and then elaborates like `_`.
+ppDeepTerms.lean:39:32-39:33: warning: The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. It logs this warning and then elaborates like '_'.
 
-The presence of `⋯` in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`.
+The presence of '⋯' in pretty printing output is controlled by the 'pp.maxSteps', 'pp.deepTerms' and 'pp.proofs' options. These options can be further adjusted using 'pp.deepTerms.threshold' and 'pp.proofs.threshold'. If this '⋯' was copied from the Infoview, the hover there for the original '⋯' explains which of these options led to the omission.
 [1, 2, 3, 4, 5, 6, 7, 8, ?m] : List Nat

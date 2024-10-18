@@ -151,7 +151,7 @@ def runFrontend
   snaps.runAndReport opts jsonOutput
 
   if let some ileanFileName := ileanFileName? then
-    let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
+    let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean

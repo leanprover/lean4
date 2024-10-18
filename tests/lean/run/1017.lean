@@ -26,7 +26,7 @@ def isFinite : Prop :=
 instance hasNextWF : WellFoundedRelation {s : ρ // isFinite s} where
   rel := λ s1 s2 => hasNext s2.val s1.val
   wf := ⟨λ ⟨s,h⟩ => ⟨⟨s,h⟩, by
-    simp
+    simp only [Subtype.forall]
     cases h; case intro w h =>
     induction w generalizing s
     case zero =>
@@ -40,7 +40,7 @@ instance hasNextWF : WellFoundedRelation {s : ρ // isFinite s} where
       cases h_next; case intro x h_next =>
       simp [lengthBoundedBy, take, h_next] at h
       have := ih s' h
-      exact Acc.intro (⟨s',h'⟩ : {s : ρ // isFinite s}) (by simpa)
+      exact Acc.intro (⟨s',h'⟩ : {s : ρ // isFinite s}) (by simpa only [Subtype.forall])
   ⟩⟩
 
 def mwe [Stream ρ τ] (acc : α) : {l : ρ // isFinite l} → α

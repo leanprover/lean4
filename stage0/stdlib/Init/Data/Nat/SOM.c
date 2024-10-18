@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Nat_SOM_instInhabitedExpr;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_SOM_0__Nat_SOM_Poly_add_go_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_add(lean_object*, lean_object*);
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Expr_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Mon_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mulMon_go(lean_object*, lean_object*, lean_object*, lean_object*);

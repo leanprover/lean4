@@ -5,12 +5,7 @@ def somethingBad : MetaM Nat := do
   IO.println "oh no"
   return 1
 
-/--
-error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
----
-error: cannot evaluate expression that depends on the `sorry` axiom.
-Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
--/
+/-- error: invalid use of `(<- ...)`, must be nested inside a 'do' expression -/
 #guard_msgs in
 #eval show MetaM Unit from do
   let t := if false then ← somethingBad else 9
@@ -18,12 +13,7 @@ Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 def foo : MetaM Bool :=
   return false
 
-/--
-error: invalid use of `(<- ...)`, must be nested inside a 'do' expression
----
-error: cannot evaluate expression that depends on the `sorry` axiom.
-Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
--/
+/-- error: invalid use of `(<- ...)`, must be nested inside a 'do' expression -/
 #guard_msgs in
 #eval show MetaM Unit from do
   let t := if (← foo) then ← somethingBad else 9

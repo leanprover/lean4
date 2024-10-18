@@ -32,9 +32,9 @@ inductive B.C (α : Type u) : Nat → Type u
 with
   @[computed_field] hash : ∀ α i, C α i → UInt64
     | _, _, .a => 1
-    | _, _, .b c => 42 + c.hash
+    | _, _, .b c => 42 + c.hash _ _
 
-#guard (B.C.b (α := Nat) (.a) (d := .a)).hash == 43
+#guard (B.C.b (α := Nat) (.a) (d := .a)).hash _ _ == 43
 
 end WithIndices
 

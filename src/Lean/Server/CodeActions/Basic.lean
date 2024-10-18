@@ -124,7 +124,7 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         let names := codeActionProviderExt.getState env |>.toArray
         let caps ← names.mapM evalCodeActionProvider
         return (← builtinCodeActionProviders.get).toList.toArray ++ Array.zip names caps
-      caps.concatMapM fun (providerName, cap) => do
+      caps.flatMapM fun (providerName, cap) => do
         let cas ← cap params snap
         cas.mapIdxM fun i lca => do
           if lca.lazy?.isNone then return lca.eager

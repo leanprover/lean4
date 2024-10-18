@@ -110,8 +110,8 @@ def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
 def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
-  for i in [:args.size] do
-    let arg := args[i]!
+  for h : i in [:args.size] do
+    let arg := args[i]
     if fType.isErased then
       return ()
     fType := fType.headBeta

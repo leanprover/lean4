@@ -84,3 +84,9 @@ $LAKE -f none.lean check-test && exit 1 || true
 $LAKE -f none.toml check-test && exit 1 || true
 $LAKE -f none.lean check-lint && exit 1 || true
 $LAKE -f none.toml check-lint && exit 1 || true
+
+# Build checker
+$LAKE -f build.lean check-build
+$LAKE -f build.toml check-build
+$LAKE -f none.lean check-build && exit 1 || true
+$LAKE -f none.toml check-build && exit 1 || true

@@ -2941,6 +2941,48 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
 
+/-! ### neg-/
+
+theorem msb_eq_toInt {x : BitVec w}:
+    x.msb = decide ((x.toInt) < 0) := by
+  by_cases h : x.msb <;>
+  · simp [h, toInt_eq_msb_cond]
+    omega
+
+theorem msb_eq_toNat {x : BitVec w}:
+    x.msb = decide ((x.toNat) ≥ 2 ^ (w - 1)) := by
+  simp only [msb_eq_decide, ge_iff_le]
+
+theorem aaaaaa {w : Nat} (h : 0 < w):
+    2 ^ (w - 1) % 2 ^ w = 2 ^ (w - 1) := by
+  simp only [h, Nat.two_pow_pred_mod_two_pow]
+
+theorem msb_neg {x : BitVec w} :
+    (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
+  simp only [msb_eq_decide, toNat_neg, toNat_eq, toNat_ofNat, zero_mod, toNat_intMin]
+  by_cases h₀ : w = 0
+  · simp [h₀, mod_one, ↓reduceIte]
+    intro h₁
+    and_intros
+    · simp [h₁]
+    · bv_omega
+  · by_cases h₁ : x.toNat = 0
+    · have h₂ : 1 ≤ 2 ^ (w - 1) := by simp [Nat.one_le_two_pow, show 0 ≤ w - 1 by omega]
+      simp [h₁, h₂]
+      omega
+    · simp [h₁]
+      by_cases h₂ : 2 ^ (w - 1) ≤ x.toNat -- x.toInt is negative
+      · simp [h₁, h₂]
+        by_cases h₃ : x.toNat = 2 ^ (w - 1) % 2 ^ w
+        · simp only [h₃, iff_true]
+          rw [aaaaaa]
+          have h₃ : (2 ^ w - 2 ^ (w - 1)) < 2 ^ w := by sorry
+          · sorry
+          · omega
+        · sorry
+      · simp [h₂]
+        sorry
+
 /-! ### abs -/
 
 @[simp, bv_toNat]
@@ -2951,6 +2993,19 @@ theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat els
     have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
     rw [Nat.mod_eq_of_lt (by omega)]
   · simp [h]
+
+theorem getLsbD_abs {i : Nat} {x : BitVec w} :
+   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+theorem getMsbD_abs {i : Nat} {x : BitVec w} :
+    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+@[simp]
+theorem msb_abs {w : Nat} {x : BitVec w} :
+    x.abs.msb = false := by
+  sorry
 
 /-! ### Decidable quantifiers -/
 

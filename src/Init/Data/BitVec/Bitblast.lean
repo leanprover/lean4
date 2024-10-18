@@ -352,47 +352,6 @@ theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c
     simp [← sub_toAdd, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
 
-theorem msb_eq_toInt {x : BitVec w}:
-    x.msb = decide ((x.toInt) < 0) := by
-  by_cases h : x.msb <;>
-  · simp [h, toInt_eq_msb_cond]
-    omega
-
-theorem msb_eq_toNat {x : BitVec w}:
-    x.msb = decide ((x.toNat) ≥ 2 ^ (w - 1)) := by
-  simp only [msb_eq_decide, ge_iff_le]
-
-theorem aaaaaa {w : Nat} (h : 0 < w):
-    2 ^ (w - 1) % 2 ^ w = 2 ^ (w - 1) := by
-  simp only [h, Nat.two_pow_pred_mod_two_pow]
-
-theorem msb_neg {x : BitVec w} :
-    (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
-  simp only [msb_eq_decide, toNat_neg, toNat_eq, toNat_ofNat, zero_mod, toNat_intMin]
-  by_cases h₀ : w = 0
-  · simp [h₀, mod_one, ↓reduceIte]
-    intro h₁
-    and_intros
-    · simp [h₁]
-    · bv_omega
-  · by_cases h₁ : x.toNat = 0
-    · have h₂ : 1 ≤ 2 ^ (w - 1) := by simp [Nat.one_le_two_pow, show 0 ≤ w - 1 by omega]
-      simp [h₁, h₂]
-      omega
-    · simp [h₁]
-      by_cases h₂ : 2 ^ (w - 1) ≤ x.toNat -- x.toInt is negative
-      · simp [h₁, h₂]
-        by_cases h₃ : x.toNat = 2 ^ (w - 1) % 2 ^ w
-        · simp only [h₃, iff_true]
-          rw [aaaaaa]
-          have h₃ : (2 ^ w - 2 ^ (w - 1)) < 2 ^ w := by sorry
-          · sorry
-          · omega
-        · sorry
-      · simp [h₂]
-        sorry
-
-
 theorem getLsbD_neg {i : Nat} {x : BitVec w} :
     getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
   rw [neg_eq_not_add]
@@ -451,20 +410,6 @@ theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
 theorem sle_eq_carry (x y : BitVec w) :
     x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
   rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
-
-/-! ### abs -/
-theorem getLsbD_abs {i : Nat} {x : BitVec w} :
-   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
-  by_cases h : x.msb <;> simp [BitVec.abs, h]
-
-theorem getMsbD_abs {i : Nat} {x : BitVec w} :
-    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
-  by_cases h : x.msb <;> simp [BitVec.abs, h]
-
-@[simp]
-theorem msb_abs {w : Nat} {x : BitVec w} :
-    x.abs.msb = false := by
-  sorry
 
 /-! ### mul recurrence for bitblasting -/
 

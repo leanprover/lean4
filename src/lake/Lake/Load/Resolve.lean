@@ -59,12 +59,20 @@ def loadDepPackage
     return (pkg, ws)
 
 /--
+The resolver's call stack of dependencies.
+That is, the dependency currently being resolved plus its parents.
+-/
+abbrev DepStack := CallStack Name
+
+/--
 A monad transformer for recursive dependency resolution.
 It equips the monad with the stack of dependencies currently being resolved.
 -/
 abbrev DepStackT m := CallStackT Name m
 
-@[inline] nonrec def DepStackT.run (x : DepStackT m α) (stack : CallStack Name := {}) : m α :=
+@[inline] nonrec def DepStackT.run
+  (x : DepStackT m α) (stack : DepStack := {})
+: m α :=
   x.run stack
 
 /-- Log dependency cycle and error. -/
@@ -77,14 +85,16 @@ instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
 /-- The monad of the dependency resolver. -/
 abbrev ResolveT m := DepStackT <| StateT Workspace m
 
-@[inline] nonrec def ResolveT.run (ws : Workspace) (x : ResolveT m α) (stack : CallStack Name := {}) : m (α × Workspace) :=
+@[inline] nonrec def ResolveT.run
+  (ws : Workspace) (x : ResolveT m α) (stack : DepStack := {})
+: m (α × Workspace) :=
   x.run stack |>.run ws
 
 /-- Recursively run a `ResolveT` monad starting from the workspace's root. -/
 @[specialize] private def Workspace.runResolveT
   [Monad m] [MonadError m] (ws : Workspace)
   (go : RecFetchFn Package PUnit (ResolveT m))
-  (root := ws.root) (stack : CallStack Name := {})
+  (root := ws.root) (stack : DepStack  := {})
 : m Workspace := do
   let (_, ws) ← ResolveT.run ws (stack := stack) do
     inline <| recFetchAcyclic (·.name) go root
@@ -103,7 +113,7 @@ See `Workspace.updateAndMaterializeCore` for more details.
 @[inline] private def Workspace.resolveDepsCore
   [Monad m] [MonadError m] (ws : Workspace)
   (load : Package → Dependency → StateT Workspace m Package)
-  (root : Package := ws.root) (stack : CallStack Name := {})
+  (root : Package := ws.root) (stack : DepStack := {})
 : m Workspace := do
   ws.runResolveT go root stack
 where
@@ -134,7 +144,9 @@ abbrev UpdateT := StateT (NameMap PackageEntry)
 Reuse manifest versions of root packages that should not be updated.
 Also, move the packages directory if its location has changed.
 -/
-private def reuseManifest (ws : Workspace) (toUpdate : NameSet) : UpdateT LogIO PUnit := do
+private def reuseManifest
+  (ws : Workspace) (toUpdate : NameSet)
+: UpdateT LogIO PUnit := do
   let rootName := ws.root.name.toString (escape := false)
   match (← Manifest.load ws.manifestFile |>.toBaseIO) with
   | .ok manifest =>
@@ -272,9 +284,6 @@ def Workspace.updateToolchain
       logInfo s!"toolchain updated to '{tc}'; \
         you will need to manually restart Lake (no Elan detected)"
       IO.Process.exit restartCode.toUInt8
-  -- else if !ws.lakeEnv.toolchain.isEmpty then
-  --   IO.FS.writeFile rootToolchainFile ws.lakeEnv.toolchain
-  --   logInfo s!"toolchain not updated; wrote current toolchain to {rootToolchainFile}"
   else
     logInfo s!"toolchain not updated; no toolchain information found"
 
@@ -325,7 +334,7 @@ def Workspace.updateAndMaterializeCore
   (ws : Workspace)
   (toUpdate : NameSet := {}) (leanOpts : Options := {})
   (updateToolchain := true)
-: LogIO  (Workspace × NameMap PackageEntry) := UpdateT.run do
+: LogIO (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
   let ws := ws.addPackage ws.root
   if updateToolchain then
@@ -370,6 +379,12 @@ def Workspace.writeManifest
   }
   manifest.saveToFile ws.manifestFile
 
+/-- Run a package's `post_update` hooks. -/
+def Package.runPostUpdateHooks (pkg : Package) : LakeT LogIO PUnit := do
+  unless pkg.postUpdateHooks.isEmpty do
+  logInfo s!"{pkg.name}: running post-update hooks"
+  pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
+
 /--
 Updates the workspace, writes the new Lake manifest, and runs package
 post-update hooks.
@@ -384,10 +399,7 @@ def Workspace.updateAndMaterialize
   let (ws, entries) ←
     ws.updateAndMaterializeCore toUpdate leanOpts updateToolchain
   ws.writeManifest entries
-  LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
-    unless pkg.postUpdateHooks.isEmpty do
-      logInfo s!"{pkg.name}: running post-update hooks"
-      pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
+  ws.runLakeT do ws.packages.forM (·.runPostUpdateHooks)
   return ws
 
 /--

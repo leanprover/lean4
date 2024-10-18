@@ -10,11 +10,11 @@ has type
   Prop : Type
 but is expected to have type
   Bool : Type
-Prop → sorryAx (Sort u_1) true : Sort (imax 1 u_1)
+Prop → sorry : Sort (imax 1 u_1)
 binrelTypeMismatch.lean:20:27-20:28: error: type mismatch
   p
 has type
   Prop : Type
 but is expected to have type
   Bool : Type
-Prop → sorryAx (Sort u_1) true : Sort (imax 1 u_1)
+Prop → sorry : Sort (imax 1 u_1)

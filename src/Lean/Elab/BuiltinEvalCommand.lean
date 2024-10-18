@@ -84,7 +84,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
   -- An alternative design would be to make `elabTermForEval` into a term elaborator and elaborate the command all at once
   -- with `unsafe def _eval := term_for_eval% $t`, which we did try, but unwanted error messages
   -- such as "failed to infer definition type" can surface.
-  let defView := mkDefViewOfDef { isUnsafe := true }
+  let defView := mkDefViewOfDef { isUnsafe := true, stx := ⟨.missing⟩ }
     (← `(Parser.Command.definition|
           def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
   Term.elabMutualDef #[] { header := "" } #[defView]

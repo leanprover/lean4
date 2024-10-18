@@ -20,7 +20,7 @@ has type
 but is expected to have type
   Foo : Type
 ---
-info: (sorryAx Foo true).out : Nat
+info: sorry.out : Nat
 -/
 #guard_msgs in #check Foo.out true
 
@@ -38,7 +38,7 @@ has type
 but is expected to have type
   Foo : Type
 ---
-info: (sorryAx Foo true).out' : Nat
+info: sorry.out' : Nat
 -/
 #guard_msgs in #check Foo.out' true
 

@@ -54,7 +54,7 @@ def mkContext (declName : Name) : MetaM Context := do
   let typeInfos ← indVal.all.toArray.mapM getConstInfoInduct
   let motiveTypes ← typeInfos.mapM motiveType
   let motives ← motiveTypes.mapIdxM fun j motive =>
-    return (← motiveName motiveTypes j.val, motive)
+    return (← motiveName motiveTypes j, motive)
   let headers ← typeInfos.mapM $ mkHeader motives indVal.numParams
   return {
     motives := motives
@@ -214,7 +214,7 @@ def mkConstructor (ctx : Context) (i : Nat) (ctor : Name) : MetaM Constructor :=
 
 def mkInductiveType
     (ctx : Context)
-    (i : Fin ctx.typeInfos.size)
+    (i : Nat)
     (indVal : InductiveVal) : MetaM InductiveType := do
   return {
     name := ctx.belowNames[i]!
@@ -340,11 +340,11 @@ where
   mkIH
       (params : Array Expr)
       (motives : Array Expr)
-      (idx : Fin ctx.motives.size)
+      (idx : Nat)
       (motive : Name × Expr) : MetaM $ Name × (Array Expr → MetaM Expr) := do
     let name :=
       if ctx.motives.size > 1
-      then mkFreshUserName <| .mkSimple s!"ih_{idx.val.succ}"
+      then mkFreshUserName <| .mkSimple s!"ih_{idx + 1}"
       else mkFreshUserName <| .mkSimple "ih"
     let ih ← instantiateForall motive.2 params
     let mkDomain (_ : Array Expr) : MetaM Expr :=
@@ -353,7 +353,7 @@ where
         let args := params ++ motives ++ ys
         let premise :=
           mkAppN
-            (mkConst ctx.belowNames[idx.val]! levels) args
+            (mkConst ctx.belowNames[idx]! levels) args
         let conclusion :=
           mkAppN motives[idx]! ys
         mkForallFVars ys (←mkArrow premise conclusion)

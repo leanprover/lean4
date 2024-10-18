@@ -1004,7 +1004,7 @@ private def assignSortTexts (completions : CompletionList) : CompletionList := I
   if completions.items.isEmpty then
     return completions
   let items := completions.items.mapIdx fun i item =>
-    { item with sortText? := toString i.val }
+    { item with sortText? := toString i }
   let maxDigits := items[items.size - 1]!.sortText?.get!.length
   let items := items.map fun item =>
     let sortText := item.sortText?.get!

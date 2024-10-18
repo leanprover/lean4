@@ -643,7 +643,7 @@ def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : M
       pure mvar
   trace[Meta.FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
   let decls := mvars.mapIdx fun i mvar =>
-    (.mkSimple s!"case{i.val+1}", (fun _ => mvar.getType))
+    (.mkSimple s!"case{i+1}", (fun _ => mvar.getType))
   Meta.withLocalDeclsD decls fun xs => do
       for mvar in mvars, x in xs do
         mvar.assign x
@@ -971,7 +971,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
             mkForallFVars ys (.sort levelZero)
         let motiveArities ← infos.mapM fun info => do
           lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
-        let motiveDecls ← motiveTypes.mapIdxM fun ⟨i,_⟩ motiveType => do
+        let motiveDecls ← motiveTypes.mapIdxM fun i motiveType => do
           let n := if infos.size = 1 then .mkSimple "motive"
                                      else .mkSimple s!"motive_{i+1}"
           pure (n, fun _ => pure motiveType)

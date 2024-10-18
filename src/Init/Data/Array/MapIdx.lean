@@ -13,7 +13,7 @@ namespace Array
 /-! ### mapIdx -/
 
 -- This could also be proved from `SatisfiesM_mapIdxM` in Batteries.
-theorem mapIdx_induction (as : Array α) (f : Fin as.size → α → β)
+theorem mapIdx_induction (as : Array α) (f : Nat → α → β)
     (motive : Nat → Prop) (h0 : motive 0)
     (p : Fin as.size → β → Prop)
     (hs : ∀ i, motive i.1 → p i (f i as[i]) ∧ motive (i + 1)) :
@@ -27,7 +27,7 @@ theorem mapIdx_induction (as : Array α) (f : Fin as.size → α → β)
       have := (Nat.zero_add _).symm.trans h
       exact ⟨this ▸ hm, h₁ ▸ this, fun _ _ => h₂ ..⟩
     | succ i ih =>
-      apply @ih (bs.push (f ⟨j, by omega⟩ as[j])) (j + 1) (by omega) (by simp; omega)
+      apply @ih (bs.push (f j as[j])) (j + 1) (by omega) (by simp; omega)
       · intro i i_lt h'
         rw [get_push]
         split
@@ -38,26 +38,25 @@ theorem mapIdx_induction (as : Array α) (f : Fin as.size → α → β)
       · exact (hs ⟨j, by omega⟩ hm).2
   simp [mapIdx, mapIdxM]; exact go rfl nofun h0
 
-theorem mapIdx_spec (as : Array α) (f : Fin as.size → α → β)
+theorem mapIdx_spec (as : Array α) (f : Nat → α → β)
     (p : Fin as.size → β → Prop) (hs : ∀ i, p i (f i as[i])) :
     ∃ eq : (Array.mapIdx as f).size = as.size,
       ∀ i h, p ⟨i, h⟩ ((Array.mapIdx as f)[i]) :=
   (mapIdx_induction _ _ (fun _ => True) trivial p fun _ _ => ⟨hs .., trivial⟩).2
 
-@[simp] theorem size_mapIdx (a : Array α) (f : Fin a.size → α → β) : (a.mapIdx f).size = a.size :=
+@[simp] theorem size_mapIdx (a : Array α) (f : Nat → α → β) : (a.mapIdx f).size = a.size :=
   (mapIdx_spec (p := fun _ _ => True) (hs := fun _ => trivial)).1
 
 @[simp] theorem size_zipWithIndex (as : Array α) : as.zipWithIndex.size = as.size :=
   Array.size_mapIdx _ _
 
-@[simp] theorem getElem_mapIdx (a : Array α) (f : Fin a.size → α → β) (i : Nat)
+@[simp] theorem getElem_mapIdx (a : Array α) (f : Nat → α → β) (i : Nat)
     (h : i < (mapIdx a f).size) :
-    (a.mapIdx f)[i] = f ⟨i, by simp_all⟩ (a[i]'(by simp_all)) :=
-  (mapIdx_spec _ _ (fun i b => b = f i a[i]) fun _ => rfl).2 i _
+    (a.mapIdx f)[i] = f i (a[i]'(by simp_all)) :=
+  (mapIdx_spec _ _ (fun i b => b = f i a[i]) fun _ => rfl).2 i (by simpa using h)
 
-@[simp] theorem getElem?_mapIdx (a : Array α) (f : Fin a.size → α → β) (i : Nat) :
-    (a.mapIdx f)[i]? =
-      a[i]?.pbind fun b h => f ⟨i, (getElem?_eq_some_iff.1 h).1⟩ b := by
+@[simp] theorem getElem?_mapIdx (a : Array α) (f : Nat → α → β) (i : Nat) :
+    (a.mapIdx f)[i]? = a[i]?.map (f i) := by
   simp only [getElem?_def, size_mapIdx, getElem_mapIdx]
   split <;> simp_all
 

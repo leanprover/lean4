@@ -51,6 +51,9 @@ instance : Hashable USize where
 instance : Hashable (Fin n) where
   hash v := v.val.toUInt64
 
+instance : Hashable Char where
+  hash c := c.val.toUInt64
+
 instance : Hashable Int where
   hash
     | Int.ofNat n => UInt64.ofNat (2 * n)

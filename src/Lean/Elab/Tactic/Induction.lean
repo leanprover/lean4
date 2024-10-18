@@ -27,8 +27,10 @@ open Meta
   syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
   ```
 -/
+private def getAltLhses (alt : Syntax) : Syntax :=
+  alt[0]
 private def getFirstAltLhs (alt : Syntax) : Syntax :=
-  alt[0][0]
+  (getAltLhses alt)[0]
 /-- Return `inductionAlt` name. It assumes `alt` does not have multiple `inductionAltLHS` -/
 private def getAltName (alt : Syntax) : Name :=
   let lhs := getFirstAltLhs alt
@@ -70,7 +72,9 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
       let goals ← getGoals
       try
         setGoals [mvarId]
-        closeUsingOrAdmit (withTacticInfoContext alt (addInfo *> evalTactic rhs))
+        closeUsingOrAdmit <|
+          withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) <|
+            (addInfo *> evalTactic rhs)
       finally
         setGoals goals
 

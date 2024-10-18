@@ -40,27 +40,34 @@ structure InfoWithCtx where
   info : Elab.Info
   children : PersistentArray InfoTree
 
-/-- Visit nodes, passing in a surrounding context (the innermost one combined with all outer ones)
-and accumulating results on the way back up. -/
+/--
+Visit nodes, passing in a surrounding context (the innermost one combined with all outer ones) and
+accumulating results on the way back up. If `preNode` returns `false`, the children of the current
+node are skipped and `postNode` is invoked with an empty list of results.
+-/
 partial def InfoTree.visitM [Monad m]
-    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Bool := fun _ _ _ => pure true)
     (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → List (Option α) → m α)
-    : InfoTree → m (Option α) :=
-  go none
+    (ctx? : Option ContextInfo := none) : InfoTree → m (Option α) :=
+  go ctx?
 where go
   | ctx?, context ctx t => go (ctx.mergeIntoOuter? ctx?) t
   | some ctx, node i cs => do
-    preNode ctx i cs
-    let as ← cs.toList.mapM (go <| i.updateContext? ctx)
-    postNode ctx i cs as
+    let visitChildren ← preNode ctx i cs
+    if !visitChildren then
+      postNode ctx i cs []
+    else
+      let as ← cs.toList.mapM (go <| i.updateContext? ctx)
+      postNode ctx i cs as
   | none, node .. => panic! "unexpected context-free info tree node"
   | _, hole .. => pure none
 
 /-- `InfoTree.visitM` specialized to `Unit` return type -/
 def InfoTree.visitM' [Monad m]
-    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Bool := fun _ _ _ => pure true)
     (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
-    (t : InfoTree) : m Unit := t.visitM preNode (fun ci i cs _ => postNode ci i cs) |> discard
+    (ctx? : Option ContextInfo := none) (t : InfoTree) : m Unit :=
+  t.visitM preNode (fun ci i cs _ => postNode ci i cs) ctx? |> discard
 
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
@@ -410,6 +417,9 @@ where go ci?
     match ci?, i with
     | some ci, .ofTermInfo ti
     | some ci, .ofOmissionInfo { toTermInfo := ti, .. } => do
+      -- NOTE: `instantiateMVars` can potentially be expensive but we rely on the elaborator
+      -- creating a fully instantiated `MutualDef.body` term info node which has the implicit effect
+      -- of making the `instantiateMVars` here a no-op and avoids further recursing into the body
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and

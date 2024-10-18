@@ -25,6 +25,8 @@ variable {α : Type u}
 
 namespace Array
 
+@[deprecated size (since := "2024-10-13")] abbrev data := @toList
+
 /-! ### Preliminary theorems -/
 
 @[simp] theorem size_set (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
@@ -817,8 +819,14 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
 
 /-! ## Auxiliary functions used in metaprogramming.
 
-We do not intend to provide verification theorems for these functions.
+We do not currently intend to provide verification theorems for these functions.
 -/
+
+/- ### reduceOption -/
+
+/-- Drop `none`s from a Array, and replace each remaining `some a` with `a`. -/
+@[inline] def reduceOption (as : Array (Option α)) : Array α :=
+  as.filterMap id
 
 /-! ### eraseReps -/
 

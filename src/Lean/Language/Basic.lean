@@ -243,11 +243,16 @@ instance : ToSnapshotTree SnapshotLeaf where
 structure DynamicSnapshot where
   /-- Concrete snapshot value as `Dynamic`. -/
   val  : Dynamic
-  /-- Snapshot tree retrieved from `val` before erasure. -/
-  tree : SnapshotTree
+  /--
+  Snapshot tree retrieved from `val` before erasure. We do thunk even the first level as accessing
+  it too early can create some unnecessary tasks from `toSnapshotTree` that are otherwise avoided by
+  `(sync := true)` when accessing only after elaboration has finished. Early access can even lead to
+  deadlocks when later forcing these unnecessary tasks on a starved thread pool.
+  -/
+  tree : Thunk SnapshotTree
 
 instance : ToSnapshotTree DynamicSnapshot where
-  toSnapshotTree s := s.tree
+  toSnapshotTree s := s.tree.get
 
 /-- Creates a `DynamicSnapshot` from a typed snapshot value. -/
 def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : DynamicSnapshot where

@@ -505,6 +505,9 @@ Displays all available tactic tags, with documentation.
 -/
 @[builtin_command_parser] def printTacTags   := leading_parser
   "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
+/-- Shows the current Lean version. Prints `Lean.versionString`. -/
+@[builtin_command_parser] def version        := leading_parser
+  "#version"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit

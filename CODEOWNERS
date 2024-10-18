@@ -45,3 +45,4 @@
 /src/Std/ @TwoFX
 /src/Std/Tactic/BVDecide/ @hargoniX
 /src/Lean/Elab/Tactic/BVDecide/ @hargoniX
+/src/Std/Sat/ @hargoniX

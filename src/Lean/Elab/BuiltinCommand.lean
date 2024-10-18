@@ -404,6 +404,9 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       includedVars := sc.includedVars.filter (!omittedVars.contains ·) }
   | _ => throwUnsupportedSyntax
 
+@[builtin_command_elab version] def elabVersion : CommandElab := fun _ => do
+  logInfo m!"Lean {Lean.versionString}"
+
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
   logWarning "using 'exit' to interrupt Lean"
 

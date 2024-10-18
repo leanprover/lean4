@@ -12,6 +12,7 @@ import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Init.System.Platform
 
 namespace Lean.Elab.Command
 
@@ -405,7 +406,14 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab version] def elabVersion : CommandElab := fun _ => do
-  logInfo m!"Lean {Lean.versionString}"
+  let mut target := System.Platform.target
+  if target.isEmpty then target := "unknown"
+  -- Only one should be set, but good to know if multiple are set in error.
+  let platforms :=
+    (if System.Platform.isWindows then [" Windows"] else [])
+    ++ (if System.Platform.isOSX then [" macOS"] else [])
+    ++ (if System.Platform.isEmscripten then [" Emscripten"] else [])
+  logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
   logWarning "using 'exit' to interrupt Lean"

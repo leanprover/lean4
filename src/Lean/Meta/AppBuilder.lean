@@ -9,6 +9,7 @@ import Lean.Util.Recognizers
 import Lean.Meta.SynthInstance
 import Lean.Meta.Check
 import Lean.Meta.DecLevel
+import Lean.Data.Lsp.Utf16
 
 namespace Lean.Meta
 
@@ -512,9 +513,58 @@ def mkSome (type value : Expr) : MetaM Expr := do
   let u ← getDecLevel type
   return mkApp2 (mkConst ``Option.some [u]) type value
 
+/--
+Return `sorryAx type synthetic`. Recall that `synthetic` is true if this sorry is from an error.
+-/
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
   let u ← getLevel type
   return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
+
+structure UniqueSorryView where
+  module? : Option Name := none
+  range? : Option Lsp.Range := none
+
+def UniqueSorryView.encode (view : UniqueSorryView) : CoreM Name :=
+  let name := view.module?.getD .anonymous
+  let name :=
+    if let some range := view.range? then
+      name |>.num range.start.line |>.num range.start.character |>.num range.end.line |>.num range.end.character
+    else
+      name
+  mkFreshUserName (name.str "_unique_sorry")
+
+def UniqueSorryView.decode? (name : Name) : Option UniqueSorryView := do
+  guard <| name.hasMacroScopes
+  let .str name "_unique_sorry" := name.eraseMacroScopes | failure
+  if let .num (.num (.num (.num name startLine) startChar) endLine) endChar := name then
+    return { module? := name, range? := some ⟨⟨startLine, startChar⟩, ⟨endLine, endChar⟩⟩ }
+  else if name.isAnonymous then
+    return { module? := none, range? := none }
+  else
+    failure
+
+/--
+Make a `sorryAx` that is unique, in the sense that it is not defeq to any other `sorry` created by `mkUniqueSorry`.
+
+Encodes the source position of the current ref into the term.
+-/
+def mkUniqueSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
+  let tag ←
+    if let (some pos, some endPos) := ((← getRef).getPos?, (← getRef).getTailPos?) then
+      let range := (← getFileMap).utf8RangeToLspRange ⟨pos, endPos⟩
+      UniqueSorryView.encode { module? := (← getMainModule), range? := range }
+    else
+      UniqueSorryView.encode {}
+  let e ← mkSorry (mkForall `tag .default (mkConst ``Lean.Name) type) synthetic
+  return .app e (toExpr tag)
+
+/--
+Return a `UniqueSorryView` if `e` is an application of an expression returned by `mkUniqueSorry`.
+-/
+def isUniqueSorry? (e : Expr) : Option UniqueSorryView := do
+  guard <| e.isAppOf ``sorryAx && e.getAppNumArgs ≥ 3
+  let some tag := (e.getArg! 2).name? | failure
+  UniqueSorryView.decode? tag
 
 /-- Return `Decidable.decide p` -/
 def mkDecide (p : Expr) : MetaM Expr :=
@@ -543,10 +593,6 @@ def mkDefault (α : Expr) : MetaM Expr :=
 /-- Return `@Classical.ofNonempty α _` -/
 def mkOfNonempty (α : Expr) : MetaM Expr := do
   mkAppOptM ``Classical.ofNonempty #[α, none]
-
-/-- Return `sorryAx type` -/
-def mkSyntheticSorry (type : Expr) : MetaM Expr :=
-  return mkApp2 (mkConst ``sorryAx [← getLevel type]) type (mkConst ``Bool.true)
 
 /-- Return `funext h` -/
 def mkFunExt (h : Expr) : MetaM Expr :=

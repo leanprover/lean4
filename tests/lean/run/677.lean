@@ -5,7 +5,7 @@ def encodeDecode [ToJson α] [FromJson α] (x : α) : Except String α := do
   let json := toJson x
   fromJson? json
 
-/-- info: Name.anonymous.num 5 -/
+/-- info: `5 -/
 #guard_msgs in
 #eval IO.ofExcept <| encodeDecode (Name.mkNum Name.anonymous 5)
 

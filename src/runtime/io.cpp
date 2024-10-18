@@ -1156,12 +1156,12 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_current_year(obj_arg /* w */) {
     int32_t year = ucal_get(cal, UCAL_YEAR, &status);
     if (U_FAILURE(status)) {
         // Handle error
-        return io_result_mk_error(mk_io_user_error(lean_mk_string("Failed to get current year")));
+        return io_result_mk_error(lean_mk_io_user_error(lean_mk_string("Failed to get current year")));
     }
     ucal_close(cal);
     return io_result_mk_ok(lean_int_to_int(year));
 #else
-    return io_result_mk_error(mk_io_user_error(lean_mk_string("Only on Windows")));
+    return io_result_mk_error(lean_mk_io_user_error(lean_mk_string("Only on Windows")));
 #endif
 }
 

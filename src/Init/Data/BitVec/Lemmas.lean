@@ -2827,11 +2827,19 @@ theorem toInt_intMin {w : Nat} :
     simp [w_pos]
 
 @[simp]
+theorem not_intMin {w : Nat} :
+    ¬ intMin w = 0#w := by sorry
+
+@[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   by_cases h : 0 < w
   · simp [bv_toNat, h]
   · simp only [Nat.not_lt, Nat.le_zero_eq] at h
     simp [bv_toNat, h]
+
+@[simp]
+theorem abs_intMin {w : Nat} : (intMin w).abs = intMin w := by
+  simp [BitVec.abs, bv_toNat]
 
 theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
     (-x).toInt = -(x.toInt) := by
@@ -2957,11 +2965,6 @@ theorem msb_eq_toNat {x : BitVec w}:
     x.msb = decide ((x.toNat) ≥ 2 ^ (w - 1)) := by
   simp only [msb_eq_decide, ge_iff_le]
 
-theorem msb_neg {x : BitVec w} :
-    (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
-  simp only [msb_eq_decide, toNat_neg, toNat_eq, toNat_ofNat, zero_mod, toNat_intMin]
-  by_cases h₀ : w = 0
-
 theorem getLsbD_neg {i : Nat} {x : BitVec w} :
     getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
   rw [neg_eq_not_add]
@@ -2969,6 +2972,26 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by
   rw [neg_eq_not_add]
+
+theorem msb_neg {w : Nat} {x : BitVec w} :
+    (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
+  by_cases h₀ : w = 0 <;> by_cases h₁ : x = 0#w <;> by_cases h₂ : x = intMin w
+  · simp [h₀, h₁]
+  · simp [h₀, h₁, h₂]
+  · simp_all [h₀, h₁, h₂, bv_toNat]
+  · simp [h₀, h₁, h₂, bv_toNat]
+    by_cases h₃ : x.toNat = 0
+    · simp_all [bv_toNat]
+    · simp [h₃, Nat.mod_one]
+      bv_omega
+  · simp [h₀, h₁]
+  · simp [h₀, h₁, h₂]
+  · simp [h₀, h₁, h₂, msb_intMin, show 0 < w by omega]
+  · rw [BitVec.msb]
+    rw [BitVec.msb]
+    simp [h₀, h₁, h₂]
+    sorry
+
 
 /-! ### abs -/
 
@@ -2991,8 +3014,16 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
 
 @[simp]
 theorem msb_abs {w : Nat} {x : BitVec w} :
-    x.abs.msb = false := by
-  sorry
+    x.abs.msb = decide (x = BitVec.intMin _)  := by
+  by_cases h₀ : x = BitVec.intMin _ <;> by_cases h₁ : 0 < w <;> by_cases h₂ : x.msb
+  · simp [h₀, h₁, abs_intMin, msb_intMin]
+  · simp [h₀, h₁, msb_intMin]
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
+  · sorry
 
 /-! ### Decidable quantifiers -/
 

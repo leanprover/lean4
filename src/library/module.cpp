@@ -51,24 +51,27 @@ struct olean_header {
     char marker[5] = {'o', 'l', 'e', 'a', 'n'};
     // 1 byte: version, incremented on structural changes to header
     uint8_t version = 2;
-    // 1 byte flags:
+    // 1 byte of flags:
     // - whether persisted bignums use GMP or Lean-native encoding
-    bool:1 uses_gmp =
+    uint8_t flags =
 #ifdef LEAN_USE_GMP
-        true;
+        0b1;
 #else
-        false;
+        0b0;
 #endif
-    bool:7 unused = 0;
-    // 41 bytes: build githash, padded with `\0` to the right
-    char githash[41];
+    // 33 bytes: Lean version string, padded with '\0' to the right
+    // e.g. "4.12.0-nightly-2024-10-18"
+    char lean_version[33];
+    // 81b008650766442a0dfa9faa796e4588c9d7d3a1
+    // 40 bytes: build githash, padded with `\0` to the right
+    char githash[40];
     // address at which the beginning of the file (including header) is attempted to be mmapped
     size_t base_addr;
     // payload, a serialize Lean object graph; `size_t` has same alignment requirements as Lean objects
     size_t data[];
 };
 // make sure we don't have any padding bytes, which also ensures `data` is properly aligned
-static_assert(sizeof(olean_header) == 5 + 1 + 1 + 41 + sizeof(size_t), "olean_header must be packed");
+static_assert(sizeof(olean_header) == 5 + 1 + 1 + 33 + 40 + sizeof(size_t), "olean_header must be packed");
 
 extern "C" LEAN_EXPORT object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_arg mdata, object *) {
     std::string olean_fn(string_cstr(fname));
@@ -105,6 +108,7 @@ extern "C" LEAN_EXPORT object * lean_save_module_data(b_obj_arg fname, b_obj_arg
         // see/sync with file format description above
         olean_header header = {};
         header.base_addr = base_addr;
+        strncpy(header.lean_version, get_short_version_string().c_str(), sizeof(header.lean_version));
         strncpy(header.githash, LEAN_GITHASH, sizeof(header.githash));
         out.write(reinterpret_cast<char *>(&header), sizeof(header));
         out.write(static_cast<char const *>(compactor.data()), compactor.size());
@@ -153,7 +157,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
             || memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        if (header.version != default_header.version || header.uses_gmp != default_header.uses_gmp
+        if (header.version != default_header.version || header.flags != default_header.flags
 #ifdef LEAN_CHECK_OLEAN_VERSION
             || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
 #endif

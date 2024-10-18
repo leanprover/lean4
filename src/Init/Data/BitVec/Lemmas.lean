@@ -2961,27 +2961,14 @@ theorem msb_neg {x : BitVec w} :
     (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
   simp only [msb_eq_decide, toNat_neg, toNat_eq, toNat_ofNat, zero_mod, toNat_intMin]
   by_cases h₀ : w = 0
-  · simp [h₀, mod_one, ↓reduceIte]
-    intro h₁
-    and_intros
-    · simp [h₁]
-    · bv_omega
-  · by_cases h₁ : x.toNat = 0
-    · have h₂ : 1 ≤ 2 ^ (w - 1) := by simp [Nat.one_le_two_pow, show 0 ≤ w - 1 by omega]
-      simp [h₁, h₂]
-      omega
-    · simp [h₁]
-      by_cases h₂ : 2 ^ (w - 1) ≤ x.toNat -- x.toInt is negative
-      · simp [h₁, h₂]
-        by_cases h₃ : x.toNat = 2 ^ (w - 1) % 2 ^ w
-        · simp only [h₃, iff_true]
-          rw [aaaaaa]
-          have h₃ : (2 ^ w - 2 ^ (w - 1)) < 2 ^ w := by sorry
-          · sorry
-          · omega
-        · sorry
-      · simp [h₂]
-        sorry
+
+theorem getLsbD_neg {i : Nat} {x : BitVec w} :
+    getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
+  rw [neg_eq_not_add]
+
+theorem getMsbD_neg {i : Nat} {x : BitVec w} :
+    getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by
+  rw [neg_eq_not_add]
 
 /-! ### abs -/
 

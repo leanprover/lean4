@@ -77,7 +77,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       if !indIndices.all Expr.isFVar then
         throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
       else if !indIndices.allDiff then
-        throwError " its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
+        throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
       else
         let indexMinPos := getIndexMinPos xs indIndices
         let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed

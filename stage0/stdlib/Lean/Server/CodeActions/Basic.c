@@ -162,6 +162,7 @@ lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_454____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_handleCodeAction(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_513____closed__3;
+lean_object* l_List_flatMapTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_513____closed__26;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_513____closed__8;
 static lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_fromJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_125____closed__7;
@@ -189,7 +190,6 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_handleCodeAction___spec__10(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Server_handleCodeAction___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_bindTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(lean_object*, lean_object*);
 lean_object* l_Pi_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_codeActionProviderExt;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_513____lambda__3___closed__2;
@@ -424,7 +424,7 @@ x_24 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_24, 0, x_7);
 lean_ctor_set(x_24, 1, x_23);
 x_25 = l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_59____closed__5;
-x_26 = l_List_bindTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(x_24, x_25);
+x_26 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(x_24, x_25);
 x_27 = l_Lean_Json_mkObj(x_26);
 return x_27;
 }

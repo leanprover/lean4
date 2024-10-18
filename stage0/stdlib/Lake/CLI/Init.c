@@ -931,7 +931,7 @@ static lean_object* _init_l_Lake_mathLeanConfigFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" where\n  version := v!\"0.1.0\"\n  keywords := #[\"math\"]\n  leanOptions := #[\n    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`\n  ]\n\nrequire \"leanprover-community\" / \"mathlib\"\n\n@[default_target]\nlean_lib ", 213, 207);
+x_1 = lean_mk_string_unchecked(" where\n  version := v!\"0.1.0\"\n  keywords := #[\"math\"]\n  leanOptions := #[\n    ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`\n    ⟨`autoImplicit, false⟩\n  ]\n\nrequire \"leanprover-community\" / \"mathlib\"\n\n@[default_target]\nlean_lib ", 245, 235);
 return x_1;
 }
 }
@@ -986,7 +986,7 @@ static lean_object* _init_l_Lake_mathTomlConfigFileContents___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("]\n\n[leanOptions]\npp.unicode.fun = true # pretty-prints `fun a ↦ b`\n\n[[require]]\nname = \"mathlib\"\nscope = \"leanprover-community\"\n\n[[lean_lib]]\nname = ", 151, 149);
+x_1 = lean_mk_string_unchecked("]\n\n[leanOptions]\npp.unicode.fun = true # pretty-prints `fun a ↦ b`\nautoImplicit = false\n\n[[require]]\nname = \"mathlib\"\nscope = \"leanprover-community\"\n\n[[lean_lib]]\nname = ", 172, 170);
 return x_1;
 }
 }
@@ -1891,7 +1891,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(199u);
+x_3 = lean_unsigned_to_nat(201u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1912,7 +1912,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(202u);
+x_3 = lean_unsigned_to_nat(204u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

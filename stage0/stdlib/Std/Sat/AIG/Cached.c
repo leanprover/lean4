@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.Cached
-// Imports: Init Std.Sat.AIG.Basic Std.Sat.AIG.Lemmas
+// Imports: Std.Sat.AIG.Basic Std.Sat.AIG.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1467,7 +1467,6 @@ x_2 = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkGateCached___rarg), 4, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sat_AIG_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sat_AIG_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1475,9 +1474,6 @@ LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_Cached(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Sat_AIG_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

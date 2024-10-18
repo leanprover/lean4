@@ -1575,6 +1575,13 @@ extern "C" LEAN_EXPORT usize lean_usize_big_modn(usize a1, b_lean_obj_arg) {
 }
 
 // =======================================
+// IntX
+
+extern "C" LEAN_EXPORT int8 lean_int8_of_big_int(b_obj_arg a) {
+    return static_cast<int8>(mpz_value(a).mod8());
+}
+
+// =======================================
 // Float
 
 extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {

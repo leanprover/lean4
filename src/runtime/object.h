@@ -16,6 +16,8 @@ typedef uint32_t uint32;
 typedef uint64_t uint64;
 typedef size_t   usize;
 
+typedef int8_t  int8;
+
 typedef lean_object object;
 typedef object * obj_arg;
 typedef object * b_obj_arg;

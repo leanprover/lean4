@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
+import Init.Data.AC
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not

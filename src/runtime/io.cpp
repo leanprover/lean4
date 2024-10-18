@@ -7,6 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <io.h>
+#include <icu.h>
 #define NOMINMAX // prevent ntdef.h from defining min/max macros
 #include <ntdef.h>
 #include <bcrypt.h>
@@ -1143,6 +1144,25 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_set(b_obj_arg ref, obj_arg a, obj_arg
         lean_to_ref(ref)->m_value = a;
         return io_result_mk_ok(box(0));
     }
+}
+
+/* Lean.getCurrentYear : IO Nat */
+extern "C" LEAN_EXPORT obj_res lean_windows_get_current_year(obj_arg /* w */) {
+#if defined(LEAN_WINDOWS)
+    UErrorCode status = U_ZERO_ERROR;
+    UCalendar* cal = ucal_open(NULL, -1, NULL, UCAL_GREGORIAN, &status);
+    UDate now = ucal_getNow();
+    ucal_setMillis(cal, now, &status);
+    int32_t year = ucal_get(cal, UCAL_YEAR, &status);
+    if (U_FAILURE(status)) {
+        // Handle error
+        return io_result_mk_error(mk_io_user_error(lean_mk_string("Failed to get current year")));
+    }
+    ucal_close(cal);
+    return io_result_mk_ok(lean_int_to_int(year));
+#else
+    return io_result_mk_error(mk_io_user_error(lean_mk_string("Only on Windows")));
+#endif
 }
 
 extern "C" LEAN_EXPORT obj_res lean_st_ref_swap(b_obj_arg ref, obj_arg a, obj_arg) {

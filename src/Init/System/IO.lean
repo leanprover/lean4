@@ -93,6 +93,9 @@ set_option compiler.extract_closed false in
 @[extern "lean_io_timeit"] opaque timeit (msg : @& String) (fn : IO α) : IO α
 @[extern "lean_io_allocprof"] opaque allocprof (msg : @& String) (fn : IO α) : IO α
 
+@[extern "lean_windows_get_current_year"]
+opaque Lean.getCurrentYear : IO Nat
+
 /-- Programs can execute IO actions during initialization that occurs before
    the `main` function is executed. The attribute `[init <action>]` specifies
    which IO action is executed to set the value of an opaque constant.

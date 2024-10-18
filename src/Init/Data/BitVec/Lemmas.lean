@@ -2849,6 +2849,10 @@ theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
   have := @Nat.two_pow_pred_mul_two w (by omega)
   split <;> split <;> omega
 
+theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
+  simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
+  by_cases h : 0 < w <;> simp_all
+
 /-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
@@ -2952,10 +2956,6 @@ theorem msb_eq_toInt {x : BitVec w}:
 theorem msb_eq_toNat {x : BitVec w}:
     x.msb = decide ((x.toNat) ≥ 2 ^ (w - 1)) := by
   simp only [msb_eq_decide, ge_iff_le]
-
-theorem aaaaaa {w : Nat} (h : 0 < w):
-    2 ^ (w - 1) % 2 ^ w = 2 ^ (w - 1) := by
-  simp only [h, Nat.two_pow_pred_mod_two_pow]
 
 theorem msb_neg {x : BitVec w} :
     (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by

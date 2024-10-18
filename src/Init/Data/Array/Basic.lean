@@ -817,8 +817,14 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
 
 /-! ## Auxiliary functions used in metaprogramming.
 
-We do not intend to provide verification theorems for these functions.
+We do not currently intend to provide verification theorems for these functions.
 -/
+
+/- ### reduceOption -/
+
+/-- Drop `none`s from a Array, and replace each remaining `some a` with `a`. -/
+@[inline] def reduceOption (as : Array (Option α)) : Array α :=
+  as.filterMap id
 
 /-! ### eraseReps -/
 

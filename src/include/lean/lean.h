@@ -9,9 +9,11 @@ Author: Leonardo de Moura
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
+#include <string.h>
 
 #ifdef __cplusplus
 #include <atomic>
+#include <iostream>
 #include <stdlib.h>
 #define _Atomic(t) std::atomic<t>
 #define LEAN_USING_STD using namespace std; /* NOLINT */
@@ -1846,6 +1848,30 @@ static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2;
 /* usize -> other */
 static inline uint32_t lean_usize_to_uint32(size_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
+
+/* Int8 */
+LEAN_EXPORT int8_t lean_int8_of_big_int(b_lean_obj_arg a);
+static inline uint8_t lean_int8_of_int(b_lean_obj_arg a) {
+    int8_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (int8_t)((lean_scalar_to_int64(a)) % 128);
+    } else {
+        res = lean_int8_of_big_int(a);
+    }
+
+    uint8_t ret;
+    memcpy(&ret, &res, sizeof(int8_t));
+    return ret;
+}
+
+
+
+
+//static inline int8_t lean_int8_of_nat(b_lean_obj_arg a) { return lean_is_scalar(a) ? (uint8_t)(lean_unbox(a)) : lean_uint8_of_big_nat(a); }
+///* Remark: the following function is used to implement the constructor `UInt8.mk`. We can't annotate constructors with `@&` */
+//static inline uint8_t lean_uint8_of_nat_mk(lean_obj_arg a) { uint8_t r = lean_uint8_of_nat(a); lean_dec(a); return r; }
+//static inline lean_obj_res lean_uint8_to_nat(uint8_t a) { return lean_usize_to_nat((size_t)a); }
 
 /* Float */
 

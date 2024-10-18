@@ -161,6 +161,7 @@ static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonStack
 LEAN_EXPORT lean_object* l_Lean_Firefox_instFromJsonThread;
 static lean_object* l_Lean_Firefox_instFromJsonCategory___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Firefox_Profile_collide(lean_object*);
+lean_object* l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfile____x40_Lean_Util_Profiler___hyg_3535____closed__14;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSamplesTable____x40_Lean_Util_Profiler___hyg_1172____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonProfile____x40_Lean_Util_Profiler___hyg_3535____spec__2___boxed(lean_object*, lean_object*);
@@ -403,7 +404,6 @@ static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFuncT
 LEAN_EXPORT uint8_t l___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Firefox_instFromJsonProfile;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFuncTable____x40_Lean_Util_Profiler___hyg_1585____closed__1;
-lean_object* l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonProfileMeta____x40_Lean_Util_Profiler___hyg_634_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonRawMarkerTable____x40_Lean_Util_Profiler___hyg_2419_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___spec__30(uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -1323,7 +1323,7 @@ x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_9);
 lean_ctor_set(x_23, 1, x_22);
 x_24 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_25 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_23, x_24);
+x_25 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_23, x_24);
 x_26 = l_Lean_Json_mkObj(x_25);
 return x_26;
 }
@@ -2751,7 +2751,7 @@ x_53 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_53, 0, x_47);
 lean_ctor_set(x_53, 1, x_52);
 x_54 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_55 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_53, x_54);
+x_55 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_53, x_54);
 x_56 = l_Lean_Json_mkObj(x_55);
 return x_56;
 }
@@ -2777,7 +2777,7 @@ x_63 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_63, 0, x_47);
 lean_ctor_set(x_63, 1, x_62);
 x_64 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_65 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_63, x_64);
+x_65 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_63, x_64);
 x_66 = l_Lean_Json_mkObj(x_65);
 return x_66;
 }
@@ -2804,7 +2804,7 @@ x_72 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_72, 0, x_47);
 lean_ctor_set(x_72, 1, x_71);
 x_73 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_74 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_72, x_73);
+x_74 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_72, x_73);
 x_75 = l_Lean_Json_mkObj(x_74);
 return x_75;
 }
@@ -2830,7 +2830,7 @@ x_82 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_82, 0, x_47);
 lean_ctor_set(x_82, 1, x_81);
 x_83 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_84 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_82, x_83);
+x_84 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_82, x_83);
 x_85 = l_Lean_Json_mkObj(x_84);
 return x_85;
 }
@@ -2884,7 +2884,7 @@ x_98 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_98, 0, x_90);
 lean_ctor_set(x_98, 1, x_97);
 x_99 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_100 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_98, x_99);
+x_100 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_98, x_99);
 x_101 = l_Lean_Json_mkObj(x_100);
 return x_101;
 }
@@ -2921,7 +2921,7 @@ x_109 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_109, 0, x_90);
 lean_ctor_set(x_109, 1, x_108);
 x_110 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_111 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_109, x_110);
+x_111 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_109, x_110);
 x_112 = l_Lean_Json_mkObj(x_111);
 return x_112;
 }
@@ -2964,7 +2964,7 @@ x_122 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_122, 0, x_116);
 lean_ctor_set(x_122, 1, x_121);
 x_123 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_124 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_122, x_123);
+x_124 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_122, x_123);
 x_125 = l_Lean_Json_mkObj(x_124);
 return x_125;
 }
@@ -2990,7 +2990,7 @@ x_132 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_132, 0, x_116);
 lean_ctor_set(x_132, 1, x_131);
 x_133 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_134 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_132, x_133);
+x_134 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_132, x_133);
 x_135 = l_Lean_Json_mkObj(x_134);
 return x_135;
 }
@@ -3017,7 +3017,7 @@ x_141 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_141, 0, x_116);
 lean_ctor_set(x_141, 1, x_140);
 x_142 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_143 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_141, x_142);
+x_143 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_141, x_142);
 x_144 = l_Lean_Json_mkObj(x_143);
 return x_144;
 }
@@ -3043,7 +3043,7 @@ x_151 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_151, 0, x_116);
 lean_ctor_set(x_151, 1, x_150);
 x_152 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_153 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_151, x_152);
+x_153 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_151, x_152);
 x_154 = l_Lean_Json_mkObj(x_153);
 return x_154;
 }
@@ -3097,7 +3097,7 @@ x_167 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_167, 0, x_159);
 lean_ctor_set(x_167, 1, x_166);
 x_168 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_169 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_167, x_168);
+x_169 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_167, x_168);
 x_170 = l_Lean_Json_mkObj(x_169);
 return x_170;
 }
@@ -3134,7 +3134,7 @@ x_178 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_178, 0, x_159);
 lean_ctor_set(x_178, 1, x_177);
 x_179 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_180 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_178, x_179);
+x_180 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_178, x_179);
 x_181 = l_Lean_Json_mkObj(x_180);
 return x_181;
 }
@@ -4301,7 +4301,7 @@ x_42 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_42, 0, x_10);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_44 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_42, x_43);
+x_44 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_42, x_43);
 x_45 = l_Lean_Json_mkObj(x_44);
 return x_45;
 }
@@ -5224,7 +5224,7 @@ x_40 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_40, 0, x_10);
 lean_ctor_set(x_40, 1, x_39);
 x_41 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_42 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_40, x_41);
+x_42 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_40, x_41);
 x_43 = l_Lean_Json_mkObj(x_42);
 return x_43;
 }
@@ -6347,7 +6347,7 @@ x_66 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_66, 0, x_10);
 lean_ctor_set(x_66, 1, x_65);
 x_67 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_68 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_66, x_67);
+x_68 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_66, x_67);
 x_69 = l_Lean_Json_mkObj(x_68);
 return x_69;
 }
@@ -6865,7 +6865,7 @@ x_34 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_34, 0, x_10);
 lean_ctor_set(x_34, 1, x_33);
 x_35 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_36 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_34, x_35);
+x_36 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_34, x_35);
 x_37 = l_Lean_Json_mkObj(x_36);
 return x_37;
 }
@@ -7233,7 +7233,7 @@ x_26 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_26, 0, x_10);
 lean_ctor_set(x_26, 1, x_25);
 x_27 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_28 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_26, x_27);
+x_28 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_26, x_27);
 x_29 = l_Lean_Json_mkObj(x_28);
 return x_29;
 }
@@ -7522,7 +7522,7 @@ x_18 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_18, 0, x_10);
 lean_ctor_set(x_18, 1, x_17);
 x_19 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_20 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_18, x_19);
+x_20 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_18, x_19);
 x_21 = l_Lean_Json_mkObj(x_20);
 return x_21;
 }
@@ -8762,7 +8762,7 @@ x_65 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_65, 0, x_16);
 lean_ctor_set(x_65, 1, x_64);
 x_66 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_67 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_65, x_66);
+x_67 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_65, x_66);
 x_68 = l_Lean_Json_mkObj(x_67);
 return x_68;
 }
@@ -9388,7 +9388,7 @@ x_25 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_25, 0, x_7);
 lean_ctor_set(x_25, 1, x_24);
 x_26 = l___private_Lean_Util_Profiler_0__Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_189____closed__1;
-x_27 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_25, x_26);
+x_27 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_25, x_26);
 x_28 = l_Lean_Json_mkObj(x_27);
 return x_28;
 }

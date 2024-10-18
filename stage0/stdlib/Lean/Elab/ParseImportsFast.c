@@ -35,6 +35,7 @@ static lean_object* l_Lean_ParseImports_instInhabitedState___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ParseImports_moduleIdent_parse(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParseImports_isIdRestFast___boxed(lean_object*);
 extern uint32_t l_Lean_idBeginEscape;
+lean_object* l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImports_main___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParseImports_many___at_Lean_ParseImports_main___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParseImports_keywordCore_go___at_Lean_ParseImports_preludeOpt___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,7 +84,6 @@ LEAN_EXPORT lean_object* l_Lean_ParseImports_many(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_ParseImports_keyword(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParseImports_State_mkEOIError___closed__2;
 LEAN_EXPORT lean_object* l_Lean_ParseImports_State_mkEOIError(lean_object*);
-lean_object* l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(lean_object*, lean_object*);
 lean_object* l_IO_FS_readFile(lean_object*, lean_object*);
 uint8_t l_Lean_isLetterLike(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_ParseImports_moduleIdent_parse___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4366,7 +4366,7 @@ x_17 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_17, 0, x_10);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Lean_parseImports_x27___closed__1;
-x_19 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_17, x_18);
+x_19 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_17, x_18);
 x_20 = l_Lean_Json_mkObj(x_19);
 return x_20;
 }
@@ -4550,7 +4550,7 @@ x_15 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_15, 0, x_4);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_parseImports_x27___closed__1;
-x_17 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_15, x_16);
+x_17 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_15, x_16);
 x_18 = l_Lean_Json_mkObj(x_17);
 return x_18;
 }
@@ -4641,7 +4641,7 @@ x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
 x_11 = l_Lean_parseImports_x27___closed__1;
-x_12 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_10, x_11);
+x_12 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_10, x_11);
 x_13 = l_Lean_Json_mkObj(x_12);
 return x_13;
 }

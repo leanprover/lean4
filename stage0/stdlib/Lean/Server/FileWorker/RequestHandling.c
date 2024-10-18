@@ -403,6 +403,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_FileW
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight_highlightReturn_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTrailingSize(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_12731____spec__7___lambda__1(lean_object*);
+lean_object* l_List_flatMapTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
@@ -493,7 +494,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleSemanticTokens___lambda_
 LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_handleHover___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_12731_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__8___closed__11;
-lean_object* l_List_bindTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_12731____spec__37___lambda__1(lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken____x40_Lean_Server_FileWorker_RequestHandling___hyg_8744____closed__11;
 static lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_12731____spec__2___closed__1;
@@ -19925,7 +19925,7 @@ x_20 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_20, 0, x_7);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = l_Lean_Server_FileWorker_handleCompletion___lambda__1___closed__1;
-x_22 = l_List_bindTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(x_20, x_21);
+x_22 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_86____spec__1(x_20, x_21);
 x_23 = l_Lean_Json_mkObj(x_22);
 return x_23;
 }

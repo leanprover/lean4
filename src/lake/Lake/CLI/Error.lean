@@ -7,6 +7,8 @@ Authors: Mac Malone
 namespace Lake
 open Lean (Name)
 
+deriving instance Repr for IO.Error
+
 inductive CliError
 /- CLI Errors -/
 | missingCommand

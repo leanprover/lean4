@@ -297,6 +297,23 @@ if(NOT LEAN_STANDALONE)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
 endif()
 
+# Windows SDK (for ICU)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # Pass 'tools' to skip MSVC version check (as MSVC/Visual Studio is not necessarily installed)
+  find_package(WindowsSDK REQUIRED COMPONENTS tools)
+
+  # This will give a semicolon-separated list of include directories
+  get_windowssdk_include_dirs(${WINDOWSSDK_LATEST_DIR} WINDOWSSDK_INCLUDE_DIRS)
+
+  # To successfully build against Windows SDK headers, the Windows SDK headers must have lower
+  # priority than other system headers, so use `-idirafter`. Unfortunately, CMake does not
+  # support this using `include_directories`.
+  string(REPLACE ";" "\" -idirafter \"" WINDOWSSDK_INCLUDE_DIRS "${WINDOWSSDK_INCLUDE_DIRS}")
+  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIRS}\"")
+
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
+endif()
+
 # ccache
 if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   find_program(CCACHE_PATH ccache)
@@ -480,7 +497,7 @@ endif()
 # Git HASH
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
-  get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+  get_git_head_revision(GIT_REFSPEC GIT_SHA1 ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
     set(GIT_SHA1 "")

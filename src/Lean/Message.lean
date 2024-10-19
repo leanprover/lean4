@@ -12,6 +12,7 @@ import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.PPExt
 import Lean.Util.Sorry
+import Lean.Modifiers
 
 namespace Lean
 
@@ -168,7 +169,29 @@ def ofLevel (l : Level) : MessageData :=
       return Dynamic.mk msg)
     (fun _ => false)
 
+/--
+Simply formats the name.
+
+See `MessageData.ofConstName` for richer messages.
+-/
 def ofName (n : Name) : MessageData := ofFormat (format n)
+
+/--
+Represents a constant name such that hovering and "go to definition" works.
+If there is no such constant in the environment, the name is simply formatted.
+
+This function is used for the default `Name`-to-`MessageData` coercion.
+
+Use `MessageData.ofName` to prevent hovers.
+-/
+def ofConstName (constName : Name) : MessageData :=
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormatWithInfos <$> match ctx? with
+        | .none => pure (format constName)
+        | .some ctx => ppConstNameWithInfos ctx constName
+      return Dynamic.mk msg)
+    (fun _ => false)
 
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=
   visit none msg
@@ -220,7 +243,7 @@ instance : Coe String MessageData := ⟨ofFormat ∘ format⟩
 instance : Coe Format MessageData := ⟨ofFormat⟩
 instance : Coe Level MessageData  := ⟨ofLevel⟩
 instance : Coe Expr MessageData   := ⟨ofExpr⟩
-instance : Coe Name MessageData   := ⟨ofName⟩
+instance : Coe Name MessageData   := ⟨ofConstName⟩
 instance : Coe Syntax MessageData := ⟨ofSyntax⟩
 instance : Coe MVarId MessageData := ⟨ofGoal⟩
 instance : Coe (Option Expr) MessageData := ⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
@@ -458,7 +481,7 @@ def stringToMessageData (str : String) : MessageData :=
 instance [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ format⟩
 instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩
 instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
-instance : ToMessageData Name          := ⟨MessageData.ofName⟩
+instance : ToMessageData Name          := ⟨MessageData.ofConstName⟩
 instance : ToMessageData String        := ⟨stringToMessageData⟩
 instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
 instance : ToMessageData (TSyntax k)   := ⟨(MessageData.ofSyntax ·)⟩

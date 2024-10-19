@@ -63,6 +63,13 @@ def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (d
     let fmt ← ppTerm stx >>= maybePrependExprSizes e
     return ⟨fmt, infos⟩
 
+def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
+  if let some info := (← getEnv).find? constName then
+    let delab := Delaborator.withOptionAtCurrPos `pp.tagAppFns true Delaborator.delabConst
+    PrettyPrinter.ppExprWithInfos (delab := delab) (.const constName <| info.levelParams.map mkLevelParam)
+  else
+    return Std.ToFormat.format constName
+
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
   Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
@@ -103,9 +110,10 @@ private def withoutContext {m} [MonadExcept Exception m] (x : m α) : m α :=
 
 builtin_initialize
   ppFnsRef.set {
-    ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e,
-    ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx,
-    ppLevel := fun ctx l => return l.format (mvars := getPPMVarsLevels ctx.opts),
+    ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e
+    ppConstNameWithInfos := fun ctx n => ctx.runMetaM <| withoutContext <| ppConstNameWithInfos n
+    ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx
+    ppLevel := fun ctx l => return l.format (mvars := getPPMVarsLevels ctx.opts)
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }
 
@@ -147,6 +155,8 @@ Pretty print a const expression using `delabConst` and generate terminfo.
 This function avoids inserting `@` if the constant is for a function whose first
 argument is implicit, which is what the default `toMessageData` for `Expr` does.
 Panics if `e` is not a constant.
+
+See also `MessageData.ofConstName`.
 -/
 def ofConst (e : Expr) : MessageData :=
   if e.isConst then
@@ -154,19 +164,6 @@ def ofConst (e : Expr) : MessageData :=
     .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delab) e)
   else
     panic! "not a constant"
-
-/--
-Pretty print a constant given its name, similar to `Lean.MessageData.ofConst`.
-Uses the constant's universe level parameters when pretty printing.
-If there is no such constant in the environment, the name is simply formatted.
--/
-def ofConstName (constName : Name) : MessageData :=
-  .ofFormatWithInfosM do
-    if let some info := (← getEnv).find? constName then
-      let delab : Delab := withOptionAtCurrPos `pp.tagAppFns true delabConst
-      PrettyPrinter.ppExprWithInfos (delab := delab) (.const constName <| info.levelParams.map mkLevelParam)
-    else
-      return format constName
 
 /-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
 def signature (c : Name) : MessageData :=

@@ -3028,8 +3028,8 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i =
-      (getMsbD x i ^^ decide (∃ j < w, j > i ∧ getMsbD x j = true)) := by
-  simp [getMsbD, getLsbD_neg]
+      (getMsbD x i ^^ decide (∃ j < w, i < j ∧ getMsbD x j = true)) := by
+  simp only [getMsbD, getLsbD_neg, Bool.decide_and, Bool.and_eq_true, decide_eq_true_eq]
   by_cases hi : i < w
   case neg =>
     simp [hi]; omega

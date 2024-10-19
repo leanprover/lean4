@@ -1982,7 +1982,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
 
 @[simp, bv_toNat] theorem toInt_sub {x y : BitVec w} :
   (x - y).toInt = (x.toInt - y.toInt).bmod (2^w) := by
-  simp [toInt_eq_toNat_bmod, Int.natCast_sub (2 ^ w) y.toNat (by omega)]
+  simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
 
 -- We prefer this lemma to `toNat_sub` for the `bv_toNat` simp set.
 -- For reasons we don't yet understand, unfolding via `toNat_sub` sometimes

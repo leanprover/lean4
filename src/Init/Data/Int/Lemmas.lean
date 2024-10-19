@@ -68,20 +68,6 @@ def eq_add_one_iff_neg_eq_negSucc {m n : Nat} : m = n + 1 ↔ -↑m = -[n+1] := 
 
 @[norm_cast] theorem ofNat_inj : ((m : Nat) : Int) = (n : Nat) ↔ m = n := ⟨ofNat.inj, congrArg _⟩
 
-@[local simp] theorem ofNat_sub_ofNat (m n : Nat) (h : n ≤ m) : (↑m - ↑n : Int) = ↑(m - n) := by
-  simp only [instHSub, Sub.sub, Int.sub, instHAdd, Add.add, Int.add]
-  split
-  case h_1 _ _ _ nb _ hb =>
-    symm at hb
-    cases n <;> simp_all [(@ofNat_inj nb 0).mp]
-  case h_2 _ _ na _ ha hb =>
-    have h' := eq_add_one_iff_neg_eq_negSucc.mpr hb
-    have h'' := (@ofNat_inj m na).mp ha
-    rw [h', h''] at h
-    simp [subNatNat_of_sub h, ofNat_inj, h', h'']
-  · simp_all
-  · simp_all
-
 theorem ofNat_eq_zero : ((n : Nat) : Int) = 0 ↔ n = 0 := ofNat_inj
 
 theorem ofNat_ne_zero : ((n : Nat) : Int) ≠ 0 ↔ n ≠ 0 := not_congr ofNat_eq_zero
@@ -553,12 +539,6 @@ theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
   -- Note this only works because of local simp attributes in this file,
   -- so it still makes sense to tag the lemmas with `@[simp]`.
   simp
-
-@[simp] theorem natCast_sub (a b : Nat) (h : b ≤ a) :
-    ((a - b : Nat) : Int) = (a : Int) - (b : Int) := by
-  simp [h]
-  -- Note this only works because of local simp attributes in this file,
-  -- so it still makes sense to tag the lemmas with `@[simp]`.
 
 @[simp] theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
   simp

@@ -94,13 +94,9 @@ theorem ofNat_sub_dichotomy {a b : Nat} :
     b ≤ a ∧ ((a - b : Nat) : Int) = a - b ∨ a < b ∧ ((a - b : Nat) : Int) = 0 := by
   by_cases h : b ≤ a
   · left
-    have t := Int.ofNat_sub h
-    simp at t
-    exact ⟨h, t⟩
+    simp [h]
   · right
-    have t := Nat.not_le.mp h
-    simp [Int.ofNat_sub_eq_zero h]
-    exact t
+    simp [Int.ofNat_sub_eq_zero, Nat.not_le.mp, h]
 
 theorem ofNat_congr {a b : Nat} (h : a = b) : (a : Int) = (b : Int) := congrArg _ h
 

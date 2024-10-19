@@ -151,8 +151,17 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
   let i := ictx.info
   let ci := ictx.ctx
   let children := ictx.children
-  match i with
-  | .ofTermInfo ti =>
+
+  let locationLinksDefault : RequestM (Array LocationLink) := do
+    -- If other go-tos fail, we try to show the elaborator or parser
+    if let some ei := i.toElabInfo? then
+      if kind == declaration && ci.env.contains ei.stx.getKind then
+        return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
+      if kind == definition && ci.env.contains ei.elaborator then
+        return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
+    return #[]
+
+  let locationLinksFromTermInfo (ti : TermInfo) : RequestM (Array LocationLink) := do
     let mut expr := ti.expr
     if kind == type then
       expr ← ci.runMetaM i.lctx do
@@ -206,6 +215,11 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
             }
             results := results.insertAt 0 result
         return results
+    locationLinksDefault
+
+  match i with
+  | .ofTermInfo ti => return ← locationLinksFromTermInfo ti
+  | .ofOmissionInfo ti => return ← locationLinksFromTermInfo ti.toTermInfo
   | .ofFieldInfo fi =>
     if kind == type then
       let expr ← ci.runMetaM i.lctx do
@@ -220,13 +234,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     if kind == definition || kind == declaration then
       return ← ci.runMetaM i.lctx <| locationLinksFromImport i
   | _ => pure ()
-  -- If other go-tos fail, we try to show the elaborator or parser
-  if let some ei := i.toElabInfo? then
-    if kind == declaration && ci.env.contains ei.stx.getKind then
-      return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
-    if kind == definition && ci.env.contains ei.elaborator then
-      return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
-  return #[]
+  locationLinksDefault
 
 open Elab GoToKind in
 def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)

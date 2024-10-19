@@ -514,7 +514,7 @@ def mkSome (type value : Expr) : MetaM Expr := do
   return mkApp2 (mkConst ``Option.some [u]) type value
 
 /--
-Return `sorryAx type synthetic`. Recall that `synthetic` is true if this sorry is from an error.
+Returns `sorryAx type synthetic`. Recall that `synthetic` is true if this sorry is from an error.
 -/
 def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
   let u ← getLevel type
@@ -544,7 +544,7 @@ def UniqueSorryView.decode? (name : Name) : Option UniqueSorryView := do
     failure
 
 /--
-Make a `sorryAx` that is unique, in the sense that it is not defeq to any other `sorry` created by `mkUniqueSorry`.
+Makes a `sorryAx` that is unique, in the sense that it is not defeq to any other `sorry` created by `mkUniqueSorry`.
 
 Encodes the source position of the current ref into the term.
 -/
@@ -559,7 +559,7 @@ def mkUniqueSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
   return .app e (toExpr tag)
 
 /--
-Return a `UniqueSorryView` if `e` is an application of an expression returned by `mkUniqueSorry`.
+Returns a `UniqueSorryView` if `e` is an application of an expression returned by `mkUniqueSorry`.
 -/
 def isUniqueSorry? (e : Expr) : Option UniqueSorryView := do
   guard <| e.isAppOf ``sorryAx && e.getAppNumArgs ≥ 3

@@ -403,7 +403,7 @@ syntax (name := acRfl) "ac_rfl" : tactic
 The `sorry` tactic is a temporary placeholder for an incomplete tactic proof,
 closing the main goal using `exact sorry`.
 
-This is intended for stubbing out incomplete parts of a proof while still having a syntactically correct proof skeleton.
+This is intended for stubbing-out incomplete parts of a proof while still having a syntactically correct proof skeleton.
 Lean will give a warning whenever a proof uses `sorry`, so you aren't likely to miss it,
 but you can double check if a theorem depends on `sorry` by looking for `sorryAx` in the output
 of the `#print axioms my_thm` command, which is the axiom used by implementation of `sorry`.

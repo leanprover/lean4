@@ -218,10 +218,12 @@ def binderIdent : Parser  := ident <|> hole
 /--
 The `sorry` term is a temporary placeholder for a missing proof or value.
 
-This is intended for stubbing out incomplete parts of a proof while still having a syntactically correct proof skeleton.
-Lean will give a warning whenever a proof uses `sorry`, so you aren't likely to miss it,
-but you can double check if a theorem depends on `sorry` by looking for `sorryAx` in the output
+The syntax is intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.
+Lean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,
+but you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output
 of the `#print axioms my_thm` command, which is the axiom used by implementation of `sorry`.
+
+"Go to definition" on `sorry` will go to the source position where it was introduced.
 
 Each `sorry` is guaranteed to be unique, so for example the following fails:
 ```lean

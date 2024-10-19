@@ -648,12 +648,10 @@ set_option linter.unusedVariables.funArgs false in
 Auxiliary axiom used to implement the `sorry` term and tactic.
 
 The `sorry` term/tactic expands to `sorryAx _ (synthetic := false)`.
-This is intended for stubbing out incomplete parts of a proof while still having a syntactically correct proof skeleton.
-Lean will give a warning whenever a proof uses `sorry`, so you aren't likely to miss it,
-but you can double check if a theorem depends on `sorry` by looking for `sorryAx` in the output
+It intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.
+Lean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,
+but you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output
 of the `#print axioms my_thm` command.
-
-"Go to definition" on `sorry` will go to the source position where it was introduced.
 
 The `synthetic` flag is false when written explicitly by the user, but it is
 set to `true` when a tactic fails to prove a goal, or if there is a type error

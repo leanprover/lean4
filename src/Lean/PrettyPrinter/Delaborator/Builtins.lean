@@ -573,7 +573,7 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   else
     let delabHead (insertExplicit : Bool) : Delab := do
       guard <| !insertExplicit
-      withAnnotateTermInfo x
+      withAnnotateTermInfoUnlessAnnotated x
     delabAppCore (n - arity) delabHead (unexpand := false)
 
 @[builtin_delab app]
@@ -1227,14 +1227,30 @@ def delabNameMkStr : Delab := whenPPOption getPPNotation do
 def delabNameMkNum : Delab := delabNameMkStr
 
 @[builtin_delab app.sorryAx]
-def delabSorry : Delab := whenPPOption getPPNotation do
+def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit do
   guard <| (← getExpr).getAppNumArgs ≥ 2
-  let mut arity := 2
   -- If this is constructed by `Lean.Meta.mkUniqueSorry`, then don't print the unique tag.
-  if isUniqueSorry? (← getExpr) |>.isSome then
-    arity := 3
-  withOverApp arity do
-    `(sorry)
+  -- But, if `pp.explicit` is false and `pp.sorrySource` is true, then print a simplified version of the tag.
+  if let some view := isUniqueSorry? (← getExpr) then
+    withOverApp 3 do
+      if let (some module, some range) := (view.module?, view.range?) then
+        if ← getPPOption getPPSorrySource then
+          -- LSP line numbers start at 0, so add one to it.
+          -- Technically using the character as the column is incorrect since this is UTF-16 position, but we have no filemap to work with.
+          let posAsName := Name.mkSimple s!"{module}:{range.start.line + 1}:{range.start.character}"
+          let pos := mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{posAsName}"]
+          let src ← withAppArg <| annotateTermInfo pos
+          `(sorry $src)
+        else
+          -- Hack: use omission info so that the first hover gives the sorry source.
+          let stx ← `(sorry)
+          let stx ← annotateCurPos stx
+          addOmissionInfo (← getPos) stx (← getExpr) .uniqueSorry
+          return stx
+      else
+        `(sorry)
+  else
+    withOverApp 2 `(sorry)
 
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]

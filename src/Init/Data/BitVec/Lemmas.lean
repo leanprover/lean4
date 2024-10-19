@@ -2006,6 +2006,8 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
 
+@[simp] protected theorem zero_sub (x : BitVec n) : 0#n - x = -x := rfl
+
 @[simp] protected theorem sub_self (x : BitVec n) : x - x = 0#n := by
   apply eq_of_toNat_eq
   simp only [toNat_sub]
@@ -2018,18 +2020,8 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 
 theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
-  simp only [toInt_eq_toNat_bmod, toNat_neg, Int.ofNat_emod, Int.emod_bmod_congr]
-  rw [← Int.subNatNat_of_le (by omega), Int.subNatNat_eq_coe, Int.sub_eq_add_neg, Int.add_comm,
-    Int.bmod_add_cancel]
-  by_cases h : x.toNat < ((2 ^ w) + 1) / 2
-  · rw [Int.bmod_pos (x := x.toNat)]
-    all_goals simp only [toNat_mod_cancel']
-    norm_cast
-  · rw [Int.bmod_neg (x := x.toNat)]
-    · simp only [toNat_mod_cancel']
-      rw_mod_cast [Int.neg_sub, Int.sub_eq_add_neg, Int.add_comm, Int.bmod_add_cancel]
-    · norm_cast
-      simp_all
+  rw [← BitVec.zero_sub, toInt_sub]
+  simp [BitVec.toInt_ofNat]
 
 @[simp] theorem toFin_neg (x : BitVec n) :
     (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=

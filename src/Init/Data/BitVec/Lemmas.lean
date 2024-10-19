@@ -3046,23 +3046,47 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
       omega
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
-    (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
-  by_cases h₀ : w = 0 <;> by_cases h₁ : x = 0#w <;> by_cases h₂ : x = intMin w
-  · simp [h₀, h₁]
-  · simp [h₀, h₁, h₂]
-  · simp_all [h₀, h₁, h₂, bv_toNat]
-  · simp [h₀, h₁, h₂, bv_toNat]
-    by_cases h₃ : x.toNat = 0
-    · simp_all [bv_toNat]
-    · simp [h₃, Nat.mod_one]
-      bv_omega
-  · simp [h₀, h₁]
-  · simp [h₀, h₁, h₂]
-  · simp [h₀, h₁, h₂, msb_intMin, show 0 < w by omega]
-  · rw [BitVec.msb]
-    rw [BitVec.msb]
-    simp [h₀, h₁, h₂]
-    sorry
+    (-x).msb = ((!decide (x = 0#w) && !decide (x = intMin w)) ^^ x.msb) := by
+  have getMsbD_intMin {w i} : (intMin w).getMsbD i = decide (0 < w ∧ i = 0) :=
+      sorry
+
+  simp only [BitVec.msb, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
+  by_cases hmin : x = intMin _
+  case pos =>
+    have : (∃ j, j < w ∧ 0 < j ∧ 0 < w ∧ j = 0) ↔ False := by
+      simp; omega
+    simp [hmin, getMsbD_intMin, this]
+  case neg =>
+    by_cases hzero : x = 0#w
+    case pos => simp [hzero]
+    case neg =>
+      have w_pos : 0 < w := by
+        -- follows from the fact that `BitVec 0` is a subsingleton, and we have
+        -- `x ≠ intMin w`, so `w` cannot be `0`
+        sorry
+      suffices ∃ j, j < w ∧ 0 < j ∧ x.getMsbD j = true
+        by simp [hmin, hzero, this]
+      false_or_by_contra
+      rename_i getMsbD_x
+      simp only [not_exists, not_and, Bool.not_eq_true] at getMsbD_x
+      /- `getMsbD` says that all bits except the msb are `false` -/
+      cases hmsb : x.msb
+      case true =>
+        apply hmin
+        apply eq_of_getMsbD_eq
+        rintro ⟨i, hi⟩
+        simp only [getMsbD_intMin, w_pos, true_and]
+        cases i
+        case zero => exact hmsb
+        case succ => exact getMsbD_x _ hi (by omega)
+      case false =>
+        apply hzero
+        apply eq_of_getMsbD_eq
+        rintro ⟨i, hi⟩
+        simp only [getMsbD_zero]
+        cases i
+        case zero => exact hmsb
+        case succ => exact getMsbD_x _ hi (by omega)
 
 
 /-! ### abs -/

@@ -21,14 +21,6 @@ theorem subNatNat_of_sub_eq_zero {m n : Nat} (h : n - m = 0) : subNatNat m n = �
 theorem subNatNat_of_sub_eq_succ {m n k : Nat} (h : n - m = succ k) : subNatNat m n = -[k+1] := by
   rw [subNatNat, h]
 
-theorem subNatNat_of_sub {m n : Nat} (h : n ≤ m) : subNatNat m n = ↑(m - n) := by
-  rw [subNatNat, ofNat_eq_coe]
-  split
-  case h_1 _ _ =>
-    simp
-  case h_2 _ h' =>
-    simp [Nat.sub_eq_zero_of_le h] at h'
-
 @[simp] protected theorem neg_zero : -(0:Int) = 0 := rfl
 
 @[norm_cast] theorem ofNat_add (n m : Nat) : (↑(n + m) : Int) = n + m := rfl
@@ -61,10 +53,6 @@ theorem negOfNat_eq : negOfNat n = -ofNat n := rfl
     -[m+1] * -[n+1] = ofNat (succ m * succ n) := rfl
 
 /- ## some basic functions and properties -/
-
-def eq_add_one_iff_neg_eq_negSucc {m n : Nat} : m = n + 1 ↔ -↑m = -[n+1] := by
-  simp [Neg.neg, instNegInt, Int.neg, negOfNat]
-  split <;> simp [Nat.add_one_inj]
 
 @[norm_cast] theorem ofNat_inj : ((m : Nat) : Int) = (n : Nat) ↔ m = n := ⟨ofNat.inj, congrArg _⟩
 

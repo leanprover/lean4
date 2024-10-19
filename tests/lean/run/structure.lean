@@ -28,7 +28,7 @@ info: #[const2ModIdx, constants, extensions, extraConstNames, header]
 #[toS2, toS1, x, y, z, toS3, w, s]
 (some [S4.toS2, S2.toS1])
 #[S2, S3]
-#[S2, S1, S3]
+#[S2, S3, S1]
 -/
 #guard_msgs in
 #eval show CoreM Unit from do
@@ -51,7 +51,7 @@ info: #[const2ModIdx, constants, extensions, extraConstNames, header]
   IO.println (getStructureFieldsFlattened env `S4)
   IO.println (getPathToBaseStructure? env `S1 `S4)
   IO.println (getStructureSubobjects env `S4)
-  IO.println (getAllParentStructures env `S4)
+  IO.println (← getAllParentStructures `S4)
   pure ()
 
 def dumpStructInfo (structName : Name) : CoreM Unit := do

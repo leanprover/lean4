@@ -3027,8 +3027,23 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
-    getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by
-  rw [neg_eq_not_add]
+    getMsbD (-x) i =
+      (getMsbD x i ^^ decide (∃ j < w, j > i ∧ getMsbD x j = true)) := by
+  simp [getMsbD, getLsbD_neg]
+  by_cases hi : i < w
+  case neg =>
+    simp [hi]; omega
+  case pos =>
+    have h₁ : w - 1 - i < w := by omega
+    simp only [hi, decide_True, h₁, Bool.true_and, Bool.bne_left_inj, decide_eq_decide]
+    constructor
+    · rintro ⟨j, hj, h⟩
+      refine ⟨w - 1 - j, ?_, ?_, ?_, _root_.cast ?_ h⟩
+      <;> try omega
+      congr; omega
+    · rintro ⟨j, hj₁, hj₂, -, h⟩
+      refine ⟨w - 1 - j, ?_, h⟩
+      omega
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
     (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by

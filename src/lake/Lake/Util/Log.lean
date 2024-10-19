@@ -574,7 +574,7 @@ A monad equipped with a log function and the ability to perform I/O.
 Unlike `LogIO`, log entries are not retained by the monad but instead eagerly
 passed to the log function.
 -/
-abbrev LoggerIO := ReaderT (MonadLog BaseIO) (EIO PUnit)
+abbrev LoggerIO := MonadLogT BaseIO (EIO PUnit)
 
 instance : MonadError LoggerIO := ⟨MonadLog.error⟩
 instance : MonadLift IO LoggerIO := ⟨MonadError.runIO⟩

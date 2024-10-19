@@ -3061,9 +3061,10 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
     case pos => simp [hzero]
     case neg =>
       have w_pos : 0 < w := by
-        -- follows from the fact that `BitVec 0` is a subsingleton, and we have
-        -- `x ≠ intMin w`, so `w` cannot be `0`
-        sorry
+        cases w
+        · rw [@of_length_zero x] at hzero
+          contradiction
+        · omega
       suffices ∃ j, j < w ∧ 0 < j ∧ x.getMsbD j = true
         by simp [hmin, hzero, this]
       false_or_by_contra

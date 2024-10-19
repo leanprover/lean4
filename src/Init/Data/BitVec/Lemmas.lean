@@ -2965,9 +2965,66 @@ theorem msb_eq_toNat {x : BitVec w}:
     x.msb = decide ((x.toNat) ≥ 2 ^ (w - 1)) := by
   simp only [msb_eq_decide, ge_iff_le]
 
+/-- carry i x y c returns true if the `i` carry bit is true when computing `x + y + c`. -/
+def carry (i : Nat) (x y : BitVec w) (c : Bool) : Bool :=
+  decide (x.toNat % 2^i + y.toNat % 2^i + c.toNat ≥ 2^i)
+
+-- Taken from BitVec/Bitblast.lean
+theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
+    getLsbD (x + y) i =
+      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y false)) := by
+  sorry
+
+-- Taken from BitVec/Bitblast.lean
+theorem carry_incr (i : Nat) (x : BitVec w) (h : 0 < w) :
+    carry (i+1) x (1#w) false = decide (∀ j ≤ i, x.getLsbD j = true) := by
+  sorry
+
+/--
+Remember that a negating a bitvector is equal to incrementing the complement
+by one, i.e., `-x = ~~~x + 1`. (see `neg_eq_not_add`)
+
+Thus, if the least-signifiant-bit of `x` is `true`, then it's complement is
+`false`, we add one to it, and we get that the lsb of the negation is `true`,
+and the carry disappeared, so the rest of the bits remain complemented.
+
+Otherwise, if the least-significant bit of `x` was `false`, then its complement
+is `true`, which flips back to the original value of `false` after adding one,
+and the carry remains.
+
+Extrapolating, we find that the `i`-th bit of `-x` is equal to the `i`-th bit
+of the input `x` iff the least significant `i` bits of `x` (including the `i`-th
+bit itself) are `false`.
+Otherwise, if one of those bits is `true`, the `i`-th bit of `-x` is the
+complement of the `i`-th bit of `x`.
+-/
 theorem getLsbD_neg {i : Nat} {x : BitVec w} :
-    getLsbD (-x) i = getLsbD (~~~x + 1#w) i := by
+    getLsbD (-x) i =
+      (getLsbD x i ^^ decide (i < w ∧ ∃ j < i, getLsbD x j = true)) := by
   rw [neg_eq_not_add]
+  by_cases hi : i < w
+  case neg =>
+    have h_ge : w ≤ i := by omega
+    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+  case pos =>
+    rw [getLsbD_add hi]
+    have : 0 < w := by omega
+    simp only [getLsbD_not, hi, decide_True, Bool.true_and, getLsbD_one, this, Bool.not_bne,
+      Bool.not_eq_eq_eq_not, true_and, bne_iff_ne, ne_eq, decide_eq_decide]
+
+    cases i
+    case zero =>
+      have carry_zero : carry 0 ?x ?y false = false := by
+          simp [carry]; omega
+      simp [hi, carry_zero]
+    case succ i =>
+      rw [carry_incr _ _ (by omega), ← Bool.xor_not, ← decide_not]
+      simp only [Nat.add_one_ne_zero, decide_False, getLsbD_not, Bool.and_eq_true,
+        decide_eq_true_eq, Bool.not_eq_eq_eq_not, Bool.not_true, Bool.false_bne, not_exists,
+        not_and, Bool.not_eq_true, Bool.bne_left_inj, decide_eq_decide]
+      constructor
+      · rintro h j hj; apply And.right <| h j (by omega)
+      · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i = getMsbD (~~~x + 1#w) i := by

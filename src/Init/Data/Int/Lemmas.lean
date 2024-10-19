@@ -69,22 +69,16 @@ def eq_add_one_iff_neg_eq_negSucc {m n : Nat} : m = n + 1 ↔ -↑m = -[n+1] := 
 @[norm_cast] theorem ofNat_inj : ((m : Nat) : Int) = (n : Nat) ↔ m = n := ⟨ofNat.inj, congrArg _⟩
 
 @[local simp] theorem ofNat_sub_ofNat (m n : Nat) (h : n ≤ m) : (↑m - ↑n : Int) = ↑(m - n) := by
-  simp only [HSub.hSub, instHSub, Sub.sub, instSub, Int.sub]
-  simp only [HAdd.hAdd, instHAdd, Add.add, instAdd, Int.add]
-  simp only [add_eq, ofNat_eq_coe, succ_eq_add_one, sub_eq]
+  simp only [instHSub, Sub.sub, Int.sub, instHAdd, Add.add, Int.add]
   split
-  case h_1 ia ib na nb ha hb =>
-    simp only [ofNat_eq_coe] at ha hb
+  case h_1 _ _ _ nb _ hb =>
     symm at hb
-    have := (@ofNat_inj nb 0).mp
-    cases n <;> simp_all
-  case h_2 ia ib na nb ha hb =>
+    cases n <;> simp_all [(@ofNat_inj nb 0).mp]
+  case h_2 _ _ na _ ha hb =>
     have h' := eq_add_one_iff_neg_eq_negSucc.mpr hb
     have h'' := (@ofNat_inj m na).mp ha
-    rw [h'] at h
-    rw [h''] at h
-    rw [subNatNat_of_sub h]
-    congr <;> simp_all
+    rw [h', h''] at h
+    simp [subNatNat_of_sub h, ofNat_inj, h', h'']
   · simp_all
   · simp_all
 

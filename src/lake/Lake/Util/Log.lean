@@ -549,8 +549,6 @@ instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
 
 namespace LogIO
 
-abbrev captureLog := @ELogT.run?
-
 /--
 Runs a `LogIO` action in `BaseIO`.
 Prints log entries of at least `minLv` to `out`.
@@ -566,6 +564,9 @@ where
   -- avoid specialization of this call at each call site
   replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=
     log.replay (logger := logger)
+
+-- deprecated 2024-05-18, reversed 2024-10-18
+abbrev captureLog := @ELogT.run?
 
 end LogIO
 
@@ -590,13 +591,20 @@ Prints log entries of at least `minLv` to `out`.
   (self : LoggerIO α)
   (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
 : BaseIO (Option α) := do
-  let .ok a ← self.run (← out.getLogger minLv ansiMode) |>.toBaseIO
-    | return none
-  return a
+  (·.toOption) <$> (self.run (← out.getLogger minLv ansiMode)).toBaseIO
 
 def captureLog (self : LoggerIO α) : BaseIO (Option α × Log) := do
   let ref ← IO.mkRef ({} : Log)
   let e ← self.run ⟨fun e => ref.modify (·.push e)⟩ |>.toBaseIO
   return (e.toOption, ← ref.get)
+
+-- For parity with `LogIO.run?`
+abbrev run? := @captureLog
+
+-- For parity with `LogIO.run?'`
+@[inline] def run?'
+  (self : LoggerIO α) (logger : LogEntry → BaseIO PUnit := fun _ => pure ())
+: BaseIO (Option α) := do
+  (·.toOption) <$> (self.run ⟨logger⟩).toBaseIO
 
 end LoggerIO

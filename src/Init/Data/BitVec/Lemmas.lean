@@ -2984,7 +2984,7 @@ theorem carry_incr (i : Nat) (x : BitVec w) (h : 0 < w) :
 Remember that a negating a bitvector is equal to incrementing the complement
 by one, i.e., `-x = ~~~x + 1`. (see `neg_eq_not_add`)
 
-Thus, if the least-signifiant-bit of `x` is `true`, then it's complement is
+Thus, if the least-significant-bit of `x` is `true`, then its complement is
 `false`, we add one to it, and we get that the lsb of the negation is `true`,
 and the carry disappeared, so the rest of the bits remain complemented.
 

@@ -27,8 +27,7 @@ theorem subNatNat_of_sub {m n : Nat} (h : n ≤ m) : subNatNat m n = ↑(m - n) 
   case h_1 _ _ =>
     simp
   case h_2 _ h' =>
-    rw [Nat.sub_eq_zero_of_le h] at h'
-    simp at h'
+    simp [Nat.sub_eq_zero_of_le h] at h'
 
 @[simp] protected theorem neg_zero : -(0:Int) = 0 := rfl
 

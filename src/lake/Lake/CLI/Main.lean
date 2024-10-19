@@ -116,6 +116,12 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
 
 instance (priority := low) : MonadLift LogIO CliStateM := ⟨CliStateM.runLogIO⟩
 
+@[inline] def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
+  let opts ← get
+  MainM.runLoggerIO x opts.outLv opts.ansiMode
+
+instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLoggerIO⟩
+
 /-! ## Argument Parsing -/
 
 def takeArg (arg : String) : CliM String := do

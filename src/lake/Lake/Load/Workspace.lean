@@ -42,7 +42,7 @@ Load a `Workspace` for a Lake package by
 elaborating its configuration file and resolving its dependencies.
 If `updateDeps` is true, updates the manifest before resolving dependencies.
 -/
-def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
+def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
   let {reconfigure, leanOpts, updateDeps, updateToolchain, ..} := config
   let ws ← loadWorkspaceRoot config
   if updateDeps then
@@ -54,7 +54,7 @@ def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
 def updateManifest (config : LoadConfig) (toUpdate : NameSet := {})
-: LogIO Unit := do
+: LoggerIO Unit := do
   let {leanOpts, updateToolchain, ..} := config
   let ws ← loadWorkspaceRoot config
   discard <| ws.updateAndMaterialize toUpdate leanOpts updateToolchain

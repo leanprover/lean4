@@ -11,7 +11,7 @@ export ELAN_HOME=
 RESTART_CODE=4
 
 test_update(){
-   ELAN=true $LAKE update 2>&1
+   ELAN=true $LAKE update 2>&1 | grep --color "toolchain updated to '$1'"
    cat lean-toolchain | diff - <(echo -n "$1")
 }
 

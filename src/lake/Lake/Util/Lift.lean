@@ -5,6 +5,10 @@ Authors: Mac Malone
 -/
 namespace Lake
 
+instance (priority := low) [Monad m] [MonadExceptOf PUnit m] : Alternative m where
+  failure := throw ()
+  orElse := tryCatch
+
 /-- Ensure direct lifts are preferred over indirect ones. -/
 instance (priority := high) [MonadLift α β] : MonadLiftT α β := ⟨MonadLift.monadLift⟩
 

@@ -240,7 +240,7 @@ update is found
 -/
 def Workspace.updateToolchain
   (ws : Workspace) (rootDeps : Array MaterializedDep)
-: LogIO PUnit := do
+: LoggerIO PUnit := do
   logInfo "checking for toolchain updates..."
   let rootToolchainFile := ws.root.dir / toolchainFileName
   let rootTc? ← ToolchainVer.ofDir? ws.dir
@@ -334,7 +334,7 @@ def Workspace.updateAndMaterializeCore
   (ws : Workspace)
   (toUpdate : NameSet := {}) (leanOpts : Options := {})
   (updateToolchain := true)
-: LogIO (Workspace × NameMap PackageEntry) := UpdateT.run do
+: LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
   let ws := ws.addPackage ws.root
   if updateToolchain then
@@ -395,7 +395,7 @@ def Workspace.updateAndMaterialize
   (ws : Workspace)
   (toUpdate : NameSet := {}) (leanOpts : Options := {})
   (updateToolchain := true)
-: LogIO Workspace := do
+: LoggerIO Workspace := do
   let (ws, entries) ←
     ws.updateAndMaterializeCore toUpdate leanOpts updateToolchain
   ws.writeManifest entries

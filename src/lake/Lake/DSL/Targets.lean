@@ -12,6 +12,7 @@ Macros for declaring Lake targets and facets.
 
 namespace Lake.DSL
 open Lean Parser Command
+open System (FilePath)
 
 syntax buildDeclSig :=
   identOrStr (ppSpace simpleBinder)? Term.typeSpec declValSimple

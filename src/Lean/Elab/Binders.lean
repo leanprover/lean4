@@ -94,7 +94,7 @@ partial def quoteAutoTactic : Syntax → CoreM Expr
   | .atom _ val => return .app (.const ``mkAtom []) (toExpr val)
   | .missing    => throwError "invalid auto tactic, tactic is missing"
 
-def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
+def declareTacticSyntax (tactic : Syntax) : CoreM Name :=
   withFreshMacroScope do
     let name ← MonadQuotation.addMacroScope `_auto
     let type := Lean.mkConst `Lean.Syntax

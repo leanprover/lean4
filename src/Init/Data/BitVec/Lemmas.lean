@@ -736,9 +736,6 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
   rw [h, Nat.testBit_two_pow_sub_one]
   simp
 
-@[simp] theorem allOnes_add_one : allOnes w + 1#w = 0#w := by
-  sorry
-
 /-! ### or -/
 
 @[simp] theorem toNat_or (x y : BitVec v) :
@@ -3073,9 +3070,6 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
     (-x).msb = ((!decide (x = 0#w) && !decide (x = intMin w)) ^^ x.msb) := by
-  have getMsbD_intMin {w i} : (intMin w).getMsbD i = decide (0 < w ∧ i = 0) :=
-
-      sorry
   simp only [BitVec.msb, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
   by_cases hmin : x = intMin _
   case pos =>
@@ -3115,35 +3109,6 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
         case zero => exact hmsb
         case succ => exact getMsbD_x _ hi (by omega)
 
-theorem msb_neg' {w : Nat} {x : BitVec w} :
-    (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
-  by_cases h : 0 < w
-  · by_cases h₀ : x = 0#w <;> by_cases h₁ : x = intMin w
-    · simp [h₀, h₁]
-    · simp [h₀, h₁]
-    · simp [h, h₁, neg_intMin, msb_intMin, decide_True, Bool.true_or, Bool.and_true]
-      subst h₁
-      simp [h, h₀]
-    · simp [h, h₀, h₁, bv_toNat]
-      have h₂ : 2 ^ (w - 1) = 2 ^ w - 2 ^ (w - 1):= by simp_all
-      rw [h₂, ← decide_not]
-      congr
-      sorry
-  · have h₂ : w = 0 := by omega
-    by_cases h₀ : x = 0#w <;> by_cases h₁ : x = intMin w
-    · simp [h, h₀, h₁, h₂]
-    · simp [h, h₀, h₁, h₂]
-    · simp [h, h₀, h₁, h₂]
-      rw [msb_intMin]
-      rw [← decide_not]
-      congr
-      subst h₂
-      bv_omega
-    · simp [h, h₀, h₁, h₂]
-      simp_all
-      subst h₂
-      bv_omega
-
 /-! ### abs -/
 
 @[simp, bv_toNat]
@@ -3162,6 +3127,20 @@ theorem getLsbD_abs {i : Nat} {x : BitVec w} :
 theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+theorem msb_abs {i w: Nat} {x : BitVec w} :
+    (x.abs).msb = decide (x = BitVec.intMin _) := by
+  simp only [BitVec.abs, neg_eq]
+  by_cases h₀ : 0 < w
+  · sorry
+  · have h₁ : w = 0 := by omega
+    subst h₁
+    by_cases h₂ : x.msb
+    · simp [h₂, intMin, msb_neg]
+      intro h₃
+      simp [h₃]
+      sorry
+    · sorry
 
 /-! ### Decidable quantifiers -/
 

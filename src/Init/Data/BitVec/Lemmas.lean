@@ -736,6 +736,9 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
   rw [h, Nat.testBit_two_pow_sub_one]
   simp
 
+@[simp] theorem allOnes_add_one : allOnes w + 1#w = 0#w := by
+  sorry
+
 /-! ### or -/
 
 @[simp] theorem toNat_or (x y : BitVec v) :
@@ -2827,10 +2830,6 @@ theorem toInt_intMin {w : Nat} :
     simp [w_pos]
 
 @[simp]
-theorem not_intMin {w : Nat} :
-    ¬ intMin w = 0#w := by sorry
-
-@[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   by_cases h : 0 < w
   · simp [bv_toNat, h]
@@ -2891,6 +2890,17 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+-- imp: two_pow_pred_lt_two_pow
+
+@[simp]
+theorem not_intMin {w : Nat} : intMax w = ~~~intMin w := by
+  ext i
+  rw [getLsbD_intMax]
+  rw [getLsbD_not]
+  rw [getLsbD_intMin]
+  by_cases h : i + 1 < w <;>
+  · simp [h]
+    omega
 
 /-! ### Non-overflow theorems -/
 
@@ -2975,23 +2985,32 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
     (-x).msb = (!decide (x = 0#w) && (decide (x = intMin w) || !x.msb)) := by
-  by_cases h₀ : w = 0 <;> by_cases h₁ : x = 0#w <;> by_cases h₂ : x = intMin w
-  · simp [h₀, h₁]
-  · simp [h₀, h₁, h₂]
-  · simp_all [h₀, h₁, h₂, bv_toNat]
-  · simp [h₀, h₁, h₂, bv_toNat]
-    by_cases h₃ : x.toNat = 0
-    · simp_all [bv_toNat]
-    · simp [h₃, Nat.mod_one]
+  by_cases h : 0 < w
+  · by_cases h₀ : x = 0#w <;> by_cases h₁ : x = intMin w
+    · simp [h₀, h₁]
+    · simp [h₀, h₁]
+    · simp [h, h₁, neg_intMin, msb_intMin, decide_True, Bool.true_or, Bool.and_true]
+      subst h₁
+      simp [h, h₀]
+    · simp [h, h₀, h₁, bv_toNat]
+      have h₂ : 2 ^ (w - 1) = 2 ^ w - 2 ^ (w - 1):= by simp_all
+      rw [h₂, ← decide_not]
+      congr
+      sorry
+  · have h₂ : w = 0 := by omega
+    by_cases h₀ : x = 0#w <;> by_cases h₁ : x = intMin w
+    · simp [h, h₀, h₁, h₂]
+    · simp [h, h₀, h₁, h₂]
+    · simp [h, h₀, h₁, h₂]
+      rw [msb_intMin]
+      rw [← decide_not]
+      congr
+      subst h₂
       bv_omega
-  · simp [h₀, h₁]
-  · simp [h₀, h₁, h₂]
-  · simp [h₀, h₁, h₂, msb_intMin, show 0 < w by omega]
-  · rw [BitVec.msb]
-    rw [BitVec.msb]
-    simp [h₀, h₁, h₂]
-    sorry
-
+    · simp [h, h₀, h₁, h₂]
+      simp_all
+      subst h₂
+      bv_omega
 
 /-! ### abs -/
 
@@ -3011,19 +3030,6 @@ theorem getLsbD_abs {i : Nat} {x : BitVec w} :
 theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
-
-@[simp]
-theorem msb_abs {w : Nat} {x : BitVec w} :
-    x.abs.msb = decide (x = BitVec.intMin _)  := by
-  by_cases h₀ : x = BitVec.intMin _ <;> by_cases h₁ : 0 < w <;> by_cases h₂ : x.msb
-  · simp [h₀, h₁, abs_intMin, msb_intMin]
-  · simp [h₀, h₁, msb_intMin]
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
-  · sorry
 
 /-! ### Decidable quantifiers -/
 

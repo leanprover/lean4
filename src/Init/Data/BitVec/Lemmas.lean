@@ -3129,27 +3129,31 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 theorem msb_abs {i w: Nat} {x : BitVec w} :
-    (x.abs).msb = decide (x = BitVec.intMin _) := by
-  by_cases h₀ : x.msb
-  · simp only [BitVec.abs, h₀, ↓reduceIte, neg_eq, msb_neg, Bool.bne_true, Bool.not_and,
-      Bool.not_not, Bool.or_iff_right_iff_imp, decide_eq_true_eq]
-    intro h₁
-    simp only [h₁]
-    by_cases h₂ : 0 < w
-    · -- contradiction: if x = 0#w then ¬ x = intMin w
-      simp_all [show ¬ x = intMin w by simp_all [h₁]]
-    · simp_all [show w = 0 by omega]
-  · simp only [BitVec.abs, h₀, Bool.false_eq_true, ↓reduceIte, false_eq_decide_iff]
-    simp only [Bool.not_eq_true] at h₀
-    by_cases h₁ : 0 < w
-    · by_cases h₂ : x = intMin w
-      · subst h₂
-        simp [msb_intMin] at h₀
-        have h₃ : w ≠ 0 := by simp [h₁]; omega
-        contradiction
-      · simp [h₂]
-    · have h₂ : w = 0 := by omega
-      simp_all [h₂]
+    x.abs.msb = decide (x = intMin w) ∧ 0 < w := by
+  by_cases h₀ : 0 < w
+  · by_cases h₁ : x.msb
+    · simp only [BitVec.abs, h₁, ↓reduceIte, neg_eq, h₀, decide_True, Bool.and_true,
+        decide_eq_true_eq]
+      by_cases h₂ : x = intMin w
+      · simp [h₂, msb_intMin]
+        omega
+      · simp [h₂, decide_False, msb_neg]
+        by_cases h₃ : x = 0#w
+        · simp [h₃]
+        · simp [h₃, h₁]
+    · simp only [BitVec.abs, neg_eq, h₀, decide_True, Bool.and_true, decide_eq_true_eq]
+      by_cases h₂ : x = intMin w
+      · simp [h₂, msb_intMin]
+        omega
+      · simp [h₂, decide_False, msb_neg]
+        by_cases h₃ : x = 0#w
+        · simp [h₃]
+        · simp [h₃, h₁]
+  · by_cases h₁ : x.msb
+    · simp only [BitVec.abs, h₁, ↓reduceIte, neg_eq, h₀, and_false]
+      simp [BitVec.msb, getMsbD, show w = 0 by omega] at h₁
+    · simp only [Bool.not_eq_true] at h₁
+      simp [BitVec.abs, h₁, h₀]
       sorry
 
 

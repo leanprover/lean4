@@ -12,6 +12,12 @@ sanitychecks.lean:10:0-10:23: error: failed to synthesize
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 sanitychecks.lean:18:12-18:20: error: invalid use of 'partial', 'Foo.unsound3' is not a function
   False
-sanitychecks.lean:20:0-20:54: error: failed to compile partial definition 'Foo.unsound4', failed to show that type is inhabited and non empty
+sanitychecks.lean:20:0-20:54: error: failed to compile partial definition 'Foo.unsound4', could not prove that type is nonempty
+
+Possible solutions:
+- Ensure that there is an 'Inhabited' or 'Nonempty' instance for
+    False
+- Add such an instance to the parameter list.
+- Add a parameter of this type to the parameter list.
 sanitychecks.lean:22:12-22:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
 sanitychecks.lean:25:12-25:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'

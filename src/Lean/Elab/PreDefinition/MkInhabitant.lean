@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.AppBuilder
+import Lean.PrettyPrinter
 namespace Lean.Elab
 open Meta
 
@@ -47,6 +48,13 @@ def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Ex
   | some val => return val
   | none     => match (← go? true) with
     | some val => return val
-    | none     => throwError "failed to compile partial definition '{declName}', failed to show that type is inhabited and non empty"
+    | none     => throwError "\
+      failed to compile partial definition '{declName}', could not prove that type is nonempty\n\
+      \n\
+      Possible solutions:\n\
+      - Ensure that there is an '{MessageData.ofConstName ``Inhabited}' or '{MessageData.ofConstName ``Nonempty}' \
+      instance for{MessageData.nest 4 <| Format.line ++ type}\n\
+      - Add such an instance to the parameter list.\n\
+      - Add a parameter of this type to the parameter list."
 
 end Lean.Elab

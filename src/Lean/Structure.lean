@@ -133,9 +133,17 @@ def getStructureInfo (env : Environment) (structName : Name) : StructureInfo :=
   else
     panic! "structure expected"
 
+/--
+Gets the constructor of an inductive type that has exactly one constructor.
+This is meant to be used with types that have had been registered as a structure by `registerStructure`,
+but this is not checked.
+
+Warning: these do *not* need to be "structure-likes". A structure-like is non-recursive,
+and structure-likes have special kernel support.
+-/
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
-  | some (.inductInfo { isRec := false, ctors := [ctorName], .. }) =>
+  | some (.inductInfo { ctors := [ctorName], .. }) =>
     match env.find? ctorName with
     | some (ConstantInfo.ctorInfo val) => val
     | _ => panic! "ill-formed environment"
@@ -222,9 +230,10 @@ def getStructureFieldsFlattened (env : Environment) (structName : Name) (include
   getStructureFieldsFlattenedAux env structName #[] includeSubobjectFields
 
 /--
-Return true if `constName` is the name of an inductive datatype
+Returns true if `constName` is the name of an inductive datatype
 created using the `structure` or `class` commands.
 
+These are inductive types for which structure information has been registered with `registerStructure`.
 See also `Lean.getStructureInfo?`.
 -/
 def isStructure (env : Environment) (constName : Name) : Bool :=
@@ -269,17 +278,32 @@ partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name
         | some projFn => getPathToBaseStructureAux env baseStructName parentStructName (projFn :: path)
 
 /--
-If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions
+If `baseStructName` is an ancestor structure for `structName`, then returns a sequence of projection functions
 to go from `structName` to `baseStructName`.
 -/
 def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
   getPathToBaseStructureAux env baseStructName structName []
 
-/-- Return true iff `constName` is the a non-recursive inductive datatype that has only one constructor. -/
+/--
+Returns true iff `constName` is a non-recursive inductive datatype that has only one constructor and no indices.
+
+Such types have special kernel support. This must be in sync with `is_structure_like`.
+-/
 def isStructureLike (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
+
+/--
+Returns the constructor of the structure named `constName` if it is a non-recursive single-constructor inductive type with no indices.
+-/
+def getStructureLikeCtor? (env : Environment) (constName : Name) : Option ConstructorVal :=
+  match env.find? constName with
+  | some (.inductInfo { isRec := false, ctors := [ctorName], numIndices := 0, .. }) =>
+    match env.find? ctorName with
+    | some (ConstantInfo.ctorInfo val) => val
+    | _ => panic! "ill-formed environment"
+  | _ => none
 
 /-- Return number of fields for a structure-like type -/
 def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=

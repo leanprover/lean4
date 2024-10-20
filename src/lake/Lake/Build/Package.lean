@@ -15,6 +15,7 @@ Build function definitions for a package's builtin facets.
 
 open System
 namespace Lake
+open Lean (Name)
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do

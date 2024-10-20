@@ -37,7 +37,7 @@ structure ReifiedBVPred where
 namespace ReifiedBVPred
 
 /--
-Construct an uninterrpeted `Bool` atom from `t`.
+Construct an uninterpreted `Bool` atom from `t`.
 -/
 def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
   /-

@@ -65,7 +65,7 @@ def getNatOrBvValue? (ty : Expr) (expr : Expr) : M (Option Nat) := do
   | _ => return none
 
 /--
-Construct an uninterrpeted `BitVec` atom from `x`.
+Construct an uninterpreted `BitVec` atom from `x`.
 -/
 def bitVecAtom (x : Expr) : M (Option ReifiedBVExpr) := do
   let t ← instantiateMVars (← whnfR (← inferType x))
@@ -75,8 +75,8 @@ def bitVecAtom (x : Expr) : M (Option ReifiedBVExpr) := do
   return some atom
 
 /--
-Reify an `Expr` that's a constant width `BitVec`.
-Unless this function is called on something that is not a constant width `BitVec` it is always
+Reify an `Expr` that's a constant-width `BitVec`.
+Unless this function is called on something that is not a constant-width `BitVec` it is always
 going to return `some`.
 -/
 partial def of (x : Expr) : M (Option ReifiedBVExpr) := do
@@ -264,7 +264,7 @@ where
 
   /--
   Reify `x` or abstract it as an atom.
-  Unless this function is called on something that is not a fixed width `BitVec` it is always going
+  Unless this function is called on something that is not a fixed-width `BitVec` it is always going
   to return `some`.
   -/
   goOrAtom (x : Expr) : M (Option ReifiedBVExpr) := do

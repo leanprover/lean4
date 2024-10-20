@@ -2860,6 +2860,22 @@ theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
   by_cases h : 0 < w <;> simp_all
 
+theorem getMsbD_intMin {w i : Nat} :
+    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
+  by_cases h₀ : 0 < w <;> by_cases h₁ : i = 0
+  · simp only [h₁, h₀, decide_True, Bool.and_self]
+    rw [← BitVec.msb]
+    simp [msb_intMin]
+    omega
+  · simp [h₀, h₁, intMin, getMsbD]
+    omega
+  · simp only [h₁, h₀, decide_False, decide_True, Bool.and_true]
+    rw [← BitVec.msb]
+    simp [msb_intMin]
+    omega
+  · simp [h₀, h₁, intMin, getMsbD]
+    omega
+
 /-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
@@ -3058,6 +3074,7 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
 theorem msb_neg {w : Nat} {x : BitVec w} :
     (-x).msb = ((!decide (x = 0#w) && !decide (x = intMin w)) ^^ x.msb) := by
   have getMsbD_intMin {w i} : (intMin w).getMsbD i = decide (0 < w ∧ i = 0) :=
+
       sorry
   simp only [BitVec.msb, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
   by_cases hmin : x = intMin _

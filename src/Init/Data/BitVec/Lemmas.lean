@@ -3129,7 +3129,7 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 theorem msb_abs {i w: Nat} {x : BitVec w} :
-    x.abs.msb = decide (x = intMin w) ∧ 0 < w := by
+    x.abs.msb = decide (x = intMin _) := by
   by_cases h₀ : 0 < w
   · by_cases h₁ : x.msb
     · simp only [BitVec.abs, h₁, ↓reduceIte, neg_eq, h₀, decide_True, Bool.and_true,
@@ -3152,8 +3152,15 @@ theorem msb_abs {i w: Nat} {x : BitVec w} :
   · by_cases h₁ : x.msb
     · simp only [BitVec.abs, h₁, ↓reduceIte, neg_eq, h₀, and_false]
       simp [BitVec.msb, getMsbD, show w = 0 by omega] at h₁
-    · simp only [Bool.not_eq_true] at h₁
-      simp [BitVec.abs, h₁, h₀]
+    · simp_all [h₀, h₁, BitVec.abs]
+      -- have h₂ : x.msb = false ↔ ¬x = intMin w ∨ w = 0 := by
+      --   by_cases h₃ : x = intMin w
+      --   · subst h₃
+      --     simp [msb_intMin]
+      --   · simp [h₃, h₁]
+      simp only [h₀, h₁, intMin, twoPow, bv_toNat]
+      rw [BitVec.toNat, BitVec.toFin]
+
       sorry
 
 

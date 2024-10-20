@@ -3130,39 +3130,35 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
 
 theorem msb_abs {i w: Nat} {x : BitVec w} :
     x.abs.msb = decide (x = intMin _) := by
+  simp only [BitVec.abs, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
   by_cases h₀ : 0 < w
-  · by_cases h₁ : x.msb
-    · simp only [BitVec.abs, h₁, ↓reduceIte, neg_eq, h₀, decide_True, Bool.and_true,
-        decide_eq_true_eq]
-      by_cases h₂ : x = intMin w
-      · simp [h₂, msb_intMin]
-        omega
-      · simp [h₂, decide_False, msb_neg]
-        by_cases h₃ : x = 0#w
-        · simp [h₃]
-        · simp [h₃, h₁]
-    · simp only [BitVec.abs, neg_eq, h₀, decide_True, Bool.and_true, decide_eq_true_eq]
-      by_cases h₂ : x = intMin w
-      · simp [h₂, msb_intMin]
-        omega
-      · simp [h₂, decide_False, msb_neg]
-        by_cases h₃ : x = 0#w
-        · simp [h₃]
-        · simp [h₃, h₁]
-  · by_cases h₁ : x.msb
-    · simp only [BitVec.abs, h₁, ↓reduceIte, neg_eq, h₀, and_false]
-      simp [BitVec.msb, getMsbD, show w = 0 by omega] at h₁
-    · simp_all [h₀, h₁, BitVec.abs]
-      -- have h₂ : x.msb = false ↔ ¬x = intMin w ∨ w = 0 := by
-      --   by_cases h₃ : x = intMin w
-      --   · subst h₃
-      --     simp [msb_intMin]
-      --   · simp [h₃, h₁]
-      simp only [h₀, h₁, intMin, twoPow, bv_toNat]
-      rw [BitVec.toNat, BitVec.toFin]
-
+  · by_cases h₁ : x = intMin w
+    · simp [h₁, msb_intMin]
+      omega
+    · simp [h₁]
+      by_cases h₂ : x.msb
+      · simp [h₂, msb_neg]
+        and_intros
+        · simp [BitVec.msb, getMsbD, h₀, bv_toNat, Nat.two_pow_pos] at h₂
+          by_cases h₃ : x = 0#w
+          · simp [bv_toNat] at h₃
+            have h₄ : ¬ x.toNat = 0 := by -- follows from h₂
+              have h₅ : 0 < 2 ^ (w - 1) := by simp [Nat.two_pow_pos, h₀]
+              sorry
+            contradiction
+          · simp [h₃]
+        · simp [h₁]
+      · simp [h₂]
+  · by_cases h₁ : x = intMin w
+    · simp [h₁, msb_intMin, show w = 0 by omega]
       sorry
-
+    · simp [h₁]
+      by_cases h₂ : x.msb
+      · simp [h₂, msb_neg]
+        and_intros
+        · simp [BitVec.msb, getMsbD, h₀, bv_toNat, Nat.two_pow_pos] at h₂
+        · simp [h₁]
+      · simp [h₂]
 
 /-! ### Decidable quantifiers -/
 

@@ -3142,16 +3142,15 @@ theorem msb_abs {i w: Nat} {x : BitVec w} :
         · simp [BitVec.msb, getMsbD, h₀, bv_toNat, Nat.two_pow_pos] at h₂
           by_cases h₃ : x = 0#w
           · simp [bv_toNat] at h₃
-            have h₄ : ¬ x.toNat = 0:= by -- follows from h₂
-              have h₅ : 0 < 2 ^ (w - 1) := by simp [Nat.two_pow_pos, h₀]
-              have h₆ : 0 < x.toNat := by simp_all [h₂]
-              omega
+            have h₅ : 0 < 2 ^ (w - 1) := by simp [Nat.two_pow_pos, h₀]
+            have h₆ : 0 < x.toNat := by simp_all [h₂]
+            have h₄ : ¬ x.toNat = 0:= by omega
             contradiction
           · simp [h₃]
         · simp [h₁]
       · simp [h₂]
   · by_cases h₁ : x = intMin w
-    · simp [h₁, msb_intMin, show w = 0 by omega]
+    · simp [bv_toNat, show w = 0 by omega] at h₁
       sorry
     · simp [h₁]
       by_cases h₂ : x.msb

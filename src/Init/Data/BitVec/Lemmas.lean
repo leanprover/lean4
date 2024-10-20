@@ -3142,12 +3142,16 @@ theorem msb_abs {i w: Nat} {x : BitVec w} :
   · simp only [BitVec.abs, h₀, Bool.false_eq_true, ↓reduceIte, false_eq_decide_iff]
     simp only [Bool.not_eq_true] at h₀
     by_cases h₁ : 0 < w
-    · have h₂ : x.msb = false ↔ ¬ x = intMin w := by
-        sorry
-      simp_all [h₂]
+    · by_cases h₂ : x = intMin w
+      · subst h₂
+        simp [msb_intMin] at h₀
+        have h₃ : w ≠ 0 := by simp [h₁]; omega
+        contradiction
+      · simp [h₂]
     · have h₂ : w = 0 := by omega
-      subst h₂
+      simp_all [h₂]
       sorry
+
 
 /-! ### Decidable quantifiers -/
 

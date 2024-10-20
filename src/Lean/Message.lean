@@ -184,12 +184,12 @@ This function is used for the default `Name`-to-`MessageData` coercion.
 
 Use `MessageData.ofName` to prevent hovers.
 -/
-def ofConstName (constName : Name) : MessageData :=
+def ofConstName (constName : Name) (fullNames : Bool := true) : MessageData :=
   .ofLazy
     (fun ctx? => do
       let msg ← ofFormatWithInfos <$> match ctx? with
         | .none => pure (format constName)
-        | .some ctx => ppConstNameWithInfos ctx constName
+        | .some ctx => ppConstNameWithInfos { ctx with opts := ctx.opts.insert `pp.fullNames fullNames } constName
       return Dynamic.mk msg)
     (fun _ => false)
 

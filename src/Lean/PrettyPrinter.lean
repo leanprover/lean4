@@ -63,12 +63,16 @@ def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (d
     let fmt ← ppTerm stx >>= maybePrependExprSizes e
     return ⟨fmt, infos⟩
 
+open Delaborator in
 def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
   if let some info := (← getEnv).find? constName then
-    let delab := Delaborator.withOptionAtCurrPos `pp.tagAppFns true Delaborator.delabConst
+    let delab := withOptionAtCurrPos `pp.tagAppFns true <| delabConst
     PrettyPrinter.ppExprWithInfos (delab := delab) (.const constName <| info.levelParams.map mkLevelParam)
   else
-    return Std.ToFormat.format constName
+    -- Still, let's sanitize the name.
+    let stx := mkIdent constName
+    let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
+    formatCategory `term stx
 
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=

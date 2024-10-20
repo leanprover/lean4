@@ -17,7 +17,7 @@ error: tactic 'decide' failed for proposition
   ((mul 4 1).mul 1).mul 1 = 4
 since its 'Decidable' instance
   instDecidableEqFoo (((mul 4 1).mul 1).mul 1) 4
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to 'Decidable.isTrue' or 'Decidable.isFalse'.
 
 After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat' and
 'Nat.decEq', reduction got stuck at the 'Decidable' instance
@@ -38,7 +38,7 @@ error: tactic 'decide' failed for proposition
   ((add 4 1).add 1).add 1 = 4
 since its 'Decidable' instance
   instDecidableEqFoo (((add 4 1).add 1).add 1) 4
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to 'Decidable.isTrue' or 'Decidable.isFalse'.
 
 After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat' and
 'Nat.decEq', reduction got stuck at the 'Decidable' instance

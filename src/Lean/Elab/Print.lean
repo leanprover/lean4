@@ -38,7 +38,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   let (m, id) := match privateToUserName? id with
     | some id => (m ++ "private ", id)
     | none    => (m, id)
-  let m := m ++ kind ++ " " ++ id ++ levelParamsToMessageData levelParams ++ " : " ++ type
+  let m := m ++ kind ++ " " ++ format id ++ levelParamsToMessageData levelParams ++ " : " ++ type
   pure m
 
 private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData :=

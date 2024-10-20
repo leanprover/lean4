@@ -32,7 +32,7 @@ error: tactic 'decide' failed for proposition
   unknownProp
 since its 'Decidable' instance
   Classical.propDecidable unknownProp
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to 'Decidable.isTrue' or 'Decidable.isFalse'.
 
 After unfolding the instance 'Classical.propDecidable', reduction got stuck at the 'Decidable' instance
   Classical.choice ⋯
@@ -68,7 +68,7 @@ error: tactic 'decide' failed for proposition
   Nice 102
 since its 'Decidable' instance
   instDecidableNice
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to 'Decidable.isTrue' or 'Decidable.isFalse'.
 
 After unfolding the instances 'baz' and 'instDecidableNice', reduction got stuck at the 'Decidable' instance
   ⋯ ▸ inferInstance
@@ -90,7 +90,7 @@ error: tactic 'decide' failed for proposition
   ¬Nice 102
 since its 'Decidable' instance
   instDecidableNot
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to 'Decidable.isTrue' or 'Decidable.isFalse'.
 
 After unfolding the instances 'baz', 'instDecidableNice' and 'instDecidableNot', reduction got stuck
 at the 'Decidable' instance

@@ -92,7 +92,7 @@ def mkAuxName [Monad m] [MonadEnv m] (baseName : Name) (idx : Nat) : m Name := d
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info
-  | none      => throwError "unknown constant '{format constName}'"
+  | none      => throwError "unknown constant '{constName}'"
 
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstInfo constName

@@ -39,7 +39,7 @@ Please put an X between the brackets as you perform the following steps:
 
 ### Versions
 
-[Output of `#eval Lean.versionString`]
+[Output of `#version` or `#eval Lean.versionString`]
 [OS version, if not using live.lean-lang.org.]
 
 ### Additional Information

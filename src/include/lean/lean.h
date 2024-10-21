@@ -1864,13 +1864,18 @@ static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 #define LEAN_INT8_TO_UINT8(dest, src) LEAN_INT_CONVERT(uint8_t, int8_t, dest, src)
 #define LEAN_UINT8_TO_INT8(dest, src) LEAN_INT_CONVERT(int8_t, uint8_t, dest, src)
 
+/*
+ * Note that we compile all files with -frwapv so in the following section all potential UB that
+ * may arise from signed overflow is forced to match 2's complement behavior.
+ */
+
 /* Int8 */
 LEAN_EXPORT int8_t lean_int8_of_big_int(b_lean_obj_arg a);
 static inline uint8_t lean_int8_of_int(b_lean_obj_arg a) {
     int8_t res;
 
     if (lean_is_scalar(a)) {
-        res = (int8_t)((lean_scalar_to_int64(a)) % 128);
+        res = (int8_t)lean_scalar_to_int64(a);
     } else {
         res = lean_int8_of_big_int(a);
     }

@@ -1,6 +1,6 @@
 #check Int8
-#eval Int8.ofInt (-130) = -2
 #eval Int8.ofInt (-20)  = -20
+#eval Int8.ofInt (-130) = 126
 #eval Int8.ofNat 10 = 10
 #eval Int8.ofNat 130 = 130
 #eval Int8.ofNat 120 = 120
@@ -12,10 +12,10 @@
 #eval Int8.ofInt (-2^64) == 0
 #eval Int8.neg 10 = -10
 #eval (20 : Int8) + 20 = 40
-#eval (127 : Int8) + 1 = -128 -- BUG
+#eval (127 : Int8) + 1 = -128
 #eval (-10 : Int8) + 10 = 0
 #eval (1 : Int8) - 2 = -1
-#eval (-128 : Int8) - 1 = 127 -- BUG
+#eval (-128 : Int8) - 1 = 127
 #eval (1 : Int8) * 120 = 120
 #eval (2 : Int8) * 10 = 20
 #eval (2 : Int8) * 128 = 0

@@ -2111,17 +2111,6 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
 
-/-! ### abs -/
-
-@[simp, bv_toNat]
-theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
-  simp only [BitVec.abs, neg_eq]
-  by_cases h : x.msb = true
-  · simp only [h, ↓reduceIte, toNat_neg]
-    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
-    rw [Nat.mod_eq_of_lt (by omega)]
-  · simp [h]
-
 /-! ### mul -/
 
 theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := by rfl
@@ -2844,6 +2833,10 @@ theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   · simp only [Nat.not_lt, Nat.le_zero_eq] at h
     simp [bv_toNat, h]
 
+@[simp]
+theorem abs_intMin {w : Nat} : (intMin w).abs = intMin w := by
+  simp [BitVec.abs, bv_toNat]
+
 theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
     (-x).toInt = -(x.toInt) := by
   simp only [ne_eq, toNat_eq, toNat_intMin] at rs
@@ -2859,6 +2852,26 @@ theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
   simp only [BitVec.toInt, BitVec.toNat_neg, BitVec.sub_toNat_mod_cancel x_zero]
   have := @Nat.two_pow_pred_mul_two w (by omega)
   split <;> split <;> omega
+
+theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
+  simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
+  by_cases h : 0 < w <;> simp_all
+
+theorem getMsbD_intMin {w i : Nat} :
+    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
+  by_cases h₀ : 0 < w <;> by_cases h₁ : i = 0
+  · simp only [h₁, h₀, decide_True, Bool.and_self]
+    rw [← BitVec.msb]
+    simp [msb_intMin]
+    omega
+  · simp [h₀, h₁, intMin, getMsbD]
+    omega
+  · simp only [h₁, h₀, decide_False, decide_True, Bool.and_true]
+    rw [← BitVec.msb]
+    simp [msb_intMin]
+    omega
+  · simp [h₀, h₁, intMin, getMsbD]
+    omega
 
 /-! ### intMax -/
 
@@ -2890,6 +2903,17 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+-- imp: two_pow_pred_lt_two_pow
+
+@[simp]
+theorem not_intMin {w : Nat} : intMax w = ~~~intMin w := by
+  ext i
+  rw [getLsbD_intMax]
+  rw [getLsbD_not]
+  rw [getLsbD_intMin]
+  by_cases h : i + 1 < w <;>
+  · simp [h]
+    omega
 
 /-! ### Non-overflow theorems -/
 
@@ -2952,6 +2976,189 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
 
+/-! ### neg-/
+
+theorem msb_eq_toInt {x : BitVec w}:
+    x.msb = decide ((x.toInt) < 0) := by
+  by_cases h : x.msb <;>
+  · simp [h, toInt_eq_msb_cond]
+    omega
+
+theorem msb_eq_toNat {x : BitVec w}:
+    x.msb = decide ((x.toNat) ≥ 2 ^ (w - 1)) := by
+  simp only [msb_eq_decide, ge_iff_le]
+
+/-- carry i x y c returns true if the `i` carry bit is true when computing `x + y + c`. -/
+def carry (i : Nat) (x y : BitVec w) (c : Bool) : Bool :=
+  decide (x.toNat % 2^i + y.toNat % 2^i + c.toNat ≥ 2^i)
+
+-- Taken from BitVec/Bitblast.lean
+theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
+    getLsbD (x + y) i =
+      (getLsbD x i ^^ (getLsbD y i ^^ carry i x y false)) := by
+  sorry
+
+-- Taken from BitVec/Bitblast.lean
+theorem carry_incr (i : Nat) (x : BitVec w) (h : 0 < w) :
+    carry (i+1) x (1#w) false = decide (∀ j ≤ i, x.getLsbD j = true) := by
+  sorry
+
+/--
+Remember that a negating a bitvector is equal to incrementing the complement
+by one, i.e., `-x = ~~~x + 1`. (see `neg_eq_not_add`)
+
+Thus, if the least-significant-bit of `x` is `true`, then its complement is
+`false`, we add one to it, and we get that the lsb of the negation is `true`,
+and the carry disappeared, so the rest of the bits remain complemented.
+
+Otherwise, if the least-significant bit of `x` was `false`, then its complement
+is `true`, which flips back to the original value of `false` after adding one,
+and the carry remains.
+
+Extrapolating, we find that the `i`-th bit of `-x` is equal to the `i`-th bit
+of the input `x` iff the least significant `i` bits of `x` (including the `i`-th
+bit itself) are `false`.
+Otherwise, if one of those bits is `true`, the `i`-th bit of `-x` is the
+complement of the `i`-th bit of `x`.
+-/
+theorem getLsbD_neg {i : Nat} {x : BitVec w} :
+    getLsbD (-x) i =
+      (getLsbD x i ^^ decide (i < w ∧ ∃ j < i, getLsbD x j = true)) := by
+  rw [neg_eq_not_add]
+  by_cases hi : i < w
+  case neg =>
+    have h_ge : w ≤ i := by omega
+    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+  case pos =>
+    rw [getLsbD_add hi]
+    have : 0 < w := by omega
+    simp only [getLsbD_not, hi, decide_True, Bool.true_and, getLsbD_one, this, Bool.not_bne,
+      Bool.not_eq_eq_eq_not, true_and, bne_iff_ne, ne_eq, decide_eq_decide]
+
+    cases i
+    case zero =>
+      have carry_zero : carry 0 ?x ?y false = false := by
+          simp [carry]; omega
+      simp [hi, carry_zero]
+    case succ i =>
+      rw [carry_incr _ _ (by omega), ← Bool.xor_not, ← decide_not]
+      simp only [Nat.add_one_ne_zero, decide_False, getLsbD_not, Bool.and_eq_true,
+        decide_eq_true_eq, Bool.not_eq_eq_eq_not, Bool.not_true, Bool.false_bne, not_exists,
+        not_and, Bool.not_eq_true, Bool.bne_left_inj, decide_eq_decide]
+      constructor
+      · rintro h j hj; apply And.right <| h j (by omega)
+      · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
+
+theorem getMsbD_neg {i : Nat} {x : BitVec w} :
+    getMsbD (-x) i =
+      (getMsbD x i ^^ decide (∃ j < w, i < j ∧ getMsbD x j = true)) := by
+  simp only [getMsbD, getLsbD_neg, Bool.decide_and, Bool.and_eq_true, decide_eq_true_eq]
+  by_cases hi : i < w
+  case neg =>
+    simp [hi]; omega
+  case pos =>
+    have h₁ : w - 1 - i < w := by omega
+    simp only [hi, decide_True, h₁, Bool.true_and, Bool.bne_left_inj, decide_eq_decide]
+    constructor
+    · rintro ⟨j, hj, h⟩
+      refine ⟨w - 1 - j, ?_, ?_, ?_, _root_.cast ?_ h⟩
+      <;> try omega
+      congr; omega
+    · rintro ⟨j, hj₁, hj₂, -, h⟩
+      refine ⟨w - 1 - j, ?_, h⟩
+      omega
+
+theorem msb_neg {w : Nat} {x : BitVec w} :
+    (-x).msb = ((!decide (x = 0#w) && !decide (x = intMin w)) ^^ x.msb) := by
+  simp only [BitVec.msb, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
+  by_cases hmin : x = intMin _
+  case pos =>
+    have : (∃ j, j < w ∧ 0 < j ∧ 0 < w ∧ j = 0) ↔ False := by
+      simp; omega
+    simp [hmin, getMsbD_intMin, this]
+  case neg =>
+    by_cases hzero : x = 0#w
+    case pos => simp [hzero]
+    case neg =>
+      have w_pos : 0 < w := by
+        cases w
+        · rw [@of_length_zero x] at hzero
+          contradiction
+        · omega
+      suffices ∃ j, j < w ∧ 0 < j ∧ x.getMsbD j = true
+        by simp [hmin, hzero, this]
+      false_or_by_contra
+      rename_i getMsbD_x
+      simp only [not_exists, not_and, Bool.not_eq_true] at getMsbD_x
+      /- `getMsbD` says that all bits except the msb are `false` -/
+      cases hmsb : x.msb
+      case true =>
+        apply hmin
+        apply eq_of_getMsbD_eq
+        rintro ⟨i, hi⟩
+        simp only [getMsbD_intMin, w_pos, true_and]
+        cases i
+        case zero => exact hmsb
+        case succ => exact getMsbD_x _ hi (by omega)
+      case false =>
+        apply hzero
+        apply eq_of_getMsbD_eq
+        rintro ⟨i, hi⟩
+        simp only [getMsbD_zero]
+        cases i
+        case zero => exact hmsb
+        case succ => exact getMsbD_x _ hi (by omega)
+
+/-! ### abs -/
+
+@[simp, bv_toNat]
+theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
+  simp only [BitVec.abs, neg_eq]
+  by_cases h : x.msb = true
+  · simp only [h, ↓reduceIte, toNat_neg]
+    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
+    rw [Nat.mod_eq_of_lt (by omega)]
+  · simp [h]
+
+theorem getLsbD_abs {i : Nat} {x : BitVec w} :
+   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+theorem getMsbD_abs {i : Nat} {x : BitVec w} :
+    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+theorem msb_abs {i w: Nat} {x : BitVec w} :
+    x.abs.msb = decide (x = intMin _) := by
+  simp only [BitVec.abs, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
+  by_cases h₀ : 0 < w
+  · by_cases h₁ : x = intMin w
+    · simp [h₁, msb_intMin]
+      omega
+    · simp [h₁]
+      by_cases h₂ : x.msb
+      · simp [h₂, msb_neg]
+        and_intros
+        · simp [BitVec.msb, getMsbD, h₀, bv_toNat, Nat.two_pow_pos] at h₂
+          by_cases h₃ : x = 0#w
+          · simp [bv_toNat] at h₃
+            have h₅ : 0 < 2 ^ (w - 1) := by simp [Nat.two_pow_pos, h₀]
+            have h₆ : 0 < x.toNat := by simp_all [h₂]
+            have h₄ : ¬ x.toNat = 0:= by omega
+            contradiction
+          · simp [h₃]
+        · simp [h₁]
+      · simp [h₂]
+  · by_cases h₁ : x = intMin w
+    · simp [bv_toNat, show w = 0 by omega] at h₁
+      sorry
+    · simp [h₁]
+      by_cases h₂ : x.msb
+      · simp [h₂, msb_neg]
+        and_intros
+        · simp [BitVec.msb, getMsbD, h₀, bv_toNat, Nat.two_pow_pos] at h₂
+        · simp [h₁]
+      · simp [h₂]
 
 /-! ### Decidable quantifiers -/
 

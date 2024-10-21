@@ -174,6 +174,31 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
     exact mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ ..
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
+
+theorem carry_incr (i : Nat) (x : BitVec w) (h : 0 < w) :
+    carry (i+1) x (1#w) false = decide (∀ j ≤ i, x.getLsbD j = true) := by
+  induction i
+  case zero => simp [carry_succ, h]
+  case succ i ih =>
+    rw [carry_succ, ih]
+    simp only [getLsbD_one, add_one_ne_zero, decide_False, Bool.and_false, atLeastTwo_false_mid]
+    cases hx : x.getLsbD (i+1)
+    case false =>
+      have : ∃ j ≤ i + 1, x.getLsbD j = false :=
+        ⟨i+1, by omega, hx⟩
+      simpa
+    case true =>
+      suffices
+          (∀ (j : Nat), j ≤ i → x.getLsbD j = true )
+          ↔ (∀ (j : Nat), j ≤ i + 1 → x.getLsbD j = true) by
+        simpa
+      constructor
+      · intro h j hj
+        rcases Nat.le_or_eq_of_le_succ hj with (hj' | rfl)
+        · apply h; assumption
+        · exact hx
+      · intro h j hj; apply h; omega
+
 /--
 If `x &&& y = 0`, then the carry bit `(x + y + 0)` is always `false` for any index `i`.
 Intuitively, this is because a carry is only produced when at least two of `x`, `y`, and the

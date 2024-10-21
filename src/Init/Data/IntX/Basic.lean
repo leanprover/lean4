@@ -22,7 +22,6 @@ abbrev Int.toInt8 := Int8.ofInt
 abbrev Nat.toInt8 := Int8.ofNat
 @[extern "lean_int8_to_int"]
 def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
--- TODO: should this be tagged with extern?
 @[inline] def Int8.toNat (i : Int8) : Nat := i.toInt.toNat
 @[extern "lean_int8_neg"]
 def Int8.neg (i : Int8) : Int8 := ⟨⟨-i.toBitVec⟩⟩
@@ -54,4 +53,48 @@ def Int8.xor (a b : Int8) : Int8 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 def Int8.shiftLeft (a b : Int8) : Int8 := ⟨⟨a.toBitVec <<< (mod b 8).toBitVec⟩⟩
 @[extern "lean_int8_shift_right"]
 def Int8.shiftRight (a b : Int8) : Int8 := ⟨⟨BitVec.sshiftRight' a.toBitVec (mod b 8).toBitVec⟩⟩
+@[extern "lean_int8_complement"]
+def Int8.complement (a : Int8) : Int8 := ⟨⟨~~~a.toBitVec⟩⟩
 
+@[extern "lean_int8_dec_eq"]
+def Int8.decEq (a b : Int8) : Decidable (a = b) :=
+  match a, b with
+  | ⟨n⟩, ⟨m⟩ =>
+    if h : n = m then
+      isTrue <| h ▸ rfl
+    else
+      isFalse (fun h' => Int8.noConfusion h' (fun h' => absurd h' h))
+
+def Int8.lt (a b : Int8) : Prop := a.toBitVec.slt b.toBitVec
+def Int8.le (a b : Int8) : Prop := a.toBitVec.sle b.toBitVec
+
+instance : Inhabited Int8 where
+  default := 0
+
+instance : Add Int8         := ⟨Int8.add⟩
+instance : Sub Int8         := ⟨Int8.sub⟩
+instance : Mul Int8         := ⟨Int8.mul⟩
+instance : Mod Int8         := ⟨Int8.mod⟩
+instance : Div Int8         := ⟨Int8.div⟩
+instance : LT Int8          := ⟨Int8.lt⟩
+instance : LE Int8          := ⟨Int8.le⟩
+instance : Complement Int8  := ⟨Int8.complement⟩
+instance : AndOp Int8       := ⟨Int8.land⟩
+instance : OrOp Int8        := ⟨Int8.lor⟩
+instance : Xor Int8         := ⟨Int8.xor⟩
+instance : ShiftLeft Int8   := ⟨Int8.shiftLeft⟩
+instance : ShiftRight Int8  := ⟨Int8.shiftRight⟩
+instance : DecidableEq Int8 := Int8.decEq
+
+@[extern "lean_int8_dec_lt"]
+def Int8.decLt (a b : Int8) : Decidable (a < b) :=
+  inferInstanceAs (Decidable (a.toBitVec.slt b.toBitVec))
+
+@[extern "lean_int8_dec_le"]
+def Int8.decLe (a b : Int8) : Decidable (a ≤ b) :=
+  inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
+
+instance (a b : Int8) : Decidable (a < b) := Int8.decLt a b
+instance (a b : Int8) : Decidable (a ≤ b) := Int8.decLe a b
+instance : Max Int8 := maxOfLe
+instance : Min Int8 := minOfLe

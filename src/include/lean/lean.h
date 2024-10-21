@@ -1859,7 +1859,7 @@ static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
  */
 #define LEAN_INT_CONVERT(destty, srcty, dest, src) \
     destty dest; \
-    assert(sizeof(destty) == sizeof(intty)); \
+    assert(sizeof(destty) == sizeof(srcty)); \
     memcpy(&dest, &src, sizeof(srcty));
 
 #define LEAN_INT8_TO_UINT8(dest, src) LEAN_INT_CONVERT(uint8_t, int8_t, dest, src)
@@ -1924,12 +1924,11 @@ static inline uint8_t lean_int8_mul(uint8_t a1, uint8_t a2) {
     return ret;
 }
 
-// TODO: div by 0
 static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
     LEAN_UINT8_TO_INT8(lhs, a1);
     LEAN_UINT8_TO_INT8(rhs, a2);
 
-    int8_t res = lhs / rhs;
+    int8_t res = rhs == 0 ? 0 : lhs / rhs;
 
     LEAN_INT8_TO_UINT8(ret, res);
     return ret;
@@ -1939,7 +1938,7 @@ static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
     LEAN_UINT8_TO_INT8(lhs, a1);
     LEAN_UINT8_TO_INT8(rhs, a2);
 
-    int8_t res = lhs / rhs;
+    int8_t res = rhs == 0 ? 0 : lhs % rhs;
 
     LEAN_INT8_TO_UINT8(ret, res);
     return ret;
@@ -1975,26 +1974,55 @@ static inline uint8_t lean_int8_xor(uint8_t a1, uint8_t a2) {
     return ret;
 }
 
-// TOOD shift
-static inline uint8_t lean_int8_shift_left(uint8_t a1, uint8_t a2) {
+static inline uint8_t lean_int8_shift_right(uint8_t a1, uint8_t a2) {
     LEAN_UINT8_TO_INT8(lhs, a1);
     LEAN_UINT8_TO_INT8(rhs, a2);
 
-    int8_t res = lhs >> rhs;
+    int8_t res = lhs >> (rhs % 8);
 
     LEAN_INT8_TO_UINT8(ret, res);
     return ret;
 }
 
-// TODO shift
-static inline uint8_t lean_int8_shift_right(uint8_t a1, uint8_t a2) {
+static inline uint8_t lean_int8_shift_left(uint8_t a1, uint8_t a2) {
     LEAN_UINT8_TO_INT8(lhs, a1);
     LEAN_UINT8_TO_INT8(rhs, a2);
 
-    int8_t res = lhs << rhs;
+    int8_t res = lhs << (rhs % 8);
 
     LEAN_INT8_TO_UINT8(ret, res);
     return ret;
+}
+
+static inline uint8_t lean_int8_complement(uint8_t a) {
+    LEAN_UINT8_TO_INT8(i, a);
+
+    int8_t res = ~i;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+
+    return ret;
+}
+
+static inline uint8_t lean_int8_dec_eq(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    return lhs == rhs;
+}
+
+static inline uint8_t lean_int8_dec_lt(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    return lhs < rhs;
+}
+
+static inline uint8_t lean_int8_dec_le(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    return lhs <= rhs;
 }
 
 /* Float */

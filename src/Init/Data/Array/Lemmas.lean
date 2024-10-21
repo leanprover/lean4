@@ -18,8 +18,6 @@ import Init.TacticsExtra
 
 namespace Array
 
-@[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
-
 @[simp] theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
 
 theorem getElem_eq_getElem_toList {a : Array α} (h : i < a.size) : a[i] = a.toList[i] := by
@@ -85,16 +83,6 @@ We prefer to pull `List.toArray` outwards.
 @[simp] theorem size_toArrayAux {a : List α} {b : Array α} :
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
-
-@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
-
-@[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
-    a.toArray[i] = a[i]'(by simpa using h) := rfl
-
-@[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
-
-@[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
-    a.toArray[i]! = a[i]! := rfl
 
 @[simp] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
   apply ext'
@@ -170,6 +158,9 @@ namespace Array
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 
+-- This is a duplicate of `List.toArray_toList`.
+-- It's confusing to guess which namespace this theorem should live in,
+-- so we provide both.
 @[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
 
 @[simp] theorem length_toList {l : Array α} : l.toList.length = l.size := rfl

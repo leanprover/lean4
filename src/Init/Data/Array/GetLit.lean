@@ -41,6 +41,6 @@ where
   getLit_eq (as : Array α) (i : Nat) (h₁ : as.size = n) (h₂ : i < n) : as.getLit i h₁ h₂ = getElem as.toList i ((id (α := as.toList.length = n) h₁) ▸ h₂) :=
     rfl
   go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.toList.drop i) = as.toList := by
-    induction i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, *]
+    induction i <;> simp only [List.drop, toListLitAux, getLit_eq, List.get_drop_eq_drop, *]
 
 end Array

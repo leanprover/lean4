@@ -1127,12 +1127,12 @@ theorem emod_add_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n + y) n = Int.bmo
 
 @[simp]
 theorem emod_sub_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n - y) n = Int.bmod (x - y) n := by
-  simp [Int.emod_def, Int.sub_eq_add_neg]
+  simp only [emod_def, Int.sub_eq_add_neg]
   rw [←Int.mul_neg, Int.add_right_comm,  Int.bmod_add_mul_cancel]
 
 @[simp]
 theorem sub_emod_bmod_congr (x : Int) (n : Nat) : Int.bmod (x - y%n) n = Int.bmod (x - y) n := by
-  simp [Int.emod_def]
+  simp only [emod_def]
   rw [Int.sub_eq_add_neg, Int.neg_sub, Int.sub_eq_add_neg, ← Int.add_assoc, Int.add_right_comm,
     Int.bmod_add_mul_cancel, Int.sub_eq_add_neg]
 

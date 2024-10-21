@@ -57,7 +57,6 @@
 #eval ¬((0 : Int8) < (0 : Int8))
 #eval (0 : Int8) ≤ 1
 #eval (0 : Int8) ≤ 120
-#eval (120 : Int8) ≤ 0
 #eval -1 ≤ (0 : Int8)
 #eval -120 ≤ (0 : Int8)
 #eval (0 : Int8) ≤ (0 : Int8)

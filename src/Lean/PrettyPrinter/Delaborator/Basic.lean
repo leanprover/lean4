@@ -212,7 +212,7 @@ where
   }
 
 /--
-Annotates the term with the current expression position and registers `TermInfo`
+Annotate the term with the current expression position and register `TermInfo`
 to associate the term to the current expression.
 -/
 def annotateTermInfo (stx : Term) : Delab := do
@@ -221,12 +221,30 @@ def annotateTermInfo (stx : Term) : Delab := do
   pure stx
 
 /--
-Modifies the delaborator so that it annotates the resulting term with the current expression
-position and registers `TermInfo` to associate the term to the current expression.
+Annotates the term with the current expression position and registers `TermInfo`
+to associate the term to the current expression, unless (1) the syntax has a position and it is for the current position
+and (2) there is already `TermInfo` at this position.
+-/
+def annotateTermInfoUnlessAnnotated (stx : Term) : Delab := do
+  if let .synthetic ⟨pos⟩ ⟨pos'⟩ := stx.raw.getHeadInfo then
+    if pos == pos' && pos == (← getPos) then
+      if (← get).infos.contains pos then
+        return stx
+  annotateTermInfo stx
+
+/--
+Modifies the delaborator so that it annotates the resulting term using `annotateTermInfo`.
 -/
 def withAnnotateTermInfo (d : Delab) : Delab := do
   let stx ← d
   annotateTermInfo stx
+
+/--
+Modifies the delaborator so that it ensures resulting term is annotated using `annotateTermInfoUnlessAnnotated`.
+-/
+def withAnnotateTermInfoUnlessAnnotated (d : Delab) : Delab := do
+  let stx ← d
+  annotateTermInfoUnlessAnnotated stx
 
 def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
   -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
@@ -271,11 +289,13 @@ inductive OmissionReason
   | deep
   | proof
   | maxSteps
+  | uniqueSorry
 
 def OmissionReason.toString : OmissionReason → String
   | deep => "Term omitted due to its depth (see option `pp.deepTerms`)."
   | proof => "Proof omitted (see option `pp.proofs`)."
   | maxSteps => "Term omitted due to reaching the maximum number of steps allowed for pretty printing this expression (see option `pp.maxSteps`)."
+  | uniqueSorry => "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there."
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
   let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e
@@ -365,7 +385,7 @@ def omission (reason : OmissionReason) : Delab := do
 partial def delabFor : Name → Delab
   | Name.anonymous => failure
   | k              =>
-    (do annotateTermInfo (← (delabAttribute.getValues (← getEnv) k).firstM id))
+    (do annotateTermInfoUnlessAnnotated (← (delabAttribute.getValues (← getEnv) k).firstM id))
     -- have `app.Option.some` fall back to `app` etc.
     <|> if k.isAtomic then failure else delabFor k.getRoot
 

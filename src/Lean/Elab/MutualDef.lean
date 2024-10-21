@@ -978,7 +978,7 @@ where
             values.mapM (instantiateMVarsProfiling ·)
           catch ex =>
             logException ex
-            headers.mapM fun header => mkSorry header.type (synthetic := true)
+            headers.mapM fun header => withRef header.declId <| mkUniqueSorry header.type (synthetic := true)
         let headers ← headers.mapM instantiateMVarsAtHeader
         let letRecsToLift ← getLetRecsToLift
         let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift

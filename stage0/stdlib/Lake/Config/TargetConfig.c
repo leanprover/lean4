@@ -15,55 +15,55 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeMk___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findTargetConfig_x3f___spec__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___closed__1;
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeGet___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkTargetJobConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeGet___rarg___boxed(lean_object*);
-static lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig___closed__1;
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfigName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeMk___rarg___boxed(lean_object*);
 lean_object* lean_task_pure(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeGet(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___closed__5;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeMk___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___boxed(lean_object*);
 static lean_object* l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig___boxed(lean_object*, lean_object*);
 extern lean_object* l_Task_Priority_default;
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__2(lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___closed__4;
 extern lean_object* l_Lake_BuildTrace_nil;
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___rarg___boxed(lean_object*);
 lean_object* l_Lake_EResult_map___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkTargetJobConfig___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findTargetConfig_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___closed__3;
 static lean_object* l_Lake_instInhabitedTargetConfig___closed__2;
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___closed__6;
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___closed__7;
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeGet___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig(lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___lambda__1(lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeMk(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___boxed(lean_object*, lean_object*);
 static lean_object* l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__2___closed__2;
+static lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -370,7 +370,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_OpaqueTargetConfig_instCoeTargetConfig___closed__1() {
+static lean_object* _init_l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -378,19 +378,19 @@ x_1 = lean_alloc_closure((void*)(l_Lake_OpaqueTargetConfig_unsafeMk___rarg___box
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfigName(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_OpaqueTargetConfig_instCoeTargetConfig___closed__1;
+x_3 = l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___closed__1;
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_OpaqueTargetConfig_instCoeTargetConfig(x_1, x_2);
+x_3 = l_Lake_OpaqueTargetConfig_instCoeTargetConfigName(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -430,7 +430,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___closed__1() {
+static lean_object* _init_l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -438,53 +438,53 @@ x_1 = lean_alloc_closure((void*)(l_Lake_OpaqueTargetConfig_unsafeGet___rarg___bo
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___closed__1;
+x_3 = l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1;
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1(x_1, x_2);
+x_3 = l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___rarg(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___rarg___boxed), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___rarg___boxed), 1, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___rarg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___rarg___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___rarg(x_1);
+x_2 = l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_OpaqueTargetConfig_instInhabitedOfTargetConfig(x_1, x_2);
+x_3 = l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -619,10 +619,10 @@ l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__1 = _in
 lean_mark_persistent(l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__1);
 l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__2 = _init_l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__2();
 lean_mark_persistent(l_Functor_discard___at_Lake_mkTargetJobConfig___spec__1___rarg___closed__2);
-l_Lake_OpaqueTargetConfig_instCoeTargetConfig___closed__1 = _init_l_Lake_OpaqueTargetConfig_instCoeTargetConfig___closed__1();
-lean_mark_persistent(l_Lake_OpaqueTargetConfig_instCoeTargetConfig___closed__1);
-l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___closed__1 = _init_l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___closed__1();
-lean_mark_persistent(l_Lake_OpaqueTargetConfig_instCoeTargetConfig__1___closed__1);
+l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___closed__1 = _init_l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___closed__1();
+lean_mark_persistent(l_Lake_OpaqueTargetConfig_instCoeTargetConfigName___closed__1);
+l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1 = _init_l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1();
+lean_mark_persistent(l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -2985,21 +2985,23 @@ return x_5;
 static lean_object* _init_l___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_addAndCompileExprForEval___closed__22() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_1 = lean_box(0);
-x_2 = 0;
+x_2 = lean_box(0);
 x_3 = 0;
-x_4 = 2;
-x_5 = 1;
-x_6 = l_Lean_collectAxioms___at___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_addAndCompileExprForEval___spec__1___closed__1;
-x_7 = lean_alloc_ctor(0, 2, 4);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_6);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2, x_2);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2 + 1, x_3);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2 + 2, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*2 + 3, x_5);
-return x_7;
+x_4 = 0;
+x_5 = 2;
+x_6 = 1;
+x_7 = l_Lean_collectAxioms___at___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_addAndCompileExprForEval___spec__1___closed__1;
+x_8 = lean_alloc_ctor(0, 3, 4);
+lean_ctor_set(x_8, 0, x_2);
+lean_ctor_set(x_8, 1, x_1);
+lean_ctor_set(x_8, 2, x_7);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3, x_3);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 1, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 2, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*3 + 3, x_6);
+return x_8;
 }
 }
 static lean_object* _init_l___private_Lean_Elab_BuiltinEvalCommand_0__Lean_Elab_Command_addAndCompileExprForEval___closed__23() {

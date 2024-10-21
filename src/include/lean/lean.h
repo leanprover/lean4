@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
+#include <string.h>
 
 #ifdef __cplusplus
 #include <atomic>
@@ -1846,6 +1847,187 @@ static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2;
 /* usize -> other */
 static inline uint32_t lean_usize_to_uint32(size_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
+
+/*
+ * We use this macro to convert between signed and unsigned fixed width int types,
+ * such as `int8_t` and `uint8_t`. LLVM is going to optimize these memcpys away even at O1.
+ * This is needed in the implementation of `Int8` and friends in Lean itself
+ * because the old compiler only supports turning `UIntX` into `uintx_t` at the C
+ * level. The new compiler is going to address this issue and provide the translation
+ * from `IntX` to `intx_t` as well, obsoleting this temporary hack.
+ */
+#define LEAN_INT_CONVERT(destty, srcty, dest, src) \
+    destty dest; \
+    assert(sizeof(destty) == sizeof(srcty)); \
+    memcpy(&dest, &src, sizeof(srcty));
+
+#define LEAN_INT8_TO_UINT8(dest, src) LEAN_INT_CONVERT(uint8_t, int8_t, dest, src)
+#define LEAN_UINT8_TO_INT8(dest, src) LEAN_INT_CONVERT(int8_t, uint8_t, dest, src)
+
+/*
+ * Note that we compile all files with -frwapv so in the following section all potential UB that
+ * may arise from signed overflow is forced to match 2's complement behavior.
+ */
+
+/* Int8 */
+LEAN_EXPORT int8_t lean_int8_of_big_int(b_lean_obj_arg a);
+static inline uint8_t lean_int8_of_int(b_lean_obj_arg a) {
+    int8_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (int8_t)lean_scalar_to_int64(a);
+    } else {
+        res = lean_int8_of_big_int(a);
+    }
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline lean_obj_res lean_int8_to_int(uint8_t a) {
+    LEAN_UINT8_TO_INT8(res, a);
+    return lean_int64_to_int((int64_t)res);
+}
+
+static inline uint8_t lean_int8_neg(uint8_t a) {
+    LEAN_UINT8_TO_INT8(res, a);
+
+    res = -res;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_add(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs + rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_sub(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs - rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_mul(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs * rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = rhs == 0 ? 0 : lhs / rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = rhs == 0 ? 0 : lhs % rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_land(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs & rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_lor(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs | rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_xor(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs ^ rhs;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_shift_right(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs >> (rhs % 8);
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_shift_left(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    int8_t res = lhs << (rhs % 8);
+
+    LEAN_INT8_TO_UINT8(ret, res);
+    return ret;
+}
+
+static inline uint8_t lean_int8_complement(uint8_t a) {
+    LEAN_UINT8_TO_INT8(i, a);
+
+    int8_t res = ~i;
+
+    LEAN_INT8_TO_UINT8(ret, res);
+
+    return ret;
+}
+
+static inline uint8_t lean_int8_dec_eq(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    return lhs == rhs;
+}
+
+static inline uint8_t lean_int8_dec_lt(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    return lhs < rhs;
+}
+
+static inline uint8_t lean_int8_dec_le(uint8_t a1, uint8_t a2) {
+    LEAN_UINT8_TO_INT8(lhs, a1);
+    LEAN_UINT8_TO_INT8(rhs, a2);
+
+    return lhs <= rhs;
+}
 
 /* Float */
 

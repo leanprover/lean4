@@ -939,6 +939,7 @@ private def mkInductiveType (view : StructView) (indFVar : Expr) (levelNames : L
         mkAppN const (params.extract 0 numVars)
       else
         none
+    instantiateMVars (← mkForallFVars params type)
   return { name := view.declName, type := ← instantiateMVars type, ctors := [{ ctor with type := ← instantiateMVars ctorType }] }
 
 def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
@@ -978,6 +979,9 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
           let decl    := Declaration.inductDecl levelParams params.size [indType] isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl
+          -- rename indFVar so that it does not shadow the actual declaration:
+          let lctx := (← getLCtx).modifyLocalDecl indFVar.fvarId! fun decl => decl.setUserName .anonymous
+          withLCtx lctx (← getLocalInstances) do
           addProjections r fieldInfos
           registerStructure view.declName fieldInfos
           mkAuxConstructions view.declName

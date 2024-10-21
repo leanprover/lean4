@@ -1126,6 +1126,17 @@ theorem emod_add_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n + y) n = Int.bmo
   rw [←Int.mul_neg, Int.add_right_comm,  Int.bmod_add_mul_cancel]
 
 @[simp]
+theorem emod_sub_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n - y) n = Int.bmod (x - y) n := by
+  simp only [emod_def, Int.sub_eq_add_neg]
+  rw [←Int.mul_neg, Int.add_right_comm,  Int.bmod_add_mul_cancel]
+
+@[simp]
+theorem sub_emod_bmod_congr (x : Int) (n : Nat) : Int.bmod (x - y%n) n = Int.bmod (x - y) n := by
+  simp only [emod_def]
+  rw [Int.sub_eq_add_neg, Int.neg_sub, Int.sub_eq_add_neg, ← Int.add_assoc, Int.add_right_comm,
+    Int.bmod_add_mul_cancel, Int.sub_eq_add_neg]
+
+@[simp]
 theorem emod_mul_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n * y) n = Int.bmod (x * y) n := by
   simp [Int.emod_def, Int.sub_eq_add_neg]
   rw [←Int.mul_neg, Int.add_mul, Int.mul_assoc, Int.bmod_add_mul_cancel]
@@ -1140,8 +1151,27 @@ theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n
     rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
     simp
 
+@[simp]
+theorem bmod_sub_bmod_congr : Int.bmod (Int.bmod x n - y) n = Int.bmod (x - y) n := by
+  rw [Int.bmod_def x n]
+  split
+  next p =>
+    simp only [emod_sub_bmod_congr]
+  next p =>
+    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg, ← Int.sub_eq_add_neg]
+    simp [emod_sub_bmod_congr]
+
 @[simp] theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
   rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
+
+@[simp] theorem sub_bmod_bmod : Int.bmod (x - Int.bmod y n) n = Int.bmod (x - y) n := by
+  rw [Int.bmod_def y n]
+  split
+  next p =>
+    simp [sub_emod_bmod_congr]
+  next p =>
+    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, ← Int.add_assoc, ← Int.sub_eq_add_neg]
+    simp [sub_emod_bmod_congr]
 
 @[simp]
 theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by

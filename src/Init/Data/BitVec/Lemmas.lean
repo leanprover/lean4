@@ -316,6 +316,12 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   simp [Nat.sub_sub_eq_min, Nat.min_eq_right]
   omega
 
+@[simp] theorem sub_add_bmod_cancel {x y : BitVec w} :
+    ((((2 ^ w : Nat) - y.toNat) : Int) + x.toNat).bmod (2 ^ w) =
+      ((x.toNat : Int) - y.toNat).bmod (2 ^ w) := by
+  rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_comm, Int.bmod_add_cancel, Int.add_comm,
+    Int.sub_eq_add_neg]
+
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
 
@@ -1974,6 +1980,10 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
 @[simp] theorem toNat_sub {n} (x y : BitVec n) :
     (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
 
+@[simp, bv_toNat] theorem toInt_sub {x y : BitVec w} :
+    (x - y).toInt = (x.toInt - y.toInt).bmod (2 ^ w) := by
+  simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
+
 -- We prefer this lemma to `toNat_sub` for the `bv_toNat` simp set.
 -- For reasons we don't yet understand, unfolding via `toNat_sub` sometimes
 -- results in `omega` generating proof terms that are very slow in the kernel.
@@ -1996,6 +2006,8 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
 
+@[simp] protected theorem zero_sub (x : BitVec n) : 0#n - x = -x := rfl
+
 @[simp] protected theorem sub_self (x : BitVec n) : x - x = 0#n := by
   apply eq_of_toNat_eq
   simp only [toNat_sub]
@@ -2008,18 +2020,8 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 
 theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
-  simp only [toInt_eq_toNat_bmod, toNat_neg, Int.ofNat_emod, Int.emod_bmod_congr]
-  rw [← Int.subNatNat_of_le (by omega), Int.subNatNat_eq_coe, Int.sub_eq_add_neg, Int.add_comm,
-    Int.bmod_add_cancel]
-  by_cases h : x.toNat < ((2 ^ w) + 1) / 2
-  · rw [Int.bmod_pos (x := x.toNat)]
-    all_goals simp only [toNat_mod_cancel']
-    norm_cast
-  · rw [Int.bmod_neg (x := x.toNat)]
-    · simp only [toNat_mod_cancel']
-      rw_mod_cast [Int.neg_sub, Int.sub_eq_add_neg, Int.add_comm, Int.bmod_add_cancel]
-    · norm_cast
-      simp_all
+  rw [← BitVec.zero_sub, toInt_sub]
+  simp [BitVec.toInt_ofNat]
 
 @[simp] theorem toFin_neg (x : BitVec n) :
     (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=

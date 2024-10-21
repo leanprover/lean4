@@ -29,7 +29,7 @@ theorem mapIdx_induction (as : Array α) (f : Fin as.size → α → β)
     | succ i ih =>
       apply @ih (bs.push (f ⟨j, by omega⟩ as[j])) (j + 1) (by omega) (by simp; omega)
       · intro i i_lt h'
-        rw [get_push]
+        rw [getElem_push]
         split
         · apply h₂
         · simp only [size_push] at h'

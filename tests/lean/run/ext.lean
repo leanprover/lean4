@@ -164,7 +164,7 @@ theorem weird_prod_ext (p q : α × β)
   p = q := sorry
 
 /--
-error: Failed to generate an 'ext_iff' theorem from 'ext'': argument h1 is depended upon, which is not supported for arguments after p and q
+error: Failed to generate an 'ext_iff' theorem from 'Sigma.ext'': argument h1 is depended upon, which is not supported for arguments after p and q
 
 Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem.
 -/

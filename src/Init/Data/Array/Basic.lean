@@ -398,19 +398,24 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
   decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (mkEmpty as.size)
 
+/-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
+def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
+    (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
     match i, inv with
     | 0,    _  => pure bs
     | i+1, inv =>
-      have : j < as.size := by
+      have j_lt : j < as.size := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
-      let idx : Fin as.size := ⟨j, this⟩
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f idx (as.get idx)))
+      map i (j+1) this (bs.push (← f ⟨j, j_lt⟩ (as.get ⟨j, j_lt⟩)))
   map as.size 0 rfl (mkEmpty as.size)
+
+@[inline]
+def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Nat → α → m β) : m (Array β) :=
+  as.mapFinIdxM fun i a => f i a
 
 @[inline]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) := do
@@ -517,8 +522,13 @@ def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : A
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f
 
+/-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+  Id.run <| as.mapFinIdxM f
+
+@[inline]
+def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Nat → α → β) : Array β :=
   Id.run <| as.mapIdxM f
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/

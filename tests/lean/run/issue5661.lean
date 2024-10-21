@@ -19,7 +19,7 @@ fun a => Eq.refl (1 + sizeOf a)
 open Lean Meta in
 run_meta do
   let i ← getConstInfoRec ``Nested.rec_1
-  logInfo m!"{i.getInduct}"
+  logInfo m!"{i.getMajorInduct}"
 
 theorem works (x : StructLike Nested) : StructLike.rec
   (motive := fun _ => Bool)

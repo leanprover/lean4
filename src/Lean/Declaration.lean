@@ -370,9 +370,9 @@ def RecursorVal.getFirstMinorIdx (v : RecursorVal) : Nat :=
   v.numParams + v.numMotives
 
 /-- The inductive type of the major argument of the recursor. -/
-def RecursorVal.getInduct (v : RecursorVal) : Name :=
+def RecursorVal.getMajorInduct (v : RecursorVal) : Name :=
   go v.getMajorIdx v.type
-where -- TODO: Turn into a helper function on Lean.Expr
+where
   go
   | 0, e => e.bindingDomain!.getAppFn.constName!
   | n+1, e => go n e.bindingBody!

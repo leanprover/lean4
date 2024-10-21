@@ -142,7 +142,7 @@ recursor_val::recursor_val(name const & n, names const & lparams, expr const & t
                                     nat(nminors).to_obj_arg(), rules.to_obj_arg(), k, is_unsafe)) {
 }
 
-name const & recursor_val::get_induct() const {
+name const & recursor_val::get_major_induct() const {
     unsigned int n = get_major_idx();
     expr const * t = &(to_constant_val().get_type());
     for (unsigned int i = 0; i < n; i++) {

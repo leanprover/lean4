@@ -6,12 +6,28 @@ Authors: Henrik Böving
 prelude
 import Init.Data.UInt.Basic
 
+/-!
+This module contains the definition of signed fixed width integer types as well as basic arithmetic
+and bitwise operations on top of it.
+-/
+
+
+/--
+The type of signed 8-bit integers. This type has special support in the
+compiler to make it actually 8 bits rather than wrapping a `Nat`.
+-/
 structure Int8 where
+  /--
+  Obtain the `UInt8` that is 2's complement equivalent to the `Int8`.
+  -/
   toUInt8 : UInt8
 
-abbrev Int8.size : Nat := UInt8.size
+/-- The size of type `Int8`, that is, `2^8 = 256`. -/
+abbrev Int8.size : Nat := 256
 
--- two's complement interpretation of the Int8
+/--
+Obtain the `BitVec` that contains the 2's complement representation of the `Int8`.
+-/
 @[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec
 
 @[extern "lean_int8_of_int"]

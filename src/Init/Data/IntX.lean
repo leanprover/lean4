@@ -5,3 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.IntX.Basic
+
+/-!
+This module contains the definitions and basic theory about signed fixed width integer types.
+-/

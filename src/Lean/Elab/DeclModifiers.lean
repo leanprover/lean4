@@ -57,7 +57,8 @@ inductive RecKind where
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
-  stx             : TSyntax ``Parser.Command.declModifiers
+  /-- Input syntax, used for adjusting declaration range (unless missing) -/
+  stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   docString?      : Option String := none
   visibility      : Visibility := Visibility.regular
   isNoncomputable : Bool := false

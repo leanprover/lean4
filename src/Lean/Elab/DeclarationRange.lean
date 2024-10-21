@@ -49,29 +49,31 @@ def getDeclarationSelectionRef (stx : Syntax) : Syntax :=
     else
       stx[0]
 
+/--
+Derives and adds declaration ranges from given syntax trees. If `rangeStx` does not have a range,
+nothing is added. If `selectionRangeStx` does not have a range, it is defaulted to that of
+`rangeStx`.
+-/
+def addDeclarationRangesFromSyntax [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name)
+    (rangeStx : Syntax) (selectionRangeStx : Syntax := .missing) : m Unit := do
+  -- may fail on partial syntax, ignore in that case
+  let some range ← getDeclarationRange? rangeStx | return
+  let selectionRange ← (·.getD range) <$> getDeclarationRange? selectionRangeStx
+  Lean.addDeclarationRanges declName { range, selectionRange }
 
 /--
 Stores the `range` and `selectionRange` for `declName` where `modsStx` is the modifier part and
 `cmdStx` the remaining part of the syntax tree for `declName`.
 
 This method is for the builtin declarations only. User-defined commands should use
-`Lean.addDeclarationRanges` to store this information for their commands.
+`Lean.Elab.addDeclarationRangesFromSyntax` or `Lean.addDeclarationRanges` to store this information
+for their commands.
 -/
-def addDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name)
+def addDeclarationRangesForBuiltin [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name)
     (modsStx : TSyntax ``Parser.Command.declModifiers) (declStx : Syntax) : m Unit := do
   if declStx.getKind == ``Parser.Command.«example» then
     return ()
   let stx := mkNullNode #[modsStx, declStx]
-  -- may fail on partial syntax, ignore in that case
-  let some range ← getDeclarationRange? stx | return
-  let some selectionRange ← getDeclarationRange? (getDeclarationSelectionRef declStx) | return
-  Lean.addDeclarationRanges declName { range, selectionRange }
-
-/-- Auxiliary method for recording ranges for auxiliary declarations (e.g., fields, nested declarations, etc. -/
-def addAuxDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) (header : Syntax) : m Unit := do
-  -- may fail on partial syntax, ignore in that case
-  let some range ← getDeclarationRange? stx | return
-  let some selectionRange ← getDeclarationRange? header | return
-  Lean.addDeclarationRanges declName { range, selectionRange }
+  addDeclarationRangesFromSyntax declName stx (getDeclarationSelectionRef declStx)
 
 end Lean.Elab

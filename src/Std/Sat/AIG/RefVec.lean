@@ -59,7 +59,7 @@ def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
     by simp [hlen],
     by
       intro i hi
-      simp only [Array.get_push]
+      simp only [Array.getElem_push]
       split
       · apply hrefs
         omega
@@ -85,7 +85,7 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
   simp only [get, push, Ref.mk.injEq]
   cases ref
   simp only [Ref.mk.injEq]
-  rw [Array.get_push_lt]
+  rw [Array.getElem_push_lt]
 
 @[simp]
 theorem get_cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (idx : Nat) (hidx : idx < len)

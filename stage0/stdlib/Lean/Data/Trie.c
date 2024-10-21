@@ -61,6 +61,7 @@ LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix_go___rarg(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instEmptyCollection(lean_object*);
+LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix_loop(lean_object*);
@@ -81,7 +82,6 @@ LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_matchP
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_bindTR_go___at___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Data_Trie_values_go___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert(lean_object*);
@@ -1769,7 +1769,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_bindTR_go___at___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1895,7 +1895,7 @@ x_21 = lean_array_to_list(x_19);
 x_22 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg___closed__1;
 x_23 = l_Lean_Data_Trie_values___rarg___closed__1;
 x_24 = l_List_zipWithTR_go___rarg(x_22, x_20, x_21, x_23);
-x_25 = l_List_bindTR_go___at___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___spec__1(x_24, x_23);
+x_25 = l_List_flatMapTR_go___at___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___spec__1(x_24, x_23);
 return x_25;
 }
 }

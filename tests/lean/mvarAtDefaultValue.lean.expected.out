@@ -1,4 +1,14 @@
-mvarAtDefaultValue.lean:5:2-5:3: error: invalid default value for field, it contains metavariables
+mvarAtDefaultValue.lean:5:7-5:8: error: don't know how to synthesize placeholder
+context:
+toA : A
+x : Nat := toA.x
+⊢ Nat
+mvarAtDefaultValue.lean:5:2-5:3: error: invalid default value for field 'x', it contains metavariables
   ?m
-mvarAtDefaultValue.lean:8:2-8:3: error: invalid default value for field, it contains metavariables
+mvarAtDefaultValue.lean:8:7-8:8: error: don't know how to synthesize placeholder
+context:
+toA : A
+x : Nat := toA.x
+⊢ Nat
+mvarAtDefaultValue.lean:8:2-8:3: error: invalid default value for field 'x', it contains metavariables
   ?m + 1

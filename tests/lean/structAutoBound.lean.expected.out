@@ -1,4 +1,4 @@
-structure Foo.{v, u_1} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (v + 1))
+structure Foo.{u_1, v} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (v + 1))
 number of parameters: 2
 constructor:
 Foo.mk : {α : Sort u_1} → {β : α → Type v} → (a : α) → β a → Foo β
@@ -13,4 +13,4 @@ Boo.mk : {α : Type u} → {β : Type v} → α → β → Boo α β
 fields:
 a : α
 b : β
-structAutoBound.lean:18:0-20:7: error: unused universe parameter 'w'
+structAutoBound.lean:18:10-18:44: error: unused universe parameter 'w'

@@ -887,7 +887,6 @@ def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
   else DefKind.«def»
 
 def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers := {
-  stx             := ⟨mkNullNode #[]⟩  -- ignore when computing declaration range
   isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable
   recKind         := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe
@@ -998,7 +997,7 @@ where
       for view in views, header in headers do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref
-        addDeclarationRanges header.declName view.modifiers.stx view.ref
+        addDeclarationRangesForBuiltin header.declName view.modifiers.stx view.ref
 
 
   processDeriving (headers : Array DefViewElabHeader) := do

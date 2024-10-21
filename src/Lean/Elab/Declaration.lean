@@ -104,7 +104,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let (binders, typeStx) := expandDeclSig stx[2]
   let scopeLevelNames ← getLevelNames
   let ⟨_, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
-  addDeclarationRanges declName modifiers.stx stx
+  addDeclarationRangesForBuiltin declName modifiers.stx stx
   runTermElabM fun vars =>
     Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
@@ -144,7 +144,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
-  addDeclarationRanges declName modifiers.stx decl
+  addDeclarationRangesForBuiltin declName modifiers.stx decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     -- def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
     let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
@@ -162,7 +162,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers.visibility ctorName
     let (binders, type?) := expandOptDeclSig ctor[4]
     addDocString' ctorName ctorModifiers.docString?
-    addAuxDeclarationRanges ctorName ctor ctor[3]
+    addDeclarationRangesFromSyntax ctorName ctor ctor[3]
     return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
@@ -400,7 +400,7 @@ def elabMutual : CommandElab := fun stx => do
       -- We need to add `id`'s ranges *before* elaborating `initFn` (and then `id` itself) as
       -- otherwise the info context created by `with_decl_name` will be incomplete and break the
       -- call hierarchy
-      addDeclarationRanges fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
+      addDeclarationRangesForBuiltin fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
       elabCommand (← `(
         $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))

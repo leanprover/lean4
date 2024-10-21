@@ -94,7 +94,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
   let useDefault := do
     let declName := structDeclName ++ defaultCtorName
     let ref := structStx[1].mkSynthetic
-    addAuxDeclarationRanges declName ref ref
+    addDeclarationRangesFromSyntax declName ref
     pure { ref, modifiers := default, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
@@ -115,7 +115,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName
       addDocString' declName ctorModifiers.docString?
-      addAuxDeclarationRanges declName ctor[1] ctor[1]
+      addDeclarationRangesFromSyntax declName ctor[1]
       pure { ref := ctor[1], name, modifiers := ctorModifiers, declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
@@ -815,7 +815,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   view.fields.forM fun field => do
     if field.declName == view.ctor.declName then
       throwErrorAt field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
-    addAuxDeclarationRanges field.declName field.ref field.ref
+    addDeclarationRangesFromSyntax field.declName field.ref
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"
   withRef view.ref do
@@ -912,7 +912,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
       let scopeLevelNames ← Term.getLevelNames
       let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
       Term.withAutoBoundImplicitForbiddenPred (fun n => name == n) do
-        addDeclarationRanges declName modifiers.stx stx
+        addDeclarationRangesForBuiltin declName modifiers.stx stx
         Term.withDeclName declName do
           let ctor ← expandCtor stx modifiers declName
           let fields ← expandFields stx modifiers declName

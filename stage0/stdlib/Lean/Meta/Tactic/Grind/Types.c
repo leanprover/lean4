@@ -83,9 +83,9 @@ size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_Grind_canon_canonRec___spec__14(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_GrindM_run(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_setENode_unsafe__1___boxed(lean_object*);
+static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__5;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___boxed(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
@@ -106,6 +106,7 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_mkGoal___closed__6;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_getENode_x3f___spec__1(lean_object*, size_t);
+static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_getENode_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, size_t);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkGoal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -147,10 +148,12 @@ static lean_object* l_Lean_Meta_Grind_GrindM_run___rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitForall___at_Lean_Meta_Grind_canon_canonRec___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_getENode_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_abstractNestedProofs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_shareCommon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_canon_canonRec___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Grind_setENode___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitForall___at_Lean_Meta_Grind_canon_canonRec___spec__5(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLet___at_Lean_Meta_Grind_canon_canonRec___spec__6___lambda__1___boxed(lean_object**);
@@ -162,6 +165,7 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 static lean_object* l_Lean_Meta_Grind_instInhabitedClause___closed__2;
 static lean_object* l_Lean_Meta_Grind_instInhabitedGoal___closed__6;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLet___at_Lean_Meta_Grind_canon_canonRec___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitPost___at_Lean_Meta_Grind_canon_canonRec___spec__3(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -180,6 +184,7 @@ static lean_object* l_Lean_Meta_Grind_mkGoal___closed__3;
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lean_Meta_Grind_GrindM_run___rarg___closed__4;
+static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkInputClause(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_Grind_canon_canonRec___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -2349,6 +2354,32 @@ return x_3;
 static lean_object* _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("runtime", 7, 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("maxRecDepth", 11, 11);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__1;
+x_2 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
 x_2 = lean_alloc_ctor(3, 1, 0);
@@ -2356,20 +2387,32 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__2() {
+static lean_object* _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__1;
+x_1 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__4;
 x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
+}
+}
+static lean_object* _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__3;
+x_2 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__5;
+x_3 = lean_alloc_ctor(8, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__2;
+x_7 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__6;
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_1);
 lean_ctor_set(x_8, 1, x_7);
@@ -6209,6 +6252,14 @@ l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg_
 lean_mark_persistent(l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__1);
 l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__2 = _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__2();
 lean_mark_persistent(l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__2);
+l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__3 = _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__3();
+lean_mark_persistent(l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__3);
+l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__4 = _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__4();
+lean_mark_persistent(l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__4);
+l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__5 = _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__5();
+lean_mark_persistent(l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__5);
+l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__6 = _init_l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__6();
+lean_mark_persistent(l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Grind_canon_canonRec___spec__16___rarg___closed__6);
 l_Lean_Meta_transform_visit___at_Lean_Meta_Grind_canon_canonRec___spec__2___lambda__1___closed__1 = _init_l_Lean_Meta_transform_visit___at_Lean_Meta_Grind_canon_canonRec___spec__2___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_transform_visit___at_Lean_Meta_Grind_canon_canonRec___spec__2___lambda__1___closed__1);
 l_Lean_Meta_transform_visit___at_Lean_Meta_Grind_canon_canonRec___spec__2___lambda__1___closed__2 = _init_l_Lean_Meta_transform_visit___at_Lean_Meta_Grind_canon_canonRec___spec__2___lambda__1___closed__2();

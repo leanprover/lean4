@@ -135,6 +135,10 @@ Both reduce to `b = false ∧ c = false` via `not_or`.
 
 theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.1)) (mt (·.2))
 
+/-! ## not equal -/
+
+theorem ne_of_apply_ne {α β : Sort _} (f : α → β) {x y : α} : f x ≠ f y → x ≠ y :=
+  mt <| congrArg _
 
 /-! ## Ite -/
 
@@ -383,6 +387,17 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
   iff_true_intro fun h => hn.elim h
 
 end quantifiers
+
+/-! ## membership -/
+
+section Mem
+variable [Membership α β] {s t : β} {a b : α}
+
+theorem ne_of_mem_of_not_mem (h : a ∈ s) : b ∉ s → a ≠ b := mt fun e => e ▸ h
+
+theorem ne_of_mem_of_not_mem' (h : a ∈ s) : a ∉ t → s ≠ t := mt fun e => e ▸ h
+
+end Mem
 
 /-! ## Nonempty -/
 

@@ -147,7 +147,6 @@ LEAN_EXPORT lean_object* l_Lean_Level_hasParamEx___boxed(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__4;
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_1012____closed__11;
 static lean_object* l_Lean_Level_PP_Result_quote___closed__8;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_1012____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Level_casesOn___override___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l___private_Lean_Level_0__Lean_hashLevelMVarId____x40_Lean_Level___hyg_520_(lean_object*);

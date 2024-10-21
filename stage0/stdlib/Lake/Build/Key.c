@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT uint64_t l___private_Lake_Build_Key_0__Lake_hashBuildKey____x40_Lake_Build_Key___hyg_1274_(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildKey_instLawfulCmpEqQuickCmp;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_92____closed__6;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_hashBuildKey____x40_Lake_Build_Key___hyg_1274____boxed(lean_object*);
@@ -35,12 +34,10 @@ LEAN_EXPORT lean_object* l_Lake_BuildKey_quickCmp___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__5_splitter(lean_object*);
 static lean_object* l_Lake_instInhabitedBuildKey___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__2_splitter(lean_object*);
-static lean_object* l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__2;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprBuildKey;
 static lean_object* l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_92____closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__3_splitter(lean_object*);
-static lean_object* l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__1;
 LEAN_EXPORT uint8_t l___private_Lake_Build_Key_0__Lake_decEqBuildKey____x40_Lake_Build_Key___hyg_325_(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildKey_toSimpleString(lean_object*);
@@ -1667,30 +1664,6 @@ x_2 = lean_alloc_closure((void*)(l___private_Lake_Build_Key_0__Lake_BuildKey_qui
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_BuildKey_quickCmp___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_BuildKey_instLawfulCmpEqQuickCmp() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__2;
-return x_1;
-}
-}
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1756,12 +1729,6 @@ l_Lake_BuildKey_toString___closed__5 = _init_l_Lake_BuildKey_toString___closed__
 lean_mark_persistent(l_Lake_BuildKey_toString___closed__5);
 l_Lake_BuildKey_toString___closed__6 = _init_l_Lake_BuildKey_toString___closed__6();
 lean_mark_persistent(l_Lake_BuildKey_toString___closed__6);
-l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__1 = _init_l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__1();
-lean_mark_persistent(l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__1);
-l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__2 = _init_l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__2();
-lean_mark_persistent(l_Lake_BuildKey_instLawfulCmpEqQuickCmp___closed__2);
-l_Lake_BuildKey_instLawfulCmpEqQuickCmp = _init_l_Lake_BuildKey_instLawfulCmpEqQuickCmp();
-lean_mark_persistent(l_Lake_BuildKey_instLawfulCmpEqQuickCmp);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

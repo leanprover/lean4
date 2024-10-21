@@ -1039,6 +1039,14 @@ def getForallBinderNames : Expr → List Name
   | _ => []
 
 /--
+Returns the number of leading `∀` binders of an expression. Ignores metadata.
+-/
+def getNumHeadForalls : Expr → Nat
+  | mdata _ b => getNumHeadForalls b
+  | forallE _ _ body _ => getNumHeadForalls body + 1
+  | _ => 0
+
+/--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.
 Otherwise return the input expression.
@@ -1084,6 +1092,16 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 /-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
+
+/-- Like `getAppNumArgs` but ignores metadata. -/
+def getAppNumArgs' (e : Expr) : Nat :=
+  go e 0
+where
+  /-- Auxiliary definition for `getAppNumArgs'`. -/
+  go : Expr → Nat → Nat
+    | mdata _ b, n => go b n
+    | app f _  , n => go f (n + 1)
+    | _        , n => n
 
 /--
 Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.

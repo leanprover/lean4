@@ -569,7 +569,7 @@ section MessageHandling
     let text := st.doc.meta.text
 
     match st.importCachingTask? with
-    | none => IO.asTask do
+    | none => IO.asTask (prio := Task.Priority.dedicated) do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
       let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
@@ -697,7 +697,7 @@ end MainLoop
 
 def runRefreshTask : WorkerM (Task (Except IO.Error Unit)) := do
   let ctx ← read
-  IO.asTask do
+  IO.asTask (prio := Task.Priority.dedicated) do
     while ! (←IO.checkCanceled) do
       let pastProcessingStates ← ctx.chanIsProcessing.recvAllCurrent
       if pastProcessingStates.isEmpty then

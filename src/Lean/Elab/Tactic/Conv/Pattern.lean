@@ -119,7 +119,7 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
         let ids ← ids.mapIdxM fun i id =>
           match id.getNat with
           | 0 => throwErrorAt id "positive integer expected"
-          | n+1 => pure (n, i.1)
+          | n+1 => pure (n, i)
         let ids := ids.qsort (·.1 < ·.1)
         unless @Array.allDiff _ ⟨(·.1 == ·.1)⟩ ids do
           throwError "occurrence list is not distinct"

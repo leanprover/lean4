@@ -51,19 +51,25 @@ def delabBVar : Delab := do
   let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
+def delabMVarAux (m : MVarId) : DelabM Term := do
+  let mkMVarPlaceholder : DelabM Term := `(?_)
+  let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
+  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+    if ← getPPOption getPPMVars then
+      match (← m.getDecl).userName with
+      | .anonymous =>
+        if ← getPPOption getPPMVarsAnonymous then
+          mkMVar <| m.name.replacePrefix `_uniq `m
+        else
+          mkMVarPlaceholder
+      | n => mkMVar n
+    else
+      mkMVarPlaceholder
+
 @[builtin_delab mvar]
 def delabMVar : Delab := do
   let Expr.mvar n ← getExpr | unreachable!
-  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
-    if ← getPPOption getPPMVars then
-      let mvarDecl ← n.getDecl
-      let n :=
-        match mvarDecl.userName with
-        | .anonymous => n.name.replacePrefix `_uniq `m
-        | n => n
-      `(?$(mkIdent n))
-    else
-      `(?_)
+  delabMVarAux n
 
 @[builtin_delab sort]
 def delabSort : Delab := do
@@ -72,7 +78,7 @@ def delabSort : Delab := do
   | Level.zero => `(Prop)
   | Level.succ .zero => `(Type)
   | _ =>
-    let mvars ← getPPOption getPPMVars
+    let mvars ← getPPOption getPPMVarsLevels
     match l.dec with
     | some l' => `(Type $(Level.quote l' (prec := max_prec) (mvars := mvars)))
     | none    => `(Sort $(Level.quote l (prec := max_prec) (mvars := mvars)))
@@ -98,7 +104,7 @@ def delabConst : Delab := do
         c := c₀
     pure <| mkIdent c
   else
-    let mvars ← getPPOption getPPMVars
+    let mvars ← getPPOption getPPMVarsLevels
     `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
 
   let stx ← maybeAddBlockImplicit stx
@@ -578,16 +584,7 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
     let args := (← getExpr).getAppArgs
     -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
     guard <| args.all Expr.isFVar
-    withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
-      if ← getPPOption getPPMVars then
-        let mvarDecl ← decl.mvarIdPending.getDecl
-        let n :=
-          match mvarDecl.userName with
-          | .anonymous => decl.mvarIdPending.name.replacePrefix `_uniq `m
-          | n => n
-        `(?$(mkIdent n))
-      else
-        `(?_)
+    delabMVarAux decl.mvarIdPending
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
@@ -1218,32 +1215,11 @@ def delabDo : Delab := whenPPOption getPPNotation do
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
 
-def reifyName : Expr → DelabM Name
-  | .const ``Lean.Name.anonymous _ => return Name.anonymous
-  | mkApp2 (.const ``Lean.Name.str _) n (.lit (.strVal s)) => return (← reifyName n).mkStr s
-  | mkApp2 (.const ``Lean.Name.num _) n (.lit (.natVal i)) => return (← reifyName n).mkNum i
-  | mkApp (.const ``Lean.Name.mkStr1 _) (.lit (.strVal a)) => return Lean.Name.mkStr1 a
-  | mkApp2 (.const ``Lean.Name.mkStr2 _) (.lit (.strVal a1)) (.lit (.strVal a2)) =>
-    return Lean.Name.mkStr2 a1 a2
-  | mkApp3 (.const ``Lean.Name.mkStr3 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) =>
-    return Lean.Name.mkStr3 a1 a2 a3
-  | mkApp4 (.const ``Lean.Name.mkStr4 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) =>
-    return Lean.Name.mkStr4 a1 a2 a3 a4
-  | mkApp5 (.const ``Lean.Name.mkStr5 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) =>
-    return Lean.Name.mkStr5 a1 a2 a3 a4 a5
-  | mkApp6 (.const ``Lean.Name.mkStr6 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) =>
-    return Lean.Name.mkStr6 a1 a2 a3 a4 a5 a6
-  | mkApp7 (.const ``Lean.Name.mkStr7 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) =>
-    return Lean.Name.mkStr7 a1 a2 a3 a4 a5 a6 a7
-  | mkApp8 (.const ``Lean.Name.mkStr8 _) (.lit (.strVal a1)) (.lit (.strVal a2)) (.lit (.strVal a3)) (.lit (.strVal a4)) (.lit (.strVal a5)) (.lit (.strVal a6)) (.lit (.strVal a7)) (.lit (.strVal a8)) =>
-    return Lean.Name.mkStr8 a1 a2 a3 a4 a5 a6 a7 a8
-  | _ => failure
-
 @[builtin_delab app.Lean.Name.str,
   builtin_delab app.Lean.Name.mkStr1, builtin_delab app.Lean.Name.mkStr2, builtin_delab app.Lean.Name.mkStr3, builtin_delab app.Lean.Name.mkStr4,
   builtin_delab app.Lean.Name.mkStr5, builtin_delab app.Lean.Name.mkStr6, builtin_delab app.Lean.Name.mkStr7, builtin_delab app.Lean.Name.mkStr8]
 def delabNameMkStr : Delab := whenPPOption getPPNotation do
-  let n ← reifyName (← getExpr)
+  let some n := (← getExpr).name? | failure
   -- not guaranteed to be a syntactically valid name, but usually more helpful than the explicit version
   return mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{n}"]
 

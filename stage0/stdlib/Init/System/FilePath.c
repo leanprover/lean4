@@ -53,7 +53,6 @@ LEAN_EXPORT uint8_t l___private_Init_System_FilePath_0__System_decEqFilePath____
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at_System_FilePath_normalize___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_System_instReprFilePath___closed__1;
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath(lean_object*);

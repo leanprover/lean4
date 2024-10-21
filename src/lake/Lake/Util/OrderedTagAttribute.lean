@@ -47,4 +47,4 @@ def OrderedTagAttribute.hasTag (attr : OrderedTagAttribute) (env : Environment) 
 /-- Get all tagged declaration names, both those imported and those in the current module. -/
 def OrderedTagAttribute.getAllEntries (attr : OrderedTagAttribute) (env : Environment) : Array Name :=
   let s := attr.ext.toEnvExtension.getState env
-  s.importedEntries.concatMap id ++ s.state
+  s.importedEntries.flatMap id ++ s.state

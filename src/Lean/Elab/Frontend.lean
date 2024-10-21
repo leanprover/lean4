@@ -102,7 +102,7 @@ partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
 where
   go initialSnap t commands :=
     let snap := t.get
-    let commands := commands.push snap.data.stx
+    let commands := commands.push snap.data
     if let some next := snap.nextCmdSnap? then
       go initialSnap next.task commands
     else
@@ -111,13 +111,15 @@ where
       let messages := toSnapshotTree initialSnap
         |>.getAll.map (·.diagnostics.msgLog)
         |>.foldl (· ++ ·) {}
-      let trees := toSnapshotTree initialSnap
-        |>.getAll.map (·.infoTree?) |>.filterMap id |>.toPArray'
+      -- In contrast to messages, we should collect info trees only from the top-level command
+      -- snapshots as they subsume any info trees reported incrementally by their children.
+      let trees := commands.map (·.finishedSnap.get.infoTree?) |>.filterMap id |>.toPArray'
       return {
         commandState := { snap.data.finishedSnap.get.cmdState with messages, infoState.trees := trees }
         parserState := snap.data.parserState
         cmdPos := snap.data.parserState.pos
-        inputCtx, initialSnap, commands
+        commands := commands.map (·.stx)
+        inputCtx, initialSnap
       }
 
 def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState)
@@ -151,7 +153,7 @@ def runFrontend
   snaps.runAndReport opts jsonOutput
 
   if let some ileanFileName := ileanFileName? then
-    let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
+    let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean

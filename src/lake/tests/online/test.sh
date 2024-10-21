@@ -18,6 +18,9 @@ $LAKE -v -f git.toml build @Cli:extraDep |
 
 ./clean.sh
 $LAKE -f barrel.lean update
+# Test that a barrel is not fetched for an unbuilt dependency
+$LAKE -v -f barrel.lean build @test:extraDep |
+  grep --color "Cli:optBarrel" && exit 1 || true
 # Test that barrels are not fetched after the build directory is created.
 mkdir -p .lake/packages/Cli/.lake/build
 ($LAKE -v -f barrel.lean build @Cli:extraDep) |

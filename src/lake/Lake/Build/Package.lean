@@ -15,6 +15,7 @@ Build function definitions for a package's builtin facets.
 
 open System
 namespace Lake
+open Lean (Name)
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
@@ -44,9 +45,9 @@ def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
     (self.preferReleaseBuild || -- GitHub release
-      !(self.scope.isEmpty -- no Reservoir
-        || (← getElanToolchain).isEmpty
-        || (← self.buildDir.pathExists)))
+      ((self.scope == "leanprover" || self.scope == "leanprover-community")
+        && !(← getElanToolchain).isEmpty
+        && !(← self.buildDir.pathExists))) -- Reservoir
   if shouldFetch then
     self.optBuildCache.fetch
   else
@@ -79,15 +80,12 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
 def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
 
 /--
-Build the `extraDepTargets` for the package and its transitive dependencies.
-Also fetch pre-built releases for the package's' dependencies.
+Build the `extraDepTargets` for the package.
+Also, if the package is a dependency, maybe fetch its build cache.
 -/
 def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
   withRegisterJob s!"{self.name}:extraDep" do
   let mut job := BuildJob.nil
-  -- Build dependencies' extra dep targets
-  for dep in self.deps do
-    job := job.mix <| ← dep.extraDep.fetch
   -- Fetch build cache if this package is a dependency
   if self.name ≠ (← getWorkspace).root.name then
     job := job.add <| ← self.maybeFetchBuildCacheWithWarning

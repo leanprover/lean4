@@ -153,7 +153,6 @@ LEAN_EXPORT lean_object* l_Lake_ELogT_captureLog(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2633____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_logError(lean_object*);
 static lean_object* l_Lake_instToJsonLogLevel___closed__1;
-lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_withLogErrorPos___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_lift___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ELogT_replayLog___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -362,6 +361,7 @@ LEAN_EXPORT lean_object* l_Lake_ELog_failure(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_ELogT_replayLog___spec__2___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_takeFrom(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_io(lean_object*);
+lean_object* l_IO_println___at_Lean_Environment_displayStats___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogLevel_ansiColor___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Verbosity_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogEntry_toString___boxed(lean_object*, lean_object*);
@@ -3812,7 +3812,7 @@ x_17 = l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(x_13, x_
 x_18 = lean_string_utf8_extract(x_13, x_16, x_17);
 lean_dec(x_17);
 lean_dec(x_16);
-x_19 = l_IO_println___at_Lean_instEval___spec__1(x_18, x_3);
+x_19 = l_IO_println___at_Lean_Environment_displayStats___spec__3(x_18, x_3);
 if (lean_obj_tag(x_19) == 0)
 {
 uint8_t x_20; 
@@ -3892,7 +3892,7 @@ x_41 = l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(x_37, x_
 x_42 = lean_string_utf8_extract(x_37, x_40, x_41);
 lean_dec(x_41);
 lean_dec(x_40);
-x_43 = l_IO_println___at_Lean_instEval___spec__1(x_42, x_3);
+x_43 = l_IO_println___at_Lean_Environment_displayStats___spec__3(x_42, x_3);
 if (lean_obj_tag(x_43) == 0)
 {
 uint8_t x_44; 

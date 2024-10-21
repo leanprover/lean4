@@ -83,7 +83,7 @@ inductive CompletionInfo where
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
-  | tactic (stx : Syntax) (goals : List MVarId)
+  | tactic (stx : Syntax)
   -- TODO `import`
 
 /-- Info for an option reference (e.g. in `set_option`). -/

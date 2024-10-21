@@ -6,7 +6,8 @@ set_option bv.ac_nf false
 
 /--
 error: The SAT solver timed out while solving the problem.
-Consider increasing the timeout with `set_option sat.timeout <sec>`
+Consider increasing the timeout with `set_option sat.timeout <sec>`.
+If solving your problem relies inherently on using associativity or commutativity, consider enabling the `bv.ac_nf` option.
 -/
 #guard_msgs in
 set_option sat.timeout 1 in

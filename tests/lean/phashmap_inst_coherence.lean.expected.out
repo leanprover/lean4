@@ -3,6 +3,6 @@ phashmap_inst_coherence.lean:12:53-12:54: error: application type mismatch
 argument
   m
 has type
-  @PersistentHashMap Nat Nat instBEqNat instHashableNat : Type
+  @PersistentHashMap Nat Nat instBEqOfDecidableEq instHashableNat : Type
 but is expected to have type
-  @PersistentHashMap Nat Nat instBEqNat natDiffHash : Type
+  @PersistentHashMap Nat Nat instBEqOfDecidableEq natDiffHash : Type

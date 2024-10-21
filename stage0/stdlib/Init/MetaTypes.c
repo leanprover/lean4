@@ -29,7 +29,6 @@ LEAN_EXPORT lean_object* l___private_Init_MetaTypes_0__Lean_Meta_beqTransparency
 static lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_DSimp_instBEqConfig;
 LEAN_EXPORT lean_object* l_Lean_Meta_EtaStructMode_noConfusion(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_neutralConfig;
 LEAN_EXPORT uint8_t l___private_Init_MetaTypes_0__Lean_Meta_beqOccurrences____x40_Init_MetaTypes___hyg_1158_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_instInhabitedConfig___closed__1;

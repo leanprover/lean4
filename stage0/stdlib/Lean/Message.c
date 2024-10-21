@@ -192,7 +192,6 @@ static lean_object* l_Lean_KernelException_toMessageData___closed__35;
 static lean_object* l_Lean_KernelException_toMessageData___closed__38;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeLevel;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_MessageData_arrayExpr_toMessageData___closed__1;
 static lean_object* l_Lean_instToMessageDataOption___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_MessageData_formatAux___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

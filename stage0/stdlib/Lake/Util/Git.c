@@ -48,7 +48,6 @@ static lean_object* l_Lake_GitRepo_getHeadRevision_x3f___closed__5;
 lean_object* l_String_split___at_Lean_stringToMessageData___spec__1(lean_object*);
 lean_object* l_Lake_captureProc_x3f(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_clone___closed__1;
 lean_object* l_System_FilePath_isDir(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeFilePathGitRepo(lean_object*);
@@ -92,6 +91,7 @@ LEAN_EXPORT lean_object* l_Lake_GitRepo_getHeadRevision___lambda__1(lean_object*
 LEAN_EXPORT lean_object* l_Lake_instToStringGitRepo___boxed(lean_object*);
 static lean_object* l_Lake_Git_filterUrl_x3f___closed__3;
 lean_object* lean_string_length(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_GitRepo_hasNoDiff___closed__2;
 static lean_object* l_Lake_GitRepo_resolveRemoteRevision___lambda__1___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);

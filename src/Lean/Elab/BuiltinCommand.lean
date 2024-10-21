@@ -12,16 +12,18 @@ import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Init.System.Platform
 
 namespace Lean.Elab.Command
 
 @[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
-   match stx[1] with
-   | Syntax.atom _ val =>
-     let doc := val.extract 0 (val.endPos - ⟨2⟩)
-     let range ← Elab.getDeclarationRange stx
-     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
-   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
+  match stx[1] with
+  | Syntax.atom _ val =>
+    let doc := val.extract 0 (val.endPos - ⟨2⟩)
+    let some range ← Elab.getDeclarationRange? stx
+      | return  -- must be from partial syntax, ignore
+    modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
+  | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
   modify fun s => { s with
@@ -229,7 +231,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
-    let binders ← binders.concatMapM replaceBinderAnnotation
+    let binders ← binders.flatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
@@ -348,7 +350,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
   | `(Lean.Parser.Command.include| include $ids*) => do
     let sc ← getScope
-    let vars ← sc.varDecls.concatMapM getBracketedBinderIds
+    let vars ← sc.varDecls.flatMapM getBracketedBinderIds
     let mut uids := #[]
     for id in ids do
       if let some idx := vars.findIdx? (· == id.getId) then
@@ -402,6 +404,16 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       omittedVars := sc.omittedVars ++ omittedVars.toList
       includedVars := sc.includedVars.filter (!omittedVars.contains ·) }
   | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab version] def elabVersion : CommandElab := fun _ => do
+  let mut target := System.Platform.target
+  if target.isEmpty then target := "unknown"
+  -- Only one should be set, but good to know if multiple are set in error.
+  let platforms :=
+    (if System.Platform.isWindows then [" Windows"] else [])
+    ++ (if System.Platform.isOSX then [" macOS"] else [])
+    ++ (if System.Platform.isEmscripten then [" Emscripten"] else [])
+  logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
   logWarning "using 'exit' to interrupt Lean"

@@ -130,7 +130,6 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__20;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__95;
 static lean_object* l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__49;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_groundNat_x3f___closed__12;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_lookup___lambda__2___closed__3;

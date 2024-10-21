@@ -40,7 +40,7 @@ package_facet print_name pkg : Unit := Job.async do
   IO.println pkg.name
   return ((), .nil)
 
-module_facet get_src mod : FilePath := do
+module_facet get_src mod : System.FilePath := do
   inputTextFile mod.leanFile
 
 module_facet print_src mod : Unit := do

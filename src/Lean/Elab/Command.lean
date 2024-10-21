@@ -739,22 +739,32 @@ While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
 -/
 def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
+  let coreState ← get
   let (a, commandState) ←
     cmd.run {
       fileName := ← getFileName
       fileMap := ← getFileMap
+      currRecDepth := ← getRecDepth
+      currMacroScope := ← getCurrMacroScope
       ref := ← getRef
       tacticCache? := none
       snap? := none
       cancelTk? := (← read).cancelTk?
+      suppressElabErrors := (← read).suppressElabErrors
     } |>.run {
       env := ← getEnv
       maxRecDepth := ← getMaxRecDepth
       scopes := [{ header := "", opts := ← getOptions }]
+      ngen := coreState.ngen
+      nextMacroScope := coreState.nextMacroScope
+      infoState.enabled := coreState.infoState.enabled
     }
   modify fun coreState => { coreState with
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
+    infoState.trees := coreState.infoState.trees.append commandState.infoState.trees
     env := commandState.env
+    ngen := commandState.ngen
+    nextMacroScope := commandState.nextMacroScope
   }
   if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
     throwError err.data

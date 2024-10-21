@@ -69,7 +69,7 @@ def getStructureInfo? (env : Environment) (structName : Name) : Option Structure
 
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
-  | some (.inductInfo { isRec := false, ctors := [ctorName], .. }) =>
+  | some (.inductInfo { ctors := [ctorName], .. }) =>
     match env.find? ctorName with
     | some (ConstantInfo.ctorInfo val) => val
     | _ => panic! "ill-formed environment"
@@ -192,7 +192,7 @@ to go from `structName` to `baseStructName`.
 def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
   getPathToBaseStructureAux env baseStructName structName []
 
-/-- Return true iff `constName` is the a non-recursive inductive datatype that has only one constructor. -/
+/-- Return true iff `constName` is the a non-recursive inductive datatype that has only one constructor and no indices. -/
 def isStructureLike (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
@@ -202,6 +202,24 @@ def isStructureLike (env : Environment) (constName : Name) : Bool :=
 def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctor], numIndices := 0, .. }) =>
+    match env.find? ctor with
+    | some (.ctorInfo { numFields := n, .. }) => n
+    | _ => 0
+  | _ => 0
+
+/--
+Return true iff `constName` is the an inductive datatype that has only one constructor and no indices,
+whether it is recursive or not.
+-/
+def isRecStructureLike (env : Environment) (constName : Name) : Bool :=
+  match env.find? constName with
+  | some (.inductInfo { ctors := [_], numIndices := 0, .. }) => true
+  | _ => false
+
+/-- Return number of fields for a type satisfying `isRecStructureLike`. -/
+def getRecStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=
+  match env.find? constName with
+  | some (.inductInfo { ctors := [ctor], numIndices := 0, .. }) =>
     match env.find? ctor with
     | some (.ctorInfo { numFields := n, .. }) => n
     | _ => 0

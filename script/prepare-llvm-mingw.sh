@@ -20,7 +20,7 @@ cp llvm/bin/llvm-ar stage1/bin/
 # dependencies of the above
 cp $(ldd llvm/bin/{clang,lld,llvm-ar}.exe | cut -f3 -d' ' --only-delimited | grep -E 'llvm|clang64') stage1/bin
 # lean.h dependencies
-cp llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
+cp llvm/lib/clang/*/include/{std*,__std*,limits,string}.h stage1/include/clang
 # single Windows dependency
 echo '
 // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode

@@ -122,6 +122,11 @@ protected def beq [BEq α] : List α → List α → Bool
   | a::as, b::bs => a == b && List.beq as bs
   | _,     _     => false
 
+@[simp] theorem beq_nil_nil [BEq α] : List.beq ([] : List α) ([] : List α) = true := rfl
+@[simp] theorem beq_cons_nil [BEq α] (a : α) (as : List α) : List.beq (a::as) [] = false := rfl
+@[simp] theorem beq_nil_cons [BEq α] (a : α) (as : List α) : List.beq [] (a::as) = false := rfl
+theorem beq_cons₂ [BEq α] (a b : α) (as bs : List α) : List.beq (a::as) (b::bs) = (a == b && List.beq as bs) := rfl
+
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
 instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where

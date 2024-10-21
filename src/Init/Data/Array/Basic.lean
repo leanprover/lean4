@@ -80,6 +80,26 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 
+@[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+end Array
+
+namespace List
+
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
+
+@[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
+    a.toArray[i] = a[i]'(by simpa using h) := rfl
+
+@[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
+
+@[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
+    a.toArray[i]! = a[i]! := rfl
+
+end List
+
+namespace Array
+
 @[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @toList_toArray
 
 @[deprecated Array.toList (since := "2024-09-10")] abbrev Array.data := @Array.toList

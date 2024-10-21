@@ -17,6 +17,8 @@ After unfolding the instances 'instDecidableEqNat', 'Array.instDecidableEq' and 
 
 example : #[0, 1] = #[0, 1] := by decide
 
+example : let a := Array.range (10^6); a == a := by native_decide
+
 /-!
 There are other `Array` functions that use well-founded recursion,
 which we've marked as `@[semireducible]`. We test that `decide` can unfold them here.

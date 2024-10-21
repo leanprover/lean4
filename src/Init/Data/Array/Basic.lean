@@ -275,9 +275,7 @@ def modifyM [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) 
 def modify (a : Array α) (i : Nat) (f : α → α) : Array α :=
   Id.run <| modifyM a i f
 
-@[inline]
-def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
-  self.modify idx f
+@[deprecated modify (since := "2024-10-22")] abbrev modifyOp := @modify
 
 /--
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.

@@ -20,6 +20,16 @@ import Lean.Elab.Binders
 
 namespace Lean.Elab.Command
 
+register_builtin_option structure.diamondWarning : Bool := {
+  defValue := false
+  descr    := "if true, enable warnings when a structure has diamond inheritance"
+}
+
+register_builtin_option structure.strictResolutionOrder : Bool := {
+  defValue := false
+  descr := "if true, require a strict resolution order for structures"
+}
+
 open Meta
 open TSyntax.Compat
 
@@ -40,8 +50,10 @@ structure StructFieldView where
   modifiers  : Modifiers
   binderInfo : BinderInfo
   declName   : Name
-  name       : Name -- The field name as it is going to be registered in the kernel. It does not include macroscopes.
-  rawName    : Name -- Same as `name` but including macroscopes.
+  /-- The field name as it is going to be registered in the kernel. It does not include macroscopes. -/
+  name       : Name
+  /-- Same as `name` but including macroscopes. -/
+  rawName    : Name
   binders    : Syntax
   type?      : Option Syntax
   value?     : Option Syntax
@@ -61,7 +73,10 @@ structure StructView where
   fields            : Array StructFieldView
 
 inductive StructFieldKind where
-  | newField | copiedField | fromParent | subobject
+  | newField | copiedField | fromParent
+  /-- The field is an embedded parent. The `parentIdx` is the index of the parent in the `extends` clause, if that is where it comes from.
+  Some subobjects instead come indirectly through field copying. -/
+  | subobject (structName : Name) (parentIdx? : Option Nat)
   deriving Inhabited, DecidableEq, Repr
 
 structure StructFieldInfo where
@@ -78,9 +93,21 @@ def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
   | _                          => false
 
 def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
-  match info.kind with
-  | StructFieldKind.subobject => true
-  | _                         => false
+  info.kind matches StructFieldKind.subobject ..
+
+/-- True if `info` is for a parent structure of name `parentName`. -/
+def StructFieldInfo.isSubobjectOf (info : StructFieldInfo) (parentName : Name) : Bool :=
+  if let .subobject n _ := info.kind then
+    n == parentName
+  else
+    false
+
+structure StructCopiedParentInfo where
+  type  : Expr
+  structName : Name
+  /-- Index into the `extends` clause. -/
+  index : Nat
+  deriving Inhabited
 
 private def defaultCtorName := `mk
 
@@ -234,11 +261,6 @@ private def updateFieldInfoVal (infos : Array StructFieldInfo) (fieldName : Name
       { info with value? := value  }
     else
       info
-
-register_builtin_option structureDiamondWarning : Bool := {
-  defValue := false
-  descr    := "enable/disable warning messages for structure diamonds"
-}
 
 /-- Return `some fieldName` if field `fieldName` of the parent structure `parentStructName` is already in `infos` -/
 private def findExistingField? (infos : Array StructFieldInfo) (parentStructName : Name) : CoreM (Option Name) := do
@@ -417,7 +439,7 @@ where
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.copiedField }
               copy (i+1) infos fieldMap expandedStructNames
-          if fieldInfo.subobject?.isSome then
+          if let some parentParentStructName := fieldInfo.subobject? then
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then
               -- See comment at `copyDefaultValue?`
@@ -429,7 +451,7 @@ where
               let subfieldNames := getStructureFieldsFlattened (← getEnv) fieldParentStructName
               let fieldName := fieldInfo.fieldName
               withLocalDecl fieldName fieldInfo.binderInfo fieldType fun parentFVar =>
-                let infos := infos.push { name := fieldName, declName := structDeclName ++ fieldName, fvar := parentFVar, kind := StructFieldKind.subobject }
+                let infos := infos.push { name := fieldName, declName := structDeclName ++ fieldName, fvar := parentFVar, kind := StructFieldKind.subobject parentParentStructName none }
                 processSubfields structDeclName parentFVar fieldParentStructName subfieldNames infos fun infos =>
                   copy (i+1) infos (fieldMap.insert fieldName parentFVar) expandedStructNames
           else
@@ -466,20 +488,24 @@ private partial def mkToParentName (parentStructName : Name) (p : Name → Bool)
       if p curr then curr else go (i+1)
     go 1
 
-private partial def withParents (view : StructView) (k : Array StructFieldInfo → Array Expr → TermElabM α) : TermElabM α := do
+private partial def withParents (view : StructView) (k : Array StructFieldInfo → Array StructCopiedParentInfo → TermElabM α) : TermElabM α := do
   go 0 #[] #[]
 where
-  go (i : Nat) (infos : Array StructFieldInfo) (copiedParents : Array Expr) : TermElabM α := do
+  go (i : Nat) (infos : Array StructFieldInfo) (copiedParents : Array StructCopiedParentInfo) : TermElabM α := do
     if h : i < view.parents.size then
       let parentStx := view.parents.get ⟨i, h⟩
       withRef parentStx do
       let parentType ← Term.withSynthesize <| Term.elabType parentStx
       let parentType ← whnf parentType
       let parentStructName ← getStructureName parentType
+      if infos.any (fun info => info.isSubobjectOf parentStructName)
+          || copiedParents.any (fun info => info.structName == parentStructName) then
+        logWarningAt parentStx m!"duplicate parent structure '{parentStructName}'"
       if let some existingFieldName ← findExistingField? infos parentStructName then
-        if structureDiamondWarning.get (← getOptions) then
+        if structure.diamondWarning.get (← getOptions) then
           logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
-        copyNewFieldsFrom view.declName infos parentType fun infos => go (i+1) infos (copiedParents.push parentType)
+        let copiedParents := copiedParents.push { structName := parentStructName, type := parentType, index := i }
+        copyNewFieldsFrom view.declName infos parentType fun infos => go (i+1) infos copiedParents
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
       else
         let env ← getEnv
@@ -487,7 +513,7 @@ where
         let toParentName := mkToParentName parentStructName fun n => !containsFieldName infos n && !subfieldNames.contains n
         let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
         withLocalDecl toParentName binfo parentType fun parentFVar =>
-          let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject }
+          let infos := infos.push { name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar, kind := StructFieldKind.subobject parentStructName i }
           processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos copiedParents
     else
       k infos copiedParents
@@ -563,10 +589,10 @@ where
               let infos := updateFieldInfoVal infos info.name value
               go (i+1) defaultValsOverridden infos
         match info.kind with
-        | StructFieldKind.newField    => throwError "field '{view.name}' has already been declared"
-        | StructFieldKind.subobject   => throwError "unexpected subobject field reference" -- improve error message
-        | StructFieldKind.copiedField => updateDefaultValue
-        | StructFieldKind.fromParent  => updateDefaultValue
+        | StructFieldKind.newField     => throwError "field '{view.name}' has already been declared"
+        | StructFieldKind.subobject .. => throwError "unexpected subobject field reference" -- improve error message
+        | StructFieldKind.copiedField  => updateDefaultValue
+        | StructFieldKind.fromParent   => updateDefaultValue
     else
       k infos
 
@@ -709,29 +735,31 @@ private def addProjections (structName : Name) (projs : List Name) (isClass : Bo
   let env ← ofExceptKernelException (mkProjections env structName projs isClass)
   setEnv env
 
-private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
-  let fields ← infos.filterMapM fun info => do
-      if info.kind == StructFieldKind.fromParent then
-        return none
-      else
-        let env ← getEnv
-        return some {
-          fieldName  := info.name
-          projFn     := info.declName
-          binderInfo := (← getFVarLocalDecl info.fvar).binderInfo
-          autoParam? := (← inferType info.fvar).getAutoParamTactic?
-          subobject? :=
-            if info.kind == StructFieldKind.subobject then
-              match env.find? info.declName with
-              | some info =>
-                match info.type.getForallBody.getAppFn with
-                | Expr.const parentName .. => some parentName
-                | _ => panic! "ill-formed structure"
-              | _ => panic! "ill-formed environment"
-            else
-              none
-        }
+/--
+Register the `StructureInfo` for this structure.
+For each subobject projection that is for an immediate parent via the `extends` clause, updates `parentInfos`.
+-/
+private def registerStructure (structName : Name) (infos : Array StructFieldInfo) (parentInfos : Array StructureParentInfo) :
+    TermElabM (Array StructureParentInfo) := do
+  let mut fields : Array StructureFieldInfo := #[]
+  let mut parentInfos := parentInfos
+  for info in infos do
+    if info.kind == StructFieldKind.fromParent then
+      continue
+    let mut subobject? := none
+    if let .subobject parentName parentIdx? := info.kind then
+      subobject? := some parentName
+      if let some parentIdx := parentIdx? then
+        parentInfos := parentInfos.set! parentIdx { structName := parentName, subobject := true, projFn := info.declName }
+    fields := fields.push {
+      fieldName  := info.name
+      projFn     := info.declName
+      binderInfo := (← getFVarLocalDecl info.fvar).binderInfo
+      autoParam? := (← inferType info.fvar).getAutoParamTactic?
+      subobject?
+    }
   modifyEnv fun env => Lean.registerStructure env { structName, fields }
+  return parentInfos
 
 private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let env ← getEnv
@@ -767,16 +795,20 @@ private def setSourceInstImplicit (type : Expr) : Expr :=
       type.updateForall! .instImplicit d b
   | _ => unreachable!
 
-private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentType : Expr) : MetaM Unit := do
+/--
+Create a projection function to a non-subobject parent.
+Adds a `StructureParentInfo` entry to `parentInfos`.
+-/
+private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parent : StructCopiedParentInfo)
+    (parentInfos : Array StructureParentInfo) : MetaM (Array StructureParentInfo) := do
   let env ← getEnv
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
   let structType := mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
-  let Expr.const parentStructName _ ← pure parentType.getAppFn | unreachable!
-  let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
+  let binfo := if view.isClass && isClass env parent.structName then BinderInfo.instImplicit else BinderInfo.default
   withLocalDeclD `self structType fun source => do
-    let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
-    if view.isClass && isClass env parentStructName then
+    let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parent.type))
+    if view.isClass && isClass env parent.structName then
       declType := setSourceInstImplicit declType
     declType := declType.inferImplicit params.size true
     let rec copyFields (parentType : Expr) : MetaM Expr := do
@@ -796,8 +828,8 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
           let fieldVal ← copyFields resultType.bindingDomain!
           result := mkApp result fieldVal
       return result
-    let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType)))
-    let declName := structName ++ mkToParentName (← getStructureName parentType) fun n => !env.contains (structName ++ n)
+    let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parent.type)))
+    let declName := structName ++ mkToParentName (← getStructureName parent.type) fun n => !env.contains (structName ++ n)
     addAndCompile <| Declaration.defnDecl {
       name        := declName
       levelParams := levelParams
@@ -810,6 +842,85 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
       addInstance declName AttributeKind.global (eval_prio default)
     else
       setReducibleAttribute declName
+    return parentInfos.set! parent.index { structName := parent.structName, subobject := false, projFn := declName }
+
+/--
+Computes the resolution order for the structure `structName` with the given direct parents.
+This is the C3 superclass linearization algorithm from Barrett et al., "A Monotonic Superclass Linearization for Dylan", OOPSLA 1996.
+[In Python](https://docs.python.org/3/howto/mro.html) this computation gives what is known as the "method resolution order" (MRO).
+
+The basic idea is that we find a resolution order such that
+
+1. the immediate parents form a subsequence of the resolution order, and
+2. each parent's resolution orders form subsequences of the resolution order.
+
+Finding such a resolution order might not be possible, and in that case this raises a warning if `structure.strictResolutionOrder` is true.
+We can proceed anyway by relaxing the algorithm by ignoring one or more parent resolution orders, starting from the end.
+
+In Hivert and Thiéry "Controlling the C3 super class linearization algorithm for large hierarchies of classes"
+https://arxiv.org/pdf/2401.12740 the authors found that in SageMath, which has thousands of classes,
+C3 can be difficult to control.
+We may consider introducing an environment extension with ordering hints to help guide the algorithm if we see similar difficulties.
+-/
+private partial def computeResolutionOrder (structName : Name) (parentNames : Array Name) : MetaM (Array Name) := do
+  -- Early escape with the easy case
+  if parentNames.isEmpty then
+    return #[structName]
+
+  let env ← getEnv
+  let parentResOrders ← parentNames.mapM fun parentName => do
+    let parentResOrder := getStructureResolutionOrder env parentName
+    if parentResOrder.isEmpty then
+      -- TODO(kmill): this is bootstrapping to save a stage0 update during development. Computes resolution order using subobjects as the parents.
+      computeResolutionOrder parentName (getStructureSubobjects env parentName)
+    else
+      return parentResOrder
+
+  -- `resOrders` contains the resolution orders to merge.
+  -- The parent list is inserted as a pseudo resolution order to ensure immediate parents come out in order,
+  -- and it is added first to be the primary ordering constraint when there are ordering errors.
+  let mut resOrders := parentResOrders.insertAt 0 parentNames |>.filter (!·.isEmpty)
+  trace[Elab.structure.resolutionOrder] "resolution orders to merge: {resOrders}"
+
+  let mut resOrder : Array Name := #[structName]
+  let mut defects : List MessageData := []
+  while !resOrders.isEmpty do
+    let (good, name) := selectParent resOrders
+    trace[Elab.structure.resolutionOrder] m!"resOrders = {resOrders}\nselected {name}, good = {good}"
+
+    if !good && structure.strictResolutionOrder.get (← getOptions) then
+      let parentKind name := if parentNames.contains name then "parent" else "indirect parent"
+      let bads := resOrders |>.filter (·[1:].any (· == name)) |>.map (·[0]!) |>.qsort Name.lt |>.eraseReps
+      let conflicts := bads.map fun name =>
+        m!"{parentKind name} '{MessageData.ofConstName name}'"
+      defects := m!"- {parentKind name} '{MessageData.ofConstName name}' must come after {MessageData.andList conflicts.toList}" :: defects
+
+    resOrder := resOrder.push name
+    resOrders := resOrders
+      |>.map (fun resOrder => resOrder.filter (· != name))
+      |>.filter (!·.isEmpty)
+    -- every iteration of the loop, the sum of the sizes of the arrays in `resOrders` decreases by at least one,
+    -- so it terminates.
+  unless defects.isEmpty do
+    logWarning m!"failed to compute strict resolution order:\n{MessageData.joinSep defects.reverse "\n"}"
+  trace[Elab.structure.resolutionOrder] "computed resolution order: {resOrder}"
+  return resOrder
+where
+  selectParent (resOrders : Array (Array Name)) : Bool × Name := Id.run do
+    -- Assumption: every resOrder is nonempty.
+    for n' in [0 : resOrders.size] do
+      for i in [0 : resOrders.size - n'] do
+        let parent := resOrders[i]![0]!
+        let consistent resOrder := resOrder[1:].all (· != parent)
+        if resOrders[0:i].all consistent && resOrders[i+1:].all consistent then
+          return (n' == 0, parent)
+    -- Unreachable, but `unreachable!` gets lifted to an init-time constant
+    return (false, resOrders[0]![0]!)
+
+private def precomputeResolutionOrder (structName : Name) (parentInfos : Array StructureParentInfo) : MetaM Unit := do
+  let parentNames := parentInfos.map (·.structName)
+  let resOrder ← computeResolutionOrder structName parentNames
+  setStructureResolutionOrder structName resOrder
 
 private def elabStructureView (view : StructView) : TermElabM Unit := do
   view.fields.forM fun field => do
@@ -821,6 +932,7 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   withRef view.ref do
   withParents view fun fieldInfos copiedParents => do
   withFields view.fields fieldInfos fun fieldInfos => do
+  withRef view.ref do
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← getResultUniverse type
     let univToInfer? ← shouldInferResultUniverse u
@@ -847,7 +959,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         addDecl decl
         let projNames := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) => info.declName
         addProjections view.declName projNames view.isClass
-        registerStructure view.declName fieldInfos
+        let mut parentInfos : Array StructureParentInfo := Array.mkArray view.parents.size default
+        parentInfos ← registerStructure view.declName fieldInfos parentInfos
         mkAuxConstructions view.declName
         let instParents ← fieldInfos.filterM fun info => do
           let decl ← Term.getFVarLocalDecl! info.fvar
@@ -863,7 +976,12 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
         let projInstances := instParents.toList.map fun info => info.declName
         projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
-        copiedParents.forM fun parent => mkCoercionToCopiedParent levelParams params view parent
+        for parent in copiedParents do
+          parentInfos ← mkCoercionToCopiedParent levelParams params view parent parentInfos
+        assert! parentInfos.all (·.structName != default)
+        setStructureParents view.declName parentInfos
+        precomputeResolutionOrder view.declName parentInfos
+
         let lctx ← getLCtx
         let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome
         let defaultAuxDecls ← fieldsWithDefault.mapM fun info => do
@@ -943,6 +1061,8 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   runTermElabM fun _ => Term.withDeclName declName do
     Term.applyAttributesAt declName modifiers.attrs .afterCompilation
 
-builtin_initialize registerTraceClass `Elab.structure
+builtin_initialize
+  registerTraceClass `Elab.structure
+  registerTraceClass `Elab.structure.resolutionOrder
 
 end Lean.Elab.Command

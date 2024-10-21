@@ -8,7 +8,7 @@ class B (α : Type) extends A α where
 class C (α : Type) extends A α where
   mul : α → α → α
 
-set_option structureDiamondWarning false
+set_option structure.diamondWarning false
 
 class D (α : Type) extends B α, C α
 

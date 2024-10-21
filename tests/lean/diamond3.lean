@@ -9,7 +9,7 @@ structure B extends A where
 structure C extends A where
   w : Nat
 
-set_option structureDiamondWarning false
+set_option structure.diamondWarning false
 
 structure D extends B, C where
   a : Nat

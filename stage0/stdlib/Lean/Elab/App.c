@@ -220,7 +220,6 @@ static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux__
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_shouldElabAsElim___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_findNamedArgDependsOnCurrent_x3f___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_findField_x3f(lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_ElabElim_mkMotive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___closed__2;
 static lean_object* l_Lean_Elab_Term_ElabElim_finalize___closed__1;
@@ -1102,6 +1101,7 @@ static lean_object* l_Lean_Elab_Term_ElabElim_finalize___lambda__9___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_addLValArg_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_getElabElimExprInfo___closed__3;
+uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_ElabElim_finalize___lambda__5___boxed(lean_object**);
 static lean_object* l_Lean_Elab_Term_ElabElim_finalize___lambda__9___closed__8;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
@@ -44274,7 +44274,7 @@ lean_dec(x_67);
 x_68 = lean_ctor_get(x_58, 0);
 lean_inc(x_68);
 lean_dec(x_58);
-x_69 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_37, x_68);
+x_69 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_37, x_68);
 if (x_69 == 0)
 {
 lean_object* x_70; lean_object* x_71; uint8_t x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; 
@@ -44807,7 +44807,7 @@ lean_dec(x_182);
 x_183 = lean_ctor_get(x_173, 0);
 lean_inc(x_183);
 lean_dec(x_173);
-x_184 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_37, x_183);
+x_184 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_37, x_183);
 if (x_184 == 0)
 {
 lean_object* x_185; lean_object* x_186; uint8_t x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; lean_object* x_191; lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; 

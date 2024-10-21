@@ -7,7 +7,7 @@ structure Baz (α : Type) where
   β : Type
   b : α → β
 
-set_option structureDiamondWarning false
+set_option structure.diamondWarning false
 
 structure Foo1 (α : Type) extends Bar (α → α), Baz α
 

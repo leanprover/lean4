@@ -46,6 +46,8 @@ structure StructFieldView where
   modifiers  : Modifiers
   binderInfo : BinderInfo
   declName   : Name
+  /-- ref for the field name -/
+  nameId     : Syntax
   name       : Name -- The field name as it is going to be registered in the kernel. It does not include macroscopes.
   rawName    : Name -- Same as `name` but including macroscopes.
   binders    : Syntax
@@ -68,21 +70,9 @@ structure StructView where
   derivingClasses : Array DerivingClassView
   deriving Inhabited
 
-structure ElabStructParentResult where
-  ref        : Syntax
-  type       : Expr
-  deriving Inhabited
-
-structure ElabStructHeaderResult where
-  view       : StructView
-  lctx       : LocalContext
-  localInsts : LocalInstances
-  params     : Array Expr
-  type       : Expr
-  parents    : Array ElabStructParentResult
-  deriving Inhabited
-
 structure StructParentInfo where
+  ref        : Syntax
+  fvar?      : Option Expr
   structName : Name
   subobject  : Bool
   type       : Expr
@@ -100,6 +90,16 @@ structure StructFieldInfo where
   kind     : StructFieldKind
   value?   : Option Expr := none
   deriving Inhabited, Repr
+
+structure ElabStructHeaderResult where
+  view             : StructView
+  lctx             : LocalContext
+  localInsts       : LocalInstances
+  params           : Array Expr
+  type             : Expr
+  parents          : Array StructParentInfo
+  parentFieldInfos : Array StructFieldInfo
+  deriving Inhabited
 
 def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
   match info.kind with
@@ -119,7 +119,7 @@ The structure constructor syntax is
 leading_parser try (declModifiers >> ident >> " :: ")
 ```
 -/
-private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM StructCtorView := do
+private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView := do
   let useDefault := do
     let declName := structDeclName ++ defaultCtorName
     let ref := structStx[1].mkSynthetic
@@ -147,7 +147,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       addAuxDeclarationRanges declName ctor[1] ctor[1]
       pure { ref := ctor[1], name, modifiers := ctorModifiers, declName }
 
-def checkValidFieldModifier (modifiers : Modifiers) : CommandElabM Unit := do
+def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
   if modifiers.isNoncomputable then
     throwError "invalid use of 'noncomputable' in field declaration"
   if modifiers.isPartial then
@@ -166,7 +166,7 @@ def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) 
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
-private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : CommandElabM (Array StructFieldView) := do
+private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) := do
   if structStx[5][0].isToken ":=" then
     -- https://github.com/leanprover/lean4/issues/5236
     let cmd := if structStx[0].getKind == ``Parser.Command.classTk then "class" else "structure"
@@ -205,7 +205,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
           | none => throwErrorAt binderTactic "invalid field declaration, type must be provided when auto-param (tactic) is used"
           | some type =>
             let tac := binderTactic[2]
-            let name ← liftTermElabM do Term.declareTacticSyntax tac
+            let name ← Term.declareTacticSyntax tac
             -- The tactic should be for binders+type.
             -- It is safe to reset the binders to a "null" node since there is no value to be elaborated
             let type ← `(forall $(binders.getArgs):bracketedBinder*, $type)
@@ -229,6 +229,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         binderInfo := binfo
         declName
         name
+        nameId     := ident
         rawName
         binders
         type?
@@ -247,18 +248,20 @@ def optType : Parser := optional typeSpec
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 def structCtor           := leading_parser try (declModifiers >> ident >> " :: ")
 -/
-def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : CommandElabM StructView := do
+def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM StructView := do
   checkValidInductiveModifier modifiers
   let isClass   := stx[0].getKind == ``Parser.Command.classTk
   let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
   let declId    := stx[1]
-  let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
+  let ⟨name, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  if (← getLCtx).usesUserName name then
+    throwErrorAt declId "invalid declaration name '{name}', there is a section variable with the same name"
   addDeclarationRanges declName modifiers.stx stx
   let binders   := stx[2]
   let exts      := stx[3]
   let parents   := if exts.isNone then #[] else exts[0][1].getSepArgs
   let optType   := stx[4]
-  let derivingClasses ← liftCoreM <| getOptDerivingClasses stx[6]
+  let derivingClasses ← getOptDerivingClasses stx[6]
   let type      ← if optType.isNone then `(Sort _) else pure optType[0][1]
   let ctor ← expandCtor stx modifiers declName
   let fields ← expandFields stx modifiers declName
@@ -288,12 +291,12 @@ private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : 
 private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
   (findFieldInfo? infos fieldName).isSome
 
-private def updateFieldInfoVal (infos : Array StructFieldInfo) (fieldName : Name) (value : Expr) : Array StructFieldInfo :=
-  infos.map fun info =>
-    if info.name == fieldName then
-      { info with value? := value  }
-    else
+private def replaceFieldInfo (infos : Array StructFieldInfo) (info : StructFieldInfo) : Array StructFieldInfo :=
+  infos.map fun info' =>
+    if info'.name == info.name then
       info
+    else
+      info'
 
 /-- Return `some fieldName` if field `fieldName` of the parent structure `parentStructName` is already in `infos` -/
 private def findExistingField? (infos : Array StructFieldInfo) (parentStructName : Name) : CoreM (Option Name) := do
@@ -524,33 +527,34 @@ private partial def mkToParentName (parentStructName : Name) (p : Name → Bool)
       if p curr then curr else go (i+1)
     go 1
 
-private partial def withParents (r : ElabStructHeaderResult)
+private partial def elabParents (view : StructView)
     (k : Array StructFieldInfo → Array StructParentInfo → TermElabM α) : TermElabM α := do
   go 0 #[] #[]
 where
   go (i : Nat) (infos : Array StructFieldInfo) (parents : Array StructParentInfo) : TermElabM α := do
-    if h : i < r.parents.size then
-      let parent := r.parents[i]
-      withRef parent.ref do
-      let parentType ← whnf parent.type
+    if h : i < view.parents.size then
+      let parent := view.parents[i]
+      withRef parent do
+      let type ← Term.elabType parent
+      let parentType ← whnf type
       let parentStructName ← getStructureName parentType
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
           logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
-        let parents := parents.push { subobject := false, structName := parentStructName, type := parentType }
-        copyNewFieldsFrom r.view.declName infos parentType fun infos => go (i+1) infos parents
+        let parents := parents.push { ref := parent, fvar? := none, subobject := false, structName := parentStructName, type := parentType }
+        copyNewFieldsFrom view.declName infos parentType fun infos => go (i+1) infos parents
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
       else
         let env ← getEnv
         let subfieldNames := getStructureFieldsFlattened env parentStructName
         let toParentName := mkToParentName parentStructName fun n => !containsFieldName infos n && !subfieldNames.contains n
-        let binfo := if r.view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
+        let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
         withLocalDecl toParentName binfo parentType fun parentFVar =>
-          let infos := infos.push { ref := parent.ref,
-                                    name := toParentName, declName := r.view.declName ++ toParentName, fvar := parentFVar,
+          let infos := infos.push { ref := parent,
+                                    name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar,
                                     kind := StructFieldKind.subobject }
-          let parents := parents.push { subobject := true, structName := parentStructName, type := parentType }
-          processSubfields r.view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos parents
+          let parents := parents.push { ref := parent, fvar? := parentFVar, subobject := true, structName := parentStructName, type := parentType }
+          processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos parents
     else
       k infos parents
 
@@ -596,14 +600,14 @@ where
         | none,      none => throwError "invalid field, type expected"
         | some type, _    =>
           withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
-            let infos := infos.push { ref := view.ref
+            let infos := infos.push { ref := view.nameId
                                       name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
                                       kind := StructFieldKind.newField }
             go (i+1) defaultValsOverridden infos
         | none, some value =>
           let type ← inferType value
           withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
-            let infos := infos.push { ref := view.ref
+            let infos := infos.push { ref := view.nameId
                                       name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
                                       kind := StructFieldKind.newField }
             go (i+1) defaultValsOverridden infos
@@ -624,7 +628,7 @@ where
               let fvarType ← inferType info.fvar
               let value ← Term.elabTermEnsuringType valStx fvarType
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
-              let infos := updateFieldInfoVal infos info.name value
+              let infos := replaceFieldInfo infos { info with ref := view.nameId, value? := value }
               go (i+1) defaultValsOverridden infos
         match info.kind with
         | StructFieldKind.newField    => throwError "field '{view.name}' has already been declared"
@@ -771,7 +775,7 @@ private opaque mkProjections (env : Environment) (structName : Name) (projs : Li
 private def addProjections (r : ElabStructHeaderResult) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
   if r.type.isProp then
     if let some fieldInfo ← fieldInfos.findM? fun fieldInfo => not <$> Meta.isProof fieldInfo.fvar then
-      throwErrorAt fieldInfo.ref m!"failed to generate projections for 'Prop' structure, field '{fieldInfo.name}' is not a proof"
+      throwErrorAt fieldInfo.ref m!"failed to generate projections for 'Prop' structure, field '{format fieldInfo.name}' is not a proof"
   let projNames := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) => info.declName
   let env ← getEnv
   let env ← ofExceptKernelException (mkProjections env r.view.declName projNames r.view.isClass)
@@ -810,18 +814,21 @@ private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   if hasUnit then mkCasesOn declName
   if hasUnit && hasEq && hasHEq then mkNoConfusion declName
 
-private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × Expr × Expr)) : TermElabM Unit := do
-  let localInsts ← getLocalInstances
-  withLCtx lctx localInsts do
-    defaultAuxDecls.forM fun (declName, type, value) => do
-      let value ← instantiateMVars value
-      if value.hasExprMVar then
-        throwError "invalid default value for field, it contains metavariables{indentExpr value}"
-      /- The identity function is used as "marker". -/
-      let value ← mkId value
-      -- No need to compile the definition, since it is only used during elaboration.
-      discard <| mkAuxDefinition declName type value (zetaDelta := true) (compile := false)
-      setReducibleAttribute declName
+private def addDefaults (lctx : LocalContext) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
+  withLCtx lctx (← getLocalInstances) do
+    fieldInfos.forM fun fieldInfo => do
+      if let some value := fieldInfo.value? then
+        let declName := mkDefaultFnOfProjFn fieldInfo.declName
+        let type ← inferType fieldInfo.fvar
+        let value ← instantiateMVars value
+        if value.hasExprMVar then
+          discard <| Term.logUnassignedUsingErrorInfos (← getMVars value)
+          throwErrorAt fieldInfo.ref "invalid default value for field '{format fieldInfo.name}', it contains metavariables{indentExpr value}"
+        /- The identity function is used as "marker". -/
+        let value ← mkId value
+        -- No need to compile the definition, since it is only used during elaboration.
+        discard <| mkAuxDefinition declName type value (zetaDelta := true) (compile := false)
+        setReducibleAttribute declName
 
 /--
 Given `type` of the form `forall ... (source : A), B`, return `forall ... [source : A], B`.
@@ -898,16 +905,11 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
 --         x params indFVars
 --     loop 0 #[]
 
-private def elabParents (view : StructView) : TermElabM (Array ElabStructParentResult) :=
-  view.parents.mapM fun parent => do
-    let type ← Term.elabType parent
-    return { ref := parent, type := type }
-
 private def elabStructHeader (view : StructView) : TermElabM ElabStructHeaderResult :=
   Term.withAutoBoundImplicitForbiddenPred (fun n => view.shortDeclName == n) do
   Term.withAutoBoundImplicit do
   Term.elabBinders view.binders.getArgs fun params => do
-    let parents ← elabParents view
+  elabParents view fun parentFieldInfos parents => do
     let type ← Term.elabType view.type
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← mkFreshLevelMVar
@@ -916,18 +918,17 @@ private def elabStructHeader (view : StructView) : TermElabM ElabStructHeaderRes
     let type ← instantiateMVars (← whnf type)
     Term.addAutoBoundImplicits' params type fun params type => do
       trace[Elab.structure] "header params: {params}, type: {type}"
-      return { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view, parents }
+      return { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view, parents, parentFieldInfos }
 
 def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let scopeLevelNames ← Term.getLevelNames
   let isUnsafe := view.modifiers.isUnsafe
-  withRef view.ref do
+  withRef view.ref <| Term.withLevelNames view.levelNames do
     let r ← elabStructHeader view
     Term.synthesizeSyntheticMVarsNoPostponing
     withLCtx r.lctx r.localInsts do
 --    withInductiveLocalDecls rs fun params indFVars => do
-    withParents r fun fieldInfos parents =>
-    withFields view.fields fieldInfos fun fieldInfos =>
+    withFields view.fields r.parentFieldInfos fun fieldInfos =>
     withRef view.ref do
       Term.synthesizeSyntheticMVarsNoPostponing
       let u ← getResultUniverse r.type
@@ -943,7 +944,7 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
         trace[Elab.structure] "type: {type}"
         let usedLevelNames ← collectLevelParamsInStructure type scopeVars r.params fieldInfos
         match sortDeclLevelParams scopeLevelNames view.levelNames usedLevelNames with
-        | Except.error msg      => throwError msg
+        | Except.error msg      => throwErrorAt view.declId msg
         | Except.ok levelParams =>
           let params := scopeVars ++ r.params
           let ctor ← mkCtor view levelParams params fieldInfos
@@ -967,17 +968,14 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
               -- may not exist if overriding inherited field
               if (← getEnv).contains field.declName then
                 Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
-          Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
+          withRef view.declId do
+            Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
           let projInstances := instParents.toList.map fun info => info.declName
           projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
-          parents.forM fun parent => do
+          r.parents.forM fun parent => do
             if !parent.subobject then
               mkCoercionToCopiedParent levelParams params view parent.structName parent.type
           let lctx ← getLCtx
-          let fieldsWithDefault := fieldInfos.filter fun info => info.value?.isSome
-          let defaultAuxDecls ← fieldsWithDefault.mapM fun info => do
-            let type ← inferType info.fvar
-            pure (mkDefaultFnOfProjFn info.declName, type, info.value?.get!)
           /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations
             The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
           let lctx :=
@@ -990,23 +988,25 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
             fieldInfos.foldl (init := lctx) fun (lctx : LocalContext) (info : StructFieldInfo) =>
               if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating "default value" auxiliary functions
               else lctx.setBinderInfo info.fvar.fvarId! BinderInfo.default
-          addDefaults lctx defaultAuxDecls
+          addDefaults lctx fieldInfos
 
 
-def elabStructureView (view : StructView) : CommandElabM Unit := do
-  runTermElabM fun vars => Term.withDeclName view.declName <| withRef view.ref do
+def elabStructureView (vars : Array Expr) (view : StructView) : TermElabM Unit := do
+  Term.withDeclName view.declName <| withRef view.ref do
     mkStructureDecl vars view
     unless view.isClass do
       --Lean.Meta.IndPredBelow.mkBelow view.declName
       mkSizeOfInstances view.declName
       mkInjectiveTheorems view.declName
-  view.derivingClasses.forM fun classView => classView.applyHandlers #[view.declName]
-  runTermElabM fun _ => Term.withDeclName view.declName <| withRef view.ref do
+  liftCommandElabM <| view.derivingClasses.forM fun classView => classView.applyHandlers #[view.declName]
+  resetSynthInstanceCache
+  Term.withDeclName view.declName <| withRef view.declId do
     Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-  let view ← structureSyntaxToView modifiers stx
-  elabStructureView view
+  runTermElabM fun vars => do
+    let view ← structureSyntaxToView modifiers stx
+    elabStructureView vars view
 
 builtin_initialize registerTraceClass `Elab.structure
 

@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.TakeDrop
+import Init.Data.Function
 
 /-!
 # Lemmas about `List.zip`, `List.zipWith`, `List.zipWithAll`, and `List.unzip`.
@@ -237,6 +238,14 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
   induction n with
   | zero => rfl
   | succ n ih => simp [replicate_succ, ih]
+
+theorem map_uncurry_zip_eq_zipWith (f : α → β → γ) (l : List α) (l' : List β) :
+    map (Function.uncurry f) (l.zip l') = zipWith f l l' := by
+  rw [zip]
+  induction l generalizing l' with
+  | nil => simp
+  | cons hl tl ih =>
+    cases l' <;> simp [ih]
 
 /-! ### zip -/
 

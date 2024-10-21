@@ -356,3 +356,9 @@
   run_config:
     <<: *time
     cmd: lean bv_decide_mod.lean
+- attributes:
+    description: bv_decide_inequality.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_inequality.lean

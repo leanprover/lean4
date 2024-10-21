@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_Lake_shortOption(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_shortOptionWithEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_takeArg_x3f___rarg___lambda__1(lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lake_multiShortOption___spec__1___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_option___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_collectArgs___rarg(lean_object*, lean_object*, lean_object*, lean_object*);

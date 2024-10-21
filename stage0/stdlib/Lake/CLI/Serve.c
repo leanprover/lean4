@@ -34,7 +34,6 @@ LEAN_EXPORT uint32_t l_Lake_noConfigFileCode;
 LEAN_EXPORT lean_object* l_Lake_setupFile___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_augmentedEnvVars(lean_object*);
-lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_setupFile___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lake_serve___closed__1;
@@ -66,6 +65,7 @@ static lean_object* l_Lake_setupFile___lambda__4___closed__1;
 LEAN_EXPORT lean_object* l_Lake_setupFile___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setupFile___lambda__1___boxed__const__1;
 lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_Environment_displayStats___spec__3(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setupFile___boxed__const__1;
 static lean_object* l_Lake_setupFile___lambda__4___closed__2;
@@ -245,7 +245,7 @@ lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 x_5 = l___private_Lean_Util_FileSetupInfo_0__Lean_toJsonFileSetupInfo____x40_Lean_Util_FileSetupInfo___hyg_132_(x_4);
 x_6 = l_Lean_Json_compress(x_5);
-x_7 = l_IO_println___at_Lean_instEval___spec__1(x_6, x_3);
+x_7 = l_IO_println___at_Lean_Environment_displayStats___spec__3(x_6, x_3);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 

@@ -669,7 +669,7 @@ where
     let grouped := incomingCalls.groupByKey (·.«from»)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       «from» := group[0]!.«from»
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -716,7 +716,7 @@ where
     let grouped := outgoingCalls.groupByKey (·.to)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       to := group[0]!.to
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -995,7 +995,7 @@ section MainLoop
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
       pure <| ServerEvent.clientMsg msg
-    let clientTask := (← IO.asTask readMsgAction).map fun
+    let clientTask := (← IO.asTask (prio := Task.Priority.dedicated) readMsgAction).map fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask
@@ -1161,7 +1161,7 @@ results in requests that need references.
 def startLoadingReferences (references : IO.Ref References) : IO Unit := do
   -- Discard the task; there isn't much we can do about this failing,
   -- but we should try to continue server operations regardless
-  let _ ← IO.asTask do
+  let _ ← IO.asTask (prio := Task.Priority.dedicated) do
     let oleanSearchPath ← Lean.searchPathRef.get
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try

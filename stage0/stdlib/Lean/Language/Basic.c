@@ -108,7 +108,6 @@ static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_2057
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__20;
 lean_object* l_IO_Promise_resolve___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 lean_object* l_IO_Promise_new___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__36;
@@ -235,6 +234,7 @@ extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_map(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Language_withAlwaysResolvedPromises___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_println___at_Lean_Environment_displayStats___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromise(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_withHeaderExceptions___rarg___closed__1;
 static lean_object* l_Lean_Language_SnapshotTree_trace_go___lambda__3___closed__2;
@@ -5888,7 +5888,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec(x_5);
-x_8 = l_IO_println___at_Lean_instEval___spec__1(x_6, x_7);
+x_8 = l_IO_println___at_Lean_Environment_displayStats___spec__3(x_6, x_7);
 return x_8;
 }
 else

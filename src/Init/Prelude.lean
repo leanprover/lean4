@@ -1592,9 +1592,6 @@ def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | succ _, zero   => false
   | succ n, succ m => beq n m
 
-instance : BEq Nat where
-  beq := Nat.beq
-
 theorem Nat.eq_of_beq_eq_true : {n m : Nat} → Eq (beq n m) true → Eq n m
   | zero,   zero,   _ => rfl
   | zero,   succ _, h => Bool.noConfusion h
@@ -1869,6 +1866,52 @@ instance {n} : LE (Fin n) where
 instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b) := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
+/--
+A bitvector of the specified width.
+
+This is represented as the underlying `Nat` number in both the runtime
+and the kernel, inheriting all the special support for `Nat`.
+-/
+structure BitVec (w : Nat) where
+  /-- Construct a `BitVec w` from a number less than `2^w`.
+  O(1), because we use `Fin` as the internal representation of a bitvector. -/
+  ofFin ::
+  /-- Interpret a bitvector as a number less than `2^w`.
+  O(1), because we use `Fin` as the internal representation of a bitvector. -/
+  toFin : Fin (hPow 2 w)
+
+/--
+Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
+-/
+-- We manually derive the `DecidableEq` instances for `BitVec` because
+-- we want to have builtin support for bit-vector literals, and we
+-- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
+def BitVec.decEq (x y : BitVec n) : Decidable (Eq x y) :=
+  match x, y with
+  | ⟨n⟩, ⟨m⟩ =>
+    dite (Eq n m)
+      (fun h => isTrue (h ▸ rfl))
+      (fun h => isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h)))
+
+instance : DecidableEq (BitVec n) := BitVec.decEq
+
+/-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
+@[match_pattern]
+protected def BitVec.ofNatLt {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
+  toFin := ⟨i, p⟩
+
+/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
+(zero-cost) wrapper around a `Nat`. -/
+protected def BitVec.toNat (x : BitVec n) : Nat := x.toFin.val
+
+instance : LT (BitVec n) where lt := (LT.lt ·.toNat ·.toNat)
+instance (x y : BitVec n) : Decidable (LT.lt x y) :=
+  inferInstanceAs (Decidable (LT.lt x.toNat y.toNat))
+
+instance : LE (BitVec n) where le := (LE.le ·.toNat ·.toNat)
+instance (x y : BitVec n) : Decidable (LE.le x y) :=
+  inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
+
 /-- The size of type `UInt8`, that is, `2^8 = 256`. -/
 abbrev UInt8.size : Nat := 256
 
@@ -1877,12 +1920,12 @@ The type of unsigned 8-bit integers. This type has special support in the
 compiler to make it actually 8 bits rather than wrapping a `Nat`.
 -/
 structure UInt8 where
-  /-- Unpack a `UInt8` as a `Nat` less than `2^8`.
+  /-- Unpack a `UInt8` as a `BitVec 8`.
   This function is overridden with a native implementation. -/
-  val : Fin UInt8.size
+  toBitVec : BitVec 8
 
 attribute [extern "lean_uint8_of_nat_mk"] UInt8.mk
-attribute [extern "lean_uint8_to_nat"] UInt8.val
+attribute [extern "lean_uint8_to_nat"] UInt8.toBitVec
 
 /--
 Pack a `Nat` less than `2^8` into a `UInt8`.
@@ -1890,7 +1933,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
-  val := { val := n, isLt := h }
+  toBitVec := BitVec.ofNatLt n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1901,7 +1944,9 @@ This function is overridden with a native implementation.
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq n m)
+      (fun h => isTrue (h ▸ rfl))
+      (fun h => isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt8 := UInt8.decEq
 
@@ -1916,12 +1961,12 @@ The type of unsigned 16-bit integers. This type has special support in the
 compiler to make it actually 16 bits rather than wrapping a `Nat`.
 -/
 structure UInt16 where
-  /-- Unpack a `UInt16` as a `Nat` less than `2^16`.
+  /-- Unpack a `UInt16` as a `BitVec 16`.
   This function is overridden with a native implementation. -/
-  val : Fin UInt16.size
+  toBitVec : BitVec 16
 
 attribute [extern "lean_uint16_of_nat_mk"] UInt16.mk
-attribute [extern "lean_uint16_to_nat"] UInt16.val
+attribute [extern "lean_uint16_to_nat"] UInt16.toBitVec
 
 /--
 Pack a `Nat` less than `2^16` into a `UInt16`.
@@ -1929,7 +1974,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNatCore (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
-  val := { val := n, isLt := h }
+  toBitVec := BitVec.ofNatLt n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1940,7 +1985,9 @@ This function is overridden with a native implementation.
 def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq n m)
+      (fun h => isTrue (h ▸ rfl))
+      (fun h => isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt16 := UInt16.decEq
 
@@ -1955,12 +2002,12 @@ The type of unsigned 32-bit integers. This type has special support in the
 compiler to make it actually 32 bits rather than wrapping a `Nat`.
 -/
 structure UInt32 where
-  /-- Unpack a `UInt32` as a `Nat` less than `2^32`.
+  /-- Unpack a `UInt32` as a `BitVec 32.
   This function is overridden with a native implementation. -/
-  val : Fin UInt32.size
+  toBitVec : BitVec 32
 
 attribute [extern "lean_uint32_of_nat_mk"] UInt32.mk
-attribute [extern "lean_uint32_to_nat"] UInt32.val
+attribute [extern "lean_uint32_to_nat"] UInt32.toBitVec
 
 /--
 Pack a `Nat` less than `2^32` into a `UInt32`.
@@ -1968,14 +2015,14 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatCore (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
-  val := { val := n, isLt := h }
+  toBitVec := BitVec.ofNatLt n h
 
 /--
 Unpack a `UInt32` as a `Nat`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_to_nat"]
-def UInt32.toNat (n : UInt32) : Nat := n.val.val
+def UInt32.toNat (n : UInt32) : Nat := n.toBitVec.toNat
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1994,30 +2041,26 @@ instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 (by decide)
 
 instance : LT UInt32 where
-  lt a b := LT.lt a.val b.val
+  lt a b := LT.lt a.toBitVec b.toBitVec
 
 instance : LE UInt32 where
-  le a b := LE.le a.val b.val
+  le a b := LE.le a.toBitVec b.toBitVec
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides less-equal on `UInt32`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_dec_lt"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LT.lt n m))
+  inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides less-than on `UInt32`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_dec_le"]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LE.le n m))
+  inferInstanceAs (Decidable (LE.le a.toBitVec b.toBitVec))
 
 instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
@@ -2031,12 +2074,12 @@ The type of unsigned 64-bit integers. This type has special support in the
 compiler to make it actually 64 bits rather than wrapping a `Nat`.
 -/
 structure UInt64 where
-  /-- Unpack a `UInt64` as a `Nat` less than `2^64`.
+  /-- Unpack a `UInt64` as a `BitVec 64`.
   This function is overridden with a native implementation. -/
-  val : Fin UInt64.size
+  toBitVec: BitVec 64
 
 attribute [extern "lean_uint64_of_nat_mk"] UInt64.mk
-attribute [extern "lean_uint64_to_nat"] UInt64.val
+attribute [extern "lean_uint64_to_nat"] UInt64.toBitVec
 
 /--
 Pack a `Nat` less than `2^64` into a `UInt64`.
@@ -2044,7 +2087,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
-  val := { val := n, isLt := h }
+  toBitVec := BitVec.ofNatLt n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2055,36 +2098,20 @@ This function is overridden with a native implementation.
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt64.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq n m)
+      (fun h => isTrue (h ▸ rfl))
+      (fun h => isFalse (fun h' => UInt64.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt64 := UInt64.decEq
 
 instance : Inhabited UInt64 where
   default := UInt64.ofNatCore 0 (by decide)
 
-/--
-The size of type `USize`, that is, `2^System.Platform.numBits`, which may
-be either `2^32` or `2^64` depending on the platform's architecture.
-
-Remark: we define `USize.size` using `(2^numBits - 1) + 1` to ensure the
-Lean unifier can solve constraints such as `?m + 1 = USize.size`. Recall that
-`numBits` does not reduce to a numeral in the Lean kernel since it is platform
-specific. Without this trick, the following definition would be rejected by the
-Lean type checker.
-```
-def one: Fin USize.size := 1
-```
-Because Lean would fail to synthesize instance `OfNat (Fin USize.size) 1`.
-Recall that the `OfNat` instance for `Fin` is
-```
-instance : OfNat (Fin (n+1)) i where
-  ofNat := Fin.ofNat i
-```
--/
-abbrev USize.size : Nat := hAdd (hSub (hPow 2 System.Platform.numBits) 1) 1
+/-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
+abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
 theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
-  show Or (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 4294967296) (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 18446744073709551616) from
+  show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (by decide)
   | _, Or.inr rfl => Or.inr (by decide)
@@ -2097,21 +2124,20 @@ For example, if running on a 32-bit machine, USize is equivalent to UInt32.
 Or on a 64-bit machine, UInt64.
 -/
 structure USize where
-  /-- Unpack a `USize` as a `Nat` less than `USize.size`.
+  /-- Unpack a `USize` as a `BitVec System.Platform.numBits`.
   This function is overridden with a native implementation. -/
-  val : Fin USize.size
+  toBitVec : BitVec System.Platform.numBits
 
 attribute [extern "lean_usize_of_nat_mk"] USize.mk
-attribute [extern "lean_usize_to_nat"] USize.val
+attribute [extern "lean_usize_to_nat"] USize.toBitVec
 
 /--
 Pack a `Nat` less than `USize.size` into a `USize`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
-def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize := {
-  val := { val := n, isLt := h }
-}
+def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize where
+  toBitVec := BitVec.ofNatLt n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2122,7 +2148,9 @@ This function is overridden with a native implementation.
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h =>isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq n m)
+      (fun h => isTrue (h ▸ rfl))
+      (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq USize := USize.decEq
 
@@ -2138,12 +2166,12 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize where
-  val := {
-    val  := n
-    isLt := match USize.size, usize_size_eq with
+  toBitVec :=
+    BitVec.ofNatLt n (
+      match System.Platform.numBits, System.Platform.numBits_eq with
       | _, Or.inl rfl => h
       | _, Or.inr rfl => Nat.lt_trans h (by decide)
-  }
+    )
 
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
@@ -2178,7 +2206,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨{ val := n, isLt := isValidChar_UInt32 h }⟩, valid := h }
+  { val := ⟨BitVec.ofNatLt n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
 Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
@@ -2188,7 +2216,7 @@ Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scal
 def Char.ofNat (n : Nat) : Char :=
   dite (n.isValidChar)
     (fun h => Char.ofNatAux n h)
-    (fun _ => { val := ⟨{ val := 0, isLt := by decide }⟩, valid := Or.inl (by decide) })
+    (fun _ => { val := ⟨BitVec.ofNatLt 0 (by decide)⟩, valid := Or.inl (by decide) })
 
 theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -3448,15 +3476,13 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (u : USize) : UInt64 where
-  val := {
-    val  := u.val.val
-    isLt :=
-      let ⟨n, h⟩ := u
-      show LT.lt n _ from
-      match USize.size, usize_size_eq, h with
-      | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
-      | _, Or.inr rfl, h => h
-  }
+  toBitVec := BitVec.ofNatLt u.toBitVec.toNat (
+        let ⟨⟨n, h⟩⟩ := u
+        show LT.lt n _ from
+        match System.Platform.numBits, System.Platform.numBits_eq, h with
+        | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
+        | _, Or.inr rfl, h => h
+      )
 
 /-- An opaque hash mixing operation, used to implement hashing for tuples. -/
 @[extern "lean_uint64_mix_hash"]

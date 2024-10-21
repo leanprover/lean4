@@ -104,7 +104,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let (binders, typeStx) := expandDeclSig stx[2]
   let scopeLevelNames ← getLevelNames
   let ⟨_, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
-  addDeclarationRanges declName stx
+  addDeclarationRanges declName modifiers.stx stx
   runTermElabM fun vars =>
     Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
@@ -136,18 +136,18 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterCompilation
 
 /-
-leading_parser "inductive " >> declId >> optDeclSig >> optional ":=" >> many ctor
-leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ":=" >> many ctor >> optDeriving
+leading_parser "inductive " >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor
+leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor >> optDeriving
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : CommandElabM InductiveView := do
   checkValidInductiveModifier modifiers
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
-  addDeclarationRanges declName decl
+  addDeclarationRanges declName modifiers.stx decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     -- def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
-    let mut ctorModifiers ← elabModifiers ctor[2]
+    let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
     if let some leadingDocComment := ctor[0].getOptional? then
       if ctorModifiers.docString?.isSome then
         logErrorAt leadingDocComment "duplicate doc string"
@@ -167,6 +167,10 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
   let classes ← liftCoreM <| getOptDerivingClasses decl[6]
+  if decl[3][0].isToken ":=" then
+    -- https://github.com/leanprover/lean4/issues/5236
+    withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
+      "'inductive ... :=' has been deprecated in favor of 'inductive ... where'."
   return {
     ref             := decl
     shortDeclName   := name
@@ -210,17 +214,18 @@ def elabDeclaration : CommandElab := fun stx => do
     -- only case implementing incrementality currently
     elabMutualDef #[stx]
   else withoutCommandIncrementality true do
+    let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
     if declKind == ``Lean.Parser.Command.«axiom» then
-      let modifiers ← elabModifiers stx[0]
+      let modifiers ← elabModifiers modifiers
       elabAxiom modifiers decl
     else if declKind == ``Lean.Parser.Command.«inductive» then
-      let modifiers ← elabModifiers stx[0]
+      let modifiers ← elabModifiers modifiers
       elabInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.classInductive then
-      let modifiers ← elabModifiers stx[0]
+      let modifiers ← elabModifiers modifiers
       elabClassInductive modifiers decl
     else if declKind == ``Lean.Parser.Command.«structure» then
-      let modifiers ← elabModifiers stx[0]
+      let modifiers ← elabModifiers modifiers
       elabStructure modifiers decl
     else
       throwError "unexpected declaration"
@@ -234,7 +239,7 @@ private def isMutualInductive (stx : Syntax) : Bool :=
 
 private def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
   let views ← elems.mapM fun stx => do
-     let modifiers ← elabModifiers stx[0]
+     let modifiers ← elabModifiers ⟨stx[0]⟩
      inductiveSyntaxToView modifiers stx[1]
   elabInductiveViews views
 
@@ -395,7 +400,7 @@ def elabMutual : CommandElab := fun stx => do
       -- We need to add `id`'s ranges *before* elaborating `initFn` (and then `id` itself) as
       -- otherwise the info context created by `with_decl_name` will be incomplete and break the
       -- call hierarchy
-      addDeclarationRanges fullId defStx
+      addDeclarationRanges fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
       elabCommand (← `(
         $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))

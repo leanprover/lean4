@@ -19,7 +19,7 @@ def f (α : Sort u) : α :=
 error: numerals are data in Lean, but the expected type is universe polymorphic and may be a proposition
   α : Sort u
 ---
-info: fun {α} => id (id (sorryAx α true)) : {α : Sort u} → α
+info: fun {α} => id (id sorry) : {α : Sort u} → α
 -/
 #guard_msgs in
 #check fun {α : Sort u} => id (α := α) (id 0)

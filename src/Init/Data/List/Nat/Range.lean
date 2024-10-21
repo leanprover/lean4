@@ -500,4 +500,13 @@ theorem enum_eq_zip_range (l : List α) : l.enum = (range l.length).zip l :=
 theorem unzip_enum_eq_prod (l : List α) : l.enum.unzip = (range l.length, l) := by
   simp only [enum_eq_zip_range, unzip_zip, length_range]
 
+theorem enum_eq_cons_iff {l : List α} :
+    l.enum = x :: l' ↔ ∃ a as, l = a :: as ∧ x = (0, a) ∧ l' = enumFrom 1 as := by
+  rw [enum, enumFrom_eq_cons_iff]
+
+theorem enum_eq_append_iff {l : List α} :
+    l.enum = l₁ ++ l₂ ↔
+      ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = l₁'.enum ∧ l₂ = l₂'.enumFrom l₁'.length := by
+  simp [enum, enumFrom_eq_append_iff]
+
 end List

@@ -47,7 +47,6 @@ LEAN_EXPORT lean_object* l_Lean_Data_AC_instContextInformationContext___lambda__
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_41____closed__8;
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_removeNeutrals_loop_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_insert_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Data_AC_instBEqExpr___closed__1;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_removeNeutrals_loop_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);

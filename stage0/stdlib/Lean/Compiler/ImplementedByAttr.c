@@ -42,7 +42,6 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAtt
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__1___closed__1;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____closed__8;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setImplementedBy___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_setImplementedBy(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____lambda__3___closed__7;
 lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);

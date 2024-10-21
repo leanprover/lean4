@@ -1919,6 +1919,7 @@ LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg 
 /* IO Helper functions */
 
 LEAN_EXPORT lean_obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname);
+LEAN_EXPORT lean_obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname);
 
 static inline lean_obj_res lean_io_mk_world() { return lean_box(0); }
 static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }

@@ -157,7 +157,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalCongr___rarg___boxed(lean_o
 static lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__3___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Conv_congrFunN___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalFun___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_congrFunN___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_extCore___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_extLetBodyCongr_x3f___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -12,3 +12,4 @@ import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Count
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Nat.Find
+import Init.Data.List.Nat.BEq

@@ -24,7 +24,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__C
 lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalTactic_throwExs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Change______elabRules__Lean__Parser__Tactic__change__1__1___closed__3;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Change______elabRules__Lean__Parser__Tactic__change__1___lambda__2___closed__4;
-lean_object* l_Lean_Elab_Tactic_elabTermWithHoles(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Tactic_elabTermWithHoles(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 static lean_object* l_Lean_Elab_Tactic___aux__Lean__Elab__Tactic__Change______elabRules__Lean__Parser__Tactic__change__1___closed__3;
@@ -389,7 +389,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_40 = l_Lean_Elab_Tactic_elabTermWithHoles(x_37, x_38, x_39, x_28, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_32);
+x_40 = l_Lean_Elab_Tactic_elabTermWithHoles(x_37, x_38, x_39, x_28, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_32);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
@@ -471,7 +471,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_58 = l_Lean_Elab_Tactic_elabTermWithHoles(x_55, x_56, x_57, x_28, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_50);
+x_58 = l_Lean_Elab_Tactic_elabTermWithHoles(x_55, x_56, x_57, x_28, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_50);
 if (lean_obj_tag(x_58) == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
@@ -633,7 +633,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_91 = l_Lean_Elab_Tactic_elabTermWithHoles(x_88, x_89, x_90, x_78, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_81);
+x_91 = l_Lean_Elab_Tactic_elabTermWithHoles(x_88, x_89, x_90, x_78, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_81);
 if (lean_obj_tag(x_91) == 0)
 {
 lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 

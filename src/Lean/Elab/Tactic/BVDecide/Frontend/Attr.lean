@@ -53,7 +53,7 @@ register_builtin_option debug.bv.graphviz : Bool := {
 }
 
 register_builtin_option bv.ac_nf : Bool := {
-  defValue := true
+  defValue := false
   descr := "Canonicalize with respect to associativity and commutativitiy."
 }
 

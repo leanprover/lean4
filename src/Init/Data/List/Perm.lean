@@ -461,15 +461,19 @@ theorem Perm.nodup {l l' : List α} (hl : l ~ l') (hR : l.Nodup) : l'.Nodup := h
 theorem Perm.nodup_iff {l₁ l₂ : List α} : l₁ ~ l₂ → (Nodup l₁ ↔ Nodup l₂) :=
   Perm.pairwise_iff <| @Ne.symm α
 
-theorem Perm.join {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.join ~ l₂.join := by
+theorem Perm.flatten {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.flatten ~ l₂.flatten := by
   induction h with
   | nil => rfl
-  | cons _ _ ih => simp only [join_cons, perm_append_left_iff, ih]
-  | swap => simp only [join_cons, ← append_assoc, perm_append_right_iff]; exact perm_append_comm ..
+  | cons _ _ ih => simp only [flatten_cons, perm_append_left_iff, ih]
+  | swap => simp only [flatten_cons, ← append_assoc, perm_append_right_iff]; exact perm_append_comm ..
   | trans _ _ ih₁ ih₂ => exact trans ih₁ ih₂
 
-theorem Perm.bind_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.bind f ~ l₂.bind f :=
-  (p.map _).join
+@[deprecated Perm.flatten (since := "2024-10-14")] abbrev Perm.join := @Perm.flatten
+
+theorem Perm.flatMap_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.flatMap f ~ l₂.flatMap f :=
+  (p.map _).flatten
+
+@[deprecated Perm.flatMap_right (since := "2024-10-16")] abbrev Perm.bind_right := @Perm.flatMap_right
 
 theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     (H : Pairwise (fun a b => f a → f b → False) l₁) (p : l₁ ~ l₂) : eraseP f l₁ ~ eraseP f l₂ := by

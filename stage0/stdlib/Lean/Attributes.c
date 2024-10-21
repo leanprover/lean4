@@ -151,7 +151,6 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_registerEnumAttributes___s
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_getAttrParamOptPrio___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerBuiltinAttribute___closed__2;
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_3779____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Attribute_Builtin_getIdent___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -315,6 +314,7 @@ LEAN_EXPORT lean_object* lean_update_env_attributes(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedTagAttribute___closed__3;
 static lean_object* l___auto____x40_Lean_Attributes___hyg_105____closed__19;
 static lean_object* l___auto____x40_Lean_Attributes___hyg_105____closed__4;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_registerEnumAttributes___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_registerEnumAttributes___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___rarg___lambda__3(lean_object*);

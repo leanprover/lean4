@@ -62,7 +62,6 @@ uint8_t l_instDecidableNot___rarg(uint8_t);
 static lean_object* l_Lean_Diff_diff___rarg___closed__2;
 static lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_8____closed__5;
 static lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_8____closed__7;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_linesToString(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Diff_lcs___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Action_noConfusion(lean_object*);

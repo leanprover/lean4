@@ -132,14 +132,14 @@ theorem findSome?_append {l₁ l₂ : List α} : (l₁ ++ l₂).findSome? f = (l
     simp only [cons_append, findSome?]
     split <;> simp_all
 
-theorem head_join {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
-    (join L).head (by simpa using h) = (L.findSome? fun l => l.head?).get (by simpa using h) := by
-  simp [head_eq_iff_head?_eq_some, head?_join]
+theorem head_flatten {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
+    (flatten L).head (by simpa using h) = (L.findSome? fun l => l.head?).get (by simpa using h) := by
+  simp [head_eq_iff_head?_eq_some, head?_flatten]
 
-theorem getLast_join {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
-    (join L).getLast (by simpa using h) =
+theorem getLast_flatten {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
+    (flatten L).getLast (by simpa using h) =
       (L.reverse.findSome? fun l => l.getLast?).get (by simpa using h) := by
-  simp [getLast_eq_iff_getLast_eq_some, getLast?_join]
+  simp [getLast_eq_iff_getLast_eq_some, getLast?_flatten]
 
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
   cases n with
@@ -326,35 +326,35 @@ theorem get_find?_mem (xs : List α) (p : α → Bool) (h) : (xs.find? p).get h 
     simp only [cons_append, find?]
     by_cases h : p x <;> simp [h, ih]
 
-@[simp] theorem find?_join (xs : List (List α)) (p : α → Bool) :
-    xs.join.find? p = xs.findSome? (·.find? p) := by
+@[simp] theorem find?_flatten (xs : List (List α)) (p : α → Bool) :
+    xs.flatten.find? p = xs.findSome? (·.find? p) := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [join_cons, find?_append, findSome?_cons, ih]
+    simp only [flatten_cons, find?_append, findSome?_cons, ih]
     split <;> simp [*]
 
-theorem find?_join_eq_none {xs : List (List α)} {p : α → Bool} :
-    xs.join.find? p = none ↔ ∀ ys ∈ xs, ∀ x ∈ ys, !p x := by
+theorem find?_flatten_eq_none {xs : List (List α)} {p : α → Bool} :
+    xs.flatten.find? p = none ↔ ∀ ys ∈ xs, ∀ x ∈ ys, !p x := by
   simp
 
 /--
-If `find? p` returns `some a` from `xs.join`, then `p a` holds, and
+If `find? p` returns `some a` from `xs.flatten`, then `p a` holds, and
 some list in `xs` contains `a`, and no earlier element of that list satisfies `p`.
 Moreover, no earlier list in `xs` has an element satisfying `p`.
 -/
-theorem find?_join_eq_some {xs : List (List α)} {p : α → Bool} {a : α} :
-    xs.join.find? p = some a ↔
+theorem find?_flatten_eq_some {xs : List (List α)} {p : α → Bool} {a : α} :
+    xs.flatten.find? p = some a ↔
       p a ∧ ∃ as ys zs bs, xs = as ++ (ys ++ a :: zs) :: bs ∧
         (∀ a ∈ as, ∀ x ∈ a, !p x) ∧ (∀ x ∈ ys, !p x) := by
   rw [find?_eq_some]
   constructor
   · rintro ⟨h, ⟨ys, zs, h₁, h₂⟩⟩
     refine ⟨h, ?_⟩
-    rw [join_eq_append_iff] at h₁
+    rw [flatten_eq_append_iff] at h₁
     obtain (⟨as, bs, rfl, rfl, h₁⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, h₁⟩) := h₁
     · replace h₁ := h₁.symm
-      rw [join_eq_cons_iff] at h₁
+      rw [flatten_eq_cons_iff] at h₁
       obtain ⟨bs, cs, ds, rfl, h₁, rfl⟩ := h₁
       refine ⟨as ++ bs, [], cs, ds, by simp, ?_⟩
       simp
@@ -371,20 +371,24 @@ theorem find?_join_eq_some {xs : List (List α)} {p : α → Bool} {a : α} :
       · intro x m
         simpa using h₂ x (by simpa using .inr m)
   · rintro ⟨h, ⟨as, ys, zs, bs, rfl, h₁, h₂⟩⟩
-    refine ⟨h, as.join ++ ys, zs ++ bs.join, by simp, ?_⟩
+    refine ⟨h, as.flatten ++ ys, zs ++ bs.flatten, by simp, ?_⟩
     intro a m
     simp at m
     obtain ⟨l, ml, m⟩ | m := m
     · exact h₁ l ml a m
     · exact h₂ a m
 
-@[simp] theorem find?_bind (xs : List α) (f : α → List β) (p : β → Bool) :
-    (xs.bind f).find? p = xs.findSome? (fun x => (f x).find? p) := by
-  simp [bind_def, findSome?_map]; rfl
+@[simp] theorem find?_flatMap (xs : List α) (f : α → List β) (p : β → Bool) :
+    (xs.flatMap f).find? p = xs.findSome? (fun x => (f x).find? p) := by
+  simp [flatMap_def, findSome?_map]; rfl
 
-theorem find?_bind_eq_none {xs : List α} {f : α → List β} {p : β → Bool} :
-    (xs.bind f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
+@[deprecated find?_flatMap (since := "2024-10-16")] abbrev find?_bind := @find?_flatMap
+
+theorem find?_flatMap_eq_none {xs : List α} {f : α → List β} {p : β → Bool} :
+    (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
+
+@[deprecated find?_flatMap_eq_none (since := "2024-10-16")] abbrev find?_bind_eq_none := @find?_flatMap_eq_none
 
 theorem find?_replicate : find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   cases n
@@ -786,15 +790,15 @@ theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
   induction xs with simp
   | cons _ _ _ => split <;> simp_all [Option.map_or', Option.map_map]; rfl
 
-theorem findIdx?_join {l : List (List α)} {p : α → Bool} :
-    l.join.findIdx? p =
+theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
+    l.flatten.findIdx? p =
       (l.findIdx? (·.any p)).map
-        fun i => Nat.sum ((l.take i).map List.length) +
+        fun i => ((l.take i).map List.length).sum +
           (l[i]?.map fun xs => xs.findIdx p).getD 0 := by
   induction l with
   | nil => simp
   | cons xs l ih =>
-    simp only [join, findIdx?_append, map_take, map_cons, findIdx?, any_eq_true, Nat.zero_add,
+    simp only [flatten, findIdx?_append, map_take, map_cons, findIdx?, any_eq_true, Nat.zero_add,
       findIdx?_succ]
     split
     · simp only [Option.map_some', take_zero, sum_nil, length_cons, zero_lt_succ,
@@ -975,5 +979,14 @@ theorem IsInfix.lookup_eq_none {l₁ l₂ : List (α × β)} (h : l₁ <:+: l₂
   h.sublist.lookup_eq_none
 
 end lookup
+
+/-! ### Deprecations -/
+
+@[deprecated head_flatten (since := "2024-10-14")] abbrev head_join := @head_flatten
+@[deprecated getLast_flatten (since := "2024-10-14")] abbrev getLast_join := @getLast_flatten
+@[deprecated find?_flatten (since := "2024-10-14")] abbrev find?_join := @find?_flatten
+@[deprecated find?_flatten_eq_none (since := "2024-10-14")] abbrev find?_join_eq_none := @find?_flatten_eq_none
+@[deprecated find?_flatten_eq_some (since := "2024-10-14")] abbrev find?_join_eq_some := @find?_flatten_eq_some
+@[deprecated findIdx?_flatten (since := "2024-10-14")] abbrev findIdx?_join := @findIdx?_flatten
 
 end List

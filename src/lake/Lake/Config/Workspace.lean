@@ -12,6 +12,7 @@ import Lake.Util.Log
 open System
 
 namespace Lake
+open Lean (Name)
 
 /-- A Lake workspace -- the top-level package directory. -/
 structure Workspace : Type where

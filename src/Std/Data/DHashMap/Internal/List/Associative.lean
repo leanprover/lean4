@@ -1720,13 +1720,13 @@ theorem containsKey_append [BEq α] {l l' : List ((a : α) × β a)} {a : α} :
     containsKey a (l ++ l') = (containsKey a l || containsKey a l') := by
   simp [containsKey_eq_isSome_getEntry?]
 
-theorem containsKey_bind_eq_false [BEq α] {γ : Type w} {l : List γ} {f : γ → List ((a : α) × β a)}
+theorem containsKey_flatMap_eq_false [BEq α] {γ : Type w} {l : List γ} {f : γ → List ((a : α) × β a)}
     {a : α} (h : ∀ (i : Nat) (h : i < l.length), containsKey a (f l[i]) = false) :
-    containsKey a (l.bind f) = false := by
+    containsKey a (l.flatMap f) = false := by
   induction l
   · simp
   · next g t ih =>
-    simp only [List.bind_cons, containsKey_append, Bool.or_eq_false_iff]
+    simp only [List.flatMap_cons, containsKey_append, Bool.or_eq_false_iff]
     refine ⟨?_, ?_⟩
     · simpa using h 0 (by simp)
     · refine ih ?_

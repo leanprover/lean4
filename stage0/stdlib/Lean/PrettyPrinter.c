@@ -171,6 +171,7 @@ static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_
 static lean_object* l_Lean_MessageData_ofConst___closed__3;
 LEAN_EXPORT lean_object* l_Lean_MessageData_ofFormatWithInfosM___lambda__2(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t l_Lean_getPPMVarsLevels(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PPContext_runMetaM(lean_object*);
 static lean_object* l_Lean_PPContext_runCoreM___rarg___closed__18;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -240,7 +241,6 @@ static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_
 lean_object* l_Lean_PrettyPrinter_delabCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
-uint8_t l_Lean_getPPMVars(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppExprLegacy___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_ppCommand___closed__1;
 static lean_object* l_Lean_PrettyPrinter_ppCommand___closed__2;
@@ -4479,7 +4479,7 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 3);
-x_5 = l_Lean_getPPMVars(x_4);
+x_5 = l_Lean_getPPMVarsLevels(x_4);
 x_6 = l_Lean_Level_format(x_2, x_5);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_6);

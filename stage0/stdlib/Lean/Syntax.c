@@ -147,7 +147,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Syntax_isAntiquots___s
 LEAN_EXPORT lean_object* l_Lean_Syntax_eqWithInfoAndTraceReuse(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Syntax_0__String_reprRange____x40_Lean_Syntax___hyg_37____closed__2;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_antiquotSpliceKind_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_isQuot___closed__3;

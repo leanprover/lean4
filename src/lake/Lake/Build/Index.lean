@@ -17,6 +17,7 @@ This module leverages the index to perform topologically-based recursive builds.
 
 open Lean
 namespace Lake
+open System (FilePath)
 
 /--
 Converts a conveniently-typed target facet build function into its

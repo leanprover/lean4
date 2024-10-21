@@ -78,7 +78,6 @@ static lean_object* l___auto____x40_Lean_Compiler_InitAttr___hyg_1141____closed_
 static lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isIOUnitRegularInitFn___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltin___closed__8;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_declareBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,6 +147,7 @@ extern lean_object* l_Lean_NameSet_empty;
 static lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType___closed__1;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_declareBuiltin___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_1182_(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_InitAttr___hyg_1141____closed__9;

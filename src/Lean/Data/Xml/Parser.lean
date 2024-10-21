@@ -459,7 +459,7 @@ mutual
 
       let z ← optional (Content.Character <$> CharData)
       pure #[y, z]
-    let xs := #[x] ++ xs.concatMap id |>.filterMap id
+    let xs := #[x] ++ xs.flatMap id |>.filterMap id
     let mut res := #[]
     for x in xs do
       if res.size > 0 then

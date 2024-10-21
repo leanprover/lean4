@@ -473,7 +473,10 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
 def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
   if (findField? (← getEnv) structName fieldName).isNone then
     return none
-  return some <| mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+  return some <|
+    mkNode ``Parser.Term.explicit
+      #[mkAtomFrom s "@",
+        mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]]
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>

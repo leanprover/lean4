@@ -33,11 +33,11 @@ instance hasLimitsOfSize : HasLimitsOfSize.{v} (Type max v u) := sorry
 set_option pp.mvars false
 /--
 error: type mismatch
-  limit.π (sorryAx (Functor' ?_ ?_)) (sorryAx ?_)
+  limit.π sorry sorry
 has type
-  sorryAx (Sort _) : Sort _
+  sorry : Sort _
 but is expected to have type
-  limit f → sorryAx (Sort _) : Sort (imax (max (u + 1) (v + 1)) _)
+  limit f → sorry : Sort (imax (max (u + 1) (v + 1)) _)
 -/
 #guard_msgs in
 theorem pi_lift_π_apply {C : Type v} [Category.{v} C] (f : Functor' C (Type max v u)) :

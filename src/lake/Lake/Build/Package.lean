@@ -15,6 +15,7 @@ Build function definitions for a package's builtin facets.
 
 open System
 namespace Lake
+open Lean (Name)
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
@@ -44,9 +45,9 @@ def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
     (self.preferReleaseBuild || -- GitHub release
-      !(self.scope.isEmpty -- no Reservoir
-        || (← getElanToolchain).isEmpty
-        || (← self.buildDir.pathExists)))
+      ((self.scope == "leanprover" || self.scope == "leanprover-community")
+        && !(← getElanToolchain).isEmpty
+        && !(← self.buildDir.pathExists))) -- Reservoir
   if shouldFetch then
     self.optBuildCache.fetch
   else

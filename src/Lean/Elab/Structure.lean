@@ -722,13 +722,13 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   let r ← getResultUniverse type
   let rOffset : Nat   := r.getOffset
   let r       : Level := r.getLevelOffset
-  match r with
-  | Level.mvar mvarId =>
-    let us ← collectUniversesFromFields r rOffset fieldInfos
-    let rNew := mkResultUniverse us rOffset (isPropCandidate fieldInfos)
-    assignLevelMVar mvarId rNew
-    instantiateMVars type
-  | _ => throwError "failed to compute resulting universe level of structure, provide universe explicitly"
+  unless r.isMVar do
+    throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r}"
+  let us ← collectUniversesFromFields r rOffset fieldInfos
+  trace[Elab.structure] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
+  let rNew := mkResultUniverse us rOffset (isPropCandidate fieldInfos)
+  assignLevelMVar r.mvarId! rNew
+  instantiateMVars type
 
 private def collectLevelParamsInFVar (s : CollectLevelParams.State) (fvar : Expr) : TermElabM CollectLevelParams.State := do
   let type ← inferType fvar
@@ -807,12 +807,19 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
 
 private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let env ← getEnv
-  let hasUnit := env.contains `PUnit
-  let hasEq   := env.contains `Eq
-  let hasHEq  := env.contains `HEq
+  let hasEq   := env.contains ``Eq
+  let hasHEq  := env.contains ``HEq
+  let hasUnit := env.contains ``PUnit
+  let hasProd := env.contains ``Prod
   mkRecOn declName
   if hasUnit then mkCasesOn declName
   if hasUnit && hasEq && hasHEq then mkNoConfusion declName
+  let ival ← getConstInfoInduct declName
+  if ival.isRec then
+    if hasUnit && hasProd then mkBelow declName
+    if hasUnit && hasProd then mkIBelow declName
+    if hasUnit && hasProd then mkBRecOn declName
+    if hasUnit && hasProd then mkBInductionOn declName
 
 private def addDefaults (lctx : LocalContext) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
   withLCtx lctx (← getLocalInstances) do
@@ -885,26 +892,6 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
     else
       setReducibleAttribute declName
 
--- /-- Create a local declaration for each inductive type in `rs`, and execute `x params indFVars`, where `params` are the inductive type parameters and
---    `indFVars` are the new local declarations.
---    We use the local context/instances and parameters of rs[0].
---    Note that this method is executed after we executed `checkHeaders` and established all
---    parameters are compatible. -/
--- private partial def withStructureLocalDecl (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
---   let namesAndTypes ← rs.mapM fun r => do
---     let type ← mkTypeFor r
---     pure (r.view.declName, r.view.shortDeclName, type)
---   let r0     := rs[0]!
---   let params := r0.params
---   withLCtx r0.lctx r0.localInsts <| withRef r0.view.ref do
---     let rec loop (i : Nat) (indFVars : Array Expr) := do
---       if h : i < namesAndTypes.size then
---         let (declName, shortDeclName, type) := namesAndTypes.get ⟨i, h⟩
---         Term.withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
---       else
---         x params indFVars
---     loop 0 #[]
-
 private def elabStructHeader (view : StructView) : TermElabM ElabStructHeaderResult :=
   Term.withAutoBoundImplicitForbiddenPred (fun n => view.shortDeclName == n) do
   Term.withAutoBoundImplicit do
@@ -920,6 +907,40 @@ private def elabStructHeader (view : StructView) : TermElabM ElabStructHeaderRes
       trace[Elab.structure] "header params: {params}, type: {type}"
       return { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view, parents, parentFieldInfos }
 
+private def mkTypeFor (r : ElabStructHeaderResult) : TermElabM Expr := do
+  withLCtx r.lctx r.localInsts do
+    mkForallFVars r.params r.type
+
+/--
+Create a local declaration for the structure and execute `x params indFVar`, where `params` are the structure's type parameters and
+`indFVar` is the new local declaration.
+-/
+private partial def withStructureLocalDecl (r : ElabStructHeaderResult) (x : Array Expr → Expr → TermElabM α) : TermElabM α := do
+  let declName := r.view.declName
+  let shortDeclName := r.view.shortDeclName
+  let type ← mkTypeFor r
+  let params := r.params
+  withLCtx r.lctx r.localInsts <| withRef r.view.ref do
+    Term.withAuxDecl shortDeclName type declName fun indFVar =>
+      x params indFVar
+
+/--
+Remark: `numVars <= numParams`.
+`numVars` is the number of context `variables` used in the declaration,
+and `numParams - numVars` is the number of parameters provided as binders in the declaration.
+-/
+private def mkInductiveType (view : StructView) (indFVar : Expr) (levelNames : List Name)
+    (numVars : Nat) (numParams : Nat) (type : Expr) (ctor : Constructor) : TermElabM InductiveType := do
+  let levelParams := levelNames.map mkLevelParam
+  let const := mkConst view.declName levelParams
+  let ctorType ← forallBoundedTelescope ctor.type numParams fun params type => do
+    let type := type.replace fun e =>
+      if e == indFVar then
+        mkAppN const (params.extract 0 numVars)
+      else
+        none
+  return { name := view.declName, type := ← instantiateMVars type, ctors := [{ ctor with type := ← instantiateMVars ctorType }] }
+
 def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let scopeLevelNames ← Term.getLevelNames
   let isUnsafe := view.modifiers.isUnsafe
@@ -927,30 +948,33 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
     let r ← elabStructHeader view
     Term.synthesizeSyntheticMVarsNoPostponing
     withLCtx r.lctx r.localInsts do
---    withInductiveLocalDecls rs fun params indFVars => do
+    withStructureLocalDecl r fun params indFVar => do
+    trace[Elab.structure] "indFVar: {indFVar}"
+    Term.addLocalVarInfo view.declId indFVar
     withFields view.fields r.parentFieldInfos fun fieldInfos =>
     withRef view.ref do
       Term.synthesizeSyntheticMVarsNoPostponing
-      let u ← getResultUniverse r.type
+      let type ← instantiateMVars r.type
+      let u ← getResultUniverse type
       let univToInfer? ← shouldInferResultUniverse u
-      withUsed vars r.params fieldInfos fun scopeVars => do
-        let fieldInfos ← levelMVarToParam scopeVars r.params fieldInfos univToInfer?
+      withUsed vars params fieldInfos fun scopeVars => do
+        let fieldInfos ← levelMVarToParam scopeVars params fieldInfos univToInfer?
         let type ← withRef view.ref do
           if univToInfer?.isSome then
-            updateResultingUniverse fieldInfos r.type
+            updateResultingUniverse fieldInfos type
           else
-            checkResultingUniverse (← getResultUniverse r.type)
-            pure r.type
+            checkResultingUniverse (← getResultUniverse type)
+            pure type
         trace[Elab.structure] "type: {type}"
-        let usedLevelNames ← collectLevelParamsInStructure type scopeVars r.params fieldInfos
+        let usedLevelNames ← collectLevelParamsInStructure type scopeVars params fieldInfos
         match sortDeclLevelParams scopeLevelNames view.levelNames usedLevelNames with
         | Except.error msg      => throwErrorAt view.declId msg
         | Except.ok levelParams =>
-          let params := scopeVars ++ r.params
+          let params := scopeVars ++ params
           let ctor ← mkCtor view levelParams params fieldInfos
           let type ← mkForallFVars params type
           let type ← instantiateMVars type
-          let indType := { name := view.declName, type := type, ctors := [ctor] : InductiveType }
+          let indType ← mkInductiveType view indFVar levelParams scopeVars.size params.size type ctor
           let decl    := Declaration.inductDecl levelParams params.size [indType] isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl
@@ -995,7 +1019,7 @@ def elabStructureView (vars : Array Expr) (view : StructView) : TermElabM Unit :
   Term.withDeclName view.declName <| withRef view.ref do
     mkStructureDecl vars view
     unless view.isClass do
-      --Lean.Meta.IndPredBelow.mkBelow view.declName
+      Lean.Meta.IndPredBelow.mkBelow view.declName
       mkSizeOfInstances view.declName
       mkInjectiveTheorems view.declName
   liftCommandElabM <| view.derivingClasses.forM fun classView => classView.applyHandlers #[view.declName]

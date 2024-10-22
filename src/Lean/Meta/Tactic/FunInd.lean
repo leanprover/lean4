@@ -262,8 +262,8 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
     if let some (n, t, v, b) := e.letFun? then
       let t' ← foldAndCollect oldIH newIH isRecCall t
       let v' ← foldAndCollect oldIH newIH isRecCall v
-      return ← withLetDecl n t' v' fun x => do
-        M.localMapM (mkLetFVars (usedLetOnly := true) #[x] ·) do
+      return ← withLocalDeclD n t' fun x => do
+        M.localMapM (mkLetFun x v' ·) do
           let b' ← foldAndCollect oldIH newIH isRecCall (b.instantiate1 x)
           mkLetFun x v' b'
 
@@ -613,7 +613,7 @@ partial def buildInductionBody (toClear : Array FVarId) (goal : Expr)
   if let some (n, t, v, b) := e.letFun? then
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v
-    return ← withLocalDecl n .default t' fun x => M2.branch do
+    return ← withLocalDeclD n t' fun x => M2.branch do
       let b' ← buildInductionBody toClear goal oldIH newIH isRecCall (b.instantiate1 x)
       mkLetFun x v' b'
 

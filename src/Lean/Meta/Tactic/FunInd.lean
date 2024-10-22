@@ -598,6 +598,11 @@ partial def buildInductionBody (toClear : Array FVarId) (goal : Expr)
           buildInductionBody toClear expAltType oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
 
+  -- we look through mdata
+  if e.isMData then
+    let b ← buildInductionBody toClear goal oldIH newIH isRecCall e.mdataExpr!
+    return e.updateMData! b
+
   if let .letE n t v b _ := e then
     let t' ← foldAndCollect oldIH newIH isRecCall t
     let v' ← foldAndCollect oldIH newIH isRecCall v

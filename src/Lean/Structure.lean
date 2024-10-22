@@ -67,6 +67,11 @@ def getStructureInfo? (env : Environment) (structName : Name) : Option Structure
   | some modIdx => structureExt.getModuleEntries env modIdx |>.binSearch { structName } StructureInfo.lt
   | none        => structureExt.getState env |>.map.find? structName
 
+/--
+Gets the constructor of an inductive type that has exactly one constructor.
+This is meant to be used with types that have had been registered as a structure by `registerStructure`,
+but this is not checked.
+-/
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
   | some (.inductInfo { ctors := [ctorName], .. }) =>
@@ -197,6 +202,14 @@ def isStructureLike (env : Environment) (constName : Name) : Bool :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
+
+def getStructureLikeCtor (env : Environment) (constName : Name) : ConstructorVal :=
+  match env.find? constName with
+  | some (.inductInfo { isRec := false, ctors := [ctorName], .. }) =>
+    match env.find? ctorName with
+    | some (ConstantInfo.ctorInfo val) => val
+    | _ => panic! "ill-formed environment"
+  | _ => panic! "structure expected"
 
 /-- Return number of fields for a structure-like type -/
 def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=

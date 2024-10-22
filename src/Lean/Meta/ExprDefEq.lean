@@ -1975,7 +1975,7 @@ where
       assign `?m`.
       -/
       return false
-    let ctorVal := getStructureCtor (← getEnv) structName
+    let ctorVal := getStructureLikeCtor (← getEnv) structName
     if ctorVal.numFields != 1 then
       return false -- It is not a structure with a single field.
     let sType ← whnf (← inferType s)

@@ -46,10 +46,11 @@ def handleCompletion (p : CompletionParams)
   mapTask (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       -- work around https://github.com/microsoft/vscode/issues/155738
-      | return { items := #[{label := "-"}], isIncomplete := true }
-    if let some r ← Completion.find? p doc.meta.text pos cmdStx infoTree caps then
-      return r
-    return { items := #[ ], isIncomplete := true }
+      | return {
+        items := #[{label := "-", data? := toJson { params := p : Lean.Lsp.CompletionItemData }}],
+        isIncomplete := true
+      }
+    Completion.find? p doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -62,7 +63,7 @@ def handleCompletionItemResolve (item : CompletionItem)
     : RequestM (RequestTask CompletionItem) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let some (data : CompletionItemDataWithId) := item.data?.bind fun data => (fromJson? data).toOption
+  let some (data : ResolvableCompletionItemData) := item.data?.bind fun data => (fromJson? data).toOption
     | return .pure item
   let some id := data.id?
     | return .pure item
@@ -70,7 +71,7 @@ def handleCompletionItemResolve (item : CompletionItem)
   mapTask (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return item
-    Completion.resolveCompletionItem? text pos cmdStx infoTree item id
+    Completion.resolveCompletionItem? text pos cmdStx infoTree item id data.cPos
 
 open Elab in
 def handleHover (p : HoverParams)

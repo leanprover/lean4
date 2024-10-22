@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///533.lean"},
      "position": {"line": 4, "character": 10}},
-    "id": {"fvar": {"id": "_uniq.6"}}}},
+    "id": {"fvar": {"id": "_uniq.6"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "Foo",
    "kind": 6,
@@ -16,5 +17,6 @@
    {"params":
     {"textDocument": {"uri": "file:///533.lean"},
      "position": {"line": 4, "character": 10}},
-    "id": {"fvar": {"id": "_uniq.2"}}}}],
+    "id": {"fvar": {"id": "_uniq.2"}},
+    "cPos": 0}}],
  "isIncomplete": true}

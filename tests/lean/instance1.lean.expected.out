@@ -1,1 +1,1 @@
-instance1.lean:6:24-6:29: error: fields missing: 'pure', 'bind'
+instance1.lean:6:24-10:0: error: fields missing: 'pure', 'bind'

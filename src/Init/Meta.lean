@@ -374,6 +374,9 @@ partial def structEq : Syntax → Syntax → Bool
 instance : BEq Lean.Syntax := ⟨structEq⟩
 instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 
+/--
+Finds the first `SourceInfo` from the back of `stx` or `none` if no `SourceInfo` can be found.
+-/
 partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info
   | ident info .. => info
@@ -382,13 +385,38 @@ partial def getTailInfo? : Syntax → Option SourceInfo
   | node info _ _    => info
   | _             => none
 
+/--
+Finds the first `SourceInfo` from the back of `stx` or `SourceInfo.none`
+if no `SourceInfo` can be found.
+-/
 def getTailInfo (stx : Syntax) : SourceInfo :=
   stx.getTailInfo?.getD SourceInfo.none
 
+/--
+Finds the trailing size of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains no
+trailing whitespace, the result is `0`.
+-/
 def getTrailingSize (stx : Syntax) : Nat :=
   match stx.getTailInfo? with
   | some (SourceInfo.original (trailing := trailing) ..) => trailing.bsize
   | _ => 0
+
+/--
+Finds the trailing whitespace substring of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
+no trailing whitespace, the result is `none`.
+-/
+def getTrailing? (stx : Syntax) : Option Substring :=
+  stx.getTailInfo.getTrailing?
+
+/--
+Finds the tail position of the trailing whitespace of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
+no trailing whitespace and lacks a tail position, the result is `none`.
+-/
+def getTrailingTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  stx.getTailInfo.getTrailingTailPos? canonicalOnly
 
 /--
   Return substring of original input covering `stx`.

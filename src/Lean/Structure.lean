@@ -203,13 +203,13 @@ def isStructureLike (env : Environment) (constName : Name) : Bool :=
   | some (.inductInfo { isRec := false, ctors := [_], numIndices := 0, .. }) => true
   | _ => false
 
-def getStructureLikeCtor (env : Environment) (constName : Name) : ConstructorVal :=
+def getStructureLikeCtor? (env : Environment) (constName : Name) : Option ConstructorVal :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctorName], .. }) =>
     match env.find? ctorName with
     | some (ConstantInfo.ctorInfo val) => val
     | _ => panic! "ill-formed environment"
-  | _ => panic! "structure expected"
+  | _ => none
 
 /-- Return number of fields for a structure-like type -/
 def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=

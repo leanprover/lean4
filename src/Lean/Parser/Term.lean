@@ -819,6 +819,7 @@ We use them to implement `macro_rules` and `elab_rules`
 
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
+/-- In a function application, `..` notation inserts zero or more `_` placeholders. -/
 def ellipsis       := leading_parser (withAnonymousAntiquot := false)
   ".." >> notFollowedBy (checkNoWsBefore >> ".") "`.` immediately after `..`"
 def argument       :=

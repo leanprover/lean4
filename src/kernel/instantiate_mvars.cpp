@@ -370,4 +370,11 @@ extern "C" LEAN_EXPORT object * lean_instantiate_expr_mvars(object * m, object *
     cnstr_set(r, 1, e_new.steal());
     return r;
 }
+
+void initialize_instantiate_mvars() {
+}
+
+void finalize_instantiate_mvars() {
+}
+
 }

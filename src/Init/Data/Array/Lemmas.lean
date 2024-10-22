@@ -9,6 +9,7 @@ import Init.Data.List.Impl
 import Init.Data.List.Monadic
 import Init.Data.List.Range
 import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Nat.Modify
 import Init.Data.Array.Mem
 import Init.TacticsExtra
 
@@ -851,6 +852,12 @@ theorem getElem_modify {as : Array α} {x i} (h : i < (as.modify x f).size) :
   · simp only [Id.bind_eq, get_set _ _ _ (by simpa using h)]; split <;> simp [*]
   · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
+@[simp] theorem toList_modify (as : Array α) (f : α → α) :
+    (as.modify x f).toList = as.toList.modify f x := by
+  apply List.ext_getElem
+  · simp
+  · simp [getElem_modify, List.getElem_modify]
+
 theorem getElem_modify_self {as : Array α} {i : Nat} (f : α → α) (h : i < (as.modify i f).size) :
     (as.modify i f)[i] = f (as[i]'(by simpa using h)) := by
   simp [getElem_modify h]
@@ -1430,6 +1437,11 @@ theorem all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p 
   simp
 
 @[simp] theorem reverse_toArray (l : List α) : l.toArray.reverse = l.reverse.toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem modify_toArray (f : α → α) (l : List α) :
+    l.toArray.modify i f = (l.modify f i).toArray := by
   apply ext'
   simp
 

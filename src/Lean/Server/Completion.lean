@@ -207,6 +207,8 @@ private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionIt
       return CompletionItemKind.enum
     else
       return CompletionItemKind.struct
+  else if constInfo.isTheorem then
+    return CompletionItemKind.event
   else if (← isProjectionFn constInfo.name) then
     return CompletionItemKind.field
   else if (← whnf constInfo.type).isForall then

@@ -187,6 +187,9 @@ theorem take_add (l : List α) (m n : Nat) : l.take (m + n) = l.take m ++ (l.dro
   · apply length_take_le
   · apply Nat.le_add_right
 
+theorem take_one {l : List α} : l.take 1 = l.head?.toList := by
+  induction l <;> simp
+
 theorem dropLast_take {n : Nat} {l : List α} (h : n < l.length) :
     (l.take n).dropLast = l.take (n - 1) := by
   simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
@@ -282,14 +285,14 @@ theorem mem_drop_iff_getElem {l : List α} {a : α} :
   · rintro ⟨i, hm, rfl⟩
     refine ⟨i, by simp; omega, by rw [getElem_drop]⟩
 
-theorem head?_drop (l : List α) (n : Nat) :
+@[simp] theorem head?_drop (l : List α) (n : Nat) :
     (l.drop n).head? = l[n]? := by
   rw [head?_eq_getElem?, getElem?_drop, Nat.add_zero]
 
-theorem head_drop {l : List α} {n : Nat} (h : l.drop n ≠ []) :
+@[simp] theorem head_drop {l : List α} {n : Nat} (h : l.drop n ≠ []) :
     (l.drop n).head h = l[n]'(by simp_all) := by
   have w : n < l.length := length_lt_of_drop_ne_nil h
-  simpa [getElem?_eq_getElem, h, w, head_eq_iff_head?_eq_some] using head?_drop l n
+  simp [getElem?_eq_getElem, h, w, head_eq_iff_head?_eq_some]
 
 theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n then none else l.getLast? := by
   rw [getLast?_eq_getElem?, getElem?_drop]
@@ -300,7 +303,7 @@ theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n th
     congr
     omega
 
-theorem getLast_drop {l : List α} (h : l.drop n ≠ []) :
+@[simp] theorem getLast_drop {l : List α} (h : l.drop n ≠ []) :
     (l.drop n).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
   simp only [ne_eq, drop_eq_nil_iff] at h
   apply Option.some_inj.1
@@ -448,6 +451,26 @@ theorem reverse_drop {l : List α} {n : Nat} :
   · have w : l.length - n = 0 := by omega
     rw [w, take_zero, drop_of_length_le, reverse_nil]
     omega
+
+theorem take_add_one {l : List α} {n : Nat} :
+    l.take (n + 1) = l.take n ++ l[n]?.toList := by
+  simp [take_add, take_one]
+
+theorem drop_eq_getElem?_toList_append {l : List α} {n : Nat} :
+    l.drop n = l[n]?.toList ++ l.drop (n + 1) := by
+  induction l generalizing n with
+  | nil => simp
+  | cons hd tl ih =>
+    cases n
+    · simp
+    · simp only [drop_succ_cons, getElem?_cons_succ]
+      rw [ih]
+
+theorem drop_sub_one {l : List α} {n : Nat} (h : 0 < n) :
+    l.drop (n - 1) = l[n - 1]?.toList ++ l.drop n := by
+  rw [drop_eq_getElem?_toList_append]
+  congr
+  omega
 
 /-! ### findIdx -/
 

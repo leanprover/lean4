@@ -1,4 +1,4 @@
-structure Foo.{u_1, v} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (v + 1))
+structure Foo.{v, u_1} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (v + 1))
 number of parameters: 2
 constructor:
 Foo.mk : {α : Sort u_1} → {β : α → Type v} → (a : α) → β a → Foo β

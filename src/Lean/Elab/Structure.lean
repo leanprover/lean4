@@ -95,6 +95,7 @@ structure ElabStructHeaderResult where
   view             : StructView
   lctx             : LocalContext
   localInsts       : LocalInstances
+  levelNames       : List Name
   params           : Array Expr
   type             : Expr
   parents          : Array StructParentInfo
@@ -680,6 +681,7 @@ where
     Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
   levelMVarToParamFVars (fvars : Array Expr) : TermElabM Unit :=
+    -- TODO(kmill): use `forRevM`
     fvars.forM levelMVarToParamFVar
 
   levelMVarToParamFVar (fvar : Expr) : TermElabM Unit := do
@@ -904,8 +906,9 @@ private def elabStructHeader (view : StructView) : TermElabM ElabStructHeaderRes
       throwErrorAt view.type "invalid structure type, expecting 'Type _' or 'Prop'"
     let type ← instantiateMVars (← whnf type)
     Term.addAutoBoundImplicits' params type fun params type => do
-      trace[Elab.structure] "header params: {params}, type: {type}"
-      return { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view, parents, parentFieldInfos }
+      let levelNames ← Term.getLevelNames
+      trace[Elab.structure] "header params: {params}, type: {type}, levelNames: {levelNames}"
+      return { lctx := (← getLCtx), localInsts := (← getLocalInstances), levelNames, params, type, view, parents, parentFieldInfos }
 
 private def mkTypeFor (r : ElabStructHeaderResult) : TermElabM Expr := do
   withLCtx r.lctx r.localInsts do
@@ -968,7 +971,7 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
             pure type
         trace[Elab.structure] "type: {type}"
         let usedLevelNames ← collectLevelParamsInStructure type scopeVars params fieldInfos
-        match sortDeclLevelParams scopeLevelNames view.levelNames usedLevelNames with
+        match sortDeclLevelParams scopeLevelNames r.levelNames usedLevelNames with
         | Except.error msg      => throwErrorAt view.declId msg
         | Except.ok levelParams =>
           let params := scopeVars ++ params
@@ -1034,6 +1037,7 @@ def elabStructureView (vars : Array Expr) (view : StructView) : TermElabM Unit :
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   runTermElabM fun vars => do
     let view ← structureSyntaxToView modifiers stx
+    trace[Elab.structure] "view.levelNames: {view.levelNames}"
     elabStructureView vars view
 
 builtin_initialize registerTraceClass `Elab.structure

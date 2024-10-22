@@ -38,7 +38,7 @@ The operations are organized as follow:
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
   `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`,
   `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `erase`, `eraseP`, `eraseIdx`.
+* Manipulating elements: `replace`, `insert`, `modify`, `erase`, `eraseP`, `eraseIdx`.
 * Finding elements: `find?`, `findSome?`, `findIdx`, `indexOf`, `findIdx?`, `indexOf?`,
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
@@ -1118,6 +1118,35 @@ theorem replace_cons [BEq α] {a : α} :
 /-- Inserts an element into a list without duplication. -/
 @[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
   if l.elem a then l else a :: l
+
+/-! ### modify -/
+
+/--
+Apply a function to the nth tail of `l`. Returns the input without
+using `f` if the index is larger than the length of the List.
+```
+modifyTailIdx f 2 [a, b, c] = [a, b] ++ f [c]
+```
+-/
+@[simp] def modifyTailIdx (f : List α → List α) : Nat → List α → List α
+  | 0, l => f l
+  | _+1, [] => []
+  | n+1, a :: l => a :: modifyTailIdx f n l
+
+/-- Apply `f` to the head of the list, if it exists. -/
+@[inline] def modifyHead (f : α → α) : List α → List α
+  | [] => []
+  | a :: l => f a :: l
+
+@[simp] theorem modifyHead_nil (f : α → α) : [].modifyHead f = [] := by rw [modifyHead]
+@[simp] theorem modifyHead_cons (a : α) (l : List α) (f : α → α) :
+    (a :: l).modifyHead f = f a :: l := by rw [modifyHead]
+
+/--
+Apply `f` to the nth element of the list, if it exists, replacing that element with the result.
+-/
+def modify (f : α → α) : Nat → List α → List α :=
+  modifyTailIdx (modifyHead f)
 
 /-! ### erase -/
 

@@ -1,4 +1,6 @@
 #check Int8
+#eval Int8.ofInt 20
+#eval Int8.ofInt (-20)
 #eval Int8.ofInt (-20)  = -20
 #eval Int8.ofInt (-130) = 126
 #eval Int8.ofNat 10 = 10
@@ -8,6 +10,7 @@
 #eval (Int8.ofInt (-2)).toInt = -2
 #eval (Int8.ofInt (-2)).toNat = 0
 #eval (Int8.ofInt (10)).toNat = 10
+#eval (Int8.ofInt (10)).toInt = 10
 #eval Int8.ofNat (2^64) == 0
 #eval Int8.ofInt (-2^64) == 0
 #eval Int8.neg 10 = -10

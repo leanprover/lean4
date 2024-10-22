@@ -724,8 +724,51 @@ end Elab.Command
 
 open Elab Command MonadRecDepth
 
+private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) : CoreM α := do
+  let s : Core.State ← get
+  let ctx : Core.Context ← read
+  let (a, commandState) ←
+    cmd.run {
+      fileName := ctx.fileName
+      fileMap := ctx.fileMap
+      currRecDepth := ctx.currRecDepth
+      currMacroScope := ctx.currMacroScope
+      ref := ctx.ref
+      tacticCache? := none
+      snap? := none
+      cancelTk? := (← read).cancelTk?
+      suppressElabErrors := ctx.suppressElabErrors
+    } |>.run {
+      env := s.env
+      nextMacroScope := s.nextMacroScope
+      maxRecDepth := ctx.maxRecDepth
+      ngen := s.ngen
+      scopes := [{ header := "", opts := ← getOptions }]
+      infoState.enabled := s.infoState.enabled
+    }
+  modify fun coreState => { coreState with
+    env := commandState.env
+    nextMacroScope := commandState.nextMacroScope
+    ngen := commandState.ngen
+    traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
+  }
+  if throwOnError then
+    if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
+      throwError err.data
+  else
+    modify fun coreState => { coreState with
+      infoState.trees := coreState.infoState.trees.append commandState.infoState.trees
+      messages := coreState.messages ++ commandState.messages
+    }
+  return a
+
 /--
-Lifts an action in `CommandElabM` into `CoreM`, updating the traces and the environment.
+Lifts an action in `CommandElabM` into `CoreM`, updating the environment,
+messages, info trees, traces, the name generator, and macro scopes.
+The action is run in a context with an empty message log, empty trace state, and empty info trees.
+
+If `throwOnError` is true, then if the command produces an error message, it is converted into an exception.
+In this case, info trees and messages are not carried over.
 
 Commands that modify the processing of subsequent commands,
 such as `open` and `namespace` commands,
@@ -738,27 +781,8 @@ to reset the instance cache.
 While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
 -/
-def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
-  let (a, commandState) ←
-    cmd.run {
-      fileName := ← getFileName
-      fileMap := ← getFileMap
-      ref := ← getRef
-      tacticCache? := none
-      snap? := none
-      cancelTk? := (← read).cancelTk?
-    } |>.run {
-      env := ← getEnv
-      maxRecDepth := ← getMaxRecDepth
-      scopes := [{ header := "", opts := ← getOptions }]
-    }
-  modify fun coreState => { coreState with
-    traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
-    env := commandState.env
-  }
-  if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
-    throwError err.data
-  pure a
+def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : CoreM α := do
+  MonadExcept.ofExcept (← liftCommandElabMCore (observing cmd) throwOnError)
 
 /--
 Given a command elaborator `cmd`, returns a new command elaborator that

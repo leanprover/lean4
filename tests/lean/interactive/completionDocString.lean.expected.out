@@ -10,7 +10,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDocString.lean"},
      "position": {"line": 0, "character": 20}},
-    "id": {"const": {"declName": "Array.insertAt"}}}},
+    "id": {"const": {"declName": "Array.insertAt"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "insertAt!",
    "kind": 3,
@@ -22,5 +23,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDocString.lean"},
      "position": {"line": 0, "character": 20}},
-    "id": {"const": {"declName": "Array.insertAt!"}}}}],
+    "id": {"const": {"declName": "Array.insertAt!"}},
+    "cPos": 0}}],
  "isIncomplete": true}

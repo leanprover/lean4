@@ -30,6 +30,7 @@ a : α
       • a (isBinder := true) : α @ ⟨7, 9⟩-⟨7, 10⟩
       • x (isBinder := true) : Fam2 α β @ ⟨7, 17⟩-⟨7, 18⟩
       • CustomInfo(Lean.Elab.Term.BodyInfo)
+        • Partial term @ ⟨8, 2⟩-⟨10, 19⟩ @ Lean.Elab.Term.Quotation.elabMatchSyntax
         • match α, β, x, a with
           | α_1, .(α_1), Fam2.any, a => ?m x α_1 a
           | .(Nat), .(Nat), Fam2.nat n, a => n : β @ ⟨8, 2⟩-⟨10, 19⟩ @ Lean.Elab.Term.elabMatch

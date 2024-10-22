@@ -32,29 +32,41 @@ private def mkFnInhabitant? (xs : Array Expr) (type : Expr) (useOfNonempty : Boo
       | some val => return some (← mkLambdaFVars xs[0:i] val)
   loop xs.size type
 
+/--
+Find an inhabitant while doing delta unfolding.
+-/
+private partial def mkInhabitantForAux? (xs : Array Expr) (type : Expr) (useOfNonempty : Bool) : MetaM (Option Expr) := withIncRecDepth do
+  if let some val ← mkInhabitant? type useOfNonempty <||> findAssumption? xs type then
+    mkLambdaFVars xs val
+  else if let some val ← mkFnInhabitant? xs type useOfNonempty then
+    return val
+  else
+    let type ← whnfCore type
+    if type.isForall then
+      forallTelescope type fun xs' type' => do
+        mkInhabitantForAux? (xs ++ xs') type' useOfNonempty
+    else if let some type' ← unfoldDefinition? type then
+      mkInhabitantForAux? xs type' useOfNonempty
+    else
+      return none
+
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
 def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr := do
-  let go? (useOfNonempty : Bool) : MetaM (Option Expr) := do
-    match (← mkInhabitant? type useOfNonempty) with
-    | some val => mkLambdaFVars xs val
-    | none     =>
-    match (← findAssumption? xs type) with
-    | some x => mkLambdaFVars xs x
-    | none   =>
-    match (← mkFnInhabitant? xs type useOfNonempty) with
-    | some val => return val
-    | none     => return none
-  match (← go? false) with
-  | some val => return val
-  | none     => match (← go? true) with
-    | some val => return val
-    | none     => throwError "\
-      failed to compile partial definition '{declName}', could not prove that type is nonempty\n\
+  if let some val ← mkInhabitantForAux? xs type false <||> mkInhabitantForAux? xs type true then
+    return val
+  else
+    throwError "\
+      failed to compile 'partial' definition '{declName}', could not prove that the type\
+      {indentExpr (← mkForallFVars xs type)}\n\
+      is nonempty.\n\
       \n\
-      Possible solutions:\n\
-      - Ensure that there is an '{MessageData.ofConstName ``Inhabited}' or '{MessageData.ofConstName ``Nonempty}' \
-      instance for{MessageData.nest 4 <| Format.line ++ type}\n\
-      - Add such an instance to the parameter list.\n\
-      - Add a parameter of this type to the parameter list."
+      This process uses multiple strategies:\n\
+      - It looks for a parameter that matches the return type.\n\
+      - It tries synthesizing '{MessageData.ofConstName ``Inhabited}' and '{MessageData.ofConstName ``Nonempty}' \
+        instances for the return type.\n\
+      - It tries unfolding the return type.\n\
+      \n\
+      If the return type is defined using the 'structure' or 'inductive' command, \
+      you can try adding a 'deriving Nonempty' clause to it."
 
 end Lean.Elab

@@ -57,7 +57,7 @@ info: go2.induct : Int →
   ∀ (motive : St → Prop),
     (∀ (x : St),
         let st1 := { m := x.m, map := x.map.insert };
-        motive st1 → motive x) →
+        (P st1 → P st1 → motive st1) → motive x) →
       ∀ (st0 : St), motive st0
 -/
 #guard_msgs in

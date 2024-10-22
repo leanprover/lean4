@@ -70,6 +70,18 @@ structure TermInfo extends ElabInfo where
   isBinder : Bool := false
   deriving Inhabited
 
+/--
+Used instead of `TermInfo` when a term couldn't successfully be elaborated,
+and so there is no complete expression available.
+
+The main purpose of `PartialTermInfo` is to ensure that the sub-`InfoTree`s of a failed elaborator
+are retained so that they can still be used in the language server.
+-/
+structure PartialTermInfo extends ElabInfo where
+  lctx : LocalContext -- The local context when the term was elaborated.
+  expectedType? : Option Expr
+  deriving Inhabited
+
 structure CommandInfo extends ElabInfo where
   deriving Inhabited
 
@@ -79,7 +91,7 @@ inductive CompletionInfo where
   | dot (termInfo : TermInfo) (expectedType? : Option Expr)
   | id (stx : Syntax) (id : Name) (danglingDot : Bool) (lctx : LocalContext) (expectedType? : Option Expr)
   | dotId (stx : Syntax) (id : Name) (lctx : LocalContext) (expectedType? : Option Expr)
-  | fieldId (stx : Syntax) (id : Name) (lctx : LocalContext) (structName : Name)
+  | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
@@ -165,10 +177,18 @@ regular delaboration settings.
 structure OmissionInfo extends TermInfo where
   reason : String
 
+/--
+Indicates that all overloaded elaborators failed. The subtrees of a `ChoiceInfo` node are the
+partial `InfoTree`s of those failed elaborators. Retaining these partial `InfoTree`s helps
+the language server provide interactivity even when all overloaded elaborators failed.
+-/
+structure ChoiceInfo extends ElabInfo where
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
   | ofTermInfo (i : TermInfo)
+  | ofPartialTermInfo (i : PartialTermInfo)
   | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofOptionInfo (i : OptionInfo)
@@ -179,6 +199,7 @@ inductive Info where
   | ofFVarAliasInfo (i : FVarAliasInfo)
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
   | ofOmissionInfo (i : OmissionInfo)
+  | ofChoiceInfo (i : ChoiceInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used

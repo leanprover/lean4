@@ -393,16 +393,17 @@ where
         | .ofCustomInfo ti =>
           if !linter.unusedVariables.analyzeTactics.get ci.options then
             if let some bodyInfo := ti.value.get? Elab.Term.BodyInfo then
-              -- the body is the only `Expr` we will analyze in this case
-              -- NOTE: we include it even if no tactics are present as at least for parameters we want
-              -- to lint only truly unused binders
-              let (e, _) := instantiateMVarsCore ci.mctx bodyInfo.value
-              modify fun s => { s with
-                assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
-              let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
-              withReader (· || tacticsPresent) do
-                go children.toArray ci
-              return false
+              if let some value := bodyInfo.value? then
+                -- the body is the only `Expr` we will analyze in this case
+                -- NOTE: we include it even if no tactics are present as at least for parameters we want
+                -- to lint only truly unused binders
+                let (e, _) := instantiateMVarsCore ci.mctx value
+                modify fun s => { s with
+                  assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
+                let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
+                withReader (· || tacticsPresent) do
+                  go children.toArray ci
+                return false
         | .ofTermInfo ti =>
           if ignored then return true
           match ti.expr with

@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
      "position": {"line": 7, "character": 33}},
-    "id": {"const": {"declName": "aaaaaaaa"}}}}],
+    "id": {"const": {"declName": "aaaaaaaa"}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 20, "character": 20}}
@@ -20,7 +21,8 @@
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
      "position": {"line": 20, "character": 20}},
-    "id": {"const": {"declName": "Bar.foobar"}}}}],
+    "id": {"const": {"declName": "Bar.foobar"}},
+    "cPos": 2}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 24, "character": 16}}
@@ -32,7 +34,8 @@
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
      "position": {"line": 24, "character": 16}},
-    "id": {"const": {"declName": "Bar.foobar"}}}}],
+    "id": {"const": {"declName": "Bar.foobar"}},
+    "cPos": 2}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 38, "character": 45}}
@@ -44,7 +47,8 @@
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
      "position": {"line": 38, "character": 45}},
-    "id": {"const": {"declName": "Prod.continuousAdd"}}}},
+    "id": {"const": {"declName": "Prod.continuousAdd"}},
+    "cPos": 1}},
   {"sortText": "1",
    "label": "continuousSMul",
    "kind": 23,
@@ -52,7 +56,8 @@
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
      "position": {"line": 38, "character": 45}},
-    "id": {"const": {"declName": "Prod.continuousSMul"}}}}],
+    "id": {"const": {"declName": "Prod.continuousSMul"}},
+    "cPos": 1}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 42, "character": 25}}
@@ -68,5 +73,6 @@
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
      "position": {"line": 42, "character": 25}},
-    "id": {"const": {"declName": "True.intro"}}}}],
+    "id": {"const": {"declName": "True.intro"}},
+    "cPos": 1}}],
  "isIncomplete": true}

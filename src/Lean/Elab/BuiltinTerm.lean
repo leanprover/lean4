@@ -42,16 +42,15 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtin_term_elab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
   /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
   if stx[0].isIdent then
-    /- If we can elaborate the identifier successfully, we assume it is a dot-completion. Otherwise, we treat it as
-       identifier completion with a dangling `.`.
-       Recall that the server falls back to identifier completion when dot-completion fails. -/
+    -- Add both an `id` and a `dot` `CompletionInfo` and have the language server figure out which
+    -- one to use.
+    addCompletionInfo <| CompletionInfo.id stx stx[0].getId (danglingDot := true) (← getLCtx) expectedType?
     let s ← saveState
     try
       let e ← elabTerm stx[0] none
       addDotCompletionInfo stx e expectedType?
     catch _ =>
       s.restore
-      addCompletionInfo <| CompletionInfo.id stx stx[0].getId (danglingDot := true) (← getLCtx) expectedType?
     throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
   else
     elabPipeCompletion stx expectedType?
@@ -328,7 +327,11 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with
   | `(with_annotate_term $stx $e) =>
-    withInfoContext' stx (elabTerm e expectedType?) (mkTermInfo .anonymous (expectedType? := expectedType?) stx)
+    withInfoContext'
+      stx
+      (elabTerm e expectedType?)
+      (mkTermInfo .anonymous (expectedType? := expectedType?) stx)
+      (mkPartialTermInfo .anonymous (expectedType? := expectedType?) stx)
   | _ => throwUnsupportedSyntax
 
 private unsafe def evalFilePathUnsafe (stx : Syntax) : TermElabM System.FilePath :=

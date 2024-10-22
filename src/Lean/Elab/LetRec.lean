@@ -90,9 +90,12 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
       for i in [0:view.binderIds.size] do
         addLocalVarInfo view.binderIds[i]! xs[i]!
       withDeclName view.declName do
-        withInfoContext' view.valStx (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx ·)) do
-          let value ← elabTermEnsuringType view.valStx type
-          mkLambdaFVars xs value
+        withInfoContext' view.valStx
+          (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx ·))
+          (mkInfoOnError := (pure <| mkBodyInfo view.valStx none))
+          do
+             let value ← elabTermEnsuringType view.valStx type
+             mkLambdaFVars xs value
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
   let letRecsToLiftCurr := (← get).letRecsToLift

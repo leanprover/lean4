@@ -241,11 +241,14 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
     have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
-def shrink (a : Array α) (n : Nat) : Array α :=
+/-- `take a n` returns the first `n` elements of `a`. -/
+def take (a : Array α) (n : Nat) : Array α :=
   let rec loop
     | 0,   a => a
     | n+1, a => loop n a.pop
   loop (a.size - n) a
+
+@[deprecated take (since := "2024-10-22")] abbrev shrink := @take
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do

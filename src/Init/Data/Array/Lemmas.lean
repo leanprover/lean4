@@ -690,6 +690,33 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
         true_and, Nat.not_lt] at h
       rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
 
+/-! ### take -/
+
+@[simp] theorem size_take_loop (a : Array α) (n : Nat) : (take.loop n a).size = a.size - n := by
+  induction n generalizing a with
+  | zero => simp [take.loop]
+  | succ n ih =>
+    simp [take.loop, ih]
+    omega
+
+@[simp] theorem getElem_take_loop (a : Array α) (n : Nat) (i : Nat) (h : i < (take.loop n a).size) :
+    (take.loop n a)[i] = a[i]'(by simp at h; omega) := by
+  induction n generalizing a i with
+  | zero => simp [take.loop]
+  | succ n ih =>
+    simp [take.loop, ih]
+
+@[simp] theorem size_take (a : Array α) (n : Nat) : (a.take n).size = min n a.size  := by
+  simp [take]
+  omega
+
+@[simp] theorem getElem_take (a : Array α) (n : Nat) (i : Nat) (h : i < (a.take n).size) :
+    (a.take n)[i] = a[i]'(by simp at h; omega) := by
+  simp [take]
+
+@[simp] theorem toList_take (a : Array α) (n : Nat) : (a.take n).toList = a.toList.take n := by
+  apply List.ext_getElem <;> simp
+
 /-! ### forIn -/
 
 @[simp] theorem forIn_toList [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) :
@@ -1362,6 +1389,10 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
 
 @[simp] theorem push_append_toArray (as : Array α) (a : α) (l : List α) :
     as.push a ++ l.toArray = as ++ (a :: l).toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem take_toArray (l : List α) (n : Nat) : l.toArray.take n = (l.take n).toArray := by
   apply ext'
   simp
 

@@ -55,7 +55,7 @@
 {"items":
  [{"sortText": "0",
    "label": "ha",
-   "kind": 5,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionFallback.lean"},
@@ -63,7 +63,7 @@
     "id": {"const": {"declName": "CustomAnd.ha"}}}},
   {"sortText": "1",
    "label": "hb",
-   "kind": 5,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionFallback.lean"},

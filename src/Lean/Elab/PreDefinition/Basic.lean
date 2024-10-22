@@ -221,7 +221,7 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
               else
                 none
             | _ => none
-          modifiers := {} }
+          modifiers := default }
 
 private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
   (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome

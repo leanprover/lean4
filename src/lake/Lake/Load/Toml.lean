@@ -17,6 +17,7 @@ Lake configuration file written in TOML.
 -/
 
 namespace Lake
+open System (FilePath)
 
 open Toml
 

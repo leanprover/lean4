@@ -441,6 +441,8 @@ This can be used to infer the expected type of the alternatives when constructin
 -/
 def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
   forallBoundedTelescope type n fun xs _ => do
+    unless xs.size = n do
+      throwError "type {type} does not have {n} parameters"
     let types ← xs.mapM (inferType ·)
     for t in types do
       if t.hasAnyFVar (fun fvar => xs.contains (.fvar fvar)) then

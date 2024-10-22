@@ -914,7 +914,9 @@ private def applyAttributesCore
   Remark: if the declaration has syntax errors, `declName` may be `.anonymous` see issue #4309
   In this case, we skip attribute application.
   -/
-  unless declName == .anonymous do
+  if declName == .anonymous then
+    return
+  withDeclName declName do
     for attr in attrs do
       withRef attr.stx do withLogging do
       let env ← getEnv

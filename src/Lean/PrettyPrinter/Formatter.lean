@@ -144,7 +144,7 @@ def fold (fn : Array Format → Format) (x : FormatterM Unit) : FormatterM Unit 
   x
   let stack ← getStack
   let f := fn $ stack.extract sp stack.size
-  setStack $ (stack.shrink sp).push f
+  setStack $ (stack.take sp).push f
 
 /-- Execute `x` and concatenate generated Format objects. -/
 def concat (x : FormatterM Unit) : FormatterM Unit := do

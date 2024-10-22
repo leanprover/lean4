@@ -42,7 +42,7 @@ theorem foldrM_eq_reverse_foldlM_toList.aux [Monad m]
   unfold foldrM.fold
   match i with
   | 0 => simp [List.foldlM, List.take]
-  | i+1 => rw [← List.take_concat_get _ _ h]; simp [← (aux f arr · i)]; rfl
+  | i+1 => rw [← List.take_concat_get _ _ h]; simp [← (aux f arr · i)]
 
 theorem foldrM_eq_reverse_foldlM_toList [Monad m] (f : α → β → m β) (init : β) (arr : Array α) :
     arr.foldrM f init = arr.toList.reverse.foldlM (fun x y => f y x) init := by

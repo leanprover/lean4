@@ -38,7 +38,7 @@ The operations are organized as follow:
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
   `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`,
   `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `erase`, `eraseP`, `eraseIdx`.
+* Manipulating elements: `replace`, `insert`, `modify`, `erase`, `eraseP`, `eraseIdx`.
 * Finding elements: `find?`, `findSome?`, `findIdx`, `indexOf`, `findIdx?`, `indexOf?`,
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
@@ -121,6 +121,11 @@ protected def beq [BEq α] : List α → List α → Bool
   | [],    []    => true
   | a::as, b::bs => a == b && List.beq as bs
   | _,     _     => false
+
+@[simp] theorem beq_nil_nil [BEq α] : List.beq ([] : List α) ([] : List α) = true := rfl
+@[simp] theorem beq_cons_nil [BEq α] (a : α) (as : List α) : List.beq (a::as) [] = false := rfl
+@[simp] theorem beq_nil_cons [BEq α] (a : α) (as : List α) : List.beq [] (a::as) = false := rfl
+theorem beq_cons₂ [BEq α] (a b : α) (as bs : List α) : List.beq (a::as) (b::bs) = (a == b && List.beq as bs) := rfl
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
@@ -1114,6 +1119,35 @@ theorem replace_cons [BEq α] {a : α} :
 @[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
   if l.elem a then l else a :: l
 
+/-! ### modify -/
+
+/--
+Apply a function to the nth tail of `l`. Returns the input without
+using `f` if the index is larger than the length of the List.
+```
+modifyTailIdx f 2 [a, b, c] = [a, b] ++ f [c]
+```
+-/
+@[simp] def modifyTailIdx (f : List α → List α) : Nat → List α → List α
+  | 0, l => f l
+  | _+1, [] => []
+  | n+1, a :: l => a :: modifyTailIdx f n l
+
+/-- Apply `f` to the head of the list, if it exists. -/
+@[inline] def modifyHead (f : α → α) : List α → List α
+  | [] => []
+  | a :: l => f a :: l
+
+@[simp] theorem modifyHead_nil (f : α → α) : [].modifyHead f = [] := by rw [modifyHead]
+@[simp] theorem modifyHead_cons (a : α) (l : List α) (f : α → α) :
+    (a :: l).modifyHead f = f a :: l := by rw [modifyHead]
+
+/--
+Apply `f` to the nth element of the list, if it exists, replacing that element with the result.
+-/
+def modify (f : α → α) : Nat → List α → List α :=
+  modifyTailIdx (modifyHead f)
+
 /-! ### erase -/
 
 /--
@@ -1418,11 +1452,15 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 @[simp] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 
 /-- Sum of a list of natural numbers. -/
--- We intend to subsequently deprecate this in favor of `List.sum`.
+@[deprecated List.sum (since := "2024-10-17")]
 protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
 
-@[simp] theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
-@[simp] theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
+set_option linter.deprecated false in
+@[simp, deprecated sum_nil (since := "2024-10-17")]
+theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
+set_option linter.deprecated false in
+@[simp, deprecated sum_cons (since := "2024-10-17")]
+theorem _root_.Nat.sum_cons (a : Nat) (l : List Nat) :
     Nat.sum (a::l) = a + Nat.sum l := rfl
 
 /-! ### range -/

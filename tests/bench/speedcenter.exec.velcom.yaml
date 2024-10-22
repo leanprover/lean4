@@ -368,9 +368,3 @@
   run_config:
     <<: *time
     cmd: lean big_do.lean
-- attributes:
-    description: keyboard_class_unload
-    tags: [slow]
-  run_config:
-    <<: *time
-    cmd: lean keyboard_class_unload.lean

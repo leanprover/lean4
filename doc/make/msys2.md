@@ -17,7 +17,7 @@ the stdlib.
 
 ## Installing the Windows SDK
 
-Install the Windows SDK from [https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/].
+Install the Windows SDK from [Microsoft](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/).
 The oldest supported version is 10.0.18362.0. If you installed the Windows SDK to the default location,
 then there should be a directory with the version number at `C:\Program Files (x86)\Windows Kits\10\Include`.
 If there are multiple directories, only the highest version number matters.

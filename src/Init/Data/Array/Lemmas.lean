@@ -102,6 +102,25 @@ We prefer to pull `List.toArray` outwards.
 @[simp] theorem back_toArray [Inhabited α] (l : List α) : l.toArray.back = l.getLast! := by
   simp only [back, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
 
+@[simp] theorem forIn_loop_toArray [Monad m] (l : List α) (f : α → β → m (ForInStep β)) (i : Nat)
+    (h : i ≤ l.length) (b : β) :
+    Array.forIn.loop l.toArray f i h b = (l.drop (l.length - i)).forIn b f := by
+  induction i generalizing l b with
+  | zero => simp [Array.forIn.loop]
+  | succ i ih =>
+    simp only [Array.forIn.loop, size_toArray, getElem_toArray, ih, forIn_eq_forIn]
+    rw [Nat.sub_add_eq, List.drop_sub_one (by omega), List.getElem?_eq_getElem (by omega)]
+    simp only [Option.toList_some, singleton_append, forIn_cons]
+    have t : l.length - 1 - i = l.length - i - 1 := by omega
+    simp only [t]
+    congr
+
+@[simp] theorem forIn_toArray [Monad m] (l : List α) (b : β) (f : α → β → m (ForInStep β)) :
+    forIn l.toArray b f = forIn l b f := by
+  change l.toArray.forIn b f = l.forIn b f
+  rw [Array.forIn, forIn_loop_toArray]
+  simp
+
 theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
     l.toArray.foldrM f init = l.foldrM f init := by
   rw [foldrM_eq_reverse_foldlM_toList]
@@ -698,6 +717,13 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
 
 @[simp] theorem toList_take (a : Array α) (n : Nat) : (a.take n).toList = a.toList.take n := by
   apply List.ext_getElem <;> simp
+
+/-! ### forIn -/
+
+@[simp] theorem forIn_toList [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) :
+    forIn as.toList b f = forIn as b f := by
+  cases as
+  simp
 
 /-! ### foldl / foldr -/
 

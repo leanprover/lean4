@@ -39,7 +39,7 @@
 {"items":
  [{"sortText": "0",
    "label": "continuousAdd",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
@@ -47,7 +47,7 @@
     "id": {"const": {"declName": "Prod.continuousAdd"}}}},
   {"sortText": "1",
    "label": "continuousSMul",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},

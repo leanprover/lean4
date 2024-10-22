@@ -1,6 +1,12 @@
+/-!
+This benchmark exercises
+* general elaboration, likely from many nested lambdas
+* code generation, ditto
+-/
+
 set_option maxRecDepth 10000
 
-def AddALot (x: Nat) : StateM Nat Nat := do
+def addALot (x: Nat) : StateM Nat Nat := do
   set x
   modifyGet (λ y => ((), y + x))
   modifyGet (λ y => ((), y + x))
@@ -450,4 +456,4 @@ def AddALot (x: Nat) : StateM Nat Nat := do
   let y <- get
   pure y
 
-#eval StateT.run' (AddALot 2) 0
+#eval StateT.run' (addALot 2) 0

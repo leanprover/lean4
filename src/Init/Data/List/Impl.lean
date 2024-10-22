@@ -38,7 +38,7 @@ The following operations were already given `@[csimp]` replacements in `Init/Dat
 
 The following operations are given `@[csimp]` replacements below:
 `set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
-`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`,
+`take`, `takeWhile`, `dropLast`, `replace`, `modify`, `erase`, `eraseIdx`, `zipWith`,
 `enumFrom`, and `intercalate`.
 
 -/
@@ -196,6 +196,24 @@ The following operations are given `@[csimp]` replacements below:
     split
     · simp [*]
     · intro h; rw [IH] <;> simp_all
+
+/-! ### modify -/
+
+/-- Tail-recursive version of `modify`. -/
+def modifyTR (f : α → α) (n : Nat) (l : List α) : List α := go l n #[] where
+  /-- Auxiliary for `modifyTR`: `modifyTR.go f l n acc = acc.toList ++ modify f n l`. -/
+  go : List α → Nat → Array α → List α
+  | [], _, acc => acc.toList
+  | a :: l, 0, acc => acc.toListAppend (f a :: l)
+  | a :: l, n+1, acc => go l n (acc.push a)
+
+theorem modifyTR_go_eq : ∀ l n, modifyTR.go f l n acc = acc.toList ++ modify f n l
+  | [], n => by cases n <;> simp [modifyTR.go, modify]
+  | a :: l, 0 => by simp [modifyTR.go, modify]
+  | a :: l, n+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
+
+@[csimp] theorem modify_eq_modifyTR : @modify = @modifyTR := by
+  funext α f n l; simp [modifyTR, modifyTR_go_eq]
 
 /-! ### erase -/
 

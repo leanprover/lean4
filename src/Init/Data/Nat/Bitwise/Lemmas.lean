@@ -295,7 +295,7 @@ theorem not_decide_mod_two_eq_one (x : Nat)
   cases Nat.mod_two_eq_zero_or_one x <;> (rename_i p; simp [p])
 
 theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
-    testBit (2^n - (x + 1)) i = (decide (i < n) && ! testBit x i) := by
+    testBit (2^n - (x + 1)) i = (decide (i < n) && !testBit x i) := by
   induction i generalizing n x with
   | zero =>
     match n with

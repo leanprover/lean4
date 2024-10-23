@@ -565,12 +565,12 @@ private def dotCompletion
 
     forEligibleDeclsM fun declName c => do
       let unnormedTypeName := declName.getPrefix
-      if ! nameSet.contains unnormedTypeName then
+      if !nameSet.contains unnormedTypeName then
         return
       let some declName ← normPrivateName? declName
         | return
       let typeName := declName.getPrefix
-      if ! (← isDotCompletionMethod typeName c) then
+      if !(← isDotCompletionMethod typeName c) then
         return
       let completionKind ← getCompletionKindForDecl c
       addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) (kind := completionKind) 1
@@ -597,14 +597,14 @@ private def dotIdCompletion
 
     forEligibleDeclsM fun declName c => do
       let unnormedTypeName := declName.getPrefix
-      if ! nameSet.contains unnormedTypeName then
+      if !nameSet.contains unnormedTypeName then
         return
 
       let some declName ← normPrivateName? declName
         | return
 
       let typeName := declName.getPrefix
-      if ! (← isDotIdCompletionMethod typeName c) then
+      if !(← isDotIdCompletionMethod typeName c) then
         return
 
       let completionKind ← getCompletionKindForDecl c
@@ -814,7 +814,7 @@ where
       let isCursorInCompletionRange :=
         startPos.byteIdx - leadingWs <= hoverPos.byteIdx
           && hoverPos.byteIdx <= endPos.byteIdx + stx.getTrailingSize
-      if ! isCursorInCompletionRange then
+      if !isCursorInCompletionRange then
         return false
       let mut wsBeforeArg := leadingWs
       for arg in stx.getArgs do
@@ -843,7 +843,7 @@ where
       (stx : Syntax)
       : Bool := Id.run do
     let isCursorInIndentation := hoverFilePos.column <= hoverLineIndentation
-    if ! isCursorInIndentation then
+    if !isCursorInIndentation then
       -- Do not trigger tactic completion at the end of a properly indented tactic block line since
       -- that line might already have entered term mode by that point.
       return false
@@ -928,7 +928,7 @@ private def findSyntheticTacticCompletion?
     (infoTree : InfoTree)
     : Option (HoverInfo × ContextInfo × CompletionInfo) := do
   let ctx ← findOutermostContextInfo? infoTree
-  if ! isSyntheticTacticCompletion fileMap hoverPos cmdStx then
+  if !isSyntheticTacticCompletion fileMap hoverPos cmdStx then
     none
   -- Neither `HoverInfo` nor the syntax in `.tactic` are important for tactic completion.
   return (HoverInfo.after, ctx, .tactic .missing)

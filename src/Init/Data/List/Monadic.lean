@@ -90,7 +90,7 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) 
 /-! ### allM -/
 
 theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
-    allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
+    allM p as = (!·) <$> anyM ((!·) <$> p ·) as := by
   induction as with
   | nil => simp
   | cons a as ih =>

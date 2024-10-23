@@ -51,6 +51,8 @@ bool operator<(data_value const & a, data_value const & b);
 typedef pair_ref<name, data_value> kvmap_entry;
 typedef list_ref<kvmap_entry> kvmap;
 
+bool contains(kvmap m, name const & k);
+
 optional<data_value> find(kvmap m, name const & k);
 
 LEAN_EXPORT optional<string_ref> get_string(kvmap const & m, name const & k);

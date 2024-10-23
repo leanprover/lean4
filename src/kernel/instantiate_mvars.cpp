@@ -7,10 +7,14 @@ Authors: Leonardo de Moura
 #include <vector>
 #include <unordered_map>
 #include "util/name_set.h"
+#include "util/freset.h"
+#include "runtime/flet.h"
 #include "runtime/option_ref.h"
+#include "runtime/sharecommon.h"
 #include "runtime/array_ref.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include "kernel/for_each_fn.h"
 
 /*
 This module is not used by the kernel. It just provides an efficient implementation of
@@ -137,12 +141,185 @@ expr replace_fvars(expr const & e, array_ref<expr> const & fvars, expr const * r
         });
 }
 
+static name * g_ds_name = nullptr;
+static expr * g_ds_const = nullptr;
+
+static expr mk_delayed_subst_annotation(expr const & e) {
+    return mk_app(*g_ds_const, e);
+}
+
+static bool is_delayed_subst(expr const & e) {
+    return is_app(e) && is_eqp(app_fn(e), *g_ds_const);
+}
+
+/* Return "delayed substitution term" `e[x := c]` */
+static expr mk_delayed_subst(expr const & e, expr const & x, expr const & s) {
+    return mk_delayed_subst_annotation(mk_app(e, mk_app(x, s)));
+}
+
+/* Return `true` if `e` contains a delayed substitution node. */
+bool has_delayed_subst(expr const & e) {
+    bool found = false;
+    for_each(e, [&](expr const & e) {
+        if (found) return false;
+        if (is_delayed_subst(e)) {
+            found = true;
+            return false;
+        }
+        return true;
+     });
+    return found;
+}
+
+size_t get_size_shared(expr const & e) {
+    size_t size = 0;
+    for_each(e, [&](expr const &) {
+        size++;
+        return true;
+    });
+    return size;
+}
+
+class apply_delayed_subst_fn {
+    struct cache_hash_fn {
+        std::size_t operator()(std::pair<lean_object *, unsigned> const & p) const {
+            return hash((size_t)p.first >> 3, p.second);
+        }
+    };
+    typedef std::unordered_map<std::pair<lean_object *, unsigned>, expr, cache_hash_fn> cache_t;
+    typedef std::unordered_map<name, std::pair<expr, unsigned>, name_hash_fn, name_eq_fn> subst_t;
+    cache_t m_cache;
+    subst_t m_subst;
+
+    expr save_result(expr const & e, unsigned offset, expr const & r, bool shared) {
+        if (shared)
+            m_cache.insert(mk_pair(mk_pair(e.raw(), offset), r));
+        return r;
+    }
+
+    expr apply(expr const & e, unsigned offset) {
+        if (!has_fvar(e))
+            return e;
+        bool shared = false;
+        if (is_shared(e)) {
+            auto it = m_cache.find(mk_pair(e.raw(), offset));
+            if (it != m_cache.end())
+                return it->second;
+            shared = true;
+        }
+
+        switch (e.kind()) {
+        case expr_kind::Const: case expr_kind::Sort:
+        case expr_kind::BVar:  case expr_kind::Lit:
+        case expr_kind::MVar:
+            return save_result(e, offset, e, shared);
+        case expr_kind::FVar: {
+            auto it = m_subst.find(fvar_name(e));
+            if (it != m_subst.end()) {
+                expr s = it->second.first;
+                unsigned offset_s = it->second.second;
+                lean_assert(offset >= offset_s);
+                // if (get_size_shared(s) > 128)
+                // size_t sz = get_size_shared(s);
+                // if (sz > 10000) {
+                    // size_t sz2 = get_size_shared(expr(sharecommon_quick_fn()(s.to_obj_arg())));
+                    // std::cout << s.raw() << " " << sz << " " << sz2 << " " << (offset - offset_s) << "\n";
+                // }
+                expr e_new = lift_loose_bvars(s, offset - offset_s);
+                // if (get_size_shared(s) > 128)
+                //    std::cout << fvar_name(e) << " " << get_size_shared(s) << " " << (offset - offset_s) << " := " << get_size_shared(e_new) << "\n";
+                // std::cout << fvar_name(e) << " " << (offset - offset_s) << "\n";
+                return save_result(e, offset, e_new, shared);
+            } else {
+                return save_result(e, offset, e, shared);
+            }
+        }
+        case expr_kind::MData: {
+            expr new_e = apply(mdata_expr(e), offset);
+            return save_result(e, offset, update_mdata(e, new_e), shared);
+        }
+        case expr_kind::Proj: {
+            expr new_e = apply(proj_expr(e), offset);
+            return save_result(e, offset, update_proj(e, new_e), shared);
+        }
+        case expr_kind::App: {
+            if (is_eqp(app_fn(e), *g_ds_const)) {
+                expr b = app_arg(e);
+                expr c = app_fn(b);
+                expr p = app_arg(b);
+                expr x = app_fn(p);
+                expr s = apply(app_arg(p), offset);
+                // if (get_size_shared(s) > 128)
+                //    std::cout << "### " << get_size_shared(app_arg(p)) << " " << get_size_shared(s) << "\n";
+                s = expr(sharecommon_quick_fn()(s.to_obj_arg())); // Timeout without sharecommon_quick_fn here
+                expr new_e;
+                {
+                    freset<cache_t> save(m_cache);
+                    auto it = m_subst.find(fvar_name(x));
+                    if (it == m_subst.end()) {
+                        // new entry
+                        m_subst.insert(mk_pair(fvar_name(x), mk_pair(s, offset)));
+                        new_e = apply(c, offset);
+                        m_subst.erase(fvar_name(x));
+                    } else {
+                        // updating entry, we must save current value and restore it later
+                        auto saved(it->second);
+                        m_subst.insert(mk_pair(fvar_name(x), mk_pair(s, offset)));
+                        new_e = apply(c, offset);
+                        m_subst.insert(mk_pair(fvar_name(x), saved));
+                    }
+                }
+                // lean_assert(!has_delayed_subst(new_e));
+                return save_result(e, offset, new_e, shared);
+            } else {
+                expr new_f = apply(app_fn(e), offset);
+                expr new_a = apply(app_arg(e), offset);
+                return save_result(e, offset, update_app(e, new_f, new_a), shared);
+            }
+        }
+        case expr_kind::Pi: case expr_kind::Lambda: {
+            expr new_d = apply(binding_domain(e), offset);
+            expr new_b = apply(binding_body(e), offset+1);
+            return save_result(e, offset, update_binding(e, new_d, new_b), shared);
+        }
+        case expr_kind::Let: {
+            expr new_t = apply(let_type(e), offset);
+            expr new_v = apply(let_value(e), offset);
+            expr new_b = apply(let_body(e), offset+1);
+            return save_result(e, offset, update_let(e, new_t, new_v, new_b), shared);
+        }}
+        lean_unreachable();
+    }
+public:
+    expr operator()(expr const & e) { return apply(e, 0); }
+};
+
+static expr apply_delayed_subst(expr const & e) {
+    // std::cout << get_size_shared(e) << " " << get_size_shared(expr(sharecommon_quick_fn()(e.to_obj_arg()))) << "\n";
+    expr r = apply_delayed_subst_fn()(e);
+    // std::cout << ">> " << get_size_shared(r) << " " << get_size_shared(expr(sharecommon_quick_fn()(r.to_obj_arg()))) << "\n";
+    // std::cout << e << "\n======>\n" << r << "\n------\n";
+    return r;
+}
+
 class instantiate_mvars_fn {
+    struct cache_hash_fn {
+        size_t operator()(expr const & e) const { return ((size_t)e.raw())>>3; }
+    };
+    struct cache_eq_fn {
+        bool operator()(expr const & e1, expr const & e2) const { return e1.raw() == e2.raw(); }
+    };
+    typedef std::unordered_map<name, expr, name_hash_fn, name_eq_fn> norm_assignment_t;
+    typedef std::unordered_map<expr, expr, cache_hash_fn, cache_eq_fn> cache_t;
     metavar_ctx & m_mctx;
     instantiate_lmvars_fn m_level_fn;
-    name_set m_already_normalized; // Store metavariables whose assignment has already been normalized.
-    std::unordered_map<lean_object *, expr> m_cache;
-    std::vector<expr> m_saved; // Helper vector to prevent values from being garbage collected
+    /*
+    We set `m_created_delayed_subst` if a delayed substitution term is created.
+    Recall that this kind of term should not leak outside of this module.
+    */
+    bool m_created_delayed_subst = false;
+    cache_t m_cache;
+    norm_assignment_t m_norm_assignment;
 
     level visit_level(level const & l) {
         return m_level_fn(l);
@@ -157,7 +334,7 @@ class instantiate_mvars_fn {
 
     inline expr cache(expr const & e, expr r, bool shared) {
         if (shared) {
-            m_cache.insert(mk_pair(e.raw(), r));
+            m_cache.insert(mk_pair(e, r));
         }
         return r;
     }
@@ -168,22 +345,22 @@ class instantiate_mvars_fn {
             return optional<expr>();
         } else {
             expr a(r.get_val());
-            if (!has_mvar(a) || m_already_normalized.contains(mid)) {
+            if (!has_mvar(a))
                 return optional<expr>(a);
-            } else {
-                m_already_normalized.insert(mid);
-                expr a_new = visit(a);
-                if (!is_eqp(a, a_new)) {
-                    /*
-                    We save `a` to ensure it will not be garbage collected
-                    after we update `mctx`. This is necessary because `m_cache`
-                    may contain references to its subterms.
-                    */
-                    m_saved.push_back(a);
-                    assign_mvar(m_mctx, mid, a_new);
-                }
-                return optional<expr>(a_new);
+            auto it = m_norm_assignment.find(mid);
+            if (it != m_norm_assignment.end())
+                return optional<expr>(it->second);
+            bool save_created_delayed_subst = m_created_delayed_subst;
+            m_created_delayed_subst = false;
+            expr a_new = visit(a);
+            m_norm_assignment.insert(mk_pair(mid, a_new));
+            if (!m_created_delayed_subst && !is_eqp(a, a_new)) {
+                // We don't want delayed substitutions leaking into `m_mctx`.
+                lean_assert(!has_delayed_subst(a_new));
+                assign_mvar(m_mctx, mid, a_new);
             }
+            m_created_delayed_subst = m_created_delayed_subst || save_created_delayed_subst;
+            return optional<expr>(a_new);
         }
     }
 
@@ -257,7 +434,12 @@ class instantiate_mvars_fn {
             args.push_back(visit(app_arg(*curr)));
             curr = &app_fn(*curr);
         }
-        expr val_new = replace_fvars(val, fvars, args.data() + (args.size() - fvars.size()));
+        m_created_delayed_subst = true;
+        expr val_new = val;
+        for (unsigned i = 0; i < fvars.size(); i++) {
+            val_new = mk_delayed_subst(val_new, fvars[i], args[args.size() - i - 1]);
+            // lean_assert(has_delayed_subst(val_new));
+        }
         return mk_rev_app(val_new, args.size() - fvars.size(), args.data());
     }
 
@@ -329,7 +511,7 @@ public:
             return e;
         bool shared = false;
         if (is_shared(e)) {
-            auto it = m_cache.find(e.raw());
+            auto it = m_cache.find(e);
             if (it != m_cache.end()) {
                 return it->second;
             }
@@ -359,7 +541,13 @@ public:
         }
     }
 
-    expr operator()(expr const & e) { return visit(e); }
+    expr operator()(expr const & e) {
+        expr r = visit(e);
+        if (m_created_delayed_subst)
+            return apply_delayed_subst(r);
+        else
+            return r;
+    }
 };
 
 extern "C" LEAN_EXPORT object * lean_instantiate_expr_mvars(object * m, object * e) {
@@ -372,9 +560,15 @@ extern "C" LEAN_EXPORT object * lean_instantiate_expr_mvars(object * m, object *
 }
 
 void initialize_instantiate_mvars() {
+    g_ds_name = new name("__delayed_subst_");
+    mark_persistent(g_ds_name->raw());
+    g_ds_const = new expr(mk_const(*g_ds_name));
+    mark_persistent(g_ds_const->raw());
 }
 
 void finalize_instantiate_mvars() {
+    delete g_ds_const;
+    delete g_ds_name;
 }
 
 }

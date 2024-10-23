@@ -37,6 +37,15 @@ bool operator<(data_value const & a, data_value const & b) {
     return false;
 }
 
+bool contains(kvmap m, name const & k) {
+    while (!is_nil(m)) {
+        if (head(m).fst() == k)
+            return true;
+        m = tail(m);
+    }
+    return false;
+}
+
 optional<data_value> find(kvmap m, name const & k) {
     while (!is_nil(m)) {
         if (head(m).fst() == k)

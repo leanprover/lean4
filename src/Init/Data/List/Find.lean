@@ -595,15 +595,14 @@ theorem findIdx_eq {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length
 
 theorem findIdx_append (p : α → Bool) (l₁ l₂ : List α) :
     (l₁ ++ l₂).findIdx p =
-      if ∃ x, x ∈ l₁ ∧ p x = true then l₁.findIdx p else l₂.findIdx p + l₁.length := by
+      if l₁.findIdx p < l₁.length then l₁.findIdx p else l₂.findIdx p + l₁.length := by
   induction l₁ with
   | nil => simp
   | cons x xs ih =>
     simp only [findIdx_cons, length_cons, cons_append]
     by_cases h : p x
     · simp [h]
-    · simp only [h, ih, cond_eq_if, Bool.false_eq_true, ↓reduceIte, mem_cons, exists_eq_or_imp,
-        false_or]
+    · simp only [h, ih, cond_eq_if, Bool.false_eq_true, ↓reduceIte, add_one_lt_add_one_iff]
       split <;> simp [Nat.add_assoc]
 
 theorem IsPrefix.findIdx_le {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :

@@ -29,7 +29,7 @@ The operations are organized as follow:
 * Lexicographic ordering: `lt`, `le`, and instances.
 * Head and tail operators: `head`, `head?`, `headD?`, `tail`, `tail?`, `tailD`.
 * Basic operations:
-  `map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `bind`, `replicate`, and
+  `map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `flatMap`, `replicate`, and
   `reverse`.
 * Additional functions defined in terms of these: `leftpad`, `rightPad`, and `reduceOption`.
 * Operations using indexes: `mapIdx`.

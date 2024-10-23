@@ -15,17 +15,24 @@ Mode](https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-devi
 which will allow Lean to create symlinks that e.g. enable go-to-definition in
 the stdlib.
 
+## Installing the Windows SDK
+
+Install the Windows SDK from [Microsoft](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/).
+The oldest supported version is 10.0.18362.0. If you installed the Windows SDK to the default location,
+then there should be a directory with the version number at `C:\Program Files (x86)\Windows Kits\10\Include`.
+If there are multiple directories, only the highest version number matters.
+
 ## Installing dependencies
 
 [The official webpage of MSYS2][msys2] provides one-click installers.
-Once installed, you should run the "MSYS2 MinGW 64-bit shell" from the start menu (the one that runs `mingw64.exe`).
-Do not run "MSYS2 MSYS" instead!
-MSYS2 has a package management system, [pacman][pacman], which is used in Arch Linux.
+Once installed, you should run the "MSYS2 CLANG64" shell from the start menu (the one that runs `clang64.exe`).
+Do not run "MSYS2 MSYS" or "MSYS2 MINGW64" instead!
+MSYS2 has a package management system, [pacman][pacman].
 
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache mingw-w64-x86_64-libuv mingw-w64-x86_64-gmp git unzip diffutils binutils
+pacman -S make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache mingw-w64-clang-x86_64-libuv mingw-w64-clang-x86_64-gmp git unzip diffutils binutils
 ```
 
 You should now be able to run these commands:
@@ -61,8 +68,7 @@ If you want a version that can run independently of your MSYS install
 then you need to copy the following dependent DLL's from where ever
 they are installed in your MSYS setup:
 
-- libgcc_s_seh-1.dll
-- libstdc++-6.dll
+- libc++.dll
 - libgmp-10.dll
 - libuv-1.dll
 - libwinpthread-1.dll
@@ -82,6 +88,6 @@ version clang to your path.
 
 **-bash: gcc: command not found**
 
-Make sure `/mingw64/bin` is in your PATH environment.  If it is not then
-check you launched the MSYS2 MinGW 64-bit shell from the start menu.
-(The one that runs `mingw64.exe`).
+Make sure `/clang64/bin` is in your PATH environment.  If it is not then
+check you launched the MSYS2 CLANG64 shell from the start menu.
+(The one that runs `clang64.exe`).

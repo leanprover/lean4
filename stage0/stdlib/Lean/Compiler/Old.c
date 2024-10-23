@@ -257,7 +257,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknow declaration '", 20, 20);
+x_1 = lean_mk_string_unchecked("unknown declaration '", 21, 21);
 return x_1;
 }
 }

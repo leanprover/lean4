@@ -20,7 +20,6 @@ open Nat
 
 /-! ## Ranges and enumeration -/
 
-
 /-! ### range' -/
 
 theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) n step := by
@@ -92,7 +91,7 @@ theorem map_add_range' (a) : ∀ s n step, map (a + ·) (range' s n step) = rang
 
 theorem range'_append : ∀ s m n step : Nat,
     range' s m step ++ range' (s + step * m) n step = range' s (n + m) step
-  | s, 0, n, step => rfl
+  | _, 0, _, _ => rfl
   | s, m + 1, n, step => by
     simpa [range', Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
       using range'_append (s + step) m n step
@@ -131,7 +130,7 @@ theorem range'_eq_cons_iff : range' s n = a :: xs ↔ s = a ∧ 0 < n ∧ xs = r
 /-! ### range -/
 
 theorem range_loop_range' : ∀ s n : Nat, range.loop s (range' s n) = range' 0 (n + s)
-  | 0, n => rfl
+  | 0, _ => rfl
   | s + 1, n => by rw [← Nat.add_assoc, Nat.add_right_comm n s 1]; exact range_loop_range' s (n + 1)
 
 theorem range_eq_range' (n : Nat) : range n = range' 0 n :=
@@ -214,9 +213,9 @@ theorem enumFrom_eq_nil {n : Nat} {l : List α} : List.enumFrom n l = [] ↔ l =
 @[simp]
 theorem getElem?_enumFrom :
     ∀ n (l : List α) m, (enumFrom n l)[m]? = l[m]?.map fun a => (n + m, a)
-  | n, [], m => rfl
-  | n, a :: l, 0 => by simp
-  | n, a :: l, m + 1 => by
+  | _, [], _ => rfl
+  | _, _ :: _, 0 => by simp
+  | n, _ :: l, m + 1 => by
     simp only [enumFrom_cons, getElem?_cons_succ]
     exact (getElem?_enumFrom (n + 1) l m).trans <| by rw [Nat.add_right_comm]; rfl
 

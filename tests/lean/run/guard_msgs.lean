@@ -141,11 +141,13 @@ info: A
 run_meta do Lean.logInfo "B"; Lean.logInfo "A"
 
 /-!
-Linter suppression
+Linter suppression. `#guard_msgs` is special-cased by the command elaborator so that linters aren't
+run on `#guard_msgs` itself, just on its command.
 -/
 
 set_option linter.unusedVariables true
 
+#guard_msgs in
 /--
 warning: unused variable `n`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
@@ -153,6 +155,7 @@ note: this linter can be disabled with `set_option linter.unusedVariables false`
 #guard_msgs in
 example (n : Nat) : True := trivial
 
+#guard_msgs in
 /--
 warning: unused variable `n`
 note: this linter can be disabled with `set_option linter.unusedVariables false`

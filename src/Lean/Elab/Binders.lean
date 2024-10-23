@@ -170,8 +170,9 @@ private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
   else
     throwUnsupportedSyntax
 
-private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
+private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit := do
   registerCustomErrorIfMVar type ref "failed to infer binder type"
+  registerLevelMVarErrorExprInfo type ref m!"failed to infer universe levels in binder type"
 
 def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
   addTermInfo' (isBinder := true) stx fvar
@@ -639,7 +640,7 @@ open Lean.Elab.Term.Quotation in
   | _ => throwUnsupportedSyntax
 
 /-- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.
-   Otherwise, we create a term of the form `(fun (x : type) => body) val`
+   Otherwise, we create a term of the form `letFun val (fun (x : type) => body)`
 
    The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
    If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
@@ -650,7 +651,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     /-
     We use `withSynthesize` to ensure that any postponed elaboration problem
     and nested tactics in `type` are resolved before elaborating `val`.
-    Resolved: we want to avoid synthethic opaque metavariables in `type`.
+    Resolved: we want to avoid synthetic opaque metavariables in `type`.
     Recall that this kind of metavariable is non-assignable, and `isDefEq`
     may waste a lot of time unfolding declarations before failing.
     See issue #4051 for an example.
@@ -670,7 +671,9 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     Recall that TC resolution does **not** produce synthetic opaque metavariables.
     -/
     let type ← withSynthesize (postpone := .partial) <| elabType typeStx
-    registerCustomErrorIfMVar type typeStx "failed to infer 'let' declaration type"
+    let letMsg := if useLetExpr then "let" else "have"
+    registerCustomErrorIfMVar type typeStx m!"failed to infer '{letMsg}' declaration type"
+    registerLevelMVarErrorExprInfo type typeStx m!"failed to infer universe levels in '{letMsg}' declaration type"
     if elabBodyFirst then
       let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type

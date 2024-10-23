@@ -57,11 +57,11 @@ non-internal `*.Lemmas` files and immediately reduce them to the results about `
 
 There are some additional indirections to this high-level strategy. First, we have an additional
 layer of so-called "model functions" on `Raw₀`, defined in the file `Internal.Model`. These have the
-same signature as their counterparts defined in this file, but may have a slighly simpler
+same signature as their counterparts defined in this file, but may have a slightly simpler
 implementation. For example, `Raw₀.erase` has a linearity optimization which is not present in the
 model function `Raw₀.eraseₘ`. We prove that the functions are equal to their model implementations
 in `Internal.Model`, then verify the model implementation. This makes the verification more robust
-against implemenation details, future performance improvements, etc.
+against implementation details, future performance improvements, etc.
 
 Second, reducing hash maps to lists only works if the hash map is well-formed. Our internal
 well-formedness predicate is called `Raw.WFImp` (defined in this file) and states that (a) each
@@ -156,7 +156,7 @@ namespace DHashMap.Internal
 
 /-- Internal implementation detail of the hash map -/
 def toListModel (buckets : Array (AssocList α β)) : List ((a : α) × β a) :=
-  buckets.toList.bind AssocList.toList
+  buckets.toList.flatMap AssocList.toList
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def computeSize (buckets : Array (AssocList α β)) : Nat :=

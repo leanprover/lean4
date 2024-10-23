@@ -17,6 +17,7 @@ Lake configuration file written in TOML.
 -/
 
 namespace Lake
+open System (FilePath)
 
 open Toml
 
@@ -270,7 +271,7 @@ protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : Exc
 instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
 protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Dependency := ensureDecode do
-  let name  ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
+  let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
   let src? : Option DependencySrc ← id do
     if let some dir ← t.tryDecode? `path then
@@ -305,10 +306,9 @@ instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.
 Load a `Package` from a TOML Lake configuration file.
 The resulting package does not yet include any dependencies.
 -/
-def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
-  let configFile := dir / relConfigFile
-  let input ← IO.FS.readFile configFile
-  let ictx := mkInputContext input relConfigFile.toString
+def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
+  let input ← IO.FS.readFile cfg.configFile
+  let ictx := mkInputContext input cfg.relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
   | .ok table =>
     let (pkg, errs) := Id.run <| StateT.run (s := (#[] : Array DecodeError)) do
@@ -316,9 +316,14 @@ def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
       let leanLibConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_lib #[]
       let leanExeConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_exe #[]
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
+      let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        dir, relDir, relConfigFile
+        dir := cfg.pkgDir
+        relDir := cfg.relPkgDir
+        relConfigFile := cfg.relConfigFile
+        scope := cfg.scope
+        remoteUrl := cfg.remoteUrl
         config, depConfigs, leanLibConfigs, leanExeConfigs
         defaultTargets
       }

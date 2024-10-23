@@ -26,8 +26,8 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
           let finfo ← getFunInfoNArgs f nargs
           let mut args  := e.getAppArgs
           for i in [:args.size] do
-            if i < finfo.paramInfo.size then
-              let info := finfo.paramInfo[i]!
+            if h : i < finfo.paramInfo.size then
+              let info := finfo.paramInfo[i]
               if !explicitOnly || info.isExplicit then
                 args ← args.modifyM i visit
             else

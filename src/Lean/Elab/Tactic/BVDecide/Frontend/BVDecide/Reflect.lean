@@ -27,6 +27,8 @@ instance : ToExpr BVBinOp where
     | .xor => mkConst ``BVBinOp.xor
     | .add => mkConst ``BVBinOp.add
     | .mul => mkConst ``BVBinOp.mul
+    | .udiv => mkConst ``BVBinOp.udiv
+    | .umod => mkConst ``BVBinOp.umod
   toTypeExpr := mkConst ``BVBinOp
 
 instance : ToExpr BVUnOp where
@@ -75,9 +77,7 @@ instance : ToExpr Gate where
   toExpr x :=
     match x with
     | .and => mkConst ``Gate.and
-    | .or => mkConst ``Gate.or
     | .xor => mkConst ``Gate.xor
-    | .imp => mkConst ``Gate.imp
     | .beq => mkConst ``Gate.beq
   toTypeExpr := mkConst ``Gate
 

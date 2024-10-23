@@ -244,9 +244,13 @@ theorem add_def (a b : Fin n) : a + b = Fin.mk ((a + b) % n) (Nat.mod_lt _ a.siz
 
 theorem val_add (a b : Fin n) : (a + b).val = (a.val + b.val) % n := rfl
 
-@[simp] protected theorem zero_add {n : Nat} [NeZero n] (i : Fin n) : (0 : Fin n) + i = i := by
+@[simp] protected theorem zero_add [NeZero n] (k : Fin n) : (0 : Fin n) + k = k := by
   ext
-  simp [Fin.add_def, Nat.mod_eq_of_lt i.2]
+  simp [Fin.add_def, Nat.mod_eq_of_lt k.2]
+
+@[simp] protected theorem add_zero [NeZero n] (k : Fin n) : k + 0 = k := by
+  ext
+  simp [add_def, Nat.mod_eq_of_lt k.2]
 
 theorem val_add_one_of_lt {n : Nat} {i : Fin n.succ} (h : i < last _) : (i + 1).1 = i + 1 := by
   match n with
@@ -582,8 +586,8 @@ theorem rev_succ (k : Fin n) : rev (succ k) = castSucc (rev k) := k.rev_addNat 1
 @[simp] theorem coe_pred (j : Fin (n + 1)) (h : j ≠ 0) : (j.pred h : Nat) = j - 1 := rfl
 
 @[simp] theorem succ_pred : ∀ (i : Fin (n + 1)) (h : i ≠ 0), (i.pred h).succ = i
-  | ⟨0, h⟩, hi => by simp only [mk_zero, ne_eq, not_true] at hi
-  | ⟨n + 1, h⟩, hi => rfl
+  | ⟨0, _⟩, hi => by simp only [mk_zero, ne_eq, not_true] at hi
+  | ⟨_ + 1, _⟩, _ => rfl
 
 @[simp]
 theorem pred_succ (i : Fin n) {h : i.succ ≠ 0} : i.succ.pred h = i := by

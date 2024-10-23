@@ -32,7 +32,6 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_lowerBound___rarg(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lake_DRBMap_isEmpty___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lake_DRBMap_fromList___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_forM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_RBNode_all___rarg(lean_object*, lean_object*);
@@ -56,7 +55,6 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_all___rarg___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_DRBMap_depth___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_instReprOfSigma___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x21___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_DRBMap_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lake_DRBMap_forM___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionDRBMap(lean_object*, lean_object*, lean_object*);
@@ -94,7 +92,6 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_instForInSigma(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lake_DRBMap_min(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_DRBMap_forIn___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_lowerBound___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_DRBMap_forIn___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DRBMap_instReprOfSigma(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DRBMap_max_x21___rarg___closed__2;
@@ -231,6 +228,7 @@ case 0:
 {
 lean_dec(x_9);
 lean_dec(x_8);
+x_2 = lean_box(0);
 x_3 = x_6;
 goto _start;
 }
@@ -249,6 +247,7 @@ default:
 {
 lean_dec(x_8);
 lean_dec(x_6);
+x_2 = lean_box(0);
 x_3 = x_9;
 goto _start;
 }
@@ -260,17 +259,8 @@ LEAN_EXPORT lean_object* l_Lake_RBNode_dFind(lean_object* x_1, lean_object* x_2)
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lake_RBNode_dFind___rarg___boxed), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Lake_RBNode_dFind___rarg), 4, 0);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_RBNode_dFind___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_5;
 }
 }
 static lean_object* _init_l_Lake_instCoeDRBMapRBMap___closed__1() {
@@ -1348,7 +1338,7 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x3f___rarg(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lake_RBNode_dFind___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_Lake_RBNode_dFind___rarg(x_1, lean_box(0), x_3, x_4);
 return x_5;
 }
 }
@@ -1356,24 +1346,15 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x3f(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lake_DRBMap_find_x3f___rarg___boxed), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Lake_DRBMap_find_x3f___rarg), 4, 0);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x3f___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_DRBMap_find_x3f___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_DRBMap_findD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lake_RBNode_dFind___rarg(x_1, x_2, x_3, x_4);
+x_6 = l_Lake_RBNode_dFind___rarg(x_1, lean_box(0), x_3, x_4);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_inc(x_5);
@@ -1403,7 +1384,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lake_DRBMap_findD___rarg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_2);
 return x_6;
 }
 }
@@ -1428,7 +1408,7 @@ LEAN_EXPORT uint8_t l_Lake_DRBMap_contains___rarg(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lake_RBNode_dFind___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_Lake_RBNode_dFind___rarg(x_1, lean_box(0), x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1457,7 +1437,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = l_Lake_DRBMap_contains___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -1924,7 +1903,7 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x21___rarg(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lake_RBNode_dFind___rarg(x_1, x_2, x_3, x_4);
+x_6 = l_Lake_RBNode_dFind___rarg(x_1, lean_box(0), x_3, x_4);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -1947,17 +1926,8 @@ LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x21(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lake_DRBMap_find_x21___rarg___boxed), 5, 0);
+x_3 = lean_alloc_closure((void*)(l_Lake_DRBMap_find_x21___rarg), 5, 0);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_DRBMap_find_x21___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lake_DRBMap_find_x21___rarg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_2);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_List_foldl___at_Lake_drbmapOf___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

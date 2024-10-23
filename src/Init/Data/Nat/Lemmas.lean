@@ -32,6 +32,77 @@ namespace Nat
 @[simp] theorem exists_add_one_eq : (∃ n, n + 1 = a) ↔ 0 < a :=
   ⟨fun ⟨n, h⟩ => by omega, fun h => ⟨a - 1, by omega⟩⟩
 
+/-- Dependent variant of `forall_lt_succ_right`. -/
+theorem forall_lt_succ_right' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∀ m (h : m < n + 1), p m h) ↔ (∀ m (h : m < n), p m (by omega)) ∧ p n (by omega) := by
+  simp only [Nat.lt_succ_iff, Nat.le_iff_lt_or_eq]
+  constructor
+  · intro w
+    constructor
+    · intro m h
+      exact w _ (.inl h)
+    · exact w _ (.inr rfl)
+  · rintro w m (h|rfl)
+    · exact w.1 _ h
+    · exact w.2
+
+/-- See `forall_lt_succ_right'` for a variant where `p` takes the bound as an argument. -/
+theorem forall_lt_succ_right {p : Nat → Prop} :
+    (∀ m, m < n + 1 → p m) ↔ (∀ m, m < n → p m) ∧ p n := by
+  simpa using forall_lt_succ_right' (p := fun m _ => p m)
+
+/-- Dependent variant of `forall_lt_succ_left`. -/
+theorem forall_lt_succ_left' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∀ m (h : m < n + 1), p m h) ↔ p 0 (by omega) ∧ (∀ m (h : m < n), p (m + 1) (by omega)) := by
+  constructor
+  · intro w
+    constructor
+    · exact w 0 (by omega)
+    · intro m h
+      exact w (m + 1) (by omega)
+  · rintro ⟨h₀, h₁⟩ m h
+    cases m with
+    | zero => exact h₀
+    | succ m => exact h₁ m (by omega)
+
+/-- See `forall_lt_succ_left'` for a variant where `p` takes the bound as an argument. -/
+theorem forall_lt_succ_left {p : Nat → Prop} :
+    (∀ m, m < n + 1 → p m) ↔ p 0 ∧ (∀ m, m < n → p (m + 1)) := by
+  simpa using forall_lt_succ_left' (p := fun m _ => p m)
+
+/-- Dependent variant of `exists_lt_succ_right`. -/
+theorem exists_lt_succ_right' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∃ m, ∃ (h : m < n + 1), p m h) ↔ (∃ m, ∃ (h : m < n), p m (by omega)) ∨ p n (by omega) := by
+  simp only [Nat.lt_succ_iff, Nat.le_iff_lt_or_eq]
+  constructor
+  · rintro ⟨m, (h|rfl), w⟩
+    · exact .inl ⟨m, h, w⟩
+    · exact .inr w
+  · rintro (⟨m, h, w⟩ | w)
+    · exact ⟨m, by omega, w⟩
+    · exact ⟨n, by omega, w⟩
+
+/-- See `exists_lt_succ_right'` for a variant where `p` takes the bound as an argument. -/
+theorem exists_lt_succ_right {p : Nat → Prop} :
+    (∃ m, m < n + 1 ∧ p m) ↔ (∃ m, m < n ∧ p m) ∨ p n := by
+  simpa using exists_lt_succ_right' (p := fun m _ => p m)
+
+/-- Dependent variant of `exists_lt_succ_left`. -/
+theorem exists_lt_succ_left' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∃ m, ∃ (h : m < n + 1), p m h) ↔ p 0 (by omega) ∨ (∃ m, ∃ (h : m < n), p (m + 1) (by omega)) := by
+  constructor
+  · rintro ⟨_|m, h, w⟩
+    · exact .inl w
+    · exact .inr ⟨m, by omega, w⟩
+  · rintro (w|⟨m, h, w⟩)
+    · exact ⟨0, by omega, w⟩
+    · exact ⟨m + 1, by omega, w⟩
+
+/-- See `exists_lt_succ_left'` for a variant where `p` takes the bound as an argument. -/
+theorem exists_lt_succ_left {p : Nat → Prop} :
+    (∃ m, m < n + 1 ∧ p m) ↔ p 0 ∨ (∃ m, m < n ∧ p (m + 1)) := by
+  simpa using exists_lt_succ_left' (p := fun m _ => p m)
+
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by
@@ -605,6 +676,9 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
     | zero => simp_all
     | succ k => omega
 
+@[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
+  rw [mul_mod, mod_mod, ← mul_mod]
+
 /-! ### pow -/
 
 theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by
@@ -767,6 +841,16 @@ protected theorem two_pow_pred_mod_two_pow (h : 0 < w) :
   rw [mod_eq_of_lt]
   apply Nat.pow_pred_lt_pow (by omega) h
 
+protected theorem pow_lt_pow_iff_pow_mul_le_pow {a n m : Nat} (h : 1 < a) :
+    a ^ n < a ^ m ↔ a ^ n * a ≤ a ^ m := by
+  rw [←Nat.pow_add_one, Nat.pow_le_pow_iff_right (by omega), Nat.pow_lt_pow_iff_right (by omega)]
+  omega
+
+@[simp]
+theorem two_pow_pred_mul_two (h : 0 < w) :
+    2 ^ (w - 1) * 2 = 2 ^ w := by
+  simp [← Nat.pow_succ, Nat.sub_add_cancel h]
+
 /-! ### log2 -/
 
 @[simp]
@@ -861,15 +945,15 @@ theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
 
 /-- Shiftleft on successor with multiple moved to outside. -/
 theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
-| m, 0 => rfl
-| m, k + 1 => by
+| _, 0 => rfl
+| _, k + 1 => by
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
 /-- Shiftright on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
-| m, 0 => rfl
-| m, k + 1 => by
+| _, 0 => rfl
+| _, k + 1 => by
   rw [shiftRight_succ _ (k+1)]
   rw [shiftRight_succ_inside _ k, shiftRight_succ]
 

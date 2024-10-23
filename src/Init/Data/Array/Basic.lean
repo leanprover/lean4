@@ -7,10 +7,11 @@ prelude
 import Init.WFTactics
 import Init.Data.Nat.Basic
 import Init.Data.Fin.Basic
-import Init.Data.UInt.Basic
+import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
+import Init.Data.List.ToArray
 universe u v w
 
 /-! ### Array literal syntax -/
@@ -23,6 +24,8 @@ macro_rules
 variable {α : Type u}
 
 namespace Array
+
+@[deprecated size (since := "2024-10-13")] abbrev data := @toList
 
 /-! ### Preliminary theorems -/
 
@@ -73,10 +76,29 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := by
-  simp [List.toArray, Array.mkEmpty]
+@[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
 
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
+
+@[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+end Array
+
+namespace List
+
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
+
+@[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
+    a.toArray[i] = a[i]'(by simpa using h) := rfl
+
+@[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
+
+@[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
+    a.toArray[i]! = a[i]! := rfl
+
+end List
+
+namespace Array
 
 @[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @toList_toArray
 
@@ -162,19 +184,16 @@ instance : Inhabited (Array α) where
 @[simp] def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
--- TODO(Leo): cleanup
 @[specialize]
-def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
-  if h : i < a.size then
-     have : i < b.size := hsz ▸ h
-     p a[i] b[i] && isEqvAux a b hsz p (i+1)
-  else
-    true
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) :
+    ∀ (i : Nat) (_ : i ≤ a.size), Bool
+  | 0, _ => true
+  | i+1, h =>
+    p a[i] (b[i]'(hsz ▸ h)) && isEqvAux a b hsz p i (Nat.le_trans (Nat.le_add_right i 1) h)
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
-    isEqvAux a b h p 0
+    isEqvAux a b h p a.size (Nat.le_refl a.size)
   else
     false
 
@@ -188,9 +207,10 @@ ofFn f = #[f 0, f 1, ... , f(n - 1)]
 ``` -/
 def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
   /-- Auxiliary for `ofFn`. `ofFn.go f i acc = acc ++ #[f i, ..., f(n - 1)]` -/
+  @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   go (i : Nat) (acc : Array α) : Array α :=
     if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+  decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 /-- The array `#[0, 1, ..., n - 1]`. -/
 def range (n : Nat) : Array Nat :=
@@ -218,14 +238,17 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
     swapAt a ⟨i, h⟩ v
   else
-    have : Inhabited α := ⟨v⟩
+    have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
-def shrink (a : Array α) (n : Nat) : Array α :=
+/-- `take a n` returns the first `n` elements of `a`. -/
+def take (a : Array α) (n : Nat) : Array α :=
   let rec loop
     | 0,   a => a
     | n+1, a => loop n a.pop
   loop (a.size - n) a
+
+@[deprecated take (since := "2024-10-22")] abbrev shrink := @take
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -389,27 +412,33 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   -- Note: we cannot use `foldlM` here for the reference implementation because this calls
   -- `bind` and `pure` too many times. (We are not assuming `m` is a `LawfulMonad`)
-  let rec map (i : Nat) (r : Array β) : m (Array β) := do
-    if hlt : i < as.size then
-      map (i+1) (r.push (← f as[i]))
-    else
-      pure r
+  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
+    map (i : Nat) (r : Array β) : m (Array β) := do
+      if hlt : i < as.size then
+        map (i+1) (r.push (← f as[i]))
+      else
+        pure r
   decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (mkEmpty as.size)
 
+/-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
+def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
+    (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
     match i, inv with
     | 0,    _  => pure bs
     | i+1, inv =>
-      have : j < as.size := by
+      have j_lt : j < as.size := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
-      let idx : Fin as.size := ⟨j, this⟩
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f idx (as.get idx)))
+      map i (j+1) this (bs.push (← f ⟨j, j_lt⟩ (as.get ⟨j, j_lt⟩)))
   map as.size 0 rfl (mkEmpty as.size)
+
+@[inline]
+def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Nat → α → m β) : m (Array β) :=
+  as.mapFinIdxM fun i a => f i a
 
 @[inline]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) := do
@@ -457,7 +486,8 @@ unsafe def anyMUnsafe {α : Type u} {m : Type → Type w} [Monad m] (p : α → 
 @[implemented_by anyMUnsafe]
 def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
   let any (stop : Nat) (h : stop ≤ as.size) :=
-    let rec loop (j : Nat) : m Bool := do
+    let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
+    loop (j : Nat) : m Bool := do
       if hlt : j < stop then
         have : j < as.size := Nat.lt_of_lt_of_le hlt h
         if (← p as[j]) then
@@ -515,8 +545,13 @@ def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : A
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f
 
+/-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+  Id.run <| as.mapFinIdxM f
+
+@[inline]
+def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Nat → α → β) : Array β :=
   Id.run <| as.mapIdxM f
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
@@ -547,7 +582,8 @@ def findRev? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
 
 @[inline]
 def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
-  let rec loop (j : Nat) :=
+  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
+  loop (j : Nat) :=
     if h : j < as.size then
       if p as[j] then some j else loop (j + 1)
     else none
@@ -557,6 +593,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
   a.findIdx? fun a => a == v
 
+@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
   if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩;
@@ -605,18 +642,22 @@ protected def appendList (as : Array α) (bs : List α) : Array α :=
 instance : HAppend (Array α) (List α) (Array α) := ⟨Array.appendList⟩
 
 @[inline]
-def concatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
+def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
+@[deprecated concatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
+
 @[inline]
-def concatMap (f : α → Array β) (as : Array α) : Array β :=
+def flatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
+
+@[deprecated flatMap (since := "2024-10-16")] abbrev concatMap := @flatMap
 
 /-- Joins array of array into a single array.
 
 `flatten #[#[a₁, a₂, ⋯], #[b₁, b₂, ⋯], ⋯]` = `#[a₁, a₂, ⋯, b₁, b₂, ⋯]`
 -/
-def flatten (as : Array (Array α)) : Array α :=
+@[inline] def flatten (as : Array (Array α)) : Array α :=
   as.foldl (init := empty) fun r a => r ++ a
 
 @[inline]
@@ -678,6 +719,7 @@ where
     else
       as
 
+@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then
     if p (as.get ⟨as.size - 1, Nat.sub_lt h (by decide)⟩) then
@@ -689,7 +731,8 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
-  let rec go (i : Nat) (r : Array α) : Array α :=
+  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
+  go (i : Nat) (r : Array α) : Array α :=
     if h : i < as.size then
       let a := as.get ⟨i, h⟩
       if p a then
@@ -705,6 +748,7 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
 
   This function takes worst case O(n) time because
   it has to backshift all elements at positions greater than `i`.-/
+@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   if h : i.val + 1 < a.size then
     let a' := a.swap ⟨i.val + 1, h⟩ i
@@ -716,7 +760,7 @@ termination_by a.size - i.val
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
+@[simp] theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with
   | @case1 a i h a' _ ih =>
     unfold feraseIdx
@@ -739,7 +783,8 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
 
 /-- Insert element `a` at position `i`. -/
 @[inline] def insertAt (as : Array α) (i : Fin (as.size + 1)) (a : α) : Array α :=
-  let rec loop (as : Array α) (j : Fin as.size) :=
+  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
+  loop (as : Array α) (j : Fin as.size) :=
     if i.1 < j then
       let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
       let as := as.swap j' j
@@ -757,6 +802,7 @@ def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
     insertAt as ⟨i, Nat.lt_succ_of_le h⟩ a
   else panic! "invalid index"
 
+@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then
     let a := as[i]
@@ -778,7 +824,8 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   else
     false
 
-@[specialize] def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) : Array γ :=
+@[semireducible, specialize] -- This is otherwise irreducible because it uses well-founded recursion.
+def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) : Array γ :=
   if h : i < as.size then
     let a := as[i]
     if h : i < bs.size then
@@ -803,10 +850,32 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
 
-/-! ### Auxiliary functions used in metaprogramming.
+/-! ## Auxiliary functions used in metaprogramming.
 
-We do not intend to provide verification theorems for these functions.
+We do not currently intend to provide verification theorems for these functions.
 -/
+
+/- ### reduceOption -/
+
+/-- Drop `none`s from a Array, and replace each remaining `some a` with `a`. -/
+@[inline] def reduceOption (as : Array (Option α)) : Array α :=
+  as.filterMap id
+
+/-! ### eraseReps -/
+
+/--
+`O(|l|)`. Erase repeated adjacent elements. Keeps the first occurrence of each run.
+* `eraseReps #[1, 3, 2, 2, 2, 3, 5] = #[1, 3, 2, 3, 5]`
+-/
+def eraseReps {α} [BEq α] (as : Array α) : Array α :=
+  if h : 0 < as.size then
+    let ⟨last, r⟩ := as.foldl (init := (as[0], #[])) fun ⟨last, r⟩ a =>
+      if a == last then ⟨last, r⟩ else ⟨a, r.push last⟩
+    r.push last
+  else
+    #[]
+
+/-! ### allDiff -/
 
 private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), i < as.size → Bool
   | 0,   _ => true
@@ -814,6 +883,7 @@ private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), 
     have : i < as.size := Nat.lt_trans (Nat.lt_succ_self _) h;
     a != as[i] && allDiffAuxAux as a i this
 
+@[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
   if h : i < as.size then
     allDiffAuxAux as as[i] i h && allDiffAux as (i+1)
@@ -823,6 +893,8 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
+
+/-! ### getEvenElems -/
 
 @[inline] def getEvenElems (as : Array α) : Array α :=
   (·.2) <| as.foldl (init := (true, Array.empty)) fun (even, r) a =>

@@ -17,7 +17,7 @@ private def shouldBetaReduce (e : Expr) (recFnNames : Array Name) : Bool :=
     false
 
 /--
-Preprocesses the expessions to improve the effectiveness of `wfRecursion`.
+Preprocesses the expressions to improve the effectiveness of `wfRecursion`.
 
 * Floats out the RecApp markers.
   Example:

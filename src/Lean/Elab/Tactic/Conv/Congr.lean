@@ -77,7 +77,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
 
 -- mvarIds is the list of goals produced by congr. We only want to change the one at position `i`
 -- so this closes all other equality goals with `rfl.`. There are non-equality goals produced
--- by `congr` (e.g. dependent instances), thes are kept as goals.
+-- by `congr` (e.g. dependent instances), these are kept as goals.
 private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
   TacticM Unit := do
   if i >= 0 then

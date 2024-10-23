@@ -1,7 +1,7 @@
 import Lean
 open Lean Elab Tactic
 
-macro "obviously1" : tactic => `(tactic| exact sorryAx _)
+macro "obviously1" : tactic => `(tactic| exact sorryAx _ false)
 
 theorem result1 : False := by obviously1
 

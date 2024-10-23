@@ -77,7 +77,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       if !indIndices.all Expr.isFVar then
         throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
       else if !indIndices.allDiff then
-        throwError " its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
+        throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
       else
         let indexMinPos := getIndexMinPos xs indIndices
         let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
@@ -119,7 +119,7 @@ def getRecArgInfos (fnName : Name) (xs : Array Expr) (value : Expr)
     (termArg? : Option TerminationArgument) : MetaM (Array RecArgInfo × MessageData) := do
   lambdaTelescope value fun ys _ => do
     if let .some termArg := termArg? then
-      -- User explictly asked to use a certain argument, so throw errors eagerly
+      -- User explicitly asked to use a certain argument, so throw errors eagerly
       let recArgInfo ← withRef termArg.ref do
         mapError (f := (m!"cannot use specified parameter for structural recursion:{indentD ·}")) do
           getRecArgInfo fnName xs.size (xs ++ ys) (← termArg.structuralArg)
@@ -189,7 +189,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     if (← group.isDefEq recArgInfo.indGroupInst) then
       return (.some recArgInfo)
 
-    -- Can this argument be understood as the auxillary type former of a nested inductive?
+    -- Can this argument be understood as the auxiliary type former of a nested inductive?
     if nestedTypeFormers.isEmpty then return .none
     lambdaTelescope value fun ys _ => do
       let x := (xs++ys)[recArgInfo.recArgPos]!
@@ -226,7 +226,7 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
   else
     let rec go i acc : Array (Array α):=
       if h : i < xss.size then
-        xss[i].concatMap fun x => go (i + 1) (acc.push x)
+        xss[i].flatMap fun x => go (i + 1) (acc.push x)
       else
         #[acc]
     some (go 0 #[])

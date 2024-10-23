@@ -25,7 +25,7 @@ open DefaultClause DefaultFormula Assignment
 This invariant states that if the `assignments` field of a default formula `f` indicates that `f`
 contains an assignment `b` at index `i`, then the unit literal `(i, b)` must be included in `f`.
 Default formulas are expected to satisfy this invariant at all times except during intermediate
-stages of unit propogation (during which, default formulas are only expected to satisfy the more
+stages of unit propagation (during which, default formulas are only expected to satisfy the more
 lenient `AssignmentsInvariant` defined below).
 -/
 def StrongAssignmentsInvariant {n : Nat} (f : DefaultFormula n) : Prop :=
@@ -136,12 +136,10 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
           exact ih.2 i b h
         | some (l, true) =>
           simp only [heq] at h
-          have i_in_bounds : i.1 < acc.size := by simp only [ih.1, i.2.2]
-          have l_in_bounds : l.1 < acc.size := by simp only [ih.1, l.2.2]
           rcases ih with ⟨hsize, ih⟩
           by_cases i = l.1
           · next i_eq_l =>
-            simp only [i_eq_l, Array.getElem_modify_self l_in_bounds] at h
+            simp only [i_eq_l, Array.getElem_modify_self] at h
             by_cases b
             · next b_eq_true =>
               rw [isUnit_iff, DefaultClause.toList] at heq
@@ -160,16 +158,14 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               rw [b_eq_false, Subtype.ext i_eq_l]
               exact ih h
           · next i_ne_l =>
-            simp only [Array.getElem_modify_of_ne i_in_bounds _ (Ne.symm i_ne_l)] at h
+            simp only [Array.getElem_modify_of_ne (Ne.symm i_ne_l)] at h
             exact ih i b h
         | some (l, false) =>
           simp only [heq] at h
-          have i_in_bounds : i.1 < acc.size := by simp only [ih.1, i.2.2]
-          have l_in_bounds : l.1 < acc.size := by simp only [ih.1, l.2.2]
           rcases ih with ⟨hsize, ih⟩
           by_cases i = l.1
           · next i_eq_l =>
-            simp only [i_eq_l, Array.getElem_modify_self l_in_bounds] at h
+            simp only [i_eq_l, Array.getElem_modify_self] at h
             by_cases b
             · next b_eq_true =>
               simp only [hasAssignment, b_eq_true, ite_true, hasPos_addNeg] at h
@@ -187,7 +183,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
               rw [c_def] at cOpt_in_arr
               exact cOpt_in_arr
           · next i_ne_l =>
-            simp only [Array.getElem_modify_of_ne i_in_bounds _ (Ne.symm i_ne_l)] at h
+            simp only [Array.getElem_modify_of_ne (Ne.symm i_ne_l)] at h
             exact ih i b h
     rcases List.foldlRecOn arr.toList ofArray_fold_fn (mkArray n unassigned) hb hl with ⟨_h_size, h'⟩
     intro i b h
@@ -281,7 +277,6 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     intro i b hb
     have hf := f_readyForRupAdd.2.2 i b
     have i_in_bounds : i.1 < f.assignments.size := by rw [f_readyForRupAdd.2.1]; exact i.2.2
-    have l_in_bounds : l.1 < f.assignments.size := by rw [f_readyForRupAdd.2.1]; exact l.2.2
     simp only at hb
     by_cases (i, b) = (l, true)
     · next ib_eq_c =>
@@ -292,7 +287,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
       apply DefaultClause.ext
       simp only [unit, hc]
     · next ib_ne_c =>
-      have hb' : hasAssignment b (f.assignments[i.1]'i_in_bounds) := by
+      have hb' : hasAssignment b f.assignments[i.1] := by
         by_cases l.1 = i.1
         · next l_eq_i =>
           have b_eq_false : b = false := by
@@ -302,10 +297,10 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
             · next b_eq_false =>
               simp only [Bool.not_eq_true] at b_eq_false
               exact b_eq_false
-          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self i_in_bounds, ite_false, hasNeg_addPos, reduceCtorEq] at hb
+          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self, ite_false, hasNeg_addPos, reduceCtorEq] at hb
           simp only [hasAssignment, b_eq_false, ite_false, hb, reduceCtorEq]
         · next l_ne_i =>
-          simp only [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i] at hb
+          simp only [Array.getElem_modify_of_ne l_ne_i] at hb
           exact hb
       specialize hf hb'
       simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
@@ -322,7 +317,6 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
     intro i b hb
     have hf := f_readyForRupAdd.2.2 i b
     have i_in_bounds : i.1 < f.assignments.size := by rw [f_readyForRupAdd.2.1]; exact i.2.2
-    have l_in_bounds : l.1 < f.assignments.size := by rw [f_readyForRupAdd.2.1]; exact l.2.2
     simp only at hb
     by_cases (i, b) = (l, false)
     · next ib_eq_c =>
@@ -333,7 +327,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
       apply DefaultClause.ext
       simp only [unit, hc]
     · next ib_ne_c =>
-      have hb' : hasAssignment b (f.assignments[i.1]'i_in_bounds) := by
+      have hb' : hasAssignment b f.assignments[i.1] := by
         by_cases l.1 = i.1
         · next l_eq_i =>
           have b_eq_false : b = true := by
@@ -341,10 +335,10 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
             · assumption
             · next b_eq_false =>
               simp only [b_eq_false, Subtype.ext l_eq_i, not_true] at ib_ne_c
-          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self i_in_bounds, ite_true, hasPos_addNeg] at hb
+          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self, ite_true, hasPos_addNeg] at hb
           simp only [hasAssignment, b_eq_false, ite_true, hb]
         · next l_ne_i =>
-          simp only [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i] at hb
+          simp only [Array.getElem_modify_of_ne l_ne_i] at hb
           exact hb
       specialize hf hb'
       simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
@@ -471,14 +465,14 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
       simp only [deleteOne, heq, hl] at hb
       by_cases l.1.1 = i.1
       · next l_eq_i =>
-        simp only [l_eq_i, Array.getElem_modify_self i_in_bounds] at hb
+        simp only [l_eq_i, Array.getElem_modify_self] at hb
         have l_ne_b : l.2 ≠ b := by
           intro l_eq_b
           rw [← l_eq_b] at hb
           have hb' := not_has_remove f.assignments[i.1] l.2
           simp [hb] at hb'
         replace l_ne_b := Bool.eq_not_of_ne l_ne_b
-        rw [l_ne_b] at hb
+        simp only [l_ne_b] at hb
         have hb := has_remove_irrelevant f.assignments[i.1] b hb
         specialize hf i b hb
         simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
@@ -500,11 +494,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                have f_clauses_rw : f.clauses = { toList := f.clauses.toList } := rfl
-                conv => rhs; rw [f_clauses_rw, Array.size_mk]
+                conv => rhs; rw [Array.size_mk]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_toList_getElem, decidableGetElem?] at heq
+              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
+                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               simp only [← heq] at l_ne_b
@@ -513,7 +506,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           · exact hf
         · exact Or.inr hf
       · next l_ne_i =>
-        simp only [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i] at hb
+        simp only [Array.getElem_modify_of_ne l_ne_i] at hb
         specialize hf i b hb
         simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool] at hf
@@ -534,11 +527,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                have f_clauses_rw : f.clauses = { toList := f.clauses.toList } := rfl
-                conv => rhs; rw [f_clauses_rw, Array.size_mk]
+                conv => rhs; rw [Array.size_mk]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_toList_getElem, decidableGetElem?] at heq
+              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
+                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               have i_eq_l : i = l.1 := by rw [← heq]
@@ -595,11 +587,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                have f_clauses_rw : f.clauses = { toList := f.clauses.toList } := rfl
-                conv => rhs; rw [f_clauses_rw, Array.size_mk]
+                conv => rhs; rw [Array.size_mk]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.toList_length, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_toList_getElem, decidableGetElem?] at heq
+              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
+                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
               rw [hidx] at heq
               simp only [Option.some.injEq] at heq
               rw [← heq] at hl

@@ -84,7 +84,7 @@ decreasing_by apply div_rec_lemma; assumption
 protected def mod : @& Nat → @& Nat → Nat
   /-
   Nat.modCore is defined by well-founded recursion and thus irreducible. Nevertheless it is
-  desireable if trivial `Nat.mod` calculations, namely
+  desirable if trivial `Nat.mod` calculations, namely
   * `Nat.mod 0 m` for all `m`
   * `Nat.mod n (m+n)` for concrete literals `n`
   reduce definitionally.
@@ -269,7 +269,7 @@ protected theorem div_div_eq_div_mul (m n k : Nat) : m / n / k = m / (n * k) := 
 
 theorem div_mul_le_self : ∀ (m n : Nat), m / n * n ≤ m
   | m, 0   => by simp
-  | m, n+1 => (le_div_iff_mul_le (Nat.succ_pos _)).1 (Nat.le_refl _)
+  | _, _+1 => (le_div_iff_mul_le (Nat.succ_pos _)).1 (Nat.le_refl _)
 
 theorem div_lt_iff_lt_mul (Hk : 0 < k) : x / k < y ↔ x < y * k := by
   rw [← Nat.not_le, ← Nat.not_le]; exact not_congr (le_div_iff_mul_le Hk)

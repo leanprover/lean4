@@ -37,6 +37,8 @@ inductive NoLE
 | mk : NoLE
 
 /--
+error: could not synthesize default value for parameter 'le' using tactics
+---
 error: failed to synthesize
   LE NoLE
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
@@ -51,6 +53,8 @@ instance : LE UndecidableLE where
   le := fun _ _ => true
 
 /--
+error: could not synthesize default value for parameter 'le' using tactics
+---
 error: type mismatch
   a ≤ b
 has type

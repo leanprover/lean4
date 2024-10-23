@@ -39,27 +39,26 @@ theorem contradiction_of_insertUnit_success {n : Nat} (assignments : Array Assig
     rcases insertUnit_success with foundContradiction_eq_true | assignments_l_ne_unassigned
     · simp only [insertUnit, hl, ite_false]
       rcases h foundContradiction_eq_true with ⟨i, h⟩
-      have i_in_bounds : i.1 < assignments.size := by rw [assignments_size]; exact i.2.2
       apply Exists.intro i
       by_cases l.1.1 = i.1
       · next l_eq_i =>
-        simp [l_eq_i, Array.getElem_modify_self i_in_bounds, h]
+        simp [l_eq_i, Array.getElem_modify_self, h]
         exact add_both_eq_both l.2
       · next l_ne_i =>
-        simp [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i]
+        simp [Array.getElem_modify_of_ne l_ne_i]
         exact h
     · apply Exists.intro l.1
-      simp only [insertUnit, hl, ite_false, Array.getElem_modify_self l_in_bounds, reduceCtorEq]
+      simp only [insertUnit, hl, ite_false, Array.getElem_modify_self, reduceCtorEq]
       simp only [getElem!, l_in_bounds, dite_true, decidableGetElem?] at assignments_l_ne_unassigned
       by_cases l.2
       · next l_eq_true =>
-        rw [l_eq_true]
+        simp only [l_eq_true]
         simp only [hasAssignment, l_eq_true, hasPosAssignment, getElem!, l_in_bounds, dite_true, ite_true,
           Bool.not_eq_true, decidableGetElem?] at hl
         split at hl <;> simp_all (config := { decide := true })
       · next l_eq_false =>
         simp only [Bool.not_eq_true] at l_eq_false
-        rw [l_eq_false]
+        simp only [l_eq_false]
         simp [hasAssignment, l_eq_false, hasNegAssignment, getElem!, l_in_bounds, decidableGetElem?] at hl
         split at hl <;> simp_all (config := { decide := true })
 
@@ -543,8 +542,8 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
 theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array Assignment) :
     (reduce c assignment = reducedToEmpty → Incompatible (PosFin n) c assignment) ∧
     (∀ l : Literal (PosFin n), reduce c assignment = reducedToUnit l → ∀ (p : (PosFin n) → Bool), p ⊨ assignment → p ⊨ c → p ⊨ l) := by
-  let c_arr := Array.mk c.clause
-  have c_clause_rw : c.clause = c_arr.toList := rfl
+  let c_arr := c.clause.toArray
+  have c_clause_rw : c.clause = c_arr.toList := by simp [c_arr]
   rw [reduce, c_clause_rw, ← Array.foldl_eq_foldl_toList]
   let motive := ReducePostconditionInductionMotive c_arr assignment
   have h_base : motive 0 reducedToEmpty := by
@@ -571,7 +570,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         rw [c_clause_rw] at pc1
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, false) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-          rw [← Array.getElem_fin_eq_toList_get] at hidx
+          simp only [List.get_eq_getElem] at hidx
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2
@@ -581,7 +580,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         rw [c_clause_rw] at pc1
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, true) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-          rw [← Array.getElem_fin_eq_toList_get] at hidx
+          simp only [List.get_eq_getElem] at hidx
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2
@@ -596,7 +595,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
       rw [c_clause_rw] at pc1
       have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, false) := by
         rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-        rw [← Array.getElem_fin_eq_toList_get] at hidx
+        simp only [List.get_eq_getElem] at hidx
         exact Exists.intro idx hidx
       rcases idx_exists with ⟨idx, hidx⟩
       apply Exists.intro idx ∘ And.intro idx.2
@@ -607,7 +606,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
       rw [c_clause_rw] at pc1
       have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, true) := by
         rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-        rw [← Array.getElem_fin_eq_toList_get] at hidx
+        simp only [List.get_eq_getElem] at hidx
         exact Exists.intro idx hidx
       rcases idx_exists with ⟨idx, hidx⟩
       apply Exists.intro idx ∘ And.intro idx.2
@@ -681,7 +680,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
           by_cases l.1 = i.1
           · next l_eq_i =>
             simp only [getElem!, Array.size_modify, i_in_bounds, ↓ reduceDIte,
-              Array.get_eq_getElem, l_eq_i, Array.getElem_modify_self i_in_bounds (addAssignment b), decidableGetElem?]
+              Array.get_eq_getElem, l_eq_i, Array.getElem_modify_self (addAssignment b), decidableGetElem?]
             simp only [getElem!, i_in_bounds, dite_true, Array.get_eq_getElem, decidableGetElem?] at pacc
             by_cases pi : p i
             · simp only [pi, decide_False]
@@ -705,7 +704,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
                 exact pacc
           · next l_ne_i =>
             simp only [getElem!, Array.size_modify, i_in_bounds,
-              Array.getElem_modify_of_ne i_in_bounds _ l_ne_i, dite_true,
+              Array.getElem_modify_of_ne l_ne_i, dite_true,
               Array.get_eq_getElem, decidableGetElem?]
             simp only [getElem!, i_in_bounds, dite_true, decidableGetElem?] at pacc
             exact pacc

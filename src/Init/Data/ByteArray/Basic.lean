@@ -245,7 +245,7 @@ On an invalid position, returns `(default : UInt8)`. -/
 @[inline]
 def curr : Iterator → UInt8
   | ⟨arr, i⟩ =>
-    if h:i < arr.size then
+    if h : i < arr.size then
       arr[i]'h
     else
       default

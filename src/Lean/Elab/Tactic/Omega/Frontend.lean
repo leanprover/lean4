@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.Elab.Tactic.Omega.Core
@@ -277,6 +277,7 @@ where
       | _ => mkAtomLinearCombo e
     | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
     | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
+    | (``Int.toNat, #[n]) => rewrite e (mkApp (.const ``Int.toNat_eq_max []) n)
     | (``HShiftLeft.hShiftLeft, #[_, _, _, _, a, b]) =>
       rewrite e (mkApp2 (.const ``Int.ofNat_shiftLeft_eq []) a b)
     | (``HShiftRight.hShiftRight, #[_, _, _, _, a, b]) =>
@@ -322,7 +323,7 @@ where
 end
 namespace MetaProblem
 
-/-- The trivial `MetaProblem`, with no facts to processs and a trivial `Problem`. -/
+/-- The trivial `MetaProblem`, with no facts to process and a trivial `Problem`. -/
 def trivial : MetaProblem where
   problem := {}
 

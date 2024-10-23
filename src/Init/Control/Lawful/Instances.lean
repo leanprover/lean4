@@ -25,7 +25,7 @@ theorem ext {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
 @[simp] theorem run_throw [Monad m] : run (throw e : ExceptT ε m β) = pure (Except.error e) := rfl
 
 @[simp] theorem run_bind_lift [Monad m] [LawfulMonad m] (x : m α) (f : α → ExceptT ε m β) : run (ExceptT.lift x >>= f : ExceptT ε m β) = x >>= fun a => run (f a) := by
-  simp[ExceptT.run, ExceptT.lift, bind, ExceptT.bind, ExceptT.mk, ExceptT.bindCont, map_eq_pure_bind]
+  simp [ExceptT.run, ExceptT.lift, bind, ExceptT.bind, ExceptT.mk, ExceptT.bindCont]
 
 @[simp] theorem bind_throw [Monad m] [LawfulMonad m] (f : α → ExceptT ε m β) : (throw e >>= f) = throw e := by
   simp [throw, throwThe, MonadExceptOf.throw, bind, ExceptT.bind, ExceptT.bindCont, ExceptT.mk]
@@ -43,7 +43,7 @@ theorem run_bind [Monad m] (x : ExceptT ε m α)
 
 @[simp] theorem run_map [Monad m] [LawfulMonad m] (f : α → β) (x : ExceptT ε m α)
     : (f <$> x).run = Except.map f <$> x.run := by
-  simp [Functor.map, ExceptT.map, map_eq_pure_bind]
+  simp [Functor.map, ExceptT.map, ←bind_pure_comp]
   apply bind_congr
   intro a; cases a <;> simp [Except.map]
 
@@ -62,7 +62,7 @@ protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad 
   intro
   | Except.error _ => simp
   | Except.ok _ =>
-    simp [map_eq_pure_bind]; apply bind_congr; intro b;
+    simp [←bind_pure_comp]; apply bind_congr; intro b;
     cases b <;> simp [comp, Except.map, const]
 
 protected theorem seqRight_eq [Monad m] [LawfulMonad m] (x : ExceptT ε m α) (y : ExceptT ε m β) : x *> y = const α id <$> x <*> y := by
@@ -84,14 +84,19 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
   pure_bind      := by intros; apply ext; simp [run_bind]
   bind_assoc     := by intros; apply ext; simp [run_bind]; apply bind_congr; intro a; cases a <;> simp
 
+@[simp] theorem map_throw [Monad m] [LawfulMonad m] {α β : Type _} (f : α → β) (e : ε) :
+    f <$> (throw e : ExceptT ε m α) = (throw e : ExceptT ε m β) := by
+  simp only [ExceptT.instMonad, ExceptT.map, ExceptT.mk, throw, throwThe, MonadExceptOf.throw,
+    pure_bind]
+
 end ExceptT
 
 /-! # Except -/
 
 instance : LawfulMonad (Except ε) := LawfulMonad.mk'
   (id_map := fun x => by cases x <;> rfl)
-  (pure_bind := fun a f => rfl)
-  (bind_assoc := fun a f g => by cases a <;> rfl)
+  (pure_bind := fun _ _ => rfl)
+  (bind_assoc := fun a _ _ => by cases a <;> rfl)
 
 instance : LawfulApplicative (Except ε) := inferInstance
 instance : LawfulFunctor (Except ε) := inferInstance
@@ -175,7 +180,7 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
   simp [bind, StateT.bind, run]
 
 @[simp] theorem run_map {α β σ : Type u} [Monad m] [LawfulMonad m] (f : α → β) (x : StateT σ m α) (s : σ) : (f <$> x).run s = (fun (p : α × σ) => (f p.1, p.2)) <$> x.run s := by
-  simp [Functor.map, StateT.map, run, map_eq_pure_bind]
+  simp [Functor.map, StateT.map, run, ←bind_pure_comp]
 
 @[simp] theorem run_get [Monad m] (s : σ)    : (get : StateT σ m σ).run s = pure (s, s) := rfl
 
@@ -210,13 +215,13 @@ theorem run_bind_lift {α σ : Type u} [Monad m] [LawfulMonad m] (x : m α) (f :
 
 theorem seqRight_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) : x *> y = const α id <$> x <*> y := by
   apply ext; intro s
-  simp [map_eq_pure_bind, const]
+  simp [←bind_pure_comp, const]
   apply bind_congr; intro p; cases p
   simp [Prod.eta]
 
 theorem seqLeft_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) : x <* y = const β <$> x <*> y := by
   apply ext; intro s
-  simp [map_eq_pure_bind]
+  simp [←bind_pure_comp]
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
   id_map         := by intros; apply ext; intros; simp[Prod.eta]
@@ -224,7 +229,7 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
   seqLeft_eq     := seqLeft_eq
   seqRight_eq    := seqRight_eq
   pure_seq       := by intros; apply ext; intros; simp
-  bind_pure_comp := by intros; apply ext; intros; simp; apply LawfulMonad.bind_pure_comp
+  bind_pure_comp := by intros; apply ext; intros; simp
   bind_map       := by intros; rfl
   pure_bind      := by intros; apply ext; intros; simp
   bind_assoc     := by intros; apply ext; intros; simp

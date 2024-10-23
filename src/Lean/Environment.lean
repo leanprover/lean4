@@ -451,7 +451,7 @@ modify it, use `PersistentEnvExtension.addEntry`, with an `addEntryFn` that perf
 modification.
 
 When a module is loaded, the values saved by all of its dependencies for this
-`PersistentEnvExtension` are are available as an `Array (Array α)` via the environment extension,
+`PersistentEnvExtension` are available as an `Array (Array α)` via the environment extension,
 with one array per transitively imported module. The state of type `σ` used in the current module
 can be initialized from these imports by specifying a suitable `addImportedFn`. The `addImportedFn`
 runs at the beginning of elaboration for every module, so it's usually better for performance to
@@ -515,11 +515,11 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
   (ext.toEnvExtension.getState env).state
 
-/-- Set the current state of the given extension in the given environment. This change is *not* persisted across files. -/
+/-- Set the current state of the given extension in the given environment. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with  state := s }
 
-/-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
+/-- Modify the state of the given extension in the given environment by applying the given function. -/
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with state := f (ps.state) }
 
@@ -718,7 +718,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   saveModuleData fname env.mainModule (← mkModuleData env)
 
 /--
-Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
+Construct a mapping from persistent extension name to extension index at the array of persistent extensions.
 We only consider extensions starting with index `>= startingAt`.
 -/
 def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
@@ -765,8 +765,8 @@ where
   loop (i : Nat) (env : Environment) : IO Environment := do
     -- Recall that the size of the array stored `persistentEnvExtensionRef` may increase when we import user-defined environment extensions.
     let pExtDescrs ← persistentEnvExtensionsRef.get
-    if i < pExtDescrs.size then
-      let extDescr := pExtDescrs[i]!
+    if h : i < pExtDescrs.size then
+      let extDescr := pExtDescrs[i]
       let s := extDescr.toEnvExtension.getState env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
@@ -858,7 +858,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.empty (capacity := numConsts)
   let mut constantMap : Std.HashMap Name ConstantInfo := Std.HashMap.empty (capacity := numConsts)
-  for h:modIdx in [0:s.moduleData.size] do
+  for h : modIdx in [0:s.moduleData.size] do
     let mod := s.moduleData[modIdx]'h.upper
     for cname in mod.constNames, cinfo in mod.constants do
       match constantMap.getThenInsertIfNew? cname cinfo with
@@ -1095,6 +1095,13 @@ def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
 opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
+
+/--
+  Kernel typecheck function. We use it mainly for debugging purposes.
+  Recall that the Kernel type checker does not support metavariables.
+  When implementing automation, consider using the `MetaM` methods. -/
+@[extern "lean_kernel_check"]
+opaque check (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
 
 end Kernel
 

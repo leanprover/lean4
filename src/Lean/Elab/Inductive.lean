@@ -168,8 +168,8 @@ private def checkHeader (r : ElabHeaderResult) (numParams : Nat) (firstType? : O
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private partial def checkHeaders (rs : Array ElabHeaderResult) (numParams : Nat) (i : Nat) (firstType? : Option Expr) : TermElabM Unit := do
-  if i < rs.size then
-    let type ← checkHeader rs[i]! numParams firstType?
+  if h : i < rs.size then
+    let type ← checkHeader rs[i] numParams firstType?
     checkHeaders rs numParams (i+1) type
 
 private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHeaderResult) := do
@@ -222,11 +222,11 @@ private def replaceArrowBinderNames (type : Expr) (newNames : Array Name) : Expr
   go type 0
 where
   go (type : Expr) (i : Nat) : Expr :=
-    if i < newNames.size then
+    if h : i < newNames.size then
       match type with
       | .forallE n d b bi =>
         if n.hasMacroScopes then
-          mkForall newNames[i]! bi d (go b (i+1))
+          mkForall newNames[i] bi d (go b (i+1))
         else
           mkForall n bi d (go b (i+1))
       | _ => type
@@ -425,9 +425,9 @@ where
   levelMVarToParam' (type : Expr) : TermElabM Expr := do
     Term.levelMVarToParam type (except := fun mvarId => univToInfer? == some mvarId)
 
-def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
+def mkResultUniverse (us : Array Level) (rOffset : Nat) (preferProp : Bool) : Level :=
   if us.isEmpty && rOffset == 0 then
-    levelOne
+    if preferProp then levelZero else levelOne
   else
     let r := Level.mkNaryMax us.toList
     if rOffset == 0 && !r.isZero && !r.isNeverZero then
@@ -512,6 +512,31 @@ where
           for ctorParam in ctorParams[numParams:] do
             accLevelAtCtor ctor ctorParam r rOffset
 
+/--
+Decides whether the inductive type should be `Prop`-valued when the universe is not given
+and when the universe inference algorithm `collectUniverses` determines
+that the inductive type could naturally be `Prop`-valued.
+Recall: the natural universe level is the mimimum universe level for all the types of all the constructor parameters.
+
+Heuristic:
+- We want `Prop` when each inductive type is a syntactic subsingleton.
+  That's to say, when each inductive type has at most one constructor.
+  Such types carry no data anyway.
+- Exception: if no inductive type has any constructors, these are likely stubbed-out declarations,
+  so we prefer `Type` instead.
+- Exception: if each constructor has no parameters, then these are likely partially-written enumerations,
+  so we prefer `Type` instead.
+-/
+private def isPropCandidate (numParams : Nat) (indTypes : List InductiveType) : MetaM Bool := do
+  unless indTypes.foldl (fun n indType => max n indType.ctors.length) 0 == 1 do
+    return false
+  for indType in indTypes do
+    for ctor in indType.ctors do
+      let cparams ← forallTelescopeReducing ctor.type fun ctorParams _ => pure (ctorParams.size - numParams)
+      unless cparams == 0 do
+        return true
+  return false
+
 private def updateResultingUniverse (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
   let r ← getResultingUniverse indTypes
   let rOffset : Nat   := r.getOffset
@@ -520,7 +545,7 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
     throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r}"
   let us ← collectUniverses views r rOffset numParams indTypes
   trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
-  let rNew := mkResultUniverse us rOffset
+  let rNew := mkResultUniverse us rOffset (← isPropCandidate numParams indTypes)
   assignLevelMVar r.mvarId! rNew
   indTypes.mapM fun indType => do
     let type ← instantiateMVars indType.type
@@ -745,7 +770,7 @@ private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array Ind
   forallBoundedTelescope indTypes[0]!.type numParams fun params type => do
     let otherTypes ← indTypes[1:].toArray.mapM fun indType => do whnfD (← instantiateForall indType.type params)
     let ctorTypes ← indTypes.toList.mapM fun indType => indType.ctors.mapM fun ctor => do whnfD (← instantiateForall ctor.type params)
-    let typesToCheck := otherTypes.toList ++ ctorTypes.join
+    let typesToCheck := otherTypes.toList ++ ctorTypes.flatten
     let rec go (i : Nat) (type : Expr) (typesToCheck : List Expr) : MetaM Nat := do
       if i < mask.size then
         if !masks.all fun mask => i < mask.size && mask[i]! then

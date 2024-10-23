@@ -823,6 +823,7 @@ theorem iff_iff_implies_and_implies {a b : Prop} : (a ↔ b) ↔ (a → b) ∧ (
 protected theorem Iff.rfl {a : Prop} : a ↔ a :=
   Iff.refl a
 
+-- And, also for backward compatibility, we try `Iff.rfl.` using `exact` (see #5366)
 macro_rules | `(tactic| rfl) => `(tactic| exact Iff.rfl)
 
 theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.rfl
@@ -836,6 +837,9 @@ instance : Trans Iff Iff Iff where
 
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
+
+theorem HEq.comm {a : α} {b : β} : HEq a b ↔ HEq b a := Iff.intro HEq.symm HEq.symm
+theorem heq_comm {a : α} {b : β} : HEq a b ↔ HEq b a := HEq.comm
 
 @[symm] theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
 theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
@@ -1381,6 +1385,7 @@ gen_injective_theorems% Except
 gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
+gen_injective_theorems% BitVec
 
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id
@@ -1860,7 +1865,8 @@ section
 variable {α : Type u}
 variable (r : α → α → Prop)
 
-instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
+instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
+    : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>
@@ -1892,7 +1898,8 @@ theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
   show extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
   exact congrArg extfunApp (Quot.sound h)
 
-instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) where
+instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] :
+    Subsingleton (∀ a, β a) where
   allEq f g := funext fun a => Subsingleton.elim (f a) (g a)
 
 /-! # Squash -/
@@ -1929,15 +1936,6 @@ instance : Subsingleton (Squash α) where
     induction b using Squash.ind
     apply Quot.sound
     trivial
-
-/-! # Relations -/
-
-/--
-`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
--/
-class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
-  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
-  antisymm {a b : α} : r a b → r b a → a = b
 
 namespace Lean
 /-! # Kernel reduction hints -/
@@ -2055,7 +2053,7 @@ class IdempotentOp (op : α → α → α) : Prop where
 `LeftIdentify op o` indicates `o` is a left identity of `op`.
 
 This class does not require a proof that `o` is an identity, and
-is used primarily for infering the identity using class resoluton.
+is used primarily for inferring the identity using class resolution.
 -/
 class LeftIdentity (op : α → β → β) (o : outParam α) : Prop
 
@@ -2071,7 +2069,7 @@ class LawfulLeftIdentity (op : α → β → β) (o : outParam α) extends LeftI
 `RightIdentify op o` indicates `o` is a right identity `o` of `op`.
 
 This class does not require a proof that `o` is an identity, and is used
-primarily for infering the identity using class resoluton.
+primarily for inferring the identity using class resolution.
 -/
 class RightIdentity (op : α → β → α) (o : outParam β) : Prop
 
@@ -2087,7 +2085,7 @@ class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends Righ
 `Identity op o` indicates `o` is a left and right identity of `op`.
 
 This class does not require a proof that `o` is an identity, and is used
-primarily for infering the identity using class resoluton.
+primarily for inferring the identity using class resolution.
 -/
 class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop
 
@@ -2113,5 +2111,15 @@ class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commuta
 instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
 instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
 instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
+
+/--
+`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
+-/
+class Antisymm (r : α → α → Prop) : Prop where
+  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
+  antisymm {a b : α} : r a b → r b a → a = b
+
+@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
+abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
 
 end Std

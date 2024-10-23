@@ -95,7 +95,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     let declName := structDeclName ++ defaultCtorName
     let ref := structStx[1].mkSynthetic
     addAuxDeclarationRanges declName ref ref
-    pure { ref, modifiers := {}, name := defaultCtorName, declName }
+    pure { ref, modifiers := default, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
   else
@@ -137,7 +137,12 @@ def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) 
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
-private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) :=
+private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM (Array StructFieldView) := do
+  if structStx[5][0].isToken ":=" then
+    -- https://github.com/leanprover/lean4/issues/5236
+    let cmd := if structStx[0].getKind == ``Parser.Command.classTk then "class" else "structure"
+    withRef structStx[0] <| Linter.logLintIf Linter.linter.deprecated structStx[5][0]
+      s!"{cmd} ... :=' has been deprecated in favor of '{cmd} ... where'."
   let fieldBinders := if structStx[5].isNone then #[] else structStx[5][2][0].getArgs
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let mut fieldBinder := fieldBinder
@@ -468,7 +473,8 @@ where
     if h : i < view.parents.size then
       let parentStx := view.parents.get ⟨i, h⟩
       withRef parentStx do
-      let parentType ← Term.elabType parentStx
+      let parentType ← Term.withSynthesize <| Term.elabType parentStx
+      let parentType ← whnf parentType
       let parentStructName ← getStructureName parentType
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
@@ -631,6 +637,19 @@ where
           msg := msg ++ "\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the structure resulting universe level"
         throwError msg
 
+/--
+Decides whether the structure should be `Prop`-valued when the universe is not given
+and when the universe inference algorithm `collectUniversesFromFields` determines
+that the inductive type could naturally be `Prop`-valued.
+
+See `Lean.Elab.Command.isPropCandidate` for an explanation.
+Specialized to structures, the heuristic is that we prefer a `Prop` instead of a `Type` structure
+when it could be a syntactic subsingleton.
+Exception: no-field structures are `Type` since they are likely stubbed-out declarations.
+-/
+private def isPropCandidate (fieldInfos : Array StructFieldInfo) : Bool :=
+  !fieldInfos.isEmpty
+
 private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
   let r ← getResultUniverse type
   let rOffset : Nat   := r.getOffset
@@ -638,7 +657,7 @@ private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type :
   match r with
   | Level.mvar mvarId =>
     let us ← collectUniversesFromFields r rOffset fieldInfos
-    let rNew := mkResultUniverse us rOffset
+    let rNew := mkResultUniverse us rOffset (isPropCandidate fieldInfos)
     assignLevelMVar mvarId rNew
     instantiateMVars type
   | _ => throwError "failed to compute resulting universe level of structure, provide universe explicitly"
@@ -732,7 +751,8 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
         throwError "invalid default value for field, it contains metavariables{indentExpr value}"
       /- The identity function is used as "marker". -/
       let value ← mkId value
-      discard <| mkAuxDefinition declName type value (zetaDelta := true)
+      -- No need to compile the definition, since it is only used during elaboration.
+      discard <| mkAuxDefinition declName type value (zetaDelta := true) (compile := false)
       setReducibleAttribute declName
 
 /--
@@ -772,7 +792,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
           let some fieldInfo := getFieldInfo? env parentStructName fieldName | unreachable!
           if fieldInfo.subobject?.isNone then throwError "failed to build coercion to parent structure"
           let resultType ← whnfD (← inferType result)
-          unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpect type{indentExpr resultType}"
+          unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpected type{indentExpr resultType}"
           let fieldVal ← copyFields resultType.bindingDomain!
           result := mkApp result fieldVal
       return result
@@ -864,7 +884,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         addDefaults lctx defaultAuxDecls
 
 /-
-leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >> " := " >> optional structCtor >> structFields >> optDeriving
+leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType >>
+  optional (("where" <|> ":=") >> optional structCtor >> structFields) >> optDeriving
 
 where
 def «extends» := leading_parser " extends " >> sepBy1 termParser ", "
@@ -891,7 +912,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
       let scopeLevelNames ← Term.getLevelNames
       let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
       Term.withAutoBoundImplicitForbiddenPred (fun n => name == n) do
-        addDeclarationRanges declName stx
+        addDeclarationRanges declName modifiers.stx stx
         Term.withDeclName declName do
           let ctor ← expandCtor stx modifiers declName
           let fields ← expandFields stx modifiers declName

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_toJsonRegistration____x40_Lean_Data_Lsp_Client___hyg_34____closed__7;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonRegistration____x40_Lean_Data_Lsp_Client___hyg_100____closed__4;
 static lean_object* l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonRegistrationParams____x40_Lean_Data_Lsp_Client___hyg_296____closed__1;
 static lean_object* l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonRegistration____x40_Lean_Data_Lsp_Client___hyg_100____closed__17;
@@ -69,6 +68,7 @@ static lean_object* l_Lean_Lsp_instToJsonRegistrationParams___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonRegistration;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonRegistrationParams____x40_Lean_Data_Lsp_Client___hyg_296_(lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_toJsonRegistration____x40_Lean_Data_Lsp_Client___hyg_34____closed__1;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Client_0__Lean_Lsp_fromJsonRegistration____x40_Lean_Data_Lsp_Client___hyg_100____spec__1(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -111,8 +111,8 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Client_0__Lean_Lsp_toJsonReg
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

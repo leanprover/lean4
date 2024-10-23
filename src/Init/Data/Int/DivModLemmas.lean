@@ -194,7 +194,7 @@ theorem fdiv_eq_tdiv {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv
 @[simp, norm_cast] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
 
 
-/-! ### mod definitiions -/
+/-! ### mod definitions -/
 
 theorem emod_add_ediv : ∀ a b : Int, a % b + b * (a / b) = a
   | ofNat _, ofNat _ => congrArg ofNat <| Nat.mod_add_div ..
@@ -253,7 +253,7 @@ theorem tmod_def (a b : Int) : tmod a b = a - b * a.tdiv b := by
 
 theorem fmod_add_fdiv : ∀ a b : Int, a.fmod b + b * a.fdiv b = a
   | 0, ofNat _ | 0, -[_+1] => congrArg ofNat <| by simp
-  | succ m, ofNat n => congrArg ofNat <| Nat.mod_add_div ..
+  | succ _, ofNat _ => congrArg ofNat <| Nat.mod_add_div ..
   | succ m, -[n+1] => by
     show subNatNat (m % succ n) n + (↑(succ n * (m / succ n)) + n + 1) = (m + 1)
     rw [Int.add_comm _ n, ← Int.add_assoc, ← Int.add_assoc,
@@ -289,8 +289,8 @@ theorem fmod_eq_tmod {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fmod a b = tmod
 
 @[simp] protected theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
-  | ofNat m, -[n+1] => (Int.neg_neg _).symm
-  | ofNat m, succ n | -[m+1], 0 | -[m+1], succ n | -[m+1], -[n+1] => rfl
+  | ofNat _, -[_+1] => (Int.neg_neg _).symm
+  | ofNat _, succ _ | -[_+1], 0 | -[_+1], succ _ | -[_+1], -[_+1] => rfl
 
 theorem ediv_neg' {a b : Int} (Ha : a < 0) (Hb : 0 < b) : a / b < 0 :=
   match a, b, eq_negSucc_of_lt_zero Ha, eq_succ_of_zero_lt Hb with
@@ -339,7 +339,7 @@ theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c
       | _, ⟨k, rfl⟩, -[n+1] => show (a - n.succ * k.succ).ediv k.succ = a.ediv k.succ - n.succ by
         rw [← Int.add_sub_cancel (ediv ..), ← this, Int.sub_add_cancel]
   fun {k n} => @fun
-  | ofNat m => congrArg ofNat <| Nat.add_mul_div_right _ _ k.succ_pos
+  | ofNat _ => congrArg ofNat <| Nat.add_mul_div_right _ _ k.succ_pos
   | -[m+1] => by
     show ((n * k.succ : Nat) - m.succ : Int).ediv k.succ = n - (m / k.succ + 1 : Nat)
     by_cases h : m < n * k.succ
@@ -396,7 +396,7 @@ theorem add_mul_ediv_left (a : Int) {b : Int}
       rw [Int.mul_neg, Int.ediv_neg, Int.ediv_neg]; apply congrArg Neg.neg; apply this
   fun m k b =>
   match b, k with
-  | ofNat n, k => congrArg ofNat (Nat.mul_div_mul_left _ _ m.succ_pos)
+  | ofNat _, _ => congrArg ofNat (Nat.mul_div_mul_left _ _ m.succ_pos)
   | -[n+1], 0 => by
     rw [Int.ofNat_zero, Int.mul_zero, Int.ediv_zero, Int.ediv_zero]
   | -[n+1], succ k => congrArg negSucc <|
@@ -822,14 +822,14 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
 unseal Nat.div in
 @[simp] protected theorem tdiv_neg : ∀ a b : Int, a.tdiv (-b) = -(a.tdiv b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
-  | ofNat m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
-  | ofNat m, succ n | -[m+1], 0 | -[m+1], -[n+1] => rfl
+  | ofNat _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
+  | ofNat _, succ _ | -[_+1], 0 | -[_+1], -[_+1] => rfl
 
 unseal Nat.div in
 @[simp] protected theorem neg_tdiv : ∀ a b : Int, (-a).tdiv b = -(a.tdiv b)
   | 0, n => by simp [Int.neg_zero]
-  | succ m, (n:Nat) | -[m+1], 0 | -[m+1], -[n+1] => rfl
-  | succ m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
+  | succ _, (n:Nat) | -[_+1], 0 | -[_+1], -[_+1] => rfl
+  | succ _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
 
 protected theorem neg_tdiv_neg (a b : Int) : (-a).tdiv (-b) = a.tdiv b := by
   simp [Int.tdiv_neg, Int.neg_tdiv, Int.neg_neg]
@@ -1126,6 +1126,17 @@ theorem emod_add_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n + y) n = Int.bmo
   rw [←Int.mul_neg, Int.add_right_comm,  Int.bmod_add_mul_cancel]
 
 @[simp]
+theorem emod_sub_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n - y) n = Int.bmod (x - y) n := by
+  simp only [emod_def, Int.sub_eq_add_neg]
+  rw [←Int.mul_neg, Int.add_right_comm,  Int.bmod_add_mul_cancel]
+
+@[simp]
+theorem sub_emod_bmod_congr (x : Int) (n : Nat) : Int.bmod (x - y%n) n = Int.bmod (x - y) n := by
+  simp only [emod_def]
+  rw [Int.sub_eq_add_neg, Int.neg_sub, Int.sub_eq_add_neg, ← Int.add_assoc, Int.add_right_comm,
+    Int.bmod_add_mul_cancel, Int.sub_eq_add_neg]
+
+@[simp]
 theorem emod_mul_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n * y) n = Int.bmod (x * y) n := by
   simp [Int.emod_def, Int.sub_eq_add_neg]
   rw [←Int.mul_neg, Int.add_mul, Int.mul_assoc, Int.bmod_add_mul_cancel]
@@ -1140,8 +1151,27 @@ theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n
     rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
     simp
 
+@[simp]
+theorem bmod_sub_bmod_congr : Int.bmod (Int.bmod x n - y) n = Int.bmod (x - y) n := by
+  rw [Int.bmod_def x n]
+  split
+  next p =>
+    simp only [emod_sub_bmod_congr]
+  next p =>
+    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg, ← Int.sub_eq_add_neg]
+    simp [emod_sub_bmod_congr]
+
 @[simp] theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
   rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
+
+@[simp] theorem sub_bmod_bmod : Int.bmod (x - Int.bmod y n) n = Int.bmod (x - y) n := by
+  rw [Int.bmod_def y n]
+  split
+  next p =>
+    simp [sub_emod_bmod_congr]
+  next p =>
+    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, ← Int.add_assoc, ← Int.sub_eq_add_neg]
+    simp [sub_emod_bmod_congr]
 
 @[simp]
 theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by

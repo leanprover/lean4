@@ -520,20 +520,24 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
     -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
     elabCommand stx
-    withLogging do
-      runLinters stx
+    -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
+    -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
+    -- rather than engineer a general solution.
+    unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+      withLogging do
+        runLinters stx
   finally
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages
     let mut msgs := (← get).messages
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
-    if let some snap := (← read).snap? then
-      -- We can assume that the root command snapshot is not involved in parallelism yet, so this
-      -- should be true iff the command supports incrementality
-      if (← IO.hasFinished snap.new.result) then
-        trace[Elab.snapshotTree]
-          (←Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format)
+    if (← isTracingEnabledFor `Elab.snapshotTree) then
+      if let some snap := (← read).snap? then
+        -- We can assume that the root command snapshot is not involved in parallelism yet, so this
+        -- should be true iff the command supports incrementality
+        if (← IO.hasFinished snap.new.result) then
+          liftCoreM <| Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.trace
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
@@ -568,7 +572,7 @@ def getBracketedBinderIds : Syntax → CommandElabM (Array Name)
 private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Context := do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
-  for id in (← scope.varDecls.concatMapM getBracketedBinderIds), uid in scope.varUIds do
+  for id in (← scope.varDecls.flatMapM getBracketedBinderIds), uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
   return {
     macroStack             := ctx.macroStack
@@ -615,6 +619,9 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let x : CoreM _ := x.run mkMetaContext {}
   let ((ea, _), _) ← runCore x
   MonadExcept.ofExcept ea
+
+instance : MonadEval TermElabM CommandElabM where
+  monadEval := liftTermElabM
 
 /--
 Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
@@ -708,7 +715,7 @@ def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM Expand
   let currNamespace ← getCurrNamespace
   let currLevelNames ← getLevelNames
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
-  for id in (← (← getScope).varDecls.concatMapM getBracketedBinderIds) do
+  for id in (← (← getScope).varDecls.flatMapM getBracketedBinderIds) do
     if id == r.shortName then
       throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
   return r
@@ -724,6 +731,12 @@ Commands that modify the processing of subsequent commands,
 such as `open` and `namespace` commands,
 only have an effect for the remainder of the `CommandElabM` computation passed here,
 and do not affect subsequent commands.
+
+*Warning:* when using this from `MetaM` monads, the caches are *not* reset.
+If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
+to reset the instance cache.
+While the `modifyEnv` function for `MetaM` clears its caches entirely,
+`liftCommandElabM` has no way to reset these caches.
 -/
 def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
   let (a, commandState) ←

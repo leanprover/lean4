@@ -76,6 +76,12 @@ instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
+instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => HashMap.empty.insert a b⟩
+
+instance : Insert (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+
+instance : LawfulSingleton (α × β) (HashMap α β) := ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc DHashMap.insertIfNew] def insertIfNew (m : HashMap α β)
     (a : α) (b : β) : HashMap α β :=
   ⟨m.inner.insertIfNew a b⟩
@@ -250,6 +256,12 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 @[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] (l : List (α × β)) :
     HashMap α β :=
   ⟨DHashMap.Const.ofList l⟩
+
+/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
 
 @[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] (l : List α) :
     HashMap α Unit :=

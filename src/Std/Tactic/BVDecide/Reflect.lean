@@ -110,6 +110,14 @@ theorem getLsbD_congr (i : Nat) (w : Nat) (e e' : BitVec w) (h : e' = e) :
 theorem ofBool_congr (b : Bool) (e' : BitVec 1) (h : e' = BitVec.ofBool b) : e'.getLsbD 0 = b := by
   cases b <;> simp [h]
 
+theorem udiv_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (lhs' / rhs') = (lhs / rhs) := by
+  simp[*]
+
+theorem umod_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (lhs' % rhs') = (lhs % rhs) := by
+  simp[*]
+
 end BitVec
 
 namespace Bool
@@ -119,10 +127,6 @@ theorem not_congr (x x' : Bool) (h : x' = x) : (!x') = (!x) := by
 
 theorem and_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
     (lhs' && rhs') = (lhs && rhs) := by
-  simp[*]
-
-theorem or_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (lhs' || rhs') = (lhs || rhs) := by
   simp[*]
 
 theorem xor_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :

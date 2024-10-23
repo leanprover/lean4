@@ -69,6 +69,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___rarg(
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_Lean_Elab_TerminationArgument_delab___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_TerminationArgument_elab_parameters___closed__7;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Term_withoutErrToSorryImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -144,6 +145,7 @@ static lean_object* l_Lean_Elab_TerminationArgument_elab___closed__5;
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_delab_go___closed__6;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_Lean_Elab_TerminationArgument_delab___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_structuralArg___closed__4;
 size_t lean_usize_add(size_t, size_t);
@@ -2310,12 +2312,21 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_lambdaBoundedTelescope___at_Lean_El
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_box(0);
-x_11 = l_Lean_Elab_TerminationArgument_delab_go___closed__13;
+x_11 = l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1;
 x_12 = lean_alloc_closure((void*)(l_Lean_Elab_TerminationArgument_delab_go___boxed), 10, 3);
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
@@ -2586,6 +2597,8 @@ l_Lean_Elab_TerminationArgument_delab_go___closed__14 = _init_l_Lean_Elab_Termin
 lean_mark_persistent(l_Lean_Elab_TerminationArgument_delab_go___closed__14);
 l_Lean_Elab_TerminationArgument_delab_go___closed__15 = _init_l_Lean_Elab_TerminationArgument_delab_go___closed__15();
 lean_mark_persistent(l_Lean_Elab_TerminationArgument_delab_go___closed__15);
+l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1 = _init_l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

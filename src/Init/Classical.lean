@@ -80,6 +80,8 @@ noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decid
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
+instance (a : Prop) : Nonempty (Decidable a) := ⟨propDecidable a⟩
+
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
   fun _ _ => inferInstance
 
@@ -121,11 +123,11 @@ theorem propComplete (a : Prop) : a = True ∨ a = False :=
   | Or.inl ha => Or.inl (eq_true ha)
   | Or.inr hn => Or.inr (eq_false hn)
 
--- this supercedes byCases in Decidable
+-- this supersedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
   Decidable.byCases (dec := propDecidable _) hpq hnpq
 
--- this supercedes byContradiction in Decidable
+-- this supersedes byContradiction in Decidable
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 

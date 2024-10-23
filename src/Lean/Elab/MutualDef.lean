@@ -98,7 +98,7 @@ private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   else
     none
 
-private def getPendindMVarErrorMessage (views : Array DefView) : String :=
+private def getPendingMVarErrorMessage (views : Array DefView) : String :=
   match isMultiConstant? views with
   | some ids =>
     let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
@@ -196,7 +196,7 @@ private def elabHeaders (views : Array DefView)
             if view.type?.isSome then
               let pendingMVarIds ← getMVars type
               discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
-                getPendindMVarErrorMessage views
+                getPendingMVarErrorMessage views
             let newHeader : DefViewElabHeaderData := {
               declName, shortDeclName, type, levelNames, binderIds
               numParams := xs.size
@@ -406,15 +406,19 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-        for i in [0:header.binderIds.size] do
+        for h : i in [0:header.binderIds.size] do
           -- skip auto-bound prefix in `xs`
-          addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
+          addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]!
         let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
-          -- synthesize mvars here to force the top-level tactic block (if any) to run
-          elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
-        -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
-        -- leads to more section variables being included than necessary
-        let val ← instantiateMVarsProfiling val
+          -- Store instantiated body in info tree for the benefit of the unused variables linter
+          -- and other metaprograms that may want to inspect it without paying for the instantiation
+          -- again
+          withInfoContext' valStx (mkInfo := mkTermInfo `MutualDef.body valStx) do
+            -- synthesize mvars here to force the top-level tactic block (if any) to run
+            let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
+            -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
+            -- leads to more section variables being included than necessary
+            instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
         if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
@@ -883,6 +887,7 @@ def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
   else DefKind.«def»
 
 def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers := {
+  stx             := ⟨mkNullNode #[]⟩  -- ignore when computing declaration range
   isNoncomputable := mainHeaders.any fun h => h.modifiers.isNoncomputable
   recKind         := if mainHeaders.any fun h => h.modifiers.isPartial then RecKind.partial else RecKind.default
   isUnsafe        := mainHeaders.any fun h => h.modifiers.isUnsafe
@@ -947,45 +952,6 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
-partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : Array PreDefinition) : TermElabM Unit :=
-  unless (← MonadLog.hasErrors) do
-    -- We do not report this kind of error if the declaration already contains errors
-    let mut sTypes : CollectLevelParams.State := {}
-    let mut sValues : CollectLevelParams.State := {}
-    for preDef in preDefs do
-      sTypes  := collectLevelParams sTypes preDef.type
-      sValues := collectLevelParams sValues preDef.value
-    if sValues.params.all fun u => sTypes.params.contains u || allUserLevelNames.contains u then
-      -- If all universe level occurring in values also occur in types or explicitly provided universes, then everything is fine
-      -- and we just return
-      return ()
-    let checkPreDef (preDef : PreDefinition) : TermElabM Unit :=
-      -- Otherwise, we try to produce an error message containing the expression with the offending universe
-      let rec visitLevel (u : Level) : ReaderT Expr TermElabM Unit := do
-        match u with
-        | .succ u => visitLevel u
-        | .imax u v | .max u v => visitLevel u; visitLevel v
-        | .param n =>
-          unless sTypes.visitedLevel.contains u || allUserLevelNames.contains n do
-            let parent ← withOptions (fun o => pp.universes.set o true) do addMessageContext m!"{indentExpr (← read)}"
-            let body ← withOptions (fun o => pp.letVarTypes.setIfNotSet (pp.funBinderTypes.setIfNotSet o true) true) do addMessageContext m!"{indentExpr preDef.value}"
-            throwError "invalid occurrence of universe level '{u}' at '{preDef.declName}', it does not occur at the declaration type, nor it is explicit universe level provided by the user, occurring at expression{parent}\nat declaration body{body}"
-        | _ => pure ()
-      let rec visit (e : Expr) : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit := do
-        checkCache { val := e : ExprStructEq } fun _ => do
-          match e with
-          | .forallE n d b c | .lam n d b c => visit d e; withLocalDecl n c d fun x => visit (b.instantiate1 x) e
-          | .letE n t v b _  => visit t e; visit v e; withLetDecl n t v fun x => visit (b.instantiate1 x) e
-          | .app ..        => e.withApp fun f args => do visit f e; args.forM fun arg => visit arg e
-          | .mdata _ b     => visit b e
-          | .proj _ _ b    => visit b e
-          | .sort u        => visitLevel u (← read)
-          | .const _ us    => us.forM (visitLevel · (← read))
-          | _              => pure ()
-      visit preDef.value preDef.value |>.run {}
-    for preDef in preDefs do
-      checkPreDef preDef
-
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -1021,19 +987,18 @@ where
           let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
           for preDef in preDefs do
             trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-          let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
+          let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs
           let preDefs ← instantiateMVarsAtPreDecls preDefs
           let preDefs ← shareCommonPreDefs preDefs
           let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-          checkForHiddenUnivLevels allUserLevelNames preDefs
           addPreDefinitions preDefs
           processDeriving headers
       for view in views, header in headers do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref
-        addDeclarationRanges header.declName view.ref
+        addDeclarationRanges header.declName view.modifiers.stx view.ref
 
 
   processDeriving (headers : Array DefViewElabHeader) := do
@@ -1057,7 +1022,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let mut reusedAllHeaders := true
     for h : i in [0:ds.size], headerPromise in headerPromises do
       let d := ds[i]
-      let modifiers ← elabModifiers d[0]
+      let modifiers ← elabModifiers ⟨d[0]⟩
       if ds.size > 1 && modifiers.isNonrec then
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]

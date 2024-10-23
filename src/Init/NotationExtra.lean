@@ -10,6 +10,7 @@ import Init.Data.ToString.Basic
 import Init.Data.Array.Subarray
 import Init.Conv
 import Init.Meta
+import Init.While
 
 namespace Lean
 
@@ -168,9 +169,9 @@ end Lean
   | _                => throw ()
 
 @[app_unexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
-  | `($(_) _)   => `(sorry)
-  | `($(_) _ _) => `(sorry)
-  | _           => throw ()
+  | `($(_) $_)    => `(sorry)
+  | `($(_) $_ $_) => `(sorry)
+  | _             => throw ()
 
 @[app_unexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
   | `($(_) $m $h) => `($h ▸ $m)
@@ -222,38 +223,6 @@ end Lean
 @[app_unexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
   | `($_ $array $index) => `($array[$index]?)
   | _ => throw ()
-
-@[app_unexpander Name.mkStr1] def unexpandMkStr1 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++  a.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr2] def unexpandMkStr2 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr3] def unexpandMkStr3 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr4] def unexpandMkStr4 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr5] def unexpandMkStr5 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr6] def unexpandMkStr6 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr7] def unexpandMkStr7 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString)]
-  | _  => throw ()
-
-@[app_unexpander Name.mkStr8] def unexpandMkStr8 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString ++ "." ++ a8.getString)]
-  | _  => throw ()
 
 @[app_unexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
   | _ => `(#[])
@@ -375,42 +344,6 @@ syntax (name := solveTactic) "solve" withPosition((ppDedent(ppLine) colGe "| " t
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
-
-/-! # `repeat` and `while` notation -/
-
-inductive Loop where
-  | mk
-
-@[inline]
-partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
-  let rec @[specialize] loop (b : β) : m β := do
-    match ← f () b with
-      | ForInStep.done b  => pure b
-      | ForInStep.yield b => loop b
-  loop init
-
-instance : ForIn m Loop Unit where
-  forIn := Loop.forIn
-
-syntax "repeat " doSeq : doElem
-
-macro_rules
-  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
-
-syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
-
-macro_rules
-  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
-
-syntax "while " termBeforeDo " do " doSeq : doElem
-
-macro_rules
-  | `(doElem| while $cond do $seq) => `(doElem| repeat if $cond then $seq else break)
-
-syntax "repeat " doSeq ppDedent(ppLine) "until " term : doElem
-
-macro_rules
-  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
 
 macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))

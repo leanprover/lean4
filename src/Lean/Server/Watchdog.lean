@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
+import Init.System.Mutex
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
@@ -112,6 +113,7 @@ section FileWorker
   structure FileWorker where
     doc                : DocumentMeta
     proc               : Process.Child workerCfg
+    exitCode           : IO.Mutex (Option UInt32)
     commTask           : Task WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker,
@@ -144,6 +146,29 @@ section FileWorker
     match fw.state with
     | .running => #[]
     | .crashed queuedMsgs _ => queuedMsgs
+
+  def waitForProc (fw : FileWorker) : IO UInt32 :=
+    fw.exitCode.atomically do
+      match ← get with
+      | none =>
+        let exitCode ← fw.proc.wait
+        set <| some exitCode
+        return exitCode
+      | some exitCode =>
+        return exitCode
+
+  def killProcAndWait (fw : FileWorker) : IO UInt32 :=
+    fw.exitCode.atomically do
+      match ← get with
+      | none =>
+        fw.proc.kill
+        let exitCode ← fw.proc.wait
+        set <| some exitCode
+        return exitCode
+      | some exitCode =>
+        -- Process is already dead
+        return exitCode
+
 
   end FileWorker
 end FileWorker
@@ -286,72 +311,76 @@ section ServerM
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let o := (←read).hOut
-    let rec loop : ServerM WorkerEvent := do
-      try
-        let msg ← fw.stdout.readLspMessage
-        -- Re. `o.writeLspMessage msg`:
-        -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
-        match msg with
-          | Message.response id _ => do
-            fw.erasePendingRequest id
-            o.writeLspMessage msg
-          | Message.responseError id _ _ _ => do
-            fw.erasePendingRequest id
-            o.writeLspMessage msg
-          | Message.request id method params? =>
-            let globalID ← (←read).serverRequestData.modifyGet
-              (·.trackOutboundRequest fw.doc.uri id)
-            o.writeLspMessage (Message.request globalID method params?)
-          | Message.notification "$/lean/ileanInfoUpdate" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleIleanInfoUpdate fw params
-          | Message.notification "$/lean/ileanInfoFinal" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleIleanInfoFinal fw params
-          | Message.notification "$/lean/importClosure" params =>
-            if let some params := params then
-              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
-                handleImportClosure fw params
-          | _ => o.writeLspMessage msg
-      catch err =>
-        -- If writeLspMessage from above errors we will block here, but the main task will
-        -- quit eventually anyways if that happens
-        let exitCode ← fw.proc.wait
-        -- Remove surviving descendant processes, if any, such as from nested builds.
-        -- On Windows, we instead rely on elan doing this.
-        try fw.proc.kill catch _ => pure ()
-        match exitCode with
-        | 0 =>
-          -- Worker was terminated
-          fw.errorPendingRequests o ErrorCode.contentModified
-            (s!"The file worker for {fw.doc.uri} has been terminated. "
-            ++ "Either the header has changed, or the file was closed, "
-            ++ " or the server is shutting down.")
-          -- one last message to clear the diagnostics for this file so that stale errors
-          -- do not remain in the editor forever.
-          o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
-          return WorkerEvent.terminated
-        | 2 =>
-          return .importsChanged
-        | _ =>
-          -- Worker crashed
-          let (errorCode, errorCausePointer) :=
-            if exitCode = 1 then
-              (ErrorCode.workerExited, "see stderr for exception")
-            else
-              (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
-          fw.errorPendingRequests o errorCode
-            s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
-          o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
-          return WorkerEvent.crashed err
-      loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     return task.map fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
+  where
+    loop : ServerM WorkerEvent := do
+      let o := (←read).hOut
+      let msg ←
+        try
+          fw.stdout.readLspMessage
+        catch err =>
+          let exitCode ← fw.waitForProc
+          -- Remove surviving descendant processes, if any, such as from nested builds.
+          -- On Windows, we instead rely on elan doing this.
+          try fw.proc.kill catch _ => pure ()
+          -- TODO: Wait for process group to finish
+          match exitCode with
+          | 0 =>
+            -- Worker was terminated
+            fw.errorPendingRequests o ErrorCode.contentModified
+              (s!"The file worker for {fw.doc.uri} has been terminated. "
+              ++ "Either the header has changed, or the file was closed, "
+              ++ " or the server is shutting down.")
+            -- one last message to clear the diagnostics for this file so that stale errors
+            -- do not remain in the editor forever.
+            o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
+            return WorkerEvent.terminated
+          | 2 =>
+            return .importsChanged
+          | _ =>
+            -- Worker crashed
+            let (errorCode, errorCausePointer) :=
+              if exitCode = 1 then
+                (ErrorCode.workerExited, "see stderr for exception")
+              else
+                (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
+            fw.errorPendingRequests o errorCode
+              s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
+            o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
+            return WorkerEvent.crashed err
+
+      -- Re. `o.writeLspMessage msg`:
+      -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
+      match msg with
+      | Message.response id _ => do
+        fw.erasePendingRequest id
+        o.writeLspMessage msg
+      | Message.responseError id _ _ _ => do
+        fw.erasePendingRequest id
+        o.writeLspMessage msg
+      | Message.request id method params? =>
+        let globalID ← (←read).serverRequestData.modifyGet
+          (·.trackOutboundRequest fw.doc.uri id)
+        o.writeLspMessage (Message.request globalID method params?)
+      | Message.notification "$/lean/ileanInfoUpdate" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleIleanInfoUpdate fw params
+      | Message.notification "$/lean/ileanInfoFinal" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleIleanInfoFinal fw params
+      | Message.notification "$/lean/importClosure" params =>
+        if let some params := params then
+          if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+            handleImportClosure fw params
+      | _ =>
+        o.writeLspMessage msg
+
+      loop
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     (← read).hOut.writeLspMessage <| mkFileProgressAtPosNotification m 0
@@ -363,6 +392,7 @@ section ServerM
       -- open session for `kill` above
       setsid        := true
     }
+    let exitCode ← IO.Mutex.new none
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     let initialDependencyBuildMode := m.dependencyBuildMode
     let updatedDependencyBuildMode :=
@@ -376,6 +406,7 @@ section ServerM
     let fw : FileWorker := {
       doc                := { m with dependencyBuildMode := updatedDependencyBuildMode}
       proc               := workerProc
+      exitCode
       commTask           := Task.pure WorkerEvent.terminated
       state              := WorkerState.running
       pendingRequestsRef := pendingRequestsRef
@@ -638,7 +669,7 @@ where
     let grouped := incomingCalls.groupByKey (·.«from»)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       «from» := group[0]!.«from»
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -685,7 +716,7 @@ where
     let grouped := outgoingCalls.groupByKey (·.to)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       to := group[0]!.to
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -756,7 +787,9 @@ section NotificationHandling
     let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText, oldDoc.dependencyBuildMode⟩
     updateFileWorkers { fw with doc := newDoc }
     let notification := Notification.mk "textDocument/didChange" p
-    tryWriteMessage doc.uri notification (restartCrashedWorker := true)
+    -- Don't queue failed `didChange` notifications because we already accumulate them in the
+    -- document and hand the updated document to the file worker when restarting it.
+    tryWriteMessage doc.uri notification (restartCrashedWorker := true) (queueFailedMessage := false)
 
   /--
   When a file is saved, notifies all file workers for files that depend on this file that this
@@ -948,7 +981,8 @@ section MainLoop
     for ⟨uri, _⟩ in fileWorkers do
       terminateFileWorker uri
     for ⟨_, fw⟩ in fileWorkers do
-      discard <| IO.wait fw.commTask
+      -- TODO: Wait for process group to finish instead
+      try let _ ← fw.killProcAndWait catch _ => pure ()
 
   inductive ServerEvent where
     | workerEvent (fw : FileWorker) (ev : WorkerEvent)
@@ -961,7 +995,7 @@ section MainLoop
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
       pure <| ServerEvent.clientMsg msg
-    let clientTask := (← IO.asTask readMsgAction).map fun
+    let clientTask := (← IO.asTask (prio := Task.Priority.dedicated) readMsgAction).map fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask
@@ -1127,7 +1161,7 @@ results in requests that need references.
 def startLoadingReferences (references : IO.Ref References) : IO Unit := do
   -- Discard the task; there isn't much we can do about this failing,
   -- but we should try to continue server operations regardless
-  let _ ← IO.asTask do
+  let _ ← IO.asTask (prio := Task.Priority.dedicated) do
     let oleanSearchPath ← Lean.searchPathRef.get
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try
@@ -1188,9 +1222,9 @@ def watchdogMain (args : List String) : IO UInt32 := do
   let e ← IO.getStderr
   try
     initAndRunWatchdog args i o e
-    return 0
+    IO.Process.exit 0 -- Terminate all tasks of this process
   catch err =>
     e.putStrLn s!"Watchdog error: {err}"
-    return 1
+    IO.Process.exit 1 -- Terminate all tasks of this process
 
 end Lean.Server.Watchdog

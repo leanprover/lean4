@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.Elab.Tactic.Omega.Frontend
@@ -39,7 +39,7 @@ The `omega` tactic pre-processes the hypotheses in the following ways:
 * If `x / m` appears, for some `x : Int` and literal `m : Nat`,
   replace `x / m` with a new variable `α` and add the constraints
   `0 ≤ - m * α + x ≤ m - 1`.
-* If `x % m` appears, similarly, introduce the same new contraints
+* If `x % m` appears, similarly, introduce the same new constraints
   but replace `x % m` with `- m * α + x`.
 * Split conjunctions, existentials, and subtypes.
 * Record, for each appearance of `(a - b : Int)` with `a b : Nat`, the disjunction

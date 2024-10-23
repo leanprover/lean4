@@ -556,7 +556,7 @@ LEAN_EXPORT lean_object* l_Lake_loadWorkspace(lean_object* x_1, uint8_t x_2, lea
 _start:
 {
 uint8_t x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*7);
+x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*8);
 x_6 = lean_ctor_get(x_1, 5);
 lean_inc(x_6);
 x_7 = l_Lake_loadWorkspaceRoot(x_1, x_3, x_4);

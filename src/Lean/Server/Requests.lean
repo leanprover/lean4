@@ -210,6 +210,28 @@ partial def findInfoTreeAtPos
         some s.cmdState.infoState.trees[0]!
     | none => .pure none
 
+open Language in
+/--
+Finds the command syntax and info tree of the first snapshot task matching `isMatchingSnapshot` and
+containing `pos`, asynchronously. The info tree may be from a nested snapshot,
+such as a single tactic.
+
+See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
+-/
+def findCmdDataAtPos
+    (doc : EditableDocument)
+    (isMatchingSnapshot : Lean.CommandParsedSnapshot → Bool)
+    (pos : String.Pos)
+    : Task (Option (Syntax × Elab.InfoTree)) :=
+  findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
+    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
+      | some infoTree => .pure <| some (cmdParsed.data.stx, infoTree)
+      | none          => cmdParsed.data.finishedSnap.task.map (sync := true) fun s =>
+        -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
+        assert! s.cmdState.infoState.trees.size == 1
+        some (cmdParsed.data.stx, s.cmdState.infoState.trees[0]!)
+    | none => .pure none
+
 /--
 Finds the info tree of the first snapshot task containing `pos` (including trailing whitespace),
 asynchronously. The info tree may be from a nested snapshot, such as a single tactic.

@@ -44,7 +44,6 @@ lean_object* lean_get_max_ctor_fields(lean_object*);
 lean_object* lean_get_max_ctor_tag(lean_object*);
 static lean_object* l_Lean_IR_Checker_checkFullApp___closed__1;
 static lean_object* l_Lean_IR_Checker_checkType___closed__2;
-LEAN_EXPORT lean_object* l_Lean_IR_Checker_CheckerState_foundVars___default;
 LEAN_EXPORT uint8_t l_Lean_IR_Checker_getDecl___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_LocalContext_isLocalVar(lean_object*, lean_object*);
@@ -60,7 +59,6 @@ static lean_object* l_Lean_IR_Checker_checkExpr___closed__4;
 static lean_object* l_Lean_IR_Checker_maxCtorFields___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkPartialApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Checker_checkArgs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkVar___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_checkDecls___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,7 +135,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Checker_withPara
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Checker_checkFnBody___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_checkDecl___closed__1;
 uint8_t l_Lean_IR_IRType_isStruct(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_Checker_CheckerContext_localCtx___default;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkEqTypes___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkDecl(lean_object*, lean_object*, lean_object*);
@@ -265,22 +262,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_IR_Checker_usizeSize___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_Checker_CheckerContext_localCtx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_IR_Checker_CheckerState_foundVars___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
 return x_1;
 }
 }
@@ -7029,10 +7010,6 @@ l_Lean_IR_Checker_usizeSize___closed__1 = _init_l_Lean_IR_Checker_usizeSize___cl
 lean_mark_persistent(l_Lean_IR_Checker_usizeSize___closed__1);
 l_Lean_IR_Checker_usizeSize = _init_l_Lean_IR_Checker_usizeSize();
 lean_mark_persistent(l_Lean_IR_Checker_usizeSize);
-l_Lean_IR_Checker_CheckerContext_localCtx___default = _init_l_Lean_IR_Checker_CheckerContext_localCtx___default();
-lean_mark_persistent(l_Lean_IR_Checker_CheckerContext_localCtx___default);
-l_Lean_IR_Checker_CheckerState_foundVars___default = _init_l_Lean_IR_Checker_CheckerState_foundVars___default();
-lean_mark_persistent(l_Lean_IR_Checker_CheckerState_foundVars___default);
 l_Lean_IR_Checker_markIndex___lambda__1___closed__1 = _init_l_Lean_IR_Checker_markIndex___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_IR_Checker_markIndex___lambda__1___closed__1);
 l_Lean_IR_Checker_markIndex___closed__1 = _init_l_Lean_IR_Checker_markIndex___closed__1();

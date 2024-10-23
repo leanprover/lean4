@@ -1,7 +1,7 @@
 let y := Nat.zero;
 y.add y
 fun y_1 => y.add y_1
-fun y => Nat.add _fvar.1 y
+fun y => Nat.add FREE y
 fun (y : Nat) => Nat.add y y
 ?m.add y
 Nat.add (?m #0) #0

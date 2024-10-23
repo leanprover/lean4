@@ -101,7 +101,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
     DiscrTree.mkPath type tcDtConfig
 
 /--
-Compute the order the arguments of `inst` should by synthesized.
+Compute the order the arguments of `inst` should be synthesized.
 
 The synthesization order makes sure that all mvars in non-out-params of the
 subgoals are assigned before we try to synthesize it.  Otherwise it goes left
@@ -208,7 +208,9 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
           let typeLines := ("" : MessageData).joinSep <| Array.toList <| ← toSynth.mapM fun i => do
             let ty ← instantiateMVars (← inferType argMVars[i]!)
             return indentExpr (ty.setPPExplicit true)
-          logError m!"cannot find synthesization order for instance {inst} with type{indentExpr instTy}\nall remaining arguments have metavariables:{typeLines}"
+          throwError m!"\
+            cannot find synthesization order for instance {inst} with type{indentExpr instTy}\n\
+            all remaining arguments have metavariables:{typeLines}"
         pure toSynth[0]!
     synthed := synthed.push next
     toSynth := toSynth.filter (· != next)
@@ -218,9 +220,10 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   if synthInstance.checkSynthOrder.get (← getOptions) then
     let ty ← instantiateMVars ty
     if ty.hasExprMVar then
-      logError m!"instance does not provide concrete values for (semi-)out-params{indentExpr (ty.setPPExplicit true)}"
+      throwError m!"instance does not provide concrete values for (semi-)out-params{indentExpr (ty.setPPExplicit true)}"
 
-  trace[Meta.synthOrder] "synthesizing the arguments of {inst} in the order {synthed}:{("" : MessageData).joinSep (← synthed.mapM fun i => return indentExpr (← inferType argVars[i]!)).toList}"
+  trace[Meta.synthOrder] "synthesizing the arguments of {inst} in the order {synthed}:\
+    {("" : MessageData).joinSep (← synthed.mapM fun i => return indentExpr (← inferType argVars[i]!)).toList}"
 
   return synthed
 

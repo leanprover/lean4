@@ -711,15 +711,6 @@ def addUnivLevel (idStx : Syntax) : CommandElabM Unit := withRef idStx do
   else
     modifyScope fun scope => { scope with levelNames := id :: scope.levelNames }
 
-def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
-  let currNamespace ← getCurrNamespace
-  let currLevelNames ← getLevelNames
-  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
-  for id in (← (← getScope).varDecls.flatMapM getBracketedBinderIds) do
-    if id == r.shortName then
-      throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
-  return r
-
 end Elab.Command
 
 open Elab Command MonadRecDepth

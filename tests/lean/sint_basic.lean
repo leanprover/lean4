@@ -3,6 +3,8 @@
 #eval Int8.ofInt (-20)
 #eval Int8.ofInt (-20)  = -20
 #eval Int8.ofInt (-130) = 126
+#eval (10 : Int8) ≠ (11 : Int8)
+#eval (-10 : Int8) ≠ (10 : Int8)
 #eval Int8.ofNat 10 = 10
 #eval Int8.ofNat 130 = 130
 #eval Int8.ofNat 120 = 120

@@ -15,17 +15,42 @@ namespace Database
 
 set_option linter.all true
 
+namespace Windows
+
 /--
-Fetches the timezone information from the current windows machine.
+Fetches the next timezone transition for a given timezone identifier and timestamp.
 -/
 @[extern "lean_get_windows_next_transition"]
-opaque Windows.getNextTransition : String -> @&Int -> IO (Option (Int × TimeZone))
+opaque getNextTransition : String -> @&Int -> IO (Option (Int × TimeZone))
 
 /--
 Fetches the timezone at a timestamp.
 -/
 @[extern "lean_get_windows_local_timezone_id_at"]
-opaque Windows.getLocalTimeZoneIdentifierAt : UInt64 → IO String
+opaque getLocalTimeZoneIdentifierAt : Int → IO String
+
+/--
+Retrieves the timezone rules, including all transitions, for a given timezone identifier.
+-/
+partial def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
+  let mut start := -2147483647
+  let mut transitions := #[]
+
+  while true do
+    let result ← getNextTransition id start
+    if let some res := result then
+      transitions := transitions.push { time := Second.Offset.ofInt res.fst, localTimeType := {
+        gmtOffset := res.snd.offset,
+        abbreviation := res.snd.abbreviation,
+        identifier := res.snd.name,
+        isDst := res.snd.isDST,
+        wall := .wall,
+        utLocal := .local
+      }}
+
+  return { transitions, localTimes := #[] }
+
+end Windows
 
 /--
 Represents a Time Zone Database that we get from ICU available on Windows SDK.
@@ -42,5 +67,5 @@ Returns a default `WindowsDb` instance.
 def default : WindowsDb := {}
 
 instance : Database WindowsDb where
-  getZoneRulesAt _ _ := pure <| ZoneRules.mk #[] #[]
-  getLocalZoneRulesAt _ := pure Inhabited.default
+  getZoneRulesAt _ id := Windows.getZoneRules id
+  getLocalZoneRulesAt _ := Windows.getZoneRules =<< Windows.getLocalTimeZoneIdentifierAt (-2147483647)

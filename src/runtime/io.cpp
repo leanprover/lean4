@@ -742,7 +742,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone
 }
 
 /* SStd.Time.Database.Windows.getLocalTimeZoneIdentifierAt : UInt64 → IO String */
-extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t timestamp_secs, obj_arg /* w */) {
+extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(obj_arg tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     UCalendar* cal = ucal_open(NULL, -1, NULL, UCAL_GREGORIAN, &status);
@@ -751,7 +751,9 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t ti
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
     }
 
+    int64_t timestamp_secs = lean_scalar_to_int64(tm_obj);
     ucal_setMillis(cal, timestamp_secs * 1000, &status);
+    
     if (U_FAILURE(status)) {
         ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));

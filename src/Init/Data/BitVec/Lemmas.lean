@@ -3129,36 +3129,21 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 theorem msb_abs {i w: Nat} {x : BitVec w} :
-    x.abs.msb = decide (x = intMin _) := by
+    x.abs.msb = (decide (x = intMin w) && decide (0 < w)) := by
   simp only [BitVec.abs, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
   by_cases h₀ : 0 < w
   · by_cases h₁ : x = intMin w
     · simp [h₁, msb_intMin]
-      omega
-    · simp [h₁]
+    · simp only [neg_eq, h₁, decide_False]
       by_cases h₂ : x.msb
       · simp [h₂, msb_neg]
         and_intros
-        · simp [BitVec.msb, getMsbD, h₀, bv_toNat, Nat.two_pow_pos] at h₂
-          by_cases h₃ : x = 0#w
-          · simp [bv_toNat] at h₃
-            have h₅ : 0 < 2 ^ (w - 1) := by simp [Nat.two_pow_pos, h₀]
-            have h₆ : 0 < x.toNat := by simp_all [h₂]
-            have h₄ : ¬ x.toNat = 0:= by omega
-            contradiction
+        · by_cases h₃ : x = 0#w
+          · simp [h₃] at h₂
           · simp [h₃]
         · simp [h₁]
       · simp [h₂]
-  · by_cases h₁ : x = intMin w
-    · simp [bv_toNat, show w = 0 by omega] at h₁
-      sorry
-    · simp [h₁]
-      by_cases h₂ : x.msb
-      · simp [h₂, msb_neg]
-        and_intros
-        · simp [BitVec.msb, getMsbD, h₀, bv_toNat, Nat.two_pow_pos] at h₂
-        · simp [h₁]
-      · simp [h₂]
+  · simp [BitVec.msb, show w = 0 by omega]
 
 /-! ### Decidable quantifiers -/
 

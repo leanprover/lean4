@@ -368,3 +368,15 @@
   run_config:
     <<: *time
     cmd: lean big_do.lean
+- attributes:
+    description: big_omega.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean big_omega.lean
+- attributes:
+    description: big_omega.lean MT
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean big_omega.lean -Dinternal.cmdlineSnapshots=false

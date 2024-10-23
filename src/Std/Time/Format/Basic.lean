@@ -291,9 +291,14 @@ inductive Modifier
   | G (presentation : Text)
 
   /--
-  `y`: Year of era (e.g., 2004, 04).
+  `y`: Year of era (e.g., 2004, 04, 0002, 2).
   -/
   | y (presentation : Year)
+
+  /--
+  `u`: Year (e.g., 2004, 04, -0001, -1).
+  -/
+  | u (presentation : Year)
 
   /--
   `D`: Day of year (e.g., 189).
@@ -472,6 +477,7 @@ private def parseZoneName (constructor : ZoneName → Modifier) (p : String) : P
 private def parseModifier : Parser Modifier
   := (parseText Modifier.G =<< many1Chars (pchar 'G'))
   <|> parseYear Modifier.y =<< many1Chars (pchar 'y')
+  <|> parseYear Modifier.u =<< many1Chars (pchar 'u')
   <|> parseNumber Modifier.D =<< many1Chars (pchar 'D')
   <|> parseNumberText Modifier.MorL =<< many1Chars (pchar 'M')
   <|> parseNumberText Modifier.MorL =<< many1Chars (pchar 'L')
@@ -742,6 +748,7 @@ private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bo
 private def TypeFormat : Modifier → Type
   | .G _ => Year.Era
   | .y _ => Year.Offset
+  | .u _ => Year.Offset
   | .D _ => Sigma Day.Ordinal.OfYear
   | .MorL _ => Month.Ordinal
   | .d _ => Day.Ordinal
@@ -777,6 +784,13 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     | .full => formatEraLong data
     | .narrow => formatEraNarrow data
   | .y format =>
+    let info := data.toInt
+    let info := if info ≤ 0 then -info + 1 else info
+    match format with
+    | .twoDigit => truncate 2 (info % 100)
+    | .fourDigit => truncate 4 info
+    | .extended n => truncate n info
+  | .u format =>
     match format with
     | .twoDigit => truncate 2 (data.toInt % 100)
     | .fourDigit => truncate 4 data.toInt
@@ -883,6 +897,7 @@ private def dateFromModifier (date : DateTime tz) : TypeFormat modifier :=
   match modifier with
   | .G _ => date.era
   | .y _ => date.year
+  | .u _ => date.year
   | .D _ => Sigma.mk _ date.toOrdinal
   | .MorL _ => date.month
   | .d _ => date.day
@@ -1099,6 +1114,11 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
     | .narrow => parseEraNarrow
   | .y format =>
     match format with
+    | .twoDigit => (2000 + ·) <$> (Int.ofNat <$> parseNum 2)
+    | .fourDigit => Int.ofNat <$> parseNum 4
+    | .extended n => Int.ofNat <$> parseNum n
+  | .u format =>
+    match format with
     | .twoDigit => (2000 + ·) <$> (parseSigned <| parseNum 2)
     | .fourDigit => parseSigned <| parseNum 4
     | .extended n => parseSigned <| parseNum n
@@ -1206,6 +1226,7 @@ namespace GenericFormat
 private structure DateBuilder where
   G : Option Year.Era := none
   y : Option Year.Offset := none
+  u : Option Year.Offset := none
   D : Option (Sigma Day.Ordinal.OfYear) := none
   MorL : Option Month.Ordinal := none
   d : Option Day.Ordinal := none
@@ -1239,8 +1260,8 @@ namespace DateBuilder
 private def insert (date : DateBuilder) (modifier : Modifier) (data : TypeFormat modifier) : DateBuilder :=
   match modifier with
   | .G _ => { date with G := some data }
-  | .y .twoDigit => { date with y := some (Year.Offset.ofInt (data.toInt + 2000)) }
   | .y _ => { date with y := some data }
+  | .u _ => { date with u := some data }
   | .D _ => { date with D := some data }
   | .MorL _ => { date with MorL := some data }
   | .d _ => { date with d := some data }
@@ -1269,6 +1290,10 @@ private def insert (date : DateBuilder) (modifier : Modifier) (data : TypeFormat
   | .x _ => { date with x := some data }
   | .Z _ => { date with Z := some data }
 
+private def convertYearAndEra (year : Year.Offset) : Year.Era → Year.Offset
+  | .ce => year
+  | .bce => -(year + 1)
+
 private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
   let tz : TimeZone := {
     offset := builder.O <|> builder.X <|> builder.x <|> builder.Z |>.getD Offset.zero,
@@ -1277,16 +1302,14 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
     isDST := false,
   }
 
-  let year := builder.y |>.getD 0
   let month := builder.MorL |>.getD 0
   let day := builder.d |>.getD 0
+  let era := (builder.G.getD .ce)
 
-  let era := builder.G |>.getD .ce
-
-  let year :=
-    match era with
-    | .ce => year
-    | .bce => -(year + 1)
+  let year
+    := builder.u
+    <|> ((convertYearAndEra · era) <$> builder.y)
+    |>.getD 0
 
   let hour : Option (Bounded.LE 0 23) :=
     if let some marker := builder.a then
@@ -1320,7 +1343,7 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
 
   match aw with
     | .only newTz => (DateTime.ofLocalDateTime · newTz) <$> datetime
-    | .any => (ZonedDateTime.ofLocalDateTime · tz) <$> datetime
+    | .any => (ZonedDateTime.ofPlainDateTime · (ZoneRules.ofTimeZone tz)) <$> datetime
 
 end DateBuilder
 

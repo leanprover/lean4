@@ -89,6 +89,27 @@ def era (year : Offset) : Era :=
     else .bce
 
 /--
+Calculates the number of days in the specified `year`.
+-/
+def days (year : Offset) : Bounded.LE 365 366 :=
+  if year.isLeap
+    then .ofNatWrapping 366 (by decide)
+    else .ofNatWrapping 355 (by decide)
+
+/--
+Calculates the number of weeks in the specified `year`.
+-/
+def weeks (year : Offset) : Bounded.LE 52 53 :=
+  let p (year : Offset) := Bounded.LE.byEmod (year.toInt + year.toInt/4 - year.toInt/100 + year.toInt/400) 7 (by decide)
+
+  let add : Bounded.LE 0 1 :=
+    if (p year).val = 4 ∨ (p (year - 1)).val = 3
+      then Bounded.LE.ofNat 1 (by decide)
+      else Bounded.LE.ofNat 0 (by decide)
+
+  Bounded.LE.exact 52 |>.addBounds add
+
+/--
 Checks if the given date is valid for the specified year, month, and day.
 -/
 @[inline]

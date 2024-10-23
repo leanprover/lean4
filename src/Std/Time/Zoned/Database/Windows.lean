@@ -42,10 +42,5 @@ Returns a default `WindowsDb` instance.
 def default : WindowsDb := {}
 
 instance : Database WindowsDb where
-  getTimeZoneAt _ id tm :=
-    Windows.getTimeZoneAt id (tm.toSecondsSinceUnixEpoch |>.toInt |>.toNat |>.toUInt64)
-
-  getLocalTimeZoneAt _ tm := do
-    let time := tm.toSecondsSinceUnixEpoch |>.toInt |>.toNat |>.toUInt64
-    let id ← Windows.getLocalTimeZoneIdentifierAt time
-    Windows.getTimeZoneAt id time
+  getZoneRulesAt _ _ := pure <| ZoneRules.mk #[] #[]
+  getLocalZoneRulesAt _ := pure Inhabited.default

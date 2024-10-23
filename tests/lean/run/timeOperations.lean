@@ -274,24 +274,6 @@ info: zoned("2000-01-20T06:01:01.000000000-03:00")
 #guard_msgs in
 #eval datetimetz.subSeconds 60
 
-/--
-info: "86400s"
--/
-#guard_msgs in
-#eval (date("2000-01-20").since (date("2000-01-19")))
-
-/--
-info: "86399s"
--/
-#guard_msgs in
-#eval (datetime("2000-01-20T00:00:00").since (datetime("2000-01-19T00:00:01")))
-
-/--
-info: "86399s"
--/
-#guard_msgs in
-#eval (zoned("2000-01-20T00:00:00Z").since (zoned("2000-01-19T00:00:01Z")))
-
 def now := zoned("2024-08-29T10:56:43.276801081+02:00")
 
 /--
@@ -305,3 +287,33 @@ info: zoned("2024-08-30T10:56:43.276801081+02:00")
 -/
 #guard_msgs in
 #eval now.addDays 1
+
+/--
+info: zoned("2000-01-20T06:01:01.000000000-03:00")
+-/
+#guard_msgs in
+#eval datetimetz.subSeconds 60
+
+/--
+info: 3
+-/
+#guard_msgs in
+#eval date("2024-11-17").alignedWeekOfMonth
+
+/--
+info: 4
+-/
+#guard_msgs in
+#eval date("2024-11-18").alignedWeekOfMonth
+
+/--
+info: 3
+-/
+#guard_msgs in
+#eval date("2024-01-21").alignedWeekOfMonth
+
+/--
+info: 4
+-/
+#guard_msgs in
+#eval date("2024-01-22").alignedWeekOfMonth

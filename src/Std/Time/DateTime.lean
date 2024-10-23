@@ -64,24 +64,6 @@ Converts a `PlainDate` to a `Timestamp`
 def toTimestampAssumingUTC (pdt : PlainDate) : Timestamp :=
   Timestamp.ofPlainDateAssumingUTC pdt
 
-/--
-Calculates the duration between a given `PlainDate` and a specified date.
-
-## Example
-
-```lean
-def example : Duration :=
-  let startDate := date("2023-1-1")
-  let endDate := date("2023-3-15")
-  endDate.since startDate
-```
--/
-@[inline]
-def since [ToTimestamp α] (date : PlainDate) (since : α) : Duration :=
-  let date  := date.toTimestampAssumingUTC
-  let since := ToTimestamp.toTimestamp since
-  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
-
 instance : HSub PlainDate PlainDate Duration where
   hSub x y := x.toTimestampAssumingUTC - y.toTimestampAssumingUTC
 
@@ -115,30 +97,6 @@ Converts a `PlainDateTime` to a `PlainTime`
 @[inline]
 def toPlainTime (pdt : PlainDateTime) : PlainTime :=
   pdt.time
-
-instance : ToTimestamp PlainDateTime where
-  toTimestamp := Timestamp.ofPlainDateTimeAssumingUTC
-
-instance : ToTimestamp PlainDate where
-  toTimestamp := Timestamp.ofPlainDateAssumingUTC
-
-/--
-Calculates the duration between a given `PlainDateTime` and a specified date.
-
-## Example
-
-```lean
-example : Duration :=
-  let startDate := datetime("2023-1-1:05:10:20")
-  let endDate := datetime("2023-3-15:05:10:20")
-  endDate.since startDate
-```
--/
-@[inline]
-def since [ToTimestamp α] (date : PlainDateTime) (since : α) : Duration :=
-  let date  := date.toTimestampAssumingUTC
-  let since := ToTimestamp.toTimestamp since
-  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
 instance : HSub PlainDateTime PlainDateTime Duration where
   hSub x y := x.toTimestampAssumingUTC - y.toTimestampAssumingUTC

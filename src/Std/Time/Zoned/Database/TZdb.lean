@@ -93,18 +93,6 @@ def readLeapsFromDisk (path : System.FilePath) : IO (Array LeapSecond) := do
     then return res
     else throw (IO.userError "cannot read the id of the path.")
 
-/--
-Gets the `TimeZone` at the local timezone.
--/
-def getLocalTimeZoneAt (db : TZdb) (tm : Timestamp) : IO TimeZone := do
-  (IO.ofExcept <| Transition.timezoneAt ·.transitions tm) =<< localRules db.localPath
-
-/--
-Gets the TimeZone at a timezone using a `Database`.
--/
-def getTimeZoneAt (db : TZdb) (id : String) (tm : Timestamp) : IO TimeZone := do
-  (IO.ofExcept <| Transition.timezoneAt ·.transitions tm) =<< readRulesFromDisk db.zonesPath id
-
 instance : Database TZdb where
-  getLocalTimeZoneAt := TZdb.getLocalTimeZoneAt
-  getTimeZoneAt := TZdb.getTimeZoneAt
+  getLocalZoneRulesAt db := localRules db.localPath
+  getZoneRulesAt db id := readRulesFromDisk db.zonesPath id

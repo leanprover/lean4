@@ -42,20 +42,6 @@ instance : ToString Timestamp where
 instance : Repr Timestamp where
   reprPrec s := reprPrec (toString s)
 
-/--
-Type class to transform to `Timestamp`. It's used internally to generate timestamps out of
-some absolute date types.
--/
-class ToTimestamp (α : Type) where
-
-  /--
-  Transforms into a `Timestamp`.
-  -/
-  toTimestamp : α → Timestamp
-
-instance : ToTimestamp Timestamp where
-  toTimestamp := id
-
 namespace Timestamp
 
 /--

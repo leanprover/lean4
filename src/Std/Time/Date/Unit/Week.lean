@@ -74,6 +74,20 @@ end Ordinal
 namespace Offset
 
 /--
+Creates an `Offset` from a natural number.
+-/
+@[inline]
+def ofNat (data : Nat) : Week.Offset :=
+  UnitVal.mk data
+
+/--
+Creates an `Offset` from an integer.
+-/
+@[inline]
+def ofInt (data : Int) : Week.Offset :=
+  UnitVal.mk data
+
+/--
 Convert `Week.Offset` into `Millisecond.Offset`.
 -/
 @[inline]

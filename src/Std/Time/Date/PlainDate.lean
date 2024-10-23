@@ -11,6 +11,7 @@ import Std.Internal.Rat
 namespace Std
 namespace Time
 open Std.Internal
+open Std.Time
 open Internal
 open Lean
 
@@ -65,7 +66,7 @@ Creates a `PlainDate` from a year and a day ordinal within that year.
 -/
 @[inline]
 def ofYearOrdinal (year : Year.Offset) (ordinal : Day.Ordinal.OfYear year.isLeap) : PlainDate :=
-  let ⟨⟨month, day⟩, proof⟩ := Month.Ordinal.ofOrdinal ordinal
+  let ⟨⟨month, day⟩, proof⟩ := ValidDate.ofOrdinal ordinal
   ⟨year, month, day, proof⟩
 
 /--
@@ -85,50 +86,10 @@ def ofDaysSinceUNIXEpoch (day : Day.Offset) : PlainDate :=
   .clip y (.clip m (by decide)) (.clip d (by decide))
 
 /--
-Calculates the `Weekday` of a given `PlainDate` using Zeller's Congruence for the Gregorian calendar.
--/
-def weekday (date : PlainDate) : Weekday :=
-  let q := date.day
-  let m := date.month
-  let y := date.year.toInt
-
-  let y := if m.val < 2 then y - 1 else y
-
-  let m : Bounded.LE 1 13 := if h : m.val ≤ 1
-    then (m.truncateTop h |>.add 12 |>.expandBottom (by decide))
-    else m.expandTop (by decide)
-
-  let k := Bounded.LE.byEmod y 100 (by decide)
-  let j : Bounded.LE (-10) 9 := (Bounded.LE.byMod y 1000 (by decide)).ediv 100 (by decide)
-  let part : Bounded.LE 6 190 := q.addBounds (((m.add 1).mul_pos 13 (by decide)).ediv 5 (by decide)) |>.addBounds k |>.addBounds (k.ediv 4 (by decide))
-  let h : Bounded.LE (-15) 212 := part.addBounds ((j.ediv 4 (by decide)).addBounds (j.mul_pos 2 (by decide)).neg)
-  let d :=  (h.add 5).emod 7 (by decide)
-
-  .ofOrdinal (d.add 1)
-
-/--
-Determines the week of the year for the given `PlainDate`.
--/
-def weekOfYear (date : PlainDate) : Week.Ordinal :=
-  let res := Month.Ordinal.toOrdinal ⟨⟨date.month, date.day⟩, date.valid⟩ |>.ediv 7 (by decide) |>.add 1
-  match date.year.isLeap, res with
-  | true, res => res
-  | false, res => res
-
-/--
 Returns the unaligned week of the month for a `PlainDate` (day divided by 7, plus 1).
 -/
 def weekOfMonth (date : PlainDate) : Bounded.LE 1 5 :=
   date.day.ediv 7 (by decide) |>.add 1
-
-/--
-Determines the week of the month for the given `PlainDate`. The week of the month is calculated based
-on the day of the month and the weekday. Each week starts on Sunday because the entire library is
-based on the Gregorian Calendar.
--/
-def alignedWeekOfMonth (date : PlainDate) : Week.Ordinal.OfMonth :=
-  let weekday := date.weekday.toOrdinal
-  date.day.addBounds (weekday.sub 1) |>.ediv 7 (by decide) |>.add 1
 
 /--
 Determines the quarter of the year for the given `PlainDate`.
@@ -140,7 +101,7 @@ def quarter (date : PlainDate) : Bounded.LE 1 4 :=
 Transforms a tuple of a `PlainDate` into a `Day.Ordinal.OfYear`.
 -/
 def toOrdinal (date : PlainDate) : Day.Ordinal.OfYear date.year.isLeap :=
-  Month.Ordinal.toOrdinal ⟨(date.month, date.day), date.valid⟩
+  ValidDate.toOrdinal ⟨(date.month, date.day), date.valid⟩
 
 /--
 Determines the era of the given `PlainDate` based on its year.
@@ -232,6 +193,14 @@ def rollOver (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : 
   clip year month 1 |>.addDays (day.toOffset - 1)
 
 /--
+Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day remain unchanged,
+and any invalid days for the new year will be handled according to the `clip` behavior.
+-/
+@[inline]
+def withYearClip (dt : PlainDate) (year : Year.Offset) : PlainDate :=
+  clip year dt.month dt.day
+
+/--
 Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day are rolled
 over to the next valid month and day if necessary.
 -/
@@ -314,12 +283,60 @@ def withMonthRollOver (dt : PlainDate) (month : Month.Ordinal) : PlainDate :=
   rollOver dt.year month dt.day
 
 /--
-Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day remain unchanged,
-and any invalid days for the new year will be handled according to the `clip` behavior.
+Calculates the `Weekday` of a given `PlainDate` using Zeller's Congruence for the Gregorian calendar.
 -/
-@[inline]
-def withYearClip (dt : PlainDate) (year : Year.Offset) : PlainDate :=
-  clip year dt.month dt.day
+def weekday (date : PlainDate) : Weekday :=
+  let days := date.toDaysSinceUNIXEpoch.val
+  let res := if days ≥ -4 then (days + 4) % 7 else (days + 5) % 7 + 6
+  .ofOrdinal (Bounded.LE.ofNatWrapping res (by decide))
+
+/--
+Determines the week of the month for the given `PlainDate`. The week of the month is calculated based
+on the day of the month and the weekday. Each week starts on Sunday because the entire library is
+based on the Gregorian Calendar.
+-/
+def alignedWeekOfMonth (date : PlainDate) : Week.Ordinal.OfMonth :=
+  let weekday := date.withDayClip 1 |>.weekday |>.toOrdinal |>.sub 1
+  let days := date.day |>.sub 1 |>.addBounds weekday
+  days |>.ediv 7 (by decide) |>.add 1
+
+/--
+Sets the date to the specified `desiredWeekday`.
+-/
+def setWeekday (date : PlainDate) (desiredWeekday : Weekday) : PlainDate :=
+  let weekday := date |>.weekday |>.toOrdinal
+  let offset := desiredWeekday.toOrdinal |>.subBounds weekday
+
+  let offset : Bounded.LE 0 6 :=
+    if h : offset.val < 0 then
+      offset.truncateTop (Int.le_sub_one_of_lt h) |>.addBounds (.exact 7)
+      |>.expandBottom (by decide)
+    else
+      offset.truncateBottom (Int.not_lt.mp h)
+      |>.expandTop (by decide)
+
+  date.addDays (Day.Offset.ofInt offset.toInt)
+
+/--
+Calculates the starting Monday of the ISO week-based year for a given year.
+-/
+def weekOfYear (date : PlainDate) : Week.Ordinal :=
+  let y := date.year
+
+  let w := Bounded.LE.exact 10
+    |>.addBounds date.toOrdinal
+    |>.subBounds date.weekday.toOrdinal
+    |>.ediv 7 (by decide)
+
+  if h : w.val < 1 then
+    (y-1).weeks |>.expandBottom (by decide)
+  else if h₁ : w.val > y.weeks.val then
+    .ofNat' 1 (by decide)
+  else
+    let h := Int.not_lt.mp h
+    let h₁ := Int.not_lt.mp h₁
+    let w := w.truncateBottom h |>.truncateTop (Int.le_trans h₁ y.weeks.property.right)
+    w
 
 instance : HAdd PlainDate Day.Offset PlainDate where
   hAdd := addDays

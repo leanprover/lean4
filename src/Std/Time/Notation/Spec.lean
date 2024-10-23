@@ -54,6 +54,7 @@ private def convertOffsetZ : OffsetZ → MacroM (TSyntax `term)
 private def convertModifier : Modifier → MacroM (TSyntax `term)
   | .G p => do `(Std.Time.Modifier.G $(← convertText p))
   | .y p => do `(Std.Time.Modifier.y $(← convertYear p))
+  | .u p => do `(Std.Time.Modifier.u $(← convertYear p))
   | .D p => do `(Std.Time.Modifier.D $(← convertNumber p))
   | .MorL p =>
     match p with

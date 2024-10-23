@@ -20,24 +20,15 @@ set_option linter.all true
 /--
 Gets the time zone for a given location and timestamp, handling Windows and non-Windows platforms.
 -/
-def defaultGetTimeZoneAt : String → Timestamp → IO TimeZone :=
+def defaultGetZoneRulesAt : String → IO TimeZone.ZoneRules :=
   if System.Platform.isWindows
-    then Database.getTimeZoneAt WindowsDb.default
-    else Database.getTimeZoneAt TZdb.default
+    then getZoneRulesAt WindowsDb.default
+    else getZoneRulesAt TZdb.default
 
 /--
 Gets the local time zone for a specific timestamp, accounting for platform differences.
 -/
-def defaultGetLocalTimeZoneAt : Timestamp → IO TimeZone :=
+def defaultGetLocalZoneRulesAt : IO TimeZone.ZoneRules :=
   if System.Platform.isWindows
-    then Database.getLocalTimeZoneAt WindowsDb.default
-    else Database.getLocalTimeZoneAt TZdb.default
-
-/--
-Retrieves the current local time zone based on the system platform and the current timestamp.
--/
-def defaultGetCurrentTimeZone : IO TimeZone := do
-  let now <- Timestamp.now
-  if System.Platform.isWindows
-    then Database.getLocalTimeZoneAt WindowsDb.default now
-    else Database.getLocalTimeZoneAt TZdb.default now
+    then getLocalZoneRulesAt WindowsDb.default
+    else getLocalZoneRulesAt TZdb.default

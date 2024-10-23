@@ -159,41 +159,51 @@ The supported formats include:
 - `F`: Represents the aligned week of the month (e.g., "3").
 - `a`: Represents the AM or PM designation of the day.
   - `a`, `aa`, `aaa`: Displays AM or PM in a concise format (e.g., "PM").
-  - `aaaa`: Displays the full AM/PM designation (e.g., "PM").
+  - `aaaa`: Displays the full AM/PM designation (e.g., "Post Meridium").
 - `h`: Represents the hour of the AM/PM clock (1-12) (e.g., "12").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `K`: Represents the hour of the AM/PM clock (0-11) (e.g., "0").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `k`: Represents the hour of the day in a 1-24 format (e.g., "24").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `H`: Represents the hour of the day in a 0-23 format (e.g., "0").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `m`: Represents the minute of the hour (e.g., "30").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `s`: Represents the second of the minute (e.g., "55").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `S`: Represents a fraction of a second, typically displayed as a decimal number (e.g., "978" for milliseconds).
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `A`: Represents the millisecond of the day (e.g., "1234").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `n`: Represents the nanosecond of the second (e.g., "987654321").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `N`: Represents the nanosecond of the day (e.g., "1234000000").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `VV`: Represents the time zone ID, which could be a city-based zone (e.g., "America/Los_Angeles"), a UTC marker (`"Z"`), or a specific offset (e.g., "-08:30").
+  - One or more repetitions of the character indicates the truncation of the value to the specified number of characters.
 - `z`: Represents the time zone name.
   - `z`, `zz`, `zzz`: Shows an abbreviated time zone name (e.g., "PST" for Pacific Standard Time).
   - `zzzz`: Displays the full time zone name (e.g., "Pacific Standard Time").
 - `O`: Represents the localized zone offset in the format "GMT" followed by the time difference from UTC.
   - `O`: Displays the GMT offset in a simple format (e.g., "GMT+8").
-  - `O`: Displays the full GMT offset, including hours and minutes (e.g., "GMT+08:00").
-- `X`: Represents the zone offset, using 'Z' for UTC and specifying the offset.
+  - `OOOO`: Displays the full GMT offset, including hours and minutes (e.g., "GMT+08:00").
+- `X`: Represents the zone offset. It uses 'Z' for UTC and can represent any offset (positive or negative).
   - `X`: Displays the hour offset (e.g., "-08").
   - `XX`: Displays the hour and minute offset without a colon (e.g., "-0830").
   - `XXX`: Displays the hour and minute offset with a colon (e.g., "-08:30").
   - `XXXX`: Displays the hour, minute, and second offset without a colon (e.g., "-083045").
   - `XXXXX`: Displays the hour, minute, and second offset with a colon (e.g., "-08:30:45").
-  - It also uses `Z` to represent UTC without any offset.
-- `x`: Represents the zone offset without using 'Z' for zero offsets.
+- `x`: Represents the zone offset. Similar to X, but does not display 'Z' for UTC and focuses only on positive offsets.
   - `x`: Displays the hour offset (e.g., "+08").
   - `xx`: Displays the hour and minute offset without a colon (e.g., "+0830").
   - `xxx`: Displays the hour and minute offset with a colon (e.g., "+08:30").
   - `xxxx`: Displays the hour, minute, and second offset without a colon (e.g., "+083045").
   - `xxxxx`: Displays the hour, minute, and second offset with a colon (e.g., "+08:30:45").
-- `Z`: Represents the zone offset, with 'Z' for UTC and an optional time offset.
+- `Z`: Always includes an hour and minute offset and may use 'Z' for UTC, providing clear differentiation between UTC and other time zones.
   - `Z`: Displays the hour and minute offset without a colon (e.g., "+0800").
-  - `ZZ`: Displays "GMT" followed by the time offset (e.g., "GMT+08:00" or Z).
-  - `ZZZ`: Displays the full hour, minute, and second offset with a colon (e.g., "+08:30:45" or Z).
+  - `ZZ`: Displays "GMT" followed by the time offset (e.g., "GMT+08:00" or "Z").
+  - `ZZZ`: Displays the full hour, minute, and second offset with a colon (e.g., "+08:30:45" or "Z").
 
 # Macros
 

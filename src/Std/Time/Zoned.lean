@@ -30,8 +30,10 @@ Get the current time.
 @[inline]
 def now : IO PlainDateTime := do
   let tm ← Timestamp.now
-  let tz ← Database.defaultGetCurrentTimeZone
-  return PlainDateTime.ofTimestamp tm tz
+  let rules ← Database.defaultGetLocalZoneRulesAt
+  let transition ← rules.findTransitionForTimestamp tm |>.elim (throw <| IO.userError "cannot find timezone") pure
+
+  return PlainDateTime.ofTimestamp tm transition.localTimeType.getTimeZone
 
 end PlainDateTime
 
@@ -52,36 +54,11 @@ def toPlainDate (dt : DateTime tz) : PlainDate :=
   Timestamp.toPlainDateAssumingUTC dt.toUTCTimestamp
 
 /--
-Converts a `PlainTime` and a `TimeZone` to a `DateTime`
--/
-@[inline]
-def ofPlainTime (pt : PlainTime) (tz : TimeZone) : DateTime tz :=
-  DateTime.ofTimestamp (Timestamp.ofPlainTime pt) tz
-
-/--
 Converts a `DateTime` to a `PlainTime`
 -/
 @[inline]
 def toPlainTime (dt : DateTime tz) : PlainTime :=
   dt.date.get.time
-
-/--
-Calculates the duration between a given `DateTime` and a specified date.
-
-## Example
-
-```lean
-example : Duration :=
-  let startDate := date("2023-1-1:05:10:20UTC")
-  let endDate := date("2023-3-15:05:10:20UTC")
-  endDate.since startDate
-```
--/
-@[inline]
-def since [ToTimestamp α] (date : DateTime tz) (since : α) : Duration :=
-  let date  := date.toUTCTimestamp
-  let since := ToTimestamp.toTimestamp since
-  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
 
 end DateTime
 namespace ZonedDateTime
@@ -91,61 +68,37 @@ Gets the current `ZonedDateTime`.
 -/
 @[inline]
 def now : IO ZonedDateTime := do
-  let date ← Timestamp.now
-  let tz ← Database.defaultGetCurrentTimeZone
-  return ofTimestamp date tz
+  let tm ← Timestamp.now
+  let rules ← Database.defaultGetLocalZoneRulesAt
+  return ZonedDateTime.ofTimestamp tm rules
 
 /--
-Converts a `PlainDate` to a `ZonedDateTime`
+Converts a `PlainDate` to a `ZonedDateTime`.
 -/
 @[inline]
-def ofPlainDate (pd : PlainDate) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainDateAssumingUTC pd) tz⟩
+def ofPlainDate (pd : PlainDate) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
+  ZonedDateTime.ofPlainDateTime (pd.atTime PlainTime.midnight) zr
 
 /--
 Converts a `ZonedDateTime` to a `PlainDate`
 -/
 @[inline]
 def toPlainDate (dt : ZonedDateTime) : PlainDate :=
-  DateTime.toPlainDate dt.snd
-
-/--
-Converts a `PlainTime` to a `ZonedDateTime`
--/
-@[inline]
-def ofPlainTime (pt : PlainTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp (Timestamp.ofPlainTime pt) tz⟩
-
-/--
-Converts a `PlainDateTime` to a `ZonedDateTime` assuming the Plain Date is Local.
--/
-@[inline]
-def ofLocalDateTime (pd : PlainDateTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofLocalDateTime pd tz⟩
+  dt.toPlainDateTime.date
 
 /--
 Converts a `ZonedDateTime` to a `PlainTime`
 -/
 @[inline]
 def toPlainTime (dt : ZonedDateTime) : PlainTime :=
-  DateTime.toPlainTime dt.snd
+  dt.toPlainDateTime.time
 
 /--
-Calculates the duration between a given `ZonedDateTime` and a specified date.
-
-## Example
-
-```lean
-def example : Duration :=
-  let startDate := date% 2023-1-1:05:10:20UTC
-  let endDate := date% 2023-3-15:05:10:20UTC
-  endDate.since startDate
-```
+Creates a new `ZonedDateTime` out of a `PlainDateTime` and a time zone identifier.
 -/
 @[inline]
-def since [ToTimestamp α] (date : ZonedDateTime) (since : α) : Duration :=
-  let date  := date.toUTCTimestamp
-  let since := ToTimestamp.toTimestamp since
-  Std.Time.Duration.sub date.toDurationSinceUnixEpoch since.toDurationSinceUnixEpoch
+def of (pdt : PlainDateTime) (id : String) : IO ZonedDateTime := do
+  let zr ← Database.defaultGetZoneRulesAt id
+  return ZonedDateTime.ofPlainDateTime pdt zr
 
 end ZonedDateTime

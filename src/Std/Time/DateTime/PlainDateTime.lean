@@ -457,7 +457,7 @@ Transforms a tuple of a `PlainDateTime` into a `Day.Ordinal.OfYear`.
 -/
 @[inline]
 def toOrdinal (date : PlainDateTime) : Day.Ordinal.OfYear date.year.isLeap :=
-  Month.Ordinal.toOrdinal ⟨(date.month, date.day), date.date.valid⟩
+  ValidDate.toOrdinal ⟨(date.month, date.day), date.date.valid⟩
 
 /--
 Determines the quarter of the year for the given `PlainDateTime`.
@@ -506,5 +506,25 @@ instance : HAdd PlainDateTime Duration PlainDateTime where
   hAdd x y := addNanoseconds x y.toNanoseconds
 
 end PlainDateTime
+namespace PlainDate
+
+/--
+Combines a `PlainDate` and `PlainTime` into a `PlainDateTime`.
+-/
+@[inline]
+def atTime : PlainDate → PlainTime → PlainDateTime :=
+  PlainDateTime.mk
+
+end PlainDate
+namespace PlainTime
+
+/--
+Combines a `PlainTime` and `PlainDate` into a `PlainDateTime`.
+-/
+@[inline]
+def atDate (time: PlainTime) (date: PlainDate) : PlainDateTime :=
+  PlainDateTime.mk date time
+
+end PlainTime
 end Time
 end Std

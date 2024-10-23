@@ -11,6 +11,7 @@ def Time24Hour : GenericFormat .any := datespec("HH:mm:ss")
 def Time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
 def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss ZZZ")
 def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM yyyy HH:mm")
+def EraDate : GenericFormat .any := datespec("MM D, yyyy G")
 
 -- Dates
 
@@ -26,9 +27,9 @@ def time₂ := time("03:11:01")
 info: "Monday, June 16, 2014 03:03:03 -0300"
 -/
 #guard_msgs in
-#eval FullDayTimeZone.format date₁.snd
+#eval FullDayTimeZone.format date₁.toDateTime
 
-def tm := date₁.snd.timestamp
+def tm := date₁.toUTCTimestamp
 def date₂ := DateTime.ofTimestamp tm brTZ
 
 /--
@@ -205,31 +206,31 @@ info: "0053-06-19"
 #eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-700000⟩) .UTC)
 
 /--
-info: "-0002-09-16"
+info: "0003-09-16"
 -/
 #guard_msgs in
 #eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-720000⟩) .UTC)
 
 /--
-info: "-0084-07-28"
+info: "0085-07-28"
 -/
 #guard_msgs in
 #eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-750000⟩) .UTC)
 
 /--
-info: "-0221-09-04"
+info: "0222-09-04"
 -/
 #guard_msgs in
 #eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)
 
 /--
-info: date("-0221-09-04")
+info: date("0222-09-04")
 -/
 #guard_msgs in
 #eval PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩
 
 /--
-info: date("-0221-09-04")
+info: date("0222-09-04")
 -/
 #guard_msgs in
 #eval PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩
@@ -276,6 +277,7 @@ Format
 
 def time₄ := time("23:13:12.324354679")
 def date₄ := date("2002-07-14")
+def datetime₅ := PlainDateTime.mk (PlainDate.clip (-2000) 3 4) (PlainTime.mk 12 23 ⟨false, 12⟩ 0)
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")
 def zoned₄ := zoned("2002-07-14T23:13:12.324354679+09:00")
 
@@ -290,6 +292,12 @@ info: "02 2002 000002002"
 -/
 #guard_msgs in
 #eval zoned₄.format "yy yyyy yyyyyyyyy"
+
+/--
+info: "02 2002 000002002"
+-/
+#guard_msgs in
+#eval zoned₄.format "uu uuuu uuuuuuuuu"
 
 /--
 info: "5 95 195"
@@ -351,7 +359,7 @@ info: "7 07 Sun Sunday S"
 #eval zoned₄.format "e ee eee eeee eeeee"
 
 /--
-info: "3 03 003 0003"
+info: "2 02 002 0002"
 -/
 #guard_msgs in
 #eval zoned₄.format "F FF FFF FFFF"
@@ -471,6 +479,12 @@ info: "02 2002 000002002"
 #eval datetime₄.format "yy yyyy yyyyyyyyy"
 
 /--
+info: "02 2002 000002002"
+-/
+#guard_msgs in
+#eval datetime₄.format "uu uuuu uuuuuuuuu"
+
+/--
 info: "5 95 195"
 -/
 #guard_msgs in
@@ -530,7 +544,7 @@ info: "7 07 Sun Sunday S"
 #eval datetime₄.format "e ee eee eeee eeeee"
 
 /--
-info: "3 03 003 0003"
+info: "2 02 002 0002"
 -/
 #guard_msgs in
 #eval datetime₄.format "F FF FFF FFFF"
@@ -680,6 +694,12 @@ info: "02 2002 000002002"
 #eval date₄.format "yy yyyy yyyyyyyyy"
 
 /--
+info: "02 2002 000002002"
+-/
+#guard_msgs in
+#eval date₄.format "uu uuuu uuuuuuuuu"
+
+/--
 info: "5 95 195"
 -/
 #guard_msgs in
@@ -739,7 +759,27 @@ info: "7 07 Sun Sunday S"
 #eval date₄.format "e ee eee eeee eeeee"
 
 /--
-info: "3 03 003 0003"
+info: "2 02 002 0002"
 -/
 #guard_msgs in
 #eval date₄.format "F FF FFF FFFF"
+
+/--
+info: "-2000 2001 BCE"
+-/
+#guard_msgs in
+#eval datetime₅.format "uuuu yyyy G"
+
+/--
+info: "2002 2002 CE"
+-/
+#guard_msgs in
+#eval datetime₄.format "uuuu yyyy G"
+
+/--
+info: 3
+-/
+#guard_msgs in
+#eval
+  let t : ZonedDateTime := .ofPlainDateTime datetime("2018-12-31T12:00:00") (TimeZone.ZoneRules.ofTimeZone TimeZone.UTC)
+  IO.println s!"{t.format "w"}"

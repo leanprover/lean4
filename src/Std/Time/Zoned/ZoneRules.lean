@@ -147,14 +147,40 @@ If the timestamp falls between two transitions, it returns the most recent trans
 -/
 def findTransitionForTimestamp (transitions : Array Transition) (timestamp : Timestamp) : Option Transition :=
   let value := timestamp.toSecondsSinceUnixEpoch
-  if let some idx := transitions.findIdx? (fun t => t.time.val > value.val)
+  if let some idx := transitions.findIdx? (fun t => t.time.val ≥ value.val)
     then transitions.get? (idx - 1)
     else transitions.back?
 
 /--
 Find the current `TimeZone` out of a `Transition` in a `Array Transition`
 -/
-def timezoneAt(transitions : Array Transition) (tm : Timestamp) : Except String TimeZone :=
+def timezoneAt (transitions : Array Transition) (tm : Timestamp) : Except String TimeZone :=
   if let some transition := findTransitionForTimestamp transitions tm
     then .ok transition.createTimeZoneFromTransition
     else .error "cannot find local timezone."
+
+end Transition
+namespace ZoneRules
+
+/--
+Finds the transition corresponding to a given timestamp in `ZoneRules`.
+If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
+-/
+@[inline]
+def findTransitionForTimestamp (zr : ZoneRules) (timestamp : Timestamp) : Option Transition :=
+  Transition.findTransitionForTimestamp zr.transitions timestamp
+
+/--
+Find the current `TimeZone` out of a `Transition` in a `ZoneRules`
+-/
+@[inline]
+def timezoneAt (zr : ZoneRules) (tm : Timestamp) : Except String TimeZone :=
+  Transition.timezoneAt zr.transitions tm
+
+/--
+Creates `ZoneRules` for the given `TimeZone`.
+-/
+def ofTimeZone (tz : TimeZone) : ZoneRules :=
+  ZoneRules.mk #[] #[Transition.mk tz.toSeconds (LocalTimeType.mk tz.offset tz.isDST tz.name .wall .local tz.abbreviation)]
+
+end ZoneRules

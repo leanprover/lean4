@@ -13,298 +13,306 @@ namespace Time
 set_option linter.all true
 
 /--
-An existential version of `DateTime` that encapsulates a `DateTime` value without explicitly storing
-the time zone in the type.
+Represents a date and time with timezone information.
 -/
-def ZonedDateTime := Sigma DateTime
+structure ZonedDateTime where
+  private mk::
 
-instance : BEq ZonedDateTime where
-  beq x y := x.fst == y.fst && x.snd.timestamp == y.snd.timestamp
+  /--
+  The plain datetime component, evaluated lazily.
+  -/
+  date : Thunk PlainDateTime
 
-instance : CoeDep ZonedDateTime d (DateTime d.fst) where
-  coe := d.snd
+  /--
+  The corresponding timestamp for the datetime.
+  -/
+  timestamp : Timestamp
+
+  /--
+  The timezone rules applied to this datetime.
+  -/
+  rules : TimeZone.ZoneRules
+
+  /--
+  The timezone associated with this datetime.
+  -/
+  timezone : TimeZone
 
 instance : Inhabited ZonedDateTime where
-  default := ⟨Inhabited.default, Inhabited.default⟩
+  default := ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
 
 namespace ZonedDateTime
 open DateTime
 
 /--
-Creates a new `ZonedDateTime` out of a `DateTime` and `TimeZone`.
--/
-@[inline]
-def mk (tz : TimeZone) (datetime : DateTime tz) : ZonedDateTime :=
-  ⟨tz, datetime⟩
-
-/--
 Creates a new `ZonedDateTime` out of a `Timestamp` and a `TimeZone`.
 -/
 @[inline]
-def ofTimestamp (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofTimestamp tm tz⟩
+def ofTimestamp (tm : Timestamp) (rules : TimeZone.ZoneRules) : ZonedDateTime :=
+  let tz := TimeZone.Transition.timezoneAt rules.transitions tm |>.toOption |>.getD TimeZone.UTC
+  ZonedDateTime.mk (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds) |>.toPlainDateTimeAssumingUTC) tm rules tz
+
+/--
+Creates a new `ZonedDateTime` out of a `PlainDateTime` and a `TimeZone`.
+-/
+@[inline]
+def ofPlainDateTime (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
+  let tm := pdt.toTimestampAssumingUTC
+  let tz := zr.findTransitionForTimestamp tm |>.map (·.localTimeType.getTimeZone) |>.getD TimeZone.UTC
+  let tm := tm.subSeconds tz.toSeconds
+  ZonedDateTime.mk (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds) |>.toPlainDateTimeAssumingUTC) tm zr tz
 
 /--
 Creates a new UTC `Timestamp` out of a `ZonedDateTime`.
 -/
 @[inline]
 def toUTCTimestamp (date : ZonedDateTime) : Timestamp :=
-  date.snd.toUTCTimestamp
+  date.timestamp
 
 /--
-Creates a new `ZonedDateTime` out of a `Timestamp` and `ZoneRules`.
+Changes the `ZoleRules` to a new one.
 -/
 @[inline]
-def ofZoneRules (tm : Timestamp) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
-  let transition ← TimeZone.Transition.findTransitionForTimestamp rules.transitions tm
-  return ofTimestamp tm transition.localTimeType.getTimeZone
-
-/--
-Converts a `PlainDateTime` to a `ZonedDateTime` using the given `ZoneRules`.
--/
-@[inline]
-def ofLocalDateTimeWithZoneRules (pdt : PlainDateTime) (rules : TimeZone.ZoneRules) : Option ZonedDateTime := do
-  ofZoneRules (pdt.toTimestampAssumingUTC) rules
-
-/--
-Changes the `TimeZone` to a new one.
--/
-@[inline]
-def convertTimeZone (date : ZonedDateTime) (tz₁ : TimeZone) : ZonedDateTime :=
+def convertZoneRules (date : ZonedDateTime) (tz₁ : TimeZone.ZoneRules) : ZonedDateTime :=
   ofTimestamp date.toUTCTimestamp tz₁
 
 /--
 Creates a new `ZonedDateTime` out of a `PlainDateTime`
 -/
 @[inline]
-def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone) : ZonedDateTime :=
-  ⟨tz, DateTime.ofPlainDateTimeAssumingUTC date tz⟩
+def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone.ZoneRules) : ZonedDateTime :=
+  ofTimestamp date.toTimestampAssumingUTC tz
 
 /--
 Converts a `ZonedDateTime` to a `PlainDateTime`
 -/
 @[inline]
 def toPlainDateTime (dt : ZonedDateTime) : PlainDateTime :=
-  DateTime.toPlainDateTime dt.snd
+  dt.date.get
+
+/--
+Converts a `ZonedDateTime` to a `PlainDateTime`
+-/
+@[inline]
+def toDateTime (dt : ZonedDateTime) : DateTime dt.timezone :=
+  DateTime.ofTimestamp dt.timestamp dt.timezone
 
 /--
 Getter for the `Year` inside of a `ZonedDateTime`
 -/
 @[inline]
 def year (zdt : ZonedDateTime) : Year.Offset :=
-  zdt.snd.year
+  zdt.date.get.year
 
 /--
 Getter for the `Month` inside of a `ZonedDateTime`
 -/
 @[inline]
 def month (zdt : ZonedDateTime) : Month.Ordinal :=
-  zdt.snd.month
+  zdt.date.get.month
 
 /--
 Getter for the `Day` inside of a `ZonedDateTime`
 -/
 @[inline]
 def day (zdt : ZonedDateTime) : Day.Ordinal :=
-  zdt.snd.day
+  zdt.date.get.day
 
 /--
 Getter for the `Hour` inside of a `ZonedDateTime`
 -/
 @[inline]
 def hour (zdt : ZonedDateTime) : Hour.Ordinal :=
-  zdt.snd.date.get.time.hour
+  zdt.date.get.time.hour
 
 /--
 Getter for the `Minute` inside of a `ZonedDateTime`
 -/
 @[inline]
 def minute (zdt : ZonedDateTime) : Minute.Ordinal :=
-  zdt.snd.minute
+  zdt.date.get.minute
 
 /--
 Getter for the `Second` inside of a `ZonedDateTime`
 -/
 @[inline]
-def second (zdt : ZonedDateTime) : Second.Ordinal zdt.snd.date.get.time.second.fst :=
-  zdt.snd.date.get.time.second.snd
+def second (zdt : ZonedDateTime) : Second.Ordinal zdt.date.get.time.second.fst :=
+  zdt.date.get.time.second.snd
 
 /--
 Getter for the `Nanosecond` inside of a `ZonedDateTime`
 -/
 @[inline]
 def nanosecond (zdt : ZonedDateTime) : Nanosecond.Ordinal :=
-  zdt.snd.date.get.time.nano
+  zdt.date.get.time.nano
 
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
 -/
 @[inline]
 def offset (zdt : ZonedDateTime) : TimeZone.Offset :=
-  zdt.fst.offset
-
-/--
-Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
--/
-@[inline]
-def timezone (zdt : ZonedDateTime) : TimeZone :=
-  zdt.fst
+  zdt.timezone.offset
 
 /--
 Returns the weekday.
 -/
 @[inline]
 def weekday (zdt : ZonedDateTime) : Weekday :=
-  zdt.snd.weekday
+  zdt.date.get.weekday
 
 /--
 Transforms a tuple of a `ZonedDateTime` into a `Day.Ordinal.OfYear`.
 -/
 @[inline]
 def toOrdinal (date : ZonedDateTime) : Day.Ordinal.OfYear date.year.isLeap :=
-  Month.Ordinal.toOrdinal ⟨(date.month, date.day), date.snd.date.get.date.valid⟩
+  ValidDate.toOrdinal ⟨(date.month, date.day), date.date.get.date.valid⟩
 
 /--
 Add `Day.Offset` to a `ZonedDateTime`.
 -/
 def addDays (dt : ZonedDateTime) (days : Day.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addDays days)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addDays days).toTimestampAssumingUTC dt.rules
 
 /--
-Subtracts `Day.Offset` to a `ZonedDateTime`.
+Subtract `Day.Offset` from a `ZonedDateTime`.
 -/
-@[inline]
 def subDays (dt : ZonedDateTime) (days : Day.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subDays days)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subDays days).toTimestampAssumingUTC dt.rules
 
 /--
 Add `Week.Offset` to a `ZonedDateTime`.
 -/
 def addWeeks (dt : ZonedDateTime) (weeks : Week.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addWeeks weeks)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addWeeks weeks).toTimestampAssumingUTC dt.rules
 
 /--
-Subtracts `Week.Offset` to a `ZonedDateTime`.
+Subtract `Week.Offset` from a `ZonedDateTime`.
 -/
-@[inline]
 def subWeeks (dt : ZonedDateTime) (weeks : Week.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subWeeks weeks)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subWeeks weeks).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Month.Offset` to a `ZonedDateTime`, it clips the day to the last valid day of that month.
+Add `Month.Offset` to a `ZonedDateTime`, clipping to the last valid day.
 -/
 def addMonthsClip (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addMonthsClip months)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addMonthsClip months).toTimestampAssumingUTC dt.rules
 
 /--
-Subtracts `Month.Offset` to a `ZonedDateTime`, it clips the day to the last valid day of that month.
+Subtract `Month.Offset` from a `ZonedDateTime`, clipping to the last valid day.
 -/
-@[inline]
 def subMonthsClip (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subMonthsClip months)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subMonthsClip months).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Month.Offset` to a `ZonedDateTime`, this function rolls over any excess days into the following
-month.
+Add `Month.Offset` to a `ZonedDateTime`, rolling over excess days.
 -/
 def addMonthsRollOver (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addMonthsRollOver months)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addMonthsRollOver months).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Month.Offset` to a `ZonedDateTime`, this function rolls over any excess days into the following
-month.
+Subtract `Month.Offset` from a `ZonedDateTime`, rolling over excess days.
 -/
-@[inline]
 def subMonthsRollOver (dt : ZonedDateTime) (months : Month.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subMonthsRollOver months)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subMonthsRollOver months).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Year.Offset` to a `ZonedDateTime`, this function rolls over any excess days into the following
-month.
+Add `Year.Offset` to a `ZonedDateTime`, rolling over excess days.
 -/
-@[inline]
 def addYearsRollOver (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addYearsRollOver years)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addYearsRollOver years).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Year.Offset` to a `ZonedDateTime`, it clips the day to the last valid day of that month.
+Add `Year.Offset` to a `ZonedDateTime`, clipping to the last valid day.
 -/
-@[inline]
 def addYearsClip (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addYearsClip years)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addYearsClip years).toTimestampAssumingUTC dt.rules
 
 /--
-Subtract `Year.Offset` from a `ZonedDateTime`, this function clips the day to the last valid day of that month.
+Subtract `Year.Offset` from a `ZonedDateTime`, clipping to the last valid day.
 -/
-@[inline]
 def subYearsClip (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subYearsClip years)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subYearsClip years).toTimestampAssumingUTC dt.rules
 
 /--
-Subtract `Year.Offset` from a `ZonedDateTime`, this function rolls over any excess days into the previous month.
+Subtract `Year.Offset` from a `ZonedDateTime`, rolling over excess days.
 -/
-@[inline]
 def subYearsRollOver (dt : ZonedDateTime) (years : Year.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subYearsRollOver years)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subYearsRollOver years).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Hour.Offset` to a `ZonedDateTime`, adjusting the date if necessary.
+Add `Hour.Offset` to a `ZonedDateTime`.
 -/
 def addHours (dt : ZonedDateTime) (hours : Hour.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addHours hours)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addHours hours).toTimestampAssumingUTC dt.rules
 
 /--
-Subtract `Hour.Offset` from a `ZonedDateTime`, adjusting the date if necessary.
+Subtract `Hour.Offset` from a `ZonedDateTime`.
 -/
-@[inline]
 def subHours (dt : ZonedDateTime) (hours : Hour.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subHours hours)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subHours hours).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Minute.Offset` to a `ZonedDateTime`, adjusting the date if necessary.
+Add `Minute.Offset` to a `ZonedDateTime`.
 -/
 def addMinutes (dt : ZonedDateTime) (minutes : Minute.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addMinutes minutes)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addMinutes minutes).toTimestampAssumingUTC dt.rules
 
 /--
-Subtract `Minute.Offset` from a `ZonedDateTime`, adjusting the date if necessary.
+Subtract `Minute.Offset` from a `ZonedDateTime`.
 -/
-@[inline]
 def subMinutes (dt : ZonedDateTime) (minutes : Minute.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subMinutes minutes)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subMinutes minutes).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Second.Offset` to a `ZonedDateTime`, adjusting the date if necessary.
+Add `Second.Offset` to a `ZonedDateTime`.
 -/
 def addSeconds (dt : ZonedDateTime) (seconds : Second.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addSeconds seconds)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addSeconds seconds).toTimestampAssumingUTC dt.rules
 
 /--
-Subtract `Second.Offset` from a `ZonedDateTime`, adjusting the date if necessary.
+Subtract `Second.Offset` from a `ZonedDateTime`.
 -/
-@[inline]
 def subSeconds (dt : ZonedDateTime) (seconds : Second.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subSeconds seconds)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subSeconds seconds).toTimestampAssumingUTC dt.rules
 
 /--
-Add `Nanosecond.Offset` to a `ZonedDateTime`, adjusting the date if necessary.
+Add `Nanosecond.Offset` to a `ZonedDateTime`.
 -/
 def addNanoseconds (dt : ZonedDateTime) (nanoseconds : Nanosecond.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.addNanoseconds nanoseconds)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addNanoseconds nanoseconds).toTimestampAssumingUTC dt.rules
 
 /--
-Subtract `Nanosecond.Offset` from a `ZonedDateTime`, adjusting the date if necessary.
+Subtract `Nanosecond.Offset` from a `ZonedDateTime`.
 -/
-@[inline]
 def subNanoseconds (dt : ZonedDateTime) (nanoseconds : Nanosecond.Offset) : ZonedDateTime :=
-  Sigma.mk dt.fst (dt.snd.subNanoseconds nanoseconds)
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subNanoseconds nanoseconds).toTimestampAssumingUTC dt.rules
 
 /--
 Determines the era of the given `ZonedDateTime` based on its year.
 -/
 @[inline]
 def era (date : ZonedDateTime) : Year.Era :=
-  date.snd.era
+  date.date.get.era
 
 /--
 Creates a new `ZonedDateTime` by adjusting the day of the month to the given `days` value, with any
@@ -312,7 +320,8 @@ out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
 def withDaysClip (dt : ZonedDateTime) (days : Day.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withDaysClip days⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withDaysClip days) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the day of the month to the given `days` value, with any
@@ -320,7 +329,8 @@ out-of-range days rolled over to the next month or year as needed.
 -/
 @[inline]
 def withDaysRollOver (dt : ZonedDateTime) (days : Day.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withDaysRollOver days⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withDaysRollOver days) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the month to the given `month` value.
@@ -328,7 +338,8 @@ The day remains unchanged, and any invalid days for the new month will be handle
 -/
 @[inline]
 def withMonthClip (dt : ZonedDateTime) (month : Month.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withMonthClip month⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withMonthClip month) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the month to the given `month` value.
@@ -336,7 +347,8 @@ The day is rolled over to the next valid month if necessary.
 -/
 @[inline]
 def withMonthRollOver (dt : ZonedDateTime) (month : Month.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withMonthRollOver month⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withMonthRollOver month) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the year to the given `year` value. The month and day remain unchanged,
@@ -344,7 +356,9 @@ and any invalid days for the new year will be handled according to the `clip` be
 -/
 @[inline]
 def withYearClip (dt : ZonedDateTime) (year : Year.Offset) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withYearClip year⟩
+  let date := dt.date.get
+
+  ZonedDateTime.ofPlainDateTime (date.withYearClip year) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the year to the given `year` value. The month and day are rolled
@@ -352,44 +366,46 @@ over to the next valid month and day if necessary.
 -/
 @[inline]
 def withYearRollOver (dt : ZonedDateTime) (year : Year.Offset) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withYearRollOver year⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withYearRollOver year) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `hour` component.
 -/
 @[inline]
 def withHours (dt : ZonedDateTime) (hour : Hour.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withHours hour⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withHours hour) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `minute` component.
 -/
 @[inline]
 def withMinutes (dt : ZonedDateTime) (minute : Minute.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withMinutes minute⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withMinutes minute) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `second` component.
 -/
 @[inline]
 def withSeconds (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withSeconds second⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withSeconds second) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `nano` component.
 -/
 @[inline]
 def withNanoseconds (dt : ZonedDateTime) (nano : Nanosecond.Ordinal) : ZonedDateTime :=
-  ⟨dt.fst, dt.snd.withNanoseconds nano⟩
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withNanoseconds nano) dt.rules
 
 /--
 Checks if the `ZonedDateTime` is in a leap year.
 -/
 def inLeapYear (date : ZonedDateTime) : Bool :=
   date.year.isLeap
-
-instance : ToTimestamp ZonedDateTime where
-  toTimestamp dt := dt.toUTCTimestamp
 
 instance : HAdd ZonedDateTime Day.Offset ZonedDateTime where
   hAdd := addDays

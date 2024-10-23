@@ -169,6 +169,7 @@ def format (date : PlainDate) (format : String) : String :=
     let res := res.formatGeneric fun
       | .G _ => some date.era
       | .y _ => some date.year
+      | .u _ => some date.year
       | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
       | .Qorq _ => some date.quarter
       | .w _ => some date.weekOfYear
@@ -326,7 +327,7 @@ def format (data: ZonedDateTime) (format : String) : String :=
   let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
-  | .ok res => res.format data.snd
+  | .ok res => res.format data.toDateTime
 
 /--
 Parses a `String` in the `ISO8601` format and returns a `ZonedDateTime`.
@@ -338,7 +339,7 @@ def fromISO8601String (input : String) : Except String ZonedDateTime :=
 Formats a `ZonedDateTime` value into an ISO8601 string.
 -/
 def toISO8601String (date : ZonedDateTime) : String :=
-  Formats.iso8601.format date.snd
+  Formats.iso8601.format date.toDateTime
 
 /--
 Parses a `String` in the `RFC822` format and returns a `ZonedDateTime`.
@@ -350,7 +351,7 @@ def fromRFC822String (input : String) : Except String ZonedDateTime :=
 Formats a `ZonedDateTime` value into an RFC822 format string.
 -/
 def toRFC822String (date : ZonedDateTime) : String :=
-  Formats.rfc822.format date.snd
+  Formats.rfc822.format date.toDateTime
 
 /--
 Parses a `String` in the `RFC850` format and returns a `ZonedDateTime`.
@@ -362,7 +363,7 @@ def fromRFC850String (input : String) : Except String ZonedDateTime :=
 Formats a `ZonedDateTime` value into an RFC850 format string.
 -/
 def toRFC850String (date : ZonedDateTime) : String :=
-  Formats.rfc850.format date.snd
+  Formats.rfc850.format date.toDateTime
 
 /--
 Parses a `String` in the `DateTimeWithZone` format and returns a `DateTime` object in the GMT time zone.
@@ -374,7 +375,7 @@ def fromDateTimeWithZoneString (input : String) : Except String ZonedDateTime :=
 Formats a `DateTime` value into a simple date time with timezone string.
 -/
 def toDateTimeWithZoneString (pdt : ZonedDateTime) : String :=
-  Formats.dateTimeWithZone.format pdt.snd
+  Formats.dateTimeWithZone.format pdt.toDateTime
 
 /--
 Parses a `String` in the `DateTimeWithZone` format and returns a `DateTime` object in the GMT time zone.
@@ -387,7 +388,7 @@ def fromLeanDateTimeWithZoneString (input : String) : Except String ZonedDateTim
 Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notationg.
 -/
 def toLeanDateTimeWithZoneString (zdt : ZonedDateTime) : String :=
-  Formats.leanDateTimeWithZone.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute zdt.snd.date.get.time.second zdt.nanosecond zdt.fst.offset
+  Formats.leanDateTimeWithZone.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute zdt.date.get.time.second zdt.nanosecond zdt.offset
 
 /--
 Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
@@ -418,6 +419,7 @@ def format (date : PlainDateTime) (format : String) : String :=
     let res := res.formatGeneric fun
       | .G _ => some date.era
       | .y _ => some date.year
+      | .u _ => some date.year
       | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
       | .Qorq _ => some date.quarter
       | .w _ => some date.weekOfYear

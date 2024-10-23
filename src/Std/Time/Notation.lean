@@ -56,6 +56,7 @@ private def convertOffsetZ : OffsetZ → MacroM (TSyntax `term)
 private def convertModifier : Modifier → MacroM (TSyntax `term)
   | .G p => do `(Std.Time.Modifier.G $(← convertText p))
   | .y p => do `(Std.Time.Modifier.y $(← convertYear p))
+  | .u p => do `(Std.Time.Modifier.u $(← convertYear p))
   | .D p => do `(Std.Time.Modifier.D $(← convertNumber p))
   | .MorL p =>
     match p with
@@ -131,7 +132,7 @@ private def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax 
  `(Std.Time.PlainDateTime.mk $(← convertPlainDate d.date) $(← convertPlainTime d.time))
 
 private def convertZonedDateTime (d : Std.Time.ZonedDateTime) : MacroM (TSyntax `term) := do
- `(Std.Time.ZonedDateTime.mk $(← convertTimezone d.timezone) (DateTime.ofLocalDateTime $(← convertPlainDateTime d.snd.date.get) $(← convertTimezone d.timezone)))
+ `(Std.Time.ZonedDateTime.ofPlainDateTime $(← convertPlainDateTime d.toPlainDateTime) (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
 
 /--
 Defines a syntax for zoned datetime values. It expects a string representing a datetime with

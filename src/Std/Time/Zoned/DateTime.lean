@@ -382,7 +382,7 @@ def inLeapYear (date : DateTime tz) : Bool :=
 Determines the ordinal day of the year for the given `DateTime`.
 -/
 def toOrdinal (date : DateTime tz) : Day.Ordinal.OfYear date.year.isLeap :=
-  Month.Ordinal.toOrdinal ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩
+  ValidDate.toOrdinal ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩
 
 /--
 Determines the week of the year for the given `DateTime`.
@@ -412,9 +412,6 @@ Determines the quarter of the year for the given `DateTime`.
 @[inline]
 def quarter (date : DateTime tz) : Bounded.LE 1 4 :=
   date.date.get.quarter
-
-instance : ToTimestamp (DateTime tz) where
-  toTimestamp dt := dt.toUTCTimestamp
 
 instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where
   hAdd := addDays

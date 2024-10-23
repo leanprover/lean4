@@ -115,6 +115,13 @@ def mk (val : Int) (proof : lo ≤ val ∧ val ≤ hi) : Bounded.LE lo hi :=
   ⟨val, proof⟩
 
 /--
+Creates a new `Bounded` integer that the relation is less-equal.
+-/
+@[inline]
+def exact (val : Nat) : Bounded.LE val val :=
+  ⟨val, by simp⟩
+
+/--
 Creates a new `Bounded` integer.
 -/
 @[inline]
@@ -341,10 +348,8 @@ def sub (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n - num) (m - num) 
 Adds two `Bounded` and adjust the boundaries.
 -/
 @[inline]
-def subBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE n m) : Bounded.LE (n - m) (m - n) := by
-  refine ⟨bounded.val - bounded₂.val, And.intro ?_ ?_⟩
-  · exact Int.sub_le_sub bounded.property.left bounded₂.property.right
-  · exact Int.sub_le_sub bounded.property.right bounded₂.property.left
+def subBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE i j) : Bounded.LE (n - j) (m - i) :=
+  addBounds bounded bounded₂.neg
 
 /--
 Adjust the bounds of a `Bounded` by applying the emod operation constraining the lower bound to 0 and
@@ -438,6 +443,29 @@ def abs (bo :  Bounded.LE (-i) i) : Bounded.LE 0 i :=
     let r := bo.truncateTop (Int.le_of_lt (Int.not_le.mp h)) |>.neg
     rw [Int.neg_neg] at r
     exact r
+
+/--
+Returns the maximum between a number and the bounded.
+-/
+def max (bounded : Bounded.LE n m) (val : Int) : Bounded.LE (Max.max n val) (Max.max m val) := by
+  let ⟨left, right⟩ := bounded.property
+  refine ⟨Max.max bounded.val val, And.intro ?_ ?_⟩
+
+  all_goals
+    simp [Int.max_def]
+    split <;> split
+
+  next h => simp [h, Int.le_trans left h]
+  next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
+  next h => simp [h, Int.le_trans left h]
+  next h h₁ => exact left
+  next h h₁ => simp [h, Int.le_trans left h]
+  next h h₁ => exact Int.le_of_lt <| Int.not_le.mp h₁
+  next h h₁ =>
+    let h₃ := Int.lt_of_lt_of_le (Int.not_le.mp h) right
+    let h₄ := Int.not_le.mpr h₃ h₁
+    contradiction
+  next h h₁ => exact right
 
 end LE
 end Bounded

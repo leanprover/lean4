@@ -1854,6 +1854,9 @@ static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
  * We furthermore rely on the implementation defined behavior of gcc/clang to apply reduction mod
  * 2^N when casting to an integer type of size N:
  * https://gcc.gnu.org/onlinedocs/gcc/Integers-implementation.html#Integers-implementation
+ * Unfortunately LLVM does not yet document their implementation defined behavior but it is
+ * most likely fine to rely on the fact that GCC and LLVM match on this:
+ * https://github.com/llvm/llvm-project/issues/11644
  */
 
 /* Int8 */

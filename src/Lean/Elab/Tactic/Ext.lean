@@ -123,7 +123,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
           levelParams := info.levelParams
         }
         modifyEnv fun env => addProtected env extName
-        addAuxDeclarationRanges extName (← getRef) (← getRef)
+        addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
         Failed to generate an 'ext' theorem for '{MessageData.ofConstName structName}': {e.toMessageData}"
@@ -161,7 +161,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         -- Only declarations in a namespace can be protected:
         unless extIffName.isAtomic do
           modifyEnv fun env => addProtected env extIffName
-        addAuxDeclarationRanges extName (← getRef) (← getRef)
+        addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
         Failed to generate an 'ext_iff' theorem from '{MessageData.ofConstName extName}': {e.toMessageData}\n\

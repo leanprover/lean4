@@ -105,7 +105,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   runTermElabM fun vars => do
     let scopeLevelNames ← Term.getLevelNames
     let ⟨shortName, declName, allUserLevelNames⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
-    addDeclarationRanges declName modifiers.stx stx
+    addDeclarationRangesForBuiltin declName modifiers.stx stx
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
     Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
@@ -332,7 +332,7 @@ def elabMutual : CommandElab := fun stx => do
       -- We need to add `id`'s ranges *before* elaborating `initFn` (and then `id` itself) as
       -- otherwise the info context created by `with_decl_name` will be incomplete and break the
       -- call hierarchy
-      addDeclarationRanges fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
+      addDeclarationRangesForBuiltin fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
       elabCommand (← `(
         $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))

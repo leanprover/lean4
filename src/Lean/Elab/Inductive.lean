@@ -94,7 +94,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
-  addDeclarationRanges declName modifiers.stx decl
+  addDeclarationRangesForBuiltin declName modifiers.stx decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
     -- def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
     let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
@@ -112,7 +112,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers.visibility ctorName
     let (binders, type?) := expandOptDeclSig ctor[4]
     addDocString' ctorName ctorModifiers.docString?
-    addAuxDeclarationRanges ctorName ctor ctor[3]
+    addDeclarationRangesFromSyntax ctorName ctor ctor[3]
     return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }

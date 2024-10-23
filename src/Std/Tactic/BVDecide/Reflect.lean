@@ -118,6 +118,10 @@ theorem umod_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' =
     (lhs' % rhs') = (lhs % rhs) := by
   simp[*]
 
+theorem sdiv_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (BitVec.sdiv lhs' rhs') = (BitVec.sdiv lhs rhs) := by
+  simp[*]
+
 end BitVec
 
 namespace Bool

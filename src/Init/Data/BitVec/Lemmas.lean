@@ -3128,7 +3128,7 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
-theorem msb_abs {i w: Nat} {x : BitVec w} :
+theorem msb_abs {w: Nat} {x : BitVec w} :
     x.abs.msb = (decide (x = intMin w) && decide (0 < w)) := by
   simp only [BitVec.abs, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
   by_cases h₀ : 0 < w

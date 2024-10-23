@@ -29,3 +29,15 @@ axiom ax1 (A B : Type*) (x : F) : Type
 /-- info: ax1.{u_1, u_2, u_3} {F : Type u_1} (A : Type u_2) (B : Type u_3) (x : F) : Type -/
 #guard_msgs in #check ax1
 end
+
+/-!
+Regression test: `axiom` shouldn't report "unused univeres levels" from `variable`s.
+-/
+section
+variable (X : Type u)
+axiom ax2 : Nat
+end
+section
+variable (X : Type*)
+axiom ax3 : Nat
+end

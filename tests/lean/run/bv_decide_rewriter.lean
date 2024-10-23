@@ -78,9 +78,7 @@ example {x : BitVec 16} : (10 + x) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : (x + 10) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : 2 + (x + 10) = 12 + x := by bv_normalize
 example {x : BitVec 16} : 2 + (10 + x) = 12 + x := by bv_normalize
-
-
-
+example {x y : BitVec 1} : x.sdiv y = x &&& y := by bv_normalize
 
 section
 

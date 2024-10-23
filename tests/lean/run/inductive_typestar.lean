@@ -40,4 +40,5 @@ end
 section
 variable (X : Type*)
 axiom ax3 : Nat
+axiom ax4 (α : Sort _) : α
 end

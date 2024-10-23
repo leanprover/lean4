@@ -648,8 +648,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_ts);
 }
 
-/* Std.Time.Database.Windows.getLocalTimeZoneIdentifier : IO String */
-extern "C" LEAN_EXPORT obj_res lean_get_windows_timezone_at(obj_arg timezone_str, obj_arg /* w */) {
+/* Std.Time.Database.Windows.getNextTransition : String -> @&Int -> IO (Option (Int × TimeZone)) */
+extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone_str, obj_arg tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     const char* dst_name = lean_string_cstr(timezone_str);
@@ -668,10 +668,18 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_timezone_at(obj_arg timezone_str
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
     }
 
+    int64_t timestamp_secs = lean_scalar_to_int64(tm_obj);
+
     ucal_setMillis(cal, timestamp_secs * 1000, &status);
     if (U_FAILURE(status)) {
         ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));
+    }
+
+    UDate nextTransition;
+    if (!ucal_getTimeZoneTransitionDate(cal, UCAL_TZ_TRANSITION_NEXT, &nextTransition, &status)) {
+        ucal_close(cal);
+        return io_result_mk_ok(mk_option_none());
     }
 
     UChar display_name[32];
@@ -706,23 +714,28 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_timezone_at(obj_arg timezone_str
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get dst_offset")));
     }
 
+    int64_t tm = (int64_t)(nextTransition / 1000.0);
     ucal_close(cal);
 
-    int offset_hour = zone_offset / 3600000;
     int offset_seconds = zone_offset / 1000;
     int is_dst = dst_offset != 0;
 
-    lean_object *lean_offset = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(lean_offset, 0, lean_int_to_int(offset_hour));
+    lean_object *lean_offset = lean_alloc_ctor(0, 1, 0);
     lean_ctor_set(lean_offset, 1, lean_int_to_int(offset_seconds));
 
     lean_object *lean_tz = lean_alloc_ctor(0, 3, 1);
-    lean_ctor_set(lean_tz, 0, lean_offset);
+    lean_ctor_set(lean_tz, 0, lean_int_to_int(offset_seconds));
     lean_ctor_set(lean_tz, 1, lean_mk_ascii_string_unchecked(dst_name));
     lean_ctor_set(lean_tz, 2, lean_mk_ascii_string_unchecked(display_name_str));
     lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, is_dst);
+    
+    lean_object *lean_pair = lean_alloc_ctor(0, 2, 0);
+    lean_ctor_set(lean_pair, 0, lean_int64_to_int(tm));
+    lean_ctor_set(lean_pair, 1, lean_tz);
+    
 
-    return lean_io_result_mk_ok(lean_tz);
+
+    return lean_io_result_mk_ok(mk_option_some(lean_pair));
 #else
     return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get timezone, its windows only.")));
 #endif

@@ -18,8 +18,8 @@ set_option linter.all true
 /--
 Fetches the timezone information from the current windows machine.
 -/
-@[extern "lean_get_windows_timezone_at"]
-opaque Windows.getTimeZoneAt : String -> UInt64 -> IO TimeZone
+@[extern "lean_get_windows_next_transition"]
+opaque Windows.getNextTransition : String -> @&Int -> IO (Option (Int × TimeZone))
 
 /--
 Fetches the timezone at a timestamp.

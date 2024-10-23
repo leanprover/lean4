@@ -1042,23 +1042,22 @@ where
           let async ← env.addConstAsync declId.declName .thm
           modifyEnv fun _=> async.mainEnv
           async? := some async
-      -- TODO: spawn task
-      let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
-      let headers ← levelMVarToParamHeaders views headers
-      let allUserLevelNames := getAllUserLevelNames headers
-      withFunLocalDecls headers fun funFVars => do
-        for view in views, funFVar in funFVars do
-          addLocalVarInfo view.declId funFVar
-        if let some async := async? then
-          let header := headers[0]!
-          let type ← withHeaderSecVars vars sc #[header] fun vars => do
-            mkForallFVars vars header.type >>= instantiateMVars
-          let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
-          let mut s : CollectLevelParams.State := {}
-          s := collectLevelParams s type
-          let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-          async.commitSignature { name := header.declName, levelParams, type }
-        let finishElab := try
+      let finishElab := try
+        let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
+        let headers ← levelMVarToParamHeaders views headers
+        let allUserLevelNames := getAllUserLevelNames headers
+        withFunLocalDecls headers fun funFVars => do
+          for view in views, funFVar in funFVars do
+            addLocalVarInfo view.declId funFVar
+          if let some async := async? then
+            let header := headers[0]!
+            let type ← withHeaderSecVars vars sc #[header] fun vars => do
+              mkForallFVars vars header.type >>= instantiateMVars
+            let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
+            let mut s : CollectLevelParams.State := {}
+            s := collectLevelParams s type
+            let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+            async.commitSignature { name := header.declName, levelParams, type }
           let values ← try
             let values ← elabFunValues headers vars sc
             Term.synthesizeSyntheticMVarsNoPostponing
@@ -1090,25 +1089,21 @@ where
             if let some async := async? then
               (← async.checkAndCommitEnv (← getEnv) (← getOptions) (← readThe Core.Context).cancelTk? |>.toBaseIO) |> ofExceptKernelException
           finally
+            typeCheckedPromise?.forM (·.resolve default)
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)
             valPromise.resolve (Expr.const `failedAsyncElab [])
             async?.forM (·.commitFailure)
-        if let some async := async? then
-          let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {headers[0]!.declName}") do
-            modifyEnv fun _ => async.asyncEnv
-            finishElab
-          let _ ← BaseIO.mapTask (t := t) fun snap => do
-            if let some typeCheckedPromise := typeCheckedPromise? then
-              typeCheckedPromise.resolve snap
-        else
+      if let some async := async? then
+        let _ ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
+          modifyEnv fun _ => async.asyncEnv
           finishElab
-          if let some typeCheckedPromise := typeCheckedPromise? then
-            typeCheckedPromise.resolve default
-      for view in views, header in headers do
+      else
+        finishElab
+      for view in views, declId in expandedDeclIds do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref
-        addDeclarationRanges header.declName view.ref
+        addDeclarationRanges declId.declName view.ref
 
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do

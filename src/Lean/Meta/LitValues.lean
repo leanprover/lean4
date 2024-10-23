@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Basic
+import Init.Control.Option
 
 namespace Lean.Meta
 

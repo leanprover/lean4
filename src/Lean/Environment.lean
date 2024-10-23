@@ -518,16 +518,17 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
   res.infoPromise.resolve (info, env.extensions)
 
-def AddConstAsyncResult.checkAndCommitEnv (res : AddConstAsyncResult) (env : Environment)
-    (opts : Options) (cancelTk? : Option IO.CancelToken := none) : EIO Kernel.Exception Unit := do
+def checkAsyncSubDecls (env : Environment)
+    (opts : Options) (cancelTk? : Option IO.CancelToken := none) : EIO Kernel.Exception Environment := do
   let some asyncCtx := env.asyncCtx?
-    | throw <| .other "AddConstAsyncResult.commitSuccess: environment does not have an async context"
-  let some _ := asyncCtx.subDecls.find? (·.toConstantInfo.name == res.constName)
-    | throw <| .other s!"AddConstAsyncResult.commitSuccess: constant {res.constName} not found in async context"
+    | return env
   let mut env := { env with asyncCtx? := none }
   for subDecl in asyncCtx.subDecls do
     env ← EIO.ofExcept <| addDecl env opts subDecl.toDecl cancelTk?
-  res.checkedEnvPromise.resolve env.toEnvironmentBase
+  return { env with
+    checkedSync := .pure env.toEnvironmentBase
+    asyncCtx? := some { asyncCtx with subDecls := #[] }
+  }
 
 def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit := do
   res.sigPromise.resolve { name := res.constName, levelParams := [], type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true) }
@@ -604,6 +605,15 @@ def find? (env : Environment) (n : Name) : Option ConstantInfo :=
     return asyncConst.info.toConstantInfo
   else
     env.findNoAsyncTheorem n
+
+def AddConstAsyncResult.checkAndCommitEnv (res : AddConstAsyncResult) (env : Environment)
+    (opts : Options) (cancelTk? : Option IO.CancelToken := none) : EIO Kernel.Exception Unit := do
+  let some _ := env.asyncCtx?
+    | throw <| .other "AddConstAsyncResult.checkAndCommitEnv: environment does not have an async context"
+  let some _ := env.findAsync? res.constName
+    | throw <| .other s!"AddConstAsyncResult.checkAndCommitEnv: constant {res.constName} not found in async context"
+  let env ← env.checkAsyncSubDecls opts cancelTk?
+  res.checkedEnvPromise.resolve env.toEnvironmentBase
 
 def contains (env : Environment) (n : Name) : Bool :=
   env.findAsync? n |>.isSome

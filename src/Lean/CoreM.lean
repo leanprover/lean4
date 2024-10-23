@@ -454,8 +454,8 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
   | Except.error ex =>
     throwKernelException ex
 
-def compileDecls (decls : List Name) : CoreM Unit := do
-  if (← getEnv).isAsync then
+def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
+  if allowPostpone && (← getEnv).isAsync then
     modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
     return
   let opts ← getOptions
@@ -468,9 +468,11 @@ def compileDecls (decls : List Name) : CoreM Unit := do
   | Except.error ex =>
     throwKernelException ex
 
-def unlockAsync : CoreM Unit := do
-  modifyEnv (·.unlockAsync)
-  compileDecls (← get).postponedCompiles.toList
+def forceCompile : CoreM Unit := do
+  let env ← getEnv
+  let env ← (← env.checkAsyncSubDecls (← getOptions) (← read).cancelTk? |>.toBaseIO) |> ofExceptKernelException
+  setEnv env
+  compileDecls (allowPostpone := false) (← get).postponedCompiles.toList
   modify fun s => { s with postponedCompiles := #[] }
 
 def getDiag (opts : Options) : Bool :=

@@ -21,6 +21,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sdiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 /-!
@@ -218,6 +219,21 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         · simp [Ref.hgate]
       · intros
         rw [← rih]
+    | sdiv =>
+      simp only [go, eval_bin, BVBinOp.eval_sdiv]
+      sorry
+      /-
+      apply denote_blastUdiv
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
+      -/
   | un op expr ih =>
     cases op with
     | not => simp [go, ih, hidx]

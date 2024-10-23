@@ -45,3 +45,9 @@ theorem arith_unit_10 (x y : BitVec 8) : x % y ≤ x := by
 
 theorem arith_unit_10' (x y : BitVec 8) : x.umod y ≤ x := by
   bv_decide
+
+theorem arith_unit_11 (x y : BitVec 8) (hx : x.msb = false) (hy : y.msb = false) : x / y = x.sdiv y := by
+  bv_decide
+
+theorem arith_unit_12 (x y : BitVec 8) (hx : x.msb = false) (hy : y.msb = true) : -(x / -y) = x.sdiv y := by
+  bv_decide

@@ -102,6 +102,8 @@ where
       binaryReflection lhsExpr rhsExpr .udiv ``Std.Tactic.BVDecide.Reflect.BitVec.udiv_congr
     | HMod.hMod _ _ _ _ lhsExpr rhsExpr =>
       binaryReflection lhsExpr rhsExpr .umod ``Std.Tactic.BVDecide.Reflect.BitVec.umod_congr
+    | BitVec.sdiv _ lhsExpr rhsExpr =>
+      binaryReflection lhsExpr rhsExpr .sdiv ``Std.Tactic.BVDecide.Reflect.BitVec.sdiv_congr
     | Complement.complement _ _ innerExpr =>
       unaryReflection innerExpr .not ``Std.Tactic.BVDecide.Reflect.BitVec.not_congr
     | HShiftLeft.hShiftLeft _ β _ _ innerExpr distanceExpr =>

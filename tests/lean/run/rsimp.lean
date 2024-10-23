@@ -70,4 +70,5 @@ def ex6 : False := by rsimp_decide
 
 -- Check that level parameters don't trip it up
 local instance inst.{u} : Decidable (Nonempty PUnit.{u}) := .isTrue ⟨⟨⟩⟩
+set_option trace.tactic.rsimp_decide false in
 def ex7.{v} : Nonempty (PUnit.{v}) := by rsimp_decide

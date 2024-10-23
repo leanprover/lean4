@@ -18,6 +18,7 @@ import Lean.Elab.ComputedFields
 import Lean.Elab.DefView
 import Lean.Elab.DeclUtil
 import Lean.Elab.Deriving.Basic
+import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab.Command
 open Meta
@@ -79,9 +80,55 @@ structure ElabHeaderResult where
   view       : InductiveView
   lctx       : LocalContext
   localInsts : LocalInstances
+  levelNames : List Name
   params     : Array Expr
   type       : Expr
   deriving Inhabited
+
+/-
+leading_parser "inductive " >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor
+leading_parser atomic (group ("class " >> "inductive ")) >> declId >> optDeclSig >> optional ("where" <|> ":=") >> many ctor >> optDeriving
+-/
+private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : TermElabM InductiveView := do
+  checkValidInductiveModifier modifiers
+  let (binders, type?) := expandOptDeclSig decl[2]
+  let declId           := decl[1]
+  let ⟨name, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
+  addDeclarationRanges declName modifiers.stx decl
+  let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
+    -- def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
+    let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
+    if let some leadingDocComment := ctor[0].getOptional? then
+      if ctorModifiers.docString?.isSome then
+        logErrorAt leadingDocComment "duplicate doc string"
+      ctorModifiers := { ctorModifiers with docString? := TSyntax.getDocString ⟨leadingDocComment⟩ }
+    if ctorModifiers.isPrivate && modifiers.isPrivate then
+      throwError "invalid 'private' constructor in a 'private' inductive datatype"
+    if ctorModifiers.isProtected && modifiers.isPrivate then
+      throwError "invalid 'protected' constructor in a 'private' inductive datatype"
+    checkValidCtorModifier ctorModifiers
+    let ctorName := ctor.getIdAt 3
+    let ctorName := declName ++ ctorName
+    let ctorName ← withRef ctor[3] <| applyVisibility ctorModifiers.visibility ctorName
+    let (binders, type?) := expandOptDeclSig ctor[4]
+    addDocString' ctorName ctorModifiers.docString?
+    addAuxDeclarationRanges ctorName ctor ctor[3]
+    return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
+  let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
+    return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
+  let classes ← getOptDerivingClasses decl[6]
+  if decl[3][0].isToken ":=" then
+    -- https://github.com/leanprover/lean4/issues/5236
+    withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
+      "'inductive ... :=' has been deprecated in favor of 'inductive ... where'."
+  return {
+    ref             := decl
+    shortDeclName   := name
+    derivingClasses := classes
+    declId, modifiers, declName, levelNames
+    binders, type?, ctors
+    computedFields
+  }
 
 private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) :=
   Term.withAutoBoundImplicitForbiddenPred (fun n => views.any (·.shortDeclName == n)) do
@@ -94,7 +141,8 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
           let type := mkSort u
           Term.synthesizeSyntheticMVarsNoPostponing
           Term.addAutoBoundImplicits' params type fun params type => do
-            return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
+            let levelNames ← Term.getLevelNames
+            return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), levelNames, params, type, view }
         | some typeStx =>
           let (type, _) ← Term.withAutoBoundImplicit do
             let type ← Term.elabType typeStx
@@ -105,7 +153,8 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
             return (← mkForallFVars indices type, indices.size)
           Term.addAutoBoundImplicits' params type fun params type => do
             trace[Elab.inductive] "header params: {params}, type: {type}"
-            return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
+            let levelNames ← Term.getLevelNames
+            return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), levelNames, params, type, view }
       elabHeaderAux views (i+1) acc
     else
       return acc
@@ -123,12 +172,19 @@ private def checkUnsafe (rs : Array ElabHeaderResult) : TermElabM Unit := do
     unless r.view.modifiers.isUnsafe == isUnsafe do
       throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
 
-private def checkLevelNames (views : Array InductiveView) : TermElabM Unit := do
+private def InductiveView.checkLevelNames (views : Array InductiveView) : TermElabM Unit := do
   if views.size > 1 then
     let levelNames := views[0]!.levelNames
     for view in views do
       unless view.levelNames == levelNames do
         throwErrorAt view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
+
+private def ElabHeaderResult.checkLevelNames (rs : Array ElabHeaderResult) : TermElabM Unit := do
+  if rs.size > 1 then
+    let levelNames := rs[0]!.levelNames
+    for r in rs do
+      unless r.levelNames == levelNames do
+        throwErrorAt r.view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
 
 private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
   withLCtx r.lctx r.localInsts do
@@ -791,12 +847,15 @@ private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array Ind
 private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let view0 := views[0]!
   let scopeLevelNames ← Term.getLevelNames
-  checkLevelNames views
+  InductiveView.checkLevelNames views
   let allUserLevelNames := view0.levelNames
   let isUnsafe          := view0.modifiers.isUnsafe
   withRef view0.ref <| Term.withLevelNames allUserLevelNames do
     let rs ← elabHeader views
     Term.synthesizeSyntheticMVarsNoPostponing
+    ElabHeaderResult.checkLevelNames rs
+    let allUserLevelNames := rs[0]!.levelNames
+    trace[Elab.inductive] "level names: {allUserLevelNames}"
     withInductiveLocalDecls rs fun params indFVars => do
       trace[Elab.inductive] "indFVars: {indFVars}"
       let mut indTypesArray := #[]
@@ -888,19 +947,55 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
   liftTermElabM do Term.withDeclName indViews[0]!.declName do
     ComputedFields.setComputedFields computedFields
 
-def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
+def elabInductiveViews (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := do
   let view0 := views[0]!
   let ref := view0.ref
-  runTermElabM fun vars => Term.withDeclName view0.declName do withRef ref do
+  Term.withDeclName view0.declName do withRef ref do
     mkInductiveDecl vars views
     mkSizeOfInstances view0.declName
     Lean.Meta.IndPredBelow.mkBelow view0.declName
     for view in views do
       mkInjectiveTheorems view.declName
+
+def elabInductiveViewsPostprocessing (views : Array InductiveView) : CommandElabM Unit := do
+  let view0 := views[0]!
+  let ref := view0.ref
   applyComputedFields views -- NOTE: any generated code before this line is invalid
   applyDerivingHandlers views
   runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
     for view in views do
       Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
+
+def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
+  let vs ← runTermElabM fun vars => do
+    let vs ← inductives.mapM fun (modifiers, stx) => inductiveSyntaxToView modifiers stx
+    elabInductiveViews vars vs
+    pure vs
+  elabInductiveViewsPostprocessing vs
+
+def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+  elabInductives #[(modifiers, stx)]
+
+def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+  let modifiers := modifiers.addAttr { name := `class }
+  elabInductive modifiers stx
+
+/--
+Returns true if all elements of the `mutual` block (`Lean.Parser.Command.mutual`) are inductive declarations.
+-/
+def isMutualInductive (stx : Syntax) : Bool :=
+  stx[1].getArgs.all fun elem =>
+    let decl     := elem[1]
+    let declKind := decl.getKind
+    declKind == `Lean.Parser.Command.inductive
+
+/--
+Elaborates a `mutual` block satisfying `Lean.Elab.Command.isMutualInductive`.
+-/
+def elabMutualInductive (elems : Array Syntax) : CommandElabM Unit := do
+  let inductives ← elems.mapM fun stx => do
+    let modifiers ← elabModifiers ⟨stx[0]⟩
+    pure (modifiers, stx[1])
+  elabInductives inductives
 
 end Lean.Elab.Command

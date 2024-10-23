@@ -93,3 +93,15 @@ example : let x := 1; let y := 2; x + y = y + x := by
   conv => unfold x
   guard_target =ₛ 1 + y = y + 1
   rfl
+
+/-!
+Error: not a local definition
+-/
+
+/-- error: tactic 'unfold' failed, local variable 'x' has no definition -/
+#guard_msgs in example (x : Nat) : x + 1 = 1 := by
+  unfold x
+
+  /-- error: conv tactic 'unfold' failed, local variable 'x' has no definition -/
+#guard_msgs in example (x : Nat) : x + 1 = 1 := by
+  conv => unfold x

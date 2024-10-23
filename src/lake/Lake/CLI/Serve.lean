@@ -10,6 +10,7 @@ import Lean.Util.FileSetupInfo
 
 namespace Lake
 open Lean
+open System (FilePath)
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2

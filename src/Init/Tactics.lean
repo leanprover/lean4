@@ -495,7 +495,7 @@ macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
     `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
-/-- `rwa` calls `rw`, then closes any remaining goals using `assumption`. -/
+/-- `rwa` is short-hand for `rw; assumption`. -/
 macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
   `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
 

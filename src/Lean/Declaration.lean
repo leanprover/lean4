@@ -369,8 +369,13 @@ def RecursorVal.getFirstIndexIdx (v : RecursorVal) : Nat :=
 def RecursorVal.getFirstMinorIdx (v : RecursorVal) : Nat :=
   v.numParams + v.numMotives
 
-def RecursorVal.getInduct (v : RecursorVal) : Name :=
-  v.name.getPrefix
+/-- The inductive type of the major argument of the recursor. -/
+def RecursorVal.getMajorInduct (v : RecursorVal) : Name :=
+  go v.getMajorIdx v.type
+where
+  go
+  | 0, e => e.bindingDomain!.getAppFn.constName!
+  | n+1, e => go n e.bindingBody!
 
 inductive QuotKind where
   | type  -- `Quot`
@@ -466,6 +471,10 @@ def isCtor : ConstantInfo → Bool
 def isInductive : ConstantInfo → Bool
   | inductInfo _ => true
   | _            => false
+
+def isTheorem : ConstantInfo → Bool
+  | thmInfo _ => true
+  | _         => false
 
 def inductiveVal! : ConstantInfo → InductiveVal
   | .inductInfo val => val

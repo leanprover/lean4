@@ -23,6 +23,7 @@ theorem of_opt_decide_eq_true {p : Prop} [inst : Decidable p] (c : Bool) (h : de
   : c = true → p := by subst h; exact of_decide_eq_true
 
 initialize registerTraceClass `tactic.rsimp_decide
+initialize registerTraceClass `tactic.rsimp_decide.debug
 
 section Syntax
 open Lean.Parser.Tactic
@@ -60,7 +61,19 @@ def rsimpDecideImpl : Tactic := fun stx => do
     trace[tactic.rsimp_decide] "Optimized expression:{indentExpr optE}"
     let optPrf ← res.getProof
     let rflPrf ← mkEqRefl (toExpr true)
+    let rflType ← mkEq optE (toExpr true)
+    -- We peform the kernel computation in an auxillary definition, like `decide!`
+    let levelsInType := (collectLevelParams {} expectedType).params
+    let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
+    let lemmaName ←
+      try
+        mkAuxLemma [] rflType rflPrf
+      catch e =>
+        trace[tactic.rsimp_decide.debug] "mkAuxLemma failed: {e.toMessageData}"
+        throwTacticEx `rsimp_decide (← getMainGoal) "this may be because the proposition is false, involves non-computable axioms or opaque definitions."
+    let eqPrf := mkConst lemmaName (lemmaLevels.map .param)
     closeMainGoal `rsimp_decide <|
-      mkApp5 (Lean.mkConst ``of_opt_decide_eq_true) expectedType s optE optPrf rflPrf
+      mkApp5 (Lean.mkConst ``of_opt_decide_eq_true) expectedType s optE optPrf eqPrf
+
 
 end Syntax

@@ -847,7 +847,7 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (a
     { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)  (allowAsync := false) : Environment :=
-  if env.asyncCtx?.isSome && !allowAsync then
+  if env.asyncCtx?.any (!·.declPrefix.isAnonymous) && !allowAsync then
     let _ : Inhabited Environment := ⟨env⟩
     panic! s!"cannot set state of environment extension in an async context"
   else

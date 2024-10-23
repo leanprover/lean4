@@ -21,16 +21,12 @@ def ReducibilityStatus.toAttrString : ReducibilityStatus → String
   | .irreducible => "[irreducible]"
   | .semireducible => "[semireducible]"
 
-builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
-  registerPersistentEnvExtension {
+builtin_initialize reducibilityCoreExt : SimplePersistentEnvExtension (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
+  registerSimplePersistentEnvExtension {
     name            := `reducibilityCore
-    mkInitial       := pure {}
-    addImportedFn   := fun _ _ => pure {}
+    addImportedFn   := fun _ => {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
-    exportEntriesFn := fun m =>
-      let r : Array (Name × ReducibilityStatus) := m.fold (fun a n p => a.push (n, p)) #[]
-      r.qsort (fun a b => Name.quickLt a.1 b.1)
-    statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+    toArrayFn := fun a => a.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
   }
 
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
@@ -51,7 +47,7 @@ def getReducibilityStatusCore (env : Environment) (declName : Name) : Reducibili
     match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, status) => status
     | none => .semireducible
-  | none => (reducibilityCoreExt.getState env).find? declName |>.getD .semireducible
+  | none => reducibilityCoreExt.findStateAsync env declName |>.find? declName |>.getD .semireducible
 
 private def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
   if attrKind matches .global then

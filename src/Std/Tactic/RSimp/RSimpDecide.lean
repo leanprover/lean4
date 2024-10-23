@@ -63,11 +63,11 @@ def rsimpDecideImpl : Tactic := fun stx => do
     let rflPrf ← mkEqRefl (toExpr true)
     let rflType ← mkEq optE (toExpr true)
     -- We peform the kernel computation in an auxillary definition, like `decide!`
-    let levelsInType := (collectLevelParams {} expectedType).params
+    let levelsInType := (collectLevelParams {} rflType).params
     let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
     let lemmaName ←
       try
-        mkAuxLemma [] rflType rflPrf
+        mkAuxLemma lemmaLevels rflType rflPrf
       catch e =>
         trace[tactic.rsimp_decide.debug] "mkAuxLemma failed: {e.toMessageData}"
         throwTacticEx `rsimp_decide (← getMainGoal) "this may be because the proposition is false, involves non-computable axioms or opaque definitions."

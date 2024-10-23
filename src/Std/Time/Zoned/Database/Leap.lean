@@ -89,8 +89,6 @@ private def parseLeapSecond : Parser LeapSecond := do
   let stationary ← manyChars (satisfy Char.isAlpha)
   skipChar '\n'
 
-  dbg_trace s!"{repr year}--{repr month}--{day}"
-
   let day ← failWith <| Internal.Bounded.ofInt? day
   let time : PlainTime ← failWith <| PlainTime.ofHourMinuteSeconds hour minute second
   let date : PlainDate ← failWith <| PlainDate.ofYearMonthDay? (Year.Offset.ofNat year) month day

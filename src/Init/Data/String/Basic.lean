@@ -6,7 +6,6 @@ Author: Leonardo de Moura, Mario Carneiro
 prelude
 import Init.Data.List.Basic
 import Init.Data.Char.Basic
-import Init.Data.Option.Basic
 
 universe u
 

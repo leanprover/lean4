@@ -33,18 +33,18 @@ theorem denote_signBranch {aig : AIG α} (input : SignBranchInput aig len) (lhs 
     (hlprn : ∀ (idx : Nat) (hidx : idx < len), ⟦aig, input.lposRneg.get idx hidx, assign⟧ = lposRneg.getLsbD idx)
     (hlnrp : ∀ (idx : Nat) (hidx : idx < len), ⟦aig, input.lnegRpos.get idx hidx, assign⟧ = lnegRpos.getLsbD idx)
     (hlnrn : ∀ (idx : Nat) (hidx : idx < len), ⟦aig, input.lnegRneg.get idx hidx, assign⟧ = lnegRneg.getLsbD idx) :
-  ∀ (idx : Nat) (hidx : idx < len),
-    ⟦(signBranch aig input).aig, (signBranch aig input).vec.get idx hidx, assign⟧
-      =
-    (match lhs.msb, rhs.msb with
-    | false, false => lposRpos
-    | false, true => lposRneg
-    | true, false => lnegRpos
-    | true, true => lnegRneg).getLsbD idx
-    := by
+    ∀ (idx : Nat) (hidx : idx < len),
+      ⟦(signBranch aig input).aig, (signBranch aig input).vec.get idx hidx, assign⟧
+        =
+      (match lhs.msb, rhs.msb with
+      | false, false => lposRpos
+      | false, true => lposRneg
+      | true, false => lnegRpos
+      | true, true => lnegRneg).getLsbD idx
+      := by
   intros
   unfold signBranch
-  simp
+  simp only [ne_eq, RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq]
   split
   · next h1 =>
     rw [AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix] at h1
@@ -80,13 +80,13 @@ theorem denote_signBranch {aig : AIG α} (input : SignBranchInput aig len) (lhs 
 end blastSdiv
 
 theorem denote_blastSdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
-      (input : BinaryRefVec aig w)
-      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
-      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
-      ∀ (idx : Nat) (hidx : idx < w),
-        ⟦(blastSdiv aig input).aig, (blastSdiv aig input).vec.get idx hidx, assign⟧
-          =
-        (BitVec.sdiv lhs rhs).getLsbD idx := by
+    (input : BinaryRefVec aig w)
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < w),
+      ⟦(blastSdiv aig input).aig, (blastSdiv aig input).vec.get idx hidx, assign⟧
+        =
+      (BitVec.sdiv lhs rhs).getLsbD idx := by
   intros
   generalize hres : blastSdiv aig input = res
   unfold blastSdiv at hres
@@ -177,14 +177,14 @@ theorem denote_blastSdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       intros
       rw [denote_blastUdiv (lhs := -lhs) (rhs := - rhs)]
       · intros
-        simp
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix,
           AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix,
           AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix]
         rw [denote_blastNeg (value := lhs)]
         simp [hleft]
       · intros
-        simp
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix,
           AIG.LawfulVecOperator.denote_mem_prefix, AIG.LawfulVecOperator.denote_mem_prefix,
           AIG.LawfulVecOperator.denote_mem_prefix]

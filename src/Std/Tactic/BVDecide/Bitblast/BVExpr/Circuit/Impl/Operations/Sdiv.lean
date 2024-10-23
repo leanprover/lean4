@@ -35,24 +35,24 @@ structure SignBranchInput (aig : AIG α) (len : Nat) where
   hnezero : w ≠ 0
 
 def signBranch (aig : AIG α) (input : SignBranchInput aig len) : AIG.RefVecEntry α len :=
- let ⟨w, lhs, rhs, lposRpos, lposRneg, lnegRpos, lnegRneg, hnezero⟩ := input
- let res := AIG.RefVec.ite aig ⟨rhs.get (w - 1) (by omega), lposRneg, lposRpos⟩
- let aig := res.aig
- let lposHalf := res.vec
- have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
- let lhs := lhs.cast this
- let rhs := rhs.cast this
- let lnegRneg := lnegRneg.cast this
- let lnegRpos := lnegRpos.cast this
+  let ⟨w, lhs, rhs, lposRpos, lposRneg, lnegRpos, lnegRneg, hnezero⟩ := input
+  let res := AIG.RefVec.ite aig ⟨rhs.get (w - 1) (by omega), lposRneg, lposRpos⟩
+  let aig := res.aig
+  let lposHalf := res.vec
+  have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
+  let lhs := lhs.cast this
+  let rhs := rhs.cast this
+  let lnegRneg := lnegRneg.cast this
+  let lnegRpos := lnegRpos.cast this
 
- let res := AIG.RefVec.ite aig ⟨rhs.get (w - 1) (by omega), lnegRneg, lnegRpos⟩
- let aig := res.aig
- let lnegHalf := res.vec
- have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
- let lhs := lhs.cast this
- let lposHalf := lposHalf.cast this
+  let res := AIG.RefVec.ite aig ⟨rhs.get (w - 1) (by omega), lnegRneg, lnegRpos⟩
+  let aig := res.aig
+  let lnegHalf := res.vec
+  have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
+  let lhs := lhs.cast this
+  let lposHalf := lposHalf.cast this
 
- AIG.RefVec.ite aig ⟨lhs.get (w - 1) (by omega), lnegHalf, lposHalf⟩
+  AIG.RefVec.ite aig ⟨lhs.get (w - 1) (by omega), lnegHalf, lposHalf⟩
 
 instance : AIG.LawfulVecOperator α SignBranchInput signBranch where
   le_size := by

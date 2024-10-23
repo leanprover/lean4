@@ -71,6 +71,25 @@
 #eval min (10 : Int8) 20 = 10
 #eval min (10 : Int8) (-1) = -1
 
+def test : Option Int := Id.run do
+  let doTest (base : Int) (i : Int) : Bool :=
+    let t := base + i
+    let a := ⟨⟨BitVec.ofInt 8 t⟩⟩
+    let b := Int8.ofInt t
+    a == b
+
+  let range := 2^9
+  
+  for i in [0:2*range] do
+    let i := Int.ofNat i - range
+    if !(doTest (2^256) i) then
+      return i
+    if !(doTest (-2^256) i) then
+      return i
+  return none
+
+#eval test.isNone
+
 -- runtime representation
 set_option trace.compiler.ir.result true in
 def myId (x : Int8) : Int8 := x

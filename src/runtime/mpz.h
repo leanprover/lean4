@@ -271,6 +271,8 @@ public:
     unsigned mod32() const;
     uint64 mod64() const;
 
+    int smod8() const;
+
     /**
        \brief Return the position of the most significant bit.
        Return 0 if the number is negative

@@ -267,6 +267,12 @@ uint64 mpz::mod64() const {
     return (static_cast<uint64>(h.get_unsigned_int()) << 32) + static_cast<uint64>(l.get_unsigned_int());
 }
 
+int mpz::smod8() const {
+    mpz a;
+    mpz_tdiv_r_2exp(a.m_val, m_val, 8);
+    return a.get_int();
+}
+
 void power(mpz & a, mpz const & b, unsigned k) {
     mpz_pow_ui(a.m_val, b.m_val, k);
 }
@@ -962,6 +968,14 @@ uint64 mpz::mod64() const {
         return m_digits[0];
     else
         return m_digits[0] + (static_cast<uint64>(m_digits[1]) << 8*sizeof(mpn_digit));
+}
+
+int mpz::smod8() const {
+    int8_t val = mod8();
+    if (m_sign) {
+        val = -val;
+    }
+    return val;
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {

@@ -221,9 +221,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         rw [← rih]
     | sdiv =>
       simp only [go, eval_bin, BVBinOp.eval_sdiv]
-      sorry
-      /-
-      apply denote_blastUdiv
+      apply denote_blastSdiv
       · intros
         dsimp only
         rw [go_denote_mem_prefix]
@@ -233,7 +231,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         · simp [Ref.hgate]
       · intros
         rw [← rih]
-      -/
   | un op expr ih =>
     cases op with
     | not => simp [go, ih, hidx]

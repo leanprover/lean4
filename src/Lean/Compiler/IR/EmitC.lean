@@ -139,7 +139,7 @@ def emitMainFn : M Unit := do
   let d ← getDecl `main
   match d with
   | .fdecl (xs := xs) .. => do
-    unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
+    unless xs.size == 3 || xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean
     if usesLeanAPI then
@@ -155,7 +155,7 @@ def emitMainFn : M Unit := do
   #if defined(WIN32) || defined(_WIN32)
   SetErrorMode(SEM_FAILCRITICALERRORS);
   #endif
-  lean_object* in; lean_object* res;";
+  lean_object* prog_name; lean_object* in; lean_object* res;";
     if usesLeanAPI then
       emitLn "lean_initialize();"
     else
@@ -170,7 +170,7 @@ def emitMainFn : M Unit := do
              "if (lean_io_result_is_ok(res)) {",
              "lean_dec_ref(res);",
              "lean_init_task_manager();"];
-    if xs.size == 2 then
+    if xs.size >= 2 then
       emitLns ["in = lean_box(0);",
                "int i = argc;",
                "while (i > 1) {",
@@ -179,6 +179,10 @@ def emitMainFn : M Unit := do
                " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
                " in = n;",
               "}"]
+    if xs.size == 3 then
+      emitLn ("prog_name = lean_mk_string(argv[0]);")
+      emitLn ("res = " ++ leanMainFn ++ "(prog_name, in, lean_io_mk_world());")
+    else if xs.size == 2 then
       emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
     else
       emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")

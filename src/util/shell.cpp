@@ -735,7 +735,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         }
 
         if (run && ok) {
-            uint32 ret = ir::run_main(env, opts, argc - optind, argv + optind);
+            uint32 ret = ir::run_main(env, opts, mod_fn, argc - optind, argv + optind);
             // environment_free_regions(std::move(env));
             return ret;
         }

@@ -135,25 +135,37 @@ bool is_uint32_or_unit(expr const & type) {
         is_constant(type, get_punit_name());
 }
 
-/* Return true iff type is `(List String ->) IO (UInt32 | (P)Unit)` */
-bool is_main_fn_type(expr const & type) {
+/* Return true iff type is `((String ->) List String ->) IO (UInt32 | (P)Unit)` */
+bool is_main_fn_type(expr type) {
     if (is_arrow(type)) {
-        expr d = binding_domain(type);
-        expr r = binding_body(type);
-        return
-            is_app(r) &&
-            is_constant(app_fn(r), get_io_name()) &&
-            is_uint32_or_unit(app_arg(r)) &&
-            is_app(d) &&
-            is_constant(app_fn(d), get_list_name()) &&
-            is_constant(app_arg(d), get_string_name());
-    } else if (is_app(type)) {
-        return
+        expr args = binding_domain(type);
+        type = binding_body(type);
+        if (is_arrow(type)) {
+            expr progName = args;
+            // check progName
+            if (!is_constant(progName, get_string_name())) {
+                return false;
+            }
+            args = binding_domain(type);
+            type = binding_body(type);
+        }
+        // check args
+        if (!(
+                is_app(args) &&
+                is_constant(app_fn(args), get_list_name()) &&
+                is_constant(app_arg(args), get_string_name()))) {
+            return false;
+        }
+    }
+    // check return type
+    if (!(
+            is_app(type) &&
             is_constant(app_fn(type), get_io_name()) &&
-            is_uint32_or_unit(app_arg(type));
-    } else {
+            is_uint32_or_unit(app_arg(type)))) {
         return false;
     }
+
+    return true;
 }
 
 #define trace_compiler(k, ds) lean_trace(k, trace_comp_decls(ds););

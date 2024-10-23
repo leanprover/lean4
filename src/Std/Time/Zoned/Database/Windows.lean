@@ -21,23 +21,23 @@ namespace Windows
 Fetches the next timezone transition for a given timezone identifier and timestamp.
 -/
 @[extern "lean_get_windows_next_transition"]
-opaque getNextTransition : String -> @&Int -> IO (Option (Int × TimeZone))
+opaque getNextTransition : @&String -> @&Int -> IO (Option (Int × TimeZone))
 
 /--
 Fetches the timezone at a timestamp.
 -/
 @[extern "lean_get_windows_local_timezone_id_at"]
-opaque getLocalTimeZoneIdentifierAt : Int → IO String
+opaque getLocalTimeZoneIdentifierAt : @&Int → IO String
 
 /--
 Retrieves the timezone rules, including all transitions, for a given timezone identifier.
 -/
-partial def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
-  let mut start := -2147483647
+def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
+  let mut start := -2147483648
   let mut transitions := #[]
 
   while true do
-    let result ← getNextTransition id start
+    let result ← Windows.getNextTransition id start
     if let some res := result then
       transitions := transitions.push { time := Second.Offset.ofInt res.fst, localTimeType := {
         gmtOffset := res.snd.offset,
@@ -47,6 +47,9 @@ partial def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
         wall := .wall,
         utLocal := .local
       }}
+      start := res.fst
+    else
+      break
 
   return { transitions, localTimes := #[] }
 
@@ -68,4 +71,4 @@ def default : WindowsDb := {}
 
 instance : Database WindowsDb where
   getZoneRulesAt _ id := Windows.getZoneRules id
-  getLocalZoneRulesAt _ := Windows.getZoneRules =<< Windows.getLocalTimeZoneIdentifierAt (-2147483647)
+  getLocalZoneRulesAt _ := Windows.getZoneRules =<< Windows.getLocalTimeZoneIdentifierAt (-2147483648)

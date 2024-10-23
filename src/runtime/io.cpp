@@ -652,10 +652,10 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
 extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone_str, obj_arg tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
-    const char* dst_name = lean_string_cstr(timezone_str);
+    const char* dst_name_id = lean_string_cstr(timezone_str);
 
     UChar tzID[256];
-    u_strFromUTF8(tzID, sizeof(tzID) / sizeof(tzID[0]), NULL, dst_name, strlen(dst_name), &status);
+    u_strFromUTF8(tzID, sizeof(tzID) / sizeof(tzID[0]), NULL, dst_name_id, strlen(dst_name_id), &status);
 
     if (U_FAILURE(status)) {
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to read identifier")));
@@ -675,6 +675,15 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone
         ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));
     }
+    
+    int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
+
+    if (U_FAILURE(status)) {
+        ucal_close(cal);
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get dst_offset")));
+    }
+
+    int is_dst = dst_offset != 0;
 
     UDate nextTransition;
     if (!ucal_getTimeZoneTransitionDate(cal, UCAL_TZ_TRANSITION_NEXT, &nextTransition, &status)) {
@@ -682,8 +691,23 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone
         return io_result_mk_ok(mk_option_none());
     }
 
+    if (U_FAILURE(status)) {
+        ucal_close(cal);
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transation")));
+    }
+
+    int32_t tzIDLength = ucal_getTimeZoneDisplayName(cal, is_dst ? UCAL_DST : UCAL_STANDARD, "en_US", tzID, 32, &status);
+    
+    if (U_FAILURE(status)) {
+        ucal_close(cal);
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to timezone identifier")));
+    }
+
+    char dst_name[256];
+    u_strToUTF8(dst_name, sizeof(dst_name), NULL, tzID, tzIDLength, &status);
+
     UChar display_name[32];
-    int32_t display_name_len = ucal_getTimeZoneDisplayName(cal, UCAL_SHORT_STANDARD, "en_US", display_name, 32, &status);
+    int32_t display_name_len = ucal_getTimeZoneDisplayName(cal, is_dst ? UCAL_SHORT_DST : UCAL_SHORT_STANDARD, "en_US", display_name, 32, &status);
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
@@ -699,29 +723,17 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone
     }
 
     int32_t zone_offset = ucal_get(cal, UCAL_ZONE_OFFSET, &status);
+    zone_offset += dst_offset;
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get zone_offset")));
     }
 
-    int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
-
-    zone_offset += dst_offset;
-
-    if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get dst_offset")));
-    }
-
     int64_t tm = (int64_t)(nextTransition / 1000.0);
     ucal_close(cal);
 
     int offset_seconds = zone_offset / 1000;
-    int is_dst = dst_offset != 0;
-
-    lean_object *lean_offset = lean_alloc_ctor(0, 1, 0);
-    lean_ctor_set(lean_offset, 1, lean_int_to_int(offset_seconds));
 
     lean_object *lean_tz = lean_alloc_ctor(0, 3, 1);
     lean_ctor_set(lean_tz, 0, lean_int_to_int(offset_seconds));
@@ -732,8 +744,6 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone
     lean_object *lean_pair = lean_alloc_ctor(0, 2, 0);
     lean_ctor_set(lean_pair, 0, lean_int64_to_int(tm));
     lean_ctor_set(lean_pair, 1, lean_tz);
-    
-
 
     return lean_io_result_mk_ok(mk_option_some(lean_pair));
 #else

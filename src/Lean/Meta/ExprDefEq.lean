@@ -1957,6 +1957,9 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
 where
   /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve constraint as `?m ... =?= ⟨v⟩` -/
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
+    let some ctorVal := getStructureLikeCtor? (← getEnv) structName | return false
+    if ctorVal.numFields != 1 then
+      return false -- It is not a structure with a single field.
     if isClass (← getEnv) structName then
       /-
       We disable this feature if `structName` is a class. See issue #2011.
@@ -1975,9 +1978,6 @@ where
       assign `?m`.
       -/
       return false
-    let ctorVal := getStructureCtor (← getEnv) structName
-    if ctorVal.numFields != 1 then
-      return false -- It is not a structure with a single field.
     let sType ← whnf (← inferType s)
     let sTypeFn := sType.getAppFn
     if !sTypeFn.isConstOf structName then

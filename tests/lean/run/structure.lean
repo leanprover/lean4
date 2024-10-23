@@ -55,3 +55,19 @@ info: #[const2ModIdx, constants, extensions, extraConstNames, header]
 -/
 #guard_msgs in
 #eval tst
+
+/-!
+Regression test: make sure mathlib `Type*` still elaborates with levels in correct order.
+-/
+section
+elab "Type*" : term => do
+  let u ← Lean.Meta.mkFreshLevelMVar
+  Lean.Elab.Term.levelMVarToParam (.sort (.succ u))
+
+variable {F α β M N P G H : Type*}
+
+structure AddEquiv (A B : Type*) : Type
+
+/-- info: AddEquiv.{u_9, u_10} (A : Type u_9) (B : Type u_10) : Type -/
+#guard_msgs in #check AddEquiv
+end

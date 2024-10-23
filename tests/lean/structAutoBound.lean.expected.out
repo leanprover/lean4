@@ -13,4 +13,4 @@ Boo.mk : {α : Type u} → {β : Type v} → α → β → Boo α β
 fields:
 a : α
 b : β
-structAutoBound.lean:18:0-20:7: error: unused universe parameter 'w'
+structAutoBound.lean:18:10-18:44: error: unused universe parameter 'w'

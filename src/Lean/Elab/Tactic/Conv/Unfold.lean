@@ -19,7 +19,7 @@ open Meta
         applySimpResult (← unfold (← getLhs) declName)
       | .fvar declFVarId =>
         unless ← declFVarId.isLetVar do
-          throwError "conv tactic 'unfold' failed, '{Expr.fvar declFVarId}' is not a local definition"
+          throwError "conv tactic 'unfold' failed, local variable '{Expr.fvar declFVarId}' has no definition"
         let lhs ← instantiateMVars (← getLhs)
         changeLhs (← Meta.zetaDeltaFVars lhs #[declFVarId])
       | _ => throwError "conv tactic 'unfold' failed, expression {e} is not a global or local constant"

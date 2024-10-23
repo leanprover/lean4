@@ -98,10 +98,10 @@ example : let x := 1; let y := 2; x + y = y + x := by
 Error: not a local definition
 -/
 
-/-- error: tactic 'unfold' failed, 'x' is not a local definition -/
+/-- error: tactic 'unfold' failed, local variable 'x' has no definition -/
 #guard_msgs in example (x : Nat) : x + 1 = 1 := by
   unfold x
 
-  /-- error: conv tactic 'unfold' failed, 'x' is not a local definition -/
+  /-- error: conv tactic 'unfold' failed, local variable 'x' has no definition -/
 #guard_msgs in example (x : Nat) : x + 1 = 1 := by
   conv => unfold x

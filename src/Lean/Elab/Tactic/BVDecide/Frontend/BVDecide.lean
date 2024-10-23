@@ -157,12 +157,12 @@ def diagnose : DiagnosisM Unit := do
 end DiagnosisM
 
 def uninterpretedExplainer (d : Diagnosis) : Option MessageData := do
-  guard !d.uninterpretedSymbols.isEmpty
+  guard <| !d.uninterpretedSymbols.isEmpty
   let symList := d.uninterpretedSymbols.toList
   return m!"It abstracted the following unsupported expressions as opaque variables: {symList}"
 
 def unusedRelevantHypothesesExplainer (d : Diagnosis) : Option MessageData := do
-  guard !d.unusedRelevantHypotheses.isEmpty
+  guard <| !d.unusedRelevantHypotheses.isEmpty
   let hypList := d.unusedRelevantHypotheses.toList.map mkFVar
   return m!"The following potentially relevant hypotheses could not be used: {hypList}"
 
@@ -313,4 +313,3 @@ def evalBvTrace : Tactic := fun
 
 end Frontend
 end Lean.Elab.Tactic.BVDecide
-

@@ -359,7 +359,7 @@ mutual
     trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
     let e ← getExpr
     let opts ← getOptions
-    if ← (pure !e.isAtomic) <&&> pure !(getPPProofs opts) <&&> (try Meta.isProof e catch _ => pure false) then
+    if ← (pure <| !e.isAtomic && !getPPProofs opts) <&&> (try Meta.isProof e catch _ => pure false) then
       if getPPProofsWithType opts then
         withType $ withKnowing true true $ analyze
       return ()
@@ -386,7 +386,7 @@ mutual
         withType $ withKnowing true false $ analyze
         willKnowType := true
 
-      else if ← (pure !(← read).knowsType <||> pure (← read).inBottomUp) <&&> isStructureInstance (← getExpr) then
+      else if ← pure (!(← read).knowsType || (← read).inBottomUp) <&&> isStructureInstance (← getExpr) then
         withType do
           annotateBool `pp.structureInstanceTypes
           withKnowing true false $ analyze
@@ -578,7 +578,8 @@ mutual
 
           match bInfos[i]! with
           | BinderInfo.default =>
-            if ← pure (getPPAnalyzeExplicitHoles (← getOptions)) <&&> pure !(← valUnknown mvars[i]!) <&&> pure !(← readThe Context).inBottomUp <&&> pure !(← isFunLike arg) <&&> pure !funBinders[i]! <&&> checkpointDefEq mvars[i]! arg then
+            let ctx ← readThe Context
+            if ← pure (getPPAnalyzeExplicitHoles (← getOptions)) <&&> not <$> valUnknown mvars[i]! <&&> pure (!ctx.inBottomUp && !funBinders[i]!) <&&> not <$> isFunLike arg <&&> checkpointDefEq mvars[i]! arg then
               annotateBool `pp.analysis.hole
             else
               modify fun s => { s with provideds := s.provideds.set! i true }

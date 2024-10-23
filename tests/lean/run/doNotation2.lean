@@ -170,7 +170,7 @@ rfl
 
 def f3 (x : Nat) : IO Bool := do
 let y ← cond (x == 0) (do IO.println "hello"; pure true) (pure false);
-pure !y
+pure <| !y
 
 def f4 (x y : Nat) : Nat × Nat := Id.run <| do
   let mut (x, y) := (x, y)

@@ -71,7 +71,7 @@ private partial def winnowExpr (e : Expr) : MetaM Expr := do
           let .forallE _ _ fty' bi := fty | failure
           fty := fty'
           let arg := args[i]
-          if ← pure bi.isExplicit <||> (pure !arg.isSort <&&> isTypeFormer arg) then
+          if ← pure bi.isExplicit <||> (pure (!arg.isSort) <&&> isTypeFormer arg) then
             unless (← isProof arg) do
               e' := .app e' (← visit arg)
         return e'

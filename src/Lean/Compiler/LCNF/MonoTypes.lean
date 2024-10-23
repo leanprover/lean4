@@ -22,7 +22,7 @@ def getRelevantCtorFields (ctorName : Name) : CoreM (Array Bool) := do
       let mut result := #[]
       for x in xs[info.numParams:] do
         let type ← Meta.inferType x
-        result := result.push !(← Meta.isProp type <||> Meta.isTypeFormerType type)
+        result := result.push <| !(← Meta.isProp type <||> Meta.isTypeFormerType type)
       return result
 
 /--

@@ -44,9 +44,18 @@ is nonempty.
 
 This process uses multiple strategies:
 - It looks for a parameter that matches the return type.
-- It tries synthesizing 'Inhabited' and 'Nonempty' instances for the return type.
+- It tries synthesizing 'Inhabited' and 'Nonempty' instances for the return type, while making every parameter into a local 'Inhabited' instance.
 - It tries unfolding the return type.
 
 If the return type is defined using the 'structure' or 'inductive' command, you can try adding a 'deriving Nonempty' clause to it.
 -/
 #guard_msgs in partial def test4 (n : Nat) : α := test4 n
+
+/-!
+Add arguments as inhabited instances.
+Example adapted from https://leanprover.zulipchat.com/#narrow/channel/113489-new-members/topic/Why.20return.20type.20of.20partial.20function.20MUST.20.60inhabited.60.3F/near/477905312
+-/
+inductive ListNode where
+  | mk : Nat → Option ListNode → ListNode
+
+partial def checkMyList (head : ListNode) : Bool × ListNode := checkMyList head

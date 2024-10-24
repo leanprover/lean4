@@ -128,9 +128,8 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
-  if let some (.defnInfo info) := (← getEnv).find? declName then
-    if (← isProp info.type) then return false
-    return true
+  if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    return !(← isProp sig.get.type)
   else
     return false
 
@@ -198,11 +197,14 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
     return none
 
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
+  -- Test this first as it blocks on the least data
+  if !(← shouldGenerateEqnThms declName) then
+    return none
+  else if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
     return some eqs
   else if let some eqs ← alreadyGenerated? declName then
     return some eqs
-  else if (← shouldGenerateEqnThms declName) then
+  else
     for f in (← getEqnsFnsRef.get) do
       if let some r ← f declName then
         registerEqnThms declName r

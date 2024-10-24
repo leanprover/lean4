@@ -462,7 +462,7 @@ theorem eq_true_imp_eq_false : ∀ {b : Bool}, (b = true → b = false) ↔ (b =
 
 /-! ### forall -/
 
-theorem forall_bool' {p : Bool → Prop} (b : Bool) : (∀ x, p x) ↔ p b ∧ p !b :=
+theorem forall_bool' {p : Bool → Prop} (b : Bool) : (∀ x, p x) ↔ p b ∧ p (!b) :=
   ⟨fun h ↦ ⟨h _, h _⟩, fun ⟨h₁, h₂⟩ x ↦ by cases b <;> cases x <;> assumption⟩
 
 @[simp]
@@ -471,7 +471,7 @@ theorem forall_bool {p : Bool → Prop} : (∀ b, p b) ↔ p false ∧ p true :=
 
 /-! ### exists -/
 
-theorem exists_bool' {p : Bool → Prop} (b : Bool) : (∃ x, p x) ↔ p b ∨ p !b :=
+theorem exists_bool' {p : Bool → Prop} (b : Bool) : (∃ x, p x) ↔ p b ∨ p (!b) :=
   ⟨fun ⟨x, hx⟩ ↦ by cases x <;> cases b <;> first | exact .inl ‹_› | exact .inr ‹_›,
     fun h ↦ by cases h <;> exact ⟨_, ‹_›⟩⟩
 

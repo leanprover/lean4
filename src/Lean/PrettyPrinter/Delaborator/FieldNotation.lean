@@ -72,7 +72,7 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
         return (field, i)
       else
         -- We only use the first explicit argument for field notation.
-        guard !(← fvarId.getBinderInfo).isExplicit
+        guard <| !(← fvarId.getBinderInfo).isExplicit
     failure
 
 /--
@@ -97,7 +97,7 @@ def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldN
   if useGeneralizedFieldNotation then
     try
       -- Avoid field notation for theorems
-      guard !(← isProof f)
+      guard <| !(← isProof f)
       return ← generalizedFieldInfo c args
     catch _ => pure ()
   -- It's not handled by any of the above.

@@ -391,7 +391,7 @@ partial def delab : Delab := do
 
   let k ← getExprKind
   let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
-  if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
+  if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure (!e.isMData) then
     let typeStx ← withType delab
     `(($stx : $typeStx)) >>= annotateCurPos
   else

@@ -124,7 +124,7 @@ def opError1 (app v : String) : String :=
   s!"I can't perform a '{app}' operation on '{v}'"
 
 def Value.not : Value → Except String Value
-  | lit $ .bool b => return lit $ .bool !b
+  | lit $ .bool b => return lit $ .bool $ !b
   | v             => throw $ opError1 "!" v.typeStr
 
 def Value.add : Value → Value → Except String Value
@@ -196,7 +196,7 @@ def Value.eq : Value → Value → Except String Value
 def Value.ne : Value → Value → Except String Value
   | nil,     nil      => return lit $ .bool false
   | lit  lₗ, lit lᵣ   => return lit $ .bool $ !(lₗ.eq lᵣ)
-  | list lₗ, list  lᵣ => return lit $ .bool !(listLiteralEq lₗ lᵣ)
+  | list lₗ, list  lᵣ => return lit $ .bool $ !(listLiteralEq lₗ lᵣ)
   | lam ..,  lam ..   => throw "I can't compare functions"
   | _,       _        => return lit $ .bool true
 

@@ -171,7 +171,7 @@ private partial def processIndependentGoals (orig : List MVarId) (goals remainin
     withTraceNode trace
       (fun _ => return m!"failed: {← ppMVarIds failed}, new: {← ppMVarIds newSubgoals}") do
     -- Update the list of goals with respect to which we need to check independence.
-    let goals' := (← goals.filterM (fun g => do pure !(← g.isAssigned))) ++ newSubgoals
+    let goals' := (← goals.filterM (fun g => not <$> g.isAssigned)) ++ newSubgoals
     -- If `commitIndependentGoals` is `true`, we will return the new goals
     -- regardless of whether we can make further progress on the other goals.
     if cfg.commitIndependentGoals && !newSubgoals.isEmpty then

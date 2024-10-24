@@ -205,7 +205,7 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
         | some paramPos => if paramPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId m!"major premise type is ill-formed{indentExpr majorType}"
       let indices ← getMajorTypeIndices mvarId `induction recursorInfo majorType
       let target ← mvarId.getType
-      if (← pure !recursorInfo.depElim <&&> exprDependsOn target majorFVarId) then
+      if (← pure (!recursorInfo.depElim) <&&> exprDependsOn target majorFVarId) then
         throwTacticEx `induction mvarId m!"recursor '{recursorName}' does not support dependent elimination, but conclusion depends on major premise"
       -- Revert indices and major premise preserving variable order
       let (reverted, mvarId) ← mvarId.revert ((indices.map Expr.fvarId!).push majorFVarId) true

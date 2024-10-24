@@ -401,7 +401,8 @@ by one, i.e., `-x = ~~~x + 1`. (see `neg_eq_not_add`)
 
 This computation has two crucial properties:
 - The least significant bit of `-x` is the same as the least significant bit of `x`, and
-- The `i+1`-th least significant bit of `-x` is the complement of the `i+1`-th bit of `x`, unless all of the preceding bits are `false`, in which case the bit is equal to the `i+1`-th bit of `x`
+- The `i+1`-th least significant bit of `-x` is the complement of the `i+1`-th bit of `x`, unless
+  all of the preceding bits are `false`, in which case the bit is equal to the `i+1`-th bit of `x`
 -/
 theorem getLsbD_neg {i : Nat} {x : BitVec w} :
     getLsbD (-x) i =

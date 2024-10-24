@@ -262,9 +262,14 @@ def mkAnnotatedIdent (n : Name) (e : Expr) : DelabM Ident := do
 Enters the body of the current expression, which must be a lambda or forall.
 The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
 for the variable.
+
+If `preserveName` is `false` (the default), then gives the binder an unused name.
+Otherwise, it preserves the binder name (contrary to the name of this function).
 -/
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) : DelabM α := do
+  let mut n := (← getExpr).bindingName!
+  unless preserveName do
+    n ← getUnusedName n (← getExpr).bindingBody!
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason

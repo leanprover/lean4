@@ -352,24 +352,6 @@ theorem msb_sub {x y: BitVec w} :
       = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
   simp [sub_toAdd, BitVec.neg_eq_not_add, msb_add]
 
-/-! ### intMin -/
-
-theorem getMsbD_intMin {w i : Nat} :
-    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
-  by_cases h₀ : 0 < w <;> by_cases h₁ : i = 0
-  · simp only [h₁, h₀, decide_True, Bool.and_self]
-    rw [← BitVec.msb]
-    simp [msb_intMin]
-    omega
-  · simp [h₀, h₁, intMin, getMsbD]
-    omega
-  · simp only [h₁, h₀, decide_False, decide_True, Bool.and_true]
-    rw [← BitVec.msb]
-    simp [msb_intMin]
-    omega
-  · simp [h₀, h₁, intMin, getMsbD]
-    omega
-
 /-! ### Negation -/
 
 theorem bit_not_testBit (x : BitVec w) (i : Fin w) :

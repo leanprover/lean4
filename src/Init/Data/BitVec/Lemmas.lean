@@ -2804,6 +2804,14 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
 
+theorem getMsbD_intMin {w i : Nat} :
+    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
+  simp only [getMsbD, getLsbD_intMin]
+  match w, i with
+  | 0,   _    => simp
+  | w+1, 0    => simp
+  | w+1, i+1  => simp; omega
+
 /--
 The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
 -/

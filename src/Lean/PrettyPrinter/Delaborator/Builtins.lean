@@ -1014,7 +1014,7 @@ Delaborates an `OfNat.ofNat` literal.
 `@OfNat.ofNat _ n _` ~> `n`.
 -/
 @[builtin_delab app.OfNat.ofNat]
-def delabOfNat : Delab := whenPPOption getPPCoercions <| withOverApp 3 do
+def delabOfNat : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
   delabOfNatCore (showType := (← getPPOption getPPNumericTypes))
 
 /--
@@ -1022,7 +1022,7 @@ Delaborates the negative of an `OfNat.ofNat` literal.
 `-@OfNat.ofNat _ n _` ~> `-n`
 -/
 @[builtin_delab app.Neg.neg]
-def delabNeg : Delab := whenPPOption getPPCoercions do
+def delabNeg : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions do
   delabNegIntCore (showType := (← getPPOption getPPNumericTypes))
 
 /--
@@ -1031,12 +1031,12 @@ Delaborates a rational number literal.
 and `-@OfNat.ofNat _ n _ / @OfNat.ofNat _ m` ~> `-n / m`
 -/
 @[builtin_delab app.HDiv.hDiv]
-def delabHDiv : Delab := whenPPOption getPPCoercions do
+def delabHDiv : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions do
   delabDivRatCore (showType := (← getPPOption getPPNumericTypes))
 
 -- `@OfDecimal.ofDecimal _ _ m s e` ~> `m*10^(sign * e)` where `sign == 1` if `s = false` and `sign = -1` if `s = true`
 @[builtin_delab app.OfScientific.ofScientific]
-def delabOfScientific : Delab := whenPPOption getPPCoercions <| withOverApp 5 do
+def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 5 do
   let expr ← getExpr
   guard <| expr.getAppNumArgs == 5
   let .lit (.natVal m) ← pure (expr.getArg! 2) | failure
@@ -1080,6 +1080,9 @@ def coeDelaborator : Delab := whenPPOption getPPCoercions do
   let e ← getExpr
   let .const declName _ := e.getAppFn | failure
   let some info ← Meta.getCoeFnInfo? declName | failure
+  if (← getPPOption getPPExplicit) && info.coercee != 0 then
+    -- Approximation: the only implicit arguments come before the coercee
+    failure
   let n := e.getAppNumArgs
   withOverApp info.numArgs do
     match info.type with
@@ -1092,7 +1095,7 @@ def coeDelaborator : Delab := whenPPOption getPPCoercions do
     | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 @[builtin_delab app.dite]
-def delabDIte : Delab := whenPPOption getPPNotation <| withOverApp 5 do
+def delabDIte : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 5 do
   -- Note: we keep this as a delaborator for now because it actually accesses the expression.
   guard $ (← getExpr).getAppNumArgs == 5
   let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
@@ -1109,7 +1112,7 @@ where
         return (← delab, h.getId)
 
 @[builtin_delab app.cond]
-def delabCond : Delab := whenPPOption getPPNotation <| withOverApp 4 do
+def delabCond : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 4 do
   guard $ (← getExpr).getAppNumArgs == 4
   let c ← withAppFn $ withAppFn $ withAppArg delab
   let t ← withAppFn $ withAppArg delab
@@ -1129,7 +1132,7 @@ def delabNamedPattern : Delab := do
   `($x:ident@$h:ident:$p:term)
 
 -- Sigma and PSigma delaborators
-def delabSigmaCore (sigma : Bool) : Delab := whenPPOption getPPNotation do
+def delabSigmaCore (sigma : Bool) : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 2
   guard $ (← getExpr).appArg!.isLambda
   withAppArg do
@@ -1209,7 +1212,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
     prependAndRec x : DelabM _ := List.cons <$> x <*> delabDoElems
 
 @[builtin_delab app.Bind.bind]
-def delabDo : Delab := whenPPOption getPPNotation do
+def delabDo : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
   guard <| (← getExpr).isAppOfArity ``Bind.bind 6
   let elems ← delabDoElems
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))

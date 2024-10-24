@@ -6,6 +6,7 @@ Authors: Joachim Breitner
 prelude
 import Std.Tactic.RSimp.Setup
 import Std.Tactic.RSimp.RSimpDecide
+import Std.Tactic.RSimp.Optimize
 
 /-!
 This directory contains the implementation of the `rsimp_decide` tactic and infrastructure for that.

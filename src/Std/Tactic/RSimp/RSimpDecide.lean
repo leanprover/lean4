@@ -9,6 +9,8 @@ import Std.Tactic.RSimp.Setup
 import Lean.Elab.Tactic
 import Init.Tactics
 
+-- TODO: Namespace
+
 open Lean Elab Tactic Meta
 
 private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do

@@ -162,7 +162,6 @@ lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*)
 LEAN_EXPORT uint8_t l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabInclude___spec__1___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabExit___boxed(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabModuleDoc__1___closed__3;
-uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabCheckFailure___closed__3;
 static lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___at_Lean_Elab_Command_elabExport___spec__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_resolveNamespaceCore___at_Lean_Elab_Command_elabOpen___spec__7(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -801,6 +800,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Comma
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__4(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabUniverse___spec__3___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduce(lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabImport__1___closed__3;
@@ -26882,7 +26882,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-x_8 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_1, x_6);
+x_8 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_6);
 if (x_8 == 0)
 {
 lean_ctor_set(x_2, 1, x_3);
@@ -26910,7 +26910,7 @@ x_12 = lean_ctor_get(x_2, 1);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_2);
-x_13 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_1, x_11);
+x_13 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -28825,7 +28825,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-x_8 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_1, x_6);
+x_8 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_6);
 if (x_8 == 0)
 {
 lean_ctor_set(x_2, 1, x_3);
@@ -28853,7 +28853,7 @@ x_12 = lean_ctor_get(x_2, 1);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_2);
-x_13 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_1, x_11);
+x_13 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_1, x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; 

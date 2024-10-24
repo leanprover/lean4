@@ -7,10 +7,10 @@ structure Baz (α : Type) where
   c : Bool → α
   d : Nat
 
-set_option structureDiamondWarning false in
+set_option structure.diamondWarning false in
 structure Foo (α : Type) extends Bar α, Baz α -- Error: parent field type mismatch
 
-set_option structureDiamondWarning false in
+set_option structure.diamondWarning false in
 structure Foo (α : Type) extends Bar (α → α), Baz α
 
 #print Foo
@@ -23,5 +23,5 @@ def f (x : Nat) : Foo Nat :=
 
 #print f
 
-set_option structureDiamondWarning true in
+set_option structure.diamondWarning true in
 structure Foo' (α : Type) extends Bar (α → α), Baz α -- Warning: parent field duplication

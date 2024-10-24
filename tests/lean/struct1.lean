@@ -11,7 +11,7 @@ structure S : Nat := -- error expected Type
 
 structure S extends Nat → Nat := -- error expected structure
 (x : Nat)
-set_option structureDiamondWarning true in
+set_option structure.diamondWarning true in
 structure S' extends A Nat, A Bool := -- error field toA already declared
 (x : Nat)
 

@@ -173,6 +173,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyRu
 static lean_object* l_Lean_Elab_Tactic_SolveByElim_elabConfig___closed__1;
 lean_object* l_Sum_getLeft_x3f___rarg(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5___boxed(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyAssumption_declRange__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_SolveByElim_elabConfig___closed__8;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyRules_declRange__1___closed__4;
@@ -212,7 +213,6 @@ static lean_object* l_Lean_Elab_Tactic_SolveByElim_evalApplyRules___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapMAux___at_Lean_Elab_Tactic_SolveByElim_elabConfig___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_elabConfig___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Sum_0__Sum_beqSum____x40_Init_Data_Sum___hyg_242____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_evalSolveByElim___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_Elab_Tactic_SolveByElim_parseArgs___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyAssumption_declRange__1___closed__2;
@@ -226,7 +226,6 @@ size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Elab_withSaveInfoContext___at_Lean_Elab_Tactic_SolveByElim_elabConfig___spec__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_SolveByElim_evalApplyAssumption_declRange__1___closed__6;
 static lean_object* l_Lean_Elab_Tactic_SolveByElim_parseUsing___closed__1;
-LEAN_EXPORT lean_object* l___private_Init_Data_Sum_0__Sum_beqSum____x40_Init_Data_Sum___hyg_242____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withoutModifyingStateWithInfoAndMessages___at_Lean_Elab_Tactic_SolveByElim_elabConfig___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_processSyntax(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_elabApplyRulesConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -242,6 +241,7 @@ static lean_object* l_Lean_Elab_Tactic_SolveByElim_elabConfig___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_processSyntax___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalExpr_x27___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_Elab_Tactic_SolveByElim___hyg_8____closed__4;
+LEAN_EXPORT uint8_t l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_SolveByElim_evalUnsafe____x40_Lean_Elab_Tactic_SolveByElim___hyg_8____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -3612,7 +3612,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Sum_0__Sum_beqSum____x40_Init_Data_Sum___hyg_242____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -3700,7 +3700,7 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 lean_dec(x_2);
-x_8 = l___private_Init_Data_Sum_0__Sum_beqSum____x40_Init_Data_Sum___hyg_242____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(x_6, x_7);
+x_8 = l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(x_6, x_7);
 return x_8;
 }
 }
@@ -3988,11 +3988,11 @@ x_6 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec_
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Sum_0__Sum_beqSum____x40_Init_Data_Sum___hyg_242____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Data_Sum_0__Sum_beqSum____x40_Init_Data_Sum___hyg_242____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(x_1, x_2);
+x_3 = l___private_Init_Data_Sum_Basic_0__Sum_beqSum____x40_Init_Data_Sum_Basic___hyg_243____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__5(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }

@@ -1,4 +1,4 @@
-set_option structureDiamondWarning false
+set_option structure.diamondWarning false
 
 class Foo (α : Type) extends Add α where
   zero : α

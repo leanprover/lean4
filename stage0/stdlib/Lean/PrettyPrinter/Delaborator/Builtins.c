@@ -242,7 +242,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppExplicitCore___clos
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabChar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabSigmaCore___lambda__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabLam___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabLetE__1___closed__5;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppImplicitCore_mkArg___closed__1;
@@ -1233,6 +1232,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppExplicitCore__
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabFVar__1___closed__4;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabMVarAux___lambda__1___closed__7;
+uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Level_dec(lean_object*);
 uint8_t l_Lean_Syntax_hasIdent(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabLetFun___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -22912,7 +22912,7 @@ if (x_20 == 0)
 {
 uint8_t x_21; 
 lean_dec(x_18);
-x_21 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_5, x_17);
+x_21 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_5, x_17);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 

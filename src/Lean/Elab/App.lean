@@ -1188,19 +1188,19 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if idx == 0 then
       throwError "invalid projection, index must be greater than 0"
     let env ← getEnv
-    unless isStructureLike env structName do
-      throwLValError e eType "invalid projection, structure expected"
-    let numFields := getStructureLikeNumFields env structName
-    if idx - 1 < numFields then
-      if isStructure env structName then
-        let fieldNames := getStructureFields env structName
-        return LValResolution.projFn structName structName fieldNames[idx - 1]!
+    let failK _ := throwLValError e eType "invalid projection, structure expected"
+    matchConstStructure eType.getAppFn failK fun _ _ ctorVal => do
+      let numFields := ctorVal.numFields
+      if idx - 1 < numFields then
+        if isStructure env structName then
+          let fieldNames := getStructureFields env structName
+          return LValResolution.projFn structName structName fieldNames[idx - 1]!
+        else
+          /- `structName` was declared using `inductive` command.
+            So, we don't projection functions for it. Thus, we use `Expr.proj` -/
+          return LValResolution.projIdx structName (idx - 1)
       else
-        /- `structName` was declared using `inductive` command.
-           So, we don't projection functions for it. Thus, we use `Expr.proj` -/
-        return LValResolution.projIdx structName (idx - 1)
-    else
-      throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
+        throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do

@@ -1084,6 +1084,8 @@ where
             addPreDefinitions preDefs
             if let some async := async? then
               async.commitConst (← getEnv)
+            withTraceNode `Elab.block (fun _ => return m!"blocking on env pre-compilation") do
+              let _ ← IO.wait (← getEnv).checkedSync
             forceCompile
             processDeriving headers
             if let some async := async? then

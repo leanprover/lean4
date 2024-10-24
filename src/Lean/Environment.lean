@@ -387,7 +387,7 @@ structure AsyncConst where
 
 structure Environment extends EnvironmentBase where
   private mk ::
-  private checkedSync : Task EnvironmentBase := .pure toEnvironmentBase
+  checkedSync : Task EnvironmentBase := .pure toEnvironmentBase
   asyncConsts             : Array AsyncConst := #[]
   asyncConstMap           : NameTrie AsyncConst := {}
   private asyncCtx?       : Option AsyncContext := none

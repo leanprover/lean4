@@ -130,6 +130,7 @@ structure ThreadWithMaps extends Thread where
 -- TODO: add others, dynamically?
 def categories : Array Category := #[
   { name := `Other, color := "gray" },
+  { name := `Elab.async, color := "gray" },
   { name := `Elab.block, color := "brown" },
   { name := `Elab, color := "red" },
   { name := `Meta, color := "yellow" }

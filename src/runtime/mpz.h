@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <limits>
 #include <lean/lean.h>
-#include "runtime/int64.h"
+#include "runtime/int.h"
 #include "runtime/debug.h"
 
 namespace lean {
@@ -266,10 +266,12 @@ public:
     // a <- b / 2^k
     friend void div2k(mpz & a, mpz const & b, unsigned k);
 
-    unsigned mod8() const;
-    unsigned mod16() const;
-    unsigned mod32() const;
+    uint8 mod8() const;
+    uint16 mod16() const;
+    uint32 mod32() const;
     uint64 mod64() const;
+
+    int8 smod8() const;
 
     /**
        \brief Return the position of the most significant bit.

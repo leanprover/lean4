@@ -1,0 +1,83 @@
+Int8 : Type
+20
+-20
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+
+[result]
+def myId (x_1 : u8) : u8 :=
+  ret x_1
+def myId._boxed (x_1 : obj) : obj :=
+  let x_2 : u8 := unbox x_1;
+  dec x_1;
+  let x_3 : u8 := myId x_2;
+  let x_4 : obj := box x_3;
+  ret x_4

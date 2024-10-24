@@ -1089,17 +1089,21 @@ where
             if let some async := async? then
               (← async.checkAndCommitEnv (← getEnv) (← getOptions) (← readThe Core.Context).cancelTk? |>.toBaseIO) |> ofExceptKernelException
           finally
-            typeCheckedPromise?.forM (·.resolve default)
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)
             valPromise.resolve (Expr.const `failedAsyncElab [])
             async?.forM (·.commitFailure)
       if let some async := async? then
-        let _ ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
+        let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
           modifyEnv fun _ => async.asyncEnv
           finishElab
+        let _ ← BaseIO.mapTask (t := t) fun snap => do
+          if let some typeCheckedPromise := typeCheckedPromise? then
+            typeCheckedPromise.resolve snap
       else
         finishElab
+          if let some typeCheckedPromise := typeCheckedPromise? then
+            typeCheckedPromise.resolve default
       for view in views, declId in expandedDeclIds do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref

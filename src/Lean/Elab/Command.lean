@@ -736,14 +736,14 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       ref := ctx.ref
       tacticCache? := none
       snap? := none
-      cancelTk? := (← read).cancelTk?
+      cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors
     } |>.run {
       env := s.env
       nextMacroScope := s.nextMacroScope
       maxRecDepth := ctx.maxRecDepth
       ngen := s.ngen
-      scopes := [{ header := "", opts := ← getOptions }]
+      scopes := [{ header := "", opts := ctx.options }]
       infoState.enabled := s.infoState.enabled
     }
   modify fun coreState => { coreState with

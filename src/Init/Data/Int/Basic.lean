@@ -333,6 +333,13 @@ instance : Min Int := minOfLe
 
 instance : Max Int := maxOfLe
 
+/--
+Return the absolute value of an integer.
+-/
+def abs : Int → Int
+  | ofNat n   => .ofNat n
+  | negSucc n => .ofNat n.succ
+
 end Int
 
 /--

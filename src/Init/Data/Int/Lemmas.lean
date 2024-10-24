@@ -531,4 +531,27 @@ theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 @[simp] theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
   simp
 
+/-! abs lemmas -/
+
+@[simp]
+theorem abs_eq_self {x : Int} (h : x ≥ 0) : x.abs = x := by
+  cases x 
+  case ofNat h => 
+    rfl
+  case negSucc h =>
+    contradiction
+
+@[simp]
+theorem abs_zero : abs 0 = 0 := rfl
+@[simp]
+theorem abs_eq_neg {x : Int} (h : x < 0) : x.abs = -x := by
+  cases x
+  case ofNat h => 
+    contradiction
+  case negSucc n =>
+    rfl
+
+@[simp]
+theorem ofNat_abs {x : Nat} : (x : Int).abs = (x : Int) := rfl
+
 end Int

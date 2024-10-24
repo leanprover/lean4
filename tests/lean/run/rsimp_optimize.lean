@@ -1,4 +1,3 @@
-
 import Std.Tactic.RSimp
 
 
@@ -6,7 +5,7 @@ import Std.Tactic.RSimp
 
 attribute [rsimp] Fin.ext_iff
 attribute [rsimp] Fin.val_mul Fin.val_add
--- Unfortnately, `attribute` does not allow to add theorems with symm?
+-- Unfortunately, `attribute` does not allow to add theorems with symm?
 def Bool.cond_decide_symm := fun α p inst t e => (@Bool.cond_decide α p inst t e).symm
 attribute [rsimp] Bool.cond_decide_symm
 def Nat.beq_eq_symm {x y : Nat} : (x = y) = (x.beq y = true) := (@Nat.beq_eq x y).symm

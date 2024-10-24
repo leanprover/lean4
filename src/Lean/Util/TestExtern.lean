@@ -23,7 +23,7 @@ syntax (name := testExternCmd) "test_extern " term : command
       if isExtern env f || (getImplementedBy? env f).isSome then
         let t' := (← unfold t f).expr
         let r := mkApp (.const ``reduceBool []) (← mkDecide (← mkEq t t'))
-        if ! (← evalExpr Bool (.const ``Bool []) r) then
+        if !(← evalExpr Bool (.const ``Bool []) r) then
           throwError
             ("native implementation did not agree with reference implementation!\n" ++
             m!"Compare the outputs of:\n#eval {t}\n and\n#eval {t'}")

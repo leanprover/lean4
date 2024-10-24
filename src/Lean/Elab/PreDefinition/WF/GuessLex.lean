@@ -385,10 +385,10 @@ def complexMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
           if let some (e₁, e₂) := isNatCmp ldecl.type then
             -- We only want to consider these expressions if they depend only on the function's
             -- immediate arguments, so check that
-            if e₁.hasAnyFVar (! xs.contains ·) then continue
-            if e₂.hasAnyFVar (! xs.contains ·) then continue
+            if e₁.hasAnyFVar (!xs.contains ·) then continue
+            if e₂.hasAnyFVar (!xs.contains ·) then continue
             -- If e₁ does not depend on any varying parameters, simply ignore it
-            let e₁_is_const := ! e₁.hasAnyFVar (varyingParams.contains ·)
+            let e₁_is_const := !e₁.hasAnyFVar (varyingParams.contains ·)
             let body := if e₁_is_const then e₂ else mkNatSub e₂ e₁
             -- Avoid adding simple measures
             unless body.isFVar do

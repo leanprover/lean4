@@ -416,7 +416,7 @@ def pushNot (h P : Expr) : MetaM (Option Expr) := do
 Parse an `Expr` and extract facts, also returning the number of new facts found.
 -/
 partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) := do
-  if ! p.problem.possible then
+  if !p.problem.possible then
     return (p, 0)
   else
     let t ← instantiateMVars (← whnfR (← inferType h))

@@ -131,7 +131,7 @@ def checkPostponedConstructors : M Unit := do
   for ctor in (← get).postponedConstructors do
     match (← get).env.constants.find? ctor, (← read).newConstants[ctor]? with
     | some (.ctorInfo info), some (.ctorInfo info') =>
-      if ! (info == info') then throw <| IO.userError s!"Invalid constructor {ctor}"
+      if info != info' then throw <| IO.userError s!"Invalid constructor {ctor}"
     | _, _ => throw <| IO.userError s!"No such constructor {ctor}"
 
 /--
@@ -142,7 +142,7 @@ def checkPostponedRecursors : M Unit := do
   for ctor in (← get).postponedRecursors do
     match (← get).env.constants.find? ctor, (← read).newConstants[ctor]? with
     | some (.recInfo info), some (.recInfo info') =>
-      if ! (info == info') then throw <| IO.userError s!"Invalid recursor {ctor}"
+      if info != info' then throw <| IO.userError s!"Invalid recursor {ctor}"
     | _, _ => throw <| IO.userError s!"No such recursor {ctor}"
 
 end Replay

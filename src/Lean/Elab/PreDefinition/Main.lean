@@ -180,11 +180,11 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
           m!"a `termination_by` clause.\n" ++
           m!"The present clause is ignored.")
 
-      if structural && ! termBy.structural then
+      if structural && !termBy.structural then
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is marked as `termination_by " ++
           m!"structural` so this one also needs to be marked `structural`.")
-      if ! structural && termBy.structural then
+      if !structural && termBy.structural then
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is not marked as `structural` " ++
           m!"so this one cannot be `structural` either.")

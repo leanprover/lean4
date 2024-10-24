@@ -49,7 +49,7 @@ def isImportNameCompletionRequest (headerStx : Syntax) (completionPos : String.P
 
 /-- Checks whether `completionPos` points at a free space in the header. -/
 def isImportCmdCompletionRequest (headerStx : Syntax) (completionPos : String.Pos) : Bool :=
-  ! headerStx[1].getArgs.any fun importStx => importStx.getArgs.any fun arg =>
+  !headerStx[1].getArgs.any fun importStx => importStx.getArgs.any fun arg =>
     arg.getPos?.isSome && arg.getTailPos?.isSome
       && arg.getPos?.get! <= completionPos && completionPos <= arg.getTailPos?.get!
 
@@ -61,7 +61,7 @@ def computePartialImportCompletions
   let some (completePrefix, incompleteSuffix) := headerStx[1].getArgs.findSome? fun importStx => do
       -- `partialTrailingDotStx` ≙ `("." ident)?`
       let partialTrailingDotStx := importStx[3]
-      if ! partialTrailingDotStx.hasArgs then
+      if !partialTrailingDotStx.hasArgs then
         let tailPos ← importStx[2].getTailPos?
         guard <| tailPos == completionPos
         let .str completePrefix incompleteSuffix := importStx[2].getId
@@ -77,7 +77,7 @@ def computePartialImportCompletions
   let completions := availableImports.matchingToArray completePrefix
     |>.map (·.replacePrefix completePrefix .anonymous)
     |>.filter (·.toString.startsWith incompleteSuffix)
-    |>.filter (! ·.isAnonymous)
+    |>.filter (!·.isAnonymous)
     |>.qsort Name.quickLt
 
   return completions
@@ -113,7 +113,7 @@ def collectAvailableImportsFromSrcSearchPath : IO AvailableImports :=
   (·.2) <$> StateT.run (s := #[]) do
     let srcSearchPath ← initSrcSearchPath
     for p in srcSearchPath do
-      if ! (← p.isDir) then
+      if !(← p.isDir) then
         continue
       Lean.forEachModuleInDir p fun mod => do
         modify (·.push mod)

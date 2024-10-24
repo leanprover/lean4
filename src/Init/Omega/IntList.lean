@@ -53,7 +53,7 @@ def set (xs : IntList) (i : Nat) (y : Int) : IntList :=
 @[simp] theorem set_cons_succ : set (x :: xs) (i+1) y = x :: set xs i y := rfl
 
 /-- Returns the leading coefficient, i.e. the first non-zero entry. -/
-def leading (xs : IntList) : Int := xs.find? (! · == 0) |>.getD 0
+def leading (xs : IntList) : Int := xs.find? (!· == 0) |>.getD 0
 
 /-- Implementation of `+` on `IntList`. -/
 def add (xs ys : IntList) : IntList :=

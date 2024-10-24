@@ -401,7 +401,7 @@ section Initialization
         o.writeLspMessage msg |>.catchExceptions (fun _ => pure ())
         if let .notification "$/lean/fileProgress" (some params) := msg then
           if let some (params : LeanFileProgressParams) := fromJson? (toJson params) |>.toOption then
-            chanIsProcessing.send (! params.processing.isEmpty)
+            chanIsProcessing.send (!params.processing.isEmpty)
       return chanOut
 
     getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
@@ -698,7 +698,7 @@ end MainLoop
 def runRefreshTask : WorkerM (Task (Except IO.Error Unit)) := do
   let ctx ← read
   IO.asTask (prio := Task.Priority.dedicated) do
-    while ! (←IO.checkCanceled) do
+    while !(←IO.checkCanceled) do
       let pastProcessingStates ← ctx.chanIsProcessing.recvAllCurrent
       if pastProcessingStates.isEmpty then
         -- Processing progress has not changed since we last sent out a refresh request

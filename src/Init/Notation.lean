@@ -334,7 +334,10 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
 @[inherit_doc] infixl:35 " && " => and
 @[inherit_doc] infixl:30 " || " => or
-@[inherit_doc] notation:max "!" b:40 => not b
+@[inherit_doc not] macro:max "!" noWs b:term:40 : term => `(not $b)
+@[app_unexpander not] private def unexpandNot : Lean.PrettyPrinter.Unexpander
+  | `($_ $a) => `(!$a)
+  | _ => throw ()
 
 @[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/

@@ -803,7 +803,7 @@ section NotificationHandling
     let dependents := importData.importedBy.findD p.textDocument.uri ∅
 
     for ⟨uri, _⟩ in fileWorkers do
-      if ! dependents.contains uri then
+      if !dependents.contains uri then
         continue
       notifyAboutStaleDependency uri p.textDocument.uri
 

@@ -342,7 +342,7 @@ def dealWithHardEquality (p : Problem) (c : Coeffs) : OmegaM Problem :=
     if hr : r' = r then
       match facts? with
       | none => throwError "When solving hard equality, new atom had been seen before!"
-      | some facts => if ! facts.isEmpty then
+      | some facts => if !facts.isEmpty then
         throwError "When solving hard equality, there were unexpected new facts!"
       return p.addConstraint { coeffs := _, constraint := _, justification := (hr ▸ j).bmod m r i }
     else

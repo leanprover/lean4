@@ -165,12 +165,11 @@ instance : ToFormat SimpTheorem where
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
   | .decl n post inv => do
-    let r := MessageData.ofConst (← mkConstWithLevelParams n)
     match post, inv with
-    | true,  true  => return m!"← {r}"
-    | true,  false => return r
-    | false, true  => return m!"↓ ← {r}"
-    | false, false => return m!"↓ {r}"
+    | true,  true  => return m!"← {n}"
+    | true,  false => return n
+    | false, true  => return m!"↓ ← {n}"
+    | false, false => return m!"↓ {n}"
   | .fvar n => return mkFVar n
   | .stx _ ref => return ref
   | .other n => return n

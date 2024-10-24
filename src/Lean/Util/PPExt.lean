@@ -52,6 +52,7 @@ instance : Coe Format FormatWithInfos where
 
 structure PPFns where
   ppExprWithInfos : PPContext → Expr → IO FormatWithInfos
+  ppConstNameWithInfos : PPContext → Name → IO FormatWithInfos
   ppTerm : PPContext → Term → IO Format
   ppLevel : PPContext → Level → IO Format
   ppGoal : PPContext → MVarId → IO Format
@@ -60,6 +61,7 @@ structure PPFns where
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
     ppExprWithInfos := fun _ e => return format (toString e)
+    ppConstNameWithInfos := fun _ n => return format n
     ppTerm := fun ctx stx => return stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
     ppLevel := fun _ l => return format l
     ppGoal := fun _ _ => return "goal"
@@ -80,6 +82,9 @@ def ppExprWithInfos (ctx : PPContext) (e : Expr) : IO FormatWithInfos := do
         pure f!"[Error pretty printing expression: {ex}. Falling back to raw printer.]{Format.line}{e}"
       else
         pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
+
+def ppConstNameWithInfos (ctx : PPContext) (n : Name) : IO FormatWithInfos :=
+  ppExt.getState ctx.env |>.ppConstNameWithInfos ctx n
 
 def ppTerm (ctx : PPContext) (stx : Term) : IO Format :=
   let fmtRaw := fun () => stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)

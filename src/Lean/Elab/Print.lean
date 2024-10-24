@@ -11,7 +11,7 @@ import Lean.Elab.Command
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError "unknown identifier '{mkConst id}'"
+  throwError "unknown identifier '{format id}'"
 
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
@@ -38,7 +38,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   let (m, id) := match privateToUserName? id with
     | some id => (m ++ "private ", id)
     | none    => (m, id)
-  let m := m ++ kind ++ " " ++ id ++ levelParamsToMessageData levelParams ++ " : " ++ type
+  let m := m ++ kind ++ " " ++ format id ++ levelParamsToMessageData levelParams ++ " : " ++ type
   pure m
 
 private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData :=

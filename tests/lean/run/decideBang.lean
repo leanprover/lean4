@@ -38,7 +38,7 @@ error: tactic 'decide' failed for proposition
   irred 3 = 3
 since its 'Decidable' instance
   instDecidableEqNat (irred 3) 3
-did not reduce to 'isTrue' or 'isFalse'.
+did not reduce to 'Decidable.isTrue' or 'Decidable.isFalse'.
 
 After unfolding the instances 'instDecidableEqNat' and 'Nat.decEq', reduction got stuck at the 'Decidable' instance
   match h : (irred 3).beq 3 with

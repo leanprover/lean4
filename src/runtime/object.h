@@ -11,8 +11,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-typedef int8_t  int8;
-
 typedef lean_object object;
 typedef object * obj_arg;
 typedef object * b_obj_arg;

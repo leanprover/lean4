@@ -782,6 +782,7 @@ While the `modifyEnv` function for `MetaM` clears its caches entirely,
 `liftCommandElabM` has no way to reset these caches.
 -/
 def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : CoreM α := do
+  -- `observing` ensures that if `cmd` throws an exception we still thread state back to `CoreM`.
   MonadExcept.ofExcept (← liftCommandElabMCore (observing cmd) throwOnError)
 
 /--

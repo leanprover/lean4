@@ -17,6 +17,29 @@ def Fin.all {n : Nat} (P : ∀ i < n, Bool) : Bool := go n (Nat.le_refl n)
     (fun _ => true)
     (fun i ih p => P i (by omega) && ih (by omega))
 
+theorem Fin.all_eq_true_iff {n : Nat} (P : ∀ i < n, Bool) :
+    Fin.all P ↔ (∀ (i : Nat) (hj : i < n), P i (by omega) = true) :=
+  go (Nat.le_refl n)
+where
+  go {i : Nat} (h : i ≤ n) :
+      Fin.all.go P i h ↔ (∀ (j : Nat) (hj : j < i), P j (by omega) = true) := by
+    induction i
+    case zero => simp [Fin.all.go]; rfl
+    case succ i ih =>
+      symm
+      calc (∀ (j : Nat) (hj : j < i + 1), P j (by omega))
+        _ ↔ P i h ∧ (∀ (j : Nat) (hj : j < i), P j (by omega)) := by
+          constructor
+          · exact fun h' => ⟨h' i (by omega), fun j hj => h' j (by omega)⟩
+          · intro h' j hj
+            by_cases j = i
+            · subst j; apply h'.1
+            · apply h'.2 j (by omega)
+        _ ↔ P i h ∧ (∀ (j : Nat) (hj : j < i), P j  (by omega)) := by simp
+        _ ↔ P i h = true ∧ all.go P i (by omega) = true := by rw [ih]
+        _ ↔ all.go P (i+1) h = true := by simp [all.go]
+
+
 def Nat.all_below (n : Nat) (P : Nat → Bool) : Bool :=
   Nat.rec true (fun i ih => P i && ih) n
 
@@ -43,29 +66,7 @@ theorem Bool.eq_of_eq_true_iff_eq_true {a b : Bool} : (a = true ↔ b = true) �
 theorem Fin.decideAll_to_Fin.all {n : Nat} {P : Fin n → Prop} [DecidablePred P] :
     decide (∀ x, P x) = Fin.all (fun i h => decide (P ⟨i, h⟩)) := by
   apply Bool.eq_of_eq_true_iff_eq_true
-  simp [Fin.all]
-  suffices ∀ i (h : i ≤ n), (∀ j (hj : j < i), P ⟨j, by omega⟩) = all.go (fun i h ↦ decide (P ⟨i, h⟩)) i h by
-    rw [← this n (Nat.le_refl n)]
-    exact forall_iff
-  intro i h
-  induction i
-  case a.zero =>
-    simp [all.go]
-    rfl
-  case a.succ i ih =>
-    apply propext
-    calc (∀ (j : Nat) (hj : j < i + 1), P ⟨j, by omega⟩)
-      _ ↔ P ⟨i, h⟩ ∧ (∀ (j : Nat) (hj : j < i), P ⟨j, by omega⟩) := by
-        constructor
-        · exact fun h' => ⟨h' i (by omega), fun j hj => h' j (by omega)⟩
-        · intro h' j hj
-          by_cases j = i
-          · subst j; apply h'.1
-          · apply h'.2 j (by omega)
-      _ ↔ decide (P ⟨i, h⟩) = true ∧ (∀ (j : Nat) (hj : j < i), P ⟨j, by omega⟩) := by simp
-      _ ↔ decide (P ⟨i, h⟩) = true ∧ all.go (fun i h ↦ decide (P ⟨i, h⟩)) i (by omega) = true := by rw [ih]
-      _ ↔ all.go (fun i h ↦ decide (P ⟨i, h⟩)) (i+1) h = true := by simp [all.go]
-
+  simp [Fin.all_eq_true_iff, Fin.forall_iff]
 
 @[rsimp]
 theorem Nat.decideEq_to_beq {x y : Nat} :

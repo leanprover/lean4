@@ -755,11 +755,10 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
   if throwOnError then
     if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
       throwError err.data
-  else
-    modify fun coreState => { coreState with
-      infoState.trees := coreState.infoState.trees.append commandState.infoState.trees
-      messages := coreState.messages ++ commandState.messages
-    }
+  modify fun coreState => { coreState with
+    infoState.trees := coreState.infoState.trees.append commandState.infoState.trees
+    messages := coreState.messages ++ commandState.messages
+  }
   return a
 
 /--

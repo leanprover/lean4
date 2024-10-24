@@ -78,39 +78,48 @@ partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try
-      if !a.isApp || !b.isApp then
-        return (a, b)
-      else if a.getAppNumArgs != b.getAppNumArgs then
+      if !a.isApp || !b.isApp || a.getAppNumArgs != b.getAppNumArgs then
         return (a, b)
       else if !(← isDefEq a.getAppFn b.getAppFn) then
-        return (a, b)
+        let (fa, fb) ← visit a.getAppFn b.getAppFn
+        return (mkAppN fa a.getAppArgs, mkAppN fb b.getAppArgs)
       else
-        let fType ← inferType a.getAppFn
-        forallBoundedTelescope fType a.getAppNumArgs fun xs _ => do
-          let mut as := a.getAppArgs
-          let mut bs := b.getAppArgs
-          if let some (as', bs') ← hasExplicitDiff? xs as bs then
-            return (mkAppN a.getAppFn as', mkAppN b.getAppFn bs')
-          else
-            for i in [:as.size] do
-              unless (← isDefEq as[i]! bs[i]!) do
-                let (ai, bi) ← visit as[i]! bs[i]!
-                as := as.set! i ai
-                bs := bs.set! i bi
-            let a := mkAppN a.getAppFn as
-            let b := mkAppN b.getAppFn bs
-            return (a.setAppPPExplicit, b.setAppPPExplicit)
+        -- Note: this isn't using forallBoundedTelescope because the function might be "overapplied".
+        -- That is to say, the arity might depend on the values of the arguments.
+        let mut as := a.getAppArgs
+        let mut bs := b.getAppArgs
+        let mut aFnType ← inferType a.getAppFn
+        let mut bFnType ← inferType b.getAppFn
+        let mut firstDiff? := none
+        for i in [0:as.size] do
+          unless aFnType.isForall do aFnType ← withTransparency .all <| whnf aFnType
+          unless bFnType.isForall do bFnType ← withTransparency .all <| whnf bFnType
+          -- These pattern matches are expected to succeed:
+          let .forallE _ _ abody abi := aFnType | return (a, b)
+          let .forallE _ _ bbody bbi := aFnType | return (a, b)
+          aFnType := abody.instantiate1 as[i]!
+          bFnType := bbody.instantiate1 bs[i]!
+          let explicit := abi.isExplicit && bbi.isExplicit
+          unless (← isDefEq as[i]! bs[i]!) do
+            if explicit then
+              let (ai, bi) ← visit as[i]! bs[i]!
+              let a := mkAppN a.getAppFn (as.set! i ai)
+              let b := mkAppN b.getAppFn (bs.set! i bi)
+              if a.isAppOf ``sorryAx then
+                -- Special case: if this is a `sorry` with source position, make sure the delaborator shows the position.
+                return (a.setOption `pp.sorrySource true, b.setOption `pp.sorrySource true)
+              return (a, b)
+            else
+              firstDiff? := firstDiff? <|> some i
+        if let some i := firstDiff? then
+          let (ai, bi) ← visit as[i]! bs[i]!
+          as := as.set! i ai
+          bs := bs.set! i bi
+        let a := mkAppN a.getAppFn as
+        let b := mkAppN b.getAppFn bs
+        return (a.setPPExplicit true, b.setPPExplicit true)
     catch _ =>
       return (a, b)
-
-  hasExplicitDiff? (xs as bs : Array Expr) : MetaM (Option (Array Expr × Array Expr)) := do
-    for i in [:xs.size] do
-      let localDecl ← xs[i]!.fvarId!.getDecl
-      if localDecl.binderInfo.isExplicit then
-         unless (← isDefEq as[i]! bs[i]!) do
-           let (ai, bi) ← visit as[i]! bs[i]!
-           return some (as.set! i ai, bs.set! i bi)
-    return none
 
 /--
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"

@@ -10,15 +10,21 @@ import Lean.Declaration
 namespace Lean
 
 def Expr.isSorry : Expr → Bool
-  | app (app (.const ``sorryAx ..) ..) .. => true
+  | mkApp2 (.const ``sorryAx ..) _ _ => true
+  -- A labeled sorry:
+  | mkApp3 (.const ``sorryAx ..) _ _ _ => true
   | _ => false
 
 def Expr.isSyntheticSorry : Expr → Bool
-  | app (app (const ``sorryAx ..) ..) (const ``Bool.true ..) => true
+  | mkApp2 (const ``sorryAx ..) _ (const ``Bool.true ..) => true
+  -- A labeled sorry:
+  | mkApp3 (const ``sorryAx ..) _ (const ``Bool.true ..) _ => true
   | _ => false
 
 def Expr.isNonSyntheticSorry : Expr → Bool
-  | app (app (const ``sorryAx ..) ..) (const ``Bool.false ..) => true
+  | mkApp2 (const ``sorryAx ..) _ (const ``Bool.false ..) => true
+  -- A labeled sorry:
+  | mkApp3 (const ``sorryAx ..) _ (const ``Bool.false ..) _ => true
   | _ => false
 
 def Expr.hasSorry (e : Expr) : Bool :=

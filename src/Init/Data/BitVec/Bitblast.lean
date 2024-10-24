@@ -399,19 +399,9 @@ theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c
 Remember that a negating a bitvector is equal to incrementing the complement
 by one, i.e., `-x = ~~~x + 1`. (see `neg_eq_not_add`)
 
-Thus, if the least-significant-bit of `x` is `true`, then its complement is
-`false`, we add one to it, and we get that the lsb of the negation is `true`,
-and the carry disappeared, so the rest of the bits remain complemented.
-
-Otherwise, if the least-significant bit of `x` was `false`, then its complement
-is `true`, which flips back to the original value of `false` after adding one,
-and the carry remains.
-
-Extrapolating, we find that the `i`-th bit of `-x` is equal to the `i`-th bit
-of the input `x` iff the least significant `i` bits of `x` (including the `i`-th
-bit itself) are `false`.
-Otherwise, if one of those bits is `true`, the `i`-th bit of `-x` is the
-complement of the `i`-th bit of `x`.
+This computation has two crucial properties:
+- The least significant bit of `-x` is the same as the least significant bit of `x`, and
+- The `i+1`-th least significant bit of `-x` is the complement of the `i+1`-th bit of `x`, unless all of the preceding bits are `false`, in which case the bit is equal to the `i+1`-th bit of `x`
 -/
 theorem getLsbD_neg {i : Nat} {x : BitVec w} :
     getLsbD (-x) i =

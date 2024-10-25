@@ -140,7 +140,7 @@ def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : Me
 
 /--
 Given `x`, try to find an equation of the form `heq : x = rhs` or `heq : lhs = x`,
-and runs `substCore` on it. Throws an expection if no such equation is found.
+and runs `substCore` on it. Throws an exception if no such equation is found.
 -/
 partial def substVar (mvarId : MVarId) (x : FVarId) : MetaM MVarId :=
   mvarId.withContext do

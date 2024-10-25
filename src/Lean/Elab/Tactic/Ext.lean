@@ -10,7 +10,7 @@ import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Command
-import Lean.Linter.Util
+import Lean.Linter.Basic
 
 /-!
 # Implementation of the `@[ext]` attribute
@@ -123,9 +123,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
           levelParams := info.levelParams
         }
         modifyEnv fun env => addProtected env extName
-        Lean.addDeclarationRanges extName {
-          range := ← getDeclarationRange (← getRef)
-          selectionRange := ← getDeclarationRange (← getRef) }
+        addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
         Failed to generate an 'ext' theorem for '{MessageData.ofConstName structName}': {e.toMessageData}"
@@ -163,9 +161,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         -- Only declarations in a namespace can be protected:
         unless extIffName.isAtomic do
           modifyEnv fun env => addProtected env extIffName
-        Lean.addDeclarationRanges extIffName {
-          range := ← getDeclarationRange (← getRef)
-          selectionRange := ← getDeclarationRange (← getRef) }
+        addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
         Failed to generate an 'ext_iff' theorem from '{MessageData.ofConstName extName}': {e.toMessageData}\n\

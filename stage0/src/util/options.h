@@ -71,10 +71,10 @@ public:
     object * to_obj_arg() const { return m_value.to_obj_arg(); }
 };
 
-bool get_verbose(options const & opts);
-name const & get_verbose_opt_name();
-name const & get_max_memory_opt_name();
-name const & get_timeout_opt_name();
+LEAN_EXPORT bool get_verbose(options const & opts);
+LEAN_EXPORT name const & get_verbose_opt_name();
+LEAN_EXPORT name const & get_max_memory_opt_name();
+LEAN_EXPORT name const & get_timeout_opt_name();
 
 inline options operator+(options const & opts1, options const & opts2) {
     return join(opts1, opts2);

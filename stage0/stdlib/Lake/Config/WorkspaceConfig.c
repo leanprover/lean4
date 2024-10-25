@@ -15,12 +15,10 @@ extern "C" {
 #endif
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__5;
 lean_object* l_String_quote(lean_object*);
-extern lean_object* l_Lake_defaultPackagesDir;
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__14;
 static lean_object* l_Lake_instInhabitedWorkspaceConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedWorkspaceConfig;
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__1;
-LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___default;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__11;
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__15;
@@ -40,14 +38,6 @@ static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspac
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__12;
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__3;
 static lean_object* l___private_Lake_Config_WorkspaceConfig_0__Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_27____closed__2;
-static lean_object* _init_l_Lake_WorkspaceConfig_packagesDir___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_defaultPackagesDir;
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig___closed__1() {
 _start:
 {
@@ -287,8 +277,6 @@ lean_dec_ref(res);
 res = initialize_Lake_Config_Defaults(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_WorkspaceConfig_packagesDir___default = _init_l_Lake_WorkspaceConfig_packagesDir___default();
-lean_mark_persistent(l_Lake_WorkspaceConfig_packagesDir___default);
 l_Lake_instInhabitedWorkspaceConfig___closed__1 = _init_l_Lake_instInhabitedWorkspaceConfig___closed__1();
 lean_mark_persistent(l_Lake_instInhabitedWorkspaceConfig___closed__1);
 l_Lake_instInhabitedWorkspaceConfig = _init_l_Lake_instInhabitedWorkspaceConfig();

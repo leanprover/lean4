@@ -12,6 +12,7 @@ import Lake.Util.Log
 open System
 
 namespace Lake
+open Lean (Name)
 
 /-- A Lake workspace -- the top-level package directory. -/
 structure Workspace : Type where
@@ -32,7 +33,7 @@ structure Workspace : Type where
 
 instance : Nonempty Workspace :=
   have : Inhabited Package := Classical.inhabited_of_nonempty inferInstance
-  by refine' ⟨{..}⟩ <;> exact default
+  ⟨by constructor <;> exact default⟩
 
 hydrate_opaque_type OpaqueWorkspace Workspace
 
@@ -50,7 +51,7 @@ namespace Workspace
 @[inline] def relLakeDir (self : Workspace) : FilePath :=
   self.root.relLakeDir
 
-/-- The the full path to the workspace's Lake directory (e.g., `.lake`). -/
+/-- The full path to the workspace's Lake directory (e.g., `.lake`). -/
 @[inline] def lakeDir (self : Workspace) : FilePath :=
   self.root.lakeDir
 

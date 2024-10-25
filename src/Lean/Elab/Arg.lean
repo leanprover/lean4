@@ -9,18 +9,22 @@ import Lean.Elab.Term
 namespace Lean.Elab.Term
 
 /--
-  Auxiliary inductive datatype for combining unelaborated syntax
-  and already elaborated expressions. It is used to elaborate applications. -/
+Auxiliary inductive datatype for combining unelaborated syntax
+and already elaborated expressions. It is used to elaborate applications.
+-/
 inductive Arg where
   | stx  (val : Syntax)
   | expr (val : Expr)
   deriving Inhabited
 
-/-- Named arguments created using the notation `(x := val)` -/
+/-- Named arguments created using the notation `(x := val)`. -/
 structure NamedArg where
   ref  : Syntax := Syntax.missing
   name : Name
   val  : Arg
+  /-- If `true`, then make all parameters that depend on this one become implicit.
+  This is used for projection notation, since structure parameters might be explicit for classes. -/
+  suppressDeps : Bool := false
   deriving Inhabited
 
 /--

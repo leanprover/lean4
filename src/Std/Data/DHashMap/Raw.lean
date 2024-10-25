@@ -65,6 +65,15 @@ Inserts the given mapping into the map, replacing an existing mapping for the ke
     (Raw₀.insert ⟨m, h⟩ a b).1
   else m -- will never happen for well-formed inputs
 
+instance [BEq α] [Hashable α] : Singleton ((a : α) × β a) (Raw α β) :=
+  ⟨fun ⟨a, b⟩ => Raw.empty.insert a b⟩
+
+instance [BEq α] [Hashable α] : Insert ((a : α) × β a) (Raw α β) :=
+  ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+
+instance [BEq α] [Hashable α] : LawfulSingleton ((a : α) × β a) (Raw α β) :=
+  ⟨fun _ => rfl⟩
+
 /--
 If there is no mapping for the given key, inserts the given mapping into the map. Otherwise,
 returns the map unaltered.
@@ -142,7 +151,7 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
   else false -- will never happen for well-formed inputs
 
 instance [BEq α] [Hashable α] : Membership α (Raw α β) where
-  mem a m := m.contains a
+  mem m a := m.contains a
 
 instance [BEq α] [Hashable α] {m : Raw α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (m.contains a))
@@ -236,6 +245,41 @@ returned map has a new value inserted.
   else (none, m) -- will never happen for well-formed inputs
 
 end
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey? [BEq α] [Hashable α] (m : Raw α β) (a : α) : Option α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey? ⟨m, h⟩ a
+  else none -- will never happen for well-formed inputs
+
+/--
+Retrieves the key from the mapping that matches `a`. Ensures that such a mapping exists by
+requiring a proof of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey [BEq α] [Hashable α] (m : Raw α β) (a : α) (h : a ∈ m) : α :=
+  Raw₀.getKey ⟨m, by change dite .. = true at h; split at h <;> simp_all⟩ a
+    (by change dite .. = true at h; split at h <;> simp_all)
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `fallback`.
+If a mapping exists the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKeyD [BEq α] [Hashable α] (m : Raw α β) (a : α) (fallback : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKeyD ⟨m, h⟩ a fallback
+  else fallback -- will never happen for well-formed inputs
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline] def getKey! [BEq α] [Hashable α] [Inhabited α] (m : Raw α β) (a : α) : α :=
+  if h : 0 < m.buckets.size then
+    Raw₀.getKey! ⟨m, h⟩ a
+  else default -- will never happen for well-formed inputs
 
 /--
 Returns `true` if the hash map contains no mappings.
@@ -332,7 +376,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling
-`insert`. If the same key appears multiple times, the last occurrence takes precendence.
+`insert`. If the same key appears multiple times, the last occurrence takes precedence.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
@@ -364,6 +408,12 @@ occurrence takes precedence. -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
   insertMany ∅ l
 
+/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
 @[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α (fun _ => β) :=
   Const.insertMany ∅ l
@@ -373,6 +423,14 @@ occurrence takes precedence. -/
 This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
 `HashSet` or `HashSet.Raw` might be a better fit for you. -/
 @[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    Raw α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
+/-- Creates a hash map from an array of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofArray`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     Raw α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 

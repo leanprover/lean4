@@ -104,6 +104,11 @@ structure Config where
   That is, given a local context containing entry `x : t := e`, the free variable `x` reduces to `e`.
   -/
   zetaDelta         : Bool := false
+  /--
+  When `index` (default : `true`) is `false`, `simp` will only use the root symbol
+  to find candidate `simp` theorems. It approximates Lean 3 `simp` behavior.
+  -/
+  index             : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -219,11 +224,7 @@ structure Config where
   -/
   index             : Bool := true
   /--
-  When `true` (default: `true`), `simp` will **not** create a proof for a rewriting rule associated
-  with an `rfl`-theorem.
-  Rewriting rules are provided by users by annotating theorems with the attribute `@[simp]`.
-  If the proof of the theorem is just `rfl` (reflexivity), and `implicitDefEqProofs := true`, `simp`
-  will **not** create a proof term which is an application of the annotated theorem.
+  This option does not have any effect (yet).
   -/
   implicitDefEqProofs : Bool := true
   deriving Inhabited, BEq

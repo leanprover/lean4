@@ -5,11 +5,11 @@ See [Setup](./setup.md) for supported platforms and other ways to set up Lean 4.
 
 1. Install [VS Code](https://code.visualstudio.com/).
 
-1. Launch VS Code and install the `lean4` extension by clicking on the "Extensions" sidebar entry and searching for "lean4".
+1. Launch VS Code and install the `Lean 4` extension by clicking on the 'Extensions' sidebar entry and searching for 'Lean 4'.
 
    ![installing the vscode-lean4 extension](images/code-ext.png)
 
-1. Open the Lean 4 setup guide by creating a new text file using "File > New Text File" (`Ctrl+N` / `Cmd+N`), clicking on the ∀-symbol in the top right and selecting "Documentation… > Docs: Show Setup Guide".
+1. Open the Lean 4 setup guide by creating a new text file using 'File > New Text File' (`Ctrl+N` / `Cmd+N`), clicking on the ∀-symbol in the top right and selecting 'Documentation… > Docs: Show Setup Guide'.
 
    ![show setup guide](images/show-setup-guide.png)
 

@@ -61,16 +61,17 @@ def expandDeclSig (stx : Syntax) : Syntax × Syntax :=
   (binders, typeSpec[1])
 
 /--
-  Sort the given list of `usedParams` using the following order:
-  - If it is an explicit level `allUserParams`, then use user given order.
-  - Otherwise, use lexicographical.
+Sort the given list of `usedParams` using the following order:
+- If it is an explicit level in `allUserParams`, then use user-given order.
+- All other levels come in lexicographic order after these.
 
-  Remark: `scopeParams` are the universe params introduced using the `universe` command. `allUserParams` contains
-  the universe params introduced using the `universe` command *and* the `.{...}` notation.
+Remark: `scopeParams` are the universe params introduced using the `universe` command. `allUserParams` contains
+the universe params introduced using the `universe` command *and* the `.{...}` notation.
 
-  Remark: this function return an exception if there is an `u` not in `usedParams`, that is in `allUserParams` but not in `scopeParams`.
+Remark: this function return an exception if there is an `u` not in `usedParams`, that is in `allUserParams` but not in `scopeParams`.
 
-  Remark: `explicitParams` are in reverse declaration order. That is, the head is the last declared parameter. -/
+Remark: `scopeParams` and `allUserParams` are in reverse declaration order. That is, the head is the last declared parameter.
+-/
 def sortDeclLevelParams (scopeParams : List Name) (allUserParams : List Name) (usedParams : Array Name) : Except String (List Name) :=
   match allUserParams.find? fun u => !usedParams.contains u && !scopeParams.elem u with
   | some u => throw s!"unused universe parameter '{u}'"

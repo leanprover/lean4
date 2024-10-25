@@ -10,8 +10,10 @@ import Init.Data.Nat.Log2
 
 /-- For decimal and scientific numbers (e.g., `1.23`, `3.12e10`).
    Examples:
-   - `OfScientific.ofScientific 123 true 2`    represents `1.23`
-   - `OfScientific.ofScientific 121 false 100` represents `121e100`
+   - `1.23` is syntax for `OfScientific.ofScientific (nat_lit 123) true (nat_lit 2)`
+   - `121e100` is syntax for `OfScientific.ofScientific (nat_lit 121) false (nat_lit 100)`
+
+   Note the use of `nat_lit`; there is no wrapping `OfNat.ofNat` in the resulting term.
 -/
 class OfScientific (α : Type u) where
   ofScientific (mantissa : Nat) (exponentSign : Bool) (decimalExponent : Nat) : α

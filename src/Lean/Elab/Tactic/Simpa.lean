@@ -7,7 +7,8 @@ prelude
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.Simp
-import Lean.Linter.Util
+import Lean.Elab.App
+import Lean.Linter.Basic
 
 /--
 Enables the 'unnecessary `simpa`' linter. This will report if a use of
@@ -46,27 +47,43 @@ deriving instance Repr for UseImplicitLambdaResult
           return {}
       g.withContext do
       let stats ← if let some stx := usingArg then
-        setGoals [g]
-        g.withContext do
+        let mvarCounterSaved := (← getMCtx).mvarCounter
         let e ← Tactic.elabTerm stx none (mayPostpone := true)
-        let (h, g) ← if let .fvar h ← instantiateMVars e then
-          pure (h, g)
-        else
-          (← g.assert `h (← inferType e) e).intro1
-        let (result?, stats) ← simpGoal g ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
+        unless ← occursCheck g e do
+          throwError "occurs check failed, expression{indentExpr e}\ncontains the goal {Expr.mvar g}"
+        -- Copy the goal. We want to defer assigning `g := g'` to prevent `MVarId.note` from
+        -- partially assigning the goal in case we need to log unassigned metavariables.
+        -- Without deferring, this can cause `logUnassignedAndAbort` to report that `g` could not
+        -- be synthesized; recall that this function reports that a metavariable could not be
+        -- synthesized if, after mvar instantiation, it contains one of the provided mvars.
+        let gCopy ← mkFreshExprSyntheticOpaqueMVar (← g.getType) (← g.getTag)
+        let (h, g') ← gCopy.mvarId!.note `h e
+        let (result?, stats) ← simpGoal g' ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
           (simplifyTarget := false) (stats := stats) (discharge? := discharge?)
         match result? with
-        | some (xs, g) =>
-          let h := match xs with | #[h] | #[] => h | _ => unreachable!
-          let name ← mkFreshBinderNameForTactic `h
-          let g ← g.rename h name
-          g.assign <|← g.withContext do
-            Tactic.elabTermEnsuringType (mkIdent name) (← g.getType)
+        | some (xs, g') =>
+          let h := xs[0]?.getD h
+          let name ← mkFreshUserName `h
+          let g' ← g'.rename h name
+          setGoals [g']
+          g'.withContext do
+            let gType ← g'.getType
+            let h ← Term.elabTerm (mkIdent name) gType
+            Term.synthesizeSyntheticMVarsNoPostponing
+            let hType ← inferType h
+            unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
+              -- `e` still is valid in this new local context
+              Term.throwTypeMismatchError gType hType h
+                (header? := some m!"type mismatch, term{indentExpr e}\nafter simplification")
+            logUnassignedAndAbort (← filterOldMVars (← getMVars e) mvarCounterSaved)
+            closeMainGoal `simpa (checkUnassigned := false) h
         | none =>
           if getLinterUnnecessarySimpa (← getOptions) then
-            if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
-              logLint linter.unnecessarySimpa (← getRef)
-                m!"try 'simp at {Expr.fvar h}' instead of 'simpa using {Expr.fvar h}'"
+            if let .fvar h := e then
+              if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
+                logLint linter.unnecessarySimpa (← getRef)
+                  m!"try 'simp at {Expr.fvar h}' instead of 'simpa using {Expr.fvar h}'"
+        g.assign gCopy
         pure stats
       else if let some ldecl := (← getLCtx).findFromUserName? `this then
         if let (some (_, g), stats) ← simpGoal g ctx (simprocs := simprocs)

@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.Relabel
 
 
@@ -137,7 +138,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
     next idx' _ _ =>
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
-    | inl hidxeq => simp only [hidxeq, ih3] at heq
+    | inl hidxeq => simp [hidxeq, ih3] at heq
     | inr hlt => apply ih4 <;> assumption
   | gate ih1 ih2 ih3 ih4 =>
     next idx' _ _ _ _ _ =>
@@ -189,9 +190,9 @@ def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : �
     { state with
       inv2 := by
         apply Inv2.oldAtom
-        . exact state.inv2
-        . assumption
-        . assumption
+        · exact state.inv2
+        · assumption
+        · assumption
     }
   | none =>
     {
@@ -199,13 +200,13 @@ def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : �
       map := state.map.insert a state.max
       inv1 := by
         apply State.Inv1.insert
-        . exact state.inv1
-        . assumption
+        · exact state.inv1
+        · assumption
       inv2 := by
         apply Inv2.newAtom
-        . exact state.inv2
-        . assumption
-        . assumption
+        · exact state.inv2
+        · assumption
+        · assumption
     }
 
 /--
@@ -217,8 +218,8 @@ def addConst {decls : Array (Decl α)} {hidx} (state : State α decls idx) (b : 
   { state with
     inv2 := by
       apply Inv2.const
-      . exact state.inv2
-      . assumption
+      · exact state.inv2
+      · assumption
   }
 
 /--
@@ -230,8 +231,8 @@ def addGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs r
   { state with
     inv2 := by
       apply Inv2.gate
-      . exact state.inv2
-      . assumption
+      · exact state.inv2
+      · assumption
   }
 
 /--
@@ -292,9 +293,9 @@ theorem ofAIG_find_some {aig : AIG α} : ∀ a ∈ aig, ∃ n, (ofAIG aig)[a]? =
   simp only [mem_def] at ha
   rcases Array.getElem_of_mem ha with ⟨i, isLt, hi⟩
   apply Inv2.property
-  . assumption
-  . exact aig.decls.size
-  . omega
+  · assumption
+  · exact aig.decls.size
+  · omega
   · apply ofAIG.Inv2
 
 end State
@@ -333,18 +334,18 @@ theorem relabelNat_unsat_iff [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
   rw [relabel_unsat_iff]
   intro x y hx hy heq
   split at heq
-  . next hcase1 =>
+  · next hcase1 =>
     split at heq
-    . next hcase2 =>
+    · next hcase2 =>
       apply RelabelNat.State.ofAIG_find_unique
-      . assumption
-      . rw [heq]
+      · assumption
+      · rw [heq]
         assumption
-    . next hcase2 =>
+    · next hcase2 =>
       exfalso
       rcases RelabelNat.State.ofAIG_find_some y hy with ⟨n, hn⟩
       simp [hcase2] at hn
-  . next hcase =>
+  · next hcase =>
     exfalso
     rcases RelabelNat.State.ofAIG_find_some x hx with ⟨n, hn⟩
     simp [hcase] at hn

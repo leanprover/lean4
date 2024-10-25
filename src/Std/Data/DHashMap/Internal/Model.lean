@@ -27,6 +27,8 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
 
+open List (Perm perm_append_comm_assoc)
+
 namespace Std.DHashMap.Internal
 
 open Internal.List
@@ -86,7 +88,7 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
           containsKey k l = false) := by
   have h₀ : 0 < self.size := by omega
   obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_uset self i d hi
-  refine ⟨l₁.bind AssocList.toList ++ l₂.bind AssocList.toList, ?_, ?_, ?_⟩
+  refine ⟨l₁.flatMap AssocList.toList ++ l₂.flatMap AssocList.toList, ?_, ?_, ?_⟩
   · rw [toListModel, h₁]
     simpa using perm_append_comm_assoc _ _ _
   · rw [toListModel, h₃]
@@ -94,16 +96,16 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
   · intro _ h k hki
     simp only [containsKey_append, Bool.or_eq_false_iff]
     refine ⟨?_, ?_⟩
-    · apply List.containsKey_bind_eq_false
+    · apply List.containsKey_flatMap_eq_false
       intro j hj
-      rw [← List.getElem_append (l₂ := self[i] :: l₂), getElem_congr_coll h₁.symm]
+      rw [List.getElem_append_left' (l₂ := self[i] :: l₂), getElem_congr_coll h₁.symm]
       apply (h.hashes_to j _).containsKey_eq_false h₀ k
       omega
-    · apply List.containsKey_bind_eq_false
+    · apply List.containsKey_flatMap_eq_false
       intro j hj
       rw [← List.getElem_cons_succ self[i] _ _
         (by simp only [Array.ugetElem_eq_getElem, List.length_cons]; omega)]
-      rw [List.getElem_append_right'' l₁, getElem_congr_coll h₁.symm]
+      rw [List.getElem_append_right' l₁, getElem_congr_coll h₁.symm]
       apply (h.hashes_to (j + 1 + l₁.length) _).containsKey_eq_false h₀ k
       omega
 
@@ -119,7 +121,7 @@ theorem exists_bucket_of_update [BEq α] [Hashable α] (m : Array (AssocList α 
 
 theorem exists_bucket' [BEq α] [Hashable α]
     (self : Array (AssocList α β)) (i : USize) (hi : i.toNat < self.size) :
-      ∃ l, Perm (self.data.bind AssocList.toList) (self[i.toNat].toList ++ l) ∧
+      ∃ l, Perm (self.toList.flatMap AssocList.toList) (self[i.toNat].toList ++ l) ∧
         (∀ [LawfulHashable α], IsHashSelf self → ∀ k,
           (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat → containsKey k l = false) := by
   obtain ⟨l, h₁, -, h₂⟩ := exists_bucket_of_uset self i hi .nil
@@ -170,8 +172,7 @@ theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [La
   obtain ⟨l, h₁, h₂, h₃⟩ := exists_bucket_of_update m.1.buckets m.2 a f
   refine h₂.trans (Perm.trans ?_ (hg₁ hm.distinct h₁).symm)
   rw [hfg, hg₂]
-  · exact Perm.refl _
-  · exact h₃ hm.buckets_hash_self _ rfl
+  exact h₃ hm.buckets_hash_self _ rfl
 
 /-- This is the general theorem to show that mapping operations (like `map` and `filter`) are
 correct. -/
@@ -185,13 +186,13 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
-  rw [updateAllBuckets, toListModel, Array.map_data, List.bind_eq_foldl, List.foldl_map,
-    toListModel, List.bind_eq_foldl]
+  rw [updateAllBuckets, toListModel, Array.toList_map, List.flatMap_eq_foldl, List.foldl_map,
+    toListModel, List.flatMap_eq_foldl]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
       Perm (g l'') l' →
       Perm (l.foldl (fun acc a => acc ++ (f a).toList) l')
         (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
-    simpa using this m.1.buckets.data [] [] (by simpa [hg₀] using Perm.refl _)
+    simpa using this m.1.buckets.toList [] [] (by simp [hg₀])
   rintro l l' l'' h
   induction l generalizing l' l''
   · simpa using h.symm
@@ -262,6 +263,10 @@ def get?ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) : 
   (bucket m.1.buckets m.2 a).getCast? a
 
 /-- Internal implementation detail of the hash map -/
+def getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
+  (bucket m.1.buckets m.2 a).getKey? a
+
+/-- Internal implementation detail of the hash map -/
 def containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   (bucket m.1.buckets m.2 a).contains a
 
@@ -276,6 +281,18 @@ def getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) (f
 /-- Internal implementation detail of the hash map -/
 def get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited (β a)] : β a :=
   (m.get?ₘ a).get!
+
+/-- Internal implementation detail of the hash map -/
+def getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.containsₘ a) : α :=
+  (bucket m.1.buckets m.2 a).getKey a h
+
+/-- Internal implementation detail of the hash map -/
+def getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (fallback : α) : α :=
+  (m.getKey?ₘ a).getD fallback
+
+/-- Internal implementation detail of the hash map -/
+def getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) : α :=
+  (m.getKey?ₘ a).get!
 
 /-- Internal implementation detail of the hash map -/
 def insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) : Raw₀ α β :=
@@ -346,6 +363,20 @@ theorem getD_eq_getDₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β)
 theorem get!_eq_get!ₘ [BEq α] [LawfulBEq α] [Hashable α] (m : Raw₀ α β) (a : α) [Inhabited (β a)] :
     get! m a = get!ₘ m a := by
   simp [get!, get!ₘ, get?ₘ, List.getValueCast!_eq_getValueCast?, bucket]
+
+theorem getKey?_eq_getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
+    getKey? m a = getKey?ₘ m a := rfl
+
+theorem getKey_eq_getKeyₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (h : m.contains a) :
+    getKey m a h = getKeyₘ m a h := rfl
+
+theorem getKeyD_eq_getKeyDₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a fallback : α) :
+    getKeyD m a fallback = getKeyDₘ m a fallback := by
+  simp [getKeyD, getKeyDₘ, getKey?ₘ, List.getKeyD_eq_getKey?, bucket]
+
+theorem getKey!_eq_getKey!ₘ [BEq α] [Hashable α] [Inhabited α] (m : Raw₀ α β) (a : α) :
+    getKey! m a = getKey!ₘ m a := by
+  simp [getKey!, getKey!ₘ, getKey?ₘ, List.getKey!_eq_getKey?, bucket]
 
 theorem contains_eq_containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) :
     m.contains a = m.containsₘ a := rfl

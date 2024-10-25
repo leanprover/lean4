@@ -21,9 +21,11 @@ static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40
 static lean_object* l_Lake_Module_ileanFacet___closed__2;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instCoeDepNameModuleFacetOfFamilyOutModuleData___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_Package_reservoirBarrelFacet___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instReprModuleFacet___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_staticFacet___closed__2;
 static lean_object* l_Lake_ExternLib_dynlibFacet___closed__2;
+static lean_object* l_Lake_Package_gitHubReleaseFacet___closed__1;
 static lean_object* l_Lake_Module_oFacet___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_sharedFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_cFacet;
@@ -34,14 +36,17 @@ static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40
 LEAN_EXPORT lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_ileanFacet;
 static lean_object* l_Lake_Module_leanArtsFacet___closed__1;
+static lean_object* l_Lake_Package_gitHubReleaseFacet___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Module_depsFacet;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_extraDepFacet;
 static lean_object* l_Lake_Module_bcFacet___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Dynlib_dir_x3f(lean_object*);
 static lean_object* l_Lake_Module_ileanFacet___closed__1;
+LEAN_EXPORT lean_object* l_Lake_Package_gitHubReleaseFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_coNoExportFacet;
 static lean_object* l_Lake_instReprModuleFacet___closed__1;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__5;
+static lean_object* l_Lake_Package_reservoirBarrelFacet___closed__2;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__11;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__17;
@@ -54,14 +59,15 @@ static lean_object* l_Lake_LeanLib_sharedFacet___closed__2;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__19;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lake_LeanLib_sharedFacet___closed__1;
+static lean_object* l_Lake_Package_buildCacheFacet___closed__2;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_leanArtsFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_leanArtsFacet;
-static lean_object* l_Lake_Package_releaseFacet___closed__2;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__16;
 static lean_object* l_Lake_Module_coExportFacet___closed__2;
 static lean_object* l_Lake_Module_oleanFacet___closed__1;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__14;
 LEAN_EXPORT lean_object* l_Lake_Module_bcFacet;
+static lean_object* l_Lake_Package_optReservoirBarrelFacet___closed__1;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg(lean_object*, lean_object*);
 lean_object* l_System_FilePath_parent(lean_object*);
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__18;
@@ -70,23 +76,27 @@ static lean_object* l_Lake_LeanLib_staticExportFacet___closed__1;
 static lean_object* l_Lake_LeanLib_staticFacet___closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeDepNameModuleFacetOfFamilyOutModuleData(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_Package_buildCacheFacet___closed__1;
 static lean_object* l_Lake_ExternLib_sharedFacet___closed__1;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__12;
 static lean_object* l_Lake_LeanExe_exeFacet___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_staticFacet;
 static lean_object* l_Lake_Module_coFacet___closed__2;
+LEAN_EXPORT lean_object* l_Lake_Package_buildCacheFacet;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__15;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__10;
+static lean_object* l_Lake_Package_optBuildCacheFacet___closed__1;
 static lean_object* l_Lake_Module_depsFacet___closed__2;
-static lean_object* l_Lake_Package_releaseFacet___closed__1;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_staticExportFacet;
 LEAN_EXPORT lean_object* l_Lake_Package_extraDepFacet;
 lean_object* lean_string_length(lean_object*);
+static lean_object* l_Lake_Package_optGitHubReleaseFacet___closed__2;
+static lean_object* l_Lake_Package_optReservoirBarrelFacet___closed__2;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__3;
 static lean_object* l_Lake_Module_coNoExportFacet___closed__1;
 static lean_object* l_Lake_Module_leanArtsFacet___closed__2;
 LEAN_EXPORT lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65_(lean_object*, lean_object*);
-static lean_object* l_Lake_Package_optReleaseFacet___closed__1;
+LEAN_EXPORT lean_object* l_Lake_Package_optGitHubReleaseFacet;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_dynlibFacet___closed__1;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__8;
@@ -94,15 +104,19 @@ LEAN_EXPORT lean_object* l_Lake_Module_coFacet;
 static lean_object* l_Lake_Module_cFacet___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Module_bcoFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_oExportFacet;
-static lean_object* l_Lake_Package_optReleaseFacet___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Package_releaseFacet;
+static lean_object* l_Lake_Package_optBuildCacheFacet___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instReprModuleFacet(lean_object*, lean_object*);
 static lean_object* l_Lake_Module_coFacet___closed__1;
 static lean_object* l_Lake_Package_extraDepFacet___closed__2;
+LEAN_EXPORT lean_object* l_Lake_Dynlib_dir_x3f___boxed(lean_object*);
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_staticFacet;
 LEAN_EXPORT lean_object* l_Lake_Module_oNoExportFacet;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__4;
+LEAN_EXPORT lean_object* l_Lake_Package_reservoirBarrelFacet;
+LEAN_EXPORT lean_object* l_Lake_Package_optBuildCacheFacet;
+static lean_object* l_Lake_Package_optGitHubReleaseFacet___closed__1;
 static lean_object* l_Lake_Module_depsFacet___closed__1;
 static lean_object* l_Lake_Module_coExportFacet___closed__1;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__1;
@@ -113,16 +127,24 @@ LEAN_EXPORT lean_object* l_Lake_Module_oFacet;
 static lean_object* l_Lake_LeanExe_exeFacet___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Package_optReleaseFacet;
 static lean_object* l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__7;
+LEAN_EXPORT lean_object* l_Lake_Package_optReservoirBarrelFacet;
 static lean_object* l_Lake_Module_bcFacet___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Dynlib_dir_x3f(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-lean_dec(x_1);
 x_3 = l_System_FilePath_parent(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Dynlib_dir_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Dynlib_dir_x3f(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___private_Lake_Build_Facets_0__Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_65____rarg___closed__1() {
@@ -733,7 +755,111 @@ x_1 = l_Lake_Module_oNoExportFacet___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Package_optReleaseFacet___closed__1() {
+static lean_object* _init_l_Lake_Package_optBuildCacheFacet___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("optCache", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_optBuildCacheFacet___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lake_Package_optBuildCacheFacet___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lake_Package_optBuildCacheFacet() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_Package_optBuildCacheFacet___closed__2;
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_buildCacheFacet___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("cache", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_buildCacheFacet___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lake_Package_buildCacheFacet___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lake_Package_buildCacheFacet() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_Package_buildCacheFacet___closed__2;
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_optReservoirBarrelFacet___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("optBarrel", 9, 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_optReservoirBarrelFacet___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lake_Package_optReservoirBarrelFacet___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lake_Package_optReservoirBarrelFacet() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_Package_optReservoirBarrelFacet___closed__2;
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_reservoirBarrelFacet___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("barrel", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_reservoirBarrelFacet___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lake_Package_reservoirBarrelFacet___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lake_Package_reservoirBarrelFacet() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_Package_reservoirBarrelFacet___closed__2;
+return x_1;
+}
+}
+static lean_object* _init_l_Lake_Package_optGitHubReleaseFacet___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -741,25 +867,33 @@ x_1 = lean_mk_string_unchecked("optRelease", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Package_optReleaseFacet___closed__2() {
+static lean_object* _init_l_Lake_Package_optGitHubReleaseFacet___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lake_Package_optReleaseFacet___closed__1;
+x_2 = l_Lake_Package_optGitHubReleaseFacet___closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_Package_optGitHubReleaseFacet() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_Package_optGitHubReleaseFacet___closed__2;
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_Package_optReleaseFacet() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_Package_optReleaseFacet___closed__2;
+x_1 = l_Lake_Package_optGitHubReleaseFacet___closed__2;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Package_releaseFacet___closed__1() {
+static lean_object* _init_l_Lake_Package_gitHubReleaseFacet___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -767,21 +901,29 @@ x_1 = lean_mk_string_unchecked("release", 7, 7);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Package_releaseFacet___closed__2() {
+static lean_object* _init_l_Lake_Package_gitHubReleaseFacet___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lake_Package_releaseFacet___closed__1;
+x_2 = l_Lake_Package_gitHubReleaseFacet___closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
+}
+}
+static lean_object* _init_l_Lake_Package_gitHubReleaseFacet() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lake_Package_gitHubReleaseFacet___closed__2;
+return x_1;
 }
 }
 static lean_object* _init_l_Lake_Package_releaseFacet() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_Package_releaseFacet___closed__2;
+x_1 = l_Lake_Package_gitHubReleaseFacet___closed__2;
 return x_1;
 }
 }
@@ -1120,16 +1262,44 @@ l_Lake_Module_oNoExportFacet___closed__1 = _init_l_Lake_Module_oNoExportFacet___
 lean_mark_persistent(l_Lake_Module_oNoExportFacet___closed__1);
 l_Lake_Module_oNoExportFacet = _init_l_Lake_Module_oNoExportFacet();
 lean_mark_persistent(l_Lake_Module_oNoExportFacet);
-l_Lake_Package_optReleaseFacet___closed__1 = _init_l_Lake_Package_optReleaseFacet___closed__1();
-lean_mark_persistent(l_Lake_Package_optReleaseFacet___closed__1);
-l_Lake_Package_optReleaseFacet___closed__2 = _init_l_Lake_Package_optReleaseFacet___closed__2();
-lean_mark_persistent(l_Lake_Package_optReleaseFacet___closed__2);
+l_Lake_Package_optBuildCacheFacet___closed__1 = _init_l_Lake_Package_optBuildCacheFacet___closed__1();
+lean_mark_persistent(l_Lake_Package_optBuildCacheFacet___closed__1);
+l_Lake_Package_optBuildCacheFacet___closed__2 = _init_l_Lake_Package_optBuildCacheFacet___closed__2();
+lean_mark_persistent(l_Lake_Package_optBuildCacheFacet___closed__2);
+l_Lake_Package_optBuildCacheFacet = _init_l_Lake_Package_optBuildCacheFacet();
+lean_mark_persistent(l_Lake_Package_optBuildCacheFacet);
+l_Lake_Package_buildCacheFacet___closed__1 = _init_l_Lake_Package_buildCacheFacet___closed__1();
+lean_mark_persistent(l_Lake_Package_buildCacheFacet___closed__1);
+l_Lake_Package_buildCacheFacet___closed__2 = _init_l_Lake_Package_buildCacheFacet___closed__2();
+lean_mark_persistent(l_Lake_Package_buildCacheFacet___closed__2);
+l_Lake_Package_buildCacheFacet = _init_l_Lake_Package_buildCacheFacet();
+lean_mark_persistent(l_Lake_Package_buildCacheFacet);
+l_Lake_Package_optReservoirBarrelFacet___closed__1 = _init_l_Lake_Package_optReservoirBarrelFacet___closed__1();
+lean_mark_persistent(l_Lake_Package_optReservoirBarrelFacet___closed__1);
+l_Lake_Package_optReservoirBarrelFacet___closed__2 = _init_l_Lake_Package_optReservoirBarrelFacet___closed__2();
+lean_mark_persistent(l_Lake_Package_optReservoirBarrelFacet___closed__2);
+l_Lake_Package_optReservoirBarrelFacet = _init_l_Lake_Package_optReservoirBarrelFacet();
+lean_mark_persistent(l_Lake_Package_optReservoirBarrelFacet);
+l_Lake_Package_reservoirBarrelFacet___closed__1 = _init_l_Lake_Package_reservoirBarrelFacet___closed__1();
+lean_mark_persistent(l_Lake_Package_reservoirBarrelFacet___closed__1);
+l_Lake_Package_reservoirBarrelFacet___closed__2 = _init_l_Lake_Package_reservoirBarrelFacet___closed__2();
+lean_mark_persistent(l_Lake_Package_reservoirBarrelFacet___closed__2);
+l_Lake_Package_reservoirBarrelFacet = _init_l_Lake_Package_reservoirBarrelFacet();
+lean_mark_persistent(l_Lake_Package_reservoirBarrelFacet);
+l_Lake_Package_optGitHubReleaseFacet___closed__1 = _init_l_Lake_Package_optGitHubReleaseFacet___closed__1();
+lean_mark_persistent(l_Lake_Package_optGitHubReleaseFacet___closed__1);
+l_Lake_Package_optGitHubReleaseFacet___closed__2 = _init_l_Lake_Package_optGitHubReleaseFacet___closed__2();
+lean_mark_persistent(l_Lake_Package_optGitHubReleaseFacet___closed__2);
+l_Lake_Package_optGitHubReleaseFacet = _init_l_Lake_Package_optGitHubReleaseFacet();
+lean_mark_persistent(l_Lake_Package_optGitHubReleaseFacet);
 l_Lake_Package_optReleaseFacet = _init_l_Lake_Package_optReleaseFacet();
 lean_mark_persistent(l_Lake_Package_optReleaseFacet);
-l_Lake_Package_releaseFacet___closed__1 = _init_l_Lake_Package_releaseFacet___closed__1();
-lean_mark_persistent(l_Lake_Package_releaseFacet___closed__1);
-l_Lake_Package_releaseFacet___closed__2 = _init_l_Lake_Package_releaseFacet___closed__2();
-lean_mark_persistent(l_Lake_Package_releaseFacet___closed__2);
+l_Lake_Package_gitHubReleaseFacet___closed__1 = _init_l_Lake_Package_gitHubReleaseFacet___closed__1();
+lean_mark_persistent(l_Lake_Package_gitHubReleaseFacet___closed__1);
+l_Lake_Package_gitHubReleaseFacet___closed__2 = _init_l_Lake_Package_gitHubReleaseFacet___closed__2();
+lean_mark_persistent(l_Lake_Package_gitHubReleaseFacet___closed__2);
+l_Lake_Package_gitHubReleaseFacet = _init_l_Lake_Package_gitHubReleaseFacet();
+lean_mark_persistent(l_Lake_Package_gitHubReleaseFacet);
 l_Lake_Package_releaseFacet = _init_l_Lake_Package_releaseFacet();
 lean_mark_persistent(l_Lake_Package_releaseFacet);
 l_Lake_Package_extraDepFacet___closed__1 = _init_l_Lake_Package_extraDepFacet___closed__1();

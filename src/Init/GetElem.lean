@@ -144,23 +144,27 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     LawfulGetElem coll idx elem valid where
 
 theorem getElem?_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
-    (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] : c[i]? = some (c[i]'h) := by
+    (c : cont) (i : idx) (h : dom c i) : c[i]? = some (c[i]'h) := by
+  have : Decidable (dom c i) := .isTrue h
   rw [getElem?_def]
   exact dif_pos h
 
 theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
-    (c : cont) (i : idx) (h : ¬dom c i) [Decidable (dom c i)] : c[i]? = none := by
+    (c : cont) (i : idx) (h : ¬dom c i) : c[i]? = none := by
+  have : Decidable (dom c i) := .isFalse h
   rw [getElem?_def]
   exact dif_neg h
 
 theorem getElem!_pos [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
-    [Inhabited elem] (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] :
+    [Inhabited elem] (c : cont) (i : idx) (h : dom c i) :
     c[i]! = c[i]'h := by
-  simp only [getElem!_def, getElem?_def, h]
+  have : Decidable (dom c i) := .isTrue h
+  simp [getElem!_def, getElem?_def, h]
 
 theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
-    [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) [Decidable (dom c i)] : c[i]! = default := by
-  simp only [getElem!_def, getElem?_def, h]
+    [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) : c[i]! = default := by
+  have : Decidable (dom c i) := .isFalse h
+  simp [getElem!_def, getElem?_def, h]
 
 namespace Fin
 
@@ -184,7 +188,7 @@ instance [GetElem? cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
 @[simp] theorem getElem!_fin [GetElem? Cont Nat Elem Dom] (a : Cont) (i : Fin n) [Inhabited Elem] : a[i]! = a[i.1]! := rfl
 
 macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| (with_reducible apply Fin.val_lt_of_le); get_elem_tactic_trivial; done)
 
 end Fin
 

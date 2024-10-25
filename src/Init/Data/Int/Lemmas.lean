@@ -7,6 +7,7 @@ prelude
 import Init.Data.Int.Basic
 import Init.Conv
 import Init.NotationExtra
+import Init.PropLemmas
 
 namespace Int
 
@@ -180,12 +181,12 @@ theorem subNatNat_add_negSucc (m n k : Nat) :
       Nat.add_comm]
 
 protected theorem add_assoc : ∀ a b c : Int, a + b + c = a + (b + c)
-  | (m:Nat), (n:Nat), c => aux1 ..
+  | (m:Nat), (n:Nat), _ => aux1 ..
   | Nat.cast m, b, Nat.cast k => by
     rw [Int.add_comm, ← aux1, Int.add_comm k, aux1, Int.add_comm b]
   | a, (n:Nat), (k:Nat) => by
     rw [Int.add_comm, Int.add_comm a, ← aux1, Int.add_comm a, Int.add_comm k]
-  | -[m+1], -[n+1], (k:Nat) => aux2 ..
+  | -[_+1], -[_+1], (k:Nat) => aux2 ..
   | -[m+1], (n:Nat), -[k+1] => by
     rw [Int.add_comm, ← aux2, Int.add_comm n, ← aux2, Int.add_comm -[m+1]]
   | (m:Nat), -[n+1], -[k+1] => by
@@ -288,7 +289,7 @@ protected theorem neg_sub (a b : Int) : -(a - b) = b - a := by
 protected theorem sub_sub_self (a b : Int) : a - (a - b) = b := by
   simp [Int.sub_eq_add_neg, ← Int.add_assoc]
 
-protected theorem sub_neg (a b : Int) : a - -b = a + b := by simp [Int.sub_eq_add_neg]
+@[simp] protected theorem sub_neg (a b : Int) : a - -b = a + b := by simp [Int.sub_eq_add_neg]
 
 @[simp] protected theorem sub_add_cancel (a b : Int) : a - b + b = a :=
   Int.neg_add_cancel_right a b
@@ -328,22 +329,22 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
 /- ## add/sub injectivity -/
 
 @[simp]
-protected theorem add_right_inj (i j k : Int) : (i + k = j + k) ↔ i = j := by
+protected theorem add_right_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by
   apply Iff.intro
   · intro p
     rw [←Int.add_sub_cancel i k, ←Int.add_sub_cancel j k, p]
   · exact congrArg (· + k)
 
 @[simp]
-protected theorem add_left_inj (i j k : Int) : (k + i = k + j) ↔ i = j := by
+protected theorem add_left_inj {i j : Int} (k : Int) : (k + i = k + j) ↔ i = j := by
   simp [Int.add_comm k]
 
 @[simp]
-protected theorem sub_left_inj (i j k : Int) : (k - i = k - j) ↔ i = j := by
+protected theorem sub_left_inj {i j : Int} (k : Int) : (k - i = k - j) ↔ i = j := by
   simp [Int.sub_eq_add_neg, Int.neg_inj]
 
 @[simp]
-protected theorem sub_right_inj (i j k : Int) : (i - k = j - k) ↔ i = j := by
+protected theorem sub_right_inj {i j : Int} (k : Int) : (i - k = j - k) ↔ i = j := by
   simp [Int.sub_eq_add_neg]
 
 /- ## Ring properties -/
@@ -444,10 +445,10 @@ protected theorem neg_mul_eq_neg_mul (a b : Int) : -(a * b) = -a * b :=
 protected theorem neg_mul_eq_mul_neg (a b : Int) : -(a * b) = a * -b :=
   Int.neg_eq_of_add_eq_zero <| by rw [← Int.mul_add, Int.add_right_neg, Int.mul_zero]
 
-@[local simp] protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
+@[simp] protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
   (Int.neg_mul_eq_neg_mul a b).symm
 
-@[local simp] protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
+@[simp] protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
   (Int.neg_mul_eq_mul_neg a b).symm
 
 protected theorem neg_mul_neg (a b : Int) : -a * -b = a * b := by simp
@@ -485,6 +486,9 @@ protected theorem mul_eq_zero {a b : Int} : a * b = 0 ↔ a = 0 ∨ b = 0 := by
 
 protected theorem mul_ne_zero {a b : Int} (a0 : a ≠ 0) (b0 : b ≠ 0) : a * b ≠ 0 :=
   Or.rec a0 b0 ∘ Int.mul_eq_zero.mp
+
+@[simp] protected theorem mul_ne_zero_iff {a b : Int} : a * b ≠ 0 ↔ a ≠ 0 ∧ b ≠ 0 := by
+  rw [ne_eq, Int.mul_eq_zero, not_or, ne_eq]
 
 protected theorem eq_of_mul_eq_mul_right {a b c : Int} (ha : a ≠ 0) (h : b * a = c * a) : b = c :=
   have : (b - c) * a = 0 := by rwa [Int.sub_mul, Int.sub_eq_zero]

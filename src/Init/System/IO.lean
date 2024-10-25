@@ -447,6 +447,7 @@ see there for more information.
 @[extern "lean_io_remove_dir"] opaque removeDir : @& FilePath → IO Unit
 @[extern "lean_io_create_dir"] opaque createDir : @& FilePath → IO Unit
 
+
 /--
 Moves a file or directory `old` to the new location `new`.
 
@@ -454,6 +455,16 @@ This function coincides with the [POSIX `rename` function](https://pubs.opengrou
 see there for more information.
 -/
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
+
+/--
+Creates a temporary file in the most secure manner possible. There are no race conditions in the
+file’s creation. The file is readable and writable only by the creating user ID. Additionally
+on UNIX style platforms the file is executable by nobody. The function returns both a `Handle`
+to the already opened file as well as its `FilePath`.
+
+Note that it is the caller's job to remove the file after use.
+-/
+@[extern "lean_io_create_tempfile"] opaque createTempFile : IO (Handle × FilePath)
 
 end FS
 
@@ -466,6 +477,17 @@ namespace FS
 @[inline]
 def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
+
+/--
+Like `createTempFile` but also takes care of removing the file after usage.
+-/
+def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → FilePath → m α) :
+    m α := do
+  let (handle, path) ← createTempFile
+  try
+    f handle path
+  finally
+    removeFile path
 
 def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
@@ -905,41 +927,6 @@ def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m 
 
 end FS
 end IO
-
-universe u
-
-namespace Lean
-
-/-- Typeclass used for presenting the output of an `#eval` command. -/
-class Eval (α : Type u) where
-  -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
-  -- so that `()` output is hidden in chained instances such as for some `IO Unit`.
-  -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbg_trace`)
-  eval : (Unit → α) → (hideUnit : Bool := true) → IO Unit
-
-instance instEval [ToString α] : Eval α where
-  eval a _ := IO.println (toString (a ()))
-
-instance [Repr α] : Eval α where
-  eval a _ := IO.println (repr (a ()))
-
-instance : Eval Unit where
-  eval u hideUnit := if hideUnit then pure () else IO.println (repr (u ()))
-
-instance [Eval α] : Eval (IO α) where
-  eval x _ := do
-    let a ← x ()
-    Eval.eval fun _ => a
-
-instance [Eval α] : Eval (BaseIO α) where
-  eval x _ := do
-    let a ← x ()
-    Eval.eval fun _ => a
-
-def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
-  IO.FS.withIsolatedStreams (Eval.eval a false |>.toBaseIO)
-
-end Lean
 
 syntax "println! " (interpolatedStr(term) <|> term) : term
 

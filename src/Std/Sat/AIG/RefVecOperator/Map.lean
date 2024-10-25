@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.RefVec
 import Std.Sat.AIG.LawfulVecOperator
 
@@ -24,7 +25,6 @@ class LawfulMapOperator (α : Type) [Hashable α] [DecidableEq α]
 
 namespace LawfulMapOperator
 
-@[simp]
 theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : Ref aig}
     {f : (aig : AIG α) → Ref aig → Entrypoint α} [LawfulOperator α Ref f] [LawfulMapOperator α f]
     {h} :
@@ -36,7 +36,7 @@ theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : Ref aig}
 instance : LawfulMapOperator α mkNotCached where
   chainable := by
     intros
-    simp only [Ref_cast', denote_mkNotCached]
+    simp only [Ref.gate_cast, denote_mkNotCached]
     rw [LawfulOperator.denote_mem_prefix (f := mkNotCached)]
 
 end LawfulMapOperator
@@ -82,11 +82,11 @@ theorem map.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
     aig.decls.size ≤ (go aig idx hidx s input f).aig.decls.size := by
   unfold go
   split
-  . next h =>
+  · next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply map.go_le_size)
     apply LawfulOperator.le_size
-  . simp
+  · simp
   termination_by len - idx
 
 theorem map_le_size {aig : AIG α} (target : MapTarget aig len) :
@@ -101,14 +101,14 @@ theorem map.go_decl_eq {aig : AIG α} (i) (hi)
   generalize hgo : go aig i hi s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     rw [go_decl_eq]
     rw [LawfulOperator.decl_eq]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intros
     simp
@@ -141,19 +141,19 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
   generalize hgo : go aig curr hcurr s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     rw [← hgo]
     intro hfoo
     rw [go_get_aux]
     rw [AIG.RefVec.get_push_ref_lt]
-    . simp only [Ref.cast, Ref.mk.injEq]
+    · simp only [Ref.cast, Ref.mk.injEq]
       rw [AIG.RefVec.get_cast]
-      . simp
-      . assumption
-    . apply go_le_size
-  . dsimp only at hgo
+      · simp
+      · assumption
+    · apply go_le_size
+  · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref_cast', Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl, get, Ref.cast_eq, Ref.mk.injEq, true_implies]
     have : curr = len := by omega
     subst this
     rfl
@@ -182,11 +182,12 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
     ⟦aig, ⟨start, hstart⟩, assign⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
   apply IsPrefix.of
-  . intros
+  · intros
     apply go_decl_eq
-  . intros
+  · intros
     apply go_le_size
 
+attribute [local simp] LawfulMapOperator.denote_prefix_cast_ref in
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
     (input : RefVec aig len) (f : (aig : AIG α) → Ref aig → Entrypoint α)
     [LawfulOperator α Ref f] [LawfulMapOperator α f] :
@@ -200,23 +201,23 @@ theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec
   generalize hgo : go aig curr hcurr s input f = res
   unfold go at hgo
   split at hgo
-  . dsimp only at hgo
+  · dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]
       rw [go_get]
       rw [AIG.RefVec.get_push_ref_eq']
-      . simp only [← heq]
+      · simp only [← heq]
         rw [go_denote_mem_prefix]
-        . simp
-        . simp [Ref.hgate]
-      . rw [heq]
+        · simp
+        · simp [Ref.hgate]
+      · rw [heq]
     | inr hlt =>
       rw [← hgo]
       rw [denote_go]
-      . simp [get_cast, -Ref_cast']
-      . omega
-  . omega
+      · simp [get_cast, -Ref.cast_eq]
+      · omega
+  · omega
 termination_by len - curr
 
 end map

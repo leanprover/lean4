@@ -13,6 +13,7 @@ import Lean.Meta.Offset
 import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchPatternAttr
+import Lean.Meta.Transform
 
 namespace Lean.Meta
 
@@ -83,7 +84,7 @@ private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
   let .const d lvls := type.getAppFn
     | return none
   let (some ctor) ← getFirstCtor d | pure none
-  return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
+  return mkAppN (mkConst ctor lvls) (type.getAppArgs.take nparams)
 
 private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
   match major.getAppFn with
@@ -94,7 +95,7 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
-  if !majorTypeI.isConstOf recVal.getInduct then
+  if !majorTypeI.isConstOf recVal.getMajorInduct then
     return major
   else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams:].any Expr.hasExprMVar then
     return major
@@ -151,7 +152,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       else
         let some ctorName ← getFirstCtor d | pure major
         let ctorInfo ← getConstInfoCtor ctorName
-        let params := majorType.getAppArgs.shrink ctorInfo.numParams
+        let params := majorType.getAppArgs.take ctorInfo.numParams
         let mut result := mkAppN (mkConst ctorName us) params
         for i in [:ctorInfo.numFields] do
           result := mkApp result (← mkProjFn ctorInfo us params i major)
@@ -166,7 +167,7 @@ private def isWFRec (declName : Name) : Bool :=
 /--
 Helper method for `reduceRec`.
 We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
-We we use the following trick, if `e` can be expressed as an offest `(a, k)` with `k > 0`,
+We we use the following trick, if `e` can be expressed as an offset `(a, k)` with `k > 0`,
 we create a new expression `Nat.succ e'` where `e'` is `a` for `k = 1`, or `a + (k-1)` for `k > 1`.
 See issue #3022
 -/
@@ -196,7 +197,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       major ← toCtorWhenK recVal major
     major := major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal.getInduct major
+    major ← toCtorWhenStructure recVal.getMajorInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs
@@ -435,33 +436,65 @@ inductive ReduceMatcherResult where
   | notMatcher
   | partialApp
 
+/-!
+The "match" compiler uses dependent if-then-else `dite` and other auxiliary declarations to compile match-expressions such as
+```
+match v with
+| 'a' => 1
+| 'b' => 2
+| _   => 3
+```
+because it is more efficient than using `casesOn` recursors.
+The method `reduceMatcher?` fails if these auxiliary definitions cannot be unfolded in the current
+transparency setting. This is problematic because tactics such as `simp` use `TransparencyMode.reducible`, and
+most users assume that expressions such as
+```
+match 0 with
+| 0 => 1
+| 100 => 2
+| _ => 3
+```
+should reduce in any transparency mode.
+
+Thus, if the transparency mode is `.reducible` or `.instances`, we first
+eagerly unfold `dite` constants used in the auxiliary match-declaration, and then
+use a custom `canUnfoldAtMatcher` predicate for `whnfMatcher`.
+
+Remark: we used to include `dite` (and `ite`) as auxiliary declarations to unfold at
+`canUnfoldAtMatcher`, but this is problematic because the `dite`/`ite` may occur in the
+discriminant. See issue #5388.
+
+This solution is not very modular because modifications at the `match` compiler require changes here.
+We claim this is defensible because it is reducing the auxiliary declaration defined by the `match` compiler.
+
+Remark: if the eager unfolding is problematic, we may cache the result.
+We may also consider not using `dite` in the `match`-compiler and use `Decidable.casesOn`, but it will require changes
+in how we generate equation lemmas.
+
+Alternative solution: tactics that use `TransparencyMode.reducible` should rely on the equations we generated for match-expressions.
+This solution is also not perfect because the match-expression above will not reduce during type checking when we are not using
+`TransparencyMode.default` or `TransparencyMode.all`.
+-/
+
 /--
-  The "match" compiler uses `if-then-else` expressions and other auxiliary declarations to compile match-expressions such as
-  ```
-  match v with
-  | 'a' => 1
-  | 'b' => 2
-  | _   => 3
-  ```
-  because it is more efficient than using `casesOn` recursors.
-  The method `reduceMatcher?` fails if these auxiliary definitions (e.g., `ite`) cannot be unfolded in the current
-  transparency setting. This is problematic because tactics such as `simp` use `TransparencyMode.reducible`, and
-  most users assume that expressions such as
-  ```
-  match 0 with
-  | 0 => 1
-  | 100 => 2
-  | _ => 3
-  ```
-  should reduce in any transparency mode.
-  Thus, we define a custom `canUnfoldAtMatcher` predicate for `whnfMatcher`.
+Eagerly unfold `dite` constants in `e`. This is an auxiliary function used to reduce match expressions.
+See comment above.
+-/
+private def unfoldNestedDIte (e : Expr) : CoreM Expr := do
+  if e.find? (fun e => e.isAppOf ``dite) matches some _ then
+    Core.transform e fun e => do
+      if let .const ``dite us := e then
+        let constInfo ← getConstInfo ``dite
+        let e ← instantiateValueLevelParams constInfo us
+        return .done e
+      else
+        return .continue
+  else
+    return e
 
-  This solution is not very modular because modifications at the `match` compiler require changes here.
-  We claim this is defensible because it is reducing the auxiliary declaration defined by the `match` compiler.
-
-  Alternative solution: tactics that use `TransparencyMode.reducible` should rely on the equations we generated for match-expressions.
-  This solution is also not perfect because the match-expression above will not reduce during type checking when we are not using
-  `TransparencyMode.default` or `TransparencyMode.all`.
+/--
+Auxiliary predicate for `whnfMatcher`.
+See comment above.
 -/
 def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
@@ -473,9 +506,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
     else if hasMatchPatternAttribute (← getEnv) info.name then
       return true
     else
-      return info.name == ``ite
-       || info.name == ``dite
-       || info.name == ``decEq
+      return info.name == ``decEq
        || info.name == ``Nat.decEq
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
        || info.name == ``String.decEq || info.name == ``List.hasDecEq
@@ -515,7 +546,9 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   if args.size < prefixSz + info.numAlts then
     return ReduceMatcherResult.partialApp
   let constInfo ← getConstInfo declName
-  let f ← instantiateValueLevelParams constInfo declLevels
+  let mut f ← instantiateValueLevelParams constInfo declLevels
+  if (← getTransparency) matches .instances | .reducible then
+    f ← unfoldNestedDIte f
   let auxApp := mkAppN f args[0:prefixSz]
   let auxAppType ← inferType auxApp
   forallBoundedTelescope auxAppType info.numAlts fun hs _ => do

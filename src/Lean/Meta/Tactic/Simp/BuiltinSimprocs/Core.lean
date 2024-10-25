@@ -75,3 +75,14 @@ builtin_dsimproc ↓ [simp, seval] dreduceDIte (dite _ _ _) := fun e => do
     | Decidable.isFalse _ h => return .visit (mkApp eb h).headBeta
     | _ => return .continue
   return .continue
+
+builtin_simproc [simp, seval] reduceCtorEq (_ = _) := fun e => withReducibleAndInstances do
+  let_expr Eq _ lhs rhs ← e | return .continue
+  match (← constructorApp'? lhs), (← constructorApp'? rhs) with
+  | some (c₁, _), some (c₂, _) =>
+    if c₁.name != c₂.name then
+      withLocalDeclD `h e fun h =>
+        return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
+    else
+      return .continue
+  | _, _ => return .continue

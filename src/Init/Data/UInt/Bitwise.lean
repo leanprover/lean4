@@ -6,13 +6,14 @@ Authors: Markus Himmel
 prelude
 import Init.Data.UInt.Basic
 import Init.Data.Fin.Bitwise
+import Init.Data.BitVec.Lemmas
 
 set_option hygiene false in
 macro "declare_bitwise_uint_theorems" typeName:ident : command =>
 `(
 namespace $typeName
 
-@[simp] protected theorem and_toNat (a b : $typeName) : (a &&& b).toNat = a.toNat &&& b.toNat := Fin.and_val ..
+@[simp] protected theorem and_toNat (a b : $typeName) : (a &&& b).toNat = a.toNat &&& b.toNat := BitVec.toNat_and ..
 
 end $typeName
 )

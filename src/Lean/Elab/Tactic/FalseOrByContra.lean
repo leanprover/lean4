@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.Elab.Tactic.Basic
@@ -31,16 +31,16 @@ open Lean Meta Elab Tactic
 -- but fall back to a classical instance. When it is `some true`, we always use the classical instance.
 -- When it is `some false`, if there is no `Decidable` instance we don't introduce the double negation,
 -- and fall back to `False.elim`.
-partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : MetaM MVarId := do
+partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : MetaM (Option MVarId) := do
   let ty ← whnfR (← g.getType)
   match ty with
-  | .const ``False _ => pure g
-  | .forallE _ _ _ _
+  | .const ``False _ => return g
+  | .forallE ..
   | .app (.const ``Not _) _ =>
     -- We set the transparency back to default; otherwise this breaks when run by a `simp` discharger.
     falseOrByContra (← withTransparency default g.intro1P).2 useClassical
   | _ =>
-    let gs ← if ← isProp ty then
+    let gs ← if (← isProp ty) then
       match useClassical with
       | some true => some <$> g.applyConst ``Classical.byContradiction
       | some false =>
@@ -51,12 +51,15 @@ partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : 
         catch _ => some <$> g.applyConst ``Classical.byContradiction
     else
       pure none
-    if let some gs := gs then
-      let [g] := gs | panic! "expected one subgoal"
-      pure (← g.intro1).2
-    else
-      let [g] ← g.applyConst ``False.elim | panic! "expected one sugoal"
-      pure g
+    match gs with
+    | some [] => return none
+    | some [g] => return some (← g.intro1).2
+    | some _ => panic! "expected at most one sugoal"
+    | none =>
+      match (← g.applyConst ``False.elim) with
+      | [] => return none
+      | [g] => return some g
+      | _ => panic! "expected at most one sugoal"
 
 @[builtin_tactic Lean.Parser.Tactic.falseOrByContra]
 def elabFalseOrByContra : Tactic

@@ -12,16 +12,18 @@ import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Init.System.Platform
 
 namespace Lean.Elab.Command
 
 @[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
-   match stx[1] with
-   | Syntax.atom _ val =>
-     let doc := val.extract 0 (val.endPos - ⟨2⟩)
-     let range ← Elab.getDeclarationRange stx
-     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
-   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
+  match stx[1] with
+  | Syntax.atom _ val =>
+    let doc := val.extract 0 (val.endPos - ⟨2⟩)
+    let some range ← Elab.getDeclarationRange? stx
+      | return  -- must be from partial syntax, ignore
+    modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
+  | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
   modify fun s => { s with
@@ -176,7 +178,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   let mut binderIds := binderIds
   let mut binderIdsIniSize := binderIds.size
   let mut modifiedVarDecls := false
-  for varDecl in varDecls do
+  -- Go through declarations in reverse to respect shadowing
+  for varDecl in varDecls.reverse do
     let (ids, ty?, explicit') ← match varDecl with
       | `(bracketedBinderF|($ids* $[: $ty?]? $(annot?)?)) =>
         if annot?.isSome then
@@ -208,7 +211,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
           `(bracketedBinderF| ($id $[: $ty?]?))
         else
           `(bracketedBinderF| {$id $[: $ty?]?})
-      for id in ids do
+      for id in ids.reverse do
         if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
@@ -216,7 +219,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         else
           varDeclsNew := varDeclsNew.push (← mkBinder id explicit')
   if modifiedVarDecls then
-    modifyScope fun scope => { scope with varDecls := varDeclsNew }
+    modifyScope fun scope => { scope with varDecls := varDeclsNew.reverse }
   if binderIds.size != binderIdsIniSize then
     binderIds.mapM fun binderId =>
       if explicit then
@@ -228,15 +231,14 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
+    let binders ← binders.flatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
+    -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
     for binder in binders do
-      let binders ← replaceBinderAnnotation binder
-      -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
-      for binder in binders do
-        let varUIds ← getBracketedBinderIds binder |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
-        modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
+      let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)
+      modifyScope fun scope => { scope with varDecls := scope.varDecls.push binder, varUIds := scope.varUIds ++ varUIds }
   | _ => throwUnsupportedSyntax
 
 open Meta
@@ -253,10 +255,12 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
       catch _ => pure ()  -- identifier might not be a constant but constant + projection
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
+    -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+    withRef tk <| Meta.check e
     let e ← Term.levelMVarToParam (← instantiateMVars e)
-    let type ← inferType e
     if e.isSyntheticSorry then
       return
+    let type ← inferType e
     logInfoAt tk m!"{e} : {type}"
   | _ => throwUnsupportedSyntax
 
@@ -273,6 +277,8 @@ where
     withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
       let e ← Term.elabTerm term none
       Term.synthesizeSyntheticMVarsNoPostponing
+      -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+      withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
       -- TODO: add options or notation for setting the following parameters
       withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
@@ -307,167 +313,6 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     failIfSucceeds <| elabCheckCore (ignoreStuckTC := false) (← `(#check $term))
   | _ => throwUnsupportedSyntax
 
-private def mkEvalInstCore (evalClassName : Name) (e : Expr) : MetaM Expr := do
-  let α    ← inferType e
-  let u    ← getDecLevel α
-  let inst := mkApp (Lean.mkConst evalClassName [u]) α
-  try
-    synthInstance inst
-  catch _ =>
-    -- Put `α` in WHNF and try again
-    try
-      let α ← whnf α
-      synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
-    catch _ =>
-      -- Fully reduce `α` and try again
-      try
-        let α ← reduce (skipTypes := false) α
-        synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
-      catch _ =>
-        throwError "expression{indentExpr e}\nhas type{indentExpr α}\nbut instance{indentExpr inst}\nfailed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `{evalClassName}` class"
-
-private def mkRunMetaEval (e : Expr) : MetaM Expr :=
-  withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
-  withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
-    let α ← inferType e
-    let u ← getDecLevel α
-    let instVal ← mkEvalInstCore ``Lean.MetaEval e
-    let e := mkAppN (mkConst ``Lean.runMetaEval [u]) #[α, instVal, env, opts, e]
-    instantiateMVars (← mkLambdaFVars #[env, opts] e)
-
-private def mkRunEval (e : Expr) : MetaM Expr := do
-  let α ← inferType e
-  let u ← getDecLevel α
-  let instVal ← mkEvalInstCore ``Lean.Eval e
-  instantiateMVars (mkAppN (mkConst ``Lean.runEval [u]) #[α, instVal, mkSimpleThunk e])
-
-unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax): CommandElabM Unit := do
-    let declName := `_eval
-    let addAndCompile (value : Expr) : TermElabM Unit := do
-      let value ← Term.levelMVarToParam (← instantiateMVars value)
-      let type ← inferType value
-      let us := collectLevelParams {} value |>.params
-      let value ← instantiateMVars value
-      let decl := Declaration.defnDecl {
-        name        := declName
-        levelParams := us.toList
-        type        := type
-        value       := value
-        hints       := ReducibilityHints.opaque
-        safety      := DefinitionSafety.unsafe
-      }
-      Term.ensureNoUnassignedMVars decl
-      addAndCompile decl
-    -- Check for sorry axioms
-    let checkSorry (declName : Name) : MetaM Unit := do
-      unless bang do
-        let axioms ← collectAxioms declName
-        if axioms.contains ``sorryAx then
-          throwError ("cannot evaluate expression that depends on the `sorry` axiom.\nUse `#eval!` to " ++
-            "evaluate nevertheless (which may cause lean to crash).")
-    -- Elaborate `term`
-    let elabEvalTerm : TermElabM Expr := do
-      let e ← Term.elabTerm term none
-      Term.synthesizeSyntheticMVarsNoPostponing
-      if (← Term.logUnassignedUsingErrorInfos (← getMVars e)) then throwAbortTerm
-      if (← isProp e) then
-        mkDecide e
-      else
-        return e
-    -- Evaluate using term using `MetaEval` class.
-    let elabMetaEval : CommandElabM Unit := do
-      -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
-      -- we don't polute the environment with auxliary declarations.
-      -- We have special support for `CommandElabM` to ensure `#eval` can be used to execute commands
-      -- that modify `CommandElabM` state not just the `Environment`.
-      let act : Sum (CommandElabM Unit) (Environment → Options → IO (String × Except IO.Error Environment)) ←
-        runTermElabM fun _ => Term.withDeclName declName do withoutModifyingEnv do
-          let e ← elabEvalTerm
-          let eType ← instantiateMVars (← inferType e)
-          if eType.isAppOfArity ``CommandElabM 1 then
-            let mut stx ← Term.exprToSyntax e
-            unless (← isDefEq eType.appArg! (mkConst ``Unit)) do
-              stx ← `($stx >>= fun v => IO.println (repr v))
-            let act ← Lean.Elab.Term.evalTerm (CommandElabM Unit) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)) stx
-            pure <| Sum.inl act
-          else
-            let e ← mkRunMetaEval e
-            addAndCompile e
-            checkSorry declName
-            let act ← evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName
-            pure <| Sum.inr act
-      match act with
-      | .inl act => act
-      | .inr act =>
-        let (out, res) ← act (← getEnv) (← getOptions)
-        logInfoAt tk out
-        match res with
-        | Except.error e => throwError e.toString
-        | Except.ok env  => setEnv env; pure ()
-    -- Evaluate using term using `Eval` class.
-    let elabEval : CommandElabM Unit := runTermElabM fun _ => Term.withDeclName declName do withoutModifyingEnv do
-      -- fall back to non-meta eval if MetaEval hasn't been defined yet
-      -- modify e to `runEval e`
-      let e ← mkRunEval (← elabEvalTerm)
-      addAndCompile e
-      checkSorry declName
-      let act ← evalConst (IO (String × Except IO.Error Unit)) declName
-      let (out, res) ← liftM (m := IO) act
-      logInfoAt tk out
-      match res with
-      | Except.error e => throwError e.toString
-      | Except.ok _    => pure ()
-    if (← getEnv).contains ``Lean.MetaEval then do
-      elabMetaEval
-    else
-      elabEval
-
-@[implemented_by elabEvalCoreUnsafe]
-opaque elabEvalCore (bang : Bool) (tk term : Syntax): CommandElabM Unit
-
-@[builtin_command_elab «eval»]
-def elabEval : CommandElab
-  | `(#eval%$tk $term) => elabEvalCore false tk term
-  | _ => throwUnsupportedSyntax
-
-@[builtin_command_elab evalBang]
-def elabEvalBang : CommandElab
-  | `(Parser.Command.evalBang|#eval!%$tk $term) => elabEvalCore true tk term
-  | _ => throwUnsupportedSyntax
-
-private def checkImportsForRunCmds : CommandElabM Unit := do
-  unless (← getEnv).contains ``CommandElabM do
-    throwError "to use this command, include `import Lean.Elab.Command`"
-
-@[builtin_command_elab runCmd]
-def elabRunCmd : CommandElab
-  | `(run_cmd $elems:doSeq) => do
-    checkImportsForRunCmds
-    (← liftTermElabM <| Term.withDeclName `_run_cmd <|
-      unsafe Term.evalTerm (CommandElabM Unit)
-        (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
-        (← `(discard do $elems)))
-  | _ => throwUnsupportedSyntax
-
-@[builtin_command_elab runElab]
-def elabRunElab : CommandElab
-  | `(run_elab $elems:doSeq) => do
-    checkImportsForRunCmds
-    (← liftTermElabM <| Term.withDeclName `_run_elab <|
-      unsafe Term.evalTerm (CommandElabM Unit)
-        (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
-        (← `(Command.liftTermElabM <| discard do $elems)))
-  | _ => throwUnsupportedSyntax
-
-@[builtin_command_elab runMeta]
-def elabRunMeta : CommandElab := fun stx =>
-  match stx with
-  | `(run_meta $elems:doSeq) => do
-     checkImportsForRunCmds
-     let stxNew ← `(command| run_elab (show Lean.Meta.MetaM Unit from do $elems))
-     withMacroExpansion stx stxNew do elabCommand stxNew
-  | _ => throwUnsupportedSyntax
-
 @[builtin_command_elab «synth»] def elabSynth : CommandElab := fun stx => do
   let term := stx[1]
   withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_synth_cmd do
@@ -498,19 +343,77 @@ def elabRunMeta : CommandElab := fun stx =>
     if let .none ← findDeclarationRangesCore? declName then
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
-      addAuxDeclarationRanges declName stx id
+      addDeclarationRangesFromSyntax declName stx id
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab
   | `(Lean.Parser.Command.include| include $ids*) => do
-    let vars := (← getScope).varDecls.concatMap getBracketedBinderIds
+    let sc ← getScope
+    let vars ← sc.varDecls.flatMapM getBracketedBinderIds
+    let mut uids := #[]
     for id in ids do
-      unless vars.contains id.getId do
+      if let some idx := vars.findIdx? (· == id.getId) then
+        uids := uids.push sc.varUIds[idx]!
+      else
         throwError "invalid 'include', variable '{id}' has not been declared in the current scope"
-    modifyScope fun sc =>
-      { sc with includedVars := sc.includedVars ++ ids.toList.map (·.getId) }
+    modifyScope fun sc => { sc with
+      includedVars := sc.includedVars ++ uids.toList
+      omittedVars := sc.omittedVars.filter (!uids.contains ·) }
   | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Lean.Parser.Command.omit] def elabOmit : CommandElab
+  | `(Lean.Parser.Command.omit| omit $omits*) => do
+    -- TODO: this really shouldn't have to re-elaborate section vars... they should come
+    -- pre-elaborated
+    let omittedVars ← runTermElabM fun vars => do
+      Term.synthesizeSyntheticMVarsNoPostponing
+      -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
+      -- So, we use `Core.resetMessageLog`.
+      Core.resetMessageLog
+      -- resolve each omit to variable user name or type pattern
+      let elaboratedOmits : Array (Sum Name Expr) ← omits.mapM fun
+        | `(ident| $id:ident) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$id : $_]) => pure <| Sum.inl id.getId
+        | `(Lean.Parser.Term.instBinder| [$ty]) =>
+          Sum.inr <$> Term.withoutErrToSorry (Term.elabTermAndSynthesize ty none)
+        | _ => throwUnsupportedSyntax
+      -- check that each omit is actually used in the end
+      let mut omitsUsed := omits.map fun _ => false
+      let mut omittedVars := #[]
+      let mut revSectionFVars : Std.HashMap FVarId Name := {}
+      for (uid, var) in (← read).sectionFVars do
+        revSectionFVars := revSectionFVars.insert var.fvarId! uid
+      for var in vars do
+        let ldecl ← var.fvarId!.getDecl
+        if let some idx := (← elaboratedOmits.findIdxM? fun
+            | .inl id => return ldecl.userName == id
+            | .inr ty => do
+              let mctx ← getMCtx
+              isDefEq ty ldecl.type <* setMCtx mctx) then
+          if let some uid := revSectionFVars[var.fvarId!]? then
+            omittedVars := omittedVars.push uid
+            omitsUsed := omitsUsed.set! idx true
+          else
+            throwError "invalid 'omit', '{ldecl.userName}' has not been declared in the current scope"
+      for o in omits, used in omitsUsed do
+        unless used do
+          throwError "'{o}' did not match any variables in the current scope"
+      return omittedVars
+    modifyScope fun sc => { sc with
+      omittedVars := sc.omittedVars ++ omittedVars.toList
+      includedVars := sc.includedVars.filter (!omittedVars.contains ·) }
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab version] def elabVersion : CommandElab := fun _ => do
+  let mut target := System.Platform.target
+  if target.isEmpty then target := "unknown"
+  -- Only one should be set, but good to know if multiple are set in error.
+  let platforms :=
+    (if System.Platform.isWindows then [" Windows"] else [])
+    ++ (if System.Platform.isOSX then [" macOS"] else [])
+    ++ (if System.Platform.isEmscripten then [" Emscripten"] else [])
+  logInfo m!"Lean {Lean.versionString}\nTarget: {target}{String.join platforms}"
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
   logWarning "using 'exit' to interrupt Lean"

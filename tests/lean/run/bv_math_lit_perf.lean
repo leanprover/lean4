@@ -16,7 +16,12 @@ def f (x : BitVec 32) : Nat :=
   | 920#32 => 12
   | _      => 1000
 
-set_option maxHeartbeats 3000
+-- Generate the equational lemmas ahead of time, to avoid going
+-- over the heartbeat limit below
+#guard_msgs(drop all) in
+#print equations f
+
+set_option maxHeartbeats 800
 example : f 500#32 = x := by
   simp [f]
   sorry

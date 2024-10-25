@@ -38,6 +38,9 @@ namespace DataEntry
   | NULL,      _       => True
   | _,         _       => False
 
+-- Needed since the introduction of the fine-grained lemmas
+@[simp] theorem isOf_lit (n : Nat) : isOf (no_index (OfNat.ofNat n)) TInt = True := rfl
+
 end DataEntry
 
 abbrev Header := List (DataType × String)

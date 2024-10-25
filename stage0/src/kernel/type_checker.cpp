@@ -1072,7 +1072,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
-    // TODO: add metadata to control whether this optimization is used or not.
+    // This code path is taken in particular when using the `decide` tactic, which produces
+    // proof terms of the form `Eq.refl true : decide p = true`.
     if (!has_fvar(t) && is_constant(s, *g_bool_true)) {
         if (is_constant(whnf(t), *g_bool_true)) {
             return true;
@@ -1199,6 +1200,12 @@ extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * env, le
 extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * env, lean_object * lctx, lean_object * a) {
     return catch_kernel_exceptions<object*>([&]() {
         return type_checker(environment(env), local_ctx(lctx)).whnf(expr(a)).steal();
+    });
+}
+
+extern "C" LEAN_EXPORT lean_object * lean_kernel_check(lean_object * env, lean_object * lctx, lean_object * a) {
+    return catch_kernel_exceptions<object*>([&]() {
+        return type_checker(environment(env), local_ctx(lctx)).check(expr(a)).steal();
     });
 }
 

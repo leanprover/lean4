@@ -14,6 +14,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.BRecOn
+import Lean.Elab.PreDefinition.WF.Basic
 import Lean.Data.Array
 
 namespace Lean.Elab.WF
@@ -142,6 +143,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
 
 private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   let remainingGoals ← Tactic.run mvarId do
+    applyCleanWfTactic
     Tactic.evalTactic (← `(tactic| decreasing_tactic))
   unless remainingGoals.isEmpty do
     Term.reportUnsolvedGoals remainingGoals
@@ -202,6 +204,7 @@ def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option 
         goals.forM fun goal => pushInfoTree (.hole goal)
         let remainingGoals ← Tactic.run goals[0]! do
           Tactic.setGoals goals.toList
+          applyCleanWfTactic
           Tactic.withTacticInfoContext decrTactic.ref do
             Tactic.evalTactic decrTactic.tactic
         unless remainingGoals.isEmpty do

@@ -31,7 +31,7 @@ it to parse correctly. `ident?` will not work; one must write `(ident)?` instead
 This parser has arity 1: it produces a `nullKind` node containing either zero arguments
 (for the `none` case) or the list of arguments produced by `p`.
 (In particular, if `p` has arity 0 then the two cases are not differentiated!) -/
-@[run_builtin_parser_attribute_hooks] def optional (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def optional (p : Parser) : Parser :=
   optionalNoAntiquot (withAntiquotSpliceAndSuffix `optional p (symbol "?"))
 
 /-- The parser `many(p)`, or `p*`, repeats `p` until it fails, and returns the list of results.
@@ -41,7 +41,7 @@ automatically replaced by `group(p)` to ensure that it produces exactly 1 value.
 
 This parser has arity 1: it produces a `nullKind` node containing one argument for each
 invocation of `p` (or `group(p)`). -/
-@[run_builtin_parser_attribute_hooks] def many (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def many (p : Parser) : Parser :=
   manyNoAntiquot (withAntiquotSpliceAndSuffix `many p (symbol "*"))
 
 /-- The parser `many1(p)`, or `p+`, repeats `p` until it fails, and returns the list of results.
@@ -56,7 +56,7 @@ automatically replaced by `group(p)` to ensure that it produces exactly 1 value.
 
 This parser has arity 1: it produces a `nullKind` node containing one argument for each
 invocation of `p` (or `group(p)`). -/
-@[run_builtin_parser_attribute_hooks] def many1 (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def many1 (p : Parser) : Parser :=
   many1NoAntiquot (withAntiquotSpliceAndSuffix `many p (symbol "*"))
 
 /-- The parser `ident` parses a single identifier, possibly with namespaces, such as `foo` or
@@ -70,18 +70,18 @@ using disallowed characters in identifiers such as `«foo.bar».baz` or `«hello
 
 This parser has arity 1: it produces a `Syntax.ident` node containing the parsed identifier.
 You can use `TSyntax.getId` to extract the name from the resulting syntax object. -/
-@[run_builtin_parser_attribute_hooks] def ident : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
 
 -- `optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)`
 -- can never fully succeed but ensures that the identifier
 -- produces a partial syntax that contains the dot.
 -- The partial syntax is sometimes useful for dot-auto-completion.
-@[run_builtin_parser_attribute_hooks] def identWithPartialTrailingDot :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def identWithPartialTrailingDot :=
   ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)
 
 -- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
-@[run_builtin_parser_attribute_hooks] def rawIdent : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def rawIdent : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
 /-- The parser `hygieneInfo` parses no text, but captures the current macro scope information
@@ -96,7 +96,7 @@ for more information about macro hygiene.
 
 This parser has arity 1: it produces a `Syntax.ident` node containing the parsed identifier.
 You can use `TSyntax.getHygieneInfo` to extract the name from the resulting syntax object. -/
-@[run_builtin_parser_attribute_hooks] def hygieneInfo : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def hygieneInfo : Parser :=
   withAntiquot (mkAntiquot "hygieneInfo" hygieneInfoKind (anonymous := false)) hygieneInfoNoAntiquot
 
 /-- The parser `num` parses a numeric literal in several bases:
@@ -109,7 +109,7 @@ You can use `TSyntax.getHygieneInfo` to extract the name from the resulting synt
 This parser has arity 1: it produces a `numLitKind` node containing an atom with the text of the
 literal.
 You can use `TSyntax.getNat` to extract the number from the resulting syntax object. -/
-@[run_builtin_parser_attribute_hooks] def numLit : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def numLit : Parser :=
   withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
 
 /-- The parser `scientific` parses a scientific-notation literal, such as `1.3e-24`.
@@ -117,7 +117,7 @@ You can use `TSyntax.getNat` to extract the number from the resulting syntax obj
 This parser has arity 1: it produces a `scientificLitKind` node containing an atom with the text
 of the literal.
 You can use `TSyntax.getScientific` to extract the parts from the resulting syntax object. -/
-@[run_builtin_parser_attribute_hooks] def scientificLit : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def scientificLit : Parser :=
   withAntiquot (mkAntiquot "scientific" scientificLitKind) scientificLitNoAntiquot
 
 /-- The parser `str` parses a string literal, such as `"foo"` or `"\r\n"`. Strings can contain
@@ -127,7 +127,7 @@ Newlines in a string are interpreted literally.
 This parser has arity 1: it produces a `strLitKind` node containing an atom with the raw
 literal (including the quote marks and without interpreting the escapes).
 You can use `TSyntax.getString` to decode the string from the resulting syntax object. -/
-@[run_builtin_parser_attribute_hooks] def strLit : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def strLit : Parser :=
   withAntiquot (mkAntiquot "str" strLitKind) strLitNoAntiquot
 
 /-- The parser `char` parses a character literal, such as `'a'` or `'\n'`. Character literals can
@@ -138,7 +138,7 @@ like `∈`, but must evaluate to a single unicode codepoint, so `'♥'` is allow
 This parser has arity 1: it produces a `charLitKind` node containing an atom with the raw
 literal (including the quote marks and without interpreting the escapes).
 You can use `TSyntax.getChar` to decode the string from the resulting syntax object. -/
-@[run_builtin_parser_attribute_hooks] def charLit : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def charLit : Parser :=
   withAntiquot (mkAntiquot "char" charLitKind) charLitNoAntiquot
 
 /-- The parser `name` parses a name literal like `` `foo``. The syntax is the same as for identifiers
@@ -147,7 +147,7 @@ You can use `TSyntax.getChar` to decode the string from the resulting syntax obj
 This parser has arity 1: it produces a `nameLitKind` node containing the raw literal
 (including the backquote).
 You can use `TSyntax.getName` to extract the name from the resulting syntax object. -/
-@[run_builtin_parser_attribute_hooks] def nameLit : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] def nameLit : Parser :=
   withAntiquot (mkAntiquot "name" nameLitKind) nameLitNoAntiquot
 
 /-- The parser `group(p)` parses the same thing as `p`, but it wraps the results in a `groupKind`
@@ -156,7 +156,7 @@ node.
 This parser always has arity 1, even if `p` does not. Parsers like `p*` are automatically
 rewritten to `group(p)*` if `p` does not have arity 1, so that the results from separate invocations
 of `p` can be differentiated. -/
-@[run_builtin_parser_attribute_hooks, inline] def group (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc, inline] def group (p : Parser) : Parser :=
   node groupKind p
 
 /-- The parser `many1Indent(p)` is equivalent to `withPosition((colGe p)+)`. This has the effect of
@@ -165,7 +165,7 @@ the same or more than the first parse.
 
 This parser has arity 1, and returns a list of the results from `p`.
 `p` is "auto-grouped" if it is not arity 1. -/
-@[run_builtin_parser_attribute_hooks, inline] def many1Indent (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc, inline] def many1Indent (p : Parser) : Parser :=
   withPosition $ many1 (checkColGe "irrelevant" >> p)
 
 /-- The parser `manyIndent(p)` is equivalent to `withPosition((colGe p)*)`. This has the effect of
@@ -174,14 +174,14 @@ the same or more than the first parse.
 
 This parser has arity 1, and returns a list of the results from `p`.
 `p` is "auto-grouped" if it is not arity 1. -/
-@[run_builtin_parser_attribute_hooks, inline] def manyIndent (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc, inline] def manyIndent (p : Parser) : Parser :=
   withPosition $ many (checkColGe "irrelevant" >> p)
 
-@[inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+@[builtin_doc, inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
   withPosition $ sepBy (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
 
-@[inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+@[builtin_doc, inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
   withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
 
@@ -189,7 +189,7 @@ open PrettyPrinter Syntax.MonadTraverser Formatter in
 @[combinator_formatter sepByIndent]
 def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
   let stx ← getCur
-  let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n =>
+  let hasNewlineSep := stx.getArgs.mapIdx (fun i n =>
     i % 2 == 1 && n.matchesNull 0 && i != stx.getArgs.size - 1) |>.any id
   visitArgs do
     for i in (List.range stx.getArgs.size).reverse do
@@ -205,32 +205,33 @@ def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : F
 
 attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
 
-@[run_builtin_parser_attribute_hooks] abbrev notSymbol (s : String) : Parser :=
+@[run_builtin_parser_attribute_hooks, builtin_doc] abbrev notSymbol (s : String) : Parser :=
   notFollowedBy (symbol s) s
 
 /-- No-op parser combinator that annotates subtrees to be ignored in syntax patterns. -/
-@[inline, run_builtin_parser_attribute_hooks] def patternIgnore : Parser → Parser := node `patternIgnore
+@[run_builtin_parser_attribute_hooks, builtin_doc, inline]
+def patternIgnore : Parser → Parser := node `patternIgnore
 
 /-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
-@[inline] def ppHardSpace : Parser := skip
+@[builtin_doc, inline] def ppHardSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a space/soft line break. -/
-@[inline] def ppSpace : Parser := skip
+@[builtin_doc, inline] def ppSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a hard line break. -/
-@[inline] def ppLine : Parser := skip
+@[builtin_doc, inline] def ppLine : Parser := skip
 /-- No-op parser combinator that advises the pretty printer to emit a `Format.fill` node. -/
-@[inline] def ppRealFill : Parser → Parser := id
+@[builtin_doc, inline] def ppRealFill : Parser → Parser := id
 /-- No-op parser combinator that advises the pretty printer to emit a `Format.group` node. -/
-@[inline] def ppRealGroup : Parser → Parser := id
+@[builtin_doc, inline] def ppRealGroup : Parser → Parser := id
 /-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
-@[inline] def ppIndent : Parser → Parser := id
+@[builtin_doc, inline] def ppIndent : Parser → Parser := id
 /--
   No-op parser combinator that advises the pretty printer to group and indent the given syntax.
   By default, only syntax categories are grouped. -/
-@[inline] def ppGroup (p : Parser) : Parser := ppRealFill (ppIndent p)
+@[builtin_doc, inline] def ppGroup (p : Parser) : Parser := ppRealFill (ppIndent p)
 /--
   No-op parser combinator that advises the pretty printer to dedent the given syntax.
   Dedenting can in particular be used to counteract automatic indentation. -/
-@[inline] def ppDedent : Parser → Parser := id
+@[builtin_doc, inline] def ppDedent : Parser → Parser := id
 
 /--
   No-op parser combinator that allows the pretty printer to omit the group and
@@ -242,19 +243,19 @@ attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
     trivial
   ```
 -/
-@[inline] def ppAllowUngrouped : Parser := skip
+@[builtin_doc, inline] def ppAllowUngrouped : Parser := skip
 
 /--
   No-op parser combinator that advises the pretty printer to dedent the given syntax,
   if it was grouped by the category parser.
   Dedenting can in particular be used to counteract automatic indentation. -/
-@[inline] def ppDedentIfGrouped : Parser → Parser := id
+@[builtin_doc, inline] def ppDedentIfGrouped : Parser → Parser := id
 
 /--
   No-op parser combinator that prints a line break.
   The line break is soft if the combinator is followed
   by an ungrouped parser (see ppAllowUngrouped), otherwise hard. -/
-@[inline] def ppHardLineUnlessUngrouped : Parser := skip
+@[builtin_doc, inline] def ppHardLineUnlessUngrouped : Parser := skip
 
 end Parser
 

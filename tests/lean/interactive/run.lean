@@ -57,13 +57,13 @@ def Lean.Widget.GetWidgetsResponse.debugJson (r : Widget.GetWidgetsResponse) : J
     )
   ]
 
-open Parsec in
-open Parsec.String in
+open Std.Internal.Parsec in
+open Std.Internal.Parsec.String in
 def word : Parser String :=
   many1Chars <| digit <|> asciiLetter <|> pchar '_'
 
-open Parsec in
-open Parsec.String in
+open Std.Internal.Parsec in
+open Std.Internal.Parsec.String in
 def ident : Parser Name := do
   let head ← word
   let xs ← many1 (pchar '.' *> word)

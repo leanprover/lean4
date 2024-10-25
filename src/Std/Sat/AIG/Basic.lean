@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Data.HashMap
 import Std.Data.HashSet
 
@@ -127,11 +128,11 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
   induction hcache generalizing decl with
   | empty => simp at hfound
   | push_id wf ih =>
-    rw [Array.get_push]
+    rw [Array.getElem_push]
     split
-    . apply ih
+    · apply ih
       simp [hfound]
-    . next hbounds =>
+    · next hbounds =>
       exfalso
       apply hbounds
       specialize ih _ hfound
@@ -139,9 +140,9 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       assumption
   | push_cache wf ih =>
     rename_i decl'
-    rw [Array.get_push]
+    rw [Array.getElem_push]
     split
-    . simp only [HashMap.getElem?_insert] at hfound
+    · simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>
         simp only [beq_iff_eq] at heq
@@ -150,7 +151,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         apply ih
         simpa [BEq.symm_false heq] using hfound
-    . next hbounds =>
+    · next hbounds =>
       simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>
@@ -223,7 +224,7 @@ def empty : AIG α := { decls := #[], cache := Cache.empty #[], invariant := IsD
 /--
 The atom `a` occurs in `aig`.
 -/
-def Mem (a : α) (aig : AIG α) : Prop := (.atom a) ∈ aig.decls
+def Mem (aig : AIG α) (a : α) : Prop := (.atom a) ∈ aig.decls
 
 instance : Membership α (AIG α) where
   mem := Mem
@@ -463,10 +464,10 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs' rhs' linv' rinv' h1 h2
-    simp only [Array.get_push] at h2
+    simp only [Array.getElem_push] at h2
     split at h2
-    . apply aig.invariant <;> assumption
-    . injections
+    · apply aig.invariant <;> assumption
+    · injections
       have := input.lhs.ref.hgate
       have := input.rhs.ref.hgate
       omega
@@ -482,10 +483,10 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs rhs linv rinv h1 h2
-    simp only [Array.get_push] at h2
+    simp only [Array.getElem_push] at h2
     split at h2
-    . apply aig.invariant <;> assumption
-    . contradiction
+    · apply aig.invariant <;> assumption
+    · contradiction
   ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
 
 /--
@@ -498,10 +499,10 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs rhs linv rinv h1 h2
-    simp only [Array.get_push] at h2
+    simp only [Array.getElem_push] at h2
     split at h2
-    . apply aig.invariant <;> assumption
-    . contradiction
+    · apply aig.invariant <;> assumption
+    · contradiction
   ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
 
 end AIG

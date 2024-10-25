@@ -96,9 +96,9 @@ where
     unless (← visited i) do
       modify fun (k, visited) => (k, visited.set! i true)
       let pi := ps[i]!
-      for j in [:ps.size] do
+      for h : j in [:ps.size] do
         unless (← visited j) do
-          let pj := ps[j]!
+          let pj := ps[j]
           if pj.used.contains pi.decl.fvarId then
             visit j
       modify fun (k, visited) => (pi.attach k, visited)

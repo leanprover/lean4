@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.Omega.LinearCombo
@@ -300,6 +300,8 @@ theorem normalize_sat {s x v} (w : s.sat' x v) :
   · split
     · simp
     · dsimp [Constraint.sat'] at w
+      simp only [IntList.gcd_eq_zero] at h
+      simp only [IntList.dot_eq_zero_of_left_eq_zero h] at w
       simp_all
   · split
     · exact w

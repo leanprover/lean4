@@ -1,8 +1,5 @@
 section algebra_hierarchy_classes_to_comm_ring
 
-class Zero (α : Type) where
-  zero : α
-
 class One (α : Type) where
   one : α
 
@@ -93,7 +90,7 @@ instance instRingHomClass (R S : Type) [Semiring R] [Semiring S] :
 
 -- this is needed to create the troublesome instance `Algebra.instid`
 def RingHom.id (α : Type) [Semiring α] : α →+* α := by
-  refine' { toFun := _root_.id.. }
+  refine { toFun := _root_.id.. }
 
 end algebra_hierarchy_morphisms
 

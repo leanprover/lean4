@@ -155,13 +155,13 @@ def oddNat : OddNat → Nat
   | ⟨.succ n⟩ => oddNat ⟨n⟩
 decreasing_by decreasing_tactic
 
--- Shadowing `sizeOf`, as a varying paramter
+-- Shadowing `sizeOf`, as a varying parameter
 def shadowSizeOf1 (sizeOf : Nat) : OddNat → Nat
   | ⟨0⟩ => 0
   | ⟨.succ n⟩ => shadowSizeOf1 (sizeOf + 1) ⟨n⟩
 decreasing_by decreasing_tactic
 
--- Shadowing `sizeOf`, as a fixed paramter
+-- Shadowing `sizeOf`, as a fixed parameter
 def shadowSizeOf2 (sizeOf : Nat) : OddNat → Nat → Nat
   | ⟨0⟩, m => m
   | ⟨.succ n⟩, m => shadowSizeOf2 sizeOf ⟨n⟩ m
@@ -207,15 +207,15 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar (o : OddNat3) : Nat := if h : @id Nat o < 41 then foo (41 - @id Nat o) else 0
   -- termination_by sizeOf o
-  decreasing_by simp_wf; simp [id] at *; omega
+  decreasing_by simp [id] at *; omega
 end
 end MutualNotNat2
 
 namespace MutualNotNat3
--- A varant of the above, but where the type of the parameter refined to `Nat`.
+-- A variant of the above, but where the type of the parameter refined to `Nat`.
 -- Previously `GuessLex` was inferring the `SizeOf` instance based on the type of the
 -- *concrete* parameter or argument, which was wrong.
 -- The inference needs to be based on the parameter type in the function's signature.
@@ -228,11 +228,11 @@ def foo : Nat → Nat
   | n+1 =>
     if h : n < 42 then bar (42 - n) else 0
   -- termination_by x1 => x1
-  decreasing_by simp_wf; simp [OddNat3]; omega
+  decreasing_by simp; omega
 def bar : OddNat3 → Nat
   | Nat.zero => 0
   | n+1 => if h : n < 41 then foo (40 - n) else 0
   -- termination_by x1 => sizeOf x1
-  decreasing_by simp_wf; omega
+  decreasing_by simp; omega
 end
 end MutualNotNat3

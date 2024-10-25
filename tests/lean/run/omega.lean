@@ -314,7 +314,7 @@ def List.permutationsAux.rec' {C : List α → List α → Sort v} (H0 : ∀ is,
   | t :: ts, is =>
       H1 t ts is (permutationsAux.rec' H0 H1 ts (t :: is)) (permutationsAux.rec' H0 H1 is [])
   termination_by ts is => (length ts + length is, length ts)
-  decreasing_by all_goals simp_wf; omega
+  decreasing_by all_goals simp; omega
 
 example {x y w z : Nat} (h : Prod.Lex (· < ·) (· < ·) (x + 1, y + 1) (w, z)) :
     Prod.Lex (· < ·) (· < ·) (x, y) (w, z) := by omega
@@ -458,6 +458,14 @@ example (a : Nat) :
     (((a + (2 ^ 64 - 1)) % 2 ^ 64 + 1) * 8 - 1 - (a + (2 ^ 64 - 1)) % 2 ^ 64 * 8 + 1) = 8 := by
   omega
 
+/-! ### Int.toNat -/
+
+example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
+  omega
+
+example (z : Int) (a : Fin z.toNat) (h : 0 ≤ z) : ↑↑a ≤ z := by
+  omega
+
 /-! ### BitVec -/
 open BitVec
 
@@ -505,6 +513,54 @@ example
     (h2 : addr2 - addr1 ≤ addr2 + 65535#16 - addr1) :
     n = 65536 := by
   bv_omega
+
+-- From https://github.com/leanprover/lean4/issues/5315
+-- This used to fail with an unexpected bound variable error.
+
+def simple_foldl (f: β → α → β) (a: Array α) (i: Nat) (b: β): β :=
+  if h: i < a.size then
+    simple_foldl f a (i+1) (f b a[i])
+  else
+    b
+
+/--
+error: omega could not prove the goal:
+No usable constraints found. You may need to unfold definitions so `omega` can see linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication, division, and modular remainder by constants.
+-/
+#guard_msgs in
+theorem simple_fold_monotonic₁ (a: Array α) (f: β → α → β) (i: Nat) {P: α → β → Prop} {x: α}
+  (base: P x b)
+  (mono: ∀ x x' y, P x y → P x (f y x')): P x (simple_foldl f a i b) := by
+    unfold simple_foldl
+    split <;> try trivial
+    apply simple_fold_monotonic₁
+    . apply mono; exact base
+    . exact mono
+  termination_by a.size - i
+  decreasing_by
+    exfalso
+    rename_i a b
+    clear a b mono base
+    rename_i a; clear a
+    clear base
+    clear x
+    rename_i a; clear a
+    clear x
+    clear P
+    rename_i a; clear a
+    clear P
+    clear i
+    rename_i a; clear a
+    clear i
+    clear f
+    rename_i a; clear a
+    clear f
+    clear a
+    rename_i a; clear a
+    clear a
+    clear b
+    rename_i a
+    omega
 
 /-! ### Error messages -/
 

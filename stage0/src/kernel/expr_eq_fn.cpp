@@ -23,7 +23,7 @@ template<bool CompareBinderInfo>
 class expr_eq_fn {
     struct key_hasher {
         std::size_t operator()(std::pair<lean_object *, lean_object *> const & p) const {
-            return hash((size_t)p.first >> 3, (size_t)p.first >> 3);
+            return hash((size_t)p.first >> 3, (size_t)p.second >> 3);
         }
     };
     typedef std::unordered_set<std::pair<lean_object *, lean_object *>, key_hasher> cache;

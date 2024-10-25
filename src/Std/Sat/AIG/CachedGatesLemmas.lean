@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.CachedGates
 import Std.Sat.AIG.LawfulOperator
 
@@ -32,7 +33,7 @@ private theorem or_as_aig : ∀ (a b : Bool), (!(!a && !b)) = (a || b) := by
 /--
 Encoding of XOR as boolean expression in AIG form.
 -/
-private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (xor a b) := by
+private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (a ^^ b) := by
   decide
 
 /--
@@ -124,10 +125,10 @@ theorem mkOrCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : idx
   simp only [mkOrCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkConstCached)]
-  . rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . apply LawfulOperator.lt_size_of_lt_aig_size (f := mkConstCached)
+  · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkConstCached)
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
 
@@ -160,10 +161,10 @@ theorem mkXorCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkXorCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  . rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . apply LawfulOperator.lt_size_of_lt_aig_size
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
 
@@ -200,10 +201,10 @@ theorem mkBEqCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   simp only [mkBEqCached]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
   rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
-  . rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
+  · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . apply LawfulOperator.lt_size_of_lt_aig_size
+  · apply LawfulOperator.lt_size_of_lt_aig_size
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
 
@@ -242,7 +243,7 @@ theorem mkImpCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
   · rw [AIG.LawfulOperator.decl_eq (f := mkGateCached)]
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
-  . apply LawfulOperator.lt_size_of_lt_aig_size (f := mkConstCached)
+  · apply LawfulOperator.lt_size_of_lt_aig_size (f := mkConstCached)
     apply LawfulOperator.lt_size_of_lt_aig_size
     assumption
 

@@ -37,5 +37,5 @@ theorem length_treeToList_eq_numNames (t : TreeNode) : (treeToList t).length = n
 where
   helper (cs : List TreeNode) : (cs.map treeToList).join.length = numNamesLst cs := by
     match cs with
-    | [] => rfl
+    | [] => simp [List.join, numNamesLst]
     | c::cs' => simp [List.join, List.map, numNamesLst, length_treeToList_eq_numNames c, helper cs']

@@ -21,12 +21,7 @@ export One (one)
 instance [One α] : OfNat α (nat_lit 1) where
     ofNat := one
 
-class Zero (α : Type u) where
-    zero : α
 export Zero (zero)
-
-instance [Zero α] : OfNat α (nat_lit 0) where
-    ofNat := zero
 
 class MulComm (α : Type u) [Mul α] : Prop where
     mulComm : {a b : α} → a * b = b * a

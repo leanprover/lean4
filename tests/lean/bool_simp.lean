@@ -3,7 +3,7 @@ variable (b c d : Bool)
 variable (u v w : Prop) [Decidable u] [Decidable v] [Decidable w]
 
 -- Specific regressions found when introducing Boolean normalization
-#check_simp (b != !c) = false ~> b = !c
+#check_simp (b != !c) = false ~> b ≠ c
 #check_simp ¬(u → v ∨ w) ~> u ∧ ¬v ∧ ¬w
 #check_simp decide (u ∧ (v → False)) ~> decide u && !decide v
 #check_simp decide (cond true b c = true) ~> b
@@ -25,7 +25,7 @@ variable (u v w : Prop) [Decidable u] [Decidable v] [Decidable w]
 #check_simp (true ≠ if u then b else c) ~> (if u then b = false else c = false)
 #check_simp (u ∧ v → False) ~> u → v → False
 #check_simp (u = (v ≠ w)) ~> (u ↔ ¬(v ↔ w))
-#check_simp ((b = false) = (c = false)) ~> (!b) = (!c)
+#check_simp ((b = false) = (c = false)) ~> b = c
 #check_simp True ≠ (c = false) ~> c = true
 #check_simp u ∧ u ∧ v ~> u ∧ v
 #check_simp b || (b || c) ~> b || c
@@ -125,7 +125,7 @@ variable [Decidable u]
 #check_simp (b ∧  b) ~> (b : Prop)
 #check_simp (b && b) ~> b
 
--- Cancelation
+-- Cancellation
 #check_simp (u ∧ ¬u)  ~> False
 #check_simp (¬u ∧ u)  ~> False
 #check_simp (b && ¬b) ~> false

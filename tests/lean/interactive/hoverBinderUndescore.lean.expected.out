@@ -4,7 +4,7 @@
  {"start": {"line": 1, "character": 5}, "end": {"line": 1, "character": 6}},
  "contents":
  {"value":
-  "```lean\nNat\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nNat\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 1, "character": 7}}
@@ -12,7 +12,7 @@
  {"start": {"line": 1, "character": 7}, "end": {"line": 1, "character": 8}},
  "contents":
  {"value":
-  "```lean\nBool\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nBool\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 6, "character": 6}}
@@ -20,7 +20,7 @@
  {"start": {"line": 6, "character": 6}, "end": {"line": 6, "character": 7}},
  "contents":
  {"value":
-  "```lean\nNat\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nNat\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 6, "character": 8}}
@@ -28,7 +28,7 @@
  {"start": {"line": 6, "character": 8}, "end": {"line": 6, "character": 9}},
  "contents":
  {"value":
-  "```lean\nBool\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nBool\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 11, "character": 6}}
@@ -36,7 +36,7 @@
  {"start": {"line": 11, "character": 6}, "end": {"line": 11, "character": 7}},
  "contents":
  {"value":
-  "```lean\nNat\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nNat\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 11, "character": 8}}
@@ -44,5 +44,5 @@
  {"start": {"line": 11, "character": 8}, "end": {"line": 11, "character": 9}},
  "contents":
  {"value":
-  "```lean\nBool\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nBool\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that is expected to be inferred based on context.\nFor example, in `@id _ Nat.zero`, the `_` must be the type of `Nat.zero`, which is `Nat`.\n\nThe way this works is that holes create fresh metavariables.\nThe elaborator is allowed to assign terms to metavariables while it is checking definitional equalities.\nThis is often known as *unification*.\n\nNormally, all holes must be solved for. However, there are a few contexts where this is not necessary:\n* In `match` patterns, holes are catch-all patterns.\n* In some tactics, such as `refine'` and `apply`, unsolved-for placeholders become new goals.\n\nRelated concept: implicit parameters are automatically filled in with holes during the elaboration process.\n\nSee also `?m` syntax (synthetic holes).\n",
   "kind": "markdown"}}

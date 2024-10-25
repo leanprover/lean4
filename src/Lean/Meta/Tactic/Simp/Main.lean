@@ -210,6 +210,7 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   if e' == e then
     return e'
   else
+    trace[Debug.Meta.Tactic.simp] "reduce {e} => {e'}"
     reduce e'
 
 instance : Inhabited (SimpM α) where
@@ -624,6 +625,7 @@ where
   visitPreContinue (cfg : Config) (r : Result) : SimpM Result := do
     let eNew ← reduceStep r.expr
     if eNew != r.expr then
+      trace[Debug.Meta.Tactic.simp] "reduceStep (pre) {e} => {eNew}"
       let r := { r with expr := eNew }
       cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
     else

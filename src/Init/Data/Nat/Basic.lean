@@ -5,6 +5,8 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import Init.SimpLemmas
+import Init.Data.NeZero
+
 set_option linter.missingDocs true -- keep it documented
 universe u
 
@@ -129,7 +131,7 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
 instance : LawfulBEq Nat where
-  eq_of_beq h := Nat.eq_of_beq_eq_true h
+  eq_of_beq h := by simpa using h
   rfl := by simp [BEq.beq]
 
 theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp
@@ -158,7 +160,7 @@ theorem add_one (n : Nat) : n + 1 = succ n :=
   rfl
 
 @[simp] theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
-@[simp] theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := nofun
+theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := by simp
 
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
   | n, 0   => Eq.symm (Nat.zero_add n)
@@ -246,7 +248,7 @@ protected theorem add_mul (n m k : Nat) : (n + m) * k = n * k + m * k :=
   Nat.right_distrib n m k
 
 protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
-  | n, m, 0      => rfl
+  | _, _, 0      => rfl
   | n, m, succ k => by simp [mul_succ, Nat.mul_assoc n m k, Nat.left_distrib]
 instance : Std.Associative (α := Nat) (· * ·) := ⟨Nat.mul_assoc⟩
 
@@ -355,6 +357,8 @@ theorem eq_zero_or_pos : ∀ (n : Nat), n = 0 ∨ n > 0
   | _+1 => Or.inr (succ_pos _)
 
 protected theorem pos_of_ne_zero {n : Nat} : n ≠ 0 → 0 < n := (eq_zero_or_pos n).resolve_left
+
+theorem pos_of_neZero (n : Nat) [NeZero n] : 0 < n := Nat.pos_of_ne_zero (NeZero.ne _)
 
 theorem lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
@@ -486,10 +490,10 @@ protected theorem le_antisymm_iff {a b : Nat} : a = b ↔ a ≤ b ∧ b ≤ a :=
             (fun ⟨hle, hge⟩ => Nat.le_antisymm hle hge)
 protected theorem eq_iff_le_and_ge : ∀{a b : Nat}, a = b ↔ a ≤ b ∧ b ≤ a := @Nat.le_antisymm_iff
 
-instance : Antisymm ( . ≤ . : Nat → Nat → Prop) where
+instance : Std.Antisymm ( . ≤ . : Nat → Nat → Prop) where
   antisymm h₁ h₂ := Nat.le_antisymm h₁ h₂
 
-instance : Antisymm (¬ . < . : Nat → Nat → Prop) where
+instance : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
   antisymm h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
 
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
@@ -509,6 +513,10 @@ protected theorem add_lt_add_left {n m : Nat} (h : n < m) (k : Nat) : k + n < k 
 
 protected theorem add_lt_add_right {n m : Nat} (h : n < m) (k : Nat) : n + k < m + k :=
   Nat.add_comm k m ▸ Nat.add_comm k n ▸ Nat.add_lt_add_left h k
+
+protected theorem lt_add_of_pos_left (h : 0 < k) : n < k + n := by
+  rw [Nat.add_comm]
+  exact Nat.add_lt_add_left h n
 
 protected theorem lt_add_of_pos_right (h : 0 < k) : n < n + k :=
   Nat.add_lt_add_left h n
@@ -626,6 +634,8 @@ theorem lt_succ_of_lt (h : a < b) : a < succ b := le_succ_of_le h
 
 theorem lt_add_one_of_lt (h : a < b) : a < b + 1 := le_succ_of_le h
 
+@[simp] theorem lt_one_iff : n < 1 ↔ n = 0 := Nat.lt_succ_iff.trans <| by rw [le_zero_eq]
+
 theorem succ_pred_eq_of_ne_zero : ∀ {n}, n ≠ 0 → succ (pred n) = n
   | _+1, _ => rfl
 
@@ -714,6 +724,8 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 
 theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
 
+instance instNeZeroSucc {n : Nat} : NeZero (n + 1) := ⟨succ_ne_zero n⟩
+
 /-! # mul + order -/
 
 theorem mul_le_mul_left {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=
@@ -779,6 +791,16 @@ theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤
 theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
   pow_le_pow_of_le_right h (Nat.zero_le _)
 
+@[simp] theorem zero_pow_of_pos (n : Nat) (h : 0 < n) : 0 ^ n = 0 := by
+  cases n with
+  | zero => cases h
+  | succ n => simp [Nat.pow_succ]
+
+protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
+
+instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
+  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pos_pow_of_pos m (pos_of_neZero _))⟩
+
 /-! # min/max -/
 
 /--
@@ -826,8 +848,8 @@ protected theorem pred_succ (n : Nat) : pred n.succ = n := rfl
 @[simp] protected theorem zero_sub_one : 0 - 1 = 0 := rfl
 @[simp] protected theorem add_one_sub_one (n : Nat) : n + 1 - 1 = n := rfl
 
-theorem sub_one_eq_self (n : Nat) : n - 1 = n ↔ n = 0 := by cases n <;> simp [ne_add_one]
-theorem eq_self_sub_one (n : Nat) : n = n - 1 ↔ n = 0 := by cases n <;> simp [add_one_ne]
+theorem sub_one_eq_self {n : Nat} : n - 1 = n ↔ n = 0 := by cases n <;> simp [ne_add_one]
+theorem eq_self_sub_one {n : Nat} : n = n - 1 ↔ n = 0 := by cases n <;> simp [add_one_ne]
 
 theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
   induction a with
@@ -887,7 +909,7 @@ theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
 
 theorem sub_ne_zero_of_lt : {a b : Nat} → a < b → b - a ≠ 0
   | 0, 0, h      => absurd h (Nat.lt_irrefl 0)
-  | 0, succ b, _ => by simp only [Nat.sub_zero, ne_eq, not_false_eq_true]
+  | 0, succ b, _ => by simp only [Nat.sub_zero, ne_eq, not_false_eq_true, Nat.succ_ne_zero]
   | succ a, 0, h => absurd h (Nat.not_lt_zero a.succ)
   | succ a, succ b, h => by rw [Nat.succ_sub_succ]; exact sub_ne_zero_of_lt (Nat.lt_of_succ_lt_succ h)
 

@@ -1,0 +1,80 @@
+{"textDocument": {"uri": "file:///completionFallback.lean"},
+ "position": {"line": 14, "character": 14}}
+{"items":
+ [{"sortText": "0",
+   "label": "down",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.down"}}}},
+  {"sortText": "1",
+   "label": "left",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.left"}}}},
+  {"sortText": "2",
+   "label": "noConfusionType",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.noConfusionType"}}}},
+  {"sortText": "3",
+   "label": "right",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.right"}}}},
+  {"sortText": "4",
+   "label": "toCtorIdx",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.toCtorIdx"}}}},
+  {"sortText": "5",
+   "label": "up",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 14, "character": 14}},
+    "id": {"const": {"declName": "Direction.up"}}}}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file:///completionFallback.lean"},
+ "position": {"line": 28, "character": 30}}
+{"items":
+ [{"sortText": "0",
+   "label": "ha",
+   "kind": 23,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 28, "character": 30}},
+    "id": {"const": {"declName": "CustomAnd.ha"}}}},
+  {"sortText": "1",
+   "label": "hb",
+   "kind": 23,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 28, "character": 30}},
+    "id": {"const": {"declName": "CustomAnd.hb"}}}},
+  {"sortText": "2",
+   "label": "mk",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionFallback.lean"},
+     "position": {"line": 28, "character": 30}},
+    "id": {"const": {"declName": "CustomAnd.mk"}}}}],
+ "isIncomplete": true}

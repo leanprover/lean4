@@ -18,6 +18,7 @@ set_option linter.missingDocs true
 set_option autoImplicit false
 
 open Std.DHashMap.Internal
+open List (Perm perm_middle)
 
 universe w v u
 
@@ -112,6 +113,32 @@ theorem get!_eq {β : Type v} [BEq α] [Inhabited β] {l : AssocList α (fun _ =
       Bool.apply_cond Option.get!]
 
 @[simp]
+theorem getKey?_eq [BEq α] {l : AssocList α β} {a : α} :
+    l.getKey? a = List.getKey? a l.toList := by
+  induction l <;> simp_all [getKey?]
+
+@[simp]
+theorem getKey_eq [BEq α] {l : AssocList α β} {a : α} {h} :
+    l.getKey a h = List.getKey a l.toList (contains_eq.symm.trans h) := by
+  induction l
+  · simp [contains] at h
+  · next k v t ih => simp only [getKey, toList_cons, List.getKey_cons, ih]
+
+@[simp]
+theorem getKeyD_eq [BEq α] {l : AssocList α β} {a fallback : α} :
+    l.getKeyD a fallback = List.getKeyD a l.toList fallback := by
+  induction l
+  · simp [getKeyD, List.getKeyD]
+  · simp_all [getKeyD, List.getKeyD, Bool.apply_cond (fun x => Option.getD x fallback)]
+
+@[simp]
+theorem getKey!_eq [BEq α] [Inhabited α] {l : AssocList α β} {a : α} :
+    l.getKey! a = List.getKey! a l.toList := by
+  induction l
+  · simp [getKey!, List.getKey!]
+  · simp_all [getKey!, List.getKey!, Bool.apply_cond Option.get!]
+
+@[simp]
 theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :
     (l.replace a b).toList = replaceEntry a b l.toList := by
   induction l
@@ -133,15 +160,15 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocLis
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
-  · simpa [filterMap.go] using Perm.refl _
+  · simp [filterMap.go]
   · next k v t ih =>
     simp only [filterMap.go, toList_cons, List.filterMap_cons]
     split
-    · next h => exact (ih _).trans (by simpa [h] using Perm.refl _)
+    · next h => exact (ih _).trans (by simp [h])
     · next h =>
       refine (ih _).trans ?_
       simp only [toList_cons, List.cons_append]
-      exact perm_middle.symm.trans (by simpa [h] using Perm.refl _)
+      exact perm_middle.symm.trans (by simp [h])
 
 theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
     Perm (l.map f).toList (l.toList.map fun p => ⟨p.1, f p.1 p.2⟩) := by
@@ -151,7 +178,7 @@ theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
-  · simpa [map.go] using Perm.refl _
+  · simp [map.go]
   · next k v t ih =>
     simp only [map.go, toList_cons, List.map_cons]
     refine (ih _).trans ?_
@@ -165,7 +192,7 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     simpa using this .nil l
   intros l l'
   induction l' generalizing l
-  · simpa [filter.go] using Perm.refl _
+  · simp [filter.go]
   · next k v t ih =>
     simp only [filter.go, toList_cons, List.filter_cons, cond_eq_if]
     split

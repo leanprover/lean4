@@ -33,6 +33,10 @@ attribute [simp] id_map
 @[simp] theorem id_map' [Functor m] [LawfulFunctor m] (x : m α) : (fun a => a) <$> x = x :=
   id_map x
 
+@[simp] theorem Functor.map_map [Functor f] [LawfulFunctor f] (m : α → β) (g : β → γ) (x : f α) :
+    g <$> m <$> x = (fun a => g (m a)) <$> x :=
+  (comp_map _ _ _).symm
+
 /--
 The `Applicative` typeclass only contains the operations of an applicative functor.
 `LawfulApplicative` further asserts that these operations satisfy the laws of an applicative functor:
@@ -83,12 +87,16 @@ class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m 
   seq_assoc x g h := (by simp [← bind_pure_comp, ← bind_map, bind_assoc, pure_bind])
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
-attribute [simp] pure_bind bind_assoc
+attribute [simp] pure_bind bind_assoc bind_pure_comp
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
   show x >>= (fun a => pure (id a)) = x
   rw [bind_pure_comp, id_map]
 
+/--
+Use `simp [← bind_pure_comp]` rather than `simp [map_eq_pure_bind]`,
+as `bind_pure_comp` is in the default simp set, so also using `map_eq_pure_bind` would cause a loop.
+-/
 theorem map_eq_pure_bind [Monad m] [LawfulMonad m] (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by
   rw [← bind_pure_comp]
 
@@ -109,10 +117,24 @@ theorem seq_eq_bind {α β : Type u} [Monad m] [LawfulMonad m] (mf : m (α → �
 
 theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> y = x >>= fun _ => y := by
   rw [seqRight_eq]
-  simp [map_eq_pure_bind, seq_eq_bind_map, const]
+  simp only [map_eq_pure_bind, const, seq_eq_bind_map, bind_assoc, pure_bind, id_eq, bind_pure]
 
 theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
-  rw [seqLeft_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
+  rw [seqLeft_eq]
+  simp only [map_eq_pure_bind, seq_eq_bind_map, bind_assoc, pure_bind, const_apply]
+
+@[simp] theorem map_bind [Monad m] [LawfulMonad m] (f : β → γ) (x : m α) (g : α → m β) :
+    f <$> (x >>= g) = x >>= fun a => f <$> g a := by
+  rw [← bind_pure_comp, LawfulMonad.bind_assoc]
+  simp [bind_pure_comp]
+
+@[simp] theorem bind_map_left [Monad m] [LawfulMonad m] (f : α → β) (x : m α) (g : β → m γ) :
+    ((f <$> x) >>= fun b => g b) = (x >>= fun a => g (f a)) := by
+  rw [← bind_pure_comp]
+  simp only [bind_assoc, pure_bind]
+
+@[simp] theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUnit.unit) <$> a = a := by
+  simp [map]
 
 /--
 An alternative constructor for `LawfulMonad` which has more
@@ -153,7 +175,7 @@ namespace Id
 @[simp] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
 
 instance : LawfulMonad Id := by
-  refine' { .. } <;> intros <;> rfl
+  refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
 
 end Id
 
@@ -161,9 +183,9 @@ end Id
 
 instance : LawfulMonad Option := LawfulMonad.mk'
   (id_map := fun x => by cases x <;> rfl)
-  (pure_bind := fun x f => rfl)
-  (bind_assoc := fun x f g => by cases x <;> rfl)
-  (bind_pure_comp := fun f x => by cases x <;> rfl)
+  (pure_bind := fun _ _ => rfl)
+  (bind_assoc := fun x _ _ => by cases x <;> rfl)
+  (bind_pure_comp := fun _ x => by cases x <;> rfl)
 
 instance : LawfulApplicative Option := inferInstance
 instance : LawfulFunctor Option := inferInstance

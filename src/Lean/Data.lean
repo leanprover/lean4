@@ -18,7 +18,6 @@ import Lean.Data.Name
 import Lean.Data.NameMap
 import Lean.Data.OpenDecl
 import Lean.Data.Options
-import Lean.Data.Parsec
 import Lean.Data.PersistentArray
 import Lean.Data.PersistentHashMap
 import Lean.Data.PersistentHashSet

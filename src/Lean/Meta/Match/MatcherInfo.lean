@@ -92,7 +92,7 @@ def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :
 
 end Extension
 
-def addMatcherInfo (matcherName : Name) (info : MatcherInfo) : MetaM Unit :=
+def addMatcherInfo [Monad m] [MonadEnv m] (matcherName : Name) (info : MatcherInfo) : m Unit :=
   modifyEnv fun env => Extension.addMatcherInfo env matcherName info
 
 end Match

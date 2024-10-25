@@ -245,7 +245,7 @@ On an invalid position, returns `(default : UInt8)`. -/
 @[inline]
 def curr : Iterator → UInt8
   | ⟨arr, i⟩ =>
-    if h:i < arr.size then
+    if h : i < arr.size then
       arr[i]'h
     else
       default
@@ -274,6 +274,22 @@ def atEnd : Iterator → Bool
 @[inline]
 def hasNext : Iterator → Bool
   | ⟨arr, i⟩ => i < arr.size
+
+/-- The byte at the current position. --/
+@[inline]
+def curr' (it : Iterator) (h : it.hasNext) : UInt8 :=
+  match it with
+  | ⟨arr, i⟩ =>
+    have : i < arr.size := by
+      simp only [hasNext, decide_eq_true_eq] at h
+      assumption
+    arr[i]
+
+/-- Moves the iterator's position forward by one byte. --/
+@[inline]
+def next' (it : Iterator) (_h : it.hasNext) : Iterator :=
+  match it with
+  | ⟨arr, i⟩ => ⟨arr, i + 1⟩
 
 /-- True if the position is not zero. -/
 @[inline]

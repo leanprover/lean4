@@ -12,6 +12,7 @@ import Lean.Util.NumApps
 import Lean.PrettyPrinter
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
+import Lean.Meta.Eqns
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.TerminationHint
@@ -38,14 +39,26 @@ structure PreDefinition where
 def PreDefinition.filterAttrs (preDef : PreDefinition) (p : Attribute → Bool) : PreDefinition :=
   { preDef with modifiers := preDef.modifiers.filterAttrs p }
 
+/--
+Applies `Lean.instantiateMVars` to the types of values of each predefinition.
+-/
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }
 
-def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
+/--
+Applies `Lean.Elab.Term.levelMVarToParam` to the types of each predefinition.
+-/
+def levelMVarToParamTypesPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
-    pure { preDef with type := (← levelMVarToParam preDef.type), value := (← levelMVarToParam preDef.value) }
+    pure { preDef with type := (← levelMVarToParam preDef.type) }
 
+/--
+Collects all the level parameters in sorted order from the types and values of each predefinition.
+Throws an "unused universe parameter" error if there is an unused `.{...}` parameter.
+
+See `Lean.collectLevelParams`.
+-/
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) := do
   let mut s : CollectLevelParams.State := {}
   for preDef in preDefs do
@@ -153,6 +166,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     if compile && shouldGenCodeFor preDef then
       discard <| compileDecl decl
     if applyAttrAfterCompilation then
+      generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
@@ -207,7 +221,7 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
               else
                 none
             | _ => none
-          modifiers := {} }
+          modifiers := default }
 
 private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
   (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome

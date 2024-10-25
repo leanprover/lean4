@@ -129,6 +129,7 @@ def nolintPatternVars (x : Option (Option Nat)) : Nat :=
   | some (some y) => (fun z => 1) 2
   | _ => 0
 
+set_option linter.unusedVariables.analyzeTactics true in
 set_option linter.unusedVariables.patternVars false in
 theorem nolintPatternVarsInduction (n : Nat) : True := by
   induction n with
@@ -188,9 +189,12 @@ opaque foo (x : Nat) : Nat
 opaque foo' (x : Nat) : Nat :=
   let y := 5
   3
+
+section
 variable (bar)
 variable (bar' : (x : Nat) → Nat)
 variable {α β} [inst : ToString α]
+end
 
 @[specialize]
 def specializeDef (x : Nat) : Nat := 3
@@ -210,6 +214,8 @@ opaque externConst (x : Nat) : Nat :=
   let y := 3
   5
 
+section
+variable {α : Type}
 
 macro "useArg " name:declId arg:ident : command => `(def $name ($arg : α) : α := $arg)
 useArg usedMacroVariable a
@@ -222,6 +228,7 @@ doNotUseArg unusedMacroVariable b
 def ignoreDoNotUse : Lean.Linter.IgnoreFunction := fun _ stack _ => stack.matches [``doNotUse]
 
 doNotUseArg unusedMacroVariable2 b
+end
 
 macro "ignoreArg " id:declId sig:declSig : command => `(opaque $id $sig)
 ignoreArg ignoredMacroVariable (x : UInt32) : UInt32
@@ -246,12 +253,38 @@ def Nat.discriminate (n : Nat) (H1 : n = 0 → α) (H2 : ∀ m, n = succ m → �
   | 0 => H1 rfl
   | succ m => H2 m rfl
 
+/-! These are *not* linted against anymore as they are parameters used in the eventual body term. -/
 example [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
 example {α β} [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
 example {h : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
 
-@[unused_variables_ignore_fn]
-def ignoreEverything : Lean.Linter.IgnoreFunction :=
-  fun _ _ _ => true
+inductive A where
+  | intro : Nat → A
 
-def ignored (x : Nat) := 0
+def A.out : A → Nat
+  | .intro n => n
+
+/-! `h` is used indirectly via an alias introduced by `match` that is used only via the mvar ctx -/
+theorem problematicAlias (n : A) (i : Nat) (h : i ≤ n.out) : i ≤ n.out :=
+  match n with
+  | .intro _ => by assumption
+
+/-!
+The wildcard pattern introduces a copy of `x` that should not be linted as it is in an
+inaccessible annotation.
+-/
+example : (x = y) → y = x
+  | .refl _ => .refl _
+
+/-! We do lint parameters by default (`analyzeTactics false`) even when they have lexical uses -/
+
+theorem lexicalTacticUse (p : α → Prop) (ha : p a) (hb : p b) : p b := by
+  simp [ha, hb]
+
+/-!
+... however, `analyzeTactics true` consistently takes lexical uses for all variables into account
+-/
+
+set_option linter.unusedVariables.analyzeTactics true in
+theorem lexicalTacticUse' (p : α → Prop) (ha : p a) (hb : p b) : p b := by
+  simp [ha, hb]

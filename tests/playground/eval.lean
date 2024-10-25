@@ -26,7 +26,7 @@ def eval (fName : Name) (n : Nat) : IO Nat :=
 do m ← simpleFnTable.get,
    match m.find fName with
    | some f := pure $ f n
-   | none   := throw (IO.userError "unknow function")
+   | none   := throw (IO.userError "unknown function")
 
 def main (xs : List String) : IO Unit :=
 do [f, x] ← pure xs | throw "invalid number of arguments",

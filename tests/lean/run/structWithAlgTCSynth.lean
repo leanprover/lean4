@@ -87,12 +87,6 @@ end Mathlib.Data.Quot
 
 section Mathlib.Init.ZeroOne
 
-class Zero.{u} (α : Type u) where
-  zero : α
-
-instance Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-
 class One (α : Type u) where
   one : α
 
@@ -572,7 +566,7 @@ infixr:25 " →+* " => RingHom
 namespace RingHom
 
 def id (α : Type _) : α →+* α := by
-  refine' { toFun := _root_.id.. }
+  refine { toFun := _root_.id.. }
 
 def comp (g : β →+* γ) (f : α →+* β) : α →+* γ :=
   { toFun := g.toFun ∘ f.toFun }

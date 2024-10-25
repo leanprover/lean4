@@ -9,6 +9,7 @@ import Lean.Parser.Term
 import Lean.Meta.Structure
 import Lean.Elab.App
 import Lean.Elab.Binders
+import Lean.PrettyPrinter
 
 namespace Lean.Elab.Term.StructInst
 
@@ -433,7 +434,7 @@ private def expandParentFields (s : Struct) : TermElabM Struct := do
     | { lhs := .fieldName ref fieldName :: _,    .. } =>
       addCompletionInfo <| CompletionInfo.fieldId ref fieldName (← getLCtx) s.structName
       match findField? env s.structName fieldName with
-      | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{s.structName}'"
+      | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{MessageData.ofConstName s.structName}'"
       | some baseStructName =>
         if baseStructName == s.structName then pure field
         else match getPathToBaseStructure? env baseStructName s.structName with
@@ -472,7 +473,10 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
 def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
   if (findField? (← getEnv) structName fieldName).isNone then
     return none
-  return some <| mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+  return some <|
+    mkNode ``Parser.Term.explicit
+      #[mkAtomFrom s "@",
+        mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]]
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>
@@ -681,7 +685,12 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
               -- We add info to get reliable positions for messages from evaluating the tactic script.
               let info := field.ref.getHeadInfo
               let stx := stx.raw.rewriteBottomUp (·.setInfo info)
-              cont (← elabTermEnsuringType stx (d.getArg! 0).consumeTypeAnnotations) field
+              let type := (d.getArg! 0).consumeTypeAnnotations
+              let mvar ← mkTacticMVar type stx (.fieldAutoParam fieldName s.structName)
+              -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
+              -- (See the aforementioned `processExplicitArg` for a comment about this.)
+              addTermInfo' stx mvar
+              cont mvar field
           | _ =>
             if bi == .instImplicit then
               let val ← withRef field.ref <| mkFreshExprMVar d .synthetic

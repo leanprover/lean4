@@ -30,51 +30,37 @@ linterUnusedVariables.lean:119:6-119:7: warning: unused variable `a`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
 linterUnusedVariables.lean:129:26-129:27: warning: unused variable `z`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:137:9-137:10: warning: unused variable `h`
+linterUnusedVariables.lean:138:9-138:10: warning: unused variable `h`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:151:8-151:9: warning: unused variable `y`
+linterUnusedVariables.lean:152:8-152:9: warning: unused variable `y`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:154:20-154:21: warning: unused variable `β`
+linterUnusedVariables.lean:155:20-155:21: warning: unused variable `β`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:155:7-155:8: warning: unused variable `x`
+linterUnusedVariables.lean:156:7-156:8: warning: unused variable `x`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:165:6-165:7: warning: unused variable `s`
+linterUnusedVariables.lean:166:6-166:7: warning: unused variable `s`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:189:6-189:7: warning: unused variable `y`
+linterUnusedVariables.lean:190:6-190:7: warning: unused variable `y`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:196:19-196:20: warning: unused variable `x`
+linterUnusedVariables.lean:200:19-200:20: warning: unused variable `x`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:200:6-200:7: warning: unused variable `y`
+linterUnusedVariables.lean:204:6-204:7: warning: unused variable `y`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:205:6-205:7: warning: unused variable `y`
+linterUnusedVariables.lean:209:6-209:7: warning: unused variable `y`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:210:6-210:7: warning: unused variable `y`
+linterUnusedVariables.lean:214:6-214:7: warning: unused variable `y`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:219:32-219:33: warning: unused variable `b`
+linterUnusedVariables.lean:225:32-225:33: warning: unused variable `b`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:236:27-236:28: error: don't know how to synthesize placeholder
+linterUnusedVariables.lean:243:27-243:28: error: don't know how to synthesize placeholder
 context:
-bar : ?m
-bar' : Nat → Nat
-α : Type ?u
-β : ?m
-inst : ToString α
 a : Nat
 ⊢ Nat
-linterUnusedVariables.lean:237:0-237:7: warning: declaration uses 'sorry'
-linterUnusedVariables.lean:238:0-238:7: warning: declaration uses 'sorry'
-linterUnusedVariables.lean:239:29-241:7: error: unexpected token 'theorem'; expected '{' or tactic
-linterUnusedVariables.lean:239:27-239:29: error: unsolved goals
-bar : ?m
-bar' : Nat → Nat
-α : Type ?u
-β : ?m
-inst : ToString α
+linterUnusedVariables.lean:244:0-244:7: warning: declaration uses 'sorry'
+linterUnusedVariables.lean:245:0-245:7: warning: declaration uses 'sorry'
+linterUnusedVariables.lean:246:29-248:7: error: unexpected token 'theorem'; expected '{' or tactic
+linterUnusedVariables.lean:246:27-246:29: error: unsolved goals
 a : Nat
 ⊢ Nat
-linterUnusedVariables.lean:249:9-249:12: warning: unused variable `ord`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:250:15-250:18: warning: unused variable `ord`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:251:9-251:10: warning: unused variable `h`
+linterUnusedVariables.lean:281:41-281:43: warning: unused variable `ha`
 note: this linter can be disabled with `set_option linter.unusedVariables false`

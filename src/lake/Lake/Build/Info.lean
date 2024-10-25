@@ -16,6 +16,7 @@ the build.
 -/
 
 namespace Lake
+open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
@@ -216,13 +217,35 @@ end Module
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
-@[inherit_doc releaseFacet]
-abbrev Package.release (self : Package) : BuildInfo :=
-  self.facet releaseFacet
+@[inherit_doc buildCacheFacet]
+abbrev Package.buildCache (self : Package) : BuildInfo :=
+  self.facet buildCacheFacet
 
-@[inherit_doc optReleaseFacet]
-abbrev Package.optRelease (self : Package) : BuildInfo :=
-  self.facet optReleaseFacet
+@[inherit_doc optBuildCacheFacet]
+abbrev Package.optBuildCache (self : Package) : BuildInfo :=
+  self.facet optBuildCacheFacet
+
+@[inherit_doc reservoirBarrelFacet]
+abbrev Package.reservoirBarrel (self : Package) : BuildInfo :=
+  self.facet reservoirBarrelFacet
+
+@[inherit_doc optReservoirBarrelFacet]
+abbrev Package.optReservoirBarrel (self : Package) : BuildInfo :=
+  self.facet optReservoirBarrelFacet
+
+@[inherit_doc gitHubReleaseFacet]
+abbrev Package.gitHubRelease (self : Package) : BuildInfo :=
+  self.facet gitHubReleaseFacet
+
+@[inherit_doc optGitHubReleaseFacet]
+abbrev Package.optGitHubRelease (self : Package) : BuildInfo :=
+  self.facet optGitHubReleaseFacet
+
+@[deprecated (since := "2024-09-27")]
+abbrev Package.release := @gitHubRelease
+
+@[deprecated (since := "2024-09-27")]
+abbrev Package.optRelease := @optGitHubRelease
 
 @[inherit_doc extraDepFacet]
 abbrev Package.extraDep (self : Package) : BuildInfo :=

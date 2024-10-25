@@ -17,6 +17,7 @@ Lake configuration file written in TOML.
 -/
 
 namespace Lake
+open System (FilePath)
 
 open Toml
 
@@ -136,6 +137,30 @@ def decodeLeanOptions (v : Value) : Except (Array DecodeError) (Array LeanOption
   | v =>
     throw #[.mk v.ref "expected array or table"]
 
+protected def StdVer.decodeToml (v : Value) : Except (Array DecodeError) LeanVer := do
+  match StdVer.parse (← v.decodeString) with
+  | .ok v => return v
+  | .error e => throw #[.mk v.ref e]
+
+instance : DecodeToml StdVer := ⟨(StdVer.decodeToml ·)⟩
+
+protected def StrPat.decodeToml (v : Value) (presets : NameMap StrPat := {}) : Except (Array DecodeError) StrPat :=
+  match v with
+  | .array _ vs => .mem <$> decodeArray vs
+  | .table r t => do
+    if let some pre ← t.decode? `startsWith then
+      return .startsWith pre
+    else if let some name ← t.decode? `preset then
+      if let some preset := presets.find? name then
+        return preset
+      else
+        throw #[.mk r s!"unknown preset '{name}'"]
+    else
+      throw #[.mk r "expected 'startsWith' or 'preset'"]
+  | v => throw #[.mk v.ref "expected array or table"]
+
+instance : DecodeToml StrPat := ⟨(StrPat.decodeToml ·)⟩
+
 /-! ## Configuration Decoders -/
 
 protected def WorkspaceConfig.decodeToml (t : Table) : Except (Array DecodeError) WorkspaceConfig := ensureDecode do
@@ -182,13 +207,25 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
+  let version : StdVer ← t.tryDecodeD `version v!"0.0.0"
+  let versionTags ← optDecodeD defaultVersionTags (t.find? `versionTags)
+    <| StrPat.decodeToml (presets := versionTagPresets)
+  let description ← t.tryDecodeD `description ""
+  let keywords ← t.tryDecodeD `keywords #[]
+  let homepage ← t.tryDecodeD `homepage ""
+  let license ← t.tryDecodeD `license ""
+  let licenseFiles : Array FilePath ← t.tryDecodeD `licenseFiles #["LICENSE"]
+  let readmeFile ← t.tryDecodeD `readmeFile "README.md"
+  let reservoir ← t.tryDecodeD `reservoir true
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
   return {
-    name, precompileModules, moreGlobalServerArgs,
-    srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir,
+    name, precompileModules, moreGlobalServerArgs
+    srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir
     releaseRepo, buildArchive?, preferReleaseBuild
     testDriver, testDriverArgs, lintDriver, lintDriverArgs
+    version, versionTags, description, keywords, homepage, reservoir
+    license, licenseFiles, readmeFile
     toLeanConfig, toWorkspaceConfig
   }
 
@@ -234,7 +271,7 @@ protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : Exc
 instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
 protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Dependency := ensureDecode do
-  let name  ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
+  let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
   let src? : Option DependencySrc ← id do
     if let some dir ← t.tryDecode? `path then
@@ -269,10 +306,9 @@ instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.
 Load a `Package` from a TOML Lake configuration file.
 The resulting package does not yet include any dependencies.
 -/
-def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
-  let configFile := dir / relConfigFile
-  let input ← IO.FS.readFile configFile
-  let ictx := mkInputContext input relConfigFile.toString
+def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
+  let input ← IO.FS.readFile cfg.configFile
+  let ictx := mkInputContext input cfg.relConfigFile.toString
   match (← loadToml ictx |>.toBaseIO) with
   | .ok table =>
     let (pkg, errs) := Id.run <| StateT.run (s := (#[] : Array DecodeError)) do
@@ -280,9 +316,14 @@ def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
       let leanLibConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_lib #[]
       let leanExeConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_exe #[]
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
+      let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        dir, relDir, relConfigFile
+        dir := cfg.pkgDir
+        relDir := cfg.relPkgDir
+        relConfigFile := cfg.relConfigFile
+        scope := cfg.scope
+        remoteUrl := cfg.remoteUrl
         config, depConfigs, leanLibConfigs, leanExeConfigs
         defaultTargets
       }

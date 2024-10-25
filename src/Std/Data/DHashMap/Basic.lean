@@ -75,6 +75,13 @@ instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
     (b : β a) : DHashMap α β :=
   ⟨Raw₀.insert ⟨m.1, m.2.size_buckets_pos⟩ a b, .insert₀ m.2⟩
 
+instance : Singleton ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ => DHashMap.empty.insert a b⟩
+
+instance : Insert ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+
+instance : LawfulSingleton ((a : α) × β a) (DHashMap α β) :=
+  ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc Raw.insertIfNew] def insertIfNew (m : DHashMap α β)
     (a : α) (b : β a) : DHashMap α β :=
   ⟨Raw₀.insertIfNew ⟨m.1, m.2.size_buckets_pos⟩ a b, .insertIfNew₀ m.2⟩
@@ -103,7 +110,7 @@ instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
   Raw₀.contains ⟨m.1, m.2.size_buckets_pos⟩ a
 
 instance [BEq α] [Hashable α] : Membership α (DHashMap α β) where
-  mem a m := m.contains a
+  mem m a := m.contains a
 
 instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈ m) :=
   show Decidable (m.contains a) from inferInstance
@@ -152,6 +159,18 @@ variable {β : Type v}
 
 end
 
+@[inline, inherit_doc Raw.getKey?] def getKey? (m : DHashMap α β) (a : α) : Option α :=
+  Raw₀.getKey? ⟨m.1, m.2.size_buckets_pos⟩ a
+
+@[inline, inherit_doc Raw.getKey] def getKey (m : DHashMap α β) (a : α) (h : a ∈ m) : α :=
+  Raw₀.getKey ⟨m.1, m.2.size_buckets_pos⟩ a h
+
+@[inline, inherit_doc Raw.getKey!] def getKey! [Inhabited α] (m : DHashMap α β) (a : α) : α :=
+  Raw₀.getKey! ⟨m.1, m.2.size_buckets_pos⟩ a
+
+@[inline, inherit_doc Raw.getKeyD] def getKeyD (m : DHashMap α β) (a : α) (fallback : α) : α :=
+  Raw₀.getKeyD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
+
 @[inline, inherit_doc Raw.size] def size (m : DHashMap α β) : Nat :=
   m.1.size
 
@@ -173,6 +192,15 @@ section Unverified
 @[inline, inherit_doc Raw.fold] def fold (f : δ → (a : α) → β a → δ)
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
+
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : (a : α) → β a → Bool)
+    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
+  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
 
 @[inline, inherit_doc Raw.forM] def forM (f : (a : α) → β a → m PUnit)
     (b : DHashMap α β) : m PUnit :=
@@ -240,11 +268,21 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
     DHashMap α β :=
   insertMany ∅ l
 
+/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
+
 @[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : DHashMap α (fun _ => β) :=
   Const.insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    DHashMap α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
+@[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 

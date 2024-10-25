@@ -13,11 +13,11 @@ namespace Array
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
 -- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
-structure Mem (a : α) (as : Array α) : Prop where
-  val : a ∈ as.data
+structure Mem (as : Array α) (a : α) : Prop where
+  val : a ∈ as.toList
 
 instance : Membership α (Array α) where
-  mem a as := Mem a as
+  mem := Mem
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   cases as with | _ as =>
@@ -38,8 +38,8 @@ macro "array_get_dec" : tactic =>
     -- subsumed by simp
     -- | with_reducible apply sizeOf_get
     -- | with_reducible apply sizeOf_getElem
-    | (with_reducible apply Nat.lt_trans (sizeOf_get ..)); simp_arith
-    | (with_reducible apply Nat.lt_trans (sizeOf_getElem ..)); simp_arith
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_get ..)); simp_arith
+    | (with_reducible apply Nat.lt_of_lt_of_le (sizeOf_getElem ..)); simp_arith
     )
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
@@ -52,7 +52,7 @@ macro "array_mem_dec" : tactic =>
   `(tactic| first
     | with_reducible apply Array.sizeOf_lt_of_mem; assumption; done
     | with_reducible
-        apply Nat.lt_trans (Array.sizeOf_lt_of_mem ?h)
+        apply Nat.lt_of_lt_of_le (Array.sizeOf_lt_of_mem ?h)
         case' h => assumption
       simp_arith)
 

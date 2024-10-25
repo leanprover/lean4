@@ -66,7 +66,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
           else if let some mvarIds ← splitTarget? mvarId then
             mvarIds.forM go
           else
-            -- At some point in the past, we looked for occurences of Wf.fix to fold on the
+            -- At some point in the past, we looked for occurrences of Wf.fix to fold on the
             -- LHS (introduced in 096e4eb), but it seems that code path was never used,
             -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
@@ -81,11 +81,11 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     withReducible do
-      mkEqnTypes (tryRefl := false) info.declNames goal.mvarId!
+      mkEqnTypes info.declNames goal.mvarId!
   let mut thmNames := #[]
-  for i in [: eqnTypes.size] do
-    let type := eqnTypes[i]!
-    trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
+  for h : i in [: eqnTypes.size] do
+    let type := eqnTypes[i]
+    trace[Elab.definition.wf.eqns] "{eqnTypes[i]}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName type

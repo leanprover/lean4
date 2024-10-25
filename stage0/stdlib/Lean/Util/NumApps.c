@@ -16,8 +16,8 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Expr_NumApps_visit___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2___closed__1;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
+static lean_object* l_Lean_Expr_NumApps_main___closed__2;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
@@ -42,7 +42,6 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkPtrSet___rarg(lean_object*);
 static lean_object* l_Lean_Expr_NumApps_main___closed__1;
-static lean_object* l_Lean_Expr_NumApps_State_visited___default___closed__1;
 extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Expr_NumApps_visit___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -52,12 +51,10 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Expr
 static lean_object* l_Lean_Expr_NumApps_visit___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Expr_NumApps_visit___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2___lambda__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_NumApps_State_counters___default;
 LEAN_EXPORT lean_object* l_Lean_Expr_NumApps_main(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Expr_NumApps_visit___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_numApps___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_NumApps_State_visited___default;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Expr_NumApps_visit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
@@ -65,6 +62,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_numApps(lean_object*, lean_object*, lean_ob
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Expr_NumApps_visit___spec__5(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -75,31 +73,6 @@ lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 size_t lean_usize_land(size_t, size_t);
-static lean_object* _init_l_Lean_Expr_NumApps_State_visited___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(64u);
-x_2 = l_Lean_mkPtrSet___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Expr_NumApps_State_visited___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Expr_NumApps_State_visited___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Expr_NumApps_State_counters___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Expr_NumApps_visit___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -948,9 +921,18 @@ return x_4;
 static lean_object* _init_l_Lean_Expr_NumApps_main___closed__1() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(64u);
+x_2 = l_Lean_mkPtrSet___rarg(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Expr_NumApps_main___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Expr_NumApps_State_visited___default___closed__1;
+x_2 = l_Lean_Expr_NumApps_main___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -961,7 +943,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_NumApps_main(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Expr_NumApps_main___closed__1;
+x_2 = l_Lean_Expr_NumApps_main___closed__2;
 x_3 = l_Lean_Expr_NumApps_visit(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
@@ -1134,8 +1116,8 @@ static lean_object* _init_l_Lean_Expr_numApps___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -1242,16 +1224,12 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_PtrSet(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Expr_NumApps_State_visited___default___closed__1 = _init_l_Lean_Expr_NumApps_State_visited___default___closed__1();
-lean_mark_persistent(l_Lean_Expr_NumApps_State_visited___default___closed__1);
-l_Lean_Expr_NumApps_State_visited___default = _init_l_Lean_Expr_NumApps_State_visited___default();
-lean_mark_persistent(l_Lean_Expr_NumApps_State_visited___default);
-l_Lean_Expr_NumApps_State_counters___default = _init_l_Lean_Expr_NumApps_State_counters___default();
-lean_mark_persistent(l_Lean_Expr_NumApps_State_counters___default);
 l_Lean_Expr_NumApps_visit___closed__1 = _init_l_Lean_Expr_NumApps_visit___closed__1();
 lean_mark_persistent(l_Lean_Expr_NumApps_visit___closed__1);
 l_Lean_Expr_NumApps_main___closed__1 = _init_l_Lean_Expr_NumApps_main___closed__1();
 lean_mark_persistent(l_Lean_Expr_NumApps_main___closed__1);
+l_Lean_Expr_NumApps_main___closed__2 = _init_l_Lean_Expr_NumApps_main___closed__2();
+lean_mark_persistent(l_Lean_Expr_NumApps_main___closed__2);
 l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2___closed__1 = _init_l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2___closed__1();
 lean_mark_persistent(l_Array_qsort_sort___at_Lean_Expr_numApps___spec__2___closed__1);
 l_Lean_Expr_numApps___closed__1 = _init_l_Lean_Expr_numApps___closed__1();

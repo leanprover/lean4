@@ -4,18 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: F. G. Dorais
 -/
 prelude
-import Init.BinderPredicates
+import Init.NotationExtra
+
+
+namespace Bool
 
 /-- Boolean exclusive or -/
 abbrev xor : Bool → Bool → Bool := bne
 
-namespace Bool
-
-/- Namespaced versions that can be used instead of prefixing `_root_` -/
-@[inherit_doc not] protected abbrev not := not
-@[inherit_doc or]  protected abbrev or  := or
-@[inherit_doc and] protected abbrev and := and
-@[inherit_doc xor] protected abbrev xor := xor
+@[inherit_doc] infixl:33 " ^^ " => xor
 
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with
@@ -55,10 +52,16 @@ theorem eq_iff_iff {a b : Bool} : a = b ↔ (a ↔ b) := by cases b <;> simp
 theorem decide_true_eq  {b : Bool} [Decidable (true = b)]  : decide (true  = b) =  b := by cases b <;> simp
 theorem decide_false_eq {b : Bool} [Decidable (false = b)] : decide (false = b) = !b := by cases b <;> simp
 
+-- These lemmas assist with confluence.
+@[simp] theorem eq_false_imp_eq_true_iff :
+    ∀ (a b : Bool), ((a = false → b = true) ↔ (b = false → a = true)) = True := by decide
+@[simp] theorem eq_true_imp_eq_false_iff :
+    ∀ (a b : Bool), ((a = true → b = false) ↔ (b = true → a = false)) = True := by decide
+
 /-! ### and -/
 
-@[simp] theorem and_self_left  : ∀(a b : Bool), (a && (a && b)) = (a && b) := by decide
-@[simp] theorem and_self_right : ∀(a b : Bool), ((a && b) && b) = (a && b) := by decide
+@[simp] theorem and_self_left  : ∀ (a b : Bool), (a && (a && b)) = (a && b) := by decide
+@[simp] theorem and_self_right : ∀ (a b : Bool), ((a && b) && b) = (a && b) := by decide
 
 @[simp] theorem not_and_self : ∀ (x : Bool), (!x && x) = false := by decide
 @[simp] theorem and_not_self : ∀ (x : Bool), (x && !x) = false := by decide
@@ -70,8 +73,8 @@ Added for confluence with `not_and_self` `and_not_self` on term
 1. `(b = true ∨ !b = true)` via `Bool.and_eq_true`
 2. `false = true` via `Bool.and_not_self`
 -/
-@[simp] theorem eq_true_and_eq_false_self : ∀(b : Bool), (b = true ∧ b = false) ↔ False := by decide
-@[simp] theorem eq_false_and_eq_true_self : ∀(b : Bool), (b = false ∧ b = true) ↔ False := by decide
+@[simp] theorem eq_true_and_eq_false_self : ∀ (b : Bool), (b = true ∧ b = false) ↔ False := by decide
+@[simp] theorem eq_false_and_eq_true_self : ∀ (b : Bool), (b = false ∧ b = true) ↔ False := by decide
 
 theorem and_comm : ∀ (x y : Bool), (x && y) = (y && x) := by decide
 instance : Std.Commutative (· && ·) := ⟨and_comm⟩
@@ -86,15 +89,20 @@ Needed for confluence of term `(a && b) ↔ a` which reduces to `(a && b) = a` v
 `Bool.coe_iff_coe` and `a → b` via `Bool.and_eq_true` and
 `and_iff_left_iff_imp`.
 -/
-@[simp] theorem and_iff_left_iff_imp  : ∀(a b : Bool), ((a && b) = a) ↔ (a → b) := by decide
-@[simp] theorem and_iff_right_iff_imp : ∀(a b : Bool), ((a && b) = b) ↔ (b → a) := by decide
-@[simp] theorem iff_self_and : ∀(a b : Bool), (a = (a && b)) ↔ (a → b) := by decide
-@[simp] theorem iff_and_self : ∀(a b : Bool), (b = (a && b)) ↔ (b → a) := by decide
+@[simp] theorem and_iff_left_iff_imp  : ∀ {a b : Bool}, ((a && b) = a) ↔ (a → b) := by decide
+@[simp] theorem and_iff_right_iff_imp : ∀ {a b : Bool}, ((a && b) = b) ↔ (b → a) := by decide
+@[simp] theorem iff_self_and : ∀ {a b : Bool}, (a = (a && b)) ↔ (a → b) := by decide
+@[simp] theorem iff_and_self : ∀ {a b : Bool}, (b = (a && b)) ↔ (b → a) := by decide
+
+@[simp] theorem not_and_iff_left_iff_imp  : ∀ {a b : Bool}, ((!a && b) = a) ↔ !a ∧ !b := by decide
+@[simp] theorem and_not_iff_right_iff_imp : ∀ {a b : Bool}, ((a && !b) = b) ↔ !a ∧ !b := by decide
+@[simp] theorem iff_not_self_and : ∀ {a b : Bool}, (a = (!a && b)) ↔ !a ∧ !b := by decide
+@[simp] theorem iff_and_not_self : ∀ {a b : Bool}, (b = (a && !b)) ↔ !a ∧ !b := by decide
 
 /-! ### or -/
 
-@[simp] theorem or_self_left  : ∀(a b : Bool), (a || (a || b)) = (a || b) := by decide
-@[simp] theorem or_self_right : ∀(a b : Bool), ((a || b) || b) = (a || b) := by decide
+@[simp] theorem or_self_left  : ∀ (a b : Bool), (a || (a || b)) = (a || b) := by decide
+@[simp] theorem or_self_right : ∀ (a b : Bool), ((a || b) || b) = (a || b) := by decide
 
 @[simp] theorem not_or_self : ∀ (x : Bool), (!x || x) = true := by decide
 @[simp] theorem or_not_self : ∀ (x : Bool), (x || !x) = true := by decide
@@ -115,10 +123,15 @@ Needed for confluence of term `(a || b) ↔ a` which reduces to `(a || b) = a` v
 `Bool.coe_iff_coe` and `a → b` via `Bool.or_eq_true` and
 `and_iff_left_iff_imp`.
 -/
-@[simp] theorem or_iff_left_iff_imp  : ∀(a b : Bool), ((a || b) = a) ↔ (b → a) := by decide
-@[simp] theorem or_iff_right_iff_imp : ∀(a b : Bool), ((a || b) = b) ↔ (a → b) := by decide
-@[simp] theorem iff_self_or : ∀(a b : Bool), (a = (a || b)) ↔ (b → a) := by decide
-@[simp] theorem iff_or_self : ∀(a b : Bool), (b = (a || b)) ↔ (a → b) := by decide
+@[simp] theorem or_iff_left_iff_imp  : ∀ {a b : Bool}, ((a || b) = a) ↔ (b → a) := by decide
+@[simp] theorem or_iff_right_iff_imp : ∀ {a b : Bool}, ((a || b) = b) ↔ (a → b) := by decide
+@[simp] theorem iff_self_or : ∀ {a b : Bool}, (a = (a || b)) ↔ (b → a) := by decide
+@[simp] theorem iff_or_self : ∀ {a b : Bool}, (b = (a || b)) ↔ (a → b) := by decide
+
+@[simp] theorem not_or_iff_left_iff_imp  : ∀ {a b : Bool}, ((!a || b) = a) ↔ a ∧ b := by decide
+@[simp] theorem or_not_iff_right_iff_imp : ∀ {a b : Bool}, ((a || !b) = b) ↔ a ∧ b := by decide
+@[simp] theorem iff_not_self_or : ∀ {a b : Bool}, (a = (!a || b)) ↔ a ∧ b := by decide
+@[simp] theorem iff_or_not_self : ∀ {a b : Bool}, (b = (a || !b)) ↔ a ∧ b := by decide
 
 theorem or_comm : ∀ (x y : Bool), (x || y) = (y || x) := by decide
 instance : Std.Commutative (· || ·) := ⟨or_comm⟩
@@ -134,8 +147,8 @@ theorem and_or_distrib_right : ∀ (x y z : Bool), ((x || y) && z) = (x && z || 
 theorem or_and_distrib_left  : ∀ (x y z : Bool), (x || y && z) = ((x || y) && (x || z)) := by decide
 theorem or_and_distrib_right : ∀ (x y z : Bool), (x && y || z) = ((x || z) && (y || z)) := by decide
 
-theorem and_xor_distrib_left : ∀ (x y z : Bool), (x && xor y z) = xor (x && y) (x && z) := by decide
-theorem and_xor_distrib_right : ∀ (x y z : Bool), (xor x y && z) = xor (x && z) (y && z) := by decide
+theorem and_xor_distrib_left  : ∀ (x y z : Bool), (x && (y ^^ z)) = ((x && y) ^^ (x && z)) := by decide
+theorem and_xor_distrib_right : ∀ (x y z : Bool), ((x ^^ y) && z) = ((x && z) ^^ (y && z)) := by decide
 
 /-- De Morgan's law for boolean and -/
 @[simp] theorem not_and : ∀ (x y : Bool), (!(x && y)) = (!x || !y) := by decide
@@ -143,10 +156,10 @@ theorem and_xor_distrib_right : ∀ (x y z : Bool), (xor x y && z) = xor (x && z
 /-- De Morgan's law for boolean or -/
 @[simp] theorem not_or : ∀ (x y : Bool), (!(x || y)) = (!x && !y) := by decide
 
-theorem and_eq_true_iff (x y : Bool) : (x && y) = true ↔ x = true ∧ y = true :=
+theorem and_eq_true_iff {x y : Bool} : (x && y) = true ↔ x = true ∧ y = true :=
   Iff.of_eq (and_eq_true x y)
 
-theorem and_eq_false_iff : ∀ (x y : Bool), (x && y) = false ↔ x = false ∨ y = false := by decide
+theorem and_eq_false_iff : ∀ {x y : Bool}, (x && y) = false ↔ x = false ∨ y = false := by decide
 
 /-
 New simp rule that replaces `Bool.and_eq_false_eq_eq_false_or_eq_false` in
@@ -161,11 +174,11 @@ Consider the term: `¬((b && c) = true)`:
 1. Further reduces to `b = false ∨ c = false` via `Bool.and_eq_false_eq_eq_false_or_eq_false`.
 2. Further reduces to `b = true → c = false` via `not_and` and `Bool.not_eq_true`.
 -/
-@[simp] theorem and_eq_false_imp : ∀ (x y : Bool), (x && y) = false ↔ (x = true → y = false) := by decide
+@[simp] theorem and_eq_false_imp : ∀ {x y : Bool}, (x && y) = false ↔ (x = true → y = false) := by decide
 
-theorem or_eq_true_iff : ∀ (x y : Bool), (x || y) = true ↔ x = true ∨ y = true := by simp
+theorem or_eq_true_iff : ∀ {x y : Bool}, (x || y) = true ↔ x = true ∨ y = true := by simp
 
-@[simp] theorem or_eq_false_iff : ∀ (x y : Bool), (x || y) = false ↔ x = false ∧ y = false := by decide
+@[simp] theorem or_eq_false_iff : ∀ {x y : Bool}, (x || y) = false ↔ x = false ∧ y = false := by decide
 
 /-! ### eq/beq/bne -/
 
@@ -202,8 +215,11 @@ instance : Std.LawfulIdentity (· != ·) false where
 @[simp] theorem not_beq_self : ∀ (x : Bool), ((!x) == x) = false := by decide
 @[simp] theorem beq_not_self : ∀ (x : Bool), (x   == !x) = false := by decide
 
-@[simp] theorem not_bne_self : ∀ (x : Bool), ((!x) != x) = true := by decide
-@[simp] theorem bne_not_self : ∀ (x : Bool), (x   != !x) = true := by decide
+@[simp] theorem not_bne : ∀ (a b : Bool), ((!a) != b) = !(a != b) := by decide
+@[simp] theorem bne_not : ∀ (a b : Bool), (a != !b) = !(a != b) := by decide
+
+theorem not_bne_self : ∀ (x : Bool), ((!x) != x) = true := by decide
+theorem bne_not_self : ∀ (x : Bool), (x   != !x) = true := by decide
 
 /-
 Added for equivalence with `Bool.not_beq_self` and needed for confluence
@@ -217,13 +233,13 @@ due to `beq_iff_eq`.
 @[simp] theorem bne_self_left  : ∀(a b : Bool), (a != (a != b)) = b := by decide
 @[simp] theorem bne_self_right : ∀(a b : Bool), ((a != b) != b) = a := by decide
 
-@[simp] theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by decide
+theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by simp
 
 @[simp] theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
 instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
-@[simp] theorem bne_left_inj  : ∀ (x y z : Bool), (x != y) = (x != z) ↔ y = z := by decide
-@[simp] theorem bne_right_inj : ∀ (x y z : Bool), (x != z) = (y != z) ↔ x = y := by decide
+@[simp] theorem bne_left_inj  : ∀ {x y z : Bool}, (x != y) = (x != z) ↔ y = z := by decide
+@[simp] theorem bne_right_inj : ∀ {x y z : Bool}, (x != z) = (y != z) ↔ x = y := by decide
 
 theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
 
@@ -235,54 +251,53 @@ theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :
   · simp [ne_of_beq_false h]
   · simp [eq_of_beq h]
 
-@[simp] theorem not_eq_not : ∀ {a b : Bool}, ¬a = !b ↔ a = b := by decide
+theorem eq_not : ∀ {a b : Bool}, (a = (!b)) ↔ (a ≠ b) := by decide
+theorem not_eq : ∀ {a b : Bool}, ((!a) = b) ↔ (a ≠ b) := by decide
 
-@[simp] theorem not_not_eq : ∀ {a b : Bool}, ¬(!a) = b ↔ a = b := by decide
+@[simp] theorem coe_iff_coe : ∀{a b : Bool}, (a ↔ b) ↔ a = b := by decide
 
-@[simp] theorem coe_iff_coe : ∀(a b : Bool), (a ↔ b) ↔ a = b := by decide
-
-@[simp] theorem coe_true_iff_false  : ∀(a b : Bool), (a ↔ b = false) ↔ a = (!b) := by decide
-@[simp] theorem coe_false_iff_true  : ∀(a b : Bool), (a = false ↔ b) ↔ (!a) = b := by decide
-@[simp] theorem coe_false_iff_false : ∀(a b : Bool), (a = false ↔ b = false) ↔ (!a) = (!b) := by decide
+@[simp] theorem coe_true_iff_false  : ∀{a b : Bool}, (a ↔ b = false) ↔ a = (!b) := by decide
+@[simp] theorem coe_false_iff_true  : ∀{a b : Bool}, (a = false ↔ b) ↔ (!a) = b := by decide
+@[simp] theorem coe_false_iff_false : ∀{a b : Bool}, (a = false ↔ b = false) ↔ (!a) = (!b) := by decide
 
 /-! ### beq properties -/
 
 theorem beq_comm {α} [BEq α] [LawfulBEq α] {a b : α} : (a == b) = (b == a) :=
-  (Bool.coe_iff_coe (a == b) (b == a)).mp (by simp [@eq_comm α])
+  Bool.coe_iff_coe.mp (by simp [@eq_comm α])
 
 /-! ### xor -/
 
-theorem false_xor : ∀ (x : Bool), xor false x = x := false_bne
+theorem false_xor : ∀ (x : Bool), (false ^^ x) = x := false_bne
 
-theorem xor_false : ∀ (x : Bool), xor x false = x := bne_false
+theorem xor_false : ∀ (x : Bool), (x ^^ false) = x := bne_false
 
-theorem true_xor : ∀ (x : Bool), xor true x = !x := true_bne
+theorem true_xor : ∀ (x : Bool), (true ^^ x) = !x := true_bne
 
-theorem xor_true : ∀ (x : Bool), xor x true = !x := bne_true
+theorem xor_true : ∀ (x : Bool), (x ^^ true) = !x := bne_true
 
-theorem not_xor_self : ∀ (x : Bool), xor (!x) x = true := not_bne_self
+theorem not_xor_self : ∀ (x : Bool), (!x ^^ x) = true := not_bne_self
 
-theorem xor_not_self : ∀ (x : Bool), xor x (!x) = true := bne_not_self
+theorem xor_not_self : ∀ (x : Bool), (x ^^ !x) = true := bne_not_self
 
-theorem not_xor : ∀ (x y : Bool), xor (!x) y = !(xor x y) := by decide
+theorem not_xor : ∀ (x y : Bool), (!x ^^ y) = !(x ^^ y) := by decide
 
-theorem xor_not : ∀ (x y : Bool), xor x (!y) = !(xor x y) := by decide
+theorem xor_not : ∀ (x y : Bool), (x ^^ !y) = !(x ^^ y) := by decide
 
-theorem not_xor_not : ∀ (x y : Bool), xor (!x) (!y) = (xor x y) := not_bne_not
+theorem not_xor_not : ∀ (x y : Bool), (!x ^^ !y) = (x ^^ y) := not_bne_not
 
-theorem xor_self : ∀ (x : Bool), xor x x = false := by decide
+theorem xor_self : ∀ (x : Bool), (x ^^ x) = false := by decide
 
-theorem xor_comm : ∀ (x y : Bool), xor x y = xor y x := by decide
+theorem xor_comm : ∀ (x y : Bool), (x ^^ y) = (y ^^ x) := by decide
 
-theorem xor_left_comm : ∀ (x y z : Bool), xor x (xor y z) = xor y (xor x z) := by decide
+theorem xor_left_comm : ∀ (x y z : Bool), (x ^^ (y ^^ z)) = (y ^^ (x ^^ z)) := by decide
 
-theorem xor_right_comm : ∀ (x y z : Bool), xor (xor x y) z = xor (xor x z) y := by decide
+theorem xor_right_comm : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = ((x ^^ z) ^^ y) := by decide
 
-theorem xor_assoc : ∀ (x y z : Bool), xor (xor x y) z = xor x (xor y z) := bne_assoc
+theorem xor_assoc : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = (x ^^ (y ^^ z)) := bne_assoc
 
-theorem xor_left_inj : ∀ (x y z : Bool), xor x y = xor x z ↔ y = z := bne_left_inj
+theorem xor_left_inj : ∀ {x y z : Bool}, (x ^^ y) = (x ^^ z) ↔ y = z := bne_left_inj
 
-theorem xor_right_inj : ∀ (x y z : Bool), xor x z = xor y z ↔ x = y := bne_right_inj
+theorem xor_right_inj : ∀ {x y z : Bool}, (x ^^ z) = (y ^^ z) ↔ x = y := bne_right_inj
 
 /-! ### le/lt -/
 
@@ -353,22 +368,20 @@ theorem and_or_inj_left_iff :
 /-- convert a `Bool` to a `Nat`, `false -> 0`, `true -> 1` -/
 def toNat (b : Bool) : Nat := cond b 1 0
 
-@[simp] theorem toNat_false : false.toNat = 0 := rfl
+@[simp, bv_toNat] theorem toNat_false : false.toNat = 0 := rfl
 
-@[simp] theorem toNat_true : true.toNat = 1 := rfl
+@[simp, bv_toNat] theorem toNat_true : true.toNat = 1 := rfl
 
 theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
 
-@[deprecated toNat_le (since := "2024-02-23")]
-abbrev toNat_le_one := toNat_le
-
+@[bv_toNat]
 theorem toNat_lt (b : Bool) : b.toNat < 2 :=
   Nat.lt_succ_of_le (toNat_le _)
 
-@[simp] theorem toNat_eq_zero (b : Bool) : b.toNat = 0 ↔ b = false := by
+@[simp] theorem toNat_eq_zero {b : Bool} : b.toNat = 0 ↔ b = false := by
   cases b <;> simp
-@[simp] theorem toNat_eq_one  (b : Bool) : b.toNat = 1 ↔ b = true := by
+@[simp] theorem toNat_eq_one  {b : Bool} : b.toNat = 1 ↔ b = true := by
   cases b <;> simp
 
 /-! ### ite -/
@@ -393,6 +406,13 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
     (ite p t f = false) = ite p (t = false) (f = false) := by
   cases h with | _ p => simp [p]
 
+@[simp] theorem ite_eq_false : (if b = false then p else q) ↔ if b then q else p := by
+  cases b <;> simp
+
+@[simp] theorem ite_eq_true_else_eq_false {q : Prop} :
+    (if b = true then q else b = false) ↔ (b = true → q) := by
+  cases b <;> simp
+
 /-
 `not_ite_eq_true_eq_true` and related theorems below are added for
 non-confluence.  A motivating example is
@@ -407,36 +427,38 @@ lemmas.
 -/
 
 @[simp]
-theorem not_ite_eq_true_eq_true (p : Prop) [h : Decidable p] (b c : Bool) :
+theorem not_ite_eq_true_eq_true {p : Prop} [h : Decidable p] {b c : Bool} :
   ¬(ite p (b = true) (c = true)) ↔ (ite p (b = false) (c = false)) := by
   cases h with | _ p => simp [p]
 
 @[simp]
-theorem not_ite_eq_false_eq_false (p : Prop) [h : Decidable p] (b c : Bool) :
+theorem not_ite_eq_false_eq_false {p : Prop} [h : Decidable p] {b c : Bool} :
   ¬(ite p (b = false) (c = false)) ↔ (ite p (b = true) (c = true)) := by
   cases h with | _ p => simp [p]
 
 @[simp]
-theorem not_ite_eq_true_eq_false (p : Prop) [h : Decidable p] (b c : Bool) :
+theorem not_ite_eq_true_eq_false {p : Prop} [h : Decidable p] {b c : Bool} :
   ¬(ite p (b = true) (c = false)) ↔ (ite p (b = false) (c = true)) := by
   cases h with | _ p => simp [p]
 
 @[simp]
-theorem not_ite_eq_false_eq_true (p : Prop) [h : Decidable p] (b c : Bool) :
+theorem not_ite_eq_false_eq_true {p : Prop} [h : Decidable p] {b c : Bool} :
   ¬(ite p (b = false) (c = true)) ↔ (ite p (b = true) (c = false)) := by
   cases h with | _ p => simp [p]
 
 /-
-Added for confluence between `if_true_left` and `ite_false_same` on
-`if b = true then True else b = true`
+It would be nice to have this for confluence between `if_true_left` and `ite_false_same` on
+`if b = true then True else b = true`.
+However the discrimination tree key is just `→`, so this is tried too often.
 -/
-@[simp] theorem eq_false_imp_eq_true : ∀(b:Bool), (b = false → b = true) ↔ (b = true) := by decide
+theorem eq_false_imp_eq_true : ∀ {b : Bool}, (b = false → b = true) ↔ (b = true) := by decide
 
 /-
-Added for confluence between `if_true_left` and `ite_false_same` on
-`if b = false then True else b = false`
+It would be nice to have this for confluence between `if_true_left` and `ite_false_same` on
+`if b = false then True else b = false`.
+However the discrimination tree key is just `→`, so this is tried too often.
 -/
-@[simp] theorem eq_true_imp_eq_false : ∀(b:Bool), (b = true → b = false) ↔ (b = false) := by decide
+theorem eq_true_imp_eq_false : ∀ {b : Bool}, (b = true → b = false) ↔ (b = false) := by decide
 
 /-! ### forall -/
 
@@ -469,6 +491,11 @@ theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite
 
 @[simp] theorem cond_self (c : Bool) (t : α) : cond c t t = t := by cases c <;> rfl
 
+/-- If the return values are propositions, there is no harm in simplifying a `bif` to an `if`. -/
+@[simp] theorem cond_prop {b : Bool} {p q : Prop} :
+    (bif b then p else q) ↔ if b then p else q := by
+  cases b <;> simp
+
 /-
 This is a simp rule in Mathlib, but results in non-confluence that is difficult
 to fix as decide distributes over propositions. As an example, observe that
@@ -486,11 +513,11 @@ theorem cond_decide {α} (p : Prop) [Decidable p] (t e : α) :
     cond (decide p) t e = if p then t else e := by
   simp [cond_eq_ite]
 
-@[simp] theorem cond_eq_ite_iff (a : Bool) (p : Prop) [h : Decidable p] (x y u v : α) :
+@[simp] theorem cond_eq_ite_iff {a : Bool} {p : Prop} [h : Decidable p] {x y u v : α} :
   (cond a x y = ite p u v) ↔ ite a x y = ite p u v := by
   simp [Bool.cond_eq_ite]
 
-@[simp] theorem ite_eq_cond_iff (p : Prop) [h : Decidable p] (a : Bool) (x y u v : α) :
+@[simp] theorem ite_eq_cond_iff {p : Prop} {a : Bool} [h : Decidable p] {x y u v : α} :
   (ite p x y = cond a u v) ↔ ite p x y = ite a u v := by
   simp [Bool.cond_eq_ite]
 
@@ -509,6 +536,10 @@ protected theorem cond_false {α : Type u} {a b : α} : cond false a b = b := co
 @[simp] theorem cond_true_right  : ∀(c t : Bool), cond c t true  = (!c || t) := by decide
 @[simp] theorem cond_false_right : ∀(c t : Bool), cond c t false = ( c && t) := by decide
 
+-- These restore confluence between the above lemmas and `cond_not`.
+@[simp] theorem cond_true_not_same  : ∀ (c b : Bool), cond c (!c) b = (!c && b) := by decide
+@[simp] theorem cond_false_not_same : ∀ (c b : Bool), cond c b (!c) = (!c || b) := by decide
+
 @[simp] theorem cond_true_same  : ∀(c b : Bool), cond c c b = (c || b) := by decide
 @[simp] theorem cond_false_same : ∀(c b : Bool), cond c b c = (c && b) := by decide
 
@@ -522,7 +553,7 @@ theorem apply_cond (f : α → β) {b : Bool} {a a' : α} :
     f (bif b then a else a') = bif b then f a else f a' := by
   cases b <;> simp
 
-/-# decidability -/
+/-! # decidability -/
 
 protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = true) = b := decide_eq_true
 
@@ -538,9 +569,24 @@ protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = tru
     decide (p ↔ q) = (decide p == decide q) := by
   cases dp with | _ p => simp [p]
 
+@[boolToPropSimps]
+theorem and_eq_decide (p q : Prop) [dpq : Decidable (p ∧ q)] [dp : Decidable p] [dq : Decidable q] :
+    (p && q) = decide (p ∧ q) := by
+  cases dp with | _ p => simp [p]
+
+@[boolToPropSimps]
+theorem or_eq_decide (p q : Prop) [dpq : Decidable (p ∨ q)] [dp : Decidable p] [dq : Decidable q] :
+    (p || q) = decide (p ∨ q) := by
+  cases dp with | _ p => simp [p]
+
+@[boolToPropSimps]
+theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidable p] [dq : Decidable q] :
+    (decide p == decide q) = decide (p ↔ q) := by
+  cases dp with | _ p => simp [p]
+
 end Bool
 
-export Bool (cond_eq_if)
+export Bool (cond_eq_if xor and or not)
 
 /-! ### decide -/
 
@@ -549,3 +595,19 @@ export Bool (cond_eq_if)
 
 @[simp] theorem true_eq_decide_iff {p : Prop} [h : Decidable p] : true = decide p ↔ p := by
   cases h with | _ q => simp [q]
+
+/-! ### coercions -/
+
+/--
+This should not be turned on globally as an instance because it degrades performance in Mathlib,
+but may be used locally.
+-/
+def boolPredToPred : Coe (α → Bool) (α  → Prop) where
+  coe r := fun a => Eq (r a) true
+
+/--
+This should not be turned on globally as an instance because it degrades performance in Mathlib,
+but may be used locally.
+-/
+def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
+  coe r := fun a b => Eq (r a b) true

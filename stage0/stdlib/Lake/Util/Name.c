@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.Name
-// Imports: Init Lean.Data.Json Lean.Data.NameMap Lake.Util.DRBMap Lake.Util.RBArray Lake.Util.Compare
+// Imports: Init Lean.Data.Json Lean.Data.NameMap Lake.Util.DRBMap Lake.Util.RBArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,22 +15,20 @@ extern "C" {
 #endif
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
+static lean_object* l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instFromJsonNameMap__lake___rarg(lean_object*, lean_object*);
-static lean_object* l_Lake_Name_quoteFrom___closed__8;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__1_splitter___rarg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DNameMap_empty(lean_object*);
 static lean_object* l_Lake_Name_quoteFrom___closed__4;
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_NameMap_empty(lean_object*);
 static lean_object* l_Lake_Name_quoteFrom___closed__7;
-lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___lambda__1___boxed(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_instForInNameMapProdName__lake___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instFromJsonNameMap__lake(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Name_quoteFrom___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Name_quickCmpAux___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_OrdNameMap_empty___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_appendCore_match__1_splitter(lean_object*);
@@ -39,6 +37,7 @@ static lean_object* l_Lake_Name_quoteFrom___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Name_quoteFrom___closed__5;
 static lean_object* l_Lake_Name_quoteFrom___closed__2;
+LEAN_EXPORT uint8_t l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Syntax_copyHeadTailInfoFrom(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isPrefixOf_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -46,7 +45,6 @@ lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_instForInNameMapProdName__lake___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_OrdNameMap_empty___closed__1;
 LEAN_EXPORT lean_object* l_Lake_stringToLegalOrSimpleName(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Name_instLawfulCmpEqNameQuickCmpAux;
 lean_object* l_Lean_quoteNameMk(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -60,7 +58,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_instForInNameMapPro
 lean_object* l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__1;
 static lean_object* l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__2;
-static lean_object* l_Lake_Name_instLawfulCmpEqNameQuickCmp___closed__1;
 static lean_object* l_Lake_Name_quoteFrom___closed__3;
 lean_object* l_id___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -68,18 +65,16 @@ LEAN_EXPORT lean_object* l_Lake_mkOrdNameMap(lean_object*);
 lean_object* l_String_toName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_instForInNameMapProdName__lake___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_cmp_match__2_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__1;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instForInNameMapProdName__lake___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_appendCore_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__2;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Name_quoteFrom___closed__6;
 static lean_object* l_Lake_instCoeRBMapNameQuickCmpNameMap__lake___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Name_0__Lean_Name_isPrefixOf_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Name_instLawfulCmpEqNameQuickCmp;
 LEAN_EXPORT lean_object* l_Lake_OrdNameMap_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Name_quoteFrom(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToJsonNameMap__lake___rarg(lean_object*, lean_object*);
@@ -334,6 +329,22 @@ x_2 = lean_box(0);
 return x_2;
 }
 }
+LEAN_EXPORT uint8_t l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___lambda__1(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -344,7 +355,7 @@ return x_2;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
@@ -357,11 +368,12 @@ lean_dec(x_3);
 lean_inc(x_1);
 x_8 = l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg(x_1, x_2, x_4);
 x_9 = 1;
-x_10 = l_Lean_Name_toString(x_5, x_9);
+x_10 = l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___closed__1;
+x_11 = l_Lean_Name_toString(x_5, x_9, x_10);
 lean_inc(x_1);
-x_11 = lean_apply_1(x_1, x_6);
-x_12 = l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(x_8, x_10, x_11);
-x_2 = x_12;
+x_12 = lean_apply_1(x_1, x_6);
+x_13 = l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(x_8, x_11, x_12);
+x_2 = x_13;
 x_3 = x_7;
 goto _start;
 }
@@ -392,6 +404,16 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lake_instToJsonNameMap__lake___rarg), 2, 0);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___lambda__1(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__1() {
@@ -862,46 +884,6 @@ lean_dec(x_2);
 return x_5;
 }
 }
-static lean_object* _init_l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_quickCmpAux___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Name_instLawfulCmpEqNameQuickCmpAux() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__2;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Name_instLawfulCmpEqNameQuickCmp___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_Name_instLawfulCmpEqNameQuickCmp() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_Name_instLawfulCmpEqNameQuickCmp___closed__1;
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_Name_quoteFrom___closed__1() {
 _start:
 {
@@ -962,15 +944,6 @@ x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_Name_quoteFrom___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_Name_quoteFrom(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -999,8 +972,10 @@ x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
 x_12 = lean_box(2);
 x_13 = l_Lean_Syntax_mkNameLit(x_11, x_12);
-x_14 = l_Lake_Name_quoteFrom___closed__8;
-x_15 = lean_array_push(x_14, x_13);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_3);
+x_15 = lean_array_mk(x_14);
 x_16 = l_Lake_Name_quoteFrom___closed__5;
 x_17 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_17, 0, x_12);
@@ -1025,7 +1000,6 @@ lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_NameMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_DRBMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_RBArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Compare(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1046,29 +1020,18 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_RBArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Compare(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 l_Lake_instCoeRBMapNameQuickCmpNameMap__lake___closed__1 = _init_l_Lake_instCoeRBMapNameQuickCmpNameMap__lake___closed__1();
 lean_mark_persistent(l_Lake_instCoeRBMapNameQuickCmpNameMap__lake___closed__1);
 l_Lake_OrdNameMap_empty___closed__1 = _init_l_Lake_OrdNameMap_empty___closed__1();
 lean_mark_persistent(l_Lake_OrdNameMap_empty___closed__1);
 l_Lake_OrdNameMap_empty___closed__2 = _init_l_Lake_OrdNameMap_empty___closed__2();
 lean_mark_persistent(l_Lake_OrdNameMap_empty___closed__2);
+l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___closed__1 = _init_l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___closed__1();
+lean_mark_persistent(l_Lean_RBNode_fold___at_Lake_instToJsonNameMap__lake___spec__1___rarg___closed__1);
 l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__1 = _init_l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__1();
 lean_mark_persistent(l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__1);
 l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__2 = _init_l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__2();
 lean_mark_persistent(l_Lean_RBNode_foldM___at_Lake_instFromJsonNameMap__lake___spec__1___rarg___closed__2);
-l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__1 = _init_l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__1();
-lean_mark_persistent(l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__1);
-l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__2 = _init_l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__2();
-lean_mark_persistent(l_Lake_Name_instLawfulCmpEqNameQuickCmpAux___closed__2);
-l_Lake_Name_instLawfulCmpEqNameQuickCmpAux = _init_l_Lake_Name_instLawfulCmpEqNameQuickCmpAux();
-lean_mark_persistent(l_Lake_Name_instLawfulCmpEqNameQuickCmpAux);
-l_Lake_Name_instLawfulCmpEqNameQuickCmp___closed__1 = _init_l_Lake_Name_instLawfulCmpEqNameQuickCmp___closed__1();
-lean_mark_persistent(l_Lake_Name_instLawfulCmpEqNameQuickCmp___closed__1);
-l_Lake_Name_instLawfulCmpEqNameQuickCmp = _init_l_Lake_Name_instLawfulCmpEqNameQuickCmp();
-lean_mark_persistent(l_Lake_Name_instLawfulCmpEqNameQuickCmp);
 l_Lake_Name_quoteFrom___closed__1 = _init_l_Lake_Name_quoteFrom___closed__1();
 lean_mark_persistent(l_Lake_Name_quoteFrom___closed__1);
 l_Lake_Name_quoteFrom___closed__2 = _init_l_Lake_Name_quoteFrom___closed__2();
@@ -1083,8 +1046,6 @@ l_Lake_Name_quoteFrom___closed__6 = _init_l_Lake_Name_quoteFrom___closed__6();
 lean_mark_persistent(l_Lake_Name_quoteFrom___closed__6);
 l_Lake_Name_quoteFrom___closed__7 = _init_l_Lake_Name_quoteFrom___closed__7();
 lean_mark_persistent(l_Lake_Name_quoteFrom___closed__7);
-l_Lake_Name_quoteFrom___closed__8 = _init_l_Lake_Name_quoteFrom___closed__8();
-lean_mark_persistent(l_Lake_Name_quoteFrom___closed__8);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

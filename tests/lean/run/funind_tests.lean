@@ -109,11 +109,7 @@ def let_tailrec : Nat → Nat
 termination_by n => n
 
 /--
-info: let_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 :
-    ∀ (n : Nat),
-      let h2 := ⋯;
-      motive n → motive n.succ) :
+info: let_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ) :
   ∀ (a : Nat), motive a
 -/
 #guard_msgs in
@@ -477,7 +473,7 @@ end AsPattern
 
 namespace GramSchmidt
 
--- this tried to repoduce a problem with gramSchmidt,
+-- this tried to reproduce a problem with gramSchmidt,
 -- with more proofs from `simp` abstracting over the IH.
 -- I couldn't quite reproduce it, but let's keep it.
 
@@ -495,9 +491,7 @@ def sum_below (n : Nat) (f : (i : Nat) → below n i → Nat) :=
 def foo (n : Nat) :=
   1 + sum_below n (fun i _ => foo i)
 termination_by n
-decreasing_by
-  simp_wf
-  simp [below_lt, *]
+decreasing_by simp [below_lt, *]
 
 /--
 info: GramSchmidt.foo.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (i : Nat), below x i → motive i) → motive x)
@@ -533,7 +527,7 @@ termination_by xs => xs
 
 /--
 info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) : ∀ (a : List α), motive a
+  (case2 : ∀ (_y : α) (ys : List α), Nat → motive ys → motive (_y :: ys)) : ∀ (a : List α), motive a
 -/
 #guard_msgs in
 #check bar.induct
@@ -688,12 +682,11 @@ def foo : Nat → Nat → (k : Nat) → Fin k → Nat
 termination_by n => n
 
 /--
-info: Nary.foo.induct (motive : Nat → Nat → (k : Nat) → Fin k → Prop)
-  (case1 : ∀ (x x_1 : Nat) (x_2 : Fin x_1), motive 0 x x_1 x_2)
-  (case2 : ∀ (x x_1 : Nat) (x_2 : Fin x_1), (x = 0 → False) → motive x 0 x_1 x_2)
-  (case3 : ∀ (x x_1 : Nat) (x_2 : Fin 0), (x = 0 → False) → (x_1 = 0 → False) → motive x x_1 0 x_2)
-  (case4 : ∀ (x x_1 : Nat) (x_2 : Fin 1), (x = 0 → False) → (x_1 = 0 → False) → motive x x_1 1 x_2)
-  (case5 : ∀ (n m k : Nat) (x : Fin (k + 2)), motive n m (k + 1) ⟨0, ⋯⟩ → motive n.succ m.succ k.succ.succ x) :
+info: Nary.foo.induct (motive : Nat → Nat → (k : Nat) → Fin k → Prop) (case1 : ∀ (k x : Nat) (x_1 : Fin k), motive 0 x k x_1)
+  (case2 : ∀ (k x : Nat), (x = 0 → False) → ∀ (x_2 : Fin k), motive x 0 k x_2)
+  (case3 : ∀ (x x_1 : Nat), (x = 0 → False) → (x_1 = 0 → False) → ∀ (a : Fin 0), motive x x_1 0 a)
+  (case4 : ∀ (x x_1 : Nat), (x = 0 → False) → (x_1 = 0 → False) → ∀ (a : Fin 1), motive x x_1 1 a)
+  (case5 : ∀ (n m k : Nat) (a : Fin k.succ.succ), motive n m (k + 1) ⟨0, ⋯⟩ → motive n.succ m.succ k.succ.succ a) :
   ∀ (a a_1 k : Nat) (a_2 : Fin k), motive a a_1 k a_2
 -/
 #guard_msgs in

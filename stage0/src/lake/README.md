@@ -1,9 +1,9 @@
 # Lake
 
 Lake (Lean Make) is the new build system and package manager for Lean 4.
-With Lake, the package's configuration is written in Lean inside a dedicated `lakefile.lean` stored in the root of the package's directory.
+Lake configurations can be written in Lean or TOML and are conventionally stored in a `lakefile` in the root directory of package.
 
-Each `lakefile.lean` includes a `package` declaration (akin to `main`) which defines the package's basic configuration. It also typically includes build configurations for different targets (e.g., Lean libraries and binary executables) and Lean scripts to run on the command line (via `lake script run`).
+A Lake configuration file defines the package's basic configuration. It also typically includes build configurations for different targets (e.g., Lean libraries and binary executables) and Lean scripts to run on the command line (via `lake script run`).
 
 ***This README provides information about Lake relative to the current commit. If you are looking for documentation for the Lake version shipped with a given Lean release, you should look at the README of that version.***
 
@@ -13,6 +13,7 @@ Each `lakefile.lean` includes a `package` declaration (akin to `main`) which def
 * [Creating and Building a Package](#creating-and-building-a-package)
 * [Glossary of Terms](#glossary-of-terms)
 * [Package Configuration Options](#package-configuration-options)
+  + [Metadata](#metadata)
   + [Layout](#layout)
   + [Build & Run](#build--run)
   + [Test & Lint](#test--lint)
@@ -63,7 +64,7 @@ Hello/         # library source files; accessible via `import Hello.*`
   ...          # additional files should be added here
 Hello.lean     # library root; imports standard modules from Hello
 Main.lean      # main file of the executable (contains `def main`)
-lakefile.lean  # Lake package configuration
+lakefile.toml  # Lake package configuration
 lean-toolchain # the Lean version used by the package
 .gitignore     # excludes system-specific files (e.g. `build`) from Git
 ```
@@ -90,23 +91,21 @@ def main : IO Unit :=
   IO.println s!"Hello, {hello}!"
 ```
 
-Lake also creates a basic `lakefile.lean` for the package along with a `lean-toolchain` file that contains the name of the Lean toolchain Lake belongs to, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
+Lake also creates a basic `lakefile.toml` for the package along with a `lean-toolchain` file that contains the name of the Lean toolchain Lake belongs to, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
 
 
-**lakefile.lean**
-```lean
-import Lake
-open Lake DSL
+**lakefile.toml**
+```toml
+name = "hello"
+version = "0.1.0"
+defaultTargets = ["hello"]
 
-package «hello» where
-  -- add package configuration options here
+[[lean_lib]]
+name = "Hello"
 
-lean_lib «Hello» where
-  -- add library configuration options here
-
-@[default_target]
-lean_exe «hello» where
-  root := `Main
+[[lean_exe]]
+name = "hello"
+root = "Main"
 ```
 
 The command `lake build` is used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `.lake/build/bin`. The command `lake clean` deletes `build`.
@@ -164,6 +163,22 @@ Lake uses a lot of terms common in software development -- like workspace, packa
 ## Package Configuration Options
 
 Lake provides a large assortment of configuration options for packages.
+
+### Metadata
+
+These options describe the package. They are used by Lake's package registry, [Reservoir](https://reservoir.lean-lang.org/), to index and display packages. If a field is left out, Reservoir may use information from the package's GitHub repository to fill in details.
+
+* `name`: The name of the package. Set by `package <name>` in Lean configuration files.
+* `version`: The version of the package. A 3-point version identifier with an optional `-` suffix.
+* `versionTags`: Git tags of this package's repository that should be treated as versions.  Reservoir makes use of this information to determine the Git revisions corresponding to released versions. Defaults to tags that are "version-like". That is, start with a `v` followed by a digit.
+* `description`: A short description for the package.
+* `keywords`: An `Array` of custom keywords that identify key aspects of the package. Reservoir can make use of these to group packages and make it easier for potential users to discover them.  For example, Lake's keywords could be `devtool`, `cli`, `dsl`,  `package-manager`, and `build-system`.
+* `homepage`: A URL to information about the package. Reservoir will already include a link to the package's GitHub repository. Thus, users are advised to specify something else for this.
+* `license`: An [SPFX license identifier](https://spdx.org/licenses/) for the package's license. For example, `Apache-2.0` or `MIT`.
+* `licenseFiles`: An `Array` of  files that contain license information. For example, `#["LICENSE", "NOTICE"]` for Apache 2.0. Defaults to `#["LICENSE"]`,
+* `readmeFile`: The relative path to the package's README. It should be a Markdown file containing an overview of the package. A nonstandard location can be used to provide a different README for Reservoir and GitHub. Defaults to `README.md`.
+* `reservoir`:  Whether Reservoir should index the package. Defaults to `true`. Set this to `false` to have Reservoir exclude the package from its index.
+
 
 ### Layout
 

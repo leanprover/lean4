@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
@@ -30,9 +31,9 @@ lean_object* l_Lean_mkErrorStringWithPos(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__3(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_String_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkParserErrorMessage___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_toList(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -44,11 +45,12 @@ LEAN_EXPORT lean_object* l_Lake_mkMessageString(lean_object*, uint8_t, uint8_t, 
 LEAN_EXPORT lean_object* l_Lake_mkExceptionMessage(lean_object*, lean_object*);
 static lean_object* l_Lake_mkMessageStringCore___lambda__3___closed__2;
 static lean_object* l_Lake_mkMessageStringCore___lambda__3___closed__4;
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkMessageLogString___boxed(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-uint32_t l_String_back(lean_object*);
 static lean_object* l_Lake_mkMessageStringCore___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lake_mkMessageNoPos___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -323,40 +325,46 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_mkMessageStringCore___lambda__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = l_Lake_mkMessageStringCore___lambda__2___closed__1;
-x_4 = l_String_isEmpty(x_1);
-if (x_4 == 0)
+x_4 = lean_string_utf8_byte_size(x_1);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_nat_dec_eq(x_4, x_5);
+if (x_6 == 0)
 {
-uint32_t x_5; uint32_t x_6; uint8_t x_7; 
-x_5 = l_String_back(x_1);
-x_6 = 10;
-x_7 = lean_uint32_dec_eq(x_5, x_6);
-if (x_7 == 0)
+lean_object* x_7; uint32_t x_8; uint32_t x_9; uint8_t x_10; 
+x_7 = lean_string_utf8_prev(x_1, x_4);
+lean_dec(x_4);
+x_8 = lean_string_utf8_get(x_1, x_7);
+lean_dec(x_7);
+x_9 = 10;
+x_10 = lean_uint32_dec_eq(x_8, x_9);
+if (x_10 == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l_Lake_mkMessageStringCore___lambda__2___closed__2;
-x_9 = lean_string_append(x_1, x_8);
-x_10 = lean_box(0);
-x_11 = lean_apply_2(x_3, x_9, x_10);
-return x_11;
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = l_Lake_mkMessageStringCore___lambda__2___closed__2;
+x_12 = lean_string_append(x_1, x_11);
+x_13 = lean_box(0);
+x_14 = lean_apply_2(x_3, x_12, x_13);
+return x_14;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; 
-x_12 = lean_box(0);
-x_13 = lean_apply_2(x_3, x_1, x_12);
-return x_13;
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_box(0);
+x_16 = lean_apply_2(x_3, x_1, x_15);
+return x_16;
 }
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_14 = l_Lake_mkMessageStringCore___lambda__2___closed__2;
-x_15 = lean_string_append(x_1, x_14);
-x_16 = lean_box(0);
-x_17 = lean_apply_2(x_3, x_15, x_16);
-return x_17;
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_dec(x_4);
+x_17 = l_Lake_mkMessageStringCore___lambda__2___closed__2;
+x_18 = lean_string_append(x_1, x_17);
+x_19 = lean_box(0);
+x_20 = lean_apply_2(x_3, x_18, x_19);
+return x_20;
 }
 }
 }

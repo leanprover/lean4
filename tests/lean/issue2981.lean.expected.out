@@ -3,10 +3,10 @@ Tactic is run (ideally only twice)
 Tactic is run (ideally only twice)
 Tactic is run (ideally only once, in most general context)
 n : Nat
-⊢ (invImage (fun x => x) instWellFoundedRelationOfSizeOf).1 n n.succ
+⊢ n < n.succ
 Tactic is run (ideally only twice, in most general context)
 Tactic is run (ideally only twice, in most general context)
 n : Nat
-⊢ sizeOf n < sizeOf n.succ
+⊢ n < n.succ
 n m : Nat
-⊢ (invImage (fun x => PSigma.casesOn x fun a a_1 => a) instWellFoundedRelationOfSizeOf).1 ⟨n, m + 1⟩ ⟨n.succ, m⟩
+⊢ n < n.succ

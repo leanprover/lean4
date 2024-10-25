@@ -15,6 +15,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.WF.Basic
 import Lean.Data.Array
 
 
@@ -28,7 +29,7 @@ if given, or the default `decreasing_tactic`.
 
 For mutual recursion, a single measure is not just one parameter, but one from each recursive
 function. Enumerating these can lead to a combinatoric explosion, so we bound
-the nubmer of measures tried.
+the number of measures tried.
 
 In addition to measures derived from `sizeOf xᵢ`, it also considers measures
 that assign an order to the functions themselves. This way we can support mutual
@@ -41,7 +42,7 @@ guessed lexicographic order.
 
 The following optimizations are applied to make this feasible:
 
-1. The crucial optimiziation is to look at each argument of each recursive call
+1. The crucial optimization is to look at each argument of each recursive call
    _once_, try to prove `<` and (if that fails `≤`), and then look at that table to
    pick a suitable measure.
 
@@ -79,7 +80,7 @@ register_builtin_option showInferredTerminationBy : Bool := {
 
 
 /--
-Given a predefinition, return the variabe names in the outermost lambdas.
+Given a predefinition, return the variable names in the outermost lambdas.
 Includes the “fixed prefix”.
 
 The length of the returned array is also used to determine the arity
@@ -445,6 +446,7 @@ def evalRecCall (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasur
         else do
           Lean.Elab.Term.TermElabM.run' do Term.withoutErrToSorry do
             let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
+              applyCleanWfTactic
               let tacticStx : Syntax ←
                 match decrTactic? with
                 | none => pure (← `(tactic| decreasing_tactic)).raw
@@ -548,7 +550,7 @@ where
         failure
 
 /--
-Enumerate all meausures we want to try.
+Enumerate all measures we want to try.
 
 All arguments (resp. combinations thereof) and
 possible orderings of functions (if more than one)
@@ -597,7 +599,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
             all_le := false
             break
       -- No progress here? Try the next measure
-      if not (has_lt && all_le) then continue
+      if !(has_lt && all_le) then continue
       -- We found a suitable measure, remove it from the list (mild optimization)
       let measures' := measures.eraseIdx measureIdx
       return ← go measures' todo (acc.push measure)

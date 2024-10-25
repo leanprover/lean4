@@ -137,7 +137,7 @@ def isNonConstFun (motive : Expr) : MetaM Bool := do
   | _ => return motive.hasLooseBVars
 
 def isSimpleHOFun (motive : Expr) : MetaM Bool :=
-  return not (← returnsPi motive) && not (← isNonConstFun motive)
+  return !(← returnsPi motive) && !(← isNonConstFun motive)
 
 def isType2Type (motive : Expr) : MetaM Bool := do
   match ← inferType motive with
@@ -278,7 +278,7 @@ where
   inspectAux (fType mType : Expr) (i : Nat) (args mvars : Array Expr) := do
     let fType ← whnf fType
     let mType ← whnf mType
-    if not (i < args.size) then return ()
+    if !(i < args.size) then return ()
     match fType, mType with
     | Expr.forallE _ fd fb _, Expr.forallE _ _  mb _ => do
       -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
@@ -324,7 +324,7 @@ def withKnowing (knowsType knowsLevel : Bool) (x : AnalyzeM α) : AnalyzeM α :=
 builtin_initialize analyzeFailureId : InternalExceptionId ← registerInternalExceptionId `analyzeFailure
 
 def checkKnowsType : AnalyzeM Unit := do
-  if not (← read).knowsType then
+  if !(← read).knowsType then
     throw $ Exception.internal analyzeFailureId
 
 def annotateBoolAt (n : Name) (pos : Pos) : AnalyzeM Unit := do
@@ -398,7 +398,7 @@ mutual
       let fType ← replaceLPsWithVars (← inferType f)
       let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType args.size
       let rest := args.extract mvars.size args.size
-      let args := args.shrink mvars.size
+      let args := args.take mvars.size
 
       -- Unify with the expected type
       if (← read).knowsType then tryUnify (← inferType (mkAppN f args)) resultType
@@ -425,7 +425,7 @@ mutual
         funBinders   := mkArray args.size false
       }
 
-      if not rest.isEmpty then
+      if !rest.isEmpty then
         -- Note: this shouldn't happen for type-correct terms
         if !args.isEmpty then
           analyzeAppStaged (mkAppN f args) rest
@@ -501,11 +501,11 @@ mutual
     collectHigherOrders := do
       let { args, mvars, bInfos, ..} ← read
       for i in [:args.size] do
-        if not (bInfos[i]! == BinderInfo.implicit || bInfos[i]! == BinderInfo.strictImplicit) then continue
-        if not (← isHigherOrder (← inferType args[i]!)) then continue
+        if !(bInfos[i]! == BinderInfo.implicit || bInfos[i]! == BinderInfo.strictImplicit) then continue
+        if !(← isHigherOrder (← inferType args[i]!)) then continue
         if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i]! then continue
 
-        if getPPAnalyzeTrustKnownFOType2TypeHOFuns (← getOptions) && not (← valUnknown mvars[i]!)
+        if getPPAnalyzeTrustKnownFOType2TypeHOFuns (← getOptions) && !(← valUnknown mvars[i]!)
           && (← isType2Type (args[i]!)) && (← isFOLike (args[i]!)) then continue
 
         tryUnify args[i]! mvars[i]!
@@ -602,7 +602,7 @@ mutual
               | _                 => annotateNamedArg (← mvarName mvars[i]!)
             else annotateBool `pp.analysis.skip; provided := false
             modify fun s => { s with provideds := s.provideds.set! i provided }
-          if (← get).provideds[i]! then withKnowing (not (← typeUnknown mvars[i]!)) true analyze
+          if (← get).provideds[i]! then withKnowing (!(← typeUnknown mvars[i]!)) true analyze
           tryUnify mvars[i]! args[i]!
 
     maybeSetExplicit := do

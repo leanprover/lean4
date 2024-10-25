@@ -243,13 +243,75 @@ if("${USE_GMP}" MATCHES "ON")
   endif()
 endif()
 
-if(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  # LibUV
+# LibUV
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  # Only on WebAssembly we compile LibUV ourselves
+  set(LIBUV_EMSCRIPTEN_FLAGS "${EMSCRIPTEN_SETTINGS}")
+
+  # LibUV does not compile on WebAssembly without modifications because
+  # building LibUV on a platform requires including stub implementations
+  # for features not present on the target platform. This patch includes
+  # the minimum amount of stub implementations needed for successfully
+  # running Lean on WebAssembly and using LibUV's temporary file support.
+  # It still leaves several symbols completely undefined: uv__fs_event_close,
+  # uv__hrtime, uv__io_check_fd, uv__io_fork, uv__io_poll, uv__platform_invalidate_fd
+  # uv__platform_loop_delete, uv__platform_loop_init. Making additional
+  # LibUV features available on WebAssembly might require adapting the
+  # patch to include additional LibUV source files.
+  set(LIBUV_PATCH_IN "
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5e8e0166..f3b29134 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -317,6 +317,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL \"GNU\")
+        src/unix/hurd.c)
+ endif()
+
++if(CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\")
++  list(APPEND uv_sources
++       src/unix/no-proctitle.c)
++endif()
++
+ if(CMAKE_SYSTEM_NAME STREQUAL \"Linux\")
+   list(APPEND uv_defines _GNU_SOURCE _POSIX_C_SOURCE=200112)
+   list(APPEND uv_libraries dl rt)
+")
+  string(REPLACE "\n" "\\n" LIBUV_PATCH ${LIBUV_PATCH_IN})
+
+  ExternalProject_add(libuv
+    PREFIX libuv
+    GIT_REPOSITORY https://github.com/libuv/libuv
+    # Sync version with flake.nix
+    GIT_TAG v1.48.0
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DLIBUV_BUILD_TESTS=OFF -DLIBUV_BUILD_SHARED=OFF -DCMAKE_AR=${CMAKE_AR} -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_C_FLAGS=${LIBUV_EMSCRIPTEN_FLAGS}
+	  PATCH_COMMAND git reset --hard HEAD && printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
+    BUILD_IN_SOURCE ON
+    INSTALL_COMMAND "")
+  set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
+  set(LIBUV_LIBRARIES "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
+else()
   find_package(LibUV 1.0.0 REQUIRED)
-  include_directories(${LIBUV_INCLUDE_DIR})
 endif()
+include_directories(${LIBUV_INCLUDE_DIR})
 if(NOT LEAN_STANDALONE)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
+endif()
+
+# Windows SDK (for ICU)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # Pass 'tools' to skip MSVC version check (as MSVC/Visual Studio is not necessarily installed)
+  find_package(WindowsSDK REQUIRED COMPONENTS tools)
+
+  # This will give a semicolon-separated list of include directories
+  get_windowssdk_include_dirs(${WINDOWSSDK_LATEST_DIR} WINDOWSSDK_INCLUDE_DIRS)
+
+  # To successfully build against Windows SDK headers, the Windows SDK headers must have lower
+  # priority than other system headers, so use `-idirafter`. Unfortunately, CMake does not
+  # support this using `include_directories`.
+  string(REPLACE ";" "\" -idirafter \"" WINDOWSSDK_INCLUDE_DIRS "${WINDOWSSDK_INCLUDE_DIRS}")
+  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIRS}\"")
+
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
 endif()
 
 # ccache
@@ -333,7 +395,12 @@ if(NOT LEAN_STANDALONE)
 endif()
 
 # flags for user binaries = flags for toolchain binaries + Lake
-string(APPEND LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
+set(LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -Wl,--as-needed -lLake_shared -Wl,--no-as-needed")
+else()
+  set(LEANC_SHARED_LINKER_FLAGS " ${TOOLCHAIN_SHARED_LINKER_FLAGS} -lLake_shared")
+endif()
 
 if (LLVM)
   string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
@@ -378,15 +445,20 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
+  string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -425,7 +497,7 @@ endif()
 # Git HASH
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
-  get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+  get_git_head_revision(GIT_REFSPEC GIT_SHA1 ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
     set(GIT_SHA1 "")
@@ -512,6 +584,10 @@ if(${STAGE} GREATER 1)
   endif()
 else()
   add_subdirectory(runtime)
+  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+    add_dependencies(leanrt libuv)
+    add_dependencies(leanrt_initial-exec libuv)
+  endif()
 
   add_subdirectory(util)
   set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
@@ -534,6 +610,12 @@ else()
     OUTPUT_NAME leancpp)
 endif()
 
+if((${STAGE} GREATER 0) AND CADICAL)
+  add_custom_target(copy-cadical
+    COMMAND cmake -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}")
+  add_dependencies(leancpp copy-cadical)
+endif()
+
 # MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
@@ -546,7 +628,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   # simple. (And we are not interested in `Lake` anyway.) To use dynamic
   # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
   # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
-  string(APPEND LEAN_EXE_LINKER_FLAGS " ${LIB}/temp/libleanshell.a ${TOOLCHAIN_STATIC_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
+  # We set `ERROR_ON_UNDEFINED_SYMBOLS=0` because our build of LibUV does not
+  # define all symbols, see the comment about LibUV on WebAssembly further up
+  # in this file.
+  string(APPEND LEAN_EXE_LINKER_FLAGS " ${LIB}/temp/libleanshell.a ${TOOLCHAIN_STATIC_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0")
 endif()
 
 # Build the compiler using the bootstrapped C sources for stage0, and use
@@ -580,7 +665,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   )
   add_custom_target(leanshared ALL
     DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX}
     COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
+  )
+  add_custom_target(lake_shared ALL
+    DEPENDS leanshared
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
 else()
   add_custom_target(Init_shared ALL
@@ -599,10 +689,20 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_custom_target(lake ALL
+  add_custom_target(lake_lib ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
+    VERBATIM)
+  add_custom_target(lake_shared ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS lake_lib
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
+    VERBATIM)
+  add_custom_target(lake ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS lake_shared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake
     VERBATIM)
 endif()
 
@@ -631,6 +731,10 @@ endif()
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
+
+if (${STAGE} GREATER 0 AND CADICAL)
+  install(PROGRAMS "${CADICAL}" DESTINATION bin)
+endif()
 
 add_custom_target(clean-stdlib
   COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" || true)

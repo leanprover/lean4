@@ -4,14 +4,14 @@
 # Listed persons will automatically be asked by GitHub to review a PR touching these paths.
 # If multiple names are listed, a review by any of them is considered sufficient by default.
 
-/.github/ @Kha @semorrison
-/RELEASES.md @semorrison
+/.github/ @Kha @kim-em
+/RELEASES.md @kim-em
 /src/kernel/ @leodemoura
 /src/lake/ @tydeu
 /src/Lean/Compiler/ @leodemoura
 /src/Lean/Data/Lsp/ @mhuisi
-/src/Lean/Elab/Deriving/ @semorrison
-/src/Lean/Elab/Tactic/ @semorrison
+/src/Lean/Elab/Deriving/ @kim-em
+/src/Lean/Elab/Tactic/ @kim-em
 /src/Lean/Language/ @Kha
 /src/Lean/Meta/Tactic/ @leodemoura
 /src/Lean/Parser/ @Kha
@@ -19,7 +19,7 @@
 /src/Lean/PrettyPrinter/Delaborator/ @kmill
 /src/Lean/Server/ @mhuisi
 /src/Lean/Widget/ @Vtec234
-/src/Init/Data/ @semorrison
+/src/Init/Data/ @kim-em
 /src/Init/Data/Array/Lemmas.lean @digama0
 /src/Init/Data/List/Lemmas.lean @digama0
 /src/Init/Data/List/BasicAux.lean @digama0
@@ -43,3 +43,6 @@
 /src/Init/Guard.lean @digama0
 /src/Lean/Server/CodeActions/ @digama0
 /src/Std/ @TwoFX
+/src/Std/Tactic/BVDecide/ @hargoniX
+/src/Lean/Elab/Tactic/BVDecide/ @hargoniX
+/src/Std/Sat/ @hargoniX

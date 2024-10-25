@@ -473,7 +473,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
         case zero => exact hmsb
         case succ => exact getMsbD_x _ hi (by omega)
 
-/-! ### Abs -/
+/-! ### abs -/
 
 theorem msb_abs {w: Nat} {x : BitVec w} :
     x.abs.msb = (decide (x = intMin w) && decide (0 < w)) := by

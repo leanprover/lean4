@@ -1578,6 +1578,42 @@ theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
 theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
   rw [signExtend_eq_setWidth_of_lt _ (Nat.le_refl _), setWidth_eq]
 
+/-- Sign extending to a larger bitwidth depends on the msb.
+If the msb is false, then the result equals the original value.
+If the msb is true, then we add a value of `(2^v - 2^w)`, which arises from the sign extension. -/
+theorem toNat_signExtend_of_le (x : BitVec w) {v : Nat} (hv : w ≤ v) :
+    (x.signExtend v).toNat = x.toNat + if x.msb then 2^v - 2^w else 0 := by
+  apply Nat.eq_of_testBit_eq
+  intro i
+  have ⟨k, hk⟩ := Nat.exists_eq_add_of_le hv
+  rw [hk, testBit_toNat, getLsbD_signExtend, Nat.pow_add, ← Nat.mul_sub_one, Nat.add_comm (x.toNat)]
+  by_cases hx : x.msb
+  · simp [hx, Nat.testBit_mul_pow_two_add _ x.isLt, testBit_toNat]
+    -- Case analysis on i being in the intervals [0..w), [w..w + k), [w+k..∞)
+    have hi : i < w ∨ (w ≤ i ∧ i < w + k) ∨ w + k ≤ i := by omega
+    rcases hi with hi | hi | hi
+    · simp [hi]; omega
+    · simp [hi]; omega
+    · simp [hi, show ¬ (i < w + k) by omega, show ¬ (i < w) by omega]
+      omega
+  · simp [hx, Nat.testBit_mul_pow_two_add _ x.isLt, testBit_toNat]
+    have hi : i < w ∨ (w ≤ i ∧ i < w + k) ∨ w + k ≤ i := by omega
+    rcases hi with hi | hi | hi
+    · simp [hi]; omega
+    · simp [hi]
+    · simp [hi, show ¬ (i < w + k) by omega, show ¬ (i < w) by omega, getLsbD_ge x i (by omega)]
+
+/-- Sign extending to a larger bitwidth depends on the msb.
+If the msb is false, then the result equals the original value.
+If the msb is true, then we add a value of `(2^v - 2^w)`, which arises from the sign extension. -/
+theorem toNat_signExtend (x : BitVec w) {v : Nat} :
+    (x.signExtend v).toNat = (x.setWidth v).toNat + if x.msb then 2^v - 2^w else 0 := by
+  by_cases h : v ≤ w
+  · have : 2^v ≤ 2^w := Nat.pow_le_pow_of_le_right Nat.two_pos h
+    simp [signExtend_eq_setWidth_of_lt x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
+  · have : 2^w ≤ 2^v := Nat.pow_le_pow_of_le_right Nat.two_pos (by omega)
+    rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
+
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :

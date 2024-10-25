@@ -305,10 +305,9 @@ private def expandWhereStructInst : Macro
       match whereTk.getPos? with
       | some pos => .synthetic pos ⟨pos.byteIdx + 1⟩ true
       | none => .none
-    let startOfStructureTk : Syntax := .atom startOfStructureTkInfo "{"
-
     -- Position the closing `}` at the end of the trailing whitespace of `where $[$_:letDecl];*`.
-    -- We need an accurate range of the generated structure instance for structure field completion.
+    -- We need an accurate range of the generated structure instance in the generated `TermInfo`
+    -- so that we can determine the expected type in structure field completion.
     let structureStxTailInfo :=
       whereStx[1].getTailInfo?
       <|> whereStx[0].getTailInfo?
@@ -319,9 +318,8 @@ private def expandWhereStructInst : Macro
         let tokenEndPos := trailing.stopPos
         .synthetic tokenPos tokenEndPos true
       | _ => .none
-    let endOfStructureTk : Syntax := .atom endOfStructureTkInfo "}"
 
-    let body ← `(structInst| {%$startOfStructureTk $structInstFields,* }%$endOfStructureTk)
+    let body ← `(structInst| { $structInstFields,* })
     let body := body.raw.setInfo <|
       match startOfStructureTkInfo.getPos?, endOfStructureTkInfo.getTailPos? with
       | some startPos, some endPos => .synthetic startPos endPos true

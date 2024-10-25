@@ -607,6 +607,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
      "position": {"line": 94, "character": 82}},
-    "id": {"fvar": {"id": "_uniq.1024"}},
+    "id": {"fvar": {"id": "_uniq.1028"}},
     "cPos": 0}}],
  "isIncomplete": true}

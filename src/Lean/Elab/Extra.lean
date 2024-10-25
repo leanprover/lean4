@@ -328,28 +328,17 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
   | .binop ref kind f lhs rhs =>
     withRef ref <|
-      withInfoContext'
-        ref
-        (mkInfo := mkTermInfo .anonymous ref)
-        (mkInfoOnError := mkPartialTermInfo .anonymous ref)
-        do
-          mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
+      withTermInfoContext' .anonymous ref do
+        mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
   | .unop ref f arg =>
     withRef ref <|
-      withInfoContext'
-        ref
-        (mkInfo := mkTermInfo .anonymous ref)
-        (mkInfoOnError := mkPartialTermInfo .anonymous ref)
-        do
-          mkUnOp f (← toExprCore arg)
+      withTermInfoContext' .anonymous ref do
+        mkUnOp f (← toExprCore arg)
   | .macroExpansion macroName stx stx' nested =>
     withRef stx <|
-      withInfoContext'
-        stx
-        (mkInfo := mkTermInfo macroName stx)
-        (mkInfoOnError := mkPartialTermInfo macroName stx) <|
-          withMacroExpansion stx stx' <|
-            toExprCore nested
+      withTermInfoContext' macroName stx <|
+        withMacroExpansion stx stx' <|
+          toExprCore nested
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.

@@ -407,7 +407,7 @@ opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declar
 opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
 
 def addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) :
+    (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) (skipExisting := true) :
     Except Kernel.Exception Environment := do
   if env.realizingConst then
     panic! "cannot add a declaration while adding a global theorem"
@@ -426,6 +426,10 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
         is restricted to the prefix {asyncCtx.declPrefix}"
     else
       return { env with asyncCtx? := some { asyncCtx with subDecls := asyncCtx.subDecls.push val } }
+  if skipExisting then
+    if let [name] := decl.getNames then
+      if env.checkedSync.get.base.find? name |>.isSome then
+        return env
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
@@ -682,6 +686,11 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     env := { env with
       asyncConsts := env.asyncConsts.push existingConst
       asyncConstMap := env.asyncConstMap.insert constName existingConst
+      checkedSync := env.checkedSync.map fun env =>
+        if env.base.find? constName |>.isSome then
+          env
+        else
+          { env with base := env.base.add existingConst.info.toConstantInfo }
     }
     return (env, none)
   else
@@ -696,7 +705,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
           | .thmInfo thm   => pure <| .thmDecl thm
           | .defnInfo defn => pure <| .defnDecl defn
           | _              => throw <| .other s!"Environment.realizeConst: {constName} must be definition/theorem"
-        let env ← EIO.ofExcept <| addDecl (checkAsyncPrefix := false) env {} decl
+        let env ← EIO.ofExcept <| addDecl (checkAsyncPrefix := false) (skipExisting := true) env {} decl
         if const.name != constName then
           throw <| .other s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
         let kind' := .ofConstantInfo const

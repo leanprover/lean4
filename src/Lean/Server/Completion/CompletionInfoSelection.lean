@@ -102,6 +102,22 @@ private def computePrioritizedCompletionPartitions
           return size₁ < size₂
   partitionsByPriority.map (·.2)
 
+/--
+Finds all `CompletionInfo`s (both from the `InfoTree` and synthetic ones), prioritizes them,
+arranges them in partitions of `CompletionInfo`s with the same priority and sorts these partitions
+so that `CompletionInfo`s with the highest priority come first.
+The returned `CompletionInfo`s are also tagged with their index in `findCompletionInfosAt` so that
+when resolving a `CompletionItem`, we can reconstruct which `CompletionInfo` it was created from.
+
+In general, the `InfoTree` may contain multiple different `CompletionInfo`s covering `hoverPos`,
+and so we need to decide which of these `CompletionInfo`s we want to use to show completions to the
+user. We choose priorities by the following rules:
+- Synthetic completions have the lowest priority since they are only intended as a backup.
+- Non-identifier completions have the highest priority since they tend to be much more helpful than
+  identifier completions when available since there are typically way too many of the latter.
+- Within the three groups [non-id completions, id completions, synthetic completions],
+  `CompletionInfo`s with a smaller range are considered to be better.
+-/
 def findPrioritizedCompletionPartitionsAt
     (fileMap  : FileMap)
     (hoverPos : String.Pos)

@@ -205,9 +205,9 @@ where
       return isCursorAfterSemicolon
 
   getTacticsNode? (stx : Syntax) : Option Syntax :=
-    if stx.getKind == `Lean.Parser.Tactic.tacticSeq1Indented then
+    if stx.getKind == ``Parser.Tactic.tacticSeq1Indented then
       some stx[0]
-    else if stx.getKind == `Lean.Parser.Tactic.tacticSeqBracketed then
+    else if stx.getKind == ``Parser.Tactic.tacticSeqBracketed then
       some stx[1]
     else
       none
@@ -216,9 +216,9 @@ where
     isCursorInProperWhitespace fileMap hoverPos && isEmptyTacticBlock stx
 
   isEmptyTacticBlock (stx : Syntax) : Bool :=
-    stx.getKind == `Lean.Parser.Tactic.tacticSeq && isEmpty stx
-      || stx.getKind == `Lean.Parser.Tactic.tacticSeq1Indented && isEmpty stx
-      || stx.getKind == `Lean.Parser.Tactic.tacticSeqBracketed && isEmpty stx[1]
+    stx.getKind == ``Parser.Tactic.tacticSeq && isEmpty stx
+      || stx.getKind == ``Parser.Tactic.tacticSeq1Indented && isEmpty stx
+      || stx.getKind == ``Parser.Tactic.tacticSeqBracketed && isEmpty stx[1]
 
   isEmpty : Syntax → Bool
     | .missing       => true
@@ -268,129 +268,103 @@ private def findExpectedTypeAt (infoTree : InfoTree) (hoverPos : String.Pos) : O
     | none
   (ctx, i.expectedType?.get!)
 
-private structure HoverData where
-  fileMap                    : FileMap
-  hoverPos                   : String.Pos
-  hoverFilePos               : Position
-  hoverLineIndentation       : Nat
-  isCursorOnWhitespace       : Bool
-  isCursorInProperWhitespace : Bool
+private partial def foldWithLeadingToken [Inhabited α]
+    (f    : α → Option Syntax → Syntax → α)
+    (init : α)
+    (stx  : Syntax)
+    : α :=
+  let (_, r) := go none init stx
+  r
+where
+  go [Inhabited α] (leadingToken? : Option Syntax) (acc : α) (stx : Syntax) : Option Syntax × α :=
+    let acc := f acc leadingToken? stx
+    match stx with
+    | .missing  => (none, acc)
+    | .atom ..  => (stx, acc)
+    | .ident .. => (stx, acc)
+    | .node _ _ args => Id.run do
+      let mut acc := acc
+      let mut lastToken? := none
+      for arg in args do
+        let (lastToken'?, acc') := go (lastToken? <|> leadingToken?) acc arg
+        lastToken? := lastToken'? <|> lastToken?
+        acc := acc'
+      return (lastToken?, acc)
 
-private def HoverData.ofPosInFile
+private def findWithLeadingToken?
+    (p : Option Syntax → Syntax → Bool)
+    (stx : Syntax)
+    : Option Syntax :=
+  foldWithLeadingToken (stx := stx) (init := none) fun foundStx? leadingToken? stx =>
+    match foundStx? with
+    | some foundStx => foundStx
+    | none =>
+      if p leadingToken? stx then
+        some stx
+      else
+        none
+
+private def isSyntheticStructFieldCompletion
     (fileMap  : FileMap)
     (hoverPos : String.Pos)
-    : HoverData := Id.run do
+    (cmdStx   : Syntax)
+    : Bool := Id.run do
+  let isCursorOnWhitespace := isCursorOnWhitespace fileMap hoverPos
+  let isCursorInProperWhitespace := isCursorInProperWhitespace fileMap hoverPos
+  if ! isCursorOnWhitespace then
+    return false
+
   let hoverFilePos := fileMap.toPosition hoverPos
   let mut hoverLineIndentation := getIndentationAmount fileMap hoverFilePos.line
   if hoverFilePos.column < hoverLineIndentation then
     -- Ignore trailing whitespace after the cursor
     hoverLineIndentation := hoverFilePos.column
-  let isCursorOnWhitespace := Completion.isCursorOnWhitespace fileMap hoverPos
-  let isCursorInProperWhitespace := Completion.isCursorInProperWhitespace fileMap hoverPos
-  return {
-    fileMap,
-    hoverPos,
-    hoverFilePos,
-    hoverLineIndentation
-    isCursorOnWhitespace,
-    isCursorInProperWhitespace
-  }
 
-private structure SepBy1Data (ks : SyntaxNodeKinds) (sep : String) where
-  sepBy1Stx   : Syntax.TSepArray ks sep
-  outerBounds : String.Range
+  return Option.isSome <| findWithLeadingToken? (stx := cmdStx) fun leadingToken? stx => Id.run do
+    let some leadingToken := leadingToken?
+      | return false
 
-private def isCompletionInSepBy1
-    {ks  : SyntaxNodeKinds}
-    {sep : String}
-    (hd  : HoverData)
-    (sd  : SepBy1Data ks sep)
-    : Bool := Id.run do
-  if ! hd.isCursorOnWhitespace then
-    return false
-
-  let isCompletionInEmptyBlock :=
-    sd.sepBy1Stx.elemsAndSeps.isEmpty && sd.outerBounds.contains hd.hoverPos (includeStop := true)
-  if isCompletionInEmptyBlock then
-    return true
-
-  let isCompletionAfterSep := sd.sepBy1Stx.elemsAndSeps.any fun fieldOrSep => Id.run do
-    if ! fieldOrSep.isToken sep then
+    if stx.getKind != ``Parser.Term.structInstFields then
       return false
-    let some sepTailPos := fieldOrSep.getTailPos?
-      | return false
-    return sepTailPos <= hd.hoverPos
-      && hd.hoverPos.byteIdx <= sepTailPos.byteIdx + fieldOrSep.getTrailingSize
-  if isCompletionAfterSep then
-    return true
 
-  let isCompletionOnIndentation := Id.run do
-    if ! hd.isCursorInProperWhitespace then
-      return false
-    let isCursorInIndentation := hd.hoverFilePos.column <= hd.hoverLineIndentation
-    if ! isCursorInIndentation then
-      return false
-    let some firstFieldPos := sd.sepBy1Stx.elemsAndSeps[0]?.getD Syntax.missing |>.getPos?
+    let fieldsAndSeps := stx[0].getArgs
+    let some outerBoundsStart := leadingToken.getTailPos? (canonicalOnly := true)
       | return false
-    let firstFieldLine := hd.fileMap.toPosition firstFieldPos |>.line
-    let firstFieldIndentation := getIndentationAmount hd.fileMap firstFieldLine
-    let isCursorInBlock := hd.hoverLineIndentation == firstFieldIndentation
-    return isCursorInBlock
-  return isCompletionOnIndentation
+    let some outerBoundsStop :=
+        stx.getTrailingTailPos? (canonicalOnly := true)
+          <|> leadingToken.getTrailingTailPos? (canonicalOnly := true)
+      | return false
+    let outerBounds : String.Range := ⟨outerBoundsStart, outerBoundsStop⟩
 
-private def isSyntheticWhereBlockFieldCompletion
-  (fileMap  : FileMap)
-  (hoverPos : String.Pos)
-  (cmdStx   : Syntax)
-  : Bool :=
-  let hd := HoverData.ofPosInFile fileMap hoverPos
-  Option.isSome <| cmdStx.find? fun stx => Id.run do
-    let `(Parser.Command.whereStructInst|where $structFields:whereStructField;* $[$_:whereDecls]?) :=
-        stx
-      | return false
-    let some outerBoundStart := stx[0].getTailPos? (canonicalOnly := true)
-      | return false
-    let some outerBoundStop :=
-        stx[2].getPos? (canonicalOnly := true)
-        <|> stx[1].getTrailingTailPos? (canonicalOnly := true)
-        <|> stx[0].getTrailingTailPos? (canonicalOnly := true)
-      | return false
-    let sd : SepBy1Data _ _ := {
-      sepBy1Stx   := structFields
-      outerBounds := {
-        start := outerBoundStart
-        stop  := outerBoundStop
-      }
-    }
-    return isCompletionInSepBy1 hd sd
+    let isCompletionInEmptyBlock :=
+      fieldsAndSeps.isEmpty && outerBounds.contains hoverPos (includeStop := true)
+    if isCompletionInEmptyBlock then
+      return true
 
-private def isSyntheticStructInstFieldCompletion
-  (fileMap  : FileMap)
-  (hoverPos : String.Pos)
-  (cmdStx   : Syntax)
-  : Bool :=
-  let hd := HoverData.ofPosInFile fileMap hoverPos
-  Option.isSome <| cmdStx.find? fun stx => Id.run do
-    let `(Lean.Parser.Term.structInst| { $[$srcs,* with]? $fields,* $[..%$ell]? $[: $ty]? }) :=
-        stx
-      | return false
-    let some outerBoundStart :=
-        stx[1].getTailPos? (canonicalOnly := true)
-        <|> stx[0].getTailPos? (canonicalOnly := true)
-      | return false
-    let some outerBoundStop :=
-        stx[3].getPos? (canonicalOnly := true)
-        <|> stx[4].getPos? (canonicalOnly := true)
-        <|> stx[5].getPos? (canonicalOnly := true)
-      | return false
-    let sd : SepBy1Data _ _ := {
-      sepBy1Stx   := fields
-      outerBounds := {
-        start := outerBoundStart
-        stop  := outerBoundStop
-      }
-    }
-    return isCompletionInSepBy1 hd sd
+    let isCompletionAfterSep := fieldsAndSeps.zipWithIndex.any fun (fieldOrSep, i) => Id.run do
+      if i % 2 == 0 || !fieldOrSep.isAtom then
+        return false
+      let sep := fieldOrSep
+      let some sepTailPos := sep.getTailPos?
+        | return false
+      return sepTailPos <= hoverPos
+        && hoverPos.byteIdx <= sepTailPos.byteIdx + sep.getTrailingSize
+    if isCompletionAfterSep then
+      return true
+
+    let isCompletionOnIndentation := Id.run do
+      if ! isCursorInProperWhitespace then
+        return false
+      let isCursorInIndentation := hoverFilePos.column <= hoverLineIndentation
+      if ! isCursorInIndentation then
+        return false
+      let some firstFieldPos := stx.getPos?
+        | return false
+      let firstFieldLine := fileMap.toPosition firstFieldPos |>.line
+      let firstFieldIndentation := getIndentationAmount fileMap firstFieldLine
+      let isCursorInBlock := hoverLineIndentation == firstFieldIndentation
+      return isCursorInBlock
+    return isCompletionOnIndentation
 
 private def findSyntheticFieldCompletion?
   (fileMap  : FileMap)
@@ -398,8 +372,7 @@ private def findSyntheticFieldCompletion?
   (cmdStx   : Syntax)
   (infoTree : InfoTree)
   : Option ContextualizedCompletionInfo := do
-  if ! isSyntheticWhereBlockFieldCompletion fileMap hoverPos cmdStx
-      && ! isSyntheticStructInstFieldCompletion fileMap hoverPos cmdStx then
+  if ! isSyntheticStructFieldCompletion fileMap hoverPos cmdStx then
     none
   let (ctx, expectedType) ← findExpectedTypeAt infoTree hoverPos
   let .const typeName _ := expectedType.getAppFn

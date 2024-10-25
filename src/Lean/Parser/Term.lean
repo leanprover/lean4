@@ -281,6 +281,12 @@ def structInstFieldAbbrev := leading_parser
   atomic (ident >> notFollowedBy ("." <|> ":=" <|> symbol "[") "invalid field abbreviation")
 def optEllipsis      := leading_parser
   optional " .."
+/-
+Tags the structure instance field syntax with a `Lean.Parser.Term.structInstFields` syntax node.
+This node is used to enable structure instance field completion in the whitespace
+of a structure instance notation.
+-/
+def structInstFields (p : Parser) : Parser := node `Lean.Parser.Term.structInstFields p
 /--
 Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
 inherited. If `e` is itself a variable called `x`, it can be elided:
@@ -292,7 +298,7 @@ The structure type can be specified if not inferable:
 -/
 @[builtin_term_parser] def structInst := leading_parser
   "{ " >> withoutPosition (optional (atomic (sepBy1 termParser ", " >> " with "))
-    >> sepByIndent (structInstFieldAbbrev <|> structInstField) ", " (allowTrailingSep := true)
+    >> structInstFields (sepByIndent (structInstFieldAbbrev <|> structInstField) ", " (allowTrailingSep := true))
     >> optEllipsis
     >> optional (" : " >> termParser)) >> " }"
 def typeSpec := leading_parser " : " >> termParser
@@ -984,6 +990,7 @@ builtin_initialize
   register_parser_alias bracketedBinder
   register_parser_alias attrKind
   register_parser_alias optSemicolon
+  register_parser_alias structInstFields
 
 end Parser
 end Lean

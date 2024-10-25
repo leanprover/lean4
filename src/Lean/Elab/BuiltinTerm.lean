@@ -327,11 +327,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with
   | `(with_annotate_term $stx $e) =>
-    withInfoContext'
-      stx
-      (elabTerm e expectedType?)
-      (mkTermInfo .anonymous (expectedType? := expectedType?) stx)
-      (mkPartialTermInfo .anonymous (expectedType? := expectedType?) stx)
+    withTermInfoContext' .anonymous stx (expectedType? := expectedType?) (elabTerm e expectedType?)
   | _ => throwUnsupportedSyntax
 
 private unsafe def evalFilePathUnsafe (stx : Syntax) : TermElabM System.FilePath :=

@@ -324,7 +324,6 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
 
 export ForIn' (forIn')
 
-
 /--
 Auxiliary type used to compile `do` notation. It is used when compiling a do block
 nested inside a combinator like `tryCatch`. It encodes the possible ways the

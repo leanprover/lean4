@@ -615,6 +615,14 @@ def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
     return asyncConst.info
   else env.findNoAsyncTheorem n |>.map .ofConstantInfo
 
+def dbgFormatAsyncState (env : Environment) : BaseIO String :=
+  return s!"\
+    asyncCtx.declPrefix: {repr <| env.asyncCtx?.map (·.declPrefix)}\
+  \nasyncCtx.subDecls: {repr <| env.asyncCtx?.map (·.subDecls.map (·.toConstantInfo.name))}\
+  \nasyncConsts: {repr <| env.asyncConsts.toArray.map (·.info.name)}\
+  \nlocalRealizedConsts: {repr (← env.realizedLocalConsts.toList.mapM fun (n, m) =>
+    return (n, (← m.get).toList.map (·.1)))}"
+
 def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
   if let some c := env.base.constants.find?' n then
     some c.toConstantVal

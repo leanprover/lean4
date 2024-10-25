@@ -189,6 +189,9 @@ namespace Array
 
 @[simp] theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp [size]
 
+@[simp] theorem isEmpty_toList {l : Array α} : l.toList.isEmpty = l.isEmpty := by
+  rcases l with ⟨_ | _⟩ <;> simp
+
 theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
     (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
   simp [foldrM_eq_reverse_foldlM_toList, -size_push]
@@ -1018,18 +1021,38 @@ theorem getElem_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle :
   conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [toList_append]
 
+theorem getElem?_append_left {as bs : Array α} {n : Nat} (hn : n < as.size) :
+    (as ++ bs)[n]? = as[n]? := by
+  have hn' : n < (as ++ bs).size := Nat.lt_of_lt_of_le hn <|
+    size_append .. ▸ Nat.le_add_right ..
+  simp_all [getElem?_eq_getElem, getElem_append]
+
+theorem getElem?_append_right {as bs : Array α} {n : Nat} (h : as.size ≤ n) :
+    (as ++ bs)[n]? = bs[n - as.size]? := by
+  cases as
+  cases bs
+  simp at h
+  simp [List.getElem?_append_right, h]
+
+theorem getElem?_append {as bs : Array α} {n : Nat} :
+    (as ++ bs)[n]? = if n < as.size then as[n]? else bs[n - as.size]? := by
+  split <;> rename_i h
+  · exact getElem?_append_left h
+  · exact getElem?_append_right (by simpa using h)
+
 @[simp] theorem append_nil (as : Array α) : as ++ #[] = as := by
   apply ext'; simp only [toList_append, toList_empty, List.append_nil]
 
 @[simp] theorem nil_append (as : Array α) : #[] ++ as = as := by
   apply ext'; simp only [toList_append, toList_empty, List.nil_append]
 
-theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
+@[simp] theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
 
 /-! ### flatten -/
 
-@[simp] theorem toList_flatten {l : Array (Array α)} : l.flatten.toList = (l.toList.map toList).flatten := by
+@[simp] theorem toList_flatten {l : Array (Array α)} :
+    l.flatten.toList = (l.toList.map toList).flatten := by
   dsimp [flatten]
   simp only [foldl_eq_foldl_toList]
   generalize l.toList = l

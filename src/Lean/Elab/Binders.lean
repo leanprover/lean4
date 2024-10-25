@@ -96,7 +96,8 @@ partial def quoteAutoTactic : Syntax → CoreM Expr
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
   withFreshMacroScope do
-    let name ← MonadQuotation.addMacroScope `_auto
+    let name := (← getDeclName?).getD .anonymous ++ `_auto
+    let name ← MonadQuotation.addMacroScope name
     let type := Lean.mkConst `Lean.Syntax
     let value ← quoteAutoTactic tactic
     trace[Elab.autoParam] value

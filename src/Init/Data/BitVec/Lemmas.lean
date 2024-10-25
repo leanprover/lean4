@@ -2964,7 +2964,7 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
 
-/-! ### neg-/
+/-! ### neg -/
 
 theorem msb_eq_toInt {x : BitVec w}:
     x.msb = decide ((x.toInt) < 0) := by

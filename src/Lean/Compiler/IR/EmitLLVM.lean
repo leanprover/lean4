@@ -1438,17 +1438,24 @@ def callLeanIOResultShowError (builder : LLVM.Builder llvmctx)
   let _ ← LLVM.buildCall2 builder fnty fn #[v] name
 
 def callLeanMainFn (builder : LLVM.Builder llvmctx)
+    (progName? : Option (LLVM.Value llvmctx))
     (argv? : Option (LLVM.Value llvmctx))
     (world : LLVM.Value llvmctx)
     (name : String) : M llvmctx (LLVM.Value llvmctx) := do
   let retty ← LLVM.voidPtrType llvmctx
   let voidptr ← LLVM.voidPtrType llvmctx
-  let argtys := if argv?.isSome then #[ voidptr, voidptr ] else #[ voidptr ]
+  let mut args := #[]
+  let mut argtys := #[]
+  if let .some progName := progName? then
+    args := args.push progName
+    argtys := argtys.push voidptr
+  if let .some argv := argv? then
+    args := args.push argv
+    argtys := argtys.push voidptr
+  args := args.push world
+  argtys := argtys.push voidptr
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty leanMainFn argtys
   let fnty ← LLVM.functionType retty argtys
-  let args := match argv? with
-              | .some argv => #[argv, world]
-              | .none => #[world]
   LLVM.buildCall2 builder fnty fn args name
 
 def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
@@ -1457,7 +1464,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
    | .fdecl (xs := xs) .. => pure xs
    | _ =>  throw "Function declaration expected for 'main'"
 
-  unless xs.size == 2 || xs.size == 1 do throw s!"Invalid main function, main expected to have '2' or '1' arguments, found '{xs.size}' arguments"
+  unless xs.size == 3 || xs.size == 2 || xs.size == 1 do throw s!"Invalid main function, main expected to have '2' or '1' arguments, found '{xs.size}' arguments"
   let env ← getEnv
   let usesLeanAPI := usesModuleFrom env `Lean
   let mainTy ← LLVM.functionType (← LLVM.i64Type llvmctx)
@@ -1491,13 +1498,14 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
     (fun builder => do -- then clause of the builder)
       callLeanDecRef builder resv
       callLeanInitTaskManager builder
-      if xs.size == 2 then
+      let argcval ← LLVM.getParam main 0
+      let argvval ← LLVM.getParam main 1
+      let mut argv := none
+      if xs.size >= 2 then
         let inv ← callLeanBox builder (← constIntSizeT 0) "inv"
         let _ ← LLVM.buildStore builder inv inslot
         let ity ← LLVM.size_tType llvmctx
         let islot ← buildPrologueAlloca builder ity "islot"
-        let argcval ← LLVM.getParam main 0
-        let argvval ← LLVM.getParam main 1
         LLVM.buildStore builder argcval islot
         buildWhile_ builder "argv"
           (condcodegen := fun builder => do
@@ -1516,17 +1524,16 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
             let inv ← LLVM.buildLoad2 builder inty inslot "inv"
             callLeanCtorSet builder nv (← constIntUnsigned 1) inv
             LLVM.buildStore builder nv inslot)
-        let world ← callLeanIOMkWorld builder
-        let inv ← LLVM.buildLoad2 builder inty inslot "inv"
-        let resv ← callLeanMainFn builder (argv? := .some inv) (world := world) "resv"
-        let _ ← LLVM.buildStore builder resv res
-        pure ShouldForwardControlFlow.yes
-      else
-          let world ← callLeanIOMkWorld builder
-          let resv ← callLeanMainFn builder (argv? := .none) (world := world) "resv"
-          let _ ← LLVM.buildStore builder resv res
-          pure ShouldForwardControlFlow.yes
-  )
+        argv := .some <| ← LLVM.buildLoad2 builder inty inslot "inv"
+      let mut progName := none
+      if xs.size == 3 then
+        let argv_0_next_slot ← LLVM.buildGEP2 builder (← LLVM.voidPtrType llvmctx) argvval #[← constIntUnsigned 0] "argv.0.slot"
+        let argv_0_next_val ← LLVM.buildLoad2 builder (← LLVM.voidPtrType llvmctx) argv_0_next_slot "argv.0.val"
+        progName := .some <| ← callLeanMkString builder argv_0_next_val "arg.0.val.str"
+      let world ← callLeanIOMkWorld builder
+      let resv ← callLeanMainFn builder (progName? := progName) (argv? := argv) (world := world) "resv"
+      let _ ← LLVM.buildStore builder resv res
+      pure ShouldForwardControlFlow.yes)
 
   -- `IO _`
   let retTy := env.find? `main |>.get! |>.type |>.getForallBody

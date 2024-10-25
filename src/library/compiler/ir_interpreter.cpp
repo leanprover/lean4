@@ -990,11 +990,14 @@ public:
         return r;
     }
 
-    uint32 run_main(int argc, char * argv[]) {
+    uint32 run_main(std::string mod_fn, int argc, char * argv[]) {
         decl d = get_decl("main");
         array_ref<param> const & params = decl_params(d);
         buffer<object *> args;
-        if (params.size() == 2) { // List String -> IO _
+        if (params.size() == 3) { // String -> List String -> IO _
+            args.push_back(lean_mk_string(mod_fn.c_str()));
+        }
+        if (params.size() == 3 || params.size() == 2) { // List String -> IO _
             lean_object * in = lean_box(0);
             int i = argc;
             while (i > 0) {
@@ -1013,12 +1016,8 @@ public:
         w = call_boxed("main", args.size(), &args[0]);
         if (io_result_is_ok(w)) {
             int ret = 0;
-            lean::expr ret_ty = m_env.get("main").get_type();
-            if (is_arrow(ret_ty)) {
-                ret_ty = binding_body(ret_ty);
-            }
             // `IO UInt32` or `IO (P)Unit`
-            if (is_const(app_arg(ret_ty), get_uint32_name())) {
+            if (decl_type(d) == type::UInt32) {
                 ret = unbox_uint32(io_result_get_value(w));
             }
             dec_ref(w);
@@ -1067,8 +1066,8 @@ object * run_boxed(environment const & env, options const & opts, name const & f
     }
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
-uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
-    return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(argv, argc); });
+uint32 run_main(environment const & env, options const & opts, std::string mod_fn, int argv, char * argc[]) {
+    return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(mod_fn, argv, argc); });
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {

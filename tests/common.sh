@@ -58,26 +58,33 @@ function exec_check {
 }
 
 function diff_produced {
-    if test -f "$f.expected.out"; then
-        if $DIFF -au --strip-trailing-cr -I "executing external script" "$f.expected.out" "$f.produced.out"; then
+    suffix="${1-}"
+    # Optional suffix, for tests which deliberately differ when one lean file is invoked in
+    # different ways.
+    expected="$f$suffix.expected.out"
+    if ! test -f "$expected"; then
+        expected="$f.expected.out"
+    fi
+    if test -f "$expected"; then
+        if $DIFF -au --strip-trailing-cr -I "executing external script" "$expected" "$f.produced.out"; then
             :
         else
-            echo "ERROR: file $f.produced.out does not match $f.expected.out"
+            echo "ERROR: file $f.produced.out does not match $expected"
             if [ $INTERACTIVE == "yes" ]; then
-                meld "$f.produced.out" "$f.expected.out"
-                if diff -I "executing external script" "$f.expected.out" "$f.produced.out"; then
+                meld "$f.produced.out" "$expected"
+                if diff -I "executing external script" "$expected" "$f.produced.out"; then
                     echo "-- mismatch was fixed"
                 fi
             fi
             exit 1
         fi
     else
-        echo "ERROR: file $f.expected.out does not exist"
+        echo "ERROR: file $expected does not exist"
         if [ $INTERACTIVE == "yes" ]; then
             read -p "copy $f.produced.out (y/n)? "
             if [ $REPLY == "y" ]; then
-                cp -- "$f.produced.out" "$f.expected.out"
-                echo "-- copied $f.produced.out --> $f.expected.out"
+                cp -- "$f.produced.out" "$expected"
+                echo "-- copied $f.produced.out --> $expected"
             fi
         fi
         exit 1

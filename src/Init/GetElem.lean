@@ -207,6 +207,10 @@ instance : GetElem (List α) Nat α fun as i => i < as.length where
 
 @[deprecated (since := "2024-06-12")] abbrev cons_getElem_succ := @getElem_cons_succ
 
+@[simp] theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
+  | _ :: _, 0, _ => .head ..
+  | _ :: l, _+1, _ => .tail _ (getElem_mem (l := l) ..)
+
 theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with
   | _::_, 0   => rfl

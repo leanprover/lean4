@@ -8,6 +8,28 @@ import Init.Core
 
 universe u v w
 
+/--
+A `ForIn'` instance, which handles `for h : x in c do`,
+can also handle `for x in x do` by ignoring `h`, and so provides a `ForIn` instance.
+-/
+instance (priority := low) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
+  forIn x b f := forIn' x b fun a _ => f a
+
+@[simp] theorem forIn'_eq_forIn [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m] (x : ρ) (b : β)
+    (f : (a : α) → a ∈ x → β → m (ForInStep β)) (g : (a : α) → β → m (ForInStep β))
+    (h : ∀ a m b, f a m b = g a b) :
+    forIn' x b f = forIn x b g := by
+  simp [instForInOfForIn']
+  congr
+  apply funext
+  intro a
+  apply funext
+  intro m
+  apply funext
+  intro b
+  simp [h]
+  rfl
+
 @[reducible]
 def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a

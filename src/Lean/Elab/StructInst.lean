@@ -144,7 +144,7 @@ private def getStructSource (structStx : Syntax) : TermElabM Source :=
   ```
 -/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
-  let s? ← stx[2].getSepArgs.foldlM (init := none) fun s? arg => do
+  let s? ← stx[2][0].getSepArgs.foldlM (init := none) fun s? arg => do
     /- arg is of the form `structInstFieldAbbrev <|> structInstField` -/
     if arg.getKind == ``Lean.Parser.Term.structInstField then
       /- Remark: the syntax for `structInstField` is
@@ -199,7 +199,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
     let valField  := modifyOp.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[valFirst, valRest]
     let valSource := mkSourcesWithSyntax #[s]
     let val       := stx.setArg 1 valSource
-    let val       := val.setArg 2 <| mkNullNode #[valField]
+    let val       := val.setArg 2 <| mkNode ``Parser.Term.structInstFields #[mkNullNode #[valField]]
     trace[Elab.struct.modifyOp] "{stx}\nval: {val}"
     cont val
 
@@ -359,7 +359,7 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
   /- Recall that `stx` is of the form
      ```
      leading_parser "{" >> optional (atomic (sepBy1 termParser ", " >> " with "))
-                 >> sepByIndent (structInstFieldAbbrev <|> structInstField) ...
+                 >> structInstFields (sepByIndent (structInstFieldAbbrev <|> structInstField) ...)
                  >> optional ".."
                  >> optional (" : " >> termParser)
                  >> " }"
@@ -367,7 +367,7 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
 
      This method assumes that `structInstFieldAbbrev` had already been expanded.
   -/
-  let fields ← stx[2].getSepArgs.toList.mapM fun fieldStx => do
+  let fields ← stx[2][0].getSepArgs.toList.mapM fun fieldStx => do
     let val      := fieldStx[2]
     let first    ← toFieldLHS fieldStx[0][0]
     let rest     ← fieldStx[0][1].getArgs.toList.mapM toFieldLHS
@@ -511,7 +511,9 @@ mutual
             let valStx := s.ref -- construct substructure syntax using s.ref as template
             let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
             let args   := substructFields.toArray.map (·.toSyntax)
-            let valStx := valStx.setArg 2 (mkNullNode <| mkSepArray args (mkAtom ","))
+            let fieldsStx := mkNode ``Parser.Term.structInstFields
+              #[mkNullNode <| mkSepArray args (mkAtom ",")]
+            let valStx := valStx.setArg 2 fieldsStx
             let valStx ← updateSource valStx
             return { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
   /--

@@ -1298,13 +1298,8 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
     | _                                  => return none
   | _ => pure none
 
-def mkTermInfo
-    (elaborator : Name)
-    (stx : Syntax)
-    (e : Expr)
-    (expectedType? : Option Expr := none)
-    (lctx? : Option LocalContext := none)
-    (isBinder := false) :
+def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
+    (lctx? : Option LocalContext := none) (isBinder := false) :
     TermElabM (Sum Info MVarId) := do
   match (← isTacticOrPostponedHole? e) with
   | some mvarId => return Sum.inr mvarId
@@ -1312,10 +1307,7 @@ def mkTermInfo
     let e := removeSaveInfoAnnotation e
     return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
 
-def mkPartialTermInfo
-    (elaborator : Name)
-    (stx : Syntax)
-    (expectedType? : Option Expr := none)
+def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
     (lctx? : Option LocalContext := none) :
     TermElabM Info := do
   return Info.ofPartialTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), stx, expectedType? }
@@ -1350,11 +1342,8 @@ def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
 def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Unit :=
   discard <| addTermInfo stx e expectedType? lctx? elaborator isBinder
 
-def withInfoContext'
-    (stx : Syntax)
-    (x : TermElabM Expr)
-    (mkInfo : Expr → TermElabM (Sum Info MVarId))
-    (mkInfoOnError : TermElabM Info) :
+def withInfoContext' (stx : Syntax) (x : TermElabM Expr)
+    (mkInfo : Expr → TermElabM (Sum Info MVarId)) (mkInfoOnError : TermElabM Info) :
     TermElabM Expr := do
   if (← read).inPattern then
     let e ← x
@@ -1377,17 +1366,22 @@ def getBodyInfo? : Info → Option BodyInfo
   | .ofCustomInfo { value, .. } => value.get? BodyInfo
   | _ => none
 
+def withTermInfoContext' (elaborator : Name) (stx : Syntax) (x : TermElabM Expr)
+    (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none)
+    (isBinder : Bool := false) :
+    TermElabM Expr :=
+  withInfoContext' stx x
+    (mkTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?) (isBinder := isBinder))
+    (mkPartialTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?))
+
 /--
 Postpone the elaboration of `stx`, return a metavariable that acts as a placeholder, and
 ensures the info tree is updated and a hole id is introduced.
 When `stx` is elaborated, new info nodes are created and attached to the new hole id in the info tree.
 -/
 def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  withInfoContext' stx
-    (mkInfo := mkTermInfo .anonymous (expectedType? := expectedType?) stx)
-    (mkInfoOnError := mkPartialTermInfo .anonymous (expectedType? := expectedType?) stx)
-    do
-      postponeElabTermCore stx expectedType?
+  withTermInfoContext' .anonymous stx (expectedType? := expectedType?) do
+    postponeElabTermCore stx expectedType?
 
 /--
   Helper function for `elabTerm` that tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
@@ -1398,9 +1392,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
   | (elabFn::elabFns) =>
     try
       -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
-      withInfoContext' stx
-        (mkInfo := mkTermInfo elabFn.declName (expectedType? := expectedType?) stx)
-        (mkInfoOnError := mkPartialTermInfo elabFn.declName (expectedType? := expectedType?) stx)
+      withTermInfoContext' elabFn.declName stx (expectedType? := expectedType?)
         (try
           elabFn.value stx expectedType?
         catch ex => match ex with
@@ -1783,12 +1775,10 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
       let stxNew ← liftMacroM <| liftExcept stxNew?
-      withInfoContext' stx
-        (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx)
-        (mkInfoOnError := mkPartialTermInfo decl (expectedType? := expectedType?) stx) <|
-          withMacroExpansion stx stxNew <|
-            withRef stxNew <|
-              elabTermAux expectedType? catchExPostpone implicitLambda stxNew
+      withTermInfoContext' decl stx (expectedType? := expectedType?) <|
+        withMacroExpansion stx stxNew <|
+          withRef stxNew <|
+            elabTermAux expectedType? catchExPostpone implicitLambda stxNew
     | _ =>
       let useImplicitResult ← if implicitLambda && (← read).implicitLambda then useImplicitLambda stx expectedType? else pure .no
       match useImplicitResult with

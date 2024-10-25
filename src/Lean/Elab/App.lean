@@ -1648,14 +1648,14 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
   Throw an error message that describes why each possible interpretation for the overloaded notation and symbols did not work.
   We use a nested error message to aggregate the exceptions produced by each failure.
 -/
-private def mergeFailures (f : Syntax) (failures : Array (TermElabResult Expr)) : TermElabM α := do
+private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
   let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
   let trees := failures.map (fun | .error _ s => s.meta.core.infoState.trees | _ => unreachable!)
     |>.filterMap (·[0]?)
   -- Retain partial `InfoTree` subtrees in an `.ofChoiceInfo` node in case of multiple failures.
   -- This ensures that the language server still has `Info` to work with when multiple overloaded
   -- elaborators fail.
-  withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := f}) do
+  withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := ← getRef }) do
     for tree in trees do
       pushInfoTree tree
   throwErrorWithNestedErrors "overloaded" exs
@@ -1677,7 +1677,7 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
         | _       => unreachable!
       throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
     else
-      withRef f <| mergeFailures f candidates
+      withRef f <| mergeFailures candidates
 
 /--
   We annotate recursive applications with their `Syntax` node to make sure we can produce error messages with

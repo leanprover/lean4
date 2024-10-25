@@ -1037,23 +1037,23 @@ where
       let scopeLevelNames ← getLevelNames
       let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
         Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
-      let mut async? := none
-      if let (#[view], #[declId]) := (views, expandedDeclIds) then
-        if view.kind.isTheorem && typeCheckedPromise?.isSome &&
-            !deprecated.oldSectionVars.get (← getOptions) &&
-            view.modifiers.attrs.isEmpty then
-          let env ← getEnv
-          let async ← env.addConstAsync declId.declName .thm
-          modifyEnv fun _=> async.mainEnv
-          async? := some async
-      let finishElab := try
-        let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
-        let headers ← levelMVarToParamHeaders views headers
-        let allUserLevelNames := getAllUserLevelNames headers
-        withFunLocalDecls headers fun funFVars => do
-          for view in views, funFVar in funFVars do
-            addLocalVarInfo view.declId funFVar
-          if let some async := async? then
+      let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
+      let headers ← levelMVarToParamHeaders views headers
+      let allUserLevelNames := getAllUserLevelNames headers
+      withFunLocalDecls headers fun funFVars => do
+        for view in views, funFVar in funFVars do
+          addLocalVarInfo view.declId funFVar
+        let mut async? := none
+        if let (#[view], #[declId]) := (views, expandedDeclIds) then
+          if view.kind.isTheorem && typeCheckedPromise?.isSome &&
+              !deprecated.oldSectionVars.get (← getOptions) &&
+              view.modifiers.attrs.isEmpty then
+            let env ← getEnv
+            let async ← env.addConstAsync declId.declName .thm
+            modifyEnv fun _=> async.mainEnv
+            async? := some async
+
+            -- TODO: parallelize? must refactor auto implicits catch, makes `@[simp]` etc harder?
             let header := headers[0]!
             let type ← withHeaderSecVars vars sc #[header] fun vars => do
               mkForallFVars vars header.type >>= instantiateMVars
@@ -1062,6 +1062,8 @@ where
             s := collectLevelParams s type
             let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
             async.commitSignature { name := header.declName, levelParams, type }
+
+        let finishElab := try
           let values ← try
             let values ← elabFunValues headers vars sc
             Term.synthesizeSyntheticMVarsNoPostponing
@@ -1099,17 +1101,17 @@ where
             tacPromises.forM (·.resolve default)
             valPromise.resolve (Expr.const `failedAsyncElab [])
             async?.forM (·.commitFailure)
-      if let some async := async? then
-        let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
-          modifyEnv fun _ => async.asyncEnv
+        if let some async := async? then
+          let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
+            modifyEnv fun _ => async.asyncEnv
+            finishElab
+          let _ ← BaseIO.mapTask (t := t) fun snap => do
+            if let some typeCheckedPromise := typeCheckedPromise? then
+              typeCheckedPromise.resolve snap
+        else
           finishElab
-        let _ ← BaseIO.mapTask (t := t) fun snap => do
-          if let some typeCheckedPromise := typeCheckedPromise? then
-            typeCheckedPromise.resolve snap
-      else
-        finishElab
-          if let some typeCheckedPromise := typeCheckedPromise? then
-            typeCheckedPromise.resolve default
+            if let some typeCheckedPromise := typeCheckedPromise? then
+              typeCheckedPromise.resolve default
       for view in views, declId in expandedDeclIds do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref

@@ -85,6 +85,7 @@ static lean_object* l_Lean_Elab_Command_accLevelAtCtor___closed__8;
 static lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkParamsAndResultType___lambda__1___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__1___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkInductiveDecl___lambda__6(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_resetMaskAt___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkParamsAndResultType___lambda__1___closed__1;
@@ -987,7 +988,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_co
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__12(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkIndFVar2Const(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_bindTR_go___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_checkResultingUniverses_check___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_levelMVarToParam___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors___spec__2___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26131,7 +26131,7 @@ return x_36;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_bindTR_go___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -26620,7 +26620,7 @@ lean_inc(x_25);
 lean_dec(x_23);
 x_26 = lean_array_to_list(x_19);
 x_27 = l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabHeaderAux___lambda__3___closed__1;
-x_28 = l_List_bindTR_go___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5(x_24, x_27);
+x_28 = l_List_flatMapTR_go___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5(x_24, x_27);
 x_29 = l_List_appendTR___rarg(x_26, x_28);
 x_30 = l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams_go(x_3, x_4, x_5, x_7, x_29, x_8, x_9, x_10, x_11, x_25);
 return x_30;

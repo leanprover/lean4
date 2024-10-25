@@ -21,8 +21,7 @@ namespace Array
 
 @[simp] theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
 
-theorem getElem_eq_getElem_toList {a : Array α} (h : i < a.size) : a[i] = a.toList[i] := by
-  by_cases i < a.size <;> (try simp [*]) <;> rfl
+theorem getElem_eq_getElem_toList {a : Array α} (h : i < a.size) : a[i] = a.toList[i] := rfl
 
 theorem getElem?_eq_getElem {a : Array α} {i : Nat} (h : i < a.size) : a[i]? = some a[i] :=
   getElem?_pos ..
@@ -85,6 +84,9 @@ We prefer to pull `List.toArray` outwards.
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
 
+@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+  simp [mem_def]
+
 @[simp] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
   apply ext'
   simp
@@ -120,6 +122,30 @@ We prefer to pull `List.toArray` outwards.
   change l.toArray.forIn b f = l.forIn b f
   rw [Array.forIn, forIn_loop_toArray]
   simp
+
+@[simp] theorem forIn'_loop_toArray [Monad m] (l : List α) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) (i : Nat)
+    (h : i ≤ l.length) (b : β) :
+    Array.forIn'.loop l.toArray f i h b =
+      forIn' (l.drop (l.length - i)) b (fun a m b => f a (by simpa using mem_of_mem_drop m) b) := by
+  induction i generalizing l b with
+  | zero =>
+    simp [Array.forIn'.loop]
+  | succ i ih =>
+    simp only [Array.forIn'.loop, size_toArray, getElem_toArray, ih, forIn_eq_forIn]
+    have t : drop (l.length - (i + 1)) l = l[l.length - i - 1] :: drop (l.length - i) l := by
+      simp only [Nat.sub_add_eq]
+      rw [List.drop_sub_one (by omega), List.getElem?_eq_getElem (by omega)]
+      simp only [Option.toList_some, singleton_append]
+    simp [t]
+    have t : l.length - 1 - i = l.length - i - 1 := by omega
+    simp only [t]
+    congr
+
+@[simp] theorem forIn'_toArray [Monad m] (l : List α) (b : β) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) :
+    forIn' l.toArray b f = forIn' l b (fun a m b => f a (mem_toArray.mpr m) b) := by
+  change Array.forIn' _ _ _ = List.forIn' _ _ _
+  rw [Array.forIn', forIn'_loop_toArray]
+  simp [List.forIn_eq_forIn]
 
 theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
     l.toArray.foldrM f init = l.foldrM f init := by
@@ -267,9 +293,6 @@ theorem anyM_eq_anyM_loop [Monad m] (p : α → m Bool) (as : Array α) (start s
 theorem anyM_stop_le_start [Monad m] (p : α → m Bool) (as : Array α) (start stop)
     (h : min stop as.size ≤ start) : anyM p as start stop = pure false := by
   rw [anyM_eq_anyM_loop, anyM.loop, dif_neg (Nat.not_lt.2 h)]
-
-theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
-  ⟨fun | .mk h => h, Array.Mem.mk⟩
 
 @[simp] theorem not_mem_empty (a : α) : ¬(a ∈ #[]) := by
   simp [mem_def]
@@ -459,10 +482,6 @@ theorem getElem?_of_mem {a : α} {as : Array α} :
 theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size} (_ : a[idx] = x) :
     idx < a.size :=
   hidx
-
-@[simp] theorem getElem_mem {l : Array α} {i : Nat} (h : i < l.size) : l[i] ∈ l := by
-  erw [Array.mem_def, getElem_eq_getElem_toList]
-  apply List.get_mem
 
 theorem getElem_fin_eq_getElem_toList (a : Array α) (i : Fin a.size) : a[i] = a.toList[i] := rfl
 
@@ -725,6 +744,11 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
 
 @[simp] theorem forIn_toList [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) :
     forIn as.toList b f = forIn as b f := by
+  cases as
+  simp
+
+@[simp] theorem forIn'_toList [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as.toList → β → m (ForInStep β)) :
+    forIn' as.toList b f = forIn' as b (fun a m b => f a (mem_toList.mpr m) b) := by
   cases as
   simp
 
@@ -1410,9 +1434,6 @@ namespace List
 
 Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
 -/
-
-@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
-  simp [mem_def]
 
 @[simp] theorem toListRev_toArray (l : List α) : l.toArray.toListRev = l.reverse := by
   simp

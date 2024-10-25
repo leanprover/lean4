@@ -460,6 +460,7 @@ def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
 
 def forceCompile : CoreM Unit := do
   let env ← getEnv
+  let env := env.unlockAsync
   let env ← (← env.checkAsyncSubDecls (← getOptions) (← read).cancelTk? |>.toBaseIO) |> ofExceptKernelException
   setEnv env
   compileDecls (allowPostpone := false) (← get).postponedCompiles.toList

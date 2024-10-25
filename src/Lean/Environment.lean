@@ -849,7 +849,7 @@ namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
 
 def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (allowAsync := false) : Environment :=
-  if env.asyncCtx?.isSome && !allowAsync then
+  if env.asyncCtx?.any (!·.declPrefix.isAnonymous) && !allowAsync then
     let _ : Inhabited Environment := ⟨env⟩
     panic! s!"cannot set state of environment extension in an async context"
   else
@@ -1082,7 +1082,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     addImportedFn   := fun as => pure ([], descr.addImportedFn as),
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesAsyncFn := fun states => states.toList.bind (·.1.reverse) |> descr.toArrayFn,
+    exportEntriesAsyncFn := fun states => states.toList.flatMap (·.1.reverse) |> descr.toArrayFn,
     resetExportsFn := fun s => ([], s.2)
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
   }

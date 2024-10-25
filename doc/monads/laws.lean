@@ -128,8 +128,8 @@ Applying the identity function through an applicative structure should not chang
 values or structure.  For example:
 -/
 instance : Applicative List where
-  pure := List.pure
-  seq f x := List.bind f fun y => Functor.map y (x ())
+  pure := List.singleton
+  seq f x := List.flatMap f fun y => Functor.map y (x ())
 
 #eval pure id <*> [1, 2, 3]  -- [1, 2, 3]
 /-!
@@ -235,8 +235,8 @@ structure or its values.
 Left identity is `x >>= pure = x` and is demonstrated by the following examples on a monadic `List`:
 -/
 instance : Monad List  where
-  pure := List.pure
-  bind := List.bind
+  pure := List.singleton
+  bind := List.flatMap
 
 def a := ["apple", "orange"]
 

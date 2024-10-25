@@ -28,6 +28,14 @@ This was also a problem for `axiom`.
 axiom ax1 (A B : Type*) (x : F) : Type
 /-- info: ax1.{u_1, u_2, u_3} {F : Type u_1} (A : Type u_2) (B : Type u_3) (x : F) : Type -/
 #guard_msgs in #check ax1
+
+/-!
+Make sure `structure` works correctly too, now that it's been refactored to work like `inductive`.
+-/
+structure S1 (A B : Type*) (x : F) : Type
+/-- info: S1.{u_1, u_2, u_3} {F : Type u_1} (A : Type u_2) (B : Type u_3) (x : F) : Type -/
+#guard_msgs in #check S1
+
 end
 
 /-!

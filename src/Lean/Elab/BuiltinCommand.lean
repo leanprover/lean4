@@ -445,7 +445,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     msg := msg.push <| ← `(command| variable $scope.varDecls*)
   -- Included variables
   if !scope.includedVars.isEmpty then
-    msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map mkIdent)*)
+    msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)
   -- Options
   if let some optionsMsg ← describeOptions scope.opts then
     msg := msg.push optionsMsg
@@ -486,17 +486,24 @@ where
 
   describeOptions (opts : Options) : CommandElabM (Option MessageData) := do
     let mut lines : Array MessageData := #[]
+    let decls ← getOptionDecls
     for (name, val) in opts do
-      let dval ← getOptionDefaultValue name
-      if val != dval then
-        let cmd ←
+      let (isSet, isUnknown) :=
+        match decls.find? name with
+        | some decl => (decl.defValue != val, false)
+        | none      => (true, true)
+      if isSet then
+        let cmd : TSyntax `command ←
           match val with
           | .ofBool true  => `(set_option $(mkIdent name) true)
           | .ofBool false => `(set_option $(mkIdent name) false)
           | .ofString str => `(set_option $(mkIdent name) $(Syntax.mkStrLit str))
           | .ofNat n      => `(set_option $(mkIdent name) $(Syntax.mkNatLit n))
           | _             => `(set_option $(mkIdent name) 0 /- unrepresentable value -/)
-        lines := lines.push cmd
+        if isUnknown then
+          lines := lines.push m!"-- {cmd} -- unknown option"
+        else
+          lines := lines.push cmd
     return if lines.isEmpty then none else MessageData.joinSep lines.toList "\n"
 
 end Lean.Elab.Command

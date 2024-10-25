@@ -110,11 +110,7 @@ def Dependency.materialize
     match src with
     | .path dir =>
       let relPkgDir := relParentDir / dir
-      return {
-        relPkgDir
-        remoteUrl := ""
-        manifestEntry := mkEntry <| .path relPkgDir
-      }
+      return mkDep relPkgDir "" (.path relPkgDir)
     | .git url inputRev? subDir? => do
       let sname := dep.name.toString (escape := false)
       let repoUrl := Git.filterUrl? url |>.getD ""
@@ -139,18 +135,17 @@ def Dependency.materialize
         (githubUrl?.getD "") (verRev? <|> defaultBranch?) subDir?
     | _ => error s!"{pkg.fullName}: Git source not found on Reservoir"
 where
-  mkEntry src : PackageEntry :=
-    {name := dep.name, scope := dep.scope, inherited, src}
   materializeGit name relPkgDir gitUrl remoteUrl inputRev? subDir? : LogIO MaterializedDep := do
     let repo := GitRepo.mk (wsDir / relPkgDir)
     let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl
     materializeGitRepo name repo gitUrl inputRev?
     let rev ← repo.getHeadRevision
     let relPkgDir := if let some subDir := subDir? then relPkgDir / subDir else relPkgDir
-    return {
-      relPkgDir, remoteUrl
-      manifestEntry := mkEntry <| .git gitUrl rev inputRev? subDir?
-    }
+    return mkDep relPkgDir remoteUrl <| .git gitUrl rev inputRev? subDir?
+  @[inline] mkDep relPkgDir remoteUrl src : MaterializedDep := {
+    relPkgDir, remoteUrl,
+    manifestEntry := {name := dep.name, scope := dep.scope, inherited, src}
+  }
 
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
@@ -161,11 +156,7 @@ def PackageEntry.materialize
 : LogIO MaterializedDep :=
   match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
-    return {
-      relPkgDir
-      remoteUrl := ""
-      manifestEntry
-    }
+    return mkDep relPkgDir ""
   | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
     let sname := manifestEntry.name.toString (escape := false)
     let relGitDir := relPkgsDir / sname
@@ -188,8 +179,7 @@ def PackageEntry.materialize
       let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
       cloneGitPkg sname repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
-    return {
-      relPkgDir
-      remoteUrl := Git.filterUrl? url |>.getD ""
-      manifestEntry
-    }
+    return mkDep relPkgDir (Git.filterUrl? url |>.getD "")
+where
+  @[inline] mkDep relPkgDir remoteUrl : MaterializedDep :=
+    {relPkgDir, remoteUrl, manifestEntry}

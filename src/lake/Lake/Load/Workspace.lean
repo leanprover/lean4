@@ -25,7 +25,9 @@ def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   let (root, env?) ← loadPackageCore "[root]" config
   let ws : Workspace := {
-    root, lakeEnv := config.lakeEnv
+    root
+    lakeEnv := config.lakeEnv
+    lakeArgs? := config.lakeArgs?
     moduleFacetConfigs := initModuleFacetConfigs
     packageFacetConfigs := initPackageFacetConfigs
     libraryFacetConfigs := initLibraryFacetConfigs
@@ -40,19 +42,19 @@ Load a `Workspace` for a Lake package by
 elaborating its configuration file and resolving its dependencies.
 If `updateDeps` is true, updates the manifest before resolving dependencies.
 -/
-def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace := do
-  let rc := config.reconfigure
-  let leanOpts := config.leanOpts
+def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
+  let {reconfigure, leanOpts, updateDeps, updateToolchain, ..} := config
   let ws ← loadWorkspaceRoot config
   if updateDeps then
-    ws.updateAndMaterialize {} leanOpts
+    ws.updateAndMaterialize {} leanOpts updateToolchain
   else if let some manifest ← Manifest.load? ws.manifestFile then
-    ws.materializeDeps manifest leanOpts rc
+    ws.materializeDeps manifest leanOpts reconfigure
   else
-    ws.updateAndMaterialize {} leanOpts
+    ws.updateAndMaterialize {} leanOpts updateToolchain
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
-def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
-  let leanOpts := config.leanOpts
+def updateManifest (config : LoadConfig) (toUpdate : NameSet := {})
+: LoggerIO Unit := do
+  let {leanOpts, updateToolchain, ..} := config
   let ws ← loadWorkspaceRoot config
-  discard <| ws.updateAndMaterialize toUpdate leanOpts
+  discard <| ws.updateAndMaterialize toUpdate leanOpts updateToolchain

@@ -2973,7 +2973,7 @@ theorem msb_eq_toInt {x : BitVec w}:
     omega
 
 theorem msb_eq_toNat {x : BitVec w}:
-    x.msb = decide ((x.toNat) ≥ 2 ^ (w - 1)) := by
+    x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by
   simp only [msb_eq_decide, ge_iff_le]
 
 /-! ### abs -/

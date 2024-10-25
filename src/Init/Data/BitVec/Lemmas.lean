@@ -2895,14 +2895,10 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
--- imp: two_pow_pred_lt_two_pow
-
 @[simp]
 theorem not_intMin {w : Nat} : intMax w = ~~~intMin w := by
   ext i
-  rw [getLsbD_intMax]
-  rw [getLsbD_not]
-  rw [getLsbD_intMin]
+  rw [getLsbD_intMax, getLsbD_not, getLsbD_intMin]
   by_cases h : i + 1 < w <;>
   · simp [h]
     omega

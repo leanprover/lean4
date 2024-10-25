@@ -751,6 +751,13 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   | some matchEqns => return matchEqns
   | none => mkEquationsFor matchDeclName
 
-builtin_initialize registerTraceClass `Meta.Match.matchEqs
+builtin_initialize
+  registerTraceClass `Meta.Match.matchEqs
+  registerReservedNamePredicate fun _ name =>
+    name matches .str _ "splitter"
+  registerReservedNameAction fun name => do
+    let .str p "splitter" := name | return false
+    MetaM.run' <| discard <| getEquationsFor <| privateToUserName p
+    return true
 
 end Lean.Meta.Match

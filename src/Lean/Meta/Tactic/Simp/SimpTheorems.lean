@@ -146,6 +146,8 @@ mutual
         return false
 
   partial def isRflTheorem (declName : Name) : CoreM Bool := do
+    if !(← getEnv).contains declName && isReservedName (← getEnv) declName then
+      executeReservedNameAction declName
     let .thmInfo info ← getConstInfo declName | return false
     isRflProofCore info.type info.value
 end

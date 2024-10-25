@@ -1,5 +1,5 @@
 mulcommErrorMessage.lean:8:13-13:25: error: type mismatch
-  fun a b => ?m a b
+  fun a b => ?m
 has type
   (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type
@@ -21,7 +21,7 @@ has type
 but is expected to have type
   false = true : Prop
 mulcommErrorMessage.lean:16:3-17:47: error: type mismatch
-  fun a b => ?m a b
+  fun a b => ?m
 has type
   (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type

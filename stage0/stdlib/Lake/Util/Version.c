@@ -61,7 +61,6 @@ static lean_object* l_Lake_elabVerLit___closed__32;
 static lean_object* l_Lake_StdVer_parse___closed__2;
 static lean_object* l_Lake_elabVerLit___closed__6;
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_toString(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_minor___default;
 static lean_object* l_Lake_verLit___closed__14;
 LEAN_EXPORT lean_object* l_Lake_instLTStdVer;
 static lean_object* l_Lake_verLit___closed__2;
@@ -215,7 +214,6 @@ static lean_object* l___private_Lake_Util_Version_0__Lake_reprSemVerCore____x40_
 static lean_object* l_Lake_instToExprStdVer___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instCoeStdVerSemVerCore(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StdVer_compare___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_major___default;
 static lean_object* l___private_Lake_Util_Version_0__Lake_reprSemVerCore____x40_Lake_Util_Version___hyg_48____closed__18;
 static lean_object* l_Lake_instToExprSemVerCore___lambda__1___closed__2;
 static lean_object* l_Lake_elabVerLit___closed__40;
@@ -235,7 +233,6 @@ static lean_object* l_Lake_elabVerLit___closed__37;
 static lean_object* l___private_Lake_Util_Version_0__Lake_reprSemVerCore____x40_Lake_Util_Version___hyg_48____closed__5;
 LEAN_EXPORT lean_object* l_String_split___at_Lake_SemVerCore_parse___spec__1(lean_object*);
 static lean_object* l_Lake_instToExprStdVer___lambda__1___closed__1;
-LEAN_EXPORT lean_object* l_Lake_StdVer_specialDescr___default;
 LEAN_EXPORT lean_object* l_Lake_instMaxStdVer(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -261,36 +258,11 @@ lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lake_verLit___closed__6;
 static lean_object* l___private_Lake_Util_Version_0__Lake_reprStdVer____x40_Lake_Util_Version___hyg_985____closed__3;
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_SemVerCore_patch___default;
 static lean_object* l___private_Lake_Util_Version_0__Lake_reprSemVerCore____x40_Lake_Util_Version___hyg_48____closed__12;
 static lean_object* l_Lake_SemVerCore_parse___closed__4;
 static lean_object* l_Lake_elabVerLit___closed__10;
 static lean_object* l_Lake_elabVerLit___closed__16;
 static lean_object* l_Lake_SemVerCore_parse___closed__12;
-static lean_object* _init_l_Lake_SemVerCore_major___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_SemVerCore_minor___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_SemVerCore_patch___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
 static lean_object* _init_l_Lake_instInhabitedSemVerCore___closed__1() {
 _start:
 {
@@ -1570,14 +1542,6 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lake_instToExprSemVerCore___closed__4;
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_StdVer_specialDescr___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lake_SemVerCore_parse___closed__2;
 return x_1;
 }
 }
@@ -4311,12 +4275,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Eval(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_SemVerCore_major___default = _init_l_Lake_SemVerCore_major___default();
-lean_mark_persistent(l_Lake_SemVerCore_major___default);
-l_Lake_SemVerCore_minor___default = _init_l_Lake_SemVerCore_minor___default();
-lean_mark_persistent(l_Lake_SemVerCore_minor___default);
-l_Lake_SemVerCore_patch___default = _init_l_Lake_SemVerCore_patch___default();
-lean_mark_persistent(l_Lake_SemVerCore_patch___default);
 l_Lake_instInhabitedSemVerCore___closed__1 = _init_l_Lake_instInhabitedSemVerCore___closed__1();
 lean_mark_persistent(l_Lake_instInhabitedSemVerCore___closed__1);
 l_Lake_instInhabitedSemVerCore = _init_l_Lake_instInhabitedSemVerCore();
@@ -4423,8 +4381,6 @@ l_Lake_instToExprSemVerCore___closed__4 = _init_l_Lake_instToExprSemVerCore___cl
 lean_mark_persistent(l_Lake_instToExprSemVerCore___closed__4);
 l_Lake_instToExprSemVerCore = _init_l_Lake_instToExprSemVerCore();
 lean_mark_persistent(l_Lake_instToExprSemVerCore);
-l_Lake_StdVer_specialDescr___default = _init_l_Lake_StdVer_specialDescr___default();
-lean_mark_persistent(l_Lake_StdVer_specialDescr___default);
 l_Lake_instInhabitedStdVer___closed__1 = _init_l_Lake_instInhabitedStdVer___closed__1();
 lean_mark_persistent(l_Lake_instInhabitedStdVer___closed__1);
 l_Lake_instInhabitedStdVer = _init_l_Lake_instInhabitedStdVer();

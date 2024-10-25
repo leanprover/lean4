@@ -545,7 +545,7 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
   let subgoals ← caseValues p.mvarId x.fvarId! values (substNewEqs := true)
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
-    if h : i.val < values.size then
+    if h : i < values.size then
       let value := values.get ⟨i, h⟩
       -- (x = value) branch
       let subst := subgoal.subst
@@ -599,7 +599,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
   let sizes := collectArraySizes p
   let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes
   subgoals.mapIdxM fun i subgoal => do
-    if i.val < sizes.size then
+    if i < sizes.size then
       let size     := sizes.get! i
       let subst    := subgoal.subst
       let elems    := subgoal.elems.toList

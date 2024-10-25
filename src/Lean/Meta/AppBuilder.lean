@@ -28,6 +28,7 @@ def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
 /--
 `mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
 The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
+NB: `x` must not be a let-bound free variable.
 -/
 def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
   let f ← mkLambdaFVars #[x] e
@@ -277,7 +278,7 @@ private def mkAppMFinal (methodName : Name) (f : Expr) (args : Array Expr) (inst
 
 private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : MetaM Expr :=
   let rec loop (type : Expr) (i : Nat) (j : Nat) (args : Array Expr) (instMVars : Array MVarId) : MetaM Expr := do
-    if i >= xs.size then
+    if h : i >= xs.size then
       mkAppMFinal `mkAppM f args instMVars
     else match type with
       | Expr.forallE n d b bi =>
@@ -293,7 +294,7 @@ private partial def mkAppMArgs (f : Expr) (fType : Expr) (xs : Array Expr) : Met
           let mvar ← mkFreshExprMVar d MetavarKind.synthetic n
           loop b i j (args.push mvar) (instMVars.push mvar.mvarId!)
         | _ =>
-          let x := xs[i]!
+          let x := xs[i]
           let xType ← inferType x
           if (← isDefEq d xType) then
             loop b (i+1) j (args.push x) instMVars

@@ -17,10 +17,13 @@ def noBuildCode : ExitCode := 3
 
 /-- Configuration options for a Lake build. -/
 structure BuildConfig where
+  /-- Use modification times for trace checking. -/
   oldMode : Bool := false
+  /-- Whether to trust `.hash` files. -/
   trustHash : Bool := true
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
+  /-- Verbosity level (`-q`, `-v`, or neither). -/
   verbosity : Verbosity := .normal
   /--
   Fail the top-level build if entries of at least this level have been logged.

@@ -89,4 +89,12 @@ extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * obj_env, lea
     });
 }
 
+extern "C" LEAN_EXPORT lean_object * lean_kernel_check(lean_object * obj_env, lean_object * lctx, lean_object * a) {
+    elab_environment env(obj_env);
+    native_reduce_fn red_fn = mk_default_native_reduce_fn(env);
+    return catch_kernel_exceptions<object*>([&]() {
+        return type_checker(environment(env), local_ctx(lctx), &red_fn).check(expr(a)).steal();
+    });
+}
+
 }

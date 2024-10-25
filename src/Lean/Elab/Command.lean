@@ -605,12 +605,14 @@ def elabCommandTopLevel (stx : Syntax)
           -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
           -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
           elabCommand stx
-        withLogging do
-          runLintersAsync stx lintPromise
+        -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
+        -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
+        -- rather than engineer a general solution.
+        unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+          withLogging do
+            runLintersAsync stx lintPromise
       else
         elabCommand stx
-        withLogging do
-          runLinters stx
   finally
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages
@@ -651,7 +653,7 @@ def getBracketedBinderIds : Syntax → CommandElabM (Array Name)
 private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Context := do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
-  for id in (← scope.varDecls.concatMapM getBracketedBinderIds), uid in scope.varUIds do
+  for id in (← scope.varDecls.flatMapM getBracketedBinderIds), uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
   return {
     macroStack             := ctx.macroStack
@@ -698,6 +700,9 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let x : CoreM _ := x.run mkMetaContext {}
   let ((ea, _), _) ← runCore x
   MonadExcept.ofExcept ea
+
+instance : MonadEval TermElabM CommandElabM where
+  monadEval := liftTermElabM
 
 /--
 Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
@@ -779,48 +784,69 @@ def addUnivLevel (idStx : Syntax) : CommandElabM Unit := withRef idStx do
   else
     modifyScope fun scope => { scope with levelNames := id :: scope.levelNames }
 
-def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
-  let currNamespace ← getCurrNamespace
-  let currLevelNames ← getLevelNames
-  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
-  for id in (← (← getScope).varDecls.concatMapM getBracketedBinderIds) do
-    if id == r.shortName then
-      throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
-  return r
-
 end Elab.Command
 
 open Elab Command MonadRecDepth
 
+private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) : CoreM α := do
+  let s : Core.State ← get
+  let ctx : Core.Context ← read
+  let (a, commandState) ←
+    cmd.run {
+      fileName := ctx.fileName
+      fileMap := ctx.fileMap
+      currRecDepth := ctx.currRecDepth
+      currMacroScope := ctx.currMacroScope
+      ref := ctx.ref
+      tacticCache? := none
+      snap? := none
+      cancelTk? := ctx.cancelTk?
+      suppressElabErrors := ctx.suppressElabErrors
+    } |>.run {
+      env := s.env
+      nextMacroScope := s.nextMacroScope
+      maxRecDepth := ctx.maxRecDepth
+      ngen := s.ngen
+      scopes := [{ header := "", opts := ctx.options }]
+      infoState.enabled := s.infoState.enabled
+    }
+  modify fun coreState => { coreState with
+    env := commandState.env
+    nextMacroScope := commandState.nextMacroScope
+    ngen := commandState.ngen
+    traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
+  }
+  if throwOnError then
+    if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
+      throwError err.data
+  modify fun coreState => { coreState with
+    infoState.trees := coreState.infoState.trees.append commandState.infoState.trees
+    messages := coreState.messages ++ commandState.messages
+  }
+  return a
+
 /--
-Lifts an action in `CommandElabM` into `CoreM`, updating the traces and the environment.
+Lifts an action in `CommandElabM` into `CoreM`, updating the environment,
+messages, info trees, traces, the name generator, and macro scopes.
+The action is run in a context with an empty message log, empty trace state, and empty info trees.
+
+If `throwOnError` is true, then if the command produces an error message, it is converted into an exception.
+In this case, info trees and messages are not carried over.
 
 Commands that modify the processing of subsequent commands,
 such as `open` and `namespace` commands,
 only have an effect for the remainder of the `CommandElabM` computation passed here,
 and do not affect subsequent commands.
+
+*Warning:* when using this from `MetaM` monads, the caches are *not* reset.
+If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
+to reset the instance cache.
+While the `modifyEnv` function for `MetaM` clears its caches entirely,
+`liftCommandElabM` has no way to reset these caches.
 -/
-def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
-  let (a, commandState) ←
-    cmd.run {
-      fileName := ← getFileName
-      fileMap := ← getFileMap
-      ref := ← getRef
-      tacticCache? := none
-      snap? := none
-      cancelTk? := (← read).cancelTk?
-    } |>.run {
-      env := ← getEnv
-      maxRecDepth := ← getMaxRecDepth
-      scopes := [{ header := "", opts := ← getOptions }]
-    }
-  modify fun coreState => { coreState with
-    traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
-    env := commandState.env
-  }
-  if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
-    throwError err.data
-  pure a
+def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : CoreM α := do
+  -- `observing` ensures that if `cmd` throws an exception we still thread state back to `CoreM`.
+  MonadExcept.ofExcept (← liftCommandElabMCore (observing cmd) throwOnError)
 
 /--
 Given a command elaborator `cmd`, returns a new command elaborator that

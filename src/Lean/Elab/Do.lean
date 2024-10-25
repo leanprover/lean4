@@ -513,7 +513,7 @@ partial def extendUpdatedVarsAux (c : Code) (ws : VarSet) : TermElabM Code :=
     | .ite ref none o c t e => return .ite ref none o c (← update t) (← update e)
     | .ite ref (some h) o cond t e =>
       if ws.contains h.getId then
-        -- if the `h` at `if h:c then t else e` shadows a variable in `ws`, we `pullExitPoints`
+        -- if the `h` at `if h : c then t else e` shadows a variable in `ws`, we `pullExitPoints`
         pullExitPoints c
       else
         return Code.ite ref (some h) o cond (← update t) (← update e)

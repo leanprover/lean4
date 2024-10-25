@@ -20,9 +20,7 @@ lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 lean_object* l_Array_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Queue_isEmpty___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_dList___default(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_eList___default(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f___rarg(lean_object*);
@@ -37,22 +35,6 @@ lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_eList___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Queue_dList___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
 static lean_object* _init_l_Std_Queue_empty___closed__1() {
 _start:
 {

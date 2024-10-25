@@ -324,7 +324,6 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
 
 export ForIn' (forIn')
 
-
 /--
 Auxiliary type used to compile `do` notation. It is used when compiling a do block
 nested inside a combinator like `tryCatch`. It encodes the possible ways the
@@ -1385,6 +1384,7 @@ gen_injective_theorems% Except
 gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
+gen_injective_theorems% BitVec
 
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id
@@ -1864,7 +1864,8 @@ section
 variable {α : Type u}
 variable (r : α → α → Prop)
 
-instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
+instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
+    : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>
@@ -1934,15 +1935,6 @@ instance : Subsingleton (Squash α) where
     induction b using Squash.ind
     apply Quot.sound
     trivial
-
-/-! # Relations -/
-
-/--
-`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
--/
-class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
-  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
-  antisymm {a b : α} : r a b → r b a → a = b
 
 namespace Lean
 /-! # Kernel reduction hints -/
@@ -2118,5 +2110,15 @@ class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commuta
 instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
 instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
 instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
+
+/--
+`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
+-/
+class Antisymm (r : α → α → Prop) : Prop where
+  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
+  antisymm {a b : α} : r a b → r b a → a = b
+
+@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
+abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
 
 end Std

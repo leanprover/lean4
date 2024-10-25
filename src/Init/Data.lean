@@ -19,6 +19,7 @@ import Init.Data.ByteArray
 import Init.Data.FloatArray
 import Init.Data.Fin
 import Init.Data.UInt
+import Init.Data.SInt
 import Init.Data.Float
 import Init.Data.Option
 import Init.Data.Ord
@@ -40,3 +41,4 @@ import Init.Data.ULift
 import Init.Data.PLift
 import Init.Data.Zero
 import Init.Data.NeZero
+import Init.Data.Function

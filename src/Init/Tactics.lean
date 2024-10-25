@@ -268,9 +268,9 @@ syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
 inaccessible names to the given names.
 -/
-macro "next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
+macro nextTk:"next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
   -- Limit ref variability for incrementality; see Note [Incremental Macros]
-  withRef arrowTk `(tactic| case _ $args* =>%$arrowTk $tac)
+  withRef arrowTk `(tactic| case%$nextTk _ $args* =>%$arrowTk $tac)
 
 /-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
@@ -375,12 +375,12 @@ The same as `rfl`, but without trying `eq_refl` at the end.
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
--- We try `apply_rfl` first, beause it produces a nice error message
+-- We try `apply_rfl` first, because it produces a nice error message
 macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
 
 -- But, mostly for backward compatibility, we try `eq_refl` too (reduces more aggressively)
 macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
--- Als for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
+-- Also for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
@@ -495,7 +495,7 @@ macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
     `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
-/-- `rwa` calls `rw`, then closes any remaining goals using `assumption`. -/
+/-- `rwa` is short-hand for `rw; assumption`. -/
 macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
   `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
 
@@ -911,6 +911,15 @@ macro_rules | `(tactic| trivial) => `(tactic| simp)
 syntax "trivial" : tactic
 
 /--
+`classical tacs` runs `tacs` in a scope where `Classical.propDecidable` is a low priority
+local instance.
+
+Note that `classical` is a scoping tactic: it adds the instance only within the
+scope of the tactic.
+-/
+syntax (name := classical) "classical" ppDedent(tacticSeq) : tactic
+
+/--
 The `split` tactic is useful for breaking nested if-then-else and `match` expressions into separate cases.
 For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals.
 
@@ -1159,6 +1168,9 @@ Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
 -/
 macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
 
+/-- Implementation of `ac_nf` (the full `ac_nf` calls `trivial` afterwards). -/
+syntax (name := acNf0) "ac_nf0" (location)? : tactic
+
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
 
@@ -1208,6 +1220,24 @@ See also `push_cast`, which moves casts inwards rather than lifting them outward
 -/
 macro "norm_cast" loc:(location)? : tactic =>
   `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+
+/--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+- `ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+macro "ac_nf" loc:(location)? : tactic =>
+  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
 
 /--
 `push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.

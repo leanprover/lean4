@@ -65,6 +65,18 @@ inductive BVBinOp where
   Multiplication.
   -/
   | mul
+  /--
+  Unsigned division.
+  -/
+  | udiv
+  /--
+  Unsigned modulo.
+  -/
+  | umod
+  /--
+  Signed division.
+  -/
+  | sdiv
 
 namespace BVBinOp
 
@@ -74,6 +86,9 @@ def toString : BVBinOp → String
   | xor => "^"
   | add => "+"
   | mul => "*"
+  | udiv => "/ᵤ"
+  | umod => "%ᵤ"
+  | sdiv => "/ₛ"
 
 instance : ToString BVBinOp := ⟨toString⟩
 
@@ -86,12 +101,18 @@ def eval : BVBinOp → (BitVec w → BitVec w → BitVec w)
   | xor => (· ^^^ ·)
   | add => (· + ·)
   | mul => (· * ·)
+  | udiv => (· / ·)
+  | umod => (· % · )
+  | sdiv => BitVec.sdiv
 
 @[simp] theorem eval_and : eval .and = ((· &&& ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_or : eval .or = ((· ||| ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_xor : eval .xor = ((· ^^^ ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_add : eval .add = ((· + ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_mul : eval .mul = ((· * ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_udiv : eval .udiv = ((· / ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_umod : eval .umod = ((· % ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_sdiv : eval .sdiv = (BitVec.sdiv : BitVec w → BitVec w → BitVec w) := by rfl
 
 end BVBinOp
 

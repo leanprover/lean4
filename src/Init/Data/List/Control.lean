@@ -254,6 +254,8 @@ instance : ForIn m (List α) α where
 instance : ForIn' m (List α) α inferInstance where
   forIn' := List.forIn'
 
+@[simp] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
+
 @[simp] theorem forIn'_eq_forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : forIn' as init (fun a _ b => f a b) = forIn as init f := by
   simp [forIn', forIn, List.forIn, List.forIn']
   have : ∀ cs h, List.forIn'.loop cs (fun a _ b => f a b) as init h = List.forIn.loop f as init := by

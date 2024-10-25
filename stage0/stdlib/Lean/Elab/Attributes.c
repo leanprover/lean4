@@ -135,10 +135,8 @@ static lean_object* l_Lean_Elab_elabAttr___rarg___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabDeclAttrs(lean_object*);
 lean_object* lean_environment_main_module(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Elab_Attribute_kind___default;
 static lean_object* l_Lean_Elab_toAttributeKind___closed__4;
 static lean_object* l_Lean_Elab_instInhabitedAttribute___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_Attribute_stx___default;
 static lean_object* l_Lean_Elab_elabAttr___rarg___lambda__4___closed__4;
 lean_object* l_Lean_isTracingEnabledFor___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instToFormatAttribute___closed__7;
@@ -191,22 +189,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__
 static lean_object* l_Lean_Elab_toAttributeKind___closed__2;
 lean_object* l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_mkAttrKindGlobal___closed__9;
-static uint8_t _init_l_Lean_Elab_Attribute_kind___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Attribute_stx___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_instInhabitedAttribute___closed__1() {
 _start:
 {
@@ -2874,9 +2856,6 @@ _G_initialized = true;
 res = initialize_Lean_Elab_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Attribute_kind___default = _init_l_Lean_Elab_Attribute_kind___default();
-l_Lean_Elab_Attribute_stx___default = _init_l_Lean_Elab_Attribute_stx___default();
-lean_mark_persistent(l_Lean_Elab_Attribute_stx___default);
 l_Lean_Elab_instInhabitedAttribute___closed__1 = _init_l_Lean_Elab_instInhabitedAttribute___closed__1();
 lean_mark_persistent(l_Lean_Elab_instInhabitedAttribute___closed__1);
 l_Lean_Elab_instInhabitedAttribute = _init_l_Lean_Elab_instInhabitedAttribute();

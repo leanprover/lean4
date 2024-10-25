@@ -18,8 +18,11 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sdiv
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 /-!
 This module contains the verification of the `BitVec` expressions (`BVExpr`) bitblaster from
@@ -183,6 +186,42 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     | mul =>
       simp only [go, eval_bin, BVBinOp.eval_mul]
       apply denote_blastMul
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
+    | udiv =>
+      simp only [go, eval_bin, BVBinOp.eval_udiv]
+      apply denote_blastUdiv
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
+    | umod =>
+      simp only [go, eval_bin, BVBinOp.eval_umod]
+      apply denote_blastUmod
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
+    | sdiv =>
+      simp only [go, eval_bin, BVBinOp.eval_sdiv]
+      apply denote_blastSdiv
       · intros
         dsimp only
         rw [go_denote_mem_prefix]

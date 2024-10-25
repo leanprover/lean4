@@ -153,6 +153,12 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     m.isEmpty = true ↔ ∀ a, ¬a ∈ m := by
   simpa [mem_iff_contains] using isEmpty_iff_forall_contains h
 
+@[simp] theorem insert_eq_insert {p : (a : α) × β a} : Insert.insert p m = m.insert p.1 p.2 := rfl
+
+@[simp] theorem singleton_eq_insert {p : (a : α) × β a} :
+    Singleton.singleton p = (∅ : Raw α β).insert p.1 p.2 :=
+  rfl
+
 @[simp]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a k : α} {v : β k} :
     (m.insert k v).contains a = (k == a || m.contains a) := by

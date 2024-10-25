@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix
+Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 -/
 prelude
 import Init.Data.BitVec.Folds
@@ -17,6 +17,80 @@ as vectors of bits into proofs about Lean `BitVec` values.
 
 The module is named for the bit-blasting operation in an SMT solver that converts bitvector
 expressions into expressions about individual bits in each vector.
+
+### Example: How bitblasting works for multiplication
+
+We explain how the lemmas here are used for bitblasting,
+by using multiplication as a prototypical example.
+Other bitblasters for other operations follow the same pattern.
+To bitblast a multiplication of the form `x * y`,
+we must unfold the above into a form that the SAT solver understands.
+
+We assume that the solver already knows how to bitblast addition.
+This is known to `bv_decide`, by exploiting the lemma `add_eq_adc`,
+which says that `x + y : BitVec w` equals `(adc x y false).2`,
+where `adc` builds an add-carry circuit in terms of the primitive operations
+(bitwise and, bitwise or, bitwise xor) that bv_decide already understands.
+In this way, we layer bitblasters on top of each other,
+by reducing the multiplication bitblaster to an addition operation.
+
+The core lemma is given by `getLsbD_mul`:
+
+```lean
+ x y : BitVec w ⊢ (x * y).getLsbD i = (mulRec x y w).getLsbD i
+```
+
+Which says that the `i`th bit of `x * y` can be obtained by
+evaluating the `i`th bit of `(mulRec x y w)`.
+Once again, we assume that `bv_decide` knows how to implement `getLsbD`,
+given that `mulRec` can be understood by `bv_decide`.
+
+We write two lemmas to enable `bv_decide` to unfold `(mulRec x y w)`
+into a complete circuit, **when `w` is a known constant**`.
+This is given by two recurrence lemmas, `mulRec_zero_eq` and `mulRec_succ_eq`,
+which are applied repeatedly when the width is `0` and when the width is `w' + 1`:
+
+```lean
+mulRec_zero_eq :
+    mulRec x y 0 =
+      if y.getLsbD 0 then x else 0
+
+mulRec_succ_eq
+    mulRec x y (s + 1) =
+      mulRec x y s +
+      if y.getLsbD (s + 1) then (x <<< (s + 1)) else 0 := rfl
+```
+
+By repeatedly applying the lemmas `mulRec_zero_eq` and `mulRec_succ_eq`,
+one obtains a circuit for multiplication.
+Note that this circuit uses `BitVec.add`, `BitVec.getLsbD`, `BitVec.shiftLeft`.
+Here, `BitVec.add` and `BitVec.shiftLeft` are (recursively) bitblasted by `bv_decide`,
+using the lemmas `add_eq_adc` and `shiftLeft_eq_shiftLeftRec`,
+and `BitVec.getLsbD` is a primitive that `bv_decide` knows how to reduce to SAT.
+
+The two lemmas, `mulRec_zero_eq`, and `mulRec_succ_eq`,
+are used in `Std.Tactic.BVDecide.BVExpr.bitblast.blastMul`
+to prove the correctness of the circuit that is built by `bv_decide`.
+
+```lean
+def blastMul (aig : AIG BVBit) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry BVBit w
+theorem denote_blastMul (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment) :
+   ...
+   ⟦(blastMul aig input).aig, (blastMul aig input).vec.get idx hidx, assign.toAIGAssignment⟧
+     =
+   (lhs * rhs).getLsbD idx
+```
+
+The definition and theorem above are internal to `bv_decide`,
+and use `mulRec_{zero,succ}_eq` to prove that the circuit built by `bv_decide`
+computes the correct value for multiplication.
+
+To zoom out, therefore, we follow two steps:
+First, we prove bitvector lemmas to unfold a high-level operation (such as multiplication)
+into already bitblastable operations (such as addition and left shift).
+We then use these lemmas to prove the correctness of the circuit that `bv_decide` builds.
+
+We use this workflow to implement bitblasting for all SMT-LIB2 operations.
 
 ## Main results
 * `x + y : BitVec w` is `(adc x y false).2`.
@@ -164,6 +238,17 @@ theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
       (getLsbD x i ^^ (getLsbD y i ^^ carry i x y false)) := by
   simpa using getLsbD_add_add_bool i_lt x y false
 
+theorem getElem_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool) :
+    (x + y + setWidth w (ofBool c))[i] =
+      (x[i] ^^ (y[i] ^^ carry i x y c)) := by
+  simp only [← getLsbD_eq_getElem]
+  rw [getLsbD_add_add_bool]
+  omega
+
+theorem getElem_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
+    (x + y)[i] = (x[i] ^^ (y[i] ^^ carry i x y false)) := by
+  simpa using getElem_add_add_bool i_lt x y false
+
 theorem adc_spec (x y : BitVec w) (c : Bool) :
     adc x y c = (carry w x y c, x + y + setWidth w (ofBool c)) := by
   simp only [adc]
@@ -181,6 +266,21 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
   simp [adc_spec]
 
 /-! ### add -/
+
+theorem getMsbD_add {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    getMsbD (x + y) i =
+      Bool.xor (getMsbD x i) (Bool.xor (getMsbD y i) (carry (w - 1 - i) x y false)) := by
+  simp [getMsbD, getLsbD_add, i_lt, show w - 1 - i < w by omega]
+
+theorem msb_add {w : Nat} {x y: BitVec w} :
+    (x + y).msb =
+      Bool.xor x.msb (Bool.xor y.msb (carry (w - 1) x y false)) := by
+  simp only [BitVec.msb, BitVec.getMsbD]
+  by_cases h : w ≤ 0
+  · simp [h, show w = 0 by omega]
+  · rw [getLsbD_add (x := x)]
+    simp [show w > 0 by omega]
+    omega
 
 /-- Adding a bitvector to its own complement yields the all ones bitpattern -/
 @[simp] theorem add_not_self (x : BitVec w) : x + ~~~x = allOnes w := by
@@ -206,6 +306,26 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     · intros hx
       simp_all [hx]
     · by_cases hx : x.getLsbD i <;> simp_all [hx]
+
+/-! ### Sub-/
+
+theorem getLsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getLsbD i
+      = (x.getLsbD i ^^ ((~~~y + 1#w).getLsbD i ^^ carry i x (~~~y + 1#w) false)) := by
+  rw [sub_toAdd, BitVec.neg_eq_not_add, getLsbD_add]
+  omega
+
+theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
+    (x - y).getMsbD i =
+      (x.getMsbD i ^^ ((~~~y + 1).getMsbD i ^^ carry (w - 1 - i) x (~~~y + 1) false)) := by
+  rw [sub_toAdd, neg_eq_not_add, getMsbD_add]
+  · rfl
+  · omega
+
+theorem msb_sub {x y: BitVec w} :
+    (x - y).msb
+      = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
+  simp [sub_toAdd, BitVec.neg_eq_not_add, msb_add]
 
 /-! ### Negation -/
 
@@ -368,6 +488,10 @@ theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
   · simp
   · omega
 
+theorem getElem_mul {x y : BitVec w} {i : Nat} (h : i < w) :
+    (x * y)[i] = (mulRec x y w)[i] := by
+  simp [mulRec_eq_mul_signExtend_setWidth]
+
 /-! ## shiftLeft recurrence for bitblasting -/
 
 /--
@@ -482,7 +606,7 @@ then `n.udiv d = q`. -/
 theorem udiv_eq_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
     (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
-    n.udiv d = q := by
+    n / d = q := by
   apply BitVec.eq_of_toNat_eq
   rw [toNat_udiv]
   replace hdqnr : (d.toNat * q.toNat + r.toNat) / d.toNat = n.toNat / d.toNat := by
@@ -498,7 +622,7 @@ theorem udiv_eq_of_mul_add_toNat {d n q r : BitVec w} (hd : 0 < d)
 then `n.umod d = r`. -/
 theorem umod_eq_of_mul_add_toNat {d n q r : BitVec w} (hrd : r < d)
     (hdqnr : d.toNat * q.toNat + r.toNat = n.toNat) :
-    n.umod d = r := by
+    n % d = r := by
   apply BitVec.eq_of_toNat_eq
   rw [toNat_umod]
   replace hdqnr : (d.toNat * q.toNat + r.toNat) % d.toNat = n.toNat % d.toNat := by
@@ -599,7 +723,7 @@ quotient has been correctly computed.
 theorem DivModState.udiv_eq_of_lawful {n d : BitVec w} {qr : DivModState w}
     (h_lawful : DivModState.Lawful {n, d} qr)
     (h_final  : qr.wn = 0) :
-    n.udiv d = qr.q := by
+    n / d = qr.q := by
   apply udiv_eq_of_mul_add_toNat h_lawful.hdPos h_lawful.hrLtDivisor
   have hdiv := h_lawful.hdiv
   simp only [h_final] at *
@@ -612,7 +736,7 @@ remainder has been correctly computed.
 theorem DivModState.umod_eq_of_lawful {qr : DivModState w}
     (h : DivModState.Lawful {n, d} qr)
     (h_final  : qr.wn = 0) :
-    n.umod d = qr.r := by
+    n % d = qr.r := by
   apply umod_eq_of_mul_add_toNat h.hrLtDivisor
   have hdiv := h.hdiv
   simp only [shiftRight_zero] at hdiv
@@ -678,7 +802,7 @@ theorem DivModState.toNat_shiftRight_sub_one_eq
     omega
 
 /--
-This is used when proving the correctness of the divison algorithm,
+This is used when proving the correctness of the division algorithm,
 where we know that `r < d`.
 We then want to show that `((r.shiftConcat b) - d) < d` as the loop invariant.
 In arithmetic, this is the same as showing that
@@ -786,7 +910,7 @@ theorem wn_divRec (args : DivModArgs w) (qr : DivModState w) :
 /-- The result of `udiv` agrees with the result of the division recurrence. -/
 theorem udiv_eq_divRec (hd : 0#w < d) :
     let out := divRec w {n, d} (DivModState.init w)
-    n.udiv d = out.q := by
+    n / d = out.q := by
   have := DivModState.lawful_init {n, d} hd
   have := lawful_divRec this
   apply DivModState.udiv_eq_of_lawful this (wn_divRec ..)
@@ -794,7 +918,7 @@ theorem udiv_eq_divRec (hd : 0#w < d) :
 /-- The result of `umod` agrees with the result of the division recurrence. -/
 theorem umod_eq_divRec (hd : 0#w < d) :
     let out := divRec w {n, d} (DivModState.init w)
-    n.umod d = out.r := by
+    n % d = out.r := by
   have := DivModState.lawful_init {n, d} hd
   have := lawful_divRec this
   apply DivModState.umod_eq_of_lawful this (wn_divRec ..)

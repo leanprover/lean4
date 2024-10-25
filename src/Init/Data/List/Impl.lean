@@ -38,7 +38,7 @@ The following operations were already given `@[csimp]` replacements in `Init/Dat
 
 The following operations are given `@[csimp]` replacements below:
 `set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
-`take`, `takeWhile`, `dropLast`, `replace`, `erase`, `eraseIdx`, `zipWith`,
+`take`, `takeWhile`, `dropLast`, `replace`, `modify`, `erase`, `eraseIdx`, `zipWith`,
 `enumFrom`, and `intercalate`.
 
 -/
@@ -93,29 +93,29 @@ The following operations are given `@[csimp]` replacements below:
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
   funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_toList, -Array.size_toArray]
 
-/-! ### bind  -/
+/-! ### flatMap  -/
 
-/-- Tail recursive version of `List.bind`. -/
-@[inline] def bindTR (as : List α) (f : α → List β) : List β := go as #[] where
-  /-- Auxiliary for `bind`: `bind.go f as = acc.toList ++ bind f as` -/
+/-- Tail recursive version of `List.flatMap`. -/
+@[inline] def flatMapTR (as : List α) (f : α → List β) : List β := go as #[] where
+  /-- Auxiliary for `flatMap`: `flatMap.go f as = acc.toList ++ bind f as` -/
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
   | x::xs, acc => go xs (acc ++ f x)
 
-@[csimp] theorem bind_eq_bindTR : @List.bind = @bindTR := by
+@[csimp] theorem flatMap_eq_flatMapTR : @List.flatMap = @flatMapTR := by
   funext α β as f
-  let rec go : ∀ as acc, bindTR.go f as acc = acc.toList ++ as.bind f
-    | [], acc => by simp [bindTR.go, bind]
-    | x::xs, acc => by simp [bindTR.go, bind, go xs]
+  let rec go : ∀ as acc, flatMapTR.go f as acc = acc.toList ++ as.flatMap f
+    | [], acc => by simp [flatMapTR.go, flatMap]
+    | x::xs, acc => by simp [flatMapTR.go, flatMap, go xs]
   exact (go as #[]).symm
 
-/-! ### join -/
+/-! ### flatten -/
 
-/-- Tail recursive version of `List.join`. -/
-@[inline] def joinTR (l : List (List α)) : List α := bindTR l id
+/-- Tail recursive version of `List.flatten`. -/
+@[inline] def flattenTR (l : List (List α)) : List α := flatMapTR l id
 
-@[csimp] theorem join_eq_joinTR : @join = @joinTR := by
-  funext α l; rw [← List.bind_id, List.bind_eq_bindTR]; rfl
+@[csimp] theorem flatten_eq_flattenTR : @flatten = @flattenTR := by
+  funext α l; rw [← List.flatMap_id, List.flatMap_eq_flatMapTR]; rfl
 
 /-! ## Sublists -/
 
@@ -196,6 +196,24 @@ The following operations are given `@[csimp]` replacements below:
     split
     · simp [*]
     · intro h; rw [IH] <;> simp_all
+
+/-! ### modify -/
+
+/-- Tail-recursive version of `modify`. -/
+def modifyTR (f : α → α) (n : Nat) (l : List α) : List α := go l n #[] where
+  /-- Auxiliary for `modifyTR`: `modifyTR.go f l n acc = acc.toList ++ modify f n l`. -/
+  go : List α → Nat → Array α → List α
+  | [], _, acc => acc.toList
+  | a :: l, 0, acc => acc.toListAppend (f a :: l)
+  | a :: l, n+1, acc => go l n (acc.push a)
+
+theorem modifyTR_go_eq : ∀ l n, modifyTR.go f l n acc = acc.toList ++ modify f n l
+  | [], n => by cases n <;> simp [modifyTR.go, modify]
+  | a :: l, 0 => by simp [modifyTR.go, modify]
+  | a :: l, n+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
+
+@[csimp] theorem modify_eq_modifyTR : @modify = @modifyTR := by
+  funext α f n l; simp [modifyTR, modifyTR_go_eq]
 
 /-! ### erase -/
 
@@ -322,7 +340,7 @@ where
   | [_] => simp
   | x::y::xs =>
     let rec go {acc x} : ∀ xs,
-      intercalateTR.go sep.toArray x xs acc = acc.toList ++ join (intersperse sep (x::xs))
+      intercalateTR.go sep.toArray x xs acc = acc.toList ++ flatten (intersperse sep (x::xs))
     | [] => by simp [intercalateTR.go]
     | _::_ => by simp [intercalateTR.go, go]
     simp [intersperse, go]

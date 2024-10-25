@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Lean_Language_Lean_HeaderProcessedSnapshot_isFatal___default(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandFinishedSnapshot___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandParsedSnapshot_data___boxed(lean_object*);
@@ -36,11 +35,8 @@ LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSna
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderParsedSnapshot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandFinishedSnapshot(lean_object*);
 static lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult___closed__2;
-LEAN_EXPORT uint8_t l_Lean_Language_Lean_HeaderParsedSnapshot_isFatal___default(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go(lean_object*);
 lean_object* lean_array_mk(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedSnapshot_isFatal___default___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_isFatal___default___boxed(lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_map___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandParsedSnapshot_nextCmdSnap_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult___lambda__1(lean_object*);
@@ -378,33 +374,6 @@ x_1 = l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___closed__
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Language_Lean_HeaderProcessedSnapshot_isFatal___default(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderProcessedSnapshot_isFatal___default___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Language_Lean_HeaderProcessedSnapshot_isFatal___default(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot___closed__1() {
 _start:
 {
@@ -534,33 +503,6 @@ lean_ctor_set(x_40, 1, x_39);
 return x_40;
 }
 }
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Language_Lean_HeaderParsedSnapshot_isFatal___default(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-uint8_t x_2; 
-x_2 = 1;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_isFatal___default___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Language_Lean_HeaderParsedSnapshot_isFatal___default(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderParsedSnapshot___lambda__1(lean_object* x_1, lean_object* x_2) {

@@ -27,8 +27,11 @@ extern "C" {
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) _alloca(s)
+#include <stdnoreturn.h>
+#define LEAN_NORETURN _Noreturn
 #else
 #define LEAN_ALLOCA(s) alloca(s)
+#define LEAN_NORETURN __attribute__((noreturn))
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -148,7 +151,7 @@ typedef lean_object * b_lean_obj_res; /* Borrowed object result. */
 
 typedef struct {
     lean_object   m_header;
-    lean_object * m_objs[0];
+    lean_object * m_objs[];
 } lean_ctor_object;
 
 /* Array arrays */
@@ -156,7 +159,7 @@ typedef struct {
     lean_object   m_header;
     size_t        m_size;
     size_t        m_capacity;
-    lean_object * m_data[0];
+    lean_object * m_data[];
 } lean_array_object;
 
 /* Scalar arrays */
@@ -164,7 +167,7 @@ typedef struct {
     lean_object   m_header;
     size_t        m_size;
     size_t        m_capacity;
-    uint8_t       m_data[0];
+    uint8_t       m_data[];
 } lean_sarray_object;
 
 typedef struct {
@@ -172,7 +175,7 @@ typedef struct {
     size_t      m_size;     /* byte length including '\0' terminator */
     size_t      m_capacity;
     size_t      m_length;   /* UTF8 length */
-    char        m_data[0];
+    char        m_data[];
 } lean_string_object;
 
 typedef struct {
@@ -180,7 +183,7 @@ typedef struct {
     void *        m_fun;
     uint16_t      m_arity;     /* Number of arguments expected by m_fun. */
     uint16_t      m_num_fixed; /* Number of arguments that have been already fixed. */
-    lean_object * m_objs[0];
+    lean_object * m_objs[];
 } lean_closure_object;
 
 typedef struct {
@@ -293,10 +296,10 @@ LEAN_EXPORT void lean_set_panic_messages(bool flag);
 
 LEAN_EXPORT lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic(char const * msg);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_out_of_memory(void);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_unreachable(void);
-LEAN_EXPORT __attribute__((noreturn)) void lean_internal_panic_rc_overflow(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic(char const * msg);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_out_of_memory(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_unreachable(void);
+LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_rc_overflow(void);
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);
@@ -1844,6 +1847,140 @@ static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2;
 static inline uint32_t lean_usize_to_uint32(size_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 
+/*
+ * Note that we compile all files with -frwapv so in the following section all potential UB that
+ * may arise from signed overflow is forced to match 2's complement behavior.
+ *
+ * We furthermore rely on the implementation defined behavior of gcc/clang to apply reduction mod
+ * 2^N when casting to an integer type of size N:
+ * https://gcc.gnu.org/onlinedocs/gcc/Integers-implementation.html#Integers-implementation
+ * Unfortunately LLVM does not yet document their implementation defined behavior but it is
+ * most likely fine to rely on the fact that GCC and LLVM match on this:
+ * https://github.com/llvm/llvm-project/issues/11644
+ */
+
+/* Int8 */
+LEAN_EXPORT int8_t lean_int8_of_big_int(b_lean_obj_arg a);
+static inline uint8_t lean_int8_of_int(b_lean_obj_arg a) {
+    int8_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (int8_t)lean_scalar_to_int64(a);
+    } else {
+        res = lean_int8_of_big_int(a);
+    }
+
+    return (uint8_t)res;
+}
+
+static inline lean_obj_res lean_int8_to_int(uint8_t a) {
+    int8_t arg = (int8_t)a;
+    return lean_int64_to_int((int64_t)arg);
+}
+
+static inline uint8_t lean_int8_neg(uint8_t a) {
+    int8_t arg = (int8_t)a;
+
+    return (uint8_t)(-arg);
+}
+
+static inline uint8_t lean_int8_add(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs + rhs);
+}
+
+static inline uint8_t lean_int8_sub(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs - rhs);
+}
+
+static inline uint8_t lean_int8_mul(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs * rhs);
+}
+
+static inline uint8_t lean_int8_div(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(rhs == 0 ? 0 : lhs / rhs);
+}
+
+static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(rhs == 0 ? 0 : lhs % rhs);
+}
+
+static inline uint8_t lean_int8_land(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs & rhs);
+}
+
+static inline uint8_t lean_int8_lor(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs | rhs);
+}
+
+static inline uint8_t lean_int8_xor(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs ^ rhs);
+}
+
+static inline uint8_t lean_int8_shift_right(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs >> (rhs % 8));
+}
+
+static inline uint8_t lean_int8_shift_left(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return (uint8_t)(lhs << (rhs % 8));
+}
+
+static inline uint8_t lean_int8_complement(uint8_t a) {
+    int8_t arg = (int8_t)a;
+
+    return (uint8_t)(~arg);
+}
+
+static inline uint8_t lean_int8_dec_eq(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return lhs == rhs;
+}
+
+static inline uint8_t lean_int8_dec_lt(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return lhs < rhs;
+}
+
+static inline uint8_t lean_int8_dec_le(uint8_t a1, uint8_t a2) {
+    int8_t lhs = (int8_t) a1;
+    int8_t rhs = (int8_t) a2;
+
+    return lhs <= rhs;
+}
+
 /* Float */
 
 LEAN_EXPORT lean_obj_res lean_float_to_string(double a);
@@ -1916,6 +2053,7 @@ LEAN_EXPORT lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg 
 /* IO Helper functions */
 
 LEAN_EXPORT lean_obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname);
+LEAN_EXPORT lean_obj_res lean_decode_uv_error(int errnum, b_lean_obj_arg fname);
 
 static inline lean_obj_res lean_io_mk_world() { return lean_box(0); }
 static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }

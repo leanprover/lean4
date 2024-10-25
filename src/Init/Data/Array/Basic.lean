@@ -7,10 +7,11 @@ prelude
 import Init.WFTactics
 import Init.Data.Nat.Basic
 import Init.Data.Fin.Basic
-import Init.Data.UInt.Basic
+import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
+import Init.Data.List.ToArray
 universe u v w
 
 /-! ### Array literal syntax -/
@@ -23,6 +24,8 @@ macro_rules
 variable {α : Type u}
 
 namespace Array
+
+@[deprecated size (since := "2024-10-13")] abbrev data := @toList
 
 /-! ### Preliminary theorems -/
 
@@ -76,6 +79,42 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
 
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
+
+@[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+/-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
+-- NB: This is defined as a structure rather than a plain def so that a lemma
+-- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
+structure Mem (as : Array α) (a : α) : Prop where
+  val : a ∈ as.toList
+
+instance : Membership α (Array α) where
+  mem := Mem
+
+theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
+  ⟨fun | .mk h => h, Array.Mem.mk⟩
+
+@[simp] theorem getElem_mem {l : Array α} {i : Nat} (h : i < l.size) : l[i] ∈ l := by
+  rw [Array.mem_def, ← getElem_toList]
+  apply List.getElem_mem
+
+end Array
+
+namespace List
+
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
+
+@[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
+    a.toArray[i] = a[i]'(by simpa using h) := rfl
+
+@[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
+
+@[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
+    a.toArray[i]! = a[i]! := rfl
+
+end List
+
+namespace Array
 
 @[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @toList_toArray
 
@@ -215,14 +254,17 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
     swapAt a ⟨i, h⟩ v
   else
-    have : Inhabited α := ⟨v⟩
+    have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
-def shrink (a : Array α) (n : Nat) : Array α :=
+/-- `take a n` returns the first `n` elements of `a`. -/
+def take (a : Array α) (n : Nat) : Array α :=
   let rec loop
     | 0,   a => a
     | n+1, a => loop n a.pop
   loop (a.size - n) a
+
+@[deprecated take (since := "2024-10-22")] abbrev shrink := @take
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -289,6 +331,37 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
 
 instance : ForIn m (Array α) α where
   forIn := Array.forIn
+
+/-- See comment at `forInUnsafe` -/
+@[inline] unsafe def forIn'Unsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+  let sz := as.usize
+  let rec @[specialize] loop (i : USize) (b : β) : m β := do
+    if i < sz then
+      let a := as.uget i lcProof
+      match (← f a lcProof b) with
+      | ForInStep.done  b => pure b
+      | ForInStep.yield b => loop (i+1) b
+    else
+      pure b
+  loop 0 b
+
+/-- Reference implementation for `forIn'` -/
+@[implemented_by Array.forIn'Unsafe]
+protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
+    match i, h with
+    | 0,   _ => pure b
+    | i+1, h =>
+      have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
+      have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
+      have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
+      match (← f as[as.size - 1 - i] (getElem_mem this) b) with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b => loop i (Nat.le_of_lt h') b
+  loop as.size (Nat.le_refl _) b
+
+instance : ForIn' m (Array α) α inferInstance where
+  forIn' := Array.forIn'
 
 /-- See comment at `forInUnsafe` -/
 @[inline]
@@ -395,19 +468,24 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
   decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (mkEmpty as.size)
 
+/-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
+def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
+    (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
     match i, inv with
     | 0,    _  => pure bs
     | i+1, inv =>
-      have : j < as.size := by
+      have j_lt : j < as.size := by
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
-      let idx : Fin as.size := ⟨j, this⟩
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f idx (as.get idx)))
+      map i (j+1) this (bs.push (← f ⟨j, j_lt⟩ (as.get ⟨j, j_lt⟩)))
   map as.size 0 rfl (mkEmpty as.size)
+
+@[inline]
+def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Nat → α → m β) : m (Array β) :=
+  as.mapFinIdxM fun i a => f i a
 
 @[inline]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) := do
@@ -514,8 +592,13 @@ def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : A
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f
 
+/-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+  Id.run <| as.mapFinIdxM f
+
+@[inline]
+def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Nat → α → β) : Array β :=
   Id.run <| as.mapIdxM f
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
@@ -606,18 +689,22 @@ protected def appendList (as : Array α) (bs : List α) : Array α :=
 instance : HAppend (Array α) (List α) (Array α) := ⟨Array.appendList⟩
 
 @[inline]
-def concatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
+def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
+@[deprecated concatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
+
 @[inline]
-def concatMap (f : α → Array β) (as : Array α) : Array β :=
+def flatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
+
+@[deprecated flatMap (since := "2024-10-16")] abbrev concatMap := @flatMap
 
 /-- Joins array of array into a single array.
 
 `flatten #[#[a₁, a₂, ⋯], #[b₁, b₂, ⋯], ⋯]` = `#[a₁, a₂, ⋯, b₁, b₂, ⋯]`
 -/
-def flatten (as : Array (Array α)) : Array α :=
+@[inline] def flatten (as : Array (Array α)) : Array α :=
   as.foldl (init := empty) fun r a => r ++ a
 
 @[inline]
@@ -720,7 +807,7 @@ termination_by a.size - i.val
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
+@[simp] theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with
   | @case1 a i h a' _ ih =>
     unfold feraseIdx
@@ -812,8 +899,14 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
 
 /-! ## Auxiliary functions used in metaprogramming.
 
-We do not intend to provide verification theorems for these functions.
+We do not currently intend to provide verification theorems for these functions.
 -/
+
+/- ### reduceOption -/
+
+/-- Drop `none`s from a Array, and replace each remaining `some a` with `a`. -/
+@[inline] def reduceOption (as : Array (Option α)) : Array α :=
+  as.filterMap id
 
 /-! ### eraseReps -/
 

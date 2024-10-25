@@ -27,6 +27,9 @@ instance : ToExpr BVBinOp where
     | .xor => mkConst ``BVBinOp.xor
     | .add => mkConst ``BVBinOp.add
     | .mul => mkConst ``BVBinOp.mul
+    | .udiv => mkConst ``BVBinOp.udiv
+    | .umod => mkConst ``BVBinOp.umod
+    | .sdiv => mkConst ``BVBinOp.sdiv
   toTypeExpr := mkConst ``BVBinOp
 
 instance : ToExpr BVUnOp where

@@ -15,8 +15,9 @@ circuit mirrors the behavior of `BitVec.mulRec`.
 
 Note that the implementation performs a symbolic branch over the bits of the right hand side.
 Thus if the right hand side is (partially) known through constant propagation etc. the symbolic
-branches will be (partially) constant folded away by the AIG optimizer. The preprocessing simp set
-of `bv_decide` ensures that constants always end up on the right hand side for this reason.
+branches will be (partially) constant folded away by the AIG optimizer. The preprocessing of
+`blastMul` ensures that the value with more known bits always end up on the right hand side for
+this reason.
 -/
 
 namespace Std.Tactic.BVDecide
@@ -50,9 +51,9 @@ where
       have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
       let lhs := lhs.cast this
       let rhs := rhs.cast this
-      go aig lhs rhs 1 (by omega) acc
+      go aig lhs rhs 1 acc
 
-  go (aig : AIG BVBit) (lhs rhs : AIG.RefVec aig w) (curr : Nat) (hcurr : curr ≤ w)
+  go (aig : AIG BVBit) (lhs rhs : AIG.RefVec aig w) (curr : Nat)
       (acc : AIG.RefVec aig w) :
       AIG.RefVecEntry BVBit w :=
     if h : curr < w then
@@ -76,15 +77,15 @@ where
       have := by apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
       let lhs := lhs.cast this
       let rhs := rhs.cast this
-      go aig lhs rhs (curr + 1) (by omega) acc
+      go aig lhs rhs (curr + 1) acc
     else
       ⟨aig, acc⟩
 
 namespace blastMul
 
-theorem go_le_size {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr ≤ w) (acc : AIG.RefVec aig w)
+theorem go_le_size {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec aig w)
     (lhs rhs : AIG.RefVec aig w) :
-    aig.decls.size ≤ (go aig lhs rhs curr hcurr acc).aig.decls.size := by
+    aig.decls.size ≤ (go aig lhs rhs curr acc).aig.decls.size := by
   unfold go
   split
   · dsimp only
@@ -94,11 +95,11 @@ theorem go_le_size {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr ≤ w)
     apply AIG.LawfulVecOperator.le_size (f := blastShiftLeftConst)
   · simp
 
-theorem go_decl_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr ≤ w) (acc : AIG.RefVec aig w)
+theorem go_decl_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec aig w)
     (lhs rhs : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
-       (go aig lhs rhs curr hcurr acc).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
-  generalize hgo : go aig lhs rhs curr hcurr acc = res
+       (go aig lhs rhs curr acc).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+  generalize hgo : go aig lhs rhs curr acc = res
   unfold go at hgo
   split at hgo
   · dsimp only at hgo

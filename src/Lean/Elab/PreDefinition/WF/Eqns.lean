@@ -83,9 +83,9 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     withReducible do
       mkEqnTypes info.declNames goal.mvarId!
   let mut thmNames := #[]
-  for i in [: eqnTypes.size] do
-    let type := eqnTypes[i]!
-    trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
+  for h : i in [: eqnTypes.size] do
+    let type := eqnTypes[i]
+    trace[Elab.definition.wf.eqns] "{eqnTypes[i]}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     realizeConst declName name .thm do

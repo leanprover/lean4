@@ -350,3 +350,33 @@
   run_config:
     <<: *time
     cmd: lean bv_decide_mul.lean
+- attributes:
+    description: bv_decide_mod
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_mod.lean
+- attributes:
+    description: bv_decide_inequality.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_inequality.lean
+- attributes:
+    description: big_do
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean big_do.lean
+- attributes:
+    description: big_omega.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean big_omega.lean
+- attributes:
+    description: big_omega.lean MT
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean big_omega.lean -Dinternal.cmdlineSnapshots=false

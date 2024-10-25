@@ -66,7 +66,6 @@ static lean_object* l_Lake_BinderSyntaxView_mkArgument___closed__1;
 static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_mkFreshBinderName___at_Lake_expandBinderIdent___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__11;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_matchBinder___closed__5;
 LEAN_EXPORT lean_object* l_Lake_instCoeBinderIdentFunBinder___boxed(lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -115,6 +114,7 @@ static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__1;
 LEAN_EXPORT lean_object* l_Lake_expandOptIdent___boxed(lean_object*);
 static lean_object* l_Lake_binder_formatter___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lake_expandBinders___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_BinderSyntaxView_mkBinder___closed__5;
 LEAN_EXPORT lean_object* l_Lake_mkHoleFrom(lean_object*);
 static lean_object* l_Lake_matchBinder___closed__4;
@@ -148,7 +148,6 @@ LEAN_EXPORT lean_object* l_Lake_instCoeBinderTSyntaxConsSyntaxNodeKindIdentKindM
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BinderSyntaxView_mkBinder(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BinderSyntaxView_modifier_x3f___default;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_expandBinders___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instCoeTermArgument(lean_object* x_1) {
@@ -444,14 +443,6 @@ lean_object* x_2;
 x_2 = l_Lake_instCoeBinderTSyntaxConsSyntaxNodeKindIdentKindMkStr4Nil(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lake_BinderSyntaxView_modifier_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_expandOptType(lean_object* x_1, lean_object* x_2) {
@@ -2344,8 +2335,6 @@ l_Lake_binder___closed__2 = _init_l_Lake_binder___closed__2();
 lean_mark_persistent(l_Lake_binder___closed__2);
 l_Lake_binder = _init_l_Lake_binder();
 lean_mark_persistent(l_Lake_binder);
-l_Lake_BinderSyntaxView_modifier_x3f___default = _init_l_Lake_BinderSyntaxView_modifier_x3f___default();
-lean_mark_persistent(l_Lake_BinderSyntaxView_modifier_x3f___default);
 l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__1___closed__1 = _init_l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__1___closed__1();
 lean_mark_persistent(l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__1___closed__1);
 l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__1___closed__2 = _init_l_Array_mapMUnsafe_map___at_Lake_getBinderIds___spec__1___closed__2();

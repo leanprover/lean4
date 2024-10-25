@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
-import Init.Core
 import Init.Control.Basic
-import Init.Coe
 
 namespace Option
 
@@ -202,7 +200,7 @@ result.
 instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
   rfl {x} :=
     match x with
-    | some x => LawfulBEq.rfl (α := α)
+    | some _ => LawfulBEq.rfl (α := α)
     | none => rfl
   eq_of_beq {x y h} := by
     match x, y with

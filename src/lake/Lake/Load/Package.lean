@@ -15,6 +15,7 @@ from Lake configuration file (either Lean or TOML).
 open Lean
 
 namespace Lake
+open System (FilePath)
 
 /--
 Return whether a configuration file with the given name
@@ -40,7 +41,7 @@ def loadPackageCore
       error s!"{name}: configuration file not found: {cfg.configFile}"
     match ext with
     | "lean" => (·.map id some) <$> loadLeanConfig cfg
-    | "toml" => ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir cfg.relConfigFile
+    | "toml" => ((·,none)) <$> loadTomlConfig cfg
     | _ => error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
   else
     let relLeanFile := cfg.relConfigFile.addExtension "lean"
@@ -55,7 +56,7 @@ def loadPackageCore
       (·.map id some) <$> loadLeanConfig {cfg with relConfigFile := relLeanFile}
     else
       if tomlExists then
-        ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir relTomlFile
+        ((·,none)) <$> loadTomlConfig {cfg with relConfigFile := relTomlFile}
       else
         error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"
 

@@ -59,7 +59,8 @@ info: [module] message
                world
   [bughunt] at test2
 ERROR
-[module] message
+---
+info: [module] message
   [module] hello
                world
   [bughunt] at test2
@@ -76,11 +77,13 @@ info: [module] message
 [module] hello
              world
 [bughunt] at end of tst3
-[module] message
+---
+info: [module] message
   [module] hello
                world
   [bughunt] at test2
-  [module] hello world
+  [module] hello
+               world
 [module] hello
              world
 [bughunt] at end of tst3

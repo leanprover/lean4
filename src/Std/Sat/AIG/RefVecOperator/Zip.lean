@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.RefVec
 import Std.Sat.AIG.LawfulVecOperator
 
@@ -85,7 +86,7 @@ where
   @[specialize]
   go (aig : AIG α) (idx : Nat) (s : RefVec aig idx) (hidx : idx ≤ len)
       (lhs rhs : RefVec aig len) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
-      [LawfulOperator α BinaryInput f] [chainable : LawfulZipOperator α f] :
+      [LawfulOperator α BinaryInput f] [LawfulZipOperator α f] :
       RefVecEntry α len :=
     if hidx : idx < len then
       let res := f aig ⟨lhs.get idx hidx, rhs.get idx hidx⟩

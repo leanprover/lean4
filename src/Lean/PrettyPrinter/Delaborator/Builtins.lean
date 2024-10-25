@@ -51,19 +51,25 @@ def delabBVar : Delab := do
   let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
+def delabMVarAux (m : MVarId) : DelabM Term := do
+  let mkMVarPlaceholder : DelabM Term := `(?_)
+  let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
+  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+    if ← getPPOption getPPMVars then
+      match (← m.getDecl).userName with
+      | .anonymous =>
+        if ← getPPOption getPPMVarsAnonymous then
+          mkMVar <| m.name.replacePrefix `_uniq `m
+        else
+          mkMVarPlaceholder
+      | n => mkMVar n
+    else
+      mkMVarPlaceholder
+
 @[builtin_delab mvar]
 def delabMVar : Delab := do
   let Expr.mvar n ← getExpr | unreachable!
-  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
-    if ← getPPOption getPPMVars then
-      let mvarDecl ← n.getDecl
-      let n :=
-        match mvarDecl.userName with
-        | .anonymous => n.name.replacePrefix `_uniq `m
-        | n => n
-      `(?$(mkIdent n))
-    else
-      `(?_)
+  delabMVarAux n
 
 @[builtin_delab sort]
 def delabSort : Delab := do
@@ -72,7 +78,7 @@ def delabSort : Delab := do
   | Level.zero => `(Prop)
   | Level.succ .zero => `(Type)
   | _ =>
-    let mvars ← getPPOption getPPMVars
+    let mvars ← getPPOption getPPMVarsLevels
     match l.dec with
     | some l' => `(Type $(Level.quote l' (prec := max_prec) (mvars := mvars)))
     | none    => `(Sort $(Level.quote l (prec := max_prec) (mvars := mvars)))
@@ -98,7 +104,7 @@ def delabConst : Delab := do
         c := c₀
     pure <| mkIdent c
   else
-    let mvars ← getPPOption getPPMVars
+    let mvars ← getPPOption getPPMVarsLevels
     `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
 
   let stx ← maybeAddBlockImplicit stx
@@ -207,8 +213,8 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
       `(⟨$[$(stx[1].getArgs)],*⟩)
   let args := e.getAppArgs
   let fieldVals := args.extract s.numParams args.size
-  for idx in [:fieldNames.size] do
-    let fieldName := fieldNames[idx]!
+  for h : idx in [:fieldNames.size] do
+    let fieldName := fieldNames[idx]
     if (← getPPOption getPPStructureInstancesFlatten) && (Lean.isSubobjectField? env s.induct fieldName).isSome then
       match stx[1][idx] with
       | `({ $fields',* $[: $_]?}) =>
@@ -397,9 +403,9 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
 
   -- Field notation
   if let some (fieldIdx, field) := field? then
-    if fieldIdx < args.size then
+    if h : fieldIdx < args.size then
       let obj? : Option Term ← do
-        let arg := args[fieldIdx]!
+        let arg := args[fieldIdx]
         if let .regular s := arg then
           withNaryArg fieldIdx <| some <$> stripParentProjections s
         else
@@ -491,8 +497,8 @@ def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool 
   -- If there was an error collecting ParamKinds, fall back to explicit mode.
   if paramKinds.size < numArgs then return true
 
-  if numArgs < paramKinds.size then
-    let nextParam := paramKinds[numArgs]!
+  if h : numArgs < paramKinds.size then
+    let nextParam := paramKinds[numArgs]
 
     -- If the next parameter is implicit or inst implicit, fall back to explicit mode.
     -- This is necessary for `@Eq` for example.
@@ -569,6 +575,16 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
       guard <| !insertExplicit
       withAnnotateTermInfo x
     delabAppCore (n - arity) delabHead (unexpand := false)
+
+@[builtin_delab app]
+def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
+  let .mvar mvarId := (← getExpr).getAppFn | failure
+  let some decl ← getDelayedMVarAssignment? mvarId | failure
+  withOverApp decl.fvars.size do
+    let args := (← getExpr).getAppArgs
+    -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
+    guard <| args.all Expr.isFVar
+    delabMVarAux decl.mvarIdPending
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
@@ -741,8 +757,8 @@ where
       m acc
 
   usingNames {α} (varNames : Array Name) (x : DelabM α) (i : Nat := 0) : DelabM α :=
-    if i < varNames.size then
-      withBindingBody varNames[i]! <| usingNames varNames x (i+1)
+    if h : i < varNames.size then
+      withBindingBody varNames[i] <| usingNames varNames x (i+1)
     else
       x
 
@@ -998,7 +1014,7 @@ Delaborates an `OfNat.ofNat` literal.
 `@OfNat.ofNat _ n _` ~> `n`.
 -/
 @[builtin_delab app.OfNat.ofNat]
-def delabOfNat : Delab := whenPPOption getPPCoercions <| withOverApp 3 do
+def delabOfNat : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
   delabOfNatCore (showType := (← getPPOption getPPNumericTypes))
 
 /--
@@ -1006,7 +1022,7 @@ Delaborates the negative of an `OfNat.ofNat` literal.
 `-@OfNat.ofNat _ n _` ~> `-n`
 -/
 @[builtin_delab app.Neg.neg]
-def delabNeg : Delab := whenPPOption getPPCoercions do
+def delabNeg : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions do
   delabNegIntCore (showType := (← getPPOption getPPNumericTypes))
 
 /--
@@ -1015,12 +1031,12 @@ Delaborates a rational number literal.
 and `-@OfNat.ofNat _ n _ / @OfNat.ofNat _ m` ~> `-n / m`
 -/
 @[builtin_delab app.HDiv.hDiv]
-def delabHDiv : Delab := whenPPOption getPPCoercions do
+def delabHDiv : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions do
   delabDivRatCore (showType := (← getPPOption getPPNumericTypes))
 
 -- `@OfDecimal.ofDecimal _ _ m s e` ~> `m*10^(sign * e)` where `sign == 1` if `s = false` and `sign = -1` if `s = true`
 @[builtin_delab app.OfScientific.ofScientific]
-def delabOfScientific : Delab := whenPPOption getPPCoercions <| withOverApp 5 do
+def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 5 do
   let expr ← getExpr
   guard <| expr.getAppNumArgs == 5
   let .lit (.natVal m) ← pure (expr.getArg! 2) | failure
@@ -1064,6 +1080,9 @@ def coeDelaborator : Delab := whenPPOption getPPCoercions do
   let e ← getExpr
   let .const declName _ := e.getAppFn | failure
   let some info ← Meta.getCoeFnInfo? declName | failure
+  if (← getPPOption getPPExplicit) && info.coercee != 0 then
+    -- Approximation: the only implicit arguments come before the coercee
+    failure
   let n := e.getAppNumArgs
   withOverApp info.numArgs do
     match info.type with
@@ -1076,7 +1095,7 @@ def coeDelaborator : Delab := whenPPOption getPPCoercions do
     | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 @[builtin_delab app.dite]
-def delabDIte : Delab := whenPPOption getPPNotation <| withOverApp 5 do
+def delabDIte : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 5 do
   -- Note: we keep this as a delaborator for now because it actually accesses the expression.
   guard $ (← getExpr).getAppNumArgs == 5
   let c ← withAppFn $ withAppFn $ withAppFn $ withAppArg delab
@@ -1093,7 +1112,7 @@ where
         return (← delab, h.getId)
 
 @[builtin_delab app.cond]
-def delabCond : Delab := whenPPOption getPPNotation <| withOverApp 4 do
+def delabCond : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 4 do
   guard $ (← getExpr).getAppNumArgs == 4
   let c ← withAppFn $ withAppFn $ withAppArg delab
   let t ← withAppFn $ withAppArg delab
@@ -1113,7 +1132,7 @@ def delabNamedPattern : Delab := do
   `($x:ident@$h:ident:$p:term)
 
 -- Sigma and PSigma delaborators
-def delabSigmaCore (sigma : Bool) : Delab := whenPPOption getPPNotation do
+def delabSigmaCore (sigma : Bool) : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 2
   guard $ (← getExpr).appArg!.isLambda
   withAppArg do
@@ -1193,21 +1212,17 @@ partial def delabDoElems : DelabM (List Syntax) := do
     prependAndRec x : DelabM _ := List.cons <$> x <*> delabDoElems
 
 @[builtin_delab app.Bind.bind]
-def delabDo : Delab := whenPPOption getPPNotation do
+def delabDo : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation do
   guard <| (← getExpr).isAppOfArity ``Bind.bind 6
   let elems ← delabDoElems
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
 
-def reifyName : Expr → DelabM Name
-  | .const ``Lean.Name.anonymous .. => return Name.anonymous
-  | .app (.app (.const ``Lean.Name.str ..) n) (.lit (.strVal s)) => return (← reifyName n).mkStr s
-  | .app (.app (.const ``Lean.Name.num ..) n) (.lit (.natVal i)) => return (← reifyName n).mkNum i
-  | _ => failure
-
-@[builtin_delab app.Lean.Name.str]
+@[builtin_delab app.Lean.Name.str,
+  builtin_delab app.Lean.Name.mkStr1, builtin_delab app.Lean.Name.mkStr2, builtin_delab app.Lean.Name.mkStr3, builtin_delab app.Lean.Name.mkStr4,
+  builtin_delab app.Lean.Name.mkStr5, builtin_delab app.Lean.Name.mkStr6, builtin_delab app.Lean.Name.mkStr7, builtin_delab app.Lean.Name.mkStr8]
 def delabNameMkStr : Delab := whenPPOption getPPNotation do
-  let n ← reifyName (← getExpr)
+  let some n := (← getExpr).name? | failure
   -- not guaranteed to be a syntactically valid name, but usually more helpful than the explicit version
   return mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{n}"]
 

@@ -655,9 +655,9 @@ The parameter `alts` provides position information for alternatives.
 -/
 private def checkUnusedAlts (stx : Syntax) (alts : Array Syntax) (altIdxMap : NameMap Nat) (ignoreIfUnused : IdxSet) : TermElabM Syntax := do
   let (stx, used) ← findUsedAlts stx altIdxMap
-  for i in [:alts.size] do
+  for h : i in [:alts.size] do
     unless used.contains i || ignoreIfUnused.contains i do
-      logErrorAt alts[i]! s!"redundant alternative #{i+1}"
+      logErrorAt alts[i] s!"redundant alternative #{i+1}"
   return stx
 
 def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do

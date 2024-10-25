@@ -46,6 +46,10 @@ terms that were considered as variables.
 
 In order to avoid calling a SAT solver every time, the proof can be cached with `bv_decide?`.
 
+If solving your problem relies inherently on using associativity or commutativity, consider enabling
+the `bv.ac_nf` option.
+
+
 Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
 -/
 syntax (name := bvDecide) "bv_decide" : tactic

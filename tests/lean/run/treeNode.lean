@@ -14,7 +14,7 @@ def treeToList (t : TreeNode) : List String :=
    return r
 
 @[simp] theorem treeToList_eq (name : String) (children : List TreeNode) : treeToList (.mkNode name children) =  name :: List.join (children.map treeToList) := by
-  simp [treeToList, Id.run, forIn, List.forIn]
+  simp only [treeToList, Id.run, Id.pure_eq, Id.bind_eq, List.forIn'_eq_forIn, forIn, List.forIn]
   have : ∀ acc, (Id.run do List.forIn.loop (fun a b => ForInStep.yield (b ++ treeToList a)) children acc) = acc ++ List.join (List.map treeToList children) := by
     intro acc
     induction children generalizing acc with simp [List.forIn.loop, List.map, List.join, Id.run]

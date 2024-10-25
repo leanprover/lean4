@@ -1,4 +1,4 @@
 fun α [Repr α] => repr : (α : Type u_1) → [inst : Repr α] → α → Std.Format
 fun x y => x : (x : ?m) → ?m x → ?m
 funParen.lean:4:12-4:16: error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
-fun x => ?m x : (x : ?m) → ?m x
+fun x => ?m : (x : ?m) → ?m x

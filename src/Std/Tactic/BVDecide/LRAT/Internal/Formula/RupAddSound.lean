@@ -570,7 +570,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         rw [c_clause_rw] at pc1
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, false) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-          rw [← Array.getElem_fin_eq_toList_get] at hidx
+          simp only [List.get_eq_getElem] at hidx
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2
@@ -580,7 +580,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         rw [c_clause_rw] at pc1
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, true) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-          rw [← Array.getElem_fin_eq_toList_get] at hidx
+          simp only [List.get_eq_getElem] at hidx
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2
@@ -595,7 +595,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
       rw [c_clause_rw] at pc1
       have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, false) := by
         rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-        rw [← Array.getElem_fin_eq_toList_get] at hidx
+        simp only [List.get_eq_getElem] at hidx
         exact Exists.intro idx hidx
       rcases idx_exists with ⟨idx, hidx⟩
       apply Exists.intro idx ∘ And.intro idx.2
@@ -606,7 +606,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
       rw [c_clause_rw] at pc1
       have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, true) := by
         rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-        rw [← Array.getElem_fin_eq_toList_get] at hidx
+        simp only [List.get_eq_getElem] at hidx
         exact Exists.intro idx hidx
       rcases idx_exists with ⟨idx, hidx⟩
       apply Exists.intro idx ∘ And.intro idx.2

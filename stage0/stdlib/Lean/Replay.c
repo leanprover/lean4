@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay_
 static lean_object* l_Lean_Environment_Replay_throwKernelException___closed__7;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Environment_Replay_replayConstant___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Environment_Replay_State_postponedConstructors___default;
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Environment_Replay_replayConstant___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Environment_replay___spec__1(lean_object*, lean_object*);
@@ -75,7 +74,6 @@ uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Environment_Replay_replayConstant___spec__1___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Environment_Replay_State_pending___default;
 static lean_object* l_panic___at_Lean_Environment_Replay_replayConstant___spec__1___closed__1;
 static lean_object* l_Lean_Environment_Replay_throwKernelException___closed__13;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Environment_Replay_replayConstant___spec__5(uint64_t, uint64_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +83,6 @@ static lean_object* l_Lean_Environment_Replay_replayConstant___closed__4;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Environment_Replay_replayConstant___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_Environment_Replay_replayConstant___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Environment_Replay_State_remaining___default;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Environment_replay___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Environment_Replay_throwKernelException___closed__9;
@@ -136,7 +133,6 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 lean_object* l_List_reverse___rarg(lean_object*);
 extern lean_object* l_Lean_firstFrontendMacroScope;
 size_t lean_usize_sub(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Environment_Replay_State_postponedRecursors___default;
 static lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Environment_Replay_checkPostponedRecursors___spec__1___closed__1;
 static lean_object* l_Lean_Environment_Replay_throwKernelException___closed__8;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
@@ -169,38 +165,6 @@ LEAN_EXPORT lean_object* l_Lean_Environment_Replay_isTodo(lean_object*, lean_obj
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Environment_Replay_replayConstant___spec__6(uint64_t, uint64_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Environment_Replay_State_remaining___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Environment_Replay_State_pending___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Environment_Replay_State_postponedConstructors___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Environment_Replay_State_postponedRecursors___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_RBNode_del___at_Lean_Environment_Replay_isTodo___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -6487,14 +6451,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_FoldConsts(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Environment_Replay_State_remaining___default = _init_l_Lean_Environment_Replay_State_remaining___default();
-lean_mark_persistent(l_Lean_Environment_Replay_State_remaining___default);
-l_Lean_Environment_Replay_State_pending___default = _init_l_Lean_Environment_Replay_State_pending___default();
-lean_mark_persistent(l_Lean_Environment_Replay_State_pending___default);
-l_Lean_Environment_Replay_State_postponedConstructors___default = _init_l_Lean_Environment_Replay_State_postponedConstructors___default();
-lean_mark_persistent(l_Lean_Environment_Replay_State_postponedConstructors___default);
-l_Lean_Environment_Replay_State_postponedRecursors___default = _init_l_Lean_Environment_Replay_State_postponedRecursors___default();
-lean_mark_persistent(l_Lean_Environment_Replay_State_postponedRecursors___default);
 l_Lean_Environment_Replay_throwKernelException___lambda__1___closed__1 = _init_l_Lean_Environment_Replay_throwKernelException___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Environment_Replay_throwKernelException___lambda__1___closed__1);
 l_Lean_Environment_Replay_throwKernelException___closed__1 = _init_l_Lean_Environment_Replay_throwKernelException___closed__1();

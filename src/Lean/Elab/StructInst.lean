@@ -473,7 +473,10 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
 def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
   if (findField? (← getEnv) structName fieldName).isNone then
     return none
-  return some <| mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+  return some <|
+    mkNode ``Parser.Term.explicit
+      #[mkAtomFrom s "@",
+        mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]]
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>
@@ -685,7 +688,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
               let type := (d.getArg! 0).consumeTypeAnnotations
               let mvar ← mkTacticMVar type stx (.fieldAutoParam fieldName s.structName)
               -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
-              -- (See the aformentioned `processExplicitArg` for a comment about this.)
+              -- (See the aforementioned `processExplicitArg` for a comment about this.)
               addTermInfo' stx mvar
               cont mvar field
           | _ =>
@@ -823,9 +826,22 @@ def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/
 partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
   match e with
-  | .lam ..       => lambdaLetTelescope e fun xs b => do mkLambdaFVars xs (← reduce structNames b)
   | .forallE ..   => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
-  | .letE ..      => lambdaLetTelescope e fun xs b => do mkLetFVars xs (← reduce structNames b)
+  | .lam ..
+  | .letE ..      => lambdaLetTelescope e fun xs b => do
+    /- The bodies of let-declarations also need to be reduced.
+       Otherwise, some metavariables may be kept in the terms, leading to errors
+       when trying to generate default values.
+       Fixes `#3146`
+    -/
+    let localInsts ← Meta.getLocalInstances
+    let mut lctx ← getLCtx
+    for e in xs do
+      let some lcdl := lctx.findFVar? e | unreachable!
+      let some value := lcdl.value? | continue
+      let value ← Meta.withLCtx lctx localInsts (reduce structNames value)
+      lctx := lctx.modifyLocalDecl e.fvarId! (·.setValue value)
+    Meta.withLCtx lctx localInsts (mkLetFVars xs (← reduce structNames b))
   | .proj _ i b   =>
     match (← Meta.project? b i) with
     | some r => reduce structNames r

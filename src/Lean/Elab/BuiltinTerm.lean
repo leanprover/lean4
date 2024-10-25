@@ -103,9 +103,11 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtin_term_elab Lean.Parser.Term.omission] def elabOmission : TermElab := fun stx expectedType? => do
   logWarning m!"\
     The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. \
-    It logs this warning and then elaborates like `_`.\
-    \n\nThe presence of `⋯` in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
-    These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
+    It logs this warning and then elaborates like '_'.\
+    \n\n\
+    The presence of '⋯' in pretty printing output is controlled by the 'pp.maxSteps', 'pp.deepTerms' and 'pp.proofs' options. \
+    These options can be further adjusted using 'pp.deepTerms.threshold' and 'pp.proofs.threshold'. \
+    If this '⋯' was copied from the Infoview, the hover there for the original '⋯' explains which of these options led to the omission."
   elabHole stx expectedType?
 
 @[builtin_term_elab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do

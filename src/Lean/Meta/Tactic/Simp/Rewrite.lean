@@ -320,8 +320,8 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       r ← mkCongrFun r argNew
   unless modified do
     return none
-  for i in [info.numDiscrs : args.size] do
-    let arg := args[i]!
+  for h : i in [info.numDiscrs : args.size] do
+    let arg := args[i]
     r ← mkCongrFun r arg
   return some r
 
@@ -575,7 +575,7 @@ where
 
 /--
 Discharges assumptions of the form `∀ …, a = b` using `rfl`. This is particularly useful for higher
-order assumptions of the form `∀ …, e = ?g x y` to instaniate  a paramter `g` even if that does not
+order assumptions of the form `∀ …, e = ?g x y` to instaniate  a parameter `g` even if that does not
 appear on the lhs of the rule.
 -/
 def dischargeRfl (e : Expr) : SimpM (Option Expr) := do

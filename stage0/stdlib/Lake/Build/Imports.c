@@ -2778,7 +2778,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at_Lake_buildImportsAndDeps___spec__2___closed__2;
 x_2 = l_IO_FS_withIsolatedStreams___at_Lake_buildImportsAndDeps___spec__2___closed__3;
-x_3 = lean_unsigned_to_nat(92u);
+x_3 = lean_unsigned_to_nat(100u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_buildImportsAndDeps___spec__2___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4339,7 +4339,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; lean_object* x_18; 
 x_13 = lean_array_uget(x_2, x_3);
-x_14 = lean_ctor_get(x_13, 10);
+x_14 = lean_ctor_get(x_13, 11);
 lean_inc(x_14);
 x_15 = l_Array_foldlMUnsafe_fold___at_Lake_buildImportsAndDeps___spec__7___closed__1;
 x_16 = l_Lean_RBNode_fold___at_Lake_buildImportsAndDeps___spec__6(x_13, x_15, x_14);

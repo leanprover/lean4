@@ -80,8 +80,9 @@ structure SyntheticMVarDecl where
   We have three different kinds of error context.
 -/
 inductive MVarErrorKind where
-  /-- Metavariable for implicit arguments. `ctx` is the parent application. -/
-  | implicitArg (ctx : Expr)
+  /-- Metavariable for implicit arguments. `ctx` is the parent application,
+  `lctx` is a local context where it is valid (necessary for eta feature for named arguments). -/
+  | implicitArg (lctx : LocalContext) (ctx : Expr)
   /-- Metavariable for explicit holes provided by the user (e.g., `_` and `?m`) -/
   | hole
   /-- "Custom", `msgData` stores the additional error messages. -/
@@ -90,7 +91,7 @@ inductive MVarErrorKind where
 
 instance : ToString MVarErrorKind where
   toString
-    | .implicitArg _   => "implicitArg"
+    | .implicitArg _ _ => "implicitArg"
     | .hole            => "hole"
     | .custom _        => "custom"
 
@@ -735,7 +736,7 @@ def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit 
   registerMVarErrorInfo { mvarId, ref, kind := .hole }
 
 def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
-  registerMVarErrorInfo { mvarId, ref, kind := .implicitArg app }
+  registerMVarErrorInfo { mvarId, ref, kind := .implicitArg (← getLCtx) app }
 
 def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
   registerMVarErrorInfo { mvarId, ref, kind := .custom msgData }
@@ -761,7 +762,7 @@ def throwMVarError (m : MessageData) : TermElabM α := do
 
 def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match mvarErrorInfo.kind with
-  | MVarErrorKind.implicitArg app => do
+  | MVarErrorKind.implicitArg lctx app => withLCtx lctx {} do
     let app ← instantiateMVars app
     let msg ← addArgName "don't know how to synthesize implicit argument"
     let msg := msg ++ m!"{indentExpr app.setAppPPExplicitForExposingMVars}" ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
@@ -913,7 +914,9 @@ private def applyAttributesCore
   Remark: if the declaration has syntax errors, `declName` may be `.anonymous` see issue #4309
   In this case, we skip attribute application.
   -/
-  unless declName == .anonymous do
+  if declName == .anonymous then
+    return
+  withDeclName declName do
     for attr in attrs do
       withRef attr.stx do withLogging do
       let env ← getEnv
@@ -946,13 +949,13 @@ def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTi
 def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit :=
   applyAttributesCore declName attrs none
 
-def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (expectedType : Expr) : TermElabM MessageData := do
+def mkTypeMismatchError (header? : Option MessageData) (e : Expr) (eType : Expr) (expectedType : Expr) : TermElabM MessageData := do
   let header : MessageData := match header? with
     | some header => m!"{header} "
     | none        => m!"type mismatch{indentExpr e}\n"
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
-def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
+def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (_extraMsg? : Option MessageData := none) : TermElabM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
@@ -2046,13 +2049,6 @@ def TermElabM.toIO (x : TermElabM α)
     (ctx : Context) (s : State) : IO (α × Core.State × Meta.State × State) := do
   let ((a, s), sCore, sMeta) ← (x.run ctx s).toIO ctxCore sCore ctxMeta sMeta
   return (a, sCore, sMeta, s)
-
-instance [MetaEval α] : MetaEval (TermElabM α) where
-  eval env opts x _ := do
-    let x : TermElabM α := do
-      try x finally
-        (← Core.getMessageLog).forM fun msg => do IO.println (← msg.toString)
-    MetaEval.eval env opts (hideUnit := true) <| x.run' {}
 
 /--
   Execute `x` and then tries to solve pending universe constraints.

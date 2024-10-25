@@ -5,8 +5,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.System.Platform
-import Init.Data.String.Basic
-import Init.Data.Repr
 import Init.Data.ToString.Basic
 
 namespace System

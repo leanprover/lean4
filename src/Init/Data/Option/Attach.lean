@@ -44,7 +44,7 @@ theorem attach_congr {o₁ o₂ : Option α} (h : o₁ = o₂) :
   simp
 
 theorem attachWith_congr {o₁ o₂ : Option α} (w : o₁ = o₂) {P : α → Prop} {H : ∀ x ∈ o₁, P x} :
-    o₁.attachWith P H = o₂.attachWith P fun x h => H _ (w ▸ h) := by
+    o₁.attachWith P H = o₂.attachWith P fun _ h => H _ (w ▸ h) := by
   subst w
   simp
 
@@ -128,12 +128,12 @@ theorem attach_map {o : Option α} (f : α → β) :
   cases o <;> simp
 
 theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ o.map f → P b} :
-    (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun a h => H _ (mem_map_of_mem f h))).map
+    (o.map f).attachWith P H = (o.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
 theorem map_attach {o : Option α} (f : { x // x ∈ o } → β) :
-    o.attach.map f = o.pmap (fun a (h : a ∈ o) => f ⟨a, h⟩) (fun a h => h) := by
+    o.attach.map f = o.pmap (fun a (h : a ∈ o) => f ⟨a, h⟩) (fun _ h => h) := by
   cases o <;> simp
 
 theorem map_attachWith {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}
@@ -174,5 +174,69 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
 theorem filter_attach {o : Option α} {p : {x // x ∈ o} → Bool} :
     o.attach.filter p = o.pbind fun a h => if p ⟨a, h⟩ then some ⟨a, h⟩ else none := by
   cases o <;> simp [filter_some]
+
+/-! ## unattach
+
+`Option.unattach` is the (one-sided) inverse of `Option.attach`. It is a synonym for `Option.map Subtype.val`.
+
+We use it by providing a simp lemma `l.attach.unattach = l`, and simp lemmas which recognize higher order
+functions applied to `l : Option { x // p x }` which only depend on the value, not the predicate, and rewrite these
+in terms of a simpler function applied to `l.unattach`.
+
+Further, we provide simp lemmas that push `unattach` inwards.
+-/
+
+/--
+A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
+It is introduced as an intermediate step by lemmas such as `map_subtype`,
+and is ideally subsequently simplified away by `unattach_attach`.
+
+If not, usually the right approach is `simp [Option.unattach, -Option.map_subtype]` to unfold.
+-/
+def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
+
+@[simp] theorem unattach_none {p : α → Prop} : (none : Option { x // p x }).unattach = none := rfl
+@[simp] theorem unattach_some {p : α → Prop} {a : { x // p x }} :
+  (some a).unattach = a.val := rfl
+
+@[simp] theorem isSome_unattach {p : α → Prop} {o : Option { x // p x }} :
+    o.unattach.isSome = o.isSome := by
+  simp [unattach]
+
+@[simp] theorem isNone_unattach {p : α → Prop} {o : Option { x // p x }} :
+    o.unattach.isNone = o.isNone := by
+  simp [unattach]
+
+@[simp] theorem unattach_attach (o : Option α) : o.attach.unattach = o := by
+  cases o <;> simp
+
+@[simp] theorem unattach_attachWith {p : α → Prop} {o : Option α}
+    {H : ∀ a ∈ o, p a} :
+    (o.attachWith p H).unattach = o := by
+  cases o <;> simp
+
+/-! ### Recognizing higher order functions on subtypes using a function that only depends on the value. -/
+
+/--
+This lemma identifies maps over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem map_subtype {p : α → Prop} {o : Option { x // p x }}
+    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    o.map f = o.unattach.map g := by
+  cases o <;> simp [hf]
+
+@[simp] theorem bind_subtype {p : α → Prop} {o : Option { x // p x }}
+    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    (o.bind f) = o.unattach.bind g := by
+  cases o <;> simp [hf]
+
+@[simp] theorem unattach_filter {p : α → Prop} {o : Option { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    (o.filter f).unattach = o.unattach.filter g := by
+  cases o
+  · simp
+  · simp only [filter_some, hf, unattach_some]
+    split <;> simp
 
 end Option

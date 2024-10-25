@@ -3,9 +3,6 @@
 error: tactic 'decide' proved that the proposition
   False
 is false
----
-error: cannot evaluate expression that depends on the `sorry` axiom.
-Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 -/
 #guard_msgs in
 #eval show Nat from False.elim (by decide)
@@ -13,8 +10,10 @@ Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
 /--
 warning: declaration uses 'sorry'
 ---
-error: cannot evaluate expression that depends on the `sorry` axiom.
-Use `#eval!` to evaluate nevertheless (which may cause lean to crash).
+error: aborting evaluation since the expression depends on the 'sorry' axiom, which can lead to
+runtime instability and crashes.
+
+To attempt to evaluate anyway despite the risks, use the '#eval!' command.
 -/
 #guard_msgs in
 #eval #[1,2,3][2]'sorry

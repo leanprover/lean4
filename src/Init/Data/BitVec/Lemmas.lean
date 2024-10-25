@@ -1532,6 +1532,33 @@ theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
 theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
   rw [signExtend_eq_setWidth_of_lt _ (Nat.le_refl _), setWidth_eq]
 
+example (a b : Nat) (h : a ≤ b) : ∃ k : Nat, b = a + k:= by
+  exact Nat.exists_eq_add_of_le h
+
+
+theorem toNat_signExtend_of_gt (x : BitVec w) {v : Nat} :
+  (x.signExtend (w + v)).toNat = x.toNat + (2 ^ (w + v)  - 2^w) * (if x.msb then 1 else 0) := by
+  apply Nat.eq_of_testBit_eq
+  intro i
+  rw [testBit_toNat, getLsbD_signExtend, Nat.pow_add, ← Nat.mul_sub_one]
+  rw [Nat.add_comm (x.toNat), Nat.mul_assoc, Nat.testBit_mul_pow_two_add _ (x.isLt)]
+  by_cases h : i < w
+  · simp [h, Nat.lt_add_right v h, testBit_toNat]
+  · by_cases h2 : x.msb
+    <;> by_cases h1 : i < w + v
+    <;> simp [h2, h, h1, Nat.sub_lt_left_of_lt_add (Nat.le_of_not_lt h)]
+    exact Nat.le_sub_of_add_le (Nat.add_comm _ _ ▸ (Nat.le_of_not_lt h1))
+
+theorem toNat_signExtend (x : BitVec w) {v : Nat} :
+  (x.signExtend v).toNat = (x.setWidth v).toNat + (2 ^ v - 2 ^ w) * (if x.msb then 1 else 0) := by
+  by_cases h : v ≤ w
+  · rw [signExtend_eq_setWidth_of_lt _ h, toNat_setWidth]
+    simp [Nat.sub_eq_zero_of_le (Nat.pow_le_pow_of_le_right Nat.two_pos h)]
+  · have ⟨k, hk⟩ := Nat.exists_eq_add_of_le (Nat.le_of_lt (Nat.lt_of_not_le h))
+    rw [hk, toNat_signExtend_of_gt, toNat_setWidth]
+    rw [Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le x.isLt ((Nat.pow_le_pow_of_le_right Nat.two_pos (by simp))))]
+
+
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :

@@ -184,7 +184,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
     let lval := modifyOp[0][0]
     let idx  := lval[1]
     let self := sources[0]!.stx
-    let stxNew ← `($(self).modifyOp (idx := $idx) (fun s => $val))
+    let stxNew ← `($(self).modify (i := $idx) (fun s => $val))
     trace[Elab.struct.modifyOp] "{stx}\n===>\n{stxNew}"
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   let rest := modifyOp[0][1]

@@ -370,7 +370,7 @@ public:
     recursor_val & operator=(recursor_val && other) { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_name() const { return to_constant_val().get_name(); }
-    name const & get_induct() const { return get_name().get_prefix(); }
+    name const & get_major_induct() const;
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 1)); }
     unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }

@@ -7,7 +7,7 @@ structure Foo :=
 (x : Array ((Nat × Nat) × Bool) := #[])
 (y : Nat := 0)
 
-#check (b).modifyOp (idx := 1) (fun s => 2)
+#check (b).modify (i := 1) (fun s => 2)
 
 #check { b with [1] := 2 }
 

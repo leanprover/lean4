@@ -135,7 +135,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_tryAllArg
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_prettyRecArg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_inductiveGroups(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_getRecArgInfo___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__31;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_tryAllArgs___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__9___rarg___closed__7;
@@ -241,7 +240,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecA
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__8___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f___spec__13(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_tryAllArgs___rarg___lambda__4___closed__3;
-static lean_object* l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__30;
 static lean_object* l_Lean_Elab_Structural_prettyParam___closed__2;
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__8___rarg___closed__4;
@@ -5278,7 +5276,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" its type ", 10, 10);
+x_1 = lean_mk_string_unchecked("its type ", 9, 9);
 return x_1;
 }
 }
@@ -5410,7 +5408,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("its type ", 9, 9);
+x_1 = lean_mk_string_unchecked(" is an inductive family", 23, 23);
 return x_1;
 }
 }
@@ -5427,7 +5425,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" is an inductive family", 23, 23);
+x_1 = lean_mk_string_unchecked("\nand index", 10, 10);
 return x_1;
 }
 }
@@ -5444,7 +5442,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nand index", 10, 10);
+x_1 = lean_mk_string_unchecked("\ndepends on the non index", 25, 25);
 return x_1;
 }
 }
@@ -5461,7 +5459,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\ndepends on the non index", 25, 25);
+x_1 = lean_mk_string_unchecked(" is an inductive family and indices are not variables", 53, 53);
 return x_1;
 }
 }
@@ -5478,7 +5476,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" is an inductive family and indices are not variables", 53, 53);
+x_1 = lean_mk_string_unchecked(" is a reflexive inductive, but ", 31, 31);
 return x_1;
 }
 }
@@ -5495,7 +5493,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" is a reflexive inductive, but ", 31, 31);
+x_1 = lean_mk_string_unchecked(" does not exist and it is not an inductive predicate", 52, 52);
 return x_1;
 }
 }
@@ -5504,23 +5502,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__28;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__30() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" does not exist and it is not an inductive predicate", 52, 52);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__31() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__30;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -5668,11 +5649,11 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_215 = l_Lean_MessageData_ofName(x_30);
-x_216 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__19;
+x_216 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__4;
 x_217 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_217, 0, x_216);
 lean_ctor_set(x_217, 1, x_215);
-x_218 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__29;
+x_218 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__27;
 x_219 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_219, 0, x_217);
 lean_ctor_set(x_219, 1, x_218);
@@ -5680,7 +5661,7 @@ x_220 = l_Lean_MessageData_ofName(x_32);
 x_221 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_221, 0, x_219);
 lean_ctor_set(x_221, 1, x_220);
-x_222 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__31;
+x_222 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__29;
 x_223 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_223, 0, x_221);
 lean_ctor_set(x_223, 1, x_222);
@@ -5855,11 +5836,11 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_200 = l_Lean_MessageData_ofName(x_30);
-x_201 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__19;
+x_201 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__4;
 x_202 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_202, 0, x_201);
 lean_ctor_set(x_202, 1, x_200);
-x_203 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__27;
+x_203 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__25;
 x_204 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_204, 0, x_202);
 lean_ctor_set(x_204, 1, x_203);
@@ -6172,11 +6153,11 @@ lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; 
 x_144 = lean_ctor_get(x_141, 0);
 x_145 = lean_ctor_get(x_141, 1);
 x_146 = l_Lean_MessageData_ofName(x_30);
-x_147 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__19;
+x_147 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__4;
 lean_ctor_set_tag(x_141, 7);
 lean_ctor_set(x_141, 1, x_146);
 lean_ctor_set(x_141, 0, x_147);
-x_148 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__21;
+x_148 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__19;
 x_149 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_149, 0, x_141);
 lean_ctor_set(x_149, 1, x_148);
@@ -6184,7 +6165,7 @@ x_150 = l_Lean_indentExpr(x_14);
 x_151 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_151, 0, x_149);
 lean_ctor_set(x_151, 1, x_150);
-x_152 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__23;
+x_152 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__21;
 x_153 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_153, 0, x_151);
 lean_ctor_set(x_153, 1, x_152);
@@ -6192,7 +6173,7 @@ x_154 = l_Lean_indentExpr(x_144);
 x_155 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_155, 0, x_153);
 lean_ctor_set(x_155, 1, x_154);
-x_156 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__25;
+x_156 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__23;
 x_157 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_157, 0, x_155);
 lean_ctor_set(x_157, 1, x_156);
@@ -6220,11 +6201,11 @@ lean_inc(x_164);
 lean_inc(x_163);
 lean_dec(x_141);
 x_165 = l_Lean_MessageData_ofName(x_30);
-x_166 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__19;
+x_166 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__4;
 x_167 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_167, 0, x_166);
 lean_ctor_set(x_167, 1, x_165);
-x_168 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__21;
+x_168 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__19;
 x_169 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_169, 0, x_167);
 lean_ctor_set(x_169, 1, x_168);
@@ -6232,7 +6213,7 @@ x_170 = l_Lean_indentExpr(x_14);
 x_171 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_171, 0, x_169);
 lean_ctor_set(x_171, 1, x_170);
-x_172 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__23;
+x_172 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__21;
 x_173 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_173, 0, x_171);
 lean_ctor_set(x_173, 1, x_172);
@@ -6240,7 +6221,7 @@ x_174 = l_Lean_indentExpr(x_163);
 x_175 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_175, 0, x_173);
 lean_ctor_set(x_175, 1, x_174);
-x_176 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__25;
+x_176 = l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__23;
 x_177 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_177, 0, x_175);
 lean_ctor_set(x_177, 1, x_176);
@@ -17276,10 +17257,6 @@ l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__28 = _init_l_Lean_Ela
 lean_mark_persistent(l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__28);
 l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__29 = _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__29();
 lean_mark_persistent(l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__29);
-l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__30 = _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__30();
-lean_mark_persistent(l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__30);
-l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__31 = _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__31();
-lean_mark_persistent(l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__31);
 l_Lean_Elab_Structural_getRecArgInfo___lambda__2___closed__1 = _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_getRecArgInfo___lambda__2___closed__1);
 l_Lean_Elab_Structural_getRecArgInfo___lambda__2___closed__2 = _init_l_Lean_Elab_Structural_getRecArgInfo___lambda__2___closed__2();

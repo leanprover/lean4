@@ -27,6 +27,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResu
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___closed__3;
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_CommandParsedSnapshot_nextCmdSnap_x3f___boxed(lean_object*);
+lean_object* lean_thunk_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_HeaderParsedSnapshot_processedResult___lambda__1___boxed(lean_object*);
 static lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___lambda__2(lean_object*);
@@ -144,10 +145,10 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
-return x_2;
+x_3 = lean_thunk_get_own(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go___lambda__2(lean_object* x_1) {

@@ -543,14 +543,17 @@ where
           BaseIO.bindTask elabPromise.result fun elabSnap => do
             let tree := toSnapshotTree elabSnap
             BaseIO.bindTask (← tree.waitAll) fun _ => do
-              let .ok (_, s) ← EIO.toBaseIO <| tree.trace |>.run { ctx with } { env := cmdState.env }
+              let .ok (_, s) ← EIO.toBaseIO <| tree.trace |>.run
+                { ctx with options := cmdState.scopes.head!.opts } { env := cmdState.env }
                 | pure <| .pure <| .mk { diagnostics := .empty } #[]
-              let msgLog := MessageLog.empty.add {
-                fileName := ctx.fileName
-                severity := MessageSeverity.information
-                pos      := ctx.fileMap.toPosition beginPos
-                data     := s.traceState.traces[0]!.msg
-              }
+              let mut msgLog := MessageLog.empty
+              for trace in s.traceState.traces do
+                msgLog := msgLog.add {
+                  fileName := ctx.fileName
+                  severity := MessageSeverity.information
+                  pos      := ctx.fileMap.toPosition beginPos
+                  data     := trace.msg
+                }
               return .pure <| .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
         else
           pure <| .pure <| .mk { diagnostics := .empty } #[]

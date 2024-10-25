@@ -251,7 +251,7 @@ def Profile.export (name : String) (startTime : Float) (traceStates : Array Trac
     let traces := traces.qsort (fun tr1 tr2 =>
       let f tr := tr.get? 0 |>.bind (getFirstStart? ·.msg) |>.getD 0
       f tr1 < f tr2)
-    let mut traces := traces.concatMap id |>.map (·.msg)
+    let mut traces := traces.flatMap id |>.map (·.msg)
     if tid = 0 then
       -- wrap entire trace up to current time in `runFrontend` node
       traces := #[.trace {

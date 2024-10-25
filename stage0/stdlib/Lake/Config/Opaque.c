@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePackage_nonemptyType;
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_nonemptyType;
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lake_OpaquePackage_nonemptyType() {
 _start:
 {
@@ -29,20 +29,20 @@ _start:
 return lean_box(0);
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 return lean_box(0);
 }
 }
-LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lake_OpaqueTargetConfig_nonemptyType(x_1, x_2);
+lean_object* x_4; 
+x_4 = l_Lake_OpaqueTargetConfig_nonemptyType(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
+return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

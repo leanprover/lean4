@@ -40,7 +40,6 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__11;
 static lean_object* l_Array_tacticArray__get__dec___closed__4;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__28;
-LEAN_EXPORT lean_object* l_Array_instMembership(lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__40;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__27;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__1;
@@ -128,14 +127,6 @@ LEAN_EXPORT lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__2;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__mem__dec__1___closed__21;
-LEAN_EXPORT lean_object* l_Array_instMembership(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
 static lean_object* _init_l_Array_tacticArray__get__dec___closed__1() {
 _start:
 {

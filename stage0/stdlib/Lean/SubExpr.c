@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.SubExpr
-// Imports: Lean.Meta.Basic Lean.Data.Json Lean.Data.RBMap
+// Imports: Lean.Meta.Basic Lean.Data.Json Lean.Data.RBMap Init.Control.Option
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -61,6 +61,7 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldr(lean_object*);
 extern lean_object* l_Lean_instInhabitedJson;
 static lean_object* l_Lean_SubExpr_instFromJsonGoalLocation___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushBindingBody___boxed(lean_object*);
+lean_object* l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_instToJsonFVarId___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_tail___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -154,7 +155,6 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_pushAppFn___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_push(lean_object*, lean_object*);
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalsLocation____x40_Lean_SubExpr___hyg_1812____closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalLocation____x40_Lean_SubExpr___hyg_1411____lambda__3___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalsLocation____x40_Lean_SubExpr___hyg_1812_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_asNat(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_typeCoord___closed__1;
@@ -374,7 +374,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_Pos_head___closed__2;
-x_3 = lean_unsigned_to_nat(43u);
+x_3 = lean_unsigned_to_nat(44u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_SubExpr_Pos_head___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -434,7 +434,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_Pos_tail___closed__1;
-x_3 = lean_unsigned_to_nat(47u);
+x_3 = lean_unsigned_to_nat(48u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_SubExpr_Pos_head___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -525,7 +525,7 @@ x_10 = l_Lean_SubExpr_Pos_push___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_Lean_SubExpr_Pos_head___closed__1;
 x_13 = l_Lean_SubExpr_Pos_push___closed__3;
-x_14 = lean_unsigned_to_nat(51u);
+x_14 = lean_unsigned_to_nat(52u);
 x_15 = lean_unsigned_to_nat(27u);
 x_16 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_12, x_13, x_14, x_15, x_11);
 lean_dec(x_11);
@@ -1846,7 +1846,7 @@ lean_inc(x_3);
 lean_dec(x_2);
 x_4 = l_Lean_SubExpr_Pos_head___closed__1;
 x_5 = l_Lean_SubExpr_Pos_fromString_x21___closed__1;
-x_6 = lean_unsigned_to_nat(139u);
+x_6 = lean_unsigned_to_nat(140u);
 x_7 = lean_unsigned_to_nat(16u);
 x_8 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_4, x_5, x_6, x_7, x_3);
 lean_dec(x_3);
@@ -2143,7 +2143,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_bindingBody_x21___closed__1;
-x_3 = lean_unsigned_to_nat(178u);
+x_3 = lean_unsigned_to_nat(179u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_SubExpr_bindingBody_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2259,7 +2259,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_bindingDomain_x21___closed__1;
-x_3 = lean_unsigned_to_nat(183u);
+x_3 = lean_unsigned_to_nat(184u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_SubExpr_bindingBody_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4783,7 +4783,7 @@ x_17 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_17, 0, x_10);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Lean_SubExpr_Pos_toArray___closed__2;
-x_19 = l_List_bindTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_17, x_18);
+x_19 = l_List_flatMapTR_go___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_toJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_173____spec__1(x_17, x_18);
 x_20 = l_Lean_Json_mkObj(x_19);
 return x_20;
 }
@@ -4878,6 +4878,7 @@ return x_5;
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_SubExpr(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -4890,6 +4891,9 @@ res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_SubExpr_Pos_maxChildren = _init_l_Lean_SubExpr_Pos_maxChildren();

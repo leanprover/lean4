@@ -63,12 +63,18 @@ private def InhabitantCache.resolve (cache : InhabitantCache useOfNonempty)
     if h : i < unresolved.size then
       let mut x := unresolved[i]
       let mut xTy ← whnfCore (← inferType x)
-      if xTy.isForall then
+      let mut changed := false
+      while xTy.isForall do
         if let some domVal ← cache.mkInhabitant? xTy.bindingDomain! then
           x := .app x domVal
-          xTy ← whnfCore (xTy.instantiate1 domVal)
-          return ← cache.withInhabitant x fun cache => do go (i + 1) cache true
-      go (i + 1) { cache with unresolved := cache.unresolved.push x } doOk
+          xTy ← whnfCore (xTy.bindingBody!.instantiate1 domVal)
+          changed := true
+        else
+          break
+      if changed then
+        cache.withInhabitant x fun cache => do go (i + 1) cache true
+      else
+        go (i + 1) { cache with unresolved := cache.unresolved.push x } doOk
     else
       if doOk then
         kOk cache

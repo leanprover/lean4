@@ -374,6 +374,14 @@ where
       | Bool => gateReflection lhsExpr rhsExpr .beq
       | BitVec _ => goPred t
       | _ => return none
+    | ite _ discrExpr _ lhsExpr rhsExpr =>
+      let_expr Eq α discrExpr val := discrExpr | return none
+      let_expr Bool := α | return none
+      let_expr Bool.true := val | return none
+      let some discr ← goOrAtom discrExpr | return none
+      let some lhs ← goOrAtom lhsExpr | return none
+      let some rhs ← goOrAtom rhsExpr | return none
+      return some (← ReifiedBVLogical.mkIte discr lhs rhs discrExpr lhsExpr rhsExpr)
     | _ => goPred t
 
   /--

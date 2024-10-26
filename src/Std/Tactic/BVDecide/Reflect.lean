@@ -149,6 +149,11 @@ theorem imp_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs)
     (decide (lhs' → rhs')) = (decide (lhs → rhs)) := by
   simp[*]
 
+theorem ite_congr (discr lhs rhs discr' lhs' rhs' : Bool) (h1 : discr' = discr) (h2 : lhs' = lhs)
+    (h3 : rhs' = rhs) :
+    (if discr' = true then lhs' else rhs') = (if discr = true then lhs else rhs) := by
+  simp[*]
+
 theorem false_of_eq_true_of_eq_false (h₁ : x = true) (h₂ : x = false) : False := by
   cases h₁; cases h₂
 

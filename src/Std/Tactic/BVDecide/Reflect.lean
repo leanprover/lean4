@@ -132,6 +132,14 @@ theorem ofBool_false (b : Bool) :
   revert b
   decide
 
+theorem if_true (discr : Bool) (lhs rhs : BitVec w) :
+    decide ((discr == true) = true → ((if discr = true then lhs else rhs) == lhs) = true) = true := by
+  cases discr <;> simp
+
+theorem if_false (discr : Bool) (lhs rhs : BitVec w) :
+    decide ((discr == false) = true → ((if discr = true then lhs else rhs) == rhs) = true) = true := by
+  cases discr <;> simp
+
 end BitVec
 
 namespace Bool

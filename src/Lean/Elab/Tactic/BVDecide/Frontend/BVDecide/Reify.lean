@@ -25,6 +25,7 @@ Unless this function is called on something that is not a constant-width `BitVec
 going to return `some`.
 -/
 partial def ReifiedBVExpr.of (x : Expr) : LemmaM (Option ReifiedBVExpr) := do
+  trace[Meta.Tactic.bv] m!"go: {x}"
   goOrAtom x
 where
   /--
@@ -207,6 +208,17 @@ where
         .rotateRight
         ``BVUnOp.rotateRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.rotateRight_congr
+    | ite _ discrExpr _ lhsExpr rhsExpr =>
+      let_expr Eq α discrExpr val := discrExpr | return none
+      let_expr Bool := α | return none
+      let_expr Bool.true := val | return none
+      let some atom ← ReifiedBVExpr.bitVecAtom x | return none
+      let some discr ← ReifiedBVLogical.of discrExpr | return none
+      let some lhs ← goOrAtom lhsExpr | return none
+      let some rhs ← goOrAtom rhsExpr | return none
+      addIfLemmas discr atom lhs rhs discrExpr x lhsExpr rhsExpr
+      trace[Meta.Tactic.bv] m!"step 8"
+      return some atom
     | BitVec.ofBool boolExpr =>
       let some bool ← ReifiedBVLogical.of boolExpr | return none
       let atomExpr := (mkApp (mkConst ``BitVec.ofBool) boolExpr)

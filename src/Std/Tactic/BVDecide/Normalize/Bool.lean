@@ -40,6 +40,7 @@ attribute [bv_normalize] Bool.xor_not_self
 attribute [bv_normalize] Bool.not_not
 attribute [bv_normalize] Bool.and_self_left
 attribute [bv_normalize] Bool.and_self_right
+attribute [bv_normalize] eq_self
 
 @[bv_normalize]
 theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide

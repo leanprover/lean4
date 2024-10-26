@@ -118,20 +118,6 @@ theorem umod_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' =
     (lhs' % rhs') = (lhs % rhs) := by
   simp[*]
 
-theorem sdiv_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (BitVec.sdiv lhs' rhs') = (BitVec.sdiv lhs rhs) := by
-  simp[*]
-
-theorem ofBool_true (b : Bool) :
-    decide ((b == true) = true → (BitVec.ofBool b == 1#1) = true) = true := by
-  revert b
-  decide
-
-theorem ofBool_false (b : Bool) :
-    decide ((b == false) = true → (BitVec.ofBool b == 0#1) = true) = true := by
-  revert b
-  decide
-
 theorem if_true (discr : Bool) (lhs rhs : BitVec w) :
     decide ((discr == true) = true → ((if discr = true then lhs else rhs) == lhs) = true) = true := by
   cases discr <;> simp

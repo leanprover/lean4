@@ -50,6 +50,22 @@ theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = if b then 1#1 else 0#
   revert b
   decide
 
+@[bv_normalize]
+theorem BitVec.sdiv_udiv (x y : BitVec w) :
+    x.sdiv y =
+      if x.msb then
+        if y.msb then
+          (-x) / (-y)
+        else
+          -((-x) / y)
+      else
+        if y.msb then
+          -(x / (-y))
+        else
+          x / y := by
+  rw [BitVec.sdiv_eq]
+  cases x.msb <;> cases y.msb <;> simp
+
 end Reduce
 
 section Constant
@@ -261,7 +277,6 @@ attribute [bv_normalize] BitVec.zero_umod
 attribute [bv_normalize] BitVec.umod_zero
 attribute [bv_normalize] BitVec.umod_one
 attribute [bv_normalize] BitVec.umod_eq_and
-attribute [bv_normalize] BitVec.sdiv_eq_and
 
 end Normalize
 end Std.Tactic.BVDecide

@@ -25,7 +25,6 @@ Unless this function is called on something that is not a constant-width `BitVec
 going to return `some`.
 -/
 partial def ReifiedBVExpr.of (x : Expr) : LemmaM (Option ReifiedBVExpr) := do
-  trace[Meta.Tactic.bv] m!"go: {x}"
   goOrAtom x
 where
   /--

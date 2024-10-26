@@ -217,13 +217,6 @@ where
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
       addIfLemmas discr atom lhs rhs discrExpr x lhsExpr rhsExpr
-      trace[Meta.Tactic.bv] m!"step 8"
-      return some atom
-    | BitVec.ofBool boolExpr =>
-      let some bool ← ReifiedBVLogical.of boolExpr | return none
-      let atomExpr := (mkApp (mkConst ``BitVec.ofBool) boolExpr)
-      let some atom ← ReifiedBVExpr.bitVecAtom atomExpr | return none
-      addOfBoolLemmas bool atom boolExpr atomExpr
       return some atom
     | _ => return none
 

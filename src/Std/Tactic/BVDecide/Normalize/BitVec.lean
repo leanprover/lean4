@@ -45,6 +45,11 @@ attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 theorem BitVec.ofNatLt_reduce (n : Nat) (h) : BitVec.ofNatLt n h = BitVec.ofNat w n := by
   simp [BitVec.ofNatLt, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
 
+@[bv_normalize]
+theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = if b then 1#1 else 0#1 := by
+  revert b
+  decide
+
 end Reduce
 
 section Constant
@@ -59,8 +64,6 @@ attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 attribute [bv_normalize] BitVec.not_not
-attribute [bv_normalize] BitVec.ofBool_true
-attribute [bv_normalize] BitVec.ofBool_false
 
 end Constant
 

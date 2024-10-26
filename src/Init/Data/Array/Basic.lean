@@ -25,7 +25,7 @@ variable {α : Type u}
 
 namespace Array
 
-@[deprecated size (since := "2024-10-13")] abbrev data := @toList
+@[deprecated toList (since := "2024-10-13")] abbrev data := @toList
 
 /-! ### Preliminary theorems -/
 
@@ -692,7 +692,7 @@ instance : HAppend (Array α) (List α) (Array α) := ⟨Array.appendList⟩
 def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
-@[deprecated concatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
+@[deprecated flatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
 
 @[inline]
 def flatMap (f : α → Array β) (as : Array α) : Array β :=

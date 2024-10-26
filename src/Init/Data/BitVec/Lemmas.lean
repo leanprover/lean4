@@ -2704,6 +2704,21 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   ext i
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
+@[simp]
+theorem getMsbD_twoPow {i j w: Nat} :
+    (twoPow w i).getMsbD j = (decide (i < w) && decide (j = w - i - 1)) := by
+  simp only [getMsbD_eq_getLsbD, getLsbD_twoPow]
+  by_cases h₀ : i < w <;> by_cases h₁ : j < w <;>
+  simp [h₀, h₁] <;> omega
+
+@[simp]
+theorem msb_twoPow {i w: Nat} :
+    (twoPow w i).msb = (decide (i < w) && decide (i = w - 1)) := by
+  simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.sub_zero, getLsbD_twoPow,
+    Bool.and_iff_right_iff_imp, Bool.and_eq_true, decide_eq_true_eq, and_imp]
+  intros
+  omega
+
 /- ### cons -/
 
 @[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by

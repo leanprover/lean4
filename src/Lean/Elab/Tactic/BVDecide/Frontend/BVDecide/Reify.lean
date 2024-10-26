@@ -209,8 +209,9 @@ where
         ``Std.Tactic.BVDecide.Reflect.BitVec.rotateRight_congr
     | BitVec.ofBool boolExpr =>
       let some bool ← ReifiedBVLogical.of boolExpr | return none
-      let some atom ← ReifiedBVExpr.bitVecAtom x | return none
-      addOfBoolLemmas bool atom boolExpr x
+      let atomExpr := (mkApp (mkConst ``BitVec.ofBool) boolExpr)
+      let some atom ← ReifiedBVExpr.bitVecAtom atomExpr | return none
+      addOfBoolLemmas bool atom boolExpr atomExpr
       return some atom
     | _ => return none
 

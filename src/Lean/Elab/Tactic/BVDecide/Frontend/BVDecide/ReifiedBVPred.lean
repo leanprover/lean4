@@ -44,6 +44,11 @@ def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
       atomProof
   return some ⟨bvExpr, proof, expr⟩
 
+/--
+Construct the reified version of applying the predicate in `pred` to `lhs` and `rhs`.
+This function assumes that `lhsExpr` and `rhsExpr` are the corresponding expressions to `lhs`
+and `rhs`.
+-/
 def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPred) :
     M (Option ReifiedBVPred) := do
   if h : lhs.width = rhs.width then
@@ -76,6 +81,10 @@ where
     | .eq => ``Std.Tactic.BVDecide.Reflect.BitVec.beq_congr
     | .ult => ``Std.Tactic.BVDecide.Reflect.BitVec.ult_congr
 
+/--
+Construct the reified version of `BitVec.getLsbD subExpr idx`.
+This function assumes that `subExpr` is the expression corresponding to `sub`.
+-/
 def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) : M ReifiedBVPred := do
   let bvExpr : BVPred := .getLsbD sub.bvExpr idx
   let idxExpr := toExpr idx

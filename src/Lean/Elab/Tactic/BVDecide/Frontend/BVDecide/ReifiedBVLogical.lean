@@ -43,12 +43,20 @@ def boolAtom (t : Expr) : M (Option ReifiedBVLogical) := do
   let some pred ← ReifiedBVPred.boolAtom t | return none
   ofPred pred
 
+/--
+Build a reified version of the constant `val`.
+-/
 def mkBoolConst (val : Bool) : M ReifiedBVLogical := do
   let boolExpr := .const val
   let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr val)
   let proof := pure <| ReifiedBVLogical.mkRefl (toExpr val)
   return ⟨boolExpr, proof, expr⟩
 
+/--
+Construct the reified version of applying the gate in `gate` to `lhs` and `rhs`.
+This function assumes that `lhsExpr` and `rhsExpr` are the corresponding expressions to `lhs`
+and `rhs`.
+-/
 def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : Gate) : M ReifiedBVLogical := do
   let congrThm := congrThmOfGate gate
   let boolExpr := .gate gate lhs.bvExpr rhs.bvExpr
@@ -78,6 +86,10 @@ where
     | .beq => ``Std.Tactic.BVDecide.Reflect.Bool.beq_congr
     | .imp => ``Std.Tactic.BVDecide.Reflect.Bool.imp_congr
 
+/--
+Construct the reified version of `Bool.not subExpr`.
+This function assumes that `subExpr` is the expression corresponding to `sub`.
+-/
 def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) : M ReifiedBVLogical := do
   let boolExpr := .not sub.bvExpr
   let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr

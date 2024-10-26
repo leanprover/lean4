@@ -16,6 +16,14 @@ namespace Frontend
 open Std.Tactic.BVDecide
 open Lean.Meta
 
+/--
+This function adds the two lemmas:
+- `boolExpr = true → atomExpr = 1#1`
+- `boolExpr = false → atomExpr = 0#1`
+It assumes that `boolExpr` and `atomExpr` are the expressions corresponding to `bool` and `atom`.
+Furthermore it assumes that `atomExpr` is of the form `BitVec.ofBool boolExpr`.
+```
+-/
 def addOfBoolLemmas (bool : ReifiedBVLogical) (atom : ReifiedBVExpr) (boolExpr atomExpr : Expr) :
     LemmaM Unit := do
   let some ofBoolTrueLemma ← mkOfBoolTrueLemma bool atom boolExpr atomExpr | return ()
@@ -29,7 +37,7 @@ where
   mkOfBoolFalseLemma (bool : ReifiedBVLogical) (atom : ReifiedBVExpr) (boolExpr atomExpr : Expr) :
       M (Option SatAtBVLogical) := mkOfBoolLemma bool atom boolExpr atomExpr false 0#1
 
-  mkOfBoolLemma (bool : ReifiedBVLogical) (atom : ReifiedBVExpr) (boolExpr atomExpr : Expr) 
+  mkOfBoolLemma (bool : ReifiedBVLogical) (atom : ReifiedBVExpr) (boolExpr atomExpr : Expr)
      (boolVal : Bool) (resVal : BitVec 1) : M (Option SatAtBVLogical) := do
     let lemmaName :=
       match boolVal with

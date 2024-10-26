@@ -19,6 +19,9 @@ open Lean.Meta
 
 namespace ReifiedBVExpr
 
+/--
+Build `BVExpr.eval atoms expr` where `atoms` is the assignment stored in the monad.
+-/
 def mkEvalExpr (w : Nat) (expr : Expr) : M Expr := do
   return mkApp3 (mkConst ``BVExpr.eval) (toExpr w) (← M.atomsAssignment) expr
 
@@ -28,6 +31,9 @@ def mkBVRefl (w : Nat) (expr : Expr) : Expr :=
    (mkApp (mkConst ``BitVec) (toExpr w))
    expr
 
+/--
+Register `e` as an atom of width `width`.
+-/
 def mkAtom (e : Expr) (width : Nat) : M ReifiedBVExpr := do
   let ident ← M.lookup e width
   let expr := mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
@@ -36,6 +42,9 @@ def mkAtom (e : Expr) (width : Nat) : M ReifiedBVExpr := do
     return mkBVRefl width evalExpr
   return ⟨width, .var ident, proof, expr⟩
 
+/--
+Parse `expr` as a `Nat` or `BitVec` constant depending on `ty`.
+-/
 def getNatOrBvValue? (ty : Expr) (expr : Expr) : M (Option Nat) := do
   match_expr ty with
   | Nat =>
@@ -55,6 +64,9 @@ def bitVecAtom (x : Expr) : M (Option ReifiedBVExpr) := do
   let atom ← mkAtom x width
   return some atom
 
+/--
+Build a reified version of the constant `val`.
+-/
 def mkBVConst (val : BitVec w) : M ReifiedBVExpr := do
   let bvExpr : BVExpr w := .const val
   let expr := mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)

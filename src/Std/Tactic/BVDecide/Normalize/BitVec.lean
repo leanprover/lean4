@@ -66,6 +66,24 @@ theorem BitVec.sdiv_udiv (x y : BitVec w) :
   rw [BitVec.sdiv_eq]
   cases x.msb <;> cases y.msb <;> simp
 
+@[bv_normalize]
+theorem BitVec.smod_umod (x y : BitVec w) :
+    x.smod y =
+      if x.msb then
+        if y.msb then
+          - ((- x).umod (- y))
+        else
+          let u := (- x).umod y
+          (if u = 0#w then u else y - u)
+      else
+        if y.msb then
+          let u := x.umod (- y)
+          (if u = 0#w then u else u + y)
+        else
+          x.umod y := by
+  rw [BitVec.smod_eq]
+  cases x.msb <;> cases y.msb <;> simp
+
 end Reduce
 
 section Constant

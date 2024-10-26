@@ -30,11 +30,11 @@ partial def searchPProd (e : Expr) (F : Expr) (k : Expr → Expr → MetaM α) :
   | .const `True _ => throwToBelowFailed
   | _ => k e F
 
-/-- See `toBelow` -/
-private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
-  trace[Elab.definition.structural] "belowDict start:{indentExpr belowDict}\narg:{indentExpr arg}"
+private partial def searchThroughBelow (belowDictType : Expr) (belowVal : Expr) (arg : Expr)
+    (pred : Expr → MetaM Bool) := do
+  trace[Elab.definition.structural] "belowDict start:{indentExpr belowDictType}\narg:{indentExpr arg}"
   -- First search through the PProd packing of the different `brecOn` motives
-  searchPProd belowDict F fun belowDict F => do
+  searchPProd belowDictType belowVal fun belowDict F => do
     trace[Elab.definition.structural] "belowDict step 1:{indentExpr belowDict}"
     -- Then instantiate parameters of a reflexive type, if needed
     forallTelescopeReducing belowDict fun xs belowDict => do
@@ -50,14 +50,15 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
       -- targeted indexing.)
       searchPProd belowDict (mkAppN F argTailArgs) fun belowDict F => do
         trace[Elab.definition.structural] "belowDict step 2:{indentExpr belowDict}"
-        match belowDict with
-        | .app belowDictFun belowDictArg =>
-          unless belowDictFun.getAppFn == C do throwToBelowFailed
-          unless ← isDefEq belowDictArg arg do throwToBelowFailed
-          pure F
-        | _ =>
+        unless belowDict.isApp do
           trace[Elab.definition.structural] "belowDict not an app:{indentExpr belowDict}"
           throwToBelowFailed
+        if (← pred belowDict) then pure F else throwToBelowFailed
+
+/-- See `toBelow` -/
+private def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
+  searchThroughBelow belowDict F arg fun belowDict' =>
+    isDefEq belowDict' (.app C arg)
 
 /-- See `toBelow` -/
 private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
@@ -114,8 +115,9 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
 private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
-  withBelowDict below numIndParams positions fun Cs belowDict =>
-    toBelowAux Cs[fnIndex]! belowDict recArg below
+  withTraceNode `Elab.definition.structural (return m!"{exceptEmoji ·} searching IH for {recArg} in {←inferType below}") do
+    withBelowDict below numIndParams positions fun Cs belowDict =>
+      toBelowAux Cs[fnIndex]! belowDict recArg below
 
 private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (below : Expr) (e : Expr) : M Expr :=

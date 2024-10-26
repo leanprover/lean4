@@ -9,8 +9,10 @@ Authors: Leonardo de Moura
 #include "util/name_set.h"
 #include "runtime/option_ref.h"
 #include "runtime/array_ref.h"
+#include "runtime/sharecommon.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include "kernel/for_each_fn.h"
 
 /*
 This module is not used by the kernel. It just provides an efficient implementation of
@@ -116,20 +118,272 @@ option_ref<delayed_assignment> get_delayed_mvar_assignment(metavar_ctx & mctx, n
     return option_ref<delayed_assignment>(lean_get_delayed_mvar_assignment(mctx.to_obj_arg(), mid.to_obj_arg()));
 }
 
-expr replace_fvars(expr const & e, array_ref<expr> const & fvars, expr const * rev_args) {
+static size_t g_replace_visited = 0;
+static size_t g_lift_visited = 0;
+
+expr lift_loose_bvars2(expr const & e, unsigned s, unsigned d) {
+    if (d == 0 || s >= get_loose_bvar_range(e))
+        return e;
+    return replace(e, [=](expr const & e, unsigned offset) -> optional<expr> {
+            unsigned s1 = s + offset;
+            if (s1 < s)
+                return some_expr(e); // overflow, vidx can't be >= max unsigned
+            if (s1 >= get_loose_bvar_range(e))
+                return some_expr(e); // expression e does not contain bound variables with idx >= s1
+            g_lift_visited++;
+            if (is_var(e) && bvar_idx(e) >= s + offset) {
+                return some_expr(mk_bvar(bvar_idx(e) + nat(d)));
+            } else {
+                return none_expr();
+            }
+        });
+}
+
+class replace_fvars_fn {
+    struct cache_hash_fn {
+        std::size_t operator()(std::pair<expr, unsigned> const & p) const {
+            return hash(((size_t)p.first.raw()) >> 3, p.second);
+        }
+    };
+    struct cache_eq_fn {
+        bool operator()(std::pair<expr, unsigned> const & p1, std::pair<expr, unsigned> const & p2) const {
+            return p1.first.raw() == p2.first.raw() && p1.second == p2.second;
+        }
+    };
+    struct fv_map_hash_fn {
+        std::size_t operator()(expr const & e) const { return ((size_t)e.raw()) >> 3; }
+    };
+    struct fv_map_eq_fn {
+        bool operator()(expr const & e1, expr const & e2) const { return e1.raw() == e2.raw(); }
+    };
+
+    typedef uint64 fv_set;
+
+    std::unordered_map<std::pair<expr, unsigned>, expr, cache_hash_fn, cache_eq_fn> m_cache;
+    std::unordered_map<expr, fv_set, fv_map_hash_fn, fv_map_eq_fn> m_fv_map;
+    unsigned m_num_fvars;
+    array_ref<expr> const * m_fvars;
+    expr const * m_rev_args;
+    std::vector<fv_set> m_rev_arg_fv_sets;
+    fv_set m_target;
+
+    expr save_result(expr const & e, unsigned offset, expr r, bool shared) {
+        if (shared)
+            m_cache.insert(mk_pair(mk_pair(e, offset), r));
+        return r;
+    }
+
+    static fv_set to_fv_set(name const & n) {
+        return 1 << (n.hash() & 63);
+    }
+
+    bool fv_map_contains(expr const & e) const {
+        return m_fv_map.find(e) != m_fv_map.end();
+    }
+
+    bool may_contain_target(expr const &  e) const {
+        if (!has_fvar(e))
+            return false;
+        switch (e.kind()) {
+        case expr_kind::Const: case expr_kind::Sort:
+        case expr_kind::BVar:  case expr_kind::Lit:
+        case expr_kind::MVar:
+            lean_unreachable();
+        case expr_kind::FVar:
+            return (to_fv_set(fvar_name(e)) & m_target) != 0;
+        default: {
+            auto it = m_fv_map.find(e);
+            if (it != m_fv_map.end())
+                return (it->second & m_target) != 0;
+            else
+                return true; // we don't have a cached approximation yet.
+        }}
+        lean_unreachable();
+    }
+
+    fv_set get_fv_set(expr const & e) {
+        if (!has_fvar(e)) return 0;
+        switch (e.kind()) {
+        case expr_kind::Const: case expr_kind::Sort:
+        case expr_kind::BVar:  case expr_kind::Lit:
+        case expr_kind::MVar:
+            return 0;
+        case expr_kind::FVar:
+            return to_fv_set(fvar_name(e));
+        default: {
+            auto it = m_fv_map.find(e);
+            lean_assert(it != m_fv_map.end());
+            return it->second;
+        }}
+    }
+
+    void update_fv(expr const & e, fv_set s) {
+        m_fv_map.insert(mk_pair(e, s));
+    }
+
+    void update_fv(expr const & e, expr const & c) {
+        update_fv(e, get_fv_set(c));
+    }
+
+    void update_fv(expr const & e, expr const & c1, expr const & c2) {
+        update_fv(e, get_fv_set(c1) | get_fv_set(c2));
+    }
+
+    void update_fv(expr const & e, expr const & c1, expr const & c2, expr const  & c3) {
+        update_fv(e, get_fv_set(c1) | get_fv_set(c2) | get_fv_set(c3));
+    }
+
+    expr apply(expr const & e, unsigned offset) {
+        if (!may_contain_target(e))
+            return e;
+        g_replace_visited++;
+        bool shared = false;
+        if (is_shared(e)) {
+            auto it = m_cache.find(mk_pair(e, offset));
+            if (it != m_cache.end())
+                return it->second;
+            shared = true;
+        }
+
+        switch (e.kind()) {
+        case expr_kind::Const: case expr_kind::Sort:
+        case expr_kind::BVar:  case expr_kind::Lit:
+        case expr_kind::MVar:
+            lean_unreachable();
+        case expr_kind::FVar: {
+            size_t i = m_num_fvars;
+            lean_assert(m_num_fvars == m_fvars->size());
+            name const & n = fvar_name(e);
+            while (i > 0) {
+                --i;
+                if (fvar_name((*m_fvars)[i]) == n) {
+                    // Recall that `lift_loose_bvars` does not change the set of free variables.
+                    // So, we can use set cached for `m_rev_args[m_num_fvars - i - 1]`
+                    expr r = lift_loose_bvars(m_rev_args[m_num_fvars - i - 1], offset);
+                    update_fv(r, m_rev_arg_fv_sets[m_num_fvars - i - 1]);
+                    return save_result(e, offset, r, shared);
+                }
+            }
+            return save_result(e, offset, e, shared);
+        }
+        case expr_kind::MData: {
+            expr new_c = apply(mdata_expr(e), offset);
+            expr new_e = update_mdata(e, new_c);
+            update_fv(new_e, new_c);
+            return save_result(e, offset, new_e, shared);
+        }
+        case expr_kind::Proj: {
+            expr new_c = apply(proj_expr(e), offset);
+            expr new_e = update_proj(e, new_c);
+            update_fv(new_e, new_c);
+            return save_result(e, offset, new_e, shared);
+        }
+        case expr_kind::App: {
+            expr new_f = apply(app_fn(e), offset);
+            expr new_a = apply(app_arg(e), offset);
+            expr new_e = update_app(e, new_f, new_a);
+            update_fv(new_e, new_f, new_a);
+            return save_result(e, offset, new_e, shared);
+        }
+        case expr_kind::Pi: case expr_kind::Lambda: {
+            expr new_d = apply(binding_domain(e), offset);
+            expr new_b = apply(binding_body(e), offset+1);
+            expr new_e = update_binding(e, new_d, new_b);
+            update_fv(new_e, new_d, new_b);
+            return save_result(e, offset, new_e, shared);
+        }
+        case expr_kind::Let: {
+            expr new_t = apply(let_type(e), offset);
+            expr new_v = apply(let_value(e), offset);
+            expr new_b = apply(let_body(e), offset+1);
+            expr new_e = update_let(e, new_t, new_v, new_b);
+            update_fv(new_e, new_t, new_v, new_b);
+            return save_result(e, offset, new_e, shared);
+        }}
+        lean_unreachable();
+    }
+
+    fv_set init_fv_map(expr const & e) {
+        if (!has_fvar(e))
+            return 0;
+        if (is_fvar(e))
+            return to_fv_set(fvar_name(e));
+        auto it = m_fv_map.find(e);
+        if (it != m_fv_map.end())
+            return it->second;
+        fv_set r;
+        switch (e.kind()) {
+        case expr_kind::Const: case expr_kind::Sort:
+        case expr_kind::BVar:  case expr_kind::Lit:
+        case expr_kind::MVar:  case expr_kind::FVar:
+            lean_unreachable();
+        case expr_kind::MData:
+            r = init_fv_map(mdata_expr(e));
+            break;
+        case expr_kind::Proj:
+            r = init_fv_map(proj_expr(e));
+            break;
+        case expr_kind::App:
+            r = init_fv_map(app_fn(e)) | init_fv_map(app_arg(e));
+            break;
+        case expr_kind::Pi: case expr_kind::Lambda:
+            r = init_fv_map(binding_domain(e)) | init_fv_map(binding_body(e));
+            break;
+        case expr_kind::Let:
+            r = init_fv_map(let_type(e)) | init_fv_map(let_value(e)) | init_fv_map(let_body(e));
+            break;
+        }
+        update_fv(e, r);
+        return r;
+    }
+
+public:
+    replace_fvars_fn() {}
+
+    expr operator()(expr const & e, array_ref<expr> const & fvars, expr const * rev_args) {
+        m_cache.clear();
+        // init_fv_map(e); // uncomment for better precision. The counter `g_replace_visited` will provide the number we would get if `fv_set` were a field of `Expr`
+        lean_assert(m_cache.size() == 0);
+        m_fvars = &fvars;
+        m_num_fvars = fvars.size();
+        m_rev_args = rev_args;
+        m_rev_arg_fv_sets.resize(m_num_fvars, 0);
+        m_target = 0;
+        for (unsigned i = 0; i < m_num_fvars; i++) {
+            m_target = m_target | to_fv_set(fvar_name(fvars[i]));
+            if (has_fvar(rev_args[i]))
+                m_rev_arg_fv_sets[i] = init_fv_map(rev_args[i]);
+            else
+                m_rev_arg_fv_sets[i] = 0;
+        }
+        return apply(e, 0);
+    }
+};
+
+static size_t get_size_shared(expr const & e) {
+    size_t size = 0;
+    for_each(e, [&](expr const &) {
+        size++;
+        return true;
+    });
+    return size;
+}
+
+expr replace_fvars_slow(expr const & e, array_ref<expr> const & fvars, expr const * rev_args) {
     size_t sz = fvars.size();
     if (sz == 0)
         return e;
     return replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (!has_fvar(m))
                 return some_expr(m); // expression m does not contain free variables
+            g_replace_visited++;
             if (is_fvar(m)) {
                 size_t i = sz;
                 name const & fid = fvar_name(m);
                 while (i > 0) {
                     --i;
                     if (fvar_name(fvars[i]) == fid) {
-                        return some_expr(lift_loose_bvars(rev_args[sz - i - 1], offset));
+                        return some_expr(lift_loose_bvars(rev_args[sz - i - 1], 0, offset));
                     }
                 }
             }
@@ -143,6 +397,17 @@ class instantiate_mvars_fn {
     name_set m_already_normalized; // Store metavariables whose assignment has already been normalized.
     std::unordered_map<lean_object *, expr> m_cache;
     std::vector<expr> m_saved; // Helper vector to prevent values from being garbage collected
+    replace_fvars_fn m_replace_fn;
+    size_t m_visited = 0;
+
+    expr replace_fvars(expr const & e, array_ref<expr> const & fvars, expr const * rev_args) {
+        if (!has_fvar(e) || fvars.size() == 0)
+            return e;
+        expr r = m_replace_fn(e, fvars, rev_args);
+        // expr r = replace_fvars_slow(e, fvars, rev_args);
+        lean_assert(r == replace_fvars_slow(e, fvars, rev_args));
+        return r;
+    }
 
     level visit_level(level const & l) {
         return m_level_fn(l);
@@ -327,6 +592,7 @@ public:
     expr visit(expr const & e) {
         if (!has_mvar(e))
             return e;
+        m_visited++;
         bool shared = false;
         if (is_shared(e)) {
             auto it = m_cache.find(e.raw());
@@ -359,7 +625,16 @@ public:
         }
     }
 
-    expr operator()(expr const & e) { return visit(e); }
+    expr operator()(expr const & e) {
+        g_replace_visited = 0;
+        g_lift_visited = 0;
+        expr r = visit(e);
+        size_t s = get_size_shared(r);
+        if (s > 1024) {
+            std::cout << m_visited << " " << g_lift_visited << " " << g_replace_visited << " " << s << " " << get_size_shared(expr(sharecommon_quick_fn()(r.to_obj_arg()))) << "\n";
+        }
+        return r;
+    }
 };
 
 extern "C" LEAN_EXPORT object * lean_instantiate_expr_mvars(object * m, object * e) {

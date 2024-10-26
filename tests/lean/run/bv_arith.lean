@@ -51,3 +51,10 @@ theorem arith_unit_11 (x y : BitVec 8) (hx : x.msb = false) (hy : y.msb = false)
 
 theorem arith_unit_12 (x y : BitVec 8) (hx : x.msb = false) (hy : y.msb = true) : -(x / -y) = x.sdiv y := by
   bv_decide
+
+theorem arith_unit_13 (x y : BitVec 8) (hx : x.msb = false) (hy : y.msb = false) : x.umod y = x.smod y := by
+  bv_decide
+
+theorem arith_unit_14 (x y : BitVec 8) (hx : x.msb = true) (hy : y.msb = true) : (-((-x).umod (-y))) = x.smod y := by
+  bv_decide
+

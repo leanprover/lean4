@@ -1218,6 +1218,30 @@ def delabDo : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotati
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)
 
+/-- Delaborates a function application of the form `f ... x (fun _ : Unit => y)`. -/
+def delabLazyBinop (arity : Nat) (k : Term → Term → DelabM Term) : DelabM Term :=
+  whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp arity do
+    let y ← withAppArg do
+      let b := (← getExpr).beta #[mkConst ``Unit.unit]
+      withTheReader SubExpr (fun s => {s with pos := s.pos.pushBindingBody, expr := b}) delab
+    let x ← withAppFn <| withAppArg delab
+    k x y
+
+@[builtin_delab app.HOrElse.hOrElse]
+def delabHOrElse : Delab := delabLazyBinop 6 (fun x y => `($x <|> $y))
+
+@[builtin_delab app.HAndThen.hAndThen]
+def delabHAndThen : Delab := delabLazyBinop 6 (fun x y => `($x >> $y))
+
+@[builtin_delab app.Seq.seq]
+def delabSeq : Delab := delabLazyBinop 6 (fun x y => `($x <*> $y))
+
+@[builtin_delab app.SeqLeft.seqLeft]
+def delabSeqLeft : Delab := delabLazyBinop 6 (fun x y => `($x <* $y))
+
+@[builtin_delab app.SeqRight.seqRight]
+def delabSeqRight : Delab := delabLazyBinop 6 (fun x y => `($x *> $y))
+
 @[builtin_delab app.Lean.Name.str,
   builtin_delab app.Lean.Name.mkStr1, builtin_delab app.Lean.Name.mkStr2, builtin_delab app.Lean.Name.mkStr3, builtin_delab app.Lean.Name.mkStr4,
   builtin_delab app.Lean.Name.mkStr5, builtin_delab app.Lean.Name.mkStr6, builtin_delab app.Lean.Name.mkStr7, builtin_delab app.Lean.Name.mkStr8]

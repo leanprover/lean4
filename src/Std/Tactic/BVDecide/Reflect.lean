@@ -122,6 +122,16 @@ theorem sdiv_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' =
     (BitVec.sdiv lhs' rhs') = (BitVec.sdiv lhs rhs) := by
   simp[*]
 
+theorem ofBool_true (b : Bool) :
+    decide ((b == true) = true → (BitVec.ofBool b == 1#1) = true) = true := by
+  revert b
+  decide
+
+theorem ofBool_false (b : Bool) :
+    decide ((b == false) = true → (BitVec.ofBool b == 0#1) = true) = true := by
+  revert b
+  decide
+
 end BitVec
 
 namespace Bool
@@ -141,8 +151,15 @@ theorem beq_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs)
     (lhs' == rhs') = (lhs == rhs) := by
   simp[*]
 
+theorem imp_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (decide (lhs' → rhs')) = (decide (lhs → rhs)) := by
+  simp[*]
+
 theorem false_of_eq_true_of_eq_false (h₁ : x = true) (h₂ : x = false) : False := by
   cases h₁; cases h₂
+
+theorem lemma_congr (x x' : Bool) (h1 : x' = x) (h2 : x = true) : x' = true := by
+  simp[*]
 
 end Bool
 

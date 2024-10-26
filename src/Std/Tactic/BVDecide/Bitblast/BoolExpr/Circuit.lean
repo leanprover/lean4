@@ -59,6 +59,10 @@ where
         let ret := aig.mkBEqCached input
         have := LawfulOperator.le_size (f := mkBEqCached) aig input
         ⟨ret, by dsimp only [ret] at lextend rextend ⊢; omega⟩
+      | .imp =>
+        let ret := aig.mkImpCached input
+        have := LawfulOperator.le_size (f := mkImpCached) aig input
+        ⟨ret, by dsimp only [ret] at lextend rextend ⊢; omega⟩
 
 variable (atomHandler : AIG β → α → Entrypoint β) [LawfulOperator β (fun _ => α) atomHandler]
 
@@ -96,6 +100,9 @@ theorem ofBoolExprCached.go_decl_eq (idx) (aig : AIG β) (h : idx < aig.decls.si
     | beq =>
       simp only [go]
       rw [AIG.LawfulOperator.decl_eq (f := mkBEqCached), rih, lih]
+    | imp =>
+      simp only [go]
+      rw [AIG.LawfulOperator.decl_eq (f := mkImpCached), rih, lih]
 
 theorem ofBoolExprCached.go_isPrefix_aig {aig : AIG β} :
     IsPrefix aig.decls (go aig expr atomHandler).val.aig.decls := by

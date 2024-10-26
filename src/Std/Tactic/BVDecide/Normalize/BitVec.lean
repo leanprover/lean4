@@ -84,6 +84,8 @@ theorem BitVec.smod_umod (x y : BitVec w) :
   rw [BitVec.smod_eq]
   cases x.msb <;> cases y.msb <;> simp
 
+attribute [bv_normalize] Bool.cond_eq_if
+
 end Reduce
 
 section Constant

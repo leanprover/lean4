@@ -27,3 +27,10 @@ theorem substructure_unit_4 (a b : Bool) : (a && b) = (b && a) := by
 
 theorem substructure_unit_5 (a : Bool) (b c : BitVec 32) (h1 : b < c ↔ a) (h2 : a = true) : b < c := by
   bv_decide
+
+theorem substructure_unit_6 (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by
+  bv_decide
+
+theorem substructure_unit_7 (a b c: Bool) : (bif a then b else c) = (bif !a then c else b) := by
+  bv_decide
+  

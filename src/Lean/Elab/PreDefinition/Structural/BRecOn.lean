@@ -30,11 +30,11 @@ partial def searchPProd (e : Expr) (F : Expr) (k : Expr → Expr → MetaM α) :
   | .const `True _ => throwToBelowFailed
   | _ => k e F
 
-/-- See `toBelow` -/
-private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
-  trace[Elab.definition.structural] "belowDict start:{indentExpr belowDict}\narg:{indentExpr arg}"
+private partial def searchThroughBelow (belowDictType : Expr) (belowVal : Expr) (arg : Expr)
+    (pred : Expr → MetaM Bool) := do
+  trace[Elab.definition.structural] "belowDict start:{indentExpr belowDictType}\narg:{indentExpr arg}"
   -- First search through the PProd packing of the different `brecOn` motives
-  searchPProd belowDict F fun belowDict F => do
+  searchPProd belowDictType belowVal fun belowDict F => do
     trace[Elab.definition.structural] "belowDict step 1:{indentExpr belowDict}"
     -- Then instantiate parameters of a reflexive type, if needed
     forallTelescopeReducing belowDict fun xs belowDict => do
@@ -50,14 +50,15 @@ private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : E
       -- targeted indexing.)
       searchPProd belowDict (mkAppN F argTailArgs) fun belowDict F => do
         trace[Elab.definition.structural] "belowDict step 2:{indentExpr belowDict}"
-        match belowDict with
-        | .app belowDictFun belowDictArg =>
-          unless belowDictFun.getAppFn == C do throwToBelowFailed
-          unless ← isDefEq belowDictArg arg do throwToBelowFailed
-          pure F
-        | _ =>
+        unless belowDict.isApp do
           trace[Elab.definition.structural] "belowDict not an app:{indentExpr belowDict}"
           throwToBelowFailed
+        if (← pred belowDict) then pure F else throwToBelowFailed
+
+/-- See `toBelow` -/
+private def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
+  searchThroughBelow belowDict F arg fun belowDict' =>
+    isDefEq belowDict' (.app C arg)
 
 /-- See `toBelow` -/
 private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
@@ -114,33 +115,44 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
 private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
-  withBelowDict below numIndParams positions fun Cs belowDict =>
-    toBelowAux Cs[fnIndex]! belowDict recArg below
+  withTraceNode `Elab.definition.structural (return m!"{exceptEmoji ·} searching IH for {recArg} in {←inferType below}") do
+    withBelowDict below numIndParams positions fun Cs belowDict =>
+      toBelowAux Cs[fnIndex]! belowDict recArg below
+
+/-- Similar to `MatcherApp.addArg?`, but returns number of args added. -/
+def _root_.Lean.Meta.MatcherApp.addArgs? (matcherApp : MatcherApp) (es : Array Expr) : MetaM (Nat × MatcherApp) := do
+  let mut matcherApp := matcherApp
+  let mut ok := 0
+  for e in es do
+    if let some matcherApp' ← matcherApp.addArg? e then
+      matcherApp := matcherApp'
+      ok := ok + 1
+  return (ok, matcherApp)
 
 private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (below : Expr) (e : Expr) : M Expr :=
+    (belows : Array Expr) (e : Expr) : M Expr :=
   let recFnNames := recArgInfos.map (·.fnName)
   let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
     modifyGet (·.contains e)
-  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
+  let rec loop (belows : Array Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
     | Expr.lam n d b c =>
-      withLocalDecl n c (← loop below d) fun x => do
-        mkLambdaFVars #[x] (← loop below (b.instantiate1 x))
+      withLocalDecl n c (← loop belows d) fun x => do
+        mkLambdaFVars #[x] (← loop belows (b.instantiate1 x))
     | Expr.forallE n d b c =>
-      withLocalDecl n c (← loop below d) fun x => do
-        mkForallFVars #[x] (← loop below (b.instantiate1 x))
+      withLocalDecl n c (← loop belows d) fun x => do
+        mkForallFVars #[x] (← loop belows (b.instantiate1 x))
     | Expr.letE n type val body _ =>
-      withLetDecl n (← loop below type) (← loop below val) fun x => do
-        mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
+      withLetDecl n (← loop belows type) (← loop belows val) fun x => do
+        mkLetFVars #[x] (← loop belows (body.instantiate1 x)) (usedLetOnly := false)
     | Expr.mdata d b =>
       if let some stx := getRecAppSyntax? e then
-        withRef stx <| loop below b
+        withRef stx <| loop belows b
       else
-        return mkMData d (← loop below b)
-    | Expr.proj n i e => return mkProj n i (← loop below e)
+        return mkMData d (← loop belows b)
+    | Expr.proj n i e => return mkProj n i (← loop belows e)
     | Expr.app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr :=
         e.withApp fun f args => do
@@ -149,54 +161,58 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
             let some recArg := args[recArgInfo.recArgPos]?
               | throwError "insufficient number of parameters at recursive application {indentExpr e}"
             -- For reflexive type, we may have nested recursive applications in recArg
-            let recArg ← loop below recArg
-            let f ←
-              try toBelow below recArgInfo.indGroupInst.params.size positions fnIdx recArg
-              catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
+            let recArg ← loop belows recArg
+            let f ← do
+              for below in belows do
+                try
+                    return ← toBelow below recArgInfo.indGroupInst.params.size positions fnIdx recArg
+                catch _ => pure ()
+              throwError "failed to eliminate recursive application{indentExpr e}"
             -- We don't pass the fixed parameters, the indices and the major arg to `f`, only the rest
             let (_, fArgs) := recArgInfo.pickIndicesMajor args[recArgInfo.numFixed:]
-            let fArgs ← fArgs.mapM (replaceRecApps recArgInfos positions below ·)
+            let fArgs ← fArgs.mapM (replaceRecApps recArgInfos positions belows ·)
             return mkAppN f fArgs
           else
-            return mkAppN (← loop below f) (← args.mapM (loop below))
+            return mkAppN (← loop belows f) (← args.mapM (loop belows))
       match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if recArgInfos.all (fun recArgInfo => !recArgHasLooseBVarsAt recArgInfo.fnName recArgInfo.recArgPos e) then
           processApp e
         else
-          /- Here is an example we currently do not handle
-             ```
-             def g (xs : List Nat) : Nat :=
-             match xs with
-             | [] => 0
-             | y::ys =>
-               match ys with
-               | []       => 1
-               | _::_::zs => g zs + 1
-               | zs       => g ys + 2
-             ```
-             We are matching on `ys`, but still using `ys` in the third alternative.
-             If we push the `below` argument over the dependent match it will be able to eliminate recursive call using `zs`.
-             To make it work, users have to write the third alternative as `| zs => g zs + 2`
-             If this is too annoying in practice, we may replace `ys` with the matching term, but
-             this may generate weird error messages, when it doesn't work. -/
-          trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
-          if let some matcherApp ← matcherApp.addArg? below then
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+          -- For each discriminant, check see if we have a `below` value for it
+          let belowsToRefine ← matcherApp.discrs.filterMapM fun discr => do
+            for below in belows do
+              let t ← inferType below
+              -- Here I am stuck. If `t = below (x :: y :: zs)` and `discr = y :: zs` then
+              -- I want to find the `below (z :: zs)` value in `below`. But search like above
+              -- with `searchThroughBelow` does not work well, because reducing `t` turns
+              -- `below` into a `Foo.rec` mess. We could search for `below (z :: zs)` using
+              -- defeq checks, but for that we would have to construct the right below type
+              -- which requires looking up the types and threading through the motives.
+              if h : t.isApp then
+                if t.appArg h == discr then
+                  return some below
+            return none
+          trace[Elab.definition.structural] "matching on {matcherApp.discrs}\nbelow values:\n{(← belows.mapM (inferType ·))}\nbelowsToRefine values to refine:\n{(← belowsToRefine.mapM (inferType ·))}"
+          let (newBelowsN, matcherApp') ← matcherApp.addArgs? belowsToRefine
+          if newBelowsN > 0 then
+            let altsNew ← (Array.zip matcherApp'.alts matcherApp'.altNumParams).mapM fun (alt, numParams) =>
               lambdaBoundedTelescope alt numParams fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
                 unless xs.size = numParams do
                   throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let belowForAlt := xs[numParams - 1]!
-                mkLambdaFVars xs (← loop belowForAlt altBody)
-            pure { matcherApp with alts := altsNew }.toExpr
+                let newBelowsForAlt : Array Expr := xs[numParams - newBelowsN:]
+                -- let newBelowsForAlt ← newBelowsForAlt.flatMapM expandBelow
+                trace[Elab.definition.structural] "new below values: {(← newBelowsForAlt.mapM (inferType ·))}"
+                mkLambdaFVars xs (← loop (belows ++ newBelowsForAlt) altBody)
+            pure { matcherApp' with alts := altsNew }.toExpr
           else
             processApp e
       | none => processApp e
     | e =>
       ensureNoRecFn recFnNames e
       pure e
-  loop below e |>.run' {}
+  loop belows e |>.run' {}
 
 /--
 Calculates the `.brecOn` motive corresponding to one structural recursive function.
@@ -225,7 +241,7 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
       -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
       -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
       let below := below[0]!
-      let valueNew ← replaceRecApps recArgInfos positions below value
+      let valueNew ← replaceRecApps recArgInfos positions #[below] value
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--

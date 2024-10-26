@@ -59,6 +59,8 @@ attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 attribute [bv_normalize] BitVec.not_not
+attribute [bv_normalize] BitVec.ofBool_true
+attribute [bv_normalize] BitVec.ofBool_false
 
 end Constant
 
@@ -239,12 +241,6 @@ theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
   simp [this]
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
-
-@[bv_normalize]
-theorem BitVec.ofBool_getLsbD (a : BitVec w) (i : Nat) :
-    BitVec.ofBool (a.getLsbD i) = a.extractLsb' i 1 := by
-  ext j
-  simp
 
 @[bv_normalize]
 theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :

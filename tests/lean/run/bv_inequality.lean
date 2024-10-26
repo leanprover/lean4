@@ -28,3 +28,11 @@ theorem ineq_unit_6 (x y z : BitVec 32) (h1 : BitVec.slt x y) (h2 : BitVec.slt y
 
 theorem ineq_unit_7 (x y z : BitVec 32) (h1 : BitVec.sle x y) (h2 : BitVec.sle y z)  : BitVec.sle x z := by
   bv_decide
+
+-- needs real bool if support
+example (x : BitVec 32) : (if x.getLsbD 0 then !x.getLsbD 0 else x.getLsbD 0) = false := by
+  bv_normalize
+  sorry
+
+example (x y : BitVec 32) (h : x.getLsbD 0 = false) : (if x.getLsbD 0 then x else y) = y := by
+  bv_decide

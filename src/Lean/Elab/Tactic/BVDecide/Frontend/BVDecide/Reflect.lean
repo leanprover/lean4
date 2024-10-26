@@ -80,6 +80,7 @@ instance : ToExpr Gate where
     | .and => mkConst ``Gate.and
     | .xor => mkConst ``Gate.xor
     | .beq => mkConst ``Gate.beq
+    | .imp => mkConst ``Gate.imp
   toTypeExpr := mkConst ``Gate
 
 instance : ToExpr BVPred where

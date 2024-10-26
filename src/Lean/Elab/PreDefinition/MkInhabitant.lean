@@ -81,19 +81,19 @@ Find an inhabitant while doing delta unfolding.
 -/
 private partial def mkInhabitantForAux? (useOfNonempty : Bool) (cache : InhabitantCache useOfNonempty) (type : Expr) :
     MetaM (Option Expr) := withIncRecDepth do
-  if let some val ← cache.mkInhabitant? type then
+  let type ← whnfCore type
+  if type.isForall then
+    forallTelescope type fun xs type' =>
+      cache.withInhabitants xs fun cache => do
+        let some val ← mkInhabitantForAux? _ cache type' | return none
+        mkLambdaFVars xs val
+  else if let some val ← cache.mkInhabitant? type then
     return val
   else
     cache.resolve
       (kOk := fun cache => mkInhabitantForAux? _ cache type)
       (kFail := do
-        let type ← whnfCore type
-        if type.isForall then
-          forallTelescope type fun xs type' =>
-            cache.withInhabitants xs fun cache => do
-              let some val ← mkInhabitantForAux? _ cache type' | return none
-              mkLambdaFVars xs val
-        else if let some type ← unfoldDefinition? type then
+        if let some type ← unfoldDefinition? type then
           mkInhabitantForAux? _ cache type
         else
           return none)

@@ -22,7 +22,6 @@ This function adds the two lemmas:
 - `boolExpr = false → atomExpr = 0#1`
 It assumes that `boolExpr` and `atomExpr` are the expressions corresponding to `bool` and `atom`.
 Furthermore it assumes that `atomExpr` is of the form `BitVec.ofBool boolExpr`.
-```
 -/
 def addOfBoolLemmas (bool : ReifiedBVLogical) (atom : ReifiedBVExpr) (boolExpr atomExpr : Expr) :
     LemmaM Unit := do

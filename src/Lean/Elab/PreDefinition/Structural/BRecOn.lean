@@ -30,11 +30,11 @@ partial def searchPProd (e : Expr) (F : Expr) (k : Expr → Expr → MetaM α) :
   | .const `True _ => throwToBelowFailed
   | _ => k e F
 
-private partial def searchThroughBelow (belowDictType : Expr) (belowVal : Expr) (arg : Expr)
-    (pred : Expr → MetaM Bool) := do
-  trace[Elab.definition.structural] "belowDict start:{indentExpr belowDictType}\narg:{indentExpr arg}"
+/-- See `toBelow` -/
+private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
+  trace[Elab.definition.structural] "belowDict start:{indentExpr belowDict}\narg:{indentExpr arg}"
   -- First search through the PProd packing of the different `brecOn` motives
-  searchPProd belowDictType belowVal fun belowDict F => do
+  searchPProd belowDict F fun belowDict F => do
     trace[Elab.definition.structural] "belowDict step 1:{indentExpr belowDict}"
     -- Then instantiate parameters of a reflexive type, if needed
     forallTelescopeReducing belowDict fun xs belowDict => do
@@ -50,15 +50,14 @@ private partial def searchThroughBelow (belowDictType : Expr) (belowVal : Expr) 
       -- targeted indexing.)
       searchPProd belowDict (mkAppN F argTailArgs) fun belowDict F => do
         trace[Elab.definition.structural] "belowDict step 2:{indentExpr belowDict}"
-        unless belowDict.isApp do
+        match belowDict with
+        | .app belowDictFun belowDictArg =>
+          unless belowDictFun.getAppFn == C do throwToBelowFailed
+          unless ← isDefEq belowDictArg arg do throwToBelowFailed
+          pure F
+        | _ =>
           trace[Elab.definition.structural] "belowDict not an app:{indentExpr belowDict}"
           throwToBelowFailed
-        if (← pred belowDict) then pure F else throwToBelowFailed
-
-/-- See `toBelow` -/
-private def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
-  searchThroughBelow belowDict F arg fun belowDict' =>
-    isDefEq belowDict' (.app C arg)
 
 /-- See `toBelow` -/
 private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)

@@ -243,9 +243,19 @@ where
 
 end M
 
+/--
+The state of the lemma reflection monad.
+-/
 structure LemmaState where
+  /--
+  The list of top level lemmas that got created on the fly during reflection.
+  -/
   lemmas : Array SatAtBVLogical := #[]
 
+/--
+The lemma reflection monad. It extends the usual reflection monad `M` by adding the ability to
+add additional top level lemmas on the fly.
+-/
 abbrev LemmaM := StateRefT LemmaState M
 
 namespace LemmaM
@@ -254,6 +264,9 @@ def run (m : LemmaM α) (state : LemmaState := {}) : M (α × Array SatAtBVLogic
   let (res, state) ← StateRefT'.run m state
   return (res, state.lemmas)
 
+/--
+Add another top level lemma.
+-/
 def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
   modify fun s => { s with lemmas := s.lemmas.push lemma }
 

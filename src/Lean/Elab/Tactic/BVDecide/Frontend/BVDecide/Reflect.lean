@@ -125,6 +125,76 @@ The reflection monad, used to track `BitVec` variables that we see as we travers
 -/
 abbrev M := StateRefT State MetaM
 
+/--
+A reified version of an `Expr` representing a `BVExpr`.
+-/
+structure ReifiedBVExpr where
+  width : Nat
+  /--
+  The reified expression.
+  -/
+  bvExpr : BVExpr width
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalBVExpr`.
+  -/
+  evalsAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvExpr`.
+  -/
+  expr : Expr
+
+/--
+A reified version of an `Expr` representing a `BVPred`.
+-/
+structure ReifiedBVPred where
+  /--
+  The reified expression.
+  -/
+  bvPred : BVPred
+  /--
+  A proof that `bvPred.eval atomsAssignment = originalBVPredExpr`.
+  -/
+  evalsAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvPred`
+  -/
+  expr : Expr
+
+/--
+A reified version of an `Expr` representing a `BVLogicalExpr`.
+-/
+structure ReifiedBVLogical where
+  /--
+  The reified expression.
+  -/
+  bvExpr : BVLogicalExpr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalBVLogicalExpr`.
+  -/
+  evalsAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvExpr`
+  -/
+  expr : Expr
+
+/--
+A reified version of an `Expr` representing a `BVLogicalExpr` that we know to be true.
+-/
+structure SatAtBVLogical where
+  /--
+  The reified expression.
+  -/
+  bvExpr : BVLogicalExpr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = true`.
+  -/
+  satAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvExpr`
+  -/
+  expr : Expr
+
+
 namespace M
 
 /--
@@ -171,6 +241,22 @@ where
     modify fun s => { s with atomsAssignmentCache := newAtomsAssignment }
 
 end M
+
+structure LemmaState where
+  lemmas : Array SatAtBVLogical := #[]
+
+abbrev LemmaM := StateRefT LemmaState M
+
+namespace LemmaM
+
+def run (m : LemmaM α) (state : LemmaState := {}) : M (α × Array SatAtBVLogical) := do
+  let (res, state) ← StateRefT'.run m state
+  return (res, state.lemmas)
+
+def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
+  modify fun s => { s with lemmas := s.lemmas.push lemma }
+
+end LemmaM
 
 end Frontend
 end Lean.Elab.Tactic.BVDecide

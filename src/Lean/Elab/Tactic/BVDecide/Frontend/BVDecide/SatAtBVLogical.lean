@@ -19,29 +19,12 @@ namespace Frontend
 open Lean.Meta
 open Std.Tactic.BVDecide
 
-/--
-A reified version of an `Expr` representing a `BVLogicalExpr` that we know to be true.
--/
-structure SatAtBVLogical where
-  /--
-  The reified expression.
-  -/
-  bvExpr : BVLogicalExpr
-  /--
-  A proof that `bvExpr.eval atomsAssignment = true`.
-  -/
-  satAtAtoms : M Expr
-  /--
-  A cache for `toExpr bvExpr`
-  -/
-  expr : Expr
-
 namespace SatAtBVLogical
 
 /--
 Reify an `Expr` that is a proof of some boolean structure on top of predicates about `BitVec`s.
 -/
-partial def of (h : Expr) : M (Option SatAtBVLogical) := do
+partial def of (h : Expr) : LemmaM (Option SatAtBVLogical) := do
   let t ← instantiateMVars (← whnfR (← inferType h))
   match_expr t with
   | Eq α lhsExpr rhsExpr =>

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
+import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reify
 
 /-!
 This module is the main entry point for reifying `BitVec` problems with boolean substructure.

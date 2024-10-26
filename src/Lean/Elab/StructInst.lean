@@ -826,22 +826,12 @@ def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/
 partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
   match e with
-  | .forallE ..   => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
-  | .lam ..
-  | .letE ..      => lambdaLetTelescope e fun xs b => do
-    /- The bodies of let-declarations also need to be reduced.
-       Otherwise, some metavariables may be kept in the terms, leading to errors
-       when trying to generate default values.
-       Fixes `#3146`
-    -/
-    let localInsts ← Meta.getLocalInstances
-    let mut lctx ← getLCtx
-    for e in xs do
-      let some lcdl := lctx.findFVar? e | unreachable!
-      let some value := lcdl.value? | continue
-      let value ← Meta.withLCtx lctx localInsts (reduce structNames value)
-      lctx := lctx.modifyLocalDecl e.fvarId! (·.setValue value)
-    Meta.withLCtx lctx localInsts (mkLetFVars xs (← reduce structNames b))
+  | .forallE ..   =>
+    forallTelescope e fun xs b => withReduceLCtx xs do
+      mkForallFVars xs (← reduce structNames b)
+  | .lam .. | .letE .. =>
+    lambdaLetTelescope e fun xs b => withReduceLCtx xs do
+      mkLambdaFVars (usedLetOnly := true) xs (← reduce structNames b)
   | .proj _ i b   =>
     match (← Meta.project? b i) with
     | some r => reduce structNames r
@@ -871,6 +861,24 @@ partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
     | some val => if val.isMVar then pure val else reduce structNames val
     | none     => return e
   | e => return e
+where
+  /--
+  Reduce the types and values of the local variables `xs` in the local context.
+  -/
+  withReduceLCtx {α} (xs : Array Expr) (k : MetaM α) (i : Nat := 0) : MetaM α := do
+    if h : i < xs.size then
+      let fvarId := xs[i].fvarId!
+      let decl ← fvarId.getDecl
+      let type ← reduce structNames decl.type
+      let mut lctx ← getLCtx
+      if let some value := decl.value? then
+        let value ← reduce structNames value
+        lctx := lctx.modifyLocalDecl fvarId (· |>.setType type |>.setValue value)
+      else
+        lctx := lctx.modifyLocalDecl fvarId (· |>.setType type)
+      withLCtx lctx (← getLocalInstances) (withReduceLCtx xs k (i + 1))
+    else
+      k
 
 partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Array Name) (maxDistance : Nat) (fieldName : Name) (mvarId : MVarId) : TermElabM Bool :=
   let rec loop (i : Nat) (dist : Nat) := do
@@ -886,6 +894,7 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
         | none     => setMCtx mctx; loop (i+1) (dist+1)
         | some val =>
           let val ← reduce allStructNames val
+          trace[Elab.struct] "default value for {fieldName}:{indentExpr val}"
           match val.find? fun e => (defaultMissing? e).isSome with
           | some _ => setMCtx mctx; loop (i+1) (dist+1)
           | none   =>

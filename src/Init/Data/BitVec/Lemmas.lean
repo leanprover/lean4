@@ -2115,7 +2115,7 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
 
 /-! ### abs -/
 
-theorem abs_eq {x : BitVec w} : x.abs = if x.msb then -x else x := by rfl
+theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := by rfl
 
 @[simp, bv_toNat]
 theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by

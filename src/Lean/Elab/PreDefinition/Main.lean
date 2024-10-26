@@ -18,15 +18,14 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := fa
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
     let all := preDefs.toList.map (·.declName)
-    forallTelescope preDef.type fun xs type => do
-      let value ← if useSorry then
-        mkLambdaFVars xs (← mkSorry type (synthetic := true))
-      else
-        liftM <| mkInhabitantFor preDef.declName xs type
-      addNonRec { preDef with
-        kind  := DefKind.«opaque»
-        value
-      } (all := all)
+    let value ← if useSorry then
+      mkSorry preDef.type (synthetic := true)
+    else
+      liftM <| mkInhabitantFor preDef.declName preDef.type
+    addNonRec { preDef with
+      kind  := DefKind.«opaque»
+      value
+    } (all := all)
   addAndCompilePartialRec preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=

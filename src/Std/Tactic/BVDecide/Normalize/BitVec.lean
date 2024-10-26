@@ -85,6 +85,7 @@ theorem BitVec.smod_umod (x y : BitVec w) :
   cases x.msb <;> cases y.msb <;> simp
 
 attribute [bv_normalize] Bool.cond_eq_if
+attribute [bv_normalize] BitVec.abs_eq
 
 end Reduce
 

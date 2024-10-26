@@ -80,6 +80,7 @@ example {x : BitVec 16} : 2 + (x + 10) = 12 + x := by bv_normalize
 example {x : BitVec 16} : 2 + (10 + x) = 12 + x := by bv_normalize
 example {x : BitVec 16} {b : Bool} : (if b then x else x) = x := by bv_normalize
 example {b : Bool} {x : Bool} : (bif b then x else x) = x := by bv_normalize
+example {x : BitVec 16} : x.abs = if x.msb then -x else x := by bv_normalize
 
 section
 

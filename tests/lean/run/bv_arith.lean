@@ -58,3 +58,5 @@ theorem arith_unit_13 (x y : BitVec 8) (hx : x.msb = false) (hy : y.msb = false)
 theorem arith_unit_14 (x y : BitVec 8) (hx : x.msb = true) (hy : y.msb = true) : (-((-x).umod (-y))) = x.smod y := by
   bv_decide
 
+theorem arith_unit_15 (x : BitVec 32) : BitVec.sle x (BitVec.abs x) := by
+  bv_decide

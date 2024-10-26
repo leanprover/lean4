@@ -82,6 +82,22 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 
 @[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
 
+/-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
+-- NB: This is defined as a structure rather than a plain def so that a lemma
+-- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
+structure Mem (as : Array α) (a : α) : Prop where
+  val : a ∈ as.toList
+
+instance : Membership α (Array α) where
+  mem := Mem
+
+theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
+  ⟨fun | .mk h => h, Array.Mem.mk⟩
+
+@[simp] theorem getElem_mem {l : Array α} {i : Nat} (h : i < l.size) : l[i] ∈ l := by
+  rw [Array.mem_def, ← getElem_toList]
+  apply List.getElem_mem
+
 end Array
 
 namespace List
@@ -315,6 +331,37 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
 
 instance : ForIn m (Array α) α where
   forIn := Array.forIn
+
+/-- See comment at `forInUnsafe` -/
+@[inline] unsafe def forIn'Unsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+  let sz := as.usize
+  let rec @[specialize] loop (i : USize) (b : β) : m β := do
+    if i < sz then
+      let a := as.uget i lcProof
+      match (← f a lcProof b) with
+      | ForInStep.done  b => pure b
+      | ForInStep.yield b => loop (i+1) b
+    else
+      pure b
+  loop 0 b
+
+/-- Reference implementation for `forIn'` -/
+@[implemented_by Array.forIn'Unsafe]
+protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
+    match i, h with
+    | 0,   _ => pure b
+    | i+1, h =>
+      have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
+      have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
+      have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
+      match (← f as[as.size - 1 - i] (getElem_mem this) b) with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b => loop i (Nat.le_of_lt h') b
+  loop as.size (Nat.le_refl _) b
+
+instance : ForIn' m (Array α) α inferInstance where
+  forIn' := Array.forIn'
 
 /-- See comment at `forInUnsafe` -/
 @[inline]

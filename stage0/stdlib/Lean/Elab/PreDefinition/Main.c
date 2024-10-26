@@ -12911,7 +12911,7 @@ lean_ctor_set(x_18, 1, x_16);
 lean_ctor_set(x_18, 2, x_17);
 x_19 = lean_ctor_get(x_14, 2);
 lean_inc(x_19);
-x_20 = lean_ctor_get_uint8(x_19, sizeof(void*)*2 + 3);
+x_20 = lean_ctor_get_uint8(x_19, sizeof(void*)*3 + 3);
 lean_dec(x_19);
 x_21 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_21, 0, x_18);
@@ -16700,7 +16700,7 @@ x_5 = lean_array_uget(x_1, x_2);
 x_6 = lean_ctor_get(x_5, 2);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*2 + 3);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3 + 3);
 lean_dec(x_6);
 if (x_7 == 0)
 {
@@ -18613,7 +18613,7 @@ if (lean_obj_tag(x_28) == 0)
 lean_object* x_29; uint8_t x_30; 
 x_29 = lean_ctor_get(x_25, 2);
 lean_inc(x_29);
-x_30 = lean_ctor_get_uint8(x_29, sizeof(void*)*2 + 1);
+x_30 = lean_ctor_get_uint8(x_29, sizeof(void*)*3 + 1);
 lean_dec(x_29);
 if (x_30 == 0)
 {

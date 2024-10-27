@@ -104,15 +104,8 @@ attribute [bv_normalize] BitVec.not_not
 
 end Constant
 
-@[bv_normalize]
-theorem BitVec.zero_and (a : BitVec w) : 0#w &&& a = 0#w := by
-  ext
-  simp
-
-@[bv_normalize]
-theorem BitVec.and_zero (a : BitVec w) : a &&& 0#w = 0#w := by
-  ext
-  simp
+attribute [bv_normalize] BitVec.zero_and
+attribute [bv_normalize] BitVec.and_zero
 
 -- Used in simproc because of - normalization
 theorem BitVec.ones_and (a : BitVec w) : (-1#w) &&& a = a := by
@@ -124,10 +117,7 @@ theorem BitVec.and_ones (a : BitVec w) : a &&& (-1#w) = a := by
   ext
   simp [BitVec.negOne_eq_allOnes]
 
-@[bv_normalize]
-theorem BitVec.and_self (a : BitVec w) : a &&& a = a := by
-  ext
-  simp
+attribute [bv_normalize] BitVec.and_self
 
 @[bv_normalize]
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
@@ -202,54 +192,28 @@ theorem BitVec.add_const_right (a b c : BitVec w) : a + (b + c) = (a + c) + b :=
 theorem BitVec.add_const_left' (a b c : BitVec w) : (a + b) + c = (a + c) + b := by ac_rfl
 theorem BitVec.add_const_right' (a b c : BitVec w) : (a + b) + c = (b + c) + a := by ac_rfl
 
-@[bv_normalize]
-theorem BitVec.zero_sshiftRight : BitVec.sshiftRight 0#w a = 0#w := by
-  ext
-  simp [BitVec.getLsbD_sshiftRight]
+attribute [bv_normalize] BitVec.mul_zero
+attribute [bv_normalize] BitVec.zero_mul
+
+attribute [bv_normalize] BitVec.shiftLeft_zero
+attribute [bv_normalize] BitVec.zero_shiftLeft
 
 @[bv_normalize]
-theorem BitVec.sshiftRight_zero : BitVec.sshiftRight a 0 = a := by
-  ext
-  simp [BitVec.getLsbD_sshiftRight]
-
-@[bv_normalize]
-theorem BitVec.mul_zero (a : BitVec w) : a * 0#w = 0#w := by
-  simp [bv_toNat]
-
-@[bv_normalize]
-theorem BitVec.zero_mul (a : BitVec w) : 0#w * a = 0#w := by
-  simp [bv_toNat]
-
-@[bv_normalize]
-theorem BitVec.shiftLeft_zero (n : BitVec w) : n <<< 0#w' = n := by
+theorem BitVec.shiftLeft_zero' (n : BitVec w) : n <<< 0#w' = n := by
   ext i
   simp only [(· <<< ·)]
   simp
 
-@[bv_normalize]
-theorem BitVec.shiftLeft_zero' (n : BitVec w) : n <<< 0 = n := by
-  ext i
-  simp
+attribute [bv_normalize] BitVec.zero_sshiftRight
+attribute [bv_normalize] BitVec.sshiftRight_zero
+
+attribute [bv_normalize] BitVec.zero_ushiftRight
+attribute [bv_normalize] BitVec.ushiftRight_zero
 
 @[bv_normalize]
-theorem BitVec.zero_shiftLeft (n : Nat) : 0#w <<< n = 0#w := by
-  ext
-  simp
-
-@[bv_normalize]
-theorem BitVec.zero_shiftRight (n : Nat) : 0#w >>> n = 0#w := by
-  ext
-  simp
-
-@[bv_normalize]
-theorem BitVec.shiftRight_zero (n : BitVec w) : n >>> 0#w' = n := by
+theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   ext i
   simp only [(· >>> ·)]
-  simp
-
-@[bv_normalize]
-theorem BitVec.shiftRight_zero' (n : BitVec w) : n >>> 0 = n := by
-  ext i
   simp
 
 theorem BitVec.zero_lt_iff_zero_neq (a : BitVec w) : (0#w < a) ↔ (a ≠ 0#w) := by

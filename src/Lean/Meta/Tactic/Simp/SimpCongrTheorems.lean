@@ -75,18 +75,18 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
               for y in ys do
                 let yType ← inferType y
                 unless onlyMVarsAt yType foundMVars do
-                  throwError "invalid 'congr' theorem, argument #{j+1} of parameter #{i+1} contains unresolved parameter{indentExpr yType}"
+                  throwError "invalid 'congr' theorem, argument #{(j+1 : Nat)} of parameter #{(i+1 : Nat)} contains unresolved parameter{indentExpr yType}"
                 j := j + 1
               unless onlyMVarsAt xLhs foundMVars do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the left-hand-side contains unresolved parameters{indentExpr xLhs}"
+                throwError "invalid 'congr' theorem, parameter #{(i+1 : Nat)} is not a valid hypothesis, the left-hand-side contains unresolved parameters{indentExpr xLhs}"
               let xRhsFn := xRhs.getAppFn
               unless xRhsFn.isMVar do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head is not a metavariable{indentExpr xRhs}"
+                throwError "invalid 'congr' theorem, parameter #{(i+1 : Nat)} is not a valid hypothesis, the right-hand-side head is not a metavariable{indentExpr xRhs}"
               unless !foundMVars.contains xRhsFn.mvarId! do
-                throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side head was already resolved{indentExpr xRhs}"
+                throwError "invalid 'congr' theorem, parameter #{(i+1 : Nat)} is not a valid hypothesis, the right-hand-side head was already resolved{indentExpr xRhs}"
               for arg in xRhs.getAppArgs do
                 unless arg.isFVar do
-                  throwError "invalid 'congr' theorem, parameter #{i+1} is not a valid hypothesis, the right-hand-side argument is not local variable{indentExpr xRhs}"
+                  throwError "invalid 'congr' theorem, parameter #{(i+1 : Nat)} is not a valid hypothesis, the right-hand-side argument is not local variable{indentExpr xRhs}"
               pure (some xRhsFn)
           match rhsFn? with
           | none       => pure ()

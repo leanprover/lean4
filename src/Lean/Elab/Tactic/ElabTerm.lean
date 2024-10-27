@@ -452,7 +452,7 @@ where
       if r.isAppOf ``isTrue then
         return m!"\
           tactic '{tacticName}' failed. internal error: the elaborator is able to reduce the \
-          '{MessageData.ofConstName ``Decidable}' instance, but the kernel is not able to"
+          '{.ofConstName ``Decidable}' instance, but the kernel is not able to"
       else if r.isAppOf ``isFalse then
         return m!"\
           tactic '{tacticName}' proved that the proposition\
@@ -466,42 +466,42 @@ where
         let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
           let e ← mkConstWithLevelParams n
           if (← Meta.isClass? (← inferType e)) == ``Decidable then
-            return m!"'{MessageData.ofConst e}'"
+            return m!"'{.ofConst e}'"
           else
             return none
         return (reason, unfoldedInsts)
       let stuckMsg :=
         if unfoldedInsts.isEmpty then
-          m!"Reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
+          m!"Reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
         else
           let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
-          m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
-          reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
+          m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
+          reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
       let hint :=
         if reason.isAppOf ``Eq.rec then
           m!"\n\n\
-          Hint: Reduction got stuck on '▸' ({MessageData.ofConstName ``Eq.rec}), \
-          which suggests that one of the '{MessageData.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+          Hint: Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
+          which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
           To avoid tactics, make use of functions such as \
-          '{MessageData.ofConstName ``inferInstanceAs}' or '{MessageData.ofConstName ``decidable_of_decidable_of_iff}' \
+          '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
           to alter a proposition."
         else if reason.isAppOf ``Classical.choice then
           m!"\n\n\
-          Hint: Reduction got stuck on '{MessageData.ofConstName ``Classical.choice}', \
-          which indicates that a '{MessageData.ofConstName ``Decidable}' instance \
+          Hint: Reduction got stuck on '{.ofConstName ``Classical.choice}', \
+          which indicates that a '{.ofConstName ``Decidable}' instance \
           is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
           The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
           and it cannot make progress with such instances. \
           This can occur due to the 'opened scoped Classical' command, which enables the instance \
-          '{MessageData.ofConstName ``Classical.propDecidable}'."
+          '{.ofConstName ``Classical.propDecidable}'."
         else
           MessageData.nil
       return m!"\
         tactic '{tacticName}' failed for proposition\
         {indentExpr expectedType}\n\
-        since its '{MessageData.ofConstName ``Decidable}' instance\
+        since its '{.ofConstName ``Decidable}' instance\
         {indentExpr s}\n\
-        did not reduce to '{MessageData.ofConstName ``isTrue}' or '{MessageData.ofConstName ``isFalse}'.\n\n\
+        did not reduce to '{.ofConstName ``isTrue}' or '{.ofConstName ``isFalse}'.\n\n\
         {stuckMsg}{hint}"
 
 @[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>

@@ -29,7 +29,7 @@ Error message shouldn't fake a higher-order unification. This next one used to g
     (fun x ↦ x * 2) (g2 n2) = n2 : Prop
 ```
 It now doesn't for the stronger reason that we don't let `addPPExplicitToExposeDiff` have side effects,
-but still it avoids doing higher-order unifications in its reasoning.
+but still it avoids doing incorrect higher-order unifications in its reasoning.
 -/
 
 theorem test {f g : Nat → Nat} (n : Nat) (hfg : ∀ a, f (g a) = a) :

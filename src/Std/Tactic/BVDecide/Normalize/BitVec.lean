@@ -45,6 +45,48 @@ attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 theorem BitVec.ofNatLt_reduce (n : Nat) (h) : BitVec.ofNatLt n h = BitVec.ofNat w n := by
   simp [BitVec.ofNatLt, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
 
+@[bv_normalize]
+theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = if b then 1#1 else 0#1 := by
+  revert b
+  decide
+
+@[bv_normalize]
+theorem BitVec.sdiv_udiv (x y : BitVec w) :
+    x.sdiv y =
+      if x.msb then
+        if y.msb then
+          (-x) / (-y)
+        else
+          -((-x) / y)
+      else
+        if y.msb then
+          -(x / (-y))
+        else
+          x / y := by
+  rw [BitVec.sdiv_eq]
+  cases x.msb <;> cases y.msb <;> simp
+
+@[bv_normalize]
+theorem BitVec.smod_umod (x y : BitVec w) :
+    x.smod y =
+      if x.msb then
+        if y.msb then
+          - ((- x).umod (- y))
+        else
+          let u := (- x).umod y
+          (if u = 0#w then u else y - u)
+      else
+        if y.msb then
+          let u := x.umod (- y)
+          (if u = 0#w then u else u + y)
+        else
+          x.umod y := by
+  rw [BitVec.smod_eq]
+  cases x.msb <;> cases y.msb <;> simp
+
+attribute [bv_normalize] Bool.cond_eq_if
+attribute [bv_normalize] BitVec.abs_eq
+
 end Reduce
 
 section Constant
@@ -59,8 +101,6 @@ attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 attribute [bv_normalize] BitVec.not_not
-attribute [bv_normalize] BitVec.ofBool_true
-attribute [bv_normalize] BitVec.ofBool_false
 
 end Constant
 
@@ -258,7 +298,6 @@ attribute [bv_normalize] BitVec.zero_umod
 attribute [bv_normalize] BitVec.umod_zero
 attribute [bv_normalize] BitVec.umod_one
 attribute [bv_normalize] BitVec.umod_eq_and
-attribute [bv_normalize] BitVec.sdiv_eq_and
 
 end Normalize
 end Std.Tactic.BVDecide

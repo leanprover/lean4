@@ -2113,6 +2113,22 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
 
+<<<<<<< HEAD
+=======
+/-! ### abs -/
+
+theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := by rfl
+
+@[simp, bv_toNat]
+theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
+  simp only [BitVec.abs, neg_eq]
+  by_cases h : x.msb = true
+  · simp only [h, ↓reduceIte, toNat_neg]
+    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
+    rw [Nat.mod_eq_of_lt (by omega)]
+  · simp [h]
+
+>>>>>>> 8c7f7484f9 (feat: if support and more in bv_decide (#5855))
 /-! ### mul -/
 
 theorem mul_def {n} {x y : BitVec n} : x * y = (ofFin <| x.toFin * y.toFin) := by rfl

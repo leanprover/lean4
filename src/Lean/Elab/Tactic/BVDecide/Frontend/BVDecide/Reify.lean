@@ -47,8 +47,6 @@ where
       binaryReflection lhsExpr rhsExpr .udiv ``Std.Tactic.BVDecide.Reflect.BitVec.udiv_congr
     | HMod.hMod _ _ _ _ lhsExpr rhsExpr =>
       binaryReflection lhsExpr rhsExpr .umod ``Std.Tactic.BVDecide.Reflect.BitVec.umod_congr
-    | BitVec.sdiv _ lhsExpr rhsExpr =>
-      binaryReflection lhsExpr rhsExpr .sdiv ``Std.Tactic.BVDecide.Reflect.BitVec.sdiv_congr
     | Complement.complement _ _ innerExpr =>
       unaryReflection innerExpr .not ``Std.Tactic.BVDecide.Reflect.BitVec.not_congr
     | HShiftLeft.hShiftLeft _ β _ _ innerExpr distanceExpr =>
@@ -207,11 +205,15 @@ where
         .rotateRight
         ``BVUnOp.rotateRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.rotateRight_congr
-    | BitVec.ofBool boolExpr =>
-      let some bool ← ReifiedBVLogical.of boolExpr | return none
-      let atomExpr := (mkApp (mkConst ``BitVec.ofBool) boolExpr)
-      let some atom ← ReifiedBVExpr.bitVecAtom atomExpr | return none
-      addOfBoolLemmas bool atom boolExpr atomExpr
+    | ite _ discrExpr _ lhsExpr rhsExpr =>
+      let_expr Eq α discrExpr val := discrExpr | return none
+      let_expr Bool := α | return none
+      let_expr Bool.true := val | return none
+      let some atom ← ReifiedBVExpr.bitVecAtom x | return none
+      let some discr ← ReifiedBVLogical.of discrExpr | return none
+      let some lhs ← goOrAtom lhsExpr | return none
+      let some rhs ← goOrAtom rhsExpr | return none
+      addIfLemmas discr atom lhs rhs discrExpr x lhsExpr rhsExpr
       return some atom
     | _ => return none
 
@@ -371,6 +373,14 @@ where
       | Bool => gateReflection lhsExpr rhsExpr .beq
       | BitVec _ => goPred t
       | _ => return none
+    | ite _ discrExpr _ lhsExpr rhsExpr =>
+      let_expr Eq α discrExpr val := discrExpr | return none
+      let_expr Bool := α | return none
+      let_expr Bool.true := val | return none
+      let some discr ← goOrAtom discrExpr | return none
+      let some lhs ← goOrAtom lhsExpr | return none
+      let some rhs ← goOrAtom rhsExpr | return none
+      return some (← ReifiedBVLogical.mkIte discr lhs rhs discrExpr lhsExpr rhsExpr)
     | _ => goPred t
 
   /--

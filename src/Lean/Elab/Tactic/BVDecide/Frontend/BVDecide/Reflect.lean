@@ -29,7 +29,6 @@ instance : ToExpr BVBinOp where
     | .mul => mkConst ``BVBinOp.mul
     | .udiv => mkConst ``BVBinOp.udiv
     | .umod => mkConst ``BVBinOp.umod
-    | .sdiv => mkConst ``BVBinOp.sdiv
   toTypeExpr := mkConst ``BVBinOp
 
 instance : ToExpr BVUnOp where
@@ -103,6 +102,7 @@ where
   | .const b => mkApp2 (mkConst ``BoolExpr.const) (toTypeExpr α) (toExpr b)
   | .not x => mkApp2 (mkConst ``BoolExpr.not) (toTypeExpr α) (go x)
   | .gate g x y => mkApp4 (mkConst ``BoolExpr.gate) (toTypeExpr α) (toExpr g) (go x) (go y)
+  | .ite d l r => mkApp4 (mkConst ``BoolExpr.ite) (toTypeExpr α) (go d) (go l) (go r)
 
 
 open Lean.Meta

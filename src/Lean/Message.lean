@@ -464,6 +464,7 @@ instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
 instance : ToMessageData (TSyntax k)   := ⟨(MessageData.ofSyntax ·)⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
 instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
+@[default_instance]
 instance : ToMessageData MessageData   := ⟨id⟩
 instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩

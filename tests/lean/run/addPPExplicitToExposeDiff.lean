@@ -21,6 +21,22 @@ error: unsolved goals
 #guard_msgs in example : 1 = 2 := by
   change _ = 3
 
+/-!
+Does the assignments even for arguments beyond the difference.
+-/
+/--
+error: type mismatch
+  this
+has type
+  3 = 2 : Prop
+but is expected to have type
+  1 = 2 : Prop
+---
+error: unsolved goals
+⊢ 3 = 2
+-/
+#guard_msgs in example : 1 = 2 := by
+  change 3 = _
 
 /-!
 Error message shouldn't fake a higher order unification. This next one used to give

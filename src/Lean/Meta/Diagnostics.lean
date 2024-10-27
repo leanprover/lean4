@@ -43,7 +43,7 @@ def mkDiagSummary (cls : Name) (counters : PHashMap Name Nat) (p : Name → Bool
   else
     let mut data := #[]
     for (declName, counter) in entries do
-      data := data.push <| .trace { cls } m!"{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}" #[]
+      data := data.push <| .trace { cls } m!"{.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}" #[]
     return { data, max := entries[0]!.2 }
 
 def mkDiagSummaryForUnfolded (counters : PHashMap Name Nat) (instances := false) : MetaM DiagSummary := do

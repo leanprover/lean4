@@ -414,7 +414,7 @@ structure Environment extends EnvironmentBase where
   private asyncCtx?       : Option AsyncContext := none
   private realizedExternConsts : IO.Ref (NameMap AsyncConst)
   private realizedLocalConsts  : NameMap (IO.Ref (NameMap AsyncConst)) := {}
-  realizingConst          : Bool := false
+  realizingConst? : Option Name := none
 deriving Nonempty
 
 namespace Environment
@@ -430,8 +430,8 @@ opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Exce
 def addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) (skipExisting := true) :
     Except Kernel.Exception Environment := do
-  if env.realizingConst then
-    panic! "cannot add a declaration while adding a global theorem"
+  if let some n := env.realizingConst? then
+    panic! s!"cannot add a declaration while realizing constant {n}"
   let mut env := env
   if let some asyncCtx := env.asyncCtx? then
     let (name, val) ← match decl with
@@ -567,8 +567,8 @@ def enableRealizationsForConst (env : Environment) (c : Name) : BaseIO Environme
 
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
     IO AddConstAsyncResult := do
-  if env.realizingConst then
-    throw <| .userError "cannot add an async constant during realization"
+  if let some n := env.realizingConst? then
+    panic! s!"cannot add a declaration while realizing constant {n}"
   let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
@@ -601,17 +601,26 @@ def unlockAsync (env : Environment) : Environment :=
 
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
   if let some subDecl := env.asyncCtx?.bind (·.subDecls.find? (·.toConstantInfo.name == n)) then
+    -- Constant generated in the current elaboration thread that has not been added to the kernel
+    -- yet
     return subDecl.toConstantInfo
   else if let some _ := env.asyncConsts.findPrefix? n then
+    -- Constant generated in a different elaboration thread: wait for final kernel environment. Rare
+    -- case when only proofs are elaborated asynchronously as they are rarely inspected. Could be
+    -- optimized in the future by having the elaboration thread publish an (incremental?) map of
+    -- generated declarations before kernel checking (which must wait on all previous threads).
     env.checkedSync.get.base.constants.find?' n
   else
     none
 
 def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
-  /- It is safe to use `find?'` because we never overwrite imported declarations. -/
+  -- Check declarations already added to the kernel environment (e.g. because they were imported)
+  -- first as that should be the most common case. It is safe to use `find?'` because we never
+  -- overwrite imported declarations.
   if let some c := env.base.constants.find?' n then
     some <| .ofConstantInfo c
   else if let some asyncConst := env.asyncConsts.find? n then
+    -- Constant for which an asynchronous elaboration task was spawned
     return asyncConst.info
   else env.findNoAsyncTheorem n |>.map .ofConstantInfo
 
@@ -684,8 +693,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
   let mut env := env
   if env.contains constName then
     return (env, none)
-  if env.realizingConst then
-    throw <| .userError "already realizing a constant"
+  if let some n := env.realizingConst? then
+    panic! s!"already realizing {n}"
   let prom ← IO.Promise.new
   let asyncConst := Thunk.mk fun _ => {
     info := {
@@ -721,13 +730,13 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     }
     return (env, none)
   else
-    env := { env with realizingConst := true }
+    env := { env with realizingConst? := some constName }
     return (env, some fun
       | none => do
         prom.resolve (/- TODO -/ default, #[])
-        return env
+        return { env with realizingConst? := none }
       | some const => do
-        let env := { env with realizingConst := false }
+        let env := { env with realizingConst? := none }
         let decl ← match const with
           | .thmInfo thm   => pure <| .thmDecl thm
           | .defnInfo defn => pure <| .defnDecl defn

@@ -1109,7 +1109,9 @@ where
             if let some typeCheckedPromise := typeCheckedPromise? then
               typeCheckedPromise.resolve snap
         else
-          finishElab
+          try
+            finishElab
+          finally
             if let some typeCheckedPromise := typeCheckedPromise? then
               typeCheckedPromise.resolve default
       for view in views, declId in expandedDeclIds do

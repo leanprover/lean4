@@ -608,7 +608,9 @@ def elabCommandTopLevel (stx : Syntax)
         -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
         -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
         -- rather than engineer a general solution.
-        unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+        if (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome then
+          lintPromise.resolve default
+        else
           withLogging do
             runLintersAsync stx lintPromise
       else

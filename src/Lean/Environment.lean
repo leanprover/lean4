@@ -702,10 +702,10 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     info := {
       name := constName
       kind
-      sig := sig?.getD (prom.result.map (sync := true) (·.1.toConstantVal))
-      info := prom.result.map (sync := true) (·.1)
+      sig := sig?.getD (prom.result.map (sync := true) (·.toConstantVal))
+      info := prom.result
     }
-    exts := prom.result.map (sync := true) (·.2)
+    exts := .pure #[]
   }
   let ref ← if env.const2ModIdx.contains forConst then pure env.realizedExternConsts else
     match env.realizedLocalConsts.find? forConst with
@@ -735,7 +735,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     env := { env with realizingConst? := some constName }
     return (env, some fun
       | none => do
-        prom.resolve (/- TODO -/ default, #[])
+        prom.resolve /- TODO -/ default
         return { env with realizingConst? := none }
       | some const => do
         let env := { env with realizingConst? := none }
@@ -743,13 +743,15 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
           | .thmInfo thm   => pure <| .thmDecl thm
           | .defnInfo defn => pure <| .defnDecl defn
           | _              => throw <| .other s!"Environment.realizeConst: {constName} must be definition/theorem"
+        -- must happen before `addDecl` because on the main thread that can block on a use of
+        -- `constName`
+        prom.resolve const
         let env ← EIO.ofExcept <| addDecl (checkAsyncPrefix := false) (skipExisting := true) env {} decl
         if const.name != constName then
           throw <| .other s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
         let kind' := .ofConstantInfo const
         if kind != kind' then
           throw <| .other s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
-        prom.resolve (const, env.extensions)
         return env)
 
 end Environment

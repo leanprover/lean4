@@ -611,6 +611,8 @@ private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantI
     -- generated declarations before kernel checking (which must wait on all previous threads).
     env.checkedSync.get.base.constants.find?' n
   else
+    -- Not in the kernel environment nor in the name prefix of any elaboration thread: undefined by
+    -- `addDecl` invariant. Except for realizable constants :( .
     none
 
 def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do

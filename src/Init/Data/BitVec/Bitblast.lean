@@ -378,8 +378,8 @@ theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c
   · simp [bit_not_testBit x _]
 
 /--
-Remember that a negating a bitvector is equal to incrementing the complement
-by one, i.e., `-x = ~~~x + 1`. (see `neg_eq_not_add`)
+Remember that negating a bitvector is equal to incrementing the complement
+by one, i.e., `-x = ~~~x + 1`. See also `neg_eq_not_add`.
 
 This computation has two crucial properties:
 - The least significant bit of `-x` is the same as the least significant bit of `x`, and

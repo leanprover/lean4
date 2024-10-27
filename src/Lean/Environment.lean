@@ -431,7 +431,7 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) (skipExisting := true) :
     Except Kernel.Exception Environment := do
   if let some n := env.realizingConst? then
-    panic! s!"cannot add a declaration while realizing constant {n}"
+    panic! s!"cannot add declaration {decl.getNames} while realizing constant {n}"
   let mut env := env
   if let some asyncCtx := env.asyncCtx? then
     let (name, val) ← match decl with
@@ -568,7 +568,7 @@ def enableRealizationsForConst (env : Environment) (c : Name) : BaseIO Environme
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
     IO AddConstAsyncResult := do
   if let some n := env.realizingConst? then
-    panic! s!"cannot add a declaration while realizing constant {n}"
+    panic! s!"cannot add declaration {constName} while realizing constant {n}"
   let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
@@ -696,7 +696,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
   if env.contains constName then
     return (env, none)
   if let some n := env.realizingConst? then
-    panic! s!"already realizing {n}"
+    panic! s!"cannot realize {constName} while already realizing {n}"
   let prom ← IO.Promise.new
   let asyncConst := Thunk.mk fun _ => {
     info := {

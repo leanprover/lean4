@@ -69,15 +69,16 @@ but is expected to have type
 ```
 Remark: this method implements a simple heuristic, we should extend it as we find other counterintuitive
 error messages.
-
-This function has side effects. It will make sensible metavariable assignments to represent partial completion of `isDefEq`,
-since that can give better error messages.
 -/
 partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
   if (← getOptions).getBool `pp.all false || (← getOptions).getBool `pp.explicit false then
     return (a, b)
   else
-    visit (← instantiateMVars a) (← instantiateMVars b)
+    -- We want to be able to assign metavariables to work out what why `isDefEq` failed,
+    -- but we don't want these assignments to leak out of the function.
+    -- Note: we shouldn't instantiate mvars in `visit` to prevent leakage.
+    withoutModifyingState do
+      visit (← instantiateMVars a) (← instantiateMVars b)
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try
@@ -117,14 +118,13 @@ where
             let .forallE _ _ bbody bbi := bFnType | return (a, b)
             aFnType := abody.instantiate1 as[i]!
             bFnType := bbody.instantiate1 bs[i]!
-            let explicit := abi.isExplicit && bbi.isExplicit
             unless (← isDefEq as[i]! bs[i]!) do
-              if explicit then
+              if abi.isExplicit && bbi.isExplicit then
                 firstExplicitDiff? := firstExplicitDiff? <|> some i
               else
                 firstImplicitDiff? := firstImplicitDiff? <|> some i
           if let some i := firstExplicitDiff? <|> firstImplicitDiff? then
-            let (ai, bi) ← visit (← instantiateMVars as[i]!) (← instantiateMVars bs[i]!)
+            let (ai, bi) ← visit as[i]! bs[i]!
             as := as.set! i ai
             bs := bs.set! i bi
           let a := mkAppN a.getAppFn as

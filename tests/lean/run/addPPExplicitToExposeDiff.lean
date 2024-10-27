@@ -4,50 +4,32 @@
 set_option pp.mvars false
 
 /-!
-Does discretionary metavariable assignments so that we can see where the difference really was.
-In the following, `this` actually has type `?m = 3`.
+Basic example.
 -/
 /--
 error: type mismatch
-  this
+  rfl
 has type
-  1 = 3 : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   1 = 2 : Prop
----
-error: unsolved goals
-⊢ 1 = 3
 -/
 #guard_msgs in example : 1 = 2 := by
-  change _ = 3
+  exact rfl
+
 
 /-!
-Does the assignments even for arguments beyond the difference.
--/
-/--
-error: type mismatch
-  this
-has type
-  3 = 2 : Prop
-but is expected to have type
-  1 = 2 : Prop
----
-error: unsolved goals
-⊢ 3 = 2
--/
-#guard_msgs in example : 1 = 2 := by
-  change 3 = _
-
-/-!
-Error message shouldn't fake a higher order unification. This next one used to give
+Error message shouldn't fake a higher-order unification. This next one used to give
 ```
   type mismatch
-    test n2 ?m.648
+    test n2 ?_
   has type
     (fun x ↦ x * 2) (g2 n2) = n2 : Prop
   but is expected to have type
     (fun x ↦ x * 2) (g2 n2) = n2 : Prop
 ```
+It now doesn't for the stronger reason that we don't let `addPPExplicitToExposeDiff` have side effects,
+but still it avoids doing higher-order unifications in its reasoning.
 -/
 
 theorem test {f g : Nat → Nat} (n : Nat) (hfg : ∀ a, f (g a) = a) :
@@ -64,3 +46,20 @@ but is expected to have type
 #guard_msgs in
 example {g2 : Nat → Nat} (n2 : Nat) : (fun x => x * 2) (g2 n2) = n2 := by
   with_reducible refine test n2 ?_
+
+
+/-!
+Exposes an implicit argument because the explicit arguments can be unified.
+-/
+def f {a : Nat} (b : Nat) : Prop := a + b = 0
+/--
+error: type mismatch
+  sorry
+has type
+  @f 0 ?_ : Prop
+but is expected to have type
+  @f 1 2 : Prop
+-/
+#guard_msgs in
+example : @f 1 2 := by
+  exact (sorry : @f 0 _)

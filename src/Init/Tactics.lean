@@ -530,23 +530,13 @@ syntax discharger := atomic(" (" patternIgnore(&"discharger" <|> &"disch")) " :=
 syntax simpPre   := "↓"
 /-- Use this rewrite rule after entering the subterms -/
 syntax simpPost  := "↑"
-/-- Whether to use this rewrite rule before or after entering subterms -/
-syntax simpPhaseControl := simpPre <|> simpPost
-/-- Use this rewrite rule backwards -/
-syntax simpBackwards := patternIgnore("← " <|> "<- ")
-/--
-A simp lemma modifier specification is:
-* optional `↑` or `↓` to specify use before or after entering the subterm
-* optional `←` to use the lemma backward
--/
-syntax simpLemmaModifiers := (simpPhaseControl)? (simpBackwards)?
 /--
 A simp lemma specification is:
 * optional `↑` or `↓` to specify use before or after entering the subterm
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := simpLemmaModifiers term
+syntax simpLemma := (simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/

@@ -48,9 +48,15 @@ inductive SyntheticMVarKind where
   | typeClass (extraErrorMsg? : Option MessageData)
   /--
   Use coercion to synthesize value for the metavariable.
-  If synthesis fails, then the error `mkErrorMsg expectedType e` is thrown.
-  The `mkErrorMsg` function is allowed to throw an error itself. -/
-  | coe (expectedType : Expr) (e : Expr) (mkErrorMsg : MVarId → Expr → Expr → MetaM MessageData)
+  If synthesis fails, then throws an error.
+  - If `mkErrorMsg?` is provided, then the error `mkErrorMsg expectedType e` is thrown.
+    The `mkErrorMsg` function is allowed to throw an error itself.
+  - Otherwise, throws a default type mismatch error message.
+    If `header?` is not provided, the default header is "type mismatch".
+    If `f?` is provided, then throws an application type mismatch error.
+  -/
+  | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
+      (mkErrorMsg? : Option (MVarId → Expr → Expr → MetaM MessageData))
   /-- Use tactic to synthesize value for metavariable. -/
   | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
@@ -1077,9 +1083,9 @@ def mkCoeErrorMsg (f? : Option Expr) (errorMsgHeader? : Option String) (mvarId :
   throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
     m!"failed to create type class instance for{indentExpr (← mvarId.getDecl).type}"
 
-def mkCoeWithErrorMsgs (expectedType : Expr) (e : Expr)
-    (mkImmedErrorMsg : (errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData)
-    (mkErrorMsg : MVarId → (expectedType e : Expr) → MetaM MessageData) : TermElabM Expr := do
+def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
+    (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
+    (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
   try
     withoutMacroStackAtErr do
@@ -1088,19 +1094,24 @@ def mkCoeWithErrorMsgs (expectedType : Expr) (e : Expr)
       | .none => failure
       | .undef =>
         let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
-        registerSyntheticMVarWithCurrRef mvarAux.mvarId! (.coe expectedType e mkErrorMsg)
+        registerSyntheticMVarWithCurrRef mvarAux.mvarId! (.coe errorMsgHeader? expectedType e f? mkErrorMsg?)
         return mvarAux
   catch
-    | .error _ msg => throwError (← mkImmedErrorMsg msg expectedType e)
-    | _            => throwError (← mkImmedErrorMsg none expectedType e)
+    | .error _ msg =>
+      if let some mkImmedErrorMsg := mkImmedErrorMsg? then
+        throwError (← mkImmedErrorMsg msg expectedType e)
+      else
+        throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f? msg
+    | _            =>
+      if let some mkImmedErrorMsg := mkImmedErrorMsg? then
+        throwError (← mkImmedErrorMsg none expectedType e)
+      else
+        throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
 
-def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
-  mkCoeWithErrorMsgs expectedType e
-    (mkImmedErrorMsg := fun errorMsg? expectedType e => do
-      throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f? errorMsg?)
-    (mkErrorMsg := fun mvarId expectedType e => do
-      throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
-        m!"failed to create type class instance for{indentExpr (← mvarId.getDecl).type}")
+def mkCoeWithErrorMsgs (expectedType : Expr) (e : Expr)
+    (mkImmedErrorMsg : (errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData)
+    (mkErrorMsg : MVarId → (expectedType e : Expr) → MetaM MessageData) : TermElabM Expr := do
+  mkCoe expectedType e (mkImmedErrorMsg? := mkImmedErrorMsg) (mkErrorMsg? := mkErrorMsg)
 
 /--
 If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally equal by inserting a coercion if necessary.

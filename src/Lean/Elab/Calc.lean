@@ -144,6 +144,18 @@ def throwCalcFailure (steps : Array CalcStepView) (expectedType result : Expr) :
         throwAbortTerm
   throwTypeMismatchError "'calc' expression" expectedType resultType result
 
+/-!
+Warning! It is *very* tempting to try to improve `calc` so that it makes use of the expected type
+to unify with the LHS and RHS.
+Two people have already re-implemented `elabCalcSteps` trying to do so and then reverted the changes,
+not being aware of examples like https://github.com/leanprover/lean4/issues/2073
+
+The problem is that the expected type might need to be unfolded to get an accurate LHS and RHS.
+(Consider `≤` vs `≥`. Users expect to be able to use `calc` to prove `≥` using chained `≤`!)
+Furthermore, the types of the LHS and RHS do not need to be the same (consider `x ∈ S` as a relation),
+so we also cannot use the expected LHS and RHS as type hints.
+-/
+
 /-- Elaborator for the `calc` term mode variant. -/
 @[builtin_term_elab Lean.calc]
 def elabCalc : TermElab

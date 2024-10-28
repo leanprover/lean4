@@ -135,6 +135,10 @@ The supported formats include:
   - `yy`: Displays the year in a two-digit format, showing the last two digits (e.g., "04" for 2004).
   - `yyyy`: Displays the year in a four-digit format (e.g., "2004").
   - `yyyy+`: Extended format for years with more than four digits.
+- `u`: Represents the *year* (aligned with ISO chronology).
+  - `uu`: Two-digit year format, showing the last two digits (e.g., "04" for 2004).
+  - `uuuu`: Displays the year in a four-digit format (e.g., "2004" or "-1000").
+  - `uuuu+`: Extended format for handling years with more than four digits (e.g., "12345" or "-12345"). Useful for historical dates far into the past or future!
 - `D`: Represents the day of the year.
 - `M`: Represents the month of the year, displayed as either a number or text.
   - `M`, `MM`: Displays the month as a number, with `MM` zero-padded (e.g., "7" for July, "07" for July with padding).
@@ -210,9 +214,9 @@ The supported formats include:
 In order to help the user build dates easily, there are a lot of macros available for creating dates.
 The `.sssssssss` can be ommited in most cases.
 
-- **`date("yyyy-MM-dd")`**: Defines a date in the `yyyy-MM-DD` format.
+- **`date("uuuu-MM-dd")`**: Defines a date in the `uuuu-MM-DD` format.
 - **`time("HH:mm:ss.sssssssss")`**: Defines a time in the `HH:mm:ss.sssssssss` format, including fractional seconds.
-- **`datetime("yyy-MM-ddTHH:mm:ss.sssssssss")`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss.sssssssss` format.
+- **`datetime("uuuu-MM-ddTHH:mm:ss.sssssssss")`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss.sssssssss` format.
 - **`offset("+HH:mm")`**: Defines a timezone offset in the format `+HH:mm`.
 - **`timezone("NAME/ID ZZZ")`**: Defines a timezone with a name and an offset.
 - **`datespec("format")`**: Defines a date specification format at compile time using the provided format string.

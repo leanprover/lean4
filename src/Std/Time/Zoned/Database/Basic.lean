@@ -16,7 +16,7 @@ set_option linter.all true
 /--
 A timezone database from which we can read the `ZoneRules` of some area by it's id.
 -/
-class Database (α : Type) where
+protected class Database (α : Type) where
 
   /--
   Retrieves the timezone information (`ZoneRules`) for a given area at a specific point in time.
@@ -87,9 +87,15 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
   for i in [0:tz.transitionTimes.size] do
     if let some result := convertTransition times i tz
       then transitions := transitions.push result
-      else .error s!"cannot convert transtiion {i} of the file"
+      else .error s!"cannot convert transition {i} of the file"
 
-  .ok { transitions, localTimes := times }
+  let first ←
+    if let some res := transitions.get? 0
+      then .ok res
+      else .error "empty transitions"
+
+
+  .ok { transitions, initialLocalTimeType := first.localTimeType }
 
 /--
 Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.

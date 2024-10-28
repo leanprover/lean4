@@ -1,18 +1,18 @@
 import Std.Time
 open Std.Time
 
-def ISO8601UTC : GenericFormat .any := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
-def RFC1123 : GenericFormat .any := datespec("eee, dd MMM yyyy HH:mm:ss ZZZ")
-def ShortDate : GenericFormat .any := datespec("MM/dd/yyyy")
-def LongDate : GenericFormat .any := datespec("MMMM D, yyyy")
-def ShortDateTime : GenericFormat .any := datespec("MM/dd/yyyy HH:mm:ss")
-def LongDateTime : GenericFormat .any := datespec("MMMM dd, yyyy hh:mm aa")
+def ISO8601UTC : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
+def RFC1123 : GenericFormat .any := datespec("eee, dd MMM uuuu HH:mm:ss ZZZ")
+def ShortDate : GenericFormat .any := datespec("MM/dd/uuuu")
+def LongDate : GenericFormat .any := datespec("MMMM D, uuuu")
+def ShortDateTime : GenericFormat .any := datespec("MM/dd/uuuu HH:mm:ss")
+def LongDateTime : GenericFormat .any := datespec("MMMM dd, uuuu hh:mm aa")
 def Time24Hour : GenericFormat .any := datespec("HH:mm:ss")
 def Time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
-def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss ZZZ")
-def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM yyyy HH:mm")
+def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, uuuu HH:mm:ss ZZZ")
+def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM uuuu HH:mm")
 
-def Full12HourWrong : GenericFormat .any := datespec("MM/dd/yyyy hh:mm:ss aa XXX")
+def Full12HourWrong : GenericFormat .any := datespec("MM/dd/uuuu hh:mm:ss aa XXX")
 
 -- Dates
 
@@ -33,7 +33,7 @@ info: "2014-06-16T03:03:03.000000100-03:00"
     let t : ZonedDateTime := ISO8601UTC.parse! "2014-06-16T03:03:03.000000100-03:00"
     ISO8601UTC.format t.toDateTime
 
-def tm := date₁.toUTCTimestamp
+def tm := date₁.toTimestamp
 def date₂ := DateTime.ofTimestamp tm brTZ
 
 /--
@@ -44,7 +44,7 @@ info: "2014-06-16T03:03:03.000000000-03:00"
     let t : ZonedDateTime := RFC1123.parse! "Mon, 16 Jun 2014 03:03:03 -0300"
     ISO8601UTC.format t.toDateTime
 
-def tm₃ := date₁.toUTCTimestamp
+def tm₃ := date₁.toTimestamp
 def date₃ := DateTime.ofTimestamp tm₃ brTZ
 
 /--
@@ -85,7 +85,7 @@ info: "2024-08-16T01:28:00.000000000Z"
     ISO8601UTC.format t.toDateTime
 
 /--
-info: "0001-12-30T22:28:12.000000000+09:00"
+info: "0000-12-30T22:28:12.000000000+09:00"
 -/
 #guard_msgs in
 #eval
@@ -93,7 +93,7 @@ info: "0001-12-30T22:28:12.000000000+09:00"
     ISO8601UTC.format (t.toDateTime.convertTimeZone jpTZ)
 
 /--
-info: "0001-12-29T21:28:12.000000000-03:00"
+info: "0000-12-29T21:28:12.000000000-03:00"
 -/
 #guard_msgs in
 #eval

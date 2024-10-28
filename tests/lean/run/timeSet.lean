@@ -1,18 +1,18 @@
 import Std.Time
 open Std.Time
 
-def ISO8601UTC : GenericFormat .any := datespec("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
-def RFC1123 : GenericFormat .any := datespec("eee, dd MMM yyyy HH:mm:ss ZZZ")
-def ShortDate : GenericFormat .any := datespec("MM/dd/yyyy")
-def LongDate : GenericFormat .any := datespec("MMMM D, yyyy")
-def ShortDateTime : GenericFormat .any := datespec("MM/dd/yyyy HH:mm:ss")
-def LongDateTime : GenericFormat .any := datespec("MMMM dd, yyyy hh:mm aa")
+def ISO8601UTC : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX")
+def RFC1123 : GenericFormat .any := datespec("eee, dd MMM uuuu HH:mm:ss ZZZ")
+def ShortDate : GenericFormat .any := datespec("MM/dd/uuuu")
+def LongDate : GenericFormat .any := datespec("MMMM D, uuuu")
+def ShortDateTime : GenericFormat .any := datespec("MM/dd/uuuu HH:mm:ss")
+def LongDateTime : GenericFormat .any := datespec("MMMM dd, uuuu hh:mm aa")
 def Time24Hour : GenericFormat .any := datespec("HH:mm:ss")
 def Time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
-def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, yyyy HH:mm:ss ZZZ")
-def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM yyyy HH:mm")
+def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, uuuu HH:mm:ss ZZZ")
+def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM uuuu HH:mm")
 
-def Full12HourWrong : GenericFormat .any := datespec("MM/dd/yyyy hh:mm:ss aa XXX")
+def Full12HourWrong : GenericFormat .any := datespec("MM/dd/uuuu hh:mm:ss aa XXX")
 
 -- Dates
 

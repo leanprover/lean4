@@ -45,28 +45,28 @@ namespace ZonedDateTime
 open DateTime
 
 /--
-Creates a new `ZonedDateTime` out of a `Timestamp` and a `TimeZone`.
+Creates a new `ZonedDateTime` out of a `Timestamp` and a `ZoneRules`.
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (rules : TimeZone.ZoneRules) : ZonedDateTime :=
-  let tz := TimeZone.Transition.timezoneAt rules.transitions tm |>.toOption |>.getD TimeZone.UTC
+  let tz := rules.timezoneAt tm
   ZonedDateTime.mk (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds) |>.toPlainDateTimeAssumingUTC) tm rules tz
 
 /--
-Creates a new `ZonedDateTime` out of a `PlainDateTime` and a `TimeZone`.
+Creates a new `ZonedDateTime` out of a `PlainDateTime` and a `ZoneRules`.
 -/
 @[inline]
 def ofPlainDateTime (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
   let tm := pdt.toTimestampAssumingUTC
-  let tz := zr.findTransitionForTimestamp tm |>.map (·.localTimeType.getTimeZone) |>.getD TimeZone.UTC
+  let tz := zr.findLocalTimeTypeForTimestamp tm |>.getTimeZone
   let tm := tm.subSeconds tz.toSeconds
   ZonedDateTime.mk (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds) |>.toPlainDateTimeAssumingUTC) tm zr tz
 
 /--
-Creates a new UTC `Timestamp` out of a `ZonedDateTime`.
+Creates a new `Timestamp` out of a `ZonedDateTime`.
 -/
 @[inline]
-def toUTCTimestamp (date : ZonedDateTime) : Timestamp :=
+def toTimestamp (date : ZonedDateTime) : Timestamp :=
   date.timestamp
 
 /--
@@ -74,7 +74,7 @@ Changes the `ZoleRules` to a new one.
 -/
 @[inline]
 def convertZoneRules (date : ZonedDateTime) (tz₁ : TimeZone.ZoneRules) : ZonedDateTime :=
-  ofTimestamp date.toUTCTimestamp tz₁
+  ofTimestamp date.toTimestamp tz₁
 
 /--
 Creates a new `ZonedDateTime` out of a `PlainDateTime`
@@ -444,7 +444,7 @@ instance : HSub ZonedDateTime Nanosecond.Offset ZonedDateTime where
   hSub := subNanoseconds
 
 instance : HSub ZonedDateTime ZonedDateTime Duration where
-  hSub x y := x.toUTCTimestamp - y.toUTCTimestamp
+  hSub x y := x.toTimestamp - y.toTimestamp
 
 end ZonedDateTime
 end Time

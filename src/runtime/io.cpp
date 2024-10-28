@@ -648,8 +648,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_ts);
 }
 
-/* Std.Time.Database.Windows.getNextTransition : String -> @&Int -> IO (Option (Int × TimeZone)) */
-extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone_str, obj_arg tm_obj, obj_arg /* w */) {
+/* Std.Time.Database.Windows.getNextTransition : @&String -> @&Int -> IO (Option (Int × TimeZone)) */
+extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(b_obj_arg timezone_str, b_obj_arg tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     const char* dst_name_id = lean_string_cstr(timezone_str);
@@ -751,7 +751,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(obj_arg timezone
 #endif
 }
 
-/* SStd.Time.Database.Windows.getLocalTimeZoneIdentifierAt : UInt64 → IO String */
+/* Std.Time.Database.Windows.getLocalTimeZoneIdentifierAt : Int → IO String */
 extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(obj_arg tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;

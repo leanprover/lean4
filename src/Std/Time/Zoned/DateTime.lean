@@ -47,10 +47,10 @@ def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds).toPlainDateTimeAssumingUTC)
 
 /--
-Creates a UTC `Timestamp` out of a `DateTime`.
+Creates a `Timestamp` out of a `DateTime`.
 -/
 @[inline]
-def toUTCTimestamp (date : DateTime tz) : Timestamp :=
+def toTimestamp (date : DateTime tz) : Timestamp :=
   date.timestamp
 
 /--
@@ -450,7 +450,7 @@ instance : HSub (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
   hSub := subNanoseconds
 
 instance : HSub (DateTime tz) (DateTime tz₁) Duration where
-  hSub x y := x.toUTCTimestamp - y.toUTCTimestamp
+  hSub x y := x.toTimestamp - y.toTimestamp
 
 end DateTime
 end Time

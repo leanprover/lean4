@@ -34,7 +34,7 @@ Retrieves the timezone rules, including all transitions, for a given timezone id
 -/
 def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
   let mut start := -2147483648
-  let mut transitions := #[]
+  let mut transitions : Array TimeZone.Transition := #[]
 
   while true do
     let result ← Windows.getNextTransition id start
@@ -51,7 +51,12 @@ def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
     else
       break
 
-  return { transitions, localTimes := #[] }
+  let initialLocalTimeType ← do
+    if let some res := transitions.get? 0
+      then pure res.localTimeType
+      else throw (IO.userError "cannot find first transition in zone rules")
+
+  return { transitions, initialLocalTimeType }
 
 end Windows
 
@@ -69,6 +74,6 @@ Returns a default `WindowsDb` instance.
 @[inline]
 def default : WindowsDb := {}
 
-instance : Database WindowsDb where
+instance : Std.Time.Database WindowsDb where
   getZoneRulesAt _ id := Windows.getZoneRules id
   getLocalZoneRulesAt _ := Windows.getZoneRules =<< Windows.getLocalTimeZoneIdentifierAt (-2147483648)

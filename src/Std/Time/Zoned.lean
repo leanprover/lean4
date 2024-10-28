@@ -31,9 +31,9 @@ Get the current time.
 def now : IO PlainDateTime := do
   let tm ← Timestamp.now
   let rules ← Database.defaultGetLocalZoneRulesAt
-  let transition ← rules.findTransitionForTimestamp tm |>.elim (throw <| IO.userError "cannot find timezone") pure
+  let ltt := rules.findLocalTimeTypeForTimestamp tm
 
-  return PlainDateTime.ofTimestamp tm transition.localTimeType.getTimeZone
+  return PlainDateTime.ofTimestamp tm ltt.getTimeZone
 
 end PlainDateTime
 
@@ -51,7 +51,7 @@ Converts a `DateTime` to a `PlainDate`
 -/
 @[inline]
 def toPlainDate (dt : DateTime tz) : PlainDate :=
-  Timestamp.toPlainDateAssumingUTC dt.toUTCTimestamp
+  Timestamp.toPlainDateAssumingUTC dt.toTimestamp
 
 /--
 Converts a `DateTime` to a `PlainTime`

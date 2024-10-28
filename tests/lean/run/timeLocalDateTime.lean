@@ -2,8 +2,8 @@ import Std.Time
 import Init
 open Std.Time
 
-def ShortDateTime : GenericFormat .any := datespec("dd/MM/yyyy HH:mm:ss")
-def ShortDate : GenericFormat .any := datespec("dd/MM/yyyy")
+def ShortDateTime : GenericFormat .any := datespec("dd/MM/uuuu HH:mm:ss")
+def ShortDate : GenericFormat .any := datespec("dd/MM/uuuu")
 
 def format (PlainDate : PlainDateTime) : String := ShortDateTime.formatBuilder PlainDate.day PlainDate.month PlainDate.year PlainDate.time.hour PlainDate.minute PlainDate.time.second
 def format₂ (PlainDate : PlainDate) : String := ShortDate.formatBuilder PlainDate.day PlainDate.month PlainDate.year

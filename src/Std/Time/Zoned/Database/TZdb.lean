@@ -93,6 +93,6 @@ def readLeapsFromDisk (path : System.FilePath) : IO (Array LeapSecond) := do
     then return res
     else throw (IO.userError "cannot read the id of the path.")
 
-instance : Database TZdb where
+instance : Std.Time.Database TZdb where
   getLocalZoneRulesAt db := localRules db.localPath
   getZoneRulesAt db id := readRulesFromDisk db.zonesPath id

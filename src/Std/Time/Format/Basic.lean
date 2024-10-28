@@ -463,7 +463,7 @@ private def parseOffsetO (constructor : OffsetO → Modifier) (p : String) : Par
   parseMod constructor OffsetO.classify p
 
 private def parseZoneId (p : String) : Parser Modifier :=
-  if p.length = 1 then pure .V else fail s!"invalid quantity of characters for '{p.get 0}'"
+  if p.length = 2 then pure .V else fail s!"invalid quantity of characters for '{p.get 0}'"
 
 private def parseNumberText (constructor : (Number ⊕ Text) → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor classifyNumberText p
@@ -599,21 +599,21 @@ private def leftPad (n : Nat) (a : Char) (s : String) : String :=
 private def rightPad (n : Nat) (a : Char) (s : String) : String :=
   s ++ "".pushn a (n - s.length)
 
-private def truncate (size : Nat)  (n : Int) : String :=
+private def truncate (size : Nat)  (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ numStr.drop (numStr.length - size)
+    sign ++ if cut then numStr.drop (numStr.length - size) else numStr
   else
     sign ++ leftPad size '0' numStr
 
-private def rightTruncate (size : Nat)  (n : Int) : String :=
+private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
   let numStr := toString n
   if numStr.length > size then
-    sign ++ numStr.drop (numStr.length - size)
+    sign ++ if cut then numStr.take size else numStr
   else
     sign ++ rightPad size '0' numStr
 
@@ -735,7 +735,7 @@ private def toSigned (data : Int) : String :=
   if data < 0 then toString data else "+" ++ toString data
 
 private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bool) (colon : Bool) : String :=
-  let (sign, time) := if offset.second.val > 0 then ("+", offset.second) else ("-", -offset.second)
+  let (sign, time) := if offset.second.val ≥ 0 then ("+", offset.second) else ("-", -offset.second)
   let time := PlainTime.ofSeconds time
   let pad := leftPad 2 '0' ∘ toString
 
@@ -842,7 +842,7 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
   | .S format =>
     match format with
     | .nano => truncate 9 data.val
-    | .truncated n => rightTruncate n data.val
+    | .truncated n => rightTruncate n data.val (cut := true)
   | .A format =>
     truncate format.padding data.val
   | .n format =>
@@ -910,7 +910,7 @@ private def dateFromModifier (date : DateTime tz) : TypeFormat modifier :=
   | .a _ => HourMarker.ofOrdinal date.hour
   | .h _ => HourMarker.toRelative date.hour |>.fst
   | .K _ => date.hour.emod 12 (by decide)
-  | .k _ => date.hour.add 1
+  | .k _ => date.hour.shiftTo1BasedHour
   | .H _ => date.hour
   | .m _ => date.minute
   | .s _ => date.date.get.time.second

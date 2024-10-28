@@ -112,9 +112,9 @@ Represents the rules for a time zone.
 structure ZoneRules where
 
   /--
-  The array of local time types for the time zone.
+  The first `LocalTimeType` used as a fallback when no matching transition is found.
   -/
-  localTimes : Array LocalTimeType
+  initialLocalTimeType : LocalTimeType
 
   /--
   The array of transitions for the time zone.
@@ -163,24 +163,31 @@ end Transition
 namespace ZoneRules
 
 /--
-Finds the transition corresponding to a given timestamp in `ZoneRules`.
+Finds the `LocalTimeType` corresponding to a given `Timestamp` in `ZoneRules`.
 If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
+If no transition is found, it falls back to `initialLocalTimeType`.
 -/
 @[inline]
-def findTransitionForTimestamp (zr : ZoneRules) (timestamp : Timestamp) : Option Transition :=
+def findLocalTimeTypeForTimestamp (zr : ZoneRules) (timestamp : Timestamp) : LocalTimeType :=
   Transition.findTransitionForTimestamp zr.transitions timestamp
+  |>.map (·.localTimeType)
+  |>.getD zr.initialLocalTimeType
 
 /--
 Find the current `TimeZone` out of a `Transition` in a `ZoneRules`
 -/
 @[inline]
-def timezoneAt (zr : ZoneRules) (tm : Timestamp) : Except String TimeZone :=
+def timezoneAt (zr : ZoneRules) (tm : Timestamp) : TimeZone :=
   Transition.timezoneAt zr.transitions tm
+  |>.toOption
+  |>.getD (zr.initialLocalTimeType |>.getTimeZone)
 
 /--
 Creates `ZoneRules` for the given `TimeZone`.
 -/
+@[inline]
 def ofTimeZone (tz : TimeZone) : ZoneRules :=
-  ZoneRules.mk #[] #[Transition.mk tz.toSeconds (LocalTimeType.mk tz.offset tz.isDST tz.name .wall .local tz.abbreviation)]
+  let ltt :=  LocalTimeType.mk tz.offset tz.isDST tz.name .wall .local tz.abbreviation
+  ZoneRules.mk ltt #[]
 
 end ZoneRules

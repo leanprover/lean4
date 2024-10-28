@@ -51,8 +51,15 @@ namespace Ordinal
 Converts an `Ordinal` into a relative hour in the range of 1 to 12.
 -/
 def toRelative (ordinal : Ordinal) : Bounded.LE 1 12 :=
-  (ordinal.add 11).emod 12 (by decide) |>.add 1
+  ordinal.emod 12 (by decide) |>.add 1
 
+/--
+Converts an Ordinal into a 1-based hour representation within the range of 1 to 24.
+-/
+def shiftTo1BasedHour (ordinal : Ordinal) : Bounded.LE 1 24 :=
+  if h : ordinal.val < 1
+    then Internal.Bounded.LE.ofNatWrapping 24 (by decide)
+    else ordinal.truncateBottom (Int.not_lt.mp h) |>.expandTop (by decide)
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within the valid bounds for hours.
 -/

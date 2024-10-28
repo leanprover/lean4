@@ -63,7 +63,7 @@ def compute
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
-    noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind toBool?).getD false
+    noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",
@@ -72,10 +72,6 @@ def compute
     initPath := ← getSearchPath "PATH"
   }
 where
-  toBool? (o : String) : Option Bool :=
-    if ["y", "yes", "t", "true", "on", "1"].contains o.toLower then true
-    else if ["n", "no", "f", "false", "off", "0"].contains o.toLower then false
-    else none
   computePkgUrlMap := do
     let some urlMapStr ← IO.getEnv "LAKE_PKG_URL_MAP" | return {}
     match Json.parse urlMapStr |>.bind fromJson? with
@@ -149,6 +145,7 @@ def noToolchainVars : Array (String × Option String) :=
   #[
     ("ELAN_TOOLCHAIN", none),
     ("LAKE", none),
+    ("LAKE_OVERRIDE_LEAN", none),
     ("LAKE_HOME", none),
     ("LEAN", none),
     ("LEAN_GITHASH", none),

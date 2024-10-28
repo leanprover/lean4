@@ -1079,10 +1079,6 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     else
       throwError "failed to synthesize{indentExpr type}{extraErrorMsg}{useDiagnosticMsg}"
 
-def mkCoeErrorMsg (f? : Option Expr) (errorMsgHeader? : Option String) (mvarId : MVarId) (expectedType e : Expr) : MetaM MessageData := do
-  throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
-    m!"failed to create type class instance for{indentExpr (← mvarId.getDecl).type}"
-
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none)
     (mkErrorMsg? : Option (MVarId → (expectedType e : Expr) → MetaM MessageData) := none)
     (mkImmedErrorMsg? : Option ((errorMsg? : Option MessageData) → (expectedType e : Expr) → MetaM MessageData) := none) : TermElabM Expr := do

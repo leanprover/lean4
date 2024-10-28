@@ -887,7 +887,7 @@ def delabLam : Delab :=
       else
         `(fun $binders* => $stxBody)
 
-/-- Don't do any renaming for forall binders. -/
+/-- Don't do any renaming for forall binders, but do add fresh macro scopes when there is shadowing. -/
 private def ppPiPreserveNames := `pp.piPreserveNames
 /-- Causes non-dependent foralls to print with binder names. -/
 private def ppPiBinderNames := `pp.piBinderNames

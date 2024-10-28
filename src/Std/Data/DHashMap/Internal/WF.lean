@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
+import Init.Data.AC
 import Std.Data.DHashMap.Basic
 import Std.Data.DHashMap.Internal.Model
 import Std.Data.DHashMap.Internal.AssocList.Lemmas
@@ -23,6 +24,24 @@ set_option autoImplicit false
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+
+namespace List
+
+-- TODO(Markus): Move to the right place
+theorem Perm.contains_eq [BEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) {k : α} :
+    l₁.contains k = l₂.contains k := by
+  induction h with
+  | nil => rfl
+  | cons => simp_all
+  | swap => simp only [contains_cons]; ac_rfl
+  | trans => simp_all
+
+-- TODO(Markus): Move to the right place
+theorem List.contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {k : α} :
+    l.contains k ↔ k ∈ l := by
+  simp
+
+end List
 
 open List
 
@@ -107,6 +126,22 @@ theorem keys_perm_keys_toListModel {m : Raw α β} :
     | cons k v t' ih' =>
       simp only [AssocList.foldlM, Id.bind_eq]
       rw [← ih', map_cons]
+
+theorem length_keys_eq_length_keys {m : Raw α β} :
+    m.keys.length = (List.keys (toListModel m.buckets)).length :=
+  keys_perm_keys_toListModel.length_eq
+
+theorem isEmpty_keys_eq_isEmpty_keys {m : Raw α β} :
+    m.keys.isEmpty = (List.keys (toListModel m.buckets)).isEmpty :=
+  keys_perm_keys_toListModel.isEmpty_eq
+
+theorem contains_keys_eq_contains_keys [BEq α] {m : Raw α β} {k : α} :
+    m.keys.contains k = (List.keys (toListModel m.buckets)).contains k :=
+  keys_perm_keys_toListModel.contains_eq
+
+theorem mem_iff_contains_keys [BEq α] [LawfulBEq α] {m : Raw α β} {k : α} :
+    k ∈ m.keys ↔ (List.keys (toListModel m.buckets)).contains k := by
+  rw [← List.contains_iff_mem, contains_keys_eq_contains_keys]
 
 end Raw
 

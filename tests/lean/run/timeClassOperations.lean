@@ -167,7 +167,7 @@ info: "3600s"
 
 def now := PlainDateTime.ofUTCTimestamp ⟨1724859638, ⟨907328169, by decide⟩, by decide⟩
 def after := PlainDateTime.ofUTCTimestamp ⟨1724859639, ⟨907641224, by decide⟩, by decide⟩
-def duration := after.since now
+def duration := after - now
 
 /--
 info: "15:40:38.907328169"

@@ -449,7 +449,7 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
   if skipExisting then
     if let [name] := decl.getNames then
       if env.checkedSync.get.base.find? name |>.isSome then
-        return env
+        return { env with base := env.checkedSync.get.base }
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else

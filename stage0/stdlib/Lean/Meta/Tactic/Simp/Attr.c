@@ -1312,7 +1312,7 @@ lean_dec(x_26);
 x_171 = lean_unsigned_to_nat(1u);
 x_172 = l_Lean_Syntax_getArg(x_4, x_171);
 x_173 = l_Lean_Syntax_isNone(x_172);
-x_174 = lean_unsigned_to_nat(3u);
+x_174 = lean_unsigned_to_nat(2u);
 x_175 = l_Lean_Syntax_getArg(x_4, x_174);
 lean_dec(x_4);
 lean_inc(x_6);

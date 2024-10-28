@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.WF.Fix
-// Imports: Lean.Data.Array Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.WF.Basic Lean.Elab.Tactic.Basic Lean.Meta.ArgsPacker Lean.Meta.ForEachExpr Lean.Meta.Match.MatcherApp.Transform Lean.Meta.Tactic.Cleanup Lean.Util.HasConstCache
+// Imports: Lean.Util.HasConstCache Lean.Meta.Match.Match Lean.Meta.Tactic.Simp.Main Lean.Meta.Tactic.Cleanup Lean.Meta.ArgsPacker Lean.Elab.Tactic.Basic Lean.Elab.RecAppSyntax Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Structural.Basic Lean.Elab.PreDefinition.Structural.BRecOn Lean.Elab.PreDefinition.WF.Basic Lean.Data.Array
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -11751,7 +11751,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__2;
 x_2 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_processPSigmaCasesOn___closed__3;
-x_3 = lean_unsigned_to_nat(122u);
+x_3 = lean_unsigned_to_nat(125u);
 x_4 = lean_unsigned_to_nat(49u);
 x_5 = l_List_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__14___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -17263,45 +17263,57 @@ lean_dec(x_4);
 return x_16;
 }
 }
-lean_object* initialize_Lean_Data_Array(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_WF_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_ArgsPacker(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_ForEachExpr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Match_MatcherApp_Transform(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_HasConstCache(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Match_Match(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_Main(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_ArgsPacker(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_RecAppSyntax(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_Structural_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_Structural_BRecOn(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_WF_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Array(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_WF_Fix(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Array(builtin, lean_io_mk_world());
+res = initialize_Lean_Util_HasConstCache(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Match_Match(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_WF_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_ArgsPacker(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_ForEachExpr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_MatcherApp_Transform(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Simp_Main(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Cleanup(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_HasConstCache(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_ArgsPacker(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_RecAppSyntax(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_Structural_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_Structural_BRecOn(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_WF_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Array(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_mkDecreasingProof___closed__1 = _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_mkDecreasingProof___closed__1();

@@ -712,6 +712,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_synthesize
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_ElabElim_finalize___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
+lean_object* l_Lean_getParentStructures(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabPipeProj___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabPipeProj_declRange__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitPost___at_Lean_Elab_Term_ElabElim_revertArgs___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1143,7 +1144,6 @@ lean_object* l_List_tailD___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_App_0__Lean_Elab_Term_resolveLValAux___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_ElabElim_finalize___lambda__11___closed__2;
 static lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__4;
-lean_object* l_Lean_getStructureSubobjects(lean_object*, lean_object*);
 lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_getSuccesses___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36493,7 +36493,7 @@ return x_9;
 else
 {
 lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_10 = l_Lean_getStructureSubobjects(x_1, x_2);
+x_10 = l_Lean_getParentStructures(x_1, x_2);
 x_11 = lean_array_size(x_10);
 x_12 = 0;
 x_13 = l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_findNamedArgDependsOnCurrent_x3f___lambda__2___closed__1;

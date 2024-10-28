@@ -2385,7 +2385,7 @@ theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
 
 /-! ### smtUDiv -/
 
-theorem smtUDiv_eq (x y : BitVec w) : smtUDiv x y = if y = 0 then allOnes w else x / y := by
+theorem smtUDiv_eq (x y : BitVec w) : smtUDiv x y = if y = 0#w then allOnes w else x / y := by
   simp [smtUDiv]
 
 /-! ### sdiv -/

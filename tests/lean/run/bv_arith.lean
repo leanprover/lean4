@@ -60,3 +60,15 @@ theorem arith_unit_14 (x y : BitVec 8) (hx : x.msb = true) (hy : y.msb = true) :
 
 theorem arith_unit_15 (x : BitVec 32) : BitVec.sle x (BitVec.abs x) := by
   bv_decide
+
+theorem arith_unit_16 (x y : BitVec 8)  (hy : y ≠ 0) : x.smtUDiv y = x / y := by
+  bv_decide
+
+theorem arith_unit_17 (x y : BitVec 8)  (hy : y = 0) : x.smtUDiv y = -1#8 := by
+  bv_decide
+
+theorem arith_unit_18 (x y : BitVec 8)  (hx : x.msb = true) (h : y.msb = true) : x.smtSDiv y = (-x).smtUDiv (-y) := by
+  bv_decide
+
+theorem arith_unit_19 (x y : BitVec 8)  (hx : x.msb = true) (h : y.msb = true) : x.srem y = -((-x) % (-y)) := by
+  bv_decide

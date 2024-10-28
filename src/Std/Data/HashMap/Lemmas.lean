@@ -678,7 +678,13 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
     split <;> simp_all
 
 @[simp]
-theorem contains_keys [EquivBEq α] [LawfulHashable α] {k : α} : m.keys.contains k = m.contains k :=
+theorem length_keys_eq_size [EquivBEq α] [LawfulHashable α] : 
+    m.keys.length = m.size := 
+  DHashMap.length_keys_eq_size
+
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] {k : α} : 
+    m.keys.contains k = m.contains k :=
   DHashMap.contains_keys
 
 end

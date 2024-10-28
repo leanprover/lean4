@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Init.Data.AC
 import Std.Data.DHashMap.Basic
 import Std.Data.DHashMap.Internal.Model
 import Std.Data.DHashMap.Internal.AssocList.Lemmas
@@ -24,24 +23,6 @@ set_option autoImplicit false
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
-
-namespace List
-
--- TODO(Markus): Move to the right place
-theorem Perm.contains_eq [BEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) {k : α} :
-    l₁.contains k = l₂.contains k := by
-  induction h with
-  | nil => rfl
-  | cons => simp_all
-  | swap => simp only [contains_cons]; ac_rfl
-  | trans => simp_all
-
--- TODO(Markus): Move to the right place
-theorem List.contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {k : α} :
-    l.contains k ↔ k ∈ l := by
-  simp
-
-end List
 
 open List
 

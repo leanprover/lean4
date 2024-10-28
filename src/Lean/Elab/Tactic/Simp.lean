@@ -240,9 +240,9 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             throw ex
       if elabFail then
         if ← MonadLog.hasErrors then
-          -- Assumption: elaboration failures have already logged messages.
           throwAbortTactic
         else
+          -- We assume elaboration failure logs error messages. However, we have this backup exception just in case:
           throwError "'simp' tactic failed to elaborate simp arguments"
       return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, simprocs, starArg }
 where

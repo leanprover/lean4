@@ -1062,7 +1062,7 @@ theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
     BitVec.toFin (x <<< n) = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
 
 @[simp]
-theorem shiftLeft_zero_eq (x : BitVec w) : x <<< 0 = x := by
+theorem shiftLeft_zero (x : BitVec w) : x <<< 0 = x := by
   apply eq_of_toNat_eq
   simp
 
@@ -1232,7 +1232,11 @@ theorem ushiftRight_or_distrib (x y : BitVec w)  (n : Nat) :
   simp
 
 @[simp]
-theorem ushiftRight_zero_eq (x : BitVec w) : x >>> 0 = x := by
+theorem ushiftRight_zero (x : BitVec w) : x >>> 0 = x := by
+  simp [bv_toNat]
+
+@[simp]
+theorem zero_ushiftRight {n : Nat} : 0#w >>> n = 0#w := by
   simp [bv_toNat]
 
 /--
@@ -1384,6 +1388,10 @@ theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
     simp [show n = 0 by omega]
 
 @[simp] theorem sshiftRight_zero {x : BitVec w} : x.sshiftRight 0 = x := by
+  ext i
+  simp [getLsbD_sshiftRight]
+
+@[simp] theorem zero_sshiftRight {n : Nat} : (0#w).sshiftRight n = 0#w := by
   ext i
   simp [getLsbD_sshiftRight]
 
@@ -2153,18 +2161,23 @@ instance : Std.LawfulCommIdentity (fun (x y : BitVec w) => x * y) (1#w) where
   right_id := BitVec.mul_one
 
 @[simp]
-theorem BitVec.mul_zero {x : BitVec w} : x * 0#w = 0#w := by
+theorem mul_zero {x : BitVec w} : x * 0#w = 0#w := by
   apply eq_of_toNat_eq
   simp [toNat_mul]
 
-theorem BitVec.mul_add {x y z : BitVec w} :
+@[simp]
+theorem zero_mul {x : BitVec w} : 0#w * x = 0#w := by
+  apply eq_of_toNat_eq
+  simp [toNat_mul]
+
+theorem mul_add {x y z : BitVec w} :
     x * (y + z) = x * y + x * z := by
   apply eq_of_toNat_eq
   simp only [toNat_mul, toNat_add, Nat.add_mod_mod, Nat.mod_add_mod]
   rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
     ← Nat.mul_mod, Nat.mul_add]
 
-theorem mul_succ {x y : BitVec w} : x * (y + 1#w) = x * y + x := by simp [BitVec.mul_add]
+theorem mul_succ {x y : BitVec w} : x * (y + 1#w) = x * y + x := by simp [mul_add]
 theorem succ_mul {x y : BitVec w} : (x + 1#w) * y = x * y + y := by simp [BitVec.mul_comm, BitVec.mul_add]
 
 theorem mul_two {x : BitVec w} : x * 2#w = x + x := by
@@ -3178,5 +3191,11 @@ abbrev and_one_eq_zeroExtend_ofBool_getLsbD := @and_one_eq_setWidth_ofBool_getLs
 
 @[deprecated msb_sshiftRight (since := "2024-10-03")]
 abbrev sshiftRight_msb_eq_msb := @msb_sshiftRight
+
+@[deprecated shiftLeft_zero (since := "2024-10-27")]
+abbrev shiftLeft_zero_eq := @shiftLeft_zero
+
+@[deprecated ushiftRight_zero (since := "2024-10-27")]
+abbrev ushiftRight_zero_eq := @ushiftRight_zero
 
 end BitVec

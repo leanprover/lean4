@@ -63,6 +63,20 @@ def ofPlainDateTime (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : ZonedDateT
   ZonedDateTime.mk (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds) |>.toPlainDateTimeAssumingUTC) tm zr tz
 
 /--
+Creates a new `ZonedDateTime` out of a `Timestamp` and a `TimeZone`.
+-/
+@[inline]
+def ofTimestampWithZone (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
+  ofTimestamp tm (TimeZone.ZoneRules.ofTimeZone tz)
+
+/--
+Creates a new `ZonedDateTime` out of a `PlainDateTime` and a `TimeZone`.
+-/
+@[inline]
+def ofPlainDateTimeWithZone (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
+  ofTimestamp tm (TimeZone.ZoneRules.ofTimeZone tz)
+
+/--
 Creates a new `Timestamp` out of a `ZonedDateTime`.
 -/
 @[inline]

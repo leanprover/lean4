@@ -83,16 +83,6 @@ Reads timezone rules from disk based on the provided file path and timezone ID.
 def readRulesFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := do
   parseTZIfFromDisk (System.FilePath.join path id) id
 
-/--
-Reads leap seconds form from disk based on the provided file path and timezone ID.
--/
-def readLeapsFromDisk (path : System.FilePath) : IO (Array LeapSecond) := do
-  let res ← parseLeapSeconds.run <$> IO.FS.readFile path
-
-  if let .ok res := res
-    then return res
-    else throw (IO.userError "cannot read the id of the path.")
-
 instance : Std.Time.Database TZdb where
   getLocalZoneRulesAt db := localRules db.localPath
   getZoneRulesAt db id := readRulesFromDisk db.zonesPath id

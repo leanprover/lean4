@@ -142,7 +142,7 @@ Parses a string into a `TimeZone` object. The input string must be in the format
 -/
 def fromTimeZone (input : String) : Except String TimeZone := do
   let spec : GenericFormat .any := datespec("VV ZZZZZ")
-  spec.parseBuilder (fun id off => some (TimeZone.mk off id "Unknown" false)) input
+  spec.parseBuilder (fun id off => some (TimeZone.mk off id (off.toIsoString true) false)) input
 
 namespace Offset
 
@@ -173,12 +173,12 @@ def format (date : PlainDate) (format : String) : String :=
       | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
       | .Qorq _ => some date.quarter
       | .w _ => some date.weekOfYear
-      | .W _ => some date.weekOfMonth
+      | .W _ => some date.alignedWeekOfMonth
       | .MorL _ => some date.month
       | .d _ => some date.day
       | .E _ => some date.weekday
       | .eorc _ => some date.weekday
-      | .F _ => some date.alignedWeekOfMonth
+      | .F _ => some date.weekOfMonth
       | _ => none
     match res with
     | some res => res
@@ -423,12 +423,12 @@ def format (date : PlainDateTime) (format : String) : String :=
       | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
       | .Qorq _ => some date.quarter
       | .w _ => some date.weekOfYear
-      | .W _ => some date.weekOfMonth
+      | .W _ => some date.alignedWeekOfMonth
       | .MorL _ => some date.month
       | .d _ => some date.day
       | .E _ => some date.weekday
       | .eorc _ => some date.weekday
-      | .F _ => some date.alignedWeekOfMonth
+      | .F _ => some date.weekOfMonth
       | .H _ => some date.hour
       | .k _ => some date.hour.shiftTo1BasedHour
       | .m _ => some date.minute

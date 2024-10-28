@@ -280,6 +280,7 @@ def date₄ := date("2002-07-14")
 def datetime₅ := PlainDateTime.mk (PlainDate.clip (-2000) 3 4) (PlainTime.mk 12 23 ⟨false, 12⟩ 0)
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")
 def zoned₄ := zoned("2002-07-14T23:13:12.324354679+09:00")
+def zoned₅ := zoned("2002-07-14T23:13:12.324354679+00:00")
 
 /--
 info: "CE CE CE Common Era C"
@@ -330,7 +331,7 @@ info: "28 28 028 0028"
 #eval zoned₄.format "w ww www wwww"
 
 /--
-info: "3 03 003 0003"
+info: "2 02 002 0002"
 -/
 #guard_msgs in
 #eval zoned₄.format "W WW WWW WWWW"
@@ -366,7 +367,7 @@ info: "11 11 011 0011 000011"
 #eval zoned₄.format "K KK KKK KKKK KKKKKK"
 
 /--
-info: "24 24 024 0024 000024"
+info: "23 23 023 0023 000023"
 -/
 #guard_msgs in
 #eval zoned₄.format "k kk kkk kkkk kkkkkk"
@@ -414,16 +415,22 @@ info: "83592324354679 83592324354679 83592324354679 83592324354679 8359232435467
 #eval zoned₄.format "N NN NNN NNNN NNNNNNNNN"
 
 /--
-info: "Unknown"
+info: "+09:00"
 -/
 #guard_msgs in
 #eval zoned₄.format "VV"
 
 /--
-info: "Unknown Unknown Unknown Unknown"
+info: "+09:00 +09:00 +09:00 +09:00"
 -/
 #guard_msgs in
 #eval zoned₄.format "z zz zzzz zzzz"
+
+/--
+info: "+00:00 +00:00 +00:00 +00:00"
+-/
+#guard_msgs in
+#eval zoned₅.format "z zz zzzz zzzz"
 
 /--
 info: "GMT+9 GMT+09:00"
@@ -432,16 +439,28 @@ info: "GMT+9 GMT+09:00"
 #eval zoned₄.format "O OOOO"
 
 /--
-info: "+09 +0900 +09:00 +090000 +09:00:00"
+info: "+09 +0900 +09:00 +0900 +09:00"
 -/
 #guard_msgs in
 #eval zoned₄.format "X XX XXX XXXX XXXXX"
 
 /--
-info: "+09 +0900 +09:00 +0900 +09:00:00"
+info: "+09 +0900 +09:00 +0900 +09:00"
 -/
 #guard_msgs in
 #eval zoned₄.format "x xx xxx xxxx xxxxx"
+
+/--
+info: "Z Z Z Z Z"
+-/
+#guard_msgs in
+#eval zoned₅.format "X XX XXX XXXX XXXXX"
+
+/--
+info: "+00 +0000 +00:00 +0000 +00:00"
+-/
+#guard_msgs in
+#eval zoned₅.format "x xx xxx xxxx xxxxx"
 
 /--
 info: "+0900 +0900 +0900 GMT+09:00 +09:00"
@@ -509,7 +528,7 @@ info: "28 28 028 0028"
 #eval datetime₄.format "w ww www wwww"
 
 /--
-info: "3 03 003 0003"
+info: "2 02 002 0002"
 -/
 #guard_msgs in
 #eval datetime₄.format "W WW WWW WWWW"
@@ -611,7 +630,7 @@ info: "11 11 011 0011 000011"
 #eval time₄.format "K KK KKK KKKK KKKKKK"
 
 /--
-info: "24 24 024 0024 000024"
+info: "23 23 023 0023 000023"
 
 -/
 #guard_msgs in
@@ -725,7 +744,7 @@ info: "28 28 028 0028"
 #eval date₄.format "w ww www wwww"
 
 /--
-info: "3 03 003 0003"
+info: "2 02 002 0002"
 -/
 #guard_msgs in
 #eval date₄.format "W WW WWW WWWW"

@@ -113,7 +113,11 @@ to the UNIX epoch. This type should be used when sending or receiving timestamps
 Combines date, time and time zones.
 
 - **`DateTime`**: Represents both date and time but with a time zone in the type constructor.
-- **`ZonedDateTime`**: An existential version of the `DateTime`.
+- **`ZonedDateTime`**: Is a way to represent date and time that includes `ZoneRules`, which consider
+Daylight Saving Time (DST). This means it can handle local time changes throughout the year better
+than a regular `DateTime`. If you want to use a specific time zone without worrying about DST, you can
+use the `ofTimestampWithZone` function, which gives you a `ZonedDateTime` based only on that time zone,
+without considering the zone rules, otherwise you can use `ofTimestamp` or `ofTimestampWithIdentifier`.
 
 ## Duration
 Represents spans of time and the difference between two points in time.
@@ -135,7 +139,7 @@ The supported formats include:
   - `yy`: Displays the year in a two-digit format, showing the last two digits (e.g., "04" for 2004).
   - `yyyy`: Displays the year in a four-digit format (e.g., "2004").
   - `yyyy+`: Extended format for years with more than four digits.
-- `u`: Represents the *year* (aligned with ISO chronology).
+- `u`: Represents the year.
   - `uu`: Two-digit year format, showing the last two digits (e.g., "04" for 2004).
   - `uuuu`: Displays the year in a four-digit format (e.g., "2004" or "-1000").
   - `uuuu+`: Extended format for handling years with more than four digits (e.g., "12345" or "-12345"). Useful for historical dates far into the past or future!
@@ -151,8 +155,8 @@ The supported formats include:
   - `QQQ` (short): Displays the quarter as an abbreviated text (e.g., "Q3").
   - `QQQQ` (full): Displays the full quarter text (e.g., "3rd quarter").
   - `QQQQQ` (narrow): Displays the quarter as a short number (e.g., "3").
-- `w`: Represents the week of the week-based year (e.g., "27").
-- `W`: Represents the week of the month (e.g., "4").
+- `w`: Represents the week of the week-based year, each week starts on Monday (e.g., "27").
+- `W`: Represents the week of the month, each week starts on Monday (e.g., "4").
 - `E`: Represents the day of the week as text.
   - `E`, `EE`, `EEE`: Displays the abbreviated weekday name (e.g., "Tue").
   - `EEEE`: Displays the full day name (e.g., "Tuesday").
@@ -160,7 +164,7 @@ The supported formats include:
 - `e`: Represents the weekday as number or text.
   - `e`, `ee`: Displays the the as a number, starting from 1 (Monday) to 7 (Sunday).
   - `eee`, `eeee`, `eeeee`: Displays the weekday as text (same format as `E`).
-- `F`: Represents the aligned week of the month (e.g., "3").
+- `F`: Represents the week of the month that the first week starts on the first day of the month (e.g., "3").
 - `a`: Represents the AM or PM designation of the day.
   - `a`, `aa`, `aaa`: Displays AM or PM in a concise format (e.g., "PM").
   - `aaaa`: Displays the full AM/PM designation (e.g., "Post Meridium").

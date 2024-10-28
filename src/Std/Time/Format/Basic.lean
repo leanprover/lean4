@@ -741,7 +741,7 @@ private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bo
 
   let data := s!"{sign}{pad time.hour.val}"
   let data := if withMinutes then s!"{data}{if colon then ":" else ""}{pad time.minute.val}" else data
-  let data := if withSeconds then s!"{data}{if colon then ":" else ""}{pad time.second.snd.val}" else data
+  let data := if withSeconds ∧ time.second.snd.val ≠ 0 then s!"{data}{if colon then ":" else ""}{pad time.second.snd.val}" else data
 
   data
 
@@ -754,10 +754,10 @@ private def TypeFormat : Modifier → Type
   | .d _ => Day.Ordinal
   | .Qorq _ => Month.Quarter
   | .w _ => Week.Ordinal
-  | .W _ => Bounded.LE 1 5
+  | .W _ => Week.Ordinal.OfMonth
   | .E _ => Weekday
   | .eorc _ => Weekday
-  | .F _ => Week.Ordinal.OfMonth
+  | .F _ => Bounded.LE 1 5
   | .a _ => HourMarker
   | .h _ => Bounded.LE 1 12
   | .K _ => Bounded.LE 0 11
@@ -903,10 +903,10 @@ private def dateFromModifier (date : DateTime tz) : TypeFormat modifier :=
   | .d _ => date.day
   | .Qorq _ => date.quarter
   | .w _ => date.weekOfYear
-  | .W _ => date.weekOfMonth
+  | .W _ => date.alignedWeekOfMonth
   | .E _ =>  date.weekday
   | .eorc _ => date.weekday
-  | .F _ => date.alignedWeekOfMonth
+  | .F _ => date.weekOfMonth
   | .a _ => HourMarker.ofOrdinal date.hour
   | .h _ => HourMarker.toRelative date.hour |>.fst
   | .K _ => date.hour.emod 12 (by decide)
@@ -1232,10 +1232,10 @@ private structure DateBuilder where
   d : Option Day.Ordinal := none
   Qorq : Option Month.Quarter := none
   w : Option Week.Ordinal := none
-  W : Option (Bounded.LE 1 5) := none
+  W : Option Week.Ordinal.OfMonth := none
   E : Option Weekday := none
   eorc : Option Weekday := none
-  F : Option Week.Ordinal.OfMonth := none
+  F : Option (Bounded.LE 1 5) := none
   a : Option HourMarker := none
   h : Option (Bounded.LE 1 12) := none
   K : Option (Bounded.LE 0 11) := none
@@ -1295,10 +1295,12 @@ private def convertYearAndEra (year : Year.Offset) : Year.Era → Year.Offset
   | .bce => -(year + 1)
 
 private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
+  let offset := builder.O <|> builder.X <|> builder.x <|> builder.Z |>.getD Offset.zero
+
   let tz : TimeZone := {
-    offset := builder.O <|> builder.X <|> builder.x <|> builder.Z |>.getD Offset.zero,
-    name := builder.V <|> builder.z |>.getD "Unknown",
-    abbreviation := builder.zabbrev |>.getD "Unknown",
+    offset,
+    name := builder.V <|> builder.z |>.getD (offset.toIsoString true),
+    abbreviation := builder.zabbrev |>.getD (offset.toIsoString true),
     isDST := false,
   }
 

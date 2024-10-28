@@ -73,6 +73,15 @@ def now : IO ZonedDateTime := do
   return ZonedDateTime.ofTimestamp tm rules
 
 /--
+Gets the current `ZonedDateTime` using the identifier of a time zone.
+-/
+@[inline]
+def nowAt (id : String) : IO ZonedDateTime := do
+  let tm ← Timestamp.now
+  let rules ← Database.defaultGetZoneRulesAt id
+  return ZonedDateTime.ofTimestamp tm rules
+
+/--
 Converts a `PlainDate` to a `ZonedDateTime`.
 -/
 @[inline]

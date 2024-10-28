@@ -5,7 +5,6 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Zoned.ZoneRules
-import Std.Time.Zoned.Database.Leap
 import Std.Time.Zoned.Database.TzIf
 
 namespace Std
@@ -49,12 +48,13 @@ Converts a given time index into a `LocalTimeType` by using a time zone (`tz`) a
 -/
 def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
   let localType ← tz.localTimeTypes.get? index
-  let abbreviation ← tz.abbreviations.getD index "Unknown"
+  let offset := Offset.ofSeconds <| .ofInt localType.gmtOffset
+  let abbreviation ← tz.abbreviations.getD index (offset.toIsoString true)
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)
   let utLocal := convertUt (tz.utLocalIndicators.getD index true)
 
   return {
-    gmtOffset := Offset.ofSeconds <| .ofInt localType.gmtOffset
+    gmtOffset := offset
     isDst := localType.isDst
     abbreviation
     wall := wallflag

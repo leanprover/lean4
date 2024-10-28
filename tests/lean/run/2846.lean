@@ -34,7 +34,7 @@ The second is made hygienic.
 -/
 def foo (n n : Nat) : Fin (n + 1) := 0
 
-/-- info: foo (n : Nat) : (n✝ : Nat) → Fin (n✝ + 1) -/
+/-- info: foo (n n✝ : Nat) : Fin (n✝ + 1) -/
 #guard_msgs in #check foo
 
 /-!
@@ -43,11 +43,11 @@ Same, but a named argument still follows, and its name is preserved.
 
 def foo' (n n : Nat) (a : Fin ((by clear n; exact n) + 1)) : Fin (n + 1) := 0
 
-/-- info: foo' (n : Nat) : (n✝ : Nat) → (a : Fin (n + 1)) → Fin (n✝ + 1) -/
+/-- info: foo' (n n✝ : Nat) (a : Fin (n + 1)) : Fin (n✝ + 1) -/
 #guard_msgs in #check foo'
 
 /-!
-Named argument after inaccessible name, still stays after the colon.
+Named argument after non-dependent inaccessible name, still stays after the colon.
 Prints with named pi notation.
 -/
 def foo'' : String → (needle : String) → String := fun _ yo => yo
@@ -57,12 +57,12 @@ def foo'' : String → (needle : String) → String := fun _ yo => yo
 
 /-!
 Named argument after inaccessible name that's still a dependent argument.
-Stays after the colon, and the names are grouped.
+Stays before the colon, and the names are grouped.
 -/
 
 def foo''' : (_ : Nat) → (n : Nat) → Fin (n + by clear n; assumption) := sorry
 
-/-- info: foo''' : (x✝ n : Nat) → Fin (n + x✝) -/
+/-- info: foo''' (x✝ n : Nat) : Fin (n + x✝) -/
 #guard_msgs in #check foo'''
 
 /-!

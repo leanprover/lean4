@@ -1279,7 +1279,7 @@ where
       -- but this would be the usual case.
       let group ← withBindingDomain do `(bracketedBinderF|[$(← delabTy)])
       withBindingBody e.bindingName! <| delabParams bindingNames idStx (groups.push group)
-    else if e.isForall && !e.bindingName!.hasMacroScopes && !bindingNames.contains e.bindingName! then
+    else if e.isForall && (!e.isArrow || !(e.bindingName!.hasMacroScopes || bindingNames.contains e.bindingName!)) then
       delabParamsAux bindingNames idStx groups #[]
     else
       let (opts', e') ← processSpine {} (← readThe SubExpr)
@@ -1295,6 +1295,7 @@ where
   -/
   delabParamsAux (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
     let e@(.forallE n d e' i) ← getExpr | unreachable!
+    let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
     let stxN := mkIdent n
     let curIds := curIds.push ⟨stxN⟩
@@ -1320,10 +1321,11 @@ where
   -/
   shouldGroupWithNext (bindingNames : NameSet) (e e' : Expr) : Bool :=
     e'.isForall &&
-    -- At the first sign of an inaccessible name, stop merging binders:
-    !e'.bindingName!.hasMacroScopes &&
-    -- If it's a name that has already been used, stop merging binders:
-    !bindingNames.contains e'.bindingName! &&
+    (!e'.isArrow ||
+      -- At the first sign of an inaccessible name, stop merging binders:
+    !(e'.bindingName!.hasMacroScopes ||
+      -- If it's a name that has already been used, stop merging binders:
+      bindingNames.contains e'.bindingName!)) &&
     e.binderInfo == e'.binderInfo &&
     e.bindingDomain! == e'.bindingDomain! &&
     -- Inst implicits can't be grouped:

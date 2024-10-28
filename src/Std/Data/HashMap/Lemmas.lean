@@ -677,6 +677,10 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] {k : α} : m.keys.contains k = m.contains k :=
+  DHashMap.contains_keys
+
 end
 
 end Std.HashMap

@@ -139,7 +139,7 @@ theorem contains_keys_eq_contains_keys [BEq α] {m : Raw α β} {k : α} :
     m.keys.contains k = (List.keys (toListModel m.buckets)).contains k :=
   keys_perm_keys_toListModel.contains_eq
 
-theorem mem_iff_contains_keys [BEq α] [LawfulBEq α] {m : Raw α β} {k : α} :
+theorem mem_keys_iff_contains_keys [BEq α] [LawfulBEq α] {m : Raw α β} {k : α} :
     k ∈ m.keys ↔ (List.keys (toListModel m.buckets)).contains k := by
   rw [← List.contains_iff_mem, contains_keys_eq_contains_keys]
 

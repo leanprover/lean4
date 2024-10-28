@@ -1022,6 +1022,11 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
 
 end Const
 
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    m.keys.contains k = m.contains k := by
+  simp_to_raw using Raw₀.contains_keys ⟨m, _⟩ h
+
 end Raw
 
 end Std.DHashMap

@@ -84,7 +84,9 @@ private def queryNames : Array Name :=
     ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?, ``get_eq_getValueCast,
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
-    ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!]
+    ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
+    ``Raw.length_keys_eq_length_keys, ``Raw.isEmpty_keys_eq_isEmpty_keys,
+    ``Raw.contains_keys_eq_contains_keys, ``Raw.mem_keys_iff_contains_keys]
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]
@@ -810,6 +812,11 @@ theorem getThenInsertIfNew?_snd {k : α} {v : β} :
   rw [getThenInsertIfNew?_eq_insertIfNewₘ, insertIfNew_eq_insertIfNewₘ]
 
 end Const
+
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
+    m.1.keys.contains k = m.contains k := by
+  simp_to_model using List.containsKey_eq_keys_contains.symm
 
 end Raw₀
 

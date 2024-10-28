@@ -682,6 +682,11 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
     (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
   ext (DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out)
 
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    m.keys.contains k = m.contains k :=
+  DHashMap.Raw.contains_keys h.out
+
 end Raw
 
 end Std.HashMap

@@ -16,5 +16,5 @@ but is expected to have type
 -/
 #guard_msgs in
 theorem bug: True := by
- all_goals exact Nat.succ True   -- Nat.succ True is not well typed, but the tactic succeeds
+ all_goals exact Nat.succ True
  trivial

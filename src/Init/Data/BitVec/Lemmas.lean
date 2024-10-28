@@ -1917,6 +1917,31 @@ theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
   ext
   simp [getLsbD_concat]
 
+@[simp]
+theorem getMsbD_concat {i w : Nat} {b : Bool} {x : BitVec w} :
+    (x.concat b).getMsbD i = if i < w then x.getMsbD i else decide (i = w) && b := by
+  simp only [getMsbD_eq_getLsbD, Nat.add_sub_cancel, getLsbD_concat]
+  by_cases h₀ : i = w
+  · simp [h₀]
+  · by_cases h₁ : i < w
+    · simp [h₀, h₁, show ¬ w - i = 0 by omega, show i < w + 1 by omega, Nat.sub_sub, Nat.add_comm]
+    · simp only [show w - i = 0 by omega, ↓reduceIte, h₁, h₀, decide_False, Bool.false_and,
+        Bool.and_eq_false_imp, decide_eq_true_eq]
+      intro
+      omega
+
+@[simp]
+theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
+    (x.concat b).msb = if 0 < w then x.msb else b := by
+  simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.zero_lt_succ, decide_True, Nat.add_one_sub_one,
+    Nat.sub_zero, Bool.true_and]
+  by_cases h₀ : 0 < w
+  · simp only [Nat.lt_add_one, getLsbD_eq_getElem, getElem_concat, h₀, ↓reduceIte, decide_True,
+      Bool.true_and, ite_eq_right_iff]
+    intro
+    omega
+  · simp [h₀, show w = 0 by omega]
+
 /-! ### add -/
 
 theorem add_def {n} (x y : BitVec n) : x + y = .ofNat n (x.toNat + y.toNat) := rfl

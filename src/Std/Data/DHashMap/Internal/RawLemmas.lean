@@ -86,7 +86,8 @@ private def queryNames : Array Name :=
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
     ``Raw.length_keys_eq_length_keys, ``Raw.isEmpty_keys_eq_isEmpty_keys,
-    ``Raw.contains_keys_eq_contains_keys, ``Raw.mem_keys_iff_contains_keys]
+    ``Raw.contains_keys_eq_contains_keys, ``Raw.mem_keys_iff_contains_keys,
+    ``Raw.pairwise_keys_iff_pairwise_keys]
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]

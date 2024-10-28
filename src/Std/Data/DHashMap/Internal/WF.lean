@@ -124,6 +124,11 @@ theorem mem_keys_iff_contains_keys [BEq α] [LawfulBEq α] {m : Raw α β} {k : 
     k ∈ m.keys ↔ (List.keys (toListModel m.buckets)).contains k := by
   rw [← List.contains_iff_mem, contains_keys_eq_contains_keys]
 
+theorem pairwise_keys_iff_pairwise_keys [BEq α] [PartialEquivBEq α] {m : Raw α β} :
+    m.keys.Pairwise (fun a b => (a == b) = false) ↔
+      (List.keys (toListModel m.buckets)).Pairwise (fun a b => (a == b) = false) :=
+  keys_perm_keys_toListModel.pairwise_iff BEq.symm_false
+
 end Raw
 
 namespace Raw₀

@@ -6,3 +6,8 @@ has type
   Type : Type 1
 but is expected to have type
   ¬?m : Prop
+simpArgTypeMismatch.lean:2:41-3:34: error: unsolved goals
+p : Prop
+inst✝ : Decidable p
+hnp : ¬p
+⊢ if decide p = true then 0 = 1 else 1 = 1

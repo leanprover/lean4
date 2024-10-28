@@ -118,18 +118,23 @@ private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Ex
   else
     thms.add id #[] e (post := post) (inv := inv)
 
-private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM SimpTheorems := do
-  let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
+private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM (Option SimpTheorems) := do
+  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
     let e ← instantiateMVars e
+    if e.hasSyntheticSorry then
+      return none
     let e := e.eta
     if e.hasMVar then
       let r ← abstractMVars e
-      return (r.paramNames, r.expr)
+      return some (r.paramNames, r.expr)
     else
-      return (#[], e)
-  thms.add id levelParams proof (post := post) (inv := inv)
+      return some (#[], e)
+  if let some (levelParams, proof) := thm? then
+    thms.add id levelParams proof (post := post) (inv := inv)
+  else
+    return none
 
 structure ElabSimpArgsResult where
   ctx      : Simp.Context
@@ -172,6 +177,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
       let mut thms      := thmsArray[0]!
       let mut simprocs  := simprocs
       let mut starArg   := false
+      let mut elabFail  := false
       for arg in stx[1].getSepArgs do
         try -- like withLogging, but compatible with do-notation
           if arg.getKind == ``Lean.Parser.Tactic.simpErase then
@@ -219,7 +225,10 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               simprocs  := simprocs.push (← ext₂.getSimprocs)
             | .none    =>
               let name ← mkFreshId
-              thms ← addSimpTheorem thms (.stx name arg) term post inv
+              if let some thms' ← addSimpTheorem thms (.stx name arg) term post inv then
+                thms := thms'
+              else
+                elabFail := true
           else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
             starArg := true
           else
@@ -229,6 +238,12 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             logException ex
           else
             throw ex
+      if elabFail then
+        if ← MonadLog.hasErrors then
+          -- Assumption: elaboration failures have already logged messages.
+          throwAbortTactic
+        else
+          throwError "'simp' tactic failed to elaborate simp arguments"
       return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, simprocs, starArg }
 where
   isSimproc? (e : Expr) : MetaM (Option Name) := do

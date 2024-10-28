@@ -84,6 +84,40 @@ theorem BitVec.smod_umod (x y : BitVec w) :
   rw [BitVec.smod_eq]
   cases x.msb <;> cases y.msb <;> simp
 
+attribute [bv_normalize] BitVec.smtUDiv_eq
+
+@[bv_normalize]
+theorem BitVec.smtSDiv_smtUDiv (x y : BitVec w) :
+    x.smtSDiv y =
+      if x.msb then
+        if y.msb then
+          (-x).smtUDiv (-y)
+        else
+          -((-x).smtUDiv y)
+      else
+        if y.msb then
+          -(x.smtUDiv (-y))
+        else
+          x.smtUDiv y := by
+  rw [BitVec.smtSDiv_eq]
+  cases x.msb <;> cases y.msb <;> simp
+
+@[bv_normalize]
+theorem BitVec.srem_umod (x y : BitVec w) :
+    x.srem y =
+      if x.msb then
+        if y.msb then
+          -((-x) % (-y))
+        else
+          -((-x) % y)
+      else
+        if y.msb then
+          x % (-y)
+        else
+          x % y := by
+  rw [BitVec.srem_eq]
+  cases x.msb <;> cases y.msb <;> simp
+
 attribute [bv_normalize] Bool.cond_eq_if
 attribute [bv_normalize] BitVec.abs_eq
 

@@ -2383,6 +2383,11 @@ theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
     rcases hy with rfl | rfl <;>
       rfl
 
+/-! ### smtUDiv -/
+
+theorem smtUDiv_eq (x y : BitVec w) : smtUDiv x y = if y = 0#w then allOnes w else x / y := by
+  simp [smtUDiv]
+
 /-! ### sdiv -/
 
 /-- Equation theorem for `sdiv` in terms of `udiv`. -/
@@ -2438,6 +2443,28 @@ theorem sdiv_self {x : BitVec w} :
     · subst h
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
+
+/-! ### smtSDiv -/
+
+theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
+  match x.msb, y.msb with
+  | false, false => smtUDiv x y
+  | false, true  => -(smtUDiv x (-y))
+  | true,  false => -(smtUDiv (-x) y)
+  | true,  true  => smtUDiv (-x) (-y) := by
+  rw [BitVec.smtSDiv]
+  rcases x.msb <;> rcases y.msb <;> simp
+
+/-! ### srem -/
+
+theorem srem_eq (x y : BitVec w) : srem x y =
+  match x.msb, y.msb with
+  | false, false => x % y
+  | false, true  => x % (-y)
+  | true,  false => - ((-x) % y)
+  | true,  true  => -((-x) % (-y)) := by
+  rw [BitVec.srem]
+  rcases x.msb <;> rcases y.msb <;> simp
 
 /-! ### smod -/
 

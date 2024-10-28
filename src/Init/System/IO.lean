@@ -803,7 +803,7 @@ def run (args : SpawnArgs) : IO String := do
 end Process
 
 /-- Returns the thread ID of the calling thread. -/
-@[extern "lean_io_get_tid"] opaque getTID : BaseIO UInt32
+@[extern "lean_io_get_tid"] opaque getTID : BaseIO UInt64
 
 structure AccessRight where
   read : Bool := false

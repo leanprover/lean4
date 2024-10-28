@@ -313,7 +313,6 @@ end AsyncConstantInfo
 
 structure GlobalDecl where
   decl : Declaration
-  exts : Array EnvExtensionState
 deriving Nonempty
 
 instance [Nonempty α] : Nonempty (Thunk α) :=
@@ -386,7 +385,7 @@ def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
 
 structure AsyncConst where
   info : AsyncConstantInfo
-  exts : Task (Array EnvExtensionState)
+  exts? : Option (Task (Array EnvExtensionState))
 
 structure AsyncConsts where
   toArray : Array AsyncConst := #[]
@@ -580,7 +579,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
       sig := sigPromise.result
       info := infoPromise.result.map (sync := true) (·.1)
     }
-    exts := infoPromise.result.map (sync := true) (·.2)
+    exts? := some <| infoPromise.result.map (sync := true) (·.2)
   }
   return {
     constName, kind
@@ -705,7 +704,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
       sig := sig?.getD (prom.result.map (sync := true) (·.toConstantVal))
       info := prom.result
     }
-    exts := .pure #[]
+    exts? := none  -- will be reported by the caller eventually
   }
   let ref ← if env.const2ModIdx.contains forConst then pure env.realizedExternConsts else
     match env.realizedLocalConsts.find? forConst with
@@ -743,8 +742,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
           | .thmInfo thm   => pure <| .thmDecl thm
           | .defnInfo defn => pure <| .defnDecl defn
           | _              => throw <| .other s!"Environment.realizeConst: {constName} must be definition/theorem"
-        -- must happen before `addDecl` because on the main thread that can block on a use of
-        -- `constName`
+        -- must happen before `addDecl` because on the main thread that can block on a use of `constName`
         prom.resolve const
         let env ← EIO.ofExcept <| addDecl (checkAsyncPrefix := false) (skipExisting := true) env {} decl
         if const.name != constName then
@@ -1046,8 +1044,8 @@ def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env :
 
 def findStateAsync {α β σ : Type} [Inhabited σ]
     (ext : PersistentEnvExtension α β σ) (env : Environment) (declName : Name) : σ :=
-  if let some aconst := env.asyncConsts.findPrefix? declName then
-    EnvExtensionInterfaceImp.getState ext.toEnvExtension aconst.exts.get |>.state
+  if let some { exts? := some exts, .. } := env.asyncConsts.findPrefix? declName then
+    EnvExtensionInterfaceImp.getState ext.toEnvExtension exts.get |>.state
   else
     ext.getState env
 
@@ -1258,9 +1256,11 @@ def mkModuleData (env : Environment) : IO ModuleData := do
       let state := pExt.getState env
       (pExt.name, fn state)
     | .async fn _ =>
-      let states := env.asyncConsts.toArray.filterMap fun aconst =>
-        let s := EnvExtensionInterfaceImp.getState pExt.toEnvExtension aconst.exts.get
-        guard s.async *> some s.state
+      let states := env.asyncConsts.toArray.filterMap fun aconst => do
+        let exts ← aconst.exts?
+        let s := EnvExtensionInterfaceImp.getState pExt.toEnvExtension exts.get
+        guard s.async
+        return s.state
       let states := states.push (pExt.getState env)
       (pExt.name, fn states)
   let kenv := env.toKernelEnvNoAsync

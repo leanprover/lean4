@@ -13,9 +13,9 @@ theorem Option_map.eq_2.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α
 
 /--
 info: Option_map.eq_def.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → β) :
-  ∀ (x : Option α),
-    Option_map f x =
-      match x with
+  ∀ (x✝ : Option α),
+    Option_map f x✝ =
+      match x✝ with
       | none => none
       | some x => some (f x)
 -/

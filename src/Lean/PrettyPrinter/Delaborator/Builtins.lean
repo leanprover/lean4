@@ -898,7 +898,7 @@ Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
 See issue #1571
 -/
 private partial def delabForallBinders (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
-  let dep := !(← getExpr).isArrow
+  let dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
   if !curNames.isEmpty && dep != curDep then
     -- don't group
     delabGroup curNames curDep (← delab)
@@ -926,7 +926,7 @@ def delabForall : Delab := do
     | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back : $stxT])
     | _                         =>
       -- NOTE: non-dependent arrows are available only for the default binder info
-      if dependent || (← getOptionsAtCurrPos).get ppPiBinderNames false then
+      if dependent then
         if prop && !(← getPPOption getPPPiBinderTypes) then
           return ← `(∀ $curNames:ident*, $stxBody)
         else

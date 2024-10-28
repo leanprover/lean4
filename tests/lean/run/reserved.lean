@@ -41,9 +41,9 @@ def nonrecfun : Bool → Nat
 
 /--
 info: nonrecfun.eq_def :
-  ∀ (x : Bool),
-    nonrecfun x =
-      match x with
+  ∀ (x✝ : Bool),
+    nonrecfun x✝ =
+      match x✝ with
       | false => 0
       | true => 0
 -/
@@ -64,9 +64,9 @@ def fact : Nat → Nat
 
 /--
 info: fact.eq_def :
-  ∀ (x : Nat),
-    fact x =
-      match x with
+  ∀ (x✝ : Nat),
+    fact x✝ =
+      match x✝ with
       | 0 => 1
       | n.succ => (n + 1) * fact n
 -/

@@ -15,9 +15,9 @@ theorem foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 
 /--
 info: foo.eq_def :
-  ∀ (x x_1 : Nat),
-    foo x x_1 =
-      match x, x_1 with
+  ∀ (x✝ x✝¹ : Nat),
+    foo x✝ x✝¹ =
+      match x✝, x✝¹ with
       | 0, m =>
         match m with
         | 0 => 0
@@ -52,9 +52,9 @@ theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 
 /--
 info: bar.eq_def :
-  ∀ (x x_1 : Nat),
-    bar x x_1 =
-      match x, x_1 with
+  ∀ (x✝ x✝¹ : Nat),
+    bar x✝ x✝¹ =
+      match x✝, x✝¹ with
       | 0, m =>
         match m with
         | 0 => 0
@@ -84,9 +84,9 @@ theorem Structural.foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 
 /--
 info: Structural.foo.eq_def :
-  ∀ (x x_1 : Nat),
-    foo x x_1 =
-      match x, x_1 with
+  ∀ (x✝ x✝¹ : Nat),
+    foo x✝ x✝¹ =
+      match x✝, x✝¹ with
       | 0, m =>
         match m with
         | 0 => 0
@@ -121,9 +121,9 @@ theorem Structural.bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 
 /--
 info: Structural.bar.eq_def :
-  ∀ (x x_1 : Nat),
-    bar x x_1 =
-      match x, x_1 with
+  ∀ (x✝ x✝¹ : Nat),
+    bar x✝ x✝¹ =
+      match x✝, x✝¹ with
       | 0, m =>
         match m with
         | 0 => 0

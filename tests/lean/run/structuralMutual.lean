@@ -631,7 +631,7 @@ namespace FunIndTests
 info: A.size.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
   (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
   (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
-  (case6 : motive_2 B.empty) : ∀ (a : A), motive_1 a
+  (case6 : motive_2 B.empty) : ∀ (a✝ : A), motive_1 a✝
 -/
 #guard_msgs in
 #check A.size.induct
@@ -649,7 +649,7 @@ info: A.subs.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀
 info: MutualIndNonMutualFun.A.self_size.induct (motive : MutualIndNonMutualFun.A → Prop)
   (case1 : ∀ (a : MutualIndNonMutualFun.A), motive a → motive a.self)
   (case2 : ∀ (a : MutualIndNonMutualFun.B), motive (MutualIndNonMutualFun.A.other a))
-  (case3 : motive MutualIndNonMutualFun.A.empty) : ∀ (a : MutualIndNonMutualFun.A), motive a
+  (case3 : motive MutualIndNonMutualFun.A.empty) : ∀ (a✝ : MutualIndNonMutualFun.A), motive a✝
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size.induct
@@ -659,7 +659,7 @@ info: MutualIndNonMutualFun.A.self_size_with_param.induct (motive : Nat → Mutu
   (case1 : ∀ (n : Nat) (a : MutualIndNonMutualFun.A), motive n a → motive n a.self)
   (case2 : ∀ (x : Nat) (a : MutualIndNonMutualFun.B), motive x (MutualIndNonMutualFun.A.other a))
   (case3 : ∀ (x : Nat), motive x MutualIndNonMutualFun.A.empty) :
-  ∀ (a : Nat) (a_1 : MutualIndNonMutualFun.A), motive a a_1
+  ∀ (a✝ : Nat) (a✝¹ : MutualIndNonMutualFun.A), motive a✝ a✝¹
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size_with_param.induct
@@ -668,7 +668,7 @@ info: MutualIndNonMutualFun.A.self_size_with_param.induct (motive : Nat → Mutu
 info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
   (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
   (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
-  (case6 : motive_2 B.empty) : ∀ (a : A), motive_1 a
+  (case6 : motive_2 B.empty) : ∀ (a✝ : A), motive_1 a✝
 -/
 #guard_msgs in
 #check A.hasNoBEmpty.induct
@@ -676,7 +676,7 @@ info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case
 /--
 info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1 0)
   (case2 : ∀ (n : Nat), motive_2 n → motive_1 n.succ) (case3 : motive_2 0)
-  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) : ∀ (a : Nat), motive_1 a
+  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) : ∀ (a✝ : Nat), motive_1 a✝
 -/
 #guard_msgs in
 #check EvenOdd.isEven.induct

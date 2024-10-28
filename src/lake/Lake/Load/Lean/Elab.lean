@@ -55,7 +55,7 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let input ← IO.FS.readFile configFile
   let inputCtx := Parser.mkInputContext input configFile.toString
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header leanOpts inputCtx messages
+  let (env, messages) ← processHeader header leanOpts inputCtx |>.run messages
   let env := env.setMainModule configModuleName
 
   -- Configure extensions

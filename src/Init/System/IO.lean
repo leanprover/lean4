@@ -802,8 +802,11 @@ def run (args : SpawnArgs) : IO String := do
 
 end Process
 
-/-- Returns the thread ID of the calling thread. -/
-@[extern "lean_io_get_tid"] opaque getTID : BaseIO UInt32
+/--
+Returns an ID identifying the current thread. May not be identical to the operating system's thread
+id.
+-/
+@[extern "lean_io_get_thread_id"] opaque getLeanThreadID : BaseIO UInt64
 
 structure AccessRight where
   read : Bool := false

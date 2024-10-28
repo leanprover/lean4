@@ -434,7 +434,7 @@ which is reported in the returned snapshot.
 -/
 def runAsyncAsSnapshot (act : TermElabM Unit) (desc := "") : TermElabM (Task Language.SnapshotTree) := do
   let t ← runAsync do
-    let tid ← IO.getTID
+    let tid ← IO.getLeanThreadID
     modifyTraceState fun _ => { tid }
     try
       withTraceNode `Elab.async (fun _ => return desc) do

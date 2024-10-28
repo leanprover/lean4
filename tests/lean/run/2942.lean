@@ -3,7 +3,7 @@
 -/
 
 /-!
-The function `id` is "over-applied". Previously, conv-mode `congr` failed.
+The function `g` is "over-applied". Previously, conv-mode `congr` failed.
 -/
 /--
 info: case a

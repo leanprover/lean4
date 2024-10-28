@@ -268,9 +268,27 @@ uint64 mpz::mod64() const {
 }
 
 int8 mpz::smod8() const {
-    mpz a;
-    mpz_tdiv_r_2exp(a.m_val, m_val, 8);
-    return static_cast<int8>(a.get_int());
+    int8 val = mod8();
+    val = val * sgn();
+    return val;
+}
+
+int16 mpz::smod16() const {
+    int16 val = mod16();
+    val = val * sgn();
+    return val;
+}
+
+int32 mpz::smod32() const {
+    int32 val = mod32();
+    val = val * sgn();
+    return val;
+}
+
+int64 mpz::smod64() const {
+    int64 val = mod64();
+    val = val * sgn();
+    return val;
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {
@@ -972,6 +990,30 @@ uint64 mpz::mod64() const {
 
 int8 mpz::smod8() const {
     int8_t val = mod8();
+    if (m_sign) {
+        val = -val;
+    }
+    return val;
+}
+
+int16 mpz::smod16() const {
+    int16_t val = mod16();
+    if (m_sign) {
+        val = -val;
+    }
+    return val;
+}
+
+int32 mpz::smod32() const {
+    int32_t val = mod32();
+    if (m_sign) {
+        val = -val;
+    }
+    return val;
+}
+
+int64 mpz::smod64() const {
+    int64_t val = mod64();
     if (m_sign) {
         val = -val;
     }

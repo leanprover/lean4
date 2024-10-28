@@ -888,9 +888,9 @@ def delabLam : Delab :=
         `(fun $binders* => $stxBody)
 
 /-- Don't do any renaming for forall binders. -/
-def ppPiPreserveNames := `pp.piPreserveNames
+private def ppPiPreserveNames := `pp.piPreserveNames
 /-- Causes non-dependent foralls to print with binder names. -/
-def ppPiBinderNames := `pp.piBinderNames
+private def ppPiBinderNames := `pp.piBinderNames
 
 /--
 Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
@@ -898,6 +898,7 @@ Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
 See issue #1571
 -/
 private partial def delabForallBinders (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
+  -- Logic note: wanting to print with binder names is equivalent to pretending the forall is dependent.
   let dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
   if !curNames.isEmpty && dep != curDep then
     -- don't group

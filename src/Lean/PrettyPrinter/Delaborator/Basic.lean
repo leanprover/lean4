@@ -264,12 +264,15 @@ The binding variable is passed to `d` as `Syntax`, and it is an identifier that 
 for the variable.
 
 If `preserveName` is `false` (the default), then gives the binder an unused name.
-Otherwise, it preserves the binder name (contrary to the name of this function).
+Otherwise, it preserves the binder name but with fresh macro scopes.
 -/
 def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) : DelabM α := do
-  let mut n := (← getExpr).bindingName!
-  unless preserveName do
-    n ← getUnusedName n (← getExpr).bindingBody!
+  let n := (← getExpr).bindingName!
+  let n ←
+    if preserveName then
+      withFreshMacroScope <| MonadQuotation.addMacroScope n.eraseMacroScopes
+    else
+      getUnusedName n (← getExpr).bindingBody!
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason

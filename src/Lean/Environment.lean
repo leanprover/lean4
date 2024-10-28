@@ -894,7 +894,7 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (a
     { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)  (allowAsync := false) : Environment :=
-  if env.asyncCtx?.any (!·.declPrefix.isAnonymous) && !allowAsync then
+  if !allowAsync && env.asyncCtx?.any (!·.declPrefix.isAnonymous) then
     let _ : Inhabited Environment := ⟨env⟩
     panic! s!"cannot set state of environment extension in an async context"
   else
@@ -1302,7 +1302,8 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
-        env := extDescrs[entryIdx]!.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.set! modIdx entries }
+        -- setting `allowAsync` avoids a sanity check which will always pass in this tight loop but has noticeable overhead
+        env := extDescrs[entryIdx]!.toEnvExtension.modifyState (allowAsync := true) env fun s => { s with importedEntries := s.importedEntries.set! modIdx entries }
   return env
 
 /--

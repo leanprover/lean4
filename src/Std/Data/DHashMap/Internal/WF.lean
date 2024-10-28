@@ -59,17 +59,24 @@ theorem isEmpty_eq_isEmpty [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp
   rw [Raw.isEmpty, Bool.eq_iff_iff, List.isEmpty_iff_length_eq_zero, size_eq_length h,
     Nat.beq_eq_true_eq]
 
+theorem AssocList.foldlM_apply {l : AssocList α β} {acc : List γ} (f : (a : α) → β a → γ) :
+    l.foldlM (m := Id) (fun acc k v => f k v :: acc) acc =
+      (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
+  induction l generalizing acc <;> simp_all [AssocList.foldlM]
+
+theorem AssocList.foldlM_cons {l : AssocList α β} {acc : List ((a : α) × β a)} :
+    l.foldlM (m := Id) (fun acc k v => ⟨k, v⟩ :: acc) acc = l.toList.reverse ++ acc := by
+  simp [AssocList.foldlM_apply]
+
+theorem AssocList.foldlM_cons_key {l : AssocList α β} {acc : List α} :
+    l.foldlM (m := Id) (fun acc k _ => k :: acc) acc = (List.keys l.toList).reverse ++ acc := by
+  rw [AssocList.foldlM_apply, keys_eq_map]
+
 -- TODO (Markus): clean up
 theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
   rw [Raw.toList, toListModel, List.flatMap_eq_foldl, Raw.fold, Raw.foldM,
     Array.foldlM_eq_foldlM_toList, ← List.foldl_eq_foldlM, Id.run]
-  have h₁ : ∀ {l : AssocList α β} {acc : List (Σ a, β a)},
-      l.foldlM (m := Id) (fun acc k v => ⟨k, v⟩ :: acc) acc = l.toList.reverse ++ acc := by
-    intro l acc
-    induction l generalizing acc
-    · simp [AssocList.foldlM]
-    · simp_all [AssocList.foldlM]
-  simp only [h₁]
+  simp only [AssocList.foldlM_cons]
   suffices ∀ (l : List (AssocList α β)) (l₁ l₂), Perm l₁ l₂ →
       Perm (l.foldl (fun acc m => m.toList.reverse ++ acc) l₁)
         (l.foldl (fun acc m => acc ++ m.toList) l₂) by
@@ -97,16 +104,10 @@ theorem keys_perm_keys_toListModel {m : Raw α β} :
         (fun acc l => AssocList.foldlM (m := Id) (fun acc k v => ⟨k, v⟩ :: acc) acc l) l' l) from
     this [] ▸ Perm.refl _
   intro l'
+  simp [AssocList.foldlM_cons, AssocList.foldlM_cons_key]
   induction l generalizing l' with
   | nil => simp
-  | cons h t ih =>
-    rw [foldl_cons, foldl_cons, ← ih]
-    congr
-    induction h generalizing l' with
-    | nil => simp [AssocList.foldlM]
-    | cons k v t' ih' =>
-      simp only [AssocList.foldlM, Id.bind_eq]
-      rw [← ih', map_cons]
+  | cons h t ih => simp [List.keys_eq_map, ← ih]
 
 theorem length_keys_eq_length_keys {m : Raw α β} :
     m.keys.length = (List.keys (toListModel m.buckets)).length :=

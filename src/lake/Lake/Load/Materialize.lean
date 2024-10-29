@@ -20,7 +20,9 @@ or resolve a local path dependency.
 namespace Lake
 
 /-- Update the Git package in `repo` to `rev` if not already at it. -/
-def updateGitPkg (name : String) (repo : GitRepo) (rev? : Option String) : LogIO PUnit := do
+def updateGitPkg
+  (name : String) (repo : GitRepo) (rev? : Option String)
+: LogIO PUnit := do
   let rev ← repo.findRemoteRevision rev?
   if (← repo.getHeadRevision) = rev then
     if (← repo.hasDiff) then
@@ -30,8 +32,9 @@ def updateGitPkg (name : String) (repo : GitRepo) (rev? : Option String) : LogIO
     repo.checkoutDetach rev
 
 /-- Clone the Git package as `repo`. -/
-def cloneGitPkg (name : String) (repo : GitRepo)
-(url : String) (rev? : Option String) : LogIO PUnit := do
+def cloneGitPkg
+  (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
+: LogIO PUnit := do
   logInfo s!"{name}: cloning {url}"
   repo.clone url
   if let some rev := rev? then
@@ -44,8 +47,9 @@ Update the Git repository from `url` in `repo` to `rev?`.
 If `repo` is already from `url`, just checkout the new revision.
 Otherwise, delete the local repository and clone a fresh copy from `url`.
 -/
-def updateGitRepo (name : String) (repo : GitRepo)
-(url : String) (rev? : Option String) : LogIO Unit := do
+def updateGitRepo
+  (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
+: LogIO Unit := do
   let sameUrl ← EIO.catchExceptions (h := fun _ => pure false) <| show IO Bool from do
     let some remoteUrl ← repo.getRemoteUrl? | return false
     if remoteUrl = url then return true
@@ -66,8 +70,9 @@ def updateGitRepo (name : String) (repo : GitRepo)
 Materialize the Git repository from `url` into `repo` at `rev?`.
 Clone it if no local copy exists, otherwise update it.
 -/
-def materializeGitRepo (name : String) (repo : GitRepo)
-(url : String) (rev? : Option String) : LogIO Unit := do
+def materializeGitRepo
+  (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
+: LogIO Unit := do
   if (← repo.dirExists) then
     updateGitRepo name repo url rev?
   else

@@ -2944,6 +2944,14 @@ theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
   have := @Nat.two_pow_pred_mul_two w (by omega)
   split <;> split <;> omega
 
+theorem getMsbD_intMin {w i : Nat} :
+    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
+  simp only [getMsbD, getLsbD_intMin]
+  match w, i with
+  | 0,   _    => simp
+  | w+1, 0    => simp
+  | w+1, i+1  => simp; omega
+
 /-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/

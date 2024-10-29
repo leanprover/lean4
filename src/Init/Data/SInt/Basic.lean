@@ -161,6 +161,10 @@ abbrev Nat.toInt16 := Int16.ofNat
 @[extern "lean_int16_to_int"]
 def Int16.toInt (i : Int16) : Int := i.toBitVec.toInt
 @[inline] def Int16.toNat (i : Int16) : Nat := i.toInt.toNat
+@[extern "lean_int16_to_int8"]
+def Int16.toInt8 (a : Int16) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
+@[extern "lean_int8_to_int16"]
+def Int8.toInt16 (a : Int8) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
 @[extern "lean_int16_neg"]
 def Int16.neg (i : Int16) : Int16 := ⟨⟨-i.toBitVec⟩⟩
 
@@ -254,6 +258,14 @@ abbrev Nat.toInt32 := Int32.ofNat
 @[extern "lean_int32_to_int"]
 def Int32.toInt (i : Int32) : Int := i.toBitVec.toInt
 @[inline] def Int32.toNat (i : Int32) : Nat := i.toInt.toNat
+@[extern "lean_int32_to_int8"]
+def Int32.toInt8 (a : Int32) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
+@[extern "lean_int32_to_int16"]
+def Int32.toInt16 (a : Int32) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
+@[extern "lean_int8_to_int32"]
+def Int8.toInt32 (a : Int8) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
+@[extern "lean_int16_to_int32"]
+def Int16.toInt32 (a : Int16) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
 @[extern "lean_int32_neg"]
 def Int32.neg (i : Int32) : Int32 := ⟨⟨-i.toBitVec⟩⟩
 
@@ -347,6 +359,18 @@ abbrev Nat.toInt64 := Int64.ofNat
 @[extern "lean_int64_to_int_sint"]
 def Int64.toInt (i : Int64) : Int := i.toBitVec.toInt
 @[inline] def Int64.toNat (i : Int64) : Nat := i.toInt.toNat
+@[extern "lean_int64_to_int8"]
+def Int64.toInt8 (a : Int64) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
+@[extern "lean_int64_to_int16"]
+def Int64.toInt16 (a : Int64) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
+@[extern "lean_int64_to_int32"]
+def Int64.toInt32 (a : Int64) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
+@[extern "lean_int8_to_int64"]
+def Int8.toInt64 (a : Int8) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
+@[extern "lean_int16_to_int64"]
+def Int16.toInt64 (a : Int16) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
+@[extern "lean_int32_to_int64"]
+def Int32.toInt64 (a : Int32) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
 @[extern "lean_int64_neg"]
 def Int64.neg (i : Int64) : Int64 := ⟨⟨-i.toBitVec⟩⟩
 

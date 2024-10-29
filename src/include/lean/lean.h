@@ -1651,7 +1651,7 @@ static inline uint8_t lean_uint8_dec_lt(uint8_t a1, uint8_t a2) { return a1 < a2
 static inline uint8_t lean_uint8_dec_le(uint8_t a1, uint8_t a2) { return a1 <= a2; }
 
 
-/* Unit8 -> other */
+/* UInt8 -> other */
 static inline uint16_t lean_uint8_to_uint16(uint8_t a) { return ((uint16_t)a); }
 static inline uint32_t lean_uint8_to_uint32(uint8_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_uint8_to_uint64(uint8_t a) { return ((uint64_t)a); }
@@ -1686,7 +1686,7 @@ static inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 =
 static inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <= a2; }
 
-/*uint16 -> other */
+/* UInt16 -> other */
 static inline uint8_t lean_uint16_to_uint8(uint16_t a) { return ((uint8_t)a); }
 static inline uint32_t lean_uint16_to_uint32(uint16_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_uint16_to_uint64(uint16_t a) { return ((uint64_t)a); }
@@ -1721,7 +1721,7 @@ static inline uint8_t lean_uint32_dec_eq(uint32_t a1, uint32_t a2) { return a1 =
 static inline uint8_t lean_uint32_dec_lt(uint32_t a1, uint32_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint32_dec_le(uint32_t a1, uint32_t a2) { return a1 <= a2; }
 
-/* uint32 -> other */
+/* UInt32 -> other */
 static inline uint8_t lean_uint32_to_uint8(uint32_t a) { return ((uint8_t)a); }
 static inline uint16_t lean_uint32_to_uint16(uint32_t a) { return ((uint16_t)a); }
 static inline uint64_t lean_uint32_to_uint64(uint32_t a) { return ((uint64_t)a); }
@@ -1759,7 +1759,7 @@ static inline uint8_t lean_uint64_dec_le(uint64_t a1, uint64_t a2) { return a1 <
 LEAN_EXPORT uint64_t lean_uint64_mix_hash(uint64_t a1, uint64_t a2);
 
 
-/* uint64 -> other */
+/* UInt64 -> other */
 static inline uint8_t lean_uint64_to_uint8(uint64_t a) { return ((uint8_t)a); }
 static inline uint16_t lean_uint64_to_uint16(uint64_t a) { return ((uint16_t)a); }
 static inline uint32_t lean_uint64_to_uint32(uint64_t a) { return ((uint32_t)a); }
@@ -1934,6 +1934,11 @@ static inline uint8_t lean_int8_dec_le(uint8_t a1, uint8_t a2) {
     return lhs <= rhs;
 }
 
+/* Int8 -> other */
+static inline uint16_t lean_int8_to_int16(uint8_t a) { return (uint16_t)(int16_t)(int8_t)a; }
+static inline uint32_t lean_int8_to_int32(uint8_t a) { return (uint32_t)(int32_t)(int8_t)a; }
+static inline uint64_t lean_int8_to_int64(uint8_t a) { return (uint64_t)(int64_t)(int8_t)a; }
+
 
 /* Int16 */
 LEAN_EXPORT int16_t lean_int16_of_big_int(b_lean_obj_arg a);
@@ -2057,6 +2062,11 @@ static inline uint8_t lean_int16_dec_le(uint16_t a1, uint16_t a2) {
     return lhs <= rhs;
 }
 
+/* Int16 -> other */
+static inline uint8_t lean_int16_to_int8(uint16_t a) { return (uint8_t)(int8_t)(int16_t)a; }
+static inline uint32_t lean_int16_to_int32(uint16_t a) { return (uint32_t)(int32_t)(int16_t)a; }
+static inline uint64_t lean_int16_to_int64(uint16_t a) { return (uint64_t)(int64_t)(int16_t)a; }
+
 /* Int32 */
 LEAN_EXPORT int32_t lean_int32_of_big_int(b_lean_obj_arg a);
 static inline uint32_t lean_int32_of_int(b_lean_obj_arg a) {
@@ -2179,6 +2189,11 @@ static inline uint8_t lean_int32_dec_le(uint32_t a1, uint32_t a2) {
     return lhs <= rhs;
 }
 
+/* Int32 -> other */
+static inline uint8_t lean_int32_to_int8(uint32_t a) { return (uint8_t)(int8_t)(int32_t)a; }
+static inline uint16_t lean_int32_to_int16(uint32_t a) { return (uint16_t)(int16_t)(int32_t)a; }
+static inline uint64_t lean_int32_to_int64(uint32_t a) { return (uint64_t)(int64_t)(int32_t)a; }
+
 /* Int64 */
 LEAN_EXPORT int64_t lean_int64_of_big_int(b_lean_obj_arg a);
 static inline uint64_t lean_int64_of_int(b_lean_obj_arg a) {
@@ -2300,6 +2315,11 @@ static inline uint8_t lean_int64_dec_le(uint64_t a1, uint64_t a2) {
 
     return lhs <= rhs;
 }
+
+/* UInt64 -> other */
+static inline uint8_t lean_int64_to_int8(uint64_t a) { return (uint8_t)(int8_t)(int64_t)a; }
+static inline uint16_t lean_int64_to_int16(uint64_t a) { return (uint16_t)(int16_t)(int64_t)a; }
+static inline uint32_t lean_int64_to_int32(uint64_t a) { return (uint32_t)(int32_t)(int64_t)a; }
 
 /* Float */
 

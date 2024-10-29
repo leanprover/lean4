@@ -24,12 +24,12 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
         Attribute.add declName simprocAttrName stx attrKind
       else
         let go : MetaM Unit := do
-          let info ← getConstInfo declName
+          let info ← getAsyncConstInfo declName
           let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
           let prio ← getAttrParamOptPrio stx[2]
-          if (← isProp info.type) then
+          if (← isProp info.sig.get.type) then
             addSimpTheorem ext declName post (inv := false) attrKind prio
-          else if info.hasValue then
+          else if info.kind matches .defn then
             if (← SimpTheorems.ignoreEquations declName) then
               ext.add (SimpEntry.toUnfold declName) attrKind
             else if let some eqns ← getEqnsFor? declName then

@@ -95,6 +95,11 @@ def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Con
   | some val => pure val
   | none     => throwError "unknown constant '{mkConst constName}'"
 
+def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m AsyncConstantInfo := do
+  match (← getEnv).findAsync? constName with
+  | some val => pure val
+  | none     => throwError "unknown constant '{mkConst constName}'"
+
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)

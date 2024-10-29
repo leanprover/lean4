@@ -1,5 +1,6 @@
-struct1.lean:9:14-9:17: error: expected Type
+struct1.lean:9:14-9:17: error: invalid structure type, expecting 'Type _' or 'Prop'
 struct1.lean:12:20-12:29: error: expected structure
+struct1.lean:15:28-15:34: warning: duplicate parent structure 'A'
 struct1.lean:15:28-15:34: warning: field 'x' from 'A' has already been declared
 struct1.lean:15:28-15:34: error: parent field type mismatch, field 'x' from parent 'A' has type
   Bool : Type

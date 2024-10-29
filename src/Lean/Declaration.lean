@@ -472,6 +472,10 @@ def isInductive : ConstantInfo → Bool
   | inductInfo _ => true
   | _            => false
 
+def isTheorem : ConstantInfo → Bool
+  | thmInfo _ => true
+  | _         => false
+
 def inductiveVal! : ConstantInfo → InductiveVal
   | .inductInfo val => val
   | _ => panic! "Expected a `ConstantInfo.inductInfo`."

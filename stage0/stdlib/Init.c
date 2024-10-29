@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init
-// Imports: Init.Prelude Init.Notation Init.Tactics Init.TacticsExtra Init.ByCases Init.RCases Init.Core Init.Control Init.Data.Basic Init.WF Init.WFTactics Init.Data Init.System Init.Util Init.Dynamic Init.ShareCommon Init.MetaTypes Init.Meta Init.NotationExtra Init.SimpLemmas Init.PropLemmas Init.Hints Init.Conv Init.Guard Init.Simproc Init.SizeOfLemmas Init.BinderPredicates Init.Ext Init.Omega Init.MacroTrace Init.Grind
+// Imports: Init.Prelude Init.Notation Init.Tactics Init.TacticsExtra Init.ByCases Init.RCases Init.Core Init.Control Init.Data.Basic Init.WF Init.WFTactics Init.Data Init.System Init.Util Init.Dynamic Init.ShareCommon Init.MetaTypes Init.Meta Init.NotationExtra Init.SimpLemmas Init.PropLemmas Init.Hints Init.Conv Init.Guard Init.Simproc Init.SizeOfLemmas Init.BinderPredicates Init.Ext Init.Omega Init.MacroTrace Init.Grind Init.While
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,6 +44,7 @@ lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_MacroTrace(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_While(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -140,6 +141,9 @@ res = initialize_Init_MacroTrace(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

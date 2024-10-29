@@ -51,7 +51,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
       addDocString' declName docStr?
-      addAuxDeclarationRanges declName decl declId
+      addDeclarationRangesFromSyntax declName decl declId
       let binders := decl[1].getArgs
       let typeStx := expandOptType declId decl[2]
       let (type, binderIds) ← elabBindersEx binders fun xs => do

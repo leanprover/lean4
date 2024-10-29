@@ -128,6 +128,8 @@ builtin_simproc [bv_normalize] bv_add_const' (((_ : BitVec _) + (_ : BitVec _)) 
       else
         return .continue
 
+attribute [builtin_bv_normalize_proc↓] reduceIte
+
 /--
 A pass in the normalization pipeline. Takes the current goal and produces a refined one or closes
 the goal fully, indicated by returning `none`.

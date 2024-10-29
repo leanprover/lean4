@@ -767,9 +767,6 @@ where
 
 namespace Trie
 
--- `Inhabited` instance to allow `partial` definitions below.
-private local instance [Monad m] : Inhabited (σ → β → m σ) := ⟨fun s _ => pure s⟩
-
 /--
 Monadically fold the keys and values stored in a `Trie`.
 -/

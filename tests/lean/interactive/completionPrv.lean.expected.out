@@ -31,7 +31,7 @@
     "id": {"const": {"declName": "instToBoolBool"}}}},
   {"sortText": "2",
    "label": "BitVec.getElem_ofBoolListBE",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
@@ -39,7 +39,7 @@
     "id": {"const": {"declName": "BitVec.getElem_ofBoolListBE"}}}},
   {"sortText": "3",
    "label": "BitVec.getLsbD_ofBoolListBE",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
@@ -47,7 +47,7 @@
     "id": {"const": {"declName": "BitVec.getLsbD_ofBoolListBE"}}}},
   {"sortText": "4",
    "label": "BitVec.getMsbD_ofBoolListBE",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
@@ -55,7 +55,7 @@
     "id": {"const": {"declName": "BitVec.getMsbD_ofBoolListBE"}}}},
   {"sortText": "5",
    "label": "BitVec.ofBool_and_ofBool",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
@@ -63,7 +63,7 @@
     "id": {"const": {"declName": "BitVec.ofBool_and_ofBool"}}}},
   {"sortText": "6",
    "label": "BitVec.ofBool_or_ofBool",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
@@ -71,7 +71,7 @@
     "id": {"const": {"declName": "BitVec.ofBool_or_ofBool"}}}},
   {"sortText": "7",
    "label": "BitVec.ofBool_xor_ofBool",
-   "kind": 3,
+   "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},

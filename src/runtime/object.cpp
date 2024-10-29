@@ -1536,11 +1536,11 @@ extern "C" LEAN_EXPORT bool lean_int_big_nonneg(object * a) {
 // UInt
 
 extern "C" LEAN_EXPORT uint8 lean_uint8_of_big_nat(b_obj_arg a) {
-    return static_cast<uint8>(mpz_value(a).mod8());
+    return mpz_value(a).mod8();
 }
 
 extern "C" LEAN_EXPORT uint16 lean_uint16_of_big_nat(b_obj_arg a) {
-    return static_cast<uint16>(mpz_value(a).mod16());
+    return mpz_value(a).mod16();
 }
 
 extern "C" LEAN_EXPORT uint32 lean_uint32_of_big_nat(b_obj_arg a) {
@@ -1572,6 +1572,13 @@ extern "C" LEAN_EXPORT usize lean_usize_of_big_nat(b_obj_arg a) {
 extern "C" LEAN_EXPORT usize lean_usize_big_modn(usize a1, b_lean_obj_arg) {
     // TODO(Leo)
     return a1;
+}
+
+// =======================================
+// IntX
+
+extern "C" LEAN_EXPORT int8 lean_int8_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod8();
 }
 
 // =======================================

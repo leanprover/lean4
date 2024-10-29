@@ -495,7 +495,7 @@ macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
     `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
-/-- `rwa` calls `rw`, then closes any remaining goals using `assumption`. -/
+/-- `rwa` is short-hand for `rw; assumption`. -/
 macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
   `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
 
@@ -1490,6 +1490,11 @@ have been simplified by using the modifier `↓`. Here is an example
 @[simp↓] theorem not_and_eq (p q : Prop) : (¬ (p ∧ q)) = (¬p ∨ ¬q) :=
 ```
 
+You can instruct the simplifier to rewrite the lemma from right-to-left:
+```lean
+attribute @[simp ←] and_assoc
+```
+
 When multiple simp theorems are applicable, the simplifier uses the one with highest priority.
 The equational theorems of function are applied at very low priority (100 and below).
 If there are several with the same priority, it is uses the "most recent one". Example:
@@ -1501,7 +1506,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `grind_norm` attribute are used by the `grind` tactic normalizer/pre-processor.

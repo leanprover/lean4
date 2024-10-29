@@ -5,8 +5,23 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.AppBuilder
+import Lean.PrettyPrinter
 namespace Lean.Elab
 open Meta
+
+private def withInhabitedInstances (xs : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
+  let rec go (i : Nat) (insts : Array Expr) : MetaM α := do
+    if h : i < xs.size then
+      let x := xs[i]
+      let xTy ← inferType x
+      let u ← getLevel xTy
+      let instTy := mkApp (.const ``Inhabited [u]) xTy
+      let instVal := mkApp2 (.const ``Inhabited.mk [u]) xTy x
+      withLetDecl `inst instTy instVal fun inst =>
+        go (i + 1) (insts.push inst)
+    else
+      k insts
+  go 0 #[]
 
 private def mkInhabitant? (type : Expr) (useOfNonempty : Bool) : MetaM (Option Expr) := do
   try
@@ -17,36 +32,41 @@ private def mkInhabitant? (type : Expr) (useOfNonempty : Bool) : MetaM (Option E
   catch _ =>
     return none
 
-private def findAssumption? (xs : Array Expr) (type : Expr) : MetaM (Option Expr) := do
-  xs.findM? fun x => do isDefEq (← inferType x) type
-
-private def mkFnInhabitant? (xs : Array Expr) (type : Expr) (useOfNonempty : Bool) : MetaM (Option Expr) :=
-  let rec loop
-    | 0,   type => mkInhabitant? type useOfNonempty
-    | i+1, type => do
-      let x := xs[i]!
-      let type ← mkForallFVars #[x] type;
-      match (← mkInhabitant? type useOfNonempty) with
-      | none     => loop i type
-      | some val => return some (← mkLambdaFVars xs[0:i] val)
-  loop xs.size type
+/--
+Find an inhabitant while doing delta unfolding.
+-/
+private partial def mkInhabitantForAux? (xs insts : Array Expr) (type : Expr) (useOfNonempty : Bool) : MetaM (Option Expr) := withIncRecDepth do
+  if let some val ← mkInhabitant? type useOfNonempty then
+    mkLambdaFVars xs (← mkLetFVars (usedLetOnly := true) insts val)
+  else
+    let type ← whnfCore type
+    if type.isForall then
+      forallTelescope type fun xs' type' =>
+        withInhabitedInstances xs' fun insts' =>
+          mkInhabitantForAux? (xs ++ xs') (insts ++ insts') type' useOfNonempty
+    else if let some type' ← unfoldDefinition? type then
+      mkInhabitantForAux? xs insts type' useOfNonempty
+    else
+      return none
 
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
-def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr := do
-  let go? (useOfNonempty : Bool) : MetaM (Option Expr) := do
-    match (← mkInhabitant? type useOfNonempty) with
-    | some val => mkLambdaFVars xs val
-    | none     =>
-    match (← findAssumption? xs type) with
-    | some x => mkLambdaFVars xs x
-    | none   =>
-    match (← mkFnInhabitant? xs type useOfNonempty) with
-    | some val => return val
-    | none     => return none
-  match (← go? false) with
-  | some val => return val
-  | none     => match (← go? true) with
-    | some val => return val
-    | none     => throwError "failed to compile partial definition '{declName}', failed to show that type is inhabited and non empty"
+def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr :=
+  withInhabitedInstances xs fun insts => do
+    if let some val ← mkInhabitantForAux? xs insts type false <||> mkInhabitantForAux? xs insts type true then
+      return val
+    else
+      throwError "\
+        failed to compile 'partial' definition '{declName}', could not prove that the type\
+        {indentExpr (← mkForallFVars xs type)}\n\
+        is nonempty.\n\
+        \n\
+        This process uses multiple strategies:\n\
+        - It looks for a parameter that matches the return type.\n\
+        - It tries synthesizing '{.ofConstName ``Inhabited}' and '{.ofConstName ``Nonempty}' \
+          instances for the return type, while making every parameter into a local '{.ofConstName ``Inhabited}' instance.\n\
+        - It tries unfolding the return type.\n\
+        \n\
+        If the return type is defined using the 'structure' or 'inductive' command, \
+        you can try adding a 'deriving Nonempty' clause to it."
 
 end Lean.Elab

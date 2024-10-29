@@ -266,15 +266,16 @@ private def getOptRotation (stx : Syntax) : Nat :=
   for mvarId in mvarIds do
     unless (← mvarId.isAssigned) do
       setGoals [mvarId]
-      try
-        evalTactic stx[1]
-        mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
-      catch ex =>
-        if (← read).recover then
-          logException ex
-          mvarIdsNew := mvarIdsNew.push mvarId
-        else
-          throw ex
+      mvarIdsNew ← Tactic.tryCatch
+        (do
+          evalTactic stx[1]
+          return mvarIdsNew ++ (← getUnsolvedGoals))
+        (fun ex => do
+          if (← read).recover then
+            logException ex
+            return mvarIdsNew.push mvarId
+          else
+            throw ex)
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do

@@ -96,7 +96,7 @@ jobs:
           nix build $NIX_BUILD_ARGS .#cacheRoots -o push-build
       - name: Test
         run: |
-          nix build --keep-failed $NIX_BUILD_ARGS .#test -o push-test || (ln -s /tmp/nix-build-*/source/src/build/ ./push-test; false)
+          nix build --keep-failed $NIX_BUILD_ARGS .#test -o push-test || (ln -s /tmp/nix-build-*/build/source/src/build ./push-test; false)
       - name: Test Summary
         uses: test-summary/action@v2
         with:

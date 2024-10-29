@@ -22,6 +22,7 @@ fi
 # a@1/init
 $LAKE new a lib.lean
 pushd a
+git init
 git checkout -b master
 git add .
 git config user.name test
@@ -33,6 +34,7 @@ popd
 # b@1: require a@master, manifest a@1
 $LAKE new b lib.lean
 pushd b
+git init
 git checkout -b master
 cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
@@ -54,6 +56,7 @@ popd
 # c@1: require a@master, manifest a@2
 $LAKE new c lib.lean
 pushd c
+git init
 git checkout -b master
 cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
@@ -69,6 +72,7 @@ popd
 # d@1: require b@master c@master => a, manifest a@1 b@1 c@1
 $LAKE new d lib.lean
 pushd d
+git init
 git checkout -b master
 cat >>lakefile.lean <<EOF
 require b from git "../b" @ "master"

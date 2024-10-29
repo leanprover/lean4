@@ -129,13 +129,20 @@ $LAKE update a -v
 git commit -am 'second commit in b'
 popd
 pushd a
-# a@4
+# a@4/main
 sed_i 's/third commit/fourth commit/' A.lean
 git commit -am 'fourth commit in a'
+popd
+pushd c
+# c@2
+echo '-- second commit in c' >>C.lean
+git commit -am 'second commit in c'
 popd
 pushd d
 # d: b@1 -> b@2 => a@1 -> a@3
 $LAKE update b -v
+# test that Lake does not update c
+grep --color 'second commit in c' .lake/packages/c/C.lean && exit 1 || true
 # test 119: pickup a@3 and not a@4
 grep --color 'third commit in a' .lake/packages/a/A.lean
 # test the removal of `c` from the manifest

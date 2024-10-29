@@ -26,17 +26,18 @@ def updateGitPkg (name : String) (repo : GitRepo) (rev? : Option String) : LogIO
     if (← repo.hasDiff) then
       logWarning s!"{name}: repository '{repo.dir}' has local changes"
   else
-    logInfo s!"{name}: updating repository '{repo.dir}' to revision '{rev}'"
+    logInfo s!"{name}: checking out revision '{rev}'"
     repo.checkoutDetach rev
 
 /-- Clone the Git package as `repo`. -/
 def cloneGitPkg (name : String) (repo : GitRepo)
 (url : String) (rev? : Option String) : LogIO PUnit := do
-  logInfo s!"{name}: cloning {url} to '{repo.dir}'"
+  logInfo s!"{name}: cloning {url}"
   repo.clone url
   if let some rev := rev? then
-    let hash ← repo.resolveRemoteRevision rev
-    repo.checkoutDetach hash
+    let rev ← repo.resolveRemoteRevision rev
+    logInfo s!"{name}: checking out revision '{rev}'"
+    repo.checkoutDetach rev
 
 /--
 Update the Git repository from `url` in `repo` to `rev?`.
@@ -123,7 +124,7 @@ def Dependency.materialize
       if ver.startsWith "git#" then
         return ver.drop 4
       else
-        error s!"{dep.name} unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
+        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
     let depName := dep.name.toString (escape := false)
     let some pkg ← Reservoir.fetchPkg? lakeEnv dep.scope depName
       | error s!"{dep.scope}/{depName}: could not materialize package: \

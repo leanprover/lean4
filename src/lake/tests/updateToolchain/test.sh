@@ -11,12 +11,16 @@ export ELAN_HOME=
 RESTART_CODE=4
 
 test_update(){
-   ELAN=true $LAKE update 2>&1 | grep --color "toolchain updated to '$1'"
+   ELAN=true $LAKE update 2>&1 | grep --color "updating toolchain to '$1'"
    cat lean-toolchain | diff - <(echo -n "$1")
 }
 
 # Test toolchain version API
 $LAKE lean test.lean
+
+# Test no toolchain information
+./clean.sh
+$LAKE update 2>&1 | grep --color "toolchain not updated; no toolchain information found"
 
 # Test a single unknown candidate
 ./clean.sh

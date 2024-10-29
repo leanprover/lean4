@@ -193,6 +193,7 @@ private def updateAndMaterializeDep
   if let some entry ← fetch? dep.name then
     entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
   else
+    logInfo s!"{dep.name}: updating package"
     let inherited := pkg.name ≠ ws.root.name
     /-
     NOTE: A path dependency inherited from another dependency's manifest
@@ -241,49 +242,45 @@ update is found
 def Workspace.updateToolchain
   (ws : Workspace) (rootDeps : Array MaterializedDep)
 : LoggerIO PUnit := do
-  logInfo "checking for toolchain updates..."
   let rootToolchainFile := ws.root.dir / toolchainFileName
   let rootTc? ← ToolchainVer.ofDir? ws.dir
-  let (src, tc?, tcs) ← rootDeps.foldlM (init := (ws.root.name, rootTc?, #[])) fun (src, tc?, tcs) dep => do
+  let (src, tc?, tcs) ← rootDeps.foldlM (init := (ws.root.name, rootTc?, #[])) fun s dep => do
     let depTc? ← ToolchainVer.ofDir? (ws.dir / dep.relPkgDir)
-    if let some depTc := depTc? then
-      if let some tc := tc? then
-        if depTc ≤ tc then
-          return (src, some tc, tcs)
-        else if tc < depTc then
-          return (dep.name, some depTc, tcs)
-        else
-          return (src, tc, tcs.push (dep.name, depTc))
-      else
-        return (dep.name, depTc?, tcs)
+    let some depTc := depTc?
+      | return s
+    let (src, tc?, tcs) := s
+    let some tc := tc?
+      | return (dep.name, depTc?, tcs)
+    if depTc ≤ tc then
+      return (src, tc, tcs)
+    else if tc < depTc then
+      return (dep.name, depTc, tcs)
     else
-      return (src, tc?, tcs)
+      return (src, tc, tcs.push (dep.name, depTc))
   if 0 < tcs.size then
     let s := "toolchain not updated; multiple toolchain candidates:"
     let s := if let some tc := tc? then s!"{s}\n  {tc}\n    from {src}" else s
     let s := tcs.foldl (init := s) fun s (d, tc) => s!"{s}\n  {tc}\n    from {d}"
     logWarning s
-  else if tc? == rootTc? then
-    logInfo "toolchain not updated; already up-to-date"
   else if let some tc := tc? then
+    if rootTc?.any (· == tc) then
+      logInfo "toolchain not updated; already up-to-date"
+      return
+    logInfo s!"updating toolchain to '{tc}'"
     IO.FS.writeFile rootToolchainFile tc.toString
-    if let some elanInstall := ws.lakeEnv.elan? then
-      if let some lakeArgs := ws.lakeArgs? then
-        logInfo s!"toolchain updated to '{tc}'; restarting Lake"
-        let child ← IO.Process.spawn {
-          cmd := elanInstall.elan.toString
-          args := #["run", "--install", tc.toString, "lake"] ++ lakeArgs
-          env := Env.noToolchainVars
-        }
-        IO.Process.exit (← child.wait).toUInt8
-      else
-        logInfo s!"toolchain updated to '{tc}'; \
-          you will need to manually restart Lake"
+    let some lakeArgs := ws.lakeArgs?
+      | logInfo s!"cannot auto-restart; you will need to manually restart Lake"
         IO.Process.exit restartCode.toUInt8
-    else
-      logInfo s!"toolchain updated to '{tc}'; \
-        you will need to manually restart Lake (no Elan detected)"
-      IO.Process.exit restartCode.toUInt8
+    let some elanInstall := ws.lakeEnv.elan?
+      | logInfo s!"no Elan detected; you will need to manually restart Lake"
+        IO.Process.exit restartCode.toUInt8
+    logInfo s!"restarting Lake via Elan"
+    let child ← IO.Process.spawn {
+      cmd := elanInstall.elan.toString
+      args := #["run", "--install", tc.toString, "lake"] ++ lakeArgs
+      env := Env.noToolchainVars
+    }
+    IO.Process.exit (← child.wait).toUInt8
   else
     logInfo s!"toolchain not updated; no toolchain information found"
 

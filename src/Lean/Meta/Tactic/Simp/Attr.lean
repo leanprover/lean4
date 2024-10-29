@@ -25,9 +25,9 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
       else
         let go : MetaM Unit := do
           let info ← getConstInfo declName
-          let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-          let inv := !stx[2].isNone
-          let prio ← getAttrParamOptPrio stx[3]
+          let post := if stx[1][0].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
+          let inv := !stx[1][1].isNone
+          let prio ← getAttrParamOptPrio stx[2]
           if (← isProp info.type) then
             addSimpTheorem ext declName post (inv := inv) attrKind prio
           else if info.hasValue then

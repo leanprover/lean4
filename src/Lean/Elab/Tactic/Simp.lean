@@ -203,12 +203,12 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
                   withRef id <| throwUnknownConstant name
           else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
             let post :=
-              if arg[0].isNone then
+              if arg[0][0].isNone then
                 true
               else
                 arg[0][0].getKind == ``Parser.Tactic.simpPost
-            let inv  := !arg[1].isNone
-            let term := arg[2]
+            let inv  := !arg[0][1].isNone
+            let term := arg[1]
             match (← resolveSimpIdTheorem? term) with
             | .expr e  =>
               let name ← mkFreshId

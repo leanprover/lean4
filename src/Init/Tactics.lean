@@ -530,13 +530,23 @@ syntax discharger := atomic(" (" patternIgnore(&"discharger" <|> &"disch")) " :=
 syntax simpPre   := "↓"
 /-- Use this rewrite rule after entering the subterms -/
 syntax simpPost  := "↑"
+/-- Whether to use this rewrite rule before or after entering subterms -/
+syntax simpPhaseControl := simpPre <|> simpPost
+/-- Use this rewrite rule backwards -/
+syntax simpBackwards := patternIgnore("← " <|> "<- ")
+/--
+A simp lemma modifier specification is:
+* optional `↑` or `↓` to specify use before or after entering the subterm
+* optional `←` to use the lemma backward
+-/
+syntax simpLemmaModifiers := (simpPhaseControl)? (simpBackwards)?
 /--
 A simp lemma specification is:
 * optional `↑` or `↓` to specify use before or after entering the subterm
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := (simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term
+syntax simpLemma := simpLemmaModifiers term
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -1506,7 +1516,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := simp) "simp" Tactic.simpLemmaModifiers (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `grind_norm` attribute are used by the `grind` tactic normalizer/pre-processor.

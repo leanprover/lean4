@@ -1492,7 +1492,7 @@ have been simplified by using the modifier `↓`. Here is an example
 
 You can instruct the simplifier to rewrite the lemma from right-to-left:
 ```lean
-@[simp ←] and_assoc
+attribute @[simp ←] and_assoc
 ```
 
 When multiple simp theorems are applicable, the simplifier uses the one with highest priority.

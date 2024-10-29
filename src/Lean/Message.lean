@@ -168,7 +168,30 @@ def ofLevel (l : Level) : MessageData :=
       return Dynamic.mk msg)
     (fun _ => false)
 
+/--
+Simply formats the name.
+See `MessageData.ofConstName` for richer messages.
+-/
 def ofName (n : Name) : MessageData := ofFormat (format n)
+
+/--
+Represents a constant name such that hovering and "go to definition" works.
+If there is no such constant in the environment, the name is simply formatted, but sanitized if it is a hygienic name.
+Use `MessageData.ofName` if hovers are undesired.
+
+If `fullNames` is true, then pretty prints as if `pp.fullNames` is true.
+Otherwise, pretty prints using the current user setting for `pp.fullNames`.
+-/
+def ofConstName (constName : Name) (fullNames : Bool := false) : MessageData :=
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormatWithInfos <$> match ctx? with
+        | .none => pure (format constName)
+        | .some ctx =>
+          let ctx := if fullNames then { ctx with opts := ctx.opts.insert `pp.fullNames fullNames } else ctx
+          ppConstNameWithInfos ctx constName
+      return Dynamic.mk msg)
+    (fun _ => false)
 
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=
   visit none msg
@@ -490,7 +513,7 @@ private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (ms
 def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
-  | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
+  | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{.ofConstName constName true}'"
   | declTypeMismatch env decl givenType =>
     mkCtx env {} opts <|
     let process (n : Name) (expectedType : Expr) : MessageData :=
@@ -499,8 +522,8 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
     | Declaration.defnDecl { name := n, type := type, .. } => process n type
     | Declaration.thmDecl { name := n, type := type, .. }  => process n type
     | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
-  | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{constName}'"
-  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{constName}'"
+  | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{.ofConstName constName true}'"
+  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}'"
   | funExpected env lctx e              => mkCtx env lctx opts m!"(kernel) function expected{indentExpr e}"
   | typeExpected env lctx e             => mkCtx env lctx opts m!"(kernel) type expected{indentExpr e}"
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"
@@ -508,7 +531,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | appTypeMismatch  env lctx e fnType argType =>
     mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
-  | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{constName}' is not a proposition{indentExpr type}"
+  | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{.ofConstName constName true}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
   | deterministicTimeout                => "(kernel) deterministic timeout"
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"

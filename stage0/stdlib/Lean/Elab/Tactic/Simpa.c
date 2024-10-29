@@ -154,7 +154,7 @@ uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1___closed__4;
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__7;
 lean_object* l_Lean_MVarId_assumption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__4___closed__18;
@@ -5659,6 +5659,8 @@ lean_dec(x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
+lean_dec(x_9);
+lean_dec(x_8);
 x_44 = lean_ctor_get(x_41, 1);
 lean_inc(x_44);
 lean_dec(x_41);
@@ -5674,8 +5676,7 @@ lean_ctor_set(x_49, 1, x_48);
 x_50 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 lean_inc(x_5);
-x_51 = l_Lean_Elab_Term_throwTypeMismatchError___rarg(x_50, x_16, x_30, x_22, x_5, x_5, x_8, x_9, x_10, x_11, x_12, x_13, x_44);
-lean_dec(x_9);
+x_51 = l_Lean_Elab_Term_throwTypeMismatchError___rarg(x_50, x_16, x_30, x_22, x_5, x_5, x_10, x_11, x_12, x_13, x_44);
 lean_dec(x_5);
 lean_dec(x_50);
 x_52 = !lean_is_exclusive(x_51);
@@ -5802,6 +5803,8 @@ lean_dec(x_80);
 if (x_81 == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; 
+lean_dec(x_9);
+lean_dec(x_8);
 x_82 = lean_ctor_get(x_79, 1);
 lean_inc(x_82);
 lean_dec(x_79);
@@ -5817,8 +5820,7 @@ lean_ctor_set(x_87, 1, x_86);
 x_88 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_88, 0, x_87);
 lean_inc(x_5);
-x_89 = l_Lean_Elab_Term_throwTypeMismatchError___rarg(x_88, x_16, x_30, x_22, x_5, x_5, x_8, x_9, x_10, x_11, x_12, x_13, x_82);
-lean_dec(x_9);
+x_89 = l_Lean_Elab_Term_throwTypeMismatchError___rarg(x_88, x_16, x_30, x_22, x_5, x_5, x_10, x_11, x_12, x_13, x_82);
 lean_dec(x_5);
 lean_dec(x_88);
 x_90 = lean_ctor_get(x_89, 0);

@@ -193,7 +193,6 @@ private def updateAndMaterializeDep
   if let some entry ← fetch? dep.name then
     entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
   else
-    logInfo s!"{dep.name}: updating package"
     let inherited := pkg.name ≠ ws.root.name
     /-
     NOTE: A path dependency inherited from another dependency's manifest

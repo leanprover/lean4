@@ -918,6 +918,7 @@ private def applyAttributesCore
     return
   withDeclName declName do
     for attr in attrs do
+      withTraceNode `Elab.attribute (fun _ => pure m!"applying [{attr.stx}]") do
       withRef attr.stx do withLogging do
       let env ← getEnv
       match getAttributeImpl env attr.name with
@@ -2124,5 +2125,6 @@ export Term (TermElabM)
 
 builtin_initialize
   registerTraceClass `Elab.implicitForall
+  registerTraceClass `Elab.attribute
 
 end Lean.Elab

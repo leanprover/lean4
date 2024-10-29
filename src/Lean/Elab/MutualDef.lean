@@ -1049,8 +1049,7 @@ where
         let mut async? := none
         if let (#[view], #[declId]) := (views, expandedDeclIds) then
           if view.kind.isTheorem && typeCheckedPromise?.isSome &&
-              !deprecated.oldSectionVars.get (← getOptions) &&
-              view.modifiers.attrs.isEmpty then
+              !deprecated.oldSectionVars.get (← getOptions) then
             let env ← getEnv
             let async ← env.addConstAsync declId.declName .thm
             modifyEnv fun _=> async.mainEnv
@@ -1066,7 +1065,7 @@ where
             let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
             async.commitSignature { name := header.declName, levelParams, type }
 
-        let finishElab :=
+        let finishElab headers :=
           try
             let values ← try
               let values ← elabFunValues headers vars sc
@@ -1106,9 +1105,11 @@ where
             tacPromises.forM (·.resolve default)
             async?.forM (·.commitFailure)
         if let some async := async? then
+          let env ← getEnv
+          let headers := headers.map fun header => { header with modifiers.attrs := #[] }
           let act ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
             modifyEnv fun _ => async.asyncEnv
-            finishElab
+            finishElab headers
             let checkAct ← runAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
               checkAndCompile
               return #[]
@@ -1118,9 +1119,12 @@ where
             let snap ← act
             if let some typeCheckedPromise := typeCheckedPromise? then
               typeCheckedPromise.resolve snap
+          for view in views, declId in expandedDeclIds do
+            applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
+            applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
         else
           try
-            finishElab
+            finishElab headers
             checkAndCompile
           finally
             if let some typeCheckedPromise := typeCheckedPromise? then

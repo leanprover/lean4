@@ -46,10 +46,12 @@ structure StructFieldView where
   modifiers  : Modifiers
   binderInfo : BinderInfo
   declName   : Name
-  /-- ref for the field name -/
+  /-- Ref for the field name -/
   nameId     : Syntax
-  name       : Name -- The field name as it is going to be registered in the kernel. It does not include macroscopes.
-  rawName    : Name -- Same as `name` but including macroscopes.
+  /-- The name of the field. (Without macro scopes.) -/
+  name       : Name
+  /-- Same as `name` but includes macro scopes. Used for field elaboration. -/
+  rawName    : Name
   binders    : Syntax
   type?      : Option Syntax
   value?     : Option Syntax
@@ -79,13 +81,17 @@ structure StructParentInfo where
   deriving Inhabited
 
 inductive StructFieldKind where
-  | newField | copiedField | fromParent | subobject
+  | newField | copiedField | fromParent
+  /-- The field is an embedded parent. -/
+  | subobject (structName : Name)
   deriving Inhabited, DecidableEq, Repr
 
 structure StructFieldInfo where
   ref      : Syntax
   name     : Name
-  declName : Name -- Remark: for `fromParent` fields, `declName` is only relevant in the generation of auxiliary "default value" functions.
+  /-- Name of projection function.
+  Remark: for `fromParent` fields, `declName` is only relevant in the generation of auxiliary "default value" functions. -/
+  declName : Name
   fvar     : Expr
   kind     : StructFieldKind
   value?   : Option Expr := none
@@ -99,6 +105,7 @@ structure ElabStructHeaderResult where
   params           : Array Expr
   type             : Expr
   parents          : Array StructParentInfo
+  /-- Field infos from parents. -/
   parentFieldInfos : Array StructFieldInfo
   deriving Inhabited
 
@@ -108,9 +115,7 @@ def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
   | _                          => false
 
 def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
-  match info.kind with
-  | StructFieldKind.subobject => true
-  | _                         => false
+  info.kind matches StructFieldKind.subobject ..
 
 private def defaultCtorName := `mk
 
@@ -475,7 +480,7 @@ where
                                         name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.copiedField }
               copy (i+1) infos fieldMap expandedStructNames
-          if fieldInfo.subobject?.isSome then
+          if let some parentParentStructName := fieldInfo.subobject? then
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then
               -- See comment at `copyDefaultValue?`
@@ -489,7 +494,7 @@ where
               withLocalDecl fieldName fieldInfo.binderInfo fieldType fun parentFVar => do
                 let infos := infos.push { ref := (← getRef)
                                           name := fieldName, declName := structDeclName ++ fieldName, fvar := parentFVar,
-                                          kind := StructFieldKind.subobject }
+                                          kind := StructFieldKind.subobject parentParentStructName }
                 processSubfields structDeclName parentFVar fieldParentStructName subfieldNames infos fun infos =>
                   copy (i+1) infos (fieldMap.insert fieldName parentFVar) expandedStructNames
           else
@@ -537,6 +542,8 @@ where
       let type ← Term.elabType parent
       let parentType ← whnf type
       let parentStructName ← getStructureName parentType
+      if parents.any (fun info => info.structName == parentStructName) then
+        logWarningAt parent m!"duplicate parent structure '{parentStructName}'"
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
           logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
@@ -551,7 +558,7 @@ where
         withLocalDecl toParentName binfo parentType fun parentFVar =>
           let infos := infos.push { ref := parent,
                                     name := toParentName, declName := view.declName ++ toParentName, fvar := parentFVar,
-                                    kind := StructFieldKind.subobject }
+                                    kind := StructFieldKind.subobject parentStructName }
           let parents := parents.push { ref := parent, fvar? := parentFVar, subobject := true, structName := parentStructName, type := parentType }
           processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos => go (i+1) infos parents
     else
@@ -631,7 +638,7 @@ where
               go (i+1) defaultValsOverridden infos
         match info.kind with
         | StructFieldKind.newField    => throwError "field '{view.name}' has already been declared"
-        | StructFieldKind.subobject   => throwError "unexpected subobject field reference" -- improve error message
+        | StructFieldKind.subobject n => throwError "unexpected reference to subobject field '{n}'" -- improve error message
         | StructFieldKind.copiedField => updateDefaultValue
         | StructFieldKind.fromParent  => updateDefaultValue
     else
@@ -773,11 +780,11 @@ private opaque mkProjections (env : Environment) (structName : Name) (projs : Li
 
 private def addProjections (r : ElabStructHeaderResult) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
   if r.type.isProp then
-    if let some fieldInfo ← fieldInfos.findM? fun fieldInfo => not <$> Meta.isProof fieldInfo.fvar then
+    if let some fieldInfo ← fieldInfos.findM? (not <$> Meta.isProof ·.fvar) then
       throwErrorAt fieldInfo.ref m!"failed to generate projections for 'Prop' structure, field '{format fieldInfo.name}' is not a proof"
-  let projNames := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) => info.declName
+  let projNames := fieldInfos |>.filter (!·.isFromParent) |>.map (·.declName)
   let env ← getEnv
-  let env ← ofExceptKernelException (mkProjections env r.view.declName projNames r.view.isClass)
+  let env ← ofExceptKernelException (mkProjections env r.view.declName projNames.toList r.view.isClass)
   setEnv env
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
@@ -785,22 +792,12 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
       if info.kind == StructFieldKind.fromParent then
         return none
       else
-        let env ← getEnv
         return some {
           fieldName  := info.name
           projFn     := info.declName
           binderInfo := (← getFVarLocalDecl info.fvar).binderInfo
           autoParam? := (← inferType info.fvar).getAutoParamTactic?
-          subobject? :=
-            if info.kind == StructFieldKind.subobject then
-              match env.find? info.declName with
-              | some info =>
-                match info.type.getForallBody.getAppFn with
-                | Expr.const parentName .. => some parentName
-                | _ => panic! "ill-formed structure"
-              | _ => panic! "ill-formed environment"
-            else
-              none
+          subobject? := if let .subobject parentName := info.kind then parentName else none
         }
   modifyEnv fun env => Lean.registerStructure env { structName, fields }
 
@@ -841,7 +838,10 @@ private def setSourceInstImplicit (type : Expr) : Expr :=
       type.updateForall! .instImplicit d b
   | _ => unreachable!
 
-private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentStructName : Name) (parentType : Expr) : MetaM Unit := do
+/--
+Creates a projection function to a non-subobject parent.
+-/
+private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentStructName : Name) (parentType : Expr) : MetaM StructureParentInfo := do
   let env ← getEnv
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
@@ -883,6 +883,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
       addInstance declName AttributeKind.global (eval_prio default)
     else
       setReducibleAttribute declName
+    return { structName := parentStructName, subobject := false, projFn := declName }
 
 private def elabStructHeader (view : StructView) : TermElabM ElabStructHeaderResult :=
   Term.withAutoBoundImplicitForbiddenPred (fun n => view.shortDeclName == n) do
@@ -995,9 +996,13 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
             Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
           let projInstances := instParents.toList.map fun info => info.declName
           projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
-          r.parents.forM fun parent => do
-            if !parent.subobject then
+          let parentInfos ← r.parents.mapM fun parent => do
+            if parent.subobject then
+              let some info := fieldInfos.find? (·.kind == .subobject parent.structName) | unreachable!
+              pure { structName := parent.structName, subobject := true, projFn := info.declName }
+            else
               mkCoercionToCopiedParent levelParams params view parent.structName parent.type
+          setStructureParents view.declName parentInfos
           let lctx ← getLCtx
           /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations
             The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/

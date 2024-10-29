@@ -60,6 +60,7 @@ lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___lambda__2___closed__1;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__22___closed__7;
+lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Elab_Term_mkCoe___spec__3___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
 static lean_object* l_Lean_SCC_scc___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__5___closed__1;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_checkTerminationByHints___spec__3___closed__8;
@@ -69,11 +70,11 @@ static lean_object* l_Lean_throwReservedNameNotAvailable___at_Lean_Elab_ensureFu
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Elab_Term_mkCoe___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_checkTerminationByHints___spec__3(lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedLevelMVarsAtPreDef___closed__8;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__13___lambda__2___closed__1;
-lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Elab_Term_mkCoe___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_TerminationHints_ensureNone(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedLevelMVarsAtPreDef___closed__1;
@@ -230,7 +231,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf__
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_checkTerminationByHints___spec__3___lambda__1___closed__4;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__22___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__13___lambda__1___closed__1;
-lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Elab_Term_mkCoe___spec__2___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_checkTerminationByHints___spec__3___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__2(lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_setLevelMVarsAtPreDef___lambda__1(lean_object*);
@@ -20650,7 +20650,7 @@ _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_inc(x_11);
-x_14 = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Elab_Term_mkCoe___spec__3(x_1, x_5, x_2, x_3, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_14 = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Elab_Term_mkCoe___spec__4(x_1, x_5, x_2, x_3, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 x_15 = lean_ctor_get(x_14, 1);
 lean_inc(x_15);
 lean_dec(x_14);
@@ -20840,7 +20840,7 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_addPreDefinitions__
 _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
-x_16 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Elab_Term_mkCoe___spec__2___rarg(x_14, x_15);
+x_16 = l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Elab_Term_mkCoe___spec__3___rarg(x_14, x_15);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 1);

@@ -1150,7 +1150,7 @@ private partial def findMethod? (env : Environment) (structName fieldName : Name
     | some _ => some (structName, fullNamePrv)
     | none   =>
       if isStructure env structName then
-        (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
+        (getStructureSubobjects env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
       else
         none
 

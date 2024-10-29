@@ -61,8 +61,8 @@ structure StructureInfo where
   fieldNames  : Array Name := #[]
   /-- Information about the structure fields, sorted by `fieldName`. -/
   fieldInfo   : Array StructureFieldInfo := #[]
-  /-- (Unimplemented) Information about structure parents. These are in the order they appear in the `extends` clause. -/
-  private parentInfo  : Array StructureParentInfo := #[]
+  /-- Information about structure parents. These are in the order they appear in the `extends` clause. -/
+  parentInfo  : Array StructureParentInfo := #[]
   deriving Inhabited
 
 def StructureInfo.lt (i₁ i₂ : StructureInfo) : Bool :=
@@ -117,10 +117,21 @@ def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name
     | throwError "cannot set structure parents for '{structName}', structure not defined in current module"
   modifyEnv fun env => structureExt.addEntry env { info with parentInfo }
 
+/-- Gets the `StructureInfo` if `structName` has been declared as a structure to the elaborator. -/
 def getStructureInfo? (env : Environment) (structName : Name) : Option StructureInfo :=
   match env.getModuleIdxFor? structName with
   | some modIdx => structureExt.getModuleEntries env modIdx |>.binSearch { structName } StructureInfo.lt
   | none        => structureExt.getState env |>.map.find? structName
+
+/--
+Gets the `StructureInfo` for `structName`, which is assumed to have been declared as a structure to the elaborator.
+Panics on failure.
+-/
+def getStructureInfo (env : Environment) (structName : Name) : StructureInfo :=
+  if let some info := getStructureInfo? env structName then
+    info
+  else
+    panic! "structure expected"
 
 def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
   match env.find? constName with
@@ -130,12 +141,9 @@ def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
     | _ => panic! "ill-formed environment"
   | _ => panic! "structure expected"
 
-/-- Get direct field names for the given structure. -/
+/-- Gets the direct field names for the given structure, including subobject fields. -/
 def getStructureFields (env : Environment) (structName : Name) : Array Name :=
-  if let some info := getStructureInfo? env structName then
-    info.fieldNames
-  else
-    panic! "structure expected"
+  (getStructureInfo env structName).fieldNames
 
 def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : Option StructureFieldInfo :=
   if let some info := getStructureInfo? env structName then
@@ -143,36 +151,51 @@ def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : O
   else
     none
 
-/-- If `fieldName` represents the relation to a parent structure `S`, return `S` -/
+/-- If `fieldName` is a subobject (that it, if it is an embedded parent structure), then returns the name of that parent structure. -/
 def isSubobjectField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if let some fieldInfo := getFieldInfo? env structName fieldName then
     fieldInfo.subobject?
   else
     none
 
-/-- Return immediate parent structures -/
-def getParentStructures (env : Environment) (structName : Name) : Array Name :=
+/-- Get information for all the parents that appear in the `extends` clause. -/
+def getStructureParentInfo (env : Environment) (structName : Name) : Array StructureParentInfo :=
+  (getStructureInfo env structName).parentInfo
+
+/--
+Return the parent structures that are embedded in the structure.
+This is the array of all results from `Lean.isSubobjectField?` in order.
+
+Note: this is *not* a subset of the parents from `getStructureParentInfo`.
+If a direct parent cannot itself be represented as a subobject,
+sometimes one of its parents (or one of their parents, etc.) can.
+-/
+def getStructureSubobjects (env : Environment) (structName : Name) : Array Name :=
   let fieldNames := getStructureFields env structName;
   fieldNames.foldl (init := #[]) fun acc fieldName =>
       match isSubobjectField? env structName fieldName with
       | some parentStructName => acc.push parentStructName
       | none                  => acc
 
+-- TODO: use actual parents, not just subobjects.
 /-- Return all parent structures -/
 partial def getAllParentStructures (env : Environment) (structName : Name) : Array Name :=
   visit structName |>.run #[] |>.2
 where
   visit (structName : Name) : StateT (Array Name) Id Unit := do
-    for p in getParentStructures env structName do
+    for p in getStructureSubobjects env structName do
       modify fun s => s.push p
       visit p
 
-/-- `findField? env S fname`. If `fname` is defined in a parent `S'` of `S`, return `S'` -/
+/--
+Return the name of the structure that contains the field relative to structure `structName`.
+If `structName` contains the field itself, returns that,
+and otherwise recursively looks into parents that are subobjects. -/
 partial def findField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if (getStructureFields env structName).contains fieldName then
     some structName
   else
-    getParentStructures env structName |>.findSome? fun parentStructName => findField? env parentStructName fieldName
+    getStructureSubobjects env structName |>.findSome? fun parentStructName => findField? env parentStructName fieldName
 
 private partial def getStructureFieldsFlattenedAux (env : Environment) (structName : Name) (fullNames : Array Name) (includeSubobjectFields : Bool) : Array Name :=
   (getStructureFields env structName).foldl (init := fullNames) fun fullNames fieldName =>
@@ -182,24 +205,28 @@ private partial def getStructureFieldsFlattenedAux (env : Environment) (structNa
       getStructureFieldsFlattenedAux env parentStructName fullNames includeSubobjectFields
     | none                  => fullNames.push fieldName
 
-/-- Return field names for the given structure, including "flattened" fields from parent
-structures. To omit `toParent` projections, set `includeSubobjectFields := false`.
+/--
+Returns the full set of field names for the given structure,
+"flattening" all the parent structures that are subobject fields.
+If `includeSubobjectFields` is true, then subobject `toParent` projections are included,
+and otherwise they are omitted.
 
 For example, given `Bar` such that
 ```lean
 structure Foo where a : Nat
 structure Bar extends Foo where b : Nat
 ```
-return `#[toFoo,a,b]` or `#[a,b]` with subobject fields omitted. -/
+this returns ``#[`toFoo, `a, `b]``, or ``#[`a, `b]`` when `includeSubobjectFields := false`.
+-/
 def getStructureFieldsFlattened (env : Environment) (structName : Name) (includeSubobjectFields := true) : Array Name :=
   getStructureFieldsFlattenedAux env structName #[] includeSubobjectFields
 
 /--
-  Return true if `constName` is the name of an inductive datatype
-  created using the `structure` or `class` commands.
+Return true if `constName` is the name of an inductive datatype
+created using the `structure` or `class` commands.
 
-  We perform the check by testing whether auxiliary projection functions
-  have been created. -/
+See also `Lean.getStructureInfo?`.
+-/
 def isStructure (env : Environment) (constName : Name) : Bool :=
   getStructureInfo? env constName |>.isSome
 
@@ -215,6 +242,7 @@ def getProjFnInfoForField? (env : Environment) (structName : Name) (fieldName : 
   else
     none
 
+/-- Get the name of the auxiliary definition that would have the default value for the structure field. -/
 def mkDefaultFnOfProjFn (projFn : Name) : Name :=
   projFn ++ `_default
 

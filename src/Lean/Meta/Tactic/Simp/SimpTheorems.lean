@@ -49,7 +49,7 @@ def Origin.key : Origin → Name
   | .stx id _ => id
   | .other name => name
 
-/-- The origin corresponding to the converse direction ()`← thm` vs. `thm`) -/
+/-- The origin corresponding to the converse direction (`← thm` vs. `thm`) -/
 def Origin.converse : Origin → Option Origin
   | .decl declName phase inv => some (.decl declName phase (not inv))
   | _ => none

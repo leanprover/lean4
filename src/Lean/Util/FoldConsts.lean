@@ -72,12 +72,12 @@ def getUsedConstantsAsSet (c : ConstantInfo) : NameSet :=
 end ConstantInfo
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
-  e.foldConsts 0 fun constName max =>
-    match env.find? constName with
-    | ConstantInfo.defnInfo val =>
-      match val.hints with
-      | ReducibilityHints.regular h => if h > max then h else max
-      | _                           => max
-    | _ => max
+  e.foldConsts 0 fun constName max => Id.run do
+    if let some c := env.findAsync? constName then
+      if c.kind matches .defn then
+        if let .defnInfo { hints := .regular h, .. } := c.toConstantInfo then
+          if h > max then
+            return h
+    return max
 
 end Lean

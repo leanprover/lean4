@@ -309,6 +309,11 @@ def ofConstantInfo (c : ConstantInfo) : AsyncConstantInfo where
   sig := .pure c.toConstantVal
   info := .pure c
 
+def isUnsafe (c : AsyncConstantInfo) : Bool :=
+  match c.kind with
+  | .thm => false
+  | _ => c.toConstantInfo.isUnsafe
+
 end AsyncConstantInfo
 
 structure GlobalDecl where
@@ -692,7 +697,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     (sig? : Option (Task ConstantVal) := none) :
     IO (Environment × Option (Option ConstantInfo → EIO Kernel.Exception Environment)) := do
   let mut env := env
-  if env.contains constName then
+  if (env.base.find? constName |>.isSome) || (env.asyncConsts.find? constName |>.isSome)
+      || env.asyncCtx?.any (·.subDecls.any (·.toConstantInfo.name == constName)) then
     return (env, none)
   if let some n := env.realizingConst? then
     panic! s!"cannot realize {constName} while already realizing {n}"
@@ -1601,7 +1607,7 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   let c? := e.find? fun e => match e with
     | Expr.const c _ =>
-      match env.find? c with
+      match env.findAsync? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false
     | _ => false;

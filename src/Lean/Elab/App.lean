@@ -1140,19 +1140,17 @@ private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermE
 - Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
 - Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
 -/
-private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
+private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) := do
   let fullName := structName ++ fieldName
-  match env.find? fullName with
-  | some _ => some (structName, fullName)
-  | none   =>
-    let fullNamePrv := mkPrivateName env fullName
-    match env.find? fullNamePrv with
-    | some _ => some (structName, fullNamePrv)
-    | none   =>
-      if isStructure env structName then
-        (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
-      else
-        none
+  if env.contains fullName then
+    return (structName, fullName)
+  let fullNamePrv := mkPrivateName env fullName
+  if env.contains fullNamePrv then
+    return (structName, fullNamePrv)
+  if isStructure env structName then
+    (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
+  else
+    none
 
 /--
   Return `some (structName', fullName)` if `structName ++ fieldName` is an alias for `fullName`, and

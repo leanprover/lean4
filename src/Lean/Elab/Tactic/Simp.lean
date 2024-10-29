@@ -94,7 +94,7 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TermElabM Meta.Simp.
 private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     if (← isProp info.type) then
       thms.addConst declName (post := post) (inv := inv)
     else

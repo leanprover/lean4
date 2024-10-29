@@ -14,6 +14,7 @@ import Init.GetElem
 import Init.Data.List.ToArray
 universe u v w
 
+
 /-! ### Array literal syntax -/
 
 syntax "#[" withoutPosition(sepBy(term, ", ")) "]" : term

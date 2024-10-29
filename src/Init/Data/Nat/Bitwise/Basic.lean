@@ -8,6 +8,9 @@ import Init.Data.Nat.Basic
 import Init.Data.Nat.Div
 import Init.Coe
 
+-- avoids a dependency on Init.WFTactics here
+set_option debug.rawDecreasingByGoal true
+
 namespace Nat
 
 theorem bitwise_rec_lemma {n : Nat} (hNe : n ≠ 0) : n / 2 < n :=

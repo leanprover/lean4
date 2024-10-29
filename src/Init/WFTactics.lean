@@ -7,6 +7,7 @@ prelude
 import Init.SizeOf
 import Init.MetaTypes
 import Init.WF
+import Init.Tactics
 
 /--
 Unfold definitions commonly used in well founded relation definitions.

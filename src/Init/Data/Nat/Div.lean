@@ -5,10 +5,12 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.WF
-import Init.WFTactics
 import Init.Data.Nat.Basic
 
 namespace Nat
+
+-- avoids a dependency on Init.WFTactics here
+set_option debug.rawDecreasingByGoal true
 
 /--
 Divisibility of natural numbers. `a ∣ b` (typed as `\|`) says that

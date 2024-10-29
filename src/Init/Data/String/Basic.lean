@@ -7,6 +7,9 @@ prelude
 import Init.Data.List.Basic
 import Init.Data.Char.Basic
 
+-- avoids a dependency on Init.WFTactics here
+set_option debug.rawDecreasingByGoal true
+
 universe u
 
 def List.asString (s : List Char) : String :=
@@ -345,6 +348,7 @@ def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
       posOfAux s c stopPos (s.next pos)
   else pos
 termination_by stopPos.1 - pos.1
+decreasing_by assumption
 
 /--
 Returns the position of the first occurrence of a character, `c`, in `s`.
@@ -366,6 +370,7 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
     if s.get pos == c then some pos
     else revPosOfAux s c pos
 termination_by pos.1
+decreasing_by assumption
 
 /--
 Returns the position of the last occurrence of a character, `c`, in `s`.
@@ -387,6 +392,7 @@ def findAux (s : String) (p : Char → Bool) (stopPos : Pos) (pos : Pos) : Pos :
       findAux s p stopPos (s.next pos)
   else pos
 termination_by stopPos.1 - pos.1
+decreasing_by assumption
 
 @[inline] def find (s : String) (p : Char → Bool) : Pos :=
   findAux s p s.endPos 0
@@ -399,6 +405,7 @@ def revFindAux (s : String) (p : Char → Bool) (pos : Pos) : Option Pos :=
     if p (s.get pos) then some pos
     else revFindAux s p pos
 termination_by pos.1
+decreasing_by assumption
 
 @[inline] def revFind (s : String) (p : Char → Bool) : Option Pos :=
   revFindAux s p s.endPos
@@ -417,6 +424,7 @@ def firstDiffPos (a b : String) : Pos :=
         loop (a.next i)
     else i
     termination_by stopPos.1 - i.1
+    decreasing_by assumption
   loop 0
 
 @[extern "lean_string_utf8_extract"]
@@ -444,6 +452,7 @@ where
     else
       splitAux s p b (s.next i) r
 termination_by s.endPos.1 - i.1
+decreasing_by all_goals assumption
 
 @[specialize] def split (s : String) (p : Char → Bool) : List String :=
   splitAux s p 0 0 []
@@ -474,7 +483,8 @@ def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) 
       splitOnAux s sep b (s.next (i - j)) 0 r
 termination_by (s.endPos.1 - (i - j).1, sep.endPos.1 - j.1)
 decreasing_by
-  all_goals simp_wf
+  all_goals
+     simp only [WellFoundedRelation.rel, Nat.lt_wfRel, InvImage]
   focus
     rename_i h _ _
     left; exact Nat.sub_lt_sub_left
@@ -682,6 +692,7 @@ def offsetOfPosAux (s : String) (pos : Pos) (i : Pos) (offset : Nat) : Nat :=
     have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (lt_next s _)
     offsetOfPosAux s pos (s.next i) (offset+1)
 termination_by s.endPos.1 - i.1
+decreasing_by assumption
 
 @[inline] def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
@@ -692,6 +703,7 @@ termination_by s.endPos.1 - i.1
     foldlAux f s stopPos (s.next i) (f a (s.get i))
   else a
 termination_by stopPos.1 - i.1
+decreasing_by assumption
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
   foldlAux f s s.endPos 0 init
@@ -705,6 +717,7 @@ termination_by stopPos.1 - i.1
     foldrAux f a s i begPos
   else a
 termination_by i.1
+decreasing_by assumption
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
   foldrAux f init s s.endPos 0
@@ -717,6 +730,7 @@ termination_by i.1
       anyAux s stopPos p (s.next i)
   else false
 termination_by stopPos.1 - i.1
+decreasing_by assumption
 
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
   anyAux s s.endPos p 0
@@ -776,6 +790,7 @@ theorem mapAux_lemma (s : String) (i : Pos) (c : Char) (h : ¬s.atEnd i) :
     let s := s.set i c
     mapAux f (s.next i) s
 termination_by s.endPos.1 - i.1
+decreasing_by assumption
 
 @[inline] def map (f : Char → Char) (s : String) : String :=
   mapAux f 0 s
@@ -802,9 +817,7 @@ where
       c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
     else true
   termination_by stop1.1 - off1.1
-  decreasing_by
-    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left c₁.utf8Size_pos off1.1)
-    decreasing_tactic
+  decreasing_by apply Nat.sub_lt_sub_left _h (Nat.add_lt_add_left c₁.utf8Size_pos off1.1)
 
 /-- Return true iff `p` is a prefix of `s` -/
 def isPrefixOf (p : String) (s : String) : Bool :=
@@ -827,6 +840,7 @@ def replace (s pattern replacement : String) : String :=
           have := Nat.sub_lt_sub_left this (lt_next s pos)
           loop acc accStop (s.next pos)
       termination_by s.endPos.1 - pos.1
+      decreasing_by all_goals assumption
     loop "" 0 0
 
 /-- Return the beginning of the line that contains character `pos`. -/
@@ -933,6 +947,7 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
           s.extract b i :: r
         r.reverse
       termination_by s.bsize - i.1
+      decreasing_by all_goals assumption
     loop 0 0 0 []
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring) : α :=
@@ -961,6 +976,7 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
     else i
   else i
 termination_by stopPos.1 - i.1
+decreasing_by all_goals assumption
 
 @[inline] def takeWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
@@ -982,6 +998,7 @@ termination_by stopPos.1 - i.1
     else takeRightWhileAux s begPos p i'
   else i
 termination_by i.1
+decreasing_by all_goals assumption
 
 @[inline] def takeRightWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
@@ -1041,6 +1058,7 @@ where
     else
       spos
   termination_by s.stopPos.byteIdx - spos.byteIdx
+  decreasing_by all_goals assumption
 
 /--
 Returns the longest common suffix of two substrings.
@@ -1062,6 +1080,7 @@ where
     else
       spos
   termination_by spos.byteIdx
+  decreasing_by all_goals assumption
 
 /--
 If `pre` is a prefix of `s`, i.e. `s = pre ++ t`, returns the remainder `t`.

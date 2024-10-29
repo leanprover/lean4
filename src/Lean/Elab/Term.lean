@@ -1576,7 +1576,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     let givenNameView := { view with name := n }
     let mut globalDeclFoundNext := globalDeclFound
     unless globalDeclFound do
-      let r ← resolveGlobalName givenNameView.review
+      let r ← withTraceNode `Elab.resolveGlobalName (fun _ => pure givenNameView.review) do resolveGlobalName givenNameView.review
       let r := r.filter fun (_, fieldList) => fieldList.isEmpty
       unless r.isEmpty do
         globalDeclFoundNext := true

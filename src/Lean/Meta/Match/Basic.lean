@@ -280,7 +280,7 @@ partial def varsToUnderscore : Example → Example
 partial def toMessageData : Example → MessageData
   | var fvarId        => mkFVar fvarId
   | ctor ctorName []  => mkConst ctorName
-  | ctor ctorName exs => m!"({mkConst ctorName}{exs.foldl (fun msg pat => m!"{msg} {toMessageData pat}") Format.nil})"
+  | ctor ctorName exs => m!"({.ofConstName ctorName}{exs.foldl (fun msg pat => m!"{msg} {toMessageData pat}") Format.nil})"
   | arrayLit exs      => "#" ++ MessageData.ofList (exs.map toMessageData)
   | val e             => e
   | underscore        => "_"

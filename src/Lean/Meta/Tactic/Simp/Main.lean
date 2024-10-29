@@ -200,7 +200,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return e.letBody!.instantiate1 e.letValue!
   match (← unfold? e) with
   | some e' =>
-    trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
+    trace[Meta.Tactic.simp.rewrite] "unfold {.ofConst e.getAppFn}, {e} ==> {e'}"
     recordSimpTheorem (.decl e.getAppFn.constName!)
     return e'
   | none => foldRawNatLit e

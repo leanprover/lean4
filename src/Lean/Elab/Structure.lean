@@ -318,7 +318,7 @@ where
     if h : i < subfieldNames.size then
       let subfieldName := subfieldNames.get ⟨i, h⟩
       if containsFieldName infos subfieldName then
-        throwError "field '{subfieldName}' from '{parentStructName}' has already been declared"
+        throwError "field '{subfieldName}' from '{.ofConstName parentStructName}' has already been declared"
       let val  ← mkProjection parentFVar subfieldName
       let type ← inferType val
       withLetDecl subfieldName type val fun subfieldFVar => do
@@ -428,7 +428,7 @@ private partial def copyDefaultValue? (fieldMap : FieldMap) (expandedStructNames
     go? (← instantiateValueLevelParams cinfo us)
 where
   failed : TermElabM (Option Expr) := do
-    logWarning s!"ignoring default value for field '{fieldName}' defined at '{structName}'"
+    logWarning m!"ignoring default value for field '{fieldName}' defined at '{.ofConstName structName}'"
     return none
 
   go? (e : Expr) : TermElabM (Option Expr) := do
@@ -464,7 +464,7 @@ where
         | some existingFieldInfo =>
           let existingFieldType ← inferType existingFieldInfo.fvar
           unless (← isDefEq fieldType existingFieldType) do
-            throwError "parent field type mismatch, field '{fieldName}' from parent '{parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
+            throwError "parent field type mismatch, field '{fieldName}' from parent '{.ofConstName parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
           /- Remark: if structure has a default value for this field, it will be set at the `processOveriddenDefaultValues` below. -/
           copy (i+1) infos (fieldMap.insert fieldName existingFieldInfo.fvar) expandedStructNames
         | none =>
@@ -543,10 +543,10 @@ where
       let parentType ← whnf type
       let parentStructName ← getStructureName parentType
       if parents.any (fun info => info.structName == parentStructName) then
-        logWarningAt parent m!"duplicate parent structure '{parentStructName}'"
+        logWarningAt parent m!"duplicate parent structure '{.ofConstName parentStructName}'"
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
-          logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
+          logWarning m!"field '{existingFieldName}' from '{.ofConstName parentStructName}' has already been declared"
         let parents := parents.push { ref := parent, fvar? := none, subobject := false, structName := parentStructName, type := parentType }
         copyNewFieldsFrom view.declName infos parentType fun infos => go (i+1) infos parents
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`

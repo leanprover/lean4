@@ -187,7 +187,7 @@ Creates `ZoneRules` for the given `TimeZone`.
 -/
 @[inline]
 def ofTimeZone (tz : TimeZone) : ZoneRules :=
-  let ltt :=  LocalTimeType.mk tz.offset tz.isDST tz.name .wall .local tz.abbreviation
+  let ltt :=  LocalTimeType.mk tz.offset tz.isDST tz.abbreviation .wall .local tz.name
   ZoneRules.mk ltt #[]
 
 end ZoneRules

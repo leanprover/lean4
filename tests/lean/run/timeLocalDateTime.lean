@@ -44,7 +44,7 @@ info: 736952399
 info: "09/05/1993 12:59:59"
 -/
 #guard_msgs in
-#eval PlainDateTime.ofUTCTimestamp 736952399 |> format
+#eval PlainDateTime.ofTimestamp 736952399 |> format
 
 /--
 info: 736952399

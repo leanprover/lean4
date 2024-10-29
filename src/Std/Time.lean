@@ -218,10 +218,15 @@ The supported formats include:
 In order to help the user build dates easily, there are a lot of macros available for creating dates.
 The `.sssssssss` can be ommited in most cases.
 
-- **`date("uuuu-MM-dd")`**: Defines a date in the `uuuu-MM-DD` format.
-- **`time("HH:mm:ss.sssssssss")`**: Defines a time in the `HH:mm:ss.sssssssss` format, including fractional seconds.
-- **`datetime("uuuu-MM-ddTHH:mm:ss.sssssssss")`**: Defines a datetime in the `YYYY-MM-DD:HH:mm:ss.sssssssss` format.
-- **`offset("+HH:mm")`**: Defines a timezone offset in the format `+HH:mm`.
-- **`timezone("NAME/ID ZZZ")`**: Defines a timezone with a name and an offset.
-- **`datespec("format")`**: Defines a date specification format at compile time using the provided format string.
+
+- **`date("uuuu-MM-dd")`**: Represents a date in the `uuuu-MM-dd` format, where `uuuu` refers to the year.
+- **`time("HH:mm:ss.sssssssss")`**: Represents a time in the format `HH:mm:ss.sssssssss`, including optional support for nanoseconds.
+- **`datetime("uuuu-MM-ddTHH:mm:ss.sssssssss")`**: Represents a datetime value in the `uuuu-MM-ddTHH:mm:ss.sssssssss` format, with optional nanoseconds.
+- **`offset("+HH:mm")`**: Represents a timezone offset in the format `+HH:mm`, where `+` or `-` indicates the direction from UTC.
+- **`timezone("NAME/ID ZZZ")`**: Specifies a timezone using a region-based name or ID, along with its associated offset.
+- **`datespec("FORMAT")`**: Defines a compile-time date format based on the provided string.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssssZZZ")`**: Represents a `ZonedDateTime` with a fixed timezone and optional nanosecond precision.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss[IDENTIFIER]")`**: Defines an `IO ZonedDateTime`, where the timezone identifier is dynamically retrieved from the default timezone database.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss, timezone")`**: Represents an `IO ZonedDateTime`, using a specified `timezone` term and allowing optional nanoseconds.
+
 -/

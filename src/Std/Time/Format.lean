@@ -84,18 +84,32 @@ notation of dates.
 def leanDateTime24HourNoNanos : GenericFormat (.only .GMT) := datespec("uuuu-MM-dd'T'HH:mm:ss")
 
 /--
-The DateTimeWithZone format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZZZ`
+The leanDateTimeWithZone format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZZZ`
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
 def leanDateTimeWithZone : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZZZ")
 
 /--
-The DateTimeWithZoneNoNanos format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ssZZZZZ`
+The leanDateTimeWithZoneNoNanos format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ssZZZZZ`
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
 def leanDateTimeWithZoneNoNanos : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ssZZZZZ")
+
+/--
+The leanDateTimeWithIdentifier format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ss[z]`
+for representing date, time, and time zone. It uses the default value that can be parsed with the
+notation of dates.
+-/
+def leanDateTimeWithIdentifier : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss'['z']'")
+
+/--
+The leanDateTimeWithIdentifierAndNanos format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSS'[z]'`
+for representing date, time, and time zone. It uses the default value that can be parsed with the
+notation of dates.
+-/
+def leanDateTimeWithIdentifierAndNanos : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSS'['z']'")
 
 /--
 The Lean Date format, which follows the pattern `uuuu-MM-dd`. It uses the default value that can be parsed with the
@@ -342,7 +356,7 @@ def toISO8601String (date : ZonedDateTime) : String :=
   Formats.iso8601.format date.toDateTime
 
 /--
-Parses a `String` in the `RFC822` format and returns a `ZonedDateTime`.
+Parses a `String` in the rfc822 format and returns a `ZonedDateTime`.
 -/
 def fromRFC822String (input : String) : Except String ZonedDateTime :=
   Formats.rfc822.parse input
@@ -354,7 +368,7 @@ def toRFC822String (date : ZonedDateTime) : String :=
   Formats.rfc822.format date.toDateTime
 
 /--
-Parses a `String` in the `RFC850` format and returns a `ZonedDateTime`.
+Parses a `String` in the rfc850 format and returns a `ZonedDateTime`.
 -/
 def fromRFC850String (input : String) : Except String ZonedDateTime :=
   Formats.rfc850.parse input
@@ -366,23 +380,30 @@ def toRFC850String (date : ZonedDateTime) : String :=
   Formats.rfc850.format date.toDateTime
 
 /--
-Parses a `String` in the `DateTimeWithZone` format and returns a `DateTime` object in the GMT time zone.
+Parses a `String` in the dateTimeWithZone format and returns a `ZonedDateTime` object in the GMT time zone.
 -/
 def fromDateTimeWithZoneString (input : String) : Except String ZonedDateTime :=
   Formats.dateTimeWithZone.parse input
 
 /--
-Formats a `DateTime` value into a simple date time with timezone string.
+Formats a `ZonedDateTime` value into a simple date time with timezone string.
 -/
 def toDateTimeWithZoneString (pdt : ZonedDateTime) : String :=
   Formats.dateTimeWithZone.format pdt.toDateTime
 
 /--
-Parses a `String` in the `DateTimeWithZone` format and returns a `DateTime` object in the GMT time zone.
+Parses a `String` in the lean date time format with timezone format and returns a `ZonedDateTime` object.
 -/
 def fromLeanDateTimeWithZoneString (input : String) : Except String ZonedDateTime :=
   Formats.leanDateTimeWithZone.parse input
   <|> Formats.leanDateTimeWithZoneNoNanos.parse input
+
+/--
+Parses a `String` in the lean date time format with identifier and returns a `ZonedDateTime` object.
+-/
+def fromLeanDateTimeWithIdentifierString (input : String) : Except String ZonedDateTime :=
+  Formats.leanDateTimeWithIdentifier.parse input
+  <|> Formats.leanDateTimeWithIdentifierAndNanos.parse input
 
 /--
 Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notationg.

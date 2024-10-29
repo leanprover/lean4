@@ -18,13 +18,6 @@ namespace PlainDateTime
 set_option linter.all true
 
 /--
-Creaates a new `PlainDateTime` out of a `Timestamp` and a `TimeZone`.
--/
-def ofTimestamp (stamp : Timestamp) (tz : TimeZone) : PlainDateTime :=
-  let stamp := stamp.addSeconds tz.toSeconds
-  PlainDateTime.ofUTCTimestamp stamp
-
-/--
 Get the current time.
 -/
 @[inline]
@@ -33,7 +26,7 @@ def now : IO PlainDateTime := do
   let rules ← Database.defaultGetLocalZoneRulesAt
   let ltt := rules.findLocalTimeTypeForTimestamp tm
 
-  return PlainDateTime.ofTimestamp tm ltt.getTimeZone
+  return PlainDateTime.ofTimestamp tm |>.addSeconds ltt.getTimeZone.toSeconds
 
 end PlainDateTime
 

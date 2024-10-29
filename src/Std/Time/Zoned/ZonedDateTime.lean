@@ -50,7 +50,7 @@ Creates a new `ZonedDateTime` out of a `Timestamp` and a `ZoneRules`.
 @[inline]
 def ofTimestamp (tm : Timestamp) (rules : TimeZone.ZoneRules) : ZonedDateTime :=
   let tz := rules.timezoneAt tm
-  ZonedDateTime.mk (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds) |>.toPlainDateTimeAssumingUTC) tm rules tz
+  ZonedDateTime.mk (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC.addSeconds tz.toSeconds) tm rules tz
 
 /--
 Creates a new `ZonedDateTime` out of a `PlainDateTime` and a `ZoneRules`.
@@ -60,7 +60,7 @@ def ofPlainDateTime (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : ZonedDateT
   let tm := pdt.toTimestampAssumingUTC
   let tz := zr.findLocalTimeTypeForTimestamp tm |>.getTimeZone
   let tm := tm.subSeconds tz.toSeconds
-  ZonedDateTime.mk (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds) |>.toPlainDateTimeAssumingUTC) tm zr tz
+  ZonedDateTime.mk (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC.addSeconds tz.toSeconds) tm zr tz
 
 /--
 Creates a new `ZonedDateTime` out of a `Timestamp` and a `TimeZone`.

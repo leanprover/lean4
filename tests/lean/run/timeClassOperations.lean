@@ -165,8 +165,8 @@ info: "3600s"
 #guard_msgs in
 #eval zoned("2000-12-20T00:00:00-03:00") - zoned("2000-12-20T00:00:00-02:00")
 
-def now := PlainDateTime.ofUTCTimestamp ⟨1724859638, ⟨907328169, by decide⟩, by decide⟩
-def after := PlainDateTime.ofUTCTimestamp ⟨1724859639, ⟨907641224, by decide⟩, by decide⟩
+def now := PlainDateTime.ofTimestamp ⟨1724859638, ⟨907328169, by decide⟩, by decide⟩
+def after := PlainDateTime.ofTimestamp ⟨1724859639, ⟨907641224, by decide⟩, by decide⟩
 def duration := after - now
 
 /--

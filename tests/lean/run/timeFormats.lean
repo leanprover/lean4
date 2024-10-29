@@ -281,6 +281,8 @@ def datetime₅ := PlainDateTime.mk (PlainDate.clip (-2000) 3 4) (PlainTime.mk 1
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")
 def zoned₄ := zoned("2002-07-14T23:13:12.324354679+09:00")
 def zoned₅ := zoned("2002-07-14T23:13:12.324354679+00:00")
+def tz : TimeZone := { offset := { second := -3600 }, name := "America/Sao_Paulo", abbreviation := "BRT", isDST := false}
+def zoned₆ := ZonedDateTime.ofPlainDateTime (zoned₄.toPlainDateTime) (TimeZone.ZoneRules.ofTimeZone tz)
 
 /--
 info: "CE CE CE Common Era C"
@@ -778,6 +780,12 @@ info: "2002 2002 CE"
 -/
 #guard_msgs in
 #eval datetime₄.format "uuuu yyyy G"
+
+/--
+info: "BRT BRT BRT America/Sao_Paulo America/Sao_Paulo"
+-/
+#guard_msgs in
+#eval zoned₆.format "z zz zzz zzzz zzzz"
 
 /--
 info: 1

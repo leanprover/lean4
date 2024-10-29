@@ -408,8 +408,8 @@ def addTraceAsMessages : TermElabM Unit := do
   if trace.profiler.output.get? (← getOptions) |>.isNone then
     Core.setMessageLog (← addTraceAsMessagesCore (← Core.getMessageLog))
 
-/-- Runs the given action in a separate task, discarding its final state. -/
-def runAsync (act : TermElabM α) : TermElabM (Task (Except Exception α)) := do
+/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
+def runAsync (act : TermElabM α) : TermElabM (EIO Exception α) := do
   let mut coreSt ← getThe Core.State
   let metaSt ← getThe Meta.State
   let st ← get
@@ -420,35 +420,38 @@ def runAsync (act : TermElabM α) : TermElabM (Task (Except Exception α)) := do
   if Language.internal.cmdlineSnapshots.get (← getOptions) then
     coreSt := { coreSt with
       env := Runtime.markPersistent coreSt.env, infoState := Runtime.markPersistent coreSt.infoState }
-  withCurrHeartbeats (do
+  return withCurrHeartbeats (do
       IO.addHeartbeats heartbeats.toUInt64
       act : TermElabM _)
     |>.run' ctx st
     |>.run' metaCtx metaSt
     |>.run' coreCtx coreSt
-    |> EIO.asTask
 
 /--
-Runs the given action in a separate task, discarding its final state except for the message log,
-which is reported in the returned snapshot.
+Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for the
+message log, which is reported in the returned snapshot.
 -/
-def runAsyncAsSnapshot (act : TermElabM Unit) (desc := "") : TermElabM (Task Language.SnapshotTree) := do
+def runAsyncAsSnapshot (act : TermElabM (Array (SnapshotTask SnapshotTree))) (desc := "") : TermElabM (BaseIO SnapshotTree) := do
   let t ← runAsync do
     let tid ← IO.getLeanThreadID
     modifyTraceState fun _ => { tid }
-    try
-      withTraceNode `Elab.async (fun _ => return desc) do
-        act
-    catch e =>
-      logError e.toMessageData
-    addTraceAsMessages
-    saveState
-  BaseIO.mapTask (t := t) fun
-    | .ok st =>
+    let trees ←
+      try
+        withTraceNode `Elab.async (fun _ => return desc) do
+          act
+      catch e =>
+        logError e.toMessageData
+        pure #[]
+      finally
+        addTraceAsMessages
+    return (trees, (← saveState))
+  return do
+    match (← t.toBaseIO) with
+    | .ok (trees, st) =>
       return .mk {
         diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog st.meta.core.messages)
         traces := st.meta.core.traceState
-      } #[]
+      } trees
     | .error _ => return .mk { diagnostics := .empty } #[]
 
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr)
@@ -1063,35 +1066,37 @@ where
             let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
             async.commitSignature { name := header.declName, levelParams, type }
 
-        let finishElab := try
-          let values ← try
-            let values ← elabFunValues headers vars sc
-            Term.synthesizeSyntheticMVarsNoPostponing
-            values.mapM (instantiateMVarsProfiling ·)
-          catch ex =>
-            logException ex
-            headers.mapM fun header => mkSorry header.type (synthetic := true)
-          if let #[value] := values then
-            valPromise.resolve value
-          let headers ← headers.mapM instantiateMVarsAtHeader
-          let letRecsToLift ← getLetRecsToLift
-          let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
-          checkLetRecsToLiftTypes funFVars letRecsToLift
-          (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
-            let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
-            for preDef in preDefs do
-              trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-            let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs
-            let preDefs ← instantiateMVarsAtPreDecls preDefs
-            let preDefs ← shareCommonPreDefs preDefs
-            let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-            for preDef in preDefs do
-              trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-            addPreDefinitions preDefs
-            if let some async := async? then
-              async.commitConst (← getEnv)
-            withTraceNode `Elab.block (fun _ => return m!"blocking on env pre-compilation") do
-              let _ ← IO.wait (← getEnv).checkedSync
+        let finishElab :=
+          try
+            let values ← try
+              let values ← elabFunValues headers vars sc
+              Term.synthesizeSyntheticMVarsNoPostponing
+              values.mapM (instantiateMVarsProfiling ·)
+            catch ex =>
+              logException ex
+              headers.mapM fun header => mkSorry header.type (synthetic := true)
+            if let #[value] := values then
+              valPromise.resolve value
+            let headers ← headers.mapM instantiateMVarsAtHeader
+            let letRecsToLift ← getLetRecsToLift
+            let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
+            checkLetRecsToLiftTypes funFVars letRecsToLift
+            (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+              let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+              for preDef in preDefs do
+                trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
+              let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs
+              let preDefs ← instantiateMVarsAtPreDecls preDefs
+              let preDefs ← shareCommonPreDefs preDefs
+              let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+              for preDef in preDefs do
+                trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
+              addPreDefinitions preDefs
+              if let some async := async? then
+                async.commitConst (← getEnv)
+          finally
+            valPromise.resolve (Expr.const `failedAsyncElab [])
+        let checkAndCompile := try
             forceCompile
             processDeriving headers
             if let some async := async? then
@@ -1099,18 +1104,24 @@ where
           finally
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)
-            valPromise.resolve (Expr.const `failedAsyncElab [])
             async?.forM (·.commitFailure)
         if let some async := async? then
-          let t ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
+          let act ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
             modifyEnv fun _ => async.asyncEnv
             finishElab
-          let _ ← BaseIO.mapTask (t := t) fun snap => do
+            let checkAct ← runAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
+              checkAndCompile
+              return #[]
+            let checkTask ← BaseIO.mapTask (t := (← getEnv).checkedSync) fun _ => checkAct
+            return #[{ range? := none, task := checkTask }]
+          let _ ← BaseIO.asTask do
+            let snap ← act
             if let some typeCheckedPromise := typeCheckedPromise? then
               typeCheckedPromise.resolve snap
         else
           try
             finishElab
+            checkAndCompile
           finally
             if let some typeCheckedPromise := typeCheckedPromise? then
               typeCheckedPromise.resolve default

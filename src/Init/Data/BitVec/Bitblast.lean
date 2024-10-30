@@ -430,7 +430,7 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
       refine ⟨w - 1 - j, by omega, h⟩
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
-    (-x).msb = ((!decide (x = 0#w) && !decide (x = intMin w)) ^^ x.msb) := by
+    (-x).msb = ((decide (x ≠ 0#w) && decide (x ≠ intMin w)) ^^ x.msb) := by
   simp only [BitVec.msb, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
   by_cases hmin : x = intMin _
   case pos =>

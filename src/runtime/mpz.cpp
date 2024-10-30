@@ -268,25 +268,25 @@ uint64 mpz::mod64() const {
 }
 
 int8 mpz::smod8() const {
-    int8 val = mod8();
+    int8 val = static_cast<int8>(mod8());
     val = val * sgn();
     return val;
 }
 
 int16 mpz::smod16() const {
-    int16 val = mod16();
+    int16 val = static_cast<int16>(mod16());
     val = val * sgn();
     return val;
 }
 
 int32 mpz::smod32() const {
-    int32 val = mod32();
+    int32 val = static_cast<int32>(mod32());
     val = val * sgn();
     return val;
 }
 
 int64 mpz::smod64() const {
-    int64 val = mod64();
+    int64 val = static_cast<int64>(mod64());
     val = val * sgn();
     return val;
 }
@@ -989,7 +989,7 @@ uint64 mpz::mod64() const {
 }
 
 int8 mpz::smod8() const {
-    int8_t val = mod8();
+    int8 val = static_cast<int8>(mod8());
     if (m_sign) {
         val = -val;
     }
@@ -997,7 +997,7 @@ int8 mpz::smod8() const {
 }
 
 int16 mpz::smod16() const {
-    int16_t val = mod16();
+    int16 val = static_cast<int16>(mod16());
     if (m_sign) {
         val = -val;
     }
@@ -1005,7 +1005,7 @@ int16 mpz::smod16() const {
 }
 
 int32 mpz::smod32() const {
-    int32_t val = mod32();
+    int32 val = static_cast<int32>(mod32());
     if (m_sign) {
         val = -val;
     }
@@ -1013,7 +1013,7 @@ int32 mpz::smod32() const {
 }
 
 int64 mpz::smod64() const {
-    int64_t val = mod64();
+    int64 val = static_cast<int64>(mod64());
     if (m_sign) {
         val = -val;
     }

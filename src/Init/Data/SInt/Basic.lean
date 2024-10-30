@@ -61,7 +61,7 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int8
 
 @[extern "lean_int8_of_int"]
 def Int8.ofInt (i : @& Int) : Int8 := ⟨⟨BitVec.ofInt 8 i⟩⟩
-@[extern "lean_int8_of_int"]
+@[extern "lean_int8_of_nat"]
 def Int8.ofNat (n : @& Nat) : Int8 := ⟨⟨BitVec.ofNat 8 n⟩⟩
 abbrev Int.toInt8 := Int8.ofInt
 abbrev Nat.toInt8 := Int8.ofNat
@@ -154,7 +154,7 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int1
 
 @[extern "lean_int16_of_int"]
 def Int16.ofInt (i : @& Int) : Int16 := ⟨⟨BitVec.ofInt 16 i⟩⟩
-@[extern "lean_int16_of_int"]
+@[extern "lean_int16_of_nat"]
 def Int16.ofNat (n : @& Nat) : Int16 := ⟨⟨BitVec.ofNat 16 n⟩⟩
 abbrev Int.toInt16 := Int16.ofInt
 abbrev Nat.toInt16 := Int16.ofNat
@@ -251,7 +251,7 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int3
 
 @[extern "lean_int32_of_int"]
 def Int32.ofInt (i : @& Int) : Int32 := ⟨⟨BitVec.ofInt 32 i⟩⟩
-@[extern "lean_int32_of_int"]
+@[extern "lean_int32_of_nat"]
 def Int32.ofNat (n : @& Nat) : Int32 := ⟨⟨BitVec.ofNat 32 n⟩⟩
 abbrev Int.toInt32 := Int32.ofInt
 abbrev Nat.toInt32 := Int32.ofNat
@@ -352,7 +352,7 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int6
 
 @[extern "lean_int64_of_int"]
 def Int64.ofInt (i : @& Int) : Int64 := ⟨⟨BitVec.ofInt 64 i⟩⟩
-@[extern "lean_int64_of_int"]
+@[extern "lean_int64_of_nat"]
 def Int64.ofNat (n : @& Nat) : Int64 := ⟨⟨BitVec.ofNat 64 n⟩⟩
 abbrev Int.toInt64 := Int64.ofInt
 abbrev Nat.toInt64 := Int64.ofNat

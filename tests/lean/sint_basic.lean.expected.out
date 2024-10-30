@@ -149,6 +149,11 @@ true
 true
 true
 true
+true
+true
+true
+true
+true
 
 [result]
 def myId16 (x_1 : u16) : u16 :=
@@ -227,6 +232,11 @@ true
 true
 true
 true
+true
+true
+true
+true
+true
 
 [result]
 def myId32 (x_1 : u32) : u32 :=
@@ -240,6 +250,11 @@ def myId32._boxed (x_1 : obj) : obj :=
 Int64 : Type
 20
 -20
+true
+true
+true
+true
+true
 true
 true
 true

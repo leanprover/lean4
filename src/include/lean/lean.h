@@ -1826,6 +1826,18 @@ static inline uint8_t lean_int8_of_int(b_lean_obj_arg a) {
     return (uint8_t)res;
 }
 
+static inline uint8_t lean_int8_of_nat(b_lean_obj_arg a) {
+    int8_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (int8_t)lean_unbox(a);
+    } else {
+        res = lean_int8_of_big_int(a);
+    }
+
+    return (uint8_t)res;
+}
+
 static inline lean_obj_res lean_int8_to_int(uint8_t a) {
     int8_t arg = (int8_t)a;
     return lean_int64_to_int((int64_t)arg);
@@ -1947,6 +1959,18 @@ static inline uint16_t lean_int16_of_int(b_lean_obj_arg a) {
 
     if (lean_is_scalar(a)) {
         res = (int16_t)lean_scalar_to_int64(a);
+    } else {
+        res = lean_int16_of_big_int(a);
+    }
+
+    return (uint16_t)res;
+}
+
+static inline uint16_t lean_int16_of_nat(b_lean_obj_arg a) {
+    int16_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (int16_t)lean_unbox(a);
     } else {
         res = lean_int16_of_big_int(a);
     }
@@ -2081,6 +2105,18 @@ static inline uint32_t lean_int32_of_int(b_lean_obj_arg a) {
     return (uint32_t)res;
 }
 
+static inline uint32_t lean_int32_of_nat(b_lean_obj_arg a) {
+    int32_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (int32_t)lean_unbox(a);
+    } else {
+        res = lean_int32_of_big_int(a);
+    }
+
+    return (uint32_t)res;
+}
+
 static inline lean_obj_res lean_int32_to_int(uint32_t a) {
     int32_t arg = (int32_t)a;
     return lean_int64_to_int((int64_t)arg);
@@ -2208,6 +2244,18 @@ static inline uint64_t lean_int64_of_int(b_lean_obj_arg a) {
     return (uint64_t)res;
 }
 
+static inline uint64_t lean_int64_of_nat(b_lean_obj_arg a) {
+    int64_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (int64_t)lean_unbox(a);
+    } else {
+        res = lean_int64_of_big_int(a);
+    }
+
+    return (uint64_t)res;
+}
+
 static inline lean_obj_res lean_int64_to_int_sint(uint64_t a) {
     int64_t arg = (int64_t)a;
     return lean_int64_to_int(arg);
@@ -2316,7 +2364,7 @@ static inline uint8_t lean_int64_dec_le(uint64_t a1, uint64_t a2) {
     return lhs <= rhs;
 }
 
-/* UInt64 -> other */
+/* Int64 -> other */
 static inline uint8_t lean_int64_to_int8(uint64_t a) { return (uint8_t)(int8_t)(int64_t)a; }
 static inline uint16_t lean_int64_to_int16(uint64_t a) { return (uint16_t)(int16_t)(int64_t)a; }
 static inline uint32_t lean_int64_to_int32(uint64_t a) { return (uint32_t)(int32_t)(int64_t)a; }

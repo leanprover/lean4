@@ -524,7 +524,7 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
       | return tokens
     let isRegularKeyword := val.length > 0 && val.front.isAlpha
     let isHashKeyword := val.length > 1 && val.front == '#' && (val.get ⟨1⟩).isAlpha
-    if ! isRegularKeyword && ! isHashKeyword then
+    if !isRegularKeyword && !isHashKeyword then
       return tokens
     return tokens.push ⟨stx, keywordSemanticTokenMap.findD val .keyword⟩
 
@@ -542,7 +542,7 @@ def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken
           if localDecl.isAuxDecl then
             if ti.isBinder then
               return ⟨ti.stx, SemanticTokenType.function⟩
-          else if ! localDecl.isImplementationDetail then
+          else if !localDecl.isImplementationDetail then
             return ⟨ti.stx, SemanticTokenType.variable⟩
     if ti.stx.getKind == Parser.Term.identProjKind then
       return ⟨ti.stx, SemanticTokenType.property⟩

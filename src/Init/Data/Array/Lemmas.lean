@@ -1318,7 +1318,7 @@ theorem any_toList {p : α → Bool} (as : Array α) : as.toList.any p = as.any 
 /-! ### all -/
 
 theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : Array α) :
-    allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
+    allM p as = (!·) <$> anyM ((!·) <$> p ·) as := by
   dsimp [allM, anyM]
   simp
 

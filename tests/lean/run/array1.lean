@@ -82,10 +82,10 @@ unless b do throw $ IO.userError "check failed"
 #guard (#[] : Array Nat).isPrefixOf #[]
 #guard #[2, 3].isPrefixOf #[2, 3]
 #guard #[2, 3].isPrefixOf #[2, 3, 4, 5]
-#guard ! #[2, 4].isPrefixOf #[2, 3]
-#guard ! #[2, 3, 4].isPrefixOf #[2, 3]
-#guard ! #[2].isPrefixOf #[]
-#guard ! #[4, 3].isPrefixOf #[2, 3, 4, 5]
+#guard !#[2, 4].isPrefixOf #[2, 3]
+#guard !#[2, 3, 4].isPrefixOf #[2, 3]
+#guard !#[2].isPrefixOf #[]
+#guard !#[4, 3].isPrefixOf #[2, 3, 4, 5]
 
 #guard #[1, 2, 3].allDiff
 #guard !#[1, 2, 1, 3].allDiff

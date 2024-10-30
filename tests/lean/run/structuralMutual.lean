@@ -231,22 +231,22 @@ end
 mutual
   def isEven : Nat → Bool
     | 0 => true
-    | n+1 => ! isOdd n
+    | n+1 => !isOdd n
   termination_by structural x => x
 
   def isOdd : Nat → Bool
     | 0 => false
-    | n+1 => ! isEven n
+    | n+1 => !isEven n
 end
 
-theorem isEven_eq_2 (n : Nat) : isEven (n+1) = ! isOdd n := rfl
+theorem isEven_eq_2 (n : Nat) : isEven (n+1) = !isOdd n := rfl
 
 /-- info: EvenOdd.isEven.eq_1 : isEven 0 = true -/
 #guard_msgs in
 #check isEven.eq_1
 
-theorem eq_true_of_not_eq_false {b : Bool} : (! b) = false → b = true := by simp
-theorem eq_false_of_not_eq_true {b : Bool} : (! b) = true → b = false := by simp
+theorem eq_true_of_not_eq_false {b : Bool} : (!b) = false → b = true := by simp
+theorem eq_false_of_not_eq_true {b : Bool} : (!b) = true → b = false := by simp
 
 /--
 info: n : Nat

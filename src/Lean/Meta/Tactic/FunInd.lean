@@ -494,7 +494,7 @@ def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr
   let mut e := e
   let mut xs := xs
   let mut mask := #[]
-  while ! xs.isEmpty do
+  while !xs.isEmpty do
     let discr := xs.back
     if discr.isFVar && e.containsFVar discr.fvarId! then
         e ← mkLambdaFVars #[discr] e

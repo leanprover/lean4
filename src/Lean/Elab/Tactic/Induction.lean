@@ -217,7 +217,7 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
     if altName != `_ then
       unless alts.any (·.name == altName) do
         let validNames := (alts.map (·.name)).toList |>List.take 3
-        let validNamesStr := validNames.foldl (init := "") fun acc n =>-- Use toString to convert n to a string
+        let validNamesStr := validNames.foldl (init := "") fun acc n =>
           if acc == "" then s!"{Name.toString n}" else s!"{acc}, {Name.toString n}"
         throwErrorAt altStx s!"invalid alternative name '{altName}', valid options include: {validNamesStr}"
 

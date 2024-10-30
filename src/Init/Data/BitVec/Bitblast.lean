@@ -174,8 +174,7 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
     exact mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ ..
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
-
-theorem carry_succ (i : Nat) (x : BitVec w) (h : 0 < w) :
+theorem carry_succ_one (i : Nat) (x : BitVec w) (h : 0 < w) :
     carry (i+1) x (1#w) false = decide (∀ j ≤ i, x.getLsbD j = true) := by
   induction i
   case zero => simp [carry_succ, h]
@@ -405,7 +404,7 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
           simp [carry]; omega
       simp [hi, carry_zero]
     case succ i =>
-      rw [carry_succ _ _ (by omega), ← Bool.xor_not, ← decide_not]
+      rw [carry_succ_one _ _ (by omega), ← Bool.xor_not, ← decide_not]
       simp only [add_one_ne_zero, decide_False, getLsbD_not, and_eq_true, decide_eq_true_eq,
         not_eq_eq_eq_not, Bool.not_true, false_bne, not_exists, _root_.not_and, not_eq_true,
         bne_left_inj, decide_eq_decide]

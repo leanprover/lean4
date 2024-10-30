@@ -176,9 +176,9 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
 
 theorem carry_succ_one (i : Nat) (x : BitVec w) (h : 0 < w) :
     carry (i+1) x (1#w) false = decide (∀ j ≤ i, x.getLsbD j = true) := by
-  induction i
-  case zero => simp [carry_succ, h]
-  case succ i ih =>
+  induction i with
+  | zero => simp [carry_succ, h]
+  | succ i ih =>
     rw [carry_succ, ih]
     simp only [getLsbD_one, add_one_ne_zero, decide_False, Bool.and_false, atLeastTwo_false_mid]
     cases hx : x.getLsbD (i+1)

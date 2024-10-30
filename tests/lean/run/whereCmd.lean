@@ -1,8 +1,5 @@
 import Lean
 
--- Restore options to default state:
-set_option internal.minimalSnapshots false
-
 /-- info: -- In root namespace with initial scope -/
 #guard_msgs in #where
 

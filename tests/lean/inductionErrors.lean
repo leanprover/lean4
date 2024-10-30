@@ -79,3 +79,9 @@ theorem ex11 (p q : Nat) : p ≤ q ∨ p > q := by
   | upper d => apply Or.inr; admit
   | lower d /- error duplicate -/ => apply Or.inl; admit
   | diag    => apply Or.inl; apply Nat.le_refl
+
+theorem ex12 (p: Nat) : p ≤ q ∨ p > q := by
+  cases p, q using elimEx with
+  | lower2 /- error -/ d => apply Or.inl; admit
+  | upper d => apply Or.inr
+  | diag    => apply Or.inl; apply Nat.le_refl

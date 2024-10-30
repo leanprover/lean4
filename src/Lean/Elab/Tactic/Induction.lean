@@ -208,18 +208,33 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
 private def isWildcard (altStx : Syntax) : Bool :=
   getAltName altStx == `_
 
-private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit :=
+private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit := do
+  let mut seenNames : Array Name := #[]
   for h : i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
       withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
+      if seenNames.contains altName then
+        throwErrorAt altStx s!"duplicate alternative name '{altName}'"
+      seenNames := seenNames.push altName
       unless alts.any (·.name == altName) do
-        let validNames := (alts.map (·.name)).toList |>List.take 3
-        let validNamesStr := validNames.foldl (init := "") fun acc n =>
-          if acc == "" then s!"{Name.toString n}" else s!"{acc}, {Name.toString n}"
-        throwErrorAt altStx s!"invalid alternative name '{altName}', valid options include: {validNamesStr}"
+        let unhandledAlts := alts.filter fun alt => !seenNames.contains alt.name
+        let msg := if unhandledAlts.isEmpty then
+          s!"invalid alternative name '{altName}', no unhandled alternatives"
+        else
+          let names := unhandledAlts.map (·.name)
+          let namesStr := match names.size with
+            | 0 => ""
+            | 1 => s!"{Name.toString names[0]!}"
+            | 2 => s!"{Name.toString names[0]!} or {Name.toString names[1]!}"
+            | _ =>
+              let init := names.extract 0 (names.size - 1)
+              let last := names.back
+              s!"{", ".intercalate (init.toList.map Name.toString)}, or {last}"
+          s!"invalid alternative name '{altName}', expected one of {namesStr}"
+        throwErrorAt altStx msg
 
 
 /-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,

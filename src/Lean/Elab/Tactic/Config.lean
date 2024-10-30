@@ -10,7 +10,7 @@ import Lean.Elab.SyntheticMVars
 import Lean.Linter.MissingDocs
 
 namespace Lean.Elab.Tactic
-open Meta Parser.Tactic
+open Meta Parser.Tactic Command
 
 /--
 Extracts the items from a tactic configuration,
@@ -115,33 +115,70 @@ private def elabConfig (recover : Bool) (structName : Name) (items : Array Confi
     let e ← Term.withSynthesize <| Term.elabTermEnsuringType stx (mkConst structName)
     instantiateMVars e
 
-/-!
-`declare_config_elab elabName TypeName` declares a function `elabName : Syntax → TacticM TypeName`
-that elaborates a tactic configuration.
-The tactic configuration can be from `Lean.Parser.Tactic.optConfig` or `Lean.Parser.Tactic.config`,
-and these can also be wrapped in null nodes (for example, from `(config)?`).
--/
-macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ident type:ident : command => do
+private def mkConfigElaborator
+    (doc? : Option (TSyntax ``Parser.Command.docComment)) (elabName type monadName : Ident)
+    (adapt recover : Term) : MacroM (TSyntax `command) := do
   let empty ← withRef type `({ : $type})
   `(unsafe def evalUnsafe (e : Expr) : TermElabM $type :=
       Meta.evalExpr' (safety := .unsafe) $type ``$type e
     @[implemented_by evalUnsafe] opaque eval (e : Expr) : TermElabM $type
     $[$doc?:docComment]?
-    def $elabName (optConfig : Syntax) : TacticM $type := do
-      let items := mkConfigItemViews (getConfigItems optConfig)
-      if items.isEmpty then
-        return $empty
-      unless (← getEnv).contains ``$type do
-        throwError m!"Error evaluating configuration, environment does not yet contain type {``$type}"
-      let c ← elabConfig (← read).recover ``$type items
-      try
-        eval c
-      catch ex =>
-        throwError "Error evaluating configuration\n{indentD c}\n\nException: {ex.toMessageData}"
-    )
+    def $elabName (optConfig : Syntax) : $monadName $type := $adapt do
+      let recover := $recover
+      let go : TermElabM $type := withRef optConfig do
+        let items := mkConfigItemViews (getConfigItems optConfig)
+        if items.isEmpty then
+          return $empty
+        unless (← getEnv).contains ``$type do
+          throwError m!"error evaluating configuration, environment does not yet contain type {``$type}"
+        let c ← elabConfig recover ``$type items
+        if c.hasSyntheticSorry then
+          -- An error is already logged, return the default.
+          return $empty
+        if c.hasSorry then
+          throwError m!"configuration contains 'sorry'"
+        try
+          let res ← eval c
+          return res
+        catch ex =>
+          let msg := m!"error evaluating configuration\n{indentD c}\n\nException: {ex.toMessageData}"
+          if false then
+            logError msg
+            return $empty
+          else
+            throwError msg
+      go)
+
+/-!
+`declare_config_elab elabName TypeName` declares a function `elabName : Syntax → TacticM TypeName`
+that elaborates a tactic configuration.
+The tactic configuration can be from `Lean.Parser.Tactic.optConfig` or `Lean.Parser.Tactic.config`,
+and these can also be wrapped in null nodes (for example, from `(config)?`).
+
+The elaborator responds to the current recovery state.
+
+For defining elaborators for commands, use `declare_command_config_elab`.
+-/
+macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ident type:ident : command => do
+  mkConfigElaborator doc? elabName type (mkCIdent ``TacticM) (mkCIdent ``id) (← `((← read).recover))
 
 open Linter.MissingDocs in
 @[builtin_missing_docs_handler Elab.Tactic.configElab]
 def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
+
+/-!
+`declare_command_config_elab elabName TypeName` declares a function `elabName : Syntax → CommandElabM TypeName`
+that elaborates a command configuration.
+The configuration can be from `Lean.Parser.Tactic.optConfig` or `Lean.Parser.Tactic.config`,
+and these can also be wrapped in null nodes (for example, from `(config)?`).
+
+The elaborator has error recovery enabled.
+-/
+macro (name := commandConfigElab) doc?:(docComment)? "declare_command_config_elab" elabName:ident type:ident : command => do
+  mkConfigElaborator doc? elabName type (mkCIdent ``CommandElabM) (mkCIdent ``liftTermElabM) (mkCIdent ``true)
+
+open Linter.MissingDocs in
+@[builtin_missing_docs_handler Elab.Tactic.commandConfigElab]
+def checkCommandConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
 end Lean.Elab.Tactic

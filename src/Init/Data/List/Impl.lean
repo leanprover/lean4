@@ -23,7 +23,7 @@ namespace List
 The following operations are already tail-recursive, and do not need `@[csimp]` replacements:
 `get`, `foldl`, `beq`, `isEqv`, `reverse`, `elem` (and hence `contains`), `drop`, `dropWhile`,
 `partition`, `isPrefixOf`, `isPrefixOf?`, `find?`, `findSome?`, `lookup`, `any` (and hence `or`),
-`all` (and hence `and`) , `range`, `eraseDups`, `eraseReps`, `span`, `groupBy`.
+`all` (and hence `and`) , `range`, `eraseDups`, `eraseReps`, `span`, `splitBy`.
 
 The following operations are still missing `@[csimp]` replacements:
 `concat`, `zipWithAll`.

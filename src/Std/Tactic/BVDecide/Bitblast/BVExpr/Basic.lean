@@ -73,10 +73,6 @@ inductive BVBinOp where
   Unsigned modulo.
   -/
   | umod
-  /--
-  Signed division.
-  -/
-  | sdiv
 
 namespace BVBinOp
 
@@ -88,7 +84,6 @@ def toString : BVBinOp → String
   | mul => "*"
   | udiv => "/ᵤ"
   | umod => "%ᵤ"
-  | sdiv => "/ₛ"
 
 instance : ToString BVBinOp := ⟨toString⟩
 
@@ -103,7 +98,6 @@ def eval : BVBinOp → (BitVec w → BitVec w → BitVec w)
   | mul => (· * ·)
   | udiv => (· / ·)
   | umod => (· % · )
-  | sdiv => BitVec.sdiv
 
 @[simp] theorem eval_and : eval .and = ((· &&& ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_or : eval .or = ((· ||| ·) : BitVec w → BitVec w → BitVec w) := by rfl
@@ -112,7 +106,6 @@ def eval : BVBinOp → (BitVec w → BitVec w → BitVec w)
 @[simp] theorem eval_mul : eval .mul = ((· * ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_udiv : eval .udiv = ((· / ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_umod : eval .umod = ((· % ·) : BitVec w → BitVec w → BitVec w) := by rfl
-@[simp] theorem eval_sdiv : eval .sdiv = (BitVec.sdiv : BitVec w → BitVec w → BitVec w) := by rfl
 
 end BVBinOp
 
@@ -448,6 +441,8 @@ def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
 @[simp] theorem eval_const : eval assign (.const b) = b := rfl
 @[simp] theorem eval_not : eval assign (.not x) = !eval assign x := rfl
 @[simp] theorem eval_gate : eval assign (.gate g x y) = g.eval (eval assign x) (eval assign y) := rfl
+@[simp] theorem eval_ite :
+  eval assign (.ite d l r) = if (eval assign d) then (eval assign l) else (eval assign r) := rfl
 
 def Sat (x : BVLogicalExpr) (assign : BVExpr.Assignment) : Prop := eval assign x = true
 

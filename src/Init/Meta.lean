@@ -629,6 +629,9 @@ def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
 def mkNumLit (val : String) (info := SourceInfo.none) : NumLit :=
   mkLit numLitKind val info
 
+def mkNatLit (val : Nat) (info := SourceInfo.none) : NumLit :=
+  mkLit numLitKind (toString val) info
+
 def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientificLitKind :=
   mkLit scientificLitKind val info
 
@@ -1435,8 +1438,9 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)?
         | _ => `(config| (config := $updateCfg {}))
       let s := s.setKind $kind
       let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))
-      let r := s.setArg 1 (mkNullNode #[c])
-      return r)
+      let s := s.setArg 1 (mkNullNode #[c])
+      let s := s.mkSynthetic
+      return s)
 
 /-- `simp!` is shorthand for `simp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to

@@ -116,8 +116,8 @@ def mkInhabitantFor (declName : Name) (type : Expr) : MetaM Expr := do
       \n\
       This process uses multiple strategies:\n\
       - It looks for a parameter that matches the return type.\n\
-      - It tries synthesizing '{MessageData.ofConstName ``Inhabited}' and '{MessageData.ofConstName ``Nonempty}' \
-        instances for the return type, while making every parameter into a local '{MessageData.ofConstName ``Inhabited}' instance.\n\
+      - It tries synthesizing '{.ofConstName ``Inhabited}' and '{.ofConstName ``Nonempty}' \
+        instances for the return type, while making every parameter into a local '{.ofConstName ``Inhabited}' instance.\n\
       - It tries unfolding the return type.\n\
       \n\
       If the return type is defined using the 'structure' or 'inductive' command, \

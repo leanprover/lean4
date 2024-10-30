@@ -216,7 +216,11 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
     let altName := getAltName altStx
     if altName != `_ then
       unless alts.any (·.name == altName) do
-        throwErrorAt altStx "invalid alternative name '{altName}'"
+        let validNames := (alts.map (·.name)).toList |>List.take 3
+        let validNamesStr := validNames.foldl (init := "") fun acc n =>-- Use toString to convert n to a string
+          if acc == "" then s!"{Name.toString n}" else s!"{acc}, {Name.toString n}"
+        throwErrorAt altStx s!"invalid alternative name '{altName}', valid options include: {validNamesStr}"
+
 
 /-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
     return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can

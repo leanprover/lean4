@@ -44,7 +44,7 @@ open Lean Meta Elab Command Tactic Conv
   let modifiers ← elabModifiers ⟨stx[1]⟩
   let declId := stx[2]
   let ⟨_, declName, _⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
-  let e ← mkAuxDefinitionFor declName lhs
+  let e ← mkAuxDefinition (compile := false) declName (← inferType lhs) lhs
   withSaveInfoContext <| Term.addTermInfo' declId e.getAppFn (isBinder := true)
   changeLhs e
 

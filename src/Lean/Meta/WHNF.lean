@@ -181,7 +181,7 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
 /-- Auxiliary function for reducing recursor applications. -/
-private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Expr → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs.get ⟨majorIdx, h⟩
@@ -198,11 +198,12 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     major := major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
     major ← toCtorWhenStructure recVal.getMajorInduct major
+    let failK := failK (mkAppN (.const recVal.name recLvls) (recArgs.set ⟨majorIdx, h⟩ major))
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs
       if recLvls.length != recVal.levelParams.length then
-        failK ()
+        failK
       else
         let rhs := rule.rhs.instantiateLevelParams recVal.levelParams recLvls
         -- Apply parameters, motives and minor premises from recursor application.
@@ -214,9 +215,9 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
         let rhs := mkAppRange rhs nparams majorArgs.size majorArgs
         let rhs := mkAppRange rhs (majorIdx + 1) recArgs.size recArgs
         successK rhs
-    | none => failK ()
+    | none => failK
   else
-    failK ()
+    failK (mkAppN (.const recVal.name recLvls) recArgs)
 
 -- ===========================
 /-! # Helper functions for reducing Quot.lift and Quot.ind -/
@@ -642,7 +643,7 @@ where
           | .notMatcher   =>
             matchConstAux f' (fun _ => return e) fun cinfo lvls =>
               match cinfo with
-              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+              | .recInfo rec    => reduceRec rec lvls e.getAppArgs pure (fun e => do recordUnfold cinfo.name; go e)
               | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
               | c@(.defnInfo _) => do
                 if (← isAuxDef c.name) then
@@ -651,11 +652,11 @@ where
                 else
                   return e
               | _ => return e
-      | .proj _ i c =>
+      | .proj n i c =>
         let k (c : Expr) := do
           match (← projectCore? c i) with
           | some e => go e
-          | none => return e
+          | none => return .proj n i c
         match config.proj with
         | .no => return e
         | .yes => k (← go c)

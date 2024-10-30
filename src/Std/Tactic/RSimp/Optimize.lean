@@ -44,6 +44,8 @@ def optimize (declName : Name) : MetaM Unit := do
   -- Do we need to give the user control over the simplifier here?
   -- TODO: Unify with rsimp_decide
   let .some se ← getSimpExtension? `rsimp | throwError "simp set 'rsimp' not found"
+  -- TODO: zeta := false seems reasonable, we do not want to duplicate terms
+  -- but it can produce type-incorrect terms here.
   let ctx : Simp.Context := { config := {}, simpTheorems := #[(← se.getTheorems)], congrTheorems := (← Meta.getSimpCongrTheorems) }
   let (res, _stats) ← simp rhs0 ctx #[(← Simp.getSimprocs)] none
   let rhs := res.expr
@@ -51,7 +53,7 @@ def optimize (declName : Name) : MetaM Unit := do
 
   let (rhs, proof) ← recursionToFuel lhs rhs proof
 
-  trace[tactic.rsimp_decide] "Optimized expression:{indentExpr rhs}"
+  trace[tactic.rsimp_optimize] "Optimizing {lhs} to:{indentExpr rhs}"
   addDecl <| Declaration.defnDecl { info with
     name := opt_name, type := info.type, value := rhs, levelParams := info.levelParams
   }

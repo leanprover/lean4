@@ -1792,7 +1792,7 @@ theorem setWidth_succ (x : BitVec w) :
     · simp_all
     · omega
 
-@[deprecated "Use the reverse direction of `cons_msb_setWidth`"]
+@[deprecated "Use the reverse direction of `cons_msb_setWidth`" (since := "2024-09-23")]
 theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)) := by
   simp
 

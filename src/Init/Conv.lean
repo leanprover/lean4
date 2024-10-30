@@ -252,7 +252,7 @@ macro "rw" c:(config)? s:rwRuleSeq : conv => `(conv| rewrite $[$c]? $s)
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw" s:rwRuleSeq : conv => `(conv| rw (config := { transparency := .default }) $s)
+macro "erw" s:rwRuleSeq : conv => `(conv| rw (config := { transparency := .default }) $s:rwRuleSeq)
 
 /-- `args` traverses into all arguments. Synonym for `congr`. -/
 macro "args" : conv => `(conv| congr)

@@ -85,7 +85,7 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
 /-
   `optConfig` is of the form `("(" "config" ":=" term ")")?`
 -/
-def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TermElabM Meta.Simp.Config := do
+def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
   match kind with
   | .simp    => elabSimpConfigCore optConfig
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig

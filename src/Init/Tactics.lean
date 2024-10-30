@@ -417,7 +417,27 @@ It synthesizes a value of any target type by typeclass inference.
 -/
 macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 
-/-- Optional configuration option for tactics -/
+/--
+`+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
+-/
+syntax posConfigItem := "+" noWs ident
+/--
+`-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
+-/
+syntax negConfigItem := "-" noWs ident
+/--
+`(opt := val)` sets the `opt` configuration option to `val`.
+
+As a special case, `(config := ...)` sets the entire configuration.
+-/
+syntax valConfigItem := atomic("(" (ident <|> &"config")) " := " withoutPosition(term) ")"
+/-- A configuration item for a tactic configuration. -/
+syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
+
+/-- Configuration options for tactics. -/
+syntax optConfig := configItem*
+
+/-- Optional configuration option for tactics. (Deprecated. Replace `(config)?` with `optConfig`.) -/
 syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 
 /-- The `*` location refers to all hypotheses and the goal. -/

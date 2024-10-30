@@ -424,7 +424,6 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     constructor
     · rintro ⟨j, hj, h⟩
       refine ⟨w - 1 - j, by omega, by omega, by omega, _root_.cast ?_ h⟩
-      <;> try omega
       congr; omega
     · rintro ⟨j, hj₁, hj₂, -, h⟩
       exact ⟨w - 1 - j, by omega, h⟩

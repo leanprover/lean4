@@ -59,6 +59,7 @@ set_option pp.piBinderTypes false
 
 end WhereTest
 
+section
 open Lean Meta
 
 /--
@@ -84,3 +85,19 @@ open Lean.Elab.Command Std
 open Array renaming map → listMap
 -/
 #guard_msgs in #where
+end
+
+
+/-!
+Stripping comments on `variable` binders
+-/
+section
+variable (a : Nat)
+-- Some discussion
+  (b : Nat)
+-- Some more discussion
+
+/-- info: variable (a : Nat) (b : Nat) -/
+#guard_msgs in #where
+
+end

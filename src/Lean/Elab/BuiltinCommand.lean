@@ -442,7 +442,8 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     msg := msg.push <| ← `(command| universe $levels.toArray*)
   -- Variables
   if !scope.varDecls.isEmpty then
-    msg := msg.push <| ← `(command| variable $scope.varDecls*)
+    let varDecls : Array (TSyntax `Lean.Parser.Term.bracketedBinder) := scope.varDecls.map (⟨·.raw.unsetTrailing⟩)
+    msg := msg.push <| ← `(command| variable $varDecls*)
   -- Included variables
   if !scope.includedVars.isEmpty then
     msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)

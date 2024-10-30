@@ -2921,6 +2921,21 @@ theorem toInt_intMin {w : Nat} :
     rw [Nat.mul_comm]
     simp [w_pos]
 
+theorem toInt_intMin_le (x : BitVec w) :
+    (intMin w).toInt ≤ x.toInt := by
+  cases w
+  case zero => simp [@of_length_zero x]
+  case succ w =>
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod]
+    have : 0 < 2 ^ w := Nat.two_pow_pos w
+    rw [Int.emod_eq_of_lt (by omega) (by omega)]
+    rw [BitVec.toInt_eq_toNat_bmod]
+    rw [show (2 ^ w : Nat) = ((2 ^ (w + 1) : Nat) : Int) / 2 by omega]
+    apply Int.le_bmod (by omega)
+
+theorem intMin_sle (x : BitVec w) : (intMin w).sle x := by
+  simp only [BitVec.sle, toInt_intMin_le x, decide_True]
+
 @[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   by_cases h : 0 < w

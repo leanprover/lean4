@@ -390,27 +390,24 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       (getLsbD x i ^^ decide (i < w ∧ ∃ j < i, getLsbD x j = true)) := by
   rw [neg_eq_not_add]
   by_cases hi : i < w
-  case neg =>
-    have h_ge : w ≤ i := by omega
-    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
-  case pos =>
-    rw [getLsbD_add hi]
+  · rw [getLsbD_add hi]
     have : 0 < w := by omega
     simp only [getLsbD_not, hi, decide_True, Bool.true_and, getLsbD_one, this, not_bne,
       _root_.true_and, not_eq_eq_eq_not]
     cases i
-    case zero =>
-      have carry_zero : carry 0 ?x ?y false = false := by
+    · have carry_zero : carry 0 ?x ?y false = false := by
           simp [carry]; omega
       simp [hi, carry_zero]
-    case succ i =>
-      rw [carry_succ_one _ _ (by omega), ← Bool.xor_not, ← decide_not]
+    · rw [carry_succ_one _ _ (by omega), ← Bool.xor_not, ← decide_not]
       simp only [add_one_ne_zero, decide_False, getLsbD_not, and_eq_true, decide_eq_true_eq,
         not_eq_eq_eq_not, Bool.not_true, false_bne, not_exists, _root_.not_and, not_eq_true,
         bne_left_inj, decide_eq_decide]
       constructor
       · rintro h j hj; exact And.right <| h j (by omega)
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
+  · have h_ge : w ≤ i := by omega
+    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i =

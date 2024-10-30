@@ -118,7 +118,7 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline] def get? (m : HashMap α β) (a : α) : Option β :=
   DHashMap.Const.get? m.inner a
 
-@[deprecated get? "Use `m[a]?` or `m.get? a` instead", inherit_doc get?]
+@[deprecated get? "Use `m[a]?` or `m.get? a` instead" (since := "2024-08-07"), inherit_doc get?]
 def find? (m : HashMap α β) (a : α) : Option β :=
   m.get? a
 
@@ -145,7 +145,7 @@ Retrieves the mapping for the given key. Ensures that such a mapping exists by r
     (fallback : β) : β :=
   DHashMap.Const.getD m.inner a fallback
 
-@[deprecated getD, inherit_doc getD]
+@[deprecated getD (since := "2024-08-07"), inherit_doc getD]
 def findD (m : HashMap α β) (a : α) (fallback : β) : β :=
   m.getD a fallback
 
@@ -157,7 +157,7 @@ Tries to retrieve the mapping for the given key, panicking if no such mapping is
 @[inline] def get! [Inhabited β] (m : HashMap α β) (a : α) : β :=
   DHashMap.Const.get! m.inner a
 
-@[deprecated get! "Use `m[a]!` or `m.get! a` instead", inherit_doc get!]
+@[deprecated get! "Use `m[a]!` or `m.get! a` instead" (since := "2024-08-07"), inherit_doc get!]
 def find! [Inhabited β] (m : HashMap α β) (a : α) : Option β :=
   m.get! a
 

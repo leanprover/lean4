@@ -175,7 +175,7 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
 
-theorem carry_incr (i : Nat) (x : BitVec w) (h : 0 < w) :
+theorem carry_succ (i : Nat) (x : BitVec w) (h : 0 < w) :
     carry (i+1) x (1#w) false = decide (∀ j ≤ i, x.getLsbD j = true) := by
   induction i
   case zero => simp [carry_succ, h]
@@ -189,7 +189,7 @@ theorem carry_incr (i : Nat) (x : BitVec w) (h : 0 < w) :
       simpa
     case true =>
       suffices
-          (∀ (j : Nat), j ≤ i → x.getLsbD j = true )
+          (∀ (j : Nat), j ≤ i → x.getLsbD j = true)
           ↔ (∀ (j : Nat), j ≤ i + 1 → x.getLsbD j = true) by
         simpa
       constructor
@@ -405,12 +405,12 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
           simp [carry]; omega
       simp [hi, carry_zero]
     case succ i =>
-      rw [carry_incr _ _ (by omega), ← Bool.xor_not, ← decide_not]
+      rw [carry_succ _ _ (by omega), ← Bool.xor_not, ← decide_not]
       simp only [add_one_ne_zero, decide_False, getLsbD_not, and_eq_true, decide_eq_true_eq,
         not_eq_eq_eq_not, Bool.not_true, false_bne, not_exists, _root_.not_and, not_eq_true,
         bne_left_inj, decide_eq_decide]
       constructor
-      · rintro h j hj; apply And.right <| h j (by omega)
+      · rintro h j hj; exact And.right <| h j (by omega)
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
@@ -425,12 +425,11 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     simp only [hi, decide_True, h₁, Bool.true_and, Bool.bne_left_inj, decide_eq_decide]
     constructor
     · rintro ⟨j, hj, h⟩
-      refine ⟨w - 1 - j, ?_, ?_, ?_, _root_.cast ?_ h⟩
+      refine ⟨w - 1 - j, by omega, by omega, by omega, _root_.cast ?_ h⟩
       <;> try omega
       congr; omega
     · rintro ⟨j, hj₁, hj₂, -, h⟩
-      refine ⟨w - 1 - j, ?_, h⟩
-      omega
+      refine ⟨w - 1 - j, by omega, h⟩
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
     (-x).msb = ((!decide (x = 0#w) && !decide (x = intMin w)) ^^ x.msb) := by
@@ -475,7 +474,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
 
 /-! ### abs -/
 
-theorem msb_abs {w: Nat} {x : BitVec w} :
+theorem msb_abs {w : Nat} {x : BitVec w} :
     x.abs.msb = (decide (x = intMin w) && decide (0 < w)) := by
   simp only [BitVec.abs, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
   by_cases h₀ : 0 < w

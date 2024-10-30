@@ -427,7 +427,7 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
       <;> try omega
       congr; omega
     · rintro ⟨j, hj₁, hj₂, -, h⟩
-      refine ⟨w - 1 - j, by omega, h⟩
+      exact ⟨w - 1 - j, by omega, h⟩
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
     (-x).msb = ((decide (x ≠ 0#w) && decide (x ≠ intMin w)) ^^ x.msb) := by

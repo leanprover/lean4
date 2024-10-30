@@ -6,6 +6,7 @@ Authors: Joachim Breitner
 
 prelude
 import Std.Tactic.RSimp.Setup
+import Std.Tactic.RSimp.Fuel
 import Lean.Elab.Tactic
 import Init.Tactics
 
@@ -24,31 +25,6 @@ def getEqUnfold (declName : Name) : MetaM (Option (Expr × Expr)) := do
     let some (_, _, rhs) := (← inferType unfoldProof).eq? | throwError "Unexpected type of {unfold}"
     return some (rhs, unfoldProof)
   else return none
-
-def lots_of_fuel : Nat := 9223372036854775807
-
-def rsimp_iterate {α : Sort u} (x : α) (f : α → α) : α :=
-  Nat.rec x (fun _ ih => f ih) lots_of_fuel
-
-theorem reduce_with_fuel {α : Sort u} {x : α} {f : α → α} (h : x = f x) :
-    x = rsimp_iterate x f := by
-    unfold rsimp_iterate
-    exact Nat.rec rfl (fun _ ih => h.trans (congrArg f ih)) lots_of_fuel
-
--- TODO: We really should do this after simplification, not before, when specializing expressions
-def recursionToFuel (lhs rhs proof : Expr) : MetaM (Expr × Expr) := do
-  let f ← kabstract rhs lhs
-  if f.hasLooseBVars then
-    let t ← inferType lhs
-    let u ← getLevel t
-    let f := mkLambda `ih .default t f
-    let rhs' := mkApp3 (.const ``rsimp_iterate [u]) t lhs f
-    let proof' := mkApp4 (.const ``reduce_with_fuel [u]) t lhs f proof
-    return (rhs', proof')
-  else
-    -- Not (obviously) recursive
-    return (rhs, proof)
-
 
 def optimize (declName : Name) : MetaM Unit := do
   let opt_name := .str declName "rsimp"
@@ -97,27 +73,3 @@ initialize registerBuiltinAttribute {
       unless attrKind == AttributeKind.global do throwError "invalid attribute 'rsimp_optimize', must be global"
       (optimize declName).run' {} {}
   }
-
--- open Lean.Parser.Tactic
-
--- syntax (name := rsimp_optimize_cmd) "rsimp_optimize" (config)? (discharger)?
---     (&" only")? (" [" (simpErase <|> simpLemma),* "]")?  term : tactic
-
--- open Elab Command
--- open Tactic
-
--- @[command_elab rsimp_optimize_cmd]
--- def rsimpOptimizeCmd : CommandElab := fun stx => do
---   liftTermElabM do
---     -- TODO: Using closeMainGoalUsing did not work as expected
---     let lhs ← Elab.Term.elabTermAndSynthesize stx[5] none
-
---     let .some se ← getSimpExtension? `rsimp | throwError "simp set 'rsimp' not found"
-
---     let scr ← mkSimpContext stx
---       (simpTheorems := se.getTheorems) (ignoreStarArg := true) (eraseLocal := false)
---     let (res, _stats) ← scr.dischargeWrapper.with fun discharge? =>
---       simp decE scr.ctx scr.simprocs discharge?
-
---     let optE := res.expr
---     _

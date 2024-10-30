@@ -1,4 +1,10 @@
 import Lean
+/-!
+# Tests for the `#where` command
+-/
+
+-- Restore the options to a pristine state
+set_option internal.cmdlineSnapshots false
 
 /-- info: -- In root namespace with initial scope -/
 #guard_msgs in #where

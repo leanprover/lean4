@@ -59,7 +59,7 @@ def initSharedLib : FilePath :=
 /-- Path information about the local Lean installation. -/
 structure LeanInstall where
   sysroot : FilePath
-  githash : String
+  githash : String := ""
   srcDir := sysroot / "src" / "lean"
   leanLibDir := sysroot / "lib" / "lean"
   includeDir := sysroot / "include"
@@ -69,9 +69,9 @@ structure LeanInstall where
   leanc := leancExe sysroot
   sharedLib := leanSharedLibDir sysroot / leanSharedLib
   initSharedLib := leanSharedLibDir sysroot / initSharedLib
-  ar : FilePath
-  cc : FilePath
-  customCc : Bool
+  ar : FilePath := "ar"
+  cc : FilePath := "cc"
+  customCc : Bool := false
   deriving Inhabited, Repr
 
 /--
@@ -302,8 +302,8 @@ Then it attempts to detect if Lake and Lean are part of a single installation
 where the `lake` executable is co-located with the `lean` executable (i.e., they
 are in the same directory). If Lean and Lake are not co-located, Lake will
 attempt  to find the their installations separately by calling
-`findLeanInstall?` and `findLakeInstall?`. This behavior can be forced even
-when Lake is co-located by setting `LAKE_OVERRIDE_LEAN` to true.
+`findLeanInstall?` and `findLakeInstall?`. Setting `LAKE_OVERRIDE_LEAN` to true
+will force Lake to use `findLeanInstall?` even if co-located.
 
 When co-located, Lake will assume that Lean and Lake's binaries are located in
 `<sysroot>/bin`, their Lean libraries  in `<sysroot>/lib/lean`, Lean's source files
@@ -312,9 +312,13 @@ following the pattern of a regular Lean toolchain.
 -/
 def findInstall? : BaseIO (Option ElanInstall × Option LeanInstall × Option LakeInstall) := do
   let elan? ← findElanInstall?
-  unless (← IO.getEnv "LAKE_OVERRIDE_LEAN").bind envToBool? |>.getD false do
-    if let some home ← findLakeLeanJointHome? then
-      let lean ← LeanInstall.get home (collocated := true)
+  if let some sysroot ← findLakeLeanJointHome? then
+    if (← IO.getEnv "LAKE_OVERRIDE_LEAN").bind envToBool? |>.getD false then
+      let lake := LakeInstall.ofLean {sysroot}
+      return (elan?, ← findLeanInstall?, lake)
+    else
+      let lean ← LeanInstall.get sysroot (collocated := true)
       let lake := LakeInstall.ofLean lean
       return (elan?, lean, lake)
-  return (elan?, ← findLeanInstall?, ← findLakeInstall?)
+  else
+    return (elan?, ← findLeanInstall?, ← findLakeInstall?)

@@ -80,10 +80,11 @@ private structure StructureState where
   map : PersistentHashMap Name StructureInfo := {}
   deriving Inhabited
 
-builtin_initialize structureExt : SimplePersistentEnvExtension StructureInfo StructureState ← registerSimplePersistentEnvExtension {
-  addImportedFn := fun _ => {}
-  addEntryFn    := fun s e => { s with map := s.map.insert e.structName e }
-  toArrayFn     := fun es => es.toArray.qsort StructureInfo.lt
+builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+  mkInitial       := pure ((), {})
+  addImportedFn   := fun _ => pure ((), {})
+  addEntryFn      := fun (_, s) e => ((), { s with map := s.map.insert e.structName e })
+  exportEntriesFn := fun (_, s) => s.map.toArray |>.map (·.snd) |>.qsort StructureInfo.lt
 }
 
 /--
@@ -113,7 +114,7 @@ Set parent projection info for a structure defined in the current module.
 Throws an error if the structure has not already been registered with `Lean.registerStructure`.
 -/
 def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name) (parentInfo : Array StructureParentInfo) : m Unit := do
-  let some info := structureExt.getState (← getEnv) |>.map.find? structName
+  let some info := structureExt.getState (← getEnv) |>.snd.map.find? structName
     | throwError "cannot set structure parents for '{structName}', structure not defined in current module"
   modifyEnv fun env => structureExt.addEntry env { info with parentInfo }
 
@@ -121,7 +122,7 @@ def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name
 def getStructureInfo? (env : Environment) (structName : Name) : Option StructureInfo :=
   match env.getModuleIdxFor? structName with
   | some modIdx => structureExt.getModuleEntries env modIdx |>.binSearch { structName } StructureInfo.lt
-  | none        => structureExt.getState env |>.map.find? structName
+  | none        => structureExt.getState env |>.snd.map.find? structName
 
 /--
 Gets the `StructureInfo` for `structName`, which is assumed to have been declared as a structure to the elaborator.

@@ -11,6 +11,34 @@ theorem ex (i : BitVec 5) : 2 * i &&& 1 = 0 := by bv_decide
 -- #print ex._expr_def_1
 -- #print ex._cert_def_1
 
+open Lean in
+partial def callPaths (source : Name) (target : Name) : CoreM MessageData := do
+  let rec go (n : Name) : StateT (NameMap Bool) CoreM (Option MessageData) := do
+    if n = target then
+      return m!"{.ofConstName n} !"
+    if let some hit := (← get).find? n then
+      if hit then
+        return m!"{.ofConstName n} ↑"
+    let .defnInfo ci ← getConstInfo n | return none
+    let ns := Expr.getUsedConstants ci.value
+    let ms ← ns.filterMapM go
+    let hit := !ms.isEmpty
+    modify (·.insert n hit)
+    unless hit do return none
+    return some <| .ofConstName n ++ (.nest 1 ("\n" ++ (.joinSep ms.toList "\n")))
+
+  if let some md ← (go source).run' {} then
+    pure md
+  else
+    pure "No paths from {.ofConstName source} to {.ofConstName target} found"
+
+open Lean Elab Command in
+elab "#call_paths " i1:ident " => " i2:ident : command => liftTermElabM do
+    let source ← realizeGlobalConstNoOverloadWithInfo i1
+    let target ← realizeGlobalConstNoOverloadWithInfo i2
+    let m ← callPaths source target
+    logInfo m
+
 
 def parsedProof : Array Std.Tactic.BVDecide.LRAT.IntAction :=
   #[Std.Tactic.BVDecide.LRAT.Action.addRup 64 #[-183] #[1, 3],
@@ -68,11 +96,14 @@ attribute [rsimp_optimize] Std.Tactic.BVDecide.Reflect.verifyCert
 attribute [rsimp_optimize] Std.Tactic.BVDecide.Reflect.verifyBVExpr
 attribute [rsimp_optimize] ex._reflection_def_1
 
+
 @[rsimp] conv_theorem unfold_to_parser :
     ex._reflection_def_1 =>
   simp [ex._reflection_def_1, Std.Tactic.BVDecide.Reflect.verifyBVExpr,
     Std.Tactic.BVDecide.Reflect.verifyCert, rsimp]
   abstractAs optimized_reflection_def
+
+#call_paths optimized_reflection_def =>  WellFounded.fix
 
 -- #print optimized_reflection_def
 

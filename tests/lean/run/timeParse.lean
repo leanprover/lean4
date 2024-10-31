@@ -16,7 +16,6 @@ def Full12HourWrong : GenericFormat .any := datespec("MM/dd/uuuu hh:mm:ss aa XXX
 
 -- Dates
 
-
 def brTZ : TimeZone := timezone("America/Sao_Paulo -03:00")
 def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
 

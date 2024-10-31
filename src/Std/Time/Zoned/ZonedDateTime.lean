@@ -453,9 +453,9 @@ Creates a new `ZonedDateTime` by adjusting the `nano` component with a new `mill
 in the millisecond scale.
 -/
 @[inline]
-def withMillisecond (dt : ZonedDateTime) (millis : Millisecond.Ordinal) : ZonedDateTime :=
+def withMilliseconds (dt : ZonedDateTime) (millis : Millisecond.Ordinal) : ZonedDateTime :=
   let date := dt.date.get
-  ZonedDateTime.ofPlainDateTime (date.withMillisecond millis) dt.rules
+  ZonedDateTime.ofPlainDateTime (date.withMilliseconds millis) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `nano` component.

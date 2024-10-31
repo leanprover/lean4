@@ -152,8 +152,8 @@ Adds seconds to a `PlainTime`.
 -/
 @[inline]
 def addSeconds (time : PlainTime) (secondsToAdd : Second.Offset) : PlainTime :=
-  let totalSeconds := time.toSeconds + secondsToAdd
-  ofSeconds totalSeconds
+  let totalSeconds := time.toNanoseconds + secondsToAdd.toNanoseconds
+  ofNanoseconds totalSeconds
 
 /--
 Subtracts seconds from a `PlainTime`.
@@ -167,8 +167,8 @@ Adds minutes to a `PlainTime`.
 -/
 @[inline]
 def addMinutes (time : PlainTime) (minutesToAdd : Minute.Offset) : PlainTime :=
-  let total := time.toSeconds + minutesToAdd.toSeconds
-  ofSeconds total
+  let total := time.toNanoseconds + minutesToAdd.toNanoseconds
+  ofNanoseconds total
 
 /--
 Subtracts minutes from a `PlainTime`.
@@ -182,8 +182,8 @@ Adds hours to a `PlainTime`.
 -/
 @[inline]
 def addHours (time : PlainTime) (hoursToAdd : Hour.Offset) : PlainTime :=
-  let total := time.toSeconds + hoursToAdd.toSeconds
-  ofSeconds total
+  let total := time.toNanoseconds + hoursToAdd.toNanoseconds
+  ofNanoseconds total
 
 /--
 Subtracts hours from a `PlainTime`.
@@ -236,7 +236,7 @@ def withMinutes (pt : PlainTime) (minute : Minute.Ordinal) : PlainTime :=
 Creates a new `PlainTime` by adjusting the milliseconds component inside the `nano` component of its `time` to the given value.
 -/
 @[inline]
-def withMillisecond (pt : PlainTime) (millis : Millisecond.Ordinal) : PlainTime :=
+def withMilliseconds (pt : PlainTime) (millis : Millisecond.Ordinal) : PlainTime :=
   let minorPart := pt.nanosecond.emod 1000 (by decide)
   let majorPart := millis.mul_pos 1000000 (by decide) |>.addBounds minorPart
   { pt with nanosecond := majorPart |>.expandTop (by decide) }

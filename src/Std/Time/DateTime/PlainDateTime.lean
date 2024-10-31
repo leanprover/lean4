@@ -205,15 +205,15 @@ def withSeconds (dt : PlainDateTime) (second : Sigma Second.Ordinal) : PlainDate
 Creates a new `PlainDateTime` by adjusting the milliseconds component inside the `nano` component of its `time` to the given value.
 -/
 @[inline]
-def withMillisecond (dt : PlainDateTime) (millis : Millisecond.Ordinal) : PlainDateTime :=
-  { dt with time := dt.time.withMillisecond millis }
+def withMilliseconds (dt : PlainDateTime) (millis : Millisecond.Ordinal) : PlainDateTime :=
+  { dt with time := dt.time.withMilliseconds millis }
 
 /--
 Creates a new `PlainDateTime` by adjusting the `nano` component of its `time` to the given value.
 -/
 @[inline]
 def withNanoseconds (dt : PlainDateTime) (nano : Nanosecond.Ordinal) : PlainDateTime :=
-  { dt with time := { dt.time with nanosecond := nano } }
+  { dt with time := dt.time.withNanoseconds nano }
 
 /--
 Adds a `Day.Offset` to a `PlainDateTime`.

@@ -87,7 +87,7 @@ def Int8.mul (a b : Int8) : Int8 := ⟨⟨a.toBitVec * b.toBitVec⟩⟩
 @[extern "lean_int8_div"]
 def Int8.div (a b : Int8) : Int8 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int8_mod"]
-def Int8.mod (a b : Int8) : Int8 := ⟨⟨BitVec.smod a.toBitVec b.toBitVec⟩⟩
+def Int8.mod (a b : Int8) : Int8 := ⟨⟨BitVec.srem a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int8_land"]
 def Int8.land (a b : Int8) : Int8 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 @[extern "lean_int8_lor"]
@@ -184,7 +184,7 @@ def Int16.mul (a b : Int16) : Int16 := ⟨⟨a.toBitVec * b.toBitVec⟩⟩
 @[extern "lean_int16_div"]
 def Int16.div (a b : Int16) : Int16 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int16_mod"]
-def Int16.mod (a b : Int16) : Int16 := ⟨⟨BitVec.smod a.toBitVec b.toBitVec⟩⟩
+def Int16.mod (a b : Int16) : Int16 := ⟨⟨BitVec.srem a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int16_land"]
 def Int16.land (a b : Int16) : Int16 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 @[extern "lean_int16_lor"]
@@ -285,7 +285,7 @@ def Int32.mul (a b : Int32) : Int32 := ⟨⟨a.toBitVec * b.toBitVec⟩⟩
 @[extern "lean_int32_div"]
 def Int32.div (a b : Int32) : Int32 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int32_mod"]
-def Int32.mod (a b : Int32) : Int32 := ⟨⟨BitVec.smod a.toBitVec b.toBitVec⟩⟩
+def Int32.mod (a b : Int32) : Int32 := ⟨⟨BitVec.srem a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int32_land"]
 def Int32.land (a b : Int32) : Int32 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 @[extern "lean_int32_lor"]
@@ -390,7 +390,7 @@ def Int64.mul (a b : Int64) : Int64 := ⟨⟨a.toBitVec * b.toBitVec⟩⟩
 @[extern "lean_int64_div"]
 def Int64.div (a b : Int64) : Int64 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int64_mod"]
-def Int64.mod (a b : Int64) : Int64 := ⟨⟨BitVec.smod a.toBitVec b.toBitVec⟩⟩
+def Int64.mod (a b : Int64) : Int64 := ⟨⟨BitVec.srem a.toBitVec b.toBitVec⟩⟩
 @[extern "lean_int64_land"]
 def Int64.land (a b : Int64) : Int64 := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
 @[extern "lean_int64_lor"]

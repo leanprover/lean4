@@ -1881,7 +1881,7 @@ static inline uint8_t lean_int8_mod(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t) a1;
     int8_t rhs = (int8_t) a2;
 
-    return (uint8_t)(rhs == 0 ? 0 : lhs % rhs);
+    return (uint8_t)(rhs == 0 ? lhs : lhs % rhs);
 }
 
 static inline uint8_t lean_int8_land(uint8_t a1, uint8_t a2) {
@@ -2021,7 +2021,7 @@ static inline uint16_t lean_int16_mod(uint16_t a1, uint16_t a2) {
     int16_t lhs = (int16_t) a1;
     int16_t rhs = (int16_t) a2;
 
-    return (uint16_t)(rhs == 0 ? 0 : lhs % rhs);
+    return (uint16_t)(rhs == 0 ? lhs : lhs % rhs);
 }
 
 static inline uint16_t lean_int16_land(uint16_t a1, uint16_t a2) {
@@ -2160,7 +2160,7 @@ static inline uint32_t lean_int32_mod(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t) a1;
     int32_t rhs = (int32_t) a2;
 
-    return (uint32_t)(rhs == 0 ? 0 : lhs % rhs);
+    return (uint32_t)(rhs == 0 ? lhs : lhs % rhs);
 }
 
 static inline uint32_t lean_int32_land(uint32_t a1, uint32_t a2) {
@@ -2299,7 +2299,7 @@ static inline uint64_t lean_int64_mod(uint64_t a1, uint64_t a2) {
     int64_t lhs = (int64_t) a1;
     int64_t rhs = (int64_t) a2;
 
-    return (uint64_t)(rhs == 0 ? 0 : lhs % rhs);
+    return (uint64_t)(rhs == 0 ? lhs : lhs % rhs);
 }
 
 static inline uint64_t lean_int64_land(uint64_t a1, uint64_t a2) {

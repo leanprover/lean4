@@ -71,6 +71,7 @@ true
 true
 true
 true
+true
 
 [result]
 def myId8 (x_1 : u8) : u8 :=
@@ -84,6 +85,7 @@ def myId8._boxed (x_1 : obj) : obj :=
 Int16 : Type
 20
 -20
+true
 true
 true
 true
@@ -237,6 +239,7 @@ true
 true
 true
 true
+true
 
 [result]
 def myId32 (x_1 : u32) : u32 :=
@@ -250,6 +253,7 @@ def myId32._boxed (x_1 : obj) : obj :=
 Int64 : Type
 20
 -20
+true
 true
 true
 true

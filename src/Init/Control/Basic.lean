@@ -35,6 +35,14 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
   simp [h]
   rfl
 
+/-- Extract the value from a `ForInStep`, ignoring whether it is `done` or `yield`. -/
+def ForInStep.value (x : ForInStep α) : α :=
+  match x with
+  | ForInStep.done b => b
+  | ForInStep.yield b => b
+
+@[simp] theorem ForInStep.value_done (b : β) : (ForInStep.done b).value = b := rfl
+@[simp] theorem ForInStep.value_yield (b : β) : (ForInStep.yield b).value = b := rfl
 @[reducible]
 def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a

@@ -151,6 +151,17 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
           intro a m b
           exact h a (mem_cons_of_mem _ m) b
 
+theorem forIn_eq_foldlM [Monad m] (f : α → β → m (ForInStep β)) (init : β) (l : List α) :
+    forIn l init f = ForInStep.value <$>
+      l.foldlM (fun b a => match b with
+        | .yield b => f a b
+        | .done b => pure (.done b)) (ForInStep.yield init) := by
+  induction l generalizing init with
+  | nil => simp
+  | cons a as ih =>
+    simp only [foldlM_cons, bind_pure_comp]
+    simp only [forIn_cons]
+
 /-! ### allM -/
 
 theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :

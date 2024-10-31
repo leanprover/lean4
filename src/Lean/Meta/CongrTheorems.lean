@@ -232,6 +232,29 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
   return fixKindsForDependencies info result
 
 /--
+Variant of `getCongrSimpKinds` for rewriting just argument 0.
+If it is possible to rewrite, the 0th `CongrArgKind` is `CongrArgKind.eq`.
+This is used for the `arg` conv tactic.
+-/
+def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) := do
+  let mut result := #[]
+  for h : i in [:info.paramInfo.size] do
+    if info.resultDeps.contains i then
+      result := result.push .fixed
+    else if i == 0 then
+      result := result.push .eq
+    else if info.paramInfo[i].isProp then
+      result := result.push .cast
+    else if info.paramInfo[i].isInstImplicit then
+      if shouldUseSubsingletonInst info result i then
+        result := result.push .subsingletonInst
+      else
+        result := result.push .fixed
+    else
+      result := result.push .fixed
+  return fixKindsForDependencies info result
+
+/--
   Create a congruence theorem that is useful for the simplifier and `congr` tactic.
 -/
 partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do

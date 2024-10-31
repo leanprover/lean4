@@ -46,12 +46,20 @@ scoped syntax (name := withAnnotateState)
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
 
-/-- Traverses into the left subterm of a binary operator.
-(In general, for an `n`-ary operator, it traverses into the second to last argument.) -/
+/--
+Traverses into the left subterm of a binary operator.
+
+In general, for an `n`-ary operator, it traverses into the second to last argument.
+It is a synonym for `arg -2`.
+-/
 syntax (name := lhs) "lhs" : conv
 
-/-- Traverses into the right subterm of a binary operator.
-(In general, for an `n`-ary operator, it traverses into the last argument.) -/
+/--
+Traverses into the right subterm of a binary operator.
+
+In general, for an `n`-ary operator, it traverses into the last argument.
+It is a synonym for `arg -1`.
+-/
 syntax (name := rhs) "rhs" : conv
 
 /-- Traverses into the function of a (unary) function application.
@@ -77,10 +85,12 @@ syntax (name := congr) "congr" : conv
 /--
 * `arg i` traverses into the `i`'th argument of the target. For example if the
   target is `f a b c d` then `arg 1` traverses to `a` and `arg 3` traverses to `c`.
+  The index may be negative; `arg -1` traverses into the last argument,
+  `arg -2` into the second-to-last argument, and so on.
 * `arg @i` is the same as `arg i` but it counts all arguments instead of just the
   explicit arguments.
 * `arg 0` traverses into the function. If the target is `f a b c d`, `arg 0` traverses into `f`. -/
-syntax (name := arg) "arg " "@"? num : conv
+syntax (name := arg) "arg " "@"? "-"? num : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
 to target `e`, introducing name `x` in the process. -/
@@ -263,7 +273,7 @@ macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
 macro "intro" xs:(ppSpace colGt ident)* : conv => `(conv| ext $xs*)
 
-syntax enterArg := ident <|> ("@"? num)
+syntax enterArg := ident <|> ("@"? "-"? num)
 
 /-- `enter [arg, ...]` is a compact way to describe a path to a subterm.
 It is a shorthand for other conv tactics as follows:
@@ -275,7 +285,9 @@ will traverse to the subterm `b`. -/
 syntax "enter" " [" withoutPosition(enterArg,+) "]" : conv
 macro_rules
   | `(conv| enter [$i:num]) => `(conv| arg $i)
+  | `(conv| enter [-$i:num]) => `(conv| arg -$i)
   | `(conv| enter [@$i]) => `(conv| arg @$i)
+    | `(conv| enter [@-$i]) => `(conv| arg @-$i)
   | `(conv| enter [$id:ident]) => `(conv| ext $id)
   | `(conv| enter [$arg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 

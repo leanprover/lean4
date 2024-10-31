@@ -20,7 +20,7 @@ class ToLevel.{u} where
   /-- A `Level` that represents the universe level `u`. -/
   toLevel : Level
   /-- The universe itself. This is only here to avoid the "unused universe parameter" error. -/
-  univ : Type u := Sort u
+  univ : Sort u := PUnit.{u}
 export ToLevel (toLevel)
 
 instance : ToLevel.{0} where

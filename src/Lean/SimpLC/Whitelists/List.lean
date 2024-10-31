@@ -8,9 +8,12 @@ simp_lc whitelist List.findIdx?_start_succ List.findIdx?_cons -- Would require `
 simp_lc whitelist List.drop_tail List.drop_one -- Would require an infinite chain of lemmas to resolve!
 simp_lc whitelist List.findSome?_replicate_of_pos List.findSome?_replicate_of_isSome -- split in the discharger would get us there
 
-simp_lc whitelist List.getElem?_eq_getElem List.getElem?_enum -- Hmm, problem with `simp_all` refusing to make a copy of a hypothesis.
-simp_lc whitelist List.getElem?_map List.getElem?_eq_getElem -- Hmm, problem with `simp_all` refusing to make a copy of a hypothesis.
+-- These would all be okay, except that `simp_all` is unwilling to make a copy of a hypothesis which is being used.
+simp_lc whitelist List.getElem?_eq_getElem List.getElem?_enum
+simp_lc whitelist List.getElem?_map List.getElem?_eq_getElem
+simp_lc whitelist List.getElem?_modify_eq List.getElem?_eq_getElem
 simp_lc whitelist List.getElem?_mapIdx List.getElem?_eq_getElem
+simp_lc whitelist List.getElem?_eq_getElem List.getElem?_modifyHead_zero
 
 simp_lc whitelist List.drop_one List.drop_left' -- `h : l₁.length = 1 ⊢ (l₁ ++ l₂).tail = l₂`
 
@@ -79,13 +82,10 @@ simp_lc ignore List.flatMap_subtype
 simp_lc ignore List.foldl_subtype
 simp_lc ignore List.foldr_subtype
 
--- TODO: re-evaluate these (appeared while moving `SimpLC` into Lean.)
-simp_lc whitelist List.getElem?_eq_getElem List.getElem?_modifyHead_zero
-simp_lc whitelist List.getElem?_modify_eq List.getElem?_eq_getElem
+-- Hopefully resolved by https://github.com/leanprover/lean4/pull/5895
 simp_lc whitelist List.beq_toArray beq_self_eq_true
 simp_lc whitelist BEq.refl List.beq_toArray
--- Hopefully resolved by
--- https://github.com/leanprover/lean4/pull/5892
+-- Hopefully resolved by https://github.com/leanprover/lean4/pull/5892
 simp_lc whitelist List.forIn'_toArray _root_.forIn'_eq_forIn
 simp_lc whitelist _root_.forIn'_eq_forIn List.forIn'_eq_forIn
 simp_lc whitelist List.forIn'_cons _root_.forIn'_eq_forIn

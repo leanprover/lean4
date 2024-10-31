@@ -71,7 +71,7 @@ def pack (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True []
                          else return .const ``PUnit [lvl]
-  let xBack := xs.back
+  let xBack := xs.back!
   xs.pop.foldrM mkPProd xBack
 
 /-- Given values `xᵢ` of type `tᵢ`, produces value of type `t₁ ×' t₂ ×' t₃` -/
@@ -79,7 +79,7 @@ def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True.intro []
                          else return .const ``PUnit.unit [lvl]
-  let xBack := xs.back
+  let xBack := xs.back!
   xs.pop.foldrM mkPProdMk xBack
 
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/

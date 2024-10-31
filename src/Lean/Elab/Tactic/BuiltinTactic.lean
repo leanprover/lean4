@@ -465,7 +465,7 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
         let inaccessible := !(extractMacroScopes localDecl.userName |>.equalScope callerScopes)
         let shadowed := found.contains localDecl.userName
         if inaccessible || shadowed then
-          if let `(binderIdent| $h:ident) := hs.back then
+          if let `(binderIdent| $h:ident) := hs.back! then
             let newName := h.getId
             lctx := lctx.setUserName localDecl.fvarId newName
             info := info.push (localDecl.fvarId, h)

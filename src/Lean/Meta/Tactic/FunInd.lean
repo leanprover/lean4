@@ -495,7 +495,7 @@ def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr
   let mut xs := xs
   let mut mask := #[]
   while ! xs.isEmpty do
-    let discr := xs.back
+    let discr := xs.back!
     if discr.isFVar && e.containsFVar discr.fvarId! then
         e ← mkLambdaFVars #[discr] e
         mask := mask.push true
@@ -680,7 +680,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   let e' ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
     match_expr funBody with
     | fix@WellFounded.fix α _motive rel wf body target =>
-      unless params.back == target do
+      unless params.back! == target do
         throwError "functional induction: expected the target as last parameter{indentExpr e}"
       let fixedParams := params.pop
       let motiveType ← mkForallFVars #[target] (.sort levelZero)
@@ -806,7 +806,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if e.isAppOf eqnInfo.declNameNonRec then
       let args := e.getAppArgs
       if eqnInfo.fixedPrefixSize + 1 ≤ args.size then
-        let packedArg := args.back
+        let packedArg := args.back!
           let (i, unpackedArgs) ← eqnInfo.argsPacker.unpack packedArg
           let e' := .const eqnInfo.declNames[i]! e.getAppFn.constLevels!
           let e' := mkAppN e' args.pop
@@ -836,7 +836,7 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
     unless motive.isFVar && targets.size = 1 && targets.all (·.isFVar) do
       throwError "conclusion {concl} does not look like a packed motive application"
     let packedTarget := targets[0]!
-    unless xs.back == packedTarget do
+    unless xs.back! == packedTarget do
       throwError "packed target not last argument to {unaryInductName}"
     let some motivePos := xs.findIdx? (· == motive)
       | throwError "could not find motive {motive} in {xs}"
@@ -1054,7 +1054,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                 pure e
               brecOnApps := brecOnApps.push e
             mkLetFVars minors' (← PProdN.mk 0 brecOnApps)
-          let e' ← abstractIndependentMVars mvars (← motives.back.fvarId!.getDecl).index e'
+          let e' ← abstractIndependentMVars mvars (← motives.back!.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars motives e'
 
           -- We could pass (usedOnly := true) below, and get nicer induction principles that

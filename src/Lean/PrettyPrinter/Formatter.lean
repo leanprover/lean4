@@ -288,7 +288,7 @@ def categoryFormatter (cat : Name) : Formatter :=
 @[combinator_formatter parserOfStack]
 def parserOfStack.formatter (offset : Nat) (_prec : Nat := 0) : Formatter := do
   let st ← get
-  let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
+  let stx := st.stxTrav.parents.back!.getArg (st.stxTrav.idxs.back! - offset)
   formatterForKind stx.getKind
 
 @[combinator_formatter error]

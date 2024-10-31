@@ -302,37 +302,6 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
-@[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := as.usize
-  let rec @[specialize] loop (i : USize) (b : β) : m β := do
-    if i < sz then
-      let a := as.uget i lcProof
-      match (← f a b) with
-      | ForInStep.done  b => pure b
-      | ForInStep.yield b => loop (i+1) b
-    else
-      pure b
-  loop 0 b
-
-/-- Reference implementation for `forIn` -/
-@[implemented_by Array.forInUnsafe]
-protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
-    match i, h with
-    | 0,   _ => pure b
-    | i+1, h =>
-      have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
-      have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
-      have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-      match (← f as[as.size - 1 - i] b) with
-      | ForInStep.done b  => pure b
-      | ForInStep.yield b => loop i (Nat.le_of_lt h') b
-  loop as.size (Nat.le_refl _) b
-
-instance : ForIn m (Array α) α where
-  forIn := Array.forIn
-
-/-- See comment at `forInUnsafe` -/
 @[inline] unsafe def forIn'Unsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
@@ -363,7 +332,9 @@ protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad 
 instance : ForIn' m (Array α) α inferInstance where
   forIn' := Array.forIn'
 
-/-- See comment at `forInUnsafe` -/
+-- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
+
+/-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -398,7 +369,7 @@ def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β
   else
     fold as.size (Nat.le_refl _)
 
-/-- See comment at `forInUnsafe` -/
+/-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -437,7 +408,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
   else
     pure init
 
-/-- See comment at `forInUnsafe` -/
+/-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   let sz := as.usize

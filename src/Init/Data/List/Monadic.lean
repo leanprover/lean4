@@ -89,9 +89,6 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) 
 
 /-! ### forIn' -/
 
-@[simp] theorem forIn'_nil [Monad m] (f : (a : α) → a ∈ [] → β → m (ForInStep β)) (b : β) : forIn' [] b f = pure b :=
-  rfl
-
 theorem forIn'_loop_congr [Monad m] {as bs : List α}
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
     {g : (a' : α) → a' ∈ bs → β → m (ForInStep β)}
@@ -121,6 +118,11 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
   · apply forIn'_loop_congr
     intros
     rfl
+
+@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β) :
+    forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f := by
+  have := forIn'_cons (a := a) (as := as) (fun a' _ b => f a' b) b
+  simpa only [forIn'_eq_forIn]
 
 @[congr] theorem forIn'_congr [Monad m] {as bs : List α} (w : as = bs)
     {b b' : β} (hb : b = b')

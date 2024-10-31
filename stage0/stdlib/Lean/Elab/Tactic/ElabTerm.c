@@ -440,7 +440,7 @@ static lean_object* l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___clo
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducibleAndInstances_declRange__1(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___lambda__2___closed__1;
 static lean_object* l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__70;
-lean_object* l_Lean_MessageData_ofConstName(lean_object*);
+lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__6;
 static lean_object* l_Lean_Elab_Tactic_evalRefine___closed__1;
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__2;
@@ -16177,10 +16177,11 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__2;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__10() {
@@ -16220,10 +16221,11 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__14() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__5;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__15() {
@@ -16246,10 +16248,11 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__17() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___spec__1___closed__7;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__18() {
@@ -16315,10 +16318,11 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__25() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__22;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__26() {
@@ -16441,10 +16445,11 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__38() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__37;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__39() {
@@ -16484,10 +16489,11 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__43() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__2;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__44() {
@@ -16593,10 +16599,11 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__54() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__53;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__55() {
@@ -16644,10 +16651,11 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__59() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__58;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__60() {

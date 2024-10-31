@@ -88,9 +88,9 @@ LEAN_EXPORT lean_object* l_Lean_registerReservedNameAction___lambda__1___boxed(l
 LEAN_EXPORT uint8_t l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___lambda__2(lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_realizeGlobalConstNoOverload___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at_Lean_realizeGlobalConstCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_realizeGlobalConst___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_realizeGlobalName___spec__3___lambda__2___closed__1;
@@ -2253,20 +2253,19 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at_Lean_realizeGlobalConstCore___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_5 = lean_box(0);
-x_6 = l_Lean_Expr_const___override(x_1, x_5);
-x_7 = l_Lean_MessageData_ofExpr(x_6);
-x_8 = l_Lean_throwUnknownConstant___at_Lean_realizeGlobalConstCore___spec__2___closed__2;
-x_9 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_7);
-x_10 = l_Lean_throwUnknownConstant___at_Lean_realizeGlobalConstCore___spec__2___closed__4;
-x_11 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_throwError___at_Lean_realizeGlobalConstCore___spec__3(x_11, x_2, x_3, x_4);
-return x_12;
+uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_5 = 0;
+x_6 = l_Lean_MessageData_ofConstName(x_1, x_5);
+x_7 = l_Lean_throwUnknownConstant___at_Lean_realizeGlobalConstCore___spec__2___closed__2;
+x_8 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_6);
+x_9 = l_Lean_throwUnknownConstant___at_Lean_realizeGlobalConstCore___spec__2___closed__4;
+x_10 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_10, 0, x_8);
+lean_ctor_set(x_10, 1, x_9);
+x_11 = l_Lean_throwError___at_Lean_realizeGlobalConstCore___spec__3(x_10, x_2, x_3, x_4);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___at_Lean_realizeGlobalConstCore___spec__1___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

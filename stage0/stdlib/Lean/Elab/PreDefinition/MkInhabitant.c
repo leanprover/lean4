@@ -54,7 +54,7 @@ static lean_object* l_Lean_throwMaxRecDepthAt___at___private_Lean_Elab_PreDefini
 static lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_withInhabitedInstances___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkInhabitantForAux_x3f___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkDefault(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MessageData_ofConstName(lean_object*);
+lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_mkInhabitantFor___lambda__1___closed__10;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_withInhabitedInstances___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1604,10 +1604,11 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_mkInhabitantFor___lambda__1___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_withInhabitedInstances_go___rarg___closed__2;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_mkInhabitantFor___lambda__1___closed__8() {
@@ -1648,10 +1649,11 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_mkInhabitantFor___lambda__1___closed__12() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_mkInhabitantFor___lambda__1___closed__11;
-x_2 = l_Lean_MessageData_ofConstName(x_1);
-return x_2;
+x_2 = 0;
+x_3 = l_Lean_MessageData_ofConstName(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_mkInhabitantFor___lambda__1___closed__13() {

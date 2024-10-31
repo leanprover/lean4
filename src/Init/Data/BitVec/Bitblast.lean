@@ -387,7 +387,7 @@ This computation has two crucial properties:
 -/
 theorem getLsbD_neg {i : Nat} {x : BitVec w} :
     getLsbD (-x) i =
-      (getLsbD x i ^^ decide (i < w ∧ ∃ j < i, getLsbD x j = true)) := by
+      (getLsbD x i ^^ decide (i < w) && decide (∃ j < i, getLsbD x j = true)) := by
   rw [neg_eq_not_add]
   by_cases hi : i < w
   · rw [getLsbD_add hi]

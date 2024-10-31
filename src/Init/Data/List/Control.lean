@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 prelude
 import Init.Control.Basic
 import Init.Data.List.Basic
-import Init.Ext
 
 namespace List
 universe u v w u₁ u₂

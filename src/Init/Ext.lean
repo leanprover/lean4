@@ -79,7 +79,6 @@ end Lean
 
 attribute [ext] Prod PProd Sigma PSigma
 attribute [ext] funext propext Subtype.eq Array.ext
-attribute [ext] ForIn ForIn'
 
 @[ext] protected theorem PUnit.ext (x y : PUnit) : x = y := rfl
 protected theorem Unit.ext (x y : Unit) : x = y := rfl

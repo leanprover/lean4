@@ -17,14 +17,36 @@ example (a b : Nat) (h : b = a) : a + b = a + a := by
 
 -- Implications
 example (p₁ p₂ q : Prop) (h : p₁ ↔ p₂) : (p₁ → q) ↔ (p₂ → q) := by
+  conv => enter [1, 1]
   conv =>
     enter [1, 1]
     rw [h]
 
 example (p q₁ q₂ : Prop) (h : q₁ ↔ q₂) : (p → q₁) ↔ (p → q₂) := by
+  conv => enter [1, 2]
   conv =>
     enter [1, 2]
     rw [h]
+
+-- Dependent implications
+/--
+info: i✝ : Nat
+| i✝ < 10
+---
+info: a✝¹ : Nat
+a✝ : a✝¹ < 10
+| ↑⟨a✝¹, ⋯⟩ = a✝¹
+-/
+#guard_msgs in
+example : ∀ (i : Nat) (h : i < 10), (⟨i, h⟩ : Fin 10).val = i := by
+  conv =>
+    enter [2,1]
+    trace_state
+  conv =>
+    enter [2,2]
+    trace_state
+    simp
+  simp
 
 /-!
 Explicit mode

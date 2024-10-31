@@ -34,9 +34,6 @@ theorem eq_false_of_decide {p : Prop} {_ : Decidable p} (h : decide p = false) :
 theorem implies_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   h₁ ▸ h₂ ▸ rfl
 
-theorem implies_congr_dom {p₁ p₂ : Sort u} {q : Sort v} (h : p₁ = p₂) : (p₁ → q) = (p₂ → q) :=
-  h ▸ rfl
-
 theorem iff_congr {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ ↔ p₂) (h₂ : q₁ ↔ q₂) : (p₁ ↔ q₁) ↔ (p₂ ↔ q₂) :=
   Iff.of_eq (propext h₁ ▸ propext h₂ ▸ rfl)
 
@@ -57,8 +54,7 @@ theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂
     : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a) := by
   subst h₁; simp [← h₂]
 
-theorem forall_prop_congr_dom {p₁ p₂ : Prop} {q : p₁ → Prop}
-    (h : p₁ = p₂) :
+theorem forall_prop_congr_dom {p₁ p₂ : Prop} (h : p₁ = p₂) (q : p₁ → Prop) :
     (∀ a : p₁, q a) = (∀ a : p₂, q (h.substr a)) :=
   h ▸ rfl
 

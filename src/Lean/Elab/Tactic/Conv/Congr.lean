@@ -143,40 +143,58 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
   let proof' ← args[congrThm.argKinds.size:].foldlM (init := proof) mkCongrFun
   return (proof', mvarIdNew?.get!, mvarIdsNewInsts)
 
+private def _root_.Lean.MVarId.assignSafe (mvarId : MVarId) (val : Expr) : MetaM Unit := do
+  check val
+  unless ← isDefEq (← mvarId.getType) (← inferType val) do
+    throwError "mvarId has type{indentExpr (← mvarId.getType)}\nbut value has type{indentExpr (← inferType val)}"
+  mvarId.assign val
+
+/--
+Implements `arg` for foralls. If `domain` is true, accesses the domain, otherwise accesses the codomain.
+-/
+def congrArgForall (tacticName : String) (domain : Bool) (mvarId : MVarId) (lhs : Expr) : MetaM (List MVarId) := do
+  let .forallE n t b _ := lhs | unreachable!
+  if domain then
+    if !b.hasLooseBVars then
+      let (_rhs, g) ← mkConvGoalFor t (← mvarId.getTag)
+      mvarId.assignSafe <| ← mkAppM ``implies_congr #[g, ← mkEqRefl b]
+      return [g.mvarId!]
+    else if ← isProp b <&&> isProp lhs then
+      let (_rhs, g) ← mkConvGoalFor t (← mvarId.getTag)
+      mvarId.assignSafe <| ← mkAppM ``forall_prop_congr_dom
+        #[g, .lam n t b .default]
+      return [g.mvarId!]
+    else
+      throwError m!"'{tacticName}' conv tactic failed, cannot select domain"
+  else
+    withLocalDeclD (← mkFreshUserName n) t fun arg => do
+      let u ← getLevel t
+      let q := b.instantiate1 arg
+      let (q', g) ← mkConvGoalFor q (← mvarId.getTag)
+      let v ← getLevel q
+      mvarId.assignSafe <| mkAppN (.const ``pi_congr [u, v])
+        #[t, .lam n t b .default, ← mkLambdaFVars #[arg] q', ← mkLambdaFVars #[arg] g]
+      return [g.mvarId!]
+
 /-- Implementation of `arg i`. -/
 def congrArgN (tacticName : String) (mvarId : MVarId) (i : Int) (explicit : Bool) : MetaM (List MVarId) := mvarId.withContext do
   let (lhs, rhs) ← getLhsRhsCore mvarId
   let lhs := (← instantiateMVars lhs).cleanupAnnotations
   if lhs.isForall then
     if i < -2 || i == 0 || i > 2 then throwError "invalid '{tacticName}' conv tactic, index is out of bounds for pi type"
-    let i := (if i > 0 then i - 1 else i + 2).natAbs
-    if i == 0 then
-      -- Domain
-      try
-        let [mvarId, _] ← mvarId.applyConst ``implies_congr_dom | throwError "(internal error) failed to apply congruence lemma"
-        return [← markAsConvGoal mvarId]
-      catch _ => pure ()
-      try
-        let [mvarId, _] ← mvarId.applyConst ``forall_prop_congr_dom | throwError "(internal error) failed to apply congruence lemma"
-        let (_, mvarId) ← mvarId.intro1
-        return [← markAsConvGoal mvarId]
-      catch _ => pure ()
-      throwError m!"'{tacticName}' conv tactic failed, cannot select domain"
-    else
-      -- Codomain
-      let [mvarId, _] ← mvarId.applyConst ``pi_congr | throwError "(internal error) failed to apply congruence lemma"
-      let (_, mvarId) ← mvarId.intro1
-      return [← markAsConvGoal mvarId]
-  unless lhs.isApp do
+    let domain := i == 1 || i == -2
+    return ← congrArgForall tacticName domain mvarId lhs
+  else if lhs.isApp then
+    lhs.withApp fun f xs => do
+      let (f, xs) ← applyArgs f xs i
+      let (proof, mvarIdNew, mvarIdsNewInsts) ← mkCongrArgZeroThm tacticName (← mvarId.getTag) f xs
+      let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'{tacticName}' conv tactic failed, equality expected"
+      unless (← isDefEqGuarded rhs rhs') do
+        throwError "invalid '{tacticName}' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+      mvarId.assign proof
+      return mvarIdNew :: mvarIdsNewInsts.toList
+  else
     throwError "invalid '{tacticName}' conv tactic, application or implication expected{indentExpr lhs}"
-  lhs.withApp fun f xs => do
-    let (f, xs) ← applyArgs f xs i
-    let (proof, mvarIdNew, mvarIdsNewInsts) ← mkCongrArgZeroThm tacticName (← mvarId.getTag) f xs
-    let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'{tacticName}' conv tactic failed, equality expected"
-    unless (← isDefEqGuarded rhs rhs') do
-      throwError "invalid '{tacticName}' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
-    mvarId.assign proof
-    return mvarIdNew :: mvarIdsNewInsts.toList
 where
   applyArgs (f : Expr) (xs : Array Expr) (i : Int) : MetaM (Expr × Array Expr) := do
     if explicit then

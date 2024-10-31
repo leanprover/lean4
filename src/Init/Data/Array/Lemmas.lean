@@ -495,13 +495,14 @@ theorem getElem?_eq_some_iff {as : Array α} : as[n]? = some a ↔ ∃ h : n < a
   cases as
   simp [List.getElem?_eq_some_iff]
 
-@[simp] theorem back_eq_back? [Inhabited α] (a : Array α) : a.back = a.back?.getD default := by
+theorem back_eq_back? [Inhabited α] (a : Array α) : a.back = a.back?.getD default := by
   simp only [back, get!_eq_getElem?, get?_eq_getElem?, back?]
 
 @[simp] theorem back?_push (a : Array α) : (a.push x).back? = some x := by
   simp [back?, getElem?_eq_getElem?_toList]
 
-theorem back_push [Inhabited α] (a : Array α) : (a.push x).back = x := by simp
+@[simp] theorem back_push [Inhabited α] (a : Array α) : (a.push x).back = x := by
+  simp [back_eq_back?]
 
 theorem getElem?_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
     (a.push x)[i]? = some a[i] := by

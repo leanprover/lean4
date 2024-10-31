@@ -18,6 +18,7 @@ theorem foo {a : { x // x ∈ o }} : some a.val = o := by
 simp_lc whitelist Option.mem_attach Option.mem_def
 
 -- TODO: re-evaluate these (appeared while moving `SimpLC` into Lean.)
+-- Will be resolved by https://github.com/leanprover/lean4/pull/5892
 simp_lc whitelist Option.forIn'_toList forIn'_eq_forIn
 
 /-

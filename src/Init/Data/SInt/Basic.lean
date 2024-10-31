@@ -11,6 +11,7 @@ This module contains the definition of signed fixed width integer types as well 
 and bitwise operations on top of it.
 -/
 
+
 /--
 The type of signed 8-bit integers. This type has special support in the
 compiler to make it actually 8 bits rather than wrapping a `Nat`.

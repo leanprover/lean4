@@ -26,6 +26,7 @@ private def mkConfigItemViews (c : TSyntaxArray ``configItem) : Array ConfigItem
     | `(configItem| ($option:ident := $value)) => { ref := item, option, value }
     | `(configItem| +$option) => { ref := item, option, bool := true, value := mkCIdentFrom item ``true }
     | `(configItem| -$option) => { ref := item, option, bool := true, value := mkCIdentFrom item ``false }
+    | `(config| (config%$tk := $value)) => { ref := item, option := mkCIdentFrom tk `config, value := value }
     | _ => { ref := item, option := ⟨Syntax.missing⟩, value := ⟨Syntax.missing⟩ }
 
 /--

@@ -1422,7 +1422,7 @@ partial def getConfigItems (c : Syntax) : TSyntaxArray ``configItem :=
   else
     match c with
     | `(optConfig| $items:configItem*) => items
-    | `(config| (config := $_)) => #[⟨c⟩]
+    | `(config| (config := $_)) => #[⟨c⟩] -- handled by mkConfigItemViews
     | _ => #[]
 
 def mkOptConfig (items : TSyntaxArray ``configItem) : TSyntax ``optConfig :=

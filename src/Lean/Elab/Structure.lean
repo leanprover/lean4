@@ -806,9 +806,16 @@ private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let hasEq   := env.contains ``Eq
   let hasHEq  := env.contains ``HEq
   let hasUnit := env.contains ``PUnit
+  let hasProd := env.contains ``Prod
   mkRecOn declName
   if hasUnit then mkCasesOn declName
   if hasUnit && hasEq && hasHEq then mkNoConfusion declName
+  let ival ← getConstInfoInduct declName
+  if ival.isRec then
+    if hasUnit && hasProd then mkBelow declName
+    if hasUnit && hasProd then mkIBelow declName
+    if hasUnit && hasProd then mkBRecOn declName
+    if hasUnit && hasProd then mkBInductionOn declName
 
 private def addDefaults (lctx : LocalContext) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
   withLCtx lctx (← getLocalInstances) do
@@ -928,8 +935,6 @@ private def mkInductiveType (view : StructView) (indFVar : Expr) (levelNames : L
   let levelParams := levelNames.map mkLevelParam
   let const := mkConst view.declName levelParams
   let ctorType ← forallBoundedTelescope ctor.type numParams fun params type => do
-    if type.containsFVar indFVar.fvarId! then
-      throwErrorAt view.ref "Recursive structures are not yet supported."
     let type := type.replace fun e =>
       if e == indFVar then
         mkAppN const (params.extract 0 numVars)

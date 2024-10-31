@@ -14,13 +14,17 @@ This module defines `Lean.ToLevel`, which is the `Lean.Level` analogue to `Lean.
 
 namespace Lean
 
+universe w
+
 /-- A class to create `Level` expressions that denote particular universe levels in Lean.
 `Lean.ToLevel.toLevel.{u}` evaluates to a `Lean.Level` term representing `u` -/
 class ToLevel.{u} where
   /-- A `Level` that represents the universe level `u`. -/
   toLevel : Level
-  /-- The universe itself. This is only here to avoid the "unused universe parameter" error. -/
-  univ : Sort u := PUnit.{u}
+  /-- The universe itself. This is only here to avoid the "unused universe parameter" error.
+    We'll remove this field once https://github.com/leanprover/lean4/issues/2116 gets fixed.
+  -/
+  univ : ∃ x, x = PUnit.unit.{u} := ⟨_, rfl⟩
 export ToLevel (toLevel)
 
 instance : ToLevel.{0} where

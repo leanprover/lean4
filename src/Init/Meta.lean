@@ -1460,7 +1460,7 @@ macro (name := declareSimpLikeTactic) doc?:(docComment)?
       let cfg ← `(optConfig| $cfg)
       let s := s.setKind $kind
       let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))
-      let s := s.setArg 1 (appendConfig cfg s[1])
+      let s := s.setArg 1 (appendConfig s[1] cfg)
       let s := s.mkSynthetic
       return s)
 

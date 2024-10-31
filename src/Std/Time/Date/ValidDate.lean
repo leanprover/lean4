@@ -30,7 +30,7 @@ namespace ValidDate
 /--
 Transforms a tuple of a `Month` and a `Day` into a `Day.Ordinal.OfYear`.
 -/
-def toOrdinal (ordinal : ValidDate leap) : Day.Ordinal.OfYear leap :=
+def dayOfYear (ordinal : ValidDate leap) : Day.Ordinal.OfYear leap :=
   let days := cumulativeDays leap ordinal.val.fst
   let proof := cumulativeDays_le leap ordinal.val.fst
   let bounded := Bounded.LE.mk days.toInt proof |>.addBounds ordinal.val.snd

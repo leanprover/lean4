@@ -350,14 +350,14 @@ Getter for the `Milliseconds` inside of a `DateTime`
 -/
 @[inline]
 def milliseconds (dt : DateTime tz) : Millisecond.Ordinal :=
-  dt.date.get.time.nano.emod 1000 (by decide)
+  dt.date.get.time.nanosecond.emod 1000 (by decide)
 
 /--
 Getter for the `Nanosecond` inside of a `DateTime`
 -/
 @[inline]
 def nanoseconds (dt : DateTime tz) : Nanosecond.Ordinal :=
-  dt.date.get.time.nano
+  dt.date.get.time.nanosecond
 
 /--
 Gets the `Weekday` of a DateTime.
@@ -381,8 +381,8 @@ def inLeapYear (date : DateTime tz) : Bool :=
 /--
 Determines the ordinal day of the year for the given `DateTime`.
 -/
-def toOrdinal (date : DateTime tz) : Day.Ordinal.OfYear date.year.isLeap :=
-  ValidDate.toOrdinal ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩
+def dayOfYear (date : DateTime tz) : Day.Ordinal.OfYear date.year.isLeap :=
+  ValidDate.dayOfYear ⟨⟨date.month, date.day⟩, date.date.get.date.valid⟩
 
 /--
 Determines the week of the year for the given `DateTime`.

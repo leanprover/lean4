@@ -112,6 +112,13 @@ def toDateTime (dt : ZonedDateTime) : DateTime dt.timezone :=
   DateTime.ofTimestamp dt.timestamp dt.timezone
 
 /--
+Getter for the `PlainTime` inside of a `ZonedDateTime`
+-/
+@[inline]
+def time (zdt : ZonedDateTime) : PlainTime :=
+  zdt.date.get.time
+
+/--
 Getter for the `Year` inside of a `ZonedDateTime`
 -/
 @[inline]
@@ -154,11 +161,18 @@ def second (zdt : ZonedDateTime) : Second.Ordinal zdt.date.get.time.second.fst :
   zdt.date.get.time.second.snd
 
 /--
+Getter for the `Millisecond` inside of a `ZonedDateTime`.
+-/
+@[inline]
+def millisecond (dt : ZonedDateTime) : Millisecond.Ordinal :=
+  dt.date.get.time.millisecond
+
+/--
 Getter for the `Nanosecond` inside of a `ZonedDateTime`
 -/
 @[inline]
 def nanosecond (zdt : ZonedDateTime) : Nanosecond.Ordinal :=
-  zdt.date.get.time.nano
+  zdt.date.get.time.nanosecond
 
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
@@ -178,8 +192,28 @@ def weekday (zdt : ZonedDateTime) : Weekday :=
 Transforms a tuple of a `ZonedDateTime` into a `Day.Ordinal.OfYear`.
 -/
 @[inline]
-def toOrdinal (date : ZonedDateTime) : Day.Ordinal.OfYear date.year.isLeap :=
-  ValidDate.toOrdinal ⟨(date.month, date.day), date.date.get.date.valid⟩
+def dayOfYear (date : ZonedDateTime) : Day.Ordinal.OfYear date.year.isLeap :=
+  ValidDate.dayOfYear ⟨(date.month, date.day), date.date.get.date.valid⟩
+
+/--
+Determines the week of the year for the given `ZonedDateTime`.
+-/
+@[inline]
+def weekOfYear (date : ZonedDateTime) : Week.Ordinal :=
+  date.date.get.weekOfYear
+
+/--
+Returns the unaligned week of the month for a `ZonedDateTime` (day divided by 7, plus 1).
+-/
+def weekOfMonth (date : ZonedDateTime) : Internal.Bounded.LE 1 5 :=
+  date.date.get.weekOfMonth
+
+/--
+Determines the quarter of the year for the given `ZonedDateTime`.
+-/
+@[inline]
+def quarter (date : ZonedDateTime) : Internal.Bounded.LE 1 4 :=
+  date.date.get.quarter
 
 /--
 Add `Day.Offset` to a `ZonedDateTime`.
@@ -329,6 +363,13 @@ def era (date : ZonedDateTime) : Year.Era :=
   date.date.get.era
 
 /--
+Sets the `ZonedDateTime` to the specified `desiredWeekday`.
+-/
+def withWeekday (dt : ZonedDateTime) (desiredWeekday : Weekday) : ZonedDateTime :=
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withWeekday desiredWeekday) dt.rules
+
+/--
 Creates a new `ZonedDateTime` by adjusting the day of the month to the given `days` value, with any
 out-of-range days clipped to the nearest valid date.
 -/
@@ -406,6 +447,15 @@ Creates a new `ZonedDateTime` by adjusting the `second` component.
 def withSeconds (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
   let date := dt.date.get
   ZonedDateTime.ofPlainDateTime (date.withSeconds second) dt.rules
+
+/--
+Creates a new `ZonedDateTime` by adjusting the `nano` component with a new `millis` that will set
+in the millisecond scale.
+-/
+@[inline]
+def withMillisecond (dt : ZonedDateTime) (millis : Millisecond.Ordinal) : ZonedDateTime :=
+  let date := dt.date.get
+  ZonedDateTime.ofPlainDateTime (date.withMillisecond millis) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `nano` component.

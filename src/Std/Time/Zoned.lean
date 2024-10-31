@@ -13,9 +13,9 @@ import Std.Time.Zoned.Database
 namespace Std
 namespace Time
 
-namespace PlainDateTime
-
 set_option linter.all true
+
+namespace PlainDateTime
 
 /--
 Get the current time.
@@ -29,6 +29,27 @@ def now : IO PlainDateTime := do
   return PlainDateTime.ofTimestamp tm |>.addSeconds ltt.getTimeZone.toSeconds
 
 end PlainDateTime
+
+namespace PlainDate
+
+/--
+Get the current date.
+-/
+@[inline]
+def now : IO PlainDate :=
+  PlainDateTime.date <$> PlainDateTime.now
+
+end PlainDate
+namespace PlainTime
+
+/--
+Get the current time.
+-/
+@[inline]
+def now : IO PlainTime :=
+  PlainDateTime.time <$> PlainDateTime.now
+
+end PlainTime
 
 namespace DateTime
 

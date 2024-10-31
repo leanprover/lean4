@@ -126,7 +126,7 @@ private def convertPlainDate (d : Std.Time.PlainDate) : MacroM (TSyntax `term) :
  `(Std.Time.PlainDate.clip $(← syntaxInt d.year) $(← syntaxBounded d.month.val) $(← syntaxBounded d.day.val))
 
 private def convertPlainTime (d : Std.Time.PlainTime) : MacroM (TSyntax `term) := do
- `(Std.Time.PlainTime.mk $(← syntaxBounded d.hour.val) $(← syntaxBounded d.minute.val) ⟨true, $(← syntaxBounded d.second.snd.val)⟩ $(← syntaxBounded d.nano.val))
+ `(Std.Time.PlainTime.mk $(← syntaxBounded d.hour.val) $(← syntaxBounded d.minute.val) ⟨true, $(← syntaxBounded d.second.snd.val)⟩ $(← syntaxBounded d.nanosecond.val))
 
 private def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainDateTime.mk $(← convertPlainDate d.date) $(← convertPlainTime d.time))

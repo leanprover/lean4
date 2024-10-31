@@ -35,6 +35,9 @@ structure PlainDate where
   /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
 
+instance : Inhabited PlainDate where
+  default := ⟨1, 1, 1, by decide⟩
+
 instance : BEq PlainDate where
   beq x y := x.day == y.day && x.month == y.month && x.year == y.year
 
@@ -100,8 +103,8 @@ def quarter (date : PlainDate) : Bounded.LE 1 4 :=
 /--
 Transforms a tuple of a `PlainDate` into a `Day.Ordinal.OfYear`.
 -/
-def toOrdinal (date : PlainDate) : Day.Ordinal.OfYear date.year.isLeap :=
-  ValidDate.toOrdinal ⟨(date.month, date.day), date.valid⟩
+def dayOfYear (date : PlainDate) : Day.Ordinal.OfYear date.year.isLeap :=
+  ValidDate.dayOfYear ⟨(date.month, date.day), date.valid⟩
 
 /--
 Determines the era of the given `PlainDate` based on its year.
@@ -130,13 +133,6 @@ def toDaysSinceUNIXEpoch (date : PlainDate) : Day.Offset :=
   let doe := yoe * 365 + yoe.tdiv 4 - yoe.tdiv 100 + doy
 
   .ofInt (era * 146097 + doe - 719468)
-
-/--
-Calculates the difference in years between a `PlainDate` and a given year.
--/
-@[inline]
-def yearsSince (date : PlainDate) (year : Year.Offset) : Year.Offset :=
-  date.year - year
 
 /--
 Adds a given number of days to a `PlainDate`.
@@ -255,7 +251,7 @@ Creates a new `PlainDate` by adjusting the day of the month to the given `days` 
 out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
-def withDayClip (dt : PlainDate) (days : Day.Ordinal) : PlainDate :=
+def withDaysClip (dt : PlainDate) (days : Day.Ordinal) : PlainDate :=
   clip dt.year dt.month days
 
 /--
@@ -263,7 +259,7 @@ Creates a new `PlainDate` by adjusting the day of the month to the given `days` 
 out-of-range days rolled over to the next month or year as needed.
 -/
 @[inline]
-def withDayRollOver (dt : PlainDate) (days : Day.Ordinal) : PlainDate :=
+def withDaysRollOver (dt : PlainDate) (days : Day.Ordinal) : PlainDate :=
   rollOver dt.year dt.month days
 
 /--
@@ -296,14 +292,14 @@ on the day of the month and the weekday. Each week starts on Sunday because the 
 based on the Gregorian Calendar.
 -/
 def alignedWeekOfMonth (date : PlainDate) : Week.Ordinal.OfMonth :=
-  let weekday := date.withDayClip 1 |>.weekday |>.toOrdinal |>.sub 1
+  let weekday := date.withDaysClip 1 |>.weekday |>.toOrdinal |>.sub 1
   let days := date.day |>.sub 1 |>.addBounds weekday
   days |>.ediv 7 (by decide) |>.add 1
 
 /--
 Sets the date to the specified `desiredWeekday`.
 -/
-def setWeekday (date : PlainDate) (desiredWeekday : Weekday) : PlainDate :=
+def withWeekday (date : PlainDate) (desiredWeekday : Weekday) : PlainDate :=
   let weekday := date |>.weekday |>.toOrdinal
   let offset := desiredWeekday.toOrdinal |>.subBounds weekday
 
@@ -324,7 +320,7 @@ def weekOfYear (date : PlainDate) : Week.Ordinal :=
   let y := date.year
 
   let w := Bounded.LE.exact 10
-    |>.addBounds date.toOrdinal
+    |>.addBounds date.dayOfYear
     |>.subBounds date.weekday.toOrdinal
     |>.ediv 7 (by decide)
 

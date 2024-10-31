@@ -184,7 +184,7 @@ def format (date : PlainDate) (format : String) : String :=
       | .G _ => some date.era
       | .y _ => some date.year
       | .u _ => some date.year
-      | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
+      | .D _ => some (Sigma.mk date.year.isLeap date.dayOfYear)
       | .Qorq _ => some date.quarter
       | .w _ => some date.weekOfYear
       | .W _ => some date.alignedWeekOfMonth
@@ -263,12 +263,12 @@ def format (time : PlainTime) (format : String) : String :=
       | .H _ => some time.hour
       | .k _ => some (time.hour.shiftTo1BasedHour)
       | .m _ => some time.minute
-      | .n _ => some time.nano
+      | .n _ => some time.nanosecond
       | .s _ => some time.second
       | .a _ => some (HourMarker.ofOrdinal time.hour)
       | .h _ => some time.hour.toRelative
       | .K _ => some (time.hour.emod 12 (by decide))
-      | .S _ => some time.nano
+      | .S _ => some time.nanosecond
       | .A _ => some time.toMilliseconds
       | .N _ => some time.toNanoseconds
       | _ => none
@@ -299,7 +299,7 @@ def fromLeanTime24Hour (input : String) : Except String PlainTime :=
 Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss.SSSSSSSSS`).
 -/
 def toLeanTime24Hour (input : PlainTime) : String :=
-  Formats.leanTime24Hour.formatBuilder input.hour input.minute input.second input.nano
+  Formats.leanTime24Hour.formatBuilder input.hour input.minute input.second input.nanosecond
 
 /--
 Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `PlainTime`.
@@ -441,7 +441,7 @@ def format (date : PlainDateTime) (format : String) : String :=
       | .G _ => some date.era
       | .y _ => some date.year
       | .u _ => some date.year
-      | .D _ => some (Sigma.mk date.year.isLeap date.toOrdinal)
+      | .D _ => some (Sigma.mk date.year.isLeap date.dayOfYear)
       | .Qorq _ => some date.quarter
       | .w _ => some date.weekOfYear
       | .W _ => some date.alignedWeekOfMonth

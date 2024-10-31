@@ -284,11 +284,7 @@ It is a shorthand for other conv tactics as follows:
 * `enter [x]` (where `x` is an identifier) is equivalent to `ext x`.
 For example, given the target `f (g a (fun x => x b))`, `enter [1, 2, x, 1]`
 will traverse to the subterm `b`. -/
-syntax "enter" " [" withoutPosition(enterArg,+) "]" : conv
-macro_rules
-  | `(conv| enter [$arg:argArg]) => withRef arg `(conv| arg $arg)
-  | `(conv| enter [$id:ident]) => withRef id `(conv| ext $id)
-  | `(conv| enter [$arg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
+syntax (name := enter) "enter" " [" withoutPosition(enterArg,+) "]" : conv
 
 /-- The `apply thm` conv tactic is the same as `apply thm` the tactic.
 There are no restrictions on `thm`, but strange results may occur if `thm`

@@ -324,4 +324,22 @@ private def ext (userName? : Option Name) : TacticM Unit := do
     for id in ids do
       withRef id <| ext id.getId
 
+-- syntax (name := enter) "enter" " [" enterArg,+ "]" : conv
+@[builtin_tactic Lean.Parser.Tactic.Conv.enter] def evalEnter : Tactic := fun stx => do
+  let token := stx[0]
+  let lbrak := stx[1]
+  let enterArgsAndSeps := stx[2].getArgs
+  -- show initial state up to (incl.) `[`
+  withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
+  let numEnterArgs := (enterArgsAndSeps.size + 1) / 2
+  for i in [:numEnterArgs] do
+    let enterArg := enterArgsAndSeps[2 * i]!
+    let sep := enterArgsAndSeps.getD (2 * i + 1) .missing
+    -- show state up to (incl.) next `,` and show errors on `enterArg`
+    withTacticInfoContext (mkNullNode #[enterArg, sep]) <| withRef enterArg do
+      match enterArg with
+      | `(Parser.Tactic.Conv.enterArg| $arg:argArg) => evalTactic (← `(conv| arg $arg))
+      | `(Parser.Tactic.Conv.enterArg| $id:ident)   => evalTactic (← `(conv| ext $id))
+      | _ => pure ()
+
 end Lean.Elab.Tactic.Conv

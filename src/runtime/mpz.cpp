@@ -962,54 +962,57 @@ void div2k(mpz & a, mpz const & b, unsigned k) {
 }
 
 uint8 mpz::mod8() const {
-    return static_cast<uint8>(m_digits[0] & 0xFFu);
+    uint8 ret = static_cast<uint8>(m_digits[0] & 0xFFu);
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
 }
 
 uint16 mpz::mod16() const {
-    return static_cast<uint16>(m_digits[0] & 0xFFFFu);
+    uint16 ret = static_cast<uint16>(m_digits[0] & 0xFFFFu);
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
 }
 
 uint32 mpz::mod32() const {
-    return static_cast<uint32>(m_digits[0]);
+    uint32 ret = static_cast<uint32>(m_digits[0]);
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
 }
 
 uint64 mpz::mod64() const {
-    if (m_size == 1)
-        return m_digits[0];
-    else
-        return m_digits[0] + (static_cast<uint64>(m_digits[1]) << 8*sizeof(mpn_digit));
+    uint64 ret;
+    if (m_size == 1) {
+        ret = m_digits[0];
+    }
+    else {
+        ret = m_digits[0] + (static_cast<uint64>(m_digits[1]) << 8*sizeof(mpn_digit));
+    }
+    if (m_sign) {
+        ret = -ret;
+    }
+    return ret;
 }
 
 int8 mpz::smod8() const {
-    int8 val = static_cast<int8>(mod8());
-    if (m_sign) {
-        val = -val;
-    }
-    return val;
+    return static_cast<int8>(mod8());
 }
 
 int16 mpz::smod16() const {
-    int16 val = static_cast<int16>(mod16());
-    if (m_sign) {
-        val = -val;
-    }
-    return val;
+    return static_cast<int16>(mod16());
 }
 
 int32 mpz::smod32() const {
-    int32 val = static_cast<int32>(mod32());
-    if (m_sign) {
-        val = -val;
-    }
-    return val;
+    return static_cast<int32>(mod32());
 }
 
 int64 mpz::smod64() const {
-    int64 val = static_cast<int64>(mod64());
-    if (m_sign) {
-        val = -val;
-    }
-    return val;
+    return static_cast<int64>(mod64());
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {

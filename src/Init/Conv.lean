@@ -7,6 +7,7 @@ Notation for operators defined at Prelude.lean
 -/
 prelude
 import Init.Tactics
+import Init.Meta
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -130,11 +131,11 @@ For example, if we are searching for `f _` in `f (f a) = f b`:
 syntax (name := pattern) "pattern " (occs)? term : conv
 
 /-- `rw [thm]` rewrites the target using `thm`. See the `rw` tactic for more information. -/
-syntax (name := rewrite) "rewrite" (config)? rwRuleSeq : conv
+syntax (name := rewrite) "rewrite" optConfig rwRuleSeq : conv
 
 /-- `simp [thm]` performs simplification using `thm` and marked `@[simp]` lemmas.
 See the `simp` tactic for more information. -/
-syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
+syntax (name := simp) "simp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? : conv
 
 /--
@@ -151,7 +152,7 @@ example (a : Nat): (0 + 0) = a - a := by
     rw [← Nat.sub_self a]
 ```
 -/
-syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
+syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
@@ -247,12 +248,12 @@ macro (name := failIfSuccess) tk:"fail_if_success " s:convSeq : conv =>
 
 /-- `rw [rules]` applies the given list of rewrite rules to the target.
 See the `rw` tactic for more information. -/
-macro "rw" c:(config)? s:rwRuleSeq : conv => `(conv| rewrite $[$c]? $s)
+macro "rw" c:optConfig s:rwRuleSeq : conv => `(conv| rewrite $c:optConfig $s)
 
-/-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
+/-- `erw [rules]` is a shorthand for `rw (transparency := .default) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw" s:rwRuleSeq : conv => `(conv| rw (config := { transparency := .default }) $s:rwRuleSeq)
+macro "erw" c:optConfig s:rwRuleSeq : conv => `(conv| rw (transparency := .default) $[$(getConfigItems c)]* $s:rwRuleSeq)
 
 /-- `args` traverses into all arguments. Synonym for `congr`. -/
 macro "args" : conv => `(conv| congr)

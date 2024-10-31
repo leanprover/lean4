@@ -12,27 +12,6 @@ import Lean.Linter.MissingDocs
 namespace Lean.Elab.Tactic
 open Meta Parser.Tactic Command
 
-/--
-Extracts the items from a tactic configuration,
-either a `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`, or these wrapped in null nodes.
--/
-private partial def getConfigItems (c : Syntax) : TSyntaxArray ``configItem :=
-  if c.isOfKind nullKind then
-    c.getArgs.flatMap getConfigItems
-  else
-    match c with
-    | `(optConfig| $items:configItem*) => items
-    | `(config| (config := $val)) => #[Unhygienic.run <| withRef c `(configItem| (config := $val))]
-    | _ => #[]
-
-/--
-Appends two tactic configurations.
-The configurations can be `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`,
-or these wrapped in null nodes (for example because the syntax is `(config)?`).
--/
-def appendConfig (cfg cfg' : Syntax) : TSyntax ``optConfig :=
-  Unhygienic.run `(optConfig| $(getConfigItems cfg)* $(getConfigItems cfg')*)
-
 private structure ConfigItemView where
   ref : Syntax
   option : Ident

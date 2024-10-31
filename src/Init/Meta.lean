@@ -1412,65 +1412,87 @@ namespace Parser
 
 namespace Tactic
 
-/-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
+/--
+Extracts the items from a tactic configuration,
+either a `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`, or these wrapped in null nodes.
+-/
+partial def getConfigItems (c : Syntax) : TSyntaxArray ``configItem :=
+  if c.isOfKind nullKind then
+    c.getArgs.flatMap getConfigItems
+  else
+    match c with
+    | `(optConfig| $items:configItem*) => items
+    | `(config| (config := $_)) => #[⟨c⟩]
+    | _ => #[]
+
+def mkOptConfig (items : TSyntaxArray ``configItem) : TSyntax ``optConfig :=
+  ⟨Syntax.node1 .none ``optConfig (mkNullNode items)⟩
+
+/--
+Appends two tactic configurations.
+The configurations can be `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`,
+or these wrapped in null nodes (for example because the syntax is `(config)?`).
+-/
+def appendConfig (cfg cfg' : Syntax) : TSyntax ``optConfig :=
+  mkOptConfig <| getConfigItems cfg ++ getConfigItems cfg'
+
+/-- `erw [rules]` is a shorthand for `rw (transparency := .default) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw" s:rwRuleSeq loc:(location)? : tactic =>
-  `(tactic| rw (config := { transparency := .default }) $s $(loc)?)
+macro "erw" c:optConfig s:rwRuleSeq loc:(location)? : tactic => do
+  `(tactic| rw (transparency := .default) $[$(getConfigItems c)]* $s:rwRuleSeq $(loc)?)
 
 syntax simpAllKind := atomic(" (" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic(" (" &"dsimp") " := " &"true" ")"
 
 macro (name := declareSimpLikeTactic) doc?:(docComment)?
     "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?)
-    ppSpace tacName:ident ppSpace tacToken:str ppSpace updateCfg:term : command => do
+    ppSpace tacName:ident ppSpace tacToken:str ppSpace cfg:optConfig : command => do
   let (kind, tkn, stx) ←
     if opt.raw.isNone then
-      pure (← `(``simp), ← `("simp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``simp), ← `("simp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
     else if opt.raw[0].getKind == ``simpAllKind then
-      pure (← `(``simpAll), ← `("simp_all"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic))
+      pure (← `(``simpAll), ← `("simp_all"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic))
     else
-      pure (← `(``dsimp), ← `("dsimp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``dsimp), ← `("dsimp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
     @[macro $tacName] def expandSimp : Macro := fun s => do
-      let c ← match s[1][0] with
-        | `(config| (config := $$c)) => `(config| (config := $updateCfg $$c))
-        | _ => `(config| (config := $updateCfg {}))
+      let cfg ← `(optConfig| $cfg)
       let s := s.setKind $kind
       let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))
-      let s := s.setArg 1 (mkNullNode #[c])
+      let s := s.setArg 1 (appendConfig cfg s[1])
       let s := s.mkSynthetic
       return s)
 
 /-- `simp!` is shorthand for `simp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
+declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
 /-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
 This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, decide := true }
+declare_simp_like_tactic simpArith "simp_arith " (arith := true) (decide := true)
 
 /-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true, decide := true }
+declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " (arith := true) (autoUnfold := true) (decide := true)
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
+declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
 /-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, decide := true }
+declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " (arith := true) (decide := true)
 
 /-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true, decide := true }
+declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " (arith := true) (autoUnfold := true) (decide := true)
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
+declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " (autoUnfold := true)
 
 end Tactic
 

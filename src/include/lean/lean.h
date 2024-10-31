@@ -1907,16 +1907,16 @@ static inline uint8_t lean_int8_xor(uint8_t a1, uint8_t a2) {
 
 static inline uint8_t lean_int8_shift_right(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
-    int8_t rhs = (int8_t)a2;
+    int8_t rhs = (((int8_t)a2 % 8) + 8) % 8; // this is smod 8
 
-    return (uint8_t)(lhs >> (rhs % 8));
+    return (uint8_t)(lhs >> rhs);
 }
 
 static inline uint8_t lean_int8_shift_left(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
-    int8_t rhs = (int8_t)a2;
+    int8_t rhs = (((int8_t)a2 % 8) + 8) % 8; // this is smod 8
 
-    return (uint8_t)(lhs << (rhs % 8));
+    return (uint8_t)(lhs << rhs);
 }
 
 static inline uint8_t lean_int8_complement(uint8_t a) {
@@ -2047,16 +2047,16 @@ static inline uint16_t lean_int16_xor(uint16_t a1, uint16_t a2) {
 
 static inline uint16_t lean_int16_shift_right(uint16_t a1, uint16_t a2) {
     int16_t lhs = (int16_t)a1;
-    int16_t rhs = (int16_t)a2;
+    int16_t rhs = (((int16_t)a2 % 16) + 16) % 16; // this is smod 16
 
-    return (uint16_t)(lhs >> (rhs % 16));
+    return (uint16_t)(lhs >> rhs);
 }
 
 static inline uint16_t lean_int16_shift_left(uint16_t a1, uint16_t a2) {
     int16_t lhs = (int16_t)a1;
-    int16_t rhs = (int16_t)a2;
+    int16_t rhs = (((int16_t)a2 % 16) + 16) % 16; // this is smod 16
 
-    return (uint16_t)(lhs << (rhs % 16));
+    return (uint16_t)(lhs << rhs);
 }
 
 static inline uint16_t lean_int16_complement(uint16_t a) {
@@ -2186,16 +2186,16 @@ static inline uint32_t lean_int32_xor(uint32_t a1, uint32_t a2) {
 
 static inline uint32_t lean_int32_shift_right(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
-    int32_t rhs = (int32_t)a2;
+    int32_t rhs = (((int32_t)a2 % 32) + 32) % 32; // this is smod 32
 
-    return (uint32_t)(lhs >> (rhs % 32));
+    return (uint32_t)(lhs >> rhs);
 }
 
 static inline uint32_t lean_int32_shift_left(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
-    int32_t rhs = (int32_t)a2;
+    int32_t rhs = (((int32_t)a2 % 32) + 32) % 32; // this is smod 32
 
-    return (uint32_t)(lhs << (rhs % 32));
+    return (uint32_t)(lhs << rhs);
 }
 
 static inline uint32_t lean_int32_complement(uint32_t a) {
@@ -2325,16 +2325,16 @@ static inline uint64_t lean_int64_xor(uint64_t a1, uint64_t a2) {
 
 static inline uint64_t lean_int64_shift_right(uint64_t a1, uint64_t a2) {
     int64_t lhs = (int64_t)a1;
-    int64_t rhs = (int64_t)a2;
+    int64_t rhs = (((int64_t)a2 % 64) + 64) % 64; // this is smod 64
 
-    return (uint64_t)(lhs >> (rhs % 64));
+    return (uint64_t)(lhs >> rhs);
 }
 
 static inline uint64_t lean_int64_shift_left(uint64_t a1, uint64_t a2) {
     int64_t lhs = (int64_t)a1;
-    int64_t rhs = (int64_t)a2;
+    int64_t rhs = (((int64_t)a2 % 64) + 64) % 64; // this is smod 64
 
-    return (uint64_t)(lhs << (rhs % 64));
+    return (uint64_t)(lhs << rhs);
 }
 
 static inline uint64_t lean_int64_complement(uint64_t a) {

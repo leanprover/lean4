@@ -96,9 +96,9 @@ def Int8.lor (a b : Int8) : Int8 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 @[extern "lean_int8_xor"]
 def Int8.xor (a b : Int8) : Int8 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 @[extern "lean_int8_shift_left"]
-def Int8.shiftLeft (a b : Int8) : Int8 := ⟨⟨a.toBitVec <<< (mod b 8).toBitVec⟩⟩
+def Int8.shiftLeft (a b : Int8) : Int8 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 8)⟩⟩
 @[extern "lean_int8_shift_right"]
-def Int8.shiftRight (a b : Int8) : Int8 := ⟨⟨BitVec.sshiftRight' a.toBitVec (mod b 8).toBitVec⟩⟩
+def Int8.shiftRight (a b : Int8) : Int8 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 8)⟩⟩
 @[extern "lean_int8_complement"]
 def Int8.complement (a : Int8) : Int8 := ⟨⟨~~~a.toBitVec⟩⟩
 
@@ -193,9 +193,9 @@ def Int16.lor (a b : Int16) : Int16 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 @[extern "lean_int16_xor"]
 def Int16.xor (a b : Int16) : Int16 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 @[extern "lean_int16_shift_left"]
-def Int16.shiftLeft (a b : Int16) : Int16 := ⟨⟨a.toBitVec <<< (mod b 16).toBitVec⟩⟩
+def Int16.shiftLeft (a b : Int16) : Int16 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 16)⟩⟩
 @[extern "lean_int16_shift_right"]
-def Int16.shiftRight (a b : Int16) : Int16 := ⟨⟨BitVec.sshiftRight' a.toBitVec (mod b 16).toBitVec⟩⟩
+def Int16.shiftRight (a b : Int16) : Int16 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 16)⟩⟩
 @[extern "lean_int16_complement"]
 def Int16.complement (a : Int16) : Int16 := ⟨⟨~~~a.toBitVec⟩⟩
 
@@ -294,9 +294,9 @@ def Int32.lor (a b : Int32) : Int32 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 @[extern "lean_int32_xor"]
 def Int32.xor (a b : Int32) : Int32 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 @[extern "lean_int32_shift_left"]
-def Int32.shiftLeft (a b : Int32) : Int32 := ⟨⟨a.toBitVec <<< (mod b 32).toBitVec⟩⟩
+def Int32.shiftLeft (a b : Int32) : Int32 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 32)⟩⟩
 @[extern "lean_int32_shift_right"]
-def Int32.shiftRight (a b : Int32) : Int32 := ⟨⟨BitVec.sshiftRight' a.toBitVec (mod b 32).toBitVec⟩⟩
+def Int32.shiftRight (a b : Int32) : Int32 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 32)⟩⟩
 @[extern "lean_int32_complement"]
 def Int32.complement (a : Int32) : Int32 := ⟨⟨~~~a.toBitVec⟩⟩
 
@@ -399,9 +399,9 @@ def Int64.lor (a b : Int64) : Int64 := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
 @[extern "lean_int64_xor"]
 def Int64.xor (a b : Int64) : Int64 := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
 @[extern "lean_int64_shift_left"]
-def Int64.shiftLeft (a b : Int64) : Int64 := ⟨⟨a.toBitVec <<< (mod b 64).toBitVec⟩⟩
+def Int64.shiftLeft (a b : Int64) : Int64 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 64)⟩⟩
 @[extern "lean_int64_shift_right"]
-def Int64.shiftRight (a b : Int64) : Int64 := ⟨⟨BitVec.sshiftRight' a.toBitVec (mod b 64).toBitVec⟩⟩
+def Int64.shiftRight (a b : Int64) : Int64 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 64)⟩⟩
 @[extern "lean_int64_complement"]
 def Int64.complement (a : Int64) : Int64 := ⟨⟨~~~a.toBitVec⟩⟩
 

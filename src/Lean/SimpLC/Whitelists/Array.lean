@@ -26,14 +26,6 @@ simp_lc ignore Array.foldr_subtype
 
 -- TODO: re-evaluate these (appeared while moving `SimpLC` into Lean.)
 simp_lc whitelist Array.isEmpty.eq_1 List.isEmpty_toArray
--- Hopefully resolved by https://github.com/leanprover/lean4/pull/5896
-simp_lc whitelist Array.back_eq_back? List.back_toArray
--- Hopefully resolved by https://github.com/leanprover/lean4/pull/5895
-simp_lc whitelist Array.beq_toList beq_self_eq_true
-simp_lc whitelist BEq.refl Array.beq_toList
--- Hopefully resolved by https://github.com/leanprover/lean4/pull/5892
-simp_lc whitelist forIn'_eq_forIn Array.forIn'_toList
-simp_lc whitelist Array.forIn'_toList List.forIn'_eq_forIn
 
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.

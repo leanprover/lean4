@@ -26,8 +26,21 @@ example (h : v = w) (x : BitVec v) : cast h x = setWidth w x := by
   simp
 simp_lc whitelist BitVec.setWidth_eq BitVec.setWidth_cast
 
+@[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
+   ext i
+   simp
+
+@[simp] theorem one_eq_zero_iff : 1#w = 0#w ↔ w = 0 := by
+  constructor
+  · intro h
+    cases w
+    · rfl
+    · replace h := congrArg BitVec.toNat h
+      simp at h
+  · rintro rfl
+    simp
+
 -- TODO: re-evaluate these (appeared while moving `SimpLC` into Lean.)
-simp_lc whitelist BitVec.umod_eq_and BitVec.umod_self
 simp_lc whitelist BitVec.udiv_one BitVec.udiv_self
 simp_lc whitelist BitVec.udiv_eq_and BitVec.udiv_self
 simp_lc whitelist BitVec.sub_ofFin BitVec.zero_sub

@@ -17,10 +17,6 @@ theorem foo {a : { x // x ∈ o }} : some a.val = o := by
     simp [h]
 simp_lc whitelist Option.mem_attach Option.mem_def
 
--- TODO: re-evaluate these (appeared while moving `SimpLC` into Lean.)
--- Will be resolved by https://github.com/leanprover/lean4/pull/5892
-simp_lc whitelist Option.forIn'_toList forIn'_eq_forIn
-
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.
 This commented out command remains here for convenience while debugging.

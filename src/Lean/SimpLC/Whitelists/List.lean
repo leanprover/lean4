@@ -82,15 +82,6 @@ simp_lc ignore List.flatMap_subtype
 simp_lc ignore List.foldl_subtype
 simp_lc ignore List.foldr_subtype
 
--- Hopefully resolved by https://github.com/leanprover/lean4/pull/5895
-simp_lc whitelist List.beq_toArray beq_self_eq_true
-simp_lc whitelist BEq.refl List.beq_toArray
--- Hopefully resolved by https://github.com/leanprover/lean4/pull/5892
-simp_lc whitelist List.forIn'_toArray _root_.forIn'_eq_forIn
-simp_lc whitelist _root_.forIn'_eq_forIn List.forIn'_eq_forIn
-simp_lc whitelist List.forIn'_cons _root_.forIn'_eq_forIn
-simp_lc whitelist List.forIn'_cons List.forIn'_eq_forIn
-
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.
 This commented out command remains here for convenience while debugging.

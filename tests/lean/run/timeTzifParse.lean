@@ -59,7 +59,7 @@ info: 0
 #eval code.v1.utLocalIndicators.size
 
 /--
-info: zoned("1969-12-30T21:00:00.000000000-03:00")
+info: zoned("1969-12-31T21:00:00.000000000-03:00")
 -/
 #guard_msgs in
 #eval ZonedDateTime.ofTimestamp (Timestamp.ofSecondsSinceUnixEpoch 0) rules

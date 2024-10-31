@@ -82,6 +82,8 @@ subgoals for all the function arguments. For example, if the target is `f x y` t
 `congr` produces two subgoals, one for `x` and one for `y`. -/
 syntax (name := congr) "congr" : conv
 
+syntax argArg := "@"? "-"? num
+
 /--
 * `arg i` traverses into the `i`'th argument of the target. For example if the
   target is `f a b c d` then `arg 1` traverses to `a` and `arg 3` traverses to `c`.
@@ -90,7 +92,7 @@ syntax (name := congr) "congr" : conv
 * `arg @i` is the same as `arg i` but it counts all arguments instead of just the
   explicit arguments.
 * `arg 0` traverses into the function. If the target is `f a b c d`, `arg 0` traverses into `f`. -/
-syntax (name := arg) "arg " "@"? "-"? num : conv
+syntax (name := arg) "arg " argArg : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
 to target `e`, introducing name `x` in the process. -/
@@ -273,7 +275,7 @@ macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
 macro "intro" xs:(ppSpace colGt ident)* : conv => `(conv| ext $xs*)
 
-syntax enterArg := ident <|> ("@"? "-"? num)
+syntax enterArg := ident <|> argArg
 
 /-- `enter [arg, ...]` is a compact way to describe a path to a subterm.
 It is a shorthand for other conv tactics as follows:
@@ -284,11 +286,8 @@ For example, given the target `f (g a (fun x => x b))`, `enter [1, 2, x, 1]`
 will traverse to the subterm `b`. -/
 syntax "enter" " [" withoutPosition(enterArg,+) "]" : conv
 macro_rules
-  | `(conv| enter [$i:num]) => `(conv| arg $i)
-  | `(conv| enter [-$i:num]) => `(conv| arg -$i)
-  | `(conv| enter [@$i]) => `(conv| arg @$i)
-    | `(conv| enter [@-$i]) => `(conv| arg @-$i)
-  | `(conv| enter [$id:ident]) => `(conv| ext $id)
+  | `(conv| enter [$arg:argArg]) => withRef arg `(conv| arg $arg)
+  | `(conv| enter [$id:ident]) => withRef id `(conv| ext $id)
   | `(conv| enter [$arg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 
 /-- The `apply thm` conv tactic is the same as `apply thm` the tactic.

@@ -233,8 +233,8 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
 
 /--
 Variant of `getCongrSimpKinds` for rewriting just argument 0.
-If it is possible to rewrite, the 0th `CongrArgKind` is `CongrArgKind.eq`.
-This is used for the `arg` conv tactic.
+If it is possible to rewrite, the 0th `CongrArgKind` is `CongrArgKind.eq`,
+and otherwise it is `CongrArgKind.fixed`. This is used for the `arg` conv tactic.
 -/
 def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) := do
   let mut result := #[]

@@ -461,7 +461,6 @@ end Pairwise
 /-! ### max? -/
 
 /-! ## Monadic operations -/
-
 attribute [local simp] Id.run in
 #check_simp
   (Id.run do

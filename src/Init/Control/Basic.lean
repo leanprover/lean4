@@ -12,10 +12,12 @@ universe u v w
 A `ForIn'` instance, which handles `for h : x in c do`,
 can also handle `for x in x do` by ignoring `h`, and so provides a `ForIn` instance.
 
-Note that this instance will cause a non-defeq duplication if there both `ForIn` and `ForIn'`
+Note that this instance will cause a potentially non-defeq duplication if both `ForIn` and `ForIn'`
 instances are provided for the same type.
 -/
-instance (priority := low) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
+-- We set the priority to 500 so it is below the default,
+-- but still above the low priority instance from `Stream`.
+instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
   forIn x b f := forIn' x b fun a _ => f a
 
 @[simp] theorem forIn'_eq_forIn [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m] (x : ρ) (b : β)

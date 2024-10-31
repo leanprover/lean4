@@ -104,25 +104,6 @@ We prefer to pull `List.toArray` outwards.
 @[simp] theorem back_toArray [Inhabited α] (l : List α) : l.toArray.back = l.getLast! := by
   simp only [back, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
 
-@[simp] theorem forIn_loop_toArray [Monad m] (l : List α) (f : α → β → m (ForInStep β)) (i : Nat)
-    (h : i ≤ l.length) (b : β) :
-    Array.forIn.loop l.toArray f i h b = (l.drop (l.length - i)).forIn b f := by
-  induction i generalizing l b with
-  | zero => simp [Array.forIn.loop]
-  | succ i ih =>
-    simp only [Array.forIn.loop, size_toArray, getElem_toArray, ih, forIn_eq_forIn]
-    rw [Nat.sub_add_eq, List.drop_sub_one (by omega), List.getElem?_eq_getElem (by omega)]
-    simp only [Option.toList_some, singleton_append, forIn_cons]
-    have t : l.length - 1 - i = l.length - i - 1 := by omega
-    simp only [t]
-    congr
-
-@[simp] theorem forIn_toArray [Monad m] (l : List α) (b : β) (f : α → β → m (ForInStep β)) :
-    forIn l.toArray b f = forIn l b f := by
-  change l.toArray.forIn b f = l.forIn b f
-  rw [Array.forIn, forIn_loop_toArray]
-  simp
-
 @[simp] theorem forIn'_loop_toArray [Monad m] (l : List α) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) (i : Nat)
     (h : i ≤ l.length) (b : β) :
     Array.forIn'.loop l.toArray f i h b =
@@ -131,7 +112,7 @@ We prefer to pull `List.toArray` outwards.
   | zero =>
     simp [Array.forIn'.loop]
   | succ i ih =>
-    simp only [Array.forIn'.loop, size_toArray, getElem_toArray, ih, forIn_eq_forIn]
+    simp only [Array.forIn'.loop, size_toArray, getElem_toArray, ih]
     have t : drop (l.length - (i + 1)) l = l[l.length - i - 1] :: drop (l.length - i) l := by
       simp only [Nat.sub_add_eq]
       rw [List.drop_sub_one (by omega), List.getElem?_eq_getElem (by omega)]
@@ -145,7 +126,11 @@ We prefer to pull `List.toArray` outwards.
     forIn' l.toArray b f = forIn' l b (fun a m b => f a (mem_toArray.mpr m) b) := by
   change Array.forIn' _ _ _ = List.forIn' _ _ _
   rw [Array.forIn', forIn'_loop_toArray]
-  simp [List.forIn_eq_forIn]
+  simp
+
+@[simp] theorem forIn_toArray [Monad m] (l : List α) (b : β) (f : α → β → m (ForInStep β)) :
+    forIn l.toArray b f = forIn l b f := by
+  simpa using forIn'_toArray l b fun a m b => f a b
 
 theorem foldrM_toArray [Monad m] (f : α → β → m β) (init : β) (l : List α) :
     l.toArray.foldrM f init = l.foldrM f init := by

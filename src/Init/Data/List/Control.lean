@@ -234,49 +234,15 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 instance : ForIn' m (List α) α inferInstance where
   forIn' := List.forIn'
 
+-- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
+
 @[simp] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
 
-@[inline] protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
-  let rec @[specialize] loop
-    | [], b    => pure b
-    | a::as, b => do
-      match (← f a b) with
-      | ForInStep.done b  => pure b
-      | ForInStep.yield b => loop as b
-  loop as init
-
-instance : ForIn m (List α) α where
-  forIn := List.forIn
-
-@[simp] theorem forIn_eq_forIn [Monad m] : @List.forIn α β m _ = forIn := rfl
+@[simp] theorem forIn'_nil [Monad m] (f : (a : α) → a ∈ [] → β → m (ForInStep β)) (b : β) : forIn' [] b f = pure b :=
+  rfl
 
 @[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
   rfl
-
-@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β) :
-    forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f :=
-  rfl
-
-@[simp] theorem forIn'_eq_forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
-    (as : List α) (init : β) (f : α → β → m (ForInStep β)) :
-    forIn' as init (fun a _ b => f a b) = forIn as init f := by
-  simp [forIn', forIn, List.forIn, List.forIn']
-  have : ∀ cs h, List.forIn'.loop cs (fun a _ b => f a b) as init h = List.forIn.loop f as init := by
-    intro cs h
-    induction as generalizing cs init with
-    | nil => intros; rfl
-    | cons a as ih => intros; simp [List.forIn.loop, List.forIn'.loop, ih]
-  apply this
-
-/--
-The `ForIn` instance derived from the `ForIn'` instance is (non-defeq) equal to
-the canonical `ForIn` instance.
--/
-@[simp] theorem forInOfForIn'_eq_forIn :
-    (instForInOfForIn' : ForIn m (List α) α) = List.instForIn := by
-  ext β m l b f
-  change forIn' l b (fun a x => f a) = forIn l b f
-  rw [forIn'_eq_forIn]
 
 instance : ForM m (List α) α where
   forM := List.forM

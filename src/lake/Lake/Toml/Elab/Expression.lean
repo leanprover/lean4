@@ -75,7 +75,7 @@ def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
     | throwErrorAt kv "ill-formed key-value pair syntax"
   let `(key|$[$ks:simpleKey].*) := kStx
     | throwErrorAt kStx "ill-formed key syntax"
-  let tailKeyStx := ks.back
+  let tailKeyStx := ks.back!
   let k ← elabSubKeys ks.pop
   let k := k.str <| ← elabSimpleKey tailKeyStx
   if let some ty := (← get).keyTys.find? k then
@@ -116,7 +116,7 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
     | throwErrorAt x "ill-formed table syntax"
   let `(key|$[$ks:simpleKey].*) := kStx
     | throwErrorAt kStx "ill-formed key syntax"
-  let tailKey := ks.back
+  let tailKey := ks.back!
   let k ← elabHeaderKeys ks.pop
   let k ← k.str <$> elabSimpleKey tailKey
   if let some ty := (← get).keyTys.find? k then
@@ -134,7 +134,7 @@ def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do
     | throwErrorAt x "ill-formed array table syntax"
   let `(key|$[$ks:simpleKey].*) := k
     | throwErrorAt x "ill-formed key syntax"
-  let tailKey := ks.back
+  let tailKey := ks.back!
   let k ← elabHeaderKeys ks.pop
   let k := k.str (← elabSimpleKey tailKey)
   if let some ty := (← get).keyTys.find? k then

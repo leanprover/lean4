@@ -430,7 +430,7 @@ where
   hasLetDeclsInBetween : MetaM Bool := do
     let check (lctx : LocalContext) : Bool := Id.run do
       let start := lctx.getFVar! xs[0]! |>.index
-      let stop  := lctx.getFVar! xs.back |>.index
+      let stop  := lctx.getFVar! xs.back! |>.index
       for i in [start+1:stop] do
         match lctx.getAt? i with
         | some localDecl =>
@@ -488,7 +488,7 @@ where
   collectLetDeps : MetaM FVarIdHashSet := do
     let lctx ← getLCtx
     let start := lctx.getFVar! xs[0]! |>.index
-    let stop  := lctx.getFVar! xs.back |>.index
+    let stop  := lctx.getFVar! xs.back! |>.index
     let s := xs.foldl (init := {}) fun s x => s.insert x.fvarId!
     let (_, s) ← collectLetDepsAux stop |>.run start |>.run s
     return s
@@ -500,7 +500,7 @@ where
     let s ← collectLetDeps
     /- Convert `s` into the array `ys` -/
     let start := lctx.getFVar! xs[0]! |>.index
-    let stop  := lctx.getFVar! xs.back |>.index
+    let stop  := lctx.getFVar! xs.back! |>.index
     let mut ys := #[]
     for i in [start:stop+1] do
       match lctx.getAt? i with
@@ -1072,7 +1072,7 @@ private def processAssignmentFOApproxAux (mvar : Expr) (args : Array Expr) (v : 
     if args.isEmpty then
       pure false
     else
-      Meta.isExprDefEqAux args.back a <&&> Meta.isExprDefEqAux (mkAppRange mvar 0 (args.size - 1) args) f
+      Meta.isExprDefEqAux args.back! a <&&> Meta.isExprDefEqAux (mkAppRange mvar 0 (args.size - 1) args) f
   | _            => pure false
 
 /--
@@ -1178,7 +1178,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
             if argsPrefix.isEmpty then
               defaultCase
             else
-              let some v ← mkLambdaFVarsWithLetDeps #[argsPrefix.back] v | defaultCase
+              let some v ← mkLambdaFVarsWithLetDeps #[argsPrefix.back!] v | defaultCase
               go argsPrefix.pop v
           match (← checkAssignment mvarId argsPrefix v) with
           | none      => cont

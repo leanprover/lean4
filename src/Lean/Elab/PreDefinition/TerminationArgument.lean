@@ -118,7 +118,7 @@ def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : Termi
         Array.map (fun (i : Ident) => if stxBody.raw.hasIdent i.getId then i else hole) vars
       -- drop trailing underscores
       let mut vars := vars
-      while ! vars.isEmpty && vars.back.raw.isOfKind ``hole do vars := vars.pop
+      while ! vars.isEmpty && vars.back!.raw.isOfKind ``hole do vars := vars.pop
       if termArg.structural then
         if vars.isEmpty then
           `(terminationBy|termination_by structural $stxBody)

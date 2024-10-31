@@ -235,8 +235,10 @@ def range (n : Nat) : Array Nat :=
 def singleton (v : α) : Array α :=
   mkArray 1 v
 
-def back [Inhabited α] (a : Array α) : α :=
+def back! [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
+
+@[deprecated back! (since := "2024-10-31")] abbrev back := @back!
 
 def get? (a : Array α) (i : Nat) : Option α :=
   if h : i < a.size then some a[i] else none

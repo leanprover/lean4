@@ -429,8 +429,8 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
       exact ⟨w - 1 - j, by omega, h⟩
 
 theorem msb_neg {w : Nat} {x : BitVec w} :
-    (-x).msb = ((decide (x ≠ 0#w) && decide (x ≠ intMin w)) ^^ x.msb) := by
-  simp only [BitVec.msb, getMsbD_neg, ne_eq, decide_not, Bool.not_bne]
+    (-x).msb = ((x != 0#w && x != intMin w) ^^ x.msb) := by
+  simp only [BitVec.msb, getMsbD_neg]
   by_cases hmin : x = intMin _
   case pos =>
     have : (∃ j, j < w ∧ 0 < j ∧ 0 < w ∧ j = 0) ↔ False := by
@@ -446,7 +446,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
           contradiction
         · omega
       suffices ∃ j, j < w ∧ 0 < j ∧ x.getMsbD j = true
-        by simp [hmin, hzero, this]
+        by simp [show x != 0#w by simpa, show x != intMin w by simpa, this]
       false_or_by_contra
       rename_i getMsbD_x
       simp only [not_exists, _root_.not_and, not_eq_true] at getMsbD_x

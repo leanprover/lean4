@@ -535,7 +535,7 @@ where
     let .const typeName _ := type.getAppFn | return ()
     modify fun s => s.insert typeName
     if isStructure (← getEnv) typeName then
-      for parentName in getAllParentStructures (← getEnv) typeName do
+      for parentName in (← getAllParentStructures typeName) do
         modify fun s => s.insert parentName
     let some type ← unfoldeDefinitionGuarded? type | return ()
     visit type

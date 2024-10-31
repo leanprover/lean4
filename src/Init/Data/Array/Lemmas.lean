@@ -11,6 +11,7 @@ import Init.Data.List.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Modify
 import Init.Data.Array.Mem
+import Init.Data.Array.DecidableEq
 import Init.TacticsExtra
 
 /-!
@@ -68,6 +69,9 @@ theorem getElem_push (a : Array α) (x : α) (i : Nat) (h : i < (a.push x).size)
   · simp [getElem?_eq_getElem h]
     rfl
   · simp [getElem?_eq_none_iff.2 (by simpa using h)]
+
+theorem singleton_inj : #[a] = #[b] ↔ a = b := by
+  simp
 
 end Array
 
@@ -712,6 +716,43 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
       simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
         true_and, Nat.not_lt] at h
       rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
+
+/-! ### BEq -/
+
+@[simp] theorem reflBEq_iff [BEq α] : ReflBEq (Array α) ↔ ReflBEq α := by
+  constructor
+  · intro h
+    constructor
+    intro a
+    suffices (#[a] == #[a]) = true by
+      simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+    simp
+  · intro h
+    constructor
+    apply Array.isEqv_self_beq
+
+@[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (Array α) ↔ LawfulBEq α := by
+  constructor
+  · intro h
+    constructor
+    · intro a b h
+      apply singleton_inj.1
+      apply eq_of_beq
+      simp only [instBEq, isEqv, isEqvAux]
+      simpa
+    · intro a
+      suffices (#[a] == #[a]) = true by
+        simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+      simp
+  · intro h
+    constructor
+    · intro a b h
+      obtain ⟨hs, hi⟩ := rel_of_isEqv h
+      ext i h₁ h₂
+      · exact hs
+      · simpa using hi _ h₁
+    · intro a
+      apply Array.isEqv_self_beq
 
 /-! ### take -/
 

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 prelude
 import Init.Control.Basic
 import Init.Data.List.Basic
+import Init.Ext
 
 namespace List
 universe u v w u₁ u₂
@@ -215,27 +216,6 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
     | some b => pure (some b)
     | none   => findSomeM? f as
 
-@[inline] protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
-  let rec @[specialize] loop
-    | [], b    => pure b
-    | a::as, b => do
-      match (← f a b) with
-      | ForInStep.done b  => pure b
-      | ForInStep.yield b => loop as b
-  loop as init
-
-instance : ForIn m (List α) α where
-  forIn := List.forIn
-
-@[simp] theorem forIn_eq_forIn [Monad m] : @List.forIn α β m _ = forIn := rfl
-
-@[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
-  rfl
-
-@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β)
-    : forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f :=
-  rfl
-
 @[inline] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β
     | [], b, _    => pure b
@@ -256,7 +236,30 @@ instance : ForIn' m (List α) α inferInstance where
 
 @[simp] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
 
-@[simp] theorem forIn'_eq_forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : forIn' as init (fun a _ b => f a b) = forIn as init f := by
+@[inline] protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
+  let rec @[specialize] loop
+    | [], b    => pure b
+    | a::as, b => do
+      match (← f a b) with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b => loop as b
+  loop as init
+
+instance : ForIn m (List α) α where
+  forIn := List.forIn
+
+@[simp] theorem forIn_eq_forIn [Monad m] : @List.forIn α β m _ = forIn := rfl
+
+@[simp] theorem forIn_nil [Monad m] (f : α → β → m (ForInStep β)) (b : β) : forIn [] b f = pure b :=
+  rfl
+
+@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β) :
+    forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f :=
+  rfl
+
+@[simp] theorem forIn'_eq_forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
+    (as : List α) (init : β) (f : α → β → m (ForInStep β)) :
+    forIn' as init (fun a _ b => f a b) = forIn as init f := by
   simp [forIn', forIn, List.forIn, List.forIn']
   have : ∀ cs h, List.forIn'.loop cs (fun a _ b => f a b) as init h = List.forIn.loop f as init := by
     intro cs h
@@ -264,6 +267,16 @@ instance : ForIn' m (List α) α inferInstance where
     | nil => intros; rfl
     | cons a as ih => intros; simp [List.forIn.loop, List.forIn'.loop, ih]
   apply this
+
+/--
+The `ForIn` instance derived from the `ForIn'` instance is (non-defeq) equal to
+the canonical `ForIn` instance.
+-/
+@[simp] theorem forInOfForIn'_eq_forIn :
+    (instForInOfForIn' : ForIn m (List α) α) = List.instForIn := by
+  ext β m l b f
+  change forIn' l b (fun a x => f a) = forIn l b f
+  rw [forIn'_eq_forIn]
 
 instance : ForM m (List α) α where
   forM := List.forM

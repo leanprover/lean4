@@ -1,4 +1,4 @@
-import SimplcLean._root_
+import Lean.SimpLC.Whitelists.Root
 
 simp_lc whitelist Bool.bne_assoc Bool.bne_self_left -- `(x != (y != (x != (y != b)))) = b` `(y != (x != y)) = x`
 
@@ -24,5 +24,9 @@ simp_lc ignore Bool.forall_bool
 simp_lc whitelist ite_eq_left_iff Bool.ite_eq_cond_iff
 simp_lc whitelist ite_eq_right_iff Bool.ite_eq_cond_iff
 
-#guard_msgs (drop info) in
-simp_lc check in _root_ Bool
+/-
+The actual checks happen in `tests/lean/run/simplc.lean`.
+This commented out command remains here for convenience while debugging.
+-/
+-- #guard_msgs (drop info) in
+-- simp_lc check in _root_ Bool

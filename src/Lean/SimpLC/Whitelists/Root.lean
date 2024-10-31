@@ -1,6 +1,7 @@
-import Simplc
+import Lean.SimpLC
 
--- This possibly could be a simp lemma. It would fire on any `arrow` goal, but we have plenty of these already.
+-- This possibly could be a simp lemma.
+-- It would fire on any `arrow` goal, but we have plenty of these already.
 example (x : True → Prop) : (∀ (h : True), x h) ↔ x True.intro :=
   ⟨fun h => h .intro, fun h _ => h⟩
 simp_lc whitelist dite_else_true dite_true
@@ -19,7 +20,7 @@ simp_lc whitelist forall_false forall_apply_eq_imp_iff₂
 -- Produces many non-confluence goals that could be resolved by better automation.
 simp_lc ignore forall_exists_index
 
--- All easy with some additional automation.
+-- The following would be easy with some additional automation.
 simp_lc whitelist exists_eq_left exists_eq_right_right'
 simp_lc whitelist exists_eq_right exists_eq_left
 simp_lc whitelist exists_eq_right exists_eq_or_imp
@@ -30,8 +31,10 @@ simp_lc whitelist exists_eq_right_right exists_eq_left'
 simp_lc whitelist exists_eq_right_right exists_eq_or_imp
 simp_lc whitelist exists_eq_right_right' exists_eq_or_imp
 
--- These are terrible: they involve different decidable instances (which must all be equal, but the automation doesn't know that).
-example {P : Prop} (h h' : Decidable P) : ((@decide P h) || (@decide P h')) = ((@decide P h') || (@decide P h)) := by
+-- These are terrible: they involve different decidable instances
+-- (which must all be equal, but the automation doesn't know that).
+example {P : Prop} (h h' : Decidable P) :
+    ((@decide P h) || (@decide P h')) = ((@decide P h') || (@decide P h)) := by
   have : h = h' := Subsingleton.elim _ _
   subst this
   simp
@@ -47,5 +50,9 @@ example (x : Id PUnit) : PUnit.unit = x := by
   simp
 simp_lc whitelist Id.bind_eq bind_pure_unit
 
-#guard_msgs (drop info) in
-simp_lc check in Id _root_
+/-
+The actual checks happen in `tests/lean/run/simplc.lean`.
+This commented out command remains here for convenience while debugging.
+-/
+-- #guard_msgs (drop info) in
+-- simp_lc check in Id _root_

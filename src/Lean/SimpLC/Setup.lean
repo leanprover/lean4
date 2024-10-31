@@ -1,13 +1,15 @@
-import Lean
+import Lean.Util.Trace
 
 open Lean
+
+namespace Lean.SimpLC
 
 abbrev NamePair := Name × Name
 
 initialize simpLCWhitelistExt : SimplePersistentEnvExtension NamePair (Array NamePair) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := Array.push
-    addImportedFn := Array.concatMap id
+    addImportedFn := Array.flatMap id
   }
 
 def isCriticalPairWhitelisted {m : Type → Type} [Monad m] [MonadEnv m] (pair : NamePair) : m Bool := do
@@ -18,7 +20,7 @@ def isCriticalPairWhitelisted {m : Type → Type} [Monad m] [MonadEnv m] (pair :
 initialize simpLCIgnoreExt : SimplePersistentEnvExtension Name (Array Name) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := Array.push
-    addImportedFn := Array.concatMap id
+    addImportedFn := Array.flatMap id
   }
 
 def ignoreName {m : Type → Type} [Monad m] [MonadEnv m] (n : Name) : m Unit := do
@@ -39,3 +41,5 @@ register_option simplc.checkWhitelist : Bool := {
   defValue := true
   descr := "simplc whitelist to warn if the pair is actually ok"
 }
+
+end Lean.SimpLC

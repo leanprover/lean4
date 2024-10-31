@@ -1,20 +1,16 @@
-import SimplcLean.Nat
-import SimplcLean.Bool
-import SimplcLean.BitVec
+import Lean.SimpLC.Whitelists.Root
 
 open List
 
-simp_lc whitelist List.map_const List.map_join -- too hard?
+simp_lc whitelist List.map_const List.map_flatten -- too hard?
 
 simp_lc whitelist List.findIdx?_start_succ List.findIdx?_cons -- Would require `Option.map_ite` as a `@[simp]` lemma; not impossible.
 simp_lc whitelist List.drop_tail List.drop_one -- Would require an infinite chain of lemmas to resolve!
 simp_lc whitelist List.findSome?_replicate_of_pos List.findSome?_replicate_of_isSome -- split in the discharger would get us there
 
-simp_lc whitelist List.contains_replicate List.elem_eq_mem -- TODO change List.contains_replicate
 simp_lc whitelist List.getElem?_eq_getElem List.getElem?_enum -- Hmm, problem with `simp_all` refusing to make a copy of a hypothesis.
 simp_lc whitelist List.getElem?_map List.getElem?_eq_getElem -- Hmm, problem with `simp_all` refusing to make a copy of a hypothesis.
--- This will be needed once we rejoin `master`.
--- simp_lc whitelist List.getElem?_mapIdx List.getElem?_eq_getElem
+simp_lc whitelist List.getElem?_mapIdx List.getElem?_eq_getElem
 
 simp_lc whitelist List.drop_one List.drop_left' -- `h : l₁.length = 1 ⊢ (l₁ ++ l₂).tail = l₂`
 
@@ -79,9 +75,23 @@ simp_lc ignore List.getElem_mem
 -- These higher order simp lemmas cause many confluence problems. Reconsider?
 simp_lc ignore List.filterMap_subtype
 simp_lc ignore List.map_subtype
-simp_lc ignore List.bind_subtype
+simp_lc ignore List.flatMap_subtype
 simp_lc ignore List.foldl_subtype
 simp_lc ignore List.foldr_subtype
 
-#guard_msgs (drop info) in
-simp_lc check in List
+-- TODO: re-evaluate these (appeared while moving `SimpLC` into Lean.)
+simp_lc whitelist List.forIn'_cons List.forIn'_eq_forIn
+simp_lc whitelist List.getElem?_eq_getElem List.getElem?_modifyHead_zero
+simp_lc whitelist List.getElem?_modify_eq List.getElem?_eq_getElem
+simp_lc whitelist List.beq_toArray beq_self_eq_true
+simp_lc whitelist _root_.forIn'_eq_forIn List.forIn'_eq_forIn
+simp_lc whitelist List.forIn'_toArray _root_.forIn'_eq_forIn
+simp_lc whitelist List.forIn'_cons _root_.forIn'_eq_forIn
+simp_lc whitelist BEq.refl List.beq_toArray
+
+/-
+The actual checks happen in `tests/lean/run/simplc.lean`.
+This commented out command remains here for convenience while debugging.
+-/
+-- #guard_msgs (drop info) in
+-- simp_lc check in List BEq _root_

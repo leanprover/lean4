@@ -1,10 +1,14 @@
-import Lean
-import Simplc.Setup
-import Simplc.MVarCycles
+import Lean.SimpLC.Setup
+import Lean.SimpLC.MVarCycles
+import Lean.Elab.Tactic.Meta
+import Lean.Elab.Tactic.Conv.Congr
+import Lean.Meta.Tactic.TryThis
 
 /-!
 See the documentation for the `simp_lc` command.
 -/
+
+namespace Lean.SimpLC
 
 open Lean Meta
 
@@ -70,28 +74,15 @@ join critical pairs.
 -/
 syntax "simp_lc " &"ignore " ident : command
 
--- remove with https://github.com/leanprover/lean4/pull/4362
-def My.ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
-  | .decl n post inv => do
-    let r ← mkConstWithLevelParams n;
-    match post, inv with
-    | true,  true  => return m!"← {MessageData.ofConst r}"
-    | true,  false => return m!"{MessageData.ofConst r}"
-    | false, true  => return m!"↓ ← {MessageData.ofConst r}"
-    | false, false => return m!"↓ {MessageData.ofConst r}"
-  | .fvar n => return mkFVar n
-  | .stx _ ref => return ref
-  | .other n => return n
-
 def withoutModifingMVarAssignmentImpl (x : MetaM α) : MetaM α := do
   let saved ← getThe Meta.State
   try
     x
   finally
     set saved
+
 def withoutModifingMVarAssignment {m} [Monad m] [MonadControlT MetaM m] {α} (x : m α) : m α :=
   mapMetaM (fun k => withoutModifingMVarAssignmentImpl k) x
-
 
 def forallInstTelescope {α} (e : Expr) (n : Nat) (k : Expr → MetaM α) : MetaM α := do
   match n with
@@ -122,7 +113,7 @@ structure CriticalPair where
   path : List Nat
 
 def CriticalPair.pp (cp : CriticalPair) : MetaM MessageData :=
-  return m!"{← My.ppOrigin cp.thm1.origin} {← My.ppOrigin cp.thm2.origin} (at {cp.path})"
+  return m!"{← ppOrigin cp.thm1.origin} {← ppOrigin cp.thm2.origin} (at {cp.path})"
 
 abbrev M := StateT (Array CriticalPair) (StateT Nat MetaM)
 
@@ -179,8 +170,8 @@ def checkSimpLC (root_only : Bool) (tac? : Option (TSyntax `Lean.Parser.Tactic.t
               -- here
               trace[simplc]
                 m!"Expression{indentExpr cp}\n" ++
-                m!"reduces with {← My.ppOrigin thm1.origin} to{indentExpr e1}\n" ++
-                m!"and     with {← My.ppOrigin thm2.origin} to{indentExpr e2}\n"
+                m!"reduces with {← ppOrigin thm1.origin} to{indentExpr e1}\n" ++
+                m!"and     with {← ppOrigin thm2.origin} to{indentExpr e2}\n"
 
               let goal ← mkEq e1 e2
               check goal
@@ -302,7 +293,7 @@ def checkSimpLCAll (cmdStx : TSyntax `command) (root_only : Bool) (pfixs? : Opti
     for thm1 in thms do
       try
         checkSimpLC root_only .none thm1 filtered_sthms
-      catch e => logError m!"Failed to check {← My.ppOrigin thm1.origin}\n{← nestedExceptionToMessageData e}"
+      catch e => logError m!"Failed to check {← ppOrigin thm1.origin}\n{← nestedExceptionToMessageData e}"
 
 def warnIfNotSimp (n : Name) : CoreM Unit := do
   try
@@ -348,3 +339,5 @@ elab_rules : command
 
 | `(command|simp_lc) => liftTermElabM do
   logWarning m!"Please use one of the `simp_lc` subcommands."
+
+end Lean.SimpLC

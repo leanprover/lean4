@@ -1,10 +1,11 @@
-import SimplcLean._root_
+import Lean.SimpLC.Whitelists.Root
 
 theorem Int.emod_add_div (m k : Int) : m % k + k * (m / k) = m := by
   simp [Int.emod_def]
 
--- This somewhat obscure fact should probably be included as a lemma.
--- However as a simp lemma it does not improve confluence: it just creates more goals with iterated `%`.
+-- The following two somewhat obscure facts could probably be included as theorems.
+-- However as a simp lemma it does not improve confluence:
+-- it just creates more goals with iterated `%`.
 theorem Nat.mod_self_mod_eq_zero_of_mod_dvd_right (a b : Nat) (h : a % b ∣ b) : a % (a % b) = 0 := by
   obtain ⟨k, h⟩ := h
   rw [Nat.mod_eq_zero_of_dvd]
@@ -34,9 +35,6 @@ theorem Int.mod_self_mod_eq_zero_of_mod_dvd_right (a b : Int) (h : a % b ∣ b) 
 simp_lc whitelist Nat.mod_self Nat.mod_mod_of_dvd
 simp_lc whitelist Int.emod_self Int.emod_emod_of_dvd
 
-#guard_msgs (drop info) in
-simp_lc check in Nat
-
 -- Ugly corner case, let's just whitelist it.
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
@@ -50,11 +48,9 @@ theorem Int.ediv_self_of_pos (a : Int) (_ : 0 < a) : a / a = 1 := Int.ediv_self 
 theorem Int.ediv_self_of_lt_zero (a : Int) (_ : a < 0) : a / a = 1 := Int.ediv_self (by omega)
 simp_lc whitelist Int.mul_ediv_mul_of_pos_left Int.mul_ediv_mul_of_pos
 
-#guard_msgs (drop info) in
-simp_lc check in Nat Int
-
 /-!
-The following theorems could be added a simp lemmas, improving confluence and avoiding needing the three whitelist statements below,
+The following theorems could be added a simp lemmas,
+improving confluence and avoiding needing the three whitelist statements below,
 however they have bad discrimination tree keys (`@Exists Nat <other>`) so we just whitelist.
 -/
 theorem Nat.exists_ne {y : Nat} : ∃ x, x ≠ y := ⟨y + 1, by simp⟩
@@ -76,5 +72,9 @@ simp_lc whitelist exists_and_right Nat.exists_ne_zero
 simp_lc whitelist exists_eq_right_right Nat.exists_ne_zero
 simp_lc whitelist exists_eq_right_right' Nat.exists_ne_zero
 
-#guard_msgs (drop info) in
-simp_lc check in _root_ Nat Int
+/-
+The actual checks happen in `tests/lean/run/simplc.lean`.
+This commented out command remains here for convenience while debugging.
+-/
+-- #guard_msgs (drop info) in
+-- simp_lc check in _root_ Nat Int

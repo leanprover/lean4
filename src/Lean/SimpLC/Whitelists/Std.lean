@@ -1,4 +1,4 @@
-import SimplcLean._root_
+import Lean.SimpLC.Whitelists.Root
 
 -- I don't understand this next set: `simp` seems to close the goal.
 example {α : Type _} [BEq α] [EquivBEq α] (a : α) : (a == a) = true := by simp
@@ -14,10 +14,15 @@ simp_lc whitelist Std.DHashMap.mem_insert Std.DHashMap.mem_insert_self
 simp_lc whitelist Std.DHashMap.contains_insert Std.DHashMap.contains_insert_self
 simp_lc whitelist Std.HashMap.contains_insert Std.HashMap.contains_insert_self
 
--- TODO: I'm similarly confused by these ones, which I can't seem to construct simp lemmas to resolve.
+-- TODO: I'm similarly confused by these ones,
+-- which I can't seem to construct simp lemmas to resolve.
 simp_lc whitelist Std.HashSet.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc whitelist Std.HashMap.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc whitelist Std.DHashMap.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 
-#guard_msgs (drop info) in
-simp_lc check in Std Id LawfulSingleton _root_
+/-
+The actual checks happen in `tests/lean/run/simplc.lean`.
+This commented out command remains here for convenience while debugging.
+-/
+-- #guard_msgs (drop info) in
+-- simp_lc check in Std Id LawfulSingleton _root_

@@ -407,6 +407,8 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       constructor
       · rintro h j hj; exact And.right <| h j (by omega)
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
+  · have h_ge : w ≤ i := by omega
+    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i =

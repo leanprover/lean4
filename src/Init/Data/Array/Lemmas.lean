@@ -504,6 +504,10 @@ theorem back!_eq_back? [Inhabited α] (a : Array α) : a.back! = a.back?.getD de
 @[simp] theorem back!_push [Inhabited α] (a : Array α) : (a.push x).back! = x := by
   simp [back!_eq_back?]
 
+theorem getElem?_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
+    (a.push x)[i]? = some a[i] := by
+  rw [getElem?_pos, getElem_push_lt]
+
 @[deprecated getElem?_push_lt (since := "2024-10-21")] abbrev get?_push_lt := @getElem?_push_lt
 
 theorem getElem?_push_eq (a : Array α) (x : α) : (a.push x)[a.size]? = some x := by

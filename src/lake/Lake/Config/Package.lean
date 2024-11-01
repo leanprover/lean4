@@ -417,8 +417,6 @@ instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
   ⟨by constructor <;> exact default⟩
 
-hydrate_opaque_type OpaquePackage Package
-
 instance : Hashable Package where hash pkg := hash pkg.config.name
 instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
 

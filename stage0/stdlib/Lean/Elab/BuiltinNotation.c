@@ -978,6 +978,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabNoindex__1(lean_objec
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabHaveI_declRange__1___closed__2;
 static lean_object* l_Lean_Elab_Term_hasCDot___closed__2;
 static lean_object* l_Lean_Elab_Term_elabRunElab_unsafe__1___closed__6;
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabSubst___closed__15;
 static lean_object* l_Lean_Elab_Term_elabUnsafe___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_expandCDot_x3f_go___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1000,7 +1001,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_expandTypeAscription__1___clos
 LEAN_EXPORT lean_object* l_Lean_setImplementedBy___at_Lean_Elab_Term_elabUnsafe___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandShow___closed__3;
 static lean_object* l_Lean_Elab_Term_expandCDot_x3f___lambda__1___closed__1;
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_isSubstCandidate___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabAnonymousCtor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13406,7 +13406,7 @@ x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
 lean_dec(x_4);
 x_7 = lean_box(0);
-x_8 = l_Array_back___rarg(x_7, x_1);
+x_8 = l_Array_back_x21___rarg(x_7, x_1);
 x_9 = l_Lean_Elab_Term_mkPairs_loop(x_1, x_6, x_8, x_2, x_3);
 return x_9;
 }
@@ -13593,7 +13593,7 @@ x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
 lean_dec(x_4);
 x_7 = lean_box(0);
-x_8 = l_Array_back___rarg(x_7, x_1);
+x_8 = l_Array_back_x21___rarg(x_7, x_1);
 x_9 = l_Lean_Elab_Term_mkPPairs_loop(x_1, x_6, x_8, x_2, x_3);
 return x_9;
 }
@@ -13780,7 +13780,7 @@ x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);
 lean_dec(x_4);
 x_7 = lean_box(0);
-x_8 = l_Array_back___rarg(x_7, x_1);
+x_8 = l_Array_back_x21___rarg(x_7, x_1);
 x_9 = l_Lean_Elab_Term_mkMPairs_loop(x_1, x_6, x_8, x_2, x_3);
 return x_9;
 }

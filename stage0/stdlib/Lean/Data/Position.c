@@ -121,9 +121,9 @@ static lean_object* l___private_Lean_Data_Position_0__Lean_fromJsonPosition____x
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNat_x3f(lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_179____closed__9;
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Array_appendList___spec__1___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_179____closed__6;
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Position_0__Lean_fromJsonPosition____x40_Lean_Data_Position___hyg_289____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_179____closed__12;
 lean_object* lean_array_mk(lean_object*);
@@ -1606,7 +1606,7 @@ lean_dec(x_11);
 x_12 = lean_ctor_get(x_1, 0);
 lean_dec(x_12);
 x_13 = l_instInhabitedPos;
-x_14 = l_Array_back___rarg(x_13, x_4);
+x_14 = l_Array_back_x21___rarg(x_13, x_4);
 lean_dec(x_4);
 x_15 = lean_nat_sub(x_2, x_14);
 lean_dec(x_14);
@@ -1619,7 +1619,7 @@ else
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_1);
 x_16 = l_instInhabitedPos;
-x_17 = l_Array_back___rarg(x_16, x_4);
+x_17 = l_Array_back_x21___rarg(x_16, x_4);
 lean_dec(x_4);
 x_18 = lean_nat_sub(x_2, x_17);
 lean_dec(x_17);
@@ -1642,7 +1642,7 @@ else
 {
 lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_21 = l_instInhabitedPos;
-x_22 = l_Array_back___rarg(x_21, x_4);
+x_22 = l_Array_back_x21___rarg(x_21, x_4);
 x_23 = lean_nat_dec_le(x_2, x_22);
 if (x_23 == 0)
 {
@@ -1745,7 +1745,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = l_instInhabitedPos;
-x_13 = l_Array_back___rarg(x_12, x_7);
+x_13 = l_Array_back_x21___rarg(x_12, x_7);
 lean_dec(x_7);
 lean_ctor_set(x_1, 1, x_13);
 x_14 = l_String_Iterator_nextn(x_1, x_10);
@@ -1807,7 +1807,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_29 = l_instInhabitedPos;
-x_30 = l_Array_back___rarg(x_29, x_24);
+x_30 = l_Array_back_x21___rarg(x_29, x_24);
 lean_dec(x_24);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_23);

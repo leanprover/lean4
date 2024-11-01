@@ -140,9 +140,9 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Elab_TerminationArgument_elab___spec__1___closed__1;
 lean_object* l_Array_indexOfAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTerminationArgument___closed__1;
 static lean_object* l_Lean_Elab_TerminationArgument_elab___closed__5;
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_delab_go___closed__6;
 lean_object* lean_array_mk(lean_object*);
@@ -1568,7 +1568,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_11 = lean_box(0);
-x_12 = l_Array_back___rarg(x_11, x_2);
+x_12 = l_Array_back_x21___rarg(x_11, x_2);
 x_13 = l_Lean_Syntax_isOfKind(x_12, x_1);
 if (x_13 == 0)
 {

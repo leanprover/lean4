@@ -104,12 +104,12 @@ lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMe
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_Structural_IndGroupInfo_0__Lean_Elab_Structural_beqIndGroupInfo____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_26_(lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Structural_IndGroupInst_isDefEq___lambda__2___closed__1;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers___spec__4___lambda__1___closed__6;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_IndGroupInst_nestedTypeFormers___spec__4___lambda__1___closed__4;
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 extern lean_object* l_Lean_instInhabitedName;
@@ -1250,7 +1250,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = l_Lean_instInhabitedExpr;
-x_14 = l_Array_back___rarg(x_13, x_1);
+x_14 = l_Array_back_x21___rarg(x_13, x_1);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);

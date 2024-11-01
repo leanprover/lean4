@@ -1837,6 +1837,20 @@ def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
 
 /--
+Annotate `e` with `pp.piBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPPiBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.piBinderTypes flag
+
+/--
+Annotate `e` with `pp.funBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.funBinderTypes flag
+
+/--
 Annotate `e` with `pp.explicit := flag`
 The delaborator uses `pp` options.
 -/

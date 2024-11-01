@@ -48,6 +48,9 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
 @[simp] theorem mapM_cons [Monad m] [LawfulMonad m] (f : α → m β) :
     (a :: l).mapM f = (return (← f a) :: (← l.mapM f)) := by simp [← mapM'_eq_mapM, mapM']
 
+@[simp] theorem mapM_id {l : List α} {f : α → Id β} : l.mapM f = l.map f := by
+  induction l <;> simp_all
+
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {l₁ l₂ : List α} :
     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]
 

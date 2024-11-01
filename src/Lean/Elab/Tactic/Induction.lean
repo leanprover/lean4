@@ -221,19 +221,13 @@ private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : Tacti
       seenNames := seenNames.push altName
       unless alts.any (·.name == altName) do
         let unhandledAlts := alts.filter fun alt => !seenNames.contains alt.name
-        let msg := if unhandledAlts.isEmpty then
-          s!"invalid alternative name '{altName}', no unhandled alternatives"
-        else
-          let names := unhandledAlts.map (·.name)
-          let namesStr := match names.size with
-            | 0 => ""
-            | 1 => s!"{Name.toString names[0]!}"
-            | 2 => s!"{Name.toString names[0]!} or {Name.toString names[1]!}"
-            | _ =>
-              let init := names.extract 0 (names.size - 1)
-              let last := names.back
-              s!"{", ".intercalate (init.toList.map Name.toString)}, or {last}"
-          s!"invalid alternative name '{altName}', expected one of {namesStr}"
+        let msg ← do
+          if unhandledAlts.isEmpty then
+            pure s!"invalid alternative name '{altName}', no unhandled alternatives"
+          else
+            let unhandledAltsMessages := ((unhandledAlts.map (·.name)).map MessageData.ofName).toList
+            let unhandledAltsStr ← MessageData.toString (MessageData.orList unhandledAltsMessages)
+            pure s!"invalid alternative name '{altName}', expected {unhandledAltsStr}"
         throwErrorAt altStx msg
 
 

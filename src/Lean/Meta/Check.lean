@@ -123,6 +123,15 @@ where
                 firstExplicitDiff? := firstExplicitDiff? <|> some i
               else
                 firstImplicitDiff? := firstImplicitDiff? <|> some i
+          -- Some special cases
+          let fn? : Option Name :=
+            match a.getAppFn, b.getAppFn with
+            | .const ca .., .const cb .. => if ca == cb then ca else none
+            | _, _ => none
+          if fn? == ``OfNat.ofNat && as.size ≥ 3 && firstImplicitDiff? == some 0 then
+            -- Even if there is an explicit diff, it is better to see that the type is different.
+            return (a.setPPNumericTypes true, b.setPPNumericTypes true)
+          -- General case
           if let some i := firstExplicitDiff? <|> firstImplicitDiff? then
             let (ai, bi) ← visit as[i]! bs[i]!
             as := as.set! i ai

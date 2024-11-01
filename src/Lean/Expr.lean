@@ -1837,6 +1837,13 @@ def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
 
 /--
+Annotate `e` with `pp.explicit := flag`
+The delaborator uses `pp` options.
+-/
+def setPPNumericTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.numericTypes flag
+
+/--
 If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,
 and annotate `e` with `pp.explicit := true`.
 -/

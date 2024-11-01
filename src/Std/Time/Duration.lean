@@ -14,7 +14,7 @@ open Internal
 set_option linter.all true
 
 /--
-Represents a point in time relative to the UNIX Epoch, with nanoseconds precision.
+Represents a time interval with nanoseconds precision.
 -/
 structure Duration where
 

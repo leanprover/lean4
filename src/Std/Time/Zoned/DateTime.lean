@@ -44,7 +44,7 @@ Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 -/
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
-  DateTime.mk tm (Thunk.mk fun _ => (tm.addSeconds tz.toSeconds).toPlainDateTimeAssumingUTC)
+  DateTime.mk tm (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC |>.addSeconds tz.toSeconds)
 
 /--
 Creates a `Timestamp` out of a `DateTime`.
@@ -75,8 +75,8 @@ is relative to the given `TimeZone`.
 -/
 @[inline]
 def ofLocalDateTime (date : PlainDateTime) (tz : TimeZone) : DateTime tz :=
-  let tm := Timestamp.ofPlainDateTimeAssumingUTC date
-  DateTime.mk (tm.subSeconds tz.toSeconds) (Thunk.mk fun _ => date)
+  let tm := date.subSeconds tz.toSeconds
+  DateTime.mk (Timestamp.ofPlainDateTimeAssumingUTC tm) (Thunk.mk fun _ => date)
 
 /--
 Add `Hour.Offset` to a `DateTime`.

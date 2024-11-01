@@ -143,12 +143,6 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
   let proof' ← args[congrThm.argKinds.size:].foldlM (init := proof) mkCongrFun
   return (proof', mvarIdNew?.get!, mvarIdsNewInsts)
 
-private def _root_.Lean.MVarId.assignSafe (mvarId : MVarId) (val : Expr) : MetaM Unit := do
-  check val
-  unless ← isDefEq (← mvarId.getType) (← inferType val) do
-    throwError "mvarId has type{indentExpr (← mvarId.getType)}\nbut value has type{indentExpr (← inferType val)}"
-  mvarId.assign val
-
 /--
 Implements `arg` for foralls. If `domain` is true, accesses the domain, otherwise accesses the codomain.
 -/
@@ -157,11 +151,11 @@ def congrArgForall (tacticName : String) (domain : Bool) (mvarId : MVarId) (lhs 
   if domain then
     if !b.hasLooseBVars then
       let (_rhs, g) ← mkConvGoalFor t (← mvarId.getTag)
-      mvarId.assignSafe <| ← mkAppM ``implies_congr #[g, ← mkEqRefl b]
+      mvarId.assign <| ← mkAppM ``implies_congr #[g, ← mkEqRefl b]
       return [g.mvarId!]
     else if ← isProp b <&&> isProp lhs then
       let (_rhs, g) ← mkConvGoalFor t (← mvarId.getTag)
-      mvarId.assignSafe <| ← mkAppM ``forall_prop_congr_dom
+      mvarId.assign <| ← mkAppM ``forall_prop_congr_dom
         #[g, .lam n t b .default]
       return [g.mvarId!]
     else
@@ -172,7 +166,7 @@ def congrArgForall (tacticName : String) (domain : Bool) (mvarId : MVarId) (lhs 
       let q := b.instantiate1 arg
       let (q', g) ← mkConvGoalFor q (← mvarId.getTag)
       let v ← getLevel q
-      mvarId.assignSafe <| mkAppN (.const ``pi_congr [u, v])
+      mvarId.assign <| mkAppN (.const ``pi_congr [u, v])
         #[t, .lam n t b .default, ← mkLambdaFVars #[arg] q', ← mkLambdaFVars #[arg] g]
       return [g.mvarId!]
 

@@ -43,8 +43,8 @@ def deriveMatchFloat (name : Name) : MetaM Unit := do
     let matchType ← inferType matchf
     let type ← forallBoundedTelescope matchType info.numParams fun params matchType => do
         -- TODO universes
-      withLocalDeclD `α (.sort u) fun α => do
-      withLocalDeclD `β (.sort v) fun β => do
+      withLocalDecl `α .implicit (.sort u) fun α => do
+      withLocalDecl `β .implicit (.sort v) fun β => do
       withLocalDeclD `f (← mkArrow α β) fun f => do
         let motive ← forallTelescope matchType.bindingDomain! fun xs _ => mkLambdaFVars xs α
         let motive' ← forallTelescope matchType.bindingDomain! fun xs _ => mkLambdaFVars xs β

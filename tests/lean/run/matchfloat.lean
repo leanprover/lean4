@@ -3,12 +3,11 @@ def test1 : Nat → Nat
   | _+1 => 42
 
 -- set_option pp.match false
-#check test1.match_1
 
 /--
 warning: declaration uses 'sorry'
 ---
-info: test1.match_1.float.{u, v} (α : Sort u) (β : Sort v) (f : α → β) (x✝ : Nat) (h_1 : Unit → (fun x => α) 0)
+info: test1.match_1.float.{u, v} {α : Sort u} {β : Sort v} (f : α → β) (x✝ : Nat) (h_1 : Unit → (fun x => α) 0)
   (h_2 : (n : Nat) → (fun x => α) n.succ) :
   f
       (match x✝ with
@@ -21,23 +20,23 @@ info: test1.match_1.float.{u, v} (α : Sort u) (β : Sort v) (f : α → β) (x�
 #guard_msgs in
 #check test1.match_1.float
 
-def test2 (α β) : α ∨ β → β ∨ α
-  | .inl x => .inr x
-  | .inr x => .inl x
+def test2 (α β) : α ∨ β → γ → (β ∨ α) ∧ γ
+  | .inl x, y => ⟨.inr x, y⟩
+  | .inr x, y => ⟨.inl x, y⟩
 
 set_option pp.proofs true in
 /--
 warning: declaration uses 'sorry'
 ---
-info: test2.match_1.float (α β : Prop) (f : α → β) (α✝ β✝ : Prop) (x✝ : α✝ ∨ β✝) (h_1 : ∀ (x : α✝), (fun x => α) (Or.inl x))
-  (h_2 : ∀ (x : β✝), (fun x => α) (Or.inr x)) :
+info: test2.match_1.float {α β : Prop} (f : α → β) {γ : Prop} (α✝ β✝ : Prop) (x✝ : α✝ ∨ β✝) (x✝¹ : γ)
+  (h_1 : ∀ (x : α✝) (y : γ), (fun x x => α) (Or.inl x) y) (h_2 : ∀ (x : β✝) (y : γ), (fun x x => α) (Or.inr x) y) :
   f
-      (match x✝ with
-      | Or.inl x => h_1 x
-      | Or.inr x => h_2 x) =
-    match x✝ with
-    | Or.inl x => f (h_1 x)
-    | Or.inr x => f (h_2 x)
+      (match x✝, x✝¹ with
+      | Or.inl x, y => h_1 x y
+      | Or.inr x, y => h_2 x y) =
+    match x✝, x✝¹ with
+    | Or.inl x, y => f (h_1 x y)
+    | Or.inr x, y => f (h_2 x y)
 -/
 #guard_msgs in
 #check test2.match_1.float

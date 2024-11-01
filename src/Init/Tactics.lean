@@ -435,7 +435,7 @@ syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") (i
 syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
 
 /-- Configuration options for tactics. -/
-syntax optConfig := configItem*
+syntax optConfig := (colGt configItem)*
 
 /-- Optional configuration option for tactics. (Deprecated. Replace `(config)?` with `optConfig`.) -/
 syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"

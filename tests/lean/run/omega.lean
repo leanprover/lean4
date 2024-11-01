@@ -346,12 +346,10 @@ example {a₁ a₂ p₁ p₂ : Nat}
 example {i : Nat} (h1 : i < 330) (_h2 : 7 ∣ (660 + i) * (1319 - i)) : 1319 - i < 1979 := by
   omega
 
-/- TODO(kmill): re-enable once `omega` tactic uses `optConfig` rather than `(config)?`
 example {a : Int} (_ : a < min a b) : False := by omega (config := { splitMinMax := false })
 example {a : Int} (_ : max a b < b) : False := by omega (config := { splitMinMax := false })
 example {a : Nat} (_ : a < min a b) : False := by omega (config := { splitMinMax := false })
 example {a : Nat} (_ : max a b < b) : False := by omega (config := { splitMinMax := false })
--/
 
 example {a b : Nat} (_ : a = 7) (_ : b = 3) : min a b = 3 := by
   fail_if_success omega (config := { splitMinMax := false })

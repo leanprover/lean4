@@ -646,7 +646,7 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDecl
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
-    exportEntriesFn := fun s => s.fold (fun es n v => es.push (n, v)) #[] -- NameMap fold is in order
+    exportEntriesFn := fun s => s.toArray
   }
 
 namespace MapDeclarationExtension

@@ -37,8 +37,9 @@ private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   | _                    => throwFunctionExpected f
 
 /--
-Given two expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
-expose "implicit" differences. For example, suppose `a` and `b` are of the form
+Given two expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true`
+and other `pp` options to expose "implicit" differences.
+For example, suppose `a` and `b` are of the form
 ```lean
 @HashMap Nat Nat eqInst hasInst1
 @HashMap Nat Nat eqInst hasInst2
@@ -67,7 +68,8 @@ has type
 but is expected to have type
   @HashMap Nat Nat eqInst hasInst2
 ```
-Remark: this method implements a simple heuristic, we should extend it as we find other counterintuitive
+
+Remark: this method implements simple heuristics; we should extend it as we find other counterintuitive
 error messages.
 -/
 partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
@@ -142,6 +144,28 @@ where
             return (a, b)
           else
             return (a.setPPExplicit true, b.setPPExplicit true)
+      | .forallE na ta ba bia, .forallE nb tb bb bib =>
+        if !(← isDefEq ta tb) then
+          let (ta, tb) ← visit ta tb
+          let a := Expr.forallE na ta ba bia
+          let b := Expr.forallE nb tb bb bib
+          return (a.setPPPiBinderTypes true, b.setPPPiBinderTypes true)
+        else
+          -- Then bodies must not be defeq.
+          withLocalDeclD na ta fun arg => do
+            let (ba', bb') ← visit (ba.instantiate1 arg) (bb.instantiate1 arg)
+            return (Expr.forallE na ta (ba'.abstract #[arg]) bia, Expr.forallE nb tb (bb'.abstract #[arg]) bib)
+      | .lam na ta ba bia, .lam nb tb bb bib =>
+        if !(← isDefEq ta tb) then
+          let (ta, tb) ← visit ta tb
+          let a := Expr.lam na ta ba bia
+          let b := Expr.lam nb tb bb bib
+          return (a.setPPFunBinderTypes true, b.setPPFunBinderTypes true)
+        else
+          -- Then bodies must not be defeq.
+          withLocalDeclD na ta fun arg => do
+            let (ba', bb') ← visit (ba.instantiate1 arg) (bb.instantiate1 arg)
+            return (Expr.lam na ta (ba'.abstract #[arg]) bia, Expr.lam nb tb (bb'.abstract #[arg]) bib)
       | _, _ => return (a, b)
     catch _ =>
       return (a, b)

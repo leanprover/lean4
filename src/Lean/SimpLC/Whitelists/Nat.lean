@@ -42,9 +42,7 @@ simp_lc whitelist Nat.mod_self Nat.mod_mod_of_dvd
 simp_lc whitelist Int.emod_self Int.emod_emod_of_dvd
 
 -- Ugly corner case, let's just whitelist it.
-/-- warning: declaration uses 'sorry' -/
-#guard_msgs in
-example (n k : Int) (_ : n % k + 1 ∣ k) (_ : 0 ≤ n % k) : n % (n % k + 1) = n % k := sorry
+example (n k : Int) : Prop := ∀ (_ : n % k + 1 ∣ k) (_ : 0 ≤ n % k), n % (n % k + 1) = n % k
 simp_lc whitelist Int.emod_emod_of_dvd Int.emod_self_add_one
 
 -- These could be added as simp lemmas, resolving the non-confluence between

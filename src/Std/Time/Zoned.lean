@@ -23,7 +23,7 @@ Get the current time.
 @[inline]
 def now : IO PlainDateTime := do
   let tm ← Timestamp.now
-  let rules ← Database.defaultGetLocalZoneRulesAt
+  let rules ← Database.defaultGetLocalZoneRules
   let ltt := rules.findLocalTimeTypeForTimestamp tm
 
   return PlainDateTime.ofTimestamp tm |>.addSeconds ltt.getTimeZone.toSeconds
@@ -83,7 +83,7 @@ Gets the current `ZonedDateTime`.
 @[inline]
 def now : IO ZonedDateTime := do
   let tm ← Timestamp.now
-  let rules ← Database.defaultGetLocalZoneRulesAt
+  let rules ← Database.defaultGetLocalZoneRules
   return ZonedDateTime.ofTimestamp tm rules
 
 /--
@@ -92,7 +92,7 @@ Gets the current `ZonedDateTime` using the identifier of a time zone.
 @[inline]
 def nowAt (id : String) : IO ZonedDateTime := do
   let tm ← Timestamp.now
-  let rules ← Database.defaultGetZoneRulesAt id
+  let rules ← Database.defaultGetZoneRules id
   return ZonedDateTime.ofTimestamp tm rules
 
 /--
@@ -121,7 +121,7 @@ Creates a new `ZonedDateTime` out of a `PlainDateTime` and a time zone identifie
 -/
 @[inline]
 def of (pdt : PlainDateTime) (id : String) : IO ZonedDateTime := do
-  let zr ← Database.defaultGetZoneRulesAt id
+  let zr ← Database.defaultGetZoneRules id
   return ZonedDateTime.ofPlainDateTime pdt zr
 
 end ZonedDateTime

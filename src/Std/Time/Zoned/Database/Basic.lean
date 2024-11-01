@@ -18,14 +18,14 @@ A timezone database from which we can read the `ZoneRules` of some area by it's 
 protected class Database (α : Type) where
 
   /--
-  Retrieves the timezone information (`ZoneRules`) for a given area at a specific point in time.
+  Retrieves the zone rules information (`ZoneRules`) for a given area at a specific point in time.
   -/
-  getZoneRulesAt : α → String → IO TimeZone.ZoneRules
+  getZoneRules : α → String → IO TimeZone.ZoneRules
 
   /--
-  Retrieves the local timezone information (`ZoneRules`) at a given timestamp.
+  Retrieves the local zone rules information (`ZoneRules`) at a given timestamp.
   -/
-  getLocalZoneRulesAt : α → IO TimeZone.ZoneRules
+  getLocalZoneRules : α → IO TimeZone.ZoneRules
 
 namespace TimeZone
 

@@ -47,6 +47,10 @@ def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
         wall := .wall,
         utLocal := .local
       }}
+
+      if res.fst ≤ start then
+        break
+
       start := res.fst
     else
       break
@@ -75,5 +79,5 @@ Returns a default `WindowsDb` instance.
 def default : WindowsDb := {}
 
 instance : Std.Time.Database WindowsDb where
-  getZoneRulesAt _ id := Windows.getZoneRules id
-  getLocalZoneRulesAt _ := Windows.getZoneRules =<< Windows.getLocalTimeZoneIdentifierAt (-2147483648)
+  getZoneRules _ id := Windows.getZoneRules id
+  getLocalZoneRules _ := Windows.getZoneRules =<< Windows.getLocalTimeZoneIdentifierAt (-2147483648)

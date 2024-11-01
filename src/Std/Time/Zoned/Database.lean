@@ -18,17 +18,21 @@ open TimeZone.ZoneRules
 set_option linter.all true
 
 /--
-Gets the time zone for a given location and timestamp, handling Windows and non-Windows platforms.
+Gets the zone rules for a specific time zone identifier, handling Windows and non-Windows platforms.
+In windows it uses the current `icu.h` in Windows SDK. If it's linux or macos then it will use the `tzdata`
+files.
 -/
-def defaultGetZoneRulesAt : String → IO TimeZone.ZoneRules :=
+def defaultGetZoneRules : String → IO TimeZone.ZoneRules :=
   if System.Platform.isWindows
-    then getZoneRulesAt WindowsDb.default
-    else getZoneRulesAt TZdb.default
+    then getZoneRules WindowsDb.default
+    else getZoneRules TZdb.default
 
 /--
-Gets the local time zone for a specific timestamp, accounting for platform differences.
+Gets the local zone rules, accounting for platform differences.
+In windows it uses the current `icu.h` in Windows SDK. If it's linux or macos then it will use the `tzdata`
+files.
 -/
-def defaultGetLocalZoneRulesAt : IO TimeZone.ZoneRules :=
+def defaultGetLocalZoneRules : IO TimeZone.ZoneRules :=
   if System.Platform.isWindows
-    then getLocalZoneRulesAt WindowsDb.default
-    else getLocalZoneRulesAt TZdb.default
+    then getLocalZoneRules WindowsDb.default
+    else getLocalZoneRules TZdb.default

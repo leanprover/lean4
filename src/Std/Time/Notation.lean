@@ -135,7 +135,7 @@ private def convertZonedDateTime (d : Std.Time.ZonedDateTime) (identifier := fal
   let plain ← convertPlainDateTime d.toPlainDateTime
 
   if identifier then
-    `(Std.Time.ZonedDateTime.ofPlainDateTime $plain <$> Std.Time.Database.defaultGetZoneRulesAt $(Syntax.mkStrLit d.timezone.name))
+    `(Std.Time.ZonedDateTime.ofPlainDateTime $plain <$> Std.Time.Database.defaultGetZoneRules $(Syntax.mkStrLit d.timezone.name))
   else
     `(Std.Time.ZonedDateTime.ofPlainDateTime $plain (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
 

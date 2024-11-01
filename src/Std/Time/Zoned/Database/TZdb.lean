@@ -88,5 +88,5 @@ def readRulesFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := d
   parseTZIfFromDisk (System.FilePath.join path id) id
 
 instance : Std.Time.Database TZdb where
-  getLocalZoneRulesAt db := localRules db.localPath
-  getZoneRulesAt db id := readRulesFromDisk db.zonesPath id
+  getLocalZoneRules db := localRules db.localPath
+  getZoneRules db id := readRulesFromDisk db.zonesPath id

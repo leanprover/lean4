@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 12)
+set(LEAN_VERSION_MINOR 14)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -155,6 +155,10 @@ endif ()
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
 string(APPEND LEANC_EXTRA_FLAGS " -fstack-clash-protection")
 
+# This makes signed integer overflow guaranteed to match 2's complement.
+string(APPEND CMAKE_CXX_FLAGS " -fwrapv")
+string(APPEND LEANC_EXTRA_FLAGS " -fwrapv")
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)
@@ -295,6 +299,23 @@ endif()
 include_directories(${LIBUV_INCLUDE_DIR})
 if(NOT LEAN_STANDALONE)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
+endif()
+
+# Windows SDK (for ICU)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # Pass 'tools' to skip MSVC version check (as MSVC/Visual Studio is not necessarily installed)
+  find_package(WindowsSDK REQUIRED COMPONENTS tools)
+
+  # This will give a semicolon-separated list of include directories
+  get_windowssdk_include_dirs(${WINDOWSSDK_LATEST_DIR} WINDOWSSDK_INCLUDE_DIRS)
+
+  # To successfully build against Windows SDK headers, the Windows SDK headers must have lower
+  # priority than other system headers, so use `-idirafter`. Unfortunately, CMake does not
+  # support this using `include_directories`.
+  string(REPLACE ";" "\" -idirafter \"" WINDOWSSDK_INCLUDE_DIRS "${WINDOWSSDK_INCLUDE_DIRS}")
+  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIRS}\"")
+
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
 endif()
 
 # ccache
@@ -480,7 +501,7 @@ endif()
 # Git HASH
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
-  get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+  get_git_head_revision(GIT_REFSPEC GIT_SHA1 ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
     set(GIT_SHA1 "")

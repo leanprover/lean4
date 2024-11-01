@@ -53,7 +53,7 @@ namespace Lean.HashMap
 
   @[inline] protected def forIn {δ : Type w} {m : Type w → Type w'} [Monad m]
     (as : HashMap α β) (init : δ) (f : (α × β) → δ → m (ForInStep δ)) : m δ := do
-    as.val.buckets.val.forIn init fun bucket acc => do
+    forIn as.val.buckets.val init fun bucket acc => do
       let (done, v) ← bucket.forIn (false, acc) fun v (_, acc) => do
         let r ← f v acc
         match r with

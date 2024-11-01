@@ -177,7 +177,7 @@ def updateSyntax (m : KVMap) (k : Name) (f : Syntax → Syntax) : KVMap :=
 
 @[inline] protected def forIn.{w, w'} {δ : Type w} {m : Type w → Type w'} [Monad m]
   (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
-  kv.entries.forIn init f
+  forIn kv.entries init f
 
 instance : ForIn m KVMap (Name × DataValue) where
   forIn := KVMap.forIn

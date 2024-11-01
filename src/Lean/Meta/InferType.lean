@@ -99,13 +99,12 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
   let structType ← whnf structType
   let failed {α} : Unit → MetaM α := fun _ =>
     throwError "invalid projection{indentExpr (mkProj structName idx e)} from type {structType}"
-  matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
-    let n := structVal.numParams
-    let structParams := structType.getAppArgs
-    if n != structParams.size then
+  matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal =>
+    let structTypeArgs := structType.getAppArgs
+    if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
     else do
-      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structParams
+      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
       for i in [:idx] do
         ctorType ← whnf ctorType
         match ctorType with
@@ -441,6 +440,8 @@ This can be used to infer the expected type of the alternatives when constructin
 -/
 def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
   forallBoundedTelescope type n fun xs _ => do
+    unless xs.size = n do
+      throwError "type {type} does not have {n} parameters"
     let types ← xs.mapM (inferType ·)
     for t in types do
       if t.hasAnyFVar (fun fvar => xs.contains (.fvar fvar)) then

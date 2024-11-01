@@ -4,13 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
 prelude
-import Init.Control.Reader
-import Init.Data.String
-import Init.Data.ByteArray
 import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
-import Init.Data.ToString.Macro
 import Init.Data.Ord
 
 open System

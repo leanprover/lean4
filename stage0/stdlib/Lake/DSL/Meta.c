@@ -102,7 +102,6 @@ static lean_object* l_Lake_DSL_expandCmdDo___closed__1;
 static lean_object* l_Lake_DSL_elabRunIO___closed__9;
 static lean_object* l_Lake_DSL_cmdDo___closed__3;
 lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_runIO___closed__4;
 LEAN_EXPORT lean_object* l_Lake_DSL_elabRunIO___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_metaIf___closed__22;
@@ -144,6 +143,7 @@ static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_DSL_elabRunIO___spec__
 LEAN_EXPORT lean_object* l_Lake_DSL_metaIf;
 static lean_object* l_Lake_DSL_metaIf___closed__19;
 lean_object* lean_array_mk(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_evalTerm___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_cmdDo___closed__11;
@@ -1931,7 +1931,7 @@ x_11 = lean_ctor_get(x_7, 5);
 x_12 = l_Lean_replaceRef(x_1, x_11);
 lean_dec(x_11);
 lean_ctor_set(x_7, 5, x_12);
-x_13 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_13 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 return x_13;
 }
@@ -1982,7 +1982,7 @@ lean_ctor_set(x_29, 10, x_24);
 lean_ctor_set(x_29, 11, x_26);
 lean_ctor_set_uint8(x_29, sizeof(void*)*12, x_25);
 lean_ctor_set_uint8(x_29, sizeof(void*)*12 + 1, x_27);
-x_30 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_2, x_3, x_4, x_5, x_6, x_29, x_8, x_9);
+x_30 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_2, x_3, x_4, x_5, x_6, x_29, x_8, x_9);
 lean_dec(x_29);
 return x_30;
 }

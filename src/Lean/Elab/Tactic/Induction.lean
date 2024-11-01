@@ -27,8 +27,10 @@ open Meta
   syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
   ```
 -/
+private def getAltLhses (alt : Syntax) : Syntax :=
+  alt[0]
 private def getFirstAltLhs (alt : Syntax) : Syntax :=
-  alt[0][0]
+  (getAltLhses alt)[0]
 /-- Return `inductionAlt` name. It assumes `alt` does not have multiple `inductionAltLHS` -/
 private def getAltName (alt : Syntax) : Name :=
   let lhs := getFirstAltLhs alt
@@ -70,7 +72,9 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
       let goals ← getGoals
       try
         setGoals [mvarId]
-        closeUsingOrAdmit (withTacticInfoContext alt (addInfo *> evalTactic rhs))
+        closeUsingOrAdmit <|
+          withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) <|
+            (addInfo *> evalTactic rhs)
       finally
         setGoals goals
 
@@ -204,15 +208,28 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
 private def isWildcard (altStx : Syntax) : Bool :=
   getAltName altStx == `_
 
-private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit :=
+private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit := do
+  let mut seenNames : Array Name := #[]
   for h : i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
       withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
+      if seenNames.contains altName then
+        throwErrorAt altStx s!"duplicate alternative name '{altName}'"
+      seenNames := seenNames.push altName
       unless alts.any (·.name == altName) do
-        throwErrorAt altStx "invalid alternative name '{altName}'"
+        let unhandledAlts := alts.filter fun alt => !seenNames.contains alt.name
+        let msg :=
+          if unhandledAlts.isEmpty then
+            m!"invalid alternative name '{altName}', no unhandled alternatives"
+          else
+            let unhandledAltsMessages := unhandledAlts.map (m!"{·.name}")
+            let unhandledAlts := MessageData.orList unhandledAltsMessages.toList
+            m!"invalid alternative name '{altName}', expected {unhandledAlts}"
+        throwErrorAt altStx msg
+
 
 /-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
     return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can

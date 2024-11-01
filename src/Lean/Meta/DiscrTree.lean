@@ -426,7 +426,7 @@ partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (conf
   if todo.isEmpty then
     return keys
   else
-    let e    := todo.back
+    let e    := todo.back!
     let todo := todo.pop
     let (k, todo) ← pushArgs root todo e config noIndexAtArgs
     mkPathAux false todo (keys.push k) config noIndexAtArgs
@@ -603,7 +603,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
     else if cs.isEmpty then
       return result
     else
-      let e     := todo.back
+      let e     := todo.back!
       let todo  := todo.pop
       let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
       let (k, args) ← getMatchKeyArgs e (root := false) config
@@ -748,7 +748,7 @@ where
       else if cs.isEmpty then
         return result
       else
-        let e     := todo.back
+        let e     := todo.back!
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e (root := false) config
         let visitStar (result : Array α) : MetaM (Array α) :=
@@ -766,9 +766,6 @@ where
         | _      => visitNonStar k args (← visitStar result)
 
 namespace Trie
-
--- `Inhabited` instance to allow `partial` definitions below.
-private local instance [Monad m] : Inhabited (σ → β → m σ) := ⟨fun s _ => pure s⟩
 
 /--
 Monadically fold the keys and values stored in a `Trie`.

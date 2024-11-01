@@ -114,8 +114,9 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
 private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
-  withBelowDict below numIndParams positions fun Cs belowDict =>
-    toBelowAux Cs[fnIndex]! belowDict recArg below
+  withTraceNode `Elab.definition.structural (return m!"{exceptEmoji ·} searching IH for {recArg} in {←inferType below}") do
+    withBelowDict below numIndParams positions fun Cs belowDict =>
+      toBelowAux Cs[fnIndex]! belowDict recArg below
 
 private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (below : Expr) (e : Expr) : M Expr :=
@@ -212,21 +213,21 @@ def mkBRecOnMotive (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
 /--
 Calculates the `.brecOn` functional argument corresponding to one structural recursive function.
 The `value` is the function with (only) the fixed parameters moved into the context,
-The `type` is the expected type of the argument.
+The `FType` is the expected type of the argument.
 The `recArgInfos` is used to transform the body of the function to replace recursive calls with
 uses of the `below` induction hypothesis.
 -/
 def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
     (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
   lambdaTelescope value fun xs value => do
-    let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
-    let FType ← instantiateForall FType indexMajorArgs
+    let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
+    let FType ← instantiateForall FType indicesMajorArgs
     forallBoundedTelescope FType (some 1) fun below _ => do
       -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
       -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
       let below := below[0]!
-      let valueNew   ← replaceRecApps recArgInfos positions below value
-      mkLambdaFVars (indexMajorArgs ++ #[below] ++ otherArgs) valueNew
+      let valueNew ← replaceRecApps recArgInfos positions below value
+      mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--
 Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
@@ -264,7 +265,7 @@ def inferBRecOnFTypes (recArgInfos : Array RecArgInfo) (positions : Positions)
     (brecOnConst : Nat → Expr) : MetaM (Array Expr) := do
   let numTypeFormers := positions.size
   let recArgInfo := recArgInfos[0]! -- pick an arbitrary one
-  let brecOn := brecOnConst 0
+  let brecOn := brecOnConst recArgInfo.indIdx
   check brecOn
   let brecOnType ← inferType brecOn
   -- Skip the indices and major argument

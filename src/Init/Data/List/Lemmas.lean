@@ -492,10 +492,6 @@ theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n : Nat, l[n]? = s
 theorem get?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n, l.get? n = some a :=
   let ⟨⟨n, _⟩, e⟩ := get_of_mem h; ⟨n, e ▸ get?_eq_get _⟩
 
-@[simp] theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
-  | _ :: _, 0, _ => .head ..
-  | _ :: l, _+1, _ => .tail _ (getElem_mem (l := l) ..)
-
 theorem get_mem : ∀ (l : List α) n h, get l ⟨n, h⟩ ∈ l
   | _ :: _, 0, _ => .head ..
   | _ :: l, _+1, _ => .tail _ (get_mem l ..)
@@ -1047,9 +1043,6 @@ theorem get_cons_length (x : α) (xs : List α) (n : Nat) (h : n = xs.length) :
 
 @[simp] theorem getLast?_singleton (a : α) : getLast? [a] = a := rfl
 
-theorem getLast!_of_getLast? [Inhabited α] : ∀ {l : List α}, getLast? l = some a → getLast! l = a
-  | _ :: _, rfl => rfl
-
 theorem getLast?_eq_getLast : ∀ l h, @getLast? α l = some (getLast l h)
   | [], h => nomatch h rfl
   | _ :: _, _ => rfl
@@ -1082,6 +1075,21 @@ theorem getLast?_concat (l : List α) : getLast? (l ++ [a]) = some a := by
 
 theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
   rw [getLastD_eq_getLast?, getLast?_concat]; rfl
+
+/-! ### getLast! -/
+
+@[simp] theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
+
+theorem getLast!_of_getLast? [Inhabited α] : ∀ {l : List α}, getLast? l = some a → getLast! l = a
+  | _ :: _, rfl => rfl
+
+theorem getLast!_eq_getElem! [Inhabited α] {l : List α} : l.getLast! = l[l.length - 1]! := by
+  cases l with
+  | nil => simp
+  | cons _ _ =>
+    apply getLast!_of_getLast?
+    rw [getElem!_pos, getElem_cons_length (h := by simp)]
+    rfl
 
 /-! ## Head and tail -/
 

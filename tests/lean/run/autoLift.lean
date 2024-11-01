@@ -27,7 +27,7 @@ but is expected to have type
   M ?_ : Type
 ---
 info: id do
-  let a ← sorryAx (M Nat) true
+  let a ← sorry
   g a : M Unit
 -/
 #guard_msgs in

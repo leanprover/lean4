@@ -3,4 +3,4 @@ case nil
 α✝ : Type u_1
 as : List α✝
 ⊢ Palindrome [].reverse
-palindrome_reverse.{u_1} : ∀ {α : Type u_1} {as : List α}, Palindrome as → Palindrome as.reverse
+palindrome_reverse.{u_1} {α✝ : Type u_1} {as : List α✝} (h : Palindrome as) : Palindrome as.reverse

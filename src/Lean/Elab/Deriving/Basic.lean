@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Wojciech Nawrocki
 -/
 prelude
 import Lean.Elab.Command
+import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
 open Command
@@ -55,6 +56,7 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
       safety      := info.safety
     }
     addInstance instName AttributeKind.global (eval_prio default)
+    addDeclarationRangesFromSyntax instName (← getRef)
     return true
   catch _ =>
     return false

@@ -56,7 +56,7 @@ Given a telescope of FVars of type `tᵢ`, iterates `PSigma` to produce the type
 `t₁ ⊗' t₂ …`.
 -/
 def packType (xs : Array Expr) : MetaM Expr := do
-  let mut d ← inferType xs.back
+  let mut d ← inferType xs.back!
   for x in xs.pop.reverse do
     d ← mkAppOptM ``PSigma #[some (← inferType x), some (← mkLambdaFVars #[x] d)]
   return d
@@ -217,7 +217,7 @@ Helpers for iterated `PSum`.
 
 /-- Given types `#[t₁, t₂,…]`, returns the type `t₁ ⊕' t₂ …`. -/
 def packType (ds : Array Expr) : MetaM Expr := do
-  let mut r := ds.back
+  let mut r := ds.back!
   for d in ds.pop.reverse do
     r ← mkAppM ``PSum #[d, r]
   return r
@@ -335,7 +335,7 @@ def uncurryTypeND (types : Array Expr) : MetaM Expr := do
     unless type.isArrow do
       throwError "Mutual.uncurryTypeND: Expected non-dependent types, got {type}"
   let codomains := types.map (·.bindingBody!)
-  let t' := codomains.back
+  let t' := codomains.back!
   codomains.pop.forM fun t =>
     unless ← isDefEq t t' do
       throwError "Mutual.uncurryTypeND: Expected equal codomains, but got {t} and {t'}"

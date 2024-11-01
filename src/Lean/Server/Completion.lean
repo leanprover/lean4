@@ -207,6 +207,8 @@ private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionIt
       return CompletionItemKind.enum
     else
       return CompletionItemKind.struct
+  else if constInfo.isTheorem then
+    return CompletionItemKind.event
   else if (← isProjectionFn constInfo.name) then
     return CompletionItemKind.field
   else if (← whnf constInfo.type).isForall then
@@ -533,7 +535,7 @@ where
     let .const typeName _ := type.getAppFn | return ()
     modify fun s => s.insert typeName
     if isStructure (← getEnv) typeName then
-      for parentName in getAllParentStructures (← getEnv) typeName do
+      for parentName in (← getAllParentStructures typeName) do
         modify fun s => s.insert parentName
     let some type ← unfoldeDefinitionGuarded? type | return ()
     visit type
@@ -1004,7 +1006,7 @@ private def assignSortTexts (completions : CompletionList) : CompletionList := I
   if completions.items.isEmpty then
     return completions
   let items := completions.items.mapIdx fun i item =>
-    { item with sortText? := toString i.val }
+    { item with sortText? := toString i }
   let maxDigits := items[items.size - 1]!.sortText?.get!.length
   let items := items.map fun item =>
     let sortText := item.sortText?.get!

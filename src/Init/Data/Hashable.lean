@@ -48,8 +48,14 @@ instance : Hashable UInt64 where
 instance : Hashable USize where
   hash n := n.toUInt64
 
+instance : Hashable ByteArray where
+  hash as := as.foldl (fun r a => mixHash r (hash a)) 7
+
 instance : Hashable (Fin n) where
   hash v := v.val.toUInt64
+
+instance : Hashable Char where
+  hash c := c.val.toUInt64
 
 instance : Hashable Int where
   hash

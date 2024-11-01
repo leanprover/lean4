@@ -281,7 +281,7 @@ static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_proveEqU
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_splittingProcedure___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_throwTypeMismatchError___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Tactic_NormCast___hyg_5____closed__21;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_isCoeOf_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12611,7 +12611,7 @@ lean_inc(x_21);
 lean_dec(x_18);
 x_22 = lean_box(0);
 x_23 = l_Lean_Elab_Tactic_NormCast_elabModCast___lambda__2___closed__4;
-x_24 = l_Lean_Elab_Term_throwTypeMismatchError___rarg(x_23, x_2, x_17, x_5, x_22, x_22, x_7, x_8, x_9, x_10, x_11, x_12, x_21);
+x_24 = l_Lean_Elab_Term_throwTypeMismatchError___rarg(x_23, x_2, x_17, x_5, x_22, x_22, x_9, x_10, x_11, x_12, x_21);
 x_25 = !lean_is_exclusive(x_24);
 if (x_25 == 0)
 {
@@ -12641,7 +12641,6 @@ lean_inc(x_29);
 lean_dec(x_18);
 x_30 = lean_box(0);
 x_31 = l_Lean_Elab_Tactic_NormCast_elabModCast___lambda__1(x_3, x_4, x_15, x_5, x_30, x_7, x_8, x_9, x_10, x_11, x_12, x_29);
-lean_dec(x_7);
 return x_31;
 }
 }
@@ -12654,7 +12653,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -12686,7 +12684,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -12793,6 +12790,7 @@ lean_object* x_31; lean_object* x_32;
 x_31 = lean_box(0);
 x_32 = l_Lean_Elab_Tactic_NormCast_elabModCast___lambda__2(x_28, x_14, x_1, x_12, x_18, x_31, x_4, x_5, x_6, x_7, x_8, x_9, x_29);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_32;
 }
 else
@@ -12809,6 +12807,7 @@ lean_inc(x_35);
 lean_dec(x_33);
 x_36 = l_Lean_Elab_Tactic_NormCast_elabModCast___lambda__2(x_28, x_14, x_1, x_12, x_18, x_34, x_4, x_5, x_6, x_7, x_8, x_9, x_35);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_34);
 return x_36;
 }
@@ -13115,6 +13114,7 @@ _start:
 lean_object* x_14; 
 x_14 = l_Lean_Elab_Tactic_NormCast_elabModCast___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_6);
 return x_14;
 }

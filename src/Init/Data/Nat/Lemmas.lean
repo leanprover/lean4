@@ -32,6 +32,77 @@ namespace Nat
 @[simp] theorem exists_add_one_eq : (∃ n, n + 1 = a) ↔ 0 < a :=
   ⟨fun ⟨n, h⟩ => by omega, fun h => ⟨a - 1, by omega⟩⟩
 
+/-- Dependent variant of `forall_lt_succ_right`. -/
+theorem forall_lt_succ_right' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∀ m (h : m < n + 1), p m h) ↔ (∀ m (h : m < n), p m (by omega)) ∧ p n (by omega) := by
+  simp only [Nat.lt_succ_iff, Nat.le_iff_lt_or_eq]
+  constructor
+  · intro w
+    constructor
+    · intro m h
+      exact w _ (.inl h)
+    · exact w _ (.inr rfl)
+  · rintro w m (h|rfl)
+    · exact w.1 _ h
+    · exact w.2
+
+/-- See `forall_lt_succ_right'` for a variant where `p` takes the bound as an argument. -/
+theorem forall_lt_succ_right {p : Nat → Prop} :
+    (∀ m, m < n + 1 → p m) ↔ (∀ m, m < n → p m) ∧ p n := by
+  simpa using forall_lt_succ_right' (p := fun m _ => p m)
+
+/-- Dependent variant of `forall_lt_succ_left`. -/
+theorem forall_lt_succ_left' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∀ m (h : m < n + 1), p m h) ↔ p 0 (by omega) ∧ (∀ m (h : m < n), p (m + 1) (by omega)) := by
+  constructor
+  · intro w
+    constructor
+    · exact w 0 (by omega)
+    · intro m h
+      exact w (m + 1) (by omega)
+  · rintro ⟨h₀, h₁⟩ m h
+    cases m with
+    | zero => exact h₀
+    | succ m => exact h₁ m (by omega)
+
+/-- See `forall_lt_succ_left'` for a variant where `p` takes the bound as an argument. -/
+theorem forall_lt_succ_left {p : Nat → Prop} :
+    (∀ m, m < n + 1 → p m) ↔ p 0 ∧ (∀ m, m < n → p (m + 1)) := by
+  simpa using forall_lt_succ_left' (p := fun m _ => p m)
+
+/-- Dependent variant of `exists_lt_succ_right`. -/
+theorem exists_lt_succ_right' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∃ m, ∃ (h : m < n + 1), p m h) ↔ (∃ m, ∃ (h : m < n), p m (by omega)) ∨ p n (by omega) := by
+  simp only [Nat.lt_succ_iff, Nat.le_iff_lt_or_eq]
+  constructor
+  · rintro ⟨m, (h|rfl), w⟩
+    · exact .inl ⟨m, h, w⟩
+    · exact .inr w
+  · rintro (⟨m, h, w⟩ | w)
+    · exact ⟨m, by omega, w⟩
+    · exact ⟨n, by omega, w⟩
+
+/-- See `exists_lt_succ_right'` for a variant where `p` takes the bound as an argument. -/
+theorem exists_lt_succ_right {p : Nat → Prop} :
+    (∃ m, m < n + 1 ∧ p m) ↔ (∃ m, m < n ∧ p m) ∨ p n := by
+  simpa using exists_lt_succ_right' (p := fun m _ => p m)
+
+/-- Dependent variant of `exists_lt_succ_left`. -/
+theorem exists_lt_succ_left' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∃ m, ∃ (h : m < n + 1), p m h) ↔ p 0 (by omega) ∨ (∃ m, ∃ (h : m < n), p (m + 1) (by omega)) := by
+  constructor
+  · rintro ⟨_|m, h, w⟩
+    · exact .inl w
+    · exact .inr ⟨m, by omega, w⟩
+  · rintro (w|⟨m, h, w⟩)
+    · exact ⟨0, by omega, w⟩
+    · exact ⟨m + 1, by omega, w⟩
+
+/-- See `exists_lt_succ_left'` for a variant where `p` takes the bound as an argument. -/
+theorem exists_lt_succ_left {p : Nat → Prop} :
+    (∃ m, m < n + 1 ∧ p m) ↔ p 0 ∨ (∃ m, m < n ∧ p (m + 1)) := by
+  simpa using exists_lt_succ_left' (p := fun m _ => p m)
+
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by
@@ -801,6 +872,10 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]
+
+@[simp]
+theorem log2_two_pow : (2 ^ n).log2 = n := by
+  apply Nat.eq_of_le_of_lt_succ <;> simp [le_log2, log2_lt, NeZero.ne, Nat.pow_lt_pow_iff_right]
 
 theorem log2_self_le (h : n ≠ 0) : 2 ^ n.log2 ≤ n := (le_log2 h).1 (Nat.le_refl _)
 

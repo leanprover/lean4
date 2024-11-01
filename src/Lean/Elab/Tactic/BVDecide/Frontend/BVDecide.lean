@@ -225,8 +225,8 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let mut sats := #[]
   let mut unusedHypotheses := {}
   for hyp in hyps do
-    if let some reflected ← SatAtBVLogical.of (mkFVar hyp) then
-      sats := sats.push reflected
+    if let (some reflected, lemmas) ← (SatAtBVLogical.of (mkFVar hyp)).run then
+      sats := (sats ++ lemmas).push reflected
     else
       unusedHypotheses := unusedHypotheses.insert hyp
   if h : sats.size = 0 then

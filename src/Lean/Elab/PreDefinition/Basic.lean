@@ -125,7 +125,7 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
     if proofSize > diagnostics.threshold.proofSize.get (← getOptions) then
       let sizeMsg := MessageData.trace { cls := `size } m!"{proofSize}" #[]
       let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
-      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {numOccs}" #[]
+      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{.ofConstName declName} ↦ {numOccs}" #[]
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
@@ -221,7 +221,7 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
               else
                 none
             | _ => none
-          modifiers := {} }
+          modifiers := default }
 
 private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
   (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome

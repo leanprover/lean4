@@ -161,7 +161,7 @@ open Formatter Syntax.MonadTraverser in
   let .atom info val := stx
     | trace[PrettyPrinter.format.backtrack] "unexpected syntax '{format stx}', expected atom"
       throwBacktrack
-  withMaybeTag (getSyntaxExprPos? stx) (pushToken info val)
+  withMaybeTag (getSyntaxExprPos? stx) (pushToken info val false)
   goLeft
 
 @[combinator_parenthesizer atom]

@@ -17,6 +17,7 @@ static lean_object* l_Lake_instMonadStateOfLogJobM___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_BuildJob_collectArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildJob_mix___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_BuildJob_mixList___spec__2___rarg___lambda__1(lean_object*, lean_object*);
+lean_object* l_Array_take___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildJob_zipWith___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildJob_collectArray___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_BuildJob_mixList___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -301,7 +302,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_BuildJob_mixArray__
 LEAN_EXPORT lean_object* l_IO_withStderr___at_Lake_BuildJob_bindSync___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildJob_mixArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftLakeMBuildTOfPure___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_shrink___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildJob_instFunctor___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_bindSync___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Job_bindSync___spec__5(lean_object*);
@@ -1978,7 +1978,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_17 = lean_ctor_get(x_13, 0);
-x_18 = l_Array_shrink___rarg(x_17, x_15);
+x_18 = l_Array_take___rarg(x_17, x_15);
 lean_dec(x_15);
 lean_ctor_set(x_13, 0, x_18);
 x_19 = lean_box(0);
@@ -1992,7 +1992,7 @@ x_21 = lean_ctor_get(x_13, 0);
 x_22 = lean_ctor_get_uint8(x_13, sizeof(void*)*1);
 lean_inc(x_21);
 lean_dec(x_13);
-x_23 = l_Array_shrink___rarg(x_21, x_15);
+x_23 = l_Array_take___rarg(x_21, x_15);
 lean_dec(x_15);
 x_24 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_24, 0, x_23);

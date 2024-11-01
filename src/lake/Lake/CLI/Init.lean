@@ -13,6 +13,7 @@ import Lake.Build.Actions
 
 namespace Lake
 open Git System
+open Lean (Name)
 
 /-- The default module of an executable in `std` package. -/
 def defaultExeRoot : Name := `Main
@@ -277,8 +278,8 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     IO.FS.writeFile readmeFile (readmeFileContents <| dotlessName name)
 
   -- initialize a `.git` repository if none already
-  unless (← FilePath.isDir <| dir / ".git") do
-    let repo := GitRepo.mk dir
+  let repo := GitRepo.mk dir
+  unless (← repo.insideWorkTree) do
     try
       repo.quietInit
       unless upstreamBranch = "master" do

@@ -123,12 +123,10 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
           levelParams := info.levelParams
         }
         modifyEnv fun env => addProtected env extName
-        Lean.addDeclarationRanges extName {
-          range := ← getDeclarationRange (← getRef)
-          selectionRange := ← getDeclarationRange (← getRef) }
+        addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
-        Failed to generate an 'ext' theorem for '{MessageData.ofConstName structName}': {e.toMessageData}"
+        Failed to generate an 'ext' theorem for '{.ofConstName structName}': {e.toMessageData}"
   return extName
 
 /--
@@ -163,12 +161,10 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         -- Only declarations in a namespace can be protected:
         unless extIffName.isAtomic do
           modifyEnv fun env => addProtected env extIffName
-        Lean.addDeclarationRanges extIffName {
-          range := ← getDeclarationRange (← getRef)
-          selectionRange := ← getDeclarationRange (← getRef) }
+        addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
-        Failed to generate an 'ext_iff' theorem from '{MessageData.ofConstName extName}': {e.toMessageData}\n\
+        Failed to generate an 'ext_iff' theorem from '{.ofConstName extName}': {e.toMessageData}\n\
         \n\
         Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem."
   return extIffName

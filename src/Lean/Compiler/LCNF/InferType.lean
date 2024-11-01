@@ -168,13 +168,12 @@ mutual
       /- TODO: after we erase universe variables, we can just extract a better type using just `structName` and `idx`. -/
       return erasedExpr
     else
-      matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
-        let n := structVal.numParams
-        let structParams := structType.getAppArgs
-        if n != structParams.size then
+      matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal =>
+        let structTypeArgs := structType.getAppArgs
+        if structVal.numParams + structVal.numIndices != structTypeArgs.size then
           failed ()
         else do
-          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structParams)
+          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams])
           for _ in [:idx] do
             match ctorType with
             | .forallE _ _ body _ =>

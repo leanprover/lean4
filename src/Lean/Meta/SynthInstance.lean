@@ -534,7 +534,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
          tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode :=
-  return (← get).generatorStack.back
+  return (← get).generatorStack.back!
 
 @[inline] def modifyTop (f : GeneratorNode → GeneratorNode) : SynthM Unit :=
   modify fun s => { s with generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f }
@@ -578,7 +578,7 @@ def generate : SynthM Unit := do
       return none
 
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
-  let r := (← get).resumeStack.back
+  let r := (← get).resumeStack.back!
   modify fun s => { s with resumeStack := s.resumeStack.pop }
   return r
 

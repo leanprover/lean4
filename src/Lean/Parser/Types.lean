@@ -173,7 +173,7 @@ def pop (stack : SyntaxStack) : SyntaxStack :=
 
 def back (stack : SyntaxStack) : Syntax :=
   if stack.size > 0 then
-    stack.raw.back
+    stack.raw.back!
   else
     panic! "SyntaxStack.back: element is inaccessible"
 

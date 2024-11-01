@@ -105,6 +105,6 @@ def IndGroupInst.nestedTypeFormers (igi : IndGroupInst) : MetaM (Array Expr) := 
   auxMotives.mapM fun motive =>
     forallTelescopeReducing motive fun xs _ => do
       assert! xs.size > 0
-      mkForallFVars xs.pop (← inferType xs.back)
+      mkForallFVars xs.pop (← inferType xs.back!)
 
 end Lean.Elab.Structural

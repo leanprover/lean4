@@ -66,12 +66,12 @@ partial def ofString (s : String) : FileMap :=
       let i := s.next i
       if c == '\n' then loop i (line+1) (ps.push i)
       else loop i line ps
-  loop 0 1 (#[0])
+  loop 0 1 #[0]
 
 partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
   match fmap with
   | { source := str, positions := ps } =>
-    if ps.size >= 2 && pos <= ps.back then
+    if ps.size >= 2 && pos <= ps.back! then
       let rec toColumn (i : String.Pos) (c : Nat) : Nat :=
         if i == pos || str.atEnd i then c
         else toColumn (str.next i) (c+1)
@@ -84,14 +84,14 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
           if pos == posM then { line := fmap.getLine m, column := 0 }
           else if pos > posM then loop m e
           else loop b m
-      loop 0 (ps.size -1)
+      loop 0 (ps.size - 1)
     else if ps.isEmpty then
       ⟨0, 0⟩
     else
       -- Some systems like the delaborator use synthetic positions without an input file,
       -- which would violate `toPositionAux`'s invariant.
       -- Can also happen with EOF errors, which are not strictly inside the file.
-      ⟨fmap.getLastLine, (pos - ps.back).byteIdx⟩
+      ⟨fmap.getLastLine, (pos - ps.back!).byteIdx⟩
 
 /-- Convert a `Lean.Position` to a `String.Pos`. -/
 def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
@@ -101,7 +101,7 @@ def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
     else if text.positions.isEmpty then
       0
     else
-      text.positions.back
+      text.positions.back!
   String.Iterator.nextn ⟨text.source, colPos⟩ pos.column |>.pos
 
 /--

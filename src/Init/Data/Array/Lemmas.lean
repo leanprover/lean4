@@ -11,6 +11,7 @@ import Init.Data.List.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Modify
 import Init.Data.Array.Mem
+import Init.Data.Array.DecidableEq
 import Init.TacticsExtra
 
 /-!
@@ -69,6 +70,9 @@ theorem getElem_push (a : Array α) (x : α) (i : Nat) (h : i < (a.push x).size)
     rfl
   · simp [getElem?_eq_none_iff.2 (by simpa using h)]
 
+theorem singleton_inj : #[a] = #[b] ↔ a = b := by
+  simp
+
 end Array
 
 namespace List
@@ -101,8 +105,8 @@ We prefer to pull `List.toArray` outwards.
 
 @[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = singleton a := rfl
 
-@[simp] theorem back_toArray [Inhabited α] (l : List α) : l.toArray.back = l.getLast! := by
-  simp only [back, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
+@[simp] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
+  simp only [back!, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
 
 @[simp] theorem forIn'_loop_toArray [Monad m] (l : List α) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) (i : Nat)
     (h : i ≤ l.length) (b : β) :
@@ -491,13 +495,14 @@ theorem getElem?_eq_some_iff {as : Array α} : as[n]? = some a ↔ ∃ h : n < a
   cases as
   simp [List.getElem?_eq_some_iff]
 
-@[simp] theorem back_eq_back? [Inhabited α] (a : Array α) : a.back = a.back?.getD default := by
-  simp only [back, get!_eq_getElem?, get?_eq_getElem?, back?]
+theorem back!_eq_back? [Inhabited α] (a : Array α) : a.back! = a.back?.getD default := by
+  simp only [back!, get!_eq_getElem?, get?_eq_getElem?, back?]
 
 @[simp] theorem back?_push (a : Array α) : (a.push x).back? = some x := by
   simp [back?, getElem?_eq_getElem?_toList]
 
-theorem back_push [Inhabited α] (a : Array α) : (a.push x).back = x := by simp
+@[simp] theorem back!_push [Inhabited α] (a : Array α) : (a.push x).back! = x := by
+  simp [back!_eq_back?]
 
 theorem getElem?_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
     (a.push x)[i]? = some a[i] := by
@@ -610,8 +615,8 @@ theorem eq_empty_of_size_eq_zero {as : Array α} (h : as.size = 0) : as = #[] :=
   · simp [h]
   · intros; contradiction
 
-theorem eq_push_pop_back_of_size_ne_zero [Inhabited α] {as : Array α} (h : as.size ≠ 0) :
-    as = as.pop.push as.back := by
+theorem eq_push_pop_back!_of_size_ne_zero [Inhabited α] {as : Array α} (h : as.size ≠ 0) :
+    as = as.pop.push as.back! := by
   apply ext
   · simp [Nat.sub_add_cancel (Nat.zero_lt_of_ne_zero h)]
   · intros i h h'
@@ -620,12 +625,12 @@ theorem eq_push_pop_back_of_size_ne_zero [Inhabited α] {as : Array α} (h : as.
     else
       have heq : i = as.pop.size :=
         Nat.le_antisymm (size_pop .. ▸ Nat.le_pred_of_lt h) (Nat.le_of_not_gt hlt)
-      cases heq; rw [getElem_push_eq, back, ←size_pop, get!_eq_getD, getD, dif_pos h]; rfl
+      cases heq; rw [getElem_push_eq, back!, ←size_pop, get!_eq_getD, getD, dif_pos h]; rfl
 
 theorem eq_push_of_size_ne_zero {as : Array α} (h : as.size ≠ 0) :
     ∃ (bs : Array α) (c : α), as = bs.push c :=
   let _ : Inhabited α := ⟨as[0]⟩
-  ⟨as.pop, as.back, eq_push_pop_back_of_size_ne_zero h⟩
+  ⟨as.pop, as.back!, eq_push_pop_back!_of_size_ne_zero h⟩
 
 theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rfl
 
@@ -697,6 +702,43 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
       simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
         true_and, Nat.not_lt] at h
       rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
+
+/-! ### BEq -/
+
+@[simp] theorem reflBEq_iff [BEq α] : ReflBEq (Array α) ↔ ReflBEq α := by
+  constructor
+  · intro h
+    constructor
+    intro a
+    suffices (#[a] == #[a]) = true by
+      simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+    simp
+  · intro h
+    constructor
+    apply Array.isEqv_self_beq
+
+@[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (Array α) ↔ LawfulBEq α := by
+  constructor
+  · intro h
+    constructor
+    · intro a b h
+      apply singleton_inj.1
+      apply eq_of_beq
+      simp only [instBEq, isEqv, isEqvAux]
+      simpa
+    · intro a
+      suffices (#[a] == #[a]) = true by
+        simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+      simp
+  · intro h
+    constructor
+    · intro a b h
+      obtain ⟨hs, hi⟩ := rel_of_isEqv h
+      ext i h₁ h₂
+      · exact hs
+      · simpa using hi _ h₁
+    · intro a
+      apply Array.isEqv_self_beq
 
 /-! ### take -/
 
@@ -1579,6 +1621,8 @@ theorem toArray_concat {as : List α} {x : α} :
   apply ext'
   simp
 
+@[deprecated back!_toArray (since := "2024-10-31")] abbrev back_toArray := @back!_toArray
+
 end List
 
 namespace Array
@@ -1718,5 +1762,10 @@ abbrev get_swap_of_ne := @getElem_swap_of_ne
 abbrev get_swap := @getElem_swap
 @[deprecated getElem_swap' (since := "2024-09-30")]
 abbrev get_swap' := @getElem_swap'
+
+@[deprecated back!_eq_back? (since := "2024-10-31")] abbrev back_eq_back? := @back!_eq_back?
+@[deprecated back!_push (since := "2024-10-31")] abbrev back_push := @back!_push
+@[deprecated eq_push_pop_back!_of_size_ne_zero (since := "2024-10-31")]
+abbrev eq_push_pop_back_of_size_ne_zero := @eq_push_pop_back!_of_size_ne_zero
 
 end Array

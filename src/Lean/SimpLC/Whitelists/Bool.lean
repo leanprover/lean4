@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
+import Init.Data.Bool
 import Lean.SimpLC.Whitelists.Root
 
 simp_lc whitelist Bool.bne_assoc Bool.bne_self_left -- `(x != (y != (x != (y != b)))) = b` `(y != (x != y)) = x`

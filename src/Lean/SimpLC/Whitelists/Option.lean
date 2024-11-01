@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
+import Init.Data.Option
 import Lean.SimpLC.Whitelists.Root
 
 -- These higher order simp lemmas cause many confluence problems. Reconsider?

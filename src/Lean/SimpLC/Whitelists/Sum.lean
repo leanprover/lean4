@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
+import Init.Data.Sum
 import Lean.SimpLC.Whitelists.List
 import Lean.SimpLC.Whitelists.Bool
 import Lean.SimpLC.Whitelists.Nat

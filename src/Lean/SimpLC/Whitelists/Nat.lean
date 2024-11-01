@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
+import Init.Data.Nat
+import Init.Data.Int
 import Lean.SimpLC.Whitelists.Root
 
 theorem Int.emod_add_div (m k : Int) : m % k + k * (m / k) = m := by

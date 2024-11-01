@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
+import Init.Data.Fin
 import Lean.SimpLC
 
 -- This seems like a weird corner case. The discharger doesn't simplify `h` because it is used.

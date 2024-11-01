@@ -162,8 +162,12 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
           intro a m b
           exact h a (mem_cons_of_mem _ m) b
 
-/-- We can express a for loop over a list as a fold, in which whenever we reach `.done b` we keep that value. -/
-theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m] (l : List α) (f : (a : α) → a ∈ l → β → m (ForInStep β)) (init : β) :
+/--
+We can express a for loop over a list as a fold,
+in which whenever we reach `.done b` we keep that value through the rest of the fold.
+-/
+theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
+    (l : List α) (f : (a : α) → a ∈ l → β → m (ForInStep β)) (init : β) :
     forIn' l init f = ForInStep.value <$>
       l.attach.foldlM (fun b a => match b with
         | .yield b => f a.1 a.2 b
@@ -191,8 +195,12 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m] (l : List α) (f : (a : α) �
     | .yield b =>
       simp [ih, List.foldlM_map]
 
-/-- We can express a for loop over a list as a fold, in which whenever we reach `.done b` we keep that value. -/
-theorem forIn_eq_foldlM [Monad m] [LawfulMonad m] (f : α → β → m (ForInStep β)) (init : β) (l : List α) :
+/--
+We can express a for loop over a list as a fold,
+in which whenever we reach `.done b` we keep that value through the rest of the fold.
+-/
+theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
+    (f : α → β → m (ForInStep β)) (init : β) (l : List α) :
     forIn l init f = ForInStep.value <$>
       l.foldlM (fun b a => match b with
         | .yield b => f a b

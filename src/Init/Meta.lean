@@ -1440,7 +1440,7 @@ def appendConfig (cfg cfg' : Syntax) : TSyntax ``optConfig :=
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
 macro "erw" c:optConfig s:rwRuleSeq loc:(location)? : tactic => do
-  `(tactic| rw (transparency := .default) $[$(getConfigItems c)]* $s:rwRuleSeq $(loc)?)
+  `(tactic| rw $[$(getConfigItems c)]* (transparency := .default) $s:rwRuleSeq $(loc)?)
 
 syntax simpAllKind := atomic(" (" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic(" (" &"dsimp") " := " &"true" ")"

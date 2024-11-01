@@ -63,3 +63,45 @@ but is expected to have type
 #guard_msgs in
 example : @f 1 2 := by
   exact (sorry : @f 0 _)
+
+/-!
+Add type ascriptions for numerals if they have different types.
+-/
+/--
+error: type mismatch
+  Eq.refl 0
+has type
+  (0 : Int) = 0 : Prop
+but is expected to have type
+  (0 : Nat) = 0 : Prop
+-/
+#guard_msgs in example : 0 = (0 : Nat) := by
+  exact Eq.refl (0 : Int)
+
+-- Even if the numerals are different.
+/--
+error: type mismatch
+  Eq.refl 1
+has type
+  (1 : Int) = 1 : Prop
+but is expected to have type
+  (0 : Nat) = 0 : Prop
+-/
+#guard_msgs in example : 0 = (0 : Nat) := by
+  exact Eq.refl (1 : Int)
+
+-- Even for numerals that are functions
+section
+local instance {α : Type _} [OfNat β n] : OfNat (α → β) n where
+  ofNat := fun _ => OfNat.ofNat n
+/--
+error: type mismatch
+  Eq.refl (0 1)
+has type
+  (0 : Nat → Int) 1 = 0 1 : Prop
+but is expected to have type
+  (0 : Nat → Nat) 1 = 0 1 : Prop
+-/
+#guard_msgs in example : (0 : Nat → Nat) 1 = (0 : Nat → Nat) 1 := by
+  exact Eq.refl ((0 : Nat → Int) 1)
+end

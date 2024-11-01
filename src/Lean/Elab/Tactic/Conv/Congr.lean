@@ -74,6 +74,14 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
     mvarIdsNewInsts := mvarIdsNewInsts ++ mvarIdsNewInsts'
   return (proof, mvarIdsNew, mvarIdsNewInsts)
 
+private def resolveRhs (tacticName : String) (rhs rhs' : Expr) : MetaM Unit := do
+  unless (← isDefEqGuarded rhs rhs') do
+    throwError "invalid '{tacticName}' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+
+private def resolveRhsFromProof (tacticName : String) (rhs proof : Expr) : MetaM Unit := do
+  let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'{tacticName}' conv tactic failed, equality expected"
+  resolveRhs tacticName rhs rhs'
+
 def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
     MetaM (List (Option MVarId)) := mvarId.withContext do
   let origTag ← mvarId.getTag
@@ -84,9 +92,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
   else if lhs.isApp then
     let (proof, mvarIdsNew, mvarIdsNewInsts) ←
       mkCongrThm origTag lhs.getAppFn lhs.getAppArgs addImplicitArgs nameSubgoals
-    let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'congr' conv tactic failed, equality expected"
-    unless (← isDefEqGuarded rhs rhs') do
-      throwError "invalid 'congr' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    resolveRhsFromProof "congr" rhs proof
     mvarId.assign proof
     return mvarIdsNew.toList ++ mvarIdsNewInsts.toList
   else
@@ -104,9 +110,7 @@ def congrFunN (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   lhs.withApp fun f xs => do
     let (g, mvarNew) ← mkConvGoalFor f
     mvarId.assign (← xs.foldlM (init := mvarNew) Meta.mkCongrFun)
-    let rhs' := mkAppN g xs
-    unless ← isDefEqGuarded rhs rhs' do
-      throwError "invalid 'arg 0' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    resolveRhs "arg 0" rhs (mkAppN g xs)
     return mvarNew.mvarId!
 
 private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f : Expr) (args : Array Expr) :
@@ -146,17 +150,19 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
 /--
 Implements `arg` for foralls. If `domain` is true, accesses the domain, otherwise accesses the codomain.
 -/
-def congrArgForall (tacticName : String) (domain : Bool) (mvarId : MVarId) (lhs : Expr) : MetaM (List MVarId) := do
-  let .forallE n t b _ := lhs | unreachable!
+def congrArgForall (tacticName : String) (domain : Bool) (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List MVarId) := do
+  let .forallE n t b bi := lhs | unreachable!
   if domain then
     if !b.hasLooseBVars then
-      let (_rhs, g) ← mkConvGoalFor t (← mvarId.getTag)
+      let (t', g) ← mkConvGoalFor t (← mvarId.getTag)
       mvarId.assign <| ← mkAppM ``implies_congr #[g, ← mkEqRefl b]
+      resolveRhs tacticName rhs (.forallE n t' b bi)
       return [g.mvarId!]
     else if ← isProp b <&&> isProp lhs then
       let (_rhs, g) ← mkConvGoalFor t (← mvarId.getTag)
-      mvarId.assign <| ← mkAppM ``forall_prop_congr_dom
-        #[g, .lam n t b .default]
+      let proof ← mkAppM ``forall_prop_congr_dom #[g, .lam n t b .default]
+      resolveRhsFromProof tacticName rhs proof
+      mvarId.assign proof
       return [g.mvarId!]
     else
       throwError m!"'{tacticName}' conv tactic failed, cannot select domain"
@@ -166,8 +172,10 @@ def congrArgForall (tacticName : String) (domain : Bool) (mvarId : MVarId) (lhs 
       let q := b.instantiate1 arg
       let (q', g) ← mkConvGoalFor q (← mvarId.getTag)
       let v ← getLevel q
-      mvarId.assign <| mkAppN (.const ``pi_congr [u, v])
+      let proof := mkAppN (.const ``pi_congr [u, v])
         #[t, .lam n t b .default, ← mkLambdaFVars #[arg] q', ← mkLambdaFVars #[arg] g]
+      resolveRhsFromProof tacticName rhs proof
+      mvarId.assign proof
       return [g.mvarId!]
 
 /-- Implementation of `arg i`. -/
@@ -177,14 +185,12 @@ def congrArgN (tacticName : String) (mvarId : MVarId) (i : Int) (explicit : Bool
   if lhs.isForall then
     if i < -2 || i == 0 || i > 2 then throwError "invalid '{tacticName}' conv tactic, index is out of bounds for pi type"
     let domain := i == 1 || i == -2
-    return ← congrArgForall tacticName domain mvarId lhs
+    return ← congrArgForall tacticName domain mvarId lhs rhs
   else if lhs.isApp then
     lhs.withApp fun f xs => do
       let (f, xs) ← applyArgs f xs i
       let (proof, mvarIdNew, mvarIdsNewInsts) ← mkCongrArgZeroThm tacticName (← mvarId.getTag) f xs
-      let some (_, _, rhs') := (← whnf (← inferType proof)).eq? | throwError "'{tacticName}' conv tactic failed, equality expected"
-      unless (← isDefEqGuarded rhs rhs') do
-        throwError "invalid '{tacticName}' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+      resolveRhsFromProof tacticName rhs proof
       mvarId.assign proof
       return mvarIdNew :: mvarIdsNewInsts.toList
   else
@@ -243,9 +249,7 @@ def evalArg (tacticName : String) (i : Int) (explicit : Bool) : TacticM Unit := 
       | throwError "invalid 'fun' conv tactic, application expected{indentExpr lhs}"
     let (g, mvarNew) ← mkConvGoalFor f
     mvarId.assign (← Meta.mkCongrFun mvarNew a)
-    let rhs' := .app g a
-    unless ← isDefEqGuarded rhs rhs' do
-      throwError "invalid 'fun' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    resolveRhs "fun" rhs (.app g a)
     replaceMainGoal [mvarNew.mvarId!]
 
 def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) := do
@@ -289,9 +293,7 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
         let (qa, mvarNew) ← mkConvGoalFor pa
         let q ← mkLambdaFVars #[a] qa
         let h ← mkLambdaFVars #[a] mvarNew
-        let rhs' ← mkForallFVars #[a] qa
-        unless (← isDefEqGuarded rhs rhs') do
-          throwError "invalid 'ext' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+        resolveRhs "ext" rhs (← mkForallFVars #[a] qa)
         return (q, h, mvarNew)
       let proof := mkApp4 (mkConst ``forall_congr [u]) d p q h
       mvarId.assign proof

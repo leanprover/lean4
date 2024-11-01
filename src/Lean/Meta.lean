@@ -22,6 +22,7 @@ import Lean.Meta.KAbstract
 import Lean.Meta.RecursorInfo
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match
+import Lean.Meta.MatchFloat
 import Lean.Meta.ReduceEval
 import Lean.Meta.Closure
 import Lean.Meta.AbstractNestedProofs

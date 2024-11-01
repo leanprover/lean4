@@ -10,6 +10,7 @@ import Init.Data.List.Monadic
 import Init.Data.List.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Modify
+import Init.Data.List.Monadic
 import Init.Data.Array.Mem
 import Init.Data.Array.DecidableEq
 import Init.TacticsExtra
@@ -211,17 +212,25 @@ theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array 
     (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
   simp [foldrM_eq_reverse_foldlM_toList, -size_push]
 
-/-- Variant of `foldrM_push` with the `start := arr.size + 1` rather than `(arr.push a).size`. -/
-@[simp] theorem foldrM_push' [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
-    (arr.push a).foldrM f init (start := arr.size + 1) = f a init >>= arr.foldrM f := by
-  simp [← foldrM_push]
+/--
+Variant of `foldrM_push` with `h : start = arr.size + 1`
+rather than `(arr.push a).size` as the argument.
+-/
+@[simp] theorem foldrM_push' [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α)
+    {start} (h : start = arr.size + 1) :
+    (arr.push a).foldrM f init start = f a init >>= arr.foldrM f := by
+  simp [← foldrM_push, h]
 
 theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) :
     (arr.push a).foldr f init = arr.foldr f (f a init) := foldrM_push ..
 
-/-- Variant of `foldr_push` with the `start := arr.size + 1` rather than `(arr.push a).size`. -/
-@[simp] theorem foldr_push' (f : α → β → β) (init : β) (arr : Array α) (a : α) :
-    (arr.push a).foldr f init (start := arr.size + 1) = arr.foldr f (f a init) := foldrM_push' ..
+/--
+Variant of `foldr_push` with the `h : start = arr.size + 1`
+rather than `(arr.push a).size` as the argument.
+-/
+@[simp] theorem foldr_push' (f : α → β → β) (init : β) (arr : Array α) (a : α) {start}
+    (h : start = arr.size + 1) : (arr.push a).foldr f init start = arr.foldr f (f a init) :=
+  foldrM_push' _ _ _ _ h
 
 /-- A more efficient version of `arr.toList.reverse`. -/
 @[inline] def toListRev (arr : Array α) : List α := arr.foldl (fun l t => t :: l) []
@@ -1607,6 +1616,13 @@ theorem filterMap_toArray (f : α → Option β) (l : List α) :
   simp
 
 end List
+
+namespace Array
+
+@[simp] theorem mapM_id {l : Array α} {f : α → Id β} : l.mapM f = l.map f := by
+  induction l; simp_all
+
+end Array
 
 /-! ### Deprecations -/
 

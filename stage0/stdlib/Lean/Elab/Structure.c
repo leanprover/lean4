@@ -294,7 +294,6 @@ lean_object* l_Lean_CollectLevelParams_main(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_reprStructFieldKind____x40_Lean_Elab_Structure___hyg_748____closed__16;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_withFields_go___spec__9(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_addDefaults___boxed__const__1;
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_isPropCandidate___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_levelMVarToParam___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -496,6 +495,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_el
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_reprStructFieldKind____x40_Lean_Elab_Structure___hyg_748____closed__14;
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_copyFields_copy___rarg___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_checkResolutionOrder___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addDeclarationRangesForBuiltin___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_withFields_go___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_Command_instInhabitedStructCtorView___closed__3;
@@ -10039,7 +10039,7 @@ lean_closure_set(x_12, 1, x_1);
 lean_closure_set(x_12, 2, x_2);
 x_13 = 0;
 x_14 = 0;
-x_15 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___spec__1___rarg(x_10, x_13, x_2, x_12, x_14, x_4, x_5, x_6, x_7, x_11);
+x_15 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___spec__1___rarg(x_10, x_13, x_2, x_12, x_14, x_4, x_5, x_6, x_7, x_11);
 return x_15;
 }
 }
@@ -28949,7 +28949,7 @@ lean_closure_set(x_28, 9, x_26);
 lean_closure_set(x_28, 10, x_27);
 x_29 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_mkCoercionToCopiedParent___closed__2;
 x_30 = 0;
-x_31 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___spec__1___rarg(x_29, x_25, x_21, x_28, x_30, x_6, x_7, x_8, x_9, x_13);
+x_31 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___spec__1___rarg(x_29, x_25, x_21, x_28, x_30, x_6, x_7, x_8, x_9, x_13);
 return x_31;
 }
 else
@@ -28973,7 +28973,7 @@ lean_closure_set(x_35, 10, x_34);
 x_36 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_mkCoercionToCopiedParent___closed__2;
 x_37 = 0;
 x_38 = 0;
-x_39 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___spec__1___rarg(x_36, x_37, x_21, x_35, x_38, x_6, x_7, x_8, x_9, x_13);
+x_39 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go___spec__1___rarg(x_36, x_37, x_21, x_35, x_38, x_6, x_7, x_8, x_9, x_13);
 return x_39;
 }
 }

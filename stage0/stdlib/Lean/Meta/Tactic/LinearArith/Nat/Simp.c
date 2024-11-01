@@ -59,6 +59,7 @@ uint8_t l_Nat_Linear_PolyCnstr_isUnsat(lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls___at_Lean_Meta_Linear_Nat_withAbstractAtoms___spec__4___rarg___closed__1;
 lean_object* l_Lean_Meta_Linear_Nat_ToLinear_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__23;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__10;
@@ -122,7 +123,6 @@ static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___lambda__1___closed
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___lambda__1___closed__13;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___lambda__1___closed__2;
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___lambda__1___closed__4;
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -388,7 +388,7 @@ lean_closure_set(x_22, 3, x_3);
 x_23 = 0;
 x_24 = lean_unbox(x_17);
 lean_dec(x_17);
-x_25 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_16, x_24, x_20, x_22, x_23, x_5, x_6, x_7, x_8, x_21);
+x_25 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_16, x_24, x_20, x_22, x_23, x_5, x_6, x_7, x_8, x_21);
 return x_25;
 }
 else

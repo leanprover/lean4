@@ -295,6 +295,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheorem
 static lean_object* l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__5___closed__3;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_liftExcept___at_Lean_Elab_liftMacroM___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_mkExtIffType___lambda__4___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Ext_mkExtType___closed__1;
@@ -537,7 +538,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Elab_Tactic_E
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3378____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_tryIntros(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3378____closed__4;
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__1(lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Ext_getExtTheorems___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -697,6 +697,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Elab_Tacti
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3673____lambda__6___closed__7;
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Ext_ExtTheorems_erase___spec__4(lean_object*, lean_object*, size_t, size_t, uint8_t);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_ExtTheorems_erase___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3098____closed__24;
@@ -718,7 +719,6 @@ static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_rep
 static lean_object* l_Lean_getConstInfoInduct___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_ExtTheorems_erase___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3673____spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lambda__1___closed__45;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExt1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_extExtension;
@@ -1303,7 +1303,7 @@ lean_closure_set(x_15, 5, x_5);
 x_16 = l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__3___closed__2;
 x_17 = 1;
 x_18 = 0;
-x_19 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_16, x_17, x_6, x_15, x_18, x_8, x_9, x_10, x_11, x_12);
+x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_16, x_17, x_6, x_15, x_18, x_8, x_9, x_10, x_11, x_12);
 return x_19;
 }
 }
@@ -1358,7 +1358,7 @@ x_20 = 1;
 x_21 = 0;
 x_22 = lean_box(x_20);
 x_23 = lean_box(x_21);
-x_24 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg___boxed), 10, 5);
+x_24 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg___boxed), 10, 5);
 lean_closure_set(x_24, 0, x_19);
 lean_closure_set(x_24, 1, x_22);
 lean_closure_set(x_24, 2, x_15);

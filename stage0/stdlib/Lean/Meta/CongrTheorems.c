@@ -115,6 +115,7 @@ static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_reprCongrAr
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_getCongrSimpKinds___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___spec__1___closed__2;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
@@ -279,7 +280,6 @@ static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_reprCongrAr
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_reprCongrArgKind____x40_Lean_Meta_CongrTheorems___hyg_17____closed__5;
 extern lean_object* l_Lean_Meta_instInhabitedParamInfo;
 static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_reprCongrArgKind____x40_Lean_Meta_CongrTheorems___hyg_17____closed__25;
@@ -1380,7 +1380,7 @@ lean_closure_set(x_34, 4, x_3);
 lean_closure_set(x_34, 5, x_31);
 x_35 = 0;
 x_36 = 0;
-x_37 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_33, x_35, x_28, x_34, x_36, x_7, x_8, x_9, x_10, x_29);
+x_37 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_33, x_35, x_28, x_34, x_36, x_7, x_8, x_9, x_10, x_29);
 return x_37;
 }
 else
@@ -1445,7 +1445,7 @@ lean_closure_set(x_49, 4, x_3);
 lean_closure_set(x_49, 5, x_46);
 x_50 = 0;
 x_51 = 0;
-x_52 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_48, x_50, x_43, x_49, x_51, x_7, x_8, x_9, x_10, x_44);
+x_52 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_48, x_50, x_43, x_49, x_51, x_7, x_8, x_9, x_10, x_44);
 return x_52;
 }
 else
@@ -1927,7 +1927,7 @@ lean_closure_set(x_19, 2, x_18);
 lean_closure_set(x_19, 3, x_2);
 x_20 = 0;
 x_21 = 0;
-x_22 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_15, x_20, x_16, x_19, x_21, x_5, x_6, x_7, x_8, x_9);
+x_22 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_15, x_20, x_16, x_19, x_21, x_5, x_6, x_7, x_8, x_9);
 return x_22;
 }
 else
@@ -1941,7 +1941,7 @@ lean_closure_set(x_24, 2, x_23);
 lean_closure_set(x_24, 3, x_2);
 x_25 = 0;
 x_26 = 0;
-x_27 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_15, x_25, x_16, x_24, x_26, x_5, x_6, x_7, x_8, x_9);
+x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_15, x_25, x_16, x_24, x_26, x_5, x_6, x_7, x_8, x_9);
 return x_27;
 }
 }
@@ -8650,7 +8650,7 @@ lean_closure_set(x_24, 8, x_10);
 lean_closure_set(x_24, 9, x_11);
 x_25 = 0;
 x_26 = 0;
-x_27 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_22, x_25, x_19, x_24, x_26, x_13, x_14, x_15, x_16, x_20);
+x_27 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_22, x_25, x_19, x_24, x_26, x_13, x_14, x_15, x_16, x_20);
 return x_27;
 }
 else
@@ -8759,7 +8759,7 @@ lean_closure_set(x_30, 7, x_11);
 lean_closure_set(x_30, 8, x_3);
 x_31 = 1;
 x_32 = 0;
-x_33 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_28, x_31, x_24, x_30, x_32, x_12, x_13, x_14, x_15, x_27);
+x_33 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_28, x_31, x_24, x_30, x_32, x_12, x_13, x_14, x_15, x_27);
 return x_33;
 }
 else
@@ -8823,7 +8823,7 @@ lean_closure_set(x_42, 7, x_11);
 lean_closure_set(x_42, 8, x_3);
 x_43 = 3;
 x_44 = 0;
-x_45 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_40, x_43, x_24, x_42, x_44, x_12, x_13, x_14, x_15, x_39);
+x_45 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_40, x_43, x_24, x_42, x_44, x_12, x_13, x_14, x_15, x_39);
 return x_45;
 }
 else
@@ -9117,7 +9117,7 @@ lean_closure_set(x_31, 8, x_3);
 lean_closure_set(x_31, 9, x_4);
 lean_closure_set(x_31, 10, x_5);
 x_32 = 0;
-x_33 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_27, x_28, x_29, x_31, x_32, x_10, x_11, x_12, x_13, x_26);
+x_33 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_27, x_28, x_29, x_31, x_32, x_10, x_11, x_12, x_13, x_26);
 return x_33;
 }
 else

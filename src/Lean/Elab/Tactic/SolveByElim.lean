@@ -68,7 +68,7 @@ def processSyntax (cfg : SolveByElimConfig := {}) (only star : Bool) (add remove
 @[builtin_tactic Lean.Parser.Tactic.applyAssumption]
 def evalApplyAssumption : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply_assumption $[$cfg]? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+  | `(tactic| apply_assumption $cfg:optConfig $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
     let cfg ← elabConfig (mkOptionalNode cfg)
@@ -86,7 +86,7 @@ See `Lean.MVarId.applyRules` for a `MetaM` level analogue of this tactic.
 @[builtin_tactic Lean.Parser.Tactic.applyRules]
 def evalApplyRules : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply_rules $[$cfg]? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+  | `(tactic| apply_rules $cfg:optConfig $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
     let cfg ← elabApplyRulesConfig (mkOptionalNode cfg)
@@ -97,7 +97,7 @@ def evalApplyRules : Tactic := fun stx =>
 @[builtin_tactic Lean.Parser.Tactic.solveByElim]
 def evalSolveByElim : Tactic := fun stx =>
   match stx with
-  | `(tactic| solve_by_elim $[*%$s]? $[$cfg]? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+  | `(tactic| solve_by_elim $[*%$s]? $(cfg)? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
     let goals ← if s.isSome then

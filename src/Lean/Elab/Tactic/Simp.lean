@@ -437,7 +437,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   Simp.reportDiag stats
 
 /-
-  "simp" (config)? (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  "simp" optConfig (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do

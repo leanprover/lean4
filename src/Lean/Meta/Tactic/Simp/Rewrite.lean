@@ -320,8 +320,8 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       r ← mkCongrFun r argNew
   unless modified do
     return none
-  for i in [info.numDiscrs : args.size] do
-    let arg := args[i]!
+  for h : i in [info.numDiscrs : args.size] do
+    let arg := args[i]
     r ← mkCongrFun r arg
   return some r
 
@@ -573,15 +573,33 @@ where
     catch _  =>
       return some mvarId
 
+/--
+Discharges assumptions of the form `∀ …, a = b` using `rfl`. This is particularly useful for higher
+order assumptions of the form `∀ …, e = ?g x y` to instaniate  a parameter `g` even if that does not
+appear on the lhs of the rule.
+-/
+def dischargeRfl (e : Expr) : SimpM (Option Expr) := do
+  forallTelescope e fun xs e => do
+    let some (t, a, b) := e.eq? | return .none
+    unless a.getAppFn.isMVar || b.getAppFn.isMVar do return .none
+    if (← withReducible <| isDefEq a b) then
+      trace[Meta.Tactic.simp.discharge] "Discharging with rfl: {e}"
+      let u ← getLevel t
+      let proof := mkApp2 (.const ``rfl [u]) t a
+      let proof ← mkLambdaFVars xs proof
+      return .some proof
+    return .none
+
+
 def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   let e := e.cleanupAnnotations
   if isEqnThmHypothesis e then
-    if let some r ← dischargeUsingAssumption? e then
-      return some r
-    if let some r ← dischargeEqnThmHypothesis? e then
-      return some r
+    if let some r ← dischargeUsingAssumption? e then return some r
+    if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
-  if r.expr.isTrue then
+  if let some p ← dischargeRfl r.expr then
+    return some (← mkEqMPR (← r.getProof) p)
+  else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else
     return none

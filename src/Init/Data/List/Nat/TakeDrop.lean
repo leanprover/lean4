@@ -6,6 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 prelude
 import Init.Data.List.Zip
 import Init.Data.List.Sublist
+import Init.Data.List.Find
 import Init.Data.Nat.Lemmas
 
 /-!
@@ -35,23 +36,23 @@ theorem length_take_of_le (h : n ≤ length l) : length (take n l) = n := by sim
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
-theorem getElem_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
+theorem getElem_take' (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
     L[i] = (L.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
-  getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append ..
+  getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append_left ..
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-theorem getElem_take' (L : List α) {j i : Nat} {h : i < (L.take j).length} :
+@[simp] theorem getElem_take (L : List α) {j i : Nat} {h : i < (L.take j).length} :
     (L.take j)[i] =
     L[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
-  rw [length_take, Nat.lt_min] at h; rw [getElem_take L _ h.1]
+  rw [length_take, Nat.lt_min] at h; rw [getElem_take' L _ h.1]
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
-@[deprecated getElem_take (since := "2024-06-12")]
+@[deprecated getElem_take' (since := "2024-06-12")]
 theorem get_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
     get L ⟨i, hi⟩ = get (L.take j) ⟨i, length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩⟩ := by
-  simp [getElem_take _ hi hj]
+  simp
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
@@ -59,7 +60,7 @@ length `> i`. Version designed to rewrite from the small list to the big list. -
 theorem get_take' (L : List α) {j i} :
     get (L.take j) i =
     get L ⟨i.1, Nat.lt_of_lt_of_le i.2 (length_take_le' _ _)⟩ := by
-  simp [getElem_take']
+  simp [getElem_take]
 
 theorem getElem?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n)[m]? = none :=
@@ -109,7 +110,7 @@ theorem getLast?_take {l : List α} : (l.take n).getLast? = if n = 0 then none e
 
 theorem getLast_take {l : List α} (h : l.take n ≠ []) :
     (l.take n).getLast h = l[n - 1]?.getD (l.getLast (by simp_all)) := by
-  rw [getLast_eq_getElem, getElem_take']
+  rw [getLast_eq_getElem, getElem_take]
   simp [length_take, Nat.min_def]
   simp at h
   split
@@ -190,20 +191,12 @@ theorem dropLast_take {n : Nat} {l : List α} (h : n < l.length) :
     (l.take n).dropLast = l.take (n - 1) := by
   simp only [dropLast_eq_take, length_take, Nat.le_of_lt h, Nat.min_eq_left, take_take, sub_le]
 
-theorem map_eq_append_split {f : α → β} {l : List α} {s₁ s₂ : List β}
-    (h : map f l = s₁ ++ s₂) : ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = s₁ ∧ map f l₂ = s₂ := by
-  have := h
-  rw [← take_append_drop (length s₁) l] at this ⊢
-  rw [map_append] at this
-  refine ⟨_, _, rfl, append_inj this ?_⟩
-  rw [length_map, length_take, Nat.min_eq_left]
-  rw [← length_map l f, h, length_append]
-  apply Nat.le_add_right
+@[deprecated map_eq_append_iff (since := "2024-09-05")] abbrev map_eq_append_split := @map_eq_append_iff
 
 theorem take_prefix_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+: take n l := by
   rw [isPrefix_iff]
   intro i w
-  rw [getElem?_take_of_lt, getElem_take', getElem?_eq_getElem]
+  rw [getElem?_take_of_lt, getElem_take, getElem?_eq_getElem]
   simp only [length_take] at w
   exact Nat.lt_of_lt_of_le (Nat.lt_of_lt_of_le w (Nat.min_le_left _ _)) h
 
@@ -226,8 +219,9 @@ dropping the first `i` elements. Version designed to rewrite from the big list t
 theorem getElem_drop' (L : List α) {i j : Nat} (h : i + j < L.length) :
     L[i + j] = (L.drop i)[j]'(lt_length_drop L h) := by
   have : i ≤ L.length := Nat.le_trans (Nat.le_add_right _ _) (Nat.le_of_lt h)
-  rw [getElem_of_eq (take_append_drop i L).symm h, getElem_append_right'] <;>
-    simp [Nat.min_eq_left this, Nat.add_sub_cancel_left, Nat.le_add_right]
+  rw [getElem_of_eq (take_append_drop i L).symm h, getElem_append_right]
+  · simp [Nat.min_eq_left this, Nat.add_sub_cancel_left]
+  · simp [Nat.min_eq_left this, Nat.le_add_right]
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the big list to the small list. -/
@@ -256,7 +250,7 @@ theorem get_drop' (L : List α) {i j} :
 @[simp]
 theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := by
   ext
-  simp only [getElem?_eq_some, getElem_drop, Option.mem_def]
+  simp only [getElem?_eq_some_iff, getElem_drop, Option.mem_def]
   constructor <;> intro ⟨h, ha⟩
   · exact ⟨_, ha⟩
   · refine ⟨?_, ha⟩
@@ -267,6 +261,26 @@ theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := 
 @[deprecated getElem?_drop (since := "2024-06-12")]
 theorem get?_drop (L : List α) (i j : Nat) : get? (L.drop i) j = get? L (i + j) := by
   simp
+
+theorem mem_take_iff_getElem {l : List α} {a : α} :
+    a ∈ l.take n ↔ ∃ (i : Nat) (hm : i < min n l.length), l[i] = a := by
+  rw [mem_iff_getElem]
+  constructor
+  · rintro ⟨i, hm, rfl⟩
+    simp at hm
+    refine ⟨i, by omega, by rw [getElem_take]⟩
+  · rintro ⟨i, hm, rfl⟩
+    refine ⟨i, by simpa, by rw [getElem_take]⟩
+
+theorem mem_drop_iff_getElem {l : List α} {a : α} :
+    a ∈ l.drop n ↔ ∃ (i : Nat) (hm : i + n < l.length), l[n + i] = a := by
+  rw [mem_iff_getElem]
+  constructor
+  · rintro ⟨i, hm, rfl⟩
+    simp at hm
+    refine ⟨i, by omega, by rw [getElem_drop]⟩
+  · rintro ⟨i, hm, rfl⟩
+    refine ⟨i, by simp; omega, by rw [getElem_drop]⟩
 
 theorem head?_drop (l : List α) (n : Nat) :
     (l.drop n).head? = l[n]? := by
@@ -288,7 +302,7 @@ theorem getLast?_drop {l : List α} : (l.drop n).getLast? = if l.length ≤ n th
 
 theorem getLast_drop {l : List α} (h : l.drop n ≠ []) :
     (l.drop n).getLast h = l.getLast (ne_nil_of_length_pos (by simp at h; omega)) := by
-  simp only [ne_eq, drop_eq_nil_iff_le] at h
+  simp only [ne_eq, drop_eq_nil_iff] at h
   apply Option.some_inj.1
   simp only [← getLast?_eq_getLast, getLast?_drop, ite_eq_right_iff]
   omega
@@ -337,7 +351,7 @@ theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
         getElem?_take_of_lt h']
     · by_cases h'' : m = n
       · subst h''
-        rw [getElem?_set_eq ‹_›, getElem?_append_right, length_take,
+        rw [getElem?_set_self ‹_›, getElem?_append_right, length_take,
           Nat.min_eq_left (by omega), Nat.sub_self, getElem?_cons_zero]
         rw [length_take]
         exact Nat.min_le_left m l.length
@@ -434,6 +448,64 @@ theorem reverse_drop {l : List α} {n : Nat} :
   · have w : l.length - n = 0 := by omega
     rw [w, take_zero, drop_of_length_le, reverse_nil]
     omega
+
+/-! ### findIdx -/
+
+theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs.take (xs.findIdx p)) :
+    p x = false := by
+  simp only [mem_take_iff_getElem, forall_exists_index] at h
+  obtain ⟨i, h, rfl⟩ := h
+  exact not_of_lt_findIdx (by omega)
+
+@[simp] theorem findIdx_take {xs : List α} {n : Nat} {p : α → Bool} :
+    (xs.take n).findIdx p = min n (xs.findIdx p) := by
+  induction xs generalizing n with
+  | nil => simp
+  | cons x xs ih =>
+    cases n
+    · simp
+    · simp only [take_succ_cons, findIdx_cons, ih, cond_eq_if]
+      split
+      · simp
+      · rw [Nat.add_min_add_right]
+
+@[simp] theorem findIdx?_take {xs : List α} {n : Nat} {p : α → Bool} :
+    (xs.take n).findIdx? p = (xs.findIdx? p).bind (Option.guard (fun i => i < n)) := by
+  induction xs generalizing n with
+  | nil => simp
+  | cons x xs ih =>
+    cases n
+    · simp
+    · simp only [take_succ_cons, findIdx?_cons]
+      split
+      · simp
+      · simp [ih, Option.guard_comp, Option.bind_map]
+
+@[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
+    min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp [findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    split <;> split <;> simp_all [Nat.add_min_add_right]
+
+/-! ### takeWhile -/
+
+theorem takeWhile_eq_take_findIdx_not {xs : List α} {p : α → Bool} :
+    takeWhile p xs = take (xs.findIdx (fun a => !p a)) xs := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [takeWhile_cons, ih, findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    split <;> simp_all
+
+theorem dropWhile_eq_drop_findIdx_not {xs : List α} {p : α → Bool} :
+    dropWhile p xs = drop (xs.findIdx (fun a => !p a)) xs := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [dropWhile_cons, ih, findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    split <;> simp_all
 
 /-! ### rotateLeft -/
 

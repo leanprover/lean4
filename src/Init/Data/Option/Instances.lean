@@ -55,7 +55,7 @@ partial function defined on `a : α` giving an `Option β`, where `some a = x`,
 then `pbind x f h` is essentially the same as `bind x f`
 but is defined only when all `x = some a`, using the proof to apply `f`.
 -/
-@[simp, inline]
+@[inline]
 def pbind : ∀ x : Option α, (∀ a : α, a ∈ x → Option β) → Option β
   | none, _ => none
   | some a, f => f a rfl
@@ -65,7 +65,7 @@ Partial map. If `f : Π a, p a → β` is a partial function defined on `a : α`
 then `pmap f x h` is essentially the same as `map f x` but is defined only when all members of `x`
 satisfy `p`, using the proof to apply `f`.
 -/
-@[simp, inline] def pmap {p : α → Prop} (f : ∀ a : α, p a → β) :
+@[inline] def pmap {p : α → Prop} (f : ∀ a : α, p a → β) :
     ∀ x : Option α, (∀ a, a ∈ x → p a) → Option β
   | none, _ => none
   | some a, H => f a (H a rfl)

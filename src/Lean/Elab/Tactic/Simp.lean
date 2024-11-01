@@ -47,7 +47,7 @@ def tacticToDischarge (tacticCode : Syntax) : TacticM (IO.Ref Term.State × Simp
         -/
         withoutModifyingStateWithInfoAndMessages do
           Term.withSynthesize (postpone := .no) do
-            Term.runTactic (report := false) mvar.mvarId! tacticCode
+            Term.runTactic (report := false) mvar.mvarId! tacticCode .term
           let result ← instantiateMVars mvar
           if result.hasExprMVar then
             return none

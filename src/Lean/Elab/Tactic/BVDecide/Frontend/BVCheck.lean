@@ -41,10 +41,10 @@ def lratChecker (cfg : TacticContext) (bvExpr : BVLogicalExpr) : MetaM Expr := d
 
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
 def bvCheck (g : MVarId) (cfg : TacticContext) : MetaM Unit := do
-  let unsatProver : UnsatProver := fun bvExpr _ => do
+  let unsatProver : UnsatProver := fun _ reflectionResult _ => do
     withTraceNode `sat (fun _ => return "Preparing LRAT reflection term") do
-      let proof ← lratChecker cfg bvExpr
-      return ⟨proof, ""⟩
+      let proof ← lratChecker cfg reflectionResult.bvExpr
+      return .ok ⟨proof, ""⟩
   let _ ← closeWithBVReflection g unsatProver
   return ()
 
@@ -55,13 +55,13 @@ def evalBvCheck : Tactic := fun
   | `(tactic| bv_check%$tk $path:str) => do
     let cfg ← BVDecide.Frontend.BVCheck.mkContext path.getString
     liftMetaFinishingTactic fun g => do
-      let res ← Normalize.bvNormalize g
-      match res.goal with
-      | some g => bvCheck g cfg
+      let g'? ← Normalize.bvNormalize g
+      match g'? with
+      | some g' => bvCheck g' cfg
       | none =>
         let bvNormalizeStx ← `(tactic| bv_normalize)
+        logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
         TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
-        throwError m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
   | _ => throwUnsupportedSyntax
 
 end Frontend.BVCheck

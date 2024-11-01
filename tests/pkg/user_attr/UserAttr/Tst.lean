@@ -26,7 +26,7 @@ def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
 @[my_simp] theorem g_eq : g x = x + 1 := rfl
 
 example : f x + g x = 2*x + 3 := by
-  fail_if_success simp_arith -- does not appy f_eq and g_eq
+  fail_if_success simp_arith -- does not apply f_eq and g_eq
   simp_arith [f, g]
 
 example : f x + g x = 2*x + 3 := by
@@ -88,3 +88,68 @@ simproc [my_simp] reduceBoo (boo _) := fun e => do
 example : f x + boo 2 = id (x + 2) + 12 := by
   simp
   simp [my_simp] -- Applies the simp and simproc sets
+
+
+namespace TraceAdd
+
+set_option trace.Meta.Tactic.simp.rewrite false
+
+/-- info: trace_add attribute added to TraceAdd.foo -/
+#guard_msgs in
+@[trace_add] def foo := 1
+
+/-- info: trace_add attribute added to TraceAdd.foo -/
+#guard_msgs in
+attribute [trace_add] foo
+
+/-- info: trace_add attribute added to TraceAdd.structural -/
+#guard_msgs in
+@[trace_add] def structural : Nat → Nat
+  | 0 => 0
+  | n+1 => structural n+1
+termination_by structural n => n
+
+/-- info: trace_add attribute added to TraceAdd.wf -/
+#guard_msgs in
+@[trace_add] def wf : Nat → Nat
+  | 0 => 0
+  | n+1 => wf n+1
+termination_by n => n
+
+/--
+info: trace_add attribute added to TraceAdd.mutual_structural_1
+---
+info: trace_add attribute added to TraceAdd.mutual_structural_2
+-/
+#guard_msgs in
+mutual
+@[trace_add] def mutual_structural_1 : Nat → Nat
+  | 0 => 0
+  | n+1 => mutual_structural_2 n+1
+termination_by structural n => n
+@[trace_add] def mutual_structural_2 : Nat → Nat
+  | 0 => 0
+  | n+1 => mutual_structural_1 n+1
+termination_by structural n => n
+end
+
+/--
+info: trace_add attribute added to TraceAdd.mutual_wf_1._mutual
+---
+info: trace_add attribute added to TraceAdd.mutual_wf_1
+---
+info: trace_add attribute added to TraceAdd.mutual_wf_2
+-/
+#guard_msgs in
+mutual
+@[trace_add] def mutual_wf_1 : Nat → Nat
+  | 0 => 0
+  | n+1 => mutual_wf_2 n+1
+termination_by n => n
+@[trace_add] def mutual_wf_2 : Nat → Nat
+  | 0 => 0
+  | n+1 => mutual_wf_1 n+1
+termination_by n => n
+end
+
+end TraceAdd

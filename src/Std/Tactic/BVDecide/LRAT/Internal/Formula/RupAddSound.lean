@@ -39,27 +39,26 @@ theorem contradiction_of_insertUnit_success {n : Nat} (assignments : Array Assig
     rcases insertUnit_success with foundContradiction_eq_true | assignments_l_ne_unassigned
     · simp only [insertUnit, hl, ite_false]
       rcases h foundContradiction_eq_true with ⟨i, h⟩
-      have i_in_bounds : i.1 < assignments.size := by rw [assignments_size]; exact i.2.2
       apply Exists.intro i
       by_cases l.1.1 = i.1
       · next l_eq_i =>
-        simp [l_eq_i, Array.getElem_modify_self i_in_bounds, h]
+        simp [l_eq_i, Array.getElem_modify_self, h]
         exact add_both_eq_both l.2
       · next l_ne_i =>
-        simp [Array.getElem_modify_of_ne i_in_bounds _ l_ne_i]
+        simp [Array.getElem_modify_of_ne l_ne_i]
         exact h
     · apply Exists.intro l.1
-      simp only [insertUnit, hl, ite_false, Array.getElem_modify_self l_in_bounds, reduceCtorEq]
+      simp only [insertUnit, hl, ite_false, Array.getElem_modify_self, reduceCtorEq]
       simp only [getElem!, l_in_bounds, dite_true, decidableGetElem?] at assignments_l_ne_unassigned
       by_cases l.2
       · next l_eq_true =>
-        rw [l_eq_true]
+        simp only [l_eq_true]
         simp only [hasAssignment, l_eq_true, hasPosAssignment, getElem!, l_in_bounds, dite_true, ite_true,
           Bool.not_eq_true, decidableGetElem?] at hl
         split at hl <;> simp_all (config := { decide := true })
       · next l_eq_false =>
         simp only [Bool.not_eq_true] at l_eq_false
-        rw [l_eq_false]
+        simp only [l_eq_false]
         simp [hasAssignment, l_eq_false, hasNegAssignment, getElem!, l_in_bounds, decidableGetElem?] at hl
         split at hl <;> simp_all (config := { decide := true })
 
@@ -92,25 +91,25 @@ theorem contradiction_of_insertUnit_fold_success {n : Nat} (assignments : Array 
 theorem mem_insertUnit_units {n : Nat} (units : Array (Literal (PosFin n))) (assignments : Array Assignment)
     (foundContradiction : Bool) (l : Literal (PosFin n)) :
     let insertUnit_res := insertUnit (units, assignments, foundContradiction) l
-    ∀ l' : Literal (PosFin n), l' ∈ insertUnit_res.1.data → l' = l ∨ l' ∈ units.data := by
+    ∀ l' : Literal (PosFin n), l' ∈ insertUnit_res.1.toList → l' = l ∨ l' ∈ units.toList := by
   intro insertUnit_res l' l'_in_insertUnit_res
   simp only [insertUnit_res] at *
   simp only [insertUnit] at l'_in_insertUnit_res
   split at l'_in_insertUnit_res
   · exact Or.inr l'_in_insertUnit_res
-  · simp only [Array.push_data, List.mem_append, List.mem_singleton] at l'_in_insertUnit_res
+  · simp only [Array.push_toList, List.mem_append, List.mem_singleton] at l'_in_insertUnit_res
     exact Or.symm l'_in_insertUnit_res
 
 theorem mem_insertUnit_fold_units {n : Nat} (units : Array (Literal (PosFin n))) (assignments : Array Assignment)
     (foundContradiction : Bool) (l : CNF.Clause (PosFin n)) :
     let insertUnit_fold_res := List.foldl insertUnit (units, assignments, foundContradiction) l
-    ∀ l' : Literal (PosFin n), l' ∈ insertUnit_fold_res.1.data → l' ∈ l ∨ l' ∈ units.data := by
-  have hb (l' : Literal (PosFin n)) : l' ∈ (units, assignments, foundContradiction).1.data → l' ∈ l ∨ l' ∈ units.data := by
+    ∀ l' : Literal (PosFin n), l' ∈ insertUnit_fold_res.1.toList → l' ∈ l ∨ l' ∈ units.toList := by
+  have hb (l' : Literal (PosFin n)) : l' ∈ (units, assignments, foundContradiction).1.toList → l' ∈ l ∨ l' ∈ units.toList := by
     intro h
     exact Or.inr h
   have hl (acc : Array (Literal (PosFin n)) × Array Assignment × Bool)
-    (h : ∀ l' : Literal (PosFin n), l' ∈ acc.1.data → l' ∈ l ∨ l' ∈ units.data) (l'' : Literal (PosFin n))
-    (l''_in_l : l'' ∈ l) : ∀ l' : Literal (PosFin n), l' ∈ (insertUnit acc l'').1.data → l' ∈ l ∨ l' ∈ units.data := by
+    (h : ∀ l' : Literal (PosFin n), l' ∈ acc.1.toList → l' ∈ l ∨ l' ∈ units.toList) (l'' : Literal (PosFin n))
+    (l''_in_l : l'' ∈ l) : ∀ l' : Literal (PosFin n), l' ∈ (insertUnit acc l'').1.toList → l' ∈ l ∨ l' ∈ units.toList := by
     intro l' l'_in_res
     rcases mem_insertUnit_units  acc.1 acc.2.1 acc.2.2 l'' l' l'_in_res with l'_eq_l'' | l'_in_acc
     · rw [l'_eq_l'']
@@ -150,13 +149,13 @@ theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Re
     simp [p_entails_i_true] at p_entails_i_false
   · simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe]
     apply Exists.intro i
-    have ib_in_insertUnit_fold : (i, b) ∈ (List.foldl insertUnit (f.rupUnits, f.assignments, false) (negate c)).1.data := by
+    have ib_in_insertUnit_fold : (i, b) ∈ (List.foldl insertUnit (f.rupUnits, f.assignments, false) (negate c)).1.toList := by
       have i_rw : i = ⟨i.1, i.2⟩ := rfl
       rw [i_rw, ← h1]
       apply List.get_mem
     have ib_in_insertUnit_fold := mem_insertUnit_fold_units f.rupUnits f.assignments false (negate c) (i, b) ib_in_insertUnit_fold
     simp only [negate, Literal.negate, List.mem_map, Prod.mk.injEq, Prod.exists, Bool.exists_bool,
-      Bool.not_false, Bool.not_true, f_readyForRupAdd.1, Array.data_toArray, List.find?, List.not_mem_nil, or_false]
+      Bool.not_false, Bool.not_true, f_readyForRupAdd.1, Array.toList_toArray, List.find?, List.not_mem_nil, or_false]
       at ib_in_insertUnit_fold
     rw [hboth] at h2
     rcases ib_in_insertUnit_fold with ⟨i', ⟨i_false_in_c, i'_eq_i, b_eq_true⟩ | ⟨i_true_in_c, i'_eq_i, b_eq_false⟩⟩
@@ -196,11 +195,11 @@ theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Re
         exact h3 (has_both b)
       · simp at h2
   · exfalso
-    have i_true_in_insertUnit_fold : (i, true) ∈ (List.foldl insertUnit (f.rupUnits, f.assignments, false) (negate c)).1.data := by
+    have i_true_in_insertUnit_fold : (i, true) ∈ (List.foldl insertUnit (f.rupUnits, f.assignments, false) (negate c)).1.toList := by
       have i_rw : i = ⟨i.1, i.2⟩ := rfl
       rw [i_rw, ← h1]
       apply List.get_mem
-    have i_false_in_insertUnit_fold : (i, false) ∈ (List.foldl insertUnit (f.rupUnits, f.assignments, false) (negate c)).1.data := by
+    have i_false_in_insertUnit_fold : (i, false) ∈ (List.foldl insertUnit (f.rupUnits, f.assignments, false) (negate c)).1.toList := by
       have i_rw : i = ⟨i.1, i.2⟩ := rfl
       rw [i_rw, ← h2]
       apply List.get_mem
@@ -210,7 +209,7 @@ theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Re
     have i_false_in_insertUnit_fold :=
       mem_insertUnit_fold_units #[] f.assignments false (c.clause.map Literal.negate) (i, false) i_false_in_insertUnit_fold
     simp only [Literal.negate, List.mem_map, Prod.mk.injEq, Bool.not_eq_true', Prod.exists,
-      exists_eq_right_right, exists_eq_right, Array.data_toArray, List.find?, List.not_mem_nil, or_false,
+      exists_eq_right_right, exists_eq_right, Array.toList_toArray, List.find?, List.not_mem_nil, or_false,
       Bool.not_eq_false'] at i_true_in_insertUnit_fold i_false_in_insertUnit_fold
     have c_not_tautology := Clause.not_tautology c (i, true)
     simp only [Clause.toList, (· ⊨ ·)] at c_not_tautology
@@ -240,18 +239,18 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
   apply Exists.intro hsize
   intro i b hb p hp
   simp only [(· ⊨ ·), Clause.eval] at hp
-  simp only [toList, Array.toList_eq, List.append_assoc, List.any_eq_true, Prod.exists,
+  simp only [toList, List.append_assoc, List.any_eq_true, Prod.exists,
     Bool.exists_bool, Bool.decide_coe, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq,
     exists_eq_right, List.mem_map] at hp
   have pf : p ⊨ f := by
     simp only [(· ⊨ ·), Clause.eval]
-    simp only [toList, Array.toList_eq, List.append_assoc, List.any_eq_true, Prod.exists, Bool.exists_bool,
+    simp only [toList, List.append_assoc, List.any_eq_true, Prod.exists, Bool.exists_bool,
       Bool.decide_coe, List.all_eq_true, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right, List.mem_map]
     intro c cf
     rcases cf with cf | cf | cf
     · specialize hp c (Or.inl cf)
       exact hp
-    · simp only [f_readyForRupAdd.1, Array.data_toArray, List.find?, List.not_mem_nil, false_and, or_self, exists_false] at cf
+    · simp only [f_readyForRupAdd.1, Array.toList_toArray, List.find?, List.not_mem_nil, false_and, or_self, exists_false] at cf
     · specialize hp c <| (Or.inr ∘ Or.inr) cf
       exact hp
   rcases h ⟨i.1, i.2.2⟩ with ⟨h1, h2⟩ | ⟨j, b', i_gt_zero, h1, h2, h3, h4⟩ | ⟨j1, j2, i_gt_zero, h1, h2, _, _, _⟩
@@ -264,8 +263,8 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
       have j_unit_def : j_unit = unit (insertRupUnits f units).1.rupUnits[j] := rfl
       have j_unit_in_insertRupUnits_res :
         ∃ i : PosFin n,
-          (i, false) ∈ (insertRupUnits f units).1.rupUnits.data ∧ unit (i, false) = j_unit ∨
-          (i, true) ∈ (insertRupUnits f units).1.rupUnits.data ∧ unit (i, true) = j_unit := by
+          (i, false) ∈ (insertRupUnits f units).1.rupUnits.toList ∧ unit (i, false) = j_unit ∨
+          (i, true) ∈ (insertRupUnits f units).1.rupUnits.toList ∧ unit (i, true) = j_unit := by
         apply Exists.intro i
         rw [j_unit_def, h1]
         by_cases hb' : b'
@@ -278,7 +277,7 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
               simp only [Prod.mk.injEq, and_true]
               rfl
             rw [← h1]
-            apply Array.getElem_mem_data
+            apply Array.getElem_mem_toList
           · rfl
         · simp only [Bool.not_eq_true] at hb'
           rw [hb']
@@ -290,7 +289,7 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
               simp only [Prod.mk.injEq, and_true]
               rfl
             rw [← h1]
-            apply Array.getElem_mem_data
+            apply Array.getElem_mem_toList
           · rfl
       specialize hp j_unit ((Or.inr ∘ Or.inl) j_unit_in_insertRupUnits_res)
       simp only [List.any_eq_true, Prod.exists, Bool.exists_bool, Bool.decide_coe, Fin.getElem_fin, List.find?, j_unit] at hp
@@ -314,8 +313,8 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
     have j1_unit_def : j1_unit = unit (insertRupUnits f units).1.rupUnits[j1] := rfl
     have j1_unit_in_insertRupUnits_res :
       ∃ i : PosFin n,
-        (i, false) ∈ (insertRupUnits f units).1.rupUnits.data ∧ unit (i, false) = j1_unit ∨
-        (i, true) ∈ (insertRupUnits f units).1.rupUnits.data ∧ unit (i, true) = j1_unit := by
+        (i, false) ∈ (insertRupUnits f units).1.rupUnits.toList ∧ unit (i, false) = j1_unit ∨
+        (i, true) ∈ (insertRupUnits f units).1.rupUnits.toList ∧ unit (i, true) = j1_unit := by
       apply Exists.intro i ∘ Or.inr
       rw [j1_unit_def, h1]
       constructor
@@ -324,14 +323,14 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
           simp only [Prod.mk.injEq, and_true]
           rfl
         rw [← h1]
-        apply Array.getElem_mem_data
+        apply Array.getElem_mem_toList
       · rfl
     let j2_unit := unit (insertRupUnits f units).1.rupUnits[j2]
     have j2_unit_def : j2_unit = unit (insertRupUnits f units).1.rupUnits[j2] := rfl
     have j2_unit_in_insertRupUnits_res :
       ∃ i : PosFin n,
-        (i, false) ∈ (insertRupUnits f units).1.rupUnits.data ∧ unit (i, false) = j2_unit ∨
-        (i, true) ∈ (insertRupUnits f units).1.rupUnits.data ∧ unit (i, true) = j2_unit := by
+        (i, false) ∈ (insertRupUnits f units).1.rupUnits.toList ∧ unit (i, false) = j2_unit ∨
+        (i, true) ∈ (insertRupUnits f units).1.rupUnits.toList ∧ unit (i, true) = j2_unit := by
       apply Exists.intro i ∘ Or.inl
       rw [j2_unit_def, h2]
       constructor
@@ -340,7 +339,7 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
           simp only [Prod.mk.injEq, and_true]
           rfl
         rw [← h2]
-        apply Array.getElem_mem_data
+        apply Array.getElem_mem_toList
       · rfl
     have hp1 := hp j1_unit ((Or.inr ∘ Or.inl) j1_unit_in_insertRupUnits_res)
     have hp2 := hp j2_unit ((Or.inr ∘ Or.inl) j2_unit_in_insertRupUnits_res)
@@ -543,9 +542,9 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
 theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array Assignment) :
     (reduce c assignment = reducedToEmpty → Incompatible (PosFin n) c assignment) ∧
     (∀ l : Literal (PosFin n), reduce c assignment = reducedToUnit l → ∀ (p : (PosFin n) → Bool), p ⊨ assignment → p ⊨ c → p ⊨ l) := by
-  let c_arr := Array.mk c.clause
-  have c_clause_rw : c.clause = c_arr.data := rfl
-  rw [reduce, c_clause_rw, ← Array.foldl_eq_foldl_data]
+  let c_arr := c.clause.toArray
+  have c_clause_rw : c.clause = c_arr.toList := by simp [c_arr]
+  rw [reduce, c_clause_rw, ← Array.foldl_eq_foldl_toList]
   let motive := ReducePostconditionInductionMotive c_arr assignment
   have h_base : motive 0 reducedToEmpty := by
     have : ∀ (a : PosFin n) (b : Bool), (reducedToEmpty = reducedToUnit (a, b)) = False := by intros; simp
@@ -571,7 +570,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         rw [c_clause_rw] at pc1
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, false) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-          rw [← Array.getElem_fin_eq_data_get] at hidx
+          simp only [List.get_eq_getElem] at hidx
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2
@@ -581,7 +580,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
         rw [c_clause_rw] at pc1
         have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, true) := by
           rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-          rw [← Array.getElem_fin_eq_data_get] at hidx
+          simp only [List.get_eq_getElem] at hidx
           exact Exists.intro idx hidx
         rcases idx_exists with ⟨idx, hidx⟩
         specialize h1 idx idx.2
@@ -596,7 +595,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
       rw [c_clause_rw] at pc1
       have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, false) := by
         rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-        rw [← Array.getElem_fin_eq_data_get] at hidx
+        simp only [List.get_eq_getElem] at hidx
         exact Exists.intro idx hidx
       rcases idx_exists with ⟨idx, hidx⟩
       apply Exists.intro idx ∘ And.intro idx.2
@@ -607,7 +606,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
       rw [c_clause_rw] at pc1
       have idx_exists : ∃ idx : Fin c_arr.size, c_arr[idx] = (i, true) := by
         rcases List.get_of_mem pc1 with ⟨idx, hidx⟩
-        rw [← Array.getElem_fin_eq_data_get] at hidx
+        simp only [List.get_eq_getElem] at hidx
         exact Exists.intro idx hidx
       rcases idx_exists with ⟨idx, hidx⟩
       apply Exists.intro idx ∘ And.intro idx.2
@@ -638,14 +637,14 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
     split
     · next c hc =>
       have c_in_f : c ∈ toList f := by
-        simp only [toList, Array.toList_eq, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
+        simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         apply Or.inl
         simp only [getElem?, decidableGetElem?] at hc
         split at hc
         · simp only [Option.some.injEq] at hc
           rw [← hc]
-          apply Array.getElem_mem_data
+          apply Array.getElem_mem_toList
         · simp at hc
       split
       · next heq =>
@@ -681,7 +680,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
           by_cases l.1 = i.1
           · next l_eq_i =>
             simp only [getElem!, Array.size_modify, i_in_bounds, ↓ reduceDIte,
-              Array.get_eq_getElem, l_eq_i, Array.getElem_modify_self i_in_bounds (addAssignment b), decidableGetElem?]
+              Array.get_eq_getElem, l_eq_i, Array.getElem_modify_self (addAssignment b), decidableGetElem?]
             simp only [getElem!, i_in_bounds, dite_true, Array.get_eq_getElem, decidableGetElem?] at pacc
             by_cases pi : p i
             · simp only [pi, decide_False]
@@ -705,7 +704,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
                 exact pacc
           · next l_ne_i =>
             simp only [getElem!, Array.size_modify, i_in_bounds,
-              Array.getElem_modify_of_ne i_in_bounds _ l_ne_i, dite_true,
+              Array.getElem_modify_of_ne l_ne_i, dite_true,
               Array.get_eq_getElem, decidableGetElem?]
             simp only [getElem!, i_in_bounds, dite_true, decidableGetElem?] at pacc
             exact pacc
@@ -745,7 +744,7 @@ theorem sat_of_confirmRupHint_insertRup_fold {n : Nat} (f : DefaultFormula n)
       not_imp] at fc_unsat
     rcases fc_unsat with ⟨unsat_c, unsat_c_in_fc, p_unsat_c⟩
     have unsat_c_in_fc := mem_of_insertRupUnits f (negate c) unsat_c unsat_c_in_fc
-    simp only [Array.toList_eq, List.mem_map, Prod.exists, Bool.exists_bool] at unsat_c_in_fc
+    simp only [List.mem_map, Prod.exists, Bool.exists_bool] at unsat_c_in_fc
     rcases unsat_c_in_fc with ⟨v, ⟨v_in_neg_c, unsat_c_eq⟩ | ⟨v_in_neg_c, unsat_c_eq⟩⟩ | unsat_c_in_f
     · simp only [negate_eq, List.mem_map, Prod.exists, Bool.exists_bool] at v_in_neg_c
       rcases v_in_neg_c with ⟨v', ⟨_, v'_eq_v⟩ | ⟨v'_in_c, v'_eq_v⟩⟩

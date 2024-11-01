@@ -13,20 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_Lean_Grind_Config_eager___default;
 static lean_object* l_Lean_Grind_instBEqConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_instBEqConfig;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_18____boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_instInhabitedConfig;
 LEAN_EXPORT uint8_t l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_18_(uint8_t, uint8_t);
-static uint8_t _init_l_Lean_Grind_Config_eager___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
 static uint8_t _init_l_Lean_Grind_instInhabitedConfig() {
 _start:
 {
@@ -97,7 +88,6 @@ _G_initialized = true;
 res = initialize_Init_Tactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Grind_Config_eager___default = _init_l_Lean_Grind_Config_eager___default();
 l_Lean_Grind_instInhabitedConfig = _init_l_Lean_Grind_instInhabitedConfig();
 l_Lean_Grind_instBEqConfig___closed__1 = _init_l_Lean_Grind_instBEqConfig___closed__1();
 lean_mark_persistent(l_Lean_Grind_instBEqConfig___closed__1);

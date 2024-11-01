@@ -8,4 +8,5 @@ Tactic is run (ideally only twice, in most general context)
 Tactic is run (ideally only twice, in most general context)
 n : Nat
 ⊢ n < n.succ
-n m : Nat ⊢ n < n.succ
+n m : Nat
+⊢ n < n.succ

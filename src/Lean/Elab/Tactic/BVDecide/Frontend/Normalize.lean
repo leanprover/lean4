@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.AC.Main
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.BVDecide.Frontend.Attr
@@ -27,18 +28,6 @@ namespace Frontend.Normalize
 open Lean.Meta
 open Std.Tactic.BVDecide.Normalize
 
-/--
-The bitblaster for multiplication introduces symbolic branches over the right hand side.
-If we have an expression of the form `c * x` where `c` is constant we should change it to `x * c`
-such that these symbolic branches get constant folded by the AIG framework.
--/
-builtin_simproc [bv_normalize] mulConst ((_ : BitVec _) * (_ : BitVec _)) := fun e => do
-  let_expr HMul.hMul _ _ _ _ lhs rhs := e | return .continue
-  let some ⟨width, _⟩ ← Lean.Meta.getBitVecValue? lhs | return .continue
-  let new ← mkAppM ``HMul.hMul #[rhs, lhs]
-  let proof := mkApp3 (mkConst ``BitVec.mul_comm) (toExpr width) lhs rhs
-  return .done { expr := new, proof? := some proof }
-
 builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => do
   let_expr Eq _ lhs rhs := e | return .continue
   match_expr rhs with
@@ -49,42 +38,191 @@ builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => d
     let proof := mkApp2 (mkConst ``Bool.eq_to_beq) lhs rhs
     return .done { expr := new, proof? := some proof }
 
-structure Result where
-  goal : Option MVarId := none
-  stats : Simp.Stats := {}
+builtin_simproc [bv_normalize] andOnes ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
+  let some ⟨w, rhsValue⟩ ← getBitVecValue? rhs | return .continue
+  if rhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.and_ones) (toExpr w) lhs
+    return .visit { expr := lhs, proof? := some proof }
+  else
+    return .continue
 
-def bvNormalize (g : MVarId) : MetaM Result := do
+builtin_simproc [bv_normalize] onesAnd ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
+  let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
+  if lhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.ones_and) (toExpr w) rhs
+    return .visit { expr := rhs, proof? := some proof }
+  else
+    return .continue
+
+builtin_simproc [bv_normalize] maxUlt (BitVec.ult (_ : BitVec _) (_ : BitVec _)) := fun e => do
+  let_expr BitVec.ult _ lhs rhs := e | return .continue
+  let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
+  if lhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.max_ult') (toExpr w) rhs
+    return .visit { expr := toExpr Bool.false, proof? := some proof }
+  else
+    return .continue
+
+-- A specialised version of BitVec.neg_eq_not_add so it doesn't trigger on -constant
+builtin_simproc [bv_normalize] neg_eq_not_add (-(_ : BitVec _)) := fun e => do
+  let_expr Neg.neg typ _ val := e | return .continue
+  let_expr BitVec widthExpr := typ | return .continue
+  let some w ← getNatValue? widthExpr | return .continue
+  match ← getBitVecValue? val with
+  | some _ => return .continue
+  | none =>
+    let proof := mkApp2 (mkConst ``BitVec.neg_eq_not_add) (toExpr w) val
+    let expr ← mkAppM ``HAdd.hAdd #[← mkAppM ``Complement.complement #[val], (toExpr 1#w)]
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_add_const ((_ : BitVec _) + ((_ : BitVec _) + (_ : BitVec _))) :=
+  fun e => do
+    let_expr HAdd.hAdd _ _ _ _ exp1 rhs := e | return .continue
+    let_expr HAdd.hAdd _ _ _ _ exp2 exp3 := rhs | return .continue
+    let some ⟨w, exp1Val⟩ ←  getBitVecValue? exp1 | return .continue
+    let proofBuilder thm := mkApp4 (mkConst thm) (toExpr w) exp1 exp2 exp3
+    match ← getBitVecValue? exp2 with
+    | some ⟨w', exp2Val⟩ =>
+      if h : w = w' then
+        let newLhs := exp1Val + h ▸ exp2Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp3]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_left
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+    | none =>
+      let some ⟨w', exp3Val⟩ ← getBitVecValue? exp3 | return .continue
+      if h : w = w' then
+        let newLhs := exp1Val + h ▸ exp3Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp2]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_right
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+
+builtin_simproc [bv_normalize] bv_add_const' (((_ : BitVec _) + (_ : BitVec _)) + (_ : BitVec _)) :=
+  fun e => do
+    let_expr HAdd.hAdd _ _ _ _ lhs exp3 := e | return .continue
+    let_expr HAdd.hAdd _ _ _ _ exp1 exp2 := lhs | return .continue
+    let some ⟨w, exp3Val⟩ ←  getBitVecValue? exp3 | return .continue
+    let proofBuilder thm := mkApp4 (mkConst thm) (toExpr w) exp1 exp2 exp3
+    match ← getBitVecValue? exp1 with
+    | some ⟨w', exp1Val⟩ =>
+      if h : w = w' then
+        let newLhs := exp3Val + h ▸ exp1Val
+        -- TODO
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp2]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_left'
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+    | none =>
+      let some ⟨w', exp2Val⟩ ← getBitVecValue? exp2 | return .continue
+      if h : w = w' then
+        let newLhs := exp3Val + h ▸ exp2Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp1]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_right'
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+
+/--
+A pass in the normalization pipeline. Takes the current goal and produces a refined one or closes
+the goal fully, indicated by returning `none`.
+-/
+abbrev Pass := MVarId → MetaM (Option MVarId)
+
+namespace Pass
+
+/--
+Repeatedly run a list of `Pass` until they either close the goal or an iteration doesn't change
+the goal anymore.
+-/
+partial def fixpointPipeline (passes : List Pass) (goal : MVarId) : MetaM (Option MVarId) := do
+  let runPass (goal? : Option MVarId) (pass : Pass) : MetaM (Option MVarId) := do
+    let some goal := goal? | return none
+    pass goal
+
+  let some newGoal := ← passes.foldlM (init := some goal) runPass | return none
+  if goal != newGoal then
+    trace[Meta.Tactic.bv] m!"Rerunning pipeline on:\n{newGoal}"
+    fixpointPipeline passes newGoal
+  else
+    trace[Meta.Tactic.bv] "Pipeline reached a fixpoint"
+    return newGoal
+
+/--
+Responsible for applying the Bitwuzla style rewrite rules.
+-/
+def rewriteRulesPass : Pass := fun goal => do
+  let bvThms ← bvNormalizeExt.getTheorems
+  let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
+  let sevalThms ← getSEvalTheorems
+  let sevalSimprocs ← Simp.getSEvalSimprocs
+
+  let simpCtx : Simp.Context := {
+    config := { failIfUnchanged := false, zetaDelta := true }
+    simpTheorems := #[bvThms, sevalThms]
+    congrTheorems := (← getSimpCongrTheorems)
+  }
+
+  let hyps ← goal.getNondepPropHyps
+  let ⟨result?, _⟩ ← simpGoal goal
+    (ctx := simpCtx)
+    (simprocs := #[bvSimprocs, sevalSimprocs])
+    (fvarIdsToSimp := hyps)
+  let some (_, newGoal) := result? | return none
+  return newGoal
+
+/--
+Normalize with respect to Associativity and Commutativity.
+-/
+def acNormalizePass : Pass := fun goal => do
+  let mut newGoal := goal
+  for hyp in (← goal.getNondepPropHyps) do
+    let result ← Lean.Meta.AC.acNfHypMeta newGoal hyp
+
+    if let .some nextGoal := result then
+      newGoal := nextGoal
+    else
+      return none
+
+  return newGoal
+
+/--
+The normalization passes used by `bv_normalize` and thus `bv_decide`.
+-/
+def defaultPipeline : List Pass := [rewriteRulesPass]
+
+def passPipeline : MetaM (List Pass) := do
+  let opts ← getOptions
+
+  let mut passPipeline := defaultPipeline
+
+  if bv.ac_nf.get opts then
+    passPipeline := passPipeline ++ [acNormalizePass]
+
+  return passPipeline
+
+end Pass
+
+def bvNormalize (g : MVarId) : MetaM (Option MVarId) := do
   withTraceNode `bv (fun _ => return "Normalizing goal") do
     -- Contradiction proof
-    let some g ← g.falseOrByContra | return {}
-
-    -- Normalization by simp
-    let bvThms ← bvNormalizeExt.getTheorems
-    let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
-    let sevalThms ← getSEvalTheorems
-    let sevalSimprocs ← Simp.getSEvalSimprocs
-
-    let simpCtx : Simp.Context := {
-      simpTheorems := #[bvThms, sevalThms]
-      congrTheorems := (← getSimpCongrTheorems)
-    }
-
-    let hyps ← g.getNondepPropHyps
-    let ⟨result?, stats⟩ ← simpGoal g
-      (ctx := simpCtx)
-      (simprocs := #[bvSimprocs, sevalSimprocs])
-      (fvarIdsToSimp := hyps)
-    let some (_, g) := result? | return ⟨none, stats⟩
-    return ⟨some g, stats⟩
+    let some g ← g.falseOrByContra | return none
+    trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
+    Pass.fixpointPipeline (← Pass.passPipeline) g
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun
   | `(tactic| bv_normalize) => do
-    liftMetaFinishingTactic fun g => do
-      discard <| bvNormalize g
+    let g ← getMainGoal
+    match ← bvNormalize g with
+    | some newGoal => setGoals [newGoal]
+    | none => setGoals []
   | _ => throwUnsupportedSyntax
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide
-
-

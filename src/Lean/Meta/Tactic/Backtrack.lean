@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2023 Scott Morrison. All rights reserved.
+Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.Data.List.BasicAux
@@ -167,7 +167,7 @@ private partial def processIndependentGoals (orig : List MVarId) (goals remainin
     -- and the new subgoals generated from goals on which it is successful.
     let (failed, newSubgoals') ← tryAllM igs fun g =>
       run cfg trace next orig cfg.maxDepth [g] []
-    let newSubgoals := newSubgoals'.join
+    let newSubgoals := newSubgoals'.flatten
     withTraceNode trace
       (fun _ => return m!"failed: {← ppMVarIds failed}, new: {← ppMVarIds newSubgoals}") do
     -- Update the list of goals with respect to which we need to check independence.

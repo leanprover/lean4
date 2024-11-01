@@ -255,10 +255,6 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
     (stx.isOfKind ``Lean.Parser.Term.matchAlt && pos == 1) ||
     (stx.isOfKind ``Lean.Parser.Tactic.inductionAltLHS && pos == 2))
 
-/-- `#guard_msgs in cmd` itself runs linters in `cmd` (via `elabCommandTopLevel`), so do not run them again. -/
-builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
-    stack.any fun (stx, _) => stx.isOfKind ``Lean.guardMsgsCmd)
-
 /-- Get the current list of `IgnoreFunction`s. -/
 def getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction) := do
   return (unusedVariablesIgnoreFnsExt.getState (← getEnv)).2
@@ -447,7 +443,10 @@ def unusedVariables : Linter where
     let fvarAliases : Std.HashMap FVarId FVarId := s.fvarAliases.fold (init := {}) fun m id baseId =>
       m.insert id (followAliases s.fvarAliases baseId)
 
+    let getCanonVar (id : FVarId) : FVarId := fvarAliases.getD id id
+
     -- Collect all non-alias fvars corresponding to `fvarUses` by resolving aliases in the list.
+    -- Unlike `s.fvarUses`, `fvarUsesRef` is guaranteed to contain no aliases.
     let fvarUsesRef ← IO.mkRef <| fvarAliases.fold (init := s.fvarUses) fun fvarUses id baseId =>
       if fvarUses.contains id then fvarUses.insert baseId else fvarUses
 
@@ -461,7 +460,7 @@ def unusedVariables : Linter where
       let fvarUses ← fvarUsesRef.get
       -- If any of the `fvar`s corresponding to this declaration is (an alias of) a variable in
       -- `fvarUses`, then it is used
-      if aliases.any fun id => fvarUses.contains (fvarAliases.getD id id) then continue
+      if aliases.any fun id => fvarUses.contains (getCanonVar id) then continue
       -- If this is a global declaration then it is (potentially) used after the command
       if s.constDecls.contains range then continue
 
@@ -493,10 +492,12 @@ def unusedVariables : Linter where
       if !initializedMVars then
         -- collect additional `fvarUses` from tactic assignments
         visitAssignments (← IO.mkRef {}) fvarUsesRef s.assignments
+        -- Resolve potential aliases again to preserve `fvarUsesRef` invariant
+        fvarUsesRef.modify fun fvarUses => fvarUses.fold (·.insert <| getCanonVar ·) {}
         initializedMVars := true
         let fvarUses ← fvarUsesRef.get
         -- Redo the initial check because `fvarUses` could be bigger now
-        if aliases.any fun id => fvarUses.contains (fvarAliases.getD id id) then continue
+        if aliases.any fun id => fvarUses.contains (getCanonVar id) then continue
 
       -- If we made it this far then the variable is unused and not ignored
       unused := unused.push (declStx, userName)

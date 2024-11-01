@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymm_declRange__1___closed__5;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymm___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate__1___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__1___closed__4;
@@ -71,6 +70,7 @@ static lean_object* l_Lean_Elab_Tactic_evalSymm___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__1___closed__2;
+lean_object* lean_array_mk(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymmSaturate_declRange__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSymm_declRange__1___closed__4;
@@ -338,8 +338,8 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSymm___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }

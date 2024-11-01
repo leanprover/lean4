@@ -16,26 +16,20 @@ namespace Std.Tactic.BVDecide
 
 inductive Gate
   | and
-  | or
   | xor
   | beq
-  | imp
 
 namespace Gate
 
 def toString : Gate → String
   | and => "&&"
-  | or  => "||"
   | xor => "^^"
   | beq => "=="
-  | imp => "→"
 
 def eval : Gate → Bool → Bool → Bool
   | and => (· && ·)
-  | or => (· || ·)
-  | xor => _root_.xor
+  | xor => (· ^^ ·)
   | beq => (· == ·)
-  | imp => (!· || ·)
 
 end Gate
 

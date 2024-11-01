@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Expr
-// Imports: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
+// Imports: Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Var Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -80,7 +80,7 @@ return x_20;
 }
 case 3:
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -91,22 +91,19 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 x_21 = lean_ctor_get(x_2, 0);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_2, 1);
 lean_inc(x_22);
-x_23 = lean_ctor_get(x_2, 2);
+x_23 = lean_ctor_get(x_2, 3);
 lean_inc(x_23);
-x_24 = lean_ctor_get(x_2, 3);
-lean_inc(x_24);
 lean_dec(x_2);
-x_25 = lean_apply_4(x_11, x_21, x_22, x_23, x_24);
-return x_25;
+x_24 = lean_apply_4(x_11, x_1, x_21, x_22, x_23);
+return x_24;
 }
 case 4:
 {
-lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -117,19 +114,19 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_26 = lean_ctor_get(x_2, 1);
-lean_inc(x_26);
-x_27 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
-x_28 = lean_ctor_get(x_2, 2);
-lean_inc(x_28);
+x_25 = lean_ctor_get(x_2, 1);
+lean_inc(x_25);
+x_26 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
+x_27 = lean_ctor_get(x_2, 2);
+lean_inc(x_27);
 lean_dec(x_2);
-x_29 = lean_box(x_27);
-x_30 = lean_apply_4(x_7, x_1, x_26, x_29, x_28);
-return x_30;
+x_28 = lean_box(x_26);
+x_29 = lean_apply_4(x_7, x_1, x_25, x_28, x_27);
+return x_29;
 }
 case 5:
 {
-lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -140,17 +137,17 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_31 = lean_ctor_get(x_2, 1);
+x_30 = lean_ctor_get(x_2, 1);
+lean_inc(x_30);
+x_31 = lean_ctor_get(x_2, 2);
 lean_inc(x_31);
-x_32 = lean_ctor_get(x_2, 2);
-lean_inc(x_32);
 lean_dec(x_2);
-x_33 = lean_apply_3(x_8, x_1, x_31, x_32);
-return x_33;
+x_32 = lean_apply_3(x_8, x_1, x_30, x_31);
+return x_32;
 }
 case 6:
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
+lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -162,21 +159,21 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-x_34 = lean_ctor_get(x_2, 0);
+x_33 = lean_ctor_get(x_2, 0);
+lean_inc(x_33);
+x_34 = lean_ctor_get(x_2, 1);
 lean_inc(x_34);
-x_35 = lean_ctor_get(x_2, 1);
+x_35 = lean_ctor_get(x_2, 2);
 lean_inc(x_35);
-x_36 = lean_ctor_get(x_2, 2);
+x_36 = lean_ctor_get(x_2, 3);
 lean_inc(x_36);
-x_37 = lean_ctor_get(x_2, 3);
-lean_inc(x_37);
 lean_dec(x_2);
-x_38 = lean_apply_4(x_9, x_34, x_35, x_36, x_37);
-return x_38;
+x_37 = lean_apply_4(x_9, x_33, x_34, x_35, x_36);
+return x_37;
 }
 case 7:
 {
-lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -188,19 +185,19 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-x_39 = lean_ctor_get(x_2, 0);
+x_38 = lean_ctor_get(x_2, 0);
+lean_inc(x_38);
+x_39 = lean_ctor_get(x_2, 1);
 lean_inc(x_39);
-x_40 = lean_ctor_get(x_2, 1);
+x_40 = lean_ctor_get(x_2, 2);
 lean_inc(x_40);
-x_41 = lean_ctor_get(x_2, 2);
-lean_inc(x_41);
 lean_dec(x_2);
-x_42 = lean_apply_3(x_10, x_39, x_40, x_41);
-return x_42;
+x_41 = lean_apply_3(x_10, x_38, x_39, x_40);
+return x_41;
 }
 case 8:
 {
-lean_object* x_43; lean_object* x_44; lean_object* x_45; 
+lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -211,17 +208,17 @@ lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_43 = lean_ctor_get(x_2, 0);
+x_42 = lean_ctor_get(x_2, 0);
+lean_inc(x_42);
+x_43 = lean_ctor_get(x_2, 2);
 lean_inc(x_43);
-x_44 = lean_ctor_get(x_2, 2);
-lean_inc(x_44);
 lean_dec(x_2);
-x_45 = lean_apply_3(x_6, x_1, x_43, x_44);
-return x_45;
+x_44 = lean_apply_3(x_6, x_1, x_42, x_43);
+return x_44;
 }
 case 9:
 {
-lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
+lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 lean_dec(x_13);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -232,19 +229,19 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_46 = lean_ctor_get(x_2, 1);
+x_45 = lean_ctor_get(x_2, 1);
+lean_inc(x_45);
+x_46 = lean_ctor_get(x_2, 2);
 lean_inc(x_46);
-x_47 = lean_ctor_get(x_2, 2);
+x_47 = lean_ctor_get(x_2, 3);
 lean_inc(x_47);
-x_48 = lean_ctor_get(x_2, 3);
-lean_inc(x_48);
 lean_dec(x_2);
-x_49 = lean_apply_4(x_12, x_1, x_46, x_47, x_48);
-return x_49;
+x_48 = lean_apply_4(x_12, x_1, x_45, x_46, x_47);
+return x_48;
 }
 default: 
 {
-lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
+lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -255,15 +252,15 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_50 = lean_ctor_get(x_2, 1);
+x_49 = lean_ctor_get(x_2, 1);
+lean_inc(x_49);
+x_50 = lean_ctor_get(x_2, 2);
 lean_inc(x_50);
-x_51 = lean_ctor_get(x_2, 2);
+x_51 = lean_ctor_get(x_2, 3);
 lean_inc(x_51);
-x_52 = lean_ctor_get(x_2, 3);
-lean_inc(x_52);
 lean_dec(x_2);
-x_53 = lean_apply_4(x_13, x_1, x_50, x_51, x_52);
-return x_53;
+x_52 = lean_apply_4(x_13, x_1, x_49, x_50, x_51);
+return x_52;
 }
 }
 }
@@ -290,8 +287,10 @@ lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Opera
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_RotateLeft(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_RotateRight(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_SignExtend(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Expr(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Mul(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Udiv(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Umod(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Expr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Expr(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -339,10 +338,16 @@ lean_dec_ref(res);
 res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_SignExtend(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Expr(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Mul(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Mul(builtin, lean_io_mk_world());
+res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Udiv(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Lemmas_Operations_Umod(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

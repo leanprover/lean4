@@ -110,12 +110,12 @@ variable (a b : Nat)
 #check_simp (a + 1000) != (b +  400) ~> a + 600 != b
 #check_simp (a +  400) != (b + 1000) ~> a != b + 600
 
-/-! Alterate instance tests
+/-! Alternate instance tests
 
 These check that the simplification rules will matching
-offets still trigger even when the expression for the
+offsets still trigger even when the expression for the
 index is definition equal but not syntactically equal
-to the defualt instance.
+to the default instance.
 
 This can be relevant in Mathlib when rewriting using
 theorems involving algebraic hierarchy classes.

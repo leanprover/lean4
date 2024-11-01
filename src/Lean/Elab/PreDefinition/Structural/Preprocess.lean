@@ -17,7 +17,7 @@ private def shouldBetaReduce (e : Expr) (recFnNames : Array Name) : Bool :=
     false
 
 /--
-Preprocesses the expessions to improve the effectiveness of `elimRecursion`.
+Preprocesses the expressions to improve the effectiveness of `elimRecursion`.
 
 * Beta reduce terms where the recursive function occurs in the lambda term.
   Example:

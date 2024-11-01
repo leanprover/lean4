@@ -189,7 +189,7 @@ axiom F (a b : Nat) : f a ≤ f b ↔ a ≤ b
 #guard_msgs in
 example (a b : Nat) (h : a ≤ b) : f a ≤ f b := by apply?
 
-/-- info: Try this: exact L.join -/
+/-- info: Try this: exact L.flatten -/
 #guard_msgs in
 example (L : List (List Nat)) : List Nat := by apply? using L
 

@@ -6,7 +6,7 @@ inductive Term (α: Type): Type where
 def height (f: Term α): Nat :=
   let rec max_height (a: Array (Term α)) (i: Nat) (m: Nat): Nat :=
     if h: i < a.size then
-      -- The recusive call to height used to fail because of a too weak
+      -- The recursive call to height used to fail because of a too weak
       -- array_get_dec
       max_height a (i + 1) (max (height a[i]) m)
     else

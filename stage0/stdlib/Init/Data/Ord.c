@@ -80,7 +80,7 @@ LEAN_EXPORT lean_object* l_Ord_toBEq___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_swap(uint8_t);
 LEAN_EXPORT lean_object* l_instOrdOption(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_isLT___boxed(lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_compareOfLessAndBEq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdBool___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_lex_x27___elambda__1(lean_object*);
@@ -1854,8 +1854,8 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_box(0);
-x_5 = lean_array_to_list(lean_box(0), x_2);
-x_6 = lean_array_to_list(lean_box(0), x_3);
+x_5 = lean_array_to_list(x_2);
+x_6 = lean_array_to_list(x_3);
 lean_inc(x_1);
 x_7 = lean_alloc_closure((void*)(l_instDecidableRelLt___rarg___boxed), 3, 1);
 lean_closure_set(x_7, 0, x_1);

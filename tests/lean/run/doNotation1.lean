@@ -121,7 +121,8 @@ else
 
 /--
 info: first field is zero
-((), 0, 2)
+---
+info: ((), 0, 2)
 -/
 #guard_msgs in
 #eval tst7.run (0, 2)

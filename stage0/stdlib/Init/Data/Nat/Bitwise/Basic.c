@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Nat_shiftRight___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instAndOp;
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Nat_instXor___closed__1;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_bitwise___boxed(lean_object*, lean_object*, lean_object*);

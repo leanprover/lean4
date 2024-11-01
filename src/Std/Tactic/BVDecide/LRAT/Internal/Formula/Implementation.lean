@@ -45,7 +45,7 @@ can appear in the formula (hence why the parameter `n` is called `numVarsSucc` b
   semantics in an easily reversible manner.
 
 - The `ratUnits` field is empty except during the processing of RAT additions. This field serves an extremely similar role to `rupUnits` in that
-  it is used to temporarily store negated units during unit propogation. The primary difference between the `rupUnits` field and `ratUnits` field
+  it is used to temporarily store negated units during unit propagation. The primary difference between the `rupUnits` field and `ratUnits` field
   is that the `rupUnits` field is only updated twice for each RUP or RAT addition (once to add negated units and then once again to remove said
   negated units), the `ratUnits` field is updated zero times for each RUP addition and updated m times for each RAT addition where m is the number
   of negative hints in said RAT addition (i.e. the number of clauses in the formula containing the RAT addition's negated pivot literal).
@@ -54,7 +54,7 @@ can appear in the formula (hence why the parameter `n` is called `numVarsSucc` b
   (i.e. at all points in time except during a RUP or RAT addition), the `assignments` field must satisfy the `StrongAssignmentsInvariant` defined
   in Formula.Lemmas.lean. During RUP and RAT additions, the `assignments` field must satisfy the `AssignmentsInvariant` defined in Formula.Lemmas.lean.
   The reason that the `assignments` field is contained as an explicit part of the default formula (as opposed to simply being an Array that is passed
-  through the helper functions concerning unit propogation), is so that the (potentially large) Array does not need to repeatedly be allocated and
+  through the helper functions concerning unit propagation), is so that the (potentially large) Array does not need to repeatedly be allocated and
   deallocated. By having the `assignments` Array be a field of the default formula, it is easier to ensure that the Array is used linearly.
 -/
 @[ext] structure DefaultFormula (numVarsSucc : Nat) where
@@ -219,7 +219,7 @@ def performRupAdd {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (rupHin
     let (f, derivedLits, derivedEmpty, encounteredError) := performRupCheck f rupHints
     if encounteredError then
       (f, false)
-    else if not derivedEmpty then
+    else if !derivedEmpty then
       (f, false)
     else -- derivedEmpty is true and encounteredError is false
       let ⟨clauses, rupUnits, ratUnits, assignments⟩ := f
@@ -284,7 +284,7 @@ def performRatCheck {n : Nat} (f : DefaultFormula n) (negPivot : Literal (PosFin
           -- assignments should now be the same as it was before the performRupCheck call
           let f := clearRatUnits ⟨clauses, rupUnits, ratUnits, assignments⟩
           -- f should now be the same as it was before insertRatUnits
-          if encounteredError || not derivedEmpty then (f, false)
+          if encounteredError || !derivedEmpty then (f, false)
           else (f, true)
     | none => (⟨clauses, rupUnits, ratUnits, assignments⟩, false)
 
@@ -309,7 +309,7 @@ def performRatAdd {n : Nat} (f : DefaultFormula n) (c : DefaultClause n)
           if allChecksPassed then performRatCheck f (Literal.negate pivot) ratHint
           else (f, false)
         let (f, allChecksPassed) := ratHints.foldl fold_fn (f, true)
-        if not allChecksPassed then (f, false)
+        if !allChecksPassed then (f, false)
         else
           match f with
           | ⟨clauses, rupUnits, ratUnits, assignments⟩ =>

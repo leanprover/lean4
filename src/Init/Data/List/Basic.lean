@@ -29,9 +29,10 @@ The operations are organized as follow:
 * Lexicographic ordering: `lt`, `le`, and instances.
 * Head and tail operators: `head`, `head?`, `headD?`, `tail`, `tail?`, `tailD`.
 * Basic operations:
-  `map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and
+  `map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `bind`, `replicate`, and
   `reverse`.
 * Additional functions defined in terms of these: `leftpad`, `rightPad`, and `reduceOption`.
+* Operations using indexes: `mapIdx`.
 * List membership: `isEmpty`, `elem`, `contains`, `mem` (and the `∈` notation),
   and decidability for predicates quantifying over membership in a `List`.
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
@@ -43,7 +44,7 @@ The operations are organized as follow:
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
-* Minima and maxima: `minimum?` and `maximum?`.
+* Minima and maxima: `min?` and `max?`.
 * Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`,
   `removeAll`
   (currently these functions are mostly only used in meta code,
@@ -218,8 +219,8 @@ def get? : (as : List α) → (i : Nat) → Option α
 
 theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
   | [], [], _ => rfl
-  | a :: l₁, [], h => nomatch h 0
-  | [], a' :: l₂, h => nomatch h 0
+  | _ :: _, [], h => nomatch h 0
+  | [], _ :: _, h => nomatch h 0
   | a :: l₁, a' :: l₂, h => by
     have h0 : some a = some a' := h 0
     injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
@@ -368,7 +369,7 @@ def tailD (list fallback : List α) : List α :=
 /-! ## Basic `List` operations.
 
 We define the basic functional programming operations on `List`:
-`map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and `reverse`.
+`map`, `filter`, `filterMap`, `foldr`, `append`, `flatten`, `pure`, `bind`, `replicate`, and `reverse`.
 -/
 
 /-! ### map -/
@@ -542,41 +543,53 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
   simp [reverse, reverseAux]
   rw [← reverseAux_eq_append]
 
-/-! ### join -/
+/-! ### flatten -/
 
 /--
-`O(|join L|)`. `join L` concatenates all the lists in `L` into one list.
-* `join [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
+`O(|flatten L|)`. `join L` concatenates all the lists in `L` into one list.
+* `flatten [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
 -/
-def join : List (List α) → List α
+def flatten : List (List α) → List α
   | []      => []
-  | a :: as => a ++ join as
+  | a :: as => a ++ flatten as
 
-@[simp] theorem join_nil : List.join ([] : List (List α)) = [] := rfl
-@[simp] theorem join_cons : (l :: ls).join = l ++ ls.join := rfl
+@[simp] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
+@[simp] theorem flatten_cons : (l :: ls).flatten = l ++ ls.flatten := rfl
 
-/-! ### pure -/
+@[deprecated flatten (since := "2024-10-14"), inherit_doc flatten] abbrev join := @flatten
 
-/-- `pure x = [x]` is the `pure` operation of the list monad. -/
-@[inline] protected def pure {α : Type u} (a : α) : List α := [a]
+/-! ### singleton -/
 
-/-! ### bind -/
+/-- `singleton x = [x]`. -/
+@[inline] protected def singleton {α : Type u} (a : α) : List α := [a]
+
+set_option linter.missingDocs false in
+@[deprecated singleton (since := "2024-10-16")] protected abbrev pure := @singleton
+
+/-! ### flatMap -/
 
 /--
-`bind xs f` is the bind operation of the list monad. It applies `f` to each element of `xs`
+`flatMap xs f` applies `f` to each element of `xs`
 to get a list of lists, and then concatenates them all together.
 * `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
 -/
-@[inline] protected def bind {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := join (map b a)
+@[inline] def flatMap {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := flatten (map b a)
 
-@[simp] theorem bind_nil (f : α → List β) : List.bind [] f = [] := by simp [join, List.bind]
-@[simp] theorem bind_cons x xs (f : α → List β) :
-  List.bind (x :: xs) f = f x ++ List.bind xs f := by simp [join, List.bind]
+@[simp] theorem flatMap_nil (f : α → List β) : List.flatMap [] f = [] := by simp [flatten, List.flatMap]
+@[simp] theorem flatMap_cons x xs (f : α → List β) :
+  List.flatMap (x :: xs) f = f x ++ List.flatMap xs f := by simp [flatten, List.flatMap]
 
 set_option linter.missingDocs false in
-@[deprecated bind_nil (since := "2024-06-15")] abbrev nil_bind := @bind_nil
+@[deprecated flatMap (since := "2024-10-16")] abbrev bind := @flatMap
 set_option linter.missingDocs false in
-@[deprecated bind_cons (since := "2024-06-15")] abbrev cons_bind := @bind_cons
+@[deprecated flatMap_nil (since := "2024-10-16")] abbrev nil_flatMap := @flatMap_nil
+set_option linter.missingDocs false in
+@[deprecated flatMap_cons (since := "2024-10-16")] abbrev cons_flatMap := @flatMap_cons
+
+set_option linter.missingDocs false in
+@[deprecated flatMap_nil (since := "2024-06-15")] abbrev nil_bind := @flatMap_nil
+set_option linter.missingDocs false in
+@[deprecated flatMap_cons (since := "2024-06-15")] abbrev cons_bind := @flatMap_cons
 
 /-! ### replicate -/
 
@@ -1395,8 +1408,17 @@ def unzip : List (α × β) → List α × List β
 
 /-! ## Ranges and enumeration -/
 
+/-- Sum of a list.
+
+`List.sum [a, b, c] = a + (b + (c + 0))` -/
+def sum {α} [Add α] [Zero α] : List α → α :=
+  foldr (· + ·) 0
+
+@[simp] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
+@[simp] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
+
 /-- Sum of a list of natural numbers. -/
--- This is not in the `List` namespace as later `List.sum` will be defined polymorphically.
+-- We intend to subsequently deprecate this in favor of `List.sum`.
 protected def _root_.Nat.sum (l : List Nat) : Nat := l.foldr (·+·) 0
 
 @[simp] theorem _root_.Nat.sum_nil : Nat.sum ([] : List Nat) = 0 := rfl
@@ -1464,29 +1486,33 @@ def enum : List α → List (Nat × α) := enumFrom 0
 
 /-! ## Minima and maxima -/
 
-/-! ### minimum? -/
+/-! ### min? -/
 
 /--
 Returns the smallest element of the list, if it is not empty.
-* `[].minimum? = none`
-* `[4].minimum? = some 4`
-* `[1, 4, 2, 10, 6].minimum? = some 1`
+* `[].min? = none`
+* `[4].min? = some 4`
+* `[1, 4, 2, 10, 6].min? = some 1`
 -/
-def minimum? [Min α] : List α → Option α
+def min? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
-/-! ### maximum? -/
+@[inherit_doc min?, deprecated min? (since := "2024-09-29")] abbrev minimum? := @min?
+
+/-! ### max? -/
 
 /--
 Returns the largest element of the list, if it is not empty.
-* `[].maximum? = none`
-* `[4].maximum? = some 4`
-* `[1, 4, 2, 10, 6].maximum? = some 10`
+* `[].max? = none`
+* `[4].max? = some 4`
+* `[1, 4, 2, 10, 6].max? = some 10`
 -/
-def maximum? [Max α] : List α → Option α
+def max? [Max α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl max a
+
+@[inherit_doc max?, deprecated max? (since := "2024-09-29")] abbrev maximum? := @max?
 
 /-! ## Other list operations
 
@@ -1523,7 +1549,7 @@ def intersperse (sep : α) : List α → List α
 * `intercalate sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
 -/
 def intercalate (sep : List α) (xs : List (List α)) : List α :=
-  join (intersperse sep xs)
+  (intersperse sep xs).flatten
 
 /-! ### eraseDups -/
 
@@ -1588,6 +1614,14 @@ such that adjacent elements are related by `R`.
   | []    => []
   | a::as => loop as a [] []
 where
+  /--
+  The arguments of `groupBy.loop l ag g gs` represent the following:
+
+  - `l : List α` are the elements which we still need to group.
+  - `ag : α` is the previous element for which a comparison was performed.
+  - `g : List α` is the group currently being assembled, in **reverse order**.
+  - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
+  -/
   @[specialize] loop : List α → α → List α → List (List α) → List (List α)
   | a::as, ag, g, gs => match R ag a with
     | true  => loop as a (ag::g) gs

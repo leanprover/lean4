@@ -18,8 +18,10 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 /-!
 This module contains the verification of the `BitVec` expressions (`BVExpr`) bitblaster from
@@ -67,7 +69,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     simp [go, hidx, denote_blastVar]
   | zeroExtend v inner ih =>
     simp only [go, denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-      eval_zeroExtend, BitVec.getLsbD_zeroExtend, hidx, decide_True, Bool.true_and,
+      eval_zeroExtend, BitVec.getLsbD_setWidth, hidx, decide_True, Bool.true_and,
       Bool.and_iff_right_iff_imp, decide_eq_true_eq]
     apply BitVec.lt_of_getLsbD
   | append lhs rhs lih rih =>
@@ -93,9 +95,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [blastSignExtend_empty_eq_zeroExtend] at hgo
       · rw [← hgo]
         simp only [eval_signExtend]
-        rw [BitVec.signExtend_eq_not_zeroExtend_not_of_msb_false]
+        rw [BitVec.signExtend_eq_not_setWidth_not_of_msb_false]
         · simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-            BitVec.getLsbD_zeroExtend, hidx, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
+            BitVec.getLsbD_setWidth, hidx, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
             decide_eq_true_eq]
           apply BitVec.lt_of_getLsbD
         · subst heq
@@ -112,11 +114,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         · rw [BitVec.msb_eq_getLsbD_last]
           rw [ih]
       · dsimp only; omega
-  | extract hi lo inner ih =>
+  | @extract w start len inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
-      BitVec.getLsbD_extract]
-    have : idx ≤ hi - lo := by omega
-    simp only [this, decide_True, Bool.true_and]
+      BitVec.getLsbD_extractLsb', hidx, decide_True, Bool.true_and]
     split
     · next hsplit =>
       rw [ih]
@@ -185,6 +185,30 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     | mul =>
       simp only [go, eval_bin, BVBinOp.eval_mul]
       apply denote_blastMul
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
+    | udiv =>
+      simp only [go, eval_bin, BVBinOp.eval_udiv]
+      apply denote_blastUdiv
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
+    | umod =>
+      simp only [go, eval_bin, BVBinOp.eval_umod]
+      apply denote_blastUmod
       · intros
         dsimp only
         rw [go_denote_mem_prefix]

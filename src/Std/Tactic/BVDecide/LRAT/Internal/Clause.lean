@@ -5,6 +5,7 @@ Authors: Josh Clune
 -/
 prelude
 import Init.Data.List.Erase
+import Init.Data.Array.Lemmas
 import Std.Sat.CNF.Basic
 import Std.Tactic.BVDecide.LRAT.Internal.PosFin
 import Std.Tactic.BVDecide.LRAT.Internal.Assignment
@@ -167,7 +168,7 @@ Attempts to add the literal `(idx, b)` to clause `c`. Returns none if doing so w
 tautology.
 -/
 def insert (c : DefaultClause n) (l : Literal (PosFin n)) : Option (DefaultClause n) :=
-  if heq1 : c.clause.contains (l.1, not l.2) then
+  if heq1 : c.clause.contains (l.1, !l.2) then
     none -- Adding l would make c a tautology
   else if heq2 : c.clause.contains l then
     some c
@@ -222,7 +223,7 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
     ofArray arr = some c → toList c = Array.toList arr := by
   intro h
   simp only [ofArray] at h
-  rw [toList, Array.toList_eq]
+  rw [toList]
   let motive (idx : Nat) (acc : Option (DefaultClause n)) : Prop :=
     ∃ idx_le_arr_size : idx ≤ arr.size, ∀ c' : DefaultClause n, acc = some c' →
       ∃ hsize : c'.clause.length = arr.size - idx, ∀ i : Fin c'.clause.length,
@@ -292,13 +293,13 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
   next i l =>
   by_cases i_in_bounds : i < c.clause.length
   · specialize h ⟨i, i_in_bounds⟩
-    have i_in_bounds' : i < arr.data.length := by
+    have i_in_bounds' : i < arr.toList.length := by
       dsimp; omega
     rw [List.getElem?_eq_getElem i_in_bounds, List.getElem?_eq_getElem i_in_bounds']
     simp only [List.get_eq_getElem, Nat.zero_add] at h
-    rw [← Array.getElem_eq_data_getElem]
+    rw [← Array.getElem_eq_getElem_toList]
     simp [h]
-  · have arr_data_length_le_i : arr.data.length ≤ i := by
+  · have arr_data_length_le_i : arr.toList.length ≤ i := by
       dsimp; omega
     simp only [Nat.not_lt, ← List.getElem?_eq_none_iff] at i_in_bounds arr_data_length_le_i
     rw [i_in_bounds, arr_data_length_le_i]
@@ -352,7 +353,7 @@ def reduce_fold_fn (assignments : Array Assignment) (acc : ReduceResult (PosFin 
         else
           .reducedToEmpty
       | .neg =>
-        if not l.2 then
+        if !l.2 then
           .reducedToUnit l
         else
           .reducedToEmpty
@@ -366,7 +367,7 @@ def reduce_fold_fn (assignments : Array Assignment) (acc : ReduceResult (PosFin 
         else
           .reducedToUnit l'
       | .neg =>
-        if not l.2 then
+        if !l.2 then
           .reducedToNonunit -- Assignment fails to refute both l and l'
         else
           .reducedToUnit l'

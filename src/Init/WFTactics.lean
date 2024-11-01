@@ -20,7 +20,7 @@ macro "simp_wf" : tactic =>
 
 /--
 This tactic is used internally by lean before presenting the proof obligations from a well-founded
-definition to the user via `decreasing_by`. It is not necessary to use this tactic manuall.
+definition to the user via `decreasing_by`. It is not necessary to use this tactic manually.
 -/
 macro "clean_wf" : tactic =>
   `(tactic| simp

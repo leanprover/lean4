@@ -60,7 +60,7 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
       ""
   withRegisterJob s!"{self.name}:static{suffix}" do
   let mods ← self.modules.fetch
-  let oJobs ← mods.concatMapM fun mod =>
+  let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
   buildStaticLib libFile oJobs
@@ -80,10 +80,10 @@ protected def LeanLib.recBuildShared
 (self : LeanLib) : FetchM (BuildJob FilePath) := do
   withRegisterJob s!"{self.name}:shared" do
   let mods ← self.modules.fetch
-  let oJobs ← mods.concatMapM fun mod =>
+  let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM fun facet => fetch <| mod.facet facet.name
   let pkgs := mods.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
-  let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.shared.fetch))
+  let externJobs ← pkgs.flatMapM (·.externLibs.mapM (·.shared.fetch))
   buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.weakLinkArgs self.linkArgs
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/

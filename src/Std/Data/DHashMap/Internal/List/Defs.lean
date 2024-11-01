@@ -20,12 +20,9 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
-namespace Std.DHashMap.Internal.List
+open List (Pairwise)
 
-/-- Internal implementation detail of the hash map -/
-def Pairwise (P : α → α → Prop) : List α → Prop
-| [] => True
-| (x::xs) => (∀ y ∈ xs, P x y) ∧ Pairwise P xs
+namespace Std.DHashMap.Internal.List
 
 /-- Internal implementation detail of the hash map -/
 def keys : List ((a : α) × β a) → List α

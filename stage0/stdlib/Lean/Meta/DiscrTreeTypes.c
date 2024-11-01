@@ -48,14 +48,11 @@ static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_
 static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__22;
 static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__13;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
 static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__4;
 static lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_instBEqKey;
 static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__23;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__23;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__19;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__13;
@@ -85,7 +82,6 @@ static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__10
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__31;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__25;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__2;
 static lean_object* l_Lean_Meta_DiscrTree_instHashableKey___closed__1;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__32;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__9;
@@ -98,6 +94,7 @@ static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__32
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__4;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__17;
 uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_33_(lean_object*, lean_object*);
@@ -107,7 +104,6 @@ uint64_t l_Lean_Name_hash___override(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__15;
 static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__15;
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_instToExprKey___lambda__1___closed__9;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_355____closed__2;
 lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux(lean_object*);
@@ -1701,32 +1697,6 @@ x_1 = l_Lean_Meta_DiscrTree_instToExprKey___closed__4;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_DiscrTree_root___default___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_DiscrTree_root___default___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_DiscrTree_root___default___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Meta_DiscrTree_root___default___closed__2;
-return x_2;
-}
-}
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1902,10 +1872,6 @@ l_Lean_Meta_DiscrTree_instToExprKey___closed__4 = _init_l_Lean_Meta_DiscrTree_in
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instToExprKey___closed__4);
 l_Lean_Meta_DiscrTree_instToExprKey = _init_l_Lean_Meta_DiscrTree_instToExprKey();
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instToExprKey);
-l_Lean_Meta_DiscrTree_root___default___closed__1 = _init_l_Lean_Meta_DiscrTree_root___default___closed__1();
-lean_mark_persistent(l_Lean_Meta_DiscrTree_root___default___closed__1);
-l_Lean_Meta_DiscrTree_root___default___closed__2 = _init_l_Lean_Meta_DiscrTree_root___default___closed__2();
-lean_mark_persistent(l_Lean_Meta_DiscrTree_root___default___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

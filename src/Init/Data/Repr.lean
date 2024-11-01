@@ -7,7 +7,7 @@ prelude
 import Init.Data.Format.Basic
 import Init.Data.Int.Basic
 import Init.Data.Nat.Div
-import Init.Data.UInt.Basic
+import Init.Data.UInt.BasicAux
 import Init.Control.Id
 open Sum Subtype Nat
 
@@ -50,6 +50,12 @@ instance [Repr α] : Repr (id α) :=
 
 instance [Repr α] : Repr (Id α) :=
   inferInstanceAs (Repr α)
+
+/-
+This instance allows us to use `Empty` as a type parameter without causing instance synthesis to fail.
+-/
+instance : Repr Empty where
+  reprPrec := nofun
 
 instance : Repr Bool where
   reprPrec

@@ -125,7 +125,7 @@ variable [Decidable u]
 #check_simp (b ∧  b) ~> (b : Prop)
 #check_simp (b && b) ~> b
 
--- Cancelation
+-- Cancellation
 #check_simp (u ∧ ¬u)  ~> False
 #check_simp (¬u ∧ u)  ~> False
 #check_simp (b && ¬b) ~> false

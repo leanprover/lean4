@@ -97,11 +97,18 @@ Users should prefer `unfold` for unfolding definitions. -/
 syntax (name := delta) "delta" (ppSpace colGt ident)+ : conv
 
 /--
-* `unfold foo` unfolds all occurrences of `foo` in the target.
+* `unfold id` unfolds all occurrences of definition `id` in the target.
 * `unfold id1 id2 ...` is equivalent to `unfold id1; unfold id2; ...`.
-Like the `unfold` tactic, this uses equational lemmas for the chosen definition
-to rewrite the target. For recursive definitions,
-only one layer of unfolding is performed. -/
+
+Definitions can be either global or local definitions.
+
+For non-recursive global definitions, this tactic is identical to `delta`.
+For recursive global definitions, it uses the "unfolding lemma" `id.eq_def`,
+which is generated for each recursive definition, to unfold according to the recursive definition given by the user.
+Only one level of unfolding is performed, in contrast to `simp only [id]`, which unfolds definition `id` recursively.
+
+This is the `conv` version of the `unfold` tactic.
+-/
 syntax (name := unfold) "unfold" (ppSpace colGt ident)+ : conv
 
 /--

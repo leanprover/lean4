@@ -380,7 +380,7 @@ end choice
 @[deprecated] alias or_some := some_or
 
 /-- This will be renamed to `or_some` once the existing deprecated lemma is removed. -/
-@[simp] theorem or_some' {o : Option α} : o.or (some a) = o.getD a := by
+@[simp] theorem or_some' : or o (some a) = o.getD a := by
   cases o <;> rfl
 
 theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by

@@ -10,13 +10,15 @@ import Lean.ReservedNameAction
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.Util
+import Lean.Elab.SyntheticMVars
 import Lean.AddDecl
 
 -- NB: This module is Lean.Meta.MatchFloat, not Lean.Meta.Match.Float
 -- so that this does not become a dependency from modules that don't need it.
 -- If Lean.Meta.Match would be an import-only module this could be avoided
 
-open Lean
+open Lean Meta Elab Term
 
 namespace Lean.Meta
 
@@ -63,7 +65,10 @@ def deriveMatchFloat (name : Name) : MetaM Unit := do
           let rhs := mkAppN (.const name us') (params ++ #[motive'] ++ discrs ++ alts')
           let type ← mkEq lhs rhs
           mkForallFVars (#[α,β,f] ++ params ++ discrs ++ alts) type
-    let value ← mkSyntheticSorry type
+    let value ← mkFreshExprSyntheticOpaqueMVar type
+    TermElabM.run' do withoutErrToSorry do
+      runTactic value.mvarId! (← `(Parser.Term.byTactic| by intros; split <;> rfl)).raw .term
+    let value ← instantiateMVars value
     let decl := Declaration.thmDecl { name := name ++ `float, levelParams, type, value }
     addDecl decl
 

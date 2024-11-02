@@ -5,8 +5,6 @@ def test1 : Nat → Nat
 -- set_option pp.match false
 
 /--
-warning: declaration uses 'sorry'
----
 info: test1.match_1.float.{u, v} {α : Sort u} {β : Sort v} (f : α → β) (x✝ : Nat) (h_1 : Unit → (fun x => α) 0)
   (h_2 : (n : Nat) → (fun x => α) n.succ) :
   f
@@ -26,8 +24,6 @@ def test2 (α β) : α ∨ β → γ → (β ∨ α) ∧ γ
 
 set_option pp.proofs true in
 /--
-warning: declaration uses 'sorry'
----
 info: test2.match_1.float {α β : Prop} (f : α → β) {γ : Prop} (α✝ β✝ : Prop) (x✝ : α✝ ∨ β✝) (x✝¹ : γ)
   (h_1 : ∀ (x : α✝) (y : γ), (fun x x => α) (Or.inl x) y) (h_2 : ∀ (x : β✝) (y : γ), (fun x x => α) (Or.inr x) y) :
   f

@@ -377,7 +377,7 @@ end choice
 @[simp] theorem some_or : (some a).or o = some a := rfl
 @[simp] theorem none_or : none.or o = o := rfl
 
-@[deprecated] alias or_some := some_or
+@[deprecated some_or] theorem or_some : (some a).or o = some a := rfl
 
 /-- This will be renamed to `or_some` once the existing deprecated lemma is removed. -/
 @[simp] theorem or_some' {o : Option α} : o.or (some a) = o.getD a := by

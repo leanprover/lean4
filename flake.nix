@@ -38,7 +38,11 @@
           # more convenient `ctest` output
           CTEST_OUTPUT_ON_FAILURE = 1;
         } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-          GMP = pkgsDist.gmp.override { withStatic = true; };
+          GMP = (pkgsDist.gmp.override { withStatic = true; }).overrideAttrs (attrs:
+            pkgs.lib.optionalAttrs (pkgs.stdenv.system == "aarch64-linux") {
+              # would need additional linking setup on Linux aarch64, we don't use it anywhere else either
+              hardeningDisable = [ "stackprotector" ];
+            });
           LIBUV = pkgsDist.libuv.overrideAttrs (attrs: {
             configureFlags = ["--enable-static"];
             hardeningDisable = [ "stackprotector" ];

@@ -257,6 +257,7 @@ fails.
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
+  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect:{indentExpr e}") do
 
   let e' ← id do
     if let some (n, t, v, b) := e.letFun? then
@@ -319,10 +320,10 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
       -- So beta-reduce that definition. We need to look through theorems here!
-      let e' ← withTransparency .all do whnf e
-      if e == e' then
+      if let some e' ← withTransparency .all do unfoldDefinition? e then
+        return ← foldAndCollect oldIH newIH isRecCall e'
+      else
         throwError "foldAndCollect: cannot reduce application of {e.getAppFn} in:{indentExpr e} "
-      return ← foldAndCollect oldIH newIH isRecCall e'
 
     match e with
     | .app e1 e2 =>
@@ -462,6 +463,7 @@ def M2.branch {α} (act : M2 α) : M2 α :=
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
 def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (toClear : Array FVarId)
     (goal : Expr)  (e : Expr) : M2 Expr := do
+  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} buildInductionCase:{indentExpr e}") do
   let _e' ← foldAndCollect oldIH newIH isRecCall e
   let IHs : Array Expr ← M.ask
   let IHs ← deduplicateIHs IHs
@@ -518,6 +520,8 @@ as `MVars` as it goes.
 -/
 partial def buildInductionBody (toClear : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
+  withTraceNode `Meta.FunInd
+    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}:{indentExpr e}") do
 
   -- if-then-else cause case split:
   match_expr e with

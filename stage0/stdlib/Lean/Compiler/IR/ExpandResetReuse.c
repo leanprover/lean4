@@ -96,7 +96,7 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_IR_MaxIndex_collectDecl(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_isSelfUSet(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1;
@@ -1726,7 +1726,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = l_Lean_IR_instInhabitedFnBody;
-x_9 = l_Array_back___rarg(x_8, x_2);
+x_9 = l_Array_back_x21___rarg(x_8, x_2);
 switch (lean_obj_tag(x_9)) {
 case 0:
 {

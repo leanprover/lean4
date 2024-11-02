@@ -279,6 +279,14 @@ def ofList : List MessageData → MessageData
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
+/-- Puts `MessageData` into a comma-separated list with `"or"` at the back (no Oxford comma).
+Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+def orList (xs : List MessageData) : MessageData :=
+  match xs with
+  | [] => "– none –"
+  | [x] => "'" ++ x ++ "'"
+  | _ => joinSep (xs.dropLast.map (fun x => "'" ++ x ++ "'")) ", " ++ " or '" ++ xs.getLast! ++ "'"
+
 /-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
 Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
 def andList (xs : List MessageData) : MessageData :=

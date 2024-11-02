@@ -177,10 +177,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Closure_mkValueTypeClosure___boxed(lean_obj
 static lean_object* l_Lean_Meta_Closure_collectLevelAux___closed__4;
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_visitExpr(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__11;
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__19;
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 uint64_t l_Lean_Level_hash(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxDefinitionFor(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15282,7 +15282,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_18 = lean_ctor_get(x_15, 11);
 x_19 = l_Lean_Meta_Closure_instInhabitedToProcessElement;
-x_20 = l_Array_back___rarg(x_19, x_18);
+x_20 = l_Array_back_x21___rarg(x_19, x_18);
 x_21 = lean_array_pop(x_18);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = l_Lean_Meta_Closure_pickNextToProcessAux(x_7, x_22, x_21, x_20);
@@ -15345,7 +15345,7 @@ lean_inc(x_33);
 lean_inc(x_32);
 lean_dec(x_15);
 x_44 = l_Lean_Meta_Closure_instInhabitedToProcessElement;
-x_45 = l_Array_back___rarg(x_44, x_43);
+x_45 = l_Array_back_x21___rarg(x_44, x_43);
 x_46 = lean_array_pop(x_43);
 x_47 = lean_unsigned_to_nat(0u);
 x_48 = l_Lean_Meta_Closure_pickNextToProcessAux(x_7, x_47, x_46, x_45);
@@ -15464,7 +15464,7 @@ if (lean_is_exclusive(x_63)) {
  x_77 = lean_box(0);
 }
 x_78 = l_Lean_Meta_Closure_instInhabitedToProcessElement;
-x_79 = l_Array_back___rarg(x_78, x_76);
+x_79 = l_Array_back_x21___rarg(x_78, x_76);
 x_80 = lean_array_pop(x_76);
 x_81 = lean_unsigned_to_nat(0u);
 x_82 = l_Lean_Meta_Closure_pickNextToProcessAux(x_7, x_81, x_80, x_79);

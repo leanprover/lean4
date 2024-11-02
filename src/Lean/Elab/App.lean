@@ -1135,24 +1135,29 @@ private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermE
   throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
 
 /--
-`findMethod? env S fName`.
-- If `env` contains `S ++ fName`, return `(S, S++fName)`
-- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
-- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
+`findMethod? S fName` tries the following for each namespace `S'` in the resolution order for `S`:
+- If `env` contains `S' ++ fName`, returns `(S', S' ++ fName)`
+- Otherwise if `env` contains private name `prv` for `S' ++ fName`, returns `(S', prv)`
 -/
-private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
-  let fullName := structName ++ fieldName
-  match env.find? fullName with
-  | some _ => some (structName, fullName)
-  | none   =>
+private partial def findMethod? (structName fieldName : Name) : MetaM (Option (Name × Name)) := do
+  let env ← getEnv
+  let find? structName' : MetaM (Option (Name × Name)) := do
+    let fullName := structName' ++ fieldName
+    if env.contains fullName then
+      return some (structName', fullName)
     let fullNamePrv := mkPrivateName env fullName
-    match env.find? fullNamePrv with
-    | some _ => some (structName, fullNamePrv)
-    | none   =>
-      if isStructure env structName then
-        (getStructureSubobjects env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
-      else
-        none
+    if env.contains fullNamePrv then
+      return some (structName', fullNamePrv)
+    return none
+  -- Optimization: the first element of the resolution order is `structName`,
+  -- so we can skip computing the resolution order in the common case
+  -- of the name resolving in the `structName` namespace.
+  find? structName <||> do
+    let resolutionOrder ← if isStructure env structName then getStructureResolutionOrder structName else pure #[structName]
+    for h : i in [1:resolutionOrder.size] do
+      if let some res ← find? resolutionOrder[i] then
+        return res
+    return none
 
 /--
   Return `some (structName', fullName)` if `structName ++ fieldName` is an alias for `fullName`, and
@@ -1204,7 +1209,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      if let some (baseStructName, fullName) := findMethod? env structName (.mkSimple fieldName) then
+      if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
         return LValResolution.const baseStructName structName fullName
       else if let some (structName', fullName) := findMethodAlias? env structName (.mkSimple fieldName) then
         return LValResolution.const structName' structName' fullName
@@ -1390,19 +1395,17 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       loop f lvals
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
-      if let some info := getFieldInfo? (← getEnv) baseStructName fieldName then
-        if isPrivateNameFromImportedModule (← getEnv) info.projFn then
-          throwError "field '{fieldName}' from structure '{structName}' is private"
-        let projFn ← mkConst info.projFn
-        let projFn ← addProjTermInfo lval.getRef projFn
-        if lvals.isEmpty then
-          let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
-          elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
-        else
-          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f, suppressDeps := true }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
-          loop f lvals
+      let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
+      if isPrivateNameFromImportedModule (← getEnv) info.projFn then
+        throwError "field '{fieldName}' from structure '{structName}' is private"
+      let projFn ← mkConst info.projFn
+      let projFn ← addProjTermInfo lval.getRef projFn
+      if lvals.isEmpty then
+        let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
+        elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        unreachable!
+        let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f, suppressDeps := true }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
+        loop f lvals
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName

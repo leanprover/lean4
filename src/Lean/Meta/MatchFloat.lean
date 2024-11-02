@@ -44,7 +44,8 @@ def deriveMatchFloat (name : Name) : MetaM Unit := do
     let matchf := .const name us
     let matchType ← inferType matchf
     let type ← forallBoundedTelescope matchType info.numParams fun params matchType => do
-        -- TODO universes
+      let matchType ← whnf matchType
+      unless matchType.isForall do throwError "resual type {matchType} of {.ofConstName name} not a forall"
       withLocalDecl `α .implicit (.sort u) fun α => do
       withLocalDecl `β .implicit (.sort v) fun β => do
       withLocalDeclD `f (← mkArrow α β) fun f => do

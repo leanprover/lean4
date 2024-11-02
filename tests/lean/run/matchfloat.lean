@@ -1,3 +1,5 @@
+import Lean.Elab.Command
+
 def test1 : Nat → Nat
   | 0 => 0
   | _+1 => 42
@@ -36,3 +38,15 @@ info: test2.match_1.float {α β : Prop} (f : α → β) {γ : Prop} (α✝ β�
 -/
 #guard_msgs in
 #check test2.match_1.float
+
+/-
+This code quickly finds many matcher where deriving the floater fails, usually
+because the splitter cannot be generated, for example Nat.lt_or_gt_of_ne.match_1.float
+
+open Lean Meta in
+run_meta do
+  for es in (Match.Extension.extension.toEnvExtension.getState (← getEnv)).importedEntries do
+    for e in es do
+      let _ ← realizeGlobalName (e.name ++ `float)
+
+-/

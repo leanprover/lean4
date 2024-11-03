@@ -273,7 +273,8 @@ private def getOptRotation (stx : Syntax) : Nat :=
         (fun ex => do
           if (← read).recover then
             logException ex
-            return mvarIdsNew.push mvarId
+            admitGoal mvarId
+            return mvarIdsNew
           else
             throw ex)
   setGoals mvarIdsNew.toList

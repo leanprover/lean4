@@ -6,12 +6,20 @@ Authors: Mac Malone
 import Lake.Util.IO
 import Lean.Data.Json
 
+/-! # Lake Traces
+
+This module defines Lake traces and associated utilities.
+Traces are used to determine whether a Lake build artifact is *dirty*
+(needs to be rebuilt) or is already *up-to-date*.
+The primary type is `Lake.BuildTrace`.
+-/
+
 open System Lean
 
 namespace Lake
 
 --------------------------------------------------------------------------------
-/-! # Utilities -/
+/-! ## Utilities -/
 --------------------------------------------------------------------------------
 
 class CheckExists.{u} (i : Type u) where
@@ -24,60 +32,63 @@ instance : CheckExists FilePath where
   checkExists := FilePath.pathExists
 
 --------------------------------------------------------------------------------
-/-! # Trace Abstraction -/
+/-! ## Trace Abstraction -/
 --------------------------------------------------------------------------------
 
-class ComputeTrace.{u,v,w} (i : Type u) (m : outParam $ Type v → Type w) (t : Type v) where
-  /--  Compute the trace of some target info using information from the monadic context. -/
-  computeTrace : i → m t
+class ComputeTrace (α : Type u) (m : outParam $ Type v → Type w) (τ : Type v) where
+  /-- Compute the trace of an object in its preferred monad. -/
+  computeTrace : α → m τ
 
-@[inline] def computeTrace [ComputeTrace i m t] [MonadLiftT m n] (info : i) : n t :=
-  liftM <| ComputeTrace.computeTrace info
+/-- Compute the trace of an object in a supporting monad. -/
+@[inline] def computeTrace [ComputeTrace α m τ] [MonadLiftT m n] (a : α) : n τ :=
+  liftM <| ComputeTrace.computeTrace a
 
-class NilTrace.{u} (t : Type u) where
+class NilTrace.{u} (α : Type u) where
   /-- The nil trace. Should not unduly clash with a proper trace. -/
-  nilTrace : t
+  nilTrace : α
 
 export NilTrace (nilTrace)
 
-instance inhabitedOfNilTrace [NilTrace t] : Inhabited t := ⟨nilTrace⟩
+instance inhabitedOfNilTrace [NilTrace α] : Inhabited α := ⟨nilTrace⟩
 
-class MixTrace.{u} (t : Type u) where
+class MixTrace.{u} (α : Type u) where
   /-- Combine two traces. The result should be dirty if either of the inputs is dirty. -/
-  mixTrace : t → t → t
+  mixTrace : α → α → α
 
 export MixTrace (mixTrace)
 
 section
-variable [MixTrace t] [NilTrace t]
+variable [MixTrace τ] [NilTrace τ]
 
-def mixTraceList (traces : List t) : t :=
+/- Combine a `List` of traces (left-to-right). -/
+def mixTraceList (traces : List τ) : τ :=
   traces.foldl mixTrace nilTrace
 
-def mixTraceArray (traces : Array t) : t :=
+/- Combine an `Array` of traces (left-to-right). -/
+def mixTraceArray (traces : Array τ) : τ :=
   traces.foldl mixTrace nilTrace
 
-variable [ComputeTrace i m t]
+variable [ComputeTrace α m τ]
 
-@[specialize] def computeListTrace [MonadLiftT m n] [Monad n] (artifacts : List i) : n t :=
-  artifacts.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
+/- Compute the trace of each element of a `List` and combine them (left-to-right). -/
+@[inline] def computeListTrace [MonadLiftT m n] [Monad n] (as : List α) : n τ :=
+  as.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 
-instance [Monad m] : ComputeTrace (List i) m t := ⟨computeListTrace⟩
+instance [Monad m] : ComputeTrace (List α) m τ := ⟨computeListTrace⟩
 
-@[specialize] def computeArrayTrace [MonadLiftT m n] [Monad n] (artifacts : Array i) : n t :=
-  artifacts.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
+/- Compute the trace of each element of an `Array` and combine them (left-to-right). -/
+@[inline] def computeArrayTrace [MonadLiftT m n] [Monad n] (as : Array α) : n τ :=
+  as.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 
-instance [Monad m] : ComputeTrace (Array i) m t := ⟨computeArrayTrace⟩
+instance [Monad m] : ComputeTrace (Array α) m τ := ⟨computeArrayTrace⟩
 end
 
 --------------------------------------------------------------------------------
-/-! # Hash Trace -/
+/-! ## Hash Trace -/
 --------------------------------------------------------------------------------
 
-/--
-A content hash.
-TODO: Use a secure hash rather than the builtin Lean hash function.
--/
+/-- A content hash. -/
+-- TODO: Use a secure hash rather than the builtin Lean hash function.
 structure Hash where
   val : UInt64
   deriving BEq, DecidableEq, Repr
@@ -127,51 +138,66 @@ instance : FromJson Hash := ⟨Hash.fromJson?⟩
 end Hash
 
 class ComputeHash (α : Type u) (m : outParam $ Type → Type v)  where
+  /-- Compute the hash of an object in its preferred monad. -/
   computeHash : α → m Hash
 
 instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.computeHash⟩
 
+/-- Compute the hash of object `a` in a pure context. -/
 @[inline] def pureHash [ComputeHash α Id] (a : α) : Hash :=
   ComputeHash.computeHash a
 
+/-- Compute the hash an object in an supporting monad. -/
 @[inline] def computeHash [ComputeHash α m] [MonadLiftT m n] (a : α) : n Hash :=
   liftM <| ComputeHash.computeHash a
 
 instance : ComputeHash String Id := ⟨Hash.ofString⟩
 
-def computeFileHash (file : FilePath) : IO Hash :=
+/--
+Compute the hash of a binary file.
+Binary files are equivalent only if they are byte identical.
+-/
+def computeBinFileHash (file : FilePath) : IO Hash :=
   Hash.ofByteArray <$> IO.FS.readBinFile file
 
-instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
+instance : ComputeHash FilePath IO := ⟨computeBinFileHash⟩
 
+/--
+Compute the hash of a text file.
+Normalizes `\r\n` sequences to `\n` for cross-platform compatibility.
+-/
 def computeTextFileHash (file : FilePath) : IO Hash := do
   let text ← IO.FS.readFile file
   let text := text.crlfToLf
   return Hash.ofString text
 
 /--
-  A wrapper around `FilePath` that adjusts its `ComputeHash` implementation
-  to normalize `\r\n` sequences to `\n` for cross-platform compatibility. -/
+A wrapper around `FilePath` that adjusts its `ComputeHash` implementation
+to normalize `\r\n` sequences to `\n` for cross-platform compatibility.
+-/
 structure TextFilePath where
   path : FilePath
 
 instance : Coe TextFilePath FilePath := ⟨(·.path)⟩
+instance : ComputeHash TextFilePath IO := ⟨(computeTextFileHash ·)⟩
 
-instance : ComputeHash TextFilePath IO where
-  computeHash file := computeTextFileHash file
+/-- Compute the hash of a file. If `text := true`, normalize line endings. -/
+@[inline] def computeFileHash (file : FilePath) (text := false) : IO Hash :=
+  if text then computeTextFileHash file else computeBinFileHash file
 
-@[specialize] def computeArrayHash [ComputeHash α m] [Monad m] (xs : Array α) : m Hash :=
-  xs.foldlM (fun h a => return h.mix (← computeHash a)) .nil
+/-- Compute the hash of each element of an array and combine them (left-to-right). -/
+@[inline] def computeArrayHash [ComputeHash α m] [Monad m] (as : Array α) : m Hash :=
+  computeArrayTrace as
 
 instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m := ⟨computeArrayHash⟩
 
 --------------------------------------------------------------------------------
-/-! # Modification Time (MTime) Trace -/
+/-! ## Modification Time (MTime) Trace -/
 --------------------------------------------------------------------------------
 
 open IO.FS (SystemTime)
 
-/-- A modification time. -/
+/-- A modification time (e.g., of a file). -/
 def MTime := SystemTime
 
 namespace MTime
@@ -192,12 +218,14 @@ instance : MixTrace MTime := ⟨max⟩
 
 end MTime
 
-class GetMTime (α) where
+class GetMTime (α : Type u) where
+  /-- Return the modification time of an object. -/
   getMTime : α → IO MTime
 
 export GetMTime (getMTime)
 instance [GetMTime α] : ComputeTrace α IO MTime := ⟨getMTime⟩
 
+/-- Return the modification time of a file recorded by the OS. -/
 @[inline] def getFileMTime (file : FilePath) : IO MTime :=
   return (← file.metadata).modified
 
@@ -216,7 +244,7 @@ That is, check if the info is newer than `self`.
   | .error _ => return false
 
 --------------------------------------------------------------------------------
-/-! # Lake Build Trace (Hash + MTIme) -/
+/-! ## Lake Build Trace -/
 --------------------------------------------------------------------------------
 
 /-- Trace used for common Lake targets. Combines `Hash` and `MTime`. -/
@@ -242,10 +270,10 @@ def nil : BuildTrace :=
 
 instance : NilTrace BuildTrace := ⟨nil⟩
 
-@[specialize] def compute [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] (info : i) : IO BuildTrace :=
+@[specialize] def compute [ComputeHash α m] [MonadLiftT m IO] [GetMTime α] (info : α) : IO BuildTrace :=
   return mk (← computeHash info) (← getMTime info)
 
-instance [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] : ComputeTrace i IO BuildTrace := ⟨compute⟩
+instance [ComputeHash α m] [MonadLiftT m IO] [GetMTime α] : ComputeTrace α IO BuildTrace := ⟨compute⟩
 
 def mix (t1 t2 : BuildTrace) : BuildTrace :=
   mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)

@@ -501,7 +501,7 @@ Occurrences count from `1`.
 At each allowed occurrence, arguments of the rewrite rule `e` may be instantiated,
 restricting which later rewrites can be found.
 (Disallowed occurrences do not result in instantiation.)
-`{occs := .neg L}` allows skipping specified occurrences.
+`(occs := .neg L)` allows skipping specified occurrences.
 -/
 syntax (name := rewriteSeq) "rewrite" optConfig rwRuleSeq (location)? : tactic
 

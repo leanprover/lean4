@@ -95,19 +95,24 @@ def evalApplyRules : Tactic := fun stx =>
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.solveByElim]
-def evalSolveByElim : Tactic := fun stx =>
-  match stx with
-  | `(tactic| solve_by_elim $[*%$s]? $(cfg)? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+def evalSolveByElim : Tactic := fun stx => do
+--  match stx with
+--  | `(tactic| solve_by_elim $[*%$s]? $(cfg)? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+    let s := stx[1].getOptional?
+    let cfg := stx[2]
+    let o := stx[3].getOptional?
+    let t := stx[4].getOptional?.map TSyntax.mk
+    let use := stx[5].getOptional?.map TSyntax.mk
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
     let goals ← if s.isSome then
       getGoals
     else
       pure [← getMainGoal]
-    let cfg ← elabConfig (mkOptionalNode cfg)
+    let cfg ← elabConfig cfg
     let [] ← processSyntax cfg o.isSome star add remove use goals |
       throwError "solve_by_elim unexpectedly returned subgoals"
     pure ()
-  | _ => throwUnsupportedSyntax
+--  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.SolveByElim

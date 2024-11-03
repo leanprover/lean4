@@ -494,7 +494,7 @@ This provides a convenient way to unfold `e`.
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
 
-Using `rw (config := {occs := .pos L}) [e]`,
+Using `rw (occs := .pos L) [e]`,
 where `L : List Nat`, you can control which "occurrences" are rewritten.
 (This option applies to each rule, so usually this will only be used with a single rule.)
 Occurrences count from `1`.
@@ -1168,8 +1168,7 @@ a natural subtraction appearing in a hypothesis, and try again.
 
 The options
 ```
-omega (config :=
-  { splitDisjunctions := true, splitNatSub := true, splitNatAbs := true, splitMinMax := true })
+omega +splitDisjunctions +splitNatSub +splitNatAbs +splitMinMax
 ```
 can be used to:
 * `splitDisjunctions`: split any disjunctions found in the context,
@@ -1179,7 +1178,7 @@ can be used to:
 * `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
 Currently, all of these are on by default.
 -/
-syntax (name := omega) "omega" (config)? : tactic
+syntax (name := omega) "omega" optConfig : tactic
 
 /--
 `bv_omega` is `omega` with an additional preprocessor that turns statements about `BitVec` into statements about `Nat`.
@@ -1368,7 +1367,7 @@ See also the doc-comment for `Lean.Meta.Tactic.Backtrack.BacktrackConfig` for th
 Both `apply_assumption` and `apply_rules` are implemented via these hooks.
 -/
 syntax (name := solveByElim)
-  "solve_by_elim" "*"? (config)? (&" only")? (args)? (using_)? : tactic
+  "solve_by_elim" "*"? optConfig (&" only")? (args)? (using_)? : tactic
 
 /--
 `apply_assumption` looks for an assumption of the form `... → ∀ _, ... → head`
@@ -1615,7 +1614,7 @@ where `i < arr.size` is in the context) and `simp_arith` and `omega`
 syntax "get_elem_tactic_trivial" : tactic
 
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp +arith; done)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 
 /--

@@ -3328,7 +3328,7 @@ theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!
 
 @[simp] theorem all_replicate {n : Nat} {a : α} :
     (replicate n a).all f = if n = 0 then true else f a := by
-  cases n <;> simp (config := {contextual := true}) [replicate_succ]
+  cases n <;> simp +contextual [replicate_succ]
 
 @[simp] theorem any_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.insert a).any f = (f a || l.any f) := by

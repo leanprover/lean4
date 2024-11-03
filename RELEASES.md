@@ -8,6 +8,16 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
+v4.14.0
+----------
+
+Release notes in progress.
+
+v4.13.0
+----------
+
+Release notes in progress.
+
 v4.12.0
 ----------
 

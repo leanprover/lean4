@@ -595,6 +595,22 @@ mutual
       elabAndAddNewArg argName arg
       main
     | _ =>
+      if (← read).ellipsis && (← readThe Term.Context).inPattern then
+        /-
+        In patterns, ellipsis should always be an implicit argument, even if it is an optparam or autoparam.
+        This prevents examples such as the one in #4555 from failing:
+        ```lean
+        match e with
+        | .internal .. => sorry
+        | .error .. => sorry
+        ```
+        The `internal` has an optparam (`| internal (id : InternalExceptionId) (extra : KVMap := {})`).
+
+        We may consider having ellipsis suppress optparams and autoparams in general.
+        We avoid doing so for now since it's possible to opt-out of them (for example with `.internal (extra := _) ..`)
+        but it's not possible to opt-in.
+        -/
+        return ← addImplicitArg argName
       let argType ← getArgExpectedType
       match (← read).explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
       | false, some defVal, _  => addNewArg argName defVal; main

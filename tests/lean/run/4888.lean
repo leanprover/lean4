@@ -38,7 +38,15 @@ No usable constraints found. You may need to unfold definitions so `omega` can s
 theorem kernel_declaration_meta_variables (x y z : Option Int) : (x = y) ↔ (x = z) := by
   apply Iff.elim
   all_goals omega
+  done
+  fail_if_success done
 
+/-!
+Regression test: `all_goals` still respects recovery state.
+-/
+example (x y z : Option Int) : (x = y) ↔ (x = z) := by
+  apply Iff.elim
+  first | all_goals omega | all_goals sorry
 
 /-!
 Regression test: `all_goals` should not catch runtime exceptions.
@@ -51,6 +59,5 @@ use `set_option diagnostics true` to get diagnostic information
 #guard_msgs in
 example : False := by
   all_goals repeat try trivial
-  sorry
-  sorry
-  sorry
+  done
+  fail_if_success done

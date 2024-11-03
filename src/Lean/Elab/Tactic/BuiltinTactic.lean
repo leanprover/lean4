@@ -264,6 +264,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
   let mut abort := false
+  let mut mctxSaved ← getMCtx
   for mvarId in mvarIds do
     unless (← mvarId.isAssigned) do
       setGoals [mvarId]
@@ -274,12 +275,13 @@ private def getOptRotation (stx : Syntax) : Nat :=
         (fun ex => do
           if (← read).recover then
             logException ex
-            admitGoal mvarId
             pure true
           else
             throw ex)
       mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
   if abort then
+    setMCtx mctxSaved
+    mvarIds.forM fun mvarId => unless (← mvarId.isAssigned) do admitGoal mvarId
     throwAbortTactic
   setGoals mvarIdsNew.toList
 

@@ -17,6 +17,7 @@ but is expected to have type
 #guard_msgs in
 theorem bug: True := by
  all_goals exact Nat.succ True
+ trace "Did not get here"
 
 /-!
 Regression test: `all_goals` should admit goals rather than leaving metavariables.
@@ -38,12 +39,13 @@ No usable constraints found. You may need to unfold definitions so `omega` can s
 theorem kernel_declaration_meta_variables (x y z : Option Int) : (x = y) ↔ (x = z) := by
   apply Iff.elim
   all_goals omega
-  done
-  fail_if_success done
+  trace "Did not get here"
 
 /-!
 Regression test: `all_goals` still respects recovery state.
 -/
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
 example (x y z : Option Int) : (x = y) ↔ (x = z) := by
   apply Iff.elim
   first | all_goals omega | all_goals sorry
@@ -59,5 +61,4 @@ use `set_option diagnostics true` to get diagnostic information
 #guard_msgs in
 example : False := by
   all_goals repeat try trivial
-  done
-  fail_if_success done
+  trace "Did not get here"

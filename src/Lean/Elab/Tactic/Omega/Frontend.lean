@@ -696,11 +696,11 @@ the tactic call `aesop (add 50% tactic Lean.Omega.omegaDefault)`. -/
 def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
-def evalOmega : Tactic := fun stx => do
---  | `(tactic| omega $[$cfg]?) => do
-    let cfg ← elabOmegaConfig stx[1]
+def evalOmega : Tactic
+  | `(tactic| omega $cfg:optConfig) => do
+    let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
---  | _ => throwUnsupportedSyntax
+  | _ => throwUnsupportedSyntax
 
 builtin_initialize bvOmegaSimpExtension : SimpExtension ←
   registerSimpAttr `bv_toNat

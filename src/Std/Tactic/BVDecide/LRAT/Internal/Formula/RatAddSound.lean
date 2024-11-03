@@ -303,7 +303,7 @@ theorem sat_of_insertRat {n : Nat} (f : DefaultFormula n)
       · simp at h2
       · next heq =>
         have hasNegAssignment_fi : hasAssignment false (f.assignments[i.1]'i_in_bounds) := by
-          simp (config := { decide := true }) only [hasAssignment, hasPosAssignment, heq]
+          simp +decide only [hasAssignment, hasPosAssignment, heq]
         have p_entails_i := hf.2.2 i false hasNegAssignment_fi p pf
         simp only [(· ⊨ ·)] at p_entails_i
         simp only [p_entails_i, decide_True]

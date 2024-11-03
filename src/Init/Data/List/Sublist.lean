@@ -116,7 +116,7 @@ fun s => Subset.trans s <| subset_append_right _ _
 theorem replicate_subset {n : Nat} {a : α} {l : List α} : replicate n a ⊆ l ↔ n = 0 ∨ a ∈ l := by
   induction n with
   | zero => simp
-  | succ n ih => simp (config := {contextual := true}) [replicate_succ, ih, cons_subset]
+  | succ n ih => simp +contextual [replicate_succ, ih, cons_subset]
 
 theorem subset_replicate {n : Nat} {a : α} {l : List α} (h : n ≠ 0) : l ⊆ replicate n a ↔ ∀ x ∈ l, x = a := by
   induction l with
@@ -835,7 +835,7 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
       simpa using ⟨0, by simp⟩
     | cons b l₂ =>
       simp only [cons_append, cons_prefix_cons, ih]
-      rw (config := {occs := .pos [2]}) [← Nat.and_forall_add_one]
+      rw (occs := .pos [2]) [← Nat.and_forall_add_one]
       simp [Nat.succ_lt_succ_iff, eq_comm]
 
 theorem isPrefix_iff_getElem {l₁ l₂ : List α} :

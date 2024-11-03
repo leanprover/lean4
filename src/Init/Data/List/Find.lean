@@ -179,7 +179,7 @@ theorem IsPrefix.findSome?_eq_some {l₁ l₂ : List α} {f : α → Option β} 
     List.findSome? f l₁ = some b → List.findSome? f l₂ = some b := by
   rw [IsPrefix] at h
   obtain ⟨t, rfl⟩ := h
-  simp (config := {contextual := true}) [findSome?_append]
+  simp +contextual [findSome?_append]
 
 theorem IsPrefix.findSome?_eq_none {l₁ l₂ : List α} {f : α → Option β} (h : l₁ <+: l₂) :
     List.findSome? f l₂ = none → List.findSome? f l₁ = none :=
@@ -436,7 +436,7 @@ theorem IsPrefix.find?_eq_some {l₁ l₂ : List α} {p : α → Bool} (h : l₁
     List.find? p l₁ = some b → List.find? p l₂ = some b := by
   rw [IsPrefix] at h
   obtain ⟨t, rfl⟩ := h
-  simp (config := {contextual := true}) [find?_append]
+  simp +contextual [find?_append]
 
 theorem IsPrefix.find?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :
     List.find? p l₂ = none → List.find? p l₁ = none :=
@@ -562,7 +562,7 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
     | inr e =>
       have ipm := Nat.succ_pred_eq_of_pos e
       have ilt := Nat.le_trans ho (findIdx_le_length p)
-      simp (config := { singlePass := true }) only [← ipm, getElem_cons_succ]
+      simp +singlePass only [← ipm, getElem_cons_succ]
       rw [← ipm, Nat.succ_lt_succ_iff] at h
       simpa using ih h
 

@@ -1566,6 +1566,18 @@ extern "C" LEAN_EXPORT int8 lean_int8_of_big_int(b_obj_arg a) {
     return mpz_value(a).smod8();
 }
 
+extern "C" LEAN_EXPORT int16 lean_int16_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod16();
+}
+
+extern "C" LEAN_EXPORT int32 lean_int32_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod32();
+}
+
+extern "C" LEAN_EXPORT int64 lean_int64_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod64();
+}
+
 // =======================================
 // Float
 

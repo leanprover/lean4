@@ -11,6 +11,7 @@ import Init.Data.List.Range
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Modify
 import Init.Data.List.Monadic
+import Init.Data.List.OfFn
 import Init.Data.Array.Mem
 import Init.Data.Array.DecidableEq
 import Init.TacticsExtra
@@ -908,7 +909,7 @@ theorem map_induction (as : Array α) (f : α → β) (motive : Nat → Prop) (h
   obtain ⟨m, eq, w⟩ := t
   · refine ⟨m, by simpa [map_eq_foldl] using eq, ?_⟩
     intro i h
-    simp [eq] at w
+    simp only [eq] at w
     specialize w ⟨i, h⟩ h
     simpa [map_eq_foldl] using w
   · exact ⟨h0, rfl, nofun⟩
@@ -1615,12 +1616,18 @@ theorem filterMap_toArray (f : α → Option β) (l : List α) :
   apply ext'
   simp
 
+@[simp] theorem toArray_ofFn (f : Fin n → α) : (ofFn f).toArray = Array.ofFn f := by
+  ext <;> simp
+
 end List
 
 namespace Array
 
 @[simp] theorem mapM_id {l : Array α} {f : α → Id β} : l.mapM f = l.map f := by
   induction l; simp_all
+
+@[simp] theorem toList_ofFn (f : Fin n → α) : (Array.ofFn f).toList = List.ofFn f := by
+  apply List.ext_getElem <;> simp
 
 end Array
 

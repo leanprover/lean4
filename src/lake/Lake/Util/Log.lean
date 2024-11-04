@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Util.Error
 import Lake.Util.EStateT
+import Lake.Util.Lift
 import Lean.Data.Json
 import Lean.Message
 
@@ -194,6 +195,9 @@ set_option linter.deprecated false in
 abbrev stream [MonadLiftT BaseIO m]
   (out : IO.FS.Stream) (minLv := LogLevel.info) (useAnsi := false)
 : MonadLog m where logEntry e := logToStream e out minLv useAnsi
+
+@[inline] def error [Alternative m] [MonadLog m] (msg : String) : m α :=
+  logError msg *> failure
 
 end MonadLog
 
@@ -404,7 +408,7 @@ from an `ELogT` (e.g., `LogIO`).
   (msg : String)
 : m α := errorWithLog (logError msg)
 
-/-- `Alternative` instance for monads with `Log` state and `Log.Pos` errors. -/
+/-- `MonadError` instance for monads with `Log` state and `Log.Pos` errors. -/
 abbrev ELog.monadError
   [Monad m] [MonadLog m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m]
 : MonadError m := ⟨ELog.error⟩
@@ -505,7 +509,7 @@ abbrev run?' [Functor m] (self : ELogT m α) (log : Log := {}) : m (Option α) :
 Run `self` with the log taken from the state of the monad `n`,
 
 **Warning:** If lifting `self` from `m` to `n` fails, the log will be lost.
-Thus, this is best used when the lift cannot fail. Note  excludes the
+Thus, this is best used when the lift cannot fail. This excludes the
 native log position failure of `ELogT`, which are lifted safely.
 -/
 @[inline] def takeAndRun
@@ -545,8 +549,6 @@ instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
 
 namespace LogIO
 
-@[deprecated ELogT.run? (since := "2024-05-18")] abbrev captureLog := @ELogT.run?
-
 /--
 Runs a `LogIO` action in `BaseIO`.
 Prints log entries of at least `minLv` to `out`.
@@ -563,4 +565,46 @@ where
   replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=
     log.replay (logger := logger)
 
+-- deprecated 2024-05-18, reversed 2024-10-18
+abbrev captureLog := @ELogT.run?
+
 end LogIO
+
+/--
+A monad equipped with a log function and the ability to perform I/O.
+Unlike `LogIO`, log entries are not retained by the monad but instead eagerly
+passed to the log function.
+-/
+abbrev LoggerIO := MonadLogT BaseIO (EIO PUnit)
+
+instance : MonadError LoggerIO := ⟨MonadLog.error⟩
+instance : MonadLift IO LoggerIO := ⟨MonadError.runIO⟩
+instance : MonadLift LogIO LoggerIO := ⟨ELogT.replayLog⟩
+
+namespace LoggerIO
+
+/--
+Runs a `LoggerIO` action in `BaseIO`.
+Prints log entries of at least `minLv` to `out`.
+-/
+@[inline] def toBaseIO
+  (self : LoggerIO α)
+  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
+: BaseIO (Option α) := do
+  (·.toOption) <$> (self.run (← out.getLogger minLv ansiMode)).toBaseIO
+
+def captureLog (self : LoggerIO α) : BaseIO (Option α × Log) := do
+  let ref ← IO.mkRef ({} : Log)
+  let e ← self.run ⟨fun e => ref.modify (·.push e)⟩ |>.toBaseIO
+  return (e.toOption, ← ref.get)
+
+-- For parity with `LogIO.run?`
+abbrev run? := @captureLog
+
+-- For parity with `LogIO.run?'`
+@[inline] def run?'
+  (self : LoggerIO α) (logger : LogEntry → BaseIO PUnit := fun _ => pure ())
+: BaseIO (Option α) := do
+  (·.toOption) <$> (self.run ⟨logger⟩).toBaseIO
+
+end LoggerIO

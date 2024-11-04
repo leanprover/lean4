@@ -5,12 +5,14 @@ Authors: Joachim Breitner
 -/
 
 prelude
+import Init.Simproc
 import Lean.ResolveName
 import Lean.ReservedNameAction
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Elab.SyntheticMVars
 import Lean.AddDecl
 
@@ -80,6 +82,7 @@ def isMatchFloatName (env : Environment) (name : Name) : Bool :=
   else
     false
 
+
 builtin_initialize
   registerReservedNamePredicate isMatchFloatName
 
@@ -92,5 +95,47 @@ builtin_initialize
 
 end Lean.Meta
 
- builtin_initialize
+builtin_initialize
    Lean.registerTraceClass `Meta.Match.float
+   Lean.registerTraceClass `match_float
+
+private def _root_.Lean.Expr.constLams? : Expr → Option Expr
+  | .lam _ _ b _ => constLams? b
+  | e => if e.hasLooseBVars then none else some e
+
+def mkMatchFloatApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) := do
+  let some (α, β) := (← inferType f).arrow? |
+    trace[match_float] "Cannot float match: {f} is dependent"
+    return none
+  let floatName := matcherApp.matcherName ++ `float
+  let _ ← realizeGlobalName floatName
+  let floatArgs := #[α,β,f] ++ matcherApp.params ++ matcherApp.discrs ++ matcherApp.alts
+  -- Using mkAppOptM to instantiate the level params
+  let e ← mkAppOptM floatName (floatArgs.map some)
+  return some e
+
+open Lean Meta Simp
+builtin_simproc_decl match_float (_) := fun e => do
+  unless e.isApp do return .continue
+  -- We could, but for now we do not float out of props
+  if ← Meta.isProp e then return .continue
+  e.withApp fun fn args => do
+    for h : i in [:args.size] do
+      let some matcherApp ← matchMatcherApp? args[i] | continue
+      -- We do not handle over-application of matches
+      unless matcherApp.remaining.isEmpty do continue
+      -- We do not handle dependent motives
+      let some α := matcherApp.motive.constLams? |
+        trace[match_float] "Cannot float match: extra arguments after the match"
+        continue
+      let f := (mkLambda `x .default α (mkAppN fn (args.set! i (.bvar 0)))).eta
+      -- Abstracting over the argument can result in a type incorrect `f`:
+      unless (← isTypeCorrect f) do
+        trace[match_float] "Cannot float match: context is not type correct"
+        continue
+      let some proof ← mkMatchFloatApp f matcherApp | continue
+      let type ← inferType proof
+      let some (_, _, rhs) := type.eq?
+        | throwError "match_float: Unexpected non-equality type:{indentExpr type}"
+      return .visit { expr := rhs, proof? := some proof }
+    return .continue

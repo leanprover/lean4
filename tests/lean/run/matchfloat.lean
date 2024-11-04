@@ -39,6 +39,49 @@ info: test2.match_1.float {α β : Prop} (f : α → β) {γ : Prop} (α✝ β�
 #guard_msgs in
 #check test2.match_1.float
 
+-- A typical example
+
+theorem List.filter_map' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
+  induction l <;> simp [filter, map, *, ↑ match_float]
+
+
+-- A simple example
+
+example (o : Option Bool) :
+  (match o with | some b => b | none => false)
+    = !(match o with | some b => !b | none => true) := by
+  simp [↑ match_float]
+
+-- Dependent context; must not rewrite
+
+set_option trace.match_float true in
+/--
+warning: declaration uses 'sorry'
+---
+info: [match_float] Cannot float match: f is dependent
+-/
+#guard_msgs in
+example (o : Option Bool) (motive : Bool → Type)
+  (f : (x : Bool) → motive x) (rhs : motive (match o with | some b => b | none => false)) :
+  f (match (motive := ∀ _, Bool) o with | some b => b | none => false) = rhs := by
+  fail_if_success simp [↑ match_float]
+  sorry
+
+-- Context depends on the concrete value of the match, must not rewrite
+
+set_option trace.match_float true in
+/--
+warning: declaration uses 'sorry'
+---
+info: [match_float] Cannot float match: context is not type correct
+-/
+#guard_msgs in
+example (o : Option Bool)
+  (f : (x : Bool) → (h : x = (match o with | some b => b | none => false)) → Bool):
+  f (match (motive := ∀ _, Bool) o with | some b => b | none => false) rfl = true := by
+  fail_if_success simp [↑ match_float]
+  sorry
+
 /-
 This code quickly finds many matcher where deriving the floater fails, usually
 because the splitter cannot be generated, for example Nat.lt_or_gt_of_ne.match_1.float
@@ -47,6 +90,8 @@ open Lean Meta in
 run_meta do
   for es in (Match.Extension.extension.toEnvExtension.getState (← getEnv)).importedEntries do
     for e in es do
+      -- Let's not look at matchers that eliminate to Prop only
+      if e.info.uElimPos?.isNone then continue
       let _ ← realizeGlobalName (e.name ++ `float)
 
 -/

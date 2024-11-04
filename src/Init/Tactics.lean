@@ -272,12 +272,20 @@ macro nextTk:"next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
   -- Limit ref variability for incrementality; see Note [Incremental Macros]
   withRef arrowTk `(tactic| case%$nextTk _ $args* =>%$arrowTk $tac)
 
-/-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
+/--
+`all_goals tac` runs `tac` on each goal, concatenating the resulting goals.
+If the tactic fails on any goal, the entire `all_goals` tactic fails.
+
+This is equivalent to `any_goals try tac`.
+-/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
 
 /--
-`any_goals tac` applies the tactic `tac` to every goal, and succeeds if at
-least one application succeeds.
+`any_goals tac` applies the tactic `tac` to every goal,
+concating the resulting goals for successful tactic applications.
+It succeeds if at least one application succeeds.
+
+This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeed.
 -/
 syntax (name := anyGoals) "any_goals " tacticSeq : tactic
 

@@ -1,5 +1,5 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
-  stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, substituteAll, symlinkJoin, linkFarmFromDrvs,
+  stdenv, lib, coreutils, tzdata, gnused, writeShellScriptBin, bash, substituteAll, symlinkJoin, linkFarmFromDrvs,
   runCommand, darwin, mkShell, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
@@ -45,7 +45,7 @@ with builtins; let
     name = lib.strings.sanitizeDerivationName args.name;
     stdenv = bareStdenv;
     inherit (stdenv) system;
-    buildInputs = (args.buildInputs or []) ++ [ coreutils ];
+    buildInputs = (args.buildInputs or []) ++ [ coreutils tzdata ];
     builder = stdenv.shell;
     args = [ "-c" ''
       source $stdenv/setup

@@ -58,15 +58,58 @@ error: unknown identifier 'Nat.lt_or_gt_of_ne.match_1.float'
 -- A typical example
 
 theorem List.filter_map' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
-  induction l <;> simp [filter, map, *, ↑ match_float]
-
+  induction l <;> simp [filter, map, *, match_float]
 
 -- A simple example
 
 example (o : Option Bool) :
   (match o with | some b => b | none => false)
     = !(match o with | some b => !b | none => true) := by
-  simp [↑ match_float]
+  simp [match_float]
+
+-- Demonstration that this should really be used as a post-simproc (which luckily is the default)
+
+/--
+error: tactic 'fail' failed
+o : Option Bool
+P : Bool → Prop
+⊢ P
+    (match o with
+    | some b => !!!b
+    | none => !!!true)
+-/
+#guard_msgs in
+example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b | none => true) := by
+  simp (config := {singlePass := true}) only [↑ match_float]
+  fail
+
+/--
+error: tactic 'fail' failed
+o : Option Bool
+P : Bool → Prop
+⊢ P
+    !!match o with
+        | some b => !b
+        | none => !true
+-/
+#guard_msgs in
+example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b | none => true) := by
+  simp (config := {singlePass := true}) only [↓ match_float]
+  fail
+
+/--
+error: tactic 'fail' failed
+o : Option Bool
+P : Bool → Prop
+⊢ P
+    (match o with
+    | some b => !!!b
+    | none => !!!true)
+-/
+#guard_msgs in
+example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b | none => true) := by
+  simp (config := {singlePass := true}) only [match_float]
+  fail
 
 -- Dependent context; must not rewrite
 
@@ -80,7 +123,7 @@ info: [match_float] Cannot float match: f is dependent
 example (o : Option Bool) (motive : Bool → Type)
   (f : (x : Bool) → motive x) (rhs : motive (match o with | some b => b | none => false)) :
   f (match (motive := ∀ _, Bool) o with | some b => b | none => false) = rhs := by
-  fail_if_success simp [↑ match_float]
+  fail_if_success simp [match_float]
   sorry
 
 -- Context depends on the concrete value of the match, must not rewrite
@@ -95,7 +138,7 @@ info: [match_float] Cannot float match: context is not type correct
 example (o : Option Bool)
   (f : (x : Bool) → (h : x = (match o with | some b => b | none => false)) → Bool):
   f (match (motive := ∀ _, Bool) o with | some b => b | none => false) rfl = true := by
-  fail_if_success simp [↑ match_float]
+  fail_if_success simp [match_float]
   sorry
 
 /-

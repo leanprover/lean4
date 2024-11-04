@@ -1,5 +1,5 @@
 { src, debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, libuv, cadical, git, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
+  stdenv, lib, cmake, gmp, libuv, cadical, git, tzdata, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
 lib.warn "The Nix-based build is deprecated" rec {
@@ -159,7 +159,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
-        buildInputs = [ gmp libuv perl git cadical ];
+        buildInputs = [ gmp libuv perl git cadical tzdata ];
         preConfigure = ''
           cd src
         '';

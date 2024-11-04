@@ -131,7 +131,7 @@ partial def hasTag : MessageData → Bool
   | _                       => false
 
 /--
-Returns the top-level tag or trace class of the message.
+Returns the top-level tag of the message.
 If none, returns `Name.anonymous`.
 
 This does not descend into message subtrees (e.g., `.compose`, `.ofLazy`).
@@ -141,7 +141,6 @@ def inferKind : MessageData → Name
   | withContext _ msg       => inferKind msg
   | withNamingContext _ msg => inferKind msg
   | tagged n _              => n
-  | trace data _ _          => data.cls
   | _                       => .anonymous
 
 /-- An empty message. -/
@@ -323,7 +322,7 @@ structure BaseMessage (α : Type u) where
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
   caption       : String          := ""
-  /-- The message kind (e.g., top-level tag or trace class). -/
+  /-- The message kind (e.g., the top-level tag). -/
   kind          : Name := .anonymous
   /-- The content of the message. -/
   data          : α

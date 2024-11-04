@@ -60,6 +60,10 @@ theorem mapFinIdx_spec (as : Array α) (f : Fin as.size → α → β)
   simp only [getElem?_def, size_mapFinIdx, getElem_mapFinIdx]
   split <;> simp_all
 
+@[simp] theorem toList_mapFinIdx (a : Array α) (f : Fin a.size → α → β) :
+    (a.mapFinIdx f).toList = a.toList.mapFinIdx (fun i a => f ⟨i, by simp⟩ a) := by
+  apply List.ext_getElem <;> simp
+
 /-! ### mapIdx -/
 
 theorem mapIdx_induction (as : Array α) (f : Nat → α → β)
@@ -89,4 +93,20 @@ theorem mapIdx_spec (as : Array α) (f : Nat → α → β)
       a[i]?.map (f i) := by
   simp [getElem?_def, size_mapIdx, getElem_mapIdx]
 
+@[simp] theorem toList_mapIdx (a : Array α) (f : Nat → α → β) :
+    (a.mapIdx f).toList = a.toList.mapIdx (fun i a => f i a) := by
+  apply List.ext_getElem <;> simp
+
 end Array
+
+namespace List
+
+@[simp] theorem mapFinIdx_toArray (l : List α) (f : Fin l.length → α → β) :
+    l.toArray.mapFinIdx f = (l.mapFinIdx f).toArray := by
+  ext <;> simp
+
+@[simp] theorem mapIdx_toArray (l : List α) (f : Nat → α → β) :
+    l.toArray.mapIdx f = (l.mapIdx f).toArray := by
+  ext <;> simp
+
+end List

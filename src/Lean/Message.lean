@@ -116,7 +116,7 @@ variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
 is true.
 
-This does not descend into lazily generated subtress (`.ofLazy`); message tags
+This does not descend into lazily generated subtrees (`.ofLazy`); message tags
 of interest (like those added by `logLinter`) are expected to be near the root
 of the `MessageData`, and not hidden inside `.ofLazy`.
 -/
@@ -129,6 +129,20 @@ partial def hasTag : MessageData → Bool
   | tagged n msg            => p n || hasTag msg
   | trace data msg msgs     => p data.cls || hasTag msg || msgs.any hasTag
   | _                       => false
+
+/--
+Returns the top-level tag or trace class of the message.
+If none, returns `Name.anonymous`.
+
+This does not descend into message subtrees (e.g., `.compose`, `.ofLazy`).
+The message kind is expected to describe the whole message.
+-/
+def inferKind : MessageData → Name
+  | withContext _ msg       => inferKind msg
+  | withNamingContext _ msg => inferKind msg
+  | tagged n _              => n
+  | trace data _ _          => data.cls
+  | _                       => .anonymous
 
 /-- An empty message. -/
 def nil : MessageData :=
@@ -307,8 +321,10 @@ structure BaseMessage (α : Type u) where
   endPos        : Option Position := none
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
-  severity      : MessageSeverity := MessageSeverity.error
+  severity      : MessageSeverity := .error
   caption       : String          := ""
+  /-- The message kind (e.g., top-level tag or trace class). -/
+  kind          : Name := .anonymous
   /-- The content of the message. -/
   data          : α
   deriving Inhabited, ToJson, FromJson

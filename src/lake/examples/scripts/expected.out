@@ -1,6 +1,6 @@
-dep/hello
 scripts/say-goodbye
 scripts/greet
+dep/hello
 Hello, world!
 Hello, me!
 Hello, --me!
@@ -16,8 +16,8 @@ Hello from Dep!
 Goodbye!
 error: unknown script nonexistent
 error: unknown script nonexistent
-dep/hello
 scripts/say-goodbye
 scripts/greet
+dep/hello
 Hello, world!
 Goodbye!

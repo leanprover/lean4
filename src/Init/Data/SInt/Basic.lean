@@ -68,6 +68,10 @@ abbrev Int.toInt8 := Int8.ofInt
 abbrev Nat.toInt8 := Int8.ofNat
 @[extern "lean_int8_to_int"]
 def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
+/--
+This function has the same behavior as `Int.toNat` for negative numbers.
+If you want to obtain the 2's complement representation use `toBitVec`.
+-/
 @[inline] def Int8.toNat (i : Int8) : Nat := i.toInt.toNat
 @[extern "lean_int8_neg"]
 def Int8.neg (i : Int8) : Int8 := ⟨⟨-i.toBitVec⟩⟩
@@ -161,6 +165,10 @@ abbrev Int.toInt16 := Int16.ofInt
 abbrev Nat.toInt16 := Int16.ofNat
 @[extern "lean_int16_to_int"]
 def Int16.toInt (i : Int16) : Int := i.toBitVec.toInt
+/--
+This function has the same behavior as `Int.toNat` for negative numbers.
+If you want to obtain the 2's complement representation use `toBitVec`.
+-/
 @[inline] def Int16.toNat (i : Int16) : Nat := i.toInt.toNat
 @[extern "lean_int16_to_int8"]
 def Int16.toInt8 (a : Int16) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
@@ -258,6 +266,10 @@ abbrev Int.toInt32 := Int32.ofInt
 abbrev Nat.toInt32 := Int32.ofNat
 @[extern "lean_int32_to_int"]
 def Int32.toInt (i : Int32) : Int := i.toBitVec.toInt
+/--
+This function has the same behavior as `Int.toNat` for negative numbers.
+If you want to obtain the 2's complement representation use `toBitVec`.
+-/
 @[inline] def Int32.toNat (i : Int32) : Nat := i.toInt.toNat
 @[extern "lean_int32_to_int8"]
 def Int32.toInt8 (a : Int32) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
@@ -359,6 +371,10 @@ abbrev Int.toInt64 := Int64.ofInt
 abbrev Nat.toInt64 := Int64.ofNat
 @[extern "lean_int64_to_int_sint"]
 def Int64.toInt (i : Int64) : Int := i.toBitVec.toInt
+/--
+This function has the same behavior as `Int.toNat` for negative numbers.
+If you want to obtain the 2's complement representation use `toBitVec`.
+-/
 @[inline] def Int64.toNat (i : Int64) : Nat := i.toInt.toNat
 @[extern "lean_int64_to_int8"]
 def Int64.toInt8 (a : Int64) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩

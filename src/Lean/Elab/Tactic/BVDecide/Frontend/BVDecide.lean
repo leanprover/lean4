@@ -35,9 +35,13 @@ Reconstruct bit by bit which value expression must have had which `BitVec` value
 expression - pair values.
 -/
 def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Array (Bool × Nat))
-    (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr)) :
+    (aigSize : Nat) (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
   let mut sparseMap : Std.HashMap Nat (RBMap Nat Bool Ord.compare) := {}
+  let filter bvBit _ :=
+    let (_, _, synthetic) := atomsAssignment.get! bvBit.var
+    !synthetic
+  let var2Cnf := var2Cnf.filter filter
   for (bitVar, cnfVar) in var2Cnf.toArray do
     /-
     The setup of the variables in CNF is as follows:
@@ -70,7 +74,7 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
       if bitValue then
         value := value ||| (1 <<< currentBit)
       currentBit := currentBit + 1
-    let atomExpr := atomsAssignment.get! bitVecVar |>.snd
+    let (_, atomExpr, _) := atomsAssignment.get! bitVecVar
     finalMap := finalMap.push (atomExpr, ⟨BitVec.ofNat currentBit value⟩)
   return finalMap
 
@@ -101,7 +105,7 @@ structure UnsatProver.Result where
   proof : Expr
   lratCert : LratCert
 
-abbrev UnsatProver := MVarId → ReflectionResult → Std.HashMap Nat (Nat × Expr) →
+abbrev UnsatProver := MVarId → ReflectionResult → Std.HashMap Nat (Nat × Expr × Bool) →
     MetaM (Except CounterExample UnsatProver.Result)
 
 /--
@@ -183,7 +187,7 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
     return err
 
 def lratBitblaster (goal : MVarId) (cfg : TacticContext) (reflectionResult : ReflectionResult)
-    (atomsAssignment : Std.HashMap Nat (Nat × Expr)) :
+    (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     MetaM (Except CounterExample UnsatProver.Result) := do
   let bvExpr := reflectionResult.bvExpr
   let entry ←
@@ -253,7 +257,8 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
         reflectBV g
     trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.bvExpr}"
 
-    let atomsPairs := (← getThe State).atoms.toList.map (fun (expr, ⟨width, ident⟩) => (ident, (width, expr)))
+    let flipper := (fun (expr, {width, atomNumber, synthetic}) => (atomNumber, (width, expr, synthetic)))
+    let atomsPairs := (← getThe State).atoms.toList.map flipper
     let atomsAssignment := Std.HashMap.ofList atomsPairs
     match ← unsatProver g reflectionResult atomsAssignment with
     | .ok ⟨bvExprUnsat, cert⟩ =>

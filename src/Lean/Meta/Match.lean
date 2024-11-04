@@ -9,6 +9,7 @@ import Lean.Meta.Match.Match
 import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.CaseArraySizes
 import Lean.Meta.Match.MatchEqs
+import Lean.Meta.Match.Float
 
 namespace Lean
 

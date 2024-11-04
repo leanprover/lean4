@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 -/
 
 prelude
-import Lean.Meta.Match
+import Lean.Meta.Match.MatchEqs
 import Lean.Meta.InferType
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Split

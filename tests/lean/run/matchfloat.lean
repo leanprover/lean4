@@ -39,6 +39,22 @@ info: test2.match_1.float {α β : Prop} (f : α → β) {γ : Prop} (α✝ β�
 #guard_msgs in
 #check test2.match_1.float
 
+-- This fails if there is no splitter theorem for a match
+
+/--
+error: Failed to realize constant Nat.lt_or_gt_of_ne.match_1.float:
+  Cannot construct match floating theorem:
+    Could not construct splitter for Nat.lt_or_gt_of_ne.match_1
+---
+error: Failed to realize constant Nat.lt_or_gt_of_ne.match_1.float:
+  Cannot construct match floating theorem:
+    Could not construct splitter for Nat.lt_or_gt_of_ne.match_1
+---
+error: unknown identifier 'Nat.lt_or_gt_of_ne.match_1.float'
+-/
+#guard_msgs in
+#check Nat.lt_or_gt_of_ne.match_1.float
+
 -- A typical example
 
 theorem List.filter_map' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by

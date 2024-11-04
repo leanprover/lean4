@@ -10,15 +10,12 @@ import Lean.ResolveName
 import Lean.ReservedNameAction
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatcherApp.Basic
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Elab.SyntheticMVars
 import Lean.AddDecl
-
--- NB: This module is Lean.Meta.MatchFloat, not Lean.Meta.Match.Float
--- so that this does not become a dependency from modules that don't need it.
--- If Lean.Meta.Match would be an import-only module this could be avoided
 
 open Lean Meta Elab Term
 
@@ -27,8 +24,14 @@ namespace Lean.Meta
 -- partial def mkEquationsFor (matchDeclName : Name) :  MetaM
 
 def deriveMatchFloat (name : Name) : MetaM Unit := do
-  mapError (f := (m!"Cannot construct match floating theorem (please report this issue)\n{indentD ·}")) do
+  mapError (f := (m!"Cannot construct match floating theorem:{indentD ·}")) do
     let some info ← getMatcherInfo? name | throwError "getMatcherInfo? failed"
+    -- Fail early if splitter cannot be generated
+    try
+      discard <| Match.getEquationsFor name
+    catch _ =>
+      throwError "Could not construct splitter for {name}"
+
     let cinfo ← getConstInfo name
     let (u, v, us, us', levelParams) := if let some upos := info.uElimPos? then
       let u := mkLevelParam `u

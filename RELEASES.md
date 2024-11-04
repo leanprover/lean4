@@ -281,7 +281,7 @@ v4.13.0
   * [#5381](https://github.com/leanprover/lean4/pull/5381) cleaning up redundant simp lemmas
 
 
-# Compiler, runtime, and FFI
+### Compiler, runtime, and FFI
 
 * [#4685](https://github.com/leanprover/lean4/pull/4685) fixes a typo in the C `run_new_frontend` signature
 * [#4729](https://github.com/leanprover/lean4/pull/4729) has IR checker suggest using `noncomputable`
@@ -293,7 +293,7 @@ v4.13.0
 * [#5564](https://github.com/leanprover/lean4/pull/5564) removes non-conforming size-0 arrays (@eric-wieser)
 
 
-# Lake
+### Lake
   * Reservoir build cache. Lake will now attempt to fetch a pre-built copy of the package from Reservoir before building it. This is only enabled for packages in the leanprover or leanprover-community organizations on versions indexed by Reservoir. Users can force Lake to build packages from the source by passing --no-cache on the CLI or by setting the  LAKE_NO_CACHE environment variable to true. [#5486](https://github.com/leanprover/lean4/pull/5486), [#5572](https://github.com/leanprover/lean4/pull/5572), [#5583](https://github.com/leanprover/lean4/pull/5583), [#5600](https://github.com/leanprover/lean4/pull/5600), [#5641](https://github.com/leanprover/lean4/pull/5641), [#5642](https://github.com/leanprover/lean4/pull/5642).
   * [#5504](https://github.com/leanprover/lean4/pull/5504) lake new and lake init now produce TOML configurations by default.
   * [#5878](https://github.com/leanprover/lean4/pull/5878) fixes a serious issue where Lake would delete path dependencies when attempting to cleanup a dependency required with an incorrect name.

@@ -75,7 +75,7 @@ jobs:
 
       - name: Report release status
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -208,7 +208,7 @@ jobs:
 
       - name: Report mathlib base
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const description =

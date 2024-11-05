@@ -195,7 +195,7 @@ theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.le
       Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
   rw [Array.isPrefixOfAux]
   conv => rhs; rw [Array.isPrefixOfAux]
-  simp
+  simp only [size_toArray, getElem_toArray, Bool.if_false_right, length_tail, getElem_tail]
   split <;> rename_i h₁ <;> split <;> rename_i h₂
   · rw [isPrefixOfAux_toArray_succ]
   · omega

@@ -199,6 +199,54 @@ example (b : Bool) : b = b := by
 
 
 /-!
+Simple failure.
+-/
+
+/--
+error: tactic 'fail' failed
+⊢ True
+---
+info: Try this: sorry
+-/
+#guard_msgs in
+example : True := by?
+  all_goals fail
+  trivial
+
+
+/-!
+Runtime exception
+-/
+
+elab "throw_max_rec_depth" : tactic => do
+  throwMaxRecDepthAt (← getRef)
+/--
+error: maximum recursion depth has been reached
+use `set_option maxRecDepth <num>` to increase limit
+use `set_option diagnostics true` to get diagnostic information
+---
+info: Try this: sorry
+-/
+#guard_msgs in
+example : True := by?
+  all_goals throw_max_rec_depth
+  trivial
+
+
+/-!
+Regression test: `all_goals` should not catch interrupts.
+-/
+elab "interrupt" : tactic =>
+  throw <| .internal Core.interruptExceptionId
+
+/-- We never get to checking this docstring. Everything is completely interrupted. -/
+#guard_msgs in
+example : True := by?
+  all_goals interrupt
+  trivial
+
+
+/-!
 Various tests involving a `Weekday` type.
 -/
 

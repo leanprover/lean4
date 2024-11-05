@@ -432,7 +432,8 @@ Wraps the given action for use in `BaseIO.asTask` etc., discarding its final sta
 message log, which is reported in the returned snapshot.
 -/
 def runAsyncAsSnapshot (act : TermElabM (Array (SnapshotTask SnapshotTree))) (desc := "") : TermElabM (BaseIO SnapshotTree) := do
-  let t ← runAsync do
+  let (output, t) ← IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
+   runAsync do
     let tid ← IO.getLeanThreadID
     modifyTraceState fun _ => { tid }
     let trees ←
@@ -445,14 +446,24 @@ def runAsyncAsSnapshot (act : TermElabM (Array (SnapshotTask SnapshotTree))) (de
       finally
         addTraceAsMessages
     return (trees, (← saveState))
+  let ctx ← readThe Core.Context
+  let mkDiags msgs :=
+    let msgs := if output.isEmpty then msgs else
+      msgs.add {
+        fileName := ctx.fileName
+        severity := MessageSeverity.information
+        pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+        data     := output
+      }
+    Language.Snapshot.Diagnostics.ofMessageLog msgs
   return do
     match (← t.toBaseIO) with
     | .ok (trees, st) =>
       return .mk {
-        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog st.meta.core.messages)
+        diagnostics := (← mkDiags st.meta.core.messages)
         traces := st.meta.core.traceState
       } trees
-    | .error _ => return .mk { diagnostics := .empty } #[]
+    | .error _ => return .mk { diagnostics := (← mkDiags .empty) } #[]
 
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr)
     (sc : Command.Scope) :

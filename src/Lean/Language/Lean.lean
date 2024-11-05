@@ -166,13 +166,6 @@ namespace Lean.Language.Lean
 open Lean.Elab Command
 open Lean.Parser
 
-/-- Option for capturing output to stderr during elaboration. -/
-register_builtin_option stderrAsMessages : Bool := {
-  defValue := true
-  group    := "server"
-  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
-}
-
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
   /-- Position of the first file difference if there was a previous invocation. -/
@@ -541,7 +534,9 @@ where
       let traceTask ←
         if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
           BaseIO.bindTask elabPromise.result fun elabSnap => do
-            let tree := toSnapshotTree elabSnap
+          BaseIO.bindTask finishedPromise.result fun finishedSnap => do
+            let tree := SnapshotTree.mk { diagnostics := .empty }
+              #[.pure <| toSnapshotTree elabSnap, .pure <| toSnapshotTree finishedSnap]
             BaseIO.bindTask (← tree.waitAll) fun _ => do
               let .ok (_, s) ← EIO.toBaseIO <| tree.trace |>.run
                 { ctx with options := cmdState.scopes.head!.opts } { env := cmdState.env }

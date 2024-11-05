@@ -89,6 +89,25 @@ example (b : Bool) (o : Option Bool) (P : Bool → Prop) (abort : ∀ b, P b):
   fail_if_success simp only [match_float]
   apply abort
 
+-- Can float out of a match target (aka case-of-case)
+/--
+error: tactic 'fail' failed
+o : Option Bool
+P : Nat → Prop
+⊢ P
+    (match o with
+    | some b =>
+      match b with
+      | true => 1
+      | false => 2
+    | none => 1)
+-/
+#guard_msgs in
+example (o : Option Bool) (P : Nat → Prop):
+  P (match (match o with | some b => b | none => true) with | true => 1 | false => 2) := by
+  simp only [match_float]
+  fail
+
 -- Dependent context; must not rewrite
 
 set_option trace.match_float true in

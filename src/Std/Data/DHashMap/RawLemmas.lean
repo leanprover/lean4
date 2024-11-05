@@ -1023,8 +1023,8 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
 end Const
 
 @[simp]
-theorem length_keys_eq_size [EquivBEq α] [LawfulHashable α] (h : m.WF) : 
-    m.keys.length = m.size := by 
+theorem length_keys_eq_size [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.length = m.size := by
   simp_to_raw using Raw₀.length_keys_eq_size ⟨m, h.size_buckets_pos⟩ h
 
 @[simp]
@@ -1032,6 +1032,10 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     m.keys.contains k = m.contains k := by
   simp_to_raw using Raw₀.contains_keys ⟨m, _⟩ h
 
+@[simp]
+theorem keys_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
+    m.keys.isEmpty = m.isEmpty := by
+  simp_to_raw using Raw₀.keys_isEmpty ⟨m, h.size_buckets_pos⟩
 end Raw
 
 end Std.DHashMap

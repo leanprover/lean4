@@ -683,14 +683,19 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
   ext (DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out)
 
 @[simp]
-theorem length_keys_eq_size [EquivBEq α] [LawfulHashable α] (h : m.WF) : 
-    m.keys.length = m.size := 
+theorem length_keys_eq_size [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.length = m.size :=
   DHashMap.Raw.length_keys_eq_size h.out
 
 @[simp]
 theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     m.keys.contains k = m.contains k :=
   DHashMap.Raw.contains_keys h.out
+
+@[simp]
+theorem keys_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
+    m.keys.isEmpty = m.isEmpty :=
+  DHashMap.Raw.keys_isEmpty h.out
 
 end Raw
 

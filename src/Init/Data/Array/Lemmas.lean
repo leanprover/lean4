@@ -246,7 +246,7 @@ where
   aux (i r) :
       mapM.map f arr i r = (arr.toList.drop i).foldlM (fun bs a => bs.push <$> f a) r := by
     unfold mapM.map; split
-    · rw [← List.get_drop_eq_drop _ i ‹_›]
+    · rw [← List.getElem_cons_drop_succ_eq_drop ‹_›]
       simp only [aux (i + 1), map_eq_pure_bind, length_toList, List.foldlM_cons, bind_assoc,
         pure_bind]
       rfl
@@ -1619,6 +1619,38 @@ theorem filterMap_toArray (f : α → Option β) (l : List α) :
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (ofFn f).toArray = Array.ofFn f := by
   ext <;> simp
 
+theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
+    takeWhile.go p (a :: l).toArray (i+1) r = takeWhile.go p l.toArray i r := by
+  rw [takeWhile.go, takeWhile.go]
+  simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+    getElem_toArray, getElem_cons_succ]
+  split
+  rw [takeWhile_go_succ]
+  rfl
+
+theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
+    Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by
+  induction l generalizing i r with
+  | nil => simp [takeWhile.go]
+  | cons a l ih =>
+    rw [takeWhile.go]
+    cases i with
+    | zero =>
+      simp [takeWhile_go_succ, ih, takeWhile_cons]
+      split <;> simp
+    | succ i =>
+      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+        getElem_toArray, getElem_cons_succ, drop_succ_cons]
+      split <;> rename_i h₁
+      · rw [takeWhile_go_succ, ih]
+        rw [← getElem_cons_drop_succ_eq_drop h₁, takeWhile_cons]
+        split <;> simp_all
+      · simp_all [drop_eq_nil_of_le]
+
+@[simp] theorem takeWhile_toArray (p : α → Bool) (l : List α) :
+    l.toArray.takeWhile p = (l.takeWhile p).toArray := by
+  simp [Array.takeWhile, takeWhile_go_toArray]
+
 end List
 
 namespace Array
@@ -1628,6 +1660,10 @@ namespace Array
 
 @[simp] theorem toList_ofFn (f : Fin n → α) : (Array.ofFn f).toList = List.ofFn f := by
   apply List.ext_getElem <;> simp
+
+@[simp] theorem toList_takeWhile (p : α → Bool) (as : Array α) :
+    (as.takeWhile p).toList = as.toList.takeWhile p := by
+  induction as; simp
 
 end Array
 

@@ -248,8 +248,8 @@ def evalBVNormalize : Tactic := fun
   | `(tactic| bv_normalize) => do
     let g ← getMainGoal
     match ← bvNormalize g with
-    | some newGoal => setGoals [newGoal]
-    | none => setGoals []
+    | some newGoal => replaceMainGoal [newGoal]
+    | none => replaceMainGoal []
   | _ => throwUnsupportedSyntax
 
 end Frontend.Normalize

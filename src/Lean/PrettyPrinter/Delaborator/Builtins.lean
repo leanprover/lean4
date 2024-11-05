@@ -868,7 +868,7 @@ def delabLam : Delab :=
               pure $ curNames.get! 0;
           `(funBinder| ($stxCurNames : $stxT))
         else
-          pure curNames.back  -- here `curNames.size == 1`
+          pure curNames.back!  -- here `curNames.size == 1`
       let group ← match e.binderInfo, ppTypes with
         | BinderInfo.default,        _      => defaultCase ()
         | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
@@ -876,7 +876,7 @@ def delabLam : Delab :=
         | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
         | BinderInfo.strictImplicit, false  => `(funBinder| ⦃$curNames*⦄)
         | BinderInfo.instImplicit,   _     =>
-          if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
+          if usedDownstream then `(funBinder| [$curNames.back! : $stxT])  -- here `curNames.size == 1`
           else  `(funBinder| [$stxT])
       let (binders, stxBody) :=
         match stxBody with
@@ -924,7 +924,7 @@ def delabForall : Delab := do
     | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $stxT})
     | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $stxT⦄)
     -- here `curNames.size == 1`
-    | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back : $stxT])
+    | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back! : $stxT])
     | _                         =>
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
@@ -1021,8 +1021,10 @@ Delaborates an `OfNat.ofNat` literal.
 `@OfNat.ofNat _ n _` ~> `n`.
 -/
 @[builtin_delab app.OfNat.ofNat]
-def delabOfNat : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
-  delabOfNatCore (showType := (← getPPOption getPPNumericTypes))
+def delabOfNat : Delab := do
+  let showType ← getPPOption getPPNumericTypes
+  whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
+    delabOfNatCore (showType := ← pure showType <||> getPPOption getPPNumericTypes)
 
 /--
 Delaborates the negative of an `OfNat.ofNat` literal.

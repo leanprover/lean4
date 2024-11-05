@@ -209,7 +209,7 @@ where
       let_expr Eq α discrExpr val := discrExpr | return none
       let_expr Bool := α | return none
       let_expr Bool.true := val | return none
-      let some atom ← ReifiedBVExpr.bitVecAtom x | return none
+      let some atom ← ReifiedBVExpr.bitVecAtom x true | return none
       let some discr ← ReifiedBVLogical.of discrExpr | return none
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
@@ -226,7 +226,7 @@ where
     let res ← go x
     match res with
     | some exp => return some exp
-    | none => ReifiedBVExpr.bitVecAtom x
+    | none => ReifiedBVExpr.bitVecAtom x false
 
   shiftConstLikeReflection (distance : Nat) (innerExpr : Expr) (shiftOp : Nat → BVUnOp)
       (shiftOpName : Name) (congrThm : Name) :
@@ -316,7 +316,7 @@ where
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
   goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
-    let some ⟨_, bvVal⟩ ← getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x
+    let some ⟨_, bvVal⟩ ← getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
     ReifiedBVExpr.mkBVConst bvVal
 
 /--

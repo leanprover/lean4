@@ -342,7 +342,7 @@ def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
 @[combinator_parenthesizer parserOfStack]
 def parserOfStack.parenthesizer (offset : Nat) (_prec : Nat := 0) : Parenthesizer := do
   let st ← get
-  let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
+  let stx := st.stxTrav.parents.back!.getArg (st.stxTrav.idxs.back! - offset)
   parenthesizerForKind stx.getKind
 
 @[builtin_category_parenthesizer term]

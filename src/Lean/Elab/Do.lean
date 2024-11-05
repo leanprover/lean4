@@ -801,7 +801,7 @@ private def mkTuple (elems : Array Syntax) : MacroM Syntax := do
   else if elems.size == 1 then
     return elems[0]!
   else
-    elems.extract 0 (elems.size - 1) |>.foldrM (init := elems.back) fun elem tuple =>
+    elems.extract 0 (elems.size - 1) |>.foldrM (init := elems.back!) fun elem tuple =>
       ``(MProd.mk $elem $tuple)
 
 /-- Return `some action` if `doElem` is a `doExpr <action>`-/

@@ -72,7 +72,7 @@ def mkOrCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
       rhs := {
         ref := auxRef.cast <| by
           intros
-          simp (config := { zetaDelta := true }) only
+          simp +zetaDelta only
           apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
           omega
         inv := true
@@ -100,7 +100,7 @@ def mkXorCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   aig.mkGateCached {
     lhs := {
       ref := aux1Ref.cast <| by
-        simp (config := { zetaDelta := true }) only
+        simp +zetaDelta only
         apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
         omega
       inv := true
@@ -132,7 +132,7 @@ def mkBEqCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   aig.mkGateCached {
     lhs := {
       ref := aux1Ref.cast <| by
-        simp (config := { zetaDelta := true }) only
+        simp +zetaDelta only
         apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
         omega
       inv := true
@@ -163,7 +163,7 @@ def mkImpCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
     rhs := {
       ref := auxRef.cast <| by
         intros
-        simp (config := { zetaDelta := true }) only
+        simp +zetaDelta only
         apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
         omega
       inv := true

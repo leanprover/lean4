@@ -263,10 +263,10 @@ static lean_object* l_Lake_Toml_elabBasicStringCore___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lake_Toml_elabInlineTable___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lake_Toml_elabDateTime___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabDateTime___closed__8;
 LEAN_EXPORT lean_object* l_Lake_Toml_elabString(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabBoolean(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabDecInt___closed__5;
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
@@ -5722,7 +5722,7 @@ if (lean_is_exclusive(x_38)) {
  x_46 = lean_box(0);
 }
 x_47 = lean_box(0);
-x_48 = l_Array_back___rarg(x_47, x_45);
+x_48 = l_Array_back_x21___rarg(x_47, x_45);
 x_120 = lean_array_pop(x_45);
 x_121 = lean_array_get_size(x_120);
 x_122 = lean_nat_dec_lt(x_20, x_121);

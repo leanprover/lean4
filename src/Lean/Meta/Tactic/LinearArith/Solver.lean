@@ -47,10 +47,10 @@ abbrev Poly.size (e : Poly) : Nat :=
   e.val.size
 
 abbrev Poly.getMaxVarCoeff (e : Poly) : Int :=
-  e.val.back.1
+  e.val.back!.1
 
 abbrev Poly.getMaxVar (e : Poly) : Var :=
-  e.val.back.2
+  e.val.back!.2
 
 abbrev Poly.get (e : Poly) (i : Fin e.size) : Int × Var :=
   e.val.get i
@@ -152,7 +152,7 @@ def Cnstr.getBound (c : Cnstr) (a : Assignment) : Rat := Id.run do
       r := r - c*v
     else
       unreachable!
-  let k := c.lhs.val.back.1
+  let k := c.lhs.val.back!.1
   return r / k
 
 def Cnstr.isUnsat (c : Cnstr) (a : Assignment) : Bool :=

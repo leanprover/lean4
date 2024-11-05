@@ -696,9 +696,9 @@ the tactic call `aesop (add 50% tactic Lean.Omega.omegaDefault)`. -/
 def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
-def evalOmega : Tactic := fun
-  | `(tactic| omega $[$cfg]?) => do
-    let cfg ← elabOmegaConfig (mkOptionalNode cfg)
+def evalOmega : Tactic
+  | `(tactic| omega $cfg:optConfig) => do
+    let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax
 

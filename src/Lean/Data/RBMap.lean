@@ -298,8 +298,13 @@ instance : ForIn m (RBMap α β cmp) (α × β) where
   | ⟨leaf, _⟩ => true
   | _         => false
 
+/-- Returns a `List` of the key/value pairs in order. -/
 @[specialize] def toList : RBMap α β cmp → List (α × β)
   | ⟨t, _⟩ => t.revFold (fun ps k v => (k, v)::ps) []
+
+/-- Returns an `Array` of the key/value pairs in order. -/
+@[specialize] def toArray : RBMap α β cmp → Array (α × β)
+  | ⟨t, _⟩ => t.fold (fun ps k v => ps.push (k, v)) #[]
 
 /-- Returns the kv pair `(a,b)` such that `a ≤ k` for all keys in the RBMap. -/
 @[inline] protected def min : RBMap α β cmp → Option (α × β)

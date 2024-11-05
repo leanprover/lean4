@@ -202,9 +202,9 @@ lean_object* l_Except_orElseLazy___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_224____rarg___closed__20;
 LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at_Lean_Widget_TaggedText_prettyTagged___spec__4(uint32_t, lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instMonadPrettyFormatStateMTaggedState___closed__1;
 LEAN_EXPORT uint8_t l___private_Lean_Widget_TaggedText_0__Lean_Widget_beqTaggedText____x40_Lean_Widget_TaggedText___hyg_78____rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_instMonadPrettyFormatStateMTaggedState___lambda__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_406____spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
@@ -3000,7 +3000,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_2, 0);
 x_11 = l_Lean_Widget_instInhabitedTaggedText___closed__2;
-x_12 = l_Array_back___rarg(x_11, x_10);
+x_12 = l_Array_back_x21___rarg(x_11, x_10);
 switch (lean_obj_tag(x_12)) {
 case 0:
 {
@@ -3088,7 +3088,7 @@ x_34 = lean_ctor_get(x_2, 0);
 lean_inc(x_34);
 lean_dec(x_2);
 x_35 = l_Lean_Widget_instInhabitedTaggedText___closed__2;
-x_36 = l_Array_back___rarg(x_35, x_34);
+x_36 = l_Array_back_x21___rarg(x_35, x_34);
 switch (lean_obj_tag(x_36)) {
 case 0:
 {
@@ -9679,7 +9679,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Lean_Widget_instInhabitedTaggedText___closed__2;
-x_7 = l_Array_back___rarg(x_6, x_2);
+x_7 = l_Array_back_x21___rarg(x_6, x_2);
 switch (lean_obj_tag(x_7)) {
 case 0:
 {

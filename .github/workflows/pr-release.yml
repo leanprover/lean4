@@ -60,7 +60,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
       - name: Release
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }}
           # There are coredumps files here as well, but all in deeper subdirectories.

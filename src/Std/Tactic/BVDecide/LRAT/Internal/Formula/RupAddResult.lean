@@ -203,12 +203,12 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
               · constructor
                 · match h : assignments0[i.val]'_ with
                   | unassigned => rfl
-                  | pos => simp (config := {decide := true}) [h] at h3
+                  | pos => simp +decide [h] at h3
                   | neg =>
                     simp only [addAssignment, addPosAssignment, h, ite_true] at h2
                     simp only [i_eq_l] at h2
                     simp [hasAssignment, hl, getElem!, l_in_bounds, h2, hasNegAssignment, decidableGetElem?] at h5
-                  | both => simp (config := {decide := true}) only [h] at h3
+                  | both => simp +decide only [h] at h3
                 · intro k k_ne_j k_ne_l
                   rw [Array.getElem_push]
                   by_cases h : k.1 < units.size
@@ -244,8 +244,8 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                     simp only [addAssignment, h, ite_false, addNegAssignment, reduceCtorEq] at h2
                     simp only [i_eq_l] at h2
                     simp [hasAssignment, hl, getElem!, l_in_bounds, h2, hasPosAssignment, decidableGetElem?] at h5
-                  | neg  => simp (config := {decide := true}) only [h] at h3
-                  | both => simp (config := {decide := true}) only [h] at h3
+                  | neg  => simp +decide only [h] at h3
+                  | both => simp +decide only [h] at h3
                 · intro k k_ne_l k_ne_j
                   rw [Array.getElem_push]
                   by_cases h : k.1 < units.size
@@ -418,7 +418,7 @@ theorem nodup_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd 
       have j_ne_k : j ≠ k := by rw [← i_eq_k]; exact i_ne_j.symm
       specialize h4 j j_ne_k
       rw [hj, li_eq_lj] at h4
-      simp (config := { decide := true}) only at h4
+      simp +decide only at h4
     · next i_ne_k =>
       specialize h4 i i_ne_k
       rw [hi] at h4
@@ -435,7 +435,7 @@ theorem nodup_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd 
         · next j_ne_k2 =>
           specialize h5 j j_ne_k1 j_ne_k2
           rw [hj, li_eq_lj] at h5
-          simp (config := { decide := true}) only at h5
+          simp +decide only at h5
       · next i_ne_k1 =>
         by_cases i = k2
         · next i_eq_k2 =>
@@ -457,7 +457,7 @@ theorem nodup_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd 
         · next j_ne_k1 =>
           specialize h5 j j_ne_k1 j_ne_k2
           rw [hj, li_eq_lj] at h5
-          simp (config := { decide := true}) only at h5
+          simp +decide only at h5
       · next i_ne_k2 =>
         by_cases i = k1
         · next i_eq_k1 =>
@@ -993,7 +993,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
       simp only [hasAssignment, Bool.not_eq_true] at h
       split at h
       all_goals
-        simp (config := {decide := true}) [getElem!, l_eq_i, i_in_bounds, h1, decidableGetElem?] at h
+        simp +decide [getElem!, l_eq_i, i_in_bounds, h1, decidableGetElem?] at h
     constructor
     · rw [Array.getElem_modify_of_ne l_ne_i]
       exact h1
@@ -1137,7 +1137,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
     · next k_ne_i =>
       have i_ne_k : ⟨i.1, i_in_bounds⟩ ≠ k := by intro i_eq_k; simp only [← i_eq_k, not_true] at k_ne_i
       specialize h3 ⟨i.1, i_in_bounds⟩ i_ne_k
-      simp (config := { decide := true }) [Fin.getElem_fin, derivedLits_arr_def, ne_eq,
+      simp +decide [Fin.getElem_fin, derivedLits_arr_def, ne_eq,
         Array.getElem_eq_getElem_toList, li] at h3
   · by_cases li.2 = true
     · next li_eq_true =>
@@ -1164,7 +1164,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
       · next i_ne_k1 =>
         specialize h3 ⟨i.1, i_in_bounds⟩ i_ne_k1 i_ne_k2
         apply h3
-        simp (config := { decide := true }) only [Fin.getElem_fin, Array.getElem_eq_getElem_toList,
+        simp +decide only [Fin.getElem_fin, Array.getElem_eq_getElem_toList,
           ne_eq, derivedLits_arr_def, li]
         rfl
     · next li_eq_false =>
@@ -1191,7 +1191,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
         simp [li, li_eq_lj, derivedLits_arr_def, Array.getElem_eq_getElem_toList] at h3
       · next i_ne_k2 =>
         specialize h3 ⟨i.1, i_in_bounds⟩ i_ne_k1 i_ne_k2
-        simp (config := { decide := true }) [Array.getElem_eq_getElem_toList, derivedLits_arr_def, li] at h3
+        simp +decide [Array.getElem_eq_getElem_toList, derivedLits_arr_def, li] at h3
 
 theorem restoreAssignments_performRupCheck_base_case {n : Nat} (f : DefaultFormula n)
     (f_assignments_size : f.assignments.size = n)

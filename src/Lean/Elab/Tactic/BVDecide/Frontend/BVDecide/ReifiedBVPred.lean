@@ -31,7 +31,7 @@ def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
   -/
   let ty ← inferType t
   let_expr Bool := ty | return none
-  let atom ← ReifiedBVExpr.mkAtom (mkApp (mkConst ``BitVec.ofBool) t) 1
+  let atom ← ReifiedBVExpr.mkAtom (mkApp (mkConst ``BitVec.ofBool) t) 1 false
   let bvExpr : BVPred := .getLsbD atom.bvExpr 0
   let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
   let proof := do

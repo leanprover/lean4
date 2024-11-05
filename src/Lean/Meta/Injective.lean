@@ -19,7 +19,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
   if args.isEmpty then
     return none
   else
-    let mut result := args.back
+    let mut result := args.back!
     for arg in args.reverse[1:] do
       result := mkApp2 (mkConst ``And) arg result
     return result
@@ -122,7 +122,7 @@ private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : M
 private def mkInjectiveTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr :=
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    solveEqOfCtorEq ctorName mvar.mvarId! xs.back.fvarId!
+    solveEqOfCtorEq ctorName mvar.mvarId! xs.back!.fvarId!
     mkLambdaFVars xs mvar
 
 def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=

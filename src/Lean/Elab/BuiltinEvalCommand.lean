@@ -137,7 +137,7 @@ private def mkFormat (e : Expr) : MetaM Expr := do
       if let .const name _ := (← whnf (← inferType e)).getAppFn then
         try
           trace[Elab.eval] "Attempting to derive a 'Repr' instance for '{.ofConstName name}'"
-          liftCommandElabM do applyDerivingHandlers ``Repr #[name] none
+          liftCommandElabM do applyDerivingHandlers ``Repr #[name]
           resetSynthInstanceCache
           return ← mkRepr e
         catch ex =>

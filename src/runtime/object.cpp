@@ -1547,18 +1547,8 @@ extern "C" LEAN_EXPORT uint32 lean_uint32_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod32();
 }
 
-extern "C" LEAN_EXPORT uint32 lean_uint32_big_modn(uint32 a1, b_lean_obj_arg a2) {
-    mpz const & m = mpz_value(a2);
-    return m.is_unsigned_int() ? a1 % m.get_unsigned_int() : a1;
-}
-
 extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod64();
-}
-
-extern "C" LEAN_EXPORT uint64 lean_uint64_big_modn(uint64 a1, b_lean_obj_arg) {
-    // TODO(Leo)
-    return a1;
 }
 
 extern "C" LEAN_EXPORT uint64 lean_uint64_mix_hash(uint64 a1, uint64 a2) {
@@ -1569,16 +1559,23 @@ extern "C" LEAN_EXPORT usize lean_usize_of_big_nat(b_obj_arg a) {
     return mpz_value(a).get_size_t();
 }
 
-extern "C" LEAN_EXPORT usize lean_usize_big_modn(usize a1, b_lean_obj_arg) {
-    // TODO(Leo)
-    return a1;
-}
-
 // =======================================
 // IntX
 
 extern "C" LEAN_EXPORT int8 lean_int8_of_big_int(b_obj_arg a) {
     return mpz_value(a).smod8();
+}
+
+extern "C" LEAN_EXPORT int16 lean_int16_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod16();
+}
+
+extern "C" LEAN_EXPORT int32 lean_int32_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod32();
+}
+
+extern "C" LEAN_EXPORT int64 lean_int64_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod64();
 }
 
 // =======================================

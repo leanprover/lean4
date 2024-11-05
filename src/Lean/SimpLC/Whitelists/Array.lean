@@ -20,7 +20,10 @@ simp_lc ignore Array.map_subtype
 simp_lc ignore Array.foldl_subtype
 simp_lc ignore Array.foldr_subtype
 
--- TODO: re-evaluate these (appeared while moving `SimpLC` into Lean.)
+-- Surely this should work just by `simp`, without needing `cases`?
+-- But I can't make it happen.
+example {α : Type _} {l : List α} : decide (l.toArray.size = 0) = l.isEmpty := by
+  cases l <;> simp
 simp_lc whitelist Array.isEmpty.eq_1 List.isEmpty_toArray
 
 /-

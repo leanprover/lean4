@@ -76,6 +76,7 @@ simp_lc whitelist List.getElem?_eq_getElem List.getElem?_pmap
 -- As above, `simp_all` is unwilling to make a copy of a hypothesis.
 simp_lc whitelist List.getElem?_eq_getElem List.getElem?_attach
 simp_lc whitelist List.getElem?_eq_getElem List.getElem?_attachWith
+simp_lc whitelist List.getElem?_eq_getElem List.getElem?_mapFinIdx
 
 -- These are helpful for `simp` to discharge side conditions, but generate too many false positives.
 simp_lc ignore List.head_mem
@@ -88,6 +89,7 @@ simp_lc ignore List.map_subtype
 simp_lc ignore List.flatMap_subtype
 simp_lc ignore List.foldl_subtype
 simp_lc ignore List.foldr_subtype
+simp_lc ignore List.mapFinIdx_eq_mapIdx
 
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.

@@ -111,35 +111,41 @@ example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b 
   simp (config := {singlePass := true}) only [match_float]
   fail
 
+-- Can float out of ite-condition
+example (o : Option Bool) (P : Nat → Prop):
+  P (if (match o with | some b => b | none => true) then 1 else 2) := by
+  simp (config := {singlePass := true}) only [match_float]
+  fail
+
+-- Cannot float out of ite-branch
+example (b : Bool) (o : Option Bool) (P : Bool → Prop) (abort : ∀ (P : Prop), P):
+  P (if b then (match o with | some b => b | none => true) else b) := by
+  fail_if_success simp (config := {singlePass := true}) only [match_float]
+  apply abort
+
 -- Dependent context; must not rewrite
 
 set_option trace.match_float true in
-/--
-warning: declaration uses 'sorry'
----
-info: [match_float] Cannot float match: f is dependent
--/
+/-- info: [match_float] Cannot float match: f is dependent -/
 #guard_msgs in
 example (o : Option Bool) (motive : Bool → Type)
-  (f : (x : Bool) → motive x) (rhs : motive (match o with | some b => b | none => false)) :
+  (f : (x : Bool) → motive x) (rhs : motive (match o with | some b => b | none => false))
+  (abort : ∀ (P : Prop), P) :
   f (match (motive := ∀ _, Bool) o with | some b => b | none => false) = rhs := by
   fail_if_success simp [match_float]
-  sorry
+  apply abort
 
 -- Context depends on the concrete value of the match, must not rewrite
 
 set_option trace.match_float true in
-/--
-warning: declaration uses 'sorry'
----
-info: [match_float] Cannot float match: context is not type correct
--/
+/-- info: [match_float] Cannot float match: context is not type correct -/
 #guard_msgs in
 example (o : Option Bool)
-  (f : (x : Bool) → (h : x = (match o with | some b => b | none => false)) → Bool):
+  (f : (x : Bool) → (h : x = (match o with | some b => b | none => false)) → Bool)
+  (abort : ∀ (P : Prop), P) :
   f (match (motive := ∀ _, Bool) o with | some b => b | none => false) rfl = true := by
   fail_if_success simp [match_float]
-  sorry
+  apply abort
 
 /-
 This code quickly finds many matcher where deriving the floater fails, usually

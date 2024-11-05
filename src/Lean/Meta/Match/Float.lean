@@ -96,16 +96,6 @@ builtin_initialize
       return true
     return false
 
-end Lean.Meta
-
-builtin_initialize
-   Lean.registerTraceClass `Meta.Match.float
-   Lean.registerTraceClass `match_float
-
-private def _root_.Lean.Expr.constLams? : Expr → Option Expr
-  | .lam _ _ b _ => constLams? b
-  | e => if e.hasLooseBVars then none else some e
-
 def mkMatchFloatApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) := do
   let some (α, β) := (← inferType f).arrow? |
     trace[match_float] "Cannot float match: {f} is dependent"
@@ -117,14 +107,31 @@ def mkMatchFloatApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) :
   let e ← mkAppOptM floatName (floatArgs.map some)
   return some e
 
+builtin_initialize
+   Lean.registerTraceClass `Meta.Match.float
+   Lean.registerTraceClass `match_float
+
+end Lean.Meta
+
+private def _root_.Lean.Expr.constLams? : Expr → Option Expr
+  | .lam _ _ b _ => constLams? b
+  | e => if e.hasLooseBVars then none else some e
+
 open Lean Meta Simp
 builtin_simproc_decl match_float (_) := fun e => do
   unless e.isApp do return .continue
   -- We could, but for now we do not float out of props
   if ← Meta.isProp e then return .continue
   e.withApp fun fn args => do
-    for h : i in [:args.size] do
-      let some matcherApp ← matchMatcherApp? args[i] | continue
+    let argsN :=
+      -- We do not want to float out of the else-branch of an if-then-else
+      -- (dite, and matches have lambdas in the branches, so nothing to be done there)
+      if fn.isConstOf ``ite then
+        min 2 args.size
+      else
+        args.size
+    for i in [:argsN] do
+      let some matcherApp ← matchMatcherApp? args[i]! | continue
       -- We do not handle over-application of matches
       unless matcherApp.remaining.isEmpty do continue
       -- We do not handle dependent motives

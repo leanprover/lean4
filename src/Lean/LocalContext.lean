@@ -384,25 +384,23 @@ def size (lctx : LocalContext) : Nat :=
 @[inline] def findDeclRev? (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run <| lctx.findDeclRevM? f
 
-partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
+partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (i j : Nat) : Bool :=
   if h : i < a₁.size then
     match a₁[i] with
-    | none       => isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
+    | none       => isSubPrefixOfAux a₁ a₂ (i+1) j
     | some decl₁ =>
-      if exceptFVars.any fun fvar => fvar.fvarId! == decl₁.fvarId then
-        isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
-      else if h2 : j < a₂.size then
+      if h2 : j < a₂.size then
         match a₂[j] with
-        | none       => isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)
-        | some decl₂ => if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) (j+1) else isSubPrefixOfAux a₁ a₂ exceptFVars i (j+1)
+        | none       => isSubPrefixOfAux a₁ a₂ i (j+1)
+        | some decl₂ => if decl₁.fvarId == decl₂.fvarId then isSubPrefixOfAux a₁ a₂ (i+1) (j+1) else isSubPrefixOfAux a₁ a₂ i (j+1)
       else false
   else true
 
 /-- Given `lctx₁ - exceptFVars` of the form `(x_1 : A_1) ... (x_n : A_n)`, then return true
    iff there is a local context `B_1* (x_1 : A_1) ... B_n* (x_n : A_n)` which is a prefix
    of `lctx₂` where `B_i`'s are (possibly empty) sequences of local declarations. -/
-def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := #[]) : Bool :=
-  isSubPrefixOfAux lctx₁.decls lctx₂.decls exceptFVars 0 0
+def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) : Bool :=
+  isSubPrefixOfAux lctx₁.decls lctx₂.decls 0 0
 
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   let b := b.abstract xs

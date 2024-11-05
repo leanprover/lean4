@@ -12,6 +12,7 @@ import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
+import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Elab.SyntheticMVars
@@ -138,7 +139,9 @@ builtin_simproc_decl match_float (_) := fun e => do
       let some α := matcherApp.motive.constLams? |
         trace[match_float] "Cannot float match: extra arguments after the match"
         continue
-      let f := (mkLambda `x .default α (mkAppN fn (args.set! i (.bvar 0)))).eta
+      -- Using kabstract helps if later arguments depend on the abstracted argument,
+      -- in particular with ``ite's `Decidable c` parameter
+      let f := (mkLambda `x .default α (← kabstract e (args[i]!))).eta
       -- Abstracting over the argument can result in a type incorrect `f`:
       unless (← isTypeCorrect f) do
         trace[match_float] "Cannot float match: context is not type correct"

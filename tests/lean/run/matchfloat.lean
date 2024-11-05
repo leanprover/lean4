@@ -112,15 +112,16 @@ example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b 
   fail
 
 -- Can float out of ite-condition
+set_option trace.match_float true in
 example (o : Option Bool) (P : Nat → Prop):
   P (if (match o with | some b => b | none => true) then 1 else 2) := by
-  simp (config := {singlePass := true}) only [match_float]
+  simp only [match_float]
   fail
 
 -- Cannot float out of ite-branch
-example (b : Bool) (o : Option Bool) (P : Bool → Prop) (abort : ∀ (P : Prop), P):
+example (b : Bool) (o : Option Bool) (P : Bool → Prop) (abort : ∀ b, P b):
   P (if b then (match o with | some b => b | none => true) else b) := by
-  fail_if_success simp (config := {singlePass := true}) only [match_float]
+  fail_if_success simp only [match_float]
   apply abort
 
 -- Dependent context; must not rewrite
@@ -128,10 +129,10 @@ example (b : Bool) (o : Option Bool) (P : Bool → Prop) (abort : ∀ (P : Prop)
 set_option trace.match_float true in
 /-- info: [match_float] Cannot float match: f is dependent -/
 #guard_msgs in
-example (o : Option Bool) (motive : Bool → Type)
-  (f : (x : Bool) → motive x) (rhs : motive (match o with | some b => b | none => false))
-  (abort : ∀ (P : Prop), P) :
-  f (match (motive := ∀ _, Bool) o with | some b => b | none => false) = rhs := by
+example (o : Option Bool) (motive : Bool → Type) (P : {b : Bool} → motive b → Prop)
+  (f : (x : Bool) → motive x)
+  (abort : ∀ b (x : motive b), P x) :
+  P (f (match (motive := ∀ _, Bool) o with | some b => b | none => false)) := by
   fail_if_success simp [match_float]
   apply abort
 

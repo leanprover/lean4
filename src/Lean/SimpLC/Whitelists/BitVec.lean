@@ -56,11 +56,8 @@ simp_lc whitelist BitVec.udiv_one BitVec.udiv_self
 -- example (x : BitVec 1) : x = if x = 0#1 then 0#1 else 1#1 := by bv_decide
 simp_lc whitelist BitVec.udiv_eq_and BitVec.udiv_self
 
--- TODO: move to library
-@[simp] theorem BitVec.ofFin_zero_sub {w : Nat} (i : Fin (2^w)) :
-    ofFin (0 - i) = - ofFin i := by
-  apply BitVec.eq_of_toNat_eq
-  simp [Fin.coe_sub]
+example (w : Nat) : w = 0 → 0#w = 1#w := by rintro rfl; simp
+simp_lc whitelist BitVec.sdiv_self BitVec.sdiv_one
 
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.

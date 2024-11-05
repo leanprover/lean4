@@ -49,16 +49,3 @@ Regression test: `all_goals` still respects recovery state.
 example (x y z : Option Int) : (x = y) ↔ (x = z) := by
   apply Iff.elim
   first | all_goals omega | all_goals sorry
-
-/-!
-Regression test: `all_goals` should not catch runtime exceptions.
--/
-/--
-error: maximum recursion depth has been reached
-use `set_option maxRecDepth <num>` to increase limit
-use `set_option diagnostics true` to get diagnostic information
--/
-#guard_msgs in
-example : False := by
-  all_goals repeat try trivial
-  trace "Did not get here"

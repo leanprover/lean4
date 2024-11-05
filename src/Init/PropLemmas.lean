@@ -120,26 +120,6 @@ theorem and_or_right : (a ∧ b) ∨ c ↔ (a ∨ c) ∧ (b ∨ c) := by rw [@or
 theorem or_imp : (a ∨ b → c) ↔ (a → c) ∧ (b → c) :=
   Iff.intro (fun h => ⟨h ∘ .inl, h ∘ .inr⟩) (fun ⟨ha, hb⟩ => Or.rec ha hb)
 
-@[simp] theorem or_and_left_self_left : a ∨ (a ∧ b) ↔ a := by
-  simp only [or_and_left, or_self, and_iff_left_iff_imp]
-  intro h
-  exact Or.inl h
-
-@[simp] theorem or_and_left_self_right : a ∨ (b ∧ a) ↔ a := by
-  simp only [or_and_left, or_self, and_iff_right_iff_imp]
-  intro h
-  exact Or.inl h
-
-@[simp] theorem and_or_right_self_left : (a ∧ b) ∨ a ↔ a := by
-  simp only [and_or_right, or_self, and_iff_left_iff_imp]
-  intro h
-  exact Or.inr h
-
-@[simp] theorem and_or_right_self_right : (b ∧ a) ∨ a  ↔ a := by
-  simp only [and_or_right, or_self, and_iff_right_iff_imp]
-  intro h
-  exact Or.inr h
-
 /-
 `not_or` is made simp for confluence with `¬((b || c) = true)`:
 

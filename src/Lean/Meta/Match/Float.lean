@@ -118,20 +118,30 @@ private def _root_.Lean.Expr.constLams? : Expr → Option Expr
   | .lam _ _ b _ => constLams? b
   | e => if e.hasLooseBVars then none else some e
 
-private partial def findMatchToFloat? (onlyNested : Bool) (e : Expr) : MetaM (Option (Expr × MatcherApp)) := do
+private partial def findMatchToFloat? (e : Expr) (depth : Nat := 0) : MetaM (Option (Expr × MatcherApp)) := do
   unless e.isApp do return none
-  unless onlyNested do
+  if depth > 0 then
     if let some matcherApp ← matchMatcherApp? e then
       if matcherApp.remaining.isEmpty then
         return some (e, matcherApp)
 
+  if depth > 1 then
+    return none
+
   let args := e.getAppArgs
   if e.isAppOf ``ite then
+    -- Special-handling for if-then-else:
+    -- * We do not want to float out of the branches.
+    -- * We want to be able to float out of
+    --      @ite ([ ] = true) (instDecidableEqBool [ ] true) t e
+    --   but doing it one application at a time does not work due to the dependency.
+    --   So to work around this, we do not bump the depth counter here.
     if h : args.size > 1 then
-      if let some r ← findMatchToFloat? false args[1] then return some r
+      if let some r ← findMatchToFloat? args[1] depth then return some r
   else
     for a in args do
-      if let some r ← findMatchToFloat? false a then return some r
+      if let some r ← findMatchToFloat?  a (depth + 1) then return some r
+
   return none
 
 open Lean Meta Simp
@@ -139,11 +149,7 @@ builtin_simproc_decl match_float (_) := fun e => do
   unless e.isApp do return .continue
   -- We could, but for now we do not float out of props
   if ← Meta.isProp e then return .continue
-  -- This searches recursively at every invocation of the simproc. Hardly scalable!
-  -- Before we only search through the immediate arguments of an application
-  -- but that was unable to float a match out of an `ite ((match …) = true)` application
-  -- If this is untenable, maybe back to floating one level at a time, with special support for ite?
-  let some (me, matcherApp) ← findMatchToFloat? true e | return .continue
+  let some (me, matcherApp) ← findMatchToFloat? e | return .continue
   -- We do not handle over-application of matches
   unless matcherApp.remaining.isEmpty do return .continue
   -- We do not handle dependent motives

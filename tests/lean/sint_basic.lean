@@ -347,3 +347,85 @@ def myId32 (x : Int32) : Int32 := x
 -- runtime representation
 set_option trace.compiler.ir.result true in
 def myId64 (x : Int64) : Int64 := x
+
+
+#check ISize
+#eval ISize.ofInt 20
+#eval ISize.ofInt (-20)
+#eval ISize.ofInt (-20) = -20
+#eval 2^63 - 10 = 9223372036854775798 ∧ ISize.ofInt (-(2^63) - 10) = 9223372036854775798
+#eval (10 : ISize) ≠ (11 : ISize)
+#eval (-10 : ISize) ≠ (10 : ISize)
+#eval ISize.ofNat 10 = 10
+#eval 2^63 + 10 = 9223372036854775818 ∧ ISize.ofNat 9223372036854775818 = 9223372036854775818
+#eval ISize.ofNat 120 = 120
+#eval ISize.ofInt (-20) = -20
+#eval (ISize.ofInt (-2)).toInt = -2
+#eval (ISize.ofInt (-2)).toNat = 0
+#eval (ISize.ofInt (10)).toNat = 10
+#eval (ISize.ofInt (10)).toInt = 10
+#eval ISize.ofNat (2^64) == 0
+#eval ISize.ofInt (-2^64) == 0
+#eval ISize.neg 10 = -10
+#eval (20 : ISize) + 20 = 40
+#eval (2^63 - 1) = 9223372036854775807 ∧ -2^63 = -9223372036854775808 ∧ (9223372036854775807 : ISize) + 1 = -9223372036854775808
+#eval (-10 : ISize) + 10 = 0
+#eval (1 : ISize) - 2 = -1
+#eval (2^63 - 1) = 9223372036854775807 ∧ -2^63 = -9223372036854775808 ∧ (-9223372036854775808 : ISize) - 1 = 9223372036854775807
+#eval (1 : ISize) * 120 = 120
+#eval (2 : ISize) * 10 = 20
+#eval 18446744073709551616 = 2^64 ∧ (2 : ISize) * 18446744073709551616 = 0
+#eval (-1 : ISize) * (-1) = 1
+#eval (1 : ISize) * (-1) = -1
+#eval (2 : ISize) * (-10) = -20
+#eval (-5 : ISize) * (-5) = 25
+#eval (10 : ISize) / 2 = 5
+#eval (-10 : ISize) / 2 = -5
+#eval (-10 : ISize) / -2 = 5
+#eval (10 : ISize) / -2 = -5
+#eval (10 : ISize) / 0 = 0
+#eval (10 : ISize) % 1 = 0
+#eval (10 : ISize) % 0 = 10
+#eval (-10 : ISize) % 0 = -10
+#eval (10 : ISize) % 3 = 1
+#eval (-10 : ISize) % 3 = -1
+#eval (-10 : ISize) % -3 = -1
+#eval (10 : ISize) % -3 = 1
+#eval (10 : ISize) &&& 10 = 10
+#eval (-1 : ISize) &&& 1 = 1
+#eval (-1 : ISize) ^^^ 123 = ~~~123
+#eval (10 : ISize) ||| 10 = 10
+#eval (10 : ISize) ||| 0 = 10
+#eval (10 : ISize) ||| -1 = -1
+#eval (16 : ISize) >>> 1 = 8
+#eval (16 : ISize) >>> 64 = 16
+#eval (16 : ISize) >>> (64 + 1) = 8
+#eval (-16 : ISize) >>> 1 = -8
+#eval (16 : ISize) <<< 1 = 32
+#eval (16 : ISize) <<< (64 + 1) = 32
+#eval (-16 : ISize) <<< 1 = -32
+#eval (-16 : ISize) <<< (64 + 1) = -32
+#eval (-16 : ISize) >>> 1 <<< 1 = -16
+#eval (0 : ISize) < 1
+#eval (0 : ISize) < 120
+#eval (120 : ISize) > 0
+#eval -1 < (0 : ISize)
+#eval -120 < (0 : ISize)
+#eval ¬((0 : ISize) < (0 : ISize))
+#eval (0 : ISize) ≤ 1
+#eval (0 : ISize) ≤ 120
+#eval -1 ≤ (0 : ISize)
+#eval -120 ≤ (0 : ISize)
+#eval (0 : ISize) ≤ (0 : ISize)
+#eval (-10 : ISize) ≥ (-10 : ISize)
+#eval max (10 : ISize) 20 = 20
+#eval max (10 : ISize) (-1) = 10
+#eval min (10 : ISize) 20 = 10
+#eval min (10 : ISize) (-1) = -1
+
+
+#eval test System.Platform.numBits (⟨⟨·⟩⟩) ISize.ofInt ISize.ofNat
+
+-- runtime representation
+set_option trace.compiler.ir.result true in
+def myIdSize (x : ISize) : ISize := x

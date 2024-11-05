@@ -190,7 +190,7 @@ theorem set_drop {l : List α} {n m : Nat} {a : α} :
 theorem take_concat_get (l : List α) (i : Nat) (h : i < l.length) :
     (l.take i).concat l[i] = l.take (i+1) :=
   Eq.symm <| (append_left_inj _).1 <| (take_append_drop (i+1) l).trans <| by
-    rw [concat_eq_append, append_assoc, singleton_append, get_drop_eq_drop, take_append_drop]
+    rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop_succ_eq_drop, take_append_drop]
 
 @[deprecated take_succ_cons (since := "2024-07-25")]
 theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl

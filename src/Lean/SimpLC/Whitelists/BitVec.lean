@@ -11,9 +11,6 @@ import Std.Tactic.BVDecide
 simp_lc ignore BitVec.getLsbD_ge
 simp_lc ignore BitVec.getMsbD_ge
 
--- TODO: this one indicates some work required around `Fin.ofNat'`
-simp_lc whitelist BitVec.ofFin_sub BitVec.sub_zero
-
 -- TODO: move to library
 @[simp] theorem Fin.ofNat'_zero (n : Nat) [NeZero n] : Fin.ofNat' n 0 = 0 := rfl
 

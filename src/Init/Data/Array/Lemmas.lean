@@ -190,6 +190,12 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
   apply ext'
   simp
 
+theorem zipWithAux_toArray_succ [BEq α] (f : α → β → γ) (as : List α) (bs : List β) (i : Nat) (cs : Array γ) :
+    zipWithAux f as.toArray bs.toArray (i + 1) cs = zipWithAux f as.tail.toArray bs.tail.toArray i cs := by
+  rw [zipWithAux]
+  conv => rhs; rw [zipWithAux]
+
+
 end List
 
 namespace Array

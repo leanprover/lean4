@@ -245,7 +245,7 @@ theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
 
 /-! ### coercision related normal forms -/
 
-theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :
+theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] (a b : α) [Decidable (a = b)] :
     (a == b) = decide (a = b) := by
   cases h : a == b
   · simp [ne_of_beq_false h]

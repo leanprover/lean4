@@ -2325,7 +2325,8 @@ theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
 theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α} :
     ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a)
   | 0 => by simp
-  | n+1 => by simp [replicate_succ, decide_mem_replicate, Nat.succ_ne_zero]
+  | n+1 => by
+      simp [replicate_succ, decide_mem_replicate, Nat.succ_ne_zero, ← Bool.beq_eq_decide_eq]
 
 theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := (mem_replicate.1 h).2
 

@@ -64,7 +64,7 @@ fi
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs
 echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a ROOT/lib/glibc/libpthread_nonshared.a -Wl,--as-needed -Wl,-Bstatic -lgmp -lunwind -luv -lpthread -ldl -lrt -Wl,-Bdynamic -Wl,--no-as-needed -fuse-ld=lld'"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a ROOT/lib/glibc/libpthread_nonshared.a -Wl,--as-needed -Wl,-Bstatic -lgmp -lunwind -luv -Wl,-Bdynamic -Wl,--no-as-needed -fuse-ld=lld'"
 # when not using the above flags, link GMP dynamically/as usual
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-Wl,--as-needed -lgmp -luv -lpthread -ldl -lrt -Wl,--no-as-needed'"
 # do not set `LEAN_CC` for tests

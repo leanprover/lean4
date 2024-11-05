@@ -190,6 +190,54 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
   apply ext'
   simp
 
+theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
+    Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
+      Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
+  rw [Array.isPrefixOfAux]
+  conv => rhs; rw [Array.isPrefixOfAux]
+  simp
+  split <;> rename_i h₁ <;> split <;> rename_i h₂
+  · rw [isPrefixOfAux_toArray_succ]
+  · omega
+  · omega
+  · rfl
+
+theorem isPrefixOfAux_toArray_succ' [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
+    Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
+      Array.isPrefixOfAux (l₁.drop (i+1)).toArray (l₂.drop (i+1)).toArray (by simp; omega) 0 := by
+  induction i generalizing l₁ l₂ with
+  | zero => simp [isPrefixOfAux_toArray_succ]
+  | succ i ih =>
+    rw [isPrefixOfAux_toArray_succ, ih]
+    simp
+
+theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) :
+    Array.isPrefixOfAux l₁.toArray l₂.toArray hle 0 =
+      l₁.isPrefixOf l₂ := by
+  rw [Array.isPrefixOfAux]
+  match l₁, l₂ with
+  | [], _ => rw [dif_neg] <;> simp
+  | _::_, [] => simp at hle
+  | a::l₁, b::l₂ =>
+    simp [isPrefixOf_cons₂, isPrefixOfAux_toArray_succ', isPrefixOfAux_toArray_zero]
+
+@[simp] theorem isPrefixOf_toArray [BEq α] (l₁ l₂ : List α) :
+    l₁.toArray.isPrefixOf l₂.toArray = l₁.isPrefixOf l₂ := by
+  rw [Array.isPrefixOf]
+  split <;> rename_i h
+  · simp [isPrefixOfAux_toArray_zero]
+  · simp only [Bool.false_eq]
+    induction l₁ generalizing l₂ with
+    | nil => simp at h
+    | cons a l₁ ih =>
+      cases l₂ with
+      | nil => simp
+      | cons b l₂ =>
+        simp only [isPrefixOf_cons₂, Bool.and_eq_false_imp]
+        intro w
+        rw [ih]
+        simp_all
+
 end List
 
 namespace Array
@@ -1461,9 +1509,19 @@ theorem swap_comm (a : Array α) {i j : Fin a.size} : a.swap i j = a.swap j i :=
     · split <;> simp_all
     · split <;> simp_all
 
+/-! ### eraseIdx -/
+
 theorem feraseIdx_eq_eraseIdx {a : Array α} {i : Fin a.size} :
     a.feraseIdx i = a.eraseIdx i.1 := by
   simp [eraseIdx]
+
+/-! ### isPrefixOf -/
+
+@[simp] theorem isPrefixOf_toList [BEq α] {as bs : Array α} :
+    as.toList.isPrefixOf bs.toList = as.isPrefixOf bs := by
+  cases as
+  cases bs
+  simp
 
 end Array
 

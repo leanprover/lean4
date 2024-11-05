@@ -20,12 +20,21 @@ simp_lc whitelist Std.HashMap.mem_insert_self Std.HashMap.mem_insert
 simp_lc whitelist Std.DHashMap.mem_insert Std.DHashMap.mem_insert_self
 simp_lc whitelist Std.DHashMap.contains_insert Std.DHashMap.contains_insert_self
 simp_lc whitelist Std.HashMap.contains_insert Std.HashMap.contains_insert_self
+simp_lc whitelist Std.HashSet.Raw.contains_insert Std.HashSet.Raw.contains_insert_self
+simp_lc whitelist Std.DHashMap.Raw.mem_insert Std.DHashMap.Raw.mem_insert_self
+simp_lc whitelist Std.HashMap.Raw.mem_insert_self Std.HashMap.Raw.mem_insert
+simp_lc whitelist Std.HashSet.Raw.mem_insert Std.HashSet.Raw.mem_insert_self
+simp_lc whitelist Std.DHashMap.Raw.contains_insert Std.DHashMap.Raw.contains_insert_self
+simp_lc whitelist Std.HashMap.Raw.contains_insert Std.HashMap.Raw.contains_insert_self
 
 -- TODO: I'm similarly confused by these ones,
 -- which I can't seem to construct simp lemmas to resolve.
 simp_lc whitelist Std.HashSet.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc whitelist Std.HashMap.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc whitelist Std.DHashMap.insert_eq_insert LawfulSingleton.insert_emptyc_eq
+simp_lc whitelist Std.HashSet.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
+simp_lc whitelist Std.HashMap.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
+simp_lc whitelist LawfulSingleton.insert_emptyc_eq Std.DHashMap.Raw.insert_eq_insert
 
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.

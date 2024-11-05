@@ -118,37 +118,47 @@ private def _root_.Lean.Expr.constLams? : Expr → Option Expr
   | .lam _ _ b _ => constLams? b
   | e => if e.hasLooseBVars then none else some e
 
+private partial def findMatchToFloat? (onlyNested : Bool) (e : Expr) : MetaM (Option (Expr × MatcherApp)) := do
+  unless e.isApp do return none
+  unless onlyNested do
+    if let some matcherApp ← matchMatcherApp? e then
+      if matcherApp.remaining.isEmpty then
+        return some (e, matcherApp)
+
+  let args := e.getAppArgs
+  if e.isAppOf ``ite then
+    if h : args.size > 1 then
+      if let some r ← findMatchToFloat? false args[1] then return some r
+  else
+    for a in args do
+      if let some r ← findMatchToFloat? false a then return some r
+  return none
+
 open Lean Meta Simp
 builtin_simproc_decl match_float (_) := fun e => do
   unless e.isApp do return .continue
   -- We could, but for now we do not float out of props
   if ← Meta.isProp e then return .continue
-  e.withApp fun fn args => do
-    let argsN :=
-      -- We do not want to float out of the else-branch of an if-then-else
-      -- (dite, and matches have lambdas in the branches, so nothing to be done there)
-      if fn.isConstOf ``ite then
-        min 2 args.size
-      else
-        args.size
-    for i in [:argsN] do
-      let some matcherApp ← matchMatcherApp? args[i]! | continue
-      -- We do not handle over-application of matches
-      unless matcherApp.remaining.isEmpty do continue
-      -- We do not handle dependent motives
-      let some α := matcherApp.motive.constLams? |
-        trace[match_float] "Cannot float match: extra arguments after the match"
-        continue
-      -- Using kabstract helps if later arguments depend on the abstracted argument,
-      -- in particular with ``ite's `Decidable c` parameter
-      let f := (mkLambda `x .default α (← kabstract e (args[i]!))).eta
-      -- Abstracting over the argument can result in a type incorrect `f`:
-      unless (← isTypeCorrect f) do
-        trace[match_float] "Cannot float match: context is not type correct"
-        continue
-      let some proof ← mkMatchFloatApp f matcherApp | continue
-      let type ← inferType proof
-      let some (_, _, rhs) := type.eq?
-        | throwError "match_float: Unexpected non-equality type:{indentExpr type}"
-      return .visit { expr := rhs, proof? := some proof }
+  -- This searches recursively at every invocation of the simproc. Hardly scalable!
+  -- Before we only search through the immediate arguments of an application
+  -- but that was unable to float a match out of an `ite ((match …) = true)` application
+  -- If this is untenable, maybe back to floating one level at a time, with special support for ite?
+  let some (me, matcherApp) ← findMatchToFloat? true e | return .continue
+  -- We do not handle over-application of matches
+  unless matcherApp.remaining.isEmpty do return .continue
+  -- We do not handle dependent motives
+  let some α := matcherApp.motive.constLams? |
+    trace[match_float] "Cannot float match: extra arguments after the match"
     return .continue
+  -- Using kabstract helps if later arguments depend on the abstracted argument,
+  -- in particular with ``ite's `Decidable c` parameter
+  let f := (mkLambda `x .default α (← kabstract e me)).eta
+  -- Abstracting over the argument can result in a type incorrect `f`:
+  unless (← isTypeCorrect f) do
+    trace[match_float] "Cannot float match: context is not type correct"
+    return .continue
+  let some proof ← mkMatchFloatApp f matcherApp | return .continue
+  let type ← inferType proof
+  let some (_, _, rhs) := type.eq?
+    | throwError "match_float: Unexpected non-equality type:{indentExpr type}"
+  return .visit { expr := rhs, proof? := some proof }

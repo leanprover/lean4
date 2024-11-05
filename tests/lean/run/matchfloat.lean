@@ -67,52 +67,17 @@ example (o : Option Bool) :
     = !(match o with | some b => !b | none => true) := by
   simp [match_float]
 
--- Demonstration that this should really be used as a post-simproc (which luckily is the default)
-
-/--
-error: tactic 'fail' failed
-o : Option Bool
-P : Bool → Prop
-⊢ P
-    (match o with
-    | some b => !!!b
-    | none => !!!true)
--/
-#guard_msgs in
-example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b | none => true) := by
-  simp (config := {singlePass := true}) only [↑ match_float]
-  fail
-
-/--
-error: tactic 'fail' failed
-o : Option Bool
-P : Bool → Prop
-⊢ P
-    !!match o with
-        | some b => !b
-        | none => !true
--/
-#guard_msgs in
-example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b | none => true) := by
-  simp (config := {singlePass := true}) only [↓ match_float]
-  fail
-
-/--
-error: tactic 'fail' failed
-o : Option Bool
-P : Bool → Prop
-⊢ P
-    (match o with
-    | some b => !!!b
-    | none => !!!true)
--/
-#guard_msgs in
-example (o : Option Bool) (P : Bool → Prop): P !!!(match o with | some b => b | none => true) := by
-  simp (config := {singlePass := true}) only [match_float]
-  fail
-
 -- Can float out of ite-condition
-set_option trace.match_float true in
+/--
+error: tactic 'fail' failed
+o : Option Bool
+P : Nat → Prop
+⊢ P
+    (match o with
+    | some b => if b = true then 1 else 2
+    | none => if True then 1 else 2)
+-/
+#guard_msgs in
 example (o : Option Bool) (P : Nat → Prop):
   P (if (match o with | some b => b | none => true) then 1 else 2) := by
   simp only [match_float]

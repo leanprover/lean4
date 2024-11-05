@@ -10,8 +10,8 @@ import Lean.Meta.CompletionName
 
 namespace Lean
 
-@[extern "lean_mk_no_confusion_type"] opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
-@[extern "lean_mk_no_confusion"] opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
+@[extern "lean_mk_no_confusion_type"] private opaque mkNoConfusionTypeCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
+@[extern "lean_mk_no_confusion"] private opaque mkNoConfusionCoreImp (env : Environment) (declName : @& Name) : Except Kernel.Exception Declaration
 
 open Meta
 
@@ -22,6 +22,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
   let name := Name.mkStr declName "noConfusionType"
+  checkSubDecls
   let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
   addDecl decl
   setReducibleAttribute name
@@ -29,6 +30,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   modifyEnv fun env => addProtected env name
 
   let name := Name.mkStr declName "noConfusion"
+  checkSubDecls
   let decl ← ofExceptKernelException (mkNoConfusionCoreImp (← getEnv) declName)
   addDecl decl
   setReducibleAttribute name

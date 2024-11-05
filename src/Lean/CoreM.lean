@@ -427,25 +427,11 @@ register_builtin_option compiler.enableNew : Bool := {
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
-  let opts ← getOptions
   let decls := Compiler.getDeclNamesForCodeGen decl
-  if (← getEnv).isAsync then
-    modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
-    return
-  if compiler.enableNew.get opts then
-    compileDeclsNew decls
-  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-    return (← getEnv).compileDecl opts decl
-  match res with
-  | Except.ok env => setEnv env
-  | Except.error (.other msg) =>
-    checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-    throwError msg
-  | Except.error ex =>
-    throwKernelException ex
+  modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
 
 def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
-  if allowPostpone && (← getEnv).isAsync then
+  if allowPostpone then
     modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
     return
   let opts ← getOptions
@@ -458,11 +444,13 @@ def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
   | Except.error ex =>
     throwKernelException ex
 
-def forceCompile : CoreM Unit := do
+def checkSubDecls : CoreM Unit := do
   let env ← getEnv
-  let env := env.unlockAsync
-  let env ← (← env.checkAsyncSubDecls (← getOptions) (← read).cancelTk? |>.toBaseIO) |> ofExceptKernelException
+  let env ← env.checkSubDecls (← getOptions) (← read).cancelTk? |> ofExceptKernelException
   setEnv env
+
+def forceCompile : CoreM Unit := do
+  checkSubDecls
   compileDecls (allowPostpone := false) (← get).postponedCompiles.toList
   modify fun s => { s with postponedCompiles := #[] }
 

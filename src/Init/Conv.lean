@@ -325,4 +325,11 @@ syntax (name := conv) "conv" (" at " ident)? (" in " (occs)? term)? " => " convS
 /-- `norm_cast` tactic in `conv` mode. -/
 syntax (name := normCast) "norm_cast" : conv
 
+/-- TODO -/
+syntax (name := floatMatch ) "float_match" : conv
+
+@[inherit_doc floatMatch]
+macro (name := _root_.Lean.Parser.Tactic.floatMatch) "float_match" : tactic =>
+  `(tactic| conv => float_match)
+
 end Lean.Parser.Tactic.Conv

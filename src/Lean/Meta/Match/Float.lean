@@ -16,6 +16,7 @@ import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Elab.SyntheticMVars
+import Lean.Elab.Tactic.Conv.Basic
 import Lean.AddDecl
 
 open Lean Meta Elab Term
@@ -99,7 +100,7 @@ builtin_initialize
 
 def mkMatchFloatApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) := do
   let some (α, β) := (← inferType f).arrow? |
-    trace[match_float] "Cannot float match: {f} is dependent"
+    trace[float_match] "Cannot float match: {f} is dependent"
     return none
   let floatName := matcherApp.matcherName ++ `float
   let _ ← realizeGlobalName floatName
@@ -109,23 +110,25 @@ def mkMatchFloatApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) :
   return some e
 
 builtin_initialize
-   Lean.registerTraceClass `Meta.Match.float
-   Lean.registerTraceClass `match_float
+   Lean.registerTraceClass `float_match
 
-end Lean.Meta
+
+/-!
+The simproc
+-/
 
 private def _root_.Lean.Expr.constLams? : Expr → Option Expr
   | .lam _ _ b _ => constLams? b
   | e => if e.hasLooseBVars then none else some e
 
-private partial def findMatchToFloat? (e : Expr) (depth : Nat := 0) : MetaM (Option (Expr × MatcherApp)) := do
+private partial def findMatchToFloat? (e : Expr) (far : Bool) (depth : Nat := 0) : MetaM (Option (Expr × MatcherApp)) := do
   unless e.isApp do return none
   if depth > 0 then
     if let some matcherApp ← matchMatcherApp? e then
       if matcherApp.remaining.isEmpty then
         return some (e, matcherApp)
 
-  if depth > 1 then
+  if !far && depth > 1 then
     return none
 
   let args := e.getAppArgs
@@ -137,34 +140,55 @@ private partial def findMatchToFloat? (e : Expr) (depth : Nat := 0) : MetaM (Opt
     --   but doing it one application at a time does not work due to the dependency.
     --   So to work around this, we do not bump the depth counter here.
     if h : args.size > 1 then
-      if let some r ← findMatchToFloat? args[1] depth then return some r
+      if let some r ← findMatchToFloat? args[1] far depth then return some r
   else
     for a in args do
-      if let some r ← findMatchToFloat?  a (depth + 1) then return some r
+      if let some r ← findMatchToFloat?  a far (depth + 1) then return some r
 
   return none
 
-open Lean Meta Simp
-builtin_simproc_decl match_float (_) := fun e => do
-  unless e.isApp do return .continue
-  -- We could, but for now we do not float out of props
-  if ← Meta.isProp e then return .continue
-  let some (me, matcherApp) ← findMatchToFloat? e | return .continue
+def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
+  unless e.isApp do return none
+  unless far do
+    -- In the simproc: We could, but for now we do not float out of props
+    if ← Meta.isProp e then return none
+  let some (me, matcherApp) ← findMatchToFloat? e far| return none
   -- We do not handle over-application of matches
-  unless matcherApp.remaining.isEmpty do return .continue
+  unless matcherApp.remaining.isEmpty do return none
   -- We do not handle dependent motives
   let some α := matcherApp.motive.constLams? |
-    trace[match_float] "Cannot float match: extra arguments after the match"
-    return .continue
+    trace[float_match] "Cannot float match: extra arguments after the match"
+    return none
   -- Using kabstract helps if later arguments depend on the abstracted argument,
   -- in particular with ``ite's `Decidable c` parameter
   let f := (mkLambda `x .default α (← kabstract e me)).eta
   -- Abstracting over the argument can result in a type incorrect `f`:
   unless (← isTypeCorrect f) do
-    trace[match_float] "Cannot float match: context is not type correct"
-    return .continue
-  let some proof ← mkMatchFloatApp f matcherApp | return .continue
+    trace[float_match] "Cannot float match: context is not type correct"
+    return none
+  let some proof ← mkMatchFloatApp f matcherApp | return none
   let type ← inferType proof
   let some (_, _, rhs) := type.eq?
-    | throwError "match_float: Unexpected non-equality type:{indentExpr type}"
+    | throwError "float_match: Unexpected non-equality type:{indentExpr type}"
+  return some (rhs, proof)
+
+end Lean.Meta
+
+open Lean Meta
+builtin_simproc_decl float_match (_) := fun e => do
+  let some (rhs, proof) ← floatMatch (far := false) e | return .continue
   return .visit { expr := rhs, proof? := some proof }
+
+/-!
+The conv tactic
+-/
+
+open Lean Elab Tactic Conv
+@[builtin_tactic Lean.Parser.Tactic.Conv.floatMatch]
+def Lean.Elab.Tactic.Conv.evalFoatMap : Tactic := fun _ => do
+  let mvarId ← getMainGoal
+  mvarId.withContext do
+    let lhs ← getLhs
+    let some (rhs, proof) ← floatMatch (far := true) lhs
+      | throwError "cannot find match to float"
+    updateLhs rhs proof

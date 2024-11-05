@@ -1,4 +1,5 @@
 import Lean.Elab.Command
+import Lean.Meta.Match.MatchEqsExt
 
 def test1 : Nat → Nat
   | 0 => 0
@@ -58,14 +59,41 @@ error: unknown identifier 'Nat.lt_or_gt_of_ne.match_1.float'
 -- A typical example
 
 theorem List.filter_map' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
-  induction l <;> simp [filter, map, *, match_float]
+  induction l <;> simp [filter, *, float_match]
+
+-- Using the float_match conv tactic
+
+theorem List.filter_map'' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
+  induction l
+  · simp
+  · simp only [filter]
+    conv => rhs; float_match
+    simp only [Function.comp_apply, map_cons, *]
+
+-- Using the float_match tactic
+
+-- This works in principle, but isn't very useful, because the simplifier, even with
+-- `(contextual := true)`, does not simplify the duplicated match target in the alternatives.
+-- Looks like that would require congruence theorems for matchers.
+
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs in
+theorem List.filter_map''' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
+  induction l
+  · simp
+  · simp only [filter]
+    float_match
+    simp (config := {contextual := true}) [*]
+    -- fail
+    sorry
+
 
 -- A simple example
 
 example (o : Option Bool) :
   (match o with | some b => b | none => false)
     = !(match o with | some b => !b | none => true) := by
-  simp [match_float]
+  simp [float_match]
 
 -- Can float out of ite-condition
 /--
@@ -80,13 +108,13 @@ P : Nat → Prop
 #guard_msgs in
 example (o : Option Bool) (P : Nat → Prop):
   P (if (match o with | some b => b | none => true) then 1 else 2) := by
-  simp only [match_float]
+  simp only [float_match]
   fail
 
 -- Cannot float out of ite-branch
 example (b : Bool) (o : Option Bool) (P : Bool → Prop) (abort : ∀ b, P b):
   P (if b then (match o with | some b => b | none => true) else b) := by
-  fail_if_success simp only [match_float]
+  fail_if_success simp only [float_match]
   apply abort
 
 -- Can float out of a match target (aka case-of-case)
@@ -105,43 +133,58 @@ P : Nat → Prop
 #guard_msgs in
 example (o : Option Bool) (P : Nat → Prop):
   P (match (match o with | some b => b | none => true) with | true => 1 | false => 2) := by
-  simp only [match_float]
+  simp only [float_match]
   fail
 
 -- Dependent context; must not rewrite
 
-set_option trace.match_float true in
-/-- info: [match_float] Cannot float match: f is dependent -/
+set_option trace.float_match true in
+/-- info: [float_match] Cannot float match: f is dependent -/
 #guard_msgs in
 example (o : Option Bool) (motive : Bool → Type) (P : {b : Bool} → motive b → Prop)
   (f : (x : Bool) → motive x)
   (abort : ∀ b (x : motive b), P x) :
   P (f (match (motive := ∀ _, Bool) o with | some b => b | none => false)) := by
-  fail_if_success simp [match_float]
+  fail_if_success simp [float_match]
   apply abort
 
 -- Context depends on the concrete value of the match, must not rewrite
 
-set_option trace.match_float true in
-/-- info: [match_float] Cannot float match: context is not type correct -/
+set_option trace.float_match true in
+/-- info: [float_match] Cannot float match: context is not type correct -/
 #guard_msgs in
 example (o : Option Bool)
   (f : (x : Bool) → (h : x = (match o with | some b => b | none => false)) → Bool)
   (abort : ∀ (P : Prop), P) :
   f (match (motive := ∀ _, Bool) o with | some b => b | none => false) rfl = true := by
-  fail_if_success simp [match_float]
+  fail_if_success simp [float_match]
   apply abort
 
 /-
-This code quickly finds many matcher where deriving the floater fails, usually
-because the splitter cannot be generated, for example Nat.lt_or_gt_of_ne.match_1.float
+This following code tries to create all float theorems for all matches found in the environment.
+-/
 
+-- At the time of writing, the following two quite large matches fail by running out of heartbeat
+-- #check Lean.Expr.name?.match_1.float
+-- #check Lean.Meta.reduceNat?.match_1.float
+
+/-
 open Lean Meta in
 run_meta do
   for es in (Match.Extension.extension.toEnvExtension.getState (← getEnv)).importedEntries do
     for e in es do
       -- Let's not look at matchers that eliminate to Prop only
       if e.info.uElimPos?.isNone then continue
-      let _ ← realizeGlobalName (e.name ++ `float)
-
+      withCurrHeartbeats do
+        tryCatchRuntimeEx do
+          let hasSplitter ← try
+              discard <| Lean.Meta.Match.getEquationsFor e.name
+              pure true
+            catch _ => pure false
+          if hasSplitter then
+            let floatName := e.name ++ `float
+            unless (← hasConst floatName) do
+              executeReservedNameAction floatName
+         fun ex =>
+          logInfo m!"Failed to handle {e.name}:{ex.toMessageData}"
 -/

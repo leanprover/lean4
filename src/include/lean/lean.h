@@ -2229,6 +2229,7 @@ static inline uint8_t lean_int32_dec_le(uint32_t a1, uint32_t a2) {
 static inline uint8_t lean_int32_to_int8(uint32_t a) { return (uint8_t)(int8_t)(int32_t)a; }
 static inline uint16_t lean_int32_to_int16(uint32_t a) { return (uint16_t)(int16_t)(int32_t)a; }
 static inline uint64_t lean_int32_to_int64(uint32_t a) { return (uint64_t)(int64_t)(int32_t)a; }
+static inline size_t lean_int32_to_isize(uint32_t a) { return (size_t)(ptrdiff_t)(int32_t)a; }
 
 /* Int64 */
 LEAN_EXPORT int64_t lean_int64_of_big_int(b_lean_obj_arg a);
@@ -2368,6 +2369,147 @@ static inline uint8_t lean_int64_dec_le(uint64_t a1, uint64_t a2) {
 static inline uint8_t lean_int64_to_int8(uint64_t a) { return (uint8_t)(int8_t)(int64_t)a; }
 static inline uint16_t lean_int64_to_int16(uint64_t a) { return (uint16_t)(int16_t)(int64_t)a; }
 static inline uint32_t lean_int64_to_int32(uint64_t a) { return (uint32_t)(int32_t)(int64_t)a; }
+static inline size_t lean_int64_to_isize(uint64_t a) { return (size_t)(ptrdiff_t)(int64_t)a; }
+
+/* ISize */
+LEAN_EXPORT ptrdiff_t lean_isize_of_big_int(b_lean_obj_arg a);
+static inline size_t lean_isize_of_int(b_lean_obj_arg a) {
+    ptrdiff_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (ptrdiff_t)lean_scalar_to_int64(a);
+    } else {
+        res = lean_isize_of_big_int(a);
+    }
+
+    return (size_t)res;
+}
+
+static inline size_t lean_isize_of_nat(b_lean_obj_arg a) {
+    ptrdiff_t res;
+
+    if (lean_is_scalar(a)) {
+        res = (ptrdiff_t)lean_unbox(a);
+    } else {
+        res = lean_isize_of_big_int(a);
+    }
+
+    return (size_t)res;
+}
+
+static inline lean_obj_res lean_isize_to_int(size_t a) {
+    ptrdiff_t arg = (ptrdiff_t)a;
+    return lean_int64_to_int((int64_t)arg);
+}
+
+static inline size_t lean_isize_neg(size_t a) {
+    ptrdiff_t arg = (ptrdiff_t)a;
+
+    return (size_t)(-arg);
+}
+
+static inline size_t lean_isize_add(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(lhs + rhs);
+}
+
+static inline size_t lean_isize_sub(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(lhs - rhs);
+}
+
+static inline size_t lean_isize_mul(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(lhs * rhs);
+}
+
+static inline size_t lean_isize_div(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(rhs == 0 ? 0 : lhs / rhs);
+}
+
+static inline size_t lean_isize_mod(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(rhs == 0 ? lhs : lhs % rhs);
+}
+
+static inline size_t lean_isize_land(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(lhs & rhs);
+}
+
+static inline size_t lean_isize_lor(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(lhs | rhs);
+}
+
+static inline size_t lean_isize_xor(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return (size_t)(lhs ^ rhs);
+}
+
+static inline size_t lean_isize_shift_right(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t size = sizeof(ptrdiff_t) * 8;
+    ptrdiff_t rhs = (((ptrdiff_t)a2 % size) + size) % size; // this is smod
+
+    return (size_t)(lhs >> rhs);
+}
+
+static inline size_t lean_isize_shift_left(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t size = sizeof(ptrdiff_t) * 8;
+    ptrdiff_t rhs = (((ptrdiff_t)a2 % size) + size) % size; // this is smod
+
+    return (size_t)(lhs << rhs);
+}
+
+static inline size_t lean_isize_complement(size_t a) {
+    ptrdiff_t arg = (ptrdiff_t)a;
+
+    return (size_t)(~arg);
+}
+
+static inline uint8_t lean_isize_dec_eq(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return lhs == rhs;
+}
+
+static inline uint8_t lean_isize_dec_lt(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return lhs < rhs;
+}
+
+static inline uint8_t lean_isize_dec_le(size_t a1, size_t a2) {
+    ptrdiff_t lhs = (ptrdiff_t)a1;
+    ptrdiff_t rhs = (ptrdiff_t)a2;
+
+    return lhs <= rhs;
+}
+
+/* ISize -> other */
+static inline uint32_t lean_isize_to_int32(size_t a) { return (uint32_t)(int32_t)(ptrdiff_t)a; }
+static inline uint64_t lean_isize_to_int64(size_t a) { return (uint64_t)(int64_t)(ptrdiff_t)a; }
 
 /* Float */
 

@@ -1578,6 +1578,15 @@ extern "C" LEAN_EXPORT int64 lean_int64_of_big_int(b_obj_arg a) {
     return mpz_value(a).smod64();
 }
 
+extern "C" LEAN_EXPORT isize lean_isize_of_big_int(b_obj_arg a) {
+    if (sizeof(ptrdiff_t) == 8) {
+        return static_cast<isize>(mpz_value(a).smod64());
+    } else {
+        // We assert in int.h that the size of ptrdiff_t is 8 or 4.
+        return static_cast<isize>(mpz_value(a).smod32());
+    }
+}
+
 // =======================================
 // Float
 

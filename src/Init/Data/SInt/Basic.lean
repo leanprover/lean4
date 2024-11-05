@@ -52,6 +52,18 @@ structure Int64 where
   -/
   toUInt64 : UInt64
 
+/--
+A `ISize` is a signed integer with the size of a word for the platform's architecture.
+
+For example, if running on a 32-bit machine, ISize is equivalent to `Int32`.
+Or on a 64-bit machine, `Int64`.
+-/
+structure ISize where
+  /--
+  Obtain the `USize` that is 2's complement equivalent to the `ISize`.
+  -/
+  toUSize : USize
+
 /-- The size of type `Int8`, that is, `2^8 = 256`. -/
 abbrev Int8.size : Nat := 256
 
@@ -463,3 +475,114 @@ instance (a b : Int64) : Decidable (a < b) := Int64.decLt a b
 instance (a b : Int64) : Decidable (a ≤ b) := Int64.decLe a b
 instance : Max Int64 := maxOfLe
 instance : Min Int64 := minOfLe
+
+/-- The size of type `ISize`, that is, `2^System.Platform.numBits`. -/
+abbrev ISize.size : Nat := 2^System.Platform.numBits
+
+/--
+Obtain the `BitVec` that contains the 2's complement representation of the `ISize`.
+-/
+@[inline] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
+
+@[extern "lean_isize_of_int"]
+def ISize.ofInt (i : @& Int) : ISize := ⟨⟨BitVec.ofInt System.Platform.numBits i⟩⟩
+@[extern "lean_isize_of_nat"]
+def ISize.ofNat (n : @& Nat) : ISize := ⟨⟨BitVec.ofNat System.Platform.numBits n⟩⟩
+abbrev Int.toISize := ISize.ofInt
+abbrev Nat.toISize := ISize.ofNat
+@[extern "lean_isize_to_int"]
+def ISize.toInt (i : ISize) : Int := i.toBitVec.toInt
+/--
+This function has the same behavior as `Int.toNat` for negative numbers.
+If you want to obtain the 2's complement representation use `toBitVec`.
+-/
+@[inline] def ISize.toNat (i : ISize) : Nat := i.toInt.toNat
+@[extern "lean_isize_to_int32"]
+def ISize.toInt32 (a : ISize) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
+/--
+Upcast `ISize` to `Int64`. This function is losless as `ISize` is either `Int32` or `Int64`.
+-/
+@[extern "lean_isize_to_int64"]
+def ISize.toInt64 (a : ISize) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
+/--
+Upcast `Int32` to `ISize`. This function is losless as `ISize` is either `Int32` or `Int64`.
+-/
+@[extern "lean_int32_to_isize"]
+def Int32.toISize (a : Int32) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
+@[extern "lean_int64_to_isize"]
+def Int64.toISize (a : Int64) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
+@[extern "lean_isize_neg"]
+def ISize.neg (i : ISize) : ISize := ⟨⟨-i.toBitVec⟩⟩
+
+instance : ToString ISize where
+  toString i := toString i.toInt
+
+instance : OfNat ISize n := ⟨ISize.ofNat n⟩
+instance : Neg ISize where
+  neg := ISize.neg
+
+@[extern "lean_isize_add"]
+def ISize.add (a b : ISize) : ISize := ⟨⟨a.toBitVec + b.toBitVec⟩⟩
+@[extern "lean_isize_sub"]
+def ISize.sub (a b : ISize) : ISize := ⟨⟨a.toBitVec - b.toBitVec⟩⟩
+@[extern "lean_isize_mul"]
+def ISize.mul (a b : ISize) : ISize := ⟨⟨a.toBitVec * b.toBitVec⟩⟩
+@[extern "lean_isize_div"]
+def ISize.div (a b : ISize) : ISize := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
+@[extern "lean_isize_mod"]
+def ISize.mod (a b : ISize) : ISize := ⟨⟨BitVec.srem a.toBitVec b.toBitVec⟩⟩
+@[extern "lean_isize_land"]
+def ISize.land (a b : ISize) : ISize := ⟨⟨a.toBitVec &&& b.toBitVec⟩⟩
+@[extern "lean_isize_lor"]
+def ISize.lor (a b : ISize) : ISize := ⟨⟨a.toBitVec ||| b.toBitVec⟩⟩
+@[extern "lean_isize_xor"]
+def ISize.xor (a b : ISize) : ISize := ⟨⟨a.toBitVec ^^^ b.toBitVec⟩⟩
+@[extern "lean_isize_shift_left"]
+def ISize.shiftLeft (a b : ISize) : ISize := ⟨⟨a.toBitVec <<< (b.toBitVec.smod System.Platform.numBits)⟩⟩
+@[extern "lean_isize_shift_right"]
+def ISize.shiftRight (a b : ISize) : ISize := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod System.Platform.numBits)⟩⟩
+@[extern "lean_isize_complement"]
+def ISize.complement (a : ISize) : ISize := ⟨⟨~~~a.toBitVec⟩⟩
+
+@[extern "lean_isize_dec_eq"]
+def ISize.decEq (a b : ISize) : Decidable (a = b) :=
+  match a, b with
+  | ⟨n⟩, ⟨m⟩ =>
+    if h : n = m then
+      isTrue <| h ▸ rfl
+    else
+      isFalse (fun h' => ISize.noConfusion h' (fun h' => absurd h' h))
+
+def ISize.lt (a b : ISize) : Prop := a.toBitVec.slt b.toBitVec
+def ISize.le (a b : ISize) : Prop := a.toBitVec.sle b.toBitVec
+
+instance : Inhabited ISize where
+  default := 0
+
+instance : Add ISize         := ⟨ISize.add⟩
+instance : Sub ISize         := ⟨ISize.sub⟩
+instance : Mul ISize         := ⟨ISize.mul⟩
+instance : Mod ISize         := ⟨ISize.mod⟩
+instance : Div ISize         := ⟨ISize.div⟩
+instance : LT ISize          := ⟨ISize.lt⟩
+instance : LE ISize          := ⟨ISize.le⟩
+instance : Complement ISize  := ⟨ISize.complement⟩
+instance : AndOp ISize       := ⟨ISize.land⟩
+instance : OrOp ISize        := ⟨ISize.lor⟩
+instance : Xor ISize         := ⟨ISize.xor⟩
+instance : ShiftLeft ISize   := ⟨ISize.shiftLeft⟩
+instance : ShiftRight ISize  := ⟨ISize.shiftRight⟩
+instance : DecidableEq ISize := ISize.decEq
+
+@[extern "lean_isize_dec_lt"]
+def ISize.decLt (a b : ISize) : Decidable (a < b) :=
+  inferInstanceAs (Decidable (a.toBitVec.slt b.toBitVec))
+
+@[extern "lean_isize_dec_le"]
+def ISize.decLe (a b : ISize) : Decidable (a ≤ b) :=
+  inferInstanceAs (Decidable (a.toBitVec.sle b.toBitVec))
+
+instance (a b : ISize) : Decidable (a < b) := ISize.decLt a b
+instance (a b : ISize) : Decidable (a ≤ b) := ISize.decLe a b
+instance : Max ISize := maxOfLe
+instance : Min ISize := minOfLe

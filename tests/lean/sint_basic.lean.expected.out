@@ -334,3 +334,87 @@ def myId64._boxed (x_1 : obj) : obj :=
   let x_3 : u64 := myId64 x_2;
   let x_4 : obj := box x_3;
   ret x_4
+ISize : Type
+20
+-20
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+
+[result]
+def myIdSize (x_1 : usize) : usize :=
+  ret x_1
+def myIdSize._boxed (x_1 : obj) : obj :=
+  let x_2 : usize := unbox x_1;
+  dec x_1;
+  let x_3 : usize := myIdSize x_2;
+  let x_4 : obj := box x_3;
+  ret x_4

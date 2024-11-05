@@ -588,10 +588,6 @@ This is the same as `decidable_of_iff` but the iff is flipped. -/
 @[inline] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
   decidable_of_decidable_of_iff h.symm
 
-@[congr] theorem decide_congr {p q : Prop} [Decidable p] [Decidable q] (h : p ↔ q) :
-    decide p = decide q :=
-  if w : p then by simp [h, w] else by simp [h, w]
-
 instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
     CoeDep (α → Prop) p (α → Bool) := ⟨fun b => decide <| p b⟩
 

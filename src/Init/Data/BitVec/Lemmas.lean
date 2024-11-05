@@ -715,7 +715,6 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem getLsbD_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
   simp [getLsbD, Nat.lt_succ]
-  congr
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
     x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
@@ -1585,7 +1584,6 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   by_cases h : w = 0
   · subst h
     simp [BitVec.msb, getMsbD]
-    congr
   · rw [cond_eq_if]
     have q : 0 < w + v := by omega
     have t : y.getLsbD (w + v - 1) = false := getLsbD_ge _ _ (by omega)
@@ -1625,7 +1623,7 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).setWidth k = if h : k ≤ v then y.setWidth k else (x.setWidth (k - v) ++ y).cast (by omega) := by
   apply eq_of_getLsbD_eq
   intro i
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, getLsbD_append, Bool.true_and]
+  simp only [getLsbD_setWidth, Fin.is_lt, decide_true, getLsbD_append, Bool.true_and]
   split
   · have t : i < v := by omega
     simp [t]
@@ -1637,7 +1635,7 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) : setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
   subst h
   ext i
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, getLsbD_append, cond_eq_if,
+  simp only [getLsbD_setWidth, Fin.is_lt, decide_true, getLsbD_append, cond_eq_if,
     decide_eq_true_eq, Bool.true_and, setWidth_eq]
   split
   · simp_all
@@ -1708,13 +1706,13 @@ theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
 
 theorem getLsbD_rev (x : BitVec w) (i : Fin w) :
     x.getLsbD i.rev = x.getMsbD i := by
-  simp only [getLsbD, Fin.val_rev, getMsbD, Fin.is_lt, decide_True, Bool.true_and]
+  simp only [getLsbD, Fin.val_rev, getMsbD, Fin.is_lt, decide_true, Bool.true_and]
   congr 1
   omega
 
 theorem getElem_rev {x : BitVec w} {i : Fin w}:
     x[i.rev] = x.getMsbD i := by
-  simp only [Fin.getElem_fin, Fin.val_rev, getMsbD, Fin.is_lt, decide_True, Bool.true_and]
+  simp only [Fin.getElem_fin, Fin.val_rev, getMsbD, Fin.is_lt, decide_true, Bool.true_and]
   congr 1
   omega
 
@@ -1744,7 +1742,7 @@ theorem getLsbD_cons (b : Bool) {n} (x : BitVec n) (i : Nat) :
   · have p1 : ¬(n ≤ i) := by omega
     have p2 : i ≠ n := by omega
     simp [p1, p2]
-  · simp only [i_eq_n, ge_iff_le, Nat.le_refl, decide_True, Nat.sub_self, Nat.testBit_zero,
+  · simp only [i_eq_n, ge_iff_le, Nat.le_refl, decide_true, Nat.sub_self, Nat.testBit_zero,
     Bool.true_and, testBit_toNat, getLsbD_ge, Bool.or_false, ↓reduceIte]
     cases b <;> trivial
   · have p1 : i ≠ n := by omega
@@ -1759,7 +1757,7 @@ theorem getElem_cons {b : Bool} {n} {x : BitVec n} {i : Nat} (h : i < n + 1) :
   · have p1 : ¬(n ≤ i) := by omega
     have p2 : i ≠ n := by omega
     simp [p1, p2]
-  · simp only [i_eq_n, ge_iff_le, Nat.le_refl, decide_True, Nat.sub_self, Nat.testBit_zero,
+  · simp only [i_eq_n, ge_iff_le, Nat.le_refl, decide_true, Nat.sub_self, Nat.testBit_zero,
     Bool.true_and, testBit_toNat, getLsbD_ge, Bool.or_false, ↓reduceIte]
     cases b <;> trivial
   · have p1 : i ≠ n := by omega
@@ -1779,7 +1777,7 @@ theorem setWidth_succ (x : BitVec w) :
     setWidth (i+1) x = cons (getLsbD x i) (setWidth i x) := by
   apply eq_of_getLsbD_eq
   intro j
-  simp only [getLsbD_setWidth, getLsbD_cons, j.isLt, decide_True, Bool.true_and]
+  simp only [getLsbD_setWidth, getLsbD_cons, j.isLt, decide_true, Bool.true_and]
   if j_eq : j.val = i then
     simp [j_eq]
   else
@@ -1887,7 +1885,7 @@ theorem getLsbD_shiftConcat_eq_decide (x : BitVec w) (b : Bool) (i : Nat) :
 theorem shiftRight_sub_one_eq_shiftConcat (n : BitVec w) (hwn : 0 < wn) :
     n >>> (wn - 1) = (n >>> wn).shiftConcat (n.getLsbD (wn - 1)) := by
   ext i
-  simp only [getLsbD_ushiftRight, getLsbD_shiftConcat, Fin.is_lt, decide_True, Bool.true_and]
+  simp only [getLsbD_ushiftRight, getLsbD_shiftConcat, Fin.is_lt, decide_true, Bool.true_and]
   split
   · simp [*]
   · congr 1; omega
@@ -1928,7 +1926,7 @@ theorem getMsbD_concat {i w : Nat} {b : Bool} {x : BitVec w} :
   · simp [h₀]
   · by_cases h₁ : i < w
     · simp [h₀, h₁, show ¬ w - i = 0 by omega, show i < w + 1 by omega, Nat.sub_sub, Nat.add_comm]
-    · simp only [show w - i = 0 by omega, ↓reduceIte, h₁, h₀, decide_False, Bool.false_and,
+    · simp only [show w - i = 0 by omega, ↓reduceIte, h₁, h₀, decide_false, Bool.false_and,
         Bool.and_eq_false_imp, decide_eq_true_eq]
       intro
       omega
@@ -1936,10 +1934,10 @@ theorem getMsbD_concat {i w : Nat} {b : Bool} {x : BitVec w} :
 @[simp]
 theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
     (x.concat b).msb = if 0 < w then x.msb else b := by
-  simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.zero_lt_succ, decide_True, Nat.add_one_sub_one,
+  simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.zero_lt_succ, decide_true, Nat.add_one_sub_one,
     Nat.sub_zero, Bool.true_and]
   by_cases h₀ : 0 < w
-  · simp only [Nat.lt_add_one, getLsbD_eq_getElem, getElem_concat, h₀, ↓reduceIte, decide_True,
+  · simp only [Nat.lt_add_one, getLsbD_eq_getElem, getElem_concat, h₀, ↓reduceIte, decide_true,
       Bool.true_and, ite_eq_right_iff]
     intro
     omega
@@ -2509,7 +2507,7 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
 @[simp] theorem getElem_ofBoolListBE (h : i < bs.length) :
     (ofBoolListBE bs)[i] = bs[bs.length - 1 - i] := by
   rw [← getLsbD_eq_getElem, getLsbD_ofBoolListBE]
-  simp only [h, decide_True, List.getD_eq_getElem?_getD, Bool.true_and]
+  simp only [h, decide_true, List.getD_eq_getElem?_getD, Bool.true_and]
   rw [List.getElem?_eq_getElem (by omega)]
   simp
 
@@ -2711,7 +2709,7 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
   · simp
   · simp only [twoPow, getLsbD_shiftLeft, getLsbD_ofNat]
     by_cases hj : j < i
-    · simp only [hj, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,
+    · simp only [hj, decide_true, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,
       Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
       omega
     · by_cases hi : Nat.testBit 1 (j - i)
@@ -2774,7 +2772,7 @@ theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
 theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
   ext i
-  simp [getLsbD_shiftLeft, Fin.is_lt, decide_True, Bool.true_and, mul_twoPow_eq_shiftLeft]
+  simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
 /- ### cons -/
 
@@ -2802,7 +2800,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) := by
   ext k
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and, getLsbD_or, getLsbD_and]
+  simp only [getLsbD_setWidth, Fin.is_lt, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
   by_cases hik : i = k
   · subst hik
     simp [hx]
@@ -2818,7 +2816,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k
-  simp only [getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and, getLsbD_or, getLsbD_and]
+  simp only [getLsbD_setWidth, Fin.is_lt, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
   by_cases hik : i = k
   · subst hik
     simp [hx]
@@ -2828,7 +2826,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
 theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
     (x &&& 1#w) = setWidth w (ofBool (x.getLsbD 0)) := by
   ext i
-  simp only [getLsbD_and, getLsbD_one, getLsbD_setWidth, Fin.is_lt, decide_True, getLsbD_ofBool,
+  simp only [getLsbD_and, getLsbD_one, getLsbD_setWidth, Fin.is_lt, decide_true, getLsbD_ofBool,
     Bool.true_and]
   by_cases h : ((i : Nat) = 0) <;> simp [h] <;> omega
 
@@ -2865,13 +2863,13 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
   case succ n ih =>
     simp only [replicate_succ_eq, getLsbD_cast, getLsbD_append]
     by_cases hi : i < w * (n + 1)
-    · simp only [hi, decide_True, Bool.true_and]
+    · simp only [hi, decide_true, Bool.true_and]
       by_cases hi' : i < w * n
       · simp [hi', ih]
-      · simp only [hi', decide_False, cond_false]
+      · simp only [hi', decide_false, cond_false]
         rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
     · rw [Nat.mul_succ] at hi ⊢
-      simp only [show ¬i < w * n by omega, decide_False, cond_false, hi, Bool.false_and]
+      simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
 
 @[simp]
@@ -2932,7 +2930,7 @@ theorem toInt_intMin_le (x : BitVec w) :
     apply Int.le_bmod (by omega)
 
 theorem intMin_sle (x : BitVec w) : (intMin w).sle x := by
-  simp only [BitVec.sle, toInt_intMin_le x, decide_True]
+  simp only [BitVec.sle, toInt_intMin_le x, decide_true]
 
 @[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by

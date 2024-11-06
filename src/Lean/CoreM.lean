@@ -64,7 +64,6 @@ structure State where
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
-  postponedCompiles : Array Name := #[]
   deriving Nonempty
 
 /-- Context for the CoreM monad. -/
@@ -193,7 +192,7 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache, messages, infoState, pc⟩ => ⟨env, next, ngen, trace, f cache, messages, infoState, pc⟩
+  modify fun ⟨env, next, ngen, trace, cache, messages, infoState⟩ => ⟨env, next, ngen, trace, f cache, messages, infoState⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -426,13 +425,16 @@ register_builtin_option compiler.enableNew : Bool := {
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
+builtin_initialize postponedCompilesExt : EnvExtension (Array (List Name)) ←
+  registerEnvExtension (pure #[])
+
 def compileDecl (decl : Declaration) : CoreM Unit := do
   let decls := Compiler.getDeclNamesForCodeGen decl
-  modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
+  modifyEnv (postponedCompilesExt.modifyState (allowAsync := true) · (·.push decls))
 
 def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
   if allowPostpone then
-    modify fun s => { s with postponedCompiles := s.postponedCompiles ++ decls }
+    modifyEnv (postponedCompilesExt.modifyState (allowAsync := true) · (·.push decls))
     return
   let opts ← getOptions
   if compiler.enableNew.get opts then
@@ -451,8 +453,8 @@ def checkSubDecls : CoreM Unit := do
 
 def forceCompile : CoreM Unit := do
   checkSubDecls
-  compileDecls (allowPostpone := false) (← get).postponedCompiles.toList
-  modify fun s => { s with postponedCompiles := #[] }
+  postponedCompilesExt.getState (← getEnv) |>.forM (compileDecls (allowPostpone := false))
+  modifyEnv (postponedCompilesExt.setState (allowAsync := true) · #[])
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

@@ -122,33 +122,39 @@ private def _root_.Lean.Expr.constLams? : Expr → Option Expr
   | e => if e.hasLooseBVars then none else some e
 
 private partial def findMatchToFloat? (e : Expr) (far : Bool) (depth : Nat := 0) : MetaM (Option (Expr × MatcherApp)) := do
-  unless e.isApp do return none
-  if depth > 0 then
-    if let some matcherApp ← matchMatcherApp? e then
-      if matcherApp.remaining.isEmpty then
-        return some (e, matcherApp)
-
   if !far && depth > 1 then
     return none
 
-  let args := e.getAppArgs
-  if e.isAppOf ``ite then
-    -- Special-handling for if-then-else:
-    -- * We do not want to float out of the branches.
-    -- * We want to be able to float out of
-    --      @ite ([ ] = true) (instDecidableEqBool [ ] true) t e
-    --   but doing it one application at a time does not work due to the dependency.
-    --   So to work around this, we do not bump the depth counter here.
-    if h : args.size > 1 then
-      if let some r ← findMatchToFloat? args[1] far depth then return some r
-  else
-    for a in args do
-      if let some r ← findMatchToFloat?  a far (depth + 1) then return some r
+  if e.isApp then
+    if depth > 0 then
+      if let some matcherApp ← matchMatcherApp? e then
+        if matcherApp.remaining.isEmpty then
+          return some (e, matcherApp)
+
+
+    let args := e.getAppArgs
+    if e.isAppOf ``ite then
+      -- Special-handling for if-then-else:
+      -- * We do not want to float out of the branches.
+      -- * We want to be able to float out of
+      --      @ite ([ ] = true) (instDecidableEqBool [ ] true) t e
+      --   but doing it one application at a time does not work due to the dependency.
+      --   So to work around this, we do not bump the depth counter here.
+      if h : args.size > 1 then
+        if let some r ← findMatchToFloat? args[1] far depth then
+          return some r
+    else
+      for a in args do
+        if let some r ← findMatchToFloat? a far (depth + 1) then
+          return some r
+
+  if e.isLet then
+    if let some r ← findMatchToFloat? e.letValue! far (depth + 1) then
+      return some r
 
   return none
 
 def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
-  unless e.isApp do return none
   unless far do
     -- In the simproc: We could, but for now we do not float out of props
     if ← Meta.isProp e then return none

@@ -160,6 +160,27 @@ example (o : Option Bool)
   fail_if_success simp [float_match]
   apply abort
 
+-- Can float out of a let (Only relevant with zeta := false)
+
+/--
+error: tactic 'fail' failed
+o : Option Bool
+P : Bool → Prop
+⊢ P
+    (match o with
+    | some b =>
+      let b := b;
+      !b
+    | none =>
+      let b := true;
+      !b)
+-/
+#guard_msgs in
+example (o : Option Bool) (P : Bool → Prop):
+  P (let b := match o with | some b => b | none => true; !b) := by
+  simp -zeta only [float_match]
+  fail
+
 /-
 This following code tries to create all float theorems for all matches found in the environment.
 -/

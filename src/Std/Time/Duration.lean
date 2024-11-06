@@ -56,8 +56,7 @@ instance : Inhabited Duration where
 instance : OfNat Duration n where
   ofNat := by
     refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
-    simp <;> exact Int.le_total s.val 0 |>.symm
-    exact Int.le_total 0 n
+    simp <;> exact Int.le_total n 0 |>.symm
 
 namespace Duration
 

@@ -825,10 +825,9 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
   simp_to_model using List.containsKey_eq_keys_contains.symm
 
 @[simp]
-theorem keys_isEmpty [EquivBEq α] [LawfulHashable α] (h: m.1.WF):
+theorem isEmpty_keys_eq_isEmpty [EquivBEq α] [LawfulHashable α] (h: m.1.WF):
     m.1.keys.isEmpty = m.1.isEmpty:= by
-  rw [Bool.eq_iff_iff, List.isEmpty_iff_length_eq_zero, isEmpty_eq_size_eq_zero, length_keys_eq_size m h]
-  simp
+  simp_to_model using List.isEmpty_keys_eq_isEmpty
 
 
 end Raw₀

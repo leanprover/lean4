@@ -1033,9 +1033,9 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
   simp_to_raw using Raw₀.contains_keys ⟨m, _⟩ h
 
 @[simp]
-theorem keys_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
+theorem isEmpty_keys_eq_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
     m.keys.isEmpty = m.isEmpty := by
-  simp_to_raw using Raw₀.keys_isEmpty ⟨m, h.size_buckets_pos⟩
+  simp_to_raw using Raw₀.isEmpty_keys_eq_isEmpty ⟨m, h.size_buckets_pos⟩
 end Raw
 
 end Std.DHashMap

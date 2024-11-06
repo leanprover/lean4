@@ -693,9 +693,9 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
   DHashMap.Raw.contains_keys h.out
 
 @[simp]
-theorem keys_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
+theorem isEmpty_keys_eq_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
     m.keys.isEmpty = m.isEmpty :=
-  DHashMap.Raw.keys_isEmpty h.out
+  DHashMap.Raw.isEmpty_keys_eq_isEmpty h.out
 
 end Raw
 

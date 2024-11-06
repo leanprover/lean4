@@ -66,11 +66,7 @@ def logAt (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity := 
     let endPos := ref.getTailPos?.getD pos
     let fileMap ← getFileMap
     let msgData ← addMessageContext msgData
-    logMessage {
-      fileName := (← getFileName)
-      pos := fileMap.toPosition pos, endPos := fileMap.toPosition endPos
-      kind := msgData.inferKind, data := msgData, severity := severity
-    }
+    logMessage { fileName := (← getFileName), pos := fileMap.toPosition pos, endPos := fileMap.toPosition endPos, data := msgData, severity := severity }
 
 /-- Log a new error message using the given message data. The position is provided by `ref`. -/
 def logErrorAt (ref : Syntax) (msgData : MessageData) : m Unit :=

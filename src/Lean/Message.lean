@@ -137,9 +137,9 @@ If none, returns `Name.anonymous`.
 This does not descend into message subtrees (e.g., `.compose`, `.ofLazy`).
 The message kind is expected to describe the whole message.
 -/
-def inferKind : MessageData → Name
-  | withContext _ msg       => inferKind msg
-  | withNamingContext _ msg => inferKind msg
+def kind : MessageData → Name
+  | withContext _ msg       => kind msg
+  | withNamingContext _ msg => kind msg
   | tagged n _              => n
   | _                       => .anonymous
 
@@ -322,8 +322,7 @@ structure BaseMessage (α : Type u) where
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
   caption       : String          := ""
-  /-- The message kind (e.g., the top-level tag). -/
-  kind          : Name := .anonymous
+
   /-- The content of the message. -/
   data          : α
   deriving Inhabited, ToJson, FromJson
@@ -335,7 +334,10 @@ abbrev Message := BaseMessage MessageData
 /-- A `SerialMessage` is a `Message` whose `MessageData` has been eagerly
 serialized and is thus appropriate for use in pure contexts where the effectful
 `MessageData.toString` cannot be used. -/
-abbrev SerialMessage := BaseMessage String
+structure SerialMessage extends BaseMessage String where
+  /-- The message kind (i.e., the top-level tag). -/
+  kind          : Name := .anonymous
+  deriving ToJson, FromJson
 
 namespace SerialMessage
 
@@ -361,8 +363,11 @@ end SerialMessage
 
 namespace Message
 
+abbrev kind (msg : Message) :=
+  msg.data.kind
+
 @[inline] def serialize (msg : Message) : IO SerialMessage := do
-  return {msg with data := ← msg.data.toString}
+  return {msg with kind := msg.kind, data := ← msg.data.toString}
 
 protected def toString (msg : Message) (includeEndPos := false) : IO String := do
   -- Remark: The inline here avoids a new message allocation when `msg` is shared

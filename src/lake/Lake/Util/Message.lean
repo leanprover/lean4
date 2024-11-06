@@ -22,7 +22,6 @@ def mkExceptionMessage (ictx : InputContext) (e : Exception) : Message where
   fileName := ictx.fileName
   pos := ictx.fileMap.toPosition <| e.getRef.getPos?.getD 0
   endPos := ictx.fileMap.toPosition <$> e.getRef.getTailPos?
-  kind := e.toMessageData.inferKind
   data := e.toMessageData
 
 def mkMessageNoPos (ictx : InputContext) (data : MessageData) (severity := MessageSeverity.error) : Message where
@@ -30,7 +29,6 @@ def mkMessageNoPos (ictx : InputContext) (data : MessageData) (severity := Messa
   pos := ictx.fileMap.toPosition 0
   endPos := none
   severity := severity
-  kind := data.inferKind
   data := data
 
 def mkMessageStringCore

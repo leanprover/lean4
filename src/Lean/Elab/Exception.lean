@@ -63,6 +63,6 @@ def isAbortExceptionId (id : InternalExceptionId) : Bool :=
 def mkMessageCore (fileName : String) (fileMap : FileMap) (data : MessageData) (severity : MessageSeverity) (pos : String.Pos) (endPos : String.Pos) : Message :=
   let pos := fileMap.toPosition pos
   let endPos := fileMap.toPosition endPos
-  { fileName, pos, endPos, kind := data.inferKind, data, severity }
+  { fileName, pos, endPos, data, severity }
 
 end Lean.Elab

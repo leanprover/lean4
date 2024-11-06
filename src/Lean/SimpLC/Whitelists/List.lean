@@ -91,6 +91,12 @@ simp_lc ignore List.foldl_subtype
 simp_lc ignore List.foldr_subtype
 simp_lc ignore List.mapFinIdx_eq_mapIdx
 
+-- TODO move to library.
+@[simp] theorem List.modifyHead_dropLast {l : List α} : l.dropLast.modifyHead f = (l.modifyHead f).dropLast:= by
+  rcases l with _|⟨a, l⟩
+  · simp
+  · rcases l with _|⟨b, l⟩ <;> simp
+
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.
 This commented out command remains here for convenience while debugging.

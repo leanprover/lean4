@@ -79,6 +79,17 @@ theorem foldr_eq_foldr_toList (f : α → β → β) (init : β) (arr : Array α
   rw [foldl_eq_foldl_toList]
   induction arr'.toList generalizing arr <;> simp [*]
 
+@[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
+
+@[simp] theorem append_nil (as : Array α) : as ++ #[] = as := by
+  apply ext'; simp only [toList_append, toList_empty, List.append_nil]
+
+@[simp] theorem nil_append (as : Array α) : #[] ++ as = as := by
+  apply ext'; simp only [toList_append, toList_empty, List.nil_append]
+
+@[simp] theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
+  apply ext'; simp only [toList_append, List.append_assoc]
+
 @[simp] theorem appendList_eq_append
     (arr : Array α) (l : List α) : arr.appendList l = arr ++ l := rfl
 

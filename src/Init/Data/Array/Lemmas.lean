@@ -190,6 +190,13 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
   apply ext'
   simp
 
+@[simp] theorem push_append_toArray {as : Array α} {a : α} {bs : List α} : as.push a ++ bs.toArray = as ++ (a ::bs).toArray := by
+  cases as
+  simp
+
+@[simp] theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
+  induction l generalizing as <;> simp [*]
+
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
     Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
       Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
@@ -237,6 +244,44 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
         intro w
         rw [ih]
         simp_all
+
+theorem zipWithAux_toArray_succ (f : α → β → γ) (as : List α) (bs : List β) (i : Nat) (cs : Array γ) :
+    zipWithAux f as.toArray bs.toArray (i + 1) cs = zipWithAux f as.tail.toArray bs.tail.toArray i cs := by
+  rw [zipWithAux]
+  conv => rhs; rw [zipWithAux]
+  simp only [size_toArray, getElem_toArray, length_tail, getElem_tail]
+  split <;> rename_i h₁
+  · split <;> rename_i h₂
+    · rw [dif_pos (by omega), dif_pos (by omega), zipWithAux_toArray_succ]
+    · rw [dif_pos (by omega)]
+      rw [dif_neg (by omega)]
+  · rw [dif_neg (by omega)]
+
+theorem zipWithAux_toArray_succ' (f : α → β → γ) (as : List α) (bs : List β) (i : Nat) (cs : Array γ) :
+    zipWithAux f as.toArray bs.toArray (i + 1) cs = zipWithAux f (as.drop (i+1)).toArray (bs.drop (i+1)).toArray 0 cs := by
+  induction i generalizing as bs cs with
+  | zero => simp [zipWithAux_toArray_succ]
+  | succ i ih =>
+    rw [zipWithAux_toArray_succ, ih]
+    simp
+
+theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List β) (cs : Array γ) :
+    zipWithAux f as.toArray bs.toArray 0 cs = cs ++ (List.zipWith f as bs).toArray := by
+  rw [Array.zipWithAux]
+  match as, bs with
+  | [], _ => simp
+  | _, [] => simp
+  | a :: as, b :: bs =>
+    simp [zipWith_cons_cons, zipWithAux_toArray_succ', zipWithAux_toArray_zero, push_append_toArray]
+
+@[simp] theorem zipWith_toArray (f : α → β → γ) (as : List α) (bs : List β) :
+    Array.zipWith as.toArray bs.toArray f = (List.zipWith f as bs).toArray := by
+  rw [Array.zipWith]
+  simp [zipWithAux_toArray_zero]
+
+@[simp] theorem zip_toArray (as : List α) (bs : List β) :
+    Array.zip as.toArray bs.toArray = (List.zip as bs).toArray := by
+  simp [Array.zip, zipWith_toArray, zip]
 
 end List
 
@@ -1099,8 +1144,6 @@ theorem filterMap_congr {as bs : Array α} (h : as = bs)
 
 theorem size_empty : (#[] : Array α).size = 0 := rfl
 
-@[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
-
 /-! ### append -/
 
 theorem push_eq_append_singleton (as : Array α) (x) : as.push x = as ++ #[x] := rfl
@@ -1149,15 +1192,6 @@ theorem getElem?_append {as bs : Array α} {n : Nat} :
   split <;> rename_i h
   · exact getElem?_append_left h
   · exact getElem?_append_right (by simpa using h)
-
-@[simp] theorem append_nil (as : Array α) : as ++ #[] = as := by
-  apply ext'; simp only [toList_append, toList_empty, List.append_nil]
-
-@[simp] theorem nil_append (as : Array α) : #[] ++ as = as := by
-  apply ext'; simp only [toList_append, toList_empty, List.nil_append]
-
-@[simp] theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
-  apply ext'; simp only [toList_append, List.append_assoc]
 
 /-! ### flatten -/
 
@@ -1523,6 +1557,18 @@ theorem feraseIdx_eq_eraseIdx {a : Array α} {i : Fin a.size} :
   cases bs
   simp
 
+/-! ### zipWith -/
+
+@[simp] theorem toList_zipWith (f : α → β → γ) (as : Array α) (bs : Array β) :
+    (Array.zipWith as bs f).toList = List.zipWith f as.toList bs.toList := by
+  cases as
+  cases bs
+  simp
+
+@[simp] theorem toList_zip (as : Array α) (bs : Array β) :
+    (Array.zip as bs).toList = List.zip as.toList bs.toList := by
+  simp [zip, toList_zipWith, List.zip]
+
 end Array
 
 open Array
@@ -1536,11 +1582,6 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
 -/
 
 @[simp] theorem toListRev_toArray (l : List α) : l.toArray.toListRev = l.reverse := by
-  simp
-
-@[simp] theorem push_append_toArray (as : Array α) (a : α) (l : List α) :
-    as.push a ++ l.toArray = as ++ (a :: l).toArray := by
-  apply ext'
   simp
 
 @[simp] theorem take_toArray (l : List α) (n : Nat) : l.toArray.take n = (l.take n).toArray := by
@@ -1762,6 +1803,44 @@ namespace Array
 @[simp] theorem toList_eraseIdx (as : Array α) (i : Nat) :
     (as.eraseIdx i).toList = as.toList.eraseIdx i := by
   induction as
+  simp
+
+/-! ### unzip -/
+
+@[simp] theorem fst_unzip (as : Array (α × β)) : (Array.unzip as).fst = as.map Prod.fst := by
+  simp only [unzip]
+  rcases as with ⟨as⟩
+  simp only [List.foldl_toArray']
+  rw [← List.foldl_hom (f := Prod.fst) (g₂ := fun bs x => bs.push x.1) (H := by simp), ← List.foldl_map]
+  simp
+
+@[simp] theorem snd_unzip (as : Array (α × β)) : (Array.unzip as).snd = as.map Prod.snd := by
+  simp only [unzip]
+  rcases as with ⟨as⟩
+  simp only [List.foldl_toArray']
+  rw [← List.foldl_hom (f := Prod.snd) (g₂ := fun bs x => bs.push x.2) (H := by simp), ← List.foldl_map]
+  simp
+
+end Array
+
+namespace List
+
+@[simp] theorem unzip_toArray (as : List (α × β)) :
+    as.toArray.unzip = Prod.map List.toArray List.toArray as.unzip := by
+  ext1 <;> simp
+
+end List
+
+namespace Array
+
+@[simp] theorem toList_fst_unzip (as : Array (α × β)) :
+    as.unzip.1.toList = as.toList.unzip.1 := by
+  cases as
+  simp
+
+@[simp] theorem toList_snd_unzip (as : Array (α × β)) :
+    as.unzip.2.toList = as.toList.unzip.2 := by
+  cases as
   simp
 
 end Array

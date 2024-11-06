@@ -171,7 +171,7 @@ theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Re
           decide
         have p_entails_i := (assignmentsInvariant_of_strongAssignmentsInvariant f f_readyForRupAdd.2).2 i false hasNegAssignment_fi p pf
         simp only [(· ⊨ ·)] at p_entails_i
-        simp only [p_entails_i, decide_True]
+        simp only [p_entails_i, decide_true]
       · next heq =>
         exfalso
         rw [heq] at h3
@@ -424,7 +424,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
               · simp only [(· ⊨ ·), i_eq_idx, c_arr_idx_eq_false] at p_entails_c_arr_i
                 simp only [(· ⊨ ·), Bool.not_eq_true] at p_entails_assignment
                 specialize p_entails_assignment c_arr[idx.1].1
-                simp +decide only [p_entails_c_arr_i, decide_True, heq] at p_entails_assignment
+                simp +decide only [p_entails_c_arr_i, decide_true, heq] at p_entails_assignment
             · next h =>
               exact Or.inr h
           · exact Or.inr ih1
@@ -443,7 +443,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
               · simp only [(· ⊨ ·), i_eq_idx, c_arr_idx_eq_false] at p_entails_c_arr_i
                 simp only [(· ⊨ ·), Bool.not_eq_true] at p_entails_assignment
                 specialize p_entails_assignment c_arr[idx.1].1
-                simp +decide only [p_entails_c_arr_i, decide_True, heq] at p_entails_assignment
+                simp +decide only [p_entails_c_arr_i, decide_true, heq] at p_entails_assignment
             · next h =>
               exact Or.inr h
           · exact Or.inr ih1
@@ -519,7 +519,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
           · simp only [j_eq_idx, (· ⊨ ·), c_arr_idx_eq_false] at p_entails_c_arr_j
             simp only [(· ⊨ ·), Bool.not_eq_true] at hp
             specialize hp c_arr[idx.1].1
-            simp +decide only [p_entails_c_arr_j, decide_True, heq] at hp
+            simp +decide only [p_entails_c_arr_j, decide_true, heq] at hp
       · next heq =>
         split at h
         · simp at h
@@ -534,7 +534,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
           · simp only [j_eq_idx, (· ⊨ ·), c_arr_idx_eq_true] at p_entails_c_arr_j
             simp only [(· ⊨ ·), Bool.not_eq_true] at hp
             specialize hp c_arr[idx.1].1
-            simp +decide only [p_entails_c_arr_j, decide_True, heq] at hp
+            simp +decide only [p_entails_c_arr_j, decide_true, heq] at hp
       · simp at h
       · simp at h
     · simp at h
@@ -683,8 +683,8 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
               Array.get_eq_getElem, l_eq_i, Array.getElem_modify_self (addAssignment b), decidableGetElem?]
             simp only [getElem!, i_in_bounds, dite_true, Array.get_eq_getElem, decidableGetElem?] at pacc
             by_cases pi : p i
-            · simp only [pi, decide_False]
-              simp only [hasAssignment, pi, decide_False, ite_false] at pacc
+            · simp only [pi, decide_false]
+              simp only [hasAssignment, pi, decide_false, ite_false] at pacc
               by_cases hb : b
               · simp only [hasAssignment, ↓reduceIte, addAssignment]
                 simp only [hb]
@@ -694,8 +694,8 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
                 simp only [Bool.not_eq_true] at hb
                 simp [(· ⊨ ·), hb, Subtype.ext l_eq_i, pi] at plb
             · simp only [Bool.not_eq_true] at pi
-              simp only [pi, decide_True]
-              simp only [pi, decide_True] at pacc
+              simp only [pi, decide_true]
+              simp only [pi, decide_true] at pacc
               by_cases hb : b
               · simp [(· ⊨ ·), hb, Subtype.ext l_eq_i, pi] at plb
               · simp only [Bool.not_eq_true] at hb

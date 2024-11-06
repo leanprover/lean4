@@ -325,7 +325,25 @@ syntax (name := conv) "conv" (" at " ident)? (" in " (occs)? term)? " => " convS
 /-- `norm_cast` tactic in `conv` mode. -/
 syntax (name := normCast) "norm_cast" : conv
 
-/-- TODO -/
+/--
+Floats out `match` expressions, or, equivalently, pushes function applications into the
+branches of a match. For example it can rewrite
+```
+f (match o with | some x => x + 1 | none => 0)
+```
+to
+```
+match o with | some x => f (x + 1) | none => f 0
+```
+
+It can only float matches with a non-dependent motive, no extra arguments and when the context
+(here `fun x => f x`) is type-correct.
+
+It floats the first eligible match it finds to the top. To float less far (e.g. into the
+left-hand side of an equality) focus on the desired position first (e.g. using `lhs` and `rhs`).
+
+Also see the `float_match` simproc for use in the simplifier.
+-/
 syntax (name := floatMatch ) "float_match" : conv
 
 @[inherit_doc floatMatch]

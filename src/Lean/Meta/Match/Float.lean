@@ -105,8 +105,10 @@ builtin_initialize
 
 
 /-!
-The simproc
+The implementation support the simproc and the conv tactic
 -/
+
+section FloatMatch
 
 private def _root_.Lean.Expr.constLams? : Expr → Option Expr
   | .lam _ _ b _ => constLams? b
@@ -172,23 +174,54 @@ def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
     | throwError "float_match: Unexpected non-equality type:{indentExpr type}"
   return some (rhs, proof)
 
-end Lean.Meta
+end FloatMatch
 
-open Lean Meta
+/-!
+The simproc tactic
+-/
+
+section Simproc
+
+/--
+Floats out `match` expressions, or, equivalently, pushes function applications into the
+branches of a match. For example it can rewrite
+```
+f (match o with | some x => x + 1 | none => 0)
+```
+to
+```
+match o with | some x => f (x + 1) | none => f 0
+```
+
+It can only float matches with a non-dependent motive, no extra arguments and when the context
+(here `fun x => f x`) is type-correct and is not a proposition.
+
+It is recommended to enable this simproc only selectively, and not by default, as it looks for
+match expression to float at every step of the simplifier.
+
+Also see the `conv`-tactic `float_match`.
+-/
 builtin_simproc_decl float_match (_) := fun e => do
   let some (rhs, proof) ← floatMatch (far := false) e | return .continue
   return .visit { expr := rhs, proof? := some proof }
+
+end Simproc
+
+end Lean.Meta
 
 /-!
 The conv tactic
 -/
 
-open Lean Elab Tactic Conv
+namespace Lean.Elab.Tactic.Conv
+
 @[builtin_tactic Lean.Parser.Tactic.Conv.floatMatch]
-def Lean.Elab.Tactic.Conv.evalFoatMap : Tactic := fun _ => do
+def evalFloatMatch : Tactic := fun _ => do
   let mvarId ← getMainGoal
   mvarId.withContext do
     let lhs ← getLhs
     let some (rhs, proof) ← floatMatch (far := true) lhs
       | throwError "cannot find match to float"
     updateLhs rhs proof
+
+end Lean.Elab.Tactic.Conv

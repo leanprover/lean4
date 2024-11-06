@@ -353,6 +353,28 @@ theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.contain
 theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.insert k :=
   ext HashMap.containsThenInsertIfNew_snd
 
+@[simp]
+theorem toList_length_eq_size [EquivBEq α] [LawfulHashable α] : m.toList.length = m.size :=
+  HashMap.length_keys_eq_size
+
+@[simp]
+theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α}:
+    m.toList.contains k = m.contains k :=
+  HashMap.contains_keys
+
+@[simp]
+theorem isEmpty_toList_eq_isEmpty [EquivBEq α] [LawfulHashable α] :
+    m.toList.isEmpty = m.isEmpty :=
+  HashMap.isEmpty_keys_eq_isEmpty
+
+@[simp]
+theorem mem_toList_iff_mem [LawfulBEq α] [LawfulHashable α]  {k : α}:
+    k ∈ m.toList ↔ k ∈ m :=
+  HashMap.mem_keys_iff_mem
+
+theorem distinct_toList [EquivBEq α] [LawfulHashable α]:
+    m.toList.Pairwise (fun a b => (a == b) = false) :=
+  HashMap.distinct_keys
 end
 
 end Std.HashSet

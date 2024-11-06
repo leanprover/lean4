@@ -65,7 +65,10 @@ structure Snapshot where
   `diagnostics`) occurred that prevents processing of the remainder of the file.
   -/
   isFatal := false
-deriving Inhabited
+
+instance : Inhabited Snapshot where
+  -- force `decl_name%` to run, `deriving` would use `Name.anonymous`
+  default := { diagnostics := .empty }
 
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/
 -- Longer-term TODO: Give the server more control over the priority of tasks, depending on e.g. the

@@ -110,14 +110,6 @@ jobs:
           # https://github.com/netlify/cli/issues/1809
           cp -r --dereference ./result ./dist
         if: matrix.name == 'Nix Linux'
-      - name: Check manual for broken links
-        id: lychee
-        uses: lycheeverse/lychee-action@v2.0.2
-        with:
-          fail: false  # report errors but do not block CI on temporary failures
-          # gmplib.org consistently times out from GH actions
-          # the GitHub token is to avoid rate limiting
-          args: --base './dist' --no-progress --github-token ${{ secrets.GITHUB_TOKEN }} --exclude 'gmplib.org' './dist/**/*.html'
       - name: Rebuild Nix Store Cache
         run: |
           rm -rf nix-store-cache || true

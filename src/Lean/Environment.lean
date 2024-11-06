@@ -328,17 +328,18 @@ instance [Nonempty α] [Nonempty β] : Nonempty (α × β) :=
 
 inductive SubDecl
   | thm (val : TheoremVal)
-  | defn (val : DefinitionVal)
+  | defn (val : DefinitionVal) (isMutual : Bool)
   | axiom (val : AxiomVal)
 
 def SubDecl.toDecl : SubDecl → Declaration
   | .thm val => .thmDecl val
-  | .defn val => .defnDecl val
+  | .defn val false => .defnDecl val
+  | .defn val true => .mutualDefnDecl [val]
   | .axiom val => .axiomDecl val
 
 def SubDecl.toConstantInfo : SubDecl → ConstantInfo
   | .thm val => .thmInfo val
-  | .defn val => .defnInfo val
+  | .defn val _ => .defnInfo val
   | .axiom val => .axiomInfo val
 
 /--
@@ -440,8 +441,8 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
   if let some asyncCtx := env.asyncCtx? then
     let (name, val) ← match decl with
       | .thmDecl thm => pure (thm.name, .thm thm)
-      | .defnDecl defn => pure (defn.name, .defn defn)
-      | .mutualDefnDecl [defn] => pure (defn.name, .defn defn)
+      | .defnDecl defn => pure (defn.name, .defn defn false)
+      | .mutualDefnDecl [defn] => pure (defn.name, .defn defn true)
       | .axiomDecl ax => pure (ax.name, .axiom ax)
       | _ =>
         panic! s!"cannot add non-definition/non-theorem declaration {decl.getNames} in async context"

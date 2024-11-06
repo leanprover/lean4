@@ -110,19 +110,54 @@ The implementation support the simproc and the conv tactic
 
 section FloatMatch
 
+inductive MatcherOrIteApp where
+  | matcher (matcherApp : MatcherApp)
+  | ite (dite : Bool) (α P inst t e : Expr)
+
 private def _root_.Lean.Expr.constLams? : Expr → Option Expr
   | .lam _ _ b _ => constLams? b
   | e => if e.hasLooseBVars then none else some e
 
-private partial def findMatchToFloat? (e : Expr) (far : Bool) (depth : Nat := 0) : MetaM (Option (Expr × MatcherApp)) := do
+def MatcherOrIteApp.motive? : MatcherOrIteApp -> Option Expr
+  | matcher matcherApp => matcherApp.motive.constLams?
+  | ite _ α _ _ _ _ => some α
+
+def mkMatchOrIteFloatApp (f : Expr) (moi : MatcherOrIteApp) : MetaM (Option Expr) := do
+  match moi with
+  | .matcher matcherApp => mkMatchFloatApp f matcherApp
+  | .ite dite α P inst t e =>
+      let some (_, β) := (← inferType f).arrow? |
+        trace[float_match] "Cannot float match: {f} is dependent"
+        return none
+      let floatName := if dite then ``apply_dite else ``apply_ite
+      let e ← mkAppOptM floatName #[some α, some β, some f, some P, some inst, some t, some e]
+      return some e
+
+
+/--
+Like matchMatcherApp, but also matches ite/dite.
+-/
+private def matchMatcherOrIteApp? (e : Expr) : MetaM (Option MatcherOrIteApp) := do
+  match_expr e with
+  | ite α P inst t e => return some (.ite false α P inst t e)
+  | dite α P inst t e => return some (.ite true α P inst t e)
+  | _ =>
+    if let some matcherApp ← matchMatcherApp? e then
+      if matcherApp.remaining.isEmpty then
+        return .some (.matcher matcherApp)
+  return none
+
+/--
+Finds the first possible floatable match (or (d)ite).
+-/
+private partial def findMatchToFloat? (e : Expr) (far : Bool) (depth : Nat := 0) : MetaM (Option (Expr × MatcherOrIteApp)) := do
   if !far && depth > 1 then
     return none
 
   if e.isApp then
     if depth > 0 then
-      if let some matcherApp ← matchMatcherApp? e then
-        if matcherApp.remaining.isEmpty then
-          return some (e, matcherApp)
+      if let some matcherApp ← matchMatcherOrIteApp? e then
+        return some (e, matcherApp)
 
 
     let args := e.getAppArgs
@@ -152,12 +187,8 @@ def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
     -- In the simproc: We could, but for now we do not float out of props
     if ← Meta.isProp e then return none
   let some (me, matcherApp) ← findMatchToFloat? e far| return none
-  -- We do not handle over-application of matches
-  unless matcherApp.remaining.isEmpty do
-    trace[float_match] "Cannot float match: extra arguments after the match"
-    return none
   -- We do not handle dependent motives
-  let some α := matcherApp.motive.constLams? |
+  let some α := matcherApp.motive? |
     trace[float_match] "Cannot float match: motive depends on targets"
     return none
   -- Using kabstract, rather than just abstracting over the single occurrence of `me` in `e` with
@@ -168,13 +199,15 @@ def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
   unless (← isTypeCorrect f) do
     trace[float_match] "Cannot float match: context is not type correct"
     return none
-  let some proof ← mkMatchFloatApp f matcherApp | return none
+  let some proof ← mkMatchOrIteFloatApp f matcherApp | return none
   let type ← inferType proof
   let some (_, _, rhs) := type.eq?
     | throwError "float_match: Unexpected non-equality type:{indentExpr type}"
   return some (rhs, proof)
 
 end FloatMatch
+
+end Lean.Meta
 
 /-!
 The simproc tactic
@@ -193,6 +226,8 @@ to
 match o with | some x => f (x + 1) | none => f 0
 ```
 
+For the purposes of this simproc, `if-then-else` expressions are treated like `match` expressions.
+
 It can only float matches with a non-dependent motive, no extra arguments and when the context
 (here `fun x => f x`) is type-correct and is not a proposition.
 
@@ -207,7 +242,6 @@ builtin_simproc_decl float_match (_) := fun e => do
 
 end Simproc
 
-end Lean.Meta
 
 /-!
 The conv tactic

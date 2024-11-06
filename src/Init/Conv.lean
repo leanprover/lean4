@@ -336,6 +336,8 @@ to
 match o with | some x => f (x + 1) | none => f 0
 ```
 
+For the purposes of this tactic, `if-then-else` expressions are treated like `match` expressions.
+
 It can only float matches with a non-dependent motive, no extra arguments and when the context
 (here `fun x => f x`) is type-correct.
 
@@ -344,7 +346,7 @@ left-hand side of an equality) focus on the desired position first (e.g. using `
 
 Also see the `float_match` simproc for use in the simplifier.
 -/
-syntax (name := floatMatch ) "float_match" : conv
+syntax (name := floatMatch) "float_match" : conv
 
 @[inherit_doc floatMatch]
 macro (name := _root_.Lean.Parser.Tactic.floatMatch) "float_match" : tactic =>

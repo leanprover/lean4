@@ -221,3 +221,91 @@ run_meta do
          fun ex =>
           logInfo m!"Failed to handle {e.name}:{ex.toMessageData}"
 -/
+
+-- Testing if-then-else
+
+/--
+error: tactic 'fail' failed
+P : Nat → Prop
+f : Nat → Nat
+b : Bool
+⊢ P (if b = true then f 1 else f 2)
+-/
+#guard_msgs in
+example (P : Nat → Prop) (f : Nat → Nat) (b : Bool) :
+  P (f (if b then 1 else 2)) := by
+  simp only [float_match]
+  fail
+
+-- Dependent f
+
+/--
+error: simp made no progress
+---
+info: [float_match] Cannot float match: f is dependent
+-/
+#guard_msgs in
+set_option trace.float_match true in
+example (P : {n : Nat} → Fin n → Prop) (f : (n : Nat) → Fin n) (b : Bool) :
+  P (f (if b then 1 else 2)) := by
+  simp only [float_match]
+  fail
+
+-- Somewhat dependent f, but abstracting still succeeds
+
+/--
+error: tactic 'fail' failed
+P : Nat → Prop
+f : (n : Nat) → DecidableEq (Fin n) → Nat
+b : Bool
+⊢ P (if b = true then f 1 inferInstance else f 2 inferInstance)
+-/
+#guard_msgs in
+example (P : Nat → Prop) (f : (n : Nat) → DecidableEq (Fin n) → Nat) (b : Bool) :
+  P (f (if b then 1 else 2) inferInstance) := by
+  simp only [float_match]
+  fail
+
+-- Testing dependent if-then-else
+
+/--
+error: tactic 'fail' failed
+P : Nat → Prop
+f : Nat → Nat
+b : Bool
+⊢ P (if h : b = true then f 1 else f 2)
+-/
+#guard_msgs in
+example (P : Nat → Prop) (f : Nat → Nat) (b : Bool) :
+  P (f (if h : b then 1 else 2)) := by
+  simp only [float_match]
+  fail
+
+-- Dependent f
+
+/--
+error: simp made no progress
+---
+info: [float_match] Cannot float match: f is dependent
+-/
+#guard_msgs in
+set_option trace.float_match true in
+example (P : {n : Nat} → Fin n → Prop) (f : (n : Nat) → Fin n) (b : Bool) :
+  P (f (if h : b then 1 else 2)) := by
+  simp only [float_match]
+  fail
+
+-- Somewhat dependent f, but abstracting still succeeds
+
+/--
+error: tactic 'fail' failed
+P : Nat → Prop
+f : (n : Nat) → DecidableEq (Fin n) → Nat
+b : Bool
+⊢ P (if h : b = true then f 1 inferInstance else f 2 inferInstance)
+-/
+#guard_msgs in
+example (P : Nat → Prop) (f : (n : Nat) → DecidableEq (Fin n) → Nat) (b : Bool) :
+  P (f (if h : b then 1 else 2) inferInstance) := by
+  simp only [float_match]
+  fail

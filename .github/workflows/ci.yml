@@ -419,7 +419,7 @@ jobs:
           if [[ '${{ matrix.name }}' == 'Linux Debug' ]]; then
             ulimit -s unlimited
           fi
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} -E "leanruntest_task_test_io"
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2

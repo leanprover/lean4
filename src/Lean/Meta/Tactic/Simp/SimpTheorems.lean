@@ -49,6 +49,11 @@ def Origin.key : Origin → Name
   | .stx id _ => id
   | .other name => name
 
+/-- The origin corresponding to the converse direction (`← thm` vs. `thm`) -/
+def Origin.converse : Origin → Option Origin
+  | .decl declName phase inv => some (.decl declName phase (not inv))
+  | _ => none
+
 instance : BEq Origin where
   beq a b := match a, b with
     | .decl declName₁ _ inv₁, .decl declName₂ _ inv₂ =>
@@ -225,9 +230,10 @@ If `e` is a backwards theorem `← thm`, we must ensure the forward theorem is e
 from `d`. See issue #4290
 -/
 private def eraseFwdIfBwd (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
-  match e.origin with
-  | .decl declName post true => eraseIfExists d (.decl declName post false)
-  | _ => d
+  if let some converseOrigin := e.origin.converse then
+    eraseIfExists d converseOrigin
+  else
+    d
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   let d := eraseFwdIfBwd d e
@@ -262,13 +268,20 @@ def SimpTheorems.registerDeclToUnfoldThms (d : SimpTheorems) (declName : Name) (
 
 def SimpTheorems.erase [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (d : SimpTheorems) (thmId : Origin) : m SimpTheorems := do
-  unless d.isLemma thmId ||
+  if d.isLemma thmId ||
     match thmId with
     | .decl declName .. => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
     | _ => false
-  do
-    logWarning m!"'{thmId.key}' does not have [simp] attribute"
-  return d.eraseCore thmId
+  then
+    return d.eraseCore thmId
+
+  -- `attribute [-simp] foo` should also undo `attribute [simp ←] foo`.
+  if let some thmId' := thmId.converse then
+    if d.isLemma thmId' then
+      return d.eraseCore thmId'
+
+  logWarning m!"'{thmId.key}' does not have [simp] attribute"
+  return d
 
 private partial def isPerm : Expr → Expr → MetaM Bool
   | .app f₁ a₁, .app f₂ a₂ => isPerm f₁ f₂ <&&> isPerm a₁ a₂

@@ -228,14 +228,27 @@ def withAnnotateTermInfo (d : Delab) : Delab := do
   let stx ← d
   annotateTermInfo stx
 
-def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
-  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
-  let suggestion := if suggestion.isAnonymous then `a else suggestion
-  -- We use this small hack to convert identifiers created using `mkAuxFunDiscr` to simple names
-  let suggestion := suggestion.eraseMacroScopes
+/--
+Gets an name based on `suggestion` that is unused in the local context.
+Erases macro scopes.
+If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
+if the name does not appear in `body`.
+
+If `preserveName` is false, then returns the name, possibly with fresh macro scopes added.
+If `suggestion` has macro scopes then the result does as well.
+-/
+def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) : DelabM Name := do
+  let (hasScopes, suggestion) :=
+    if suggestion.isAnonymous then
+      -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
+      (true, `a)
+    else
+      (suggestion.hasMacroScopes, suggestion.eraseMacroScopes)
   let lctx ← getLCtx
-  if !lctx.usesUserName suggestion then
+  if !lctx.usesUserName suggestion || (preserveName && !hasScopes) then
     return suggestion
+  else if preserveName then
+    withFreshMacroScope <| MonadQuotation.addMacroScope suggestion
   else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
     return suggestion
   else
@@ -262,9 +275,12 @@ def mkAnnotatedIdent (n : Name) (e : Expr) : DelabM Ident := do
 Enters the body of the current expression, which must be a lambda or forall.
 The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
 for the variable.
+
+If `preserveName` is `false` (the default), gives the binder an unused name.
+Otherwise, it tries to preserve the textual form of the name, preserving whether it is hygienic.
 -/
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName)
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason

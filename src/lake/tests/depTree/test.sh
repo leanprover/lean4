@@ -22,6 +22,7 @@ fi
 # a@1/init
 $LAKE new a lib.lean
 pushd a
+git init
 git checkout -b master
 git add .
 git config user.name test
@@ -33,6 +34,7 @@ popd
 # b@1: require a@master, manifest a@1
 $LAKE new b lib.lean
 pushd b
+git init
 git checkout -b master
 cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
@@ -54,6 +56,7 @@ popd
 # c@1: require a@master, manifest a@2
 $LAKE new c lib.lean
 pushd c
+git init
 git checkout -b master
 cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
@@ -69,10 +72,11 @@ popd
 # d@1: require b@master c@master => a, manifest a@1 b@1 c@1
 $LAKE new d lib.lean
 pushd d
+git init
 git checkout -b master
 cat >>lakefile.lean <<EOF
-require b from git "../b" @ "master"
 require c from git "../c" @ "master"
+require b from git "../b" @ "master"
 EOF
 # make sure we pick up the version from b's manifest (a@1)
 $LAKE update -v 2>&1 | grep --color 'first commit in a'
@@ -125,13 +129,20 @@ $LAKE update a -v
 git commit -am 'second commit in b'
 popd
 pushd a
-# a@4
+# a@4/main
 sed_i 's/third commit/fourth commit/' A.lean
 git commit -am 'fourth commit in a'
+popd
+pushd c
+# c@2
+echo '-- second commit in c' >>C.lean
+git commit -am 'second commit in c'
 popd
 pushd d
 # d: b@1 -> b@2 => a@1 -> a@3
 $LAKE update b -v
+# test that Lake does not update c
+grep --color 'second commit in c' .lake/packages/c/C.lean && exit 1 || true
 # test 119: pickup a@3 and not a@4
 grep --color 'third commit in a' .lake/packages/a/A.lean
 # test the removal of `c` from the manifest

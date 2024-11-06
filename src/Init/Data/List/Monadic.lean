@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.TakeDrop
+import Init.Data.List.Attach
 
 /-!
 # Lemmas about `List.mapM` and `List.forM`.
@@ -48,6 +49,9 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
 @[simp] theorem mapM_cons [Monad m] [LawfulMonad m] (f : α → m β) :
     (a :: l).mapM f = (return (← f a) :: (← l.mapM f)) := by simp [← mapM'_eq_mapM, mapM']
 
+@[simp] theorem mapM_id {l : List α} {f : α → Id β} : l.mapM f = l.map f := by
+  induction l <;> simp_all
+
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {l₁ l₂ : List α} :
     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]
 
@@ -72,6 +76,16 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) 
       reverse_cons, reverse_nil, nil_append, singleton_append]
     simp [bind_pure_comp]
 
+/-! ### foldlM and foldrM -/
+
+theorem foldlM_map [Monad m] (f : β₁ → β₂) (g : α → β₂ → m α) (l : List β₁) (init : α) :
+    (l.map f).foldlM g init = l.foldlM (fun x y => g x (f y)) init := by
+  induction l generalizing g init <;> simp [*]
+
+theorem foldrM_map [Monad m] [LawfulMonad m] (f : β₁ → β₂) (g : β₂ → α → m α) (l : List β₁)
+    (init : α) : (l.map f).foldrM g init = l.foldrM (fun x y => g (f x) y) init := by
+  induction l generalizing g init <;> simp [*]
+
 /-! ### forM -/
 
 -- We use `List.forM` as the simp normal form, rather that `ForM.forM`.
@@ -88,9 +102,6 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) 
   induction l₁ <;> simp [*]
 
 /-! ### forIn' -/
-
-@[simp] theorem forIn'_nil [Monad m] (f : (a : α) → a ∈ [] → β → m (ForInStep β)) (b : β) : forIn' [] b f = pure b :=
-  rfl
 
 theorem forIn'_loop_congr [Monad m] {as bs : List α}
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
@@ -122,6 +133,11 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
     intros
     rfl
 
+@[simp] theorem forIn_cons [Monad m] (f : α → β → m (ForInStep β)) (a : α) (as : List α) (b : β) :
+    forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f := by
+  have := forIn'_cons (a := a) (as := as) (fun a' _ b => f a' b) b
+  simpa only [forIn'_eq_forIn]
+
 @[congr] theorem forIn'_congr [Monad m] {as bs : List α} (w : as = bs)
     {b b' : β} (hb : b = b')
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
@@ -149,6 +165,65 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
           intro a m b
           exact h a (mem_cons_of_mem _ m) b
 
+/--
+We can express a for loop over a list as a fold,
+in which whenever we reach `.done b` we keep that value through the rest of the fold.
+-/
+theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
+    (l : List α) (f : (a : α) → a ∈ l → β → m (ForInStep β)) (init : β) :
+    forIn' l init f = ForInStep.value <$>
+      l.attach.foldlM (fun b a => match b with
+        | .yield b => f a.1 a.2 b
+        | .done b => pure (.done b)) (ForInStep.yield init) := by
+  induction l generalizing init with
+  | nil => simp
+  | cons a as ih =>
+    simp only [forIn'_cons, attach_cons, foldlM_cons, _root_.map_bind]
+    congr 1
+    funext x
+    match x with
+    | .done b =>
+      clear ih
+      dsimp
+      induction as with
+      | nil => simp
+      | cons a as ih =>
+        simp only [attach_cons, map_cons, map_map, Function.comp_def, foldlM_cons, pure_bind]
+        specialize ih (fun a m b => f a (by
+          simp only [mem_cons] at m
+          rcases m with rfl|m
+          · apply mem_cons_self
+          · exact mem_cons_of_mem _ (mem_cons_of_mem _ m)) b)
+        simp [ih, List.foldlM_map]
+    | .yield b =>
+      simp [ih, List.foldlM_map]
+
+/--
+We can express a for loop over a list as a fold,
+in which whenever we reach `.done b` we keep that value through the rest of the fold.
+-/
+theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
+    (f : α → β → m (ForInStep β)) (init : β) (l : List α) :
+    forIn l init f = ForInStep.value <$>
+      l.foldlM (fun b a => match b with
+        | .yield b => f a b
+        | .done b => pure (.done b)) (ForInStep.yield init) := by
+  induction l generalizing init with
+  | nil => simp
+  | cons a as ih =>
+    simp only [foldlM_cons, bind_pure_comp, forIn_cons, _root_.map_bind]
+    congr 1
+    funext x
+    match x with
+    | .done b =>
+      clear ih
+      dsimp
+      induction as with
+      | nil => simp
+      | cons a as ih => simp [ih]
+    | .yield b =>
+      simp [ih]
+
 /-! ### allM -/
 
 theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
@@ -160,15 +235,5 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
     congr
     funext b
     split <;> simp_all
-
-/-! ### foldlM and foldrM -/
-
-theorem foldlM_map [Monad m] (f : β₁ → β₂) (g : α → β₂ → m α) (l : List β₁) (init : α) :
-    (l.map f).foldlM g init = l.foldlM (fun x y => g x (f y)) init := by
-  induction l generalizing g init <;> simp [*]
-
-theorem foldrM_map [Monad m] [LawfulMonad m] (f : β₁ → β₂) (g : β₂ → α → m α) (l : List β₁)
-    (init : α) : (l.map f).foldrM g init = l.foldrM (fun x y => g (f x) y) init := by
-  induction l generalizing g init <;> simp [*]
 
 end List

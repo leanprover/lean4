@@ -112,7 +112,6 @@ builtin_simproc [bv_normalize] bv_add_const' (((_ : BitVec _) + (_ : BitVec _)) 
     | some ⟨w', exp1Val⟩ =>
       if h : w = w' then
         let newLhs := exp3Val + h ▸ exp1Val
-        -- TODO
         let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp2]
         let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_left'
         return .visit { expr := expr, proof? := some proof }
@@ -179,6 +178,33 @@ def rewriteRulesPass : Pass := fun goal => do
   return newGoal
 
 /--
+Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use
+them to substitute occurences of `x` within other hypotheses
+-/
+def embeddedConstraintPass : Pass := fun goal =>
+  goal.withContext do
+    let hyps ← goal.getNondepPropHyps
+    let relevanceFilter acc hyp := do
+      let typ ← hyp.getType
+      let_expr Eq α _ rhs := typ | return acc
+      let_expr Bool := α | return acc
+      let_expr Bool.true := rhs | return acc
+      let localDecl ← hyp.getDecl
+      let proof  := localDecl.toExpr
+      acc.addTheorem (.fvar hyp) proof
+    let relevantHyps : SimpTheoremsArray ← hyps.foldlM (init := #[]) relevanceFilter
+
+    let simpCtx : Simp.Context := {
+      config := { failIfUnchanged := false }
+      simpTheorems := relevantHyps
+      congrTheorems := (← getSimpCongrTheorems)
+    }
+
+    let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
+    let some (_, newGoal) := result? | return none
+    return newGoal
+
+/--
 Normalize with respect to Associativity and Commutativity.
 -/
 def acNormalizePass : Pass := fun goal => do
@@ -196,7 +222,7 @@ def acNormalizePass : Pass := fun goal => do
 /--
 The normalization passes used by `bv_normalize` and thus `bv_decide`.
 -/
-def defaultPipeline : List Pass := [rewriteRulesPass]
+def defaultPipeline : List Pass := [rewriteRulesPass, embeddedConstraintPass]
 
 def passPipeline : MetaM (List Pass) := do
   let opts ← getOptions
@@ -222,8 +248,8 @@ def evalBVNormalize : Tactic := fun
   | `(tactic| bv_normalize) => do
     let g ← getMainGoal
     match ← bvNormalize g with
-    | some newGoal => setGoals [newGoal]
-    | none => setGoals []
+    | some newGoal => replaceMainGoal [newGoal]
+    | none => replaceMainGoal []
   | _ => throwUnsupportedSyntax
 
 end Frontend.Normalize

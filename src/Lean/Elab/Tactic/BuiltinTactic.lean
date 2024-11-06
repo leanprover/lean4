@@ -263,18 +263,26 @@ private def getOptRotation (stx : Syntax) : Nat :=
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
+  let mut abort := false
+  let mut mctxSaved ← getMCtx
   for mvarId in mvarIds do
     unless (← mvarId.isAssigned) do
       setGoals [mvarId]
-      try
-        evalTactic stx[1]
-        mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
-      catch ex =>
-        if (← read).recover then
-          logException ex
-          mvarIdsNew := mvarIdsNew.push mvarId
-        else
-          throw ex
+      abort ← Tactic.tryCatch
+        (do
+          evalTactic stx[1]
+          pure abort)
+        (fun ex => do
+          if (← read).recover then
+            logException ex
+            pure true
+          else
+            throw ex)
+      mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
+  if abort then
+    setMCtx mctxSaved
+    mvarIds.forM fun mvarId => unless (← mvarId.isAssigned) do admitGoal mvarId
+    throwAbortTactic
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
@@ -464,7 +472,7 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
         let inaccessible := !(extractMacroScopes localDecl.userName |>.equalScope callerScopes)
         let shadowed := found.contains localDecl.userName
         if inaccessible || shadowed then
-          if let `(binderIdent| $h:ident) := hs.back then
+          if let `(binderIdent| $h:ident) := hs.back! then
             let newName := h.getId
             lctx := lctx.setUserName localDecl.fvarId newName
             info := info.push (localDecl.fvarId, h)

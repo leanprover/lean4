@@ -146,7 +146,6 @@ uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 static lean_object* l_Lake_instToExprStdVer___lambda__1___closed__3;
 static lean_object* l_Lake_instOrdSemVerCore___closed__1;
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_parse(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringStdVer;
 LEAN_EXPORT lean_object* l_Lake_instFromJsonStdVer(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__Lake_decEqSemVerCore____x40_Lake_Util_Version___hyg_126____boxed(lean_object*, lean_object*);
@@ -225,6 +224,7 @@ static lean_object* l___private_Lake_Util_Version_0__Lake_reprSemVerCore____x40_
 static lean_object* l_Lake_instCoeSemVerCoreStdVer___closed__1;
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lake_elabVerLit___closed__24;
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instToStringSemVerCore___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instToExprSemVerCore;
 static lean_object* l_Lake_SemVerCore_parse___closed__2;
@@ -3195,7 +3195,7 @@ x_16 = lean_ctor_get(x_15, 1);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = l_Lake_elabVerLit___closed__2;
-x_18 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_16);
+x_18 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_16);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -3351,7 +3351,7 @@ if (x_72 == 0)
 lean_object* x_73; lean_object* x_74; 
 lean_ctor_set_tag(x_70, 3);
 x_73 = l_Lean_MessageData_ofFormat(x_70);
-x_74 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_73, x_3, x_4, x_5, x_6, x_7, x_8, x_71);
+x_74 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_73, x_3, x_4, x_5, x_6, x_7, x_8, x_71);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -3368,7 +3368,7 @@ lean_dec(x_70);
 x_76 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_76, 0, x_75);
 x_77 = l_Lean_MessageData_ofFormat(x_76);
-x_78 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_77, x_3, x_4, x_5, x_6, x_7, x_8, x_71);
+x_78 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_77, x_3, x_4, x_5, x_6, x_7, x_8, x_71);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -3651,7 +3651,7 @@ if (lean_is_scalar(x_138)) {
 }
 lean_ctor_set(x_139, 0, x_137);
 x_140 = l_Lean_MessageData_ofFormat(x_139);
-x_141 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_140, x_3, x_4, x_5, x_6, x_7, x_8, x_136);
+x_141 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_140, x_3, x_4, x_5, x_6, x_7, x_8, x_136);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -4015,7 +4015,7 @@ if (lean_is_scalar(x_220)) {
 }
 lean_ctor_set(x_221, 0, x_219);
 x_222 = l_Lean_MessageData_ofFormat(x_221);
-x_223 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_222, x_3, x_4, x_5, x_6, x_7, x_8, x_218);
+x_223 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_222, x_3, x_4, x_5, x_6, x_7, x_8, x_218);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);

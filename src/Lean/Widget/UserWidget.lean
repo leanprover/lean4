@@ -96,7 +96,7 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
           if let some _ := (← builtinModulesRef.get).find? mod.javascriptHash then
             logWarning m!"A builtin widget module with the same hash(JS source code) was already registered."
         if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
-          logWarning m!"A widget module with the same hash(JS source code) was already registered at {Expr.const n []}."
+          logWarning m!"A widget module with the same hash(JS source code) was already registered at {.ofConstName n true}."
         let env ← getEnv
         if builtin then
           let h := mkConst decl

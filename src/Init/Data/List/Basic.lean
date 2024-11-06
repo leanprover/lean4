@@ -45,7 +45,7 @@ The operations are organized as follow:
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
 * Minima and maxima: `min?` and `max?`.
-* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`,
+* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `splitBy`,
   `removeAll`
   (currently these functions are mostly only used in meta code,
   and do not have API suitable for verification).
@@ -1639,23 +1639,23 @@ where
     | true  => loop as (a::rs)
     | false => (rs.reverse, a::as)
 
-/-! ### groupBy -/
+/-! ### splitBy -/
 
 /--
-`O(|l|)`. `groupBy R l` splits `l` into chains of elements
+`O(|l|)`. `splitBy R l` splits `l` into chains of elements
 such that adjacent elements are related by `R`.
 
-* `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
-* `groupBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
+* `splitBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
+* `splitBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
 -/
-@[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
+@[specialize] def splitBy (R : α → α → Bool) : List α → List (List α)
   | []    => []
   | a::as => loop as a [] []
 where
   /--
-  The arguments of `groupBy.loop l ag g gs` represent the following:
+  The arguments of `splitBy.loop l ag g gs` represent the following:
 
-  - `l : List α` are the elements which we still need to group.
+  - `l : List α` are the elements which we still need to split.
   - `ag : α` is the previous element for which a comparison was performed.
   - `g : List α` is the group currently being assembled, in **reverse order**.
   - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
@@ -1665,6 +1665,8 @@ where
     | true  => loop as a (ag::g) gs
     | false => loop as a [] ((ag::g).reverse::gs)
   | [], ag, g, gs => ((ag::g).reverse::gs).reverse
+
+@[deprecated splitBy (since := "2024-10-30"), inherit_doc splitBy] abbrev groupBy := @splitBy
 
 /-! ### removeAll -/
 

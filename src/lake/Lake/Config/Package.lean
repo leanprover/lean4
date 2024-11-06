@@ -380,11 +380,9 @@ structure Package where
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The package's scope (e.g., in Reservoir). -/
-  scope : String := ""
+  scope : String
   /-- The URL to this package's Git remote. -/
-  remoteUrl : String := ""
-  /-- (Opaque references to) the package's direct dependencies. -/
-  opaqueDeps : Array OpaquePackage := #[]
+  remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
@@ -418,8 +416,6 @@ structure Package where
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
   ⟨by constructor <;> exact default⟩
-
-hydrate_opaque_type OpaquePackage Package
 
 instance : Hashable Package where hash pkg := hash pkg.config.name
 instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
@@ -507,10 +503,6 @@ namespace Package
 /-- The package's `dir` joined with its `relReadmeFile`. -/
 @[inline] def readmeFile (self : Package) : FilePath  :=
   self.dir / self.config.readmeFile
-
-/-- The package's direct dependencies. -/
-@[inline] def deps (self : Package) : Array Package  :=
-  self.opaqueDeps.map (·.get)
 
 /-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
 @[inline] def relLakeDir (_ : Package) : FilePath :=

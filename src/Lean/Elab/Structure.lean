@@ -22,7 +22,12 @@ namespace Lean.Elab.Command
 
 register_builtin_option structureDiamondWarning : Bool := {
   defValue := false
-  descr    := "enable/disable warning messages for structure diamonds"
+  descr    := "if true, enable warnings when a structure has diamond inheritance"
+}
+
+register_builtin_option structure.strictResolutionOrder : Bool := {
+  defValue := false
+  descr := "if true, require a strict resolution order for structures"
 }
 
 open Meta
@@ -318,7 +323,7 @@ where
     if h : i < subfieldNames.size then
       let subfieldName := subfieldNames.get ⟨i, h⟩
       if containsFieldName infos subfieldName then
-        throwError "field '{subfieldName}' from '{parentStructName}' has already been declared"
+        throwError "field '{subfieldName}' from '{.ofConstName parentStructName}' has already been declared"
       let val  ← mkProjection parentFVar subfieldName
       let type ← inferType val
       withLetDecl subfieldName type val fun subfieldFVar => do
@@ -428,7 +433,7 @@ private partial def copyDefaultValue? (fieldMap : FieldMap) (expandedStructNames
     go? (← instantiateValueLevelParams cinfo us)
 where
   failed : TermElabM (Option Expr) := do
-    logWarning s!"ignoring default value for field '{fieldName}' defined at '{structName}'"
+    logWarning m!"ignoring default value for field '{fieldName}' defined at '{.ofConstName structName}'"
     return none
 
   go? (e : Expr) : TermElabM (Option Expr) := do
@@ -464,7 +469,7 @@ where
         | some existingFieldInfo =>
           let existingFieldType ← inferType existingFieldInfo.fvar
           unless (← isDefEq fieldType existingFieldType) do
-            throwError "parent field type mismatch, field '{fieldName}' from parent '{parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
+            throwError "parent field type mismatch, field '{fieldName}' from parent '{.ofConstName parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
           /- Remark: if structure has a default value for this field, it will be set at the `processOveriddenDefaultValues` below. -/
           copy (i+1) infos (fieldMap.insert fieldName existingFieldInfo.fvar) expandedStructNames
         | none =>
@@ -543,10 +548,10 @@ where
       let parentType ← whnf type
       let parentStructName ← getStructureName parentType
       if parents.any (fun info => info.structName == parentStructName) then
-        logWarningAt parent m!"duplicate parent structure '{parentStructName}'"
+        logWarningAt parent m!"duplicate parent structure '{.ofConstName parentStructName}'"
       if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
-          logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
+          logWarning m!"field '{existingFieldName}' from '{.ofConstName parentStructName}' has already been declared"
         let parents := parents.push { ref := parent, fvar? := none, subobject := false, structName := parentStructName, type := parentType }
         copyNewFieldsFrom view.declName infos parentType fun infos => go (i+1) infos parents
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
@@ -806,9 +811,16 @@ private def mkAuxConstructions (declName : Name) : TermElabM Unit := do
   let hasEq   := env.contains ``Eq
   let hasHEq  := env.contains ``HEq
   let hasUnit := env.contains ``PUnit
+  let hasProd := env.contains ``Prod
   mkRecOn declName
   if hasUnit then mkCasesOn declName
   if hasUnit && hasEq && hasHEq then mkNoConfusion declName
+  let ival ← getConstInfoInduct declName
+  if ival.isRec then
+    if hasUnit && hasProd then mkBelow declName
+    if hasUnit && hasProd then mkIBelow declName
+    if hasUnit && hasProd then mkBRecOn declName
+    if hasUnit && hasProd then mkBInductionOn declName
 
 private def addDefaults (lctx : LocalContext) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
   withLCtx lctx (← getLocalInstances) do
@@ -928,8 +940,6 @@ private def mkInductiveType (view : StructView) (indFVar : Expr) (levelNames : L
   let levelParams := levelNames.map mkLevelParam
   let const := mkConst view.declName levelParams
   let ctorType ← forallBoundedTelescope ctor.type numParams fun params type => do
-    if type.containsFVar indFVar.fvarId! then
-      throwErrorAt view.ref "Recursive structures are not yet supported."
     let type := type.replace fun e =>
       if e == indFVar then
         mkAppN const (params.extract 0 numVars)
@@ -937,6 +947,23 @@ private def mkInductiveType (view : StructView) (indFVar : Expr) (levelNames : L
         none
     instantiateMVars (← mkForallFVars params type)
   return { name := view.declName, type := ← instantiateMVars type, ctors := [{ ctor with type := ← instantiateMVars ctorType }] }
+
+/--
+Precomputes the structure's resolution order.
+Option `structure.strictResolutionOrder` controls whether to create a warning if the C3 algorithm failed.
+-/
+private def checkResolutionOrder (structName : Name) : TermElabM Unit := do
+  let resolutionOrderResult ← computeStructureResolutionOrder structName (relaxed := !structure.strictResolutionOrder.get (← getOptions))
+  trace[Elab.structure.resolutionOrder] "computed resolution order: {resolutionOrderResult.resolutionOrder}"
+  unless resolutionOrderResult.conflicts.isEmpty do
+    let mut defects : List MessageData := []
+    for conflict in resolutionOrderResult.conflicts do
+      let parentKind direct := if direct then "parent" else "indirect parent"
+      let conflicts := conflict.conflicts.map fun (isDirect, name) =>
+        m!"{parentKind isDirect} '{MessageData.ofConstName name}'"
+      defects := m!"- {parentKind conflict.isDirectParent} '{MessageData.ofConstName conflict.badParent}' \
+        must come after {MessageData.andList conflicts.toList}" :: defects
+    logWarning m!"failed to compute strict resolution order:\n{MessageData.joinSep defects.reverse "\n"}"
 
 def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let scopeLevelNames ← Term.getLevelNames
@@ -1003,6 +1030,8 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
             else
               mkCoercionToCopiedParent levelParams params view parent.structName parent.type
           setStructureParents view.declName parentInfos
+          checkResolutionOrder view.declName
+
           let lctx ← getLCtx
           /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations
             The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
@@ -1040,6 +1069,8 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
     pure view
   elabStructureViewPostprocessing view
 
-builtin_initialize registerTraceClass `Elab.structure
+builtin_initialize
+  registerTraceClass `Elab.structure
+  registerTraceClass `Elab.structure.resolutionOrder
 
 end Lean.Elab.Command

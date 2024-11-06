@@ -54,6 +54,13 @@ theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂
     : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a) := by
   subst h₁; simp [← h₂]
 
+theorem forall_prop_congr_dom {p₁ p₂ : Prop} (h : p₁ = p₂) (q : p₁ → Prop) :
+    (∀ a : p₁, q a) = (∀ a : p₂, q (h.substr a)) :=
+  h ▸ rfl
+
+theorem pi_congr {α : Sort u} {β β' : α → Sort v} (h : ∀ a, β a = β' a) : (∀ a, β a) = ∀ a, β' a :=
+  (funext h : β = β') ▸ rfl
+
 theorem let_congr {α : Sort u} {β : Sort v} {a a' : α} {b b' : α → β}
     (h₁ : a = a') (h₂ : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a'; b' x) :=
   h₁ ▸ (funext h₂ : b = b') ▸ rfl
@@ -256,7 +263,7 @@ theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by simp
   ⟨of_decide_eq_false, decide_eq_false⟩
 
 @[simp] theorem decide_not [g : Decidable p] [h : Decidable (Not p)] : decide (Not p) = !(decide p) := by
-  cases g <;> (rename_i gp; simp [gp]; rfl)
+  cases g <;> (rename_i gp; simp [gp])
 theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by simp
 
 @[simp] theorem heq_eq_eq (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
@@ -270,8 +277,10 @@ theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := by simp
 @[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by simp [bne]
 theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp
 
-@[simp] theorem decide_False : decide False = false := rfl
-@[simp] theorem decide_True  : decide True  = true := rfl
+set_option linter.missingDocs false in
+@[deprecated decide_false (since := "2024-11-05")] abbrev decide_False := decide_false
+set_option linter.missingDocs false in
+@[deprecated decide_true  (since := "2024-11-05")] abbrev decide_True  := decide_true
 
 @[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] {a b : α} : a != b ↔ a ≠ b := by
   simp [bne]; rw [← beq_iff_eq (a := a) (b := b)]; simp [-beq_iff_eq]

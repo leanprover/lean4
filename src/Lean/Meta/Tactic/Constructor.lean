@@ -32,7 +32,7 @@ def _root_.Lean.MVarId.existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId :
   mvarId.withContext do
     mvarId.checkNotAssigned `exists
     let target ← mvarId.getType'
-    matchConstStruct target.getAppFn
+    matchConstStructure target.getAppFn
       (fun _ => throwTacticEx `exists mvarId "target is not an inductive datatype with one constructor")
       fun _ us cval => do
         if cval.numFields < 2 then

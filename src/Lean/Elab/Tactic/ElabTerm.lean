@@ -257,45 +257,11 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
     match (← Term.resolveId? stx (withInfo := true)) with
     | some e => return e
     | _      => pure ()
-  /-
-    By disabling the "error recovery" (and consequently "error to sorry") feature,
-    we make sure an `apply e` fails without logging an error message.
-    The motivation is that `apply` is frequently used when writing tactic such as
-    ```
-    cases h <;> intro h' <;> first | apply t[h'] | ....
-    ```
-    Here the type of `h'` may be different in each case, and the term `t[h']` containing `h'` may even fail to
-    be elaborated in some cases. When this happens we want the tactic to fail without reporting any error to the user,
-    and the next tactic is tried.
+  elabTerm stx none mayPostpone
 
-    A drawback of disabling "error to sorry" is that there is no error recovery after the error is thrown, and features such
-    as auto-completion are affected.
-
-    By disabling "error to sorry", we also limit ourselves to at most one error at `t[h']`.
-
-    By disabling "error to sorry", we also miss the opportunity to catch mistakes in tactic code such as
-      `first | apply nonsensical-term | assumption`
-
-    This should not be a big problem for the `apply` tactic since we usually provide small terms there.
-
-    Note that we do not disable "error to sorry" at `exact` and `refine` since they are often used to elaborate big terms,
-    and we do want error recovery there, and we want to see the error messages.
-
-    We should probably provide options for allowing users to control this behavior.
-
-    see issue #1037
-
-    More complex solution:
-      - We do not disable "error to sorry"
-      - We elaborate term and check whether errors were produced
-      - If there are other tactic branches and there are errors, we remove the errors from the log, and throw a new error to force the tactic to backtrack.
-  -/
-  withoutRecover <| elabTerm stx none mayPostpone
-
-def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
+def getFVarId (id : Syntax) : TacticM FVarId := withRef id <| withMainContext do
   -- use apply-like elaboration to suppress insertion of implicit arguments
-  let e ← withMainContext do
-    elabTermForApply id (mayPostpone := false)
+  let e ← withoutRecover <| elabTermForApply id (mayPostpone := false)
   match e with
   | Expr.fvar fvarId => return fvarId
   | _                => throwError "unexpected term '{e}'; expected single reference to variable"

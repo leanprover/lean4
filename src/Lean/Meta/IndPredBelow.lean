@@ -300,7 +300,7 @@ where
       let m ← introNPRec m
       (← m.getType).withApp fun below args =>
       m.withContext do
-        args.back.withApp fun ctor _ => do
+        args.back!.withApp fun ctor _ => do
         let ctorName := ctor.constName!.updatePrefix below.constName!
         let ctor := mkConst ctorName below.constLevels!
         let ctorInfo ← getConstInfoCtor ctorName

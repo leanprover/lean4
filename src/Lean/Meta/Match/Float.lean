@@ -6,18 +6,9 @@ Authors: Joachim Breitner
 
 prelude
 import Init.Simproc
-import Lean.ResolveName
-import Lean.ReservedNameAction
-import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatcherApp.Basic
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.AppBuilder
 import Lean.Meta.KAbstract
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Elab.SyntheticMVars
 import Lean.Elab.Tactic.Conv.Basic
-import Lean.AddDecl
 
 open Lean Meta Elab Term
 
@@ -167,10 +158,11 @@ def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
   let some α := matcherApp.motive.constLams? |
     trace[float_match] "Cannot float match: motive depends on targets"
     return none
-  -- Using kabstract helps if later arguments depend on the abstracted argument,
+  -- Using kabstract, rather than just abstracting over the single occurrence of `me` in `e` with
+  -- helps if later arguments depend on the abstracted argument,
   -- in particular with ``ite's `Decidable c` parameter
   let f := (mkLambda `x .default α (← kabstract e me)).eta
-  -- Abstracting over the argument can result in a type incorrect `f`:
+  -- Abstracting over the argument can result in a type incorrect `f` (like in `rw`)
   unless (← isTypeCorrect f) do
     trace[float_match] "Cannot float match: context is not type correct"
     return none

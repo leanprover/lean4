@@ -697,6 +697,11 @@ theorem isEmpty_keys_eq_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
     m.keys.isEmpty = m.isEmpty :=
   DHashMap.Raw.isEmpty_keys_eq_isEmpty h.out
 
+@[simp]
+theorem mem_keys_iff_mem [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    k ∈ m.keys ↔ k ∈ m := 
+  DHashMap.Raw.mem_keys_iff_mem h.out
+
 end Raw
 
 end Std.HashMap

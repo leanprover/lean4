@@ -105,7 +105,7 @@ builtin_initialize
 
 
 /-!
-The implementation support the simproc and the conv tactic
+The implementation supporting the simproc and the conv tactic
 -/
 
 section FloatMatch

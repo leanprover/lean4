@@ -2695,6 +2695,9 @@ theorem getElem_rotateRight {x : BitVec w} {r i : Nat} (h : i < w) :
 
 /- ## twoPow -/
 
+theorem twoPow_eq (w : Nat) (i : Nat) : twoPow w i = 1#w <<< i := by
+  dsimp [twoPow]
+
 @[simp, bv_toNat]
 theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w

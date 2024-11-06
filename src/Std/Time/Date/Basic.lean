@@ -180,3 +180,297 @@ def ofWeeks (weeks : Week.Offset) : Hour.Offset :=
 
 end Offset
 end Hour
+
+instance : HAdd Nanosecond.Offset Nanosecond.Offset Nanosecond.Offset where
+  hAdd x y := x.add y
+
+instance : HAdd Nanosecond.Offset Millisecond.Offset Nanosecond.Offset where
+  hAdd x y := x.add y.toNanoseconds
+
+instance : HAdd Nanosecond.Offset Second.Offset Nanosecond.Offset where
+  hAdd x y := x.add y.toNanoseconds
+
+instance : HAdd Nanosecond.Offset Minute.Offset Nanosecond.Offset where
+  hAdd x y := x.add y.toNanoseconds
+
+instance : HAdd Nanosecond.Offset Hour.Offset Nanosecond.Offset where
+  hAdd x y := x.add y.toNanoseconds
+
+instance : HAdd Nanosecond.Offset Day.Offset Nanosecond.Offset where
+  hAdd x y := x.add y.toNanoseconds
+
+instance : HAdd Nanosecond.Offset Week.Offset Nanosecond.Offset where
+  hAdd x y := x.add y.toNanoseconds
+
+instance : HAdd Millisecond.Offset Nanosecond.Offset Nanosecond.Offset where
+  hAdd x y := x.toNanoseconds.add y
+
+instance : HAdd Millisecond.Offset Millisecond.Offset Millisecond.Offset where
+  hAdd x y := x.add y
+
+instance : HAdd Millisecond.Offset Second.Offset Millisecond.Offset where
+  hAdd x y := x.add y.toMilliseconds
+
+instance : HAdd Millisecond.Offset Minute.Offset Millisecond.Offset where
+  hAdd x y := x.add y.toMilliseconds
+
+instance : HAdd Millisecond.Offset Hour.Offset Millisecond.Offset where
+  hAdd x y := x.add y.toMilliseconds
+
+instance : HAdd Millisecond.Offset Day.Offset Millisecond.Offset where
+  hAdd x y := x.add y.toMilliseconds
+
+instance : HAdd Millisecond.Offset Week.Offset Millisecond.Offset where
+  hAdd x y := x.add y.toMilliseconds
+
+instance : HAdd Second.Offset Nanosecond.Offset Nanosecond.Offset where
+  hAdd x y := x.toNanoseconds.add y
+
+instance : HAdd Second.Offset Millisecond.Offset Millisecond.Offset where
+  hAdd x y := x.toMilliseconds.add y
+
+instance : HAdd Second.Offset Second.Offset Second.Offset where
+  hAdd x y := x.add y
+
+instance : HAdd Second.Offset Minute.Offset Second.Offset where
+  hAdd x y := x.add y.toSeconds
+
+instance : HAdd Second.Offset Hour.Offset Second.Offset where
+  hAdd x y := x.add y.toSeconds
+
+instance : HAdd Second.Offset Day.Offset Second.Offset where
+  hAdd x y := x.add y.toSeconds
+
+instance : HAdd Second.Offset Week.Offset Second.Offset where
+  hAdd x y := x.add y.toSeconds
+
+instance : HAdd Minute.Offset Nanosecond.Offset Nanosecond.Offset where
+  hAdd x y := x.toNanoseconds.add y
+
+instance : HAdd Minute.Offset Millisecond.Offset Millisecond.Offset where
+  hAdd x y := x.toMilliseconds.add y
+
+instance : HAdd Minute.Offset Second.Offset Second.Offset where
+  hAdd x y := x.toSeconds.add y
+
+instance : HAdd Minute.Offset Minute.Offset Minute.Offset where
+  hAdd x y := x.add y
+
+instance : HAdd Minute.Offset Hour.Offset Minute.Offset where
+  hAdd x y := x.add y.toMinutes
+
+instance : HAdd Minute.Offset Day.Offset Minute.Offset where
+  hAdd x y := x.add y.toMinutes
+
+instance : HAdd Minute.Offset Week.Offset Minute.Offset where
+  hAdd x y := x.add y.toMinutes
+
+instance : HAdd Hour.Offset Nanosecond.Offset Nanosecond.Offset where
+  hAdd x y := x.toNanoseconds.add y
+
+instance : HAdd Hour.Offset Millisecond.Offset Millisecond.Offset where
+  hAdd x y := x.toMilliseconds.add y
+
+instance : HAdd Hour.Offset Second.Offset Second.Offset where
+  hAdd x y := x.toSeconds.add y
+
+instance : HAdd Hour.Offset Minute.Offset Minute.Offset where
+  hAdd x y := x.toMinutes.add y
+
+instance : HAdd Hour.Offset Hour.Offset Hour.Offset where
+  hAdd x y := x.add y
+
+instance : HAdd Hour.Offset Day.Offset Hour.Offset where
+  hAdd x y := x.add y.toHours
+
+instance : HAdd Hour.Offset Week.Offset Hour.Offset where
+  hAdd x y := x.add y.toHours
+
+instance : HAdd Day.Offset Nanosecond.Offset Nanosecond.Offset where
+  hAdd x y := x.toNanoseconds.add y
+
+instance : HAdd Day.Offset Millisecond.Offset Millisecond.Offset where
+  hAdd x y := x.toMilliseconds.add y
+
+instance : HAdd Day.Offset Second.Offset Second.Offset where
+  hAdd x y := x.toSeconds.add y
+
+instance : HAdd Day.Offset Minute.Offset Minute.Offset where
+  hAdd x y := x.toMinutes.add y
+
+instance : HAdd Day.Offset Hour.Offset Hour.Offset where
+  hAdd x y := x.toHours.add y
+
+instance : HAdd Day.Offset Day.Offset Day.Offset where
+  hAdd x y := x.add y
+
+instance : HAdd Day.Offset Week.Offset Day.Offset where
+  hAdd x y := x.add y.toDays
+
+instance : HAdd Week.Offset Nanosecond.Offset Nanosecond.Offset where
+  hAdd x y := x.toNanoseconds.add y
+
+instance : HAdd Week.Offset Millisecond.Offset Millisecond.Offset where
+  hAdd x y := x.toMilliseconds.add y
+
+instance : HAdd Week.Offset Second.Offset Second.Offset where
+  hAdd x y := x.toSeconds.add y
+
+instance : HAdd Week.Offset Minute.Offset Minute.Offset where
+  hAdd x y := x.toMinutes.add y
+
+instance : HAdd Week.Offset Hour.Offset Hour.Offset where
+  hAdd x y := x.toHours.add y
+
+instance : HAdd Week.Offset Day.Offset Day.Offset where
+  hAdd x y := x.toDays.add y
+
+instance : HAdd Week.Offset Week.Offset Week.Offset where
+  hAdd x y := x.add y
+
+instance : HSub Nanosecond.Offset Nanosecond.Offset Nanosecond.Offset where
+  hSub x y := x.sub y
+
+instance : HSub Nanosecond.Offset Millisecond.Offset Nanosecond.Offset where
+  hSub x y := x.sub y.toNanoseconds
+
+instance : HSub Nanosecond.Offset Second.Offset Nanosecond.Offset where
+  hSub x y := x.sub y.toNanoseconds
+
+instance : HSub Nanosecond.Offset Minute.Offset Nanosecond.Offset where
+  hSub x y := x.sub y.toNanoseconds
+
+instance : HSub Nanosecond.Offset Hour.Offset Nanosecond.Offset where
+  hSub x y := x.sub y.toNanoseconds
+
+instance : HSub Nanosecond.Offset Day.Offset Nanosecond.Offset where
+  hSub x y := x.sub y.toNanoseconds
+
+instance : HSub Nanosecond.Offset Week.Offset Nanosecond.Offset where
+  hSub x y := x.sub y.toNanoseconds
+
+instance : HSub Millisecond.Offset Nanosecond.Offset Nanosecond.Offset where
+  hSub x y := x.toNanoseconds.sub y
+
+instance : HSub Millisecond.Offset Millisecond.Offset Millisecond.Offset where
+  hSub x y := x.sub y
+
+instance : HSub Millisecond.Offset Second.Offset Millisecond.Offset where
+  hSub x y := x.sub y.toMilliseconds
+
+instance : HSub Millisecond.Offset Minute.Offset Millisecond.Offset where
+  hSub x y := x.sub y.toMilliseconds
+
+instance : HSub Millisecond.Offset Hour.Offset Millisecond.Offset where
+  hSub x y := x.sub y.toMilliseconds
+
+instance : HSub Millisecond.Offset Day.Offset Millisecond.Offset where
+  hSub x y := x.sub y.toMilliseconds
+
+instance : HSub Millisecond.Offset Week.Offset Millisecond.Offset where
+  hSub x y := x.sub y.toMilliseconds
+
+instance : HSub Second.Offset Nanosecond.Offset Nanosecond.Offset where
+  hSub x y := x.toNanoseconds.sub y
+
+instance : HSub Second.Offset Millisecond.Offset Millisecond.Offset where
+  hSub x y := x.toMilliseconds.sub y
+
+instance : HSub Second.Offset Second.Offset Second.Offset where
+  hSub x y := x.sub y
+
+instance : HSub Second.Offset Minute.Offset Second.Offset where
+  hSub x y := x.sub y.toSeconds
+
+instance : HSub Second.Offset Hour.Offset Second.Offset where
+  hSub x y := x.sub y.toSeconds
+
+instance : HSub Second.Offset Day.Offset Second.Offset where
+  hSub x y := x.sub y.toSeconds
+
+instance : HSub Second.Offset Week.Offset Second.Offset where
+  hSub x y := x.sub y.toSeconds
+
+instance : HSub Minute.Offset Nanosecond.Offset Nanosecond.Offset where
+  hSub x y := x.toNanoseconds.sub y
+
+instance : HSub Minute.Offset Millisecond.Offset Millisecond.Offset where
+  hSub x y := x.toMilliseconds.sub y
+
+instance : HSub Minute.Offset Second.Offset Second.Offset where
+  hSub x y := x.toSeconds.sub y
+
+instance : HSub Minute.Offset Minute.Offset Minute.Offset where
+  hSub x y := x.sub y
+
+instance : HSub Minute.Offset Hour.Offset Minute.Offset where
+  hSub x y := x.sub y.toMinutes
+
+instance : HSub Minute.Offset Day.Offset Minute.Offset where
+  hSub x y := x.sub y.toMinutes
+
+instance : HSub Minute.Offset Week.Offset Minute.Offset where
+  hSub x y := x.sub y.toMinutes
+
+instance : HSub Hour.Offset Nanosecond.Offset Nanosecond.Offset where
+  hSub x y := x.toNanoseconds.sub y
+
+instance : HSub Hour.Offset Millisecond.Offset Millisecond.Offset where
+  hSub x y := x.toMilliseconds.sub y
+
+instance : HSub Hour.Offset Second.Offset Second.Offset where
+  hSub x y := x.toSeconds.sub y
+
+instance : HSub Hour.Offset Minute.Offset Minute.Offset where
+  hSub x y := x.toMinutes.sub y
+
+instance : HSub Hour.Offset Hour.Offset Hour.Offset where
+  hSub x y := x.sub y
+
+instance : HSub Hour.Offset Day.Offset Hour.Offset where
+  hSub x y := x.sub y.toHours
+
+instance : HSub Hour.Offset Week.Offset Hour.Offset where
+  hSub x y := x.sub y.toHours
+
+instance : HSub Day.Offset Nanosecond.Offset Nanosecond.Offset where
+  hSub x y := x.toNanoseconds.sub y
+
+instance : HSub Day.Offset Millisecond.Offset Millisecond.Offset where
+  hSub x y := x.toMilliseconds.sub y
+
+instance : HSub Day.Offset Second.Offset Second.Offset where
+  hSub x y := x.toSeconds.sub y
+
+instance : HSub Day.Offset Minute.Offset Minute.Offset where
+  hSub x y := x.toMinutes.sub y
+
+instance : HSub Day.Offset Hour.Offset Hour.Offset where
+  hSub x y := x.toHours.sub y
+
+instance : HSub Day.Offset Day.Offset Day.Offset where
+  hSub x y := x.sub y
+
+instance : HSub Day.Offset Week.Offset Day.Offset where
+  hSub x y := x.sub y.toDays
+
+instance : HSub Week.Offset Nanosecond.Offset Nanosecond.Offset where
+  hSub x y := x.toNanoseconds.sub y
+
+instance : HSub Week.Offset Millisecond.Offset Millisecond.Offset where
+  hSub x y := x.toMilliseconds.sub y
+
+instance : HSub Week.Offset Second.Offset Second.Offset where
+  hSub x y := x.toSeconds.sub y
+
+instance : HSub Week.Offset Minute.Offset Minute.Offset where
+  hSub x y := x.toMinutes.sub y
+
+instance : HSub Week.Offset Hour.Offset Hour.Offset where
+  hSub x y := x.toHours.sub y
+
+instance : HSub Week.Offset Day.Offset Day.Offset where
+  hSub x y := x.toDays.sub y
+
+instance : HSub Week.Offset Week.Offset Week.Offset where
+  hSub x y := x.sub y

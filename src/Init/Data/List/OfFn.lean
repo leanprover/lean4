@@ -52,4 +52,29 @@ protected theorem getElem?_ofFn (f : Fin n → α) (i) : (ofFn f)[i]? = if h : i
     rw [dif_neg] <;>
     simpa using h
 
+/-- `ofFn` on an empty domain is the empty list. -/
+@[simp]
+theorem ofFn_zero (f : Fin 0 → α) : ofFn f = [] :=
+  ext_get (by simp) (fun i hi₁ hi₂ => by contradiction)
+
+@[simp]
+theorem ofFn_succ {n} (f : Fin (n + 1) → α) : ofFn f = f 0 :: ofFn fun i => f i.succ :=
+  ext_get (by simp) (fun i hi₁ hi₂ => by
+    cases i
+    · simp
+    · simp)
+
+@[simp]
+theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
+  cases n <;> simp only [ofFn_zero, ofFn_succ, eq_self_iff_true, Nat.succ_ne_zero, reduceCtorEq]
+
+theorem head_ofFn {n} (f : Fin n → α) (h : ofFn f ≠ []) :
+    (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by
+  rw [← getElem_zero (length_ofFn _ ▸ Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)),
+    List.getElem_ofFn]
+
+theorem getLast_ofFn {n} (f : Fin n → α) (h : ofFn f ≠ []) :
+    (ofFn f).getLast h = f ⟨n - 1, Nat.sub_one_lt (mt ofFn_eq_nil_iff.2 h)⟩ := by
+  simp [getLast_eq_getElem, length_ofFn, List.getElem_ofFn]
+
 end List

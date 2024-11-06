@@ -160,10 +160,12 @@ def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
     if ← Meta.isProp e then return none
   let some (me, matcherApp) ← findMatchToFloat? e far| return none
   -- We do not handle over-application of matches
-  unless matcherApp.remaining.isEmpty do return none
+  unless matcherApp.remaining.isEmpty do
+    trace[float_match] "Cannot float match: extra arguments after the match"
+    return none
   -- We do not handle dependent motives
   let some α := matcherApp.motive.constLams? |
-    trace[float_match] "Cannot float match: extra arguments after the match"
+    trace[float_match] "Cannot float match: motive depends on targets"
     return none
   -- Using kabstract helps if later arguments depend on the abstracted argument,
   -- in particular with ``ite's `Decidable c` parameter

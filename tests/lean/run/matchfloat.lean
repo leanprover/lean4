@@ -136,6 +136,18 @@ example (o : Option Bool) (P : Nat → Prop):
   simp only [float_match]
   fail
 
+-- Dependent motive; must not rewrite
+
+set_option trace.float_match true in
+/-- info: [float_match] Cannot float match: motive depends on targets -/
+#guard_msgs in
+example (o : Option Bool) (motive : Bool → Type) (P : {b : Bool} → motive b → Prop)
+  (f : (x : Bool) → motive x) (g : {x : Bool} → motive x → motive x)
+  (abort : ∀ b (x : motive b), P x) :
+  P (g (match (motive := ∀ b, motive b.isSome) o with | some _ => f true | none => f false)) := by
+  fail_if_success simp [float_match]
+  apply abort
+
 -- Dependent context; must not rewrite
 
 set_option trace.float_match true in

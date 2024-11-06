@@ -863,14 +863,14 @@ theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α�
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
   induction l generalizing init <;> simp [*]
 
-theorem foldl_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldl f' (g a) = g (l.foldl f a) := by
   induction l generalizing a
   · simp
   · simp [*, h]
 
-theorem foldr_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
   induction l generalizing a
@@ -2699,6 +2699,12 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
 @[simp] theorem foldr_reverse (l : List α) (f : α → β → β) (b) :
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
   (foldl_reverse ..).symm.trans <| by simp
+
+theorem foldl_eq_foldr_reverse (l : List α) (f : β → α → β) (b) :
+    l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp
+
+theorem foldr_eq_foldl_reverse (l : List α) (f : α → β → β) (b) :
+    l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
 
 @[simp] theorem reverse_replicate (n) (a : α) : reverse (replicate n a) = replicate n a :=
   eq_replicate_iff.2

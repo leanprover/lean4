@@ -1043,6 +1043,10 @@ theorem mem_keys_iff_mem [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} 
   rw [mem_iff_contains]
   simp_to_raw using Raw₀.mem_keys_iff_contains ⟨m, _⟩ h
 
+theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.Pairwise (fun a b => (a == b) = false) := by
+  simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
+
 end Raw
 
 end Std.DHashMap

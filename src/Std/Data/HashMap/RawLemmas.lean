@@ -702,6 +702,10 @@ theorem mem_keys_iff_mem [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} 
     k ∈ m.keys ↔ k ∈ m := 
   DHashMap.Raw.mem_keys_iff_mem h.out
 
+theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.Pairwise (fun a b => (a == b) = false) := 
+  DHashMap.Raw.distinct_keys h.out
+
 end Raw
 
 end Std.HashMap

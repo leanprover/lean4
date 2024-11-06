@@ -835,6 +835,10 @@ theorem mem_keys_iff_contains [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {k
   simp_to_model 
   rw [List.containsKey_eq_keys_contains]
 
+theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.keys.Pairwise (fun a b => (a == b) = false) := by
+  simp_to_model using (Raw.WF.out h).distinct.distinct
+
 end Raw₀
 
 end Std.DHashMap.Internal

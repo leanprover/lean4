@@ -38,7 +38,7 @@ The following operations were already given `@[csimp]` replacements in `Init/Dat
 
 The following operations are given `@[csimp]` replacements below:
 `set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
-`take`, `takeWhile`, `dropLast`, `replace`, `modify`, `erase`, `eraseIdx`, `zipWith`,
+`take`, `takeWhile`, `dropLast`, `replace`, `modify`, `insertIdx`, `erase`, `eraseIdx`, `zipWith`,
 `enumFrom`, and `intercalate`.
 
 -/
@@ -214,6 +214,23 @@ theorem modifyTR_go_eq : ∀ l n, modifyTR.go f l n acc = acc.toList ++ modify f
 
 @[csimp] theorem modify_eq_modifyTR : @modify = @modifyTR := by
   funext α f n l; simp [modifyTR, modifyTR_go_eq]
+
+/-! ### insertIdx -/
+
+/-- Tail-recursive version of `insertIdx`. -/
+@[inline] def insertIdxTR (n : Nat) (a : α) (l : List α) : List α := go n l #[] where
+  /-- Auxiliary for `insertIdxTR`: `insertIdxTR.go a n l acc = acc.toList ++ insertIdx n a l`. -/
+  go : Nat → List α → Array α → List α
+  | 0, l, acc => acc.toListAppend (a :: l)
+  | _, [], acc => acc.toList
+  | n+1, a :: l, acc => go n l (acc.push a)
+
+theorem insertIdxTR_go_eq : ∀ n l, insertIdxTR.go a n l acc = acc.toList ++ insertIdx n a l
+  | 0, l | _+1, [] => by simp [insertIdxTR.go, insertIdx]
+  | n+1, a :: l => by simp [insertIdxTR.go, insertIdx, insertIdxTR_go_eq n l]
+
+@[csimp] theorem insertIdx_eq_insertIdxTR : @insertIdx = @insertIdxTR := by
+  funext α f n l; simp [insertIdxTR, insertIdxTR_go_eq]
 
 /-! ### erase -/
 

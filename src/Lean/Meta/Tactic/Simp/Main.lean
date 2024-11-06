@@ -295,7 +295,9 @@ def simpProj (e : Expr) : SimpM Result := do
 def simpConst (e : Expr) : SimpM Result :=
   return { expr := (← reduce e) }
 
-def simpLambda (e : Expr) : SimpM Result :=
+def simpLambda (e : Expr) : SimpM Result := do
+  unless (← getConfig).underLambda do
+      return { expr := e }
   withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
     let r ← simp e
     let eNew ← mkLambdaFVars xs r.expr
@@ -455,6 +457,24 @@ Auxiliary `dsimproc` for not visiting `Char` literal subterms.
 -/
 private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
 
+/-- The dsimp implementation of `underLambda := false` -/
+private def doNotVisitLambda : DSimproc := fun e => do
+  if e.isLambda then
+    return .done e
+  if e.isApp && e.isAppOf ``ite then
+    -- dsimp is using `Meta.transform`, which we cannot tell to only
+    -- traverse into some subterms.
+    -- So recurse into `dsimp` here. Unfortunately sets up a fresh transform cache.
+    e.withApp fun f args => do
+      let args' ← args.mapIdxM fun i a =>
+        if i < 3 || i > 4 then
+          dsimp a
+        else
+          pure a
+      return .done (mkAppN f args')
+  else
+    return .continue
+
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
@@ -462,6 +482,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
     return e
   let m ← getMethods
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
+  let pre := if cfg.underLambda then pre else doNotVisitLambda >> pre
   let post := m.dpost >> dsimpReduce
   withTheReader Simp.Context (fun ctx => { ctx with inDSimp := true }) do
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
@@ -489,7 +510,10 @@ def congrDefault (e : Expr) : SimpM Result := do
 
 /-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
 def processCongrHypothesis (h : Expr) : SimpM Bool := do
+  trace[Debug.Meta.Tactic.simp.congr] "Processing {h} of type {←inferType h}"
   forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
+    unless (← getConfig).underLambda || xs.isEmpty do
+      return false
     let lhs ← instantiateMVars hType.appFn!.appArg!
     let r ← simp lhs
     let rhs := hType.appArg!
@@ -545,6 +569,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
       let x := xs[i]!
       try
         if (← processCongrHypothesis x) then
+          trace[Debug.Meta.Tactic.simp.congr] "modified!"
           modified := true
       catch _ =>
         trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"

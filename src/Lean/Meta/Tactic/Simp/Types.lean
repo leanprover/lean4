@@ -471,11 +471,15 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   else
     let cfg ← getConfig
     let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
+    let isIte := r.expr.isConstOf ``ite
     let mut r := r
     let mut i := 0
     for arg in args do
-      if h : i < infos.size then
-        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
+      if isIte && !cfg.underLambda && i > 2 then
+        -- Do not traverse then/else arguments when underLambda := false
+        r ← mkCongrFun r arg
+      else if h : i < infos.size then
+        trace[Debug.Meta.Tactic.simp] "app [{i+1}/{infos.size}] {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
         if cfg.ground && info.isInstImplicit then
           -- We don't visit instance implicit arguments when we are reducing ground terms.
@@ -504,9 +508,12 @@ Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
 -/
 def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
-  if f.isConst then if (← isMatcher f.constName!) then
+  if f.isConst then
+    let n := f.constName!
     -- We always use simple congruence theorems for auxiliary match applications
-    return none
+    -- (and the match-like ite and dite)
+    if n = ``ite || n = ``dite || (← isMatcher n) then
+      return none
   let info ← getFunInfo f
   let kinds ← getCongrSimpKinds f info
   if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then

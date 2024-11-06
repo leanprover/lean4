@@ -7,7 +7,6 @@ prelude
 import Std.Time.Zoned.DateTime
 import Std.Time.Zoned.ZoneRules
 import Std.Time.Zoned.ZonedDateTime
-import Std.Time.Zoned.ZonedDateTime
 import Std.Time.Zoned.Database
 
 namespace Std
@@ -103,6 +102,13 @@ def ofPlainDate (pd : PlainDate) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
   ZonedDateTime.ofPlainDateTime (pd.atTime PlainTime.midnight) zr
 
 /--
+Converts a `PlainDate` to a `ZonedDateTime` using `TimeZone`.
+-/
+@[inline]
+def ofPlainDateWithZone (pd : PlainDate) (zr : TimeZone) : ZonedDateTime :=
+  ZonedDateTime.ofPlainDateTime (pd.atTime PlainTime.midnight) (TimeZone.ZoneRules.ofTimeZone zr)
+
+/--
 Converts a `ZonedDateTime` to a `PlainDate`
 -/
 @[inline]
@@ -125,3 +131,39 @@ def of (pdt : PlainDateTime) (id : String) : IO ZonedDateTime := do
   return ZonedDateTime.ofPlainDateTime pdt zr
 
 end ZonedDateTime
+
+namespace PlainDateTime
+
+/--
+Converts a `PlainDateTime` to a `Timestamp` using the `ZoneRules`.
+-/
+@[inline]
+def toTimestamp (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : Timestamp :=
+  ZonedDateTime.ofPlainDateTime pdt zr |>.toTimestamp
+
+/--
+Converts a `PlainDateTime` to a `Timestamp` using the `TimeZone`.
+-/
+@[inline]
+def toTimestampWithZone (pdt : PlainDateTime) (tz : TimeZone) : Timestamp :=
+  ZonedDateTime.ofPlainDateTimeWithZone pdt tz |>.toTimestamp
+
+end PlainDateTime
+
+namespace PlainDate
+
+/--
+Converts a `PlainDate` to a `Timestamp` using the `ZoneRules`.
+-/
+@[inline]
+def toTimestamp (dt : PlainDate) (zr : TimeZone.ZoneRules) : Timestamp :=
+  ZonedDateTime.ofPlainDate dt zr |>.toTimestamp
+
+/--
+Converts a `PlainDate` to a `Timestamp` using the `TimeZone`.
+-/
+@[inline]
+def toTimestampWithZone (dt : PlainDate) (tz : TimeZone) : Timestamp :=
+  ZonedDateTime.ofPlainDateWithZone dt tz |>.toTimestamp
+
+end PlainDate

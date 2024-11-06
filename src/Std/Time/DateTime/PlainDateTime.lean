@@ -122,7 +122,7 @@ def ofTimestamp (stamp : Timestamp) : PlainDateTime := Id.run do
   let nano : Bounded.LE 0 999999999 := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
 
   return {
-    date := PlainDate.clip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
+    date := PlainDate.ofYearMonthDayClip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
     time := PlainTime.ofHourMinuteSecondsNano (leap := false) (hour.expandTop (by decide)) minute second nano
   }
 
@@ -138,7 +138,7 @@ out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
 def withDaysClip (dt : PlainDateTime) (days : Day.Ordinal) : PlainDateTime :=
-  { dt with date := PlainDate.clip dt.date.year dt.date.month days }
+  { dt with date := PlainDate.ofYearMonthDayClip dt.date.year dt.date.month days }
 
 /--
 Creates a new `PlainDateTime` by adjusting the day of the month to the given `days` value, with any
@@ -154,7 +154,7 @@ out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
 def withMonthClip (dt : PlainDateTime) (month : Month.Ordinal) : PlainDateTime :=
-  { dt with date := PlainDate.clip dt.date.year month dt.date.day }
+  { dt with date := PlainDate.ofYearMonthDayClip dt.date.year month dt.date.day }
 
 /--
 Creates a new `PlainDateTime` by adjusting the month to the given `month` value.
@@ -170,7 +170,7 @@ remain unchanged, with any out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
 def withYearClip (dt : PlainDateTime) (year : Year.Offset) : PlainDateTime :=
-  { dt with date := PlainDate.clip year dt.date.month dt.date.day }
+  { dt with date := PlainDate.ofYearMonthDayClip year dt.date.month dt.date.day }
 
 /--
 Creates a new `PlainDateTime` by adjusting the year to the given `year` value. The month and day are rolled

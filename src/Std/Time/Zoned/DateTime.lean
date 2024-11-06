@@ -121,6 +121,20 @@ def subSeconds (dt : DateTime tz) (seconds : Second.Offset) : DateTime tz :=
   ofLocalDateTime (dt.date.get.subSeconds seconds) tz
 
 /--
+Add `Millisecond.Offset` to a `DateTime`.
+-/
+@[inline]
+def addMilliseconds (dt : DateTime tz) (milliseconds : Millisecond.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.date.get.addMilliseconds milliseconds) tz
+
+/--
+Subtract `Millisecond.Offset` from a `DateTime`.
+-/
+@[inline]
+def subMilliseconds (dt : DateTime tz) (milliseconds : Millisecond.Offset) : DateTime tz :=
+  ofLocalDateTime (dt.date.get.subMilliseconds milliseconds) tz
+
+/--
 Add `Nanosecond.Offset` to a `DateTime`.
 -/
 @[inline]
@@ -443,6 +457,12 @@ instance : HAdd (DateTime tz) (Second.Offset) (DateTime tz) where
 instance : HSub (DateTime tz) (Second.Offset) (DateTime tz) where
   hSub := subSeconds
 
+instance : HAdd (DateTime tz) (Millisecond.Offset) (DateTime tz) where
+  hAdd := addMilliseconds
+
+instance : HSub (DateTime tz) (Millisecond.Offset) (DateTime tz) where
+  hSub := subMilliseconds
+
 instance : HAdd (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
   hAdd := addNanoseconds
 
@@ -451,6 +471,12 @@ instance : HSub (DateTime tz) (Nanosecond.Offset) (DateTime tz) where
 
 instance : HSub (DateTime tz) (DateTime tz₁) Duration where
   hSub x y := x.toTimestamp - y.toTimestamp
+
+instance : HAdd (DateTime tz) Duration (DateTime tz) where
+  hAdd x y := x.addNanoseconds y.toNanoseconds
+
+instance : HSub (DateTime tz) Duration (DateTime tz) where
+  hSub x y := x.subNanoseconds y.toNanoseconds
 
 end DateTime
 end Time

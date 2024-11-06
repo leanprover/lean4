@@ -110,6 +110,20 @@ def toDurationSinceUnixEpoch (tm : Timestamp) : Duration :=
   tm.val
 
 /--
+Adds a `Millisecond.Offset` to the given `Timestamp`.
+-/
+@[inline]
+def addMilliseconds (t : Timestamp) (s : Millisecond.Offset) : Timestamp :=
+  ⟨t.val + s⟩
+
+/--
+Subtracts a `Millisecond.Offset` from the given `Timestamp`.
+-/
+@[inline]
+def subMilliseconds (t : Timestamp) (s : Millisecond.Offset) : Timestamp :=
+  ⟨t.val - s⟩
+
+/--
 Adds a `Nanosecond.Offset` to the given `Timestamp`.
 -/
 @[inline]
@@ -242,6 +256,12 @@ instance : HAdd Timestamp Second.Offset Timestamp where
 
 instance : HSub Timestamp Second.Offset Timestamp where
   hSub := subSeconds
+
+instance : HAdd Timestamp Millisecond.Offset Timestamp where
+  hAdd := addMilliseconds
+
+instance : HSub Timestamp Millisecond.Offset Timestamp where
+  hSub := subMilliseconds
 
 instance : HAdd Timestamp Nanosecond.Offset Timestamp where
   hAdd := addNanoseconds

@@ -63,14 +63,6 @@ end Quarter
 namespace Offset
 
 /--
-Creates an `Ordinal` from a `Fin`, ensuring the value is within bounds, if its 0 then its converted
-to 1.
--/
-@[inline]
-def ofFin (data : Fin 13) : Ordinal :=
-  Bounded.LE.ofFin' data (by decide)
-
-/--
 Creates an `Offset` from a natural number.
 -/
 @[inline]

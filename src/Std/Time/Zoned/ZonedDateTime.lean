@@ -73,8 +73,8 @@ def ofTimestampWithZone (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
 Creates a new `ZonedDateTime` out of a `PlainDateTime` and a `TimeZone`.
 -/
 @[inline]
-def ofPlainDateTimeWithZone (tm : Timestamp) (tz : TimeZone) : ZonedDateTime :=
-  ofTimestamp tm (TimeZone.ZoneRules.ofTimeZone tz)
+def ofPlainDateTimeWithZone (tm : PlainDateTime) (tz : TimeZone) : ZonedDateTime :=
+  ofPlainDateTime tm (TimeZone.ZoneRules.ofTimeZone tz)
 
 /--
 Creates a new `Timestamp` out of a `ZonedDateTime`.
@@ -328,6 +328,22 @@ def subMinutes (dt : ZonedDateTime) (minutes : Minute.Offset) : ZonedDateTime :=
   ZonedDateTime.ofTimestamp (date.subMinutes minutes).toTimestampAssumingUTC dt.rules
 
 /--
+Add `Millisecond.Offset` to a `DateTime`.
+-/
+@[inline]
+def addMilliseconds (dt : ZonedDateTime) (milliseconds : Millisecond.Offset) : ZonedDateTime :=
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.addMilliseconds milliseconds).toTimestampAssumingUTC dt.rules
+
+/--
+Subtract `Millisecond.Offset` from a `DateTime`.
+-/
+@[inline]
+def subMilliseconds (dt : ZonedDateTime) (milliseconds : Millisecond.Offset) : ZonedDateTime :=
+  let date := dt.timestamp.toPlainDateTimeAssumingUTC
+  ZonedDateTime.ofTimestamp (date.subMilliseconds milliseconds).toTimestampAssumingUTC dt.rules
+
+/--
 Add `Second.Offset` to a `ZonedDateTime`.
 -/
 def addSeconds (dt : ZonedDateTime) (seconds : Second.Offset) : ZonedDateTime :=
@@ -501,6 +517,12 @@ instance : HAdd ZonedDateTime Second.Offset ZonedDateTime where
 instance : HSub ZonedDateTime Second.Offset ZonedDateTime where
   hSub := subSeconds
 
+instance : HAdd ZonedDateTime Millisecond.Offset ZonedDateTime where
+  hAdd := addMilliseconds
+
+instance : HSub ZonedDateTime Millisecond.Offset ZonedDateTime where
+  hSub := subMilliseconds
+
 instance : HAdd ZonedDateTime Nanosecond.Offset ZonedDateTime where
   hAdd := addNanoseconds
 
@@ -509,6 +531,12 @@ instance : HSub ZonedDateTime Nanosecond.Offset ZonedDateTime where
 
 instance : HSub ZonedDateTime ZonedDateTime Duration where
   hSub x y := x.toTimestamp - y.toTimestamp
+
+instance : HAdd ZonedDateTime Duration ZonedDateTime where
+  hAdd x y := x.addNanoseconds y.toNanoseconds
+
+instance : HSub ZonedDateTime Duration ZonedDateTime where
+  hSub x y := x.subNanoseconds y.toNanoseconds
 
 end ZonedDateTime
 end Time

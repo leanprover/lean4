@@ -168,8 +168,8 @@ def toDays (weeks : Week.Offset) : Day.Offset :=
 Convert `Day.Offset` into `Week.Offset`.
 -/
 @[inline]
-def ofDays (hours : Day.Offset) : Week.Offset :=
-  hours.ediv 7
+def ofDays (days : Day.Offset) : Week.Offset :=
+  days.ediv 7
 
 end Offset
 end Week

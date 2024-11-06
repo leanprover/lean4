@@ -48,7 +48,7 @@ Creates a `PlainDate` by clipping the day to ensure validity. This function forc
 valid by adjusting the day to fit within the valid range to fit the given month and year.
 -/
 @[inline]
-def clip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate :=
+def ofYearMonthDayClip (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate :=
   let day := month.clipDay year.isLeap day
   PlainDate.mk year month day Month.Ordinal.valid_clipDay
 
@@ -86,7 +86,7 @@ def ofDaysSinceUNIXEpoch (day : Day.Offset) : PlainDate :=
   let d := doy - (153 * mp + 2).tdiv 5 + 1
   let m := mp + (if mp < 10 then 3 else -9)
   let y := y + (if m <= 2 then 1 else 0)
-  .clip y (.clip m (by decide)) (.clip d (by decide))
+  .ofYearMonthDayClip y (.clip m (by decide)) (.clip d (by decide))
 
 /--
 Returns the unaligned week of the month for a `PlainDate` (day divided by 7, plus 1).
@@ -173,7 +173,7 @@ def addMonthsClip (date : PlainDate) (months : Month.Offset) : PlainDate :=
   let totalMonths : Int := totalMonths
   let wrappedMonths := Bounded.LE.byEmod totalMonths 12 (by decide) |>.add 1
   let yearsOffset := totalMonths / 12
-  PlainDate.clip (date.year.add yearsOffset) wrappedMonths date.day
+  PlainDate.ofYearMonthDayClip (date.year.add yearsOffset) wrappedMonths date.day
 
 /--
 Subtracts `Month.Offset` from a `PlainDate`, it clips the day to the last valid day of that month.
@@ -186,7 +186,7 @@ def subMonthsClip (date : PlainDate) (months : Month.Offset) : PlainDate :=
 Creates a `PlainDate` by rolling over the extra days to the next month.
 -/
 def rollOver (year : Year.Offset) (month : Month.Ordinal) (day : Day.Ordinal) : PlainDate :=
-  clip year month 1 |>.addDays (day.toOffset - 1)
+  ofYearMonthDayClip year month 1 |>.addDays (day.toOffset - 1)
 
 /--
 Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day remain unchanged,
@@ -194,7 +194,7 @@ and any invalid days for the new year will be handled according to the `clip` be
 -/
 @[inline]
 def withYearClip (dt : PlainDate) (year : Year.Offset) : PlainDate :=
-  clip year dt.month dt.day
+  ofYearMonthDayClip year dt.month dt.day
 
 /--
 Creates a new `PlainDate` by adjusting the year to the given `year` value. The month and day are rolled
@@ -208,7 +208,7 @@ def withYearRollOver (dt : PlainDate) (year : Year.Offset) : PlainDate :=
 Adds a given number of months to a `PlainDate`, rolling over any excess days into the following month.
 -/
 def addMonthsRollOver (date : PlainDate) (months : Month.Offset) : PlainDate :=
-  addMonthsClip (clip date.year date.month 1) months
+  addMonthsClip (ofYearMonthDayClip date.year date.month 1) months
   |>.addDays (date.day.toOffset - 1)
 
 /--
@@ -252,7 +252,7 @@ out-of-range days clipped to the nearest valid date.
 -/
 @[inline]
 def withDaysClip (dt : PlainDate) (days : Day.Ordinal) : PlainDate :=
-  clip dt.year dt.month days
+  ofYearMonthDayClip dt.year dt.month days
 
 /--
 Creates a new `PlainDate` by adjusting the day of the month to the given `days` value, with any
@@ -268,7 +268,7 @@ The day remains unchanged, and any invalid days for the new month will be handle
 -/
 @[inline]
 def withMonthClip (dt : PlainDate) (month : Month.Ordinal) : PlainDate :=
-  clip dt.year month dt.day
+  ofYearMonthDayClip dt.year month dt.day
 
 /--
 Creates a new `PlainDate` by adjusting the month to the given `month` value.

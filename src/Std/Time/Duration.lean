@@ -181,6 +181,20 @@ def addNanoseconds (t : Duration) (s : Nanosecond.Offset) : Duration :=
   t.add (ofNanoseconds s)
 
 /--
+Adds a `Millisecond.Offset` to a `Duration`
+-/
+@[inline]
+def addMilliseconds (t : Duration) (s : Millisecond.Offset) : Duration :=
+  t.add (ofNanoseconds s.toNanoseconds)
+
+/--
+Adds a `Millisecond.Offset` to a `Duration`
+-/
+@[inline]
+def subMilliseconds (t : Duration) (s : Millisecond.Offset) : Duration :=
+  t.sub (ofNanoseconds s.toNanoseconds)
+
+/--
 Adds a `Nanosecond.Offset` to a `Duration`
 -/
 @[inline]
@@ -301,6 +315,12 @@ instance : HAdd Duration Nanosecond.Offset Duration where
 instance : HSub Duration Nanosecond.Offset Duration where
   hSub := subNanoseconds
 
+instance : HAdd Duration Millisecond.Offset Duration where
+  hAdd := addMilliseconds
+
+instance : HSub Duration Millisecond.Offset Duration where
+  hSub := subMilliseconds
+
 instance : HSub Duration Duration Duration where
   hSub := sub
 
@@ -333,6 +353,9 @@ instance : HMul Duration Int Duration where
 
 instance : HAdd PlainTime Duration PlainTime where
    hAdd pt d := PlainTime.ofNanoseconds (d.toNanoseconds + pt.toNanoseconds)
+
+instance : HSub PlainTime Duration PlainTime where
+   hSub pt d := PlainTime.ofNanoseconds (d.toNanoseconds - pt.toNanoseconds)
 
 end Duration
 end Time

@@ -277,7 +277,7 @@ Format
 
 def time₄ := time("23:13:12.324354679")
 def date₄ := date("2002-07-14")
-def datetime₅ := PlainDateTime.mk (PlainDate.clip (-2000) 3 4) (PlainTime.mk 12 23 ⟨false, 12⟩ 0)
+def datetime₅ := PlainDateTime.mk (PlainDate.ofYearMonthDayClip (-2000) 3 4) (PlainTime.mk 12 23 ⟨false, 12⟩ 0)
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")
 def zoned₄ := zoned("2002-07-14T23:13:12.324354679+09:00")
 def zoned₅ := zoned("2002-07-14T23:13:12.324354679+00:00")

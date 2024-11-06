@@ -145,9 +145,18 @@ def apply (timestamp : Timestamp) (transition : Transition) : Timestamp :=
 Finds the transition corresponding to a given timestamp in `Array Transition`.
 If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
 -/
-def findTransitionForTimestamp (transitions : Array Transition) (timestamp : Timestamp) : Option Transition :=
+def findTransitionIndexForTimestamp (transitions : Array Transition) (timestamp : Timestamp) : Option Nat :=
   let value := timestamp.toSecondsSinceUnixEpoch
   if let some idx := transitions.findIdx? (fun t => t.time.val ≥ value.val)
+    then some (idx - 1)
+    else none
+
+/--
+Finds the transition corresponding to a given timestamp in `Array Transition`.
+If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
+-/
+def findTransitionForTimestamp (transitions : Array Transition) (timestamp : Timestamp) : Option Transition :=
+  if let some idx := findTransitionIndexForTimestamp transitions timestamp
     then transitions.get? (idx - 1)
     else transitions.back?
 

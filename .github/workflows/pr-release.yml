@@ -34,7 +34,7 @@ jobs:
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v2 # https://github.com/marketplace/actions/download-workflow-artifact
+        uses: dawidd6/action-download-artifact@v6 # https://github.com/marketplace/actions/download-workflow-artifact
         with:
           run_id: ${{ github.event.workflow_run.id }}
           path: artifacts
@@ -60,7 +60,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
       - name: Release
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }}
           # There are coredumps files here as well, but all in deeper subdirectories.
@@ -75,7 +75,7 @@ jobs:
 
       - name: Report release status
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             await github.rest.repos.createCommitStatus({
@@ -111,7 +111,7 @@ jobs:
 
       - name: 'Setup jq'
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: dcarbone/install-jq-action@v1.0.1
+        uses: dcarbone/install-jq-action@v2.1.0
 
       # Check that the most recently nightly coincides with 'git merge-base HEAD master'
       - name: Check merge-base and nightly-testing-YYYY-MM-DD
@@ -208,7 +208,7 @@ jobs:
 
       - name: Report mathlib base
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const description =

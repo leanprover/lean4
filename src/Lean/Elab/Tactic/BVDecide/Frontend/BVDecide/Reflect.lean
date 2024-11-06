@@ -79,6 +79,7 @@ instance : ToExpr Gate where
     | .and => mkConst ``Gate.and
     | .xor => mkConst ``Gate.xor
     | .beq => mkConst ``Gate.beq
+    | .imp => mkConst ``Gate.imp
   toTypeExpr := mkConst ``Gate
 
 instance : ToExpr BVPred where
@@ -101,9 +102,29 @@ where
   | .const b => mkApp2 (mkConst ``BoolExpr.const) (toTypeExpr α) (toExpr b)
   | .not x => mkApp2 (mkConst ``BoolExpr.not) (toTypeExpr α) (go x)
   | .gate g x y => mkApp4 (mkConst ``BoolExpr.gate) (toTypeExpr α) (toExpr g) (go x) (go y)
+  | .ite d l r => mkApp4 (mkConst ``BoolExpr.ite) (toTypeExpr α) (go d) (go l) (go r)
 
 
 open Lean.Meta
+
+/--
+A `BitVec` atom.
+-/
+structure Atom where
+  /--
+  The width of the `BitVec` that is being abstracted.
+  -/
+  width : Nat
+  /--
+  A unique numeric identifier for the atom.
+  -/
+  atomNumber : Nat
+  /--
+  Whether the atom is synthetic. The effect of this is that values for this atom are not considered
+  for the counter example deriviation. This is for example useful when we introduce an atom over
+  an expression, together with additional lemmas that fully describe the behavior of the atom.
+  -/
+  synthetic : Bool
 
 /--
 The state of the reflection monad
@@ -113,7 +134,7 @@ structure State where
   The atoms encountered so far. Saved as a map from `BitVec` expressions to a (width, atomNumber)
   pair.
   -/
-  atoms : Std.HashMap Expr (Nat × Nat) := {}
+  atoms : Std.HashMap Expr Atom := {}
   /--
   A cache for `atomsAssignment`.
   -/
@@ -123,6 +144,76 @@ structure State where
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
 -/
 abbrev M := StateRefT State MetaM
+
+/--
+A reified version of an `Expr` representing a `BVExpr`.
+-/
+structure ReifiedBVExpr where
+  width : Nat
+  /--
+  The reified expression.
+  -/
+  bvExpr : BVExpr width
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalBVExpr`.
+  -/
+  evalsAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvExpr`.
+  -/
+  expr : Expr
+
+/--
+A reified version of an `Expr` representing a `BVPred`.
+-/
+structure ReifiedBVPred where
+  /--
+  The reified expression.
+  -/
+  bvPred : BVPred
+  /--
+  A proof that `bvPred.eval atomsAssignment = originalBVPredExpr`.
+  -/
+  evalsAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvPred`
+  -/
+  expr : Expr
+
+/--
+A reified version of an `Expr` representing a `BVLogicalExpr`.
+-/
+structure ReifiedBVLogical where
+  /--
+  The reified expression.
+  -/
+  bvExpr : BVLogicalExpr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalBVLogicalExpr`.
+  -/
+  evalsAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvExpr`
+  -/
+  expr : Expr
+
+/--
+A reified version of an `Expr` representing a `BVLogicalExpr` that we know to be true.
+-/
+structure SatAtBVLogical where
+  /--
+  The reified expression.
+  -/
+  bvExpr : BVLogicalExpr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = true`.
+  -/
+  satAtAtoms : M Expr
+  /--
+  A cache for `toExpr bvExpr`
+  -/
+  expr : Expr
+
 
 namespace M
 
@@ -136,8 +227,8 @@ def run (m : M α) : MetaM α :=
 Retrieve the atoms as pairs of their width and expression.
 -/
 def atoms : M (List (Nat × Expr)) := do
-  let sortedAtoms := (← getThe State).atoms.toArray.qsort (·.2.2 < ·.2.2)
-  return sortedAtoms.map (fun (expr, width, _) => (width, expr)) |>.toList
+  let sortedAtoms := (← getThe State).atoms.toArray.qsort (·.2.atomNumber < ·.2.atomNumber)
+  return sortedAtoms.map (fun (expr, {width, ..}) => (width, expr)) |>.toList
 
 /--
 Retrieve a `BitVec.Assignment` representing the atoms we found so far.
@@ -148,16 +239,17 @@ def atomsAssignment : M Expr := do
 /--
 Look up an expression in the atoms, recording it if it has not previously appeared.
 -/
-def lookup (e : Expr) (width : Nat) : M Nat := do
+def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
   match (← getThe State).atoms[e]? with
-  | some (width', ident) =>
-    if width != width' then
+  | some atom =>
+    if width != atom.width then
       panic! "The same atom occurs with different widths, this is a bug"
-    return ident
+    return atom.atomNumber
   | none =>
-    trace[Meta.Tactic.bv] "New atom of width {width}: {e}"
+    trace[Meta.Tactic.bv] "New atom of width {width}, synthetic? {synthetic}: {e}"
     let ident ← modifyGetThe State fun s =>
-      (s.atoms.size, { s with atoms := s.atoms.insert e (width, s.atoms.size) })
+      let newAtom := { width, synthetic, atomNumber := s.atoms.size}
+      (s.atoms.size, { s with atoms := s.atoms.insert e newAtom })
     updateAtomsAssignment
     return ident
 where
@@ -170,6 +262,35 @@ where
     modify fun s => { s with atomsAssignmentCache := newAtomsAssignment }
 
 end M
+
+/--
+The state of the lemma reflection monad.
+-/
+structure LemmaState where
+  /--
+  The list of top level lemmas that got created on the fly during reflection.
+  -/
+  lemmas : Array SatAtBVLogical := #[]
+
+/--
+The lemma reflection monad. It extends the usual reflection monad `M` by adding the ability to
+add additional top level lemmas on the fly.
+-/
+abbrev LemmaM := StateRefT LemmaState M
+
+namespace LemmaM
+
+def run (m : LemmaM α) (state : LemmaState := {}) : M (α × Array SatAtBVLogical) := do
+  let (res, state) ← StateRefT'.run m state
+  return (res, state.lemmas)
+
+/--
+Add another top level lemma.
+-/
+def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
+  modify fun s => { s with lemmas := s.lemmas.push lemma }
+
+end LemmaM
 
 end Frontend
 end Lean.Elab.Tactic.BVDecide

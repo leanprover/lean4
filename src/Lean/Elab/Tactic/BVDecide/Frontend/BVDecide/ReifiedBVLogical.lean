@@ -14,24 +14,7 @@ namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend
 
 open Std.Tactic.BVDecide
-open Std.Tactic.BVDecide.Reflect.Bool
-
-/--
-A reified version of an `Expr` representing a `BVLogicalExpr`.
--/
-structure ReifiedBVLogical where
-  /--
-  The reified expression.
-  -/
-  bvExpr : BVLogicalExpr
-  /--
-  A proof that `bvExpr.eval atomsAssignment = originalBVLogicalExpr`.
-  -/
-  evalsAtAtoms : M Expr
-  /--
-  A cache for `toExpr bvExpr`
-  -/
-  expr : Expr
+open Lean.Meta
 
 namespace ReifiedBVLogical
 
@@ -47,11 +30,11 @@ def mkEvalExpr (expr : Expr) : M Expr := do
 /--
 Construct a `ReifiedBVLogical` from `ReifiedBVPred` by wrapping it as an atom.
 -/
-def ofPred  (bvPred : ReifiedBVPred) : M (Option ReifiedBVLogical) := do
+def ofPred (bvPred : ReifiedBVPred) : M ReifiedBVLogical := do
   let boolExpr := .literal bvPred.bvPred
   let expr := mkApp2 (mkConst ``BoolExpr.literal) (mkConst ``BVPred) bvPred.expr
   let proof := bvPred.evalsAtAtoms
-  return some ⟨boolExpr, proof, expr⟩
+  return ⟨boolExpr, proof, expr⟩
 
 /--
 Construct an uninterrpeted `Bool` atom from `t`.
@@ -61,81 +44,90 @@ def boolAtom (t : Expr) : M (Option ReifiedBVLogical) := do
   ofPred pred
 
 /--
-Reify an `Expr` that is a boolean expression containing predicates about `BitVec` as atoms.
-Unless this function is called on something that is not a `Bool` it is always going to return `some`.
+Build a reified version of the constant `val`.
 -/
-partial def of (t : Expr) : M (Option ReifiedBVLogical) := do
-  goOrAtom t
+def mkBoolConst (val : Bool) : M ReifiedBVLogical := do
+  let boolExpr := .const val
+  let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr val)
+  let proof := pure <| ReifiedBVLogical.mkRefl (toExpr val)
+  return ⟨boolExpr, proof, expr⟩
+
+/--
+Construct the reified version of applying the gate in `gate` to `lhs` and `rhs`.
+This function assumes that `lhsExpr` and `rhsExpr` are the corresponding expressions to `lhs`
+and `rhs`.
+-/
+def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : Gate) :
+    M ReifiedBVLogical := do
+  let congrThm := congrThmOfGate gate
+  let boolExpr := .gate gate lhs.bvExpr rhs.bvExpr
+  let expr :=
+    mkApp4
+      (mkConst ``BoolExpr.gate)
+      (mkConst ``BVPred)
+      (toExpr gate)
+      lhs.expr
+      rhs.expr
+  let proof := do
+    let lhsEvalExpr ← ReifiedBVLogical.mkEvalExpr lhs.expr
+    let rhsEvalExpr ← ReifiedBVLogical.mkEvalExpr rhs.expr
+    let lhsProof ← lhs.evalsAtAtoms
+    let rhsProof ← rhs.evalsAtAtoms
+    return mkApp6
+      (mkConst congrThm)
+      lhsExpr rhsExpr
+      lhsEvalExpr rhsEvalExpr
+      lhsProof rhsProof
+  return ⟨boolExpr, proof, expr⟩
 where
-  /--
-  Reify `t`, returns `none` if the reification procedure failed.
-  -/
-  go (t : Expr) : M (Option ReifiedBVLogical) := do
-    match_expr t with
-    | Bool.true =>
-      let boolExpr := .const true
-      let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr Bool.true)
-      let proof := pure <| mkRefl (mkConst ``Bool.true)
-      return some ⟨boolExpr, proof, expr⟩
-    | Bool.false =>
-      let boolExpr := .const false
-      let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr Bool.false)
-      let proof := pure <| mkRefl (mkConst ``Bool.false)
-      return some ⟨boolExpr, proof, expr⟩
-    | Bool.not subExpr =>
-      let some sub ← goOrAtom subExpr | return none
-      let boolExpr := .not sub.bvExpr
-      let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
-      let proof := do
-        let subEvalExpr ← mkEvalExpr sub.expr
-        let subProof ← sub.evalsAtAtoms
-        return mkApp3 (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.not_congr) subExpr subEvalExpr subProof
-      return some ⟨boolExpr, proof, expr⟩
-    | Bool.and lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .and ``Std.Tactic.BVDecide.Reflect.Bool.and_congr
-    | Bool.xor lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .xor ``Std.Tactic.BVDecide.Reflect.Bool.xor_congr
-    | BEq.beq α _ lhsExpr rhsExpr =>
-      match_expr α with
-      | Bool => gateReflection lhsExpr rhsExpr .beq ``Std.Tactic.BVDecide.Reflect.Bool.beq_congr
-      | BitVec _ => goPred t
-      | _ => return none
-    | _ => goPred t
+  congrThmOfGate (gate : Gate) : Name :=
+    match gate with
+    | .and => ``Std.Tactic.BVDecide.Reflect.Bool.and_congr
+    | .xor => ``Std.Tactic.BVDecide.Reflect.Bool.xor_congr
+    | .beq => ``Std.Tactic.BVDecide.Reflect.Bool.beq_congr
+    | .imp => ``Std.Tactic.BVDecide.Reflect.Bool.imp_congr
 
-  /--
-  Reify `t` or abstract it as an atom.
-  Unless this function is called on something that is not a `Bool` it is always going to return `some`.
-  -/
-  goOrAtom (t : Expr) : M (Option ReifiedBVLogical) := do
-    match ← go t with
-    | some boolExpr => return some boolExpr
-    | none => boolAtom t
+/--
+Construct the reified version of `Bool.not subExpr`.
+This function assumes that `subExpr` is the expression corresponding to `sub`.
+-/
+def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) : M ReifiedBVLogical := do
+  let boolExpr := .not sub.bvExpr
+  let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
+  let proof := do
+    let subEvalExpr ← ReifiedBVLogical.mkEvalExpr sub.expr
+    let subProof ← sub.evalsAtAtoms
+    return mkApp3 (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.not_congr) subExpr subEvalExpr subProof
+  return ⟨boolExpr, proof, expr⟩
 
-  gateReflection (lhsExpr rhsExpr : Expr) (gate : Gate) (congrThm : Name) :
-      M (Option ReifiedBVLogical) := do
-    let some lhs ← goOrAtom lhsExpr | return none
-    let some rhs ← goOrAtom rhsExpr | return none
-    let boolExpr := .gate  gate lhs.bvExpr rhs.bvExpr
-    let expr :=
-      mkApp4
-        (mkConst ``BoolExpr.gate)
-        (mkConst ``BVPred)
-        (toExpr gate)
-        lhs.expr
-        rhs.expr
-    let proof := do
-      let lhsEvalExpr ← mkEvalExpr lhs.expr
-      let rhsEvalExpr ← mkEvalExpr rhs.expr
-      let lhsProof ← lhs.evalsAtAtoms
-      let rhsProof ← rhs.evalsAtAtoms
-      return mkApp6
-        (mkConst congrThm)
-        lhsExpr rhsExpr
-        lhsEvalExpr rhsEvalExpr
-        lhsProof rhsProof
-    return some ⟨boolExpr, proof, expr⟩
-
-  goPred (t : Expr) : M (Option ReifiedBVLogical) := do
-    let some pred ← ReifiedBVPred.of t | return none
-    ofPred pred
+/--
+Construct the reified version of `if discrExpr then lhsExpr else rhsExpr`.
+This function assumes that `discrExpr`, lhsExpr` and `rhsExpr` are the corresponding expressions to
+`discr`, `lhs` and `rhs`.
+-/
+def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) :
+    M ReifiedBVLogical := do
+  let boolExpr := .ite discr.bvExpr lhs.bvExpr rhs.bvExpr
+  let expr :=
+    mkApp4
+      (mkConst ``BoolExpr.ite)
+      (mkConst ``BVPred)
+      discr.expr
+      lhs.expr
+      rhs.expr
+  let proof := do
+    let discrEvalExpr ← ReifiedBVLogical.mkEvalExpr discr.expr
+    let lhsEvalExpr ← ReifiedBVLogical.mkEvalExpr lhs.expr
+    let rhsEvalExpr ← ReifiedBVLogical.mkEvalExpr rhs.expr
+    let discrProof ← discr.evalsAtAtoms
+    let lhsProof ← lhs.evalsAtAtoms
+    let rhsProof ← rhs.evalsAtAtoms
+    return mkApp9
+      (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.ite_congr)
+      discrExpr lhsExpr rhsExpr
+      discrEvalExpr lhsEvalExpr rhsEvalExpr
+      discrProof lhsProof rhsProof
+  return ⟨boolExpr, proof, expr⟩
 
 end ReifiedBVLogical
 

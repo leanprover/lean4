@@ -88,3 +88,12 @@ where
     log.replay (logger := logger)
 
 instance (priority := low) : MonadLift LogIO MainM := ⟨runLogIO⟩
+
+@[inline] def runLoggerIO (x : LoggerIO α)
+  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
+: MainM α := do
+  let some a ← x.run (← out.getLogger minLv ansiMode) |>.toBaseIO
+    | exit 1
+  return a
+
+instance (priority := low) : MonadLift LoggerIO MainM := ⟨runLoggerIO⟩

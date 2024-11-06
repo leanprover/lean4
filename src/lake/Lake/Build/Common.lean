@@ -161,15 +161,17 @@ def clearFileHash (file : FilePath) : IO Unit := do
 
 /--
 Fetches the hash of a file that may already be cached in a `.hash` file.
-If the `.hash` file does not exist or hash files are not trusted
-(e.g., with `--rehash`), creates it with a newly computed hash.
+If hash files are not trusted (e.g., with `--rehash`) or the `.hash` file does
+not exist, it will be created with a newly computed hash.
+
+If `text := true`, `file` is hashed as a text file rather than a binary file.
 -/
-def fetchFileHash (file : FilePath) : JobM Hash := do
+def fetchFileHash (file : FilePath) (text := false) : JobM Hash := do
   let hashFile := FilePath.mk <| file.toString ++ ".hash"
   if (← getTrustHash) then
     if let some hash ← Hash.load? hashFile then
       return hash
-  let hash ← computeHash file
+  let hash ← computeFileHash file text
   createParentDirs hashFile
   IO.FS.writeFile hashFile hash.toString
   return hash
@@ -177,9 +179,11 @@ def fetchFileHash (file : FilePath) : JobM Hash := do
 /--
 Fetches the trace of a file that may have already have its hash cached
 in a `.hash` file. If no such `.hash` file exists, recomputes and creates it.
+
+If `text := true`, `file` is hashed as text file rather than a binary file.
 -/
-def fetchFileTrace (file : FilePath) : JobM BuildTrace := do
-  return .mk (← fetchFileHash file) (← getMTime file)
+def fetchFileTrace (file : FilePath) (text := false) : JobM BuildTrace := do
+  return .mk (← fetchFileHash file text) (← getMTime file)
 
 /--
 Builds `file` using `build` unless it already exists and `depTrace` matches
@@ -191,66 +195,83 @@ a `.log.json` file and replayed from there if the build is skipped.
 For example, given `file := "foo.c"`, compares `depTrace` with that in
 `foo.c.trace` with the hash cached in `foo.c.hash` and the log cached in
 `foo.c.trace`.
+
+If `text := true`, `file` is hashed as a text file rather than a binary file.
 -/
 def buildFileUnlessUpToDate
-  (file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
+  (file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit) (text := false)
 : JobM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   buildUnlessUpToDate file depTrace traceFile do
     build
     clearFileHash file
-  fetchFileTrace file
+  fetchFileTrace file text
 
 /--
 Build `file` using `build` after `dep` completes if the dependency's
 trace (and/or `extraDepTrace`) has changed.
+
+If `text := true`, `file` is handled as a text file rather than a binary file.
 -/
 @[inline] def buildFileAfterDep
   (file : FilePath) (dep : BuildJob α) (build : α → JobM PUnit)
-  (extraDepTrace : JobM _ := pure BuildTrace.nil)
+  (extraDepTrace : JobM _ := pure BuildTrace.nil) (text := false)
 : SpawnM (BuildJob FilePath) :=
   dep.bindSync fun depInfo depTrace => do
     let depTrace := depTrace.mix (← extraDepTrace)
-    let trace ← buildFileUnlessUpToDate file depTrace <| build depInfo
+    let trace ← buildFileUnlessUpToDate file depTrace (build depInfo) text
     return (file, trace)
 
-/-- Build `file` using `build` after `deps` have built if any of their traces change. -/
+/--
+Build `file` using `build` after `deps` have built if any of their traces change.
+
+If `text := true`, `file` is handled as a text file rather than a binary file.
+-/
 @[inline] def buildFileAfterDepList
   (file : FilePath) (deps : List (BuildJob α)) (build : List α → JobM PUnit)
-  (extraDepTrace : JobM _ := pure BuildTrace.nil)
+  (extraDepTrace : JobM _ := pure BuildTrace.nil) (text := false)
 : SpawnM (BuildJob FilePath) := do
-  buildFileAfterDep file (← BuildJob.collectList deps) build extraDepTrace
+  buildFileAfterDep file (.collectList deps) build extraDepTrace text
 
-/-- Build `file` using `build` after `deps` have built if any of their traces change. -/
+/--
+Build `file` using `build` after `deps` have built if any of their traces change.
+
+If `text := true`, `file` is handled as a text file rather than a binary file.
+-/
 @[inline] def buildFileAfterDepArray
   (file : FilePath) (deps : Array (BuildJob α)) (build : Array α → JobM PUnit)
-  (extraDepTrace : JobM _ := pure BuildTrace.nil)
+  (extraDepTrace : JobM _ := pure BuildTrace.nil) (text := false)
 : SpawnM (BuildJob FilePath) := do
-  buildFileAfterDep file (← BuildJob.collectArray deps) build extraDepTrace
+  buildFileAfterDep file (.collectArray deps) build extraDepTrace text
 
 /-! ## Common Builds -/
 
 /--
 A build job for binary file that is expected to already exist (e.g., a data blob).
-Any byte difference in the file will trigger a rebuild of dependents.
+
+Any byte difference in a binary file will trigger a rebuild of its dependents.
 -/
 def inputBinFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
   Job.async <| (path, ·) <$> computeTrace path
 
 /--
 A build job for text file that is expected to already exist (e.g., a source file).
-Normalizes line endings (converts CRLF to LF) to produce platform-independent traces.
+
+Text file traces have normalized line endings to avoid unnecessary rebuilds across platforms.
 -/
 def inputTextFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
   Job.async <| (path, ·) <$> computeTrace (TextFilePath.mk path)
 
 /--
-A build job for file that is expected to already exist.
+A build job for file that is expected to already exist  (e.g., a data blob or source file).
 
-**Deprecated:** Use either `inputTextFile` or `inputBinFile`.
-`inputTextFile` normalizes line endings to produce platform-independent traces.
+If `text := true`, the file is handled as a text file rather than a binary file.
+Any byte difference in a binary file will trigger a rebuild of its dependents.
+In contrast, text file traces have normalized line endings to avoid unnecessary
+rebuilds across platforms.
 -/
-@[deprecated (since := "2024-06-08")] abbrev inputFile := @inputBinFile
+@[inline] def inputFile (path : FilePath) (text : Bool) : SpawnM (BuildJob FilePath) :=
+  if text then inputTextFile path else inputBinFile path
 
 /--
 Build an object file from a source file job using `compiler`. The invocation is:

@@ -92,7 +92,7 @@ protected theorem div_mul_cancel {n m : Nat} (H : n ∣ m) : m / n * n = m := by
   rw [Nat.mul_comm, Nat.mul_div_cancel' H]
 
 @[simp] theorem mod_mod_of_dvd (a : Nat) (h : c ∣ b) : a % b % c = a % c := by
-  rw (config := {occs := .pos [2]}) [← mod_add_div a b]
+  rw (occs := .pos [2]) [← mod_add_div a b]
   have ⟨x, h⟩ := h
   subst h
   rw [Nat.mul_assoc, add_mul_mod_self_left]

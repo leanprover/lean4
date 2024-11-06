@@ -25,7 +25,7 @@ variable {α : Type u}
 
 namespace Array
 
-@[deprecated size (since := "2024-10-13")] abbrev data := @toList
+@[deprecated toList (since := "2024-10-13")] abbrev data := @toList
 
 /-! ### Preliminary theorems -/
 
@@ -81,6 +81,22 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 
 @[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+/-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
+-- NB: This is defined as a structure rather than a plain def so that a lemma
+-- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
+structure Mem (as : Array α) (a : α) : Prop where
+  val : a ∈ as.toList
+
+instance : Membership α (Array α) where
+  mem := Mem
+
+theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
+  ⟨fun | .mk h => h, Array.Mem.mk⟩
+
+@[simp] theorem getElem_mem {l : Array α} {i : Nat} (h : i < l.size) : l[i] ∈ l := by
+  rw [Array.mem_def, ← getElem_toList]
+  apply List.getElem_mem
 
 end Array
 
@@ -219,8 +235,10 @@ def range (n : Nat) : Array Nat :=
 def singleton (v : α) : Array α :=
   mkArray 1 v
 
-def back [Inhabited α] (a : Array α) : α :=
+def back! [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
+
+@[deprecated back! (since := "2024-10-31")] abbrev back := @back!
 
 def get? (a : Array α) (i : Nat) : Option α :=
   if h : i < a.size then some a[i] else none
@@ -286,21 +304,21 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
   We claim this unsafe implementation is correct because an array cannot have more than `usizeSz` elements in our runtime.
 
   This kind of low level trick can be removed with a little bit of compiler support. For example, if the compiler simplifies `as.size < usizeSz` to true. -/
-@[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+@[inline] unsafe def forIn'Unsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let sz := as.usize
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
       let a := as.uget i lcProof
-      match (← f a b) with
+      match (← f a lcProof b) with
       | ForInStep.done  b => pure b
       | ForInStep.yield b => loop (i+1) b
     else
       pure b
   loop 0 b
 
-/-- Reference implementation for `forIn` -/
-@[implemented_by Array.forInUnsafe]
-protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+/-- Reference implementation for `forIn'` -/
+@[implemented_by Array.forIn'Unsafe]
+protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     match i, h with
     | 0,   _ => pure b
@@ -308,15 +326,17 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-      match (← f as[as.size - 1 - i] b) with
+      match (← f as[as.size - 1 - i] (getElem_mem this) b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
 
-instance : ForIn m (Array α) α where
-  forIn := Array.forIn
+instance : ForIn' m (Array α) α inferInstance where
+  forIn' := Array.forIn'
 
-/-- See comment at `forInUnsafe` -/
+-- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
+
+/-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -351,7 +371,7 @@ def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β
   else
     fold as.size (Nat.le_refl _)
 
-/-- See comment at `forInUnsafe` -/
+/-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m β := do
@@ -390,7 +410,7 @@ def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α
   else
     pure init
 
-/-- See comment at `forInUnsafe` -/
+/-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   let sz := as.usize
@@ -645,7 +665,7 @@ instance : HAppend (Array α) (List α) (Array α) := ⟨Array.appendList⟩
 def flatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β) :=
   as.foldlM (init := empty) fun bs a => do return bs ++ (← f a)
 
-@[deprecated concatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
+@[deprecated flatMapM (since := "2024-10-16")] abbrev concatMapM := @flatMapM
 
 @[inline]
 def flatMap (f : α → Array β) (as : Array α) : Array β :=
@@ -846,6 +866,7 @@ def zip (as : Array α) (bs : Array β) : Array (α × β) :=
 def unzip (as : Array (α × β)) : Array α × Array β :=
   as.foldl (init := (#[], #[])) fun (as, bs) (a, b) => (as.push a, bs.push b)
 
+@[deprecated partition (since := "2024-11-06")]
 def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)

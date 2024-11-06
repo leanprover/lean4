@@ -1,31 +1,33 @@
 import Lean.Elab.Command
 
+set_option pp.mvars false
+
 /--
 error: application type mismatch
-  ⟨Nat.lt_irrefl ↑(?m.58 n), Fin.is_lt (?m.58 n)⟩
+  ⟨Nat.lt_irrefl ↑(?_ n), Fin.is_lt (?_ n)⟩
 argument
-  Fin.is_lt (?m.58 n)
+  Fin.is_lt (?_ n)
 has type
-  ↑(?m.58 n) < ?m.57 n : Prop
+  ↑(?_ n) < ?_ n : Prop
 but is expected to have type
-  ↑(?m.58 n) < ↑(?m.58 n) : Prop
+  ↑(?_ n) < ↑(?_ n) : Prop
 -/
 #guard_msgs in
 def foo := fun n => (not_and_self_iff _).mp ⟨Nat.lt_irrefl _, Fin.is_lt _⟩
 
 /--
 error: type mismatch
-  Fin.is_lt ?m.185
+  Fin.is_lt ?_
 has type
-  ↑?m.185 < ?m.184 : Prop
+  ↑?_ < ?_ : Prop
 but is expected to have type
-  ?a < ?a : Prop
+  ?_ < ?_ : Prop
 ---
 error: unsolved goals
 case a
 ⊢ Nat
 
-this : ?a < ?a
+this : ?_ < ?_
 ⊢ True
 -/
 #guard_msgs in

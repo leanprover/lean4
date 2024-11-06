@@ -1,4 +1,4 @@
-inductive TreeNode :=
+inductive TreeNode where
  | mkLeaf (name : String) : TreeNode
  | mkNode (name : String) (children : List TreeNode) : TreeNode
 
@@ -13,13 +13,13 @@ def treeToList (t : TreeNode) : List String :=
      r := r ++ treeToList child
    return r
 
-@[simp] theorem treeToList_eq (name : String) (children : List TreeNode) : treeToList (.mkNode name children) =  name :: List.join (children.map treeToList) := by
-  simp [treeToList, Id.run, forIn, List.forIn]
-  have : ∀ acc, (Id.run do List.forIn.loop (fun a b => ForInStep.yield (b ++ treeToList a)) children acc) = acc ++ List.join (List.map treeToList children) := by
-    intro acc
-    induction children generalizing acc with simp [List.forIn.loop, List.map, List.join, Id.run]
-    | cons c cs ih => simp [Id.run] at ih; simp [ih, List.append_assoc]
-  apply this
+@[simp] theorem treeToList_eq (name : String) (children : List TreeNode) : treeToList (.mkNode name children) = name :: List.flatten (children.map treeToList) := by
+  simp [treeToList, Id.run]
+  conv => rhs; rw [← List.singleton_append]
+  generalize [name] = as
+  induction children generalizing as with
+  | nil => simp
+  | cons c cs ih => simp [ih, List.append_assoc]
 
 mutual
   def numNames : TreeNode → Nat
@@ -35,7 +35,7 @@ theorem length_treeToList_eq_numNames (t : TreeNode) : (treeToList t).length = n
   | .mkLeaf .. => simp [treeToList, numNames]
   | .mkNode _ cs => simp_arith [numNames, helper cs]
 where
-  helper (cs : List TreeNode) : (cs.map treeToList).join.length = numNamesLst cs := by
+  helper (cs : List TreeNode) : (cs.map treeToList).flatten.length = numNamesLst cs := by
     match cs with
-    | [] => simp [List.join, numNamesLst]
-    | c::cs' => simp [List.join, List.map, numNamesLst, length_treeToList_eq_numNames c, helper cs']
+    | [] => simp [List.flatten, numNamesLst]
+    | c::cs' => simp [List.flatten, List.map, numNamesLst, length_treeToList_eq_numNames c, helper cs']

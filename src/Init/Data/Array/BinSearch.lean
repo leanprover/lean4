@@ -69,8 +69,8 @@ namespace Array
   if as.isEmpty then do let v ← add (); pure <| as.push v
   else if lt k (as.get! 0) then do let v ← add (); pure <| as.insertAt! 0 v
   else if !lt (as.get! 0) k then as.modifyM 0 <| merge
-  else if lt as.back k then do let v ← add (); pure <| as.push v
-  else if !lt k as.back then as.modifyM (as.size - 1) <| merge
+  else if lt as.back! k then do let v ← add (); pure <| as.push v
+  else if !lt k as.back! then as.modifyM (as.size - 1) <| merge
   else binInsertAux lt merge add as k 0 (as.size - 1)
 
 @[inline] def binInsert {α : Type u} (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=

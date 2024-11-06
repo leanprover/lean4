@@ -634,6 +634,16 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
 
+/-- Compute a hash of a bitvector, combining 64-bit words using `mixHash`. -/
+def hash (bv : BitVec n) : UInt64 :=
+  if n ≤ 64 then
+    bv.toFin.val.toUInt64
+  else
+    mixHash (bv.toFin.val.toUInt64) (hash ((bv >>> 64).setWidth (n - 64)))
+
+instance : Hashable (BitVec n) where
+  hash := hash
+
 section normalization_eqs
 /-! We add simp-lemmas that rewrite bitvector operations into the equivalent notation -/
 @[simp] theorem append_eq (x : BitVec w) (y : BitVec v)   : BitVec.append x y = x ++ y        := rfl

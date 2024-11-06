@@ -10,6 +10,14 @@ attribute [local simp] Id.run in
 #check_simp
   (Id.run do
     let mut s := 0
-    for i in [1,2,3,4].toArray do
+    for i in #[1,2,3,4] do
+      s := s + i
+    pure s) ~> 10
+
+attribute [local simp] Id.run in
+#check_simp
+  (Id.run do
+    let mut s := 0
+    for h : i in #[1,2,3,4] do
       s := s + i
     pure s) ~> 10

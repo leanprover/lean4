@@ -257,45 +257,11 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
     match (← Term.resolveId? stx (withInfo := true)) with
     | some e => return e
     | _      => pure ()
-  /-
-    By disabling the "error recovery" (and consequently "error to sorry") feature,
-    we make sure an `apply e` fails without logging an error message.
-    The motivation is that `apply` is frequently used when writing tactic such as
-    ```
-    cases h <;> intro h' <;> first | apply t[h'] | ....
-    ```
-    Here the type of `h'` may be different in each case, and the term `t[h']` containing `h'` may even fail to
-    be elaborated in some cases. When this happens we want the tactic to fail without reporting any error to the user,
-    and the next tactic is tried.
+  elabTerm stx none mayPostpone
 
-    A drawback of disabling "error to sorry" is that there is no error recovery after the error is thrown, and features such
-    as auto-completion are affected.
-
-    By disabling "error to sorry", we also limit ourselves to at most one error at `t[h']`.
-
-    By disabling "error to sorry", we also miss the opportunity to catch mistakes in tactic code such as
-      `first | apply nonsensical-term | assumption`
-
-    This should not be a big problem for the `apply` tactic since we usually provide small terms there.
-
-    Note that we do not disable "error to sorry" at `exact` and `refine` since they are often used to elaborate big terms,
-    and we do want error recovery there, and we want to see the error messages.
-
-    We should probably provide options for allowing users to control this behavior.
-
-    see issue #1037
-
-    More complex solution:
-      - We do not disable "error to sorry"
-      - We elaborate term and check whether errors were produced
-      - If there are other tactic branches and there are errors, we remove the errors from the log, and throw a new error to force the tactic to backtrack.
-  -/
-  withoutRecover <| elabTerm stx none mayPostpone
-
-def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
+def getFVarId (id : Syntax) : TacticM FVarId := withRef id <| withMainContext do
   -- use apply-like elaboration to suppress insertion of implicit arguments
-  let e ← withMainContext do
-    elabTermForApply id (mayPostpone := false)
+  let e ← withoutRecover <| elabTermForApply id (mayPostpone := false)
   match e with
   | Expr.fvar fvarId => return fvarId
   | _                => throwError "unexpected term '{e}'; expected single reference to variable"
@@ -452,7 +418,7 @@ where
       if r.isAppOf ``isTrue then
         return m!"\
           tactic '{tacticName}' failed. internal error: the elaborator is able to reduce the \
-          '{MessageData.ofConstName ``Decidable}' instance, but the kernel is not able to"
+          '{.ofConstName ``Decidable}' instance, but the kernel is not able to"
       else if r.isAppOf ``isFalse then
         return m!"\
           tactic '{tacticName}' proved that the proposition\
@@ -466,42 +432,42 @@ where
         let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
           let e ← mkConstWithLevelParams n
           if (← Meta.isClass? (← inferType e)) == ``Decidable then
-            return m!"'{MessageData.ofConst e}'"
+            return m!"'{.ofConst e}'"
           else
             return none
         return (reason, unfoldedInsts)
       let stuckMsg :=
         if unfoldedInsts.isEmpty then
-          m!"Reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
+          m!"Reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
         else
           let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
-          m!"After unfolding the {instances} {MessageData.andList unfoldedInsts.toList}, \
-          reduction got stuck at the '{MessageData.ofConstName ``Decidable}' instance{indentExpr reason}"
+          m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
+          reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
       let hint :=
         if reason.isAppOf ``Eq.rec then
           m!"\n\n\
-          Hint: Reduction got stuck on '▸' ({MessageData.ofConstName ``Eq.rec}), \
-          which suggests that one of the '{MessageData.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+          Hint: Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
+          which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
           To avoid tactics, make use of functions such as \
-          '{MessageData.ofConstName ``inferInstanceAs}' or '{MessageData.ofConstName ``decidable_of_decidable_of_iff}' \
+          '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
           to alter a proposition."
         else if reason.isAppOf ``Classical.choice then
           m!"\n\n\
-          Hint: Reduction got stuck on '{MessageData.ofConstName ``Classical.choice}', \
-          which indicates that a '{MessageData.ofConstName ``Decidable}' instance \
+          Hint: Reduction got stuck on '{.ofConstName ``Classical.choice}', \
+          which indicates that a '{.ofConstName ``Decidable}' instance \
           is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
           The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
           and it cannot make progress with such instances. \
           This can occur due to the 'opened scoped Classical' command, which enables the instance \
-          '{MessageData.ofConstName ``Classical.propDecidable}'."
+          '{.ofConstName ``Classical.propDecidable}'."
         else
           MessageData.nil
       return m!"\
         tactic '{tacticName}' failed for proposition\
         {indentExpr expectedType}\n\
-        since its '{MessageData.ofConstName ``Decidable}' instance\
+        since its '{.ofConstName ``Decidable}' instance\
         {indentExpr s}\n\
-        did not reduce to '{MessageData.ofConstName ``isTrue}' or '{MessageData.ofConstName ``isFalse}'.\n\n\
+        did not reduce to '{.ofConstName ``isTrue}' or '{.ofConstName ``isFalse}'.\n\n\
         {stuckMsg}{hint}"
 
 @[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>

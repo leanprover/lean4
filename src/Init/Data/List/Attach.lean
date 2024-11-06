@@ -169,6 +169,13 @@ theorem pmap_ne_nil_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : Li
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ [] ↔ xs ≠ [] := by
   simp
 
+theorem pmap_eq_self {l : List α} {p : α → Prop} (hp : ∀ (a : α), a ∈ l → p a)
+    (f : (a : α) → p a → α) : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
+  rw [pmap_eq_map_attach]
+  conv => lhs; rhs; rw [← attach_map_subtype_val l]
+  rw [map_inj_left]
+  simp
+
 @[simp]
 theorem attach_eq_nil_iff {l : List α} : l.attach = [] ↔ l = [] :=
   pmap_eq_nil_iff

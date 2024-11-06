@@ -271,11 +271,11 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
 
-attribute [deprecated Std.HashMap] HashMap
-attribute [deprecated Std.HashMap.Raw] HashMapImp
-attribute [deprecated Std.HashMap.Raw.empty] mkHashMapImp
-attribute [deprecated Std.HashMap.empty] mkHashMap
-attribute [deprecated Std.HashMap.empty] HashMap.empty
-attribute [deprecated Std.HashMap.ofList] HashMap.ofList
+attribute [deprecated Std.HashMap (since := "2024-08-08")] HashMap
+attribute [deprecated Std.HashMap.Raw (since := "2024-08-08")] HashMapImp
+attribute [deprecated Std.HashMap.Raw.empty (since := "2024-08-08")] mkHashMapImp
+attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] mkHashMap
+attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] HashMap.empty
+attribute [deprecated Std.HashMap.ofList (since := "2024-08-08")] HashMap.ofList
 
 end Lean.HashMap

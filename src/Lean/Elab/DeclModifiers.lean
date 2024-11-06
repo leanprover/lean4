@@ -25,19 +25,19 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
   if env.contains declName then
     addInfo declName
     match privateToUserName? declName with
-    | none          => throwError "'{declName}' has already been declared"
-    | some declName => throwError "private declaration '{declName}' has already been declared"
+    | none          => throwError "'{.ofConstName declName true}' has already been declared"
+    | some declName => throwError "private declaration '{.ofConstName declName true}' has already been declared"
   if isReservedName env declName then
     throwError "'{declName}' is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
-    throwError "a private declaration '{declName}' has already been declared"
+    throwError "a private declaration '{.ofConstName declName true}' has already been declared"
   match privateToUserName? declName with
   | none => pure ()
   | some declName =>
     if env.contains declName then
       addInfo declName
-      throwError "a non-private declaration '{declName}' has already been declared"
+      throwError "a non-private declaration '{.ofConstName declName true}' has already been declared"
 
 /-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/
 inductive Visibility where
@@ -57,7 +57,8 @@ inductive RecKind where
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
-  stx             : TSyntax ``Parser.Command.declModifiers
+  /-- Input syntax, used for adjusting declaration range (unless missing) -/
+  stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   docString?      : Option String := none
   visibility      : Visibility := Visibility.regular
   isNoncomputable : Bool := false

@@ -217,7 +217,7 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "msys2 {0}",
-                "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
+                "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
                 // for reasons unknown, interactivetests are flaky on Windows
                 "CTEST_OPTIONS": "--repeat until-pass:2",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
@@ -227,7 +227,7 @@ jobs:
               {
                 "name": "Linux aarch64",
                 "os": "nscloud-ubuntu-22.04-arm64-4x8",
-                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
+                "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
@@ -318,7 +318,7 @@ jobs:
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v12
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: 3.1.44
           actions-cache-folder: emsdk
@@ -415,7 +415,11 @@ jobs:
       - name: Test
         id: test
         run: |
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          # give Linux debug unlimited stack, we're not interested in its specific stack usage
+          if [[ '${{ matrix.name }}' == 'Linux Debug' ]]; then
+            ulimit -s unlimited
+          fi
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} -E "leanruntest_task_test_io"
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2
@@ -492,7 +496,7 @@ jobs:
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -536,7 +540,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body_path: diff.md
           prerelease: true

@@ -431,7 +431,7 @@ where
   trimFalseTrail (argMask : Array Bool) : Array Bool :=
     if argMask.isEmpty then
       argMask
-    else if !argMask.back then
+    else if !argMask.back! then
       trimFalseTrail argMask.pop
     else
       argMask

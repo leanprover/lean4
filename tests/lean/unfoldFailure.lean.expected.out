@@ -1,4 +1,4 @@
-unfoldFailure.lean:2:2-2:16: error: tactic 'unfold' failed to unfold 'Nat.add' at
+unfoldFailure.lean:2:9-2:16: error: tactic 'unfold' failed to unfold 'Nat.add' at
   True
-unfoldFailure.lean:5:2-5:21: error: tactic 'unfold' failed to unfold 'Nat.add' at
+unfoldFailure.lean:5:9-5:16: error: tactic 'unfold' failed to unfold 'Nat.add' at
   x = 2 * y

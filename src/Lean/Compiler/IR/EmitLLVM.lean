@@ -1075,7 +1075,7 @@ def emitSetTag (builder : LLVM.Builder llvmctx) (x : VarId) (i : Nat) : M llvmct
 def ensureHasDefault' (alts : Array Alt) : Array Alt :=
   if alts.any Alt.isDefault then alts
   else
-    let last := alts.back
+    let last := alts.back!
     let alts := alts.pop
     alts.push (Alt.default last.body)
 

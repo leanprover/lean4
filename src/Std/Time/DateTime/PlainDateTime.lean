@@ -44,7 +44,7 @@ def toTimestampAssumingUTC (dt : PlainDateTime) : Timestamp :=
   Timestamp.ofNanosecondsSinceUnixEpoch (Nanosecond.Offset.ofInt nanos)
 
 /--
-Converts a UNIX `Timestamp` to a `PlainDateTime`.
+Converts a `Timestamp` to a `PlainDateTime`.
 -/
 def ofTimestamp (stamp : Timestamp) : PlainDateTime := Id.run do
   let leapYearEpoch := 11017

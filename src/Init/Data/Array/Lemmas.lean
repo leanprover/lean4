@@ -194,7 +194,7 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
   cases as
   simp
 
-theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
+@[simp] theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
   induction l generalizing as <;> simp [*]
 
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :

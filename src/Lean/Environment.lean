@@ -600,6 +600,8 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
     IO AddConstAsyncResult := do
   if let some n := env.realizingConst? then
     panic! s!"cannot add declaration {constName} while realizing constant {n}"
+  if !env.postponedDecls.isEmpty then
+    panic! s!"cannot add declaration {constName} with postponed declarations [{env.postponedDecls.map (·.toConstantInfo.name)}]"
   let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new

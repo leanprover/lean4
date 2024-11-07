@@ -475,7 +475,7 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
     let mut r := r
     let mut i := 0
     for arg in args do
-      if isIte && !cfg.underLambda && i > 2 then
+      if isIte && !cfg.underLambda && (i == 3 || i == 4) then
         -- Do not traverse then/else arguments when underLambda := false
         r ← mkCongrFun r arg
       else if h : i < infos.size then
@@ -509,10 +509,7 @@ using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a 
 -/
 def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
   if f.isConst then
-    let n := f.constName!
-    -- We always use simple congruence theorems for auxiliary match applications
-    -- (and the match-like ite and dite)
-    if n = ``ite || n = ``dite || (← isMatcher n) then
+    if (← isMatcher f.constName!) then
       return none
   let info ← getFunInfo f
   let kinds ← getCongrSimpKinds f info
@@ -531,6 +528,7 @@ Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
 -/
 def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let f := e.getAppFn
+  let isIte := f.isConstOf ``ite
   -- TODO: cache
   let some cgrThm ← mkCongrSimp? f | return none
   if cgrThm.argKinds.size != e.getAppNumArgs then return none
@@ -548,6 +546,11 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
       if (infos[i]'h.2).isInstImplicit then
         -- Do not visit instance implicit arguments when `ground := true`
         -- See comment at `congrArgs`
+        argsNew := argsNew.push arg
+        i := i + 1
+        continue
+    if !config.underLambda && isIte && (i = 3 || i = 4) then
+        -- Do not visit arms of an ite when `underLambda := false`
         argsNew := argsNew.push arg
         i := i + 1
         continue

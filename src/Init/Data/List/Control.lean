@@ -5,6 +5,8 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Control.Basic
+import Init.Control.Id
+import Init.Control.Lawful
 import Init.Data.List.Basic
 
 namespace List
@@ -207,6 +209,16 @@ def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : Lis
     | true  => pure (some a)
     | false => findM? p as
 
+@[simp]
+theorem findM?_id (p : α → Bool) (as : List α) : findM? (m := Id) p as = as.find? p := by
+  induction as with
+  | nil => rfl
+  | cons a as ih =>
+    simp only [findM?, find?]
+    cases p a with
+    | true  => rfl
+    | false => rw [ih]; rfl
+
 @[specialize]
 def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) : List α → m (Option β)
   | []    => pure none
@@ -214,6 +226,28 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
     match (← f a) with
     | some b => pure (some b)
     | none   => findSomeM? f as
+
+@[simp]
+theorem findSomeM?_id (f : α → Option β) (as : List α) : findSomeM? (m := Id) f as = as.findSome? f := by
+  induction as with
+  | nil => rfl
+  | cons a as ih =>
+    simp only [findSomeM?, findSome?]
+    cases f a with
+    | some b => rfl
+    | none   => rw [ih]; rfl
+
+theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
+    as.findM? p = as.findSomeM? fun a => return if (← p a) then some a else none := by
+  induction as with
+  | nil => rfl
+  | cons a as ih =>
+    simp only [findM?, findSomeM?]
+    simp [ih]
+    congr
+    apply funext
+    intro b
+    cases b <;> simp
 
 @[inline] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β

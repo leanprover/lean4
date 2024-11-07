@@ -197,6 +197,58 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
 @[simp] theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
   induction l generalizing as <;> simp [*]
 
+@[simp] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
+    l.toArray.findSomeM? f = l.findSomeM? f := by
+  rw [Array.findSomeM?]
+  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [forIn_cons, LawfulMonad.bind_assoc, findSomeM?]
+    congr
+    ext1 (_|_) <;> simp [ih]
+
+theorem findSomeRevM?_find_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α)
+    (i : Nat) (h) :
+    findSomeRevM?.find l.toArray f i h = (l.take i).reverse.findSomeM? f := by
+  induction i generalizing l with
+  | zero => simp [Array.findSomeRevM?.find.eq_def]
+  | succ i ih =>
+    rw [size_toArray] at h
+    rw [Array.findSomeRevM?.find, take_succ, getElem?_eq_getElem (by omega)]
+    simp only [ih, reverse_append]
+    congr
+    ext1 (_|_) <;> simp
+
+-- This is not marked as `@[simp]` as later we simplify all occurrences of `findSomeRevM?`.
+theorem findSomeRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
+    l.toArray.findSomeRevM? f = l.reverse.findSomeM? f := by
+  simp [Array.findSomeRevM?, findSomeRevM?_find_toArray]
+
+-- This is not marked as `@[simp]` as later we simplify all occurrences of `findRevM?`.
+theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
+    l.toArray.findRevM? f = l.reverse.findM? f := by
+  rw [Array.findRevM?, findSomeRevM?_toArray, findM?_eq_findSomeM?]
+
+@[simp] theorem findM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : List α) :
+    l.toArray.findM? f = l.findM? f := by
+  rw [Array.findM?]
+  simp only [bind_pure_comp, map_pure, forIn_toArray]
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [forIn_cons, LawfulMonad.bind_assoc, findM?]
+    congr
+    ext1 (_|_) <;> simp [ih]
+
+@[simp] theorem findSome?_toArray (f : α → Option β) (l : List α) :
+    l.toArray.findSome? f = l.findSome? f := by
+  rw [Array.findSome?, ← findSomeM?_id, findSomeM?_toArray, Id.run]
+
+@[simp] theorem find?_toArray (f : α → Bool) (l : List α) :
+    l.toArray.find? f = l.find? f := by
+  rw [Array.find?, ← findM?_id, findM?_toArray, Id.run]
+
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
     Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
       Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
@@ -1569,6 +1621,28 @@ theorem feraseIdx_eq_eraseIdx {a : Array α} {i : Fin a.size} :
     (Array.zip as bs).toList = List.zip as.toList bs.toList := by
   simp [zip, toList_zipWith, List.zip]
 
+/-! ### findSomeM?, findM?, findSome?, find? -/
+
+@[simp] theorem findSomeM?_toList [Monad m] [LawfulMonad m] (p : α → m (Option β)) (as : Array α) :
+    as.toList.findSomeM? p = as.findSomeM? p := by
+  cases as
+  simp
+
+@[simp] theorem findM?_toList [Monad m] [LawfulMonad m] (p : α → m Bool) (as : Array α) :
+    as.toList.findM? p = as.findM? p := by
+  cases as
+  simp
+
+@[simp] theorem findSome?_toList (p : α → Option β) (as : Array α) :
+    as.toList.findSome? p = as.findSome? p := by
+  cases as
+  simp
+
+@[simp] theorem find?_toList (p : α → Bool) (as : Array α) :
+    as.toList.find? p = as.find? p := by
+  cases as
+  simp
+
 end Array
 
 open Array
@@ -1803,6 +1877,22 @@ namespace Array
 @[simp] theorem toList_eraseIdx (as : Array α) (i : Nat) :
     (as.eraseIdx i).toList = as.toList.eraseIdx i := by
   induction as
+  simp
+
+/-! ### findSomeRevM? and findRevM? -/
+
+@[simp] theorem findSomeRevM?_eq_findSomeM?_reverse
+    [Monad m] [LawfulMonad m] (f : α → m (Option β)) (as : Array α) :
+    as.findSomeRevM? f = as.reverse.findSomeM? f := by
+  cases as
+  rw [List.findSomeRevM?_toArray]
+  simp
+
+@[simp] theorem findRevM?_eq_findM?_reverse
+    [Monad m] [LawfulMonad m] (f : α → m Bool) (as : Array α) :
+    as.findRevM? f = as.reverse.findM? f := by
+  cases as
+  rw [List.findRevM?_toArray]
   simp
 
 /-! ### unzip -/

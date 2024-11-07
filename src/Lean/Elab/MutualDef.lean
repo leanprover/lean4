@@ -460,6 +460,7 @@ def runAsyncAsSnapshot (act : TermElabM (Array (SnapshotTask SnapshotTree))) (de
     match (← t.toBaseIO) with
     | .ok (trees, st) =>
       return .mk {
+        desc
         diagnostics := (← mkDiags st.meta.core.messages)
         traces := st.meta.core.traceState
       } trees

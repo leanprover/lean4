@@ -226,7 +226,7 @@ partial def pickNextToProcessAux (lctx : LocalContext) (i : Nat) (toProcess : Ar
   if h : i < toProcess.size then
     let elem' := toProcess.get ⟨i, h⟩
     if (lctx.get! elem.fvarId).index < (lctx.get! elem'.fvarId).index then
-      pickNextToProcessAux lctx (i+1) (toProcess.set ⟨i, h⟩ elem) elem'
+      pickNextToProcessAux lctx (i+1) (toProcess.set i elem) elem'
     else
       pickNextToProcessAux lctx (i+1) toProcess elem
   else

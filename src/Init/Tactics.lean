@@ -1613,9 +1613,8 @@ where `i < arr.size` is in the context) and `simp_arith` and `omega`
 -/
 syntax "get_elem_tactic_trivial" : tactic
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
+macro_rules | `(tactic| get_elem_tactic_trivial') => `(tactic| omega)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp +arith; done)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`

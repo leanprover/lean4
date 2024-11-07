@@ -86,6 +86,42 @@ theorem foldrM_map [Monad m] [LawfulMonad m] (f : β₁ → β₂) (g : β₂ �
     (init : α) : (l.map f).foldrM g init = l.foldrM (fun x y => g (f x) y) init := by
   induction l generalizing g init <;> simp [*]
 
+theorem foldlM_filterMap [Monad m] [LawfulMonad m] (f : α → Option β) (g : γ → β → m γ) (l : List α) (init : γ) :
+    (l.filterMap f).foldlM g init =
+      l.foldlM (fun x y => match f y with | some b => g x b | none => pure x) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filterMap_cons, foldlM_cons]
+    cases f a <;> simp [ih]
+
+theorem foldrM_filterMap [Monad m] [LawfulMonad m] (f : α → Option β) (g : β → γ → m γ) (l : List α) (init : γ) :
+    (l.filterMap f).foldrM g init =
+      l.foldrM (fun x y => match f x with | some b => g b y | none => pure y) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filterMap_cons, foldrM_cons]
+    cases f a <;> simp [ih]
+
+theorem foldlM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : β → α → m β) (l : List α) (init : β) :
+    (l.filter p).foldlM g init =
+      l.foldlM (fun x y => if p y then g x y else pure x) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filter_cons, foldlM_cons]
+    split <;> simp [ih]
+
+theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β → m β) (l : List α) (init : β) :
+    (l.filter p).foldrM g init =
+      l.foldrM (fun x y => if p x then g x y else pure y) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filter_cons, foldrM_cons]
+    split <;> simp [ih]
+
 /-! ### forM -/
 
 -- We use `List.forM` as the simp normal form, rather that `ForM.forM`.

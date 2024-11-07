@@ -83,7 +83,7 @@ nanoseconds corresponds to one second.
 
 # Date and Time Types
 
-Dates and times are made up of different parts. an `Ordinal` is an absolute value, like a specific day in a month,
+Dates and times are made up of different parts. An `Ordinal` is an absolute value, like a specific day in a month,
 while an `Offset` is a shift forward or backward in time, used in arithmetic operations to add or subtract days, months or years.
 Dates use components like `Year.Ordinal`, `Month.Ordinal`, and `Day.Ordinal` to ensure they represent
 valid points in time.

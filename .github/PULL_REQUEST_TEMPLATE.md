@@ -5,7 +5,7 @@
 * Include the link to your `RFC` or `bug` issue in the description.
 * If the issue does not already have approval from a developer, submit the PR as draft.
 * The PR title/description will become the commit message. Keep it up-to-date as the PR evolves.
-* For `feat/fix` PRs, the first line starting with "This PR" must be present and will become a
+* For `feat/fix` PRs, the first paragraph starting with "This PR" must be present and will become a
   changelog entry unless the PR is labeled with `no-changelog`. If the PR does not have this label,
   it must instead be categorized with one of the `changelog-*` labels (which will be done by a
   reviewer for external PRs).

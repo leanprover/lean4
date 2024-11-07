@@ -7,6 +7,7 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.MetaTypes
+import Init.Syntax
 import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
 

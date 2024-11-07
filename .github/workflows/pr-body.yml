@@ -1,0 +1,24 @@
+name: Check PR body for changelog convention
+
+on:
+  merge_group:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled]
+
+jobs:
+  check-pr-body:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { title, body, labels } = context.payload.pull_request;
+            if (/^(feat|fix):/.test(title) && !labels.some(label => label.name == "changelog-no")) {
+              if (!labels.some(label => label.name.startsWith("changelog-"))) {
+                core.setFailed('feat/fix PR must have a `changelog-*` label');
+              }
+              if (!/^This PR [^<]/.test(body)) {
+                core.setFailed('feat/fix PR must have changelog summary starting with "This PR ..." as first line.');
+              }
+            }

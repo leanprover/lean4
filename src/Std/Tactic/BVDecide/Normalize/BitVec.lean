@@ -122,6 +122,14 @@ attribute [bv_normalize] Bool.cond_eq_if
 attribute [bv_normalize] BitVec.abs_eq
 attribute [bv_normalize] BitVec.twoPow_eq
 
+@[bv_normalize]
+theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
+    a[i]'h = a.getLsbD i := by
+  simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
+
+-- The side condition about gets resolved if i and w are constant.
+attribute [bv_normalize] BitVec.getMsbD_eq_getLsbD
+
 end Reduce
 
 section Constant
@@ -136,6 +144,10 @@ attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 attribute [bv_normalize] BitVec.not_not
+
+attribute [bv_normalize] decide_true
+attribute [bv_normalize] decide_false
+attribute [bv_normalize] decide_not
 
 end Constant
 
@@ -280,12 +292,6 @@ theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
   simp [this]
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
-
-@[bv_normalize]
-theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
-    a[i] = a.getLsbD i := by
-  simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
-
 attribute [bv_normalize] BitVec.add_eq_xor
 attribute [bv_normalize] BitVec.mul_eq_and
 

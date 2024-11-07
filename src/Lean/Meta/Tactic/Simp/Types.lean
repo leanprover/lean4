@@ -471,11 +471,11 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   else
     let cfg ← getConfig
     let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
-    let isIte := r.expr.isConstOf ``ite
+    let noIteArms := !cfg.underLambda && r.expr.isConstOf ``ite
     let mut r := r
     let mut i := 0
     for arg in args do
-      if isIte && !cfg.underLambda && (i == 3 || i == 4) then
+      if noIteArms && (i == 3 || i == 4) then
         -- Do not traverse then/else arguments when underLambda := false
         r ← mkCongrFun r arg
       else if h : i < infos.size then
@@ -528,13 +528,13 @@ Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
 -/
 def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let f := e.getAppFn
-  let isIte := f.isConstOf ``ite
   -- TODO: cache
   let some cgrThm ← mkCongrSimp? f | return none
   if cgrThm.argKinds.size != e.getAppNumArgs then return none
   let args := e.getAppArgs
   let infos := (← getFunInfoNArgs f args.size).paramInfo
   let config ← getConfig
+  let noIteArms := !config.underLambda && f.isConstOf ``ite
   let mut simplified := false
   let mut hasProof   := false
   let mut hasCast    := false
@@ -549,7 +549,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
         argsNew := argsNew.push arg
         i := i + 1
         continue
-    if !config.underLambda && isIte && (i = 3 || i = 4) then
+    if noIteArms && (i = 3 || i = 4) then
         -- Do not visit arms of an ite when `underLambda := false`
         argsNew := argsNew.push arg
         i := i + 1

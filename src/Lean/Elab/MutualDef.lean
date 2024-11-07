@@ -1135,9 +1135,16 @@ where
             applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
             applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
         else
+          let env ← getEnv
+          let headers := headers.map fun header => { header with
+            modifiers.attrs := header.modifiers.attrs.filter fun attr =>
+              getAttributeImpl env attr.name |>.map (·.applicationTime != .afterCompilation) |>.toOption |>.getD false
+          }
           try
             finishElab headers
             checkAndCompile
+            for view in views, declId in expandedDeclIds do
+              applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
           finally
             if let some typeCheckedPromise := typeCheckedPromise? then
               typeCheckedPromise.resolve default

@@ -1092,8 +1092,8 @@ def sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :
 
 @[simp]
 theorem sshiftRightRec_zero_eq (x : BitVec w₁) (y : BitVec w₂) :
-    sshiftRightRec x y 0 = x.sshiftRight' (y &&& 1#w₂) := by
-  simp only [sshiftRightRec, twoPow_zero]
+    sshiftRightRec x y 0 = x.sshiftRight' (y &&& twoPow w₂ 0) := by
+  simp only [sshiftRightRec]
 
 @[simp]
 theorem sshiftRightRec_succ_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :

@@ -54,8 +54,13 @@ theorem shiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : B
     lhs >>> rhs = lhs' >>> rhs' := by
   simp[*]
 
-theorem arithShiftRight_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
+theorem arithShiftRightNat_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.sshiftRight x' n = BitVec.sshiftRight x n := by
+  simp[*]
+
+theorem arithShiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : BitVec m)
+    (rhs' : BitVec n) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    BitVec.sshiftRight' lhs rhs = BitVec.sshiftRight' lhs' rhs' := by
   simp[*]
 
 theorem add_congr (w : Nat) (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :

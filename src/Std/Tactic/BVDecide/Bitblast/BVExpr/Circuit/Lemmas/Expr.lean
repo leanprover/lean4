@@ -147,6 +147,18 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       · simp [Ref.hgate]
     · intros
       rw [← rih]
+  | arithShiftRight lhs rhs lih rih =>
+    simp only [go, eval_arithShiftRight]
+    apply denote_blastArithShiftRight
+    · intros
+      dsimp only
+      rw [go_denote_mem_prefix]
+      rw [← lih (aig := aig)]
+      · simp
+      · assumption
+      · simp [Ref.hgate]
+    · intros
+      rw [← rih]
   | bin lhs op rhs lih rih =>
     cases op with
     | and =>

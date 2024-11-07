@@ -60,8 +60,8 @@ where
           ``BVUnOp.shiftLeftConst
           ``Std.Tactic.BVDecide.Reflect.BitVec.shiftLeftNat_congr
       else
+        let_expr BitVec _ := β | return none
         shiftReflection
-          β
           distanceExpr
           innerExpr
           .shiftLeft
@@ -78,8 +78,8 @@ where
           ``BVUnOp.shiftRightConst
           ``Std.Tactic.BVDecide.Reflect.BitVec.shiftRightNat_congr
       else
+        let_expr BitVec _ := β | return none
         shiftReflection
-          β
           distanceExpr
           innerExpr
           .shiftRight
@@ -92,6 +92,13 @@ where
         innerExpr
         .arithShiftRightConst
         ``BVUnOp.arithShiftRightConst
+        ``Std.Tactic.BVDecide.Reflect.BitVec.arithShiftRightNat_congr
+    | BitVec.sshiftRight' _ _ innerExpr distanceExpr =>
+      shiftReflection
+        distanceExpr
+        innerExpr
+        .arithShiftRight
+        ``BVExpr.arithShiftRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.arithShiftRight_congr
     | BitVec.zeroExtend _ newWidthExpr innerExpr =>
       let some newWidth ← getNatValue? newWidthExpr | return none
@@ -258,11 +265,10 @@ where
     let some distance ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr | return none
     shiftConstLikeReflection distance innerExpr shiftOp shiftOpName congrThm
 
-  shiftReflection (β : Expr) (distanceExpr : Expr) (innerExpr : Expr)
+  shiftReflection (distanceExpr : Expr) (innerExpr : Expr)
       (shiftOp : {m n : Nat} → BVExpr m → BVExpr n → BVExpr m) (shiftOpName : Name)
       (congrThm : Name) :
       LemmaM (Option ReifiedBVExpr) := do
-    let_expr BitVec _ ← β | return none
     let some inner ← goOrAtom innerExpr | return none
     let some distance ← goOrAtom distanceExpr | return none
     let bvExpr : BVExpr inner.width := shiftOp inner.bvExpr distance.bvExpr

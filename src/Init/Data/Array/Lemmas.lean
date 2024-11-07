@@ -1879,7 +1879,7 @@ namespace Array
   induction as
   simp
 
-/-! ### findSomeRevM? and findRevM? -/
+/-! ### findSomeRevM?, findRevM?, findSomeRev?, findRev? -/
 
 @[simp] theorem findSomeRevM?_eq_findSomeM?_reverse
     [Monad m] [LawfulMonad m] (f : α → m (Option β)) (as : Array α) :
@@ -1894,6 +1894,16 @@ namespace Array
   cases as
   rw [List.findRevM?_toArray]
   simp
+
+@[simp] theorem findSomeRev?_eq_findSome?_reverse (f : α → Option β) (as : Array α) :
+    as.findSomeRev? f = as.reverse.findSome? f := by
+  cases as
+  simp [findSomeRev?, Id.run]
+
+@[simp] theorem findRev?_eq_find?_reverse (f : α → Bool) (as : Array α) :
+    as.findRev? f = as.reverse.find? f := by
+  cases as
+  simp [findRev?, Id.run]
 
 /-! ### unzip -/
 

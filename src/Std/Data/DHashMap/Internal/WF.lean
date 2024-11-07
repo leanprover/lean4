@@ -59,55 +59,36 @@ theorem isEmpty_eq_isEmpty [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp
   rw [Raw.isEmpty, Bool.eq_iff_iff, List.isEmpty_iff_length_eq_zero, size_eq_length h,
     Nat.beq_eq_true_eq]
 
-theorem AssocList.foldlM_apply {l : AssocList α β} {acc : List γ} (f : (a : α) → β a → γ) :
-    l.foldlM (m := Id) (fun acc k v => f k v :: acc) acc =
-      (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldlM]
+theorem fold_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
+    l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := by
+  simp only [Raw.fold, Raw.foldM, Array.foldlM_eq_foldlM_toList, Array.foldl_eq_foldl_toList,
+    ← List.foldl_eq_foldlM, Id.run, AssocList.foldl]
 
-theorem AssocList.foldlM_cons {l : AssocList α β} {acc : List ((a : α) × β a)} :
-    l.foldlM (m := Id) (fun acc k v => ⟨k, v⟩ :: acc) acc = l.toList.reverse ++ acc := by
-  simp [AssocList.foldlM_apply]
+theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
+    l.fold (fun acc k v => f k v :: acc) acc =
+      ((toListModel l.buckets).reverse.map (fun p => f p.1 p.2)) ++ acc := by
+  rw [fold_eq, Array.foldl_eq_foldl_toList, toListModel]
+  generalize l.buckets.toList = l
+  induction l generalizing acc with
+  | nil => simp
+  | cons x xs ih =>
+      rw [foldl_cons, ih, AssocList.foldl_apply]
+      simp
 
-theorem AssocList.foldlM_cons_key {l : AssocList α β} {acc : List α} :
-    l.foldlM (m := Id) (fun acc k _ => k :: acc) acc = (List.keys l.toList).reverse ++ acc := by
-  rw [AssocList.foldlM_apply, keys_eq_map]
+theorem fold_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
+    l.fold (fun acc k v => ⟨k, v⟩ :: acc) acc = (toListModel l.buckets).reverse ++ acc := by
+  simp [fold_cons_apply]
 
--- TODO (Markus): clean up
+theorem fold_cons_key {l : Raw α β} {acc : List α} :
+    l.fold (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets).reverse ++ acc := by
+  rw [fold_cons_apply, keys_eq_map, map_reverse]
+
 theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
-  rw [Raw.toList, toListModel, List.flatMap_eq_foldl, Raw.fold, Raw.foldM,
-    Array.foldlM_eq_foldlM_toList, ← List.foldl_eq_foldlM, Id.run]
-  simp only [AssocList.foldlM_cons]
-  suffices ∀ (l : List (AssocList α β)) (l₁ l₂), Perm l₁ l₂ →
-      Perm (l.foldl (fun acc m => m.toList.reverse ++ acc) l₁)
-        (l.foldl (fun acc m => acc ++ m.toList) l₂) by
-    simpa using this m.buckets.toList [] [] (Perm.refl _)
-  intros l l₁ l₂ h
-  induction l generalizing l₁ l₂
-  · simpa
-  · next l t ih =>
-    simp only [foldl_cons]
-    apply ih
-    refine (reverse_perm _).append_right _ |>.trans perm_append_comm |>.trans ?_
-    exact h.append_right l.toList
+  simp [Raw.toList, fold_cons]
 
--- TODO (Markus): clean up
 theorem keys_perm_keys_toListModel {m : Raw α β} :
     Perm m.keys (List.keys (toListModel m.buckets)) := by
-  rw [Raw.keys, List.keys_eq_map]
-  refine Perm.trans ?_ (toList_perm_toListModel.map _)
-  simp only [Raw.toList, Raw.fold, Raw.foldM, Array.foldlM_eq_foldlM_toList, ← List.foldl_eq_foldlM,
-    Id.run]
-  generalize m.buckets.toList = l
-  suffices ∀ l', foldl
-      (fun acc l => AssocList.foldlM (m := Id) (fun acc k x => k :: acc) acc l) (l'.map (·.1)) l =
-      map Sigma.fst (foldl
-        (fun acc l => AssocList.foldlM (m := Id) (fun acc k v => ⟨k, v⟩ :: acc) acc l) l' l) from
-    this [] ▸ Perm.refl _
-  intro l'
-  simp [AssocList.foldlM_cons, AssocList.foldlM_cons_key]
-  induction l generalizing l' with
-  | nil => simp
-  | cons h t ih => simp [List.keys_eq_map, ← ih]
+  simp [Raw.keys, fold_cons_key, keys_eq_map]
 
 theorem length_keys_eq_length_keys {m : Raw α β} :
     m.keys.length = (List.keys (toListModel m.buckets)).length :=

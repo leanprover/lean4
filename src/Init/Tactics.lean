@@ -1627,7 +1627,7 @@ macro "get_elem_tactic" : tactic =>
   `(tactic| first
       /-
       Recall that `macro_rules` are tried in reverse order.
-      We want `assumption` to be tried first.
+      We want `trivial` to be tried first.
       This is important for theorems such as
       ```
       [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
@@ -1636,13 +1636,13 @@ macro "get_elem_tactic" : tactic =>
       There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
       If `omega` is used to "fill" this proof, we will have a more complex proof term that
       cannot be inferred by unification.
-      We hardcoded `assumption` here to ensure users cannot accidentally break this IF
+      We hardcoded `trivial` here to ensure users cannot accidentally break this IF
       they add new `macro_rules` for `get_elem_tactic_trivial`.
 
       TODO: Implement priorities for `macro_rules`.
-      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `trivial`.
       -/
-    | assumption
+    | trivial
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid

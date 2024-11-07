@@ -456,7 +456,25 @@ def checkSubDecls (env : Environment) (opts : Options) (cancelTk? : Option IO.Ca
   let mut env := { env with subDecls := #[] }
   for subDecl in subDecls do
     env ← addDeclNoDelay env opts subDecl.toDecl cancelTk?
-  return { env with checkedSync := .pure env.toEnvironmentBase }
+  return { env with base := env.toEnvironmentBase.base, checkedSync := .pure env.toEnvironmentBase }
+
+def checkSubDeclsAsync (env : Environment)
+    (opts : Options) (cancelTk? : Option IO.CancelToken := none) : BaseIO (Environment × EIO Kernel.Exception Unit) := do
+  let prom ← IO.Promise.new
+  let t := do
+    let res ← EIO.toBaseIO do
+      let subDecls := env.subDecls
+      if subDecls.isEmpty then
+        return env
+      let mut env := { env with subDecls := #[] }
+      for subDecl in subDecls do
+        env ← EIO.ofExcept <| addDeclNoDelay env opts subDecl.toDecl cancelTk?
+      return env
+    prom.resolve (res.toOption.getD env |>.toEnvironmentBase)
+  return ({ env with
+    checkedSync := prom.result
+    subDecls := #[]
+    asyncConsts := env.subDecls.foldl (·.add { info := .ofConstantInfo ·.toConstantInfo, exts? := none }) env.asyncConsts }, t)
 
 def addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) (skipExisting := false)
@@ -568,21 +586,6 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
   res.infoPromise.resolve (info, env.extensions)
 
-def checkSubDeclsAsync (env : Environment)
-    (opts : Options) (cancelTk? : Option IO.CancelToken := none) : BaseIO (Environment × EIO Kernel.Exception Unit) := do
-  let prom ← IO.Promise.new
-  let t := do
-    let res ← EIO.toBaseIO do
-      let subDecls := env.subDecls
-      if subDecls.isEmpty then
-        return env
-      let mut env := { env with asyncCtx? := none, subDecls := #[] }
-      for subDecl in subDecls do
-        env ← EIO.ofExcept <| addDecl (allowDelay := false) env opts subDecl.toDecl cancelTk?
-      return env
-    prom.resolve (res.toOption.getD env |>.toEnvironmentBase)
-  return ({ env with checkedSync := prom.result }, t)
-
 def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit := do
   res.sigPromise.resolve { name := res.constName, levelParams := [], type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true) }
   res.infoPromise.resolve (/- TODO -/ default, #[])
@@ -618,6 +621,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
     asyncEnv := { env with
       subDecls := #[]
       asyncCtx? := some { declPrefix := privateToUserName constName }
+      asyncConsts := env.subDecls.foldl (·.add { info := .ofConstantInfo ·.toConstantInfo, exts? := none }) env.asyncConsts
     }
     sigPromise, infoPromise, checkedEnvPromise
   }

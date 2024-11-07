@@ -56,7 +56,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
   let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop mask (keep.push b)
   if bs.size < 2 then done ()
   else
-    let b := bs.back
+    let b := bs.back!
     match b with
     | .vdecl _ _ (.sproj _ _ _) _ => keepInstr b
     | .vdecl _ _ (.uproj _ _) _   => keepInstr b

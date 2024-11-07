@@ -60,11 +60,11 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
     elabLevel (stx.getArg 1)
   else if kind == ``Lean.Parser.Level.max then
     let args := stx.getArg 1 |>.getArgs
-    args[:args.size - 1].foldrM (init := ← elabLevel args.back) fun stx lvl =>
+    args[:args.size - 1].foldrM (init := ← elabLevel args.back!) fun stx lvl =>
       return mkLevelMax' (← elabLevel stx) lvl
   else if kind == ``Lean.Parser.Level.imax then
     let args := stx.getArg 1 |>.getArgs
-    args[:args.size - 1].foldrM (init := ← elabLevel args.back) fun stx lvl =>
+    args[:args.size - 1].foldrM (init := ← elabLevel args.back!) fun stx lvl =>
       return mkLevelIMax' (← elabLevel stx) lvl
   else if kind == ``Lean.Parser.Level.hole then
     mkFreshLevelMVar

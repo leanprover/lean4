@@ -1792,7 +1792,7 @@ theorem setWidth_succ (x : BitVec w) :
     · simp_all
     · omega
 
-@[deprecated "Use the reverse direction of `cons_msb_setWidth`"]
+@[deprecated "Use the reverse direction of `cons_msb_setWidth`" (since := "2024-09-23")]
 theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)) := by
   simp
 
@@ -2145,19 +2145,6 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)],
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
-
-/-! ### abs -/
-
-theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := by rfl
-
-@[simp, bv_toNat]
-theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
-  simp only [BitVec.abs, neg_eq]
-  by_cases h : x.msb = true
-  · simp only [h, ↓reduceIte, toNat_neg]
-    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
-    rw [Nat.mod_eq_of_lt (by omega)]
-  · simp [h]
 
 /-! ### mul -/
 
@@ -2899,6 +2886,14 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
 
+theorem getMsbD_intMin {w i : Nat} :
+    (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
+  simp only [getMsbD, getLsbD_intMin]
+  match w, i with
+  | 0,   _    => simp
+  | w+1, 0    => simp
+  | w+1, i+1  => simp; omega
+
 /--
 The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
 -/
@@ -2921,12 +2916,31 @@ theorem toInt_intMin {w : Nat} :
     rw [Nat.mul_comm]
     simp [w_pos]
 
+theorem toInt_intMin_le (x : BitVec w) :
+    (intMin w).toInt ≤ x.toInt := by
+  cases w
+  case zero => simp [@of_length_zero x]
+  case succ w =>
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod]
+    have : 0 < 2 ^ w := Nat.two_pow_pos w
+    rw [Int.emod_eq_of_lt (by omega) (by omega)]
+    rw [BitVec.toInt_eq_toNat_bmod]
+    rw [show (2 ^ w : Nat) = ((2 ^ (w + 1) : Nat) : Int) / 2 by omega]
+    apply Int.le_bmod (by omega)
+
+theorem intMin_sle (x : BitVec w) : (intMin w).sle x := by
+  simp only [BitVec.sle, toInt_intMin_le x, decide_True]
+
 @[simp]
 theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   by_cases h : 0 < w
   · simp [bv_toNat, h]
   · simp only [Nat.not_lt, Nat.le_zero_eq] at h
     simp [bv_toNat, h]
+
+@[simp]
+theorem abs_intMin {w : Nat} : (intMin w).abs = intMin w := by
+  simp [BitVec.abs, bv_toNat]
 
 theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
     (-x).toInt = -(x.toInt) := by
@@ -2943,6 +2957,10 @@ theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
   simp only [BitVec.toInt, BitVec.toNat_neg, BitVec.sub_toNat_mod_cancel x_zero]
   have := @Nat.two_pow_pred_mul_two w (by omega)
   split <;> split <;> omega
+
+theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
+  simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
+  by_cases h : 0 < w <;> simp_all
 
 /-! ### intMax -/
 
@@ -3036,6 +3054,38 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
 
+/-! ### neg -/
+
+theorem msb_eq_toInt {x : BitVec w}:
+    x.msb = decide (x.toInt < 0) := by
+  by_cases h : x.msb <;>
+  · simp [h, toInt_eq_msb_cond]
+    omega
+
+theorem msb_eq_toNat {x : BitVec w}:
+    x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by
+  simp only [msb_eq_decide, ge_iff_le]
+
+/-! ### abs -/
+
+theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := by rfl
+
+@[simp, bv_toNat]
+theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat else x.toNat := by
+  simp only [BitVec.abs, neg_eq]
+  by_cases h : x.msb = true
+  · simp only [h, ↓reduceIte, toNat_neg]
+    have : 2 * x.toNat ≥ 2 ^ w := BitVec.msb_eq_true_iff_two_mul_ge.mp h
+    rw [Nat.mod_eq_of_lt (by omega)]
+  · simp [h]
+
+theorem getLsbD_abs {i : Nat} {x : BitVec w} :
+   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+theorem getMsbD_abs {i : Nat} {x : BitVec w} :
+    getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 /-! ### Decidable quantifiers -/
 

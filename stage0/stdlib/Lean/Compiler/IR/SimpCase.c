@@ -55,7 +55,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOcc
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault(lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -148,7 +148,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_6 = l_Lean_IR_instInhabitedAlt;
-x_7 = l_Array_back___rarg(x_6, x_1);
+x_7 = l_Array_back_x21___rarg(x_6, x_1);
 x_8 = lean_array_pop(x_1);
 x_9 = l_Lean_IR_AltCore_body(x_7);
 lean_dec(x_7);

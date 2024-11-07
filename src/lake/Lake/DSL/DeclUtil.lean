@@ -107,7 +107,7 @@ def elabConfigDecl
       if findField? (← getEnv) tyName fieldName |>.isSome then
         m := m.insert fieldName {ref := id, val}
       else
-        logWarningAt id m!"unknown '{mkConst tyName}' field '{fieldName}'"
+        logWarningAt id m!"unknown '{.ofConstName tyName}' field '{fieldName}'"
     let fs ← m.foldM (init := #[]) fun a k {ref, val} => withRef ref do
       return a.push <| ← `(Term.structInstField| $(← mkIdentFromRef k true):ident := $val)
     let ty := mkCIdentFrom (← getRef) tyName

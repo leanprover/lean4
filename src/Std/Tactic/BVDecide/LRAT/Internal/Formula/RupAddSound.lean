@@ -55,12 +55,12 @@ theorem contradiction_of_insertUnit_success {n : Nat} (assignments : Array Assig
         simp only [l_eq_true]
         simp only [hasAssignment, l_eq_true, hasPosAssignment, getElem!, l_in_bounds, dite_true, ite_true,
           Bool.not_eq_true, decidableGetElem?] at hl
-        split at hl <;> simp_all (config := { decide := true })
+        split at hl <;> simp_all +decide
       · next l_eq_false =>
         simp only [Bool.not_eq_true] at l_eq_false
         simp only [l_eq_false]
         simp [hasAssignment, l_eq_false, hasNegAssignment, getElem!, l_in_bounds, decidableGetElem?] at hl
-        split at hl <;> simp_all (config := { decide := true })
+        split at hl <;> simp_all +decide
 
 theorem contradiction_of_insertUnit_fold_success {n : Nat} (assignments : Array Assignment) (assignments_size : assignments.size = n)
     (units : Array (Literal (PosFin n))) (foundContradiction : Bool) (l : CNF.Clause (PosFin n)) :
@@ -424,7 +424,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
               · simp only [(· ⊨ ·), i_eq_idx, c_arr_idx_eq_false] at p_entails_c_arr_i
                 simp only [(· ⊨ ·), Bool.not_eq_true] at p_entails_assignment
                 specialize p_entails_assignment c_arr[idx.1].1
-                simp (config := { decide := true }) only [p_entails_c_arr_i, decide_True, heq] at p_entails_assignment
+                simp +decide only [p_entails_c_arr_i, decide_True, heq] at p_entails_assignment
             · next h =>
               exact Or.inr h
           · exact Or.inr ih1
@@ -443,7 +443,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
               · simp only [(· ⊨ ·), i_eq_idx, c_arr_idx_eq_false] at p_entails_c_arr_i
                 simp only [(· ⊨ ·), Bool.not_eq_true] at p_entails_assignment
                 specialize p_entails_assignment c_arr[idx.1].1
-                simp (config := { decide := true }) only [p_entails_c_arr_i, decide_True, heq] at p_entails_assignment
+                simp +decide only [p_entails_c_arr_i, decide_True, heq] at p_entails_assignment
             · next h =>
               exact Or.inr h
           · exact Or.inr ih1
@@ -475,7 +475,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
             simp only [(· ⊨ ·), c_arr_idx_eq_true, p_c_arr_idx_eq_true]
           · next p_c_arr_idx_eq_false =>
             simp only [h, Bool.not_eq_true] at p_c_arr_idx_eq_false
-            simp (config := { decide := true }) only [h, p_c_arr_idx_eq_false] at hp
+            simp +decide only [h, p_c_arr_idx_eq_false] at hp
         · simp at h
       · next heq =>
         split at h
@@ -488,7 +488,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
           by_cases p c_arr[idx.val].1
           · next p_c_arr_idx_eq_true =>
             simp only [h, Bool.not_eq_true] at p_c_arr_idx_eq_true
-            simp (config := { decide := true }) only [h, p_c_arr_idx_eq_true] at hp
+            simp +decide only [h, p_c_arr_idx_eq_true] at hp
           · next p_c_arr_idx_eq_false =>
             simp only [h] at p_c_arr_idx_eq_false
             simp only [(· ⊨ ·), c_arr_idx_eq_true, p_c_arr_idx_eq_false]
@@ -519,7 +519,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
           · simp only [j_eq_idx, (· ⊨ ·), c_arr_idx_eq_false] at p_entails_c_arr_j
             simp only [(· ⊨ ·), Bool.not_eq_true] at hp
             specialize hp c_arr[idx.1].1
-            simp (config := { decide := true }) only [p_entails_c_arr_j, decide_True, heq] at hp
+            simp +decide only [p_entails_c_arr_j, decide_True, heq] at hp
       · next heq =>
         split at h
         · simp at h
@@ -534,7 +534,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
           · simp only [j_eq_idx, (· ⊨ ·), c_arr_idx_eq_true] at p_entails_c_arr_j
             simp only [(· ⊨ ·), Bool.not_eq_true] at hp
             specialize hp c_arr[idx.1].1
-            simp (config := { decide := true }) only [p_entails_c_arr_j, decide_True, heq] at hp
+            simp +decide only [p_entails_c_arr_j, decide_True, heq] at hp
       · simp at h
       · simp at h
     · simp at h

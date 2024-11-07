@@ -334,7 +334,7 @@ map in some order.
 
 /-- Support for the `for` loop construct in `do` blocks. -/
 @[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
-  b.buckets.forIn init (fun bucket acc => bucket.forInStep acc f)
+  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
 
 instance : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)

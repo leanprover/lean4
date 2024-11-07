@@ -169,7 +169,7 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 theorem self_mem_range_succ (n : Nat) : n ∈ range (n + 1) := by simp
 
 theorem pairwise_lt_range (n : Nat) : Pairwise (· < ·) (range n) := by
-  simp (config := {decide := true}) only [range_eq_range', pairwise_lt_range']
+  simp +decide only [range_eq_range', pairwise_lt_range']
 
 theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
   Pairwise.imp Nat.le_of_lt (pairwise_lt_range _)
@@ -177,10 +177,10 @@ theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
 theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
-  · simp (config := { contextual := true }) [getElem_take, Nat.lt_min]
+  · simp +contextual [getElem_take, Nat.lt_min]
 
 theorem nodup_range (n : Nat) : Nodup (range n) := by
-  simp (config := {decide := true}) only [range_eq_range', nodup_range']
+  simp +decide only [range_eq_range', nodup_range']
 
 @[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
@@ -430,7 +430,10 @@ theorem enumFrom_eq_append_iff {l : List α} {n : Nat} :
 /-! ### enum -/
 
 @[simp]
-theorem enum_eq_nil {l : List α} : List.enum l = [] ↔ l = [] := enumFrom_eq_nil
+theorem enum_eq_nil_iff {l : List α} : List.enum l = [] ↔ l = [] := enumFrom_eq_nil
+
+@[deprecated enum_eq_nil_iff (since := "2024-11-04")]
+theorem enum_eq_nil {l : List α} : List.enum l = [] ↔ l = [] := enum_eq_nil_iff
 
 @[simp] theorem enum_singleton (x : α) : enum [x] = [(0, x)] := rfl
 

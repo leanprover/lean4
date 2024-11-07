@@ -85,7 +85,7 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
 /-
   `optConfig` is of the form `("(" "config" ":=" term ")")?`
 -/
-def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TermElabM Meta.Simp.Config := do
+def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
   match kind with
   | .simp    => elabSimpConfigCore optConfig
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
@@ -437,7 +437,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   Simp.reportDiag stats
 
 /-
-  "simp" (config)? (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  "simp" optConfig (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do

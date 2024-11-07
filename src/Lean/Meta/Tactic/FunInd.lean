@@ -257,6 +257,7 @@ fails.
 partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M Expr := do
   unless e.containsFVar oldIH do
     return e
+  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} foldAndCollect:{indentExpr e}") do
 
   let e' ← id do
     if let some (n, t, v, b) := e.letFun? then
@@ -319,10 +320,10 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
       -- So beta-reduce that definition. We need to look through theorems here!
-      let e' ← withTransparency .all do whnf e
-      if e == e' then
+      if let some e' ← withTransparency .all do unfoldDefinition? e then
+        return ← foldAndCollect oldIH newIH isRecCall e'
+      else
         throwError "foldAndCollect: cannot reduce application of {e.getAppFn} in:{indentExpr e} "
-      return ← foldAndCollect oldIH newIH isRecCall e'
 
     match e with
     | .app e1 e2 =>
@@ -462,6 +463,7 @@ def M2.branch {α} (act : M2 α) : M2 α :=
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
 def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (toClear : Array FVarId)
     (goal : Expr)  (e : Expr) : M2 Expr := do
+  withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} buildInductionCase:{indentExpr e}") do
   let _e' ← foldAndCollect oldIH newIH isRecCall e
   let IHs : Array Expr ← M.ask
   let IHs ← deduplicateIHs IHs
@@ -495,7 +497,7 @@ def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr
   let mut xs := xs
   let mut mask := #[]
   while ! xs.isEmpty do
-    let discr := xs.back
+    let discr := xs.back!
     if discr.isFVar && e.containsFVar discr.fvarId! then
         e ← mkLambdaFVars #[discr] e
         mask := mask.push true
@@ -518,6 +520,8 @@ as `MVars` as it goes.
 -/
 partial def buildInductionBody (toClear : Array FVarId) (goal : Expr)
     (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (e : Expr) : M2 Expr := do
+  withTraceNode `Meta.FunInd
+    (pure m!"{exceptEmoji ·} buildInductionBody: {oldIH.name} → {newIH.name}:{indentExpr e}") do
 
   -- if-then-else cause case split:
   match_expr e with
@@ -680,7 +684,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   let e' ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
     match_expr funBody with
     | fix@WellFounded.fix α _motive rel wf body target =>
-      unless params.back == target do
+      unless params.back! == target do
         throwError "functional induction: expected the target as last parameter{indentExpr e}"
       let fixedParams := params.pop
       let motiveType ← mkForallFVars #[target] (.sort levelZero)
@@ -806,7 +810,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
     if e.isAppOf eqnInfo.declNameNonRec then
       let args := e.getAppArgs
       if eqnInfo.fixedPrefixSize + 1 ≤ args.size then
-        let packedArg := args.back
+        let packedArg := args.back!
           let (i, unpackedArgs) ← eqnInfo.argsPacker.unpack packedArg
           let e' := .const eqnInfo.declNames[i]! e.getAppFn.constLevels!
           let e' := mkAppN e' args.pop
@@ -836,7 +840,7 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
     unless motive.isFVar && targets.size = 1 && targets.all (·.isFVar) do
       throwError "conclusion {concl} does not look like a packed motive application"
     let packedTarget := targets[0]!
-    unless xs.back == packedTarget do
+    unless xs.back! == packedTarget do
       throwError "packed target not last argument to {unaryInductName}"
     let some motivePos := xs.findIdx? (· == motive)
       | throwError "could not find motive {motive} in {xs}"
@@ -1054,7 +1058,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                 pure e
               brecOnApps := brecOnApps.push e
             mkLetFVars minors' (← PProdN.mk 0 brecOnApps)
-          let e' ← abstractIndependentMVars mvars (← motives.back.fvarId!.getDecl).index e'
+          let e' ← abstractIndependentMVars mvars (← motives.back!.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars motives e'
 
           -- We could pass (usedOnly := true) below, and get nicer induction principles that

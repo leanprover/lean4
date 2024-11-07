@@ -868,7 +868,7 @@ def delabLam : Delab :=
               pure $ curNames.get! 0;
           `(funBinder| ($stxCurNames : $stxT))
         else
-          pure curNames.back  -- here `curNames.size == 1`
+          pure curNames.back!  -- here `curNames.size == 1`
       let group ← match e.binderInfo, ppTypes with
         | BinderInfo.default,        _      => defaultCase ()
         | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
@@ -876,7 +876,7 @@ def delabLam : Delab :=
         | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
         | BinderInfo.strictImplicit, false  => `(funBinder| ⦃$curNames*⦄)
         | BinderInfo.instImplicit,   _     =>
-          if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
+          if usedDownstream then `(funBinder| [$curNames.back! : $stxT])  -- here `curNames.size == 1`
           else  `(funBinder| [$stxT])
       let (binders, stxBody) :=
         match stxBody with
@@ -887,24 +887,31 @@ def delabLam : Delab :=
       else
         `(fun $binders* => $stxBody)
 
+/-- Don't do any renaming for forall binders, but do add fresh macro scopes when there is shadowing. -/
+private def ppPiPreserveNames := `pp.piPreserveNames
+/-- Causes non-dependent foralls to print with binder names. -/
+private def ppPiBinderNames := `pp.piBinderNames
+
 /--
 Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.
 
 See issue #1571
 -/
 private partial def delabForallBinders (delabGroup : Array Syntax → Bool → Syntax → Delab) (curNames : Array Syntax := #[]) (curDep := false) : Delab := do
-  let dep := !(← getExpr).isArrow
+  -- Logic note: wanting to print with binder names is equivalent to pretending the forall is dependent.
+  let dep := !(← getExpr).isArrow || (← getOptionsAtCurrPos).get ppPiBinderNames false
   if !curNames.isEmpty && dep != curDep then
     -- don't group
     delabGroup curNames curDep (← delab)
   else
+    let preserve := (← getOptionsAtCurrPos).get ppPiPreserveNames false
     let curDep := dep
     if ← shouldGroupWithNext then
       -- group with nested binder => recurse immediately
-      withBindingBodyUnusedName fun stxN => delabForallBinders delabGroup (curNames.push stxN) curDep
+      withBindingBodyUnusedName (preserveName := preserve) fun stxN => delabForallBinders delabGroup (curNames.push stxN) curDep
     else
       -- don't group => delab body and prepend current binder group
-      let (stx, stxN) ← withBindingBodyUnusedName fun stxN => return (← delab, stxN)
+      let (stx, stxN) ← withBindingBodyUnusedName (preserveName := preserve) fun stxN => return (← delab, stxN)
       delabGroup (curNames.push stxN) curDep stx
 
 @[builtin_delab forallE]
@@ -917,7 +924,7 @@ def delabForall : Delab := do
     | BinderInfo.implicit       => `(bracketedBinderF|{$curNames* : $stxT})
     | BinderInfo.strictImplicit => `(bracketedBinderF|⦃$curNames* : $stxT⦄)
     -- here `curNames.size == 1`
-    | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back : $stxT])
+    | BinderInfo.instImplicit   => `(bracketedBinderF|[$curNames.back! : $stxT])
     | _                         =>
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
@@ -1014,8 +1021,10 @@ Delaborates an `OfNat.ofNat` literal.
 `@OfNat.ofNat _ n _` ~> `n`.
 -/
 @[builtin_delab app.OfNat.ofNat]
-def delabOfNat : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
-  delabOfNatCore (showType := (← getPPOption getPPNumericTypes))
+def delabOfNat : Delab := do
+  let showType ← getPPOption getPPNumericTypes
+  whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
+    delabOfNatCore (showType := ← pure showType <||> getPPOption getPPNumericTypes)
 
 /--
 Delaborates the negative of an `OfNat.ofNat` literal.
@@ -1297,11 +1306,13 @@ where
       -- but this would be the usual case.
       let group ← withBindingDomain do `(bracketedBinderF|[$(← delabTy)])
       withBindingBody e.bindingName! <| delabParams bindingNames idStx (groups.push group)
-    else if e.isForall && !e.bindingName!.hasMacroScopes && !bindingNames.contains e.bindingName! then
+    else if e.isForall && (!e.isArrow || !(e.bindingName!.hasMacroScopes || bindingNames.contains e.bindingName!)) then
       delabParamsAux bindingNames idStx groups #[]
     else
-      let type ← delabTy
-      `(declSigWithId| $idStx:ident $groups* : $type)
+      let (opts', e') ← processSpine {} (← readThe SubExpr)
+      withReader (fun ctx => {ctx with optionsPerPos := opts', subExpr := { ctx.subExpr with expr := e' }}) do
+        let type ← delabTy
+        `(declSigWithId| $idStx:ident $groups* : $type)
   /--
   Inner loop for `delabParams`, collecting binders.
   Invariants:
@@ -1311,6 +1322,7 @@ where
   -/
   delabParamsAux (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
     let e@(.forallE n d e' i) ← getExpr | unreachable!
+    let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
     let stxN := mkIdent n
     let curIds := curIds.push ⟨stxN⟩
@@ -1336,13 +1348,34 @@ where
   -/
   shouldGroupWithNext (bindingNames : NameSet) (e e' : Expr) : Bool :=
     e'.isForall &&
-    -- At the first sign of an inaccessible name, stop merging binders:
-    !e'.bindingName!.hasMacroScopes &&
-    -- If it's a name that has already been used, stop merging binders:
-    !bindingNames.contains e'.bindingName! &&
+    (!e'.isArrow ||
+      -- At the first sign of an inaccessible name, stop merging binders:
+    !(e'.bindingName!.hasMacroScopes ||
+      -- If it's a name that has already been used, stop merging binders:
+      bindingNames.contains e'.bindingName!)) &&
     e.binderInfo == e'.binderInfo &&
     e.bindingDomain! == e'.bindingDomain! &&
     -- Inst implicits can't be grouped:
     e'.binderInfo != BinderInfo.instImplicit
+  /--
+  Go through rest of type, alpha renaming and setting options along the spine.
+  -/
+  processSpine (opts : OptionsPerPos) (subExpr : SubExpr) : MetaM (OptionsPerPos × Expr) := do
+    if let .forallE n t b bi := subExpr.expr then
+      let used := (← getLCtx).usesUserName n
+      withLocalDecl n bi t fun fvar => do
+        let (opts, b') ← processSpine opts { expr := b.instantiate1 fvar, pos := subExpr.pos.pushBindingBody }
+        let b' := b'.abstract #[fvar]
+        let opts := opts.insertAt subExpr.pos ppPiPreserveNames true
+        if n.hasMacroScopes then
+          return (opts, .forallE n t b' bi)
+        else if !used then
+          let opts := opts.insertAt subExpr.pos ppPiBinderNames true
+          return (opts, .forallE n t b' bi)
+        else
+          let n' ← withFreshMacroScope <| MonadQuotation.addMacroScope n
+          return (opts, .forallE n' t b' bi)
+    else
+      return (opts, subExpr.expr)
 
 end Lean.PrettyPrinter.Delaborator

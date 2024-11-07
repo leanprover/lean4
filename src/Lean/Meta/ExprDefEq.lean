@@ -437,6 +437,8 @@ where
       match i with
       | 0 => return false
       | i+1 => check i lctx
+    if xs.isEmpty then
+      return false
     let lctx ← getLCtx
     let stop := lctx.getFVar! xs.back! |>.index
     return check stop lctx

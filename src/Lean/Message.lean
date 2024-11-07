@@ -363,9 +363,10 @@ end SerialMessage
 
 namespace Message
 
-abbrev kind (msg : Message) :=
+@[inherit_doc MessageData.kind] abbrev kind (msg : Message) :=
   msg.data.kind
 
+/-- Serializes the message, converting its data into a string and saving its kind. -/
 @[inline] def serialize (msg : Message) : IO SerialMessage := do
   return {msg with kind := msg.kind, data := ← msg.data.toString}
 

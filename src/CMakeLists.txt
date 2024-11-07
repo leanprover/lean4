@@ -708,7 +708,7 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     DEPENDS lake_lib
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
     VERBATIM)
-  add_custom_target(lake #ALL
+  add_custom_target(lake ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake

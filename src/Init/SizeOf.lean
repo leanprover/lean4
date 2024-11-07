@@ -45,7 +45,7 @@ protected def default.sizeOf (α : Sort u) : α → Nat
 Every type `α` has a low priority default `SizeOf` instance that just returns `0`
 for every element of `α`.
 -/
-instance (priority := low) (α : Sort u) instSizeOfDefault : SizeOf α where
+instance (priority := low) instSizeOfDefault (α : Sort u) : SizeOf α where
   sizeOf := default.sizeOf α
 
 @[simp] theorem sizeOf_default (n : α) : sizeOf n = 0 := rfl

@@ -69,3 +69,18 @@ info: theorem thm1' : ∀ (x : Nat), x < 100 → x * x ≤ 10000 :=
 decideBang._auxLemma.3
 -/
 #guard_msgs in #print thm1'
+
+
+/-!
+Reverting free variables.
+-/
+
+/--
+error: expected type must not contain free variables
+  x + 1 ≤ 5
+Use the '+revert' option to automatically cleanup and revert free variables.
+-/
+#guard_msgs in
+example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide!
+
+example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide! +revert

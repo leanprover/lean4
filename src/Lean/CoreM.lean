@@ -428,12 +428,8 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 builtin_initialize postponedCompilesExt : EnvExtension (Array (List Name)) ←
   registerEnvExtension (pure #[])
 
-def compileDecl (decl : Declaration) : CoreM Unit := do
-  let decls := Compiler.getDeclNamesForCodeGen decl
-  modifyEnv (postponedCompilesExt.modifyState (allowAsync := true) · (·.push decls))
-
 def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
-  if allowPostpone then
+  if allowPostpone && (← getEnv).hasPostponed then
     modifyEnv (postponedCompilesExt.modifyState (allowAsync := true) · (·.push decls))
     return
   let opts ← getOptions
@@ -446,13 +442,16 @@ def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
   | Except.error ex =>
     throwKernelException ex
 
-def checkSubDecls : CoreM Unit := do
+def compileDecl (decl : Declaration) : CoreM Unit := do
+  compileDecls <| Compiler.getDeclNamesForCodeGen decl
+
+def checkPostponedDecls : CoreM Unit := do
   let env ← getEnv
-  let env ← env.checkSubDecls (← getOptions) (← read).cancelTk? |> ofExceptKernelException
+  let env ← env.checkPostponedDecls (← getOptions) (← read).cancelTk? |> ofExceptKernelException
   setEnv env
 
 def forceCompile : CoreM Unit := do
-  checkSubDecls
+  checkPostponedDecls
   postponedCompilesExt.getState (← getEnv) |>.forM (compileDecls (allowPostpone := false))
   modifyEnv (postponedCompilesExt.setState (allowAsync := true) · #[])
 

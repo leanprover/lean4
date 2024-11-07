@@ -411,7 +411,7 @@ structure Environment extends EnvironmentBase where
   private mk ::
   checkedSync : Task EnvironmentBase := .pure toEnvironmentBase
   asyncConsts : AsyncConsts := {}
-  postponedDecls : Array PostponedDecl := #[]
+  postponedDecls? : Option (Array PostponedDecl) := none
   private asyncCtx?       : Option AsyncContext := none
   private realizedExternConsts : IO.Ref (NameMap AsyncConst)
   private realizedLocalConsts  : NameMap (IO.Ref (NameMap AsyncConst)) := {}
@@ -444,42 +444,33 @@ private def addDeclNoDelay (env : Environment) (opts : Options) (decl : Declarat
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
-def checkSubDecls (env : Environment) (opts : Options) (cancelTk? : Option IO.CancelToken := none) :
+def checkPostponedDecls (env : Environment) (opts : Options) (cancelTk? : Option IO.CancelToken := none) :
     Except Kernel.Exception Environment := do
-  let subDecls := env.postponedDecls
-  if subDecls.isEmpty then
+  let some decls := env.postponedDecls? | return env
+  if decls.isEmpty then
     return env
-  let mut env := { env with postponedDecls := #[] }
-  for subDecl in subDecls do
-    env ← addDeclNoDelay (skipExisting := subDecl.skipExisting) env opts subDecl.decl cancelTk?
+  let mut env := { env with postponedDecls? := none }
+  for decl in decls do
+    env ← addDeclNoDelay (skipExisting := decl.skipExisting) env opts decl.decl cancelTk?
   return { env with base := env.toEnvironmentBase.base, checkedSync := .pure env.toEnvironmentBase }
 
-def checkSubDeclsAsync (env : Environment)
+def checkPostponedDeclsAsync (env : Environment)
     (opts : Options) (cancelTk? : Option IO.CancelToken := none) : BaseIO (Environment × EIO Kernel.Exception Unit) := do
   let prom ← IO.Promise.new
   let t := do
-    let res ← EIO.toBaseIO do
-      let subDecls := env.postponedDecls
-      if subDecls.isEmpty then
-        return env
-      let mut env := { env with postponedDecls := #[] }
-      for subDecl in subDecls do
-        env ← EIO.ofExcept <| addDeclNoDelay (skipExisting := subDecl.skipExisting) env opts subDecl.decl cancelTk?
-      return env
+    let res ← EIO.toBaseIO <| MonadExcept.ofExcept <| checkPostponedDecls env opts cancelTk?
     prom.resolve (res.toOption.getD env |>.toEnvironmentBase)
-  return ({ env with
-    checkedSync := prom.result
-    postponedDecls := #[]
-    asyncConsts := env.postponedDecls.foldl (·.add { info := .ofConstantInfo ·.toConstantInfo, exts? := none }) env.asyncConsts }, t)
+  let asyncConsts := env.postponedDecls?.getD #[]
+    |>.foldl (·.add { info := .ofConstantInfo ·.toConstantInfo, exts? := none }) env.asyncConsts
+  return ({ env with checkedSync := prom.result, postponedDecls? := none, asyncConsts }, t)
 
 def addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) (skipExisting := false)
-    (allowDelay := true) :
+    (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) (skipExisting := false) :
     Except Kernel.Exception Environment := do
   if let some n := env.realizingConst? then
     panic! s!"cannot add declaration {decl.getNames} while realizing constant {n}"
   let mut env := env
-  if allowDelay then
+  if let some postponedDecls := env.postponedDecls? then
     let name ← match decl with
       | .thmDecl thm => pure thm.name
       | .defnDecl defn => pure defn.name
@@ -496,16 +487,16 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
         panic! s!"declaration '{name}' cannot be added to the environment because the context \
           is restricted to the prefix {asyncCtx.declPrefix}"
         return env
-    return { env with postponedDecls := env.postponedDecls.push { decl, skipExisting } }
+    return { env with postponedDecls? := postponedDecls.push { decl, skipExisting } }
   doAdd
 where doAdd := do
-  let env ← checkSubDecls env opts cancelTk?
+  let env ← checkPostponedDecls env opts cancelTk?
   addDeclNoDelay env opts decl cancelTk? skipExisting
 
 @[export lean_elab_environment_to_kernel_env_unchecked]
 def toKernelEnvUnchecked (env : Environment) : Kernel.Environment := Id.run do
   let mut kenv := env.base
-  for subDecl in env.postponedDecls do
+  for subDecl in env.postponedDecls?.getD #[] do
     match kenv.addDeclWithoutChecking subDecl.decl with
     | .ok kenv' => kenv := kenv'
     | .error _ => panic! "oh no"; return kenv
@@ -516,17 +507,17 @@ def toKernelEnvUnchecked (env : Environment) : Kernel.Environment := Id.run do
 def toKernelEnv (env : Environment) (opts : Options) (cancelTk? : Option IO.CancelToken := none) :
     Except Kernel.Exception Kernel.Environment := do
   let mut kenv := env.checkedSync.get.base
-  for subDecl in env.postponedDecls do
+  for subDecl in env.postponedDecls?.getD #[] do
     kenv ← kenv.addDecl opts subDecl.decl cancelTk?
   return kenv
 
 @[export lean_elab_environment_to_kernel_env_no_async]
-def toKernelEnvNoAsync (env : Environment) : Kernel.Environment :=
-  if !env.postponedDecls.isEmpty then
-    let _ : Inhabited Kernel.Environment := ⟨env.base⟩
-    panic! s!"Environment.toKernelEnvNoAsync: called with delayed declarations [{env.postponedDecls.map (·.toConstantInfo.name)}]"
-  else
-    env.checkedSync.get.base
+def toKernelEnvNoAsync (env : Environment) : Kernel.Environment := Id.run do
+  if let some postponedDecls := env.postponedDecls? then
+    if postponedDecls.isEmpty then
+      let _ : Inhabited Kernel.Environment := ⟨env.base⟩
+      panic! s!"Environment.toKernelEnvNoAsync: called with delayed declarations [{postponedDecls.map (·.toConstantInfo.name)}]"
+  env.checkedSync.get.base
 
 def getImportedConstants (env : Environment) : Std.HashMap Name ConstantInfo :=
   env.base.constants.map₁
@@ -534,7 +525,7 @@ def getImportedConstants (env : Environment) : Std.HashMap Name ConstantInfo :=
 def getLocalConstantsUnchecked (env : Environment) : NameMap AsyncConstantInfo := Id.run do
   let mut map := env.base.constants.map₂.foldl (fun m n c => m.insert n (.ofConstantInfo c)) .empty
   map := env.asyncConsts.toArray.foldl (fun m c => m.insert c.info.name c.info) map
-  for subDecl in env.postponedDecls do
+  for subDecl in env.postponedDecls?.getD #[] do
     map := map.insert subDecl.toConstantInfo.name (.ofConstantInfo subDecl.toConstantInfo)
   map
 
@@ -568,7 +559,7 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     IO Unit := do
   let some asyncCtx := env.asyncCtx?
     | throw <| .userError "AddConstAsyncResult.commitConst: environment does not have an async context"
-  let some subDecl := env.postponedDecls.find? (·.toConstantInfo.name == res.constName)
+  let some subDecl := env.postponedDecls?.bind (·.find? (·.toConstantInfo.name == res.constName))
     | throw <| .userError s!"AddConstAsyncResult.commitConst: constant {res.constName} not found in async context"
   let info := subDecl.toConstantInfo
   res.commitSignature info.toConstantVal
@@ -596,8 +587,9 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
     IO AddConstAsyncResult := do
   if let some n := env.realizingConst? then
     panic! s!"cannot add declaration {constName} while realizing constant {n}"
-  if !env.postponedDecls.isEmpty then
-    panic! s!"cannot add declaration {constName} with postponed declarations [{env.postponedDecls.map (·.toConstantInfo.name)}]"
+  if let some postponedDecls := env.postponedDecls? then
+    if postponedDecls.isEmpty then
+      panic! s!"cannot add declaration {constName} with postponed declarations [{postponedDecls.map (·.toConstantInfo.name)}]"
   let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
@@ -617,12 +609,18 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
       asyncConsts := env.asyncConsts.add asyncConst
       checkedSync := checkedEnvPromise.result }
     asyncEnv := { env with
-      postponedDecls := #[]
+      postponedDecls? := some #[]
       asyncCtx? := some { declPrefix := privateToUserName constName }
-      asyncConsts := env.postponedDecls.foldl (·.add { info := .ofConstantInfo ·.toConstantInfo, exts? := none }) env.asyncConsts
+      asyncConsts := env.postponedDecls?.getD #[] |>.foldl (·.add { info := .ofConstantInfo ·.toConstantInfo, exts? := none }) env.asyncConsts
     }
     sigPromise, infoPromise, checkedEnvPromise
   }
+
+def allowPostpone (env : Environment) : Environment :=
+  { env with postponedDecls? := env.postponedDecls?.getD #[] }
+
+def hasPostponed (env : Environment) : Bool :=
+  env.postponedDecls?.any (!·.isEmpty)
 
 def isAsync (env : Environment) : Bool :=
   env.asyncCtx?.isSome
@@ -631,7 +629,7 @@ def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
 
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
-  if let some subDecl := env.postponedDecls.find? (·.toConstantInfo.name == n) then
+  if let some subDecl := env.postponedDecls?.bind (·.find? (·.toConstantInfo.name == n)) then
     -- Constant generated in the current elaboration thread that has not been added to the kernel
     -- yet
     return subDecl.toConstantInfo
@@ -660,7 +658,7 @@ def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   return s!"\
     asyncCtx.declPrefix: {repr <| env.asyncCtx?.map (·.declPrefix)}\
-  \nsubDecls: {repr <| env.postponedDecls.map (·.toConstantInfo.name)}\
+  \npostponedDecls?: {repr <| env.postponedDecls?.map (·.map (·.toConstantInfo.name))}\
   \nasyncConsts: {repr <| env.asyncConsts.toArray.map (·.info.name)}\
   \nlocalRealizedConsts: {repr (← env.realizedLocalConsts.toList.filterMapM fun (n, m) => do
     let consts := (← m.get).toList
@@ -687,7 +685,7 @@ def AddConstAsyncResult.checkAndCommitEnv (res : AddConstAsyncResult) (env : Env
     | throw <| .other "AddConstAsyncResult.checkAndCommitEnv: environment does not have an async context"
   let some _ := env.findAsync? res.constName
     | throw <| .other s!"AddConstAsyncResult.checkAndCommitEnv: constant {res.constName} not found in async context"
-  let env ← EIO.ofExcept <| env.checkSubDecls opts cancelTk?
+  let env ← EIO.ofExcept <| env.checkPostponedDecls opts cancelTk?
   res.checkedEnvPromise.resolve env.toEnvironmentBase
 
 def contains (env : Environment) (n : Name) : Bool :=
@@ -726,7 +724,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     IO (Environment × Option (Option ConstantInfo → EIO Kernel.Exception Environment)) := do
   let mut env := env
   if (env.base.find? constName |>.isSome) || (env.asyncConsts.find? constName |>.isSome)
-      || env.postponedDecls.any (·.toConstantInfo.name == constName) then
+      || env.postponedDecls?.any (·.any (·.toConstantInfo.name == constName)) then
     return (env, none)
   if let some n := env.realizingConst? then
     panic! s!"cannot realize {constName} while already realizing {n}"

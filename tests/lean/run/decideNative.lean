@@ -70,3 +70,29 @@ Use the '+revert' option to automatically cleanup and revert free variables.
 example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by native_decide
 
 example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by native_decide +revert
+
+
+/-!
+Make sure `native_decide` fails at elaboration time.
+https://github.com/leanprover/lean4/issues/2072
+-/
+
+/--
+error: tactic 'native_decide' evaluated that the proposition
+  False
+is false
+---
+info: let_fun this := sorry;
+this : False
+-/
+#guard_msgs in #check show False by native_decide
+
+
+/--
+Can handle universe levels.
+-/
+
+instance (p : PUnit.{u} → Prop) [Decidable (p PUnit.unit)] : Decidable (∀ x : PUnit.{u}, p x) :=
+  decidable_of_iff (p PUnit.unit) (by constructor; rintro _ ⟨⟩; assumption; intro h; apply h)
+
+example : ∀ (x : PUnit.{u}), x = PUnit.unit := by native_decide

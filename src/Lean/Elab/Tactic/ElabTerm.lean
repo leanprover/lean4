@@ -452,10 +452,12 @@ where
     -- get instance from `d`
     let s := d.appArg!
     let rflPrf ← mkEqRefl (toExpr true)
-    let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <| mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName) (toExpr true) rflPrf
+    let levelParams := levels.map .param
+    let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
+      mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
     try
       let lemmaName ← mkAuxLemma levels expectedType pf
-      return .const lemmaName (levels.map .param)
+      return .const lemmaName levelParams
     catch _ =>
       throwError "\
         tactic '{tacticName}' evaluated that the proposition\

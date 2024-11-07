@@ -1240,6 +1240,25 @@ theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
     · apply hn
   · apply Nat.pow_pos (by decide)
 
+theorem toNat_ushiftRight_eq_zero (x : BitVec w) (n : Nat) (hn : w < n) :
+    (x >>> n).toNat = 0 := by
+  rw [toNat_ushiftRight, Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt]
+  exact Nat.lt_trans x.isLt (Nat.pow_lt_pow_of_lt Nat.one_lt_two hn)
+
+theorem toInt_ushiftRight_zero (x : BitVec w) :
+    (x >>> 0).toInt = x.toInt := by simp
+
+theorem toInt_ushiftRight_pos (x : BitVec w) (n : Nat) (hn : 0 < n) :
+    (x >>> n).toInt = x.toNat >>> n := by
+  rw [toInt_eq_toNat_cond]
+  by_cases hn: n ≤ w
+  · have h1 := Nat.mul_lt_mul_of_pos_left (toNat_ushiftRight_lt x n hn) Nat.two_pos
+    rw [← Nat.pow_succ'] at h1
+    simp only [Nat.lt_of_lt_of_le h1 (Nat.pow_le_pow_of_le (Nat.one_lt_two) (show _ ≤ w by omega))]
+    simp
+  · rw [← toNat_ushiftRight]
+    simp [toNat_ushiftRight_eq_zero x n (Nat.gt_of_not_le hn), Nat.two_pow_pos w]
+
 @[simp]
 theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
     (x >>> n).getMsbD i = (decide (i < w) && (!decide (i < n) && x.getMsbD (i - n))) := by

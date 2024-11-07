@@ -508,9 +508,9 @@ Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
 -/
 def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
-  if f.isConst then
-    if (← isMatcher f.constName!) then
-      return none
+  if f.isConst then if (← isMatcher f.constName!) then
+    -- We always use simple congruence theorems for auxiliary match applications
+    return none
   let info ← getFunInfo f
   let kinds ← getCongrSimpKinds f info
   if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then

@@ -614,8 +614,9 @@ partial def splitDisjunction (m : MetaProblem) : OmegaM Expr := do
   match m.disjunctions with
     | [] => throwError "omega could not prove the goal:\n{← formatErrorMessage m.problem}"
     | h :: t => do
-      trace[omega] "Case splitting on {← inferType h}"
-      let_expr Or hType₁ hType₂ := (← inferType h) | throwError "Disjunction is not a disjuction"
+      let hType ← whnfD (← inferType h)
+      trace[omega] "Case splitting on {hType}"
+      let_expr Or hType₁ hType₂ := hType | throwError "Unexpected disjunction {hType}"
       let p?₁ ← withoutModifyingState do withLocalDeclD `h₁ hType₁ fun h₁ => do
         withTraceNode `omega (msg := fun _ => do pure m!"Assuming fact:{indentExpr hType₁}") do
         let m₁ := { m with facts := [h₁], disjunctions := t }

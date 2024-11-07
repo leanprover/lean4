@@ -127,7 +127,7 @@ theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
     a[i]'h = a.getLsbD i := by
   simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
 
--- The side condition about gets resolved if i and w are constant.
+-- The side condition about being in bounds gets resolved if i and w are constant.
 attribute [bv_normalize] BitVec.getMsbD_eq_getLsbD
 
 end Reduce

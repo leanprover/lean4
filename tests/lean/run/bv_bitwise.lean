@@ -38,5 +38,5 @@ theorem bitwise_unit_9 (x y : BitVec 32) :
     BitVec.ofBool (x.getLsbD 0 ^^ y.getLsbD 0) = BitVec.ofBool ((x ^^^ y).getLsbD 0) := by
   bv_decide
 
-theorem bitwise_unit_10 (x : BitVec 2): (x.getMsbD 0) = x.msb := by
+theorem bitwise_unit_10 (x : BitVec 2) : (x.getMsbD 0) = x.msb := by
   bv_decide

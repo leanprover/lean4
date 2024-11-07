@@ -83,12 +83,14 @@ attribute [rsimp_optimize] Std.Tactic.BVDecide.LRAT.Internal.lratChecker
 attribute [rsimp_optimize] Std.Tactic.BVDecide.ofBoolExprCached
 set_option trace.tactic.rsimp_optimize true in
 -- This doesn't rewrite BVExpr.bitblast because it's dependent
-attribute [rsimp_optimize] Std.Tactic.BVDecide.BVPred.bitblast
+-- attribute [rsimp_optimize] Std.Tactic.BVDecide.BVPred.bitblast
 
 -- Also doesnt work, due to abstracted proofs
--- conv_theorem bitblast_opt : Std.Tactic.BVDecide.BVPred.bitblast =>
---   unfold Std.Tactic.BVDecide.BVPred.bitblast
---   rw [Std.Tactic.BVDecide.BVExpr.bitblast.eq_rsimp]
+set_option pp.proofs true in
+conv_theorem bitblast_opt : Std.Tactic.BVDecide.BVPred.bitblast =>
+  unfold Std.Tactic.BVDecide.BVPred.bitblast
+  unfold Std.Tactic.BVDecide.BVPred.bitblast.proof_1
+  simp -zeta [Std.Tactic.BVDecide.BVExpr.bitblast.eq_rsimp]
 
 attribute [rsimp_optimize] Std.Tactic.BVDecide.BVLogicalExpr.bitblast
 attribute [rsimp_optimize] Std.Tactic.BVDecide.LRAT.check

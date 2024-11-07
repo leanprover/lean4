@@ -1,6 +1,6 @@
 def zero_out (arr : Array Nat) (i : Nat) : Array Nat :=
   if h : i < arr.size then
-    zero_out (arr.set ⟨i, h⟩ 0) (i + 1)
+    zero_out (arr.set i 0) (i + 1)
   else
     arr
 termination_by arr.size - i

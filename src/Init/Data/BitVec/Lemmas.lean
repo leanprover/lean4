@@ -2867,7 +2867,7 @@ theorem toInt_intMin {w : Nat} :
 If the width is zero, then `intMin` is `0`,
 and otherwise it is `-2^(n - 1)`.
 -/
-theorem toInt_intMin_eq_if (n : Nat) : (BitVec.intMin n).toInt =
+theorem toInt_intMin_eq_ite (n : Nat) : (BitVec.intMin n).toInt =
     if n = 0 then 0 else - 2^(n - 1) := by
   simp [BitVec.toInt_intMin]
   rcases n with rfl | n
@@ -2919,7 +2919,7 @@ theorem toInt_neg_eq_neg_toInt {x : BitVec w} (rs : x ≠ intMin w) :
 Negating `intMin` returns `intMin`.
 Thus, converting `(-x)` to an `Int` return `- x.toInt` for all bitvectors other than `intMin`.
 -/
-theorem toInt_neg_eq_if {x : BitVec n} : 
+theorem toInt_neg_eq_ite {x : BitVec n} : 
     (-x).toInt = if x = intMin n then x.toInt else - x.toInt := by
   by_cases hx : x = intMin n
   · simp [hx]
@@ -2981,13 +2981,13 @@ theorem toInt_abs (x : BitVec w) :
   rcases w with rfl | w 
   · simp [toInt_zero_length]
   · simp only [gt_iff_lt, Nat.zero_lt_succ, Nat.add_one_ne_zero, ↓reduceIte]
-    rw [BitVec.abs_eq_if]
+    rw [BitVec.abs_eq_ite]
     by_cases hx : x = intMin (w + 1)
     · simp only [hx, reduceIte]
       have := BitVec.msb_intMin (w := w + 1)
       rw [this]
       simp only [gt_iff_lt, Nat.zero_lt_succ, decide_True, ↓reduceIte]
-      rw [BitVec.toInt_intMin_eq_if]
+      rw [BitVec.toInt_intMin_eq_ite]
       simp
     · simp only [hx, reduceIte]
       rcases hmsb : x.msb
@@ -2997,7 +2997,7 @@ theorem toInt_abs (x : BitVec w) :
         omega
       · simp only [reduceIte]
         have hxbounds := BitVec.toInt_bounds_of_msb_eq_true hmsb
-        rw [BitVec.toInt_neg_eq_if]
+        rw [BitVec.toInt_neg_eq_ite]
         simp only [hx, reduceIte]
         rw [Int.abs_eq_neg (by omega)]
 

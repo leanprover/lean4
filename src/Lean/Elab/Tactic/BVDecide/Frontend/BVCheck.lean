@@ -28,22 +28,22 @@ def getSrcDir : TermElabM System.FilePath := do
     | throwError "cannot compute parent directory of '{srcPath}'"
   return srcDir
 
-def mkContext (lratPath : System.FilePath) : TermElabM TacticContext := do
+def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM TacticContext := do
   let lratPath := (← getSrcDir) / lratPath
-  TacticContext.new lratPath
+  TacticContext.new lratPath cfg
 
 /--
 Prepare an `Expr` that proves `bvExpr.unsat` using `ofReduceBool`.
 -/
-def lratChecker (cfg : TacticContext) (bvExpr : BVLogicalExpr) : MetaM Expr := do
-  let cert ← LratCert.ofFile cfg.lratPath cfg.trimProofs
-  cert.toReflectionProof cfg bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
+def lratChecker (ctx : TacticContext) (bvExpr : BVLogicalExpr) : MetaM Expr := do
+  let cert ← LratCert.ofFile ctx.lratPath ctx.config.trimProofs
+  cert.toReflectionProof ctx bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
 
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
-def bvCheck (g : MVarId) (cfg : TacticContext) : MetaM Unit := do
+def bvCheck (g : MVarId) (ctx : TacticContext) : MetaM Unit := do
   let unsatProver : UnsatProver := fun _ reflectionResult _ => do
     withTraceNode `sat (fun _ => return "Preparing LRAT reflection term") do
-      let proof ← lratChecker cfg reflectionResult.bvExpr
+      let proof ← lratChecker ctx reflectionResult.bvExpr
       return .ok ⟨proof, ""⟩
   let _ ← closeWithBVReflection g unsatProver
   return ()
@@ -52,14 +52,15 @@ def bvCheck (g : MVarId) (cfg : TacticContext) : MetaM Unit := do
 open Lean.Meta.Tactic in
 @[builtin_tactic Lean.Parser.Tactic.bvCheck]
 def evalBvCheck : Tactic := fun
-  | `(tactic| bv_check%$tk $path:str) => do
-    let cfg ← BVDecide.Frontend.BVCheck.mkContext path.getString
+  | `(tactic| bv_check%$tk $cfgStx:optConfig $path:str) => do
+    let cfg ← elabBVDecideConfig cfgStx
+    let ctx ← BVDecide.Frontend.BVCheck.mkContext path.getString cfg
     liftMetaFinishingTactic fun g => do
-      let g'? ← Normalize.bvNormalize g
+      let g'? ← Normalize.bvNormalize g cfg
       match g'? with
-      | some g' => bvCheck g' cfg
+      | some g' => bvCheck g' ctx
       | none =>
-        let bvNormalizeStx ← `(tactic| bv_normalize)
+        let bvNormalizeStx ← `(tactic| bv_normalize $cfgStx)
         logWarning m!"This goal can be closed by only applying bv_normalize, no need to keep the LRAT proof around."
         TryThis.addSuggestion tk bvNormalizeStx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax

@@ -2,8 +2,6 @@ import Std.Tactic.BVDecide
 
 open BitVec
 
-set_option bv.ac_nf false
-
 theorem substructure_unit_1 (x y z : BitVec 8) : ((x = y) ∧ (y = z)) ↔ ¬(¬(x =y) ∨ (¬(y = z))) := by
   bv_decide
 
@@ -33,7 +31,7 @@ theorem substructure_unit_6 (a b c: Bool) : (if a then b else c) = (if !a then c
 
 theorem substructure_unit_7 (a b c: Bool) : (bif a then b else c) = (bif !a then c else b) := by
   bv_decide
-  
+
 theorem substructure_unit_8 (x : BitVec 32) : (if x.getLsbD 0 then !x.getLsbD 0 else x.getLsbD 0) = false := by
   bv_decide
 

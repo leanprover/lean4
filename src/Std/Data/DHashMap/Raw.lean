@@ -291,8 +291,6 @@ to get anything out of the hash map.
 @[inline] def isEmpty (m : Raw α β) : Bool :=
   m.size == 0
 
-
-
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -359,8 +357,6 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
   m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
-
-
 
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=

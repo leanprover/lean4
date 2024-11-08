@@ -158,7 +158,6 @@ for all `a`.
 @[inline] def toList (m : HashSet α) : List α :=
   m.inner.keys
 
-
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

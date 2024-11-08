@@ -234,8 +234,6 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     Array (α × β) :=
   DHashMap.Const.toArray m.inner
 
-
-
 @[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
     Array α :=
   m.inner.keysArray

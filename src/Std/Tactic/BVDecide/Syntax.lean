@@ -9,6 +9,38 @@ import Init.Simproc
 
 set_option linter.missingDocs true -- keep it documented
 
+namespace Lean.Elab.Tactic.BVDecide.Frontend
+
+/--
+The configuration options for `bv_decide`.
+-/
+structure BVDecideConfig where
+  /-- The number of seconds that the SAT solver is run before aborting. -/
+  timeout : Nat := 10
+  /-- Whether to run the trimming algorithm on LRAT proofs. -/
+  trimProofs : Bool := true
+  /--
+  Whether to use the binary LRAT proof format.
+  Currently set to false and ignored on Windows due to a bug in CaDiCal.
+  -/
+  binaryProofs : Bool := true
+  /--
+  Canonicalize with respect to associativity and commutativitiy.
+  -/
+  acNf : Bool := false
+  /--
+  Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the
+  Lean process.
+  -/
+  graphviz : Bool := false
+  /--
+  The maximum number of subexpressions to visit when performing simplification.
+  -/
+  maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps
+
+end Lean.Elab.Tactic.BVDecide.Frontend
+
+
 namespace Lean.Parser
 
 namespace Tactic
@@ -21,7 +53,7 @@ current Lean file:
 bv_check "proof.lrat"
 ```
 -/
-syntax (name := bvCheck) "bv_check " str : tactic
+syntax (name := bvCheck) "bv_check " optConfig str : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
@@ -48,19 +80,19 @@ the `bv.ac_nf` option.
 
 Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
 -/
-syntax (name := bvDecide) "bv_decide" : tactic
+syntax (name := bvDecide) "bv_decide" optConfig : tactic
 
 
 /--
 Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
 -/
-syntax (name := bvTrace) "bv_decide?" : tactic
+syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 
 /--
 Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
 `BitVec` goals already.
 -/
-syntax (name := bvNormalize) "bv_normalize" : tactic
+syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic
 

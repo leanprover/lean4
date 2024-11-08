@@ -2,8 +2,6 @@ import Std.Tactic.BVDecide
 
 open BitVec
 
-set_option bv.ac_nf false
-
 theorem arith_unit_1 (x y : BitVec 64) : x + y = y + x := by
   bv_decide
 

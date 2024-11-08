@@ -69,3 +69,28 @@ info: theorem thm1' : ∀ (x : Nat), x < 100 → x * x ≤ 10000 :=
 decideBang._auxLemma.3
 -/
 #guard_msgs in #print thm1'
+
+
+/-!
+Reverting free variables.
+-/
+
+/--
+error: expected type must not contain free variables
+  x + 1 ≤ 5
+Use the '+revert' option to automatically cleanup and revert free variables.
+-/
+#guard_msgs in
+example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide!
+
+example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide! +revert
+
+
+/--
+Can handle universe levels.
+-/
+
+instance (p : PUnit.{u} → Prop) [Decidable (p PUnit.unit)] : Decidable (∀ x : PUnit.{u}, p x) :=
+  decidable_of_iff (p PUnit.unit) (by constructor; rintro _ ⟨⟩; assumption; intro h; apply h)
+
+example : ∀ (x : PUnit.{u}), x = PUnit.unit := by decide!

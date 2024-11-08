@@ -53,7 +53,7 @@ theorem length_insertIdx_of_length_lt (h : length as < n) : length (insertIdx n 
   simp [length_insertIdx, h]
 
 theorem eraseIdx_insertIdx (n : Nat) (l : List α) : (l.insertIdx n a).eraseIdx n = l := by
-  rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_eq]
+  rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
   exact modifyTailIdx_id _ _
 
 theorem insertIdx_eraseIdx_of_ge :

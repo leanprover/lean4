@@ -428,10 +428,13 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 builtin_initialize postponedCompilesExt : EnvExtension (Array (List Name)) ←
   registerEnvExtension (pure #[])
 
-def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
+partial def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
   if allowPostpone && (← getEnv).hasPostponed then
     modifyEnv (postponedCompilesExt.modifyState (allowAsync := true) · (·.push decls))
     return
+  let postponed := postponedCompilesExt.getState (← getEnv)
+  modifyEnv (postponedCompilesExt.setState (allowAsync := true) · #[])
+  postponed.forM (compileDecls (allowPostpone := false))
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls
@@ -452,8 +455,9 @@ def checkPostponedDecls : CoreM Unit := do
 
 def forceCompile : CoreM Unit := do
   checkPostponedDecls
-  postponedCompilesExt.getState (← getEnv) |>.forM (compileDecls (allowPostpone := false))
+  let postponed := postponedCompilesExt.getState (← getEnv)
   modifyEnv (postponedCompilesExt.setState (allowAsync := true) · #[])
+  postponed.forM (compileDecls (allowPostpone := false))
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

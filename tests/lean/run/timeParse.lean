@@ -143,9 +143,9 @@ This PlainDate is relative to the local time.
 -/
 def PlainDate : PlainDateTime := Timestamp.toPlainDateTimeAssumingUTC (Timestamp.ofSecondsSinceUnixEpoch localTm)
 
-def dateBR₁ := DateTime.ofLocalDateTime PlainDate brTZ
-def dateJP₁ := DateTime.ofLocalDateTime PlainDate jpTZ
-def dateUTC₁ := DateTime.ofLocalDateTime PlainDate .UTC
+def dateBR₁ := DateTime.ofPlainDateTime PlainDate brTZ
+def dateJP₁ := DateTime.ofPlainDateTime PlainDate jpTZ
+def dateUTC₁ := DateTime.ofPlainDateTime PlainDate .UTC
 
 /--
 info: "2024-08-15T14:03:47.000000000-03:00"

@@ -316,7 +316,7 @@ instance : HasCompl (Set α) := ⟨fun s ↦ setOf fun x => x ∉ s⟩
 instance : CoeSort (Set α) (Type u) := ⟨Elem⟩
 
 /-- `f '' s` denotes the image of `s : Set α` under the function `f : α → β`. -/
-infixl:80 " '' " => image
+infixl:80 " ‘‘ " => image
 
 
 variable {ι : Sort _} {f : ι → α}
@@ -1618,7 +1618,7 @@ namespace Submonoid
 variable {F : Type _} [FunLike F M N]
 
 def map (f : F) (S : Submonoid M) : Submonoid N where
-  carrier := f '' S
+  carrier := f ‘‘ S
 
 end Submonoid
 
@@ -1627,7 +1627,7 @@ namespace AddSubmonoid
 variable {F : Type _} [FunLike F A B]
 
 def map (f : F) (S : AddSubmonoid A) : AddSubmonoid B where
-  carrier := f '' S
+  carrier := f ‘‘ S
 
 end AddSubmonoid
 namespace OneMemClass
@@ -1781,7 +1781,7 @@ instance : InfSet (Subgroup G) :=
 
 def map {N : Type _} [Group N] (f : G →* N) (H : Subgroup G) : Subgroup N :=
   { H.toSubmonoid.map f with
-    carrier := f '' H }
+    carrier := f ‘‘ H }
 
 end Subgroup
 
@@ -1808,7 +1808,7 @@ instance : InfSet (AddSubgroup A) :=
 
 def map {N : Type _} [AddGroup N] (f : A →+ N) (H : AddSubgroup A) : AddSubgroup N :=
   { H.toAddSubmonoid.map f with
-    carrier := f '' H }
+    carrier := f ‘‘ H }
 
 end AddSubgroup
 
@@ -1945,7 +1945,7 @@ instance : Top (Subsemiring R) :=
   ⟨{ (⊤ : Submonoid R), (⊤ : AddSubmonoid R) with }⟩
 
 def map [NonAssocSemiring S] (f : R →+* S) (s : Subsemiring R) : Subsemiring S :=
-  { s.toSubmonoid.map (f : R →* S), s.toAddSubmonoid.map (f : R →+ S) with carrier := f '' s }
+  { s.toSubmonoid.map (f : R →* S), s.toAddSubmonoid.map (f : R →+ S) with carrier := f ‘‘ s }
 
 end Subsemiring
 
@@ -2004,7 +2004,7 @@ instance : Top (Subring R) :=
 
 def map {R : Type u} {S : Type v} [Ring R] [Ring S] (f : R →+* S) (s : Subring R) : Subring S :=
   { s.toSubmonoid.map (f : R →* S), s.toAddSubgroup.map (f : R →+ S) with
-    carrier := f '' s.carrier }
+    carrier := f ‘‘ s.carrier }
 
 end Subring
 
@@ -2388,7 +2388,7 @@ def RingHom.fieldRange (f : K →+* L) : Subfield L :=
 namespace Subfield
 
 instance : InfSet (Subfield K) :=
-  ⟨fun S => { InfSet.sInf (Subfield.toSubring '' S) with }⟩
+  ⟨fun S => { InfSet.sInf (Subfield.toSubring ‘‘ S) with }⟩
 
 def closure (s : Set K) : Subfield K := InfSet.sInf (setOf fun S => s ⊆ S)
 

@@ -224,30 +224,29 @@ The normalization passes used by `bv_normalize` and thus `bv_decide`.
 -/
 def defaultPipeline : List Pass := [rewriteRulesPass, embeddedConstraintPass]
 
-def passPipeline : MetaM (List Pass) := do
-  let opts ← getOptions
-
+def passPipeline (cfg : BVDecideConfig) : List Pass := Id.run do
   let mut passPipeline := defaultPipeline
 
-  if bv.ac_nf.get opts then
+  if cfg.acNf then
     passPipeline := passPipeline ++ [acNormalizePass]
 
   return passPipeline
 
 end Pass
 
-def bvNormalize (g : MVarId) : MetaM (Option MVarId) := do
+def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := do
   withTraceNode `bv (fun _ => return "Normalizing goal") do
     -- Contradiction proof
     let some g ← g.falseOrByContra | return none
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
-    Pass.fixpointPipeline (← Pass.passPipeline) g
+    Pass.fixpointPipeline (Pass.passPipeline cfg) g
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun
-  | `(tactic| bv_normalize) => do
+  | `(tactic| bv_normalize $cfg:optConfig) => do
+    let cfg ← elabBVDecideConfig cfg
     let g ← getMainGoal
-    match ← bvNormalize g with
+    match ← bvNormalize g cfg with
     | some newGoal => replaceMainGoal [newGoal]
     | none => replaceMainGoal []
   | _ => throwUnsupportedSyntax

@@ -242,7 +242,7 @@ where
   processAtom (stx : Syntax) := do
     match stx[0].isStrLit? with
     | some atom =>
-      unless isValidAtom atom do
+      unless isValidAtom atom.trim do
         throwErrorAt stx "invalid atom"
       /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
          the first symbol as nonReserved. -/

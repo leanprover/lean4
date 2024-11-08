@@ -92,7 +92,7 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
   let first ←
     if let some res := transitions.get? 0
       then .ok res
-      else .error "empty transitions"
+      else .error s!"empty transitions for {id}"
 
 
   .ok { transitions, initialLocalTimeType := first.localTimeType }

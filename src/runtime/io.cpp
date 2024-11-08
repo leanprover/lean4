@@ -648,7 +648,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_ts);
 }
 
-/* Std.Time.Database.Windows.getNextTransition : @&String -> @&Int64 -> IO (Option (Int64 × TimeZone)) */
+/* Std.Time.Database.Windows.getNextTransition : @&String -> Int64 -> IO (Option (Int64 × TimeZone)) */
 extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezone_str, uint64_t tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
@@ -697,7 +697,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     }
 
     int32_t tzIDLength = ucal_getTimeZoneDisplayName(cal, is_dst ? UCAL_DST : UCAL_STANDARD, "en_US", tzID, 32, &status);
-    
+
     if (U_FAILURE(status)) {
         ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to timezone identifier")));
@@ -742,7 +742,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, is_dst);
     
     lean_object *lean_pair = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(lean_pair, 0, lean_int64_to_int(tm));
+    lean_ctor_set(lean_pair, 0, (uint64_t)tm);
     lean_ctor_set(lean_pair, 1, lean_tz);
 
     return lean_io_result_mk_ok(mk_option_some(lean_pair));
@@ -751,7 +751,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 #endif
 }
 
-/* Std.Time.Database.Windows.getLocalTimeZoneIdentifierAt : @&Int64 → IO String */
+/* Std.Time.Database.Windows.getLocalTimeZoneIdentifierAt : Int64 → IO String */
 extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
@@ -760,10 +760,10 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm
     if (U_FAILURE(status)) {
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
     }
-0
+
     int64_t timestamp_secs = (int64_t)tm_obj;
     ucal_setMillis(cal, timestamp_secs * 1000, &status);
-    
+
     if (U_FAILURE(status)) {
         ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));

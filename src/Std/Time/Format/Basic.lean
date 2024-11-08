@@ -1345,7 +1345,7 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
       none
 
   match aw with
-    | .only newTz => (DateTime.ofLocalDateTime · newTz) <$> datetime
+    | .only newTz => (ofPlainDateTime · newTz) <$> datetime
     | .any => (ZonedDateTime.ofPlainDateTime · (ZoneRules.ofTimeZone tz)) <$> datetime
 
 end DateBuilder

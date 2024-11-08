@@ -317,7 +317,7 @@ def withWeekday (date : PlainDate) (desiredWeekday : Weekday) : PlainDate :=
   date.addDays (Day.Offset.ofInt offset.toInt)
 
 /--
-Calculates the wekk of the year starting Monday for a given year.
+Calculates the week of the year starting Monday for a given year.
 -/
 def weekOfYear (date : PlainDate) : Week.Ordinal :=
   let y := date.year

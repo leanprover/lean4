@@ -74,6 +74,17 @@ def toPlainTime (dt : DateTime tz) : PlainTime :=
   dt.date.get.time
 
 end DateTime
+namespace DateTime
+
+/--
+Gets the current `ZonedDateTime`.
+-/
+@[inline]
+def now : IO (DateTime tz) := do
+  let tm ← Timestamp.now
+  return DateTime.ofTimestamp tm tz
+
+end DateTime
 namespace ZonedDateTime
 
 /--

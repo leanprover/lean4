@@ -125,7 +125,7 @@ theorem modifyTailIdx_modifyTailIdx_le {f g : List α → List α} (m n : Nat) (
   rcases Nat.exists_eq_add_of_le h with ⟨m, rfl⟩
   rw [Nat.add_comm, modifyTailIdx_modifyTailIdx, Nat.add_sub_cancel]
 
-theorem modifyTailIdx_modifyTailIdx_eq {f g : List α → List α} (n : Nat) (l : List α) :
+theorem modifyTailIdx_modifyTailIdx_self {f g : List α → List α} (n : Nat) (l : List α) :
     (l.modifyTailIdx f n).modifyTailIdx g n = l.modifyTailIdx (g ∘ f) n := by
   rw [modifyTailIdx_modifyTailIdx_le n n l (Nat.le_refl n), Nat.sub_self]; rfl
 

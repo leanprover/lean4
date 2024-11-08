@@ -514,7 +514,7 @@ def toKernelEnv (env : Environment) (opts : Options) (cancelTk? : Option IO.Canc
 @[export lean_elab_environment_to_kernel_env_no_async]
 def toKernelEnvNoAsync (env : Environment) : Kernel.Environment := Id.run do
   if let some postponedDecls := env.postponedDecls? then
-    if postponedDecls.isEmpty then
+    if !postponedDecls.isEmpty then
       let _ : Inhabited Kernel.Environment := ⟨env.base⟩
       panic! s!"Environment.toKernelEnvNoAsync: called with delayed declarations [{postponedDecls.map (·.toConstantInfo.name)}]"
   env.checkedSync.get.base

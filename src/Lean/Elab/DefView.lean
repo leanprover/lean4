@@ -18,13 +18,6 @@ def DefKind.isTheorem : DefKind → Bool
   | .theorem => true
   | _        => false
 
-def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
-  | .def      => true
-  | .instance => true
-  | .opaque   => true
-  | .abbrev   => true
-  | _         => false
-
 def DefKind.isExample : DefKind → Bool
   | .example => true
   | _        => false

@@ -44,7 +44,7 @@ converted because they use an internal type called `UnitVal`.
 - Types with a correspondence to seconds:
   - `Day.Offset`
   - `Hour.Offset`
-  - `WeekOfYear.Offset`
+  - `Week.Offset`
   - `Millisecond.Offset`
   - `Nanosecond.Offset`
   - `Second.Offset`
@@ -95,7 +95,6 @@ This type can have a fractional nanosecond part that can be negative or positive
 These types provide precision down to the day level, useful for representing and manipulating dates.
 
 - **`PlainDate`:** Represents a calendar date in the format `YYYY-MM-DD`.
-- **`WeekDate`:** Uses the `YYYY-Www` format with week level precision.
 
 ## Time
 These types offer precision down to the nanosecond level, useful for representing and manipulating time of day.

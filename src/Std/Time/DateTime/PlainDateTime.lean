@@ -30,7 +30,7 @@ structure PlainDateTime where
   -/
   time : PlainTime
 
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 namespace PlainDateTime
 
@@ -46,7 +46,7 @@ def toTimestampAssumingUTC (dt : PlainDateTime) : Timestamp :=
 /--
 Converts a `Timestamp` to a `PlainDateTime`.
 -/
-def ofTimestamp (stamp : Timestamp) : PlainDateTime := Id.run do
+def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
   let leapYearEpoch := 11017
   let daysPer400Y := 365 * 400 + 97
   let daysPer100Y := 365 * 100 + 24

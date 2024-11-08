@@ -58,7 +58,28 @@ Creates a new `ZonedDateTime` out of a `PlainDateTime` and a `ZoneRules`.
 @[inline]
 def ofPlainDateTime (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
   let tm := pdt.toTimestampAssumingUTC
-  let tz := zr.findLocalTimeTypeForTimestamp tm |>.getTimeZone
+
+  let transition :=
+    let value := tm.toSecondsSinceUnixEpoch
+    if let some idx := zr.transitions.findIdx? (fun t => t.time.val ≥ value.val)
+      then do
+        let last ← zr.transitions.get? (idx - 1)
+        let next ← zr.transitions.get? idx <|> zr.transitions.back?
+
+        let utcNext := next.time.sub last.localTimeType.gmtOffset.second.abs
+
+        if utcNext.val > tm.toSecondsSinceUnixEpoch.val
+          then pure last
+          else pure next
+
+      else zr.transitions.back?
+
+  let tz :=
+    transition
+    |>.map (·.localTimeType)
+    |>.getD zr.initialLocalTimeType
+    |>.getTimeZone
+
   let tm := tm.subSeconds tz.toSeconds
   ZonedDateTime.mk (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC.addSeconds tz.toSeconds) tm zr tz
 

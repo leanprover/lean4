@@ -25,7 +25,7 @@ def now : IO PlainDateTime := do
   let rules ← Database.defaultGetLocalZoneRules
   let ltt := rules.findLocalTimeTypeForTimestamp tm
 
-  return PlainDateTime.ofTimestamp tm |>.addSeconds ltt.getTimeZone.toSeconds
+  return PlainDateTime.ofTimestampAssumingUTC tm |>.addSeconds ltt.getTimeZone.toSeconds
 
 end PlainDateTime
 

@@ -17,7 +17,7 @@ open Internal
 set_option linter.all true
 
 /--
-`Timestamp` represents a specific point in time since the UNIX Epoch.
+Represents an exact point in time as a UNIX Epoch timestamp.
 -/
 structure Timestamp where
 

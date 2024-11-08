@@ -26,7 +26,7 @@ Converts a `Timestamp` to a `PlainDateTime`
 -/
 @[inline]
 def toPlainDateTimeAssumingUTC (timestamp : Timestamp) : PlainDateTime :=
-  PlainDateTime.ofTimestamp timestamp
+  PlainDateTime.ofTimestampAssumingUTC timestamp
 
 /--
 Converts a `PlainDate` to a `Timestamp`

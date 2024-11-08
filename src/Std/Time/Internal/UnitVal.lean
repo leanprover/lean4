@@ -91,6 +91,13 @@ def sub (u1 : UnitVal α) (u2 : UnitVal α) : UnitVal α :=
   ⟨u1.val - u2.val⟩
 
 /--
+Returns the absolute value of a `UnitVal`.
+-/
+@[inline]
+def abs (u : UnitVal α) : UnitVal α :=
+  ⟨u.val.natAbs⟩
+
+/--
 Converts an `Offset` to another unit type.
 -/
 @[inline]

@@ -648,8 +648,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_ts);
 }
 
-/* Std.Time.Database.Windows.getNextTransition : @&String -> @&Int -> IO (Option (Int × TimeZone)) */
-extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(b_obj_arg timezone_str, b_obj_arg tm_obj, obj_arg /* w */) {
+/* Std.Time.Database.Windows.getNextTransition : @&String -> @&Int64 -> IO (Option (Int64 × TimeZone)) */
+extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezone_str, uint64_t tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     const char* dst_name_id = lean_string_cstr(timezone_str);
@@ -668,14 +668,14 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(b_obj_arg timezo
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
     }
 
-    int64_t timestamp_secs = lean_scalar_to_int64(tm_obj);
+    int64_t timestamp_secs = (int64_t)tm_obj;
 
     ucal_setMillis(cal, timestamp_secs * 1000, &status);
     if (U_FAILURE(status)) {
         ucal_close(cal);
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));
     }
-    
+
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
 
     if (U_FAILURE(status)) {
@@ -737,8 +737,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_next_transition(b_obj_arg timezo
 
     lean_object *lean_tz = lean_alloc_ctor(0, 3, 1);
     lean_ctor_set(lean_tz, 0, lean_int_to_int(offset_seconds));
-    lean_ctor_set(lean_tz, 1, lean_mk_ascii_string_unchecked(dst_name));
-    lean_ctor_set(lean_tz, 2, lean_mk_ascii_string_unchecked(display_name_str));
+    lean_ctor_set(lean_tz, 1, lean_mk_string_from_bytes_unchecked(dst_name));
+    lean_ctor_set(lean_tz, 2, lean_mk_string_from_bytes_unchecked(display_name_str));
     lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, is_dst);
     
     lean_object *lean_pair = lean_alloc_ctor(0, 2, 0);

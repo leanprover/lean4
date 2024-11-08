@@ -20,7 +20,7 @@ namespace Windows
 /--
 Fetches the next timezone transition for a given timezone identifier and timestamp.
 -/
-@[extern "lean_get_windows_next_transition"]
+@[extern "lean_windows_get_next_transition"]
 opaque getNextTransition : @&String -> @&Int64 -> IO (Option (Int64 × TimeZone))
 
 /--

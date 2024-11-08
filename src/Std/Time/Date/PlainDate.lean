@@ -34,6 +34,7 @@ structure PlainDate where
 
   /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
+  deriving Repr
 
 instance : Inhabited PlainDate where
   default := ⟨1, 1, 1, by decide⟩

@@ -683,9 +683,14 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
   ext (DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out)
 
 @[simp]
-theorem length_keys_eq_size [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.length = m.size :=
-  DHashMap.Raw.length_keys_eq_size h.out
+  DHashMap.Raw.length_keys h.out
+
+@[simp]
+theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h : m.WF):
+    m.keys.isEmpty = m.isEmpty :=
+  DHashMap.Raw.isEmpty_keys h.out
 
 @[simp]
 theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
@@ -693,14 +698,9 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
   DHashMap.Raw.contains_keys h.out
 
 @[simp]
-theorem isEmpty_keys_eq_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
-    m.keys.isEmpty = m.isEmpty :=
-  DHashMap.Raw.isEmpty_keys_eq_isEmpty h.out
-
-@[simp]
-theorem mem_keys_iff_mem [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     k ∈ m.keys ↔ k ∈ m := 
-  DHashMap.Raw.mem_keys_iff_mem h.out
+  DHashMap.Raw.mem_keys h.out
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.Pairwise (fun a b => (a == b) = false) := 

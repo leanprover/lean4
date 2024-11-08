@@ -815,9 +815,14 @@ theorem getThenInsertIfNew?_snd {k : α} {v : β} :
 end Const
 
 @[simp]
-theorem length_keys_eq_size [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.length = m.1.size := by
   simp_to_model using List.length_keys_eq_length
+
+@[simp]
+theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h: m.1.WF):
+    m.1.keys.isEmpty = m.1.isEmpty:= by
+  simp_to_model using List.isEmpty_keys_eq_isEmpty
 
 @[simp]
 theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
@@ -825,12 +830,7 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
   simp_to_model using List.containsKey_eq_keys_contains.symm
 
 @[simp]
-theorem isEmpty_keys_eq_isEmpty [EquivBEq α] [LawfulHashable α] (h: m.1.WF):
-    m.1.keys.isEmpty = m.1.isEmpty:= by
-  simp_to_model using List.isEmpty_keys_eq_isEmpty
-
-@[simp]
-theorem mem_keys_iff_contains [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
+theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
   simp_to_model 
   rw [List.containsKey_eq_keys_contains]

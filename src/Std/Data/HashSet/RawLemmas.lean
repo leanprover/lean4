@@ -367,8 +367,14 @@ theorem containsThenInsert_snd (h : m.WF) {k : α} : (m.containsThenInsert k).2 
   ext (HashMap.Raw.containsThenInsertIfNew_snd h.out)
 
 @[simp]
-theorem toList_length_eq_size [EquivBEq α] [LawfulHashable α] (h : m.WF): m.toList.length = m.size :=
-  HashMap.Raw.length_keys_eq_size h.1
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF): 
+    m.toList.length = m.size :=
+  HashMap.Raw.length_keys h.1
+
+@[simp]
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF):
+    m.toList.isEmpty = m.isEmpty :=
+  HashMap.Raw.isEmpty_keys h.1
 
 @[simp]
 theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF):
@@ -376,14 +382,9 @@ theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF):
   HashMap.Raw.contains_keys h.1
 
 @[simp]
-theorem isEmpty_toList_eq_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.WF):
-    m.toList.isEmpty = m.isEmpty :=
-  HashMap.Raw.isEmpty_keys_eq_isEmpty h.1
-
-@[simp]
-theorem mem_toList_iff_mem [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α}:
+theorem mem_toList [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α}:
     k ∈ m.toList ↔ k ∈ m :=
-  HashMap.Raw.mem_keys_iff_mem h.1
+  HashMap.Raw.mem_keys h.1
 
 theorem distinct_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a == b) = false) :=

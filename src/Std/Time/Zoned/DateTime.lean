@@ -413,7 +413,7 @@ def weekOfMonth (date : DateTime tz) : Bounded.LE 1 5 :=
 
 /--
 Determines the week of the month for the given `DateTime`. The week of the month is calculated based
-on the day of the month and the weekday. Each week starts on Sunday because the entire library is
+on the day of the month and the weekday. Each week starts on Monday because the entire library is
 based on the Gregorian Calendar.
 -/
 @[inline]

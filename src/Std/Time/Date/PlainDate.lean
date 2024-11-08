@@ -102,7 +102,7 @@ def quarter (date : PlainDate) : Bounded.LE 1 4 :=
   date.month.sub 1 |>.ediv 3 (by decide) |>.add 1
 
 /--
-Transforms a tuple of a `PlainDate` into a `Day.Ordinal.OfYear`.
+Transforms a `PlainDate` into a `Day.Ordinal.OfYear`.
 -/
 def dayOfYear (date : PlainDate) : Day.Ordinal.OfYear date.year.isLeap :=
   ValidDate.dayOfYear ⟨(date.month, date.day), date.valid⟩
@@ -298,7 +298,9 @@ def alignedWeekOfMonth (date : PlainDate) : Week.Ordinal.OfMonth :=
   days |>.ediv 7 (by decide) |>.add 1
 
 /--
-Sets the date to the specified `desiredWeekday`.
+Sets the date to the specified `desiredWeekday`. If the `desiredWeekday` is the same as the current weekday,
+the original `date` is returned without modification. If the `desiredWeekday` is in the future, the
+function adjusts the date forward to the next occurrence of that weekday.
 -/
 def withWeekday (date : PlainDate) (desiredWeekday : Weekday) : PlainDate :=
   let weekday := date |>.weekday |>.toOrdinal
@@ -315,7 +317,7 @@ def withWeekday (date : PlainDate) (desiredWeekday : Weekday) : PlainDate :=
   date.addDays (Day.Offset.ofInt offset.toInt)
 
 /--
-Calculates the starting Monday of the ISO week-based year for a given year.
+Calculates the wekk of the year starting Monday for a given year.
 -/
 def weekOfYear (date : PlainDate) : Week.Ordinal :=
   let y := date.year

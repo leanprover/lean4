@@ -199,4 +199,9 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
 
+theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
+    l.foldl (fun acc k v => f k v :: acc) acc =
+      (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
+  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM, Id.run]
+
 end Std.DHashMap.Internal.AssocList

@@ -677,6 +677,30 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
+@[simp]
+theorem length_keys [EquivBEq α] [LawfulHashable α] :
+    m.keys.length = m.size :=
+  DHashMap.length_keys
+
+@[simp]
+theorem isEmpty_keys [EquivBEq α] [LawfulHashable α]:
+    m.keys.isEmpty = m.isEmpty :=
+  DHashMap.isEmpty_keys
+
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] {k : α} :
+    m.keys.contains k = m.contains k :=
+  DHashMap.contains_keys
+
+@[simp]
+theorem mem_keys [LawfulBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m.keys ↔ k ∈ m := 
+  DHashMap.mem_keys
+
+theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
+    m.keys.Pairwise (fun a b => (a == b) = false) := 
+  DHashMap.distinct_keys
+
 end
 
 end Std.HashMap

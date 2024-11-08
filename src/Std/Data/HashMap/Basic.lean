@@ -188,6 +188,9 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 @[inline, inherit_doc DHashMap.isEmpty] def isEmpty (m : HashMap α β) : Bool :=
   m.inner.isEmpty
 
+@[inline, inherit_doc DHashMap.keys] def keys (m : HashMap α β) : List α :=
+  m.inner.keys
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -230,9 +233,6 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 @[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
     Array (α × β) :=
   DHashMap.Const.toArray m.inner
-
-@[inline, inherit_doc DHashMap.keys] def keys (m : HashMap α β) : List α :=
-  m.inner.keys
 
 @[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
     Array α :=

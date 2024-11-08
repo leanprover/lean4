@@ -7,6 +7,7 @@ prelude
 import Init.Control.Lawful.Basic
 import Init.Control.Except
 import Init.Control.StateRef
+import Init.Ext
 
 open Function
 

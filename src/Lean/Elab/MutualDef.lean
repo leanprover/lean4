@@ -22,6 +22,14 @@ open Lean.Parser.Term
 
 open Language
 
+builtin_initialize
+  registerTraceClass `Meta.instantiateMVars
+
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
+    instantiateMVars e
+
 /-- `DefView` plus header elaboration data and snapshot. -/
 structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
   /--
@@ -116,7 +124,7 @@ See issues #1389 and #875
 private def cleanupOfNat (type : Expr) : MetaM Expr := do
   Meta.transform type fun e => do
     if !e.isAppOfArity ``OfNat 2 then return .continue
-    let arg ← instantiateMVars e.appArg!
+    let arg ← instantiateMVarsProfiling e.appArg!
     if !arg.isAppOfArity ``OfNat.ofNat 3 then return .continue
     let argArgs := arg.getAppArgs
     if !argArgs[0]!.isConstOf ``Nat then return .continue
@@ -191,7 +199,7 @@ private def elabHeaders (views : Array DefView)
             -- TODO: add forbidden predicate using `shortDeclName` from `views`
             let xs ← addAutoBoundImplicits xs
             type ← mkForallFVars' xs type
-            type ← instantiateMVars type
+            type ← instantiateMVarsProfiling type
             let levelNames ← getLevelNames
             if view.type?.isSome then
               let pendingMVarIds ← getMVars type
@@ -328,10 +336,6 @@ private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationH
     elabTerminationHints ⟨declVal[0][1]⟩
   else
     return .none
-
-def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
-    instantiateMVars e
 
 /--
 Runs `k` with a restricted local context where only section variables from `vars` are included that
@@ -474,11 +478,11 @@ private def isTheorem (views : Array DefView) : Bool :=
   views.any (·.kind.isTheorem)
 
 private def instantiateMVarsAtHeader (header : DefViewElabHeader) : TermElabM DefViewElabHeader := do
-  let type ← instantiateMVars header.type
+  let type ← instantiateMVarsProfiling header.type
   pure { header with type := type }
 
 private def instantiateMVarsAtLetRecToLift (toLift : LetRecToLift) : TermElabM LetRecToLift := do
-  let type ← instantiateMVars toLift.type
+  let type ← instantiateMVarsProfiling toLift.type
   let val ← instantiateMVarsProfiling toLift.val
   pure { toLift with type, val }
 
@@ -911,7 +915,7 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
       Meta.check toLift.type
       Meta.check toLift.val
-      return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVars toLift.type) }
+      return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVarsProfiling toLift.type) }
     let letRecClosures ← mkLetRecClosures sectionVars mainFVarIds recFVarIds letRecsToLift
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
     let mainVals    ← mainVals.mapM (instantiateMVarsProfiling ·)
@@ -949,7 +953,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
         newHeaders := newHeaders.push header
     return newHeaders
   let newHeaders ← (process).run' 1
-  newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
+  newHeaders.mapM fun header => return { header with type := (← instantiateMVarsProfiling header.type) }
 
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then

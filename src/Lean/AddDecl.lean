@@ -8,6 +8,7 @@ import Lean.CoreM
 
 namespace Lean
 
+@[deprecated "use `Lean.addAndCompile` instead"]
 def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
   let env ← addDecl env opts decl cancelTk?

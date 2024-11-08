@@ -428,15 +428,15 @@ def runAsync (act : TermElabM α) : TermElabM (EIO Exception α) := do
 Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for the
 message log, which is reported in the returned snapshot.
 -/
-def runAsyncAsSnapshot (act : TermElabM (Array (SnapshotTask SnapshotTree))) (desc := "") : TermElabM (BaseIO SnapshotTree) := do
-  let (output, t) ← IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
-   runAsync do
+def runAsyncAsSnapshot (act : Unit → TermElabM (Array (SnapshotTask SnapshotTree))) (desc := "") : TermElabM (BaseIO SnapshotTree) := do
+  let t ← runAsync do
+   IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
     let tid ← IO.getLeanThreadID
     modifyTraceState fun _ => { tid }
     let trees ←
       try
         withTraceNode `Elab.async (fun _ => return desc) do
-          act
+          act ()
       catch e =>
         logError e.toMessageData
         pure #[]
@@ -444,24 +444,23 @@ def runAsyncAsSnapshot (act : TermElabM (Array (SnapshotTask SnapshotTree))) (de
         addTraceAsMessages
     return (trees, (← saveState))
   let ctx ← readThe Core.Context
-  let mkDiags msgs :=
-    let msgs := if output.isEmpty then msgs else
-      msgs.add {
-        fileName := ctx.fileName
-        severity := MessageSeverity.information
-        pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
-        data     := output
-      }
-    Language.Snapshot.Diagnostics.ofMessageLog msgs
   return do
     match (← t.toBaseIO) with
-    | .ok (trees, st) =>
+    | .ok (output, trees, st) =>
+      let mut msgs := st.meta.core.messages
+      if !output.isEmpty then
+        msgs := msgs.add {
+          fileName := ctx.fileName
+          severity := MessageSeverity.information
+          pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+          data     := output
+        }
       return .mk {
         desc
-        diagnostics := (← mkDiags st.meta.core.messages)
+        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
         traces := st.meta.core.traceState
       } trees
-    | .error _ => return .mk { diagnostics := (← mkDiags .empty) } #[]
+    | .error _ => unreachable!
 
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr)
     (sc : Command.Scope) :
@@ -1116,10 +1115,10 @@ where
         if let some async := async? then
           let env ← getEnv
           let headers := headers.map fun header => { header with modifiers.attrs := #[] }
-          let act ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
+          let act ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
             modifyEnv fun _ => async.asyncEnv
             finishElab headers
-            let checkAct ← runAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") do
+            let checkAct ← runAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
               checkAndCompile
               return #[]
             let checkTask ← BaseIO.mapTask (t := (← getEnv).checkedSync) fun _ => checkAct

@@ -435,10 +435,11 @@ def EIO.ofExcept : Except e α → EIO e α
 private def addDeclNoDelay (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) (skipExisting := false) :
     Except Kernel.Exception Environment := do
+  let env := { env with base := env.checkedSync.get.base }
   if skipExisting then
     if let [name] := decl.getNames then
       if env.checkedSync.get.base.find? name |>.isSome then
-        return { env with base := env.checkedSync.get.base }
+        return env
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
@@ -452,7 +453,7 @@ def checkPostponedDecls (env : Environment) (opts : Options) (cancelTk? : Option
   let mut env := { env with postponedDecls? := none }
   for decl in decls do
     env ← addDeclNoDelay (skipExisting := decl.skipExisting) env opts decl.decl cancelTk?
-  return { env with base := env.toEnvironmentBase.base, checkedSync := .pure env.toEnvironmentBase }
+  return { env with checkedSync := .pure env.toEnvironmentBase }
 
 def checkPostponedDeclsAsync (env : Environment)
     (opts : Options) (cancelTk? : Option IO.CancelToken := none) : BaseIO (Environment × EIO Kernel.Exception Unit) := do

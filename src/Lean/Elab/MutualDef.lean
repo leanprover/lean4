@@ -410,16 +410,13 @@ def addTraceAsMessages : TermElabM Unit := do
 
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
 def runAsync (act : TermElabM α) : TermElabM (EIO Exception α) := do
-  let mut coreSt ← getThe Core.State
+  let coreSt ← getThe Core.State
   let metaSt ← getThe Meta.State
   let st ← get
   let coreCtx ← readThe Core.Context
   let metaCtx ← readThe Meta.Context
   let ctx ← read
   let heartbeats := (← IO.getNumHeartbeats) - coreCtx.initHeartbeats
-  if Language.internal.cmdlineSnapshots.get (← getOptions) then
-    coreSt := { coreSt with
-      env := Runtime.markPersistent coreSt.env, infoState := Runtime.markPersistent coreSt.infoState }
   return withCurrHeartbeats (do
       IO.addHeartbeats heartbeats.toUInt64
       act : TermElabM _)

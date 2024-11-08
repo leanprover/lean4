@@ -620,16 +620,14 @@ where
     -- definitely resolve eventually
     snap.new.resolve default
 
-    let mut infoTree := cmdState.infoState.trees[0]!
+    let infoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx
-    if cmdline then
-      infoTree := Runtime.markPersistent infoTree
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := infoTree
       traces := cmdState.traceState
       cmdState := if cmdline then {
-        env := Runtime.markPersistent cmdState.env
+        env := cmdState.env
         maxRecDepth := 0
       } else cmdState
     }

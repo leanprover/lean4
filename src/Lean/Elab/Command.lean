@@ -329,11 +329,7 @@ Interrupt and abort exceptions are caught but not logged.
 
 /-- Runs the given action in a separate task, discarding its final state. -/
 def runAsync (act : CommandElabM α) : CommandElabM (Task (Except Exception α)) := do
-  let mut st ← get
-  if Language.internal.cmdlineSnapshots.get (← getOptions) then
-    st := { st with
-      env := Runtime.markPersistent st.env, infoState := Runtime.markPersistent st.infoState }
-  EIO.asTask (act.run (← read) |>.run' st)
+  EIO.asTask (act.run (← read) |>.run' (← get))
 
 /--
 Runs the given action in a separate task, discarding its final state except for the message log,

@@ -1249,6 +1249,7 @@ theorem toNat_ushiftRight_eq_zero (x : BitVec w) (n : Nat) (hn : w ≤ n) :
 theorem toInt_ushiftRight_zero (x : BitVec w) :
     (x >>> 0).toInt = x.toInt := by simp
 
+
 @[simp]
 theorem toInt_ushiftRight_pos (x : BitVec w) (n : Nat) (hn : 0 < n) :
     (x >>> n).toInt = x.toNat >>> n := by

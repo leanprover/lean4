@@ -24,13 +24,21 @@ structure EqnInfo extends EqnInfoCore where
   numFixed  : Nat
   deriving Inhabited
 
-private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
+builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+
+def injections? (mvarId : MVarId) : MetaM (Option InjectionsResult) := do
+  match ← injections mvarId with
+  | .solved => return InjectionsResult.solved
+  | .subgoal mvarId' ns =>
+    if mvarId != mvarId' then return some (.subgoal mvarId' ns) else return none
+
+private partial def mkProof (declName : Name) (unfold : MVarId → MetaM MVarId) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
     unless (← tryURefl mvarId) do -- catch easy cases
-      go (← deltaLHS mvarId)
+      go (← unfold mvarId)
     instantiateMVars main
 where
   go (mvarId : MVarId) : MetaM Unit := do
@@ -45,18 +53,64 @@ where
       go mvarId
     else if let some mvarId ← simpIf? mvarId then
       go mvarId
+    else if let some res ← injections? mvarId then
+      if let .subgoal mvarId _ := res then
+        go mvarId
+      else
+        return
     else match (← simpTargetStar mvarId {} (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go mvarId
       | TacticResultCNM.noChange =>
         if let some mvarId ← deltaRHS? mvarId declName then
           go mvarId
-        else if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
         else if let some mvarIds ← splitTarget? mvarId then
+          mvarIds.forM go
+        else if let some mvarIds ← casesOnStuckLHS? mvarId then
           mvarIds.forM go
         else
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+
+private partial def mkUnfoldProof (declName : Name) (type : Expr) : MetaM Expr := do
+  mkProof declName deltaLHS type
+
+
+/-- Generate the "unfold" lemma for `declName`. -/
+def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := withLCtx {} {} do
+  withOptions (tactic.hygienic.set · false) do
+    let baseName := declName
+    lambdaTelescope info.value fun xs body => do
+      let us := info.levelParams.map mkLevelParam
+      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+      let value ← mkUnfoldProof declName type
+      let type ← mkForallFVars xs type
+      let value ← mkLambdaFVars xs value
+      let name := Name.str baseName unfoldThmSuffix
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := info.levelParams
+      }
+      return name
+
+def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
+  if let some info := eqnInfoExt.find? (← getEnv) declName then
+    return some (← mkUnfoldEq declName info)
+  else
+    return none
+
+private def rwWithUnfold (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let .some unfold ← getUnfoldEqnFor? declName | throwError "rwWithUnfold: No unfold lemma?"
+  let target ← mvarId.getType'
+  let some (_, lhs, rhs) := target.eq? | unreachable!
+  let h := mkAppN (mkConst unfold lhs.getAppFn.constLevels!) lhs.getAppArgs
+  let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
+  let targetNew ← mkEq lhsNew rhs
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
+  mvarId.assign (← mkEqTrans h mvarNew)
+  return mvarNew.mvarId!
+
+private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
+  mkProof declName (rwWithUnfold declName) type
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
@@ -72,7 +126,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
-    let value ← mkProof info.declName type
+    let value ← mkEqnProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
@@ -80,7 +134,6 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     }
   return thmNames
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
     (numFixed : Nat) : CoreM Unit := do
@@ -93,10 +146,6 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
     mkEqns info
   else
     return none
-
-def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
-  let env ← getEnv
-  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
 
 @[export lean_get_structural_rec_arg_pos]
 def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do

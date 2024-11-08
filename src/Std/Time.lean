@@ -57,7 +57,7 @@ converted because they use an internal type called `UnitVal`.
 
 Ordinal types represent specific bounded values in reference to another unit, e.g., `Day.Ordinal`
 represents a day in a month, ranging from 1 to 31. Some ordinal types like `Hour.Ordinal` and `Second.Ordinal`,
-allow for values beyond the normal range (e.g, 60 seconds) to accomodate special cases with leap seconds
+allow for values beyond the normal range (e.g, 60 seconds) to accommodate special cases with leap seconds
 like `23:59:60` that is valid in ISO 8601.
 
 - Ordinal types:
@@ -83,7 +83,7 @@ nanoseconds corresponds to one second.
 
 # Date and Time Types
 
-Dates and times are made up of different parts. an `Ordinal` is an absolute value, like a specific day in a month,
+Dates and times are made up of different parts. An `Ordinal` is an absolute value, like a specific day in a month,
 while an `Offset` is a shift forward or backward in time, used in arithmetic operations to add or subtract days, months or years.
 Dates use components like `Year.Ordinal`, `Month.Ordinal`, and `Day.Ordinal` to ensure they represent
 valid points in time.

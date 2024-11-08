@@ -751,8 +751,8 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 #endif
 }
 
-/* Std.Time.Database.Windows.getLocalTimeZoneIdentifierAt : Int → IO String */
-extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(obj_arg tm_obj, obj_arg /* w */) {
+/* Std.Time.Database.Windows.getLocalTimeZoneIdentifierAt : @&Int64 → IO String */
+extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm_obj, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     UCalendar* cal = ucal_open(NULL, -1, NULL, UCAL_GREGORIAN, &status);
@@ -760,8 +760,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(obj_arg tm_
     if (U_FAILURE(status)) {
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
     }
-
-    int64_t timestamp_secs = lean_scalar_to_int64(tm_obj);
+0
+    int64_t timestamp_secs = (int64_t)tm_obj;
     ucal_setMillis(cal, timestamp_secs * 1000, &status);
     
     if (U_FAILURE(status)) {

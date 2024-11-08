@@ -96,3 +96,35 @@ instance (p : PUnit.{u} → Prop) [Decidable (p PUnit.unit)] : Decidable (∀ x 
   decidable_of_iff (p PUnit.unit) (by constructor; rintro _ ⟨⟩; assumption; intro h; apply h)
 
 example : ∀ (x : PUnit.{u}), x = PUnit.unit := by native_decide
+
+
+/-!
+Can't evaluate
+-/
+
+inductive ItsTrue : Prop
+  | mk
+
+instance : Decidable ItsTrue := sorry
+
+/--
+error: tactic 'native_decide' failed, could not evaluate decidable instance.
+Error: cannot evaluate code because 'instDecidableItsTrue' uses 'sorry' and/or contains errors
+-/
+#guard_msgs in example : ItsTrue := by native_decide
+
+
+/-!
+Panic during evaluation
+-/
+
+inductive ItsTrue2 : Prop
+  | mk
+
+instance : Decidable ItsTrue2 :=
+  have : Inhabited (Decidable ItsTrue2) := ⟨isTrue .mk⟩
+  panic! "oh no"
+
+-- Note: this test fails within VS Code
+/-- info: output: PANIC at instDecidableItsTrue2 decideNative:126:2: oh no -/
+#guard_msgs in example : ItsTrue2 := by collect_stdout native_decide

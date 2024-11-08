@@ -411,20 +411,21 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
     return .const lemmaName levelParams
   catch ex =>
     -- Diagnose error
-    let r ←
-      try
-        evalConst Bool auxDeclName
-      catch ex =>
-        throwError "\
-          tactic '{tacticName}' failed, could not evaluate decidable instance. \
-          Error: {ex.toMessageData}"
-    if !r then
-      throwError "\
-        tactic '{tacticName}' evaluated that the proposition\
-        {indentExpr expectedType}\n\
-        is false"
-    else
-      throwError "tactic '{tacticName}' failed. Error: {ex.toMessageData}"
+    throwError MessageData.ofLazyM (es := #[expectedType]) do
+      let r ←
+        try
+          evalConst Bool auxDeclName
+        catch ex =>
+          return m!"\
+            tactic '{tacticName}' failed, could not evaluate decidable instance. \
+            Error: {ex.toMessageData}"
+      if !r then
+        return m!"\
+          tactic '{tacticName}' evaluated that the proposition\
+          {indentExpr expectedType}\n\
+          is false"
+      else
+        return m!"tactic '{tacticName}' failed. Error: {ex.toMessageData}"
 
 @[implemented_by elabNativeDecideCoreUnsafe]
 private opaque elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr

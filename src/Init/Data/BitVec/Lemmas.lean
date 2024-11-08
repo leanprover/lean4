@@ -2969,7 +2969,7 @@ theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat els
     rw [Nat.mod_eq_of_lt (by omega)]
   · simp [h]
 
-theorem abs_eq_if (x : BitVec w) : x.abs = 
+theorem abs_eq_ite (x : BitVec w) : x.abs = 
     if x.msb = true then
       if x = BitVec.intMin w then (BitVec.intMin w) else -x
     else x := by

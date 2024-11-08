@@ -415,11 +415,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          # give Linux debug unlimited stack, we're not interested in its specific stack usage
-          if [[ '${{ matrix.name }}' == 'Linux Debug' ]]; then
-            ulimit -s unlimited
-          fi
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} -E "leanruntest_task_test_io"
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2

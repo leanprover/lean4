@@ -867,7 +867,7 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
   letRecClosures.foldlM (init := preDefs) fun preDefs c => do
     let type  := Closure.mkForall c.localDecls c.toLift.type
     let value := Closure.mkLambda c.localDecls c.toLift.val
-    let kind ← if kind.isDefOrAbbrevOrOpaque then
+    let kind ← if kind matches .def | .instance | .opaque | .abbrev then
       -- Convert any proof let recs inside a `def` to `theorem` kind
       withLCtx c.toLift.lctx c.toLift.localInstances do
         return if (← inferType c.toLift.type).isProp then .theorem else kind

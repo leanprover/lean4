@@ -11,18 +11,12 @@ import Lean.Elab.DeclUtil
 namespace Lean.Elab
 
 inductive DefKind where
-  | def | theorem | example | opaque | abbrev
+  | def | instance | theorem | example | opaque | abbrev
   deriving Inhabited, BEq
 
 def DefKind.isTheorem : DefKind → Bool
   | .theorem => true
   | _        => false
-
-def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
-  | .def    => true
-  | .opaque => true
-  | .abbrev => true
-  | _       => false
 
 def DefKind.isExample : DefKind → Bool
   | .example => true
@@ -171,7 +165,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
       trace[Elab.instance.mkInstanceName] "generated {(← getCurrNamespace) ++ id}"
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
-    ref := stx, headerRef := mkNullNode stx.getArgs[:5], kind := DefKind.def, modifiers := modifiers,
+    ref := stx, headerRef := mkNullNode stx.getArgs[:5], kind := DefKind.instance, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[5]
   }
 

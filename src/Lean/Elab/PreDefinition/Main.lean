@@ -267,7 +267,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             logException ex
             let s ← saveState
             try
-              if preDefs.all fun preDef => preDef.kind == DefKind.def || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
+              if preDefs.all fun preDef => (preDef.kind matches DefKind.def | DefKind.instance) || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
                 -- try to add as partial definition
                 try
                   addAndCompilePartial preDefs (useSorry := true)

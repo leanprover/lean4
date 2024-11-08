@@ -1155,7 +1155,7 @@ Configuration for the `decide` tactic family.
 structure DecideConfig where
   /-- If true (default: false), then use only kernel reduction when reducing the `Decidable` instance.
   This is more efficient, since the default mode reduces twice (once in the elaborator and again in the kernel),
-  however kernel reduction ignores transparency settings. The `decide!` tactic is a synonym for `decide +kernel`. -/
+  however kernel reduction ignores transparency settings. -/
   kernel : Bool := false
   /-- If true (default: false), then uses the native code compiler to evaluate the `Decidable` instance,
   admitting the result via the axiom `Lean.ofReduceBool`.  This can be significantly more efficient,
@@ -1165,7 +1165,9 @@ structure DecideConfig where
   native : Bool := false
   /-- If true (default: true), then when preprocessing the goal, do zeta reduction to attempt to eliminate free variables. -/
   zetaReduce : Bool := true
-  /-- If true (default: false), then when preprocessing reverts free variables. -/
+  /-- If true (default: false), then when preprocessing, removes irrelevant variables and reverts the local context.
+  A variable is *relevant* if it appears in the target, if it appears in a relevant variable,
+  or if it is a proposition that refers to a relevant variable. -/
   revert : Bool := false
 
 /--
@@ -1239,17 +1241,6 @@ example : 1 + 1 = 2 := by rfl
 ```
 -/
 syntax (name := decide) "decide" optConfig : tactic
-
-/--
-`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.
-It has the following properties:
-- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.
-- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,
-  and once during kernel type checking), the `decide!` tactic reduces it exactly once.
-
-The `decide!` syntax is short for `decide +kernel`.
--/
-syntax (name := decideBang) "decide!" optConfig : tactic
 
 /--
 `native_decide` is a synonym for `decide +native`.

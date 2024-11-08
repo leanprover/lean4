@@ -387,6 +387,48 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
               return ← blameDecideReductionFailure inst''
   return inst
 
+private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType : Expr) : TacticM Expr := do
+  let d ← mkDecide expectedType
+  let levels := (collectLevelParams {} expectedType).params.toList
+  let auxDeclName ← Term.mkAuxName `_nativeDecide
+  let decl := Declaration.defnDecl {
+    name := auxDeclName
+    levelParams := levels
+    type := mkConst ``Bool
+    value := d
+    hints := .abbrev
+    safety := .safe
+  }
+  addAndCompile decl
+  -- get instance from `d`
+  let s := d.appArg!
+  let rflPrf ← mkEqRefl (toExpr true)
+  let levelParams := levels.map .param
+  let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
+    mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
+  try
+    let lemmaName ← mkAuxLemma levels expectedType pf
+    return .const lemmaName levelParams
+  catch ex =>
+    -- Diagnose error
+    let r ←
+      try
+        evalConst Bool auxDeclName
+      catch ex =>
+        throwError "\
+          tactic '{tacticName}' failed, could not evaluate decidable instance. \
+          Error: {ex.toMessageData}"
+    if !r then
+      throwError "\
+        tactic '{tacticName}' evaluated that the proposition\
+        {indentExpr expectedType}\n\
+        is false"
+    else
+      throwError "tactic '{tacticName}' failed. Error: {ex.toMessageData}"
+
+@[implemented_by elabNativeDecideCoreUnsafe]
+private opaque elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr
+
 def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : TacticM Unit := do
   if cfg.revert then
     -- In revert mode: clean up the local context and then revert everything that is left.
@@ -399,7 +441,7 @@ def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : Tact
       throwError "tactic '{tacticName}' failed, cannot simultaneously set both '+kernel' and '+native'"
     let expectedType ← preprocessPropToDecide expectedType
     if cfg.native then
-      doNative expectedType
+      elabNativeDecideCore tacticName expectedType
     else if cfg.kernel then
       doKernel expectedType
     else
@@ -434,35 +476,6 @@ where
       return mkConst lemmaName (lemmaLevels.map .param)
     catch _ =>
       diagnose expectedType s none
-  doNative (expectedType : Expr) : TacticM Expr := do
-    let d ← mkDecide expectedType
-    let levelsInType := (collectLevelParams {} expectedType).params
-    -- Level variables occurring in `expectedType`, in ambient order
-    let levels := (← Term.getLevelNames).reverse.filter levelsInType.contains
-    let auxDeclName ← Term.mkAuxName `_nativeDecide
-    let decl := Declaration.defnDecl {
-      name := auxDeclName
-      levelParams := levels
-      type := mkConst ``Bool
-      value := d
-      hints := .abbrev
-      safety := .safe
-    }
-    addAndCompile decl
-    -- get instance from `d`
-    let s := d.appArg!
-    let rflPrf ← mkEqRefl (toExpr true)
-    let levelParams := levels.map .param
-    let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
-      mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
-    try
-      let lemmaName ← mkAuxLemma levels expectedType pf
-      return .const lemmaName levelParams
-    catch _ =>
-      throwError "\
-        tactic '{tacticName}' evaluated that the proposition\
-        {indentExpr expectedType}\n\
-        is false"
   diagnose {α : Type} (expectedType s : Expr) (r? : Option Expr) : TacticM α :=
     -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
     throwError MessageData.ofLazyM (es := #[expectedType]) do

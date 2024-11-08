@@ -1172,15 +1172,30 @@ structure DecideConfig where
 and then reducing that instance to evaluate the truth value of `p`.
 If it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.
 
-Limitations:
-- The target is not allowed to contain local variables or metavariables.
-  If there are local variables, you can try first using the `revert` tactic with these local variables
-  to move them into the target, which may allow `decide` to succeed.
-- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined
-  by well-founded recursion might not work, because evaluating them requires reducing proofs.
-  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.
-  These can appear for instances defined using tactics (such as `rw` and `simp`).
-  To avoid this, use definitions such as `decidable_of_iff` instead.
+The target is not allowed to contain local variables or metavariables.
+If there are local variables, you can first try using the `revert` tactic with these local variables to move them into the target,
+or you can use the `+revert` option, described below.
+
+Options:
+- `decide +revert` begins by reverting local variables that the target depends on,
+  after cleaning up the local context of irrelevant variables.
+  A variable is *relevant* if it appears in the target, if it appears in a relevant variable,
+  or if it is a proposition that refers to a relevant variable.
+- `decide +kernel` uses kernel for reduction instead of the elaborator.
+  It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
+  and (2) it reduces the `Decidable` instance only once instead of twice.
+- `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
+  admitting the result via the `Lean.ofReduceBool` axiom.
+  This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
+  of the trusted code base.
+  Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
+  Like with `+kernel`, the `Decidable` instance is evaluated only once.
+
+Limitation: In the default mode or `+kernel` mode, since `decide` uses reduction to evaluate the term,
+`Decidable` instances defined by well-founded recursion might not work because evaluating them requires reducing proofs.
+Reduction can also get stuck on `Decidable` instances with `Eq.rec` terms.
+These can appear in instances defined using tactics (such as `rw` and `simp`).
+To avoid this, create such instances using definitions such as `decidable_of_iff` instead.
 
 ## Examples
 
@@ -1235,16 +1250,18 @@ The `decide!` syntax is short for `decide +kernel`.
 -/
 syntax (name := decideBang) "decide!" optConfig : tactic
 
-/-- `native_decide` will attempt to prove a goal of type `p` by synthesizing an instance
+/--
+`native_decide` is a synonym for `decide +native`.
+It will attempt to prove a goal of type `p` by synthesizing an instance
 of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
 uses `#eval` to evaluate the decidability instance.
 
 This should be used with care because it adds the entire lean compiler to the trusted
-part, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using
+part, and the axiom `Lean.ofReduceBool` will show up in `#print axioms` for theorems using
 this method or anything that transitively depends on them. Nevertheless, because it is
 compiled, this can be significantly more efficient than using `decide`, and for very
 large computations this is one way to run external programs and trust the result.
-```
+```lean
 example : (List.range 1000).length = 1000 := by native_decide
 ```
 -/

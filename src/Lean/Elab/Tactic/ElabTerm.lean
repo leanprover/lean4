@@ -7,9 +7,11 @@ prelude
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.AuxLemma
+import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Rename
 import Lean.Elab.Tactic.Basic
+import Lean.Elab.Tactic.Config
 import Lean.Elab.SyntheticMVars
 
 namespace Lean.Elab.Tactic
@@ -347,6 +349,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       replaceMainGoal [← (← getMainGoal).rename fvarId h.getId]
   | _ => throwUnsupportedSyntax
 
+
 /--
 Make sure `expectedType` does not contain free and metavariables.
 It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
@@ -355,8 +358,11 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   let mut expectedType ← instantiateMVars expectedType
   if expectedType.hasFVar then
     expectedType ← zetaReduce expectedType
-  if expectedType.hasFVar || expectedType.hasMVar then
-    throwError "expected type must not contain free or meta variables{indentExpr expectedType}"
+  if expectedType.hasMVar then
+    throwError "expected type must not contain meta variables{indentExpr expectedType}"
+  if expectedType.hasFVar then
+    throwError "expected type must not contain free variables{indentExpr expectedType}\n\
+      Use the '+revert' option to automatically cleanup and revert free variables."
   return expectedType
 
 /--
@@ -381,36 +387,96 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
               return ← blameDecideReductionFailure inst''
   return inst
 
-def evalDecideCore (tacticName : Name) (kernelOnly : Bool) : TacticM Unit :=
+private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType : Expr) : TacticM Expr := do
+  let d ← mkDecide expectedType
+  let levels := (collectLevelParams {} expectedType).params.toList
+  let auxDeclName ← Term.mkAuxName `_nativeDecide
+  let decl := Declaration.defnDecl {
+    name := auxDeclName
+    levelParams := levels
+    type := mkConst ``Bool
+    value := d
+    hints := .abbrev
+    safety := .safe
+  }
+  addAndCompile decl
+  -- get instance from `d`
+  let s := d.appArg!
+  let rflPrf ← mkEqRefl (toExpr true)
+  let levelParams := levels.map .param
+  let pf := mkApp3 (mkConst ``of_decide_eq_true) expectedType s <|
+    mkApp3 (mkConst ``Lean.ofReduceBool) (mkConst auxDeclName levelParams) (toExpr true) rflPrf
+  try
+    let lemmaName ← mkAuxLemma levels expectedType pf
+    return .const lemmaName levelParams
+  catch ex =>
+    -- Diagnose error
+    throwError MessageData.ofLazyM (es := #[expectedType]) do
+      let r ←
+        try
+          evalConst Bool auxDeclName
+        catch ex =>
+          return m!"\
+            tactic '{tacticName}' failed, could not evaluate decidable instance. \
+            Error: {ex.toMessageData}"
+      if !r then
+        return m!"\
+          tactic '{tacticName}' evaluated that the proposition\
+          {indentExpr expectedType}\n\
+          is false"
+      else
+        return m!"tactic '{tacticName}' failed. Error: {ex.toMessageData}"
+
+@[implemented_by elabNativeDecideCoreUnsafe]
+private opaque elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr
+
+def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : TacticM Unit := do
+  if cfg.revert then
+    -- In revert mode: clean up the local context and then revert everything that is left.
+    liftMetaTactic1 fun g => do
+      let g ← g.cleanup
+      let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds
+      return g
   closeMainGoalUsing tacticName fun expectedType _ => do
+    if cfg.kernel && cfg.native then
+      throwError "tactic '{tacticName}' failed, cannot simultaneously set both '+kernel' and '+native'"
     let expectedType ← preprocessPropToDecide expectedType
+    if cfg.native then
+      elabNativeDecideCore tacticName expectedType
+    else if cfg.kernel then
+      doKernel expectedType
+    else
+      doElab expectedType
+where
+  doElab (expectedType : Expr) : TacticM Expr := do
     let pf ← mkDecideProof expectedType
     -- Get instance from `pf`
     let s := pf.appFn!.appArg!
-    if kernelOnly then
-      -- Reduce the decidable instance to (hopefully!) `isTrue` by passing `pf` to the kernel.
-      -- The `mkAuxLemma` function caches the result in two ways:
-      -- 1. First, the function makes use of a `type`-indexed cache per module.
-      -- 2. Second, once the proof is added to the environment, the kernel doesn't need to check the proof again.
-      let levelsInType := (collectLevelParams {} expectedType).params
-      -- Level variables occurring in `expectedType`, in ambient order
-      let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
-      try
-        let lemmaName ← mkAuxLemma lemmaLevels expectedType pf
-        return mkConst lemmaName (lemmaLevels.map .param)
-      catch _ =>
-        diagnose expectedType s none
+    let r ← withAtLeastTransparency .default <| whnf s
+    if r.isAppOf ``isTrue then
+      -- Success!
+      -- While we have a proof from reduction, we do not embed it in the proof term,
+      -- and instead we let the kernel recompute it during type checking from the following more
+      -- efficient term. The kernel handles the unification `e =?= true` specially.
+      return pf
     else
-      let r ← withAtLeastTransparency .default <| whnf s
-      if r.isAppOf ``isTrue then
-        -- Success!
-        -- While we have a proof from reduction, we do not embed it in the proof term,
-        -- and instead we let the kernel recompute it during type checking from the following more
-        -- efficient term. The kernel handles the unification `e =?= true` specially.
-        return pf
-      else
-        diagnose expectedType s r
-where
+      diagnose expectedType s r
+  doKernel (expectedType : Expr) : TacticM Expr := do
+    let pf ← mkDecideProof expectedType
+    -- Get instance from `pf`
+    let s := pf.appFn!.appArg!
+    -- Reduce the decidable instance to (hopefully!) `isTrue` by passing `pf` to the kernel.
+    -- The `mkAuxLemma` function caches the result in two ways:
+    -- 1. First, the function makes use of a `type`-indexed cache per module.
+    -- 2. Second, once the proof is added to the environment, the kernel doesn't need to check the proof again.
+    let levelsInType := (collectLevelParams {} expectedType).params
+    -- Level variables occurring in `expectedType`, in ambient order
+    let lemmaLevels := (← Term.getLevelNames).reverse.filter levelsInType.contains
+    try
+      let lemmaName ← mkAuxLemma lemmaLevels expectedType pf
+      return mkConst lemmaName (lemmaLevels.map .param)
+    catch _ =>
+      diagnose expectedType s none
   diagnose {α : Type} (expectedType s : Expr) (r? : Option Expr) : TacticM α :=
     -- Diagnose the failure, lazily so that there is no performance impact if `decide` isn't being used interactively.
     throwError MessageData.ofLazyM (es := #[expectedType]) do
@@ -470,30 +536,20 @@ where
         did not reduce to '{.ofConstName ``isTrue}' or '{.ofConstName ``isFalse}'.\n\n\
         {stuckMsg}{hint}"
 
-@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
-  evalDecideCore `decide false
+declare_config_elab elabDecideConfig Parser.Tactic.DecideConfig
 
-@[builtin_tactic Lean.Parser.Tactic.decideBang] def evalDecideBang : Tactic := fun _ =>
-  evalDecideCore `decide! true
+@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx => do
+  let cfg ← elabDecideConfig stx[1]
+  evalDecideCore `decide cfg
 
-private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do
-  let auxName ← Term.mkAuxName baseName
-  let decl := Declaration.defnDecl {
-    name := auxName, levelParams := [], type, value
-    hints := .abbrev
-    safety := .safe
-  }
-  addDecl decl
-  compileDecl decl
-  pure auxName
+@[builtin_tactic Lean.Parser.Tactic.decideBang] def evalDecideBang : Tactic := fun stx => do
+  let cfg ← elabDecideConfig stx[1]
+  let cfg := { cfg with kernel := true }
+  evalDecideCore `decide! cfg
 
-@[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun _ =>
-  closeMainGoalUsing `nativeDecide fun expectedType _ => do
-    let expectedType ← preprocessPropToDecide expectedType
-    let d ← mkDecide expectedType
-    let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d
-    let rflPrf ← mkEqRefl (toExpr true)
-    let s := d.appArg! -- get instance from `d`
-    return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s <| mkApp3 (Lean.mkConst ``Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf
+@[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx => do
+  let cfg ← elabDecideConfig stx[1]
+  let cfg := { cfg with native := true }
+  evalDecideCore `native_decide cfg
 
 end Lean.Elab.Tactic

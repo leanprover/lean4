@@ -33,6 +33,10 @@ structure BVDecideConfig where
   Lean process.
   -/
   graphviz : Bool := false
+  /--
+  The maximum number of subexpressions to visit when performing simplification.
+  -/
+  maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps
 
 end Lean.Elab.Tactic.BVDecide.Frontend
 

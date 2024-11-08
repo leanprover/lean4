@@ -291,6 +291,8 @@ to get anything out of the hash map.
 @[inline] def isEmpty (m : Raw α β) : Bool :=
   m.size == 0
 
+
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -358,9 +360,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
     Array (α × β) :=
   m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
 
-/-- Returns a list of all keys present in the hash map in some order. -/
-@[inline] def keys (m : Raw α β) : List α :=
-  m.fold (fun acc k _ => k :: acc) []
+
 
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
@@ -446,6 +446,10 @@ instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
   reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
 
 end Unverified
+
+/-- Returns a list of all keys present in the hash map in some order. -/
+@[inline] def keys (m : Raw α β) : List α :=
+  m.fold (fun acc k _ => k :: acc) []
 
 section WF
 

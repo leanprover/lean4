@@ -2977,7 +2977,7 @@ theorem abs_eq_ite (x : BitVec w) : x.abs =
     by_cases hx : x.msb = true <;> by_cases hx' : x = BitVec.intMin w <;> simp [hx, hx']
 
 theorem toInt_abs (x : BitVec w) :
-    x.abs.toInt = if x = (intMin w) then if w = 0 then 0 else - 2^(w - 1) else x.toInt.abs := by
+    x.abs.toInt = if x = (intMin w) then (intMin w).toInt else x.toInt.abs := by
   rcases w with rfl | w 
   · simp [toInt_zero_length]
   · simp only [gt_iff_lt, Nat.zero_lt_succ, Nat.add_one_ne_zero, ↓reduceIte]

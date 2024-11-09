@@ -469,17 +469,36 @@ hypotheses or the goal. It can have one of the forms:
 syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)))
 
 /--
-* `change tgt'` will change the goal from `tgt` to `tgt'`,
-  assuming these are definitionally equal.
-* `change t' at h` will change hypothesis `h : t` to have type `t'`, assuming
+* `change tgt'` changes the target of the goal from `tgt` to `tgt'`,
+  assuming `tgt` and `tgt'` are definitionally equal.
+* `change t' at h` will change the hypothesis `h : t` to have type `t'`,
   assuming `t` and `t'` are definitionally equal.
+
+The types `tgt'` and `t'` may contain placeholders.
+The tactic `change tgt'` is equivalent to `refine show tgt' from ?_`.
+
+## Examples
+
+For example, if `n : Nat` and the current goal is `⊢ n + 2 = 2`, then
+```lean
+change _ + 1 = _
+```
+changes the goal to `⊢ n + 1 + 1 = 2`.
+
+The tactic also applies to hypotheses. If `h : n + 2 = 2` and `h' : n + 3 = 4`
+are hypotheses, then
+```lean
+change _ + 1 = _ at h h'
+```
+changes their types to be `h : n + 1 + 1 = 2` and `h' : n + 2 + 1 = 4`.
+Notice that the placeholders in `_ + 1 = _` are not constant across hypotheses.
 -/
 syntax (name := change) "change " term (location)? : tactic
 
 /--
 * `change a with b` will change occurrences of `a` to `b` in the goal,
   assuming `a` and `b` are definitionally equal.
-* `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
+* `change a with b at h` similarly changes occurrences of `a` to `b` in the type of hypothesis `h`.
 -/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 

@@ -4,13 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
 prelude
+import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.Location
 
 namespace Lean.Elab.Tactic
 open Meta
 /-!
-# Implementation of the `change` tactic
+# Implementations of the `change` tactics
 -/
 
 /--
@@ -38,27 +39,6 @@ def elabChange (e : Expr) (p : Term) : TacticM Expr := do
         is not definitionally equal to target{indentExpr tgt}"
     instantiateMVars p
 
-/-- `change` can be used to replace the main goal or its hypotheses with
-different, yet definitionally equal, goal or hypotheses.
-
-For example, if `n : Nat` and the current goal is `⊢ n + 2 = 2`, then
-```lean
-change _ + 1 = _
-```
-changes the goal to `⊢ n + 1 + 1 = 2`.
-
-The tactic also applies to hypotheses. If `h : n + 2 = 2` and `h' : n + 3 = 4`
-are hypotheses, then
-```lean
-change _ + 1 = _ at h h'
-```
-changes their types to be `h : n + 1 + 1 = 2` and `h' : n + 2 + 1 = 4`.
-
-Change is like `refine` in that every placeholder needs to be solved for by unification,
-but using named placeholders or `?_` results in `change` to creating new goals.
-
-The tactic `show e` is interchangeable with `change e`, where the pattern `e` is applied to
-the main goal. -/
 @[builtin_tactic change] elab_rules : tactic
   | `(tactic| change $newType:term $[$loc:location]?) => do
     withLocation (expandOptLocation (Lean.mkOptionalNode loc))
@@ -71,5 +51,45 @@ the main goal. -/
         liftMetaTactic fun mvarId => do
           return (← mvarId.replaceTargetDefEq tgt') :: mvars)
       (failed := fun _ => throwError "'change' tactic failed")
+
+/--
+Replaces each occurrence of `p` in `e` with `t`.
+This is roughly the same as doing `rewrite [show p = t by rfl]` on `e`.
+-/
+def elabChangeWith (e : Expr) (p t : Term) : TacticM Expr := do
+  -- Set `mayPostpone := true` like when elaborating `rewrite` rules.
+  let (p, t) ← runTermElab (mayPostpone := true) do
+    let p ← Term.elabTerm p none
+    let t ← Term.elabTermEnsuringType t (← inferType p)
+    return (p, t)
+  let p ← instantiateMVars p
+  let e' ← kabstract e p
+  unless e'.hasLooseBVars do
+    throwError "\
+      'change with' tactic failed, did not find instance of the pattern{indentExpr p}\n\
+      in the expression{indentExpr e}"
+  Term.synthesizeSyntheticMVarsNoPostponing
+  withAssignableSyntheticOpaque do
+    unless ← isDefEq p t do
+      let (p, t) ← addPPExplicitToExposeDiff p t
+      throwError "\
+        'change with' tactic failed, pattern{indentExpr p}\n\
+        is not definitionally equal to replacement{indentExpr t}"
+    instantiateMVars (e'.instantiate1 t)
+
+@[builtin_tactic changeWith] elab_rules : tactic
+  | `(tactic| change $p:term with $t:term $[$loc:location]?) => do
+    withLocation (expandOptLocation (mkOptionalNode loc))
+      (atLocal := fun h => do
+        let hTy ← h.getType
+        let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChangeWith hTy p t) (← getMainTag) `change
+        liftMetaTactic fun mvarId => do
+          return (← mvarId.changeLocalDecl h hTy') :: mvars)
+      (atTarget := do
+        let g ← popMainGoal
+        let (e', mvars) ← withCollectingNewGoalsFrom (elabChangeWith (← g.getType) p t) (← g.getTag) `change
+        let g ← g.replaceTargetDefEq e'
+        pushGoals (g :: mvars))
+      (failed := fun _ => throwError "'change with' tactic failed")
 
 end Lean.Elab.Tactic

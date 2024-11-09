@@ -1,7 +1,6 @@
 name: Check PR body for changelog convention
 
 on:
-  merge_group:
   pull_request:
     types: [opened, synchronize, reopened, edited, labeled, converted_to_draft, ready_for_review]
 

@@ -36,14 +36,19 @@ This is part of the implementation of `whnf`.
 External users wanting to look up names should be using `Lean.getConstInfo`.
 -/
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-  match (← getEnv).find? constName with
-  | some (info@(.thmInfo _))  => getTheoremInfo info
-  | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
-  | some (info@(.recInfo _))  => return some info
-  -- `.lift` and `.ind` are reducible; no point in finer-grained filtering at this point
-  | some (info@(.quotInfo _)) => return some info
-  | some _                    => return none
-  | none                      => throwUnknownConstant constName
+  let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstant constName
+  match ainfo.kind with
+  | .thm =>
+    if (← shouldReduceAll) then
+      return some ainfo.info.get
+    else
+      return none
+  | _ => match ainfo.toConstantInfo with
+    | info@(.defnInfo _) => if (← canUnfold info) then return info else return none
+    | info@(.recInfo _)  => return some info
+    -- `.lift` and `.ind` are reducible; no point in finer-grained filtering at this point
+    | info@(.quotInfo _) => return some info
+    | _                    => return none
 
 /--
 As with `getUnfoldableConst?` but return `none` instead of failing if the constant is not found.

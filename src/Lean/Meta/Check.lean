@@ -25,7 +25,7 @@ def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
   | _ => unreachable!
 
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   unless us.length == cinfo.levelParams.length do
     throwIncorrectNumberOfLevels constName us
 

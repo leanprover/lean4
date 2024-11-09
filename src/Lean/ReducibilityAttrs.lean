@@ -29,6 +29,7 @@ builtin_initialize reducibilityCoreExt : SimplePersistentEnvExtension (Name × R
     toArrayFn := fun a => a.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
   }
 
+-- asynchrony: only set immediately after declaration is added to environment
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
   registerSimpleScopedEnvExtension {
     name := `reducibilityExtra
@@ -39,7 +40,7 @@ builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × Redu
 
 @[export lean_get_reducibility_status]
 def getReducibilityStatusCore (env : Environment) (declName : Name) : ReducibilityStatus :=
-  let m := reducibilityExtraExt.getState env
+  let m := reducibilityExtraExt.getStateNoAsync env
   if let some status := m.find? declName then
     status
   else match env.getModuleIdxFor? declName with

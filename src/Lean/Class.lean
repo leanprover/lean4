@@ -53,6 +53,7 @@ end ClassState
 Type class environment extension
 -/
 -- TODO: add support for scoped instances
+-- asynchrony: set only by command-level `@[class]`
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
     addEntryFn    := ClassState.addEntry
@@ -62,11 +63,11 @@ builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry Clas
 /-- Return `true` if `n` is the name of type class in the given environment. -/
 @[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
-  (classExtension.getState env).outParamMap.contains n
+  (classExtension.getStateNoAsync env).outParamMap.contains n
 
 /-- If `declName` is a class, return the position of its `outParams`. -/
 def getOutParamPositions? (env : Environment) (declName : Name) : Option (Array Nat) :=
-  (classExtension.getState env).outParamMap.find? declName
+  (classExtension.getStateNoAsync env).outParamMap.find? declName
 
 /-- Return `true` if the given `declName` is a type class with output parameters. -/
 @[export lean_has_out_params]

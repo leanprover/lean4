@@ -44,6 +44,7 @@ structure SimprocDeclExtState where
 def SimprocDecl.lt (decl₁ decl₂ : SimprocDecl) : Bool :=
   Name.quickLt decl₁.declName decl₂.declName
 
+-- asynchrony: only set by command-level `simproc_pattern%`
 builtin_initialize simprocDeclExt : PersistentEnvExtension SimprocDecl SimprocDecl SimprocDeclExtState ←
   registerPersistentEnvExtension {
     mkInitial       := return { builtin := (← builtinSimprocDeclsRef.get).keys }
@@ -61,14 +62,14 @@ def getSimprocDeclKeys? (declName : Name) : CoreM (Option (Array SimpTheoremKey)
       let some decl := (simprocDeclExt.getModuleEntries env modIdx).binSearch { declName, keys := #[] } SimprocDecl.lt
         | pure none
       pure (some decl.keys)
-    | none        => pure ((simprocDeclExt.getState env).newEntries.find? declName)
+    | none        => pure ((simprocDeclExt.getStateNoAsync env).newEntries.find? declName)
   if let some keys := keys? then
     return some keys
   else
-    return (simprocDeclExt.getState env).builtin[declName]?
+    return (simprocDeclExt.getStateNoAsync env).builtin[declName]?
 
 def isBuiltinSimproc (declName : Name) : CoreM Bool := do
-  let s := simprocDeclExt.getState (← getEnv)
+  let s := simprocDeclExt.getStateNoAsync (← getEnv)
   return s.builtin.contains declName
 
 def isSimproc (declName : Name) : CoreM Bool :=

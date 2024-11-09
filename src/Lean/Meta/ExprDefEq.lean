@@ -1007,7 +1007,7 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
     if xs.size != numArgs then
       pure false
     else
-      let v ← mkLambdaFVars xs v
+      let v ← mkLambdaFVars xs v (etaReduce := true)
       match (← checkAssignment mvar.mvarId! #[] v) with
       | none   => pure false
       | some (v, _) =>
@@ -1104,7 +1104,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
           | none   => useFOApprox args
           | some (v, lctx) => do
             trace[Meta.isDefEq.assign.beforeMkLambda] "{mvar} {args} := {v}"
-            let v ← withReader ({· with lctx}) do mkLambdaFVars args v
+            let v ← withReader ({· with lctx}) do mkLambdaFVars args v (etaReduce := true)
             if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
               /- We need to type check `v` because abstraction using `mkLambdaFVars` may have produced
                  a type incorrect term. See discussion at A2 -/

@@ -165,7 +165,7 @@ namespace TagAttribute
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.getState env).contains decl
+  | none        => (attr.ext.getStateNoAsync env).contains decl
 
 end TagAttribute
 
@@ -212,13 +212,13 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
 
 namespace ParametricAttribute
 
-def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) (allowAsync := false) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  | none        => (attr.ext.getState (allowAsync := allowAsync) env).find? decl
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then

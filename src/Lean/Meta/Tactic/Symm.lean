@@ -54,7 +54,7 @@ namespace Lean.Expr
 def getSymmLems (tgt : Expr) : MetaM (Array Name) := do
   let .app (.app rel _) _ := tgt
     | throwError "symmetry lemmas only apply to binary relations, not{indentExpr tgt}"
-  (symmExt.getState (← getEnv)).getMatch rel symmExt.config
+  (symmExt.getStateNoAsync (← getEnv)).getMatch rel symmExt.config
 
 /-- Given a term `e : a ~ b`, construct a term in `b ~ a` using `@[symm]` lemmas. -/
 def applySymm (e : Expr) : MetaM Expr := do

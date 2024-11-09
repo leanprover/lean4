@@ -1678,7 +1678,7 @@ builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fu
 builtin_initialize categoryParserFnExtension : EnvExtension CategoryParserFn ← registerEnvExtension $ categoryParserFnRef.get
 
 def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
-  let fn := categoryParserFnExtension.getState ctx.env
+  let fn := categoryParserFnExtension.getStateNoAsync ctx.env
   fn catName ctx s
 
 def categoryParser (catName : Name) (prec : Nat) : Parser where

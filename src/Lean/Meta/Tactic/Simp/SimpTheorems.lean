@@ -430,7 +430,7 @@ inductive SimpEntry where
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
 def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
-  return ext.getState (← getEnv)
+  return ext.getStateNoAsync (← getEnv)
 
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio

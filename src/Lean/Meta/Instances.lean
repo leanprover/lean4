@@ -249,23 +249,23 @@ builtin_initialize
   }
 
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
-  return Meta.instanceExtension.getState (← getEnv) |>.discrTree
+  return Meta.instanceExtension.getStateNoAsync (← getEnv) |>.discrTree
 
 def getErasedInstances : CoreM (PHashSet Name) :=
-  return Meta.instanceExtension.getState (← getEnv) |>.erased
+  return Meta.instanceExtension.getStateNoAsync (← getEnv) |>.erased
 
 def isInstanceCore (env : Environment) (declName : Name) : Bool :=
-  Meta.instanceExtension.getState env |>.instanceNames.contains declName
+  Meta.instanceExtension.getStateNoAsync env |>.instanceNames.contains declName
 
 def isInstance (declName : Name) : CoreM Bool :=
   return isInstanceCore (← getEnv) declName
 
 def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
-  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  let some entry := Meta.instanceExtension.getStateNoAsync (← getEnv) |>.instanceNames.find? declName | return none
   return entry.priority
 
 def getInstanceAttrKind? (declName : Name) : CoreM (Option AttributeKind) := do
-  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  let some entry := Meta.instanceExtension.getStateNoAsync (← getEnv) |>.instanceNames.find? declName | return none
   return entry.attrKind
 
 /-! # Default instance support -/
@@ -318,9 +318,9 @@ builtin_initialize
   registerTraceClass `Meta.synthOrder
 
 def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
-  return defaultInstanceExtension.getState (← getEnv) |>.priorities
+  return defaultInstanceExtension.getStateNoAsync (← getEnv) |>.priorities
 
 def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
-  return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
+  return defaultInstanceExtension.getStateNoAsync (← getEnv) |>.defaultInstances.find? className |>.getD []
 
 end Lean.Meta

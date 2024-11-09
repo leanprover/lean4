@@ -20,6 +20,6 @@ def addGlobalInstance (declName : Name) (attrKind : AttributeKind) : MetaM Unit 
 
 @[export lean_is_instance]
 def isGlobalInstance (env : Environment) (declName : Name) : Bool :=
-  globalInstanceExtension.getState env |>.contains declName
+  globalInstanceExtension.getStateNoAsync env |>.contains declName
 
 end Lean.Meta

@@ -40,7 +40,7 @@ namespace Environment
 
 @[export lean_get_projection_info]
 def getProjectionFnInfo? (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
-  projectionFnInfoExt.find? env projName
+  projectionFnInfoExt.find? (allowAsync := true) env projName
 
 def isProjectionFn (env : Environment) (declName : Name) : Bool :=
   projectionFnInfoExt.contains env declName

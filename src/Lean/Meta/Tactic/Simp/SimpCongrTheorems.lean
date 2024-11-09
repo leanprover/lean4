@@ -119,6 +119,6 @@ builtin_initialize
   }
 
 def getSimpCongrTheorems : CoreM SimpCongrTheorems :=
-  return congrExtension.getState (← getEnv)
+  return congrExtension.getStateNoAsync (← getEnv)
 
 end Lean.Meta

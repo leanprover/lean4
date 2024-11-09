@@ -45,7 +45,7 @@ builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment 
 Returns `true` if `name` is a reserved name.
 -/
 def isReservedName (env : Environment) (name : Name) : Bool :=
-  reservedNamePredicatesExt.getState env |>.any (· env name)
+  reservedNamePredicatesExt.getStateNoAsync env |>.any (· env name)
 
 /-!
   We use aliases to implement the `export <id> (<id>+)` command.
@@ -78,7 +78,7 @@ def getAliasState (env : Environment) : AliasState :=
   declarations that are not marked as `protected`.
 -/
 def getAliases (env : Environment) (a : Name) (skipProtected : Bool) : List Name :=
-  match aliasExtension.getState env |>.find? a with
+  match aliasExtension.getStateNoAsync env |>.find? a with
   | none    => []
   | some es =>
     if skipProtected then

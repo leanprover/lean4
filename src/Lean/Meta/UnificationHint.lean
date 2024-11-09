@@ -100,7 +100,7 @@ def tryUnificationHints (t s : Expr) : MetaM Bool := do
     return false
   if t.isMVar then
     return false
-  let hints := unificationHintExtension.getState (← getEnv)
+  let hints := unificationHintExtension.getStateNoAsync (← getEnv)
   let candidates ← hints.discrTree.getMatch t UnificationHints.config
   for candidate in candidates do
     if (← tryCandidate candidate) then

@@ -433,10 +433,10 @@ builtin_initialize
   }
 
 def getSimprocs : CoreM Simprocs :=
-  return simprocExtension.getState (← getEnv)
+  return simprocExtension.getStateNoAsync (← getEnv)
 
 def getSEvalSimprocs : CoreM Simprocs :=
-  return simprocSEvalExtension.getState (← getEnv)
+  return simprocSEvalExtension.getStateNoAsync (← getEnv)
 
 def getSimprocExtensionCore? (attrName : Name) : IO (Option SimprocExtension) :=
   return (← simprocExtensionMapRef.get)[attrName]?

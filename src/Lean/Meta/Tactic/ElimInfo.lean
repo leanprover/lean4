@@ -205,6 +205,6 @@ def getCustomEliminator? (targets : Array Expr) (induction : Bool) : MetaM (Opti
     let targetType := (← instantiateMVars (← inferType target)).headBeta
     let .const declName .. := targetType.getAppFn | return none
     key := key.push declName
-  return customEliminatorExt.getState (← getEnv) |>.map.find? (induction, key)
+  return customEliminatorExt.getStateNoAsync (← getEnv) |>.map.find? (induction, key)
 
 end Lean.Meta

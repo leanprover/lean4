@@ -861,11 +861,14 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   env.modifyCheckedAsync fun env => { env with
     extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }
 
-def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
-  EnvExtensionInterfaceImp.getState ext env.checked.get.extensions
+def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) (allowAsync := false) : σ :=
+  if allowAsync then
+    EnvExtensionInterfaceImp.getState ext env.checkedNoAsync.extensions
+  else
+    EnvExtensionInterfaceImp.getState ext env.checked.get.extensions
 
 def getStateNoAsync {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
-  EnvExtensionInterfaceImp.getState ext env.checkedNoAsync.extensions
+  getState (allowAsync := true) ext env
 
 end EnvExtension
 
@@ -981,8 +984,8 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
     { s with state := state }
 
 /-- Get the current state of the given extension in the given environment. -/
-def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
-  (ext.toEnvExtension.getState env).state
+def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (allowAsync := false) : σ :=
+  (ext.toEnvExtension.getState (allowAsync := allowAsync) env).state
 
 /-- Get the current state of the given extension in the given environment. -/
 def getStateNoAsync {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
@@ -1073,8 +1076,8 @@ def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension
   (PersistentEnvExtension.getState ext env).1
 
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
-def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
-  (PersistentEnvExtension.getState ext env).2
+def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) (allowAsync := false) : σ :=
+  (PersistentEnvExtension.getState (allowAsync := allowAsync) ext env).2
 
 def getStateNoAsync {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
   (PersistentEnvExtension.getStateNoAsync ext env).2
@@ -1118,7 +1121,7 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => (ext.getState env).contains declName
+  | none        => (ext.getStateNoAsync env).contains declName
 
 end TagDeclarationExtension
 
@@ -1145,13 +1148,13 @@ def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Na
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
   ext.addEntry env (declName, val)
 
-def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
+def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (allowAsync := false) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
-  | none => (ext.getState env).find? declName
+  | none => (ext.getState (allowAsync := allowAsync) env).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
@@ -1456,7 +1459,10 @@ namespace Environment
 
 /-- Register a new namespace in the environment. -/
 def registerNamespace (env : Environment) (n : Name) : Environment :=
-  if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
+  namespacesExt.toEnvExtension.modifyState env fun s =>
+    if s.state.1.contains n then s else
+      let state   := namespacesExt.addEntryFn s.state n;
+      { s with state := state }
 
 /-- Return `true` if `n` is the name of a namespace in `env`. -/
 def isNamespace (env : Environment) (n : Name) : Bool :=

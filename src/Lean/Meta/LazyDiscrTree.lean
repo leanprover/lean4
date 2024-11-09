@@ -983,8 +983,8 @@ def findImportMatches
   let ngen ← getNGen
   let (cNGen, ngen) := ngen.mkChild
   setNGen ngen
-  let dummy : IO.Ref (Option (LazyDiscrTree α)) ← IO.mkRef none
-  let ref := @EnvExtension.getState _ ⟨dummy⟩ ext (←getEnv)
+  let _inh : Inhabited (IO.Ref (Option (LazyDiscrTree α))) ← .mk <$> IO.mkRef none
+  let ref := EnvExtension.getState ext (←getEnv)
   let importTree ← (←ref.get).getDM $ do
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
       let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry

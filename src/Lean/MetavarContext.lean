@@ -1223,7 +1223,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
   Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
   If `usedOnly == true` then `forall` and `lambda` expressions are created only for used variables.
   If `usedLetOnly == true` then `let` expressions are created only for used (let-) variables. -/
-@[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) : M Expr := do
+def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
   xs.size.foldRevM (init := e) fun i e => do
       let x := xs[i]!

@@ -48,7 +48,7 @@ protected def hash : Key → UInt64
   | .star        => 7883
   | .other       => 2411
   | .arrow       => 17
-  | .proj s i a  =>  mixHash (hash a) $ mixHash (hash s) (hash i)
+  | .proj s i a  => mixHash 5237 $ mixHash (hash a) $ mixHash (hash s) (hash i)
 
 instance : Hashable Key := ⟨Key.hash⟩
 

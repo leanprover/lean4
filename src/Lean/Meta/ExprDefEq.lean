@@ -678,8 +678,8 @@ mutual
     If `ctxApprox` is true, then we solve this case by creating a fresh metavariable ?n with the correct scope,
     an assigning `?m := fun _ ... _ => ?n` -/
   partial def assignToConstFun (mvar : Expr) (numArgs : Nat) (newMVar : Expr) : MetaM Bool := do
-    let mvarDecl ← mvar.mvarId!.getDecl
-    forallBoundedTelescope mvarDecl.type numArgs fun xs _ => do
+    let mvarType ← inferType mvar
+    forallBoundedTelescope mvarType numArgs fun xs _ => do
       if xs.size != numArgs then return false
       let v ← mkLambdaFVars xs newMVar (etaReduce := true)
       let some v ← checkAssignmentAux mvar.mvarId! #[] false v | return false
@@ -816,15 +816,6 @@ def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (m
 
 end CheckAssignmentQuick
 
-def CheckAssignment.checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) := do
-  let mvarDecl ← mvarId.getDecl
-  let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
-  let ctx ← read
-  let mctx ← getMCtx
-  if CheckAssignmentQuick.check hasCtxLocals mctx ctx.lctx mvarDecl mvarId fvars v then
-    return v
-  CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals (← instantiateMVars v)
-
 /--
 Auxiliary function used at `typeOccursCheckImp`.
 Given `type`, it tries to eliminate "dependencies". For example, suppose we are trying to
@@ -917,21 +908,33 @@ private def typeOccursCheck (mctx : MetavarContext) (mvarId : MVarId) (v : Expr)
   ?m := fun fvars => v
   ```
   The result is `none` if the assignment can't be performed.
-  The result is `some newV` where `newV` is a possibly updated `v`. This method may need
-  to unfold let-declarations. -/
+  The result is `some (newV, newLCtx)` where `newV` is a possibly updated `v` and `newLCtx` a possibly updated
+  local context. This method may need to unfold let-declarations, or
+  assign unassigned metavariables to fresh metavariables with a restricted local context,
+  in either `v` or the types of `a₁ ... aₙ`. -/
 def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option (Expr × LocalContext)) := do
-  let mut lctx ← getLCtx
+  let mvarDecl ← mvarId.getDecl
+  let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
+  let mut newLCtx ← getLCtx
   for fvar in fvars do
-    match ← CheckAssignment.checkAssignment mvarId fvars (← inferType fvar) with
-    | none          => return none
-    | some fvarType => lctx := lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType)
+    let fvarType ← inferType fvar
+    unless !fvarType.hasExprMVar && !fvarType.hasFVar do
+      unless CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars fvarType do
+        match ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals fvarType with
+        | none          => return none
+        | some fvarType => newLCtx := newLCtx.modifyLocalDecl fvar.fvarId! (·.setType fvarType)
   if !v.hasExprMVar && !v.hasFVar then
-    pure (some (v, lctx))
+    pure (some (v, newLCtx))
   else
-    let some v ← CheckAssignment.checkAssignment mvarId fvars v | return none
+    let v ← if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars v then
+      pure v
+    else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals (← instantiateMVars v) then
+      pure v
+    else
+      return none
     unless typeOccursCheck (← getMCtx) mvarId v do
       return none
-    return some (v, lctx)
+    return some (v, newLCtx)
 
 -- Implementation for `_root_.Lean.MVarId.checkedAssign`
 @[export lean_checked_assign]

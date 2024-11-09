@@ -879,10 +879,6 @@ def incDepth (mctx : MetavarContext) (allowLevelAssignments := false) : MetavarC
     if allowLevelAssignments then mctx.levelAssignDepth else depth
   { mctx with depth, levelAssignDepth }
 
-instance : MonadMCtx (StateRefT MetavarContext (ST ω)) where
-  getMCtx    := get
-  modifyMCtx := modify
-
 namespace MkBinding
 
 inductive Exception where
@@ -1275,10 +1271,10 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly etaReduce { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (etaReduce := false) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
-  return ← mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce binderInfoForMVars
+  mkBinding (isLambda := true) xs e usedOnly usedLetOnly etaReduce binderInfoForMVars
 
 @[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
-  return ← mkBinding (isLambda := false) xs e usedOnly usedLetOnly false binderInfoForMVars
+  mkBinding (isLambda := false) xs e usedOnly usedLetOnly false binderInfoForMVars
 
 @[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
   MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }

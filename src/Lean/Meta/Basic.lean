@@ -953,7 +953,7 @@ Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
-  mapMetaM <| withConfig (fun config => { config with transparency := mode })
+  withConfig (fun config => { config with transparency := mode })
 
 /-- `withDefault x` executes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=

@@ -387,126 +387,6 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       else
         pure false
 
-/--
-Auxiliary method for solving constraints of the form `?m xs := v`.
-It creates a lambda using `mkLambdaFVars ys v`, where `ys` is a superset of `xs`.
-`ys` is often equal to `xs`. It is a bigger when there are let-declaration dependencies in `xs`.
-For example, suppose we have `xs` of the form `#[a, c]` where
-```
-a : Nat
-b : Nat := f a
-c : b = a
-```
-In this scenario, the type of `?m` is `(x1 : Nat) -> (x2 : f x1 = x1) -> C[x1, x2]`,
-and type of `v` is `C[a, c]`. Note that, `?m a c` is type correct since `f a = a` is definitionally equal
-to the type of `c : b = a`, and the type of `?m a c` is equal to the type of `v`.
-Note that `fun xs => v` is the term `fun (x1 : Nat) (x2 : b = x1) => v` which has type
-`(x1 : Nat) -> (x2 : b = x1) -> C[x1, x2]` which is not definitionally equal to the type of `?m`,
-and may not even be type correct.
-The issue here is that we are not capturing the `let`-declarations.
-
-This method collects let-declarations `y` occurring between `xs[0]` and `xs.back` s.t.
-some `x` in `xs` depends on `y`.
-`ys` is the `xs` with these extra let-declarations included.
-
-In the example above, `ys` is `#[a, b, c]`, and `mkLambdaFVars ys v` produces
-`fun a => let b := f a; fun (c : b = a) => v` which has a type definitionally equal to the type of `?m`.
-
-Recall that the method `checkAssignment` ensures `v` does not contain offending `let`-declarations.
-
-This method assumes that for any `xs[i]` and `xs[j]` where `i < j`, we have that `index of xs[i]` < `index of xs[j]`.
-where the index is the position in the local context.
--/
-private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) (mvarLCtx : LocalContext) : MetaM (Option Expr) := do
-  if !(← hasLetDeclsInBetween) then
-    mkLambdaFVars xs v (etaReduce := true)
-  else
-    let ys ← addLetDeps
-    mkLambdaFVars ys v (etaReduce := true)
-
-where
-  /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
-     We use it a quick-check to avoid the more expensive collection procedure. -/
-  hasLetDeclsInBetween : MetaM Bool := do
-    let rec check (i : Nat) (lctx : LocalContext) : Bool := Id.run do
-      if let some localDecl := lctx.getAt? i then
-        if mvarLCtx.contains localDecl.fvarId then
-          return false
-        if localDecl.isLet then
-          return true
-      match i with
-      | 0 => return false
-      | i+1 => check i lctx
-    if xs.isEmpty then
-      return false
-    let lctx ← getLCtx
-    let stop := lctx.getFVar! xs.back! |>.index
-    return check stop lctx
-
-  /-- Traverse `e` and stores in the state `NameHashSet` any let-declaration with index greater than `(← read)`.
-     The context `Nat` is the position of `xs[0]` in the local context. -/
-  collectLetDeclsFrom (e : Expr) : (StateRefT FVarIdHashSet MetaM) Unit := do
-    let rec visit (e : Expr) : MonadCacheT Expr Unit ((StateRefT FVarIdHashSet MetaM)) Unit :=
-      checkCache e fun _ => do
-        match e with
-        | .forallE _ d b _   => visit d; visit b
-        | .lam _ d b _       => visit d; visit b
-        | .letE _ t v b _    => visit t; visit v; visit b
-        | .app f a           => visit f; visit a
-        | .mdata _ b         => visit b
-        | .proj _ _ b        => visit b
-        | .fvar fvarId       =>
-          let localDecl ← fvarId.getDecl
-          if localDecl.isLet && !mvarLCtx.contains localDecl.fvarId then
-            modify fun s => s.insert localDecl.fvarId
-        | _ => pure ()
-    visit (← instantiateMVars e) |>.run
-
-  /--
-    Auxiliary definition for traversing all declarations between `xs[0]` ... `xs.back` backwards.
-    The `Nat` argument is the current position in the local context being visited, and it is less than
-    or equal to the position of `xs.back` in the local context.
-    The `Nat` context `(← read)` is the position of `xs[0]` in the local context.
-  -/
-  collectLetDepsAux : Nat → StateRefT FVarIdHashSet MetaM Unit
-    | 0   => return
-    | i+1 => do
-      match (← getLCtx).getAt? (i+1) with
-      | none => collectLetDepsAux i
-      | some localDecl =>
-        if mvarLCtx.contains localDecl.fvarId then
-          return
-        else if (← get).contains localDecl.fvarId then
-          collectLetDeclsFrom localDecl.type
-          match localDecl.value? with
-          | some val => collectLetDeclsFrom val
-          | _ =>  pure ()
-        collectLetDepsAux i
-
-  /-- Computes the set `ys`. It is a set of `FVarId`s, -/
-  collectLetDeps : MetaM FVarIdHashSet := do
-    let lctx ← getLCtx
-    let stop  := lctx.getFVar! xs.back! |>.index
-    let s := xs.foldl (init := {}) fun s x => s.insert x.fvarId!
-    let (_, s) ← collectLetDepsAux stop |>.run s
-    return s
-
-  /-- Computes the array `ys` containing let-decls between `xs[0]` and `xs.back` that
-     some `x` in `xs` depends on. -/
-  addLetDeps : MetaM (Array Expr) := do
-    let lctx ← getLCtx
-    let s ← collectLetDeps
-    /- Convert `s` into the array `ys` -/
-    let stop  := lctx.getFVar! xs.back! |>.index
-    let mut ys := #[]
-    for i in [:stop+1] do
-      match lctx.getAt? i with
-      | none => pure ()
-      | some localDecl =>
-        if s.contains localDecl.fvarId then
-          ys := ys.push localDecl.toExpr
-    return ys
-
 /-!
   Each metavariable is declared in a particular local context.
   We use the notation `C |- ?m : t` to denote a metavariable `?m` that
@@ -801,7 +681,7 @@ mutual
     let mvarDecl ← mvar.mvarId!.getDecl
     forallBoundedTelescope mvarDecl.type numArgs fun xs _ => do
       if xs.size != numArgs then return false
-      let some v ← mkLambdaFVarsWithLetDeps xs newMVar mvarDecl.lctx | return false
+      let v ← mkLambdaFVars xs newMVar (etaReduce := true)
       let some v ← checkAssignmentAux mvar.mvarId! #[] false v | return false
       checkTypesAndAssign mvar v
 
@@ -936,6 +816,15 @@ def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (m
 
 end CheckAssignmentQuick
 
+def CheckAssignment.checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) := do
+  let mvarDecl ← mvarId.getDecl
+  let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
+  let ctx ← read
+  let mctx ← getMCtx
+  if CheckAssignmentQuick.check hasCtxLocals mctx ctx.lctx mvarDecl mvarId fvars v then
+    return v
+  CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals (← instantiateMVars v)
+
 /--
 Auxiliary function used at `typeOccursCheckImp`.
 Given `type`, it tries to eliminate "dependencies". For example, suppose we are trying to
@@ -1030,33 +919,24 @@ private def typeOccursCheck (mctx : MetavarContext) (mvarId : MVarId) (v : Expr)
   The result is `none` if the assignment can't be performed.
   The result is `some newV` where `newV` is a possibly updated `v`. This method may need
   to unfold let-declarations. -/
-def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option Expr) := do
-  /- Check whether `mvarId` occurs in the type of `fvars` or not. If it does, return `none`
-     to prevent us from creating the cyclic assignment `?m := fun fvars => v` -/
+def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option (Expr × LocalContext)) := do
+  let mut lctx ← getLCtx
   for fvar in fvars do
-    unless (← occursCheck mvarId (← inferType fvar)) do
-      return none
+    match ← CheckAssignment.checkAssignment mvarId fvars (← inferType fvar) with
+    | none          => return none
+    | some fvarType => lctx := lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType)
   if !v.hasExprMVar && !v.hasFVar then
-    pure (some v)
+    pure (some (v, lctx))
   else
-    let mvarDecl ← mvarId.getDecl
-    let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
-    let ctx ← read
-    let mctx ← getMCtx
-    let v ← if CheckAssignmentQuick.check hasCtxLocals mctx ctx.lctx mvarDecl mvarId fvars v then
-      pure v
-    else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals (← instantiateMVars v) then
-      pure v
-    else
-      return none
+    let some v ← CheckAssignment.checkAssignment mvarId fvars v | return none
     unless typeOccursCheck (← getMCtx) mvarId v do
       return none
-    return some v
+    return some (v, lctx)
 
 -- Implementation for `_root_.Lean.MVarId.checkedAssign`
 @[export lean_checked_assign]
 def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do
-  if let some val ← checkAssignment mvarId #[] val then
+  if let some (val, _) ← checkAssignment mvarId #[] val then
     mvarId.assign val
     return true
   else
@@ -1127,10 +1007,10 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
     if xs.size != numArgs then
       pure false
     else
-      let some v ← mkLambdaFVarsWithLetDeps xs v mvarDecl.lctx | pure false
+      let v ← mkLambdaFVars xs v
       match (← checkAssignment mvar.mvarId! #[] v) with
       | none   => pure false
-      | some v =>
+      | some (v, _) =>
         trace[Meta.isDefEq.constApprox] "{mvar} := {v}"
         checkTypesAndAssign mvar v
 
@@ -1168,19 +1048,19 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
       if xs.size != suffixSize then
         defaultCase
       else
-        let some v ← mkLambdaFVarsWithLetDeps xs v mvarDecl.lctx | defaultCase
+        let v ← mkLambdaFVars xs v
         let rec go (argsPrefix : Array Expr) (v : Expr) : MetaM Bool := do
           trace[Meta.isDefEq] "processConstApprox.go {mvar} {argsPrefix} := {v}"
           let rec cont : MetaM Bool := do
             if argsPrefix.isEmpty then
               defaultCase
             else
-              let some v ← mkLambdaFVarsWithLetDeps #[argsPrefix.back!] v mvarDecl.lctx | defaultCase
+              let v ← mkLambdaFVars #[argsPrefix.back!] v (etaReduce := true)
               go argsPrefix.pop v
           match (← checkAssignment mvarId argsPrefix v) with
           | none      => cont
-          | some vNew =>
-            let some vNew ← mkLambdaFVarsWithLetDeps argsPrefix vNew mvarDecl.lctx | cont
+          | some (vNew, lctx) =>
+            let vNew ← withReader ({ · with lctx }) do mkLambdaFVars argsPrefix vNew (etaReduce := true)
             if argsPrefix.any (fun arg => mvarDecl.lctx.containsFVar arg) then
               /- We need to type check `vNew` because abstraction using `mkLambdaFVars` may have produced
                  a type incorrect term. See discussion at A2 -/
@@ -1222,9 +1102,9 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
           let mvarId := mvar.mvarId!
           match (← checkAssignment mvarId args v) with
           | none   => useFOApprox args
-          | some v => do
+          | some (v, lctx) => do
             trace[Meta.isDefEq.assign.beforeMkLambda] "{mvar} {args} := {v}"
-            let some v ← mkLambdaFVarsWithLetDeps args v mvarDecl.lctx | return false
+            let v ← withReader ({· with lctx}) do mkLambdaFVars args v
             if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
               /- We need to type check `v` because abstraction using `mkLambdaFVars` may have produced
                  a type incorrect term. See discussion at A2 -/

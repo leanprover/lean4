@@ -973,7 +973,7 @@ instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ)
 namespace PersistentEnvExtension
 
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
-  (ext.toEnvExtension.getState env).importedEntries.get! m
+  (ext.toEnvExtension.getStateNoAsync env).importedEntries.get! m
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.toEnvExtension.modifyState env fun s =>
@@ -983,6 +983,10 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 /-- Get the current state of the given extension in the given environment. -/
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
   (ext.toEnvExtension.getState env).state
+
+/-- Get the current state of the given extension in the given environment. -/
+def getStateNoAsync {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
+  (ext.toEnvExtension.getStateNoAsync env).state
 
 /-- Set the current state of the given extension in the given environment. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
@@ -1071,6 +1075,9 @@ def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
 def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
   (PersistentEnvExtension.getState ext env).2
+
+def getStateNoAsync {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
+  (PersistentEnvExtension.getStateNoAsync ext env).2
 
 /-- Set the current state of the given `SimplePersistentEnvExtension`. This change is *not* persisted across files. -/
 def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=

@@ -161,6 +161,11 @@ def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β �
   | top :: _ => top.state
   | _        => unreachable!
 
+def ScopedEnvExtension.getStateNoAsync [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : σ :=
+  match ext.ext.getStateNoAsync env |>.stateStack with
+  | top :: _ => top.state
+  | _        => unreachable!
+
 def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
   let s := ext.ext.getState env
   match s.stateStack with

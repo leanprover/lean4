@@ -773,7 +773,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-  match (matcherExt.getState env).find? (result.value, compile) with
+  match (matcherExt.getStateNoAsync env).find? (result.value, compile) with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList

@@ -439,7 +439,7 @@ private def addDeclNoDelay (env : Environment) (opts : Options) (decl : Declarat
   if skipExisting then
     if let [name] := decl.getNames then
       if env.checked.get.kernel.find? name |>.isSome then
-        return env
+        return env.synchronize
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
@@ -520,9 +520,11 @@ def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   return s!"\
     asyncCtx.declPrefix: {repr <| env.asyncCtx?.map (·.declPrefix)}\
   \nasyncConsts: {repr <| env.asyncConsts.toArray.map (·.info.name)}\
-  \nlocalRealizedConsts: {repr (← env.realizedLocalConsts.toList.filterMapM fun (n, m) => do
+  \nrealizedLocalConsts: {repr (← env.realizedLocalConsts.toList.filterMapM fun (n, m) => do
     let consts := (← m.get).toList
     return guard (!consts.isEmpty) *> some (n, consts.map (·.1)))}
+  \nrealizedExternConsts: {repr <| (← env.realizedExternConsts.get).toList.map fun (n, m) => do
+    (n, m.info.name)}
   \ncheckedNoAsync.kernel.constants.map₂: {repr <| env.checkedNoAsync.kernel.constants.map₂.toList.map (·.1)}"
 
 def dbgFormatCheckedSyncState (env : Environment) : BaseIO String :=

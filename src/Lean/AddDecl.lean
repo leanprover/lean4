@@ -109,7 +109,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
         doAdd
         return
       | _ => return (← doAdd)
-    let async ← preEnv.addConstAsync name kind
+    let async ← preEnv.addConstAsync (reportExts := false) name kind
     async.commitConst async.asyncEnv (some info)
     setEnv async.mainEnv
     let ctx ← read

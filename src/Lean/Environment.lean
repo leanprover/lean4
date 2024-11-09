@@ -412,7 +412,7 @@ def promiseChecked (env : Environment) : BaseIO (Environment × IO.Promise Envir
   let prom ← IO.Promise.new
   return ({ env with checked := prom.result.bind (sync := true) (·.checked) }, prom)
 
-private def synchronize (env : Environment) : Environment :=
+def synchronize (env : Environment) : Environment :=
   { env with checkedNoAsync := env.checked.get }
 
 private def modifyCheckedAsync (env : Environment) (f : EnvironmentBase → EnvironmentBase) : Environment :=
@@ -491,7 +491,7 @@ def isAsync (env : Environment) : Bool :=
   env.asyncCtx?.isSome
 
 def unlockAsync (env : Environment) : Environment :=
-  { env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
+  env  --{ env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
 
 private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantInfo := do
   if let some _ := env.asyncConsts.findPrefix? n then
@@ -552,7 +552,7 @@ structure AddConstAsyncResult where
   private infoPromise : IO.Promise (ConstantInfo × Array EnvExtensionState)
   private checkedEnvPromise : IO.Promise EnvironmentBase
 
-def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
+def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (reportExts := true) :
     IO AddConstAsyncResult := do
   if let some n := env.realizingConst? then
     panic! s!"cannot add declaration {constName} while realizing constant {n}"
@@ -567,7 +567,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
       sig := sigPromise.result
       info := infoPromise.result.map (sync := true) (·.1)
     }
-    exts? := some <| infoPromise.result.map (sync := true) (·.2)
+    exts? := guard reportExts *> some (infoPromise.result.map (sync := true) (·.2))
   }
   return {
     constName, kind
@@ -998,10 +998,10 @@ def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env :
 
 def findStateAsync {α β σ : Type} [Inhabited σ]
     (ext : PersistentEnvExtension α β σ) (env : Environment) (declName : Name) : σ :=
-  --if let some { exts? := some exts, .. } := env.asyncConsts.findPrefix? declName then
-  --  EnvExtensionInterfaceImp.getState ext.toEnvExtension exts.get |>.state
-  --else
-    ext.getState env
+  if let some { exts? := some exts, .. } := env.asyncConsts.findPrefix? declName then
+    EnvExtensionInterfaceImp.getState ext.toEnvExtension exts.get |>.state
+  else
+    ext.getStateNoAsync env
 
 end PersistentEnvExtension
 

@@ -944,7 +944,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
     if h : i < fvars.size then
       let fvar := fvars[i]
       let fvarType ← inferType fvar
-      if !CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars fvarType then
+      if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars fvarType then
         checkFVars (i+1)
       else if let some fvarType ← CheckAssignment.checkAssignmentAux mvarId fvars i hasCtxLocals fvarType then
         withReader (fun ctx => { ctx with lctx := ctx.lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType) }) do

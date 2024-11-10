@@ -560,7 +560,7 @@ structure Context where
   mvarId        : MVarId
   mvarDecl      : MetavarDecl
   fvars         : Array Expr
-  i             : Nat
+  fvarsInScope  : Nat
   hasCtxLocals  : Bool
   rhs           : Expr
 
@@ -586,9 +586,9 @@ private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData
   let ctx ← read
   return m!"{msg} @ {mkMVar ctx.mvarId} {ctx.fvars} := {ctx.rhs}"
 
-@[inline] def run (x : CheckAssignmentM Expr) (mvarId : MVarId) (fvars : Array Expr) (i : Nat) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
+@[inline] def run (x : CheckAssignmentM Expr) (mvarId : MVarId) (fvars : Array Expr) (fvarsInScope : Nat) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
   let mvarDecl ← mvarId.getDecl
-  let ctx := { mvarId := mvarId, mvarDecl := mvarDecl, fvars := fvars, i := i, hasCtxLocals := hasCtxLocals, rhs := v : Context }
+  let ctx := { mvarId := mvarId, mvarDecl := mvarDecl, fvars := fvars, fvarsInScope := fvarsInScope, hasCtxLocals := hasCtxLocals, rhs := v : Context }
   let x : CheckAssignmentM (Option Expr) :=
     catchInternalIds [outOfScopeExceptionId, checkAssignmentExceptionId]
       (do let e ← x; return some e)
@@ -607,7 +607,7 @@ mutual
       match lctx.findFVar? fvar with
       | some (.ldecl (value := v) ..) => check v
       | _ =>
-        if ctx.fvars.contains fvar then pure fvar
+        if ctx.fvars.any (· == fvar) (stop := ctx.fvarsInScope) then pure fvar
         else
           traceM `Meta.isDefEq.assign.outOfScopeFVar do addAssignmentInfo fvar
           throwOutOfScopeFVar
@@ -645,38 +645,33 @@ mutual
        a metavariable that we also need to reduce the context.
 
        We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
-       or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
-       `elimMVarDeps` will take care of them.
+       or in `ctx.fvars[:fvarsInScope]`. We don't need to remove the ones in `ctx.fvars[:fvarsInScope]`
+       because `elimMVarDeps` will take care of them.
 
-       First, we collect `toErase` the variables that need to be erased.
-       Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
-       we must also erase it.
+       Note that if a variable is in `ctx.fvars[:fvarsInScope]`, then its type is already checked,
+       so by replacing the type with the checked type, we avoid creating an illegal local context.
+
+       We collect `toErase`, the variables that are erased, in order to filter the local instances.
     -/
-    let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
+    let mut toErase := #[]
+    let mut newLCtx := mvarDecl.lctx
+    for localDecl in mvarDecl.lctx do
       let fvarId := localDecl.fvarId
-      if ctx.mvarDecl.lctx.contains fvarId then
-        return toErase
-      else if let some i := ctx.fvars.findIdx? (·.fvarId! == fvarId) then
-        if i ≥ ctx.i then
-          trace[Meta.isDefEq.assign.typeError] "unavailable {Expr.fvar fvarId}"
-          throwOutOfScopeFVar
+      unless ctx.mvarDecl.lctx.contains fvarId do
+        if let some i := ctx.fvars.findIdx? (·.fvarId! == fvarId) then
+          if i ≥ ctx.fvarsInScope then
+            trace[Meta.isDefEq.assign.myError] "fvar {Expr.fvar fvarId} appears too early (position {ctx.fvarsInScope} in {ctx.fvars})"
+            throwError "fvar {Expr.fvar fvarId} appears too early (position {ctx.fvarsInScope} in {ctx.fvars})" -- does this happen?
+            -- return toErase.push fvarId
+          else
+            let fvarType ← fvarId.getType -- get the type from the current local context
+            newLCtx := newLCtx.modifyLocalDecl fvarId (·.setType fvarType)
         else
-        let localDecl ← fvarId.getDecl
-        if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
-          -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-          -- logError m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
-          trace[Meta.isDefEq.assign.typeError] m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
-          return toErase.push fvarId
-        else
-          return toErase
-      else
-        return toErase.push localDecl.fvarId
-    let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
-      lctx.erase toEraseFVar
-    /- Compute new set of local instances. -/
+          newLCtx := newLCtx.erase fvarId
+          toErase := toErase.push fvarId
     let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
     let mvarType ← check mvarDecl.type
-    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
+    let newMVar ← mkAuxMVar newLCtx localInsts mvarType mvarDecl.numScopeArgs
     mvarId.assign newMVar
     return newMVar
 
@@ -695,8 +690,8 @@ mutual
       checkTypesAndAssign mvar v
 
   -- See checkAssignment
-  partial def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (i : Nat) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
-    run (check v) mvarId fvars i hasCtxLocals v
+  partial def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (fvarsInScope : Nat) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
+    run (check v) mvarId fvars fvarsInScope hasCtxLocals v
 
   partial def checkApp (e : Expr) : CheckAssignmentM Expr :=
     e.withApp fun f args => do
@@ -778,7 +773,7 @@ mutual
 end
 
 end CheckAssignment
-
+#exit
 namespace CheckAssignmentQuick
 
 unsafe def checkImpl
@@ -949,32 +944,32 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
       let fvar := fvars[i]
       let fvarType ← inferType fvar
       if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars i fvarType then
-        trace[Meta.isDefEq.assign.typeError] "{fvar} : {fvarType} checked quickly"
+        trace[Meta.isDefEq.assign] "{fvar} : {fvarType} checked quickly"
         checkFVars (i+1)
       else if let some fvarType ← CheckAssignment.checkAssignmentAux mvarId fvars i hasCtxLocals fvarType then
         withReader (fun ctx => { ctx with lctx := ctx.lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType) }) do
-          trace[Meta.isDefEq.assign.typeError] "{fvar} : {fvarType} checked slowly"
+          trace[Meta.isDefEq.assign] "{fvar} : {fvarType} checked slowly"
           checkFVars (i+1)
       else
-        trace[Meta.isDefEq.assign.typeError] "{fvar} : {fvarType} failed"
+        trace[Meta.isDefEq.assign] "{fvar} : {fvarType} failed"
         return none
     else
       let lctx ← getLCtx
       if !v.hasExprMVar && !v.hasFVar then
-        trace[Meta.isDefEq.assign.typeError] "{v} succeeded very quicky"
+        trace[Meta.isDefEq.assign] "{v} succeeded very quicky"
         return some (v, lctx)
       else
         let v ← if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) lctx mvarDecl mvarId fvars fvars.size v then
-          trace[Meta.isDefEq.assign.typeError] "{v} succeeded quicky"
+          trace[Meta.isDefEq.assign] "{v} succeeded quicky"
           pure v
         else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars fvars.size hasCtxLocals (← instantiateMVars v) then
-          trace[Meta.isDefEq.assign.typeError] "{v} succeeded slowly"
+          trace[Meta.isDefEq.assign] "{v} succeeded slowly"
           pure v
         else
-          trace[Meta.isDefEq.assign.typeError] "{v} failed the check"
+          trace[Meta.isDefEq.assign] "{v} failed the check"
           return none
         unless typeOccursCheck (← getMCtx) mvarId v do
-          trace[Meta.isDefEq.assign.typeError] "failed type occurs check"
+          trace[Meta.isDefEq.assign] "failed type occurs check"
           return none
         return some (v, lctx)
   checkFVars 0
@@ -2138,6 +2133,7 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.assign.outOfScopeFVar (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.beforeMkLambda (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.typeError (inherited := true)
+  registerTraceClass `Meta.isDefEq.assign.myError (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct

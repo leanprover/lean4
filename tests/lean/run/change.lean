@@ -65,7 +65,7 @@ example (h : foo 1 2 3 = 4) : True := by
   trivial
 
 example (h : foo 1 2 3 = 4) : True := by
-  change ite _ _ _ = _ at h
+  change (if _ then _ else _) = _ at h
   guard_hyp h : (if 1 < 2 then 3 else 0) = 4
   trivial
 

@@ -10,7 +10,7 @@ private def resolveLValAux (s : String) (i : Nat) : Nat :=
 
 
 /--
-this used to give
+This used to give
 (kernel) declaration has free variables '_example'
 -/
 example : Unit :=
@@ -22,7 +22,7 @@ example : Unit :=
 
 
 /--
-this used to give
+This used to give
 (kernel) declaration has free variables '_example'
 -/
 example : IO Unit := do
@@ -36,6 +36,26 @@ example : IO Unit := do
  | _ => return
 
 
+/-
+This used to give
+(kernel) declaration has free variables '_example'
+-/
+/--
+error: type mismatch
+  rfl
+has type
+  x b a = x b a : Prop
+but is expected to have type
+  x b a = Nat.zero : Prop
+-/
+#guard_msgs in
+example : Unit :=
+  let x : Nat → Nat → Nat := _
+  (fun (a : Nat) (b : let _ := a; Nat) =>
+    have : x b a = Nat.zero := rfl
+    ()
+    ) Nat.zero Nat.zero
+
 class Foo (a b : Nat) (h : a = b) (β : Nat → Type) where
   val : β a
 
@@ -44,7 +64,7 @@ instance (a b : Nat) (h : a = b) : Foo a b h Fin where
   val := sorry
 
 /--
-this used to give
+This used to give
 typeclass instance problem is stuck, it is often due to metavariables
   Foo a Nat.zero h (?m.734 h)
 -/

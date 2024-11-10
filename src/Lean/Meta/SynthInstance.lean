@@ -16,7 +16,7 @@ import Lean.Util.Profile
 namespace Lean.Meta
 
 register_builtin_option synthInstance.maxHeartbeats : Nat := {
-  defValue := 20000
+  defValue := 30000
   descr := "maximum amount of heartbeats per typeclass resolution problem. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 

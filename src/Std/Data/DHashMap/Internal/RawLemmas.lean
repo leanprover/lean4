@@ -872,8 +872,8 @@ theorem insertList_insert {l: List ((a:α) × (β a))} {k: α} {v: β k}:
 
 theorem insertList_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
     (m.insertList l).contains k ↔ m.contains k ∨ List.containsKey k l := by
-  rw [contains_eq_containsKey,contains_eq_containsKey, containsKey_of_perm (l':= List.insertMany (toListModel m.1.buckets) l)]
-  apply insertMany_containsKey
+  rw [contains_eq_containsKey,contains_eq_containsKey, containsKey_of_perm (l':= List.insertList (toListModel m.1.buckets) l)]
+  apply insertList_containsKey
   apply toListModel_insertList (Raw.WF.out h)
   apply (Raw.WF.out h)
   apply wfImp_insertList (Raw.WF.out h)

@@ -257,6 +257,26 @@ theorem containsKey_eq_isSome_getEntry? [BEq α] {l : List ((a : α) × β a)} {
     · simp [getEntry?_cons_of_false h, h, ih]
     · simp [getEntry?_cons_of_true h, h]
 
+theorem containsKey_of_eq [BEq α] [PartialEquivBEq α]{l : List ((a : α) × β a)} {a b: α} (eq: a == b): containsKey a l ↔ containsKey b l := by
+  induction l with
+  | nil=> simp
+  | cons hd tl ih =>
+    simp[containsKey]
+    by_cases hd_a: hd.fst == a
+    · have hd_b: hd.fst == b := by
+        apply PartialEquivBEq.trans hd_a eq
+      simp [hd_a, hd_b]
+    · have hd_b: (hd.fst == b) = false := by
+        false_or_by_contra
+        rename_i h
+        simp at h
+        have hd_a': hd.fst == a := by
+          apply PartialEquivBEq.trans h (PartialEquivBEq.symm eq)
+        contradiction
+      simp [hd_a, hd_b]
+      rw [Bool.eq_iff_iff]
+      apply ih
+
 theorem isEmpty_eq_false_of_containsKey [BEq α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = true) : l.isEmpty = false := by
   cases l <;> simp_all
@@ -978,6 +998,13 @@ theorem insertEntry_of_containsKey [BEq α] {l : List ((a : α) × β a)} {k : �
 theorem insertEntry_of_containsKey_eq_false [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k}
     (h : containsKey k l = false) : insertEntry k v l = ⟨k, v⟩ :: l := by
   simp [insertEntry, h]
+
+theorem insertEntry_of_containsKey_eq_false_perm [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k}
+    (h : containsKey k l = false) : Perm (insertEntry k v l) (⟨k,v⟩::l) := by
+  cases l with
+  | nil => simp
+  | cons hd tl => simp[insertEntry, h]
+
 
 theorem DistinctKeys.insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α}
     {v : β k} (h : DistinctKeys l) : DistinctKeys (insertEntry k v l) := by
@@ -1828,28 +1855,68 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
     · rw [cond_true, cond_true]
 
 /-- Internal implementation detail of the hash map -/
-def insertMany [BEq α] (l toInsert: List ((a : α) × β a)) : List ((a : α) × β a) :=
+def insertList [BEq α] (l toInsert: List ((a : α) × β a)) : List ((a : α) × β a) :=
   match toInsert with
   | .nil => l
-  | .cons ⟨k, v⟩ toInsert => insertMany (insertEntry k v l) toInsert
+  | .cons ⟨k, v⟩ toInsert => insertList (insertEntry k v l) toInsert
 
-theorem insertMany_perm_of_perm_first [BEq α] [EquivBEq α] (l1 l2 toInsert: List ((a : α) × β a)) (h: Perm l1 l2) (distinct: DistinctKeys l1): Perm (insertMany l1 toInsert) (insertMany l2 toInsert)  := by
+theorem insertList_perm_of_perm_first [BEq α] [EquivBEq α] (l1 l2 toInsert: List ((a : α) × β a)) (h: Perm l1 l2) (distinct: DistinctKeys l1): Perm (insertList l1 toInsert) (insertList l2 toInsert)  := by
   induction toInsert generalizing l1 l2 with
-  | nil => simp[insertMany, h]
+  | nil => simp[insertList, h]
   | cons hd tl ih =>
-    simp[insertMany]
+    simp[insertList]
     apply ih
     apply insertEntry_of_perm
     exact distinct
     exact h
     apply DistinctKeys.insertEntry distinct
 
-theorem insertMany_containsKey [BEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (k: α): containsKey k (List.insertMany l toInsert) = true ↔ containsKey k l= true ∨ containsKey k toInsert = true := by
+theorem insertList_containsKey [BEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (k: α): containsKey k (List.insertList l toInsert) = true ↔ containsKey k l= true ∨ containsKey k toInsert = true := by
   induction toInsert generalizing l with
-  | nil => simp[insertMany]
+  | nil => simp[insertList]
   | cons hd tl ih =>
-    simp[insertMany]
+    simp[insertList]
     rw [ih, containsKey_insertEntry, containsKey_cons, Bool.or_eq_true_iff, Bool.or_eq_true_iff, or_comm (a:=containsKey k l), or_assoc, or_assoc, or_comm (a:=containsKey k l)]
 
+theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: DistinctKeys toInsert) (distinct_both: ∀ (a:α), ¬ containsKey a l ∨  ¬ containsKey a toInsert):
+    Perm (insertList l toInsert) (l++toInsert) := by
+  induction toInsert generalizing l with
+  | nil => simp[insertList]
+  | cons hd tl ih =>
+    simp[insertList]
+    specialize ih (insertEntry hd.fst hd.snd l)
+    apply Perm.trans
+    · apply ih
+      · simp[insertEntry]
+        specialize distinct_both hd.1
+        simp[containsKey] at distinct_both
+        simp [distinct_both]
+        exact distinct_l
+      · apply DistinctKeys.tail distinct_toInsert
+      · intro a
+        specialize distinct_both a
+        simp[containsKey] at distinct_both
+        simp[containsKey]
+        by_cases hd_a: hd.fst == a
+        · rw [distinctKeys_cons_iff] at distinct_toInsert
+          have contains_a_tl: containsKey a tl = false := by
+            false_or_by_contra
+            rename_i h
+            simp at h
+            rw [containsKey_of_eq (PartialEquivBEq.symm hd_a)] at h
+            simp [h] at distinct_toInsert
+          simp [contains_a_tl]
+        · simp[hd_a]
+          simp at hd_a
+          simp [hd_a] at distinct_both
+          apply distinct_both
+    · simp[insertEntry]
+      specialize distinct_both hd.1
+      simp[containsKey] at distinct_both
+      simp [distinct_both]
+      have h_hd: hd = ⟨hd.fst, hd.snd⟩:= rfl
+      rw [← h_hd]
+      apply Perm.symm
+      apply List.perm_middle
 
 end List

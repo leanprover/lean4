@@ -773,7 +773,7 @@ mutual
 end
 
 end CheckAssignment
-#exit
+
 namespace CheckAssignmentQuick
 
 unsafe def checkImpl

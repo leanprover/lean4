@@ -771,7 +771,7 @@ mutual
               throw ex
         -/
 end
-#exit
+
 end CheckAssignment
 
 namespace CheckAssignmentQuick

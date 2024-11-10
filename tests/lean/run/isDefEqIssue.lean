@@ -8,6 +8,7 @@ private def resolveLValAux (s : String) (i : Nat) : Nat :=
   else
     i
 
+
 /--
 this used to give
 (kernel) declaration has free variables '_example'
@@ -18,6 +19,7 @@ example : Unit :=
   (fun a : N =>
     have : x a = () := rfl
     ()) Nat.zero
+
 
 /--
 this used to give
@@ -32,3 +34,20 @@ example : IO Unit := do
   if h : i = pair.1 then
    let k := 0
  | _ => return
+
+
+class Foo (a b : Nat) (h : a = b) (β : Nat → Type) where
+  val : β a
+
+@[default_instance]
+instance (a b : Nat) (h : a = b) : Foo a b h Fin where
+  val := sorry
+
+/--
+this used to give
+typeclass instance problem is stuck, it is often due to metavariables
+  Foo a Nat.zero h (?m.734 h)
+-/
+example :=
+  let a : Nat := Nat.zero
+  fun (h : a = Nat.zero) => Foo.val h

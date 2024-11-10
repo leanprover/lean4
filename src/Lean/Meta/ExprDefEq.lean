@@ -657,7 +657,7 @@ mutual
       else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
         if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
           -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-          return toErase.push localDecl.fvarId
+          throwError "This shouldn't be possible: {localDecl.toExpr} has dependencies that are in {toErase.map Expr.fvar}"
         else
           return toErase
       else
@@ -922,31 +922,46 @@ The following things are checked:
 
 checks 1-3 are done in both `v` and in the types of `a₁ ... aₙ`.
 Additionally, we do an occurs check at the type of `v` (see `typeOccursCheck`)
+
+For check 3, it is important to do the checks in the order `a₁, ... aₙ, v`.
+For example, if `?m` has an empty local context, and `a₁ : N`, where `N := Nat` is a let-variable.
+We should first replace the type of `a₁` with `Nat`. Otherwise, when we find
+a metavariable in `a₂, ... aₙ, v` which has `a₁` in its context, we would
+observe that the metavariable doesn't have `N` in its context, and therefore
+can't depend on `a₁`.
+By replacing the type of `a₁` by `Nat`, we can now allow metavariables to depend on `a₁`.
+
 -/
 def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option (Expr × LocalContext)) := do
   let mvarDecl ← mvarId.getDecl
   let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
-  let mut newLCtx ← getLCtx
-  for fvar in fvars do
-    let fvarType ← inferType fvar
-    unless !fvarType.hasExprMVar && !fvarType.hasFVar do
-      unless CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars fvarType do
-        match ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals fvarType with
-        | none          => return none
-        | some fvarType => newLCtx := newLCtx.modifyLocalDecl fvar.fvarId! (·.setType fvarType)
-  if !v.hasExprMVar && !v.hasFVar then
-    pure (some (v, newLCtx))
-  else
-    let v ← if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars v then
-      pure v
-    else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals (← instantiateMVars v) then
-      pure v
+  let rec checkFVars (i : Nat) : MetaM (Option (Expr × LocalContext)) := do
+    if h : i < fvars.size then
+      let fvar := fvars[i]
+      let fvarType ← inferType fvar
+      if !CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars fvarType then
+        checkFVars (i+1)
+      else if let some fvarType ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals fvarType then
+        withReader (fun ctx => { ctx with lctx := ctx.lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType) }) do
+          checkFVars (i+1)
+      else
+        return none
     else
-      return none
-    unless typeOccursCheck (← getMCtx) mvarId v do
-      return none
-    return some (v, newLCtx)
-
+      let lctx ← getLCtx
+      if !v.hasExprMVar && !v.hasFVar then
+        return some (v, lctx)
+      else
+        let mctx ← getMCtx
+        let v ← if CheckAssignmentQuick.check hasCtxLocals mctx lctx mvarDecl mvarId fvars v then
+          pure v
+        else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals (← instantiateMVars v) then
+          pure v
+        else
+          return none
+        unless typeOccursCheck mctx mvarId v do
+          return none
+        return some (v, lctx)
+  checkFVars 0
 -- Implementation for `_root_.Lean.MVarId.checkedAssign`
 @[export lean_checked_assign]
 def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do

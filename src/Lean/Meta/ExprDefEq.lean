@@ -657,22 +657,18 @@ mutual
       else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
         if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
           -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-          trace[Meta.isDefEq.assign] "CheckAssignment.checkMVar: will erase {localDecl.toExpr} due to dependency"
           return toErase.push localDecl.fvarId
         else
           return toErase
       else
-        trace[Meta.isDefEq.assign] "CheckAssignment.checkMVar: will erase {localDecl.toExpr} as it is in {ctx.fvars}"
         return toErase.push localDecl.fvarId
     let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
       lctx.erase toEraseFVar
-    trace[Meta.isDefEq.assign] "CheckAssignment.checkMVar: erasing {toErase.map Expr.fvar} from {Expr.mvar mvarId}"
     /- Compute new set of local instances. -/
     let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
     let mvarType ← check mvarDecl.type
     let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
     mvarId.assign newMVar
-    trace[Meta.isDefEq.assign] "CheckAssignment.checkMVar: new mvar {newMVar}"
     return newMVar
 
   /--

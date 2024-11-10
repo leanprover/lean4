@@ -657,7 +657,7 @@ mutual
         return toErase
       else if let some i := ctx.fvars.findIdx? (·.fvarId! == localDecl.fvarId) then
         if i ≥ ctx.i then
-          throwCheckAssignmentFailure
+          throwOutOfScopeFVar
         else if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
           -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
           logError m! "This shouldn't be possible: {localDecl.toExpr} has dependencies that are in {toErase.map Expr.fvar}"
@@ -779,7 +779,7 @@ namespace CheckAssignmentQuick
 
 unsafe def checkImpl
     (hasCtxLocals : Bool)
-    (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
+    (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (i : Nat) (e : Expr) : Bool :=
   let rec visit (e : Expr) : StateM (PtrSet Expr) Bool := do
     if !e.hasExprMVar && !e.hasFVar then
       return true
@@ -800,7 +800,7 @@ unsafe def checkImpl
         return true
       if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
         return false -- need expensive CheckAssignment.check
-      if fvars.any fun x => x.fvarId! == fvarId then
+      if fvars.any (·.fvarId! == fvarId) (stop := i) then
         return true
       return false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
     | .mvar mvarId'    =>
@@ -816,8 +816,8 @@ unsafe def checkImpl
   else
     visit e |>.run' mkPtrSet
 
-def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
-  unsafe checkImpl hasCtxLocals mctx lctx mvarDecl mvarId fvars e
+def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (i : Nat) (e : Expr) : Bool :=
+  unsafe checkImpl hasCtxLocals mctx lctx mvarDecl mvarId fvars i e
 
 end CheckAssignmentQuick
 
@@ -944,7 +944,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
     if h : i < fvars.size then
       let fvar := fvars[i]
       let fvarType ← inferType fvar
-      if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars fvarType then
+      if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars i fvarType then
         checkFVars (i+1)
       else if let some fvarType ← CheckAssignment.checkAssignmentAux mvarId fvars i hasCtxLocals fvarType then
         withReader (fun ctx => { ctx with lctx := ctx.lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType) }) do
@@ -957,7 +957,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
         return some (v, lctx)
       else
         let mctx ← getMCtx
-        let v ← if CheckAssignmentQuick.check hasCtxLocals mctx lctx mvarDecl mvarId fvars v then
+        let v ← if CheckAssignmentQuick.check hasCtxLocals mctx lctx mvarDecl mvarId fvars fvars.size v then
           pure v
         else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars fvars.size hasCtxLocals (← instantiateMVars v) then
           pure v

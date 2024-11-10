@@ -92,24 +92,13 @@ example (x y z : Nat) : x + y = z := by
   exact test_sorry
 
 /-!
-`change` is not allowed to create new goals
+`change` is allowed to create new goals.
+Motivation: sometimes there are proof arguments that need to be filled in, and it is easier to do so as a new goal.
 -/
-/--
-error: don't know how to synthesize placeholder for argument 'e'
-context:
-case z
-x y : Nat
-h : x = y
-⊢ Nat
----
-error: unsolved goals
-x y : Nat
-h : x = y
-⊢ True
--/
-#guard_msgs in
 example (x y : Nat) (h : x = y) : True := by
   change (if 1 < 2 then x else ?z) = y at h
+  · trivial
+  · exact 22
 
 example : let x := 22; let y : Nat := x; let z : Fin (y + 1) := 0; z.1 < y + 1 := by
   intro x y z -- `z` was previously erroneously marked as unused

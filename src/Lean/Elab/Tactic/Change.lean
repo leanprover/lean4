@@ -15,7 +15,6 @@ open Meta
 
 /-- Elaborates the pattern `p` and ensures that it is defeq to `e`. -/
 def elabChange (e : Expr) (p : Term) : TacticM Expr := do
-  let mvarCounterSaved := (← getMCtx).mvarCounter
   let p ← elabTermEnsuringType p (← inferType e) (mayPostpone := true)
   -- Discretionary `isDefEq` before synthesizing remaining metavariables. Save the result to avoid a final `isDefEq` check if it passes.
   let defeq ← isDefEq p e
@@ -26,7 +25,6 @@ def elabChange (e : Expr) (p : Term) : TacticM Expr := do
       throwError "\
         'change' tactic failed, pattern{indentExpr p}\n\
         is not definitionally equal to target{indentExpr tgt}"
-    logUnassignedAndAbort (← filterOldMVars (← getMVars p) mvarCounterSaved)
     instantiateMVars p
 
 /-- `change` can be used to replace the main goal or its hypotheses with
@@ -54,13 +52,13 @@ the main goal. -/
   | `(tactic| change $newType:term $[$loc:location]?) => do
     withLocation (expandOptLocation (Lean.mkOptionalNode loc))
       (atLocal := fun h => do
-        let hTy' ← elabChange (← h.getType) newType
-        liftMetaTactic1 fun mvarId => do
-          mvarId.changeLocalDecl h hTy')
+        let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChange (← h.getType) newType) (← getMainTag) `change
+        liftMetaTactic fun mvarId => do
+          return (← mvarId.changeLocalDecl h hTy') :: mvars)
       (atTarget := do
-        let tgt' ← elabChange (← getMainTarget) newType
-        liftMetaTactic1 fun mvarId => do
-          mvarId.replaceTargetDefEq tgt')
+        let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange (← getMainTarget) newType) (← getMainTag) `change
+        liftMetaTactic fun mvarId => do
+          return (← mvarId.replaceTargetDefEq tgt') :: mvars)
       (failed := fun _ => throwError "'change' tactic failed")
 
 end Lean.Elab.Tactic

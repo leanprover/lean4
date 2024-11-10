@@ -16,16 +16,6 @@ def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Decla
   let env ← addDecl env opts decl cancelTk?
   compileDecl env opts decl
 
-/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
-def runAsync (act : CoreM α) : CoreM (EIO Exception α) := do
-  let st ← get
-  let ctx ← read
-  let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
-  return withCurrHeartbeats (do
-      IO.addHeartbeats heartbeats.toUInt64
-      act : CoreM _)
-    |>.run' ctx st
-
 private def addTraceAsMessagesCore [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] (log : MessageLog) : m MessageLog := do
   let traces ← getResetTraces
   if traces.isEmpty then return log
@@ -131,17 +121,16 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     async.commitConst async.asyncEnv (some info)
     setEnv async.mainEnv
     let ctx ← read
-    --let checkAct ← runAsync do
-    try
-      setEnv async.asyncEnv
-      doAdd
-      --dbg_trace (← (← getEnv).dbgFormatAsyncState)
-      (← async.checkAndCommitEnv (← getEnv) ctx.options ctx.cancelTk? |>.toBaseIO) |> ofExceptKernelException
-    finally
-      setEnv async.mainEnv
-      async.commitFailure
-    --let checkTask ← BaseIO.mapTask (t := preEnv.checkedSync) fun _ =>
-    --  EIO.catchExceptions checkAct fun e => do dbg_trace toString (← e.toMessageData.toString.toBaseIO).toOption
+    let checkAct ← runAsync do
+      try
+        setEnv async.asyncEnv.getChecked.get
+        doAdd
+        --dbg_trace (← (← getEnv).dbgFormatAsyncState)
+        (← async.checkAndCommitEnv (← getEnv) ctx.options ctx.cancelTk? |>.toBaseIO) |> ofExceptKernelException
+      finally
+        async.commitFailure
+    let checkTask ← BaseIO.mapTask (t := preEnv.checkedSync) fun _ =>
+      EIO.catchExceptions checkAct fun e => do dbg_trace toString (← e.toMessageData.toString.toBaseIO).toOption
     return
   doAdd
 where doAdd := do

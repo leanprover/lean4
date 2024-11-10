@@ -425,16 +425,33 @@ register_builtin_option compiler.enableNew : Bool := {
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
-builtin_initialize postponedCompilesExt : EnvExtension (Array (List Name)) ←
-  registerEnvExtension (pure #[])
+/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
+def runAsync (act : CoreM α) : CoreM (EIO Exception α) := do
+  let st ← get
+  let ctx ← read
+  let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
+  return withCurrHeartbeats (do
+      IO.addHeartbeats heartbeats.toUInt64
+      act : CoreM _)
+    |>.run' ctx st
 
 partial def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
-  if allowPostpone && (← getEnv).hasPostponed then
-    modifyEnv (postponedCompilesExt.modifyState (allowAsync := true) · (·.push decls))
+  if true then
+    let ctx ← read
+    let env ← getEnv
+    let (postEnv, prom) ← env.promiseCheckedSync
+    let checkAct ← runAsync do
+      setEnv env.getChecked.get
+      try
+        doCompile
+      finally
+        prom.resolve (← getEnv)
+    let checkTask ← BaseIO.mapTask (t := env.checkedSync) fun _ =>
+      EIO.catchExceptions checkAct fun e => do dbg_trace toString (← e.toMessageData.toString.toBaseIO).toOption
+    setEnv postEnv
     return
-  let postponed := postponedCompilesExt.getState (← getEnv)
-  modifyEnv (postponedCompilesExt.setState (allowAsync := true) · #[])
-  postponed.forM (compileDecls (allowPostpone := false))
+  doCompile
+where doCompile := do
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls
@@ -454,10 +471,7 @@ def checkPostponedDecls : CoreM Unit := do
   setEnv env
 
 def forceCompile : CoreM Unit := do
-  checkPostponedDecls
-  let postponed := postponedCompilesExt.getState (← getEnv)
-  modifyEnv (postponedCompilesExt.setState (allowAsync := true) · #[])
-  postponed.forM (compileDecls (allowPostpone := false))
+  pure ()
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

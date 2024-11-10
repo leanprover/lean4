@@ -420,6 +420,13 @@ deriving Nonempty
 
 namespace Environment
 
+def promiseCheckedSync (env : Environment) : BaseIO (Environment × IO.Promise Environment) := do
+  let prom ← IO.Promise.new
+  return ({ env with checkedSync := prom.result.map (·.toEnvironmentBase) }, prom)
+
+def getChecked (env : Environment) : Task Environment :=
+  env.checkedSync.map (sync := true) ({ env with toEnvironmentBase := · })
+
 /-- Type check given declaration and add it to the environment. -/
 @[extern "lean_elab_add_decl"]
 opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
@@ -673,7 +680,7 @@ def AddConstAsyncResult.checkAndCommitEnv (res : AddConstAsyncResult) (env : Env
   let some _ := env.findAsync? res.constName
     | throw <| .other s!"AddConstAsyncResult.checkAndCommitEnv: constant {res.constName} not found in async context"
   let env ← EIO.ofExcept <| env.checkPostponedDecls opts cancelTk?
-  res.checkedEnvPromise.resolve env.toEnvironmentBase
+  res.checkedEnvPromise.resolve env.checkedSync.get
 
 def contains (env : Environment) (n : Name) : Bool :=
   env.findAsync? n |>.isSome

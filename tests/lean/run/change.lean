@@ -53,6 +53,7 @@ noncomputable example : Nat := by
 def foo (a b c : Nat) := if a < b then c else 0
 
 example : foo 1 2 3 = 3 := by
+  change (if _ then _ else _) = _
   change ite _ _ _ = _
   change (if _ < _ then _ else _) = _
   change _ = (if true then 3 else 4)

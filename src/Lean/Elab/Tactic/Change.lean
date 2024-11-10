@@ -15,12 +15,14 @@ open Meta
 
 /-- Elaborates the pattern `p` and ensures that it is defeq to `e`. -/
 def elabChange (e : Expr) (p : Term) : TacticM Expr := do
-  let p ← elabTermEnsuringType p (← inferType e) (mayPostpone := true)
-  -- Discretionary `isDefEq` before synthesizing remaining metavariables. Save the result to avoid a final `isDefEq` check if it passes.
-  let defeq ← isDefEq p e
-  Term.synthesizeSyntheticMVarsNoPostponing
+  let p ← runTermElab do
+    let p ← Term.elabTermEnsuringType p (← inferType e)
+    -- Discretionary `isDefEq` before synthesizing remaining metavariables
+    discard <| isDefEq p e
+    Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := true)
+    pure p
   withAssignableSyntheticOpaque do
-    unless ← pure defeq <||> isDefEq p e do
+    unless ← isDefEq p e do
       let (p, tgt) ← addPPExplicitToExposeDiff p e
       throwError "\
         'change' tactic failed, pattern{indentExpr p}\n\

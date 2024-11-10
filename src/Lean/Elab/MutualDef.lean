@@ -1206,6 +1206,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
           let range? := (fun endPos => ⟨endPos, endPos⟩) <$> (← getRef).getTailPos?
           -- no non-fatal diagnostics at this point
           snap.new.resolve <| .ofTyped {
+            desc := s!"{decl_name%}: {views.map (·.declId)}"
             defs
             typeCheckedSnap := { range?, task := typeCheckedPromise.result }
             diagnostics := .empty : DefsParsedSnapshot }

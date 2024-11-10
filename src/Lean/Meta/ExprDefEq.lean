@@ -653,16 +653,19 @@ mutual
        we must also erase it.
     -/
     let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
-      if ctx.mvarDecl.lctx.contains localDecl.fvarId then
+      let fvarId := localDecl.fvarId
+      if ctx.mvarDecl.lctx.contains fvarId then
         return toErase
-      else if let some i := ctx.fvars.findIdx? (·.fvarId! == localDecl.fvarId) then
+      else if let some i := ctx.fvars.findIdx? (·.fvarId! == fvarId) then
         if i ≥ ctx.i then
           throwOutOfScopeFVar
-        else if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
+        else
+        let localDecl ← fvarId.getDecl
+        if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
           -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-          logError m! "This shouldn't be possible: {localDecl.toExpr} has dependencies that are in {toErase.map Expr.fvar}"
-          trace[Meta.isDefEq.assign] m! "This shouldn't be possible: {localDecl.toExpr} has dependencies that are in {toErase.map Expr.fvar}"
-          return toErase.push localDecl.fvarId
+          logError m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
+          trace[Meta.isDefEq.assign] m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
+          return toErase.push fvarId
         else
           return toErase
       else
@@ -945,9 +948,11 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
       let fvar := fvars[i]
       let fvarType ← inferType fvar
       if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars i fvarType then
+        trace[Meta.isDefEq.assign] "{fvar} : {fvarType} checked quickly"
         checkFVars (i+1)
       else if let some fvarType ← CheckAssignment.checkAssignmentAux mvarId fvars i hasCtxLocals fvarType then
         withReader (fun ctx => { ctx with lctx := ctx.lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType) }) do
+          trace[Meta.isDefEq.assign] "{fvar} : {fvarType} checked slowly"
           checkFVars (i+1)
       else
         return none
@@ -967,6 +972,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
           return none
         return some (v, lctx)
   checkFVars 0
+
 -- Implementation for `_root_.Lean.MVarId.checkedAssign`
 @[export lean_checked_assign]
 def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do

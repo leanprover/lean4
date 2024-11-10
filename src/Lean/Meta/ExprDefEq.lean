@@ -964,8 +964,7 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
         trace[Meta.isDefEq.assign.typeError] "{v} succeeded very quicky"
         return some (v, lctx)
       else
-        let mctx ← getMCtx
-        let v ← if CheckAssignmentQuick.check hasCtxLocals mctx lctx mvarDecl mvarId fvars fvars.size v then
+        let v ← if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) lctx mvarDecl mvarId fvars fvars.size v then
           trace[Meta.isDefEq.assign.typeError] "{v} succeeded quicky"
           pure v
         else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars fvars.size hasCtxLocals (← instantiateMVars v) then
@@ -974,7 +973,8 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
         else
           trace[Meta.isDefEq.assign.typeError] "{v} failed the check"
           return none
-        unless typeOccursCheck mctx mvarId v do
+        unless typeOccursCheck (← getMCtx) mvarId v do
+          trace[Meta.isDefEq.assign.typeError] "failed type occurs check"
           return none
         return some (v, lctx)
   checkFVars 0

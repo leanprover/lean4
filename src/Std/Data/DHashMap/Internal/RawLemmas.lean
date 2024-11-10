@@ -832,12 +832,21 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
 @[simp]
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
-  simp_to_model 
+  simp_to_model
   rw [List.containsKey_eq_keys_contains]
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
+
+theorem insertManyList_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
+    (m.insertManyList l).contains k ↔ m.contains k ∨ List.containsKey k l := by
+  rw [contains_eq_containsKey,contains_eq_containsKey, containsKey_of_perm (l':= List.insertMany (toListModel m.1.buckets) l)]
+  apply insertMany_containsKey
+  apply toListModel_insertManyList (Raw.WF.out h)
+  apply (Raw.WF.out h)
+  apply wfImp_insertManyList (Raw.WF.out h)
+
 
 end Raw₀
 

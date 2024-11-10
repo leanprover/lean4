@@ -1844,4 +1844,12 @@ theorem insertMany_perm_of_perm_first [BEq α] [EquivBEq α] (l1 l2 toInsert: Li
     exact h
     apply DistinctKeys.insertEntry distinct
 
+theorem insertMany_containsKey [BEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (k: α): containsKey k (List.insertMany l toInsert) = true ↔ containsKey k l= true ∨ containsKey k toInsert = true := by
+  induction toInsert generalizing l with
+  | nil => simp[insertMany]
+  | cons hd tl ih =>
+    simp[insertMany]
+    rw [ih, containsKey_insertEntry, containsKey_cons, Bool.or_eq_true_iff, Bool.or_eq_true_iff, or_comm (a:=containsKey k l), or_assoc, or_assoc, or_comm (a:=containsKey k l)]
+
+
 end List

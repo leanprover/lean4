@@ -706,6 +706,40 @@ theorem wfImp_filter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   rw [filter_eq_filterₘ]
   exact wfImp_filterₘ h
 
+/-! # `insertManyListₘ` -/
+theorem wfImp_insertManyListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1): Raw.WFImp (insertManyListₘ m l).1 := by
+  induction l generalizing m with
+  | nil =>
+    simp[insertManyListₘ]
+    exact h
+  | cons hd tl ih =>
+    simp[insertManyListₘ]
+    apply ih
+    apply wfImp_insert h
+
+theorem toListModel_insertManyListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1):
+  Perm (toListModel (insertManyListₘ m l).1.buckets) (List.insertMany (toListModel m.1.buckets) l) := by
+induction l generalizing m with
+| nil =>
+  simp[insertManyListₘ, List.insertMany]
+| cons hd tl ih =>
+  simp[insertManyListₘ, List.insertMany]
+  apply Perm.trans
+  apply ih (wfImp_insert h)
+  apply List.insertMany_perm_of_perm_first
+  apply toListModel_insert h
+  apply (wfImp_insert h).distinct
+
+/-! # `insertManyList` -/
+theorem wfImp_insertManyList [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1): Raw.WFImp (insertManyList m l).1 := by
+  rw [insertManyList_eq_insertManyListₘ]
+  apply wfImp_insertManyListₘ h
+
+theorem toListModel_insertManyList [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1):
+  Perm (toListModel (insertManyList m l).1.buckets) (List.insertMany (toListModel m.1.buckets) l) := by
+  rw [insertManyList_eq_insertManyListₘ]
+  apply toListModel_insertManyListₘ h
+
 end Raw₀
 
 namespace Raw
@@ -727,6 +761,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
 end Raw
 
 namespace Raw₀
+/-! # `insertMany` -/
 
 theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] {m : Raw₀ α β} {l : ρ} (h : Raw.WFImp m.1) :

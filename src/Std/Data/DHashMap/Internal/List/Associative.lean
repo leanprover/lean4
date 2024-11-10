@@ -849,10 +849,10 @@ theorem isEmpty_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
 theorem keys_eq_map (l : List ((a : α) × β a)) : keys l = l.map (·.1) := by
   induction l using assoc_induction <;> simp_all
 
-theorem length_keys_eq_length (l : List ((a : α) × β a)) : (keys l).length = l.length := by 
+theorem length_keys_eq_length (l : List ((a : α) × β a)) : (keys l).length = l.length := by
   induction l using assoc_induction <;> simp_all
 
-theorem isEmpty_keys_eq_isEmpty (l : List ((a : α) × β a)) : (keys l).isEmpty = l.isEmpty := by 
+theorem isEmpty_keys_eq_isEmpty (l : List ((a : α) × β a)) : (keys l).isEmpty = l.isEmpty := by
   induction l using assoc_induction <;> simp_all
 
 theorem containsKey_eq_keys_contains [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
@@ -1826,5 +1826,22 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
     cases k' == k
     · rw [cond_false, cond_false, ih, List.cons_append]
     · rw [cond_true, cond_true]
+
+/-- Internal implementation detail of the hash map -/
+def insertMany [BEq α] (l toInsert: List ((a : α) × β a)) : List ((a : α) × β a) :=
+  match toInsert with
+  | .nil => l
+  | .cons ⟨k, v⟩ toInsert => insertMany (insertEntry k v l) toInsert
+
+theorem insertMany_perm_of_perm_first [BEq α] [EquivBEq α] (l1 l2 toInsert: List ((a : α) × β a)) (h: Perm l1 l2) (distinct: DistinctKeys l1): Perm (insertMany l1 toInsert) (insertMany l2 toInsert)  := by
+  induction toInsert generalizing l1 l2 with
+  | nil => simp[insertMany, h]
+  | cons hd tl ih =>
+    simp[insertMany]
+    apply ih
+    apply insertEntry_of_perm
+    exact distinct
+    exact h
+    apply DistinctKeys.insertEntry distinct
 
 end List

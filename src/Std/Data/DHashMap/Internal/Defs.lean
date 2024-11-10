@@ -352,6 +352,14 @@ where
     r := ⟨r.1.insert a b, fun _ h hm => h (r.2 _ h hm)⟩
   return r
 
+/-- Internal implementation detail of the hash map -/
+def insertManyList [BEq α] [Hashable α]
+    (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β := Id.run do
+let mut r := m
+for ⟨a,b⟩ in l do
+  r:= r.insert a b
+return r
+
 section
 
 variable {β : Type v}

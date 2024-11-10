@@ -323,10 +323,10 @@ def filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) : Raw₀ α β
   ⟨withComputedSize (updateAllBuckets m.1.buckets fun l => l.filter f), by simpa using m.2⟩
 
 /-- Internal implementation detail of the hash map -/
-def insertManyListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): Raw₀ α β :=
+def insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): Raw₀ α β :=
   match l with
   | .nil => m
-  | .cons hd tl => insertManyListₘ (m.insert hd.1 hd.2) tl
+  | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
 
 section
 
@@ -461,12 +461,12 @@ theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl
 
-theorem insertManyList_eq_insertManyListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): insertManyList m l = insertManyListₘ m l := by
-  simp [insertManyList, Id.run]
+theorem insertList_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): insertList m l = insertListₘ m l := by
+  simp [insertList, Id.run]
   induction l generalizing m with
-  | nil => simp[insertManyListₘ]
+  | nil => simp[insertListₘ]
   | cons hd tl ih =>
-    simp [insertManyListₘ]
+    simp [insertListₘ]
     rw [ih]
 
 section

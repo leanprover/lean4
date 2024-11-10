@@ -839,14 +839,74 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
 
-theorem insertManyList_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
-    (m.insertManyList l).contains k ↔ m.contains k ∨ List.containsKey k l := by
+@[simp]
+theorem insertList_nil: m.insertList [] = m := by
+  simp[insertList, Id.run]
+
+@[simp]
+theorem insertList_singleton {k: α} {v: β k}: m.insertList [⟨k,v⟩] = m.insert k v := by
+  simp[insertList, Id.run]
+
+theorem insert_insertList {l: List ((a:α) × (β a))} {k: α} {v: β k}: (m.insert k v).insertList l = m.insertList (⟨k,v⟩::l) := by
+  cases l with
+  | nil => simp[insertList]
+  | cons hd tl => simp[insertList]
+
+theorem insertList_insertList {l1 l2: List ((a:α) × (β a))}:
+    (m.insertList l1).insertList l2 = m.insertList (l1++l2) := by
+  simp[insertList_eq_insertListₘ]
+  induction l1 generalizing m with
+  | nil => simp[insertListₘ]
+  | cons hd tl ih =>
+    simp[insertListₘ]
+    apply ih
+
+theorem insertList_insert {l: List ((a:α) × (β a))} {k: α} {v: β k}:
+  (m.insertList l).insert k v = m.insertList (l ++ [⟨k,v⟩]) := by
+  simp [insertList_eq_insertListₘ]
+  induction l generalizing m with
+  | nil => simp[insertListₘ]
+  | cons hd tl ih =>
+    simp[insertListₘ]
+    rw [ih]
+
+theorem insertList_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
+    (m.insertList l).contains k ↔ m.contains k ∨ List.containsKey k l := by
   rw [contains_eq_containsKey,contains_eq_containsKey, containsKey_of_perm (l':= List.insertMany (toListModel m.1.buckets) l)]
   apply insertMany_containsKey
-  apply toListModel_insertManyList (Raw.WF.out h)
+  apply toListModel_insertList (Raw.WF.out h)
   apply (Raw.WF.out h)
-  apply wfImp_insertManyList (Raw.WF.out h)
+  apply wfImp_insertList (Raw.WF.out h)
 
+theorem insertList_size [LawfulBEq α][LawfulHashable α]{l: List ((a:α) × (β a))} {distinct: DistinctKeys l} {distinct2: ∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)} (h: m.1.WF): (m.insertList l).1.size = m.1.size + l.length := by
+  simp[insertList_eq_insertListₘ]
+  induction l generalizing m with
+  | nil => simp[insertListₘ]
+  | cons hd tl ih =>
+    simp[insertListₘ]
+    rw [ih, size_insert]
+    · split
+      · rename_i h
+        specialize distinct2 hd.1
+        simp[h, containsKey] at distinct2
+      · rw [Nat.add_assoc, Nat.add_comm 1 _]
+    · exact h
+    · apply DistinctKeys.tail distinct
+    · intro a
+      rw [contains_insert _ h]
+      simp
+      specialize distinct2 a
+      rw [containsKey_cons] at distinct2
+      simp at distinct2
+      intro h'
+      cases h' with
+      | inl h' =>
+        rw [← h']
+        apply DistinctKeys.containsKey_eq_false distinct
+      | inr h' =>
+        specialize distinct2 h'
+        apply And.right distinct2
+    · apply Raw.WF.insert₀ h
 
 end Raw₀
 

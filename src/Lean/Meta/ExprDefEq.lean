@@ -902,16 +902,27 @@ private def typeOccursCheck (mctx : MetavarContext) (mvarId : MVarId) (v : Expr)
   unsafe typeOccursCheckImp mctx mvarId v
 
 /--
-  Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
-  It will check whether we can perform the assignment
-  ```
-  ?m := fun fvars => v
-  ```
-  The result is `none` if the assignment can't be performed.
-  The result is `some (newV, newLCtx)` where `newV` is a possibly updated `v` and `newLCtx` a possibly updated
-  local context. This method may need to unfold let-declarations, or
-  assign unassigned metavariables to fresh metavariables with a restricted local context,
-  in either `v` or the types of `a₁ ... aₙ`. -/
+Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
+It will check whether we can perform the assignment
+```
+?m := fun fvars => v
+```
+The result is `none` if the assignment can't be performed.
+The result is `some (newV, newLCtx)` where `newV` is a possibly updated `v` and `newLCtx` a possibly updated
+local context. This method may need to unfold let-declarations.
+
+The following things are checked:
+
+1) occurs check, that is, check that `?m` doesn't appear in the assignment
+2) all free variables in the assignment must be present in the local context of `?m`.
+  If a let-varaible isn't in the local context, then this can be resolved by instantiating it with its let-value.
+3) all metavariables in the assignment must have local contexts that are at most as large as the local context of `?m`.
+  If a metavariable has a local context with more free variables, this can be resolved by
+  assigning it to a new fresh metavariable with a restricted local context.
+
+checks 1-3 are done in both `v` and in the types of `a₁ ... aₙ`.
+Additionally, we do an occurs check at the type of `v` (see `typeOccursCheck`)
+-/
 def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (Option (Expr × LocalContext)) := do
   let mvarDecl ← mvarId.getDecl
   let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar

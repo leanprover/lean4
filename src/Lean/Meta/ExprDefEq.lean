@@ -664,11 +664,13 @@ mutual
         return toErase.push localDecl.fvarId
     let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
       lctx.erase toEraseFVar
+    trace[Meta.isDefEq.assign] "CheckAssignment.checkMVar: erasing {toErase.map Expr.fvar} from {Expr.mvar mvarId}"
     /- Compute new set of local instances. -/
     let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
     let mvarType ← check mvarDecl.type
     let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
     mvarId.assign newMVar
+    trace[Meta.isDefEq.assign] "CheckAssignment.checkMVar: new mvar {newMVar}"
     return newMVar
 
   /--

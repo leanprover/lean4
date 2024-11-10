@@ -658,13 +658,14 @@ mutual
         return toErase
       else if let some i := ctx.fvars.findIdx? (·.fvarId! == fvarId) then
         if i ≥ ctx.i then
+          trace[Meta.isDefEq.assign.typeError] "unavailable {Expr.fvar fvarId}"
           throwOutOfScopeFVar
         else
         let localDecl ← fvarId.getDecl
         if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
           -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-          logError m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
-          trace[Meta.isDefEq.assign] m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
+          -- logError m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
+          trace[Meta.isDefEq.assign.typeError] m! "This shouldn't be possible: {Expr.fvar fvarId} : {localDecl.type} has dependencies that are in {toErase.map Expr.fvar}"
           return toErase.push fvarId
         else
           return toErase
@@ -948,25 +949,30 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
       let fvar := fvars[i]
       let fvarType ← inferType fvar
       if CheckAssignmentQuick.check hasCtxLocals (← getMCtx) (← getLCtx) mvarDecl mvarId fvars i fvarType then
-        trace[Meta.isDefEq.assign] "{fvar} : {fvarType} checked quickly"
+        trace[Meta.isDefEq.assign.typeError] "{fvar} : {fvarType} checked quickly"
         checkFVars (i+1)
       else if let some fvarType ← CheckAssignment.checkAssignmentAux mvarId fvars i hasCtxLocals fvarType then
         withReader (fun ctx => { ctx with lctx := ctx.lctx.modifyLocalDecl fvar.fvarId! (·.setType fvarType) }) do
-          trace[Meta.isDefEq.assign] "{fvar} : {fvarType} checked slowly"
+          trace[Meta.isDefEq.assign.typeError] "{fvar} : {fvarType} checked slowly"
           checkFVars (i+1)
       else
+        trace[Meta.isDefEq.assign.typeError] "{fvar} : {fvarType} failed"
         return none
     else
       let lctx ← getLCtx
       if !v.hasExprMVar && !v.hasFVar then
+        trace[Meta.isDefEq.assign.typeError] "{v} succeeded very quicky"
         return some (v, lctx)
       else
         let mctx ← getMCtx
         let v ← if CheckAssignmentQuick.check hasCtxLocals mctx lctx mvarDecl mvarId fvars fvars.size v then
+          trace[Meta.isDefEq.assign.typeError] "{v} succeeded quicky"
           pure v
         else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars fvars.size hasCtxLocals (← instantiateMVars v) then
+          trace[Meta.isDefEq.assign.typeError] "{v} succeeded slowly"
           pure v
         else
+          trace[Meta.isDefEq.assign.typeError] "{v} failed the check"
           return none
         unless typeOccursCheck mctx mvarId v do
           return none
@@ -1047,7 +1053,7 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
     if xs.size != numArgs then
       pure false
     else
-      let v ← mkLambdaFVars xs v (etaReduce := true)
+      let v ← mkLambdaFVars xs v
       match (← checkAssignment mvar.mvarId! #[] v) with
       | none   => pure false
       | some (v, _) =>

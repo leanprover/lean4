@@ -471,24 +471,7 @@ def addDecl (env : Environment) (opts : Options) (decl : Declaration)
   if let some n := env.realizingConst? then
     panic! s!"cannot add declaration {decl.getNames} while realizing constant {n}"
   let mut env := env
-  if let some postponedDecls := env.postponedDecls? then
-    let name ← match decl with
-      | .thmDecl thm => pure thm.name
-      | .defnDecl defn => pure defn.name
-      | .mutualDefnDecl [defn] => pure defn.name
-      | .axiomDecl ax => pure ax.name
-      | _ =>
-        if let some _ := env.asyncCtx? then
-          panic! s!"cannot add non-definition/non-theorem declaration {decl.getNames} in async context"
-          return env
-        else
-          return (← doAdd)
-    if let some asyncCtx := env.asyncCtx? then
-      if checkAsyncPrefix && !asyncCtx.mayContain name then
-        panic! s!"declaration '{name}' cannot be added to the environment because the context \
-          is restricted to the prefix {asyncCtx.declPrefix}"
-        return env
-    return { env with postponedDecls? := postponedDecls.push { decl, skipExisting } }
+    --return { env with postponedDecls? := postponedDecls.push { decl, skipExisting } }
   doAdd
 where doAdd := do
   let env ← checkPostponedDecls env opts cancelTk?
@@ -556,13 +539,16 @@ def AddConstAsyncResult.commitSignature (res : AddConstAsyncResult) (sig : Const
     throw <| .userError s!"AddConstAsyncResult.commitSignature: constant has name {sig.name} but expected {res.constName}"
   res.sigPromise.resolve sig
 
-def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environment) :
+def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environment) (info? : Option ConstantInfo := none) :
     IO Unit := do
   let some asyncCtx := env.asyncCtx?
     | throw <| .userError "AddConstAsyncResult.commitConst: environment does not have an async context"
-  let some subDecl := env.postponedDecls?.bind (·.find? (·.toConstantInfo.name == res.constName))
-    | throw <| .userError s!"AddConstAsyncResult.commitConst: constant {res.constName} not found in async context"
-  let info := subDecl.toConstantInfo
+  let info ← match info? with
+    | some info => pure info
+    | none =>
+      let some subDecl := env.postponedDecls?.bind (·.find? (·.toConstantInfo.name == res.constName))
+        | throw <| .userError s!"AddConstAsyncResult.commitConst: constant {res.constName} not found in async context"
+      pure subDecl.toConstantInfo
   res.commitSignature info.toConstantVal
   let kind' := .ofConstantInfo info
   if res.kind != kind' then
@@ -589,7 +575,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) :
   if let some n := env.realizingConst? then
     panic! s!"cannot add declaration {constName} while realizing constant {n}"
   if let some postponedDecls := env.postponedDecls? then
-    if postponedDecls.isEmpty then
+    if !postponedDecls.isEmpty then
       panic! s!"cannot add declaration {constName} with postponed declarations [{postponedDecls.map (·.toConstantInfo.name)}]"
   let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
@@ -1077,9 +1063,9 @@ def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env :
 
 def findStateAsync {α β σ : Type} [Inhabited σ]
     (ext : PersistentEnvExtension α β σ) (env : Environment) (declName : Name) : σ :=
-  if let some { exts? := some exts, .. } := env.asyncConsts.findPrefix? declName then
-    EnvExtensionInterfaceImp.getState ext.toEnvExtension exts.get |>.state
-  else
+  --if let some { exts? := some exts, .. } := env.asyncConsts.findPrefix? declName then
+  --  EnvExtensionInterfaceImp.getState ext.toEnvExtension exts.get |>.state
+  --else
     ext.getState env
 
 end PersistentEnvExtension

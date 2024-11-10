@@ -1056,7 +1056,7 @@ where
           addLocalVarInfo view.declId funFVar
         let mut async? := none
         if let (#[view], #[declId]) := (views, expandedDeclIds) then
-          if view.kind.isTheorem && typeCheckedPromise?.isSome &&
+          if false && view.kind.isTheorem && typeCheckedPromise?.isSome &&
               !deprecated.oldSectionVars.get (← getOptions) then
             let env ← getEnv
             let async ← env.addConstAsync declId.declName .thm
@@ -1099,8 +1099,8 @@ where
               for preDef in preDefs do
                 trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
               addPreDefinitions preDefs
-              if let some async := async? then
-                async.commitConst (← getEnv)
+              --if let some async := async? then
+              --  async.commitConst (← getEnv)
           finally
             valPromise.resolve (Expr.const `failedAsyncElab [])
         let checkAndCompile := try

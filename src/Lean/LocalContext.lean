@@ -384,7 +384,7 @@ def size (lctx : LocalContext) : Nat :=
 @[inline] def findDeclRev? (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run <| lctx.findDeclRevM? f
 
-partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
+partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Subarray Expr) (i j : Nat) : Bool :=
   if h : i < a₁.size then
     match a₁[i] with
     | none       => isSubPrefixOfAux a₁ a₂ exceptFVars (i+1) j
@@ -401,7 +401,7 @@ partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVar
 /-- Given `lctx₁ - exceptFVars` of the form `(x_1 : A_1) ... (x_n : A_n)`, then return true
    iff there is a local context `B_1* (x_1 : A_1) ... B_n* (x_n : A_n)` which is a prefix
    of `lctx₂` where `B_i`'s are (possibly empty) sequences of local declarations. -/
-def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := #[]) : Bool :=
+def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Subarray Expr := {}) : Bool :=
   isSubPrefixOfAux lctx₁.decls lctx₂.decls exceptFVars 0 0
 
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=

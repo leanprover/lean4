@@ -123,6 +123,14 @@ example (x y z w : Nat) (h : x + y = z + w) : True := by
   trivial
 
 /-!
+`change` inserts a coercion when types are incompatible.
+-/
+example (ty : {α : Prop // Nonempty α}) : ty.val := by
+  change ty
+  guard_target =ₛ ty.val
+  exact test_sorry
+
+/-!
 ## Conv `change`
 -/
 

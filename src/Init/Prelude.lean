@@ -2688,35 +2688,6 @@ def Array.mkArray7 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : α) : Arr
 def Array.mkArray8 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : α) : Array α :=
   ((((((((mkEmpty 8).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
 
-/--
-Set an element in an array without bounds checks, using a `Fin` index.
-
-This will perform the update destructively provided that `a` has a reference
-count of 1 when called.
--/
-@[extern "lean_array_fset"]
-def Array.set (a : Array α) (i : @& Fin a.size) (v : α) : Array α where
-  toList := a.toList.set i.val v
-
-/--
-Set an element in an array, or do nothing if the index is out of bounds.
-
-This will perform the update destructively provided that `a` has a reference
-count of 1 when called.
--/
-@[inline] def Array.setD (a : Array α) (i : Nat) (v : α) : Array α :=
-  dite (LT.lt i a.size) (fun h => a.set ⟨i, h⟩ v) (fun _ => a)
-
-/--
-Set an element in an array, or panic if the index is out of bounds.
-
-This will perform the update destructively provided that `a` has a reference
-count of 1 when called.
--/
-@[extern "lean_array_set"]
-def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
-  Array.setD a i v
-
 /-- Slower `Array.append` used in quotations. -/
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
   let rec loop (i : Nat) (j : Nat) (as : Array α) : Array α :=
@@ -3637,6 +3608,13 @@ def appendCore : Name → Name → Name
 
 end Name
 
+/-- The default maximum recursion depth. This is adjustable using the `maxRecDepth` option. -/
+def defaultMaxRecDepth := 512
+
+/-- The message to display on stack overflow. -/
+def maxRecDepthErrorMessage : String :=
+  "maximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information"
+
 /-! # Syntax -/
 
 /-- Source information of tokens. -/
@@ -3968,24 +3946,6 @@ def isIdent : Syntax → Bool
 def getId : Syntax → Name
   | ident _ _ val _ => val
   | _               => Name.anonymous
-
-/--
-Updates the argument list without changing the node kind.
-Does nothing for non-`node` nodes.
--/
-def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
-  match stx with
-  | node info k _ => node info k args
-  | stx           => stx
-
-/--
-Updates the `i`'th argument of the syntax.
-Does nothing for non-`node` nodes, or if `i` is out of bounds of the node list.
--/
-def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
-  match stx with
-  | node info k args => node info k (args.setD i arg)
-  | stx              => stx
 
 /-- Retrieve the left-most node or leaf's info in the Syntax tree. -/
 partial def getHeadInfo? : Syntax → Option SourceInfo
@@ -4422,13 +4382,6 @@ main module and current macro scope.
   bind getMainModule     fun mainModule =>
   bind getCurrMacroScope fun scp =>
   pure (Lean.addMacroScope mainModule n scp)
-
-/-- The default maximum recursion depth. This is adjustable using the `maxRecDepth` option. -/
-def defaultMaxRecDepth := 512
-
-/-- The message to display on stack overflow. -/
-def maxRecDepthErrorMessage : String :=
-  "maximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information"
 
 namespace Syntax
 

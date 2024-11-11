@@ -460,7 +460,7 @@ where
   loop (i : Nat) : Array α :=
     if h : i < vs.size then
       if v == vs[i] then
-        vs.set ⟨i,h⟩ v
+        vs.set i v
       else
         loop (i+1)
     else

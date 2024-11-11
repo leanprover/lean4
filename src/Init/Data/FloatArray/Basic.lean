@@ -71,7 +71,7 @@ def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → F
 
 @[extern "lean_float_array_fset"]
 def set : (ds : FloatArray) → (@& Fin ds.size) → Float → FloatArray
-  | ⟨ds⟩, i, d => ⟨ds.set i d⟩
+  | ⟨ds⟩, i, d => ⟨ds.set i.1 d i.2⟩
 
 @[extern "lean_float_array_set"]
 def set! : FloatArray → (@& Nat) → Float → FloatArray

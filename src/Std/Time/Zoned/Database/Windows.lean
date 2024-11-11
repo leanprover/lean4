@@ -21,13 +21,13 @@ namespace Windows
 Fetches the next timezone transition for a given timezone identifier and timestamp.
 -/
 @[extern "lean_windows_get_next_transition"]
-opaque getNextTransition : @&String -> @&Int64 -> IO (Option (Int64 × TimeZone))
+opaque getNextTransition : @&String -> Int64 -> IO (Option (Int64 × TimeZone))
 
 /--
 Fetches the timezone at a timestamp.
 -/
 @[extern "lean_get_windows_local_timezone_id_at"]
-opaque getLocalTimeZoneIdentifierAt : @&Int64 → IO String
+opaque getLocalTimeZoneIdentifierAt : Int64 → IO String
 
 /--
 Retrieves the timezone rules, including all transitions, for a given timezone identifier.
@@ -38,8 +38,9 @@ def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
 
   while true do
     let result ← Windows.getNextTransition id start
+
     if let some res := result then
-      transitions := transitions.push { time := Second.Offset.ofInt res.fst.toInt, localTimeType := {
+      transitions := transitions.push { time := Second.Offset.ofInt start.toInt, localTimeType := {
         gmtOffset := res.snd.offset,
         abbreviation := res.snd.abbreviation,
         identifier := res.snd.name,
@@ -48,7 +49,8 @@ def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
         utLocal := .local
       }}
 
-      if res.fst ≤ start then
+      -- Avoid zone rules for more than year 3000
+      if res.fst ≤ start ∨ res.fst >= 32503690800 then
         break
 
       start := res.fst

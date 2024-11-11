@@ -114,6 +114,14 @@ theorem Perm.length_eq {l₁ l₂ : List α} (p : l₁ ~ l₂) : length l₁ = l
   | swap => rfl
   | trans _ _ ih₁ ih₂ => simp only [ih₁, ih₂]
 
+theorem Perm.contains_eq [BEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) {a : α} :
+    l₁.contains a = l₂.contains a := by
+  induction h with
+  | nil => rfl
+  | cons => simp_all
+  | swap => simp only [contains_cons, ← Bool.or_assoc, Bool.or_comm]
+  | trans => simp_all
+
 theorem Perm.eq_nil {l : List α} (p : l ~ []) : l = [] := eq_nil_of_length_eq_zero p.length_eq
 
 theorem Perm.nil_eq {l : List α} (p : [] ~ l) : [] = l := p.symm.eq_nil.symm

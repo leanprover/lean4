@@ -177,6 +177,9 @@ end
 @[inline, inherit_doc Raw.isEmpty] def isEmpty (m : DHashMap α β) : Bool :=
   m.1.isEmpty
 
+@[inline, inherit_doc Raw.keys] def keys (m : DHashMap α β) : List α :=
+  m.1.keys
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -231,9 +234,6 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
 @[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
     (m : DHashMap α (fun _ => β)) : Array (α × β) :=
   Raw.Const.toArray m.1
-
-@[inline, inherit_doc Raw.keys] def keys (m : DHashMap α β) : List α :=
-  m.1.keys
 
 @[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
     Array α :=

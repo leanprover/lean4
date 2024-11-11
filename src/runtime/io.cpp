@@ -704,7 +704,8 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     }
 
     char dst_name[256];
-    u_strToUTF8(dst_name, sizeof(dst_name), NULL, tzID, tzIDLength, &status);
+    int32_t dst_name_len;
+    u_strToUTF8(dst_name, sizeof(dst_name), &dst_name_len, tzID, tzIDLength, &status);
 
     UChar display_name[32];
     int32_t display_name_len = ucal_getTimeZoneDisplayName(cal, is_dst ? UCAL_SHORT_DST : UCAL_SHORT_STANDARD, "en_US", display_name, 32, &status);
@@ -715,7 +716,8 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     }
 
     char display_name_str[256];
-    u_strToUTF8(display_name_str, sizeof(display_name_str), NULL, display_name, display_name_len, &status);
+    int32_t display_name_str_len;
+    u_strToUTF8(display_name_str, sizeof(display_name_str), &display_name_str_len, display_name, display_name_len, &status);
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
@@ -737,12 +739,12 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
     lean_object *lean_tz = lean_alloc_ctor(0, 3, 1);
     lean_ctor_set(lean_tz, 0, lean_int_to_int(offset_seconds));
-    lean_ctor_set(lean_tz, 1, lean_mk_string_from_bytes_unchecked(dst_name));
-    lean_ctor_set(lean_tz, 2, lean_mk_string_from_bytes_unchecked(display_name_str));
+    lean_ctor_set(lean_tz, 1, lean_mk_string_from_bytes_unchecked(dst_name, dst_name_len));
+    lean_ctor_set(lean_tz, 2, lean_mk_string_from_bytes_unchecked(display_name_str, display_name_str_len));
     lean_ctor_set_uint8(lean_tz, sizeof(void*)*3, is_dst);
-    
+
     lean_object *lean_pair = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(lean_pair, 0, (uint64_t)tm);
+    lean_ctor_set(lean_pair, 0, lean_box_uint64((uint64_t)tm));
     lean_ctor_set(lean_pair, 1, lean_tz);
 
     return lean_io_result_mk_ok(mk_option_some(lean_pair));

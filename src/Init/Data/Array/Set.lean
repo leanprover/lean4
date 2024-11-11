@@ -8,7 +8,8 @@ import Init.Tactics
 
 
 /--
-Set an element in an array without bounds checks, using a `Fin` index.
+Set an element in an array, using a proof that the index is in bounds.
+(This proof can usually be omitted, and will be synthesized automatically.)
 
 This will perform the update destructively provided that `a` has a reference
 count of 1 when called.

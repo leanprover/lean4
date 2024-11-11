@@ -18,8 +18,6 @@ import Lean.SimpLC.Whitelists.Std
 import Lean.SimpLC.Whitelists.Subtype
 import Lean.SimpLC.Whitelists.Sum
 
-set_option maxHeartbeats 0
-
 /-
 The actual checks happen in `tests/lean/run/simplc.lean`.
 These commented out commands remain here for convenience while debugging.
@@ -40,6 +38,7 @@ if they do not intentionally occupy the root namespace.
 /-
 Check *everything*.
 -/
+-- set_option maxHeartbeats 0 in
 -- #time
 -- #guard_msgs (drop info) in
 -- simp_lc check

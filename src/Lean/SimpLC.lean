@@ -41,12 +41,14 @@ try (apply Fin.elim0; assumption)
 try repeat simp_all
 try ((try apply Iff.of_eq); ac_rfl)
 try omega -- helps with sizeOf lemmas and AC-equivalence of +
+try (congr; done)
+try apply Subsingleton.elim
 ```
 
-The command fails if there are any join-joinable critical pairs. It will offer a “Try
-this”-suggestion to insert `simp_lc whitelist` commands for all of them.
+The command fails if there are any non-joinable critical pairs. It will offer a “Try
+this”-suggestion to insert `simp_lc inspect` commands for all of them.
 
-With `simp_lc check root` only critical paris where both lemmas rewrite at the same position are
+With `simp_lc check root` only critical pairs where both lemmas rewrite at the same position are
 considered.
 
 With `simp_lc check in Foo` only lemmas whose name has `Foo.` as a prefix are considered. The syntax
@@ -90,18 +92,6 @@ def withoutModifingMVarAssignmentImpl (x : MetaM α) : MetaM α := do
 def withoutModifingMVarAssignment {m} [Monad m] [MonadControlT MetaM m] {α} (x : m α) : m α :=
   mapMetaM (fun k => withoutModifingMVarAssignmentImpl k) x
 
-def forallInstTelescope {α} (e : Expr) (n : Nat) (k : Expr → MetaM α) : MetaM α := do
-  match n with
-  | 0 => k e
-  | n+1 =>
-    let .forallE name d b bi := e | unreachable!
-    if (← isClass? d).isSome then
-      if let .some inst ← trySynthInstance d then
-        return ← forallInstTelescope (b.instantiate1 inst) n k
-
-    withLocalDecl name bi d fun x => do
-      forallInstTelescope (b.instantiate1 x) n k
-
 def mvarsToContext {α} (es1 : Array Expr) (es2 : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α := do
   let es2 ← es2.mapM instantiateMVars
   let s  : AbstractMVars.State := { mctx := (← getMCtx), lctx := (← getLCtx), ngen := (← getNGen), abstractLevels := false }
@@ -126,8 +116,8 @@ abbrev M := StateT (Array CriticalPair) (StateT Nat MetaM)
 def M.run (a : M α) : MetaM ((α × Array CriticalPair) × Nat):= StateT.run (StateT.run a #[]) 0
 
 open Elab Tactic
-partial
-def checkSimpLC (root_only : Bool) (tac? : Option (TSyntax `Lean.Parser.Tactic.tacticSeq))
+
+partial def checkSimpLC (root_only : Bool) (tac? : Option (TSyntax `Lean.Parser.Tactic.tacticSeq))
     (thm1 : SimpTheorem) (thms : SimpTheorems) : M Unit :=
   withConfig (fun c => { c with etaStruct := .none }) do
   withCurrHeartbeats do
@@ -165,15 +155,11 @@ def checkSimpLC (root_only : Bool) (tac? : Option (TSyntax `Lean.Parser.Tactic.t
           let type2 ← whnf (← instantiateMVars type2)
           let type1 ← cgoal.getType
           if ← withReducible (isDefEq type1 type2) then
-            MVarCycles.checkMVarsCycles -- may not be needed anymore with https://github.com/leanprover/lean4/pull/4420
+            MVarCycles.checkMVarsCycles -- We still need this despite https://github.com/leanprover/lean4/pull/4420 being fixed.
             cgoal.assign (val2.beta hyps2) -- TODO: Do we need this, or is the defeq enough?
 
             mvarsToContext (hyps1 ++ hyps2) #[lhs1, rhs1, rewritten] fun _fvars r => do
               let #[cp, e1, e2] := r | unreachable!
-              -- Do we need forallInstTelescope here?
-              -- At some point I was using
-              -- forallInstTelescope (← mkForallFVars fvars goal) fvars.size fun goal => do
-              -- here
               trace[simplc]
                 m!"Expression{indentExpr cp}\n" ++
                 m!"reduces with {← ppOrigin thm1.origin} to{indentExpr e1}\n" ++

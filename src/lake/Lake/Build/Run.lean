@@ -17,6 +17,7 @@ open System
 namespace Lake
 
 private def findLinkerError (log : Log) : Bool := Id.run do
+  let log := log.filter fun logEntry => logEntry.message.startsWith "stderr"
   for log in log.toString.splitOn do
     if log == "linker" || log == "ld" ||
        log == "_main" || log == "main" ||

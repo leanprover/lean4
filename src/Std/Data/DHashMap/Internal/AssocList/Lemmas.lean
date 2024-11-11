@@ -40,7 +40,7 @@ theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocLis
 @[simp]
 theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
   rw [length, foldl_eq]
-  suffices ∀ n, l.toList.foldl (fun d _ => d + 1) n = l.toList.length + n by simpa using this 0
+  suffices ∀ n, l.toList.foldl (fun d _ => d + 1) n = l.toList.length + n by simp
   induction l
   · simp
   · next _ _ t ih =>

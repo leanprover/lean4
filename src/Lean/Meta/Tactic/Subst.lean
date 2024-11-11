@@ -112,9 +112,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                 let newType := type.replaceFVar a b
                 cont motive newType
       | _ =>
-        let eqMsg := if symm then "(t = x)" else "(x = t)"
+        let eqMsg := if symm then "t = x" else "x = t"
         throwTacticEx `subst mvarId
-          m!"invalid equality proof, it is not of the form {eqMsg}{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
+          m!"invalid equality proof, it is not of the form '{eqMsg}'{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
 
 /--
   Given `h : HEq α a α b` in the given goal, produce a new goal where `h : Eq α a b`.
@@ -204,7 +204,7 @@ where
         else
           return (← substCore mvarId h (symm := false) (tryToSkip := true)).2
       else do
-        throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr localDecl.type}"
+        throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form 'x = t' or 't = x'{indentExpr localDecl.type}"
 
 /--
 Given `x`, try to find an equation of the form `heq : x = rhs` or `heq : lhs = x`,

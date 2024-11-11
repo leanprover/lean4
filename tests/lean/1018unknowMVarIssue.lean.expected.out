@@ -29,9 +29,7 @@ a : α
       • _example (isBinder := true) : {α β : Type} → α → Fam2 α β → β @ ⟨7, 0⟩†-⟨10, 19⟩†
       • a (isBinder := true) : α @ ⟨7, 9⟩-⟨7, 10⟩
       • x (isBinder := true) : Fam2 α β @ ⟨7, 17⟩-⟨7, 18⟩
-      • match α, β, x, a with
-        | α_1, .(α_1), Fam2.any, a => ?m x α_1 a
-        | .(Nat), .(Nat), Fam2.nat n, a => n : β @ ⟨8, 2⟩-⟨10, 19⟩ @ MutualDef.body
+      • CustomInfo(Lean.Elab.Term.BodyInfo)
         • match α, β, x, a with
           | α_1, .(α_1), Fam2.any, a => ?m x α_1 a
           | .(Nat), .(Nat), Fam2.nat n, a => n : β @ ⟨8, 2⟩-⟨10, 19⟩ @ Lean.Elab.Term.elabMatch

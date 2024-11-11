@@ -129,6 +129,36 @@ builtin_simproc [bv_normalize] bv_add_const' (((_ : BitVec _) + (_ : BitVec _)) 
 
 attribute [builtin_bv_normalize_proc↓] reduceIte
 
+/-- Return a number `k` such that `2^k = n`. -/
+private def Nat.log2Exact (n : Nat) : Option Nat := do
+  guard <| n ≠ 0
+  let k := n.log2
+  guard <| Nat.pow 2 k == n
+  return k
+
+-- Build an expression for `x ^ y`.
+def mkPow (x y : Expr) : MetaM Expr := mkAppM ``HPow.hPow #[x, y]
+
+builtin_simproc [bv_normalize] bv_udiv_of_two_pow (((_ : BitVec _) / (BitVec.ofNat _ _) : BitVec _)) := fun e => do
+  let_expr HDiv.hDiv _α _β _γ _self x y := e | return .continue
+  let some ⟨w, yVal⟩ ← getBitVecValue? y | return .continue
+  let n := yVal.toNat
+  -- BitVec.ofNat w n, where n =def= 2^k
+  let some k := Nat.log2Exact n | return .continue
+  -- check that k < w.
+  if k ≥ w then return .continue
+  let rhs ← mkAppM ``HShiftRight.hShiftRight #[x, mkNatLit k]
+  -- 2^k = n
+  let hk ← mkDecideProof (← mkEq (← mkPow (mkNatLit 2) (mkNatLit k)) (mkNatLit n))
+  -- k < w
+  let hlt ← mkDecideProof (← mkLt (mkNatLit k) (mkNatLit w))
+  let proof := mkAppN (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.udiv_ofNat_eq_of_lt)
+    #[mkNatLit w, x, mkNatLit n, mkNatLit k, hk, hlt]
+  return .done {
+      expr :=  rhs
+      proof? := some proof
+  }
+
 /--
 A pass in the normalization pipeline. Takes the current goal and produces a refined one or closes
 the goal fully, indicated by returning `none`.

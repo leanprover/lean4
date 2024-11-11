@@ -20,6 +20,12 @@ info: { second := 0 }
   println! repr res.initialLocalTimeType.gmtOffset
 
 /-
+The idea is just to check if there's no errors while computing the local zone rules.
+-/
+#eval do
+  discard <| Database.defaultGetLocalZoneRules
+
+/-
 Java:
 2013-10-19T23:59:59-03:00[America/Sao_Paulo] 1382237999
 2013-10-20T01:00-02:00[America/Sao_Paulo] 1382238000

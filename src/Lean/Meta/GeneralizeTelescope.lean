@@ -23,7 +23,7 @@ partial def updateTypes (e eNew : Expr) (entries : Array Entry) (i : Nat) : Meta
       let typeAbst ← kabstract type e
       if typeAbst.hasLooseBVars then do
         let typeNew := typeAbst.instantiate1 eNew
-        let entries := entries.set ⟨i, h⟩ { entry with type := typeNew, modified := true }
+        let entries := entries.set i { entry with type := typeNew, modified := true }
         updateTypes e eNew entries (i+1)
       else
         updateTypes e eNew entries (i+1)

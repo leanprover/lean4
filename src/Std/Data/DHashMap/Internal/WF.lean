@@ -167,7 +167,7 @@ theorem toListModel_foldl_reinsertAux [BEq α] [Hashable α] [PartialEquivBEq α
 theorem expand.go_pos [Hashable α] {i : Nat} {source : Array (AssocList α β)}
     {target : { d : Array (AssocList α β) // 0 < d.size }} (h : i < source.size) :
     expand.go i source target = go (i + 1)
-      (source.set ⟨i, h⟩ .nil) ((source.get ⟨i, h⟩).foldl (reinsertAux hash) target) := by
+      (source.set i .nil) ((source.get ⟨i, h⟩).foldl (reinsertAux hash) target) := by
   rw [expand.go]
   simp only [h, dite_true]
 

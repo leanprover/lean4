@@ -2643,6 +2643,15 @@ theorem add_mod_eq_add_sub {w : Nat} {a b : Nat} (hab_ge : a + b ≥ w) (hab_lt 
   rw [Nat.mod_eq_sub_mod, Nat.mod_eq_of_lt (by omega)]
   omega
 
+theorem getMsbD_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < w - r) :
+    (x.rotateLeftAux r).getMsbD i = x.getMsbD (r + i) := by
+  rw [rotateLeftAux, getMsbD_or]
+  simp [show i < w - r by omega, Nat.add_comm]
+
+theorem getMsbD_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ w - r) :
+    (x.rotateLeftAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - (w - r))) := by
+  simp [rotateLeftAux, getMsbD_or, show i + r ≥ w by omega, show ¬i < w - r by omega]
+
 theorem getMsbD_rotateLeft {m n w : Nat} {x : BitVec w} :
     (x.rotateLeft m).getMsbD n = (decide (n < w) && x.getMsbD ((m + n) % w)) := by
   rw [getMsbD_eq_getLsbD, getMsbD_eq_getLsbD]

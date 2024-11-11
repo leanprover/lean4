@@ -322,7 +322,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let stx ← liftMacroM <| expandMacros stx
   match stx with
   | `(fun $binders* => $f $args*) =>
-    if binders == args then
+    if binders.raw.toList.isPerm args.raw.toList then
       try Term.resolveId? f catch _ => return none
     else
       return none
@@ -332,7 +332,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   | `(fun $binders* => rightact% $f $a $b)
   | `(fun $binders* => binrel% $f $a $b)
   | `(fun $binders* => binrel_no_prop% $f $a $b) =>
-    if binders == #[a, b] then
+    if binders == #[a, b] || binders == #[b, a] then
       try Term.resolveId? f catch _ => return none
     else
       return none

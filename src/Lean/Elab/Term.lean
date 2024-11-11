@@ -1339,6 +1339,21 @@ def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → Term
   else
     Elab.withInfoContext' x mkInfo
 
+/-- Info node capturing `def/let rec` bodies, used by the unused variables linter. -/
+structure BodyInfo where
+  /-- The body as a fully elaborated term. -/
+  value : Expr
+deriving TypeName
+
+/-- Creates an `Info.ofCustomInfo` node backed by a `BodyInfo`. -/
+def mkBodyInfo (stx : Syntax) (value : Expr) : Info :=
+  .ofCustomInfo { stx, value := .mk { value : BodyInfo } }
+
+/-- Extracts a `BodyInfo` custom info. -/
+def getBodyInfo? : Info → Option BodyInfo
+  | .ofCustomInfo { value, .. } => value.get? BodyInfo
+  | _ => none
+
 /--
 Postpone the elaboration of `stx`, return a metavariable that acts as a placeholder, and
 ensures the info tree is updated and a hole id is introduced.

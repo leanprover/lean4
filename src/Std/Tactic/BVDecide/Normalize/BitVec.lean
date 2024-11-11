@@ -304,5 +304,11 @@ attribute [bv_normalize] BitVec.umod_zero
 attribute [bv_normalize] BitVec.umod_one
 attribute [bv_normalize] BitVec.umod_eq_and
 
+/-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
+theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
+    x / (BitVec.ofNat w n) = x >>> k := by
+  have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bv_toNat, hk]
+  rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
+
 end Normalize
 end Std.Tactic.BVDecide

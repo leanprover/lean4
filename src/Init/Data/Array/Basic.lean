@@ -12,6 +12,7 @@ import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
 import Init.Data.List.ToArray
+import Init.Data.Array.Set
 universe u v w
 
 /-! ### Array literal syntax -/
@@ -29,7 +30,8 @@ namespace Array
 
 /-! ### Preliminary theorems -/
 
-@[simp] theorem size_set (a : Array α) (i : Fin a.size) (v : α) : (set a i v).size = a.size :=
+@[simp] theorem size_set (a : Array α) (i : Nat) (v : α) (h : i < a.size) :
+    (set a i v h).size = a.size :=
   List.length_set ..
 
 @[simp] theorem size_push (a : Array α) (v : α) : (push a v).size = a.size + 1 :=
@@ -141,7 +143,7 @@ def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
    `fset` may be slightly slower than `uset`. -/
 @[extern "lean_array_uset"]
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
-  a.set ⟨i.toNat, h⟩ v
+  a.set i.toNat v h
 
 @[extern "lean_array_pop"]
 def pop (a : Array α) : Array α where
@@ -167,10 +169,10 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let v₁ := a.get i
   let v₂ := a.get j
   let a'  := a.set i v₂
-  a'.set (size_set a i v₂ ▸ j) v₁
+  a'.set j v₁ (Nat.lt_of_lt_of_eq j.isLt (size_set a i v₂ _).symm)
 
 @[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
-  show ((a.set i (a.get j)).set (size_set a i _ ▸ j) (a.get i)).size = a.size
+  show ((a.set i (a.get j)).set j (a.get i) (Nat.lt_of_lt_of_eq j.isLt (size_set a i (a.get j) _).symm)).size = a.size
   rw [size_set, size_set]
 
 /--
@@ -278,7 +280,7 @@ unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : 
     -- of the element type, and that it is valid to store `box(0)` in any array.
     let a'               := a.set idx (unsafeCast ())
     let v ← f v
-    pure <| a'.set (size_set a .. ▸ idx) v
+    pure <| a'.set idx v (Nat.lt_of_lt_of_eq h (size_set a ..).symm)
   else
     pure a
 

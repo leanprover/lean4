@@ -999,6 +999,21 @@ theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → 
     · simp
     · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
 
+@[simp] theorem foldl_add_const (l : List α) (a b : Nat) :
+    l.foldl (fun x _ => x + a) b = b + a * l.length := by
+  induction l generalizing b with
+  | nil => simp
+  | cons y l ih =>
+    simp only [foldl_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
+      Nat.add_comm a]
+
+@[simp] theorem foldr_add_const (l : List α) (a b : Nat) :
+    l.foldr (fun _ x => x + a) b = b + a * l.length := by
+  induction l generalizing b with
+  | nil => simp
+  | cons y l ih =>
+    simp only [foldr_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc]
+
 /-! ### getLast -/
 
 theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),

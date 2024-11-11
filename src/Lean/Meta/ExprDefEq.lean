@@ -1205,7 +1205,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
       if h : i < args.size then
         let arg := args.get ⟨i, h⟩
         let arg ← simpAssignmentArg arg
-        let args := args.set ⟨i, h⟩ arg
+        let args := args.set i arg
         match arg with
         | Expr.fvar fvarId =>
           if args[0:i].any fun prevArg => prevArg == arg then

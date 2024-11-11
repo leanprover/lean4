@@ -512,6 +512,31 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
     subst h
     simp
 
+@[simp]
+theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
+  simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
+
+/-! ### slt -/
+
+/--
+A bitvector, when interpreted as an integer, is less than zero iff
+its most significant bit is true.
+-/
+theorem slt_zero_iff_msb_cond (x : BitVec w) : x.slt 0#w ↔ x.msb = true := by
+  have := toInt_eq_msb_cond x
+  constructor
+  · intros h
+    apply Classical.byContradiction
+    intros hmsb
+    simp only [Bool.not_eq_true] at hmsb
+    simp only [hmsb, Bool.false_eq_true, ↓reduceIte] at this
+    simp only [BitVec.slt, toInt_zero, decide_eq_true_eq] at h
+    omega /- Can't have `x.toInt` which is equal to `x.toNat` be strictly less than zero -/
+  · intros h
+    simp only [h, ↓reduceIte] at this
+    simp [BitVec.slt, this]
+    omega
+
 /-! ### setWidth, zeroExtend and truncate -/
 
 @[simp]
@@ -2376,6 +2401,9 @@ theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
 theorem smtUDiv_eq (x y : BitVec w) : smtUDiv x y = if y = 0#w then allOnes w else x / y := by
   simp [smtUDiv]
 
+@[simp]
+theorem smtUDiv_zero {x : BitVec n} : x.smtUDiv 0#n = allOnes n := rfl
+
 /-! ### sdiv -/
 
 /-- Equation theorem for `sdiv` in terms of `udiv`. -/
@@ -2442,6 +2470,10 @@ theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
   | true,  true  => smtUDiv (-x) (-y) := by
   rw [BitVec.smtSDiv]
   rcases x.msb <;> rcases y.msb <;> simp
+
+@[simp]
+theorem smtSDiv_zero {x : BitVec n} : x.smtSDiv 0#n = if x.slt 0#n then 1#n else (allOnes n) := by
+  rcases hx : x.msb <;> simp [smtSDiv, slt_zero_iff_msb_cond x, hx, ← negOne_eq_allOnes]
 
 /-! ### srem -/
 
@@ -2776,6 +2808,14 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
   ext i
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
+
+/--
+The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,
+when `k` is less than the bitwidth `w`.
+-/
+theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x / (twoPow w k) = x >>> k := by
+  have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) hk
+  simp [bv_toNat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
 
 /- ### cons -/
 

@@ -2611,7 +2611,7 @@ theorem getLsbD_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
   apply getLsbD_ge
   omega
 
-/-- When `r < w`, we give a formula for `(x.rotateRight r).getLsbD i`. -/
+/-- When `r < w`, we give a formula for `(x.rotateLeft r).getLsbD i`. -/
 theorem getLsbD_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
     (x.rotateLeft r).getLsbD i =
       cond (i < r)
@@ -2652,38 +2652,29 @@ theorem getMsbD_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
     (x.rotateLeftAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - (w - r))) := by
   simp [rotateLeftAux, getMsbD_or, show i + r ≥ w by omega, show ¬i < w - r by omega]
 
-theorem getMsbD_rotateLeft {m n w : Nat} {x : BitVec w} :
-    (x.rotateLeft m).getMsbD n = (decide (n < w) && x.getMsbD ((m + n) % w)) := by
-  rw [getMsbD_eq_getLsbD, getMsbD_eq_getLsbD]
+theorem getMsbD_rotateLeft_of_le {m n w : Nat} {x : BitVec w} (hi : r < w):
+    (x.rotateLeft r).getMsbD n = (decide (n < w) && x.getMsbD ((r + n) % w)) := by
   rcases w with rfl | w
   · simp
-  · by_cases h₀ : n < (w + 1)
-    · simp only [h₀, decide_True, Nat.add_one_sub_one, Bool.true_and]
-      rw [← rotateLeft_mod_eq_rotateLeft]
-      have : m % (w + 1) < w + 1 := by apply Nat.mod_lt; omega
-      rw [rotateLeft_eq_rotateLeftAux_of_lt (by assumption)]
-      by_cases w - n ≥ m % (w + 1)
-      · rw [getLsbD_rotateLeftAux_of_geq (by omega)]
-        congr 1
-        · simp only [show w - n < w + 1 by omega, decide_True, Bool.true_and,
-          show (m + n) % (w + 1) < w + 1 by apply Nat.mod_lt; omega]
-        · simp only [Nat.sub_sub,
-          show (m + n) % (w + 1) = (m % (w + 1)) + n by
-            rw [Nat.add_mod, Nat.mod_eq_of_lt (a := n) (by omega), Nat.mod_eq_of_lt]; omega,
-          Nat.add_comm]
-      · rw [getLsbD_rotateLeftAux_of_le (by omega)]
-        simp_all only [ge_iff_le, Nat.not_le,
-          show ((m + n) % (w + 1) < w + 1) by apply Nat.mod_lt; omega, decide_True, Bool.true_and]
-        rw [Nat.add_mod]
-        generalize h₃ : m % (w + 1) = m'
-        rw [Nat.mod_eq_of_lt (a := n) (by omega)]
-        simp only [show w + 1 - m' + (w - n) = w - m' + (w + 1 - n) by omega,
-          show w - m' + (w + 1 - n) = w - (m' - (w + 1 - n)) by omega,
-          show w - (m' - (w + 1 - n)) = w - (m' + n - (w + 1)) by omega]
-        have : m' + n < 2 * (w + 1) := by omega
-        have : m' + n ≥ (w + 1) := by omega
+  · rw [BitVec.rotateLeft_eq_rotateLeftAux_of_lt (by omega)]
+    by_cases h : n < (w + 1) - r
+    · simp [getMsbD_rotateLeftAux_of_le h, Nat.mod_eq_of_lt, show r + n < (w + 1) by omega, show n < w + 1 by omega]
+    · simp [getMsbD_rotateLeftAux_of_geq <| Nat.ge_of_not_lt h]
+      by_cases h₁ : n < w + 1
+      · simp only [h₁, decide_True, Bool.true_and]
+        have h₂ : (r + n) < 2 * (w + 1) := by omega
         rw [add_mod_eq_add_sub (by omega) (by omega)]
-    · simp [h₀]
+        congr 1
+        omega
+      · simp [h₁]
+
+theorem getMsbD_rotateLeft {m n w : Nat} {x : BitVec w} :
+    (x.rotateLeft r).getMsbD n = (decide (n < w) && x.getMsbD ((r + n) % w)) := by
+  rcases w with rfl | w
+  · simp
+  · -- simp [getMsbD_rotateLeft_of_le]
+
+    sorry
 
 @[simp]
 theorem msb_rotateLeft {m w : Nat} {x : BitVec w} :

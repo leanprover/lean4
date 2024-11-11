@@ -4,7 +4,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 23, "character": 21}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -12,29 +12,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 23, "character": 21}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 23, "character": 21}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -45,7 +23,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -56,25 +34,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 23, "character": 21}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -85,7 +52,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -96,14 +63,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -115,7 +82,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 26, "character": 24}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -123,29 +90,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 26, "character": 24}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 26, "character": 24}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -156,7 +101,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -167,25 +112,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 26, "character": 24}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -196,7 +130,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -207,14 +141,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -229,7 +163,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 32, "character": 26}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -237,29 +171,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 32, "character": 26}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 32, "character": 26}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -270,7 +182,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -281,25 +193,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 32, "character": 26}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -310,7 +211,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -321,14 +222,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -340,7 +241,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 35, "character": 27}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -348,29 +249,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 35, "character": 27}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 35, "character": 27}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -381,7 +260,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -392,25 +271,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 35, "character": 27}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -421,7 +289,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -432,14 +300,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -451,7 +319,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 40, "character": 7}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -459,29 +327,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 40, "character": 7}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 40, "character": 7}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -492,7 +338,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -503,25 +349,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 40, "character": 7}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -532,7 +367,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -543,14 +378,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -562,7 +397,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 44, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -570,29 +405,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 44, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 44, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -603,7 +416,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -614,25 +427,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 44, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -643,7 +445,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -654,14 +456,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -673,7 +475,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 49, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -681,29 +483,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 49, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 49, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -714,7 +494,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -725,25 +505,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 49, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -754,7 +523,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -765,14 +534,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -784,7 +553,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 53, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -792,29 +561,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 53, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 53, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -825,7 +572,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -836,25 +583,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 53, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -865,7 +601,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -876,14 +612,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -895,7 +631,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 59, "character": 4}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -903,29 +639,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 59, "character": 4}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 59, "character": 4}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -936,7 +650,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -947,25 +661,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 59, "character": 4}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -976,7 +679,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -987,14 +690,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1006,7 +709,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 64, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1014,29 +717,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 64, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 64, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1047,7 +728,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1058,25 +739,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 64, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1087,7 +757,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1098,14 +768,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1117,7 +787,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 70, "character": 4}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1125,29 +795,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 70, "character": 4}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 70, "character": 4}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1158,7 +806,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1169,25 +817,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 70, "character": 4}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1198,7 +835,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1209,14 +846,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1228,7 +865,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 76, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1236,29 +873,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 76, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 76, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1269,7 +884,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1280,25 +895,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 76, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1309,7 +913,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1320,14 +924,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1342,7 +946,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 86, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1350,29 +954,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 86, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 86, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1383,7 +965,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1394,25 +976,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 86, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1423,7 +994,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1434,14 +1005,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1453,7 +1024,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 91, "character": 4}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1461,29 +1032,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 91, "character": 4}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 91, "character": 4}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1494,7 +1043,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1505,25 +1054,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 91, "character": 4}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1534,7 +1072,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1545,14 +1083,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1564,7 +1102,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 96, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1572,29 +1110,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 96, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 96, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1605,7 +1121,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1616,25 +1132,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 96, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1645,7 +1150,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1656,14 +1161,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1675,7 +1180,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 102, "character": 4}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1683,29 +1188,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 102, "character": 4}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 102, "character": 4}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1716,7 +1199,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1727,25 +1210,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 102, "character": 4}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1756,7 +1228,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1767,14 +1239,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
@@ -1789,7 +1261,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 112, "character": 2}}
 {"items":
- [{"sortText": "00",
+ [{"sortText": "0",
    "label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
@@ -1797,29 +1269,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "01",
-   "label": "Lean.Parser.Tactic.decide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`\nand then reducing that instance to evaluate the truth value of `p`.\nIf it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.\n\nLimitations:\n- The target is not allowed to contain local variables or metavariables.\n  If there are local variables, you can try first using the `revert` tactic with these local variables\n  to move them into the target, which may allow `decide` to succeed.\n- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined\n  by well-founded recursion might not work, because evaluating them requires reducing proofs.\n  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.\n  These can appear for instances defined using tactics (such as `rw` and `simp`).\n  To avoid this, use definitions such as `decidable_of_iff` instead.\n\n## Examples\n\nProving inequalities:\n```lean\nexample : 2 + 2 ≠ 5 := by decide\n```\n\nTrying to prove a false proposition:\n```lean\nexample : 1 ≠ 1 := by decide\n/-\ntactic 'decide' proved that the proposition\n  1 ≠ 1\nis false\n-/\n```\n\nTrying to prove a proposition whose `Decidable` instance fails to reduce\n```lean\nopaque unknownProp : Prop\n\nopen scoped Classical in\nexample : unknownProp := by decide\n/-\ntactic 'decide' failed for proposition\n  unknownProp\nsince its 'Decidable' instance reduced to\n  Classical.choice ⋯\nrather than to the 'isTrue' constructor.\n-/\n```\n\n## Properties and relations\n\nFor equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.\n```lean\nexample : 1 + 1 = 2 := by decide\nexample : 1 + 1 = 2 := by rfl\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 112, "character": 2}}}},
-  {"sortText": "02",
-   "label": "Lean.Parser.Tactic.decideBang",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.\nIt has the following properties:\n- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.\n- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,\n  and once during kernel type checking), the `decide!` tactic reduces it exactly once.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 112, "character": 2}}}},
-  {"sortText": "03",
+  {"sortText": "1",
    "label": "Lean.Parser.Tactic.introMatch",
    "kind": 14,
    "documentation":
@@ -1830,7 +1280,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "04",
+  {"sortText": "2",
    "label": "Lean.Parser.Tactic.match",
    "kind": 14,
    "documentation":
@@ -1841,25 +1291,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "05",
-   "label": "Lean.Parser.Tactic.nativeDecide",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 112, "character": 2}}}},
-  {"sortText": "06",
+  {"sortText": "3",
    "label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "07",
+  {"sortText": "4",
    "label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
@@ -1870,7 +1309,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "08",
+  {"sortText": "5",
    "label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
@@ -1881,14 +1320,14 @@
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "09",
+  {"sortText": "6",
    "label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}}}},
-  {"sortText": "10",
+  {"sortText": "7",
    "label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},

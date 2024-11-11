@@ -40,7 +40,7 @@ theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocLis
 @[simp]
 theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
   rw [length, foldl_eq]
-  suffices ∀ n, l.toList.foldl (fun d _ => d + 1) n = l.toList.length + n by simpa using this 0
+  suffices ∀ n, l.toList.foldl (fun d _ => d + 1) n = l.toList.length + n by simp
   induction l
   · simp
   · next _ _ t ih =>
@@ -198,5 +198,10 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     split
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
+
+theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
+    l.foldl (fun acc k v => f k v :: acc) acc =
+      (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
+  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM, Id.run]
 
 end Std.DHashMap.Internal.AssocList

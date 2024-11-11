@@ -186,7 +186,7 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
     err := err ++ m!"Consider the following assignment:\n"
     return err
 
-def lratBitblaster (goal : MVarId) (cfg : TacticContext) (reflectionResult : ReflectionResult)
+def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     MetaM (Except CounterExample UnsatProver.Result) := do
   let bvExpr := reflectionResult.bvExpr
@@ -197,7 +197,7 @@ def lratBitblaster (goal : MVarId) (cfg : TacticContext) (reflectionResult : Ref
   let aigSize := entry.aig.decls.size
   trace[Meta.Tactic.bv] s!"AIG has {aigSize} nodes."
 
-  if cfg.graphviz then
+  if ctx.config.graphviz then
     IO.FS.writeFile ("." / "aig.gv") <| AIG.toGraphviz entry
 
   let (cnf, map) ←
@@ -211,12 +211,12 @@ def lratBitblaster (goal : MVarId) (cfg : TacticContext) (reflectionResult : Ref
 
   let res ←
     withTraceNode `sat (fun _ => return "Obtaining external proof certificate") do
-      runExternal cnf cfg.solver cfg.lratPath cfg.trimProofs cfg.timeout cfg.binaryProofs
+      runExternal cnf ctx.solver ctx.lratPath ctx.config.trimProofs ctx.config.timeout ctx.config.binaryProofs
 
   match res with
   | .ok cert =>
     trace[Meta.Tactic.sat] "SAT solver found a proof."
-    let proof ← cert.toReflectionProof cfg bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
+    let proof ← cert.toReflectionProof ctx bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
     return .ok ⟨proof, cert⟩
   | .error assignment =>
     trace[Meta.Tactic.sat] "SAT solver found a counter example."
@@ -267,10 +267,10 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
       return .ok cert
     | .error counterExample => return .error counterExample
 
-def bvUnsat (g : MVarId) (cfg : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
+def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
   let unsatProver : UnsatProver := fun g reflectionResult atomsAssignment => do
     withTraceNode `bv (fun _ => return "Preparing LRAT reflection term") do
-      lratBitblaster g cfg reflectionResult atomsAssignment
+      lratBitblaster g ctx reflectionResult atomsAssignment
   closeWithBVReflection g unsatProver
 
 /--
@@ -287,18 +287,18 @@ structure Result where
 Try to close `g` using a bitblaster. Return either a `CounterExample` if one is found or a `Result`
 if `g` is proven.
 -/
-def bvDecide' (g : MVarId) (cfg : TacticContext) : MetaM (Except CounterExample Result) := do
-  let g? ← Normalize.bvNormalize g
+def bvDecide' (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample Result) := do
+  let g? ← Normalize.bvNormalize g ctx.config
   let some g := g? | return .ok ⟨none⟩
-  match ← bvUnsat g cfg with
+  match ← bvUnsat g ctx with
   | .ok lratCert => return .ok ⟨some lratCert⟩
   | .error counterExample => return .error counterExample
 
 /--
 Call `bvDecide'` and throw a pretty error if a counter example ends up being produced.
 -/
-def bvDecide (g : MVarId) (cfg : TacticContext) : MetaM Result := do
-  match ← bvDecide' g cfg with
+def bvDecide (g : MVarId) (ctx : TacticContext) : MetaM Result := do
+  match ← bvDecide' g ctx with
   | .ok result => return result
   | .error counterExample =>
     counterExample.goal.withContext do
@@ -309,9 +309,10 @@ def bvDecide (g : MVarId) (cfg : TacticContext) : MetaM Result := do
 
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
 def evalBvTrace : Tactic := fun
-  | `(tactic| bv_decide) => do
+  | `(tactic| bv_decide $cfg:optConfig) => do
+    let cfg ← elabBVDecideConfig cfg
     IO.FS.withTempFile fun _ lratFile => do
-      let cfg ← BVDecide.Frontend.TacticContext.new lratFile
+      let cfg ← BVDecide.Frontend.TacticContext.new lratFile cfg
       liftMetaFinishingTactic fun g => do
         discard <| bvDecide g cfg
   | _ => throwUnsupportedSyntax

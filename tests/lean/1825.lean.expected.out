@@ -1,6 +1,3 @@
-1825.lean:2:8-2:13: error: application type mismatch
-  Lean.ofReduceBool boom'._nativeDecide_1 true (Eq.refl true)
-argument has type
-  true = true
-but function has type
-  Lean.reduceBool boom'._nativeDecide_1 = true → boom'._nativeDecide_1 = true
+1825.lean:2:71-2:84: error: tactic 'native_decide' evaluated that the proposition
+  -2147483648 + 2147483648 = -18446744069414584320
+is false

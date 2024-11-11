@@ -38,7 +38,7 @@ The operations are organized as follow:
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
   `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`,
   `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `modify`, `erase`, `eraseP`, `eraseIdx`.
+* Manipulating elements: `replace`, `modify`, `insert`, `insertIdx`, `erase`, `eraseP`, `eraseIdx`.
 * Finding elements: `find?`, `findSome?`, `findIdx`, `indexOf`, `findIdx?`, `indexOf?`,
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
@@ -1113,12 +1113,6 @@ theorem replace_cons [BEq α] {a : α} :
     (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 
-/-! ### insert -/
-
-/-- Inserts an element into a list without duplication. -/
-@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
-  if l.elem a then l else a :: l
-
 /-! ### modify -/
 
 /--
@@ -1147,6 +1141,21 @@ Apply `f` to the nth element of the list, if it exists, replacing that element w
 -/
 def modify (f : α → α) : Nat → List α → List α :=
   modifyTailIdx (modifyHead f)
+
+/-! ### insert -/
+
+/-- Inserts an element into a list without duplication. -/
+@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
+  if l.elem a then l else a :: l
+
+/--
+`insertIdx n a l` inserts `a` into the list `l` after the first `n` elements of `l`
+```
+insertIdx 2 1 [1, 2, 3, 4] = [1, 2, 1, 3, 4]
+```
+-/
+def insertIdx (n : Nat) (a : α) : List α → List α :=
+  modifyTailIdx (cons a) n
 
 /-! ### erase -/
 

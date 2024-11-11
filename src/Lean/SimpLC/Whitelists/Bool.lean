@@ -32,7 +32,7 @@ simp_lc whitelist ite_eq_left_iff Bool.ite_eq_cond_iff
 simp_lc whitelist ite_eq_right_iff Bool.ite_eq_cond_iff
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
 -- #guard_msgs (drop info) in

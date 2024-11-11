@@ -37,7 +37,7 @@ simp_lc whitelist Std.HashMap.Raw.insert_eq_insert LawfulSingleton.insert_emptyc
 simp_lc whitelist LawfulSingleton.insert_emptyc_eq Std.DHashMap.Raw.insert_eq_insert
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
 -- #guard_msgs (drop info) in

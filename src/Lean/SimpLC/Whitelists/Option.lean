@@ -25,7 +25,7 @@ theorem foo {a : { x // x ∈ o }} : some a.val = o := by
 simp_lc whitelist Option.mem_attach Option.mem_def
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
 -- #guard_msgs (drop info) in

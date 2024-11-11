@@ -19,7 +19,7 @@ import Lean.SimpLC.Whitelists.Subtype
 import Lean.SimpLC.Whitelists.Sum
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 These commented out commands remain here for convenience while debugging.
 -/
 

@@ -98,7 +98,7 @@ simp_lc ignore List.mapFinIdx_eq_mapIdx
   · rcases l with _|⟨b, l⟩ <;> simp
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
 -- #guard_msgs (drop info) in

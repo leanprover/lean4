@@ -79,7 +79,7 @@ simp_lc whitelist exists_eq_right_right Nat.exists_ne_zero
 simp_lc whitelist exists_eq_right_right' Nat.exists_ne_zero
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
 -- #guard_msgs (drop info) in

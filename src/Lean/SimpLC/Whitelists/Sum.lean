@@ -13,7 +13,7 @@ simp_lc ignore Sum.getLeft_eq_iff
 simp_lc ignore Sum.getRight_eq_iff
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
 -- #guard_msgs (drop info) in

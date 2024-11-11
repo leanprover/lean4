@@ -57,7 +57,7 @@ example (w : Nat) : w = 0 → 0#w = 1#w := by rintro rfl; simp
 simp_lc whitelist BitVec.sdiv_self BitVec.sdiv_one
 
 /-
-The actual checks happen in `tests/lean/run/simplc.lean`.
+The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
 -- #guard_msgs (drop info) in

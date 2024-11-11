@@ -13,17 +13,19 @@ import Init.Omega
 
 namespace Fin
 
-/-- If you actually have an element of `Fin n`, then the `n` is always positive -/
-theorem size_pos (i : Fin n) : 0 < n := Nat.lt_of_le_of_lt (Nat.zero_le _) i.2
+@[deprecated Fin.pos (since := "2024-11-11")]
+theorem size_pos (i : Fin n) : 0 < n := i.pos
 
 theorem mod_def (a m : Fin n) : a % m = Fin.mk (a % m) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
 
-theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a * b) % n) (Nat.mod_lt _ a.size_pos) := rfl
+theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a * b) % n) (Nat.mod_lt _ a.pos) := rfl
 
-theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b) + a) % n) (Nat.mod_lt _ a.size_pos) := rfl
+theorem sub_def (a b : Fin n) : a - b = Fin.mk (((n - b) + a) % n) (Nat.mod_lt _ a.pos) := rfl
 
-theorem size_pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.size_pos
+theorem pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.pos
+
+@[deprecated pos' (since := "2024-11-11")] abbrev size_pos' := @pos'
 
 @[simp] theorem is_lt (a : Fin n) : (a : Nat) < n := a.2
 
@@ -240,7 +242,7 @@ theorem fin_one_eq_zero (a : Fin 1) : a = 0 := Subsingleton.elim a 0
   rw [eq_comm]
   simp
 
-theorem add_def (a b : Fin n) : a + b = Fin.mk ((a + b) % n) (Nat.mod_lt _ a.size_pos) := rfl
+theorem add_def (a b : Fin n) : a + b = Fin.mk ((a + b) % n) (Nat.mod_lt _ a.pos) := rfl
 
 theorem val_add (a b : Fin n) : (a + b).val = (a.val + b.val) % n := rfl
 

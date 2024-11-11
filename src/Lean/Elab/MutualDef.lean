@@ -413,7 +413,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           -- Store instantiated body in info tree for the benefit of the unused variables linter
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again
-          withInfoContext' valStx (mkInfo := mkTermInfo `MutualDef.body valStx) do
+          withInfoContext' valStx (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·)) do
             -- synthesize mvars here to force the top-level tactic block (if any) to run
             let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
             -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that

@@ -7,6 +7,7 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.MetaTypes
+import Init.Syntax
 import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
 
@@ -442,7 +443,7 @@ def unsetTrailing (stx : Syntax) : Syntax :=
   if h : i < a.size then
     let v := a[i]
     match f v with
-    | some v => some <| a.set ⟨i, h⟩ v
+    | some v => some <| a.set i v h
     | none   => updateFirst a f (i+1)
   else
     none

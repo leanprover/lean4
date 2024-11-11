@@ -80,7 +80,7 @@ def push (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
 def insert (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
   if let some i := t.findIdx? k then
     if h : i < t.items.size then
-      {t with items := t.items.set ⟨i,h⟩ (k,v)}
+      {t with items := t.items.set i (k,v)}
     else
       t.push k v
   else

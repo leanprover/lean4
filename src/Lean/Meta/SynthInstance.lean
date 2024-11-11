@@ -671,7 +671,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
       If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
       -/
       let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
-      let args := args.set ⟨i, h⟩ arg
+      let args := args.set i arg
       preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
     | _ =>
       throwError "type class resolution failed, insufficient number of arguments" -- TODO improve error message

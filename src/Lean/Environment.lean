@@ -328,7 +328,7 @@ private def invalidExtMsg := "invalid environment extension has been accessed"
 
 unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
   if h : ext.idx < exts.size then
-    exts.set ⟨ext.idx, h⟩ (unsafeCast s)
+    exts.set ext.idx (unsafeCast s)
   else
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg

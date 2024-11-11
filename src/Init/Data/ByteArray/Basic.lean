@@ -65,7 +65,7 @@ def set! : ByteArray → (@& Nat) → UInt8 → ByteArray
 
 @[extern "lean_byte_array_fset"]
 def set : (a : ByteArray) → (@& Fin a.size) → UInt8 → ByteArray
-  | ⟨bs⟩, i, b => ⟨bs.set i b⟩
+  | ⟨bs⟩, i, b => ⟨bs.set i.1 b i.2⟩
 
 @[extern "lean_byte_array_uset"]
 def uset : (a : ByteArray) → (i : USize) → UInt8 → i.toNat < a.size → ByteArray

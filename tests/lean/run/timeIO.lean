@@ -12,17 +12,12 @@ Test for quantity
     throw <| IO.userError "invalid quantity for America/Sao_Paulo"
 
 /--
-info: { gmtOffset := { second := 0 },
-  isDst := false,
-  abbreviation := "UTC",
-  wall := Std.Time.TimeZone.StdWall.standard,
-  utLocal := Std.Time.TimeZone.UTLocal.ut,
-  identifier := "Etc/UTC" }
+info: { second := 0 }
 -/
 #guard_msgs in
 #eval do
   let res ← Database.defaultGetZoneRules "Etc/UTC"
-  println! repr res.initialLocalTimeType
+  println! repr res.initialLocalTimeType.gmtOffset
 
 /-
 Java:

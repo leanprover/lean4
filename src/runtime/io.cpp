@@ -648,8 +648,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     return lean_io_result_mk_ok(lean_ts);
 }
 
-/* Std.Time.Database.Windows.getNextTransition : @&String -> Int64 -> IO (Option (Int64 × TimeZone)) */
-extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezone_str, uint64_t tm_obj, obj_arg /* w */) {
+/* Std.Time.Database.Windows.getNextTransition : @&String -> Int64 -> Bool -> IO (Option (Int64 × TimeZone)) */
+extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezone_str, uint64_t tm_obj, uint8 default_time, obj_arg /* w */) {
 #if defined(LEAN_WINDOWS)
     UErrorCode status = U_ZERO_ERROR;
     const char* dst_name_id = lean_string_cstr(timezone_str);
@@ -668,14 +668,31 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
     }
 
-    int64_t timestamp_secs = (int64_t)tm_obj;
+    int64_t tm = 0;
 
-    ucal_setMillis(cal, timestamp_secs * 1000, &status);
-    if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));
+    if (!default_time) {
+        int64_t timestamp_secs = (int64_t)tm_obj;
+
+        ucal_setMillis(cal, timestamp_secs * 1000, &status);
+        if (U_FAILURE(status)) {
+            ucal_close(cal);
+            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));
+        }
+
+        UDate nextTransition;
+        if (!ucal_getTimeZoneTransitionDate(cal, UCAL_TZ_TRANSITION_NEXT, &nextTransition, &status)) {
+            ucal_close(cal);
+            return io_result_mk_ok(mk_option_none());
+        }
+
+        if (U_FAILURE(status)) {
+            ucal_close(cal);
+            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transation")));
+        }
+
+        tm = (int64_t)(nextTransition / 1000.0);
     }
-
+    
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
 
     if (U_FAILURE(status)) {
@@ -684,17 +701,6 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     }
 
     int is_dst = dst_offset != 0;
-
-    UDate nextTransition;
-    if (!ucal_getTimeZoneTransitionDate(cal, UCAL_TZ_TRANSITION_NEXT, &nextTransition, &status)) {
-        ucal_close(cal);
-        return io_result_mk_ok(mk_option_none());
-    }
-
-    if (U_FAILURE(status)) {
-        ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transation")));
-    }
 
     int32_t tzIDLength = ucal_getTimeZoneDisplayName(cal, is_dst ? UCAL_DST : UCAL_STANDARD, "en_US", tzID, 32, &status);
 
@@ -732,7 +738,6 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
         return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get zone_offset")));
     }
 
-    int64_t tm = (int64_t)(nextTransition / 1000.0);
     ucal_close(cal);
 
     int offset_seconds = zone_offset / 1000;

@@ -21,7 +21,7 @@ namespace Windows
 Fetches the next timezone transition for a given timezone identifier and timestamp.
 -/
 @[extern "lean_windows_get_next_transition"]
-opaque getNextTransition : @&String -> Int64 -> IO (Option (Int64 × TimeZone))
+opaque getNextTransition : @&String → Int64 → Bool → IO (Option (Int64 × TimeZone))
 
 /--
 Fetches the timezone at a timestamp.
@@ -36,18 +36,16 @@ def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
   let mut start := -2147483648
   let mut transitions : Array TimeZone.Transition := #[]
 
+  let mut initialLocalTimeType ←
+    if let some res := ← Windows.getNextTransition id start true
+      then pure (toLocalTime res.snd)
+      else throw (IO.userError "cannot find first transition in zone rules")
+
   while true do
-    let result ← Windows.getNextTransition id start
+    let result ← Windows.getNextTransition id start false
 
     if let some res := result then
-      transitions := transitions.push { time := Second.Offset.ofInt start.toInt, localTimeType := {
-        gmtOffset := res.snd.offset,
-        abbreviation := res.snd.abbreviation,
-        identifier := res.snd.name,
-        isDst := res.snd.isDST,
-        wall := .wall,
-        utLocal := .local
-      }}
+      transitions := transitions.push { time := Second.Offset.ofInt start.toInt, localTimeType := toLocalTime res.snd }
 
       -- Avoid zone rules for more than year 3000
       if res.fst ≤ start ∨ res.fst >= 32503690800 then
@@ -57,12 +55,18 @@ def getZoneRules (id : String) : IO TimeZone.ZoneRules := do
     else
       break
 
-  let initialLocalTimeType ← do
-    if let some res := transitions.get? 0
-      then pure res.localTimeType
-      else throw (IO.userError "cannot find first transition in zone rules")
-
   return { transitions, initialLocalTimeType }
+
+  where
+    toLocalTime (res : TimeZone) : TimeZone.LocalTimeType :=
+      {
+        gmtOffset := res.offset,
+        abbreviation := res.abbreviation,
+        identifier := res.name,
+        isDst := res.isDST,
+        wall := .wall,
+        utLocal := .local
+      }
 
 end Windows
 

@@ -15,7 +15,8 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_fset"]
-def Array.set (a : Array α) (i : @& Nat) (v : α) (h : i < a.size := by get_elem_tactic): Array α where
+def Array.set (a : Array α) (i : @& Nat) (v : α) (h : i < a.size := by get_elem_tactic) :
+    Array α where
   toList := a.toList.set i v
 
 /--

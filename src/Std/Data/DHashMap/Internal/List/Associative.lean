@@ -1871,12 +1871,17 @@ theorem insertList_perm_of_perm_first [BEq α] [EquivBEq α] (l1 l2 toInsert: Li
     exact h
     apply DistinctKeys.insertEntry distinct
 
-theorem insertList_containsKey [BEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (k: α): containsKey k (List.insertList l toInsert) = true ↔ containsKey k l= true ∨ containsKey k toInsert = true := by
+theorem insertList_containsKey [BEq α] [PartialEquivBEq α] (l toInsert : List ((a : α) × β a)) (k: α): containsKey k (List.insertList l toInsert) ↔ containsKey k l ∨ (toInsert.map Sigma.fst).contains k := by
   induction toInsert generalizing l with
   | nil => simp[insertList]
   | cons hd tl ih =>
-    simp[insertList]
-    rw [ih, containsKey_insertEntry, containsKey_cons, Bool.or_eq_true_iff, Bool.or_eq_true_iff, or_comm (a:=containsKey k l), or_assoc, or_assoc, or_comm (a:=containsKey k l)]
+    unfold insertList
+    rw [ih]
+    rw [containsKey_insertEntry]
+    simp
+    rw [BEq.comm]
+    conv => left; left; rw [or_comm]
+    rw [or_assoc]
 
 theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: DistinctKeys toInsert) (distinct_both: ∀ (a:α), ¬ containsKey a l ∨  ¬ containsKey a toInsert):
     Perm (insertList l toInsert) (l++toInsert) := by

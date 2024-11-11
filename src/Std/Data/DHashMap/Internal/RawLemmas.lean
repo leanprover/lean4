@@ -70,7 +70,7 @@ variable [BEq α] [Hashable α]
 /-- Internal implementation detail of the hash map -/
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
-    | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_erase
+    | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_insertList | apply Raw₀.wfImp_erase
     | apply Raw.WF.out | assumption | apply Raw₀.wfImp_empty | apply Raw.WFImp.distinct
     | apply Raw.WF.empty₀))
 
@@ -90,7 +90,7 @@ private def queryNames : Array Name :=
     ``Raw.pairwise_keys_iff_pairwise_keys]
 
 private def modifyNames : Array Name :=
-  #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]
+  #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew, ``toListModel_insertList]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -840,14 +840,15 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
   simp_to_model using (Raw.WF.out h).distinct.distinct
 
 @[simp]
-theorem insertList_nil: m.insertList [] = m := by
+theorem insertList_nil : m.insertList [] = m := by
   simp[insertList, Id.run]
 
 @[simp]
 theorem insertList_singleton {k: α} {v: β k}: m.insertList [⟨k,v⟩] = m.insert k v := by
   simp[insertList, Id.run]
 
-theorem insert_insertList {l: List ((a:α) × (β a))} {k: α} {v: β k}: (m.insert k v).insertList l = m.insertList (⟨k,v⟩::l) := by
+@[simp]
+theorem insertList_cons {l: List ((a:α) × (β a))} {k: α} {v: β k}: m.insertList (⟨k,v⟩::l) = (m.insert k v).insertList l := by
   cases l with
   | nil => simp[insertList]
   | cons hd tl => simp[insertList]
@@ -871,43 +872,24 @@ theorem insertList_insert {l: List ((a:α) × (β a))} {k: α} {v: β k}:
     rw [ih]
 
 theorem insertList_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
-    (m.insertList l).contains k ↔ m.contains k ∨ List.containsKey k l := by
-  rw [contains_eq_containsKey,contains_eq_containsKey, containsKey_of_perm (l':= List.insertList (toListModel m.1.buckets) l)]
-  apply insertList_containsKey
-  apply toListModel_insertList (Raw.WF.out h)
-  apply (Raw.WF.out h)
-  apply wfImp_insertList (Raw.WF.out h)
+    (m.insertList l).contains k ↔ m.contains k ∨ (l.map Sigma.fst).contains k := by
+  simp_to_model using List.insertList_containsKey
 
 theorem insertList_size [LawfulBEq α][LawfulHashable α]{l: List ((a:α) × (β a))} {distinct: DistinctKeys l} {distinct2: ∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)} (h: m.1.WF): (m.insertList l).1.size = m.1.size + l.length := by
-  simp[insertList_eq_insertListₘ]
-  induction l generalizing m with
-  | nil => simp[insertListₘ]
-  | cons hd tl ih =>
-    simp[insertListₘ]
-    rw [ih, size_insert]
-    · split
-      · rename_i h
-        specialize distinct2 hd.1
-        simp[h, containsKey] at distinct2
-      · rw [Nat.add_assoc, Nat.add_comm 1 _]
-    · exact h
-    · apply DistinctKeys.tail distinct
-    · intro a
-      rw [contains_insert _ h]
+  simp_to_model
+  rw [← List.length_append]
+  apply List.Perm.length_eq
+  apply List.insertList_perm
+  . apply (Raw.WF.out h).distinct
+  . exact distinct
+  . simp at distinct2 
+    intro a
+    cases eq : containsKey a (toListModel m.val.buckets) with 
+    | false => simp
+    | true => 
       simp
-      specialize distinct2 a
-      rw [containsKey_cons] at distinct2
-      simp at distinct2
-      intro h'
-      cases h' with
-      | inl h' =>
-        rw [← h']
-        apply DistinctKeys.containsKey_eq_false distinct
-      | inr h' =>
-        specialize distinct2 h'
-        apply And.right distinct2
-    · apply Raw.WF.insert₀ h
-
+      apply distinct2
+      simp_to_model
 end Raw₀
 
 end Std.DHashMap.Internal

@@ -707,7 +707,7 @@ theorem wfImp_filter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   exact wfImp_filterₘ h
 
 /-! # `insertListₘ` -/
-theorem wfImp_insertListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1): Raw.WFImp (insertListₘ m l).1 := by
+theorem wfImp_insertListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1): Raw.WFImp (m.insertListₘ l).1 := by
   induction l generalizing m with
   | nil =>
     simp[insertListₘ]
@@ -731,7 +731,7 @@ induction l generalizing m with
   apply (wfImp_insert h).distinct
 
 /-! # `insertList` -/
-theorem wfImp_insertList [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1): Raw.WFImp (insertList m l).1 := by
+theorem wfImp_insertList [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1): Raw.WFImp (m.insertList l).1 := by
   rw [insertList_eq_insertListₘ]
   apply wfImp_insertListₘ h
 

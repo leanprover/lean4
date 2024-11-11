@@ -89,13 +89,15 @@ def convertTZifV1 (tz : TZif.TZifV1) (id : String) : Except String ZoneRules := 
       then transitions := transitions.push result
       else .error s!"cannot convert transition {i} of the file"
 
-  let first ←
-    if let some res := transitions.get? 0
+  -- Local time for timestamps before the first transition is specified by the first time
+  -- type (time type 0).
+
+  let initialLocalTimeType ←
+    if let some res := convertLocalTimeType 0 tz id
       then .ok res
       else .error s!"empty transitions for {id}"
 
-
-  .ok { transitions, initialLocalTimeType := first.localTimeType }
+  .ok { transitions, initialLocalTimeType }
 
 /--
 Converts a `TZif.TZifV2` structure to a `ZoneRules` structure.

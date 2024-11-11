@@ -2,10 +2,27 @@ import Std.Time
 import Init
 open Std.Time
 
+/-
+Test for quantity
+-/
+
 #eval do
   let res ← Database.defaultGetZoneRules "America/Sao_Paulo"
   if res.transitions.size < 1 then
     throw <| IO.userError "invalid quantity for America/Sao_Paulo"
+
+/--
+info: { gmtOffset := { second := 0 },
+  isDst := false,
+  abbreviation := "UTC",
+  wall := Std.Time.TimeZone.StdWall.standard,
+  utLocal := Std.Time.TimeZone.UTLocal.ut,
+  identifier := "Etc/UTC" }
+-/
+#guard_msgs in
+#eval do
+  let res ← Database.defaultGetZoneRules "Etc/UTC"
+  println! repr res.initialLocalTimeType
 
 /-
 Java:

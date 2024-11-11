@@ -442,6 +442,8 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
   decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (mkEmpty as.size)
 
+@[deprecated mapM (since := "2024-11-11")] abbrev sequenceMap := @mapM
+
 /-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
 @[inline]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]

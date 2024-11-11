@@ -2634,8 +2634,9 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 Access an element from an array without needing a runtime bounds checks,
 using a `Nat` index and a proof that it is in bounds.
 
-(Note this function does not have a tactic autoparameter for the proof argument,
-for bootstrapping reasons. Generally, one will use `a[i]` instead.)
+This function does not use `get_elem_tactic` to automatically find the proof that
+the index is in bounds. This is because the tactic itself needs to look up values in
+arrays. Use the indexing notation `a[i]` instead.
 -/
 @[extern "lean_array_fget"]
 def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=

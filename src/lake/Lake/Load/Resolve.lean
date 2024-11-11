@@ -18,6 +18,21 @@ This module contains definitions for resolving the dependencies of a package.
 
 namespace Lake
 
+def stdMismatchError (newName : String) (rev : String) :=
+s!"the 'std' package has been renamed to '{newName}' and moved to the
+'leanprover-community' organization; downstream packages which wish to
+update to the new std should replace
+
+  require std from
+    git \"https://github.com/leanprover/std4\"{rev}
+
+in their Lake configuration file with
+
+  require {newName} from
+    git \"https://github.com/leanprover-community/{newName}\"{rev}
+
+"
+
 /--
 Loads the package configuration of a materialized dependency.
 Adds the facets defined in the package to the `Workspace`.
@@ -43,100 +58,82 @@ def loadDepPackage
   else
     return (pkg, ws)
 
-/-- The monad of the dependency resolver. -/
-abbrev ResolveT m := CallStackT Name <| StateT Workspace m
+/--
+The resolver's call stack of dependencies.
+That is, the dependency currently being resolved plus its parents.
+-/
+abbrev DepStack := CallStack Name
 
-@[inline] nonrec def ResolveT.run (ws : Workspace) (x : ResolveT m α) (stack : CallStack Name := {}) : m (α × Workspace) :=
-  x.run stack |>.run ws
+/--
+A monad transformer for recursive dependency resolution.
+It equips the monad with the stack of dependencies currently being resolved.
+-/
+abbrev DepStackT m := CallStackT Name m
+
+@[inline] nonrec def DepStackT.run
+  (x : DepStackT m α) (stack : DepStack := {})
+: m α :=
+  x.run stack
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
   error s!"dependency cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
 
-instance [Monad m] [MonadError m] : MonadCycleOf Name (ResolveT m) where
+instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
   throwCycle := depCycleError
 
-/--
-Recursively visits the workspace dependency graph, starting from `root`.
-At each package, loops through each direct dependency performing just `breath`.
-Them, loops again through the results applying `depth`, recursing, and adding
-the package to workspace's package set. Errors if a cycle is encountered.
+/-- The monad of the dependency resolver. -/
+abbrev ResolveT m := DepStackT <| StateT Workspace m
 
-**Traversal Order**
+@[inline] nonrec def ResolveT.run
+  (ws : Workspace) (x : ResolveT m α) (stack : DepStack := {})
+: m (α × Workspace) :=
+  x.run stack |>.run ws
 
-All dependencies of a package are visited in order before recursing to the
-dependencies' dependencies. For example, given the dependency graph:
-
-```
-R
-|- A
-|- B
- |- X
- |- Y
-|- C
-```
-
-Lake follows the order `R`, `A`, `B`, `C`, `X`, `Y`.
-
-The logic behind this design is that users would expect the dependencies
-they write in a package configuration to be resolved accordingly and would be
-surprised if they are overridden by nested dependencies referring to the same
-package.
-
-For example, were Lake to use a pure depth-first traversal, Lake would follow
-the order `R`, `A`, `B`, `X`, `Y`, `C`. If `X` and `C` are both the package
-`foo`, Lake would use the configuration of `foo` found in `B` rather than in
-the root `R`, which would likely confuse the user.
--/
-@[specialize] def Workspace.resolveDeps
+/-- Recursively run a `ResolveT` monad starting from the workspace's root. -/
+@[specialize] private def Workspace.runResolveT
   [Monad m] [MonadError m] (ws : Workspace)
-  (breadth : Package → Dependency → ResolveT m Package)
-  (depth : Package → m PUnit := fun _ => pure ())
+  (go : RecFetchFn Package PUnit (ResolveT m))
+  (root := ws.root) (stack : DepStack  := {})
 : m Workspace := do
-  let (root, ws) ← ResolveT.run ws <| StateT.run' (s := {}) <|
-    inline <| recFetchAcyclic (·.name) go ws.root
-  return {ws with root}
+  let (_, ws) ← ResolveT.run ws (stack := stack) do
+    inline <| recFetchAcyclic (·.name) go root
+  return ws
+
+/-
+Recursively visits each node in a package's dependency graph, starting from
+the workspace package `root`. Each dependency missing from the workspace is
+resolved using the `resolve` function and added into the workspace.
+
+Recursion occurs breadth-first. Each direct dependency of a package is
+resolved in reverse order before recursing to the dependencies' dependencies.
+
+See `Workspace.updateAndMaterializeCore` for more details.
+-/
+@[inline] private def Workspace.resolveDepsCore
+  [Monad m] [MonadError m] (ws : Workspace)
+  (load : Package → Dependency → StateT Workspace m Package)
+  (root : Package := ws.root) (stack : DepStack := {})
+: m Workspace := do
+  ws.runResolveT go root stack
 where
-  @[specialize] go pkg resolve : StateT (NameMap Package) (ResolveT m) Package := do
-    pkg.depConfigs.forM fun dep => do
-      if (← getThe (NameMap Package)).contains dep.name then
-        return
-      if (← getThe Workspace).packageMap.contains dep.name then
-        return -- already resolved in another branch
+  @[specialize] go pkg recurse : ResolveT m Unit := do
+    let start := (← getWorkspace).packages.size
+    -- Materialize and load the missing direct dependencies of `pkg`
+    pkg.depConfigs.forRevM fun dep => do
+      let ws ← getWorkspace
+      if ws.packageMap.contains dep.name then
+        return -- already handled in another branch
       if pkg.name = dep.name then
         error s!"{pkg.name}: package requires itself (or a package with the same name)"
-      let pre ← breadth pkg dep -- package w/o dependencies
-      store dep.name pre
-    let deps ← pkg.depConfigs.mapM fun dep => do
-      if let some pre ← fetch? dep.name then
-        modifyThe (NameMap Package) (·.erase dep.name) -- for `dep` linearity
-        depth pre
-        return OpaquePackage.mk (← resolve pre)
-      if let some dep ← findPackage? dep.name then
-        return OpaquePackage.mk dep -- already resolved in another branch
-      error s!"{dep.name}: impossible resolution state reached"
-    let pkg := {pkg with opaqueDeps := deps}
-    modifyThe Workspace (·.addPackage pkg)
-    return pkg
-
-def stdMismatchError (newName : String) (rev : String) :=
-s!"the 'std' package has been renamed to '{newName}' and moved to the
-'leanprover-community' organization; downstream packages which wish to
-update to the new std should replace
-
-  require std from
-    git \"https://github.com/leanprover/std4\"{rev}
-
-in their Lake configuration file with
-
-  require {newName} from
-    git \"https://github.com/leanprover-community/{newName}\"{rev}
-
-"
+      let depPkg ← load pkg dep
+      modifyThe Workspace (·.addPackage depPkg)
+    -- Recursively load the dependencies' dependencies
+    (← getWorkspace).packages.forM recurse start
 
 /--
-The monad of the manifest updater.
-It is equipped with and entry map entries for the updated manifest.
+Adds monad state used to update the manifest.
+It equips the monad with a map of locked dependencies.
 -/
 abbrev UpdateT := StateT (NameMap PackageEntry)
 
@@ -147,7 +144,9 @@ abbrev UpdateT := StateT (NameMap PackageEntry)
 Reuse manifest versions of root packages that should not be updated.
 Also, move the packages directory if its location has changed.
 -/
-def reuseManifest (ws : Workspace) (toUpdate : NameSet) : UpdateT LogIO PUnit := do
+private def reuseManifest
+  (ws : Workspace) (toUpdate : NameSet)
+: UpdateT LogIO PUnit := do
   let rootName := ws.root.name.toString (escape := false)
   match (← Manifest.load ws.manifestFile |>.toBaseIO) with
   | .ok manifest =>
@@ -175,7 +174,7 @@ def reuseManifest (ws : Workspace) (toUpdate : NameSet) : UpdateT LogIO PUnit :=
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
 /-- Add a package dependency's manifest entries to the update state. -/
-def addDependencyEntries (pkg : Package) : UpdateT LogIO PUnit := do
+private def addDependencyEntries (pkg : Package) : UpdateT LogIO PUnit := do
   match (← Manifest.load pkg.manifestFile |>.toBaseIO) with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
@@ -187,22 +186,31 @@ def addDependencyEntries (pkg : Package) : UpdateT LogIO PUnit := do
   | .error e =>
     logWarning s!"{pkg.name}: ignoring manifest because it failed to load: {e}"
 
-/-- Update a single dependency. -/
-def updateDep
-  (pkg : Package) (dep : Dependency) (leanOpts : Options := {})
-: ResolveT (UpdateT LogIO) Package := do
-  let ws ← getThe Workspace
-  let inherited := pkg.name != ws.root.name
-  -- Materialize the dependency
-  let matDep ← id do
-    if let some entry ← fetch? dep.name then
-      entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
-    else
-      let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir pkg.relDir
-      store matDep.name matDep.manifestEntry
-      return matDep
-  -- Load the package
-  let depPkg ← loadDepPackage matDep dep.opts leanOpts true
+/-- Materialize a single dependency, updating it if desired. -/
+private def updateAndMaterializeDep
+  (ws : Workspace) (pkg : Package) (dep : Dependency)
+: UpdateT LogIO MaterializedDep := do
+  if let some entry ← fetch? dep.name then
+    entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
+  else
+    let inherited := pkg.name ≠ ws.root.name
+    /-
+    NOTE: A path dependency inherited from another dependency's manifest
+    will always be of the form a `./<relPath>` (i.e., be relative to its
+    workspace).  Thus, when relativized to this workspace, it will have the
+    path  `<relPkgDir>/./<relPath>`. However, if defining dependency lacks
+    a manifest, it will instead be locked as `<relPkgDir>/<relPath>`.
+    Adding a `.` here eliminates this difference.
+    -/
+    let relPkgDir := if pkg.relDir == "." then pkg.relDir else pkg.relDir / "."
+    let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir relPkgDir
+    store matDep.name matDep.manifestEntry
+    return matDep
+
+/-- Verify that a dependency was loaded with the correct name. -/
+private def validateDep
+  (pkg : Package) (dep : Dependency) (matDep : MaterializedDep) (depPkg : Package)
+: LogIO PUnit := do
   if depPkg.name ≠ dep.name then
     if dep.name = .mkSimple "std" then
       let rev :=
@@ -216,24 +224,144 @@ def updateDep
         logError s!"'{dep.name}' was downloaded incorrectly; \
           you will need to manually delete '{depPkg.dir}': {e}"
     error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
-  return depPkg
 
 /--
-Rebuild the workspace's Lake manifest and materialize missing dependencies.
-
-Packages are updated to latest specific revision matching that in `require`
-(e.g., if the `require` is `@master`, update to latest commit on master) or
-removed if the `require` is removed. If `tuUpdate` is empty, update/remove all
-root dependencies. Otherwise, only update the root dependencies specified.
-
-Package are always reconfigured when updated.
+Exit code returned if Lake needs a manual restart.
+Used, for instance, if the toolchain is updated and no Elan is detected.
 -/
-def Workspace.updateAndMaterialize
-  (ws : Workspace) (toUpdate : NameSet := {}) (leanOpts : Options := {})
-: LogIO Workspace := do
-  let (ws, entries) ← UpdateT.run do
-    reuseManifest ws toUpdate
-    ws.resolveDeps (updateDep · · leanOpts) (addDependencyEntries ·)
+def restartCode : ExitCode := 4
+
+/--
+Update the workspace's `lean-toolchain` if necessary.
+
+Compares the root's toolchain with that of its direct dependencies to find the
+best match. If none can be found, issue warning and return normally. If an
+update is found
+-/
+def Workspace.updateToolchain
+  (ws : Workspace) (rootDeps : Array MaterializedDep)
+: LoggerIO PUnit := do
+  let rootToolchainFile := ws.root.dir / toolchainFileName
+  let rootTc? ← ToolchainVer.ofDir? ws.dir
+  let (src, tc?, tcs) ← rootDeps.foldlM (init := (ws.root.name, rootTc?, #[])) fun s dep => do
+    let depTc? ← ToolchainVer.ofDir? (ws.dir / dep.relPkgDir)
+    let some depTc := depTc?
+      | return s
+    let (src, tc?, tcs) := s
+    let some tc := tc?
+      | return (dep.name, depTc?, tcs)
+    if depTc ≤ tc then
+      return (src, tc, tcs)
+    else if tc < depTc then
+      return (dep.name, depTc, tcs)
+    else
+      return (src, tc, tcs.push (dep.name, depTc))
+  if 0 < tcs.size then
+    let s := "toolchain not updated; multiple toolchain candidates:"
+    let s := if let some tc := tc? then s!"{s}\n  {tc}\n    from {src}" else s
+    let s := tcs.foldl (init := s) fun s (d, tc) => s!"{s}\n  {tc}\n    from {d}"
+    logWarning s
+  else if let some tc := tc? then
+    if rootTc?.any (· == tc) then
+      logInfo "toolchain not updated; already up-to-date"
+      return
+    logInfo s!"updating toolchain to '{tc}'"
+    IO.FS.writeFile rootToolchainFile tc.toString
+    let some lakeArgs := ws.lakeArgs?
+      | logInfo s!"cannot auto-restart; you will need to manually restart Lake"
+        IO.Process.exit restartCode.toUInt8
+    let some elanInstall := ws.lakeEnv.elan?
+      | logInfo s!"no Elan detected; you will need to manually restart Lake"
+        IO.Process.exit restartCode.toUInt8
+    logInfo s!"restarting Lake via Elan"
+    let child ← IO.Process.spawn {
+      cmd := elanInstall.elan.toString
+      args := #["run", "--install", tc.toString, "lake"] ++ lakeArgs
+      env := Env.noToolchainVars
+    }
+    IO.Process.exit (← child.wait).toUInt8
+  else
+    logInfo s!"toolchain not updated; no toolchain information found"
+
+/--
+Updates the workspace, materializing and reconfiguring dependencies.
+
+Dependencies are updated to latest specific revision matching that in `require`
+(e.g., if the `require` is `@master`, update to latest commit on master) or
+removed if the `require` is removed.
+If `tuUpdate` is empty, all direct dependencies of the workspace's root will be
+updated and/or remove. Otherwise, only those specified will be updated.
+
+If `updateToolchain := true`, the workspace's toolchain is also updated to the
+latest toolchain compatible with the root and its direct dependencies.
+If there are multiple incomparable toolchain versions across them,
+a warning will be issued and no update performed.
+If an update is performed, Lake will automatically restart the update on the new
+toolchain (via `elan`). If `elan` is missing, it will instead request a manual
+restart from the user and exit immediately with `restartCode`.
+
+**Dependency Traversal Order**
+
+All dependencies of a package are visited in reverse order before recursing
+to the dependencies' dependencies. For example, given the dependency graph:
+
+```
+R
+|- A
+|- B
+ |- X
+ |- Y
+|- C
+```
+
+Lake follows the order `R`, `C`, `A`, `B`, `Y`, `X`.
+
+The reason for this is two-fold:
+1. Like targets, later requires should shadow earlier definitions.
+2. Requires written by a user should take priority over those inherited
+from dependencies.
+
+Were Lake to use a depth-first traversal, for example, Lake would follow
+the order `R`, `A`, `B`, `X`, `Y`, `C`. If `X` and `C` are both the package
+`foo`, Lake would use the configuration of `foo` found in `B` rather than in
+the root `R`, which would likely confuse the user.
+-/
+def Workspace.updateAndMaterializeCore
+  (ws : Workspace)
+  (toUpdate : NameSet := {}) (leanOpts : Options := {})
+  (updateToolchain := true)
+: LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
+  reuseManifest ws toUpdate
+  let ws := ws.addPackage ws.root
+  if updateToolchain then
+    let deps := ws.root.depConfigs.reverse
+    let matDeps ← deps.mapM fun dep => do
+      logVerbose s!"{ws.root.name}: updating '{dep.name}' with {toJson dep.opts}"
+      updateAndMaterializeDep ws ws.root dep
+    ws.updateToolchain matDeps
+    let start := ws.packages.size
+    let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
+      let (depPkg, ws) ← loadUpdatedDep ws.root dep matDep ws
+      let ws := ws.addPackage depPkg
+      return ws
+    ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
+      ws.resolveDepsCore (stack := [ws.root.name]) updateAndLoadDep pkg
+  else
+    ws.resolveDepsCore updateAndLoadDep
+where
+  @[inline] updateAndLoadDep pkg dep := do
+    let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
+    loadUpdatedDep pkg dep matDep
+  @[inline] loadUpdatedDep pkg dep matDep : StateT Workspace (UpdateT LogIO) Package  := do
+    let depPkg ← loadDepPackage matDep dep.opts leanOpts true
+    validateDep pkg dep matDep depPkg
+    addDependencyEntries depPkg
+    return depPkg
+
+/-- Write package entries to the workspace manifest. -/
+def Workspace.writeManifest
+  (ws : Workspace) (entries : NameMap PackageEntry)
+: LogIO PUnit := do
   let manifestEntries := ws.packages.foldl (init := #[]) fun arr pkg =>
     match entries.find? pkg.name with
     | some entry => arr.push <|
@@ -246,10 +374,28 @@ def Workspace.updateAndMaterialize
     packages := manifestEntries
   }
   manifest.saveToFile ws.manifestFile
-  LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
-    unless pkg.postUpdateHooks.isEmpty do
-      logInfo s!"{pkg.name}: running post-update hooks"
-      pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
+
+/-- Run a package's `post_update` hooks. -/
+def Package.runPostUpdateHooks (pkg : Package) : LakeT LogIO PUnit := do
+  unless pkg.postUpdateHooks.isEmpty do
+  logInfo s!"{pkg.name}: running post-update hooks"
+  pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
+
+/--
+Updates the workspace, writes the new Lake manifest, and runs package
+post-update hooks.
+
+See `Workspace.updateAndMaterializeCore` for details on the update process.
+-/
+def Workspace.updateAndMaterialize
+  (ws : Workspace)
+  (toUpdate : NameSet := {}) (leanOpts : Options := {})
+  (updateToolchain := true)
+: LoggerIO Workspace := do
+  let (ws, entries) ←
+    ws.updateAndMaterializeCore toUpdate leanOpts updateToolchain
+  ws.writeManifest entries
+  ws.runLakeT do ws.packages.forM (·.runPostUpdateHooks)
   return ws
 
 /--
@@ -293,8 +439,9 @@ def Workspace.materializeDeps
   let pkgEntries : NameMap PackageEntry := manifest.packages.foldl (init := {})
     fun map entry => map.insert entry.name entry
   validateManifest pkgEntries ws.root.depConfigs
-  ws.resolveDeps fun pkg dep => do
-    let ws ← getThe Workspace
+  let ws := ws.addPackage ws.root
+  ws.resolveDepsCore fun pkg dep => do
+    let ws ← getWorkspace
     if let some entry := pkgEntries.find? dep.name then
       let result ← entry.materialize ws.lakeEnv ws.dir relPkgsDir
       loadDepPackage result dep.opts leanOpts reconfigure

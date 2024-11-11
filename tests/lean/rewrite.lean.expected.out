@@ -2,7 +2,7 @@
 as bs : List α
 ⊢ as ++ bs ++ bs = as ++ (bs ++ bs)
 rewrite.lean:18:20-18:29: error: tactic 'rewrite' failed, did not find instance of the pattern in the target expression
-  ?as.reverse.reverse
+  (List.reverse ?as).reverse
 α : Type u_1
 as bs : List α
 ⊢ as ++ [] ++ [] ++ bs ++ bs = as ++ (bs ++ bs)

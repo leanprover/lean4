@@ -17,6 +17,7 @@ fi
 mkdir hello
 pushd hello
 $LAKE init hello
+rm -f lean-toolchain
 $LAKE update
 git init
 git checkout -b master
@@ -34,7 +35,7 @@ cd test
 LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update 2>&1 | grep --color "file://"
 # test that a second `lake update` is a no-op (with URLs)
 # see https://github.com/leanprover/lean4/commit/6176fdba9e5a888225a23e5d558a005e0d1eb2f6#r125905901
-LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update 2>&1 | diff - /dev/null
+LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update --keep-toolchain 2>&1 | diff - /dev/null
 rm -rf .lake/packages
 
 # Test that Lake produces no warnings on a `lake build` after a `lake update`
@@ -42,7 +43,7 @@ rm -rf .lake/packages
 
 $LAKE update
 # test that a second `lake update` is a no-op (with file paths)
-$LAKE update 2>&1 | diff - /dev/null
+$LAKE update --keep-toolchain 2>&1 | diff - /dev/null
 test -d .lake/packages/hello
 # test that Lake produces no warnings
 $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null

@@ -957,7 +957,7 @@ where
     let mut s : CollectFVars.State := {}
     for discr in discrs do
       s := collectFVars s (← instantiateMVars (← inferType discr))
-    let (indicesFVar, indicesNonFVar) := indices.split Expr.isFVar
+    let (indicesFVar, indicesNonFVar) := indices.partition Expr.isFVar
     let indicesFVar := indicesFVar.map Expr.fvarId!
     let mut toAdd := #[]
     for fvarId in s.fvarSet.toList do

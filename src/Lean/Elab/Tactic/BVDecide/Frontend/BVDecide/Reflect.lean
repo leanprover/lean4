@@ -65,6 +65,8 @@ where
     mkApp4 (mkConst ``BVExpr.shiftLeft) (toExpr m) (toExpr n) (go lhs) (go rhs)
   | .shiftRight (m := m) (n := n) lhs rhs =>
     mkApp4 (mkConst ``BVExpr.shiftRight) (toExpr m) (toExpr n) (go lhs) (go rhs)
+  | .arithShiftRight (m := m) (n := n) lhs rhs =>
+    mkApp4 (mkConst ``BVExpr.arithShiftRight) (toExpr m) (toExpr n) (go lhs) (go rhs)
 
 instance : ToExpr BVBinPred where
   toExpr x :=
@@ -108,6 +110,25 @@ where
 open Lean.Meta
 
 /--
+A `BitVec` atom.
+-/
+structure Atom where
+  /--
+  The width of the `BitVec` that is being abstracted.
+  -/
+  width : Nat
+  /--
+  A unique numeric identifier for the atom.
+  -/
+  atomNumber : Nat
+  /--
+  Whether the atom is synthetic. The effect of this is that values for this atom are not considered
+  for the counter example deriviation. This is for example useful when we introduce an atom over
+  an expression, together with additional lemmas that fully describe the behavior of the atom.
+  -/
+  synthetic : Bool
+
+/--
 The state of the reflection monad
 -/
 structure State where
@@ -115,7 +136,7 @@ structure State where
   The atoms encountered so far. Saved as a map from `BitVec` expressions to a (width, atomNumber)
   pair.
   -/
-  atoms : Std.HashMap Expr (Nat × Nat) := {}
+  atoms : Std.HashMap Expr Atom := {}
   /--
   A cache for `atomsAssignment`.
   -/
@@ -208,8 +229,8 @@ def run (m : M α) : MetaM α :=
 Retrieve the atoms as pairs of their width and expression.
 -/
 def atoms : M (List (Nat × Expr)) := do
-  let sortedAtoms := (← getThe State).atoms.toArray.qsort (·.2.2 < ·.2.2)
-  return sortedAtoms.map (fun (expr, width, _) => (width, expr)) |>.toList
+  let sortedAtoms := (← getThe State).atoms.toArray.qsort (·.2.atomNumber < ·.2.atomNumber)
+  return sortedAtoms.map (fun (expr, {width, ..}) => (width, expr)) |>.toList
 
 /--
 Retrieve a `BitVec.Assignment` representing the atoms we found so far.
@@ -220,16 +241,17 @@ def atomsAssignment : M Expr := do
 /--
 Look up an expression in the atoms, recording it if it has not previously appeared.
 -/
-def lookup (e : Expr) (width : Nat) : M Nat := do
+def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
   match (← getThe State).atoms[e]? with
-  | some (width', ident) =>
-    if width != width' then
+  | some atom =>
+    if width != atom.width then
       panic! "The same atom occurs with different widths, this is a bug"
-    return ident
+    return atom.atomNumber
   | none =>
-    trace[Meta.Tactic.bv] "New atom of width {width}: {e}"
+    trace[Meta.Tactic.bv] "New atom of width {width}, synthetic? {synthetic}: {e}"
     let ident ← modifyGetThe State fun s =>
-      (s.atoms.size, { s with atoms := s.atoms.insert e (width, s.atoms.size) })
+      let newAtom := { width, synthetic, atomNumber := s.atoms.size}
+      (s.atoms.size, { s with atoms := s.atoms.insert e newAtom })
     updateAtomsAssignment
     return ident
 where

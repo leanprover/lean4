@@ -2774,10 +2774,26 @@ theorem getMsbD_rotateRightAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
   rw [rotateRightAux, getMsbD_or, getMsbD_ushiftRight]
   simp [show i < r by omega]
 
-
 theorem getMsbD_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ r) :
     (x.rotateRightAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - r)) := by
   simp [rotateRightAux, show ¬ i < r by omega, show i + (w - r) ≥ w by omega]
+
+@[simp]
+theorem getMsbD_rotateRight_le {w n m : Nat} {x : BitVec w} (hr : m < w):
+    (x.rotateRight m).getMsbD n = (decide (n < w) && (if (n < m % w) then x.getMsbD ((w + n - m % w) % w) else x.getMsbD (n - m % w))):= by
+  rcases w with rfl | w
+  · simp
+  · rw [rotateRight_eq_rotateRightAux_of_lt (by omega)]
+    by_cases h : n < m
+    · simp only [getMsbD_rotateRightAux_of_le h, show n < w + 1 by omega, decide_True,
+        show m % (w + 1) = m by rw [Nat.mod_eq_of_lt hr], h, ↓reduceIte,
+        show (w + 1 + n - m) < (w + 1) by omega, Nat.mod_eq_of_lt, Bool.true_and]
+      congr 1
+      omega
+    · simp [getMsbD_rotateRightAux_of_geq <| Nat.ge_of_not_lt h]
+      by_cases h₁ : n < w + 1
+      · simp [h, h₁, decide_True, Bool.true_and, Nat.mod_eq_of_lt hr]
+      · simp [h₁]
 
 @[simp]
 theorem getMsbD_rotateRight {w n m : Nat} {x : BitVec w} :

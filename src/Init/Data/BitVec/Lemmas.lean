@@ -2781,6 +2781,16 @@ theorem getElem_rotateRight {x : BitVec w} {r i : Nat} (h : i < w) :
   simp only [← BitVec.getLsbD_eq_getElem]
   simp [getLsbD_rotateRight, h]
 
+theorem getMsbD_rotateRightAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < r) :
+    (x.rotateRightAux r).getMsbD i = x.getMsbD (i + (w - r)) := by
+  rw [rotateRightAux, getMsbD_or, getMsbD_ushiftRight]
+  simp [show i < r by omega]
+
+
+theorem getMsbD_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ r) :
+    (x.rotateRightAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - r)) := by
+  simp [rotateRightAux, show ¬ i < r by omega, show i + (w - r) ≥ w by omega]
+
 @[simp]
 theorem getMsbD_rotateRight {w n m : Nat} {x : BitVec w} :
     (x.rotateRight m).getMsbD n = (decide (n < w) && (if (n < m % w) then x.getMsbD ((w + n - m % w) % w) else x.getMsbD (n - m % w))):= by

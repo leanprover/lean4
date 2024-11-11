@@ -49,5 +49,14 @@ theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide
 @[bv_normalize]
 theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
 
+theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
+  revert lhs rhs
+  decide
+
+theorem Bool.and_right (lhs rhs : Bool) (h : (lhs && rhs) = true) : rhs = true := by
+  revert lhs rhs
+  decide
+
 end Normalize
 end Std.Tactic.BVDecide
+

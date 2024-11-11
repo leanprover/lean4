@@ -938,8 +938,8 @@ and `e` can depend on `h : ¬c`. (Both branches use the same name for the hypoth
 even though it has different types in the two cases.)
 
 We use this to be able to communicate the if-then-else condition to the branches.
-For example, `Array.get arr ⟨i, h⟩` expects a proof `h : i < arr.size` in order to
-avoid a bounds check, so you can write `if h : i < arr.size then arr.get ⟨i, h⟩ else ...`
+For example, `Array.get arr i h` expects a proof `h : i < arr.size` in order to
+avoid a bounds check, so you can write `if h : i < arr.size then arr.get i h else ...`
 to avoid the bounds check inside the if branch. (Of course in this case we have only
 lifted the check into an explicit `if`, but we could also use this proof multiple times
 or derive `i < arr.size` from some other proposition that we are checking in the `if`.)
@@ -2630,7 +2630,13 @@ def Array.empty {α : Type u} : Array α := mkEmpty 0
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
-/-- Access an element from an array without bounds checks, using a `Fin` index. -/
+/--
+Access an element from an array without needing a runtime bounds checks,
+using a `Nat` index and a proof that it is in bounds.
+
+(Note this function does not have a tactic autoparameter for the proof argument,
+for bootstrapping reasons. Generally, one will use `a[i]` instead.)
+-/
 @[extern "lean_array_fget"]
 def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩

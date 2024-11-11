@@ -29,7 +29,7 @@ abbrev Assignment.size (a : Assignment) : Nat :=
 
 abbrev Assignment.get? (a : Assignment) (x : Var) : Option Rat :=
   if h : x.id < a.size then
-    some (a.val.get ⟨x.id, h⟩)
+    some (a.val[x.id])
   else
     none
 
@@ -53,7 +53,7 @@ abbrev Poly.getMaxVar (e : Poly) : Var :=
   e.val.back!.2
 
 abbrev Poly.get (e : Poly) (i : Fin e.size) : Int × Var :=
-  e.val.get i
+  e.val[i]
 
 def Poly.scale (d : Int) (e : Poly) : Poly :=
   { e with val := e.val.map fun (c, x) => (c*d, x) }
@@ -169,7 +169,7 @@ def getBestBound? (cs : Array Cnstr) (a : Assignment) (isLower isInt : Bool) : O
   let adjust (v : Rat) :=
     if isInt then if isLower then (v.ceil : Rat) else v.floor else v
   if h : 0 < cs.size then
-    let c0 := cs.get ⟨0, h⟩
+    let c0 := cs[0]
     let b  := adjust <| c0.getBound a
     some <| cs[1:].foldl (init := (b, c0)) fun r c =>
       let b' := adjust <| c.getBound a

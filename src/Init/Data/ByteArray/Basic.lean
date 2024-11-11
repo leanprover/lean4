@@ -51,7 +51,7 @@ def get! : (@& ByteArray) → (@& Nat) → UInt8
 
 @[extern "lean_byte_array_fget"]
 def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
-  | ⟨bs⟩, i => bs.get i
+  | ⟨bs⟩, i => bs.get i i.isLt
 
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩

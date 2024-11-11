@@ -47,7 +47,7 @@ def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
 
 @[extern "lean_float_array_fget"]
 def get : (ds : @& FloatArray) → (@& Fin ds.size) → Float
-  | ⟨ds⟩, i => ds.get i
+  | ⟨ds⟩, i => ds.get i i.isLt
 
 @[extern "lean_float_array_get"]
 def get! : (@& FloatArray) → (@& Nat) → Float

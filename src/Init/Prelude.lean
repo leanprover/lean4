@@ -2632,12 +2632,12 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 
 /-- Access an element from an array without bounds checks, using a `Fin` index. -/
 @[extern "lean_array_fget"]
-def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
-  a.toList.get i
+def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+  a.toList.get ⟨i, h⟩
 
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
-  dite (LT.lt i a.size) (fun h => a.get ⟨i, h⟩) (fun _ => v₀)
+  dite (LT.lt i a.size) (fun h => a.get i h) (fun _ => v₀)
 
 /-- Access an element from an array, or panic if the index is out of bounds. -/
 @[extern "lean_array_get"]
@@ -2695,7 +2695,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun hlt =>
         match i with
         | 0           => as
-        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get ⟨j, hlt⟩)))
+        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get j hlt)))
       (fun _ => as)
   loop bs.size 0 as
 
@@ -2710,7 +2710,7 @@ def Array.extract (as : Array α) (start stop : Nat) : Array α :=
       (fun hlt =>
         match i with
         | 0           => bs
-        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.get ⟨j, hlt⟩)))
+        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.get j hlt)))
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
@@ -2829,7 +2829,7 @@ def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
       (fun hlt =>
         match i with
         | 0           => pure bs
-        | Nat.succ i' => Bind.bind (f (as.get ⟨j, hlt⟩)) fun b => loop i' (hAdd j 1) (bs.push b))
+        | Nat.succ i' => Bind.bind (f (as.get j hlt)) fun b => loop i' (hAdd j 1) (bs.push b))
       (fun _ => pure bs)
   loop as.size 0 (Array.mkEmpty as.size)
 

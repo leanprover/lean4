@@ -450,7 +450,7 @@ theorem size_uset (a : Array α) (v i h) : (uset a i v h).size = a.size := by si
 
 /-! # get -/
 
-@[simp] theorem get_eq_getElem (a : Array α) (i : Fin _) : a.get i = a[i.1] := rfl
+@[simp] theorem get_eq_getElem (a : Array α) (i : Nat) (h) : a.get i h = a[i] := rfl
 
 theorem getElem?_lt
     (a : Array α) {i : Nat} (h : i < a.size) : a[i]? = some a[i] := dif_pos h
@@ -730,11 +730,11 @@ theorem set_set (a : Array α) (i : Nat) (h) (v v' : α) :
 private theorem fin_cast_val (e : n = n') (i : Fin n) : e ▸ i = ⟨i.1, e ▸ i.2⟩ := by cases e; rfl
 
 theorem swap_def (a : Array α) (i j : Fin a.size) :
-    a.swap i j = (a.set i (a.get j)).set j (a.get i) := by
+    a.swap i j = (a.set i a[j]).set j a[i] := by
   simp [swap, fin_cast_val]
 
 @[simp] theorem toList_swap (a : Array α) (i j : Fin a.size) :
-    (a.swap i j).toList = (a.toList.set i (a.get j)).set j (a.get i) := by simp [swap_def]
+    (a.swap i j).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
 
 theorem getElem?_swap (a : Array α) (i j : Fin a.size) (k : Nat) : (a.swap i j)[k]? =
     if j = k then some a[i.1] else if i = k then some a[j.1] else a[k]? := by
@@ -2037,8 +2037,8 @@ abbrev mapM_eq_mapM_data := @mapM_eq_mapM_toList
 
 @[deprecated getElem_modify (since := "2024-08-08")]
 theorem get_modify {arr : Array α} {x i} (h : i < (arr.modify x f).size) :
-    (arr.modify x f).get ⟨i, h⟩ =
-    if x = i then f (arr.get ⟨i, by simpa using h⟩) else arr.get ⟨i, by simpa using h⟩ := by
+    (arr.modify x f).get i h =
+    if x = i then f (arr.get i (by simpa using h)) else arr.get i (by simpa using h) := by
   simp [getElem_modify h]
 
 @[deprecated toList_filter (since := "2024-09-09")]

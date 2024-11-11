@@ -163,7 +163,9 @@ builtin_simproc [bv_normalize] bv_udiv_of_two_pow (((_ : BitVec _) / (BitVec.ofN
 A pass in the normalization pipeline. Takes the current goal and produces a refined one or closes
 the goal fully, indicated by returning `none`.
 -/
-abbrev Pass := MVarId → MetaM (Option MVarId)
+structure Pass where
+  name : Name
+  run : MVarId → MetaM (Option MVarId)
 
 namespace Pass
 
@@ -174,7 +176,8 @@ the goal anymore.
 partial def fixpointPipeline (passes : List Pass) (goal : MVarId) : MetaM (Option MVarId) := do
   let runPass (goal? : Option MVarId) (pass : Pass) : MetaM (Option MVarId) := do
     let some goal := goal? | return none
-    pass goal
+    withTraceNode `bv (fun _ => return s!"Running pass: {pass.name}") do
+      pass.run goal
 
   let some newGoal := ← passes.foldlM (init := some goal) runPass | return none
   if goal != newGoal then
@@ -187,67 +190,115 @@ partial def fixpointPipeline (passes : List Pass) (goal : MVarId) : MetaM (Optio
 /--
 Responsible for applying the Bitwuzla style rewrite rules.
 -/
-def rewriteRulesPass (maxSteps : Nat) : Pass := fun goal => do
-  let bvThms ← bvNormalizeExt.getTheorems
-  let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
-  let sevalThms ← getSEvalTheorems
-  let sevalSimprocs ← Simp.getSEvalSimprocs
+def rewriteRulesPass (maxSteps : Nat) : Pass where
+  name := `rewriteRules
+  run goal := do
+    let bvThms ← bvNormalizeExt.getTheorems
+    let bvSimprocs ← bvNormalizeSimprocExt.getSimprocs
+    let sevalThms ← getSEvalTheorems
+    let sevalSimprocs ← Simp.getSEvalSimprocs
 
-  let simpCtx : Simp.Context := {
-    config := { failIfUnchanged := false, zetaDelta := true, maxSteps }
-    simpTheorems := #[bvThms, sevalThms]
-    congrTheorems := (← getSimpCongrTheorems)
-  }
+    let simpCtx : Simp.Context := {
+      config := { failIfUnchanged := false, zetaDelta := true, maxSteps }
+      simpTheorems := #[bvThms, sevalThms]
+      congrTheorems := (← getSimpCongrTheorems)
+    }
 
-  let hyps ← goal.getNondepPropHyps
-  let ⟨result?, _⟩ ← simpGoal goal
-    (ctx := simpCtx)
-    (simprocs := #[bvSimprocs, sevalSimprocs])
-    (fvarIdsToSimp := hyps)
-  let some (_, newGoal) := result? | return none
-  return newGoal
+    let hyps ← goal.getNondepPropHyps
+    let ⟨result?, _⟩ ← simpGoal goal
+      (ctx := simpCtx)
+      (simprocs := #[bvSimprocs, sevalSimprocs])
+      (fvarIdsToSimp := hyps)
+    let some (_, newGoal) := result? | return none
+    return newGoal
+
+/--
+Flatten out ands. That is look for hypotheses of the form `h : (x && y) = true` and replace them
+with `h.left : x = true` and `h.right : y = true`. This can enable more fine grained substitutions
+in embedded constraint substitution.
+-/
+def andFlatteningPass : Pass where
+  name := `andFlattening
+  run goal := do
+    goal.withContext do
+      let hyps ← goal.getNondepPropHyps
+      let mut newHyps := #[]
+      let mut oldHyps := #[]
+      for hyp in hyps do
+        let typ ← hyp.getType
+        let_expr Eq α eqLhs eqRhs := typ | continue
+        let_expr Bool.and lhs rhs := eqLhs | continue
+        let_expr Bool := α | continue
+        let_expr Bool.true := eqRhs | continue
+        let mkEqTrue (lhs : Expr) : Expr :=
+          mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) lhs (mkConst ``Bool.true)
+        let hypExpr := (← hyp.getDecl).toExpr
+        let leftHyp : Hypothesis := {
+          userName := (← hyp.getUserName) ++ `left,
+          type := mkEqTrue lhs,
+          value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hypExpr
+        }
+        let rightHyp : Hypothesis := {
+          userName := (← hyp.getUserName) ++ `right,
+          type := mkEqTrue rhs,
+          value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hypExpr
+        }
+        newHyps := newHyps.push leftHyp
+        newHyps := newHyps.push rightHyp
+        oldHyps := oldHyps.push hyp
+      if newHyps.size == 0 then
+        return goal
+      else
+        let (_, goal) ← goal.assertHypotheses newHyps
+        -- Given that we collected the hypotheses in the correct order above the invariant is given
+        let goal ← goal.tryClearMany oldHyps
+        return goal
 
 /--
 Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use
 them to substitute occurences of `x` within other hypotheses
 -/
-def embeddedConstraintPass (maxSteps : Nat) : Pass := fun goal =>
-  goal.withContext do
-    let hyps ← goal.getNondepPropHyps
-    let relevanceFilter acc hyp := do
-      let typ ← hyp.getType
-      let_expr Eq α _ rhs := typ | return acc
-      let_expr Bool := α | return acc
-      let_expr Bool.true := rhs | return acc
-      let localDecl ← hyp.getDecl
-      let proof  := localDecl.toExpr
-      acc.addTheorem (.fvar hyp) proof
-    let relevantHyps : SimpTheoremsArray ← hyps.foldlM (init := #[]) relevanceFilter
+def embeddedConstraintPass (maxSteps : Nat) : Pass where
+  name := `embeddedConstraintSubsitution
+  run goal := do
+    goal.withContext do
+      let hyps ← goal.getNondepPropHyps
+      let relevanceFilter acc hyp := do
+        let typ ← hyp.getType
+        let_expr Eq α _ rhs := typ | return acc
+        let_expr Bool := α | return acc
+        let_expr Bool.true := rhs | return acc
+        let localDecl ← hyp.getDecl
+        let proof  := localDecl.toExpr
+        acc.addTheorem (.fvar hyp) proof
+      let relevantHyps : SimpTheoremsArray ← hyps.foldlM (init := #[]) relevanceFilter
 
-    let simpCtx : Simp.Context := {
-      config := { failIfUnchanged := false, maxSteps }
-      simpTheorems := relevantHyps
-      congrTheorems := (← getSimpCongrTheorems)
-    }
+      let simpCtx : Simp.Context := {
+        config := { failIfUnchanged := false, maxSteps }
+        simpTheorems := relevantHyps
+        congrTheorems := (← getSimpCongrTheorems)
+      }
 
-    let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
-    let some (_, newGoal) := result? | return none
-    return newGoal
+      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
+      let some (_, newGoal) := result? | return none
+      return newGoal
 
 /--
 Normalize with respect to Associativity and Commutativity.
 -/
-def acNormalizePass : Pass := fun goal => do
-  let mut newGoal := goal
-  for hyp in (← goal.getNondepPropHyps) do
-    let result ← Lean.Meta.AC.acNfHypMeta newGoal hyp
+def acNormalizePass : Pass where
+  name := `ac_nf
+  run goal := do
+    let mut newGoal := goal
+    for hyp in (← goal.getNondepPropHyps) do
+      let result ← Lean.Meta.AC.acNfHypMeta newGoal hyp
 
-    if let .some nextGoal := result then
-      newGoal := nextGoal
-    else
-      return none
+      if let .some nextGoal := result then
+        newGoal := nextGoal
+      else
+        return none
 
-  return newGoal
+    return newGoal
 
 /--
 The normalization passes used by `bv_normalize` and thus `bv_decide`.
@@ -255,6 +306,7 @@ The normalization passes used by `bv_normalize` and thus `bv_decide`.
 def defaultPipeline (cfg : BVDecideConfig ): List Pass :=
   [
     rewriteRulesPass cfg.maxSteps,
+    andFlatteningPass,
     embeddedConstraintPass cfg.maxSteps
   ]
 

@@ -95,3 +95,10 @@ example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
   bv_decide (config := { acNf := true })
 
 end
+
+def foo (x : Bool) : Prop := x = true
+
+example (x : Bool) (h1 h2 : x = true) : foo x := by
+  bv_normalize
+  have : x = true := by assumption
+  sorry

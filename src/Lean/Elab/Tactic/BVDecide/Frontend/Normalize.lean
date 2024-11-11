@@ -256,22 +256,32 @@ def andFlatteningPass : Pass where
 
 /--
 Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use
-them to substitute occurences of `x` within other hypotheses
+them to substitute occurences of `x` within other hypotheses. Additionally this drops all
+redundant top level hypotheses.
 -/
 def embeddedConstraintPass (maxSteps : Nat) : Pass where
   name := `embeddedConstraintSubsitution
   run goal := do
     goal.withContext do
       let hyps ← goal.getNondepPropHyps
-      let relevanceFilter acc hyp := do
+      let mut relevantHyps : SimpTheoremsArray := #[]
+      let mut seen : Std.HashSet Expr := {}
+      let mut duplicates : Array FVarId := #[]
+      for hyp in hyps do
         let typ ← hyp.getType
-        let_expr Eq α _ rhs := typ | return acc
-        let_expr Bool := α | return acc
-        let_expr Bool.true := rhs | return acc
-        let localDecl ← hyp.getDecl
-        let proof  := localDecl.toExpr
-        acc.addTheorem (.fvar hyp) proof
-      let relevantHyps : SimpTheoremsArray ← hyps.foldlM (init := #[]) relevanceFilter
+        let_expr Eq α lhs rhs := typ | continue
+        let_expr Bool.true := rhs | continue
+        let_expr Bool := α | continue
+        if seen.contains lhs then
+          -- collect and later remove duplicates on the fly
+          duplicates := duplicates.push hyp
+        else
+          seen := seen.insert lhs
+          let localDecl ← hyp.getDecl
+          let proof  := localDecl.toExpr
+          relevantHyps ← relevantHyps.addTheorem (.fvar hyp) proof
+
+      let goal ← goal.tryClearMany duplicates
 
       let simpCtx : Simp.Context := {
         config := { failIfUnchanged := false, maxSteps }
@@ -279,7 +289,7 @@ def embeddedConstraintPass (maxSteps : Nat) : Pass where
         congrTheorems := (← getSimpCongrTheorems)
       }
 
-      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
+      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← goal.getNondepPropHyps)
       let some (_, newGoal) := result? | return none
       return newGoal
 

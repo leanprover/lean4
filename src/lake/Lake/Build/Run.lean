@@ -16,6 +16,34 @@ open System
 
 namespace Lake
 
+private def findLinkerError (log : Log) : Bool := Id.run do
+  for log in log.toString.splitOn do
+    if log == "linker" || log == "ld" ||
+       log == "_main" || log == "main" ||
+       log == "architecture" || log == "reference"
+    then return true
+  return false
+
+private def linkerErrorMsg :=
+s!"This is a lake build failure:
+
+This error may be caused by one of the following issues, or another issue referenced in previous messages.
+Please review those messages for further details.
+
+1. missing `main` function in lake_exe root module:
+   - please verify that the root module specified for the lake_exe target includes a `main` function
+   - the lake_exe root module is typically defined in the lakefile's `lake_exe` target under the `root` option
+   - if this option is not specified, it defaults to <target_name>.lean located in the directory specified by the `src` option
+
+2. required external libraries not found or not correctly installed:
+   - some APIs may rely on external libraries accessed via foreign function interface
+   - please ensure that all required external libraries are correctly installed and accessible in your system's library search path
+
+3. internal error in Lean compiler:
+   - if the `main` function is present in the correct root module and all required libraries are correctly configured
+   - but the error persists, this may indicate an internal issue with the Lean compiler
+   - please create a minimal, reproducible example and report an issue on GitHub, or ask for further assistance on Zulip"
+
 /-- Create a fresh build context from a workspace and a build configuration. -/
 def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
   return {
@@ -125,6 +153,7 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
     print s!"{resetCtrl}{caption}\n"
     if hasOutput then
       let outLv := if failed then .trace else outLv
+      let log := if findLinkerError log then log.push $ LogEntry.mk .error linkerErrorMsg else log
       log.replay (logger := .stream out outLv useAnsi)
     flush
 
@@ -225,6 +254,7 @@ def Workspace.runFetchM
       print! out caption
     print! out "\n"
     let outLv := if failed then .trace else outLv
+    let log := if findLinkerError log then log.push $ LogEntry.mk .error linkerErrorMsg else log
     log.replay (logger := .stream out outLv useAnsi)
     flush out
   let failures := if failed then #[caption] else #[]

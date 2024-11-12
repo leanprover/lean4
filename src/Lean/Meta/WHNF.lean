@@ -329,7 +329,7 @@ end
 -- ===========================
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) (config : WhnfCoreConfig := {}) : MetaM Expr := do
+@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
   match e with
   | .forallE ..    => return e
   | .lam ..        => return e
@@ -340,7 +340,7 @@ end
   | .const ..      => k e
   | .app ..        => k e
   | .proj ..       => k e
-  | .mdata _ e     => whnfEasyCases e k config
+  | .mdata _ e     => whnfEasyCases e k
   | .fvar fvarId   =>
     let decl ← fvarId.getDecl
     match decl with
@@ -348,13 +348,14 @@ end
     | .ldecl (value := v) .. =>
       -- Let-declarations marked as implementation detail should always be unfolded
       -- We initially added this feature for `simp`, and added it here for consistency.
-      unless config.zetaDelta || decl.isImplementationDetail do return e
-      if (← getConfig).trackZetaDelta then
+      let cfg ← getConfig
+      unless cfg.zetaDelta || decl.isImplementationDetail do return e
+      if cfg.trackZetaDelta then
         modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
-      whnfEasyCases v k config
+      whnfEasyCases v k
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
-    | some v => whnfEasyCases v k config
+    | some v => whnfEasyCases v k
     | none   => return e
 
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
@@ -554,30 +555,31 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables.
 -/
-partial def whnfCore (e : Expr) (config : WhnfCoreConfig := {}): MetaM Expr :=
+partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
 where
   go (e : Expr) : MetaM Expr :=
-    whnfEasyCases e (config := config) fun e => do
+    whnfEasyCases e fun e => do
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
+      | .letE _ _ v b _ => if (← getConfig).zeta then go <| b.instantiate1 v else return e
       | .app f ..       =>
-        if config.zeta then
+        let cfg ← getConfig
+        if cfg.zeta then
           if let some (args, _, _, v, b) := e.letFunAppArgs? then
             -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
             return (← go <| mkAppN (b.instantiate1 v) args)
         let f := f.getAppFn
         let f' ← go f
-        if config.beta && f'.isLambda then
+        if cfg.beta && f'.isLambda then
           let revArgs := e.getAppRevArgs
           go <| f'.betaRev revArgs
         else if let some eNew ← whnfDelayedAssigned? f' e then
           go eNew
         else
           let e := if f == f' then e else e.updateFn f'
-          unless config.iota do return e
+          unless cfg.iota do return e
           match (← reduceMatcher? e) with
           | .reduced eNew => go eNew
           | .partialApp   => pure e
@@ -599,7 +601,7 @@ where
           match (← projectCore? c i) with
           | some e => go e
           | none => return e
-        match config.proj with
+        match (← getConfig).proj with
         | .no => return e
         | .yes => k (← go c)
         | .yesWithDelta => k (← whnf c)
@@ -910,26 +912,18 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   if e.hasFVar || e.hasExprMVar || (← read).canUnfold?.isSome then
     return false
   else
-    match (← getConfig).transparency with
-    | .default => return true
-    | .all     => return true
-    | _        => return false
+    return true
 
 @[inline] private def cached? (useCache : Bool) (e : Expr) : MetaM (Option Expr) := do
   if useCache then
-    match (← getConfig).transparency with
-    | .default => return (← get).cache.whnfDefault.find? e
-    | .all     => return (← get).cache.whnfAll.find? e
-    | _        => unreachable!
+    return (← get).cache.whnf.find? (← mkExprConfigCacheKey e)
   else
     return none
 
 private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
   if useCache then
-    match (← getConfig).transparency with
-    | .default => modify fun s => { s with cache.whnfDefault := s.cache.whnfDefault.insert e r }
-    | .all     => modify fun s => { s with cache.whnfAll     := s.cache.whnfAll.insert e r }
-    | _        => unreachable!
+    let key ← mkExprConfigCacheKey e
+    modify fun s => { s with cache.whnf := s.cache.whnf.insert key r }
   return r
 
 @[export lean_whnf]

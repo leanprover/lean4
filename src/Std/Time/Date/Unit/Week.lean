@@ -44,10 +44,18 @@ instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 namespace Ordinal
 
 /--
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+-/
+@[inline]
+def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 53) : Ordinal :=
+  Bounded.LE.mk data h
+
+/--
 `OfMonth` represents the number of weeks within a month. It ensures that the week is within the
 correct bounds—either 1 to 6, representing the possible weeks in a month.
 -/
 def OfMonth := Bounded.LE 1 6
+  deriving Repr
 
 /--
 Creates an `Ordinal` from a natural number, ensuring the value is within bounds.
@@ -78,14 +86,14 @@ Creates an `Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Week.Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 /--
 Creates an `Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Week.Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 /--
 Convert `Week.Offset` into `Millisecond.Offset`.

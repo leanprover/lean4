@@ -50,14 +50,14 @@ Creates an `Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 /--
 Creates an `Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 end Offset
 namespace Ordinal

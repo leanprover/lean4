@@ -18,9 +18,6 @@ set_option linter.all true
 Defines the enumeration for days of the week. Each variant corresponds to a day of the week.
 -/
 inductive Weekday
-  /-- Sunday. -/
-  | sunday
-
   /-- Monday. -/
   | monday
 
@@ -38,6 +35,9 @@ inductive Weekday
 
   /-- Saturday. -/
   | saturday
+
+    /-- Sunday. -/
+  | sunday
   deriving Repr, Inhabited, BEq
 
 namespace Weekday

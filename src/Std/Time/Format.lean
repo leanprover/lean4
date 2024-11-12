@@ -102,14 +102,14 @@ The leanDateTimeWithIdentifier format, which follows the pattern `uuuu-MM-dd'T'H
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTimeWithIdentifier : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss'['z']'")
+def leanDateTimeWithIdentifier : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss'['zzzz']'")
 
 /--
 The leanDateTimeWithIdentifierAndNanos format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSS'[z]'`
 for representing date, time, and time zone. It uses the default value that can be parsed with the
 notation of dates.
 -/
-def leanDateTimeWithIdentifierAndNanos : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSS'['z']'")
+def leanDateTimeWithIdentifierAndNanos : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSS'['zzzz']'")
 
 /--
 The Lean Date format, which follows the pattern `uuuu-MM-dd`. It uses the default value that can be parsed with the
@@ -406,10 +406,15 @@ def fromLeanDateTimeWithIdentifierString (input : String) : Except String ZonedD
   <|> Formats.leanDateTimeWithIdentifierAndNanos.parse input
 
 /--
-Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notationg.
+Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notation.
 -/
 def toLeanDateTimeWithZoneString (zdt : ZonedDateTime) : String :=
   Formats.leanDateTimeWithZone.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute zdt.date.get.time.second zdt.nanosecond zdt.offset
+/--
+Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notation with the timezone identifier.
+-/
+def toLeanDateTimeWithIdentifierString (zdt : ZonedDateTime) : String :=
+  Formats.leanDateTimeWithIdentifierAndNanos.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute zdt.date.get.time.second zdt.nanosecond zdt.timezone.name
 
 /--
 Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
@@ -420,7 +425,7 @@ def parse (input : String) : Except String ZonedDateTime :=
   <|> fromRFC850String input
 
 instance : ToString ZonedDateTime where
-  toString := toLeanDateTimeWithZoneString
+  toString := toLeanDateTimeWithIdentifierString
 
 instance : Repr ZonedDateTime where
   reprPrec data := Repr.addAppParen ("zoned(\"" ++ toLeanDateTimeWithZoneString data ++ "\")")
@@ -608,5 +613,8 @@ def parse (date : String) : Except String (DateTime .GMT) :=
 
 instance : Repr (DateTime tz) where
   reprPrec data := Repr.addAppParen (toLeanDateTimeWithZoneString data)
+
+instance : ToString (DateTime tz) where
+  toString := toLeanDateTimeWithZoneString
 
 end DateTime

@@ -19,6 +19,11 @@ Represents a timezone offset with an hour and second component.
 structure Offset where
 
   /--
+  Creates an `Offset` from a given number of seconds.
+  -/
+  ofSeconds ::
+
+  /--
   The same timezone offset in seconds.
   -/
   second : Second.Offset
@@ -55,19 +60,13 @@ def zero : Offset :=
 Creates an `Offset` from a given number of hour.
 -/
 def ofHours (n : Hour.Offset) : Offset :=
-  mk n.toSeconds
+  ofSeconds n.toSeconds
 
 /--
 Creates an `Offset` from a given number of hours and minutes.
 -/
 def ofHoursAndMinutes (n : Hour.Offset) (m : Minute.Offset) : Offset :=
-  mk (n.toSeconds + m.toSeconds)
-
-/--
-Creates an `Offset` from a given number of seconds.
--/
-def ofSeconds (n : Second.Offset) : Offset :=
-  ⟨n⟩
+  ofSeconds (n.toSeconds + m.toSeconds)
 
 end Offset
 end TimeZone

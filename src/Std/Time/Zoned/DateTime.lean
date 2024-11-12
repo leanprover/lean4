@@ -47,6 +47,12 @@ def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC |>.addSeconds tz.toSeconds)
 
 /--
+Converts a `DateTime` to the number of days since the UNIX epoch.
+-/
+def toDaysSinceUNIXEpoch (date : DateTime tz) : Day.Offset :=
+  date.date.get.toDaysSinceUNIXEpoch
+
+/--
 Creates a `Timestamp` out of a `DateTime`.
 -/
 @[inline]
@@ -446,6 +452,13 @@ Getter for the `PlainTime` inside of a `DateTime`
 @[inline]
 def time (zdt : DateTime tz) : PlainTime :=
   zdt.date.get.time
+
+/--
+Converts a `DateTime` to the number of days since the UNIX epoch.
+-/
+@[inline]
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime) (tz : TimeZone) : DateTime tz :=
+  DateTime.ofPlainDateTime (PlainDateTime.ofDaysSinceUNIXEpoch days time) tz
 
 instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where
   hAdd := addDays

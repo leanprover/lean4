@@ -1090,15 +1090,15 @@ private inductive Reason
 
 private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon : Bool) : Parser Offset := do
   let sign : Second.Offset ← (pchar '+' *> pure 1) <|> (pchar '-' *> pure (-1))
-  let hours : Hour.Offset ← UnitVal.mk <$> parseNum 2
+  let hours : Hour.Offset ← UnitVal.ofInt <$> parseNum 2
 
   let colon := if withColon then pchar ':' else pure ':'
 
   let parseUnit {n} (reason : Reason) : Parser (Option (UnitVal n)) :=
     match reason with
-    | .yes => some <$> (colon *> UnitVal.mk <$> parseNum 2)
+    | .yes => some <$> (colon *> UnitVal.ofInt <$> parseNum 2)
     | .no => pure none
-    | .optional => optional (colon *> UnitVal.mk <$> parseNum 2)
+    | .optional => optional (colon *> UnitVal.ofInt <$> parseNum 2)
 
   let minutes : Option Minute.Offset ← parseUnit withMinutes
   let seconds : Option Second.Offset ← parseUnit withSeconds

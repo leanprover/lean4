@@ -40,9 +40,9 @@ info: 2013-10-19T23:59:59.000000000-03:00
 #guard_msgs in
 #eval do
   let zr ← Database.defaultGetZoneRules "America/Sao_Paulo"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2013-10-19T23:59:59") zr}"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2013-10-20T00:00:00") zr}"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2013-10-20T00:00:01") zr}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2013-10-19T23:59:59") zr |>.toLeanDateTimeWithZoneString}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2013-10-20T00:00:00") zr |>.toLeanDateTimeWithZoneString}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2013-10-20T00:00:01") zr |>.toLeanDateTimeWithZoneString}"
 
 /-
 Java:
@@ -59,9 +59,9 @@ info: 2019-11-03T01:59:59.000000000-05:00
 #guard_msgs in
 #eval do
   let zr ← Database.defaultGetZoneRules "America/Chicago"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2019-11-03T01:59:59") zr}"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2019-11-03T02:00:00") zr}"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2019-11-03T02:59:59") zr}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2019-11-03T01:59:59") zr |>.toLeanDateTimeWithZoneString}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2019-11-03T02:00:00") zr |>.toLeanDateTimeWithZoneString}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2019-11-03T02:59:59") zr |>.toLeanDateTimeWithZoneString}"
 
 /-
 Java:
@@ -78,6 +78,6 @@ info: 2003-10-26T01:59:59.000000000-05:00
 #guard_msgs in
 #eval do
   let zr ← Database.defaultGetZoneRules "America/Monterrey"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2003-10-26T01:59:59") zr}"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2003-10-26T02:00:00") zr}"
-  println! "{ZonedDateTime.ofPlainDateTime datetime("2003-10-26T02:59:59") zr}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2003-10-26T01:59:59") zr |>.toLeanDateTimeWithZoneString}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2003-10-26T02:00:00") zr |>.toLeanDateTimeWithZoneString}"
+  println! "{ZonedDateTime.ofPlainDateTime datetime("2003-10-26T02:59:59") zr |>.toLeanDateTimeWithZoneString}"

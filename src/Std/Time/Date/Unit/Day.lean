@@ -48,10 +48,23 @@ instance {x y : Offset} : Decidable (x < y) :=
 namespace Ordinal
 
 /--
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+-/
+@[inline]
+def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 31) : Ordinal :=
+  Bounded.LE.mk data h
+
+/--
 `OfYear` represents the day ordinal within a year, which can be bounded between 1 and 365 or 366,
 depending on whether it's a leap year.
 -/
 def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
+
+instance : Repr (OfYear leap) where
+  reprPrec r p := reprPrec r.val p
+
+instance : ToString (OfYear leap) where
+  toString r := toString r.val
 
 namespace OfYear
 
@@ -104,7 +117,7 @@ namespace OfYear
 Converts an `OfYear` ordinal to a `Offset`.
 -/
 def toOffset (ofYear : OfYear leap) : Offset :=
-  UnitVal.mk ofYear.val
+  UnitVal.ofInt ofYear.val
 
 end OfYear
 end Ordinal
@@ -123,14 +136,14 @@ Creates an `Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Day.Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 /--
 Creates an `Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Day.Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 /--
 Convert `Day.Offset` into `Nanosecond.Offset`.

@@ -230,6 +230,15 @@ def weekOfMonth (date : ZonedDateTime) : Internal.Bounded.LE 1 5 :=
   date.date.get.weekOfMonth
 
 /--
+Determines the week of the month for the given `ZonedDateTime`. The week of the month is calculated based
+on the day of the month and the weekday. Each week starts on Monday because the entire library is
+based on the Gregorian Calendar.
+-/
+@[inline]
+def alignedWeekOfMonth (date : ZonedDateTime) : Week.Ordinal.OfMonth :=
+  date.date.get.alignedWeekOfMonth
+
+/--
 Determines the quarter of the year for the given `ZonedDateTime`.
 -/
 @[inline]
@@ -507,6 +516,19 @@ Checks if the `ZonedDateTime` is in a leap year.
 -/
 def inLeapYear (date : ZonedDateTime) : Bool :=
   date.year.isLeap
+
+/--
+Converts a `ZonedDateTime` to the number of days since the UNIX epoch.
+-/
+def toDaysSinceUNIXEpoch (date : ZonedDateTime) : Day.Offset :=
+  date.date.get.toDaysSinceUNIXEpoch
+
+/--
+Converts a `ZonedDateTime` to the number of days since the UNIX epoch.
+-/
+@[inline]
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime) (zt : TimeZone.ZoneRules) : ZonedDateTime :=
+  ZonedDateTime.ofPlainDateTime (PlainDateTime.ofDaysSinceUNIXEpoch days time) zt
 
 instance : HAdd ZonedDateTime Day.Offset ZonedDateTime where
   hAdd := addDays

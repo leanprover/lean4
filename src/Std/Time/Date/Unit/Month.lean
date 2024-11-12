@@ -148,6 +148,13 @@ def toOffset (month : Ordinal) : Offset :=
   month.val
 
 /--
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+-/
+@[inline]
+def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 12) : Ordinal :=
+  Bounded.LE.mk data h
+
+/--
 Creates an `Ordinal` from a `Nat`, ensuring the value is within bounds.
 -/
 @[inline]
@@ -227,7 +234,7 @@ def days (leap : Bool) (month : Ordinal) : Day.Ordinal :=
     if leap then 29 else 28
   else
     let ⟨months, p⟩ := monthSizesNonLeap
-    let index : Fin 12 := (month.sub 1).toFin (by decide) (by decide)
+    let index : Fin 12 := (month.sub 1).toFin (by decide)
     months.get (index.cast (by rw [p]))
 
 theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
@@ -245,7 +252,7 @@ Returns the number of days until the `month`.
 -/
 def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   let ⟨months, p⟩ := cumulativeSizes
-  let index : Fin 12 := (month.sub 1).toFin (by decide) (by decide)
+  let index : Fin 12 := (month.sub 1).toFin (by decide)
   rw [← p] at index
   let res := months.get index
   exact res + (if leap ∧ month.val > 2 then 1 else 0)

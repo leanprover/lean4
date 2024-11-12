@@ -193,7 +193,7 @@ def toInt (n : Bounded.LE lo hi) : Int :=
 Convert a `Bounded.LE` to a `Fin`.
 -/
 @[inline, simp]
-def toFin (n : Bounded.LE lo hi) (h₀ : 0 ≤ lo) (h₁ : lo < hi) : Fin (hi + 1).toNat := by
+def toFin (n : Bounded.LE lo hi) (h₀ : 0 ≤ lo) : Fin (hi + 1).toNat := by
   let h := n.property.right
   let h₁ := Int.le_trans h₀ n.property.left
   refine ⟨n.val.toNat, (Int.toNat_lt h₁).mpr ?_⟩

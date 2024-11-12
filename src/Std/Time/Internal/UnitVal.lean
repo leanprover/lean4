@@ -19,6 +19,10 @@ set_option linter.all true
 A structure representing a unit of a given ratio type `α`.
 -/
 structure UnitVal (α : Rat) where
+  /--
+  Creates a `UnitVal` from an `Int`.
+  -/
+  ofInt ::
 
   /--
   Value inside the UnitVal Value.
@@ -33,13 +37,6 @@ instance { x y : UnitVal z }: Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
 namespace UnitVal
-
-/--
-Creates a `UnitVal` from an `Int`.
--/
-@[inline]
-def ofInt (value : Int) : UnitVal α :=
-  ⟨value⟩
 
 /--
 Creates a `UnitVal` from a `Nat`.
@@ -113,9 +110,9 @@ instance : LE (UnitVal α) where le x y := x.val ≤ y.val
 
 instance : LT (UnitVal α) where lt x y := x.val < y.val
 
-instance : Add (UnitVal α) where add x y := ⟨x.val + y.val⟩
+instance : Add (UnitVal α) where add := UnitVal.add
 
-instance : Sub (UnitVal α) where sub x y := ⟨x.val - y.val⟩
+instance : Sub (UnitVal α) where sub := UnitVal.sub
 
 instance : Mul (UnitVal α) where mul x y := ⟨x.val * y.val⟩
 

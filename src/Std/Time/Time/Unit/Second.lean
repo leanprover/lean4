@@ -61,14 +61,14 @@ Creates an `Second.Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Second.Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 /--
 Creates an `Second.Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Second.Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 end Offset
 

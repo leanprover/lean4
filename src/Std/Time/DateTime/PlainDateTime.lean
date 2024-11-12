@@ -127,6 +127,20 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
   }
 
 /--
+Converts a `PlainDateTime` to the number of days since the UNIX epoch.
+-/
+@[inline]
+def toDaysSinceUNIXEpoch (pdt : PlainDateTime) : Day.Offset :=
+  pdt.date.toDaysSinceUNIXEpoch
+
+/--
+Converts a `PlainDateTime` to the number of days since the UNIX epoch.
+-/
+@[inline]
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime) : PlainDateTime :=
+  PlainDateTime.mk (PlainDate.ofDaysSinceUNIXEpoch days) time
+
+/--
 Sets the `PlainDateTime` to the specified `desiredWeekday`.
 -/
 def withWeekday (dt : PlainDateTime) (desiredWeekday : Weekday) : PlainDateTime :=
@@ -482,7 +496,7 @@ def weekOfMonth (date : PlainDateTime) : Bounded.LE 1 5 :=
 
 /--
 Determines the week of the month for the given `PlainDateTime`. The week of the month is calculated based
-on the day of the month and the weekday. Each week starts on Sunday because the entire library is
+on the day of the month and the weekday. Each week starts on Monday because the entire library is
 based on the Gregorian Calendar.
 -/
 @[inline]

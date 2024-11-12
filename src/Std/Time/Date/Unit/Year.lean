@@ -26,6 +26,12 @@ inductive Era
 
   /-- The Common Era (CE), represents dates from year 0 onwards. -/
   | ce
+  deriving Repr, Inhabited
+
+instance : ToString Era where
+  toString
+    | .bce => "BCE"
+    | .ce => "CE"
 
 /--
 `Offset` represents a year offset, defined as an `Int`.

@@ -48,6 +48,13 @@ instance : OfNat Offset n :=
 namespace Ordinal
 
 /--
+Creates an `Ordinal` from an integer, ensuring the value is within bounds.
+-/
+@[inline]
+def ofInt (data : Int) (h : 0 ≤ data ∧ data ≤ 23) : Ordinal :=
+  Bounded.LE.mk data h
+
+/--
 Converts an `Ordinal` into a relative hour in the range of 1 to 12.
 -/
 def toRelative (ordinal : Ordinal) : Bounded.LE 1 12 :=
@@ -89,14 +96,14 @@ Creates an `Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 /--
 Creates an `Offset` from an integer.
 -/
 @[inline]
 def ofInt (data : Int) : Offset :=
-  UnitVal.mk data
+  UnitVal.ofInt data
 
 end Offset
 end Hour

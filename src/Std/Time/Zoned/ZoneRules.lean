@@ -172,6 +172,29 @@ end Transition
 namespace ZoneRules
 
 /--
+Creates ZoneRules with a fixed GMT offset.
+-/
+def fixedOffsetZone (second : Second.Offset) : ZoneRules :=
+  let offset : Offset := { second }
+  {
+    transitions := #[],
+    initialLocalTimeType := {
+      gmtOffset := offset,
+      isDst := false, abbreviation := offset.toIsoString true,
+      wall := .standard,
+      utLocal := .ut,
+      identifier := offset.toIsoString true
+    }
+  }
+
+/--
+Creates ZoneRules with a fixed offset of UTC (GMT+0).
+-/
+@[inline]
+def UTC : ZoneRules :=
+  fixedOffsetZone 0
+
+/--
 Finds the `LocalTimeType` corresponding to a given `Timestamp` in `ZoneRules`.
 If the timestamp falls between two transitions, it returns the most recent transition before the timestamp.
 If no transition is found, it falls back to `initialLocalTimeType`.

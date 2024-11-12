@@ -147,7 +147,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
        || (smartUnfolding.get options && (← getEnv).contains (mkSmartUnfoldingNameFor fName)) then
       withDefault <| unfoldDefinition? e
     else
-      -- `We are not unfolding partial applications, and `fName` does not have smart unfolding support.
+      -- We are not unfolding partial applications, and `fName` does not have smart unfolding support.
       -- Thus, we must check whether the arity of the function >= number of arguments.
       let some cinfo := (← getEnv).find? fName | return none
       let some value := cinfo.value? | return none

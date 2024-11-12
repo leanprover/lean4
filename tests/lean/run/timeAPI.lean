@@ -2,6 +2,212 @@ import Std.Time
 import Init
 open Std.Time
 
+def sao_paulo : TimeZone.ZoneRules :=
+  {
+    initialLocalTimeType :=
+      {
+        gmtOffset := { second := -11188 },
+        isDst := false,
+        abbreviation := "LMT",
+        wall := Std.Time.TimeZone.StdWall.standard,
+        utLocal := Std.Time.TimeZone.UTLocal.ut,
+        identifier := "America/Sao_Paulo"
+      },
+    transitions := #[
+      {
+        time := 782276400,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 793159200,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 813726000,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 824004000,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 844570800,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 856058400,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 876106800,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 888717600,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 908074800,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 919562400,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 938919600,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 951616800,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 970974000,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 982461600,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 1003028400,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 1013911200,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 1036292400,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 1045360800,
+        localTimeType := {
+          gmtOffset := { second := -10800 },
+          isDst := false,
+          abbreviation := "-03",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      },
+      { time := 1066532400,
+        localTimeType := {
+          gmtOffset := { second := -7200 },
+          isDst := true,
+          abbreviation := "-02",
+          wall := Std.Time.TimeZone.StdWall.standard,
+          utLocal := Std.Time.TimeZone.UTLocal.ut,
+          identifier := "America/Sao_Paulo"
+        }
+      }
+    ]
+  }
+
 /-
 Unit conversion tests.
 -/
@@ -615,7 +821,7 @@ Std.Time.Weekday.tuesday
 -/
 #guard_msgs in
 #eval do
-  let zoned ← zoned("1997-03-18T02:03:04[America/Sao_Paulo]")
+  let zoned := zoned("1997-03-18T02:03:04", sao_paulo)
 
   println! zoned.addDays 1
   println! zoned.addWeeks 1
@@ -687,7 +893,6 @@ info: 1970-01-02T00:00:00.000000000[UTC]
 1997-03-18T00:01:02.000000000[UTC]
 1997-03-18T00:01:02.000000000[UTC]
 1997-03-18T00:01:02.000000000[UTC]
-1997-03-18T00:01:02.000000000[UTC]
 2024-02-16T22:07:14.000000000[UTC]
 2024-02-16T22:07:14.000000000[UTC]
 -/
@@ -699,6 +904,5 @@ info: 1970-01-02T00:00:00.000000000[UTC]
   println! ZonedDateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
   println! ZonedDateTime.ofPlainDateTimeAssumingUTC datetime("1997-03-18T00:01:02") .UTC
   println! ZonedDateTime.ofPlainDateTimeWithZone datetime("1997-03-18T00:01:02") .UTC
-  println! ← ZonedDateTime.of datetime("1997-03-18T00:01:02") "UTC"
   println! ZonedDateTime.ofTimestamp 1708121234 .UTC
   println! ZonedDateTime.ofTimestampWithZone 1708121234 .UTC

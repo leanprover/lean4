@@ -9,9 +9,37 @@ set_option trace.Meta.Tactic.simp true
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
+info: [Meta.Tactic.simp.discharge] le_of_not_lt discharge ❌️
+      ¬v - 1 < k
+  [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️
+        v - 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+  [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️
+        v - 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+[Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
+  [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️
+        0 + 1 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          0 + 1 + 1 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          0 + 1 + 1 < v
   [Meta.Tactic.simp.rewrite] h₂:1000, 0 < v ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v
 [Meta.Tactic.simp.rewrite] ite_true:1000, if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩ ==> ⟨v, ⋯⟩
@@ -34,9 +62,53 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 /--
 warning: declaration uses 'sorry'
 ---
-info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
+info: [Meta.Tactic.simp.discharge] le_of_not_lt discharge ❌️
+      ¬v - 1 < k
+  [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️
+        v - 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+  [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️
+        v - 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+  [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️
+        v - 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+    [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ❌️ max depth
+          0 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          v - 1 + 1 + 1 < k
+[Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
+  [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️
+        0 + 1 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          0 + 1 + 1 < v
+    [Meta.Tactic.simp.discharge] lt_of_succ_lt discharge ❌️ max depth
+          0 + 1 + 1 < v
   [Meta.Tactic.simp.rewrite] h₂:1000, 0 < v ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v
 [Meta.Tactic.simp.rewrite] ite_true:1000, if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩ ==> ⟨v, ⋯⟩

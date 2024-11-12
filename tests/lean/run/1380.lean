@@ -14,6 +14,10 @@ info: [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
       v₂ = v₁
 [Meta.Tactic.simp.discharge] Nat.ne_of_gt discharge ✅️
       v₁ < v₂
+  [Meta.Tactic.simp.unify] Nat.lt_succ_iff:1000, failed to unify
+        ?m < Nat.succ ?n
+      with
+        v₁ < v₂
   [Meta.Tactic.simp.rewrite] hv:1000, v₁ < v₂ ==> True
 [Meta.Tactic.simp.rewrite] Nat.ne_of_gt:1000, v₂ = v₁ ==> False
 -/

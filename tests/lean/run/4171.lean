@@ -691,15 +691,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   mul := { hom := M.X.mul }
   mul_one := by
     ext
-    simp [(foo)] -- parentheses around `foo` works
-
-example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
-  X := (toComon_ C).obj M
-  one := { hom := M.X.one }
-  mul := { hom := M.X.mul }
-  mul_one := by
-    ext
-    simp [foo.{_, v₁ + 1}] -- specifying the universe level explicitly works!
+    simp -index [foo] -- `-index` works
 
 theorem foo' {V} [Quiver V] {X Y x} :
     @Quiver.Hom.unop V _ X Y no_index (Opposite.op (unop := x)) = x := rfl

@@ -354,25 +354,7 @@ def reduceDT (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM Expr :=
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
-/--
-Append `n` wildcards to `todo`
--/
-private def pushWildcards (n : Nat) (todo : Array Expr) : Array Expr :=
-  match n with
-  | 0   => todo
-  | n+1 => pushWildcards n (todo.push tmpStar)
-
-/--
-When `noIndexAtArgs := true`, `pushArgs` assumes function application arguments have a `no_index` annotation.
-That is, `f a b` is indexed as it was `f (no_index a) (no_index b)`.
-This feature is used when indexing local proofs in the simplifier. This is useful in examples like the one described on issue #2670.
-In this issue, we have a local hypotheses `(h : ∀ p : α × β, f p p.2 = p.2)`, and users expect it to be applicable to
-`f (a, b) b = b`. This worked in Lean 3 since no indexing was used. We can retrieve Lean 3 behavior by writing
-`(h : ∀ p : α × β, f p (no_index p.2) = p.2)`, but this is very inconvenient when the hypotheses was not written by the user in first place.
-For example, it was introduced by another tactic. Thus, when populating the discrimination tree explicit arguments provided to `simp` (e.g., `simp [h]`),
-we use `noIndexAtArgs := true`. See comment: https://github.com/leanprover/lean4/issues/2670#issuecomment-1758889365
--/
-private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs : Bool) : MetaM (Key × Array Expr) := do
+private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
   else
@@ -380,10 +362,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
     let fn := e.getAppFn
     let push (k : Key) (nargs : Nat) (todo : Array Expr): MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
-      let todo ← if noIndexAtArgs then
-        pure <| pushWildcards nargs todo
-      else
-        pushArgsAux info.paramInfo (nargs-1) e todo
+      let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
     match fn with
     | .lit v     =>
@@ -421,24 +400,22 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
       return (.arrow, todo.push d)
     | _ => return (.other, todo)
 
-@[inherit_doc pushArgs]
-partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (config : WhnfCoreConfig) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
+partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (config : WhnfCoreConfig) : MetaM (Array Key) := do
   if todo.isEmpty then
     return keys
   else
     let e    := todo.back!
     let todo := todo.pop
-    let (k, todo) ← pushArgs root todo e config noIndexAtArgs
-    mkPathAux false todo (keys.push k) config noIndexAtArgs
+    let (k, todo) ← pushArgs root todo e config
+    mkPathAux false todo (keys.push k) config
 
 private def initCapacity := 8
 
-@[inherit_doc pushArgs]
-def mkPath (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (Array Key) := do
+def mkPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
   withReducible do
     let todo : Array Expr := .mkEmpty initCapacity
     let keys : Array Key := .mkEmpty initCapacity
-    mkPathAux (root := true) (todo.push e) keys config noIndexAtArgs
+    mkPathAux (root := true) (todo.push e) keys config
 
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
@@ -492,20 +469,21 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTr
       let c := insertAux keys v 1 c
       { root := d.root.insert k c }
 
-def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
-  let keys ← mkPath e config noIndexAtArgs
+def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) : MetaM (DiscrTree α) := do
+  let keys ← mkPath e config
   return d.insertCore keys v
 
 /--
 Inserts a value into a discrimination tree,
 but only if its key is not of the form `#[*]` or `#[=, *, *, *]`.
 -/
-def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
-  let keys ← mkPath e config noIndexAtArgs
+def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) : MetaM (DiscrTree α) := do
+  let keys ← mkPath e config
   return if keys == #[Key.star] || keys == #[Key.const `Eq 3, Key.star, Key.star, Key.star] then
     d
   else
     d.insertCore keys v
+
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
   let e ← reduceDT e root config

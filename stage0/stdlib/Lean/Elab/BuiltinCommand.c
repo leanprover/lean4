@@ -16361,7 +16361,7 @@ lean_inc(x_15);
 x_297 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__5___lambda__1___boxed), 2, 1);
 lean_closure_set(x_297, 0, x_15);
 x_298 = lean_unsigned_to_nat(0u);
-x_299 = l_Array_findIdx_x3f_loop___rarg(x_24, x_297, x_298);
+x_299 = l_Array_findIdx_x3f_loop___rarg(x_297, x_24, x_298);
 if (lean_obj_tag(x_299) == 0)
 {
 if (x_3 == 0)
@@ -27794,7 +27794,7 @@ lean_inc(x_14);
 x_15 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Command_elabInclude___spec__1___lambda__1___boxed), 2, 1);
 lean_closure_set(x_15, 0, x_14);
 x_16 = lean_unsigned_to_nat(0u);
-x_17 = l_Array_findIdx_x3f_loop___rarg(x_3, x_15, x_16);
+x_17 = l_Array_findIdx_x3f_loop___rarg(x_15, x_3, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 

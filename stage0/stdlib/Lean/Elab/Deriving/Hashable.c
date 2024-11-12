@@ -1128,7 +1128,7 @@ lean_inc(x_58);
 lean_dec(x_57);
 x_59 = lean_alloc_closure((void*)(l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___boxed), 2, 1);
 lean_closure_set(x_59, 0, x_58);
-x_60 = l_Array_findIdx_x3f_loop___rarg(x_2, x_59, x_23);
+x_60 = l_Array_findIdx_x3f_loop___rarg(x_59, x_2, x_23);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; uint8_t x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; 

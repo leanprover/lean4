@@ -7,6 +7,7 @@ prelude
 import Init.Control.Lawful.Basic
 import Init.Control.Except
 import Init.Control.StateRef
+import Init.Ext
 
 open Function
 
@@ -14,7 +15,7 @@ open Function
 
 namespace ExceptT
 
-theorem ext {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
+@[ext] theorem ext {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
   simp [run] at h
   assumption
 
@@ -105,7 +106,7 @@ instance : LawfulFunctor (Except ε) := inferInstance
 
 namespace ReaderT
 
-theorem ext {x y : ReaderT ρ m α} (h : ∀ ctx, x.run ctx = y.run ctx) : x = y := by
+@[ext] theorem ext {x y : ReaderT ρ m α} (h : ∀ ctx, x.run ctx = y.run ctx) : x = y := by
   simp [run] at h
   exact funext h
 
@@ -167,7 +168,7 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (StateRefT' ω σ m) :=
 
 namespace StateT
 
-theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
+@[ext] theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
   funext h
 
 @[simp] theorem run'_eq [Monad m] (x : StateT σ m α) (s : σ) : run' x s = (·.1) <$> run x s :=

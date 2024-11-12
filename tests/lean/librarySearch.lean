@@ -25,7 +25,7 @@ example (x : Nat) : x ≠ x.succ := Nat.ne_of_lt (by apply?)
 #guard_msgs in
 example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by apply?)
 
-example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by exact Fin.size_pos')
+example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by exact Fin.pos')
 
 /-- info: Try this: exact Nat.add_comm x y -/
 #guard_msgs in

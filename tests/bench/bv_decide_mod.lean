@@ -32,8 +32,7 @@ def opt (state : BitVec 32) : BitVec 32 :=
 --set_option trace.Meta.Tactic.bv true in
 --set_option trace.Meta.Tactic.sat true in
 --set_option trace.profiler true in
-set_option sat.timeout 120 in
 theorem lehmer_correct (state : BitVec 32) (h1 : state > 0) (h2 : state < 0x7fffffff) :
     naive state = opt state := by
   unfold naive opt
-  bv_decide
+  bv_decide (config := { timeout := 120 })

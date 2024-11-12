@@ -861,15 +861,20 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /-! # Decidable -/
 
-theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
+@[simp] theorem decide_true (h : Decidable True) : @decide True h = true :=
   match h with
   | isTrue _  => rfl
   | isFalse h => False.elim <| h ⟨⟩
 
-theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
+@[simp] theorem decide_false (h : Decidable False) : @decide False h = false :=
   match h with
   | isFalse _ => rfl
   | isTrue h  => False.elim h
+
+set_option linter.missingDocs false in
+@[deprecated decide_true (since := "2024-11-05")] abbrev decide_true_eq_true := decide_true
+set_option linter.missingDocs false in
+@[deprecated decide_false (since := "2024-11-05")] abbrev decide_false_eq_false := decide_false
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=

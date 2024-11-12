@@ -272,12 +272,20 @@ macro nextTk:"next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
   -- Limit ref variability for incrementality; see Note [Incremental Macros]
   withRef arrowTk `(tactic| case%$nextTk _ $args* =>%$arrowTk $tac)
 
-/-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
+/--
+`all_goals tac` runs `tac` on each goal, concatenating the resulting goals.
+If the tactic fails on any goal, the entire `all_goals` tactic fails.
+
+See also `any_goals tac`.
+-/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
 
 /--
-`any_goals tac` applies the tactic `tac` to every goal, and succeeds if at
-least one application succeeds.
+`any_goals tac` applies the tactic `tac` to every goal,
+concating the resulting goals for successful tactic applications.
+If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
+
+This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeeds.
 -/
 syntax (name := anyGoals) "any_goals " tacticSeq : tactic
 
@@ -982,13 +990,6 @@ and tries to clear the previous one.
 -/
 syntax (name := specialize) "specialize " term : tactic
 
-macro_rules | `(tactic| trivial) => `(tactic| assumption)
-macro_rules | `(tactic| trivial) => `(tactic| rfl)
-macro_rules | `(tactic| trivial) => `(tactic| contradiction)
-macro_rules | `(tactic| trivial) => `(tactic| decide)
-macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
-macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
-
 /--
 `unhygienic tacs` runs `tacs` with name hygiene disabled.
 This means that tactics that would normally create inaccessible names will instead
@@ -1147,6 +1148,132 @@ macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_
 
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
 macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+
+/--
+Configuration for the `decide` tactic family.
+-/
+structure DecideConfig where
+  /-- If true (default: false), then use only kernel reduction when reducing the `Decidable` instance.
+  This is more efficient, since the default mode reduces twice (once in the elaborator and again in the kernel),
+  however kernel reduction ignores transparency settings. The `decide!` tactic is a synonym for `decide +kernel`. -/
+  kernel : Bool := false
+  /-- If true (default: false), then uses the native code compiler to evaluate the `Decidable` instance,
+  admitting the result via the axiom `Lean.ofReduceBool`.  This can be significantly more efficient,
+  but it is at the cost of increasing the trusted code base, namely the Lean compiler
+  and all definitions with an `@[implemented_by]` attribute.
+  The instance is only evaluated once. The `native_decide` tactic is a synonym for `decide +native`. -/
+  native : Bool := false
+  /-- If true (default: true), then when preprocessing the goal, do zeta reduction to attempt to eliminate free variables. -/
+  zetaReduce : Bool := true
+  /-- If true (default: false), then when preprocessing reverts free variables. -/
+  revert : Bool := false
+
+/--
+`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`
+and then reducing that instance to evaluate the truth value of `p`.
+If it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.
+
+The target is not allowed to contain local variables or metavariables.
+If there are local variables, you can first try using the `revert` tactic with these local variables to move them into the target,
+or you can use the `+revert` option, described below.
+
+Options:
+- `decide +revert` begins by reverting local variables that the target depends on,
+  after cleaning up the local context of irrelevant variables.
+  A variable is *relevant* if it appears in the target, if it appears in a relevant variable,
+  or if it is a proposition that refers to a relevant variable.
+- `decide +kernel` uses kernel for reduction instead of the elaborator.
+  It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
+  and (2) it reduces the `Decidable` instance only once instead of twice.
+- `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
+  admitting the result via the `Lean.ofReduceBool` axiom.
+  This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
+  of the trusted code base.
+  Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
+  Like with `+kernel`, the `Decidable` instance is evaluated only once.
+
+Limitation: In the default mode or `+kernel` mode, since `decide` uses reduction to evaluate the term,
+`Decidable` instances defined by well-founded recursion might not work because evaluating them requires reducing proofs.
+Reduction can also get stuck on `Decidable` instances with `Eq.rec` terms.
+These can appear in instances defined using tactics (such as `rw` and `simp`).
+To avoid this, create such instances using definitions such as `decidable_of_iff` instead.
+
+## Examples
+
+Proving inequalities:
+```lean
+example : 2 + 2 ≠ 5 := by decide
+```
+
+Trying to prove a false proposition:
+```lean
+example : 1 ≠ 1 := by decide
+/-
+tactic 'decide' proved that the proposition
+  1 ≠ 1
+is false
+-/
+```
+
+Trying to prove a proposition whose `Decidable` instance fails to reduce
+```lean
+opaque unknownProp : Prop
+
+open scoped Classical in
+example : unknownProp := by decide
+/-
+tactic 'decide' failed for proposition
+  unknownProp
+since its 'Decidable' instance reduced to
+  Classical.choice ⋯
+rather than to the 'isTrue' constructor.
+-/
+```
+
+## Properties and relations
+
+For equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.
+```lean
+example : 1 + 1 = 2 := by decide
+example : 1 + 1 = 2 := by rfl
+```
+-/
+syntax (name := decide) "decide" optConfig : tactic
+
+/--
+`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.
+It has the following properties:
+- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.
+- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,
+  and once during kernel type checking), the `decide!` tactic reduces it exactly once.
+
+The `decide!` syntax is short for `decide +kernel`.
+-/
+syntax (name := decideBang) "decide!" optConfig : tactic
+
+/--
+`native_decide` is a synonym for `decide +native`.
+It will attempt to prove a goal of type `p` by synthesizing an instance
+of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
+uses `#eval` to evaluate the decidability instance.
+
+This should be used with care because it adds the entire lean compiler to the trusted
+part, and the axiom `Lean.ofReduceBool` will show up in `#print axioms` for theorems using
+this method or anything that transitively depends on them. Nevertheless, because it is
+compiled, this can be significantly more efficient than using `decide`, and for very
+large computations this is one way to run external programs and trust the result.
+```lean
+example : (List.range 1000).length = 1000 := by native_decide
+```
+-/
+syntax (name := nativeDecide) "native_decide" optConfig : tactic
+
+macro_rules | `(tactic| trivial) => `(tactic| assumption)
+macro_rules | `(tactic| trivial) => `(tactic| rfl)
+macro_rules | `(tactic| trivial) => `(tactic| contradiction)
+macro_rules | `(tactic| trivial) => `(tactic| decide)
+macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
+macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
 /--
 The `omega` tactic, for resolving integer and natural linear arithmetic problems.

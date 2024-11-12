@@ -108,7 +108,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
 
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
-  rw [find?_eq_some]
+  rw [find?_eq_some_iff_append]
   simp only [Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, mem_range'_1,
     and_congr_right_iff]
   simp only [range'_eq_append_iff, eq_comm (a := i :: _), range'_eq_cons_iff]
@@ -282,7 +282,7 @@ theorem find?_iota_eq_none {n : Nat} {p : Nat → Bool} :
 
 @[simp] theorem find?_iota_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (iota n).find? p = some i ↔ p i ∧ i ∈ iota n ∧ ∀ j, i < j → j ≤ n → !p j := by
-  rw [find?_eq_some]
+  rw [find?_eq_some_iff_append]
   simp only [iota_eq_reverse_range', reverse_eq_append_iff, reverse_cons, append_assoc, cons_append,
     nil_append, Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, mem_reverse, mem_range'_1,
     and_congr_right_iff]

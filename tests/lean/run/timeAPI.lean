@@ -587,6 +587,7 @@ info: 1997-03-19T02:03:04.000000000[America/Sao_Paulo]
 1998-03-18T02:03:04.000000000[America/Sao_Paulo]
 1998-03-18T02:03:04.000000000[America/Sao_Paulo]
 1997-03-17T02:03:04.000000000[America/Sao_Paulo]
+1997-03-17T02:03:04.000000000[America/Sao_Paulo]
 1997-03-11T02:03:04.000000000[America/Sao_Paulo]
 1997-02-18T02:03:04.000000000[America/Sao_Paulo]
 1997-02-18T02:03:04.000000000[America/Sao_Paulo]
@@ -610,7 +611,6 @@ Std.Time.Weekday.tuesday
 3
 9938
 858661384000
-1970-01-02T00:00:00.000000000[+00:00]
 
 -/
 #guard_msgs in
@@ -624,6 +624,7 @@ Std.Time.Weekday.tuesday
   println! zoned.addYearsClip 1
   println! zoned.addYearsRollOver 1
 
+  println! zoned.subDays 1
   println! zoned.subDays 1
   println! zoned.subWeeks 1
   println! zoned.subMonthsClip 1
@@ -651,4 +652,53 @@ Std.Time.Weekday.tuesday
 
   println! zoned.toDaysSinceUNIXEpoch
   println! zoned.toTimestamp
+
+/--
+info: 2023-06-09T00:00:00.000000000
+0001-01-01T12:32:43.000000000
+2033-11-18T12:32:43.000000000
+-/
+#guard_msgs in
+#eval do
+  println! PlainDateTime.ofPlainDate date("2023-06-09")
+  println! PlainDateTime.ofPlainTime time("12:32:43")
+  println! PlainDateTime.ofDaysSinceUNIXEpoch 23332 time("12:32:43")
+
+/--
+info: 1970-01-02T00:00:00.000000000Z
+1997-03-18T00:00:00.000000000Z
+1997-03-18T00:01:02.000000000Z
+1997-03-18T00:01:02.000000000Z
+2024-02-16T22:07:14.000000000Z
+
+-/
+#guard_msgs in
+#eval do
+  println! DateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
+  println! DateTime.ofPlainDate date("1997-03-18") .UTC
+  println! DateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
+  println! DateTime.ofPlainDateTimeAssumingUTC datetime("1997-03-18T00:01:02") .UTC
+  println! DateTime.ofTimestamp 1708121234 .UTC
+
+/--
+info: 1970-01-02T00:00:00.000000000[UTC]
+1997-03-18T00:00:00.000000000[UTC]
+1997-03-18T00:00:00.000000000[UTC]
+1997-03-18T00:01:02.000000000[UTC]
+1997-03-18T00:01:02.000000000[UTC]
+1997-03-18T00:01:02.000000000[UTC]
+1997-03-18T00:01:02.000000000[UTC]
+2024-02-16T22:07:14.000000000[UTC]
+2024-02-16T22:07:14.000000000[UTC]
+-/
+#guard_msgs in
+#eval do
   println! ZonedDateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
+  println! ZonedDateTime.ofPlainDate date("1997-03-18") .UTC
+  println! ZonedDateTime.ofPlainDateWithZone date("1997-03-18") .UTC
+  println! ZonedDateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
+  println! ZonedDateTime.ofPlainDateTimeAssumingUTC datetime("1997-03-18T00:01:02") .UTC
+  println! ZonedDateTime.ofPlainDateTimeWithZone datetime("1997-03-18T00:01:02") .UTC
+  println! ← ZonedDateTime.of datetime("1997-03-18T00:01:02") "UTC"
+  println! ZonedDateTime.ofTimestamp 1708121234 .UTC
+  println! ZonedDateTime.ofTimestampWithZone 1708121234 .UTC

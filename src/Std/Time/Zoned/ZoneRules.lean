@@ -174,16 +174,16 @@ namespace ZoneRules
 /--
 Creates ZoneRules with a fixed GMT offset.
 -/
-def fixedOffsetZone (second : Second.Offset) : ZoneRules :=
+def fixedOffsetZone (second : Second.Offset) (identifier : Option String := none) (abbreviation : Option String := none) : ZoneRules :=
   let offset : Offset := { second }
   {
     transitions := #[],
     initialLocalTimeType := {
       gmtOffset := offset,
-      isDst := false, abbreviation := offset.toIsoString true,
+      isDst := false, abbreviation := abbreviation.getD (offset.toIsoString true),
       wall := .standard,
       utLocal := .ut,
-      identifier := offset.toIsoString true
+      identifier := identifier.getD (offset.toIsoString true)
     }
   }
 
@@ -192,7 +192,7 @@ Creates ZoneRules with a fixed offset of UTC (GMT+0).
 -/
 @[inline]
 def UTC : ZoneRules :=
-  fixedOffsetZone 0
+  fixedOffsetZone 0 "UTC" "UTC"
 
 /--
 Finds the `LocalTimeType` corresponding to a given `Timestamp` in `ZoneRules`.

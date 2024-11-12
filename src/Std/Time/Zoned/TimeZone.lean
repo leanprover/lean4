@@ -44,7 +44,7 @@ namespace TimeZone
 A zeroed `Timezone` representing UTC (no offset).
 -/
 def UTC : TimeZone :=
-  TimeZone.mk (Offset.zero) "Coordinated Universal Time" "UTC" false
+  TimeZone.mk (Offset.zero) "UTC" "UTC" false
 
 /--
 A zeroed `Timezone` representing GMT (no offset).

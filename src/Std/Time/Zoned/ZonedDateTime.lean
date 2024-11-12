@@ -112,7 +112,8 @@ def convertZoneRules (date : ZonedDateTime) (tz₁ : TimeZone.ZoneRules) : Zoned
   ofTimestamp date.toTimestamp tz₁
 
 /--
-Creates a new `ZonedDateTime` out of a `PlainDateTime`
+Creates a new `ZonedDateTime` out of a `PlainDateTime`. It assumes that the `PlainDateTime` is relative
+to UTC.
 -/
 @[inline]
 def ofPlainDateTimeAssumingUTC (date : PlainDateTime) (tz : TimeZone.ZoneRules) : ZonedDateTime :=

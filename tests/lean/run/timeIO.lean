@@ -16,7 +16,7 @@ info: { second := 0 }
 -/
 #guard_msgs in
 #eval do
-  let res ← Database.defaultGetZoneRules "Etc/UTC"
+  let res ← Database.defaultGetZoneRules "UTC"
   println! repr res.initialLocalTimeType.gmtOffset
 
 /-

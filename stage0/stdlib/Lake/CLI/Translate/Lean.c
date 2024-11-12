@@ -10994,32 +10994,32 @@ LEAN_EXPORT lean_object* l_Lake_Package_mkLeanConfig(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; lean_object* x_17; lean_object* x_18; size_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; size_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_2 = lean_ctor_get(x_1, 13);
+x_2 = lean_ctor_get(x_1, 12);
 lean_inc(x_2);
 x_3 = lean_array_get_size(x_2);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_lt(x_4, x_3);
 x_6 = lean_ctor_get(x_1, 2);
 lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 17);
+x_7 = lean_ctor_get(x_1, 16);
 lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 18);
+x_8 = lean_ctor_get(x_1, 17);
 lean_inc(x_8);
 x_9 = l_Lake_PackageConfig_mkSyntax(x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
-x_10 = lean_ctor_get(x_1, 8);
+x_10 = lean_ctor_get(x_1, 7);
 lean_inc(x_10);
 x_11 = lean_array_size(x_10);
 x_12 = 0;
 x_13 = l_Array_mapMUnsafe_map___at_Lake_Package_mkLeanConfig___spec__1(x_11, x_12, x_10);
-x_14 = lean_ctor_get(x_1, 9);
+x_14 = lean_ctor_get(x_1, 8);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_14, 1);
 lean_inc(x_15);
 lean_dec(x_14);
 x_16 = lean_array_size(x_15);
-x_17 = lean_ctor_get(x_1, 10);
+x_17 = lean_ctor_get(x_1, 9);
 lean_inc(x_17);
 lean_dec(x_1);
 x_18 = lean_ctor_get(x_17, 1);

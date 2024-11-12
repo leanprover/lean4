@@ -6040,7 +6040,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; size_t x_14; lean_object* x_15; lean_object* x_16; size_t x_17; lean_object* x_18; 
 x_12 = lean_array_uget(x_1, x_2);
-x_13 = lean_ctor_get(x_12, 11);
+x_13 = lean_ctor_get(x_12, 10);
 lean_inc(x_13);
 x_14 = 0;
 x_15 = l_Lake_LeanLib_recCollectLocalModules___closed__1;

@@ -1772,7 +1772,7 @@ else
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; size_t x_66; lean_object* x_67; 
 x_61 = lean_array_uget(x_4, x_6);
-x_62 = lean_ctor_get(x_61, 11);
+x_62 = lean_ctor_get(x_61, 10);
 lean_inc(x_62);
 x_63 = lean_box(0);
 x_64 = l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuildExe___spec__6___closed__1;

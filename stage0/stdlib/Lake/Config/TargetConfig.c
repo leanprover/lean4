@@ -534,7 +534,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 12);
+x_3 = lean_ctor_get(x_2, 11);
 x_4 = l_Lake_RBNode_dFind___at_Lake_Package_findTargetConfig_x3f___spec__1(x_2, x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {

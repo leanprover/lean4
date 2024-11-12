@@ -61,7 +61,9 @@ struct olean_header {
         0b0;
 #endif
     // 33 bytes: Lean version string, padded with '\0' to the right
-    // e.g. "4.12.0-nightly-2024-10-18". May not be null-terminated.
+    // e.g. "4.12.0-nightly-2024-10-18". Other suffixes after the version
+    // triple currently in use are `-rcN` for some `N` and `-pre` for any
+    // other non-release commit. Not necessarily null-terminated.
     char lean_version[33];
     // 81b008650766442a0dfa9faa796e4588c9d7d3a1
     // 40 bytes: build githash, padded with `\0` to the right

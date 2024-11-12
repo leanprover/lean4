@@ -72,7 +72,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_externLibs(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 11);
+x_2 = lean_ctor_get(x_1, 10);
 lean_inc(x_2);
 x_3 = l_Lake_Package_externLibs___closed__1;
 x_4 = l_Lean_RBNode_fold___at_Lake_Package_externLibs___spec__1(x_1, x_3, x_2);
@@ -133,7 +133,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findExternLib_x3f(lean_object* x_1, lean
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 11);
+x_3 = lean_ctor_get(x_2, 10);
 lean_inc(x_3);
 x_4 = l_Lake_RBNode_dFind___at_Lake_Package_findExternLib_x3f___spec__1(x_2, x_3, x_1);
 lean_dec(x_3);

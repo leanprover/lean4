@@ -417,7 +417,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = lean_alloc_closure((void*)(l_Array_getIdx_x3f___at___private_Lean_Elab_PreDefinition_WF_PackMutual_0__Lean_Elab_WF_post___spec__1___lambda__1___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Array_findIdx_x3f_loop___rarg(x_1, x_3, x_4);
+x_5 = l_Array_findIdx_x3f_loop___rarg(x_3, x_1, x_4);
 return x_5;
 }
 }

@@ -6046,29 +6046,29 @@ LEAN_EXPORT lean_object* l_Lake_Package_mkTomlConfig(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; lean_object* x_26; lean_object* x_51; lean_object* x_74; lean_object* x_89; lean_object* x_112; 
-x_3 = lean_ctor_get(x_1, 10);
+x_3 = lean_ctor_get(x_1, 9);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 9);
+x_5 = lean_ctor_get(x_1, 8);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_ctor_get(x_1, 8);
+x_7 = lean_ctor_get(x_1, 7);
 lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 13);
+x_8 = lean_ctor_get(x_1, 12);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 2);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_9, 20);
 lean_inc(x_10);
-x_11 = lean_ctor_get(x_1, 18);
+x_11 = lean_ctor_get(x_1, 17);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_9, 18);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 17);
+x_13 = lean_ctor_get(x_1, 16);
 lean_inc(x_13);
 lean_dec(x_1);
 x_14 = l_Lake_PackageConfig_toToml(x_9, x_2);

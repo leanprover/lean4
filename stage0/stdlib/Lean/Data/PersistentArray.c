@@ -4325,7 +4325,7 @@ lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, lean_box(0));
 lean_closure_set(x_6, 2, x_3);
 x_7 = lean_array_get_size(x_5);
-x_8 = l_Array_findSomeRevM_x3f_find___rarg(x_1, x_5, x_6, x_7, lean_box(0));
+x_8 = l_Array_findSomeRevM_x3f_find___rarg(x_1, x_6, x_5, x_7, lean_box(0));
 lean_dec(x_7);
 return x_8;
 }
@@ -4336,7 +4336,7 @@ x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
 lean_dec(x_4);
 x_10 = lean_array_get_size(x_9);
-x_11 = l_Array_findSomeRevM_x3f_find___rarg(x_1, x_9, x_3, x_10, lean_box(0));
+x_11 = l_Array_findSomeRevM_x3f_find___rarg(x_1, x_3, x_9, x_10, lean_box(0));
 lean_dec(x_10);
 return x_11;
 }
@@ -4411,7 +4411,7 @@ lean_inc(x_6);
 x_7 = lean_array_get_size(x_6);
 lean_inc(x_4);
 lean_inc(x_1);
-x_8 = l_Array_findSomeRevM_x3f_find___rarg(x_1, x_6, x_4, x_7, lean_box(0));
+x_8 = l_Array_findSomeRevM_x3f_find___rarg(x_1, x_4, x_6, x_7, lean_box(0));
 lean_dec(x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_PersistentArray_findSomeRevM_x3f___rarg___lambda__1), 4, 3);
 lean_closure_set(x_9, 0, x_3);

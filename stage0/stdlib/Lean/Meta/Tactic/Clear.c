@@ -3028,7 +3028,7 @@ lean_dec(x_13);
 x_16 = lean_alloc_closure((void*)(l_Lean_MVarId_clear___lambda__1___boxed), 2, 1);
 lean_closure_set(x_16, 0, x_2);
 x_17 = lean_unsigned_to_nat(0u);
-x_18 = l_Array_findIdx_x3f_loop___rarg(x_14, x_16, x_17);
+x_18 = l_Array_findIdx_x3f_loop___rarg(x_16, x_14, x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 

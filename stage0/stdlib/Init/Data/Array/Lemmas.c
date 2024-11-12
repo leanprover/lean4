@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lemmas
-// Imports: Init.Data.Nat.Lemmas Init.Data.List.Impl Init.Data.List.Monadic Init.Data.List.Range Init.Data.List.Nat.TakeDrop Init.Data.List.Nat.Modify Init.Data.List.Monadic Init.Data.Array.Mem Init.Data.Array.DecidableEq Init.TacticsExtra
+// Imports: Init.Data.Nat.Lemmas Init.Data.List.Impl Init.Data.List.Monadic Init.Data.List.Range Init.Data.List.Nat.TakeDrop Init.Data.List.Nat.Modify Init.Data.List.Nat.Erase Init.Data.List.Monadic Init.Data.List.OfFn Init.Data.Array.Mem Init.Data.Array.DecidableEq Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_take_loop_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_toListRev___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_foldlM_loop_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_toListRev___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -23,29 +24,37 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Array_instDecidableMemOfDec
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_isEqvAux_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__GetElem_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Array_instDecidableMemOfDecidableEq___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_take_loop_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_isEqvAux_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_appendCore_loop_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_foldlM_loop_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_instDecidableMemOfDecidableEq(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_toListRev___rarg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_contains___at_Array_instDecidableMemOfDecidableEq___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_forIn_x27Unsafe_loop_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_appendCore_loop_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Array_contains___at_Array_instDecidableMemOfDecidableEq___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_toListRev___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Nat_fold_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_isEqvAux_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Nat_fold_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_forIn_x27__cons_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_isEqvAux_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_take_loop_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_toListRev___spec__1(lean_object*);
@@ -57,7 +66,9 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Array_instDecidableMemOfDecidabl
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__GetElem_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_appendCore_loop_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_instDecidableMemOfDecidableEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_forIn_x27Unsafe_loop_match__1_splitter(lean_object*, lean_object*);
@@ -220,6 +231,219 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__List_forIn_x27__cons_match__1_splitter___rarg), 3, 0);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_apply_2(x_3, x_1, lean_box(0));
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+lean_dec(x_3);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_apply_1(x_2, x_5);
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__1_splitter___rarg), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_dec(x_3);
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x3f_match__2_splitter___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_dec(x_2);
+lean_inc(x_3);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter___rarg(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_dec(x_2);
+lean_inc(x_3);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_dec(x_3);
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter___rarg___boxed), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_inc(x_3);
+return x_3;
+}
+else
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg(x_4, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_toListRev___spec__1___rarg(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
@@ -440,43 +664,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_dec(x_2);
-lean_inc(x_3);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg___boxed), 3, 0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -552,41 +739,6 @@ x_4 = l___private_Init_Data_Array_Lemmas_0__Array_appendCore_loop_match__1_split
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_inc(x_3);
-return x_3;
-}
-else
-{
-lean_inc(x_2);
-return x_2;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg(x_4, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Array_instDecidableMemOfDecidableEq___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5) {
@@ -729,7 +881,9 @@ lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Range(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_Modify(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Nat_Erase(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Mem(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
@@ -756,7 +910,13 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_Modify(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Erase(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Init_Data_List_Monadic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_OfFn(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Mem(builtin, lean_io_mk_world());

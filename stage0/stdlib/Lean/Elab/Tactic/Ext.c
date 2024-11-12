@@ -207,9 +207,9 @@ static lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheoremAt___lambda__2___close
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lambda__1___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtHyps___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MapDeclarationExtension_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_repr___at___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3098____spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtN___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3673____lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_beqExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_3176____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -2042,7 +2042,7 @@ _start:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_ctor_get(x_1, 1);
 x_13 = l_Lean_Expr_fvarId_x21(x_2);
-x_14 = l_Lean_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(x_12, x_13);
+x_14 = l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_12, x_13);
 lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -3098,7 +3098,7 @@ lean_inc(x_19);
 x_21 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Ext_mkExtIffType___lambda__1___boxed), 2, 1);
 lean_closure_set(x_21, 0, x_19);
 x_22 = lean_unsigned_to_nat(0u);
-x_23 = l_Array_findIdx_x3f_loop___rarg(x_1, x_21, x_22);
+x_23 = l_Array_findIdx_x3f_loop___rarg(x_21, x_1, x_22);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; 
@@ -3122,7 +3122,7 @@ lean_dec(x_23);
 lean_inc(x_20);
 x_26 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Ext_mkExtIffType___lambda__1___boxed), 2, 1);
 lean_closure_set(x_26, 0, x_20);
-x_27 = l_Array_findIdx_x3f_loop___rarg(x_1, x_26, x_22);
+x_27 = l_Array_findIdx_x3f_loop___rarg(x_26, x_1, x_22);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; 

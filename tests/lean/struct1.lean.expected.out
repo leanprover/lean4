@@ -1,32 +1,29 @@
 struct1.lean:9:14-9:17: error: invalid structure type, expecting 'Type _' or 'Prop'
 struct1.lean:12:20-12:29: error: expected structure
-struct1.lean:15:28-15:34: warning: duplicate parent structure 'A'
-struct1.lean:15:28-15:34: warning: field 'x' from 'A' has already been declared
-struct1.lean:15:28-15:34: error: parent field type mismatch, field 'x' from parent 'A' has type
+struct1.lean:15:28-15:33: warning: field 'x' from 'B' has already been declared
+struct1.lean:16:1-16:2: error: field 'x' has been declared in parent structure
+struct1.lean:17:30-17:35: warning: duplicate parent structure 'A', skipping
+struct1.lean:19:27-19:33: error: parent field type mismatch, field 'x' from parent 'B' has type
   Bool : Type
 but is expected to have type
   Nat : Type
-struct1.lean:18:27-18:33: error: parent field type mismatch, field 'x' from parent 'B' has type
-  Bool : Type
-but is expected to have type
-  Nat : Type
-struct1.lean:29:1-29:2: error: field 'x' has already been declared
-struct1.lean:32:1-32:2: error: field 'x' has been declared in parent structure
-struct1.lean:35:6-35:10: error: type mismatch
+struct1.lean:30:1-30:2: error: field 'x' has already been declared
+struct1.lean:33:1-33:2: error: field 'x' has been declared in parent structure
+struct1.lean:36:6-36:10: error: type mismatch
   true
 has type
   Bool : Type
 but is expected to have type
   Nat : Type
-struct1.lean:38:5-38:9: error: omit field 'x' type to set default value
-struct1.lean:41:12-41:16: error: type mismatch
+struct1.lean:39:5-39:9: error: omit field 'x' type to set default value
+struct1.lean:42:12-42:16: error: type mismatch
   true
 has type
   Bool : Type
 but is expected to have type
   Nat : Type
-struct1.lean:44:0-44:13: error: invalid 'private' constructor in a 'private' structure
-struct1.lean:47:0-47:15: error: invalid 'protected' constructor in a 'private' structure
-struct1.lean:50:0-50:19: error: invalid 'protected' field in a 'private' structure
+struct1.lean:45:0-45:13: error: invalid 'private' constructor in a 'private' structure
+struct1.lean:48:0-48:15: error: invalid 'protected' constructor in a 'private' structure
+struct1.lean:51:0-51:19: error: invalid 'protected' field in a 'private' structure
 S : Type
 S.mk2 (x : Nat) : S

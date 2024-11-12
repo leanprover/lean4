@@ -10,6 +10,16 @@ import Init.Data.List.Attach
 
 namespace Array
 
+/-- `O(n)`. Partial map. If `f : Π a, P a → β` is a partial function defined on
+  `a : α` satisfying `P`, then `pmap f l h` is essentially the same as `map f l`
+  but is defined only when all members of `l` satisfy `P`, using the proof
+  to apply `f`.
+
+We replace this at runtime with a more efficient version via
+-/
+def pmap {P : α → Prop} (f : ∀ a, P a → β) (l : Array α) (H : ∀ a ∈ l, P a) : Array β :=
+  (l.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
+
 /--
 Unsafe implementation of `attachWith`, taking advantage of the fact that the representation of
 `Array {x // P x}` is the same as the input `Array α`.
@@ -35,6 +45,10 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
     l.toArray.attach = (l.attachWith (· ∈ l.toArray) (by simp)).toArray := by
   simp [attach]
 
+@[simp] theorem _root_.List.pmap_toArray {l : List α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ l.toArray, P a} :
+    l.toArray.pmap f H = (l.pmap f (by simpa using H)).toArray := by
+  simp [pmap]
+
 @[simp] theorem toList_attachWith {l : Array α} {P : α → Prop} {H : ∀ x ∈ l, P x} :
    (l.attachWith P H).toList = l.toList.attachWith P (by simpa [mem_toList] using H) := by
   simp [attachWith]
@@ -42,6 +56,22 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 @[simp] theorem toList_attach {α : Type _} {l : Array α} :
     l.attach.toList = l.toList.attachWith (· ∈ l) (by simp [mem_toList]) := by
   simp [attach]
+
+@[simp] theorem toList_pmap {l : Array α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ l, P a} :
+    (l.pmap f H).toList = l.toList.pmap f (fun a m => H a (mem_def.mpr m)) := by
+  simp [pmap]
+
+/-- Implementation of `pmap` using the zero-copy version of `attach`. -/
+@[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (l : Array α) (H : ∀ a ∈ l, P a) :
+    Array β := (l.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
+
+@[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
+  funext α β p f L h'
+  cases L
+  simp only [pmap, pmapImpl, List.attachWith_toArray, List.map_toArray, mk.injEq, List.map_attachWith]
+  apply List.pmap_congr_left
+  intro a m h₁ h₂
+  simp
 
 /-! ## unattach
 

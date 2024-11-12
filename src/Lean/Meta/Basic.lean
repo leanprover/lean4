@@ -28,6 +28,63 @@ namespace Lean.Meta
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
 /--
+Configuration for projection reduction. See `whnfCore`.
+-/
+inductive ProjReductionKind where
+  /-- Projections `s.i` are not reduced at `whnfCore`. -/
+  | no
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnfCore` is used at `s` during the process.
+  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations).
+  -/
+  | yes
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnf` is used at `s` during the process.
+  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations), but `whnf` does.
+  -/
+  | yesWithDelta
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnfAtMostI` is used at `s` during the process.
+  Recall that `whnfAtMostI` is like `whnf` but uses transparency at most `instances`.
+  This option is stronger than `yes`, but weaker than `yesWithDelta`.
+  We use this option to ensure we reduce projections to prevent expensive defeq checks when unifying TC operations.
+  When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
+  we only want to unify negation (and not all other field operations as well).
+  Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
+  -/
+  | yesWithDeltaI
+  deriving DecidableEq, Inhabited, Repr
+
+/--
+Configuration options for `whnfEasyCases` and `whnfCore`.
+-/
+structure WhnfCoreConfig where
+  /-- If `true`, reduce recursor/matcher applications, e.g., `Nat.rec true (fun _ _ => false) Nat.zero` reduces to `true` -/
+  iota : Bool := true
+  /-- If `true`, reduce terms such as `(fun x => t[x]) a` into `t[a]` -/
+  beta : Bool := true
+  /-- Control projection reduction at `whnfCore`. -/
+  proj : ProjReductionKind := .yesWithDelta
+  /--
+  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
+  We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
+  Recall that
+  ```
+  fun x : BitVec 5 => let n := 5; fun y : BitVec n => x = y
+  ```
+  is type correct, but
+  ```
+  fun x : BitVec 5 => (fun n => fun y : BitVec n => x = y) 5
+  ```
+  is not.
+  -/
+  zeta : Bool := true
+  /--
+  Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
+  -/
+  zetaDelta : Bool := true
+
+/--
 Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
 Recall that when `isDefEq` is trying to check whether

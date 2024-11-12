@@ -345,7 +345,7 @@ unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ
 
 unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (exts : Array EnvExtensionState) : σ :=
   if h : ext.idx < exts.size then
-    let s : EnvExtensionState := exts.get ⟨ext.idx, h⟩
+    let s : EnvExtensionState := exts[ext.idx]
     unsafeCast s
   else
     panic! invalidExtMsg

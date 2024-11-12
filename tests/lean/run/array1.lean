@@ -8,7 +8,7 @@ def w : Array Nat :=
 #check @Array.casesOn
 
 def f : Fin w.size → Nat :=
-  w.get
+  fun i => w.get i i.isLt
 
 def arraySum (a : Array Nat) : Nat :=
 a.foldl Nat.add 0

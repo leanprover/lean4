@@ -366,7 +366,7 @@ private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr →
   let rec go (i : Nat) (xs : Array Expr) : MetaM α := do
     if h : i < altTypes.size then
       let hName := (`h).appendIndexAfter (i+1)
-      withLocalDeclD hName (altTypes.get ⟨i, h⟩) fun x =>
+      withLocalDeclD hName altTypes[i] fun x =>
         go (i+1) (xs.push x)
     else
       f xs
@@ -525,7 +525,7 @@ where
           let rec go (i : Nat) (motiveTypeArgsNew : Array Expr) : ConvertM Expr := do
             assert! motiveTypeArgsNew.size == i
             if h : i < motiveTypeArgs.size then
-              let motiveTypeArg := motiveTypeArgs.get ⟨i, h⟩
+              let motiveTypeArg := motiveTypeArgs[i]
               if i < isAlt.size && isAlt[i]! then
                 let altNew := argsNew[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
                 let altTypeNew ← inferType altNew
@@ -636,8 +636,7 @@ private partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patte
 where
   go (i : Nat) (altsNew : Array Expr) : MetaM α := do
    if h : i < alts.size then
-     let alt := alts.get ⟨i, h⟩
-     let altLocalDecl ← getFVarLocalDecl alt
+     let altLocalDecl ← getFVarLocalDecl alts[i]
      let typeNew := altLocalDecl.type.replaceFVars discrs patterns
      withLocalDecl altLocalDecl.userName altLocalDecl.binderInfo typeNew fun altNew =>
        go (i+1) (altsNew.push altNew)

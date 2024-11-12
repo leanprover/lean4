@@ -73,7 +73,7 @@ private def tmpStar := mkMVar tmpMVarId
 -/
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
-    let info := infos.get ⟨i, h⟩
+    let info := infos[i]
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then

@@ -321,7 +321,7 @@ private partial def processSubfields (structDeclName : Name) (parentFVar : Expr)
 where
   go (i : Nat) (infos : Array StructFieldInfo) := do
     if h : i < subfieldNames.size then
-      let subfieldName := subfieldNames.get ⟨i, h⟩
+      let subfieldName := subfieldNames[i]
       if containsFieldName infos subfieldName then
         throwError "field '{subfieldName}' from '{.ofConstName parentStructName}' has already been declared"
       let val  ← mkProjection parentFVar subfieldName
@@ -463,7 +463,7 @@ where
     let fieldNames := getStructureFields (← getEnv) parentStructName
     let rec copy (i : Nat) (infos : Array StructFieldInfo) (fieldMap : FieldMap) (expandedStructNames : NameSet) : TermElabM α := do
       if h : i < fieldNames.size then
-        let fieldName := fieldNames.get ⟨i, h⟩
+        let fieldName := fieldNames[i]
         let fieldType ← getFieldType infos parentType fieldName
         match findFieldInfo? infos fieldName with
         | some existingFieldInfo =>

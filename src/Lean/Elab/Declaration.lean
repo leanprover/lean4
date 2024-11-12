@@ -192,8 +192,7 @@ private def isMutualPreambleCommand (stx : Syntax) : Bool :=
 private partial def splitMutualPreamble (elems : Array Syntax) : Option (Array Syntax × Array Syntax) :=
   let rec loop (i : Nat) : Option (Array Syntax × Array Syntax) :=
     if h : i < elems.size then
-      let elem := elems.get ⟨i, h⟩
-      if isMutualPreambleCommand elem then
+      if isMutualPreambleCommand elems[i] then
         loop (i+1)
       else if i == 0 then
         none -- `mutual` block does not contain any preamble commands

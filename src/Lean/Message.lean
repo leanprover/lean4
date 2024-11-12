@@ -250,7 +250,7 @@ instance : Coe (Option Expr) MessageData := ⟨fun o => match o with | none => "
 
 partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageData) : MessageData :=
   if h : i < es.size then
-    let e   := es.get ⟨i, h⟩;
+    let e   := es[i];
     let acc := if i == 0 then acc ++ ofExpr e else acc ++ ", " ++ ofExpr e;
     toMessageData es (i+1) acc
   else

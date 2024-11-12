@@ -166,13 +166,14 @@ count of 1 when called.
 -/
 @[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
-  let v₁ := a.get i
-  let v₂ := a.get j
+  let v₁ := a[i]
+  let v₂ := a[j]
   let a'  := a.set i v₂
   a'.set j v₁ (Nat.lt_of_lt_of_eq j.isLt (size_set a i v₂ _).symm)
 
 @[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
-  show ((a.set i (a.get j)).set j (a.get i) (Nat.lt_of_lt_of_eq j.isLt (size_set a i (a.get j) _).symm)).size = a.size
+  show ((a.set i a[j]).set j a[i]
+    (Nat.lt_of_lt_of_eq j.isLt (size_set a i a[j] _).symm)).size = a.size
   rw [size_set, size_set]
 
 /--
@@ -249,7 +250,7 @@ def back? (a : Array α) : Option α :=
   a.get? (a.size - 1)
 
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
-  let e := a.get i
+  let e := a[i]
   let a := a.set i v
   (e, a)
 
@@ -273,24 +274,22 @@ def take (a : Array α) (n : Nat) : Array α :=
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < a.size then
-    let idx : Fin a.size := ⟨i, h⟩
-    let v                := a.get idx
+    let v                := a[i]
     -- Replace a[i] by `box(0)`.  This ensures that `v` remains unshared if possible.
     -- Note: we assume that arrays have a uniform representation irrespective
     -- of the element type, and that it is valid to store `box(0)` in any array.
-    let a'               := a.set idx (unsafeCast ())
+    let a'               := a.set i (unsafeCast ())
     let v ← f v
-    pure <| a'.set idx v (Nat.lt_of_lt_of_eq h (size_set a ..).symm)
+    pure <| a'.set i v (Nat.lt_of_lt_of_eq h (size_set a ..).symm)
   else
     pure a
 
 @[implemented_by modifyMUnsafe]
 def modifyM [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < a.size then
-    let idx := ⟨i, h⟩
-    let v   := a.get idx
+    let v   := a[i]
     let v ← f v
-    pure <| a.set idx v
+    pure <| a.set i v
   else
     pure a
 
@@ -455,7 +454,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f ⟨j, j_lt⟩ (as.get ⟨j, j_lt⟩)))
+      map i (j+1) this (bs.push (← f ⟨j, j_lt⟩ (as.get j j_lt)))
   map as.size 0 rfl (mkEmpty as.size)
 
 @[inline]
@@ -618,8 +617,7 @@ def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
   if h : i < a.size then
-    let idx : Fin a.size := ⟨i, h⟩;
-    if a.get idx == v then some idx
+    if a[i] == v then some ⟨i, h⟩
     else indexOfAux a v (i+1)
   else none
 decreasing_by simp_wf; decreasing_trivial_pre_omega
@@ -744,7 +742,7 @@ where
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then
-    if p (as.get ⟨as.size - 1, Nat.sub_lt h (by decide)⟩) then
+    if p (as[as.size - 1]'(Nat.sub_lt h (by decide))) then
       popWhile p as.pop
     else
       as
@@ -756,7 +754,7 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   go (i : Nat) (r : Array α) : Array α :=
     if h : i < as.size then
-      let a := as.get ⟨i, h⟩
+      let a := as[i]
       if p a then
         go (i+1) (r.push a)
       else

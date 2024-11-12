@@ -332,7 +332,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
 @[specialize] partial def isDefEqBindingDomain (fvars : Array Expr) (ds₂ : Array Expr) (k : MetaM Bool) : MetaM Bool :=
   let rec loop (i : Nat) := do
     if h : i < fvars.size then do
-      let fvar := fvars.get ⟨i, h⟩
+      let fvar := fvars[i]
       let fvarDecl ← getFVarLocalDecl fvar
       let fvarType := fvarDecl.type
       let d₂       := ds₂[i]!
@@ -1203,7 +1203,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
       let useFOApprox (args : Array Expr) : MetaM Bool :=
         processAssignmentFOApprox mvar args v <||> processConstApprox mvar args i v
       if h : i < args.size then
-        let arg := args.get ⟨i, h⟩
+        let arg := args[i]
         let arg ← simpAssignmentArg arg
         let args := args.set i arg
         match arg with

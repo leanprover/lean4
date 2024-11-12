@@ -885,7 +885,7 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
     if dist > maxDistance then
       return false
     else if h : i < structs.size then
-      let struct := structs.get ⟨i, h⟩
+      let struct := structs[i]
       match getDefaultFnForField? (← getEnv) struct.structName fieldName with
       | some defFn =>
         let cinfo ← getConstInfo defFn

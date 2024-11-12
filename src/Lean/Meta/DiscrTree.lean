@@ -202,7 +202,7 @@ instance : Inhabited (DiscrTree α) where
 -/
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
-    let info := infos.get ⟨i, h⟩
+    let info := infos[i]
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
@@ -442,7 +442,7 @@ def mkPath (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM
 
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
-    let k := keys.get ⟨i, h⟩
+    let k := keys[i]
     let c := createNodes keys v (i+1)
     .node #[] #[(k, c)]
   else
@@ -470,7 +470,7 @@ where
 private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
   | i, .node vs cs =>
     if h : i < keys.size then
-      let k := keys.get ⟨i, h⟩
+      let k := keys[i]
       let c := Id.run $ cs.binInsertM
           (fun a b => a.1 < b.1)
           (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing

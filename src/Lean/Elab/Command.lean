@@ -601,8 +601,6 @@ def elabCommandTopLevel (stx : Syntax)
           -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
           -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
           elabCommand stx
-          let (env, checkEnv) ← (← getEnv).checkPostponedDeclsAsync (← getOptions) (← read).cancelTk?
-          let _ ← EIO.asTask checkEnv
         -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
         -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
         -- rather than engineer a general solution.

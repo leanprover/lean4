@@ -526,7 +526,6 @@ private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Na
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d
-    forceCompile
     let rflPrf ← mkEqRefl (toExpr true)
     let s := d.appArg! -- get instance from `d`
     return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s <| mkApp3 (Lean.mkConst ``Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf

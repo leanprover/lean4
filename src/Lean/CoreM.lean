@@ -465,14 +465,6 @@ where doCompile := do
 def compileDecl (decl : Declaration) : CoreM Unit := do
   compileDecls <| Compiler.getDeclNamesForCodeGen decl
 
-def checkPostponedDecls : CoreM Unit := do
-  let env ← getEnv
-  let env ← env.checkPostponedDecls (← getOptions) (← read).cancelTk? |> ofExceptKernelException
-  setEnv env
-
-def forceCompile : CoreM Unit := do
-  pure ()
-
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts
 

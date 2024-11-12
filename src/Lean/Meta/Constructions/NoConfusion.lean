@@ -22,7 +22,6 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
   let name := Name.mkStr declName "noConfusionType"
-  checkPostponedDecls
   let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
   addDecl decl
   setReducibleAttribute name
@@ -30,7 +29,6 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   modifyEnv fun env => addProtected env name
 
   let name := Name.mkStr declName "noConfusion"
-  checkPostponedDecls
   let decl ← ofExceptKernelException (mkNoConfusionCoreImp (← getEnv) declName)
   addDecl decl
   setReducibleAttribute name

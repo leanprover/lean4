@@ -247,7 +247,7 @@ def get? (a : Array α) (i : Nat) : Option α :=
   if h : i < a.size then some a[i] else none
 
 def back? (a : Array α) : Option α :=
-  a.get? (a.size - 1)
+  a[a.size - 1]?
 
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a[i]

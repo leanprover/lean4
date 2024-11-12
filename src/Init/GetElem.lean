@@ -166,6 +166,12 @@ theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
   have : Decidable (dom c i) := .isFalse h
   simp [getElem!_def, getElem?_def, h]
 
+@[simp] theorem get_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] (h) :
+    c[i]?.get h = c[i]'(by simp only [getElem?_def] at h; split at h <;> simp_all) := by
+  simp only [getElem?_def] at h ⊢
+  split <;> simp_all
+
 namespace Fin
 
 instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where

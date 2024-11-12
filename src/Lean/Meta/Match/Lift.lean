@@ -16,7 +16,7 @@ namespace Lean.Meta
 
 -- partial def mkEquationsFor (matchDeclName : Name) :  MetaM
 
-def deriveMatchFloat (name : Name) : MetaM Unit := do
+def deriveMatchLift (name : Name) : MetaM Unit := do
   mapError (f := (m!"Cannot construct match floating theorem:{indentD ·}")) do
     let some info ← getMatcherInfo? name | throwError "getMatcherInfo? failed"
     -- Fail early if splitter cannot be generated
@@ -71,7 +71,7 @@ def deriveMatchFloat (name : Name) : MetaM Unit := do
     let decl := Declaration.thmDecl { name := name ++ `float, levelParams, type, value }
     addDecl decl
 
-def isMatchFloatName (env : Environment) (name : Name) : Bool :=
+def isMatchLiftName (env : Environment) (name : Name) : Bool :=
   if let .str p "float" := name
   then
     (getMatcherInfoCore? env p).isSome
@@ -80,18 +80,18 @@ def isMatchFloatName (env : Environment) (name : Name) : Bool :=
 
 
 builtin_initialize
-  registerReservedNamePredicate isMatchFloatName
+  registerReservedNamePredicate isMatchLiftName
 
   registerReservedNameAction fun name => do
-    if isMatchFloatName (← getEnv) name then
+    if isMatchLiftName (← getEnv) name then
       let .str p _ := name | return false
-      MetaM.run' <| deriveMatchFloat p
+      MetaM.run' <| deriveMatchLift p
       return true
     return false
 
-def mkMatchFloatApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) := do
+def mkMatchLiftApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) := do
   let some (α, β) := (← inferType f).arrow? |
-    trace[float_match] "Cannot float match: {f} is dependent"
+    trace[lift_match] "Cannot float match: {f} is dependent"
     return none
   let floatName := matcherApp.matcherName ++ `float
   let _ ← realizeGlobalName floatName
@@ -101,14 +101,14 @@ def mkMatchFloatApp (f : Expr) (matcherApp : MatcherApp) : MetaM (Option Expr) :
   return some e
 
 builtin_initialize
-   Lean.registerTraceClass `float_match
+   Lean.registerTraceClass `lift_match
 
 
 /-!
 The implementation supporting the simproc and the conv tactic
 -/
 
-section FloatMatch
+section LiftMatch
 
 inductive MatcherOrIteApp where
   | matcher (matcherApp : MatcherApp)
@@ -122,12 +122,12 @@ def MatcherOrIteApp.motive? : MatcherOrIteApp -> Option Expr
   | matcher matcherApp => matcherApp.motive.constLams?
   | ite _ α _ _ _ _ => some α
 
-def mkMatchOrIteFloatApp (f : Expr) (moi : MatcherOrIteApp) : MetaM (Option Expr) := do
+def mkMatchOrIteLiftApp (f : Expr) (moi : MatcherOrIteApp) : MetaM (Option Expr) := do
   match moi with
-  | .matcher matcherApp => mkMatchFloatApp f matcherApp
+  | .matcher matcherApp => mkMatchLiftApp f matcherApp
   | .ite dite α P inst t e =>
       let some (_, β) := (← inferType f).arrow? |
-        trace[float_match] "Cannot float match: {f} is dependent"
+        trace[lift_match] "Cannot float match: {f} is dependent"
         return none
       let floatName := if dite then ``apply_dite else ``apply_ite
       let e ← mkAppOptM floatName #[some α, some β, some f, some P, some inst, some t, some e]
@@ -150,7 +150,7 @@ private def matchMatcherOrIteApp? (e : Expr) : MetaM (Option MatcherOrIteApp) :=
 /--
 Finds the first possible floatable match (or (d)ite).
 -/
-private partial def findMatchToFloat? (e : Expr) (far : Bool) (depth : Nat := 0) : MetaM (Option (Expr × MatcherOrIteApp)) := do
+private partial def findMatchToLift? (e : Expr) (far : Bool) (depth : Nat := 0) : MetaM (Option (Expr × MatcherOrIteApp)) := do
   if !far && depth > 1 then
     return none
 
@@ -169,15 +169,15 @@ private partial def findMatchToFloat? (e : Expr) (far : Bool) (depth : Nat := 0)
       --   but doing it one application at a time does not work due to the dependency.
       --   So to work around this, we do not bump the depth counter here.
       if h : args.size > 1 then
-        if let some r ← findMatchToFloat? args[1] far depth then
+        if let some r ← findMatchToLift? args[1] far depth then
           return some r
     else
       for a in args do
-        if let some r ← findMatchToFloat? a far (depth + 1) then
+        if let some r ← findMatchToLift? a far (depth + 1) then
           return some r
 
   if e.isLet then
-    if let some r ← findMatchToFloat? e.letValue! far (depth + 1) then
+    if let some r ← findMatchToLift? e.letValue! far (depth + 1) then
       return some r
 
   return none
@@ -186,10 +186,10 @@ def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
   unless far do
     -- In the simproc: We could, but for now we do not float out of props
     if ← Meta.isProp e then return none
-  let some (me, matcherApp) ← findMatchToFloat? e far| return none
+  let some (me, matcherApp) ← findMatchToLift? e far| return none
   -- We do not handle dependent motives
   let some α := matcherApp.motive? |
-    trace[float_match] "Cannot float match: motive depends on targets"
+    trace[lift_match] "Cannot float match: motive depends on targets"
     return none
   -- Using kabstract, rather than just abstracting over the single occurrence of `me` in `e` with
   -- helps if later arguments depend on the abstracted argument,
@@ -197,15 +197,15 @@ def floatMatch (e : Expr) (far : Bool) : MetaM (Option (Expr × Expr)) := do
   let f := (mkLambda `x .default α (← kabstract e me)).eta
   -- Abstracting over the argument can result in a type incorrect `f` (like in `rw`)
   unless (← isTypeCorrect f) do
-    trace[float_match] "Cannot float match: context is not type correct"
+    trace[lift_match] "Cannot float match: context is not type correct"
     return none
-  let some proof ← mkMatchOrIteFloatApp f matcherApp | return none
+  let some proof ← mkMatchOrIteLiftApp f matcherApp | return none
   let type ← inferType proof
   let some (_, _, rhs) := type.eq?
-    | throwError "float_match: Unexpected non-equality type:{indentExpr type}"
+    | throwError "lift_match: Unexpected non-equality type:{indentExpr type}"
   return some (rhs, proof)
 
-end FloatMatch
+end LiftMatch
 
 end Lean.Meta
 
@@ -216,7 +216,7 @@ The simproc tactic
 section Simproc
 
 /--
-Floats out `match` expressions, or, equivalently, pushes function applications into the
+Lifts out `match` expressions, or, equivalently, pushes function applications into the
 branches of a match. For example it can rewrite
 ```
 f (match o with | some x => x + 1 | none => 0)
@@ -234,9 +234,9 @@ It can only float matches with a non-dependent motive, no extra arguments and wh
 It is recommended to enable this simproc only selectively, and not by default, as it looks for
 match expression to float at every step of the simplifier.
 
-Also see the `conv`-tactic `float_match`.
+Also see the `conv`-tactic `lift_match`.
 -/
-builtin_simproc_decl float_match (_) := fun e => do
+builtin_simproc_decl lift_match (_) := fun e => do
   let some (rhs, proof) ← floatMatch (far := false) e | return .continue
   return .visit { expr := rhs, proof? := some proof }
 
@@ -250,7 +250,7 @@ The conv tactic
 namespace Lean.Elab.Tactic.Conv
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.floatMatch]
-def evalFloatMatch : Tactic := fun _ => do
+def evalLiftMatch : Tactic := fun _ => do
   let mvarId ← getMainGoal
   mvarId.withContext do
     let lhs ← getLhs

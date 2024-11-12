@@ -59,18 +59,18 @@ error: unknown identifier 'Nat.lt_or_gt_of_ne.match_1.float'
 -- A typical example
 
 theorem List.filter_map' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
-  induction l <;> simp [filter, *, float_match]
+  induction l <;> simp [filter, *, lift_match]
 
--- Using the float_match conv tactic
+-- Using the lift_match conv tactic
 
 theorem List.filter_map'' (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
   induction l
   · simp
   · simp only [filter]
-    conv => rhs; float_match
+    conv => rhs; lift_match
     simp only [Function.comp_apply, map_cons, *]
 
--- Using the float_match tactic
+-- Using the lift_match tactic
 
 -- This works in principle, but isn't very useful, because the simplifier, even with
 -- `(contextual := true)`, does not simplify the duplicated match target in the alternatives.
@@ -82,7 +82,7 @@ theorem List.filter_map''' (f : β → α) (l : List β) : filter p (map f l) = 
   induction l
   · simp
   · simp only [filter]
-    float_match
+    lift_match
     simp (config := {contextual := true}) [*]
     -- fail
     sorry
@@ -93,7 +93,7 @@ theorem List.filter_map''' (f : β → α) (l : List β) : filter p (map f l) = 
 example (o : Option Bool) :
   (match o with | some b => b | none => false)
     = !(match o with | some b => !b | none => true) := by
-  simp [float_match]
+  simp [lift_match]
 
 -- Can float out of ite-condition
 /--
@@ -108,13 +108,13 @@ P : Nat → Prop
 #guard_msgs in
 example (o : Option Bool) (P : Nat → Prop):
   P (if (match o with | some b => b | none => true) then 1 else 2) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail
 
 -- Cannot float out of ite-branch
 example (b : Bool) (o : Option Bool) (P : Bool → Prop) (abort : ∀ b, P b):
   P (if b then (match o with | some b => b | none => true) else b) := by
-  fail_if_success simp only [float_match]
+  fail_if_success simp only [lift_match]
   apply abort
 
 -- Can float out of a match target (aka case-of-case)
@@ -133,43 +133,43 @@ P : Nat → Prop
 #guard_msgs in
 example (o : Option Bool) (P : Nat → Prop):
   P (match (match o with | some b => b | none => true) with | true => 1 | false => 2) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail
 
 -- Dependent motive; must not rewrite
 
-set_option trace.float_match true in
-/-- info: [float_match] Cannot float match: motive depends on targets -/
+set_option trace.lift_match true in
+/-- info: [lift_match] Cannot float match: motive depends on targets -/
 #guard_msgs in
 example (o : Option Bool) (motive : Bool → Type) (P : {b : Bool} → motive b → Prop)
   (f : (x : Bool) → motive x) (g : {x : Bool} → motive x → motive x)
   (abort : ∀ b (x : motive b), P x) :
   P (g (match (motive := ∀ b, motive b.isSome) o with | some _ => f true | none => f false)) := by
-  fail_if_success simp [float_match]
+  fail_if_success simp [lift_match]
   apply abort
 
 -- Dependent context; must not rewrite
 
-set_option trace.float_match true in
-/-- info: [float_match] Cannot float match: f is dependent -/
+set_option trace.lift_match true in
+/-- info: [lift_match] Cannot float match: f is dependent -/
 #guard_msgs in
 example (o : Option Bool) (motive : Bool → Type) (P : {b : Bool} → motive b → Prop)
   (f : (x : Bool) → motive x)
   (abort : ∀ b (x : motive b), P x) :
   P (f (match (motive := ∀ _, Bool) o with | some b => b | none => false)) := by
-  fail_if_success simp [float_match]
+  fail_if_success simp [lift_match]
   apply abort
 
 -- Context depends on the concrete value of the match, must not rewrite
 
-set_option trace.float_match true in
-/-- info: [float_match] Cannot float match: context is not type correct -/
+set_option trace.lift_match true in
+/-- info: [lift_match] Cannot float match: context is not type correct -/
 #guard_msgs in
 example (o : Option Bool)
   (f : (x : Bool) → (h : x = (match o with | some b => b | none => false)) → Bool)
   (abort : ∀ (P : Prop), P) :
   f (match (motive := ∀ _, Bool) o with | some b => b | none => false) rfl = true := by
-  fail_if_success simp [float_match]
+  fail_if_success simp [lift_match]
   apply abort
 
 -- Can float out of a let (Only relevant with zeta := false)
@@ -190,7 +190,7 @@ P : Bool → Prop
 #guard_msgs in
 example (o : Option Bool) (P : Bool → Prop):
   P (let b := match o with | some b => b | none => true; !b) := by
-  simp -zeta only [float_match]
+  simp -zeta only [lift_match]
   fail
 
 /-
@@ -234,7 +234,7 @@ b : Bool
 #guard_msgs in
 example (P : Nat → Prop) (f : Nat → Nat) (b : Bool) :
   P (f (if b then 1 else 2)) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail
 
 -- Dependent f
@@ -242,13 +242,13 @@ example (P : Nat → Prop) (f : Nat → Nat) (b : Bool) :
 /--
 error: simp made no progress
 ---
-info: [float_match] Cannot float match: f is dependent
+info: [lift_match] Cannot float match: f is dependent
 -/
 #guard_msgs in
-set_option trace.float_match true in
+set_option trace.lift_match true in
 example (P : {n : Nat} → Fin n → Prop) (f : (n : Nat) → Fin n) (b : Bool) :
   P (f (if b then 1 else 2)) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail
 
 -- Somewhat dependent f, but abstracting still succeeds
@@ -263,7 +263,7 @@ b : Bool
 #guard_msgs in
 example (P : Nat → Prop) (f : (n : Nat) → DecidableEq (Fin n) → Nat) (b : Bool) :
   P (f (if b then 1 else 2) inferInstance) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail
 
 -- Testing dependent if-then-else
@@ -278,7 +278,7 @@ b : Bool
 #guard_msgs in
 example (P : Nat → Prop) (f : Nat → Nat) (b : Bool) :
   P (f (if h : b then 1 else 2)) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail
 
 -- Dependent f
@@ -286,13 +286,13 @@ example (P : Nat → Prop) (f : Nat → Nat) (b : Bool) :
 /--
 error: simp made no progress
 ---
-info: [float_match] Cannot float match: f is dependent
+info: [lift_match] Cannot float match: f is dependent
 -/
 #guard_msgs in
-set_option trace.float_match true in
+set_option trace.lift_match true in
 example (P : {n : Nat} → Fin n → Prop) (f : (n : Nat) → Fin n) (b : Bool) :
   P (f (if h : b then 1 else 2)) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail
 
 -- Somewhat dependent f, but abstracting still succeeds
@@ -307,5 +307,5 @@ b : Bool
 #guard_msgs in
 example (P : Nat → Prop) (f : (n : Nat) → DecidableEq (Fin n) → Nat) (b : Bool) :
   P (f (if h : b then 1 else 2) inferInstance) := by
-  simp only [float_match]
+  simp only [lift_match]
   fail

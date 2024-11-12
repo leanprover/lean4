@@ -344,12 +344,12 @@ It can only float matches with a non-dependent motive, no extra arguments and wh
 It floats the first eligible match it finds to the top. To float less far (e.g. into the
 left-hand side of an equality) focus on the desired position first (e.g. using `lhs` and `rhs`).
 
-Also see the `float_match` simproc for use in the simplifier.
+Also see the `lift_match` simproc for use in the simplifier.
 -/
-syntax (name := floatMatch) "float_match" : conv
+syntax (name := floatMatch) "lift_match" : conv
 
 @[inherit_doc floatMatch]
-macro (name := _root_.Lean.Parser.Tactic.floatMatch) "float_match" : tactic =>
-  `(tactic| conv => float_match)
+macro (name := _root_.Lean.Parser.Tactic.floatMatch) "lift_match" : tactic =>
+  `(tactic| conv => lift_match)
 
 end Lean.Parser.Tactic.Conv

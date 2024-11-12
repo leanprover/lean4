@@ -548,8 +548,9 @@ where
       let parentType ← whnf type
       let parentStructName ← getStructureName parentType
       if parents.any (fun info => info.structName == parentStructName) then
-        logWarningAt parent m!"duplicate parent structure '{.ofConstName parentStructName}'"
-      if let some existingFieldName ← findExistingField? infos parentStructName then
+        logWarningAt parent m!"duplicate parent structure '{.ofConstName parentStructName}', skipping"
+        go (i + 1) infos parents
+      else if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
           logWarning m!"field '{existingFieldName}' from '{.ofConstName parentStructName}' has already been declared"
         let parents := parents.push { ref := parent, fvar? := none, subobject := false, structName := parentStructName, type := parentType }
@@ -900,6 +901,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
         safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe
       }
     -- Logic from `mk_projections`: non-instance-implicits that aren't props become reducible.
+    -- (Instances will get instance reducibility in `Lean.Elab.Command.addParentInstances`.)
     if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
       setReducibleAttribute declName
     return { structName := parentStructName, subobject := false, projFn := declName }
@@ -975,7 +977,7 @@ private def checkResolutionOrder (structName : Name) : TermElabM Unit := do
 /--
 Adds each direct parent projection to a class as an instance, so long as the parent isn't an ancestor of the others.
 -/
-private def addParentInstances (_structName : Name) (parents : Array StructureParentInfo) : MetaM Unit := do
+private def addParentInstances (parents : Array StructureParentInfo) : MetaM Unit := do
   let env ← getEnv
   let instParents := parents.filter fun parent => isClass env parent.structName
   -- We only want to add instances that aren't implied by the other parents.
@@ -1049,7 +1051,7 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
           setStructureParents view.declName parentInfos
           checkResolutionOrder view.declName
           if view.isClass then
-            addParentInstances view.declName parentInfos
+            addParentInstances parentInfos
 
           let lctx ← getLCtx
           /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations

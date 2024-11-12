@@ -322,7 +322,6 @@ structure BaseMessage (α : Type u) where
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
   caption       : String          := ""
-
   /-- The content of the message. -/
   data          : α
   deriving Inhabited, ToJson, FromJson
@@ -336,7 +335,7 @@ serialized and is thus appropriate for use in pure contexts where the effectful
 `MessageData.toString` cannot be used. -/
 structure SerialMessage extends BaseMessage String where
   /-- The message kind (i.e., the top-level tag). -/
-  kind          : Name := .anonymous
+  kind          : Name
   deriving ToJson, FromJson
 
 namespace SerialMessage

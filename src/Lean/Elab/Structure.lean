@@ -980,14 +980,12 @@ Adds each direct parent projection to a class as an instance, so long as the par
 private def addParentInstances (parents : Array StructureParentInfo) : MetaM Unit := do
   let env ← getEnv
   let instParents := parents.filter fun parent => isClass env parent.structName
-  -- We only want to add instances that aren't implied by the other parents.
+  -- A parent is an ancestor of the others if it appears with index ≥ 1 in one of the resolution orders.
   let resOrders : Array (Array Name) ← instParents.mapM fun parent => getStructureResolutionOrder parent.structName
-  let isImplied : Array Bool := resOrders.mapIdx fun i resOrder =>
-    let parentName := instParents[i]!.structName
-    resOrder[0]! != parentName && resOrders.any (·.contains parentName)
-  for instParent in instParents, implied in isImplied do
-    unless implied do
-      addInstance instParent.projFn AttributeKind.global (eval_prio default)
+  let instParents := instParents.filter fun parent =>
+    !resOrders.any (fun resOrder => resOrder[1:].any (· == parent.structName))
+  for instParent in instParents do
+    addInstance instParent.projFn AttributeKind.global (eval_prio default)
 
 def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let scopeLevelNames ← Term.getLevelNames

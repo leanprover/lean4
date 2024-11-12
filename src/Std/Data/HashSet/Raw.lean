@@ -157,6 +157,10 @@ for all `a`.
 @[inline] def isEmpty (m : Raw α) : Bool :=
   m.inner.isEmpty
 
+/-- Transforms the hash set into a list of elements in some order. -/
+@[inline] def toList (m : Raw α) : List α :=
+  m.inner.keys
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -206,9 +210,6 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
     if p a then return true
   return false
 
-/-- Transforms the hash set into a list of elements in some order. -/
-@[inline] def toList (m : Raw α) : List α :=
-  m.inner.keys
 
 /-- Transforms the hash set into an array of elements in some order. -/
 @[inline] def toArray (m : Raw α) : Array α :=

@@ -65,6 +65,8 @@ where
     mkApp4 (mkConst ``BVExpr.shiftLeft) (toExpr m) (toExpr n) (go lhs) (go rhs)
   | .shiftRight (m := m) (n := n) lhs rhs =>
     mkApp4 (mkConst ``BVExpr.shiftRight) (toExpr m) (toExpr n) (go lhs) (go rhs)
+  | .arithShiftRight (m := m) (n := n) lhs rhs =>
+    mkApp4 (mkConst ``BVExpr.arithShiftRight) (toExpr m) (toExpr n) (go lhs) (go rhs)
 
 instance : ToExpr BVBinPred where
   toExpr x :=

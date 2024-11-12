@@ -1081,7 +1081,7 @@ mutual
   private partial def withNewLocalInstancesImp
       (fvars : Array Expr) (i : Nat) (k : MetaM α) : MetaM α := do
     if h : i < fvars.size then
-      let fvar := fvars.get ⟨i, h⟩
+      let fvar := fvars[i]
       let decl ← getFVarLocalDecl fvar
       match (← isClassQuick? decl.type) with
       | .none   => withNewLocalInstancesImp fvars (i+1) k
@@ -1650,7 +1650,7 @@ def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.i
 
 private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
+    let p := ps[i]
     match (← whnf e) with
     | .forallE _ _ b _ => instantiateForallAux ps (i+1) (b.instantiate1 p)
     | _                => throwError "invalid instantiateForall, too many parameters"
@@ -1663,7 +1663,7 @@ def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
 
 private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
+    let p := ps[i]
     match (← whnf e) with
     | .lam _ _ b _ => instantiateLambdaAux ps (i+1) (b.instantiate1 p)
     | _            => throwError "invalid instantiateLambda, too many parameters"

@@ -77,7 +77,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
 private partial def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
     if h : i < views.size then
-      let view := views.get ⟨i, h⟩
+      let view := views[i]
       withAuxDecl view.shortDeclName view.type view.declName fun fvar => loop (i+1) (fvars.push fvar)
     else
       k fvars

@@ -111,9 +111,8 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   if h : i < cmds.size then
-    let cmd := cmds.get ⟨i, h⟩;
     catchInternalId unsupportedSyntaxExceptionId
-      (elabCommand cmd)
+      (elabCommand cmds[i])
       (fun _ => elabChoiceAux cmds (i+1))
   else
     throwUnsupportedSyntax

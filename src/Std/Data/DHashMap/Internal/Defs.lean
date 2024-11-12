@@ -195,11 +195,10 @@ where
       (target : { d : Array (AssocList α β) // 0 < d.size }) :
       { d : Array (AssocList α β) // 0 < d.size } :=
     if h : i < source.size then
-      let idx : Fin source.size := ⟨i, h⟩
-      let es := source.get idx
+      let es := source[i]
       -- We erase `es` from `source` to make sure we can reuse its memory cells
       -- when performing es.foldl
-      let source := source.set idx .nil
+      let source := source.set i .nil
       let target := es.foldl (reinsertAux hash) target
       go (i+1) source target
     else target

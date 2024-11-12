@@ -70,7 +70,7 @@ def StructureInfo.lt (i₁ i₂ : StructureInfo) : Bool :=
 
 def StructureInfo.getProjFn? (info : StructureInfo) (i : Nat) : Option Name :=
   if h : i < info.fieldNames.size then
-    let fieldName := info.fieldNames.get ⟨i, h⟩
+    let fieldName := info.fieldNames[i]
     info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default } StructureFieldInfo.lt |>.map (·.projFn)
   else
     none

@@ -10,7 +10,8 @@ import Init.Data.List.Sublist
 import Init.Data.List.Range
 
 /-!
-# Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, and `List.indexOf`.
+Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, `List.indexOf`,
+and `List.lookup`.
 -/
 
 namespace List
@@ -95,22 +96,22 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
     · simp only [Option.guard_eq_none] at h
       simp [ih, h]
 
-@[simp] theorem filterMap_head? (f : α → Option β) (l : List α) : (l.filterMap f).head? = l.findSome? f := by
+@[simp] theorem head?_filterMap (f : α → Option β) (l : List α) : (l.filterMap f).head? = l.findSome? f := by
   induction l with
   | nil => simp
   | cons x xs ih =>
     simp only [filterMap_cons, findSome?_cons]
     split <;> simp [*]
 
-@[simp] theorem filterMap_head (f : α → Option β) (l : List α) (h) :
-    (l.filterMap f).head h = (l.findSome? f).get (by simp_all [Option.isSome_iff_ne_none])  := by
+@[simp] theorem head_filterMap (f : α → Option β) (l : List α) (h) :
+    (l.filterMap f).head h = (l.findSome? f).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [head_eq_iff_head?_eq_some]
 
-@[simp] theorem filterMap_getLast? (f : α → Option β) (l : List α) : (l.filterMap f).getLast? = l.reverse.findSome? f := by
+@[simp] theorem getLast?_filterMap (f : α → Option β) (l : List α) : (l.filterMap f).getLast? = l.reverse.findSome? f := by
   rw [getLast?_eq_head?_reverse]
   simp [← filterMap_reverse]
 
-@[simp] theorem filterMap_getLast (f : α → Option β) (l : List α) (h) :
+@[simp] theorem getLast_filterMap (f : α → Option β) (l : List α) (h) :
     (l.filterMap f).getLast h = (l.reverse.findSome? f).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [getLast_eq_iff_getLast_eq_some]
 
@@ -291,18 +292,18 @@ theorem get_find?_mem (xs : List α) (p : α → Bool) (h) : (xs.find? p).get h 
     · simp only [find?_cons]
       split <;> simp_all
 
-@[simp] theorem filter_head? (p : α → Bool) (l : List α) : (l.filter p).head? = l.find? p := by
-  rw [← filterMap_eq_filter, filterMap_head?, findSome?_guard]
+@[simp] theorem head?_filter (p : α → Bool) (l : List α) : (l.filter p).head? = l.find? p := by
+  rw [← filterMap_eq_filter, head?_filterMap, findSome?_guard]
 
-@[simp] theorem filter_head (p : α → Bool) (l : List α) (h) :
+@[simp] theorem head_filter (p : α → Bool) (l : List α) (h) :
     (l.filter p).head h = (l.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [head_eq_iff_head?_eq_some]
 
-@[simp] theorem filter_getLast? (p : α → Bool) (l : List α) : (l.filter p).getLast? = l.reverse.find? p := by
+@[simp] theorem getLast?_filter (p : α → Bool) (l : List α) : (l.filter p).getLast? = l.reverse.find? p := by
   rw [getLast?_eq_head?_reverse]
   simp [← filter_reverse]
 
-@[simp] theorem filter_getLast (p : α → Bool) (l : List α) (h) :
+@[simp] theorem getLast_filter (p : α → Bool) (l : List α) (h) :
     (l.filter p).getLast h = (l.reverse.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [getLast_eq_iff_getLast_eq_some]
 

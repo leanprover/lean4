@@ -76,6 +76,8 @@ theorem getElem_push (a : Array α) (x : α) (i : Nat) (h : i < (a.push x).size)
 theorem singleton_inj : #[a] = #[b] ↔ a = b := by
   simp
 
+theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
+
 end Array
 
 namespace List
@@ -110,6 +112,9 @@ We prefer to pull `List.toArray` outwards.
 
 @[simp] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
   simp only [back!, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
+
+@[simp] theorem back?_toArray (l : List α) : l.toArray.back? = l.getLast? := by
+  simp [back?, List.getLast?_eq_getElem?]
 
 @[simp] theorem forIn'_loop_toArray [Monad m] (l : List α) (f : (a : α) → a ∈ l.toArray → β → m (ForInStep β)) (i : Nat)
     (h : i ≤ l.length) (b : β) :
@@ -580,6 +585,8 @@ theorem getElem?_ofFn (f : Fin n → α) (i : Nat) :
   List.length_replicate ..
 
 @[simp] theorem toList_mkArray (n : Nat) (v : α) : (mkArray n v).toList = List.replicate n v := rfl
+
+theorem mkArray_eq_toArray_replicate (n : Nat) (v : α) : mkArray n v = (List.replicate n v).toArray := rfl
 
 @[simp] theorem getElem_mkArray (n : Nat) (v : α) (h : i < (mkArray n v).size) :
     (mkArray n v)[i] = v := by simp [Array.getElem_eq_getElem_toList]

@@ -36,6 +36,37 @@ if they do not intentionally occupy the root namespace.
 --   Monad LawfulFunctor LawfulApplicative LawfulMonad LawfulSingleton Std
 
 
+
+simp_lc ignore forIn'_eq_forIn
+
+simp_lc inspect List.elem_eq_mem Std.DHashMap.Internal.Raw₀.contains_keys
+simp_lc inspect List.elem_eq_mem Std.HashMap.Raw.contains_keys
+simp_lc inspect Std.HashSet.contains_toList List.elem_eq_mem
+simp_lc inspect Std.HashSet.Raw.contains_toList List.elem_eq_mem
+simp_lc inspect Std.DHashMap.contains_keys List.elem_eq_mem
+simp_lc inspect Std.HashMap.contains_keys List.elem_eq_mem
+simp_lc inspect Std.DHashMap.Raw.contains_keys List.elem_eq_mem
+simp_lc inspect Std.DHashMap.Raw.contains_keys Std.DHashMap.Internal.Raw₀.contains_keys
+simp_lc inspect forIn'_eq_forIn List.forIn'_yield_eq_foldl
+simp_lc inspect List.forIn'_yield_eq_foldlM forIn'_eq_forIn
+simp_lc inspect List.forIn'_yield_eq_foldlM Option.forIn'_toList
+simp_lc inspect List.forIn'_yield_eq_foldlM List.forIn'_cons
+simp_lc inspect List.forIn'_yield_eq_foldlM Array.forIn'_toList
+simp_lc inspect Option.forIn'_toList List.forIn'_yield_eq_foldl
+simp_lc inspect List.forIn'_cons List.forIn'_yield_eq_foldl
+simp_lc inspect Array.forIn'_toList List.forIn'_yield_eq_foldl
+simp_lc inspect List.forIn_yield_eq_foldlM Option.forIn_toList
+simp_lc inspect List.forIn_yield_eq_foldlM Array.forIn_toList
+simp_lc inspect List.forIn_yield_eq_foldl Option.forIn_toList
+simp_lc inspect List.forIn_yield_eq_foldl Array.forIn_toList
+simp_lc inspect Std.DHashMap.Internal.Raw₀.mem_keys Std.DHashMap.Raw.mem_keys
+simp_lc inspect List.foldr_cons List.foldr_add_const
+simp_lc inspect List.foldr_append List.foldr_add_const
+simp_lc inspect List.findSome?_guard Array.findSome?_toList
+simp_lc inspect List.foldl_cons List.foldl_add_const
+simp_lc inspect List.foldl_append List.foldl_add_const
+simp_lc inspect List.foldl_push List.foldl_reverse
+
 /-
 Check *everything*.
 -/

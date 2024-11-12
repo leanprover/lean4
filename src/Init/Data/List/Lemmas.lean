@@ -1045,7 +1045,7 @@ theorem getLast_eq_getLastD (a l h) : @getLast α (a::l) h = getLastD l a := by
 
 @[simp] theorem getLast_singleton (a h) : @getLast α [a] h = a := rfl
 
-theorem getLast!_cons [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
+theorem getLast!_cons_eq_getLastD [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
 
 @[simp] theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
@@ -1109,7 +1109,12 @@ theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
 
 /-! ### getLast! -/
 
-@[simp] theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
+theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
+
+@[simp] theorem getLast!_eq_getLast?_getD [Inhabited α] {l : List α} : getLast! l = (getLast? l).getD default := by
+  cases l with
+  | nil => simp [getLast!_nil]
+  | cons _ _ => simp [getLast!, getLast?_eq_getLast]
 
 theorem getLast!_of_getLast? [Inhabited α] : ∀ {l : List α}, getLast? l = some a → getLast! l = a
   | _ :: _, rfl => rfl

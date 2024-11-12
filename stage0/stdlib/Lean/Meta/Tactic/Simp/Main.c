@@ -4734,6 +4734,7 @@ lean_ctor_set(x_35, 0, x_12);
 lean_ctor_set_uint8(x_35, sizeof(void*)*1, x_33);
 lean_ctor_set_uint8(x_35, sizeof(void*)*1 + 1, x_34);
 x_36 = l_Lean_Meta_SimpTheoremsArray_isErased(x_32, x_35);
+lean_dec(x_35);
 if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
@@ -5616,6 +5617,7 @@ lean_ctor_set(x_235, 0, x_12);
 lean_ctor_set_uint8(x_235, sizeof(void*)*1, x_233);
 lean_ctor_set_uint8(x_235, sizeof(void*)*1 + 1, x_234);
 x_236 = l_Lean_Meta_SimpTheoremsArray_isErased(x_232, x_235);
+lean_dec(x_235);
 if (x_236 == 0)
 {
 lean_object* x_237; lean_object* x_238; lean_object* x_239; lean_object* x_240; uint8_t x_241; 

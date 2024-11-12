@@ -15197,8 +15197,6 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 4);
-lean_inc(x_3);
-lean_dec(x_2);
 x_4 = l_Lean_PersistentHashMap_contains___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_eraseIfExists___spec__1(x_1, x_3);
 return x_4;
 }
@@ -15208,6 +15206,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_Simp_rewrite_x3f_inErasedSet(x_1, x_2);
+lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -15420,7 +15419,6 @@ if (lean_is_exclusive(x_21)) {
  lean_dec_ref(x_21);
  x_33 = lean_box(0);
 }
-lean_inc(x_31);
 lean_inc(x_2);
 x_90 = l_Lean_Meta_Simp_rewrite_x3f_inErasedSet(x_2, x_31);
 if (x_90 == 0)
@@ -17008,7 +17006,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_rewrit
 _start:
 {
 lean_object* x_16; uint8_t x_74; 
-lean_inc(x_1);
 x_74 = l_Lean_Meta_Simp_rewrite_x3f_inErasedSet(x_6, x_1);
 if (x_74 == 0)
 {
@@ -26009,6 +26006,7 @@ lean_ctor_set(x_17, 0, x_12);
 lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_15);
 lean_ctor_set_uint8(x_17, sizeof(void*)*1 + 1, x_16);
 x_18 = l_Lean_Meta_SimpTheoremsArray_isErased(x_14, x_17);
+lean_dec(x_17);
 lean_dec(x_14);
 if (x_18 == 0)
 {
@@ -28550,6 +28548,7 @@ lean_ctor_set(x_16, 0, x_12);
 lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_14);
 lean_ctor_set_uint8(x_16, sizeof(void*)*1 + 1, x_15);
 x_17 = l_Lean_Meta_SimpTheoremsArray_isErased(x_13, x_16);
+lean_dec(x_16);
 lean_dec(x_13);
 if (x_17 == 0)
 {

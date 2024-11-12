@@ -92,7 +92,6 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__10;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__31;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__44;
@@ -104,6 +103,7 @@ static lean_object* l_Lean_Elab_Command_elabBinderPred___closed__2;
 lean_object* l_Lean_Elab_Command_getScope___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Linter_MissingDocs_lint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__50;
+lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__22;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__35;
@@ -124,6 +124,7 @@ static lean_object* l_Lean_Elab_Command_elabBinderPred___closed__3;
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__18;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabBinderPred_declRange__1___closed__6;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
+lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__33;
 lean_object* l_Array_mkArray1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -152,7 +153,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabBinderPred(lean_object*, lean_o
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_elabSyntax___spec__1___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__2___closed__2;
 lean_object* l_Lean_Linter_MissingDocs_SimpleHandler_toHandler___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabBinderPred_declRange__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_checkBinderPredicate__1___closed__2;
@@ -2390,7 +2390,7 @@ lean_dec(x_16);
 x_20 = lean_alloc_closure((void*)(l_Lean_evalOptPrio), 3, 1);
 lean_closure_set(x_20, 0, x_9);
 lean_inc(x_10);
-x_21 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__4(x_20, x_10, x_11, x_12);
+x_21 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__3(x_20, x_10, x_11, x_12);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; size_t x_24; size_t x_25; lean_object* x_26; 
@@ -2434,7 +2434,7 @@ x_36 = lean_alloc_closure((void*)(l_Lean_Elab_Command_mkNameFromParserSyntax___b
 lean_closure_set(x_36, 0, x_35);
 lean_closure_set(x_36, 1, x_34);
 lean_inc(x_10);
-x_37 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__9(x_36, x_10, x_11, x_28);
+x_37 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabSyntax___spec__8(x_36, x_10, x_11, x_28);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; 

@@ -17036,7 +17036,6 @@ lean_object* x_41; lean_object* x_42; lean_object* x_43;
 x_41 = lean_ctor_get(x_24, 0);
 x_42 = lean_ctor_get(x_24, 1);
 x_43 = l_Lean_Elab_wfRecursion(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_39);
-lean_dec(x_2);
 if (lean_obj_tag(x_43) == 0)
 {
 uint8_t x_44; 
@@ -17259,7 +17258,6 @@ lean_inc(x_72);
 lean_inc(x_71);
 lean_dec(x_24);
 x_73 = l_Lean_Elab_wfRecursion(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_39);
-lean_dec(x_2);
 if (lean_obj_tag(x_73) == 0)
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
@@ -17477,7 +17475,6 @@ if (lean_is_exclusive(x_24)) {
  x_106 = lean_box(0);
 }
 x_107 = l_Lean_Elab_wfRecursion(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_103);
-lean_dec(x_2);
 if (lean_obj_tag(x_107) == 0)
 {
 lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; 
@@ -17720,7 +17717,6 @@ if (lean_is_exclusive(x_24)) {
  x_141 = lean_box(0);
 }
 x_142 = l_Lean_Elab_wfRecursion(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_138);
-lean_dec(x_2);
 if (lean_obj_tag(x_142) == 0)
 {
 lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; 
@@ -17969,7 +17965,6 @@ if (lean_is_exclusive(x_24)) {
  x_180 = lean_box(0);
 }
 x_181 = l_Lean_Elab_wfRecursion(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_177);
-lean_dec(x_2);
 if (lean_obj_tag(x_181) == 0)
 {
 lean_object* x_182; lean_object* x_183; lean_object* x_184; lean_object* x_185; 
@@ -18274,7 +18269,6 @@ if (lean_is_exclusive(x_205)) {
  x_226 = lean_box(0);
 }
 x_227 = l_Lean_Elab_wfRecursion(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_223);
-lean_dec(x_2);
 if (lean_obj_tag(x_227) == 0)
 {
 lean_object* x_228; lean_object* x_229; lean_object* x_230; lean_object* x_231; 
@@ -19050,7 +19044,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_1);
 x_206 = l_Lean_Elab_wfRecursion(x_1, x_169, x_5, x_6, x_7, x_8, x_9, x_10, x_170);
-lean_dec(x_169);
 if (lean_obj_tag(x_206) == 0)
 {
 lean_dec(x_70);

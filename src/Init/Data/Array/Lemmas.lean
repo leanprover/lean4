@@ -210,7 +210,7 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
 
 theorem findSomeRevM?_find_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α)
     (i : Nat) (h) :
-    findSomeRevM?.find l.toArray f i h = (l.take i).reverse.findSomeM? f := by
+    findSomeRevM?.find f l.toArray i h = (l.take i).reverse.findSomeM? f := by
   induction i generalizing l with
   | zero => simp [Array.findSomeRevM?.find.eq_def]
   | succ i ih =>
@@ -1470,7 +1470,7 @@ termination_by stop - start
 
 -- This could also be proved from `SatisfiesM_anyM_iff_exists` in `Batteries.Data.Array.Init.Monadic`
 theorem any_iff_exists {p : α → Bool} {as : Array α} {start stop} :
-    any as p start stop ↔ ∃ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop ∧ p as[i] := by
+    as.any p start stop ↔ ∃ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop ∧ p as[i] := by
   dsimp [any, anyM, Id.run]
   split
   · rw [anyM_loop_iff_exists]; rfl
@@ -1482,7 +1482,7 @@ theorem any_iff_exists {p : α → Bool} {as : Array α} {start stop} :
       exact ⟨i, by omega, by omega, h⟩
 
 theorem any_eq_true {p : α → Bool} {as : Array α} :
-    any as p ↔ ∃ i : Fin as.size, p as[i] := by simp [any_iff_exists, Fin.isLt]
+    as.any p ↔ ∃ i : Fin as.size, p as[i] := by simp [any_iff_exists, Fin.isLt]
 
 theorem any_toList {p : α → Bool} (as : Array α) : as.toList.any p = as.any p := by
   rw [Bool.eq_iff_iff, any_eq_true, List.any_eq_true]; simp only [List.mem_iff_get]
@@ -1502,20 +1502,20 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
   rw [List.allM_eq_not_anyM_not]
 
 theorem all_eq_not_any_not (p : α → Bool) (as : Array α) (start stop) :
-    all as p start stop = !(any as (!p ·) start stop) := by
+    as.all p start stop = !(as.any (!p ·) start stop) := by
   dsimp [all, allM]
   rfl
 
 theorem all_iff_forall {p : α → Bool} {as : Array α} {start stop} :
-    all as p start stop ↔ ∀ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop → p as[i] := by
+    as.all p start stop ↔ ∀ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop → p as[i] := by
   rw [all_eq_not_any_not]
-  suffices ¬(any as (!p ·) start stop = true) ↔
+  suffices ¬(as.any (!p ·) start stop = true) ↔
       ∀ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop → p as[i] by
     simp_all
   rw [any_iff_exists]
   simp
 
-theorem all_eq_true {p : α → Bool} {as : Array α} : all as p ↔ ∀ i : Fin as.size, p as[i] := by
+theorem all_eq_true {p : α → Bool} {as : Array α} : as.all p ↔ ∀ i : Fin as.size, p as[i] := by
   simp [all_iff_forall, Fin.isLt]
 
 theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all p := by

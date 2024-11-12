@@ -66,35 +66,35 @@ theorem mapFinIdx_spec (as : Array α) (f : Fin as.size → α → β)
 
 /-! ### mapIdx -/
 
-theorem mapIdx_induction (as : Array α) (f : Nat → α → β)
+theorem mapIdx_induction (f : Nat → α → β) (as : Array α)
     (motive : Nat → Prop) (h0 : motive 0)
     (p : Fin as.size → β → Prop)
     (hs : ∀ i, motive i.1 → p i (f i as[i]) ∧ motive (i + 1)) :
-    motive as.size ∧ ∃ eq : (Array.mapIdx as f).size = as.size,
-      ∀ i h, p ⟨i, h⟩ ((Array.mapIdx as f)[i]) :=
+    motive as.size ∧ ∃ eq : (as.mapIdx f).size = as.size,
+      ∀ i h, p ⟨i, h⟩ ((as.mapIdx f)[i]) :=
   mapFinIdx_induction as (fun i a => f i a) motive h0 p hs
 
-theorem mapIdx_spec (as : Array α) (f : Nat → α → β)
+theorem mapIdx_spec (f : Nat → α → β) (as : Array α)
     (p : Fin as.size → β → Prop) (hs : ∀ i, p i (f i as[i])) :
-    ∃ eq : (Array.mapIdx as f).size = as.size,
-      ∀ i h, p ⟨i, h⟩ ((Array.mapIdx as f)[i]) :=
+    ∃ eq : (as.mapIdx f).size = as.size,
+      ∀ i h, p ⟨i, h⟩ ((as.mapIdx f)[i]) :=
   (mapIdx_induction _ _ (fun _ => True) trivial p fun _ _ => ⟨hs .., trivial⟩).2
 
-@[simp] theorem size_mapIdx (a : Array α) (f : Nat → α → β) : (a.mapIdx f).size = a.size :=
+@[simp] theorem size_mapIdx (f : Nat → α → β) (as : Array α) : (as.mapIdx f).size = as.size :=
   (mapIdx_spec (p := fun _ _ => True) (hs := fun _ => trivial)).1
 
-@[simp] theorem getElem_mapIdx (a : Array α) (f : Nat → α → β) (i : Nat)
-    (h : i < (mapIdx a f).size) :
-    (a.mapIdx f)[i] = f i (a[i]'(by simp_all)) :=
-  (mapIdx_spec _ _ (fun i b => b = f i a[i]) fun _ => rfl).2 i (by simp_all)
+@[simp] theorem getElem_mapIdx (f : Nat → α → β) (as : Array α) (i : Nat)
+    (h : i < (as.mapIdx f).size) :
+    (as.mapIdx f)[i] = f i (as[i]'(by simp_all)) :=
+  (mapIdx_spec _ _ (fun i b => b = f i as[i]) fun _ => rfl).2 i (by simp_all)
 
-@[simp] theorem getElem?_mapIdx (a : Array α) (f : Nat → α → β) (i : Nat) :
-    (a.mapIdx f)[i]? =
-      a[i]?.map (f i) := by
+@[simp] theorem getElem?_mapIdx (f : Nat → α → β) (as : Array α) (i : Nat) :
+    (as.mapIdx f)[i]? =
+      as[i]?.map (f i) := by
   simp [getElem?_def, size_mapIdx, getElem_mapIdx]
 
-@[simp] theorem toList_mapIdx (a : Array α) (f : Nat → α → β) :
-    (a.mapIdx f).toList = a.toList.mapIdx (fun i a => f i a) := by
+@[simp] theorem toList_mapIdx (f : Nat → α → β) (as : Array α) :
+    (as.mapIdx f).toList = as.toList.mapIdx (fun i a => f i a) := by
   apply List.ext_getElem <;> simp
 
 end Array
@@ -105,7 +105,7 @@ namespace List
     l.toArray.mapFinIdx f = (l.mapFinIdx f).toArray := by
   ext <;> simp
 
-@[simp] theorem mapIdx_toArray (l : List α) (f : Nat → α → β) :
+@[simp] theorem mapIdx_toArray (f : Nat → α → β) (l : List α) :
     l.toArray.mapIdx f = (l.mapIdx f).toArray := by
   ext <;> simp
 

@@ -458,11 +458,11 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
   map as.size 0 rfl (mkEmpty as.size)
 
 @[inline]
-def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Nat → α → m β) : m (Array β) :=
+def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) : m (Array β) :=
   as.mapFinIdxM fun i a => f i a
 
 @[inline]
-def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) := do
+def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
   for a in as do
     match (← f a) with
     | some b => return b
@@ -470,14 +470,14 @@ def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as
   return none
 
 @[inline]
-def findM? {α : Type} {m : Type → Type} [Monad m] (as : Array α) (p : α → m Bool) : m (Option α) := do
+def findM? {α : Type} {m : Type → Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
     if (← p a) then
       return a
   return none
 
 @[inline]
-def findIdxM? [Monad m] (as : Array α) (p : α → m Bool) : m (Option Nat) := do
+def findIdxM? [Monad m] (p : α → m Bool) (as : Array α) : m (Option Nat) := do
   let mut i := 0
   for a in as do
     if (← p a) then
@@ -529,7 +529,7 @@ def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
   return !(← as.anyM (start := start) (stop := stop) fun v => return !(← p v))
 
 @[inline]
-def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) :=
+def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) :=
   let rec @[specialize] find : (i : Nat) → i ≤ as.size → m (Option β)
     | 0,   _ => pure none
     | i+1, h => do
@@ -543,7 +543,7 @@ def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] 
   find as.size (Nat.le_refl _)
 
 @[inline]
-def findRevM? {α : Type} {m : Type → Type w} [Monad m] (as : Array α) (p : α → m Bool) : m (Option α) :=
+def findRevM? {α : Type} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) :=
   as.findSomeRevM? fun a => return if (← p a) then some a else none
 
 @[inline]
@@ -572,7 +572,7 @@ def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → �
   Id.run <| as.mapFinIdxM f
 
 @[inline]
-def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Nat → α → β) : Array β :=
+def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) : Array β :=
   Id.run <| as.mapIdxM f
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
@@ -580,29 +580,29 @@ def zipWithIndex (arr : Array α) : Array (α × Nat) :=
   arr.mapIdx fun i a => (a, i)
 
 @[inline]
-def find? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
+def find? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
   Id.run <| as.findM? p
 
 @[inline]
-def findSome? {α : Type u} {β : Type v} (as : Array α) (f : α → Option β) : Option β :=
+def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
   Id.run <| as.findSomeM? f
 
 @[inline]
-def findSome! {α : Type u} {β : Type v} [Inhabited β] (a : Array α) (f : α → Option β) : β :=
-  match findSome? a f with
+def findSome! {α : Type u} {β : Type v} [Inhabited β] (f : α → Option β) (a : Array α) : β :=
+  match a.findSome? f with
   | some b => b
   | none   => panic! "failed to find element"
 
 @[inline]
-def findSomeRev? {α : Type u} {β : Type v} (as : Array α) (f : α → Option β) : Option β :=
+def findSomeRev? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
   Id.run <| as.findSomeRevM? f
 
 @[inline]
-def findRev? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
+def findRev? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
   Id.run <| as.findRevM? p
 
 @[inline]
-def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
+def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (j : Nat) :=
     if h : j < as.size then

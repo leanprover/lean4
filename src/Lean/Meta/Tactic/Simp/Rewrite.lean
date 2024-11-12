@@ -552,7 +552,7 @@ private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
 partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
   assert! isEqnThmHypothesis e
   let mvar ← mkFreshExprSyntheticOpaqueMVar e
-  withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+  withCanUnfoldPred canUnfoldAtMatcher do
     if let .none ← go? mvar.mvarId! then
       instantiateMVars mvar
     else

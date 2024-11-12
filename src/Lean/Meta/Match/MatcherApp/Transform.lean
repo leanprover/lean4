@@ -162,7 +162,7 @@ def refineThrough? (matcherApp : MatcherApp) (e : Expr) :
 private def withUserNamesImpl {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α) : MetaM α := do
   let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
     lctx.setUserName fvar.fvarId! name
-  withTheReader Meta.Context (fun ctx => { ctx with lctx }) k
+  withLCtx' lctx k
 
 /--
 Sets the user name of the FVars in the local context according to the given array of names.

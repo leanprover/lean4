@@ -144,8 +144,9 @@ attribute [rsimp_optimize] Nat.Linear.Poly.sort
 attribute [rsimp_optimize] Nat.Linear.Poly.fuse
 
 -- This is actually a bit slower, it seems
--- attribute [rsimp] Nat.Linear.Poly.norm_eq_sortFuse
-attribute [rsimp_optimize] Nat.Linear.Poly.norm
+-- But faster if there are repeated variables
+attribute [rsimp] Nat.Linear.Poly.norm_eq_sortFuse
+-- attribute [rsimp_optimize] Nat.Linear.Poly.norm
 
 attribute [rsimp_optimize] Nat.Linear.Expr.toPolyAux
 attribute [rsimp_optimize] Nat.Linear.Expr.toPolyFast
@@ -199,14 +200,15 @@ theorem Nat.Linear.Expr.of_cancel_eq_opt_denote (ctx : Context) (a b c d : Expr)
 open Lean Meta
 
 def bench (variant : Nat) : MetaM Unit :=
-  let n := 100
+  let n := 40
   let decls := Array.ofFn fun (i : Fin n) => ((`x).appendIndexAfter i, (fun _ => pure (mkConst ``Nat)))
   withLocalDeclsD decls fun xs => do
     let mut e₁ := Expr.num 42
     let mut e₂ := Expr.num 23
-    for i in [:xs.size] do
-      e₁ := .add (.mulL i e₁) (.var i)
-      e₂ := .add (.var i) (Expr.mulR e₂ (xs.size - i))
+    for _ in [:4] do
+      for i in [:xs.size] do
+        e₁ := .add (.mulL i e₁) (.var i)
+        e₂ := .add (.var i) (Expr.mulR e₂ (xs.size - i))
 
     let (p₁', p₂') := Poly.cancel e₁.toNormPoly e₂.toNormPoly
     let e₁' := p₁'.toExpr

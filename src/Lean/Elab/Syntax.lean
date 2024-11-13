@@ -233,8 +233,10 @@ where
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy1) $p $sep $psep $(quote allowTrailingSep)), 1)
 
   isValidAtom (s : String) : Bool :=
+    -- Pretty-printing instructions shouldn't affect validity
+    let s := s.trim
     !s.isEmpty &&
-    s.front != '\'' &&
+    (s.front != '\'' || s == "''") &&
     s.front != '\"' &&
     !(s.front == '`' && (s.endPos == ⟨1⟩ || isIdFirst (s.get ⟨1⟩) || isIdBeginEscape (s.get ⟨1⟩))) &&
     !s.front.isDigit
@@ -242,7 +244,7 @@ where
   processAtom (stx : Syntax) := do
     match stx[0].isStrLit? with
     | some atom =>
-      unless isValidAtom atom.trim do
+      unless isValidAtom atom do
         throwErrorAt stx "invalid atom"
       /- For syntax categories where initialized with `LeadingIdentBehavior` different from default (e.g., `tactic`), we automatically mark
          the first symbol as nonReserved. -/

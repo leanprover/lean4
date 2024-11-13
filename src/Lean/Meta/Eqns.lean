@@ -171,8 +171,7 @@ def isEqnThm? (thmName : Name) : CoreM (Option Name) := do
 Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`
 -/
 private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
-  -- allow async as this is just a cache for a few environment accesses
-  modifyEnv fun env => eqnsExt.modifyState (allowAsync := true) env fun s => { s with
+  modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
     map := s.map.insert declName eqThms
     mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
   }

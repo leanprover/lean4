@@ -27,8 +27,7 @@ builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
   registerEnvExtension (pure {})
 
 def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit := do
-  -- allow async as this environment will be discarded anyway
-  modifyEnv fun env => matchEqnsExt.modifyState (allowAsync := true) env fun { map, eqns } => {
+  modifyEnv fun env => matchEqnsExt.modifyState env fun { map, eqns } => {
     eqns := matchEqns.eqnNames.foldl (init := eqns) fun eqns eqn => eqns.insert eqn
     map := map.insert matchDeclName matchEqns
   }

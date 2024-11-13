@@ -85,7 +85,7 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
   }
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
-  extension.addEntry (allowAsync := true) env { name := matcherName, info := info }
+  extension.addEntry env { name := matcherName, info := info }
 
 def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
   (extension.findStateAsync env declName).map.find? declName

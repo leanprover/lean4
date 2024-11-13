@@ -124,12 +124,12 @@ def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Envi
   let s := ext.ext.getState env
   match s.stateStack with
   | [] => env
-  | state :: stack => ext.ext.setState (allowAsync := true) env { s with stateStack := state :: state :: stack }
+  | state :: stack => ext.ext.setState env { s with stateStack := state :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env
   match s.stateStack with
-  | _      :: state₂ :: stack => ext.ext.setState (allowAsync := true) env { s with stateStack := state₂ :: stack }
+  | _      :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
   | _ => env
 
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
@@ -178,7 +178,7 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
           for b in bs do
             state := ext.descr.addEntry state b
           { state := state, activeScopes := activeScopes }
-      ext.ext.setState (allowAsync := true) env { s with stateStack := top :: stack }
+      ext.ext.setState env { s with stateStack := top :: stack }
   | _ => env
 
 def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=

@@ -287,7 +287,7 @@ def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val 
   else if ((attrs.ext.getState env).find? decl).isSome then
     Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")
   else
-    Except.ok (attrs.ext.addEntry (allowAsync := true) env (decl, val))
+    Except.ok (attrs.ext.addEntry env (decl, val))
 
 end EnumAttributes
 

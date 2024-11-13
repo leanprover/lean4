@@ -625,7 +625,8 @@ def allImportedModuleNames (env : Environment) : Array Name :=
   env.header.moduleNames
 
 def setMainModule (env : Environment) (m : Name) : Environment :=
-  { env with header.mainModule := m }
+  let env := { env with header.mainModule := m }
+  { env with checkedSync := .pure env.toEnvironmentBase }
 
 def mainModule (env : Environment) : Name :=
   env.header.mainModule

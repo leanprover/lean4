@@ -158,6 +158,7 @@ theorem pbind_eq_bind_attach {o : Option α} {f : (a : α) → a ∈ o → Optio
 theorem attach_filter {o : Option α} {p : α → Bool} :
     (o.filter p).attach =
     o.attach.bind fun ⟨x, h⟩ => if h' : p x then some ⟨x, (by (rw [mem_def] at h; rw [mem_def, filter_eq_some, mem_def]; exact ⟨h,h'⟩))⟩ else none := by
+  trace_state
   cases o with
   | none => simp only [filter_none, attach_none, none_bind]
   | some a =>

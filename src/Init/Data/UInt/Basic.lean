@@ -56,6 +56,9 @@ instance : Xor UInt8       := ⟨UInt8.xor⟩
 instance : ShiftLeft UInt8  := ⟨UInt8.shiftLeft⟩
 instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
+@[extern "lean_bool_to_uint8"]
+def Bool.toUInt8 (b : Bool) : UInt8 := if b then 1 else 0
+
 @[extern "lean_uint8_dec_lt"]
 def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
@@ -116,6 +119,9 @@ instance : Xor UInt16       := ⟨UInt16.xor⟩
 instance : ShiftLeft UInt16  := ⟨UInt16.shiftLeft⟩
 instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 
+@[extern "lean_bool_to_uint16"]
+def Bool.toUInt16 (b : Bool) : UInt16 := if b then 1 else 0
+
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_uint16_dec_lt"]
 def UInt16.decLt (a b : UInt16) : Decidable (a < b) :=
@@ -173,6 +179,9 @@ instance : OrOp UInt32      := ⟨UInt32.lor⟩
 instance : Xor UInt32       := ⟨UInt32.xor⟩
 instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
 instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
+
+@[extern "lean_bool_to_uint32"]
+def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
 
 @[extern "lean_uint64_add"]
 def UInt64.add (a b : UInt64) : UInt64 := ⟨a.toBitVec + b.toBitVec⟩
@@ -277,6 +286,9 @@ instance : OrOp USize       := ⟨USize.lor⟩
 instance : Xor USize        := ⟨USize.xor⟩
 instance : ShiftLeft USize  := ⟨USize.shiftLeft⟩
 instance : ShiftRight USize := ⟨USize.shiftRight⟩
+
+@[extern "lean_bool_to_usize"]
+def Bool.toUSize (b : Bool) : USize := if b then 1 else 0
 
 instance : Max USize := maxOfLe
 instance : Min USize := minOfLe

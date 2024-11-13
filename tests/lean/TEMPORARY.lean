@@ -165,7 +165,9 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
     ext
     simp only [mem_def, attach_eq_some_iff, ite_none_right_eq_some, some.injEq, some_bind,
       dite_none_right_eq_some]
+    trace_state
     constructor
+    trace_state
     · rintro ⟨h, w⟩
       refine ⟨h, by ext; simpa only using w⟩
     · rintro ⟨h, rfl⟩

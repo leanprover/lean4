@@ -91,7 +91,7 @@ The following operations are given `@[csimp]` replacements below:
 @[specialize] def foldrTR (f : α → β → β) (init : β) (l : List α) : β := l.toArray.foldr f init
 
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
-  funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_toList, -Array.size_toArray]
+  funext α β f init l; simp [foldrTR, ← Array.foldr_toList, -Array.size_toArray]
 
 /-! ### flatMap  -/
 
@@ -331,7 +331,7 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
     | a::as, n => by
       rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
       simp [enumFrom, f]
-  rw [Array.foldr_eq_foldr_toList]
+  rw [← Array.foldr_toList]
   simp [go]
 
 /-! ## Other list operations -/

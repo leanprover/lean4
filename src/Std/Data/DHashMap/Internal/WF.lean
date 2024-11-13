@@ -38,7 +38,7 @@ theorem toListModel_mkArray_nil {c} :
 @[simp]
 theorem computeSize_eq {buckets : Array (AssocList α β)} :
     computeSize buckets = (toListModel buckets).length := by
-  rw [computeSize, toListModel, List.flatMap_eq_foldl, Array.foldl_eq_foldl_toList]
+  rw [computeSize, toListModel, List.flatMap_eq_foldl, Array.foldl_toList]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a : α) × β a)),
       l.foldl (fun d b => d + b.toList.length) l'.length =
         (l.foldl (fun acc a => acc ++ a.toList) l').length
@@ -61,13 +61,13 @@ theorem isEmpty_eq_isEmpty [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp
 
 theorem fold_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
     l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := by
-  simp only [Raw.fold, Raw.foldM, Array.foldlM_eq_foldlM_toList, Array.foldl_eq_foldl_toList,
+  simp only [Raw.fold, Raw.foldM, ← Array.foldlM_toList, Array.foldl_toList,
     ← List.foldl_eq_foldlM, Id.run, AssocList.foldl]
 
 theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
     l.fold (fun acc k v => f k v :: acc) acc =
       ((toListModel l.buckets).reverse.map (fun p => f p.1 p.2)) ++ acc := by
-  rw [fold_eq, Array.foldl_eq_foldl_toList, toListModel]
+  rw [fold_eq, ← Array.foldl_toList, toListModel]
   generalize l.buckets.toList = l
   induction l generalizing acc with
   | nil => simp

@@ -198,11 +198,10 @@ def rewriteRulesPass (maxSteps : Nat) : Pass where
     let sevalThms ← getSEvalTheorems
     let sevalSimprocs ← Simp.getSEvalSimprocs
 
-    let simpCtx : Simp.Context := {
-      config := { failIfUnchanged := false, zetaDelta := true, maxSteps }
-      simpTheorems := #[bvThms, sevalThms]
-      congrTheorems := (← getSimpCongrTheorems)
-    }
+    let simpCtx ← Simp.mkContext
+      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps })
+      (simpTheorems := #[bvThms, sevalThms])
+      (congrTheorems := (← getSimpCongrTheorems))
 
     let hyps ← goal.getNondepPropHyps
     let ⟨result?, _⟩ ← simpGoal goal
@@ -283,11 +282,10 @@ def embeddedConstraintPass (maxSteps : Nat) : Pass where
 
       let goal ← goal.tryClearMany duplicates
 
-      let simpCtx : Simp.Context := {
-        config := { failIfUnchanged := false, maxSteps }
-        simpTheorems := relevantHyps
-        congrTheorems := (← getSimpCongrTheorems)
-      }
+      let simpCtx ← Simp.mkContext
+        (config := { failIfUnchanged := false, maxSteps })
+        (simpTheorems := relevantHyps)
+        (congrTheorems := (← getSimpCongrTheorems))
 
       let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← goal.getNondepPropHyps)
       let some (_, newGoal) := result? | return none

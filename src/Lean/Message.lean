@@ -116,7 +116,7 @@ variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
 is true.
 
-This does not descend into lazily generated subtress (`.ofLazy`); message tags
+This does not descend into lazily generated subtrees (`.ofLazy`); message tags
 of interest (like those added by `logLinter`) are expected to be near the root
 of the `MessageData`, and not hidden inside `.ofLazy`.
 -/
@@ -129,6 +129,19 @@ partial def hasTag : MessageData → Bool
   | tagged n msg            => p n || hasTag msg
   | trace data msg msgs     => p data.cls || hasTag msg || msgs.any hasTag
   | _                       => false
+
+/--
+Returns the top-level tag of the message.
+If none, returns `Name.anonymous`.
+
+This does not descend into message subtrees (e.g., `.compose`, `.ofLazy`).
+The message kind is expected to describe the whole message.
+-/
+def kind : MessageData → Name
+  | withContext _ msg       => kind msg
+  | withNamingContext _ msg => kind msg
+  | tagged n _              => n
+  | _                       => .anonymous
 
 /-- An empty message. -/
 def nil : MessageData :=
@@ -315,7 +328,7 @@ structure BaseMessage (α : Type u) where
   endPos        : Option Position := none
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
-  severity      : MessageSeverity := MessageSeverity.error
+  severity      : MessageSeverity := .error
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α
@@ -328,7 +341,10 @@ abbrev Message := BaseMessage MessageData
 /-- A `SerialMessage` is a `Message` whose `MessageData` has been eagerly
 serialized and is thus appropriate for use in pure contexts where the effectful
 `MessageData.toString` cannot be used. -/
-abbrev SerialMessage := BaseMessage String
+structure SerialMessage extends BaseMessage String where
+  /-- The message kind (i.e., the top-level tag). -/
+  kind          : Name
+  deriving ToJson, FromJson
 
 namespace SerialMessage
 
@@ -354,8 +370,12 @@ end SerialMessage
 
 namespace Message
 
+@[inherit_doc MessageData.kind] abbrev kind (msg : Message) :=
+  msg.data.kind
+
+/-- Serializes the message, converting its data into a string and saving its kind. -/
 @[inline] def serialize (msg : Message) : IO SerialMessage := do
-  return {msg with data := ← msg.data.toString}
+  return {msg with kind := msg.kind, data := ← msg.data.toString}
 
 protected def toString (msg : Message) (includeEndPos := false) : IO String := do
   -- Remark: The inline here avoids a new message allocation when `msg` is shared

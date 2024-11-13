@@ -2638,8 +2638,9 @@ theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
       if h' : i < r % w then x[(w - (r % w) + i)] else x[i - (r % w)] := by
   simp [← BitVec.getLsbD_eq_getElem, h]
 
-theorem add_mod_eq_add_sub {w : Nat} {a b : Nat} (hab_ge : a + b ≥ w) (hab_lt : a + b < 2 * w) :
-    (a + b) % w = a + b -  w := by
+/-- If `w ≤ x < 2 * w`, then `x % w = x - w` -/
+private theorem add_mod_eq_add_sub {x w : Nat} (x_le :  w ≤ x) (x_lt : x < 2 * w) :
+    x % w = x -  w := by
   rw [Nat.mod_eq_sub_mod, Nat.mod_eq_of_lt (by omega)]
   omega
 

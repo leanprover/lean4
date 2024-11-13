@@ -12,15 +12,15 @@ namespace Lean.SimpLC
 
 abbrev NamePair := Name × Name
 
-initialize simpLCWhitelistExt : SimplePersistentEnvExtension NamePair (Array NamePair) ←
+initialize simpLCAllowExt : SimplePersistentEnvExtension NamePair (Array NamePair) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := Array.push
     addImportedFn := Array.flatMap id
   }
 
-def isCriticalPairWhitelisted {m : Type → Type} [Monad m] [MonadEnv m] (pair : NamePair) : m Bool := do
+def isCriticalPairAllowed {m : Type → Type} [Monad m] [MonadEnv m] (pair : NamePair) : m Bool := do
   let pair := match pair with | (x,y) => if y.quickLt x then (y,x) else (x,y)
-  return simpLCWhitelistExt.getState (← getEnv) |>.contains pair
+  return simpLCAllowExt.getState (← getEnv) |>.contains pair
 
 
 initialize simpLCIgnoreExt : SimplePersistentEnvExtension Name (Array Name) ←
@@ -43,9 +43,9 @@ register_option simplc.stderr : Bool := {
   descr := "Print steps to stderr (useful when it crashes)"
 }
 
-register_option simplc.checkWhitelist : Bool := {
+register_option simplc.checkAllow : Bool := {
   defValue := true
-  descr := "simplc whitelist to warn if the pair is actually ok"
+  descr := "`simp_lc allow` to warn if the pair is actually ok"
 }
 
 end Lean.SimpLC

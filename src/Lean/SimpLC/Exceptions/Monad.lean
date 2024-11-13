@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Control
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 
 -- TODO: move this to the library?
 /--
@@ -16,7 +16,7 @@ but sometimes applies when that doesn't.
     (f <$> pure a : m β) = pure (f a) := by simp
 
 -- I can't work out why this isn't closed by `Functor.map_map`.
-simp_lc whitelist LawfulMonad.bind_pure_comp bind_map_left
+simp_lc allow LawfulMonad.bind_pure_comp bind_map_left
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

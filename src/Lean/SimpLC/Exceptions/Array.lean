@@ -5,12 +5,12 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Array
-import Lean.SimpLC.Whitelists.Root
-import Lean.SimpLC.Whitelists.List
+import Lean.SimpLC.Exceptions.Root
+import Lean.SimpLC.Exceptions.List
 
 -- These are facts about `Array Prop`, which hopefully never appear in the wild!
-simp_lc whitelist dite_else_false Array.getD_eq_get?
-simp_lc whitelist dite_else_true Array.getD_eq_get?
+simp_lc allow dite_else_false Array.getD_eq_get?
+simp_lc allow dite_else_true Array.getD_eq_get?
 
 simp_lc ignore Array.getElem_mem -- Parallel to `List.getElem_mem`
 
@@ -24,7 +24,7 @@ simp_lc ignore Array.foldr_subtype
 -- But I can't make it happen.
 example {α : Type _} {l : List α} : decide (l.toArray.size = 0) = l.isEmpty := by
   cases l <;> simp
-simp_lc whitelist Array.isEmpty.eq_1 List.isEmpty_toArray
+simp_lc allow Array.isEmpty.eq_1 List.isEmpty_toArray
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

@@ -24,7 +24,7 @@ to investigate a critical pair and can ignore specific pairs or whole functions.
 
 * `simp_lc check`: Investigates the full simp set.
 * `simp_lc inspect`: Investigates one pair
-* `simp_lc whitelist`: Whitelists a critical pair
+* `simp_lc allow`: Allow a critical pair (checks that it is currently critical, and suppresses further reports from `check`)
 * `simp_lc ignore`: Ignores one lemma
 -/
 syntax "simp_lc" : command
@@ -70,10 +70,10 @@ With `simp_lc inspect thm1 thm2 by …` one can interactively try to equate the 
 syntax "simp_lc " &"inspect " ident ident (Parser.Term.byTactic)? : command
 
 /--
-The `simp_lc whitelist thm1 thm2` causes the `simp_lc` commands to ignore all critical pairs formed
+The `simp_lc allow thm1 thm2` causes the `simp_lc` commands to ignore all critical pairs formed
 by these two lemmas.
 -/
-syntax "simp_lc " &"whitelist " ident ident : command
+syntax "simp_lc " &"allow " ident ident : command
 
 /--
 The `simp_lc ignore thm` command causes the `simp_lc` commands to ignore all critical pairs
@@ -141,7 +141,7 @@ partial def checkSimpLC (root_only : Bool) (tac? : Option (TSyntax `Lean.Parser.
     for thm2 in matchs do
       let critPair : CriticalPair := ⟨thm1, thm2, path⟩
       if thms.erased.contains thm2.origin then continue
-      if (← isCriticalPairWhitelisted (thm1.origin.key, thm2.origin.key)) then continue
+      if (← isCriticalPairAllowed (thm1.origin.key, thm2.origin.key)) then continue
       if path.isEmpty then
         unless thm1.origin.key.quickLt thm2.origin.key do continue
       modifyThe Nat Nat.succ
@@ -293,10 +293,10 @@ def warnIfNotSimp (n : Name) : CoreM Unit := do
   catch e =>
     logWarning e.toMessageData
 
-def whiteListCriticalPair (cmdStx : Syntax) : NamePair → MetaM Unit := fun ⟨name1, name2⟩ => do
+def allowCriticalPair (cmdStx : Syntax) : NamePair → MetaM Unit := fun ⟨name1, name2⟩ => do
   warnIfNotSimp name1
   warnIfNotSimp name2
-  if simplc.checkWhitelist.get (← getOptions) then
+  if simplc.checkAllow.get (← getOptions) then
     let sthms : SimpTheorems ← SimpTheorems.addConst {} name2
     let ((.unit, badPairs), _) ← M.run do
       checkSimpLC false none (← mkSimpTheorem name1) sthms
@@ -304,7 +304,7 @@ def whiteListCriticalPair (cmdStx : Syntax) : NamePair → MetaM Unit := fun ⟨
       logWarning "No non-confluence detected. Maybe remove this?"
       TryThis.addSuggestion cmdStx { suggestion := "", messageData? := m!"(remove this command)" }
   let pair := if name2.quickLt name1 then (name2, name1) else (name1, name2)
-  modifyEnv (simpLCWhitelistExt.addEntry · pair)
+  modifyEnv (simpLCAllowExt.addEntry · pair)
 
 open Elab Command
 elab_rules : command
@@ -320,11 +320,11 @@ elab_rules : command
   let pfixs := pfixs.map (·.map (·.getId))
   checkSimpLCAll ⟨stx⟩ root?.isSome pfixs
 
-| `(command|simp_lc whitelist $thm1 $thm2) => liftTermElabM do
+| `(command|simp_lc allow $thm1 $thm2) => liftTermElabM do
   let stx ← getRef
   let name1 ← realizeGlobalConstNoOverloadWithInfo thm1
   let name2 ← realizeGlobalConstNoOverloadWithInfo thm2
-  whiteListCriticalPair stx (name1, name2)
+  allowCriticalPair stx (name1, name2)
 
 | `(command|simp_lc ignore $thm) => liftTermElabM do
   ignoreName (← realizeGlobalConstNoOverloadWithInfo thm)

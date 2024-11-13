@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.BitVec
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 import Std.Tactic.BVDecide
 
 simp_lc ignore BitVec.getLsbD_ge
@@ -29,7 +29,7 @@ namespace BitVec
 example (h : v = w) (x : BitVec v) : cast h x = setWidth w x := by
   ext
   simp
-simp_lc whitelist BitVec.setWidth_eq BitVec.setWidth_cast
+simp_lc allow BitVec.setWidth_eq BitVec.setWidth_cast
 
 @[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
    ext i
@@ -47,14 +47,14 @@ simp_lc whitelist BitVec.setWidth_eq BitVec.setWidth_cast
 
 example (w : Nat) : 1#w = if w = 0 then 0#w else 1#w := by
   cases w <;> simp
-simp_lc whitelist BitVec.udiv_one BitVec.udiv_self
+simp_lc allow BitVec.udiv_one BitVec.udiv_self
 
 -- This is commented out because `cadical` doesn't seem to be available in Nix CI.
 -- example (x : BitVec 1) : x = if x = 0#1 then 0#1 else 1#1 := by bv_decide
-simp_lc whitelist BitVec.udiv_eq_and BitVec.udiv_self
+simp_lc allow BitVec.udiv_eq_and BitVec.udiv_self
 
 example (w : Nat) : w = 0 → 0#w = 1#w := by rintro rfl; simp
-simp_lc whitelist BitVec.sdiv_self BitVec.sdiv_one
+simp_lc allow BitVec.sdiv_self BitVec.sdiv_one
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

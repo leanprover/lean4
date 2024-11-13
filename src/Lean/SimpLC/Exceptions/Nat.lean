@@ -6,7 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Data.Nat
 import Init.Data.Int
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 
 theorem Int.emod_add_div (m k : Int) : m % k + k * (m / k) = m := by
   simp [Int.emod_def]
@@ -40,24 +40,24 @@ theorem Int.mod_self_mod_eq_zero_of_mod_dvd_right (a b : Int) (h : a % b ∣ b) 
   conv => rhs; rw [p]
   exact Int.dvd_mul_right _ _
 
-simp_lc whitelist Nat.mod_self Nat.mod_mod_of_dvd
-simp_lc whitelist Int.emod_self Int.emod_emod_of_dvd
+simp_lc allow Nat.mod_self Nat.mod_mod_of_dvd
+simp_lc allow Int.emod_self Int.emod_emod_of_dvd
 
--- Ugly corner case, let's just whitelist it.
+-- Ugly corner case, let's just allow it.
 example (n k : Int) : Prop := ∀ (_ : n % k + 1 ∣ k) (_ : 0 ≤ n % k), n % (n % k + 1) = n % k
-simp_lc whitelist Int.emod_emod_of_dvd Int.emod_self_add_one
+simp_lc allow Int.emod_emod_of_dvd Int.emod_self_add_one
 
 -- These could be added as simp lemmas, resolving the non-confluence between
 -- `Int.mul_ediv_mul_of_pos_left` and `Int.mul_ediv_mul_of_pos`,
 -- but they themselves cause further non-confluence.
 theorem Int.ediv_self_of_pos (a : Int) (_ : 0 < a) : a / a = 1 := Int.ediv_self (by omega)
 theorem Int.ediv_self_of_lt_zero (a : Int) (_ : a < 0) : a / a = 1 := Int.ediv_self (by omega)
-simp_lc whitelist Int.mul_ediv_mul_of_pos_left Int.mul_ediv_mul_of_pos
+simp_lc allow Int.mul_ediv_mul_of_pos_left Int.mul_ediv_mul_of_pos
 
 /-!
 The following theorems could be added a simp lemmas,
-improving confluence and avoiding needing the three whitelist statements below,
-however they have bad discrimination tree keys (`@Exists Nat <other>`) so we just whitelist.
+improving confluence and avoiding needing the three `allow` statements below,
+however they have bad discrimination tree keys (`@Exists Nat <other>`) so we just allow it.
 -/
 theorem Nat.exists_ne {y : Nat} : ∃ x, x ≠ y := ⟨y + 1, by simp⟩
 
@@ -74,9 +74,9 @@ theorem Nat.exists_eq_succ_left (q : Nat → Prop) (a : Nat) :
     (∃ n, n + 1 = a ∧ q (n + 1)) ↔ a ≠ 0 ∧ q a := by
   simp [and_comm, exists_succ_eq_right]
 
-simp_lc whitelist exists_and_right Nat.exists_ne_zero
-simp_lc whitelist exists_eq_right_right Nat.exists_ne_zero
-simp_lc whitelist exists_eq_right_right' Nat.exists_ne_zero
+simp_lc allow exists_and_right Nat.exists_ne_zero
+simp_lc allow exists_eq_right_right Nat.exists_ne_zero
+simp_lc allow exists_eq_right_right' Nat.exists_ne_zero
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

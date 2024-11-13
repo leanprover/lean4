@@ -12,8 +12,8 @@ example (n m : Nat) (i : Fin n) (h : 0 + n = m + n) : Fin.natAdd m i = Fin.cast 
   simp at h
   ext
   simpa
-simp_lc whitelist Fin.cast_natAdd_left Fin.cast_natAdd_zero
-simp_lc whitelist Fin.cast_addNat_right Fin.cast_addNat_zero
+simp_lc allow Fin.cast_natAdd_left Fin.cast_natAdd_zero
+simp_lc allow Fin.cast_addNat_right Fin.cast_addNat_zero
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

@@ -1522,6 +1522,7 @@ where go env
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (kernel : Kernel.Environment) : Environment :=
+  let env := env.setCheckedSync { env.checked.get with kernel }
   added.getNames.foldl registerNamePrefixes env
 
 @[export lean_display_stats]

@@ -15234,7 +15234,7 @@ x_37 = lean_ctor_get(x_34, 1);
 x_38 = lean_ctor_get(x_34, 0);
 lean_dec(x_38);
 x_39 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__9___rarg___closed__1;
-x_40 = l_Array_findIdx_x3f_loop___rarg(x_37, x_39, x_28);
+x_40 = l_Array_findIdx_x3f_loop___rarg(x_39, x_37, x_28);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; 
@@ -15435,7 +15435,7 @@ x_86 = lean_ctor_get(x_34, 1);
 lean_inc(x_86);
 lean_dec(x_34);
 x_87 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__9___rarg___closed__1;
-x_88 = l_Array_findIdx_x3f_loop___rarg(x_86, x_87, x_28);
+x_88 = l_Array_findIdx_x3f_loop___rarg(x_87, x_86, x_28);
 if (lean_obj_tag(x_88) == 0)
 {
 lean_object* x_89; lean_object* x_90; 

@@ -436,7 +436,7 @@ lean_inc(x_2);
 x_17 = lean_alloc_closure((void*)(l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote___lambda__1___boxed), 2, 1);
 lean_closure_set(x_17, 0, x_2);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_Array_findIdx_x3f_loop___rarg(x_1, x_17, x_18);
+x_19 = l_Array_findIdx_x3f_loop___rarg(x_17, x_1, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 return x_2;

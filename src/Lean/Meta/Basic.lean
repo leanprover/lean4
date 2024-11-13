@@ -332,7 +332,7 @@ register_builtin_option maxSynthPendingDepth : Nat := {
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
-  config            : Config               := {}
+  private config    : Config               := {}
   /-- Local context -/
   lctx              : LocalContext         := {}
   /-- Local instances in `lctx`. -/
@@ -943,6 +943,15 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withConfig (f : Config → Config) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with config := f ctx.config })
 
+@[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
+
+@[inline] def withIncSynthPending : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
+
+@[inline] def withInTypeClassResolution : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })
+
 /--
 Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 -/
@@ -1081,7 +1090,7 @@ mutual
   private partial def withNewLocalInstancesImp
       (fvars : Array Expr) (i : Nat) (k : MetaM α) : MetaM α := do
     if h : i < fvars.size then
-      let fvar := fvars.get ⟨i, h⟩
+      let fvar := fvars[i]
       let decl ← getFVarLocalDecl fvar
       match (← isClassQuick? decl.type) with
       | .none   => withNewLocalInstancesImp fvars (i+1) k
@@ -1422,6 +1431,14 @@ def withLocalDecl (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n 
 def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
+/--
+Similar to `withLocalDecl`, but it does **not** check whether the new variable is a local instance or not.
+-/
+def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α := do
+  let fvarId ← mkFreshFVarId
+  withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
+    x (mkFVar fvarId)
+
 /-- Append an array of free variables `xs` to the local context and execute `k xs`.
 `declInfos` takes the form of an array consisting of:
 - the name of the variable
@@ -1538,11 +1555,11 @@ def withReplaceFVarId {α} (fvarId : FVarId) (e : Expr) : MetaM α → MetaM α 
     localInstances := ctx.localInstances.erase fvarId }
 
 /--
-  `withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
-  where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
-  If `allowLevelAssignments` is set to true, then the level metavariable depth
-  is not increased, and level metavariables from the outer scope can be
-  assigned.  (This is used by TC synthesis.)
+`withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
+where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
+If `allowLevelAssignments` is set to true, then the level metavariable depth
+is not increased, and level metavariables from the outer scope can be
+assigned.  (This is used by TC synthesis.)
 -/
 def withNewMCtxDepth (k : n α) (allowLevelAssignments := false) : n α :=
   mapMetaM (withNewMCtxDepthImp allowLevelAssignments) k
@@ -1552,12 +1569,19 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
     x
 
 /--
-  `withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
-  The local context and instances are restored after executing `k`.
-  This method assumes that the local instances in `localInsts` are in the local context `lctx`.
+`withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
+The local context and instances are restored after executing `k`.
+This method assumes that the local instances in `localInsts` are in the local context `lctx`.
 -/
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
+
+/--
+Simpler version of `withLCtx` which just updates the local context. It is the resposability of the
+caller ensure the local instances are also properly updated.
+-/
+def withLCtx' (lctx : LocalContext) : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with lctx })
 
 /--
 Runs `k` in a local environment with the `fvarIds` erased.
@@ -1650,7 +1674,7 @@ def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.i
 
 private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
+    let p := ps[i]
     match (← whnf e) with
     | .forallE _ _ b _ => instantiateForallAux ps (i+1) (b.instantiate1 p)
     | _                => throwError "invalid instantiateForall, too many parameters"
@@ -1663,7 +1687,7 @@ def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
 
 private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
+    let p := ps[i]
     match (← whnf e) with
     | .lam _ _ b _ => instantiateLambdaAux ps (i+1) (b.instantiate1 p)
     | _            => throwError "invalid instantiateLambda, too many parameters"

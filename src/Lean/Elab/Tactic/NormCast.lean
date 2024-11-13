@@ -28,8 +28,10 @@ def proveEqUsing (s : SimpTheorems) (a b : Expr) : MetaM (Option Simp.Result) :=
     unless ← isDefEq a'.expr b'.expr do return none
     a'.mkEqTrans (← b'.mkEqSymm b)
   withReducible do
-    (go (← Simp.mkDefaultMethods).toMethodsRef
-      { simpTheorems := #[s], congrTheorems := ← Meta.getSimpCongrTheorems }).run' {}
+    let ctx ← Simp.mkContext
+        (simpTheorems := #[s])
+        (congrTheorems := ← Meta.getSimpCongrTheorems)
+    (go (← Simp.mkDefaultMethods).toMethodsRef ctx).run' {}
 
 /-- Proves `a = b` by simplifying using move and squash lemmas. -/
 def proveEqUsingDown (a b : Expr) : MetaM (Option Simp.Result) := do
@@ -191,19 +193,25 @@ def derive (e : Expr) : MetaM Simp.Result := do
   -- step 1: pre-processing of numerals
   let r ← withTrace "pre-processing numerals" do
     let post e := return Simp.Step.done (← try numeralToCoe e catch _ => pure {expr := e})
-    r.mkEqTrans (← Simp.main r.expr { config, congrTheorems } (methods := { post })).1
+    let ctx ← Simp.mkContext (config := config) (congrTheorems := congrTheorems)
+    r.mkEqTrans (← Simp.main r.expr ctx (methods := { post })).1
 
   -- step 2: casts are moved upwards and eliminated
   let r ← withTrace "moving upward, splitting and eliminating" do
     let post := upwardAndElim (← normCastExt.up.getTheorems)
-    r.mkEqTrans (← Simp.main r.expr { config, congrTheorems } (methods := { post })).1
+    let ctx ← Simp.mkContext (config := config) (congrTheorems := congrTheorems)
+    r.mkEqTrans (← Simp.main r.expr ctx (methods := { post })).1
 
   let simprocs ← ({} : Simp.SimprocsArray).add `reduceCtorEq false
 
   -- step 3: casts are squashed
   let r ← withTrace "squashing" do
     let simpTheorems := #[← normCastExt.squash.getTheorems]
-    r.mkEqTrans (← simp r.expr { simpTheorems, config, congrTheorems } simprocs).1
+    let ctx ← Simp.mkContext
+      (config := config)
+      (simpTheorems := simpTheorems)
+      (congrTheorems := congrTheorems)
+    r.mkEqTrans (← simp r.expr ctx simprocs).1
 
   return r
 
@@ -263,7 +271,7 @@ def evalConvNormCast : Tactic :=
 def evalPushCast : Tactic := fun stx => do
   let { ctx, simprocs, dischargeWrapper } ← withMainContext do
     mkSimpContext (simpTheorems := pushCastExt.getTheorems) stx (eraseLocal := false)
-  let ctx := { ctx with config := { ctx.config with failIfUnchanged := false } }
+  let ctx := ctx.setFailIfUnchanged false
   dischargeWrapper.with fun discharge? =>
     discard <| simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
 

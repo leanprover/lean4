@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List
-// Imports: Init.Data.List.Attach Init.Data.List.Basic Init.Data.List.BasicAux Init.Data.List.Control Init.Data.List.Count Init.Data.List.Erase Init.Data.List.Find Init.Data.List.Impl Init.Data.List.Lemmas Init.Data.List.MinMax Init.Data.List.Monadic Init.Data.List.Nat Init.Data.List.Notation Init.Data.List.Pairwise Init.Data.List.Sublist Init.Data.List.TakeDrop Init.Data.List.Zip Init.Data.List.Perm Init.Data.List.Sort Init.Data.List.ToArray Init.Data.List.MapIdx
+// Imports: Init.Data.List.Attach Init.Data.List.Basic Init.Data.List.BasicAux Init.Data.List.Control Init.Data.List.Count Init.Data.List.Erase Init.Data.List.Find Init.Data.List.Impl Init.Data.List.Lemmas Init.Data.List.MinMax Init.Data.List.Monadic Init.Data.List.Nat Init.Data.List.Notation Init.Data.List.Pairwise Init.Data.List.Sublist Init.Data.List.TakeDrop Init.Data.List.Zip Init.Data.List.Perm Init.Data.List.Sort Init.Data.List.ToArray Init.Data.List.MapIdx Init.Data.List.OfFn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34,6 +34,7 @@ lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Sort(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_ToArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_MapIdx(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -100,6 +101,9 @@ res = initialize_Init_Data_List_ToArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_MapIdx(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_OfFn(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array
-// Imports: Init.Data.Array.Basic Init.Data.Array.QSort Init.Data.Array.BinSearch Init.Data.Array.InsertionSort Init.Data.Array.DecidableEq Init.Data.Array.Mem Init.Data.Array.Attach Init.Data.Array.BasicAux Init.Data.Array.Lemmas Init.Data.Array.TakeDrop Init.Data.Array.Bootstrap Init.Data.Array.GetLit Init.Data.Array.MapIdx
+// Imports: Init.Data.Array.Basic Init.Data.Array.QSort Init.Data.Array.BinSearch Init.Data.Array.InsertionSort Init.Data.Array.DecidableEq Init.Data.Array.Mem Init.Data.Array.Attach Init.Data.Array.BasicAux Init.Data.Array.Lemmas Init.Data.Array.TakeDrop Init.Data.Array.Bootstrap Init.Data.Array.GetLit Init.Data.Array.MapIdx Init.Data.Array.Set
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,6 +26,7 @@ lean_object* initialize_Init_Data_Array_TakeDrop(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Bootstrap(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_GetLit(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_MapIdx(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Set(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -68,6 +69,9 @@ res = initialize_Init_Data_Array_GetLit(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_MapIdx(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Set(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

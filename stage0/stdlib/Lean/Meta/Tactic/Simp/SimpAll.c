@@ -416,7 +416,6 @@ x_16 = lean_array_uget(x_4, x_6);
 lean_inc(x_16);
 x_24 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_24, 0, x_16);
-lean_inc(x_24);
 x_25 = l_Lean_Meta_SimpTheoremsArray_isErased(x_7, x_24);
 if (x_25 == 0)
 {

@@ -506,8 +506,7 @@ where
     if h : i < args.size then
       match (← whnf cType) with
       | .forallE _ d b _ =>
-        let arg := args.get ⟨i, h⟩
-        if arg == x && d.isOutParam then
+        if args[i] == x && d.isOutParam then
           return true
         isOutParamOf x (i+1) args b
       | _ => return false

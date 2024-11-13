@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.ByCases
 import Init.Data.Prod
+import Init.Data.RArray
 
 namespace Nat.Linear
 
@@ -15,7 +16,7 @@ namespace Nat.Linear
 
 abbrev Var := Nat
 
-abbrev Context := List Nat
+abbrev Context := Lean.RArray Nat
 
 /--
   When encoding polynomials. We use `fixedVar` for encoding numerals.
@@ -23,12 +24,7 @@ abbrev Context := List Nat
 def fixedVar := 100000000 -- Any big number should work here
 
 def Var.denote (ctx : Context) (v : Var) : Nat :=
-  bif v == fixedVar then 1 else go ctx v
-where
-  go : List Nat → Nat → Nat
-   | [],    _   => 0
-   | a::_,  0   => a
-   | _::as, i+1 => go as i
+  bif v == fixedVar then 1 else ctx.get v
 
 inductive Expr where
   | num  (v : Nat)

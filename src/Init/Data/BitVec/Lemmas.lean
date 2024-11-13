@@ -2611,7 +2611,6 @@ theorem getLsbD_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
   apply getLsbD_ge
   omega
 
-/-- When `r < w`, we give a formula for `(x.rotateLeft r).getLsbD i`. -/
 theorem getLsbD_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
     (x.rotateLeft r).getLsbD i =
       cond (i < r)
@@ -2653,6 +2652,7 @@ theorem getMsbD_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
     (x.rotateLeftAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - (w - r))) := by
   simp [rotateLeftAux, getMsbD_or, show i + r ≥ w by omega, show ¬i < w - r by omega]
 
+/-- When `r < w`, we give a formula for `(x.rotateLeft r).getMsbD i`. -/
 theorem getMsbD_rotateLeft_of_le {n w : Nat} {x : BitVec w} (hi : r < w):
     (x.rotateLeft r).getMsbD n = (decide (n < w) && x.getMsbD ((r + n) % w)) := by
   rcases w with rfl | w
@@ -2779,6 +2779,7 @@ theorem getMsbD_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i
     (x.rotateRightAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - r)) := by
   simp [rotateRightAux, show ¬ i < r by omega, show i + (w - r) ≥ w by omega]
 
+/-- When `m < w`, we give a formula for `(x.rotateLeft m).getMsbD i`. -/
 @[simp]
 theorem getMsbD_rotateRight_of_le {w n m : Nat} {x : BitVec w} (hr : m < w):
     (x.rotateRight m).getMsbD n = (decide (n < w) && (if (n < m % w)

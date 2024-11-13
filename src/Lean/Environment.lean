@@ -849,17 +849,21 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (a
     let _ : Inhabited Environment := ⟨env⟩
     panic! s!"cannot set state of environment extension in an async context"
   else
-    { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
+    let base := { env.checkedSync.get with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
+    { env with toEnvironmentBase := base, checkedSync := .pure base }
 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)  (allowAsync := false) : Environment :=
   if !allowAsync && env.asyncCtx?.any (!·.declPrefix.isAnonymous) then
     let _ : Inhabited Environment := ⟨env⟩
     panic! s!"cannot set state of environment extension in an async context"
   else
-    { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }
+    { env with
+      extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f
+      checkedSync := env.checkedSync.map (sync := true) fun env =>
+        { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f } }
 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
-  EnvExtensionInterfaceImp.getState ext env.extensions
+  EnvExtensionInterfaceImp.getState ext env.checkedSync.get.extensions
 
 end EnvExtension
 
@@ -1207,6 +1211,7 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
   env.header.regions.forM CompactedRegion.free
 
 def mkModuleData (env : Environment) : IO ModuleData := do
+  let env := env.synchronize
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt =>
     match pExt.exportEntriesFn with
@@ -1214,14 +1219,9 @@ def mkModuleData (env : Environment) : IO ModuleData := do
       let state := pExt.getState env
       (pExt.name, fn state)
     | .async fn _ =>
-      let states := env.asyncConsts.toArray.filterMap fun aconst => do
-        let exts ← aconst.exts?
-        let s := EnvExtensionInterfaceImp.getState pExt.toEnvExtension exts.get
-        guard s.async
-        return s.state
-      let states := states.push (pExt.getState env)
-      (pExt.name, fn states)
-  let kenv := env.toKernelEnvNoAsync
+      let state := pExt.getState env
+      (pExt.name, fn #[state])
+  let kenv := env.toKernelEnv
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   let constants  := kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   return {

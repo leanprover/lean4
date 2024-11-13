@@ -794,3 +794,19 @@ info: 1
 #eval
   let t : ZonedDateTime := .ofPlainDateTime datetime("2018-12-31T12:00:00") (TimeZone.ZoneRules.ofTimeZone TimeZone.UTC)
   IO.println s!"{t.format "w"}"
+
+/-
+Truncation Test
+-/
+
+/--
+info: ("19343232432-01-04T01:04:03.000000000",
+ Except.ok (datetime("19343232432-01-04T01:04:03.000000000")),
+ datetime("1932-01-02T05:04:03.000000000"))
+-/
+#guard_msgs in
+#eval
+  let r := (PlainDateTime.mk (PlainDate.ofYearMonthDayClip 19343232432 1 4) (PlainTime.mk 25 64 ⟨true, 3⟩ 0))
+  let s := r.toLeanDateTimeString
+  let r := PlainDateTime.parse s
+  (s, r, datetime("1932-01-02T05:04:03.000000000"))

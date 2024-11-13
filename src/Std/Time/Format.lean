@@ -50,10 +50,10 @@ representing date, time, and time zone.
 def dateTime24Hour : GenericFormat (.only .GMT) := datespec("uuuu-MM-dd:HH:mm:ss.SSSSSSSSS")
 
 /--
-The DateTimeWithZone format, which follows the pattern `uuuu-MM-dd:HH:mm:ss.SSSSSSSSSZZZ`
+The DateTimeWithZone format, which follows the pattern `uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZ`
 for representing date, time, and time zone.
 -/
-def dateTimeWithZone : GenericFormat .any := datespec("uuuu-MM-dd:HH:mm:ss.SSSSSSSSSZZZ")
+def dateTimeWithZone : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ss.SSSSSSSSSZZZ")
 
 /--
 The leanTime24Hour format, which follows the pattern `HH:mm:ss.SSSSSSSSS` for representing time
@@ -423,6 +423,8 @@ def parse (input : String) : Except String ZonedDateTime :=
   fromISO8601String input
   <|> fromRFC822String input
   <|> fromRFC850String input
+  <|> fromDateTimeWithZoneString input
+  <|> fromLeanDateTimeWithIdentifierString input
 
 instance : ToString ZonedDateTime where
   toString := toLeanDateTimeWithIdentifierString
@@ -530,6 +532,7 @@ def parse (date : String) : Except String PlainDateTime :=
   fromAscTimeString date
   <|> fromLongDateFormatString date
   <|> fromDateTimeString date
+  <|> fromLeanDateTimeString date
 
 instance : ToString PlainDateTime where
   toString := toLeanDateTimeString

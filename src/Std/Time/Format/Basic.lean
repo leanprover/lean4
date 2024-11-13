@@ -599,7 +599,7 @@ private def leftPad (n : Nat) (a : Char) (s : String) : String :=
 private def rightPad (n : Nat) (a : Char) (s : String) : String :=
   s ++ "".pushn a (n - s.length)
 
-private def truncate (size : Nat)  (n : Int) (cut : Bool := false) : String :=
+private def pad (size : Nat)  (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
   let numStr := toString n
@@ -787,34 +787,34 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     let info := data.toInt
     let info := if info ≤ 0 then -info + 1 else info
     match format with
-    | .twoDigit => truncate 2 (info % 100)
-    | .fourDigit => truncate 4 info
-    | .extended n => truncate n info
+    | .twoDigit => pad 2 (info % 100)
+    | .fourDigit => pad 4 info
+    | .extended n => pad n info
   | .u format =>
     match format with
-    | .twoDigit => truncate 2 (data.toInt % 100)
-    | .fourDigit => truncate 4 data.toInt
-    | .extended n => truncate n data.toInt
+    | .twoDigit => pad 2 (data.toInt % 100)
+    | .fourDigit => pad 4 data.toInt
+    | .extended n => pad n data.toInt
   | .D format =>
-    truncate format.padding data.snd.val
+    pad format.padding data.snd.val
   | .MorL format =>
     match format with
-    | .inl format => truncate format.padding data.val
+    | .inl format => pad format.padding data.val
     | .inr .short => formatMonthShort data
     | .inr .full => formatMonthLong data
     | .inr .narrow => formatMonthNarrow data
   | .d format =>
-    truncate format.padding data.val
+    pad format.padding data.val
   | .Qorq format =>
     match format with
-    | .inl format => truncate format.padding data.val
+    | .inl format => pad format.padding data.val
     | .inr .short => formatQuarterShort data
     | .inr .full => formatQuarterLong data
     | .inr .narrow => formatQuarterNumber data
   | .w format =>
-    truncate format.padding data.val
+    pad format.padding data.val
   | .W format =>
-    truncate format.padding data.val
+    pad format.padding data.val
   | .E format =>
     match format with
     | .short => formatWeekdayShort data
@@ -822,33 +822,33 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     | .narrow => formatWeekdayNarrow data
   | .eorc format =>
     match format with
-    | .inl format => truncate format.padding data.toOrdinal.val
+    | .inl format => pad format.padding data.toOrdinal.val
     | .inr .short => formatWeekdayShort data
     | .inr .full => formatWeekdayLong data
     | .inr .narrow => formatWeekdayNarrow data
   | .F format =>
-    truncate format.padding data.val
+    pad format.padding data.val
   | .a format =>
     match format with
     | .short => formatMarkerShort data
     | .full => formatMarkerLong data
     | .narrow => formatMarkerNarrow data
-  | .h format => truncate format.padding (data.val % 12)
-  | .K format => truncate format.padding (data.val % 12)
-  | .k format => truncate format.padding (data.val)
-  | .H format => truncate format.padding (data.val)
-  | .m format => truncate format.padding (data.val)
-  | .s format => truncate format.padding (data.snd.val)
+  | .h format => pad format.padding (data.val % 12)
+  | .K format => pad format.padding (data.val % 12)
+  | .k format => pad format.padding (data.val)
+  | .H format => pad format.padding (data.val)
+  | .m format => pad format.padding (data.val)
+  | .s format => pad format.padding (data.snd.val)
   | .S format =>
     match format with
-    | .nano => truncate 9 data.val
+    | .nano => pad 9 data.val
     | .truncated n => rightTruncate n data.val (cut := true)
   | .A format =>
-    truncate format.padding data.val
+    pad format.padding data.val
   | .n format =>
-    truncate format.padding data.val
+    pad format.padding data.val
   | .N format =>
-    truncate format.padding data.val
+    pad format.padding data.val
   | .V => data
   | .z format =>
     match format with
@@ -1070,6 +1070,12 @@ private def parseSigned (parser : Parser Nat) : Parser Int := do
 private def parseNum (size : Nat) : Parser Nat :=
   String.toNat! <$> exactlyChars (satisfy Char.isDigit) size
 
+private def parseAtLeastNum (size : Nat) : Parser Nat :=
+  String.toNat! <$> do
+    let start ← exactlyChars (satisfy Char.isDigit) size
+    let end_ ← manyChars (satisfy Char.isDigit)
+    pure (start ++ end_)
+
 private def parseFractionNum (size : Nat) (pad : Nat) : Parser Nat :=
   String.toNat! <$> rightPad pad '0' <$> exactlyChars (satisfy Char.isDigit) size
 
@@ -1117,28 +1123,28 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
     match format with
     | .twoDigit => (2000 + ·) <$> (Int.ofNat <$> parseNum 2)
     | .fourDigit => Int.ofNat <$> parseNum 4
-    | .extended n => Int.ofNat <$> parseNum n
+    | .extended n => Int.ofNat <$> parseAtLeastNum n
   | .u format =>
     match format with
     | .twoDigit => (2000 + ·) <$> (parseSigned <| parseNum 2)
-    | .fourDigit => parseSigned <| parseNum 4
-    | .extended n => parseSigned <| parseNum n
-  | .D format => Sigma.mk true <$> parseNatToBounded (parseNum format.padding)
+    | .fourDigit => parseSigned <| parseAtLeastNum 4
+    | .extended n => parseSigned <| parseAtLeastNum n
+  | .D format => Sigma.mk true <$> parseNatToBounded (parseAtLeastNum format.padding)
   | .MorL format =>
     match format with
-    | .inl format => parseNatToBounded (parseNum format.padding)
+    | .inl format => parseNatToBounded (parseAtLeastNum format.padding)
     | .inr .short => parseMonthShort
     | .inr .full => parseMonthLong
     | .inr .narrow => parseMonthNarrow
-  | .d format => parseNatToBounded (parseNum format.padding)
+  | .d format => parseNatToBounded (parseAtLeastNum format.padding)
   | .Qorq format =>
     match format with
-    | .inl format => parseNatToBounded (parseNum format.padding)
+    | .inl format => parseNatToBounded (parseAtLeastNum format.padding)
     | .inr .short => parseQuarterShort
     | .inr .full => parseQuarterLong
     | .inr .narrow => parseQuarterNumber
-  | .w format => parseNatToBounded (parseNum format.padding)
-  | .W format => parseNatToBounded (parseNum format.padding)
+  | .w format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .W format => parseNatToBounded (parseAtLeastNum format.padding)
   | .E format =>
     match format with
     | .short => parseWeekdayShort
@@ -1146,29 +1152,29 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
     | .narrow => parseWeekdayNarrow
   | .eorc format =>
     match format with
-    | .inl format => Weekday.ofOrdinal <$> parseNatToBounded (parseNum format.padding)
+    | .inl format => Weekday.ofOrdinal <$> parseNatToBounded (parseAtLeastNum format.padding)
     | .inr .short => parseWeekdayShort
     | .inr .full => parseWeekdayLong
     | .inr .narrow => parseWeekdayNarrow
-  | .F format => parseNatToBounded (parseNum format.padding)
+  | .F format => parseNatToBounded (parseAtLeastNum format.padding)
   | .a format =>
     match format with
     | .short => parseMarkerShort
     | .full => parseMarkerLong
     | .narrow => parseMarkerNarrow
-  | .h format => parseNatToBounded (parseNum format.padding)
-  | .K format => parseNatToBounded (parseNum format.padding)
-  | .k format => parseNatToBounded (parseNum format.padding)
-  | .H format => parseNatToBounded (parseNum format.padding)
-  | .m format => parseNatToBounded (parseNum format.padding)
-  | .s format => Sigma.mk true <$> (parseNatToBounded (parseNum format.padding))
+  | .h format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .K format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .k format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .H format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .m format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .s format => Sigma.mk true <$> (parseNatToBounded (parseAtLeastNum format.padding))
   | .S format =>
     match format with
-    | .nano => parseNatToBounded (parseNum 9)
+    | .nano => parseNatToBounded (parseAtLeastNum 9)
     | .truncated n => parseNatToBounded (parseFractionNum n 9)
-  | .A format => Millisecond.Offset.ofNat <$> (parseNum format.padding)
-  | .n format => parseNatToBounded (parseNum format.padding)
-  | .N format => Nanosecond.Offset.ofNat <$> (parseNum format.padding)
+  | .A format => Millisecond.Offset.ofNat <$> (parseAtLeastNum format.padding)
+  | .n format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .N format => Nanosecond.Offset.ofNat <$> (parseAtLeastNum format.padding)
   | .V => parseIdentifier
   | .z format =>
     match format with

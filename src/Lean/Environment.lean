@@ -1502,28 +1502,9 @@ def isNamespace (env : Environment) (n : Name) : Bool :=
 def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
-private def isNamespaceName : Name → Bool
-  | .str .anonymous _ => true
-  | .str p _          => isNamespaceName p
-  | _                 => false
-
-private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
-  match name with
-    | .str _ s =>
-      if s.get 0 == '_' then
-        -- Do not register namespaces that only contain internal declarations.
-        env
-      else
-        go env name
-    | _ => env
-where go env
-  | .str p _ => if isNamespaceName p then go (registerNamespace env p) p else env
-  | _        => env
-
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (kernel : Kernel.Environment) : Environment :=
-  let env := env.setCheckedSync { env.checked.get with kernel }
-  added.getNames.foldl registerNamePrefixes env
+  env.setCheckedSync { env.checked.get with kernel }
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

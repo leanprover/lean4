@@ -1106,7 +1106,7 @@ where
         let checkAndCompile := try
             processDeriving headers
             if let some async := async? then
-              (← async.checkAndCommitEnv (← getEnv) (← getOptions) (← readThe Core.Context).cancelTk? |>.toBaseIO) |> ofExceptKernelException
+              async.checkAndCommitEnv (← getEnv) (← getOptions) (← readThe Core.Context).cancelTk?
           finally
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)

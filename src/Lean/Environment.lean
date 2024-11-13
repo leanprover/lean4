@@ -590,7 +590,7 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     IO Unit := do
   let some asyncCtx := env.asyncCtx?
     | throw <| .userError "AddConstAsyncResult.commitConst: environment does not have an async context"
-  let info ← match info? with
+  let info ← match info? <|> env.find? res.constName with
     | some info => pure info
     | none =>
       throw <| .userError s!"AddConstAsyncResult.commitConst: constant {res.constName} not found in async context"
@@ -611,11 +611,12 @@ def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit 
   let _ ← BaseIO.mapTask (t := res.asyncEnv.checked) (sync := true) res.checkedEnvPromise.resolve
 
 def AddConstAsyncResult.checkAndCommitEnv (res : AddConstAsyncResult) (env : Environment)
-    (opts : Options) (cancelTk? : Option IO.CancelToken := none) : EIO Kernel.Exception Unit := do
+    (opts : Options) (cancelTk? : Option IO.CancelToken := none) : IO Unit := do
   let some _ := env.asyncCtx?
-    | throw <| .other "AddConstAsyncResult.checkAndCommitEnv: environment does not have an async context"
+    | throw <| .userError "AddConstAsyncResult.checkAndCommitEnv: environment does not have an async context"
   let some _ := env.findAsync? res.constName
-    | throw <| .other s!"AddConstAsyncResult.checkAndCommitEnv: constant {res.constName} not found in async context"
+    | throw <| .userError s!"AddConstAsyncResult.checkAndCommitEnv: constant {res.constName} not found in async context"
+  res.commitConst env
   res.checkedEnvPromise.resolve env.checked.get
 
 def contains (env : Environment) (n : Name) : Bool :=

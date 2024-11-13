@@ -96,7 +96,7 @@ builtin_initialize
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.hint] "{t} =?= {s}"
-  unless (← read).config.unificationHints do
+  unless (← getConfig).unificationHints do
     return false
   if t.isMVar then
     return false

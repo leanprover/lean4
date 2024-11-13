@@ -529,7 +529,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
      TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
   if (← getTransparency) matches .instances | .reducible then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
-    withTransparency .instances <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+    withTransparency .instances <| withCanUnfoldPred canUnfoldAtMatcher do
       whnf e
   else
     -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).

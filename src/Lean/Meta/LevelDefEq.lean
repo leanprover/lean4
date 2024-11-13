@@ -149,8 +149,8 @@ mutual
             if r != LBool.undef then
               return r == LBool.true
             else if !(← hasAssignableLevelMVar lhs <||> hasAssignableLevelMVar rhs) then
-              let ctx ← read
-              if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
+              let cfg ← getConfig
+              if cfg.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
                 trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
                 Meta.throwIsDefEqStuck
               else

@@ -227,7 +227,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     -- decreasing goals when the function has only one non fixed argument.
     -- This renaming is irrelevant if the function has multiple non fixed arguments. See `process*` functions above.
     let lctx := (← getLCtx).setUserName x.fvarId! varName
-    withTheReader Meta.Context (fun ctx => { ctx with lctx }) do
+    withLCtx' lctx do
       let F   := xs[1]!
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do

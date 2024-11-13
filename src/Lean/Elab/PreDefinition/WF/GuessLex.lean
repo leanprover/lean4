@@ -166,7 +166,7 @@ def mayOmitSizeOf (is_mutual : Bool) (args : Array Expr) (x : Expr) : MetaM Bool
 def withUserNames {α} (xs : Array Expr) (ns : Array Name) (k : MetaM α) : MetaM α := do
   let mut lctx ←  getLCtx
   for x in xs, n in ns do lctx := lctx.setUserName x.fvarId! n
-  withTheReader Meta.Context (fun ctx => { ctx with lctx }) k
+  withLCtx' lctx k
 
 /-- Create one measure for each (eligible) parameter of the given predefintion.  -/
 def simpleMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)

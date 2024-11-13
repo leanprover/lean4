@@ -339,7 +339,7 @@ structure EnvironmentBase where
   `extensions` is relevant, and only when native reduction is used.
   -/
   private mk ::
-  private base        : Kernel.Environment
+  private kernel        : Kernel.Environment
   /--
   Mapping from constant name to module (index) where constant has been declared.
   Recall that a Lean file has a header where previously compiled modules can be imported.
@@ -362,7 +362,7 @@ structure EnvironmentBase where
   -/
   private extraConstNames : NameSet
   /-- The header contains additional information that is set at import time. -/
-  header                  : EnvironmentHeader := {}
+  header                  : EnvironmentHeader
 deriving Nonempty
 
 structure AsyncContext where
@@ -435,7 +435,7 @@ private def addDeclNoDelay (env : Environment) (opts : Options) (decl : Declarat
   let env := env.synchronize
   if skipExisting then
     if let [name] := decl.getNames then
-      if env.base.find? name |>.isSome then
+      if env.kernel.find? name |>.isSome then
         return env
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
@@ -452,20 +452,20 @@ where doAdd := addDeclNoDelay env opts decl cancelTk? skipExisting
 
 @[export lean_elab_environment_to_kernel_env_unchecked]
 def toKernelEnvUnchecked (env : Environment) : Kernel.Environment := Id.run do
-  let mut kenv := env.base
+  let mut kenv := env.kernel
   for asyncConst in env.asyncConsts.toArray do
     kenv := kenv.add asyncConst.info.info.get
   kenv
 
 @[export lean_elab_environment_to_kernel_env_no_async]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
-  env.checkedSync.get.base
+  env.checkedSync.get.kernel
 
 def getImportedConstants (env : Environment) : Std.HashMap Name ConstantInfo :=
-  env.base.constants.map₁
+  env.kernel.constants.map₁
 
 def getLocalConstantsUnchecked (env : Environment) : NameMap AsyncConstantInfo := Id.run do
-  let map := env.base.constants.map₂.foldl (fun m n c => m.insert n (.ofConstantInfo c)) .empty
+  let map := env.kernel.constants.map₂.foldl (fun m n c => m.insert n (.ofConstantInfo c)) .empty
   env.asyncConsts.toArray.foldl (fun m c => m.insert c.info.name c.info) map
 
 /--
@@ -496,7 +496,7 @@ private def findNoAsyncTheorem (env : Environment) (n : Name) : Option ConstantI
     -- case when only proofs are elaborated asynchronously as they are rarely inspected. Could be
     -- optimized in the future by having the elaboration thread publish an (incremental?) map of
     -- generated declarations before kernel checking (which must wait on all previous threads).
-    env.checkedSync.get.base.constants.find?' n
+    env.checkedSync.get.kernel.constants.find?' n
   else
     -- Not in the kernel environment nor in the name prefix of any elaboration thread: undefined by
     -- `addDecl` invariant. Except for realizable constants :( .
@@ -506,7 +506,7 @@ def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
   -- Check declarations already added to the kernel environment (e.g. because they were imported)
   -- first as that should be the most common case. It is safe to use `find?'` because we never
   -- overwrite imported declarations.
-  if let some c := env.base.constants.find?' n then
+  if let some c := env.kernel.constants.find?' n then
     some <| .ofConstantInfo c
   else if let some asyncConst := env.asyncConsts.find? n then
     -- Constant for which an asynchronous elaboration task was spawned
@@ -520,20 +520,20 @@ def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   \nlocalRealizedConsts: {repr (← env.realizedLocalConsts.toList.filterMapM fun (n, m) => do
     let consts := (← m.get).toList
     return guard (!consts.isEmpty) *> some (n, consts.map (·.1)))}
-  \nbase.constants.map₂: {repr <| env.base.constants.map₂.toList.map (·.1)}"
+  \nbase.constants.map₂: {repr <| env.kernel.constants.map₂.toList.map (·.1)}"
 
 def dbgFormatCheckedSyncState (env : Environment) : BaseIO String :=
-  return s!"checkedSync.base.constants.map₂: {repr <| env.checkedSync.get.base.constants.map₂.toList.map (·.1)}"
+  return s!"checkedSync.base.constants.map₂: {repr <| env.checkedSync.get.kernel.constants.map₂.toList.map (·.1)}"
 
 def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
-  if let some c := env.base.constants.find?' n then
+  if let some c := env.kernel.constants.find?' n then
     some c.toConstantVal
   else if let some asyncConst := env.asyncConsts.find? n then
     return asyncConst.info.toConstantVal
   else env.findNoAsyncTheorem n |>.map (·.toConstantVal)
 
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
-  if let some c := env.base.constants.find?' n then
+  if let some c := env.kernel.constants.find?' n then
     some c
   else if let some asyncConst := env.asyncConsts.find? n then
     return asyncConst.info.toConstantInfo
@@ -650,7 +650,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     (sig? : Option (Task ConstantVal) := none) :
     IO (Environment × Option (Option ConstantInfo → EIO Kernel.Exception Environment)) := do
   let mut env := env
-  if (env.base.find? constName |>.isSome) || (env.asyncConsts.find? constName |>.isSome) then
+  if (env.kernel.find? constName |>.isSome) || (env.asyncConsts.find? constName |>.isSome) then
     return (env, none)
   if let some n := env.realizingConst? then
     panic! s!"cannot realize {constName} while already realizing {n}"
@@ -682,10 +682,10 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     env := { env with
       asyncConsts := env.asyncConsts.add existingConst
       checkedSync := env.checkedSync.map fun env =>
-        if env.base.find? constName |>.isSome then
+        if env.kernel.find? constName |>.isSome then
           env
         else
-          { env with base := env.base.add existingConst.info.toConstantInfo }
+          { env with kernel := env.kernel.add existingConst.info.toConstantInfo }
     }
     return (env, none)
   else
@@ -882,9 +882,9 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   let initializing ← IO.initializing
   if initializing then throw (IO.userError "environment objects cannot be created during initialization")
   let exts ← mkInitialExtensionStates
-  let base := { constants := {} }
+  let kernel := { constants := {} }
   pure {
-    base
+    kernel
     const2ModIdx    := {}
     header          := { trustLevel }
     extraConstNames := {}
@@ -1391,12 +1391,12 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
   let constants : ConstMap := SMap.fromHashMap constantMap false
   let exts ← mkInitialExtensionStates
-  let base := {
+  let kernel := {
     constants  := constants
     quotInit   := !imports.isEmpty -- We assume `core.lean` initializes quotient module
   }
   let mut env : Environment := {
-    base
+    kernel
     const2ModIdx    := const2ModIdx
     extraConstNames := {}
     extensions      := exts
@@ -1466,19 +1466,19 @@ builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet �
 
 @[inherit_doc Kernel.Environment.enableDiag]
 def Kernel.enableDiag (env : Lean.Environment) (flag : Bool) : Lean.Environment :=
-  { env with base := env.base.enableDiag flag }
+  { env with kernel := env.kernel.enableDiag flag }
 
 def Kernel.isDiagnosticsEnabled (env : Lean.Environment) : Bool :=
-  env.base.isDiagnosticsEnabled
+  env.kernel.isDiagnosticsEnabled
 
 def Kernel.resetDiag (env : Lean.Environment) : Lean.Environment :=
-  { env with base := env.base.resetDiag }
+  { env with kernel := env.kernel.resetDiag }
 
 def Kernel.getDiagnostics (env : Lean.Environment) : Diagnostics :=
-  env.base.diagnostics
+  env.kernel.diagnostics
 
 def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.Environment :=
-  { env with base := env.base.setDiagnostics diag }
+  { env with kernel := env.kernel.setDiagnostics diag }
 
 namespace Environment
 
@@ -1513,10 +1513,10 @@ where go env
   | _        => env
 
 @[export lean_elab_environment_update_base_after_kernel_add]
-private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) : Environment :=
+private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (kernel : Kernel.Environment) : Environment :=
   let env := env.synchronize
   let env := added.getNames.foldl registerNamePrefixes env
-  let base := { env.checkedSync.get with base }
+  let base := { env.checkedSync.get with kernel }
   { env with toEnvironmentBase := base, checkedSync := .pure base }
 
 @[export lean_display_stats]

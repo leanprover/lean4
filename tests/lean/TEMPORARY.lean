@@ -164,14 +164,15 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
   | some a =>
     simp only [filter_some, attach_some]
     ext
-    simp only [mem_def, attach_eq_some_iff, ite_none_right_eq_some, some.injEq, some_bind,
-      dite_none_right_eq_some]
+    rw [mem_def, mem_def, attach_eq_some_iff, ite_none_right_eq_some, some.injEq, some_bind, dite_none_right_eq_some]
     trace_state
     constructor
     trace_state
     · rintro ⟨h, w⟩
-      refine ⟨h, by ext; simpa only using w⟩
-    · rintro ⟨h, rfl⟩
+      refine ⟨h, by rw [some.injEq]; ext; simpa only using w⟩
+    · rintro ⟨h, h'⟩
+      rw [some.injEq] at h'
+      obtain rfl := h'
       exact ⟨h,rfl⟩
 
 theorem filter_attach {o : Option α} {p : {x // x ∈ o} → Bool} :

@@ -169,7 +169,7 @@ theorem attach_filter {o : Option α} {p : α → Bool} :
     · rintro ⟨h, w⟩
       refine ⟨h, by ext; simpa using w⟩
     · rintro ⟨h, rfl⟩
-      simp [h]
+      exact ⟨h, rfl⟩
 
 theorem filter_attach {o : Option α} {p : {x // x ∈ o} → Bool} :
     o.attach.filter p = o.pbind fun a h => if p ⟨a, h⟩ then some ⟨a, h⟩ else none := by

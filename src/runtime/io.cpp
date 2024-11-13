@@ -713,6 +713,10 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     int32_t dst_name_len;
     u_strToUTF8(dst_name, sizeof(dst_name), &dst_name_len, tzID, tzIDLength, &status);
 
+    if (U_FAILURE(status)) {
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to convert DST name to UTF-8")));
+    }
+
     UChar display_name[32];
     int32_t display_name_len = ucal_getTimeZoneDisplayName(cal, is_dst ? UCAL_SHORT_DST : UCAL_SHORT_STANDARD, "en_US", display_name, 32, &status);
 

@@ -96,14 +96,8 @@ where go env
   | _        => env
 
 def addDecl (decl : Declaration) : CoreM Unit := do
-  --dbg_trace decl.getNames
   if true then
     let preEnv ← getEnv
-    --if let some asyncCtx := preEnv.asyncCtx? then
-    --  if checkAsyncPrefix && !asyncCtx.mayContain name then
-    --    panic! s!"declaration '{name}' cannot be added to the environment because the context \
-    --      is restricted to the prefix {asyncCtx.declPrefix}"
-    --    return env
     let (name, info, kind) ← match decl with
       | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
       | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
@@ -113,8 +107,6 @@ def addDecl (decl : Declaration) : CoreM Unit := do
         -- used to be triggered by adding `X.recOn` etc. to the environment but that's async now
         modifyEnv (types.foldl (registerNamePrefixes · <| ·.name ++ `rec));
         doAdd
-        let env ← getEnv
-        --dbg_trace "{types.map (·.name)} {Environment.getNamespaceSet env |>.toList}"
         return
       | _ => return (← doAdd)
     let async ← preEnv.addConstAsync name kind

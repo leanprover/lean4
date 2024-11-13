@@ -187,6 +187,7 @@ structure Config where
   Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
   -/
   zetaDelta : Bool := true
+  deriving Inhabited
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
 private def Config.toKey (c : Config) : UInt64 :=
@@ -213,6 +214,7 @@ structure ConfigWithKey where
   private mk ::
   config : Config
   key    : UInt64
+  deriving Inhabited
 
 def Config.toConfigWithKey (c : Config) : ConfigWithKey :=
   { config := c, key := c.toKey }

@@ -5,4 +5,4 @@ argument
 has type
   @PersistentHashMap Nat Nat instBEqOfDecidableEq instHashableNat : Type
 but is expected to have type
-  @PersistentHashMap Nat Nat instBEqOfDecidableEq natDiffHash : Type
+  @PersistentHashMap Nat Nat ?m natDiffHash : Type

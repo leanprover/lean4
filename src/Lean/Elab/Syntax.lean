@@ -239,7 +239,8 @@ where
     (s.front != '\'' || s == "''") &&
     s.front != '\"' &&
     !(s.front == '`' && (s.endPos == ⟨1⟩ || isIdFirst (s.get ⟨1⟩) || isIdBeginEscape (s.get ⟨1⟩))) &&
-    !s.front.isDigit
+    !s.front.isDigit &&
+    !(s.any Char.isWhitespace)
 
   processAtom (stx : Syntax) := do
     match stx[0].isStrLit? with

@@ -466,7 +466,7 @@ hypotheses or the goal. It can have one of the forms:
 * `at h₁ h₂ ⊢`: target the hypotheses `h₁` and `h₂`, and the goal
 * `at *`: target all hypotheses and the goal
 -/
-syntax location := withPosition(" at" (locationWildcard <|> locationHyp))
+syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)))
 
 /--
 * `change tgt'` will change the goal from `tgt` to `tgt'`,

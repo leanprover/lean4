@@ -364,7 +364,7 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   | Expr.forallE n d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | Expr.lam     n d₁ b₁ _, Expr.lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | _,                      _                      =>
-    withReader (fun ctx => { ctx with lctx := lctx }) do
+    withLCtx' lctx do
       isDefEqBindingDomain fvars ds₂ do
         Meta.isExprDefEqAux (e₁.instantiateRev fvars) (e₂.instantiateRev fvars)
 
@@ -758,8 +758,8 @@ mutual
     if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
       traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
       throwCheckAssignmentFailure
-    let ctxMeta ← readThe Meta.Context
-    unless ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx do
+    let cfg ← getConfig
+    unless cfg.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx do
       traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
       throwCheckAssignmentFailure
     /- Create an auxiliary metavariable with a smaller context and "checked" type.
@@ -814,8 +814,8 @@ mutual
 
   partial def checkApp (e : Expr) : CheckAssignmentM Expr :=
     e.withApp fun f args => do
-      let ctxMeta ← readThe Meta.Context
-      if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then
+      let cfg ← getConfig
+      if f.isMVar && cfg.ctxApprox && args.all Expr.isFVar then
         let f ← check f
         catchInternalId outOfScopeExceptionId
           (do
@@ -1794,8 +1794,8 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
         | LBool.true => return LBool.true
         | LBool.false => return LBool.false
         | _ =>
-          let ctx ← read
-          if ctx.config.isDefEqStuckEx then do
+          let cfg ← getConfig
+          if cfg.isDefEqStuckEx then do
             trace[Meta.isDefEq.stuck] "{t} =?= {s}"
             Meta.throwIsDefEqStuck
           else
@@ -1834,7 +1834,7 @@ end
       let e ← instantiateMVars e
       successK e
     else
-      if (← read).config.isDefEqStuckEx then
+      if (← getConfig).isDefEqStuckEx then
         /-
         When `isDefEqStuckEx := true` and `mvar` was created in a previous level,
         we should throw an exception. See issue #2736 for a situation where this can happen.

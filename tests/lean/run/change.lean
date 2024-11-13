@@ -52,6 +52,10 @@ noncomputable example : Nat := by
 
 def foo (a b c : Nat) := if a < b then c else 0
 
+/-!
+The first `change` fails with `typeclass instance problem is stuck`
+if there weren't defeq hints in the elaborator (`SyntheticMVarKind.defeqHint`)
+-/
 example : foo 1 2 3 = 3 := by
   change (if _ then _ else _) = _
   change ite _ _ _ = _
@@ -129,6 +133,24 @@ example (ty : {α : Prop // Nonempty α}) : ty.val := by
   change ty
   guard_target =ₛ ty.val
   exact test_sorry
+
+/-!
+Fails, type hint can't hint enough since `.some _` is postponed.
+-/
+/--
+error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
+  ?_
+-/
+#guard_msgs in example : some true = (some true).map id := by
+  change _ = .some _
+
+/-!
+That works with a mild type hint.
+-/
+example : some true = (some true).map id := by
+  change _ = (.some _ : Option _)
+  rfl
+
 
 /-!
 ## Conv `change`

@@ -108,7 +108,7 @@ theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a 
   cases o <;> cases x <;> simp
 
 @[simp] theorem get_attach {o : Option α} (h : o.attach.isSome = true) :
-    o.attach.get h = ⟨o.get (by simpa using h), by simp⟩ := by
+    o.attach.get h = ⟨o.get (Eq.mp (congrArg (fun x => x = true) (isSome_attach o)) h), by simp⟩ := by
   cases o
   · simp at h
   · simp [get_some]

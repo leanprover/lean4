@@ -871,11 +871,21 @@ theorem insertList_insert {l: List ((a:α) × (β a))} {k: α} {v: β k}:
     simp[insertListₘ]
     rw [ih]
 
-theorem insertList_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
+theorem contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
     (m.insertList l).contains k ↔ m.contains k ∨ (l.map Sigma.fst).contains k := by
-  simp_to_model using List.insertList_containsKey
+  simp_to_model using List.containsKey_insertList
 
-theorem insertList_size [LawfulBEq α][LawfulHashable α]{l: List ((a:α) × (β a))} {distinct: DistinctKeys l} {distinct2: ∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)} (h: m.1.WF): (m.insertList l).1.size = m.1.size + l.length := by
+theorem contains_of_contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} : 
+    (m.insertList l).contains k → (l.map Sigma.fst).contains k = false → m.contains k := by
+  simp_to_model using List.containsKey_of_containsKey_insertList
+
+theorem get_insertList [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} {h₁} :
+    get (m.insertList l) k h₁ =
+      if h₂ : (l.map Sigma.fst).contains k then List.get_by_key l.reverse k (by simp; simp at h₂; exact h₂)
+      else get m k (contains_of_contains_insertList _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
+  simp_to_model using List.getValueCast_insertList
+
+theorem size_insertList [LawfulBEq α][LawfulHashable α]{l: List ((a:α) × (β a))} {distinct: DistinctKeys l} {distinct2: ∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)} (h: m.1.WF): (m.insertList l).1.size = m.1.size + l.length := by
   simp_to_model
   rw [← List.length_append]
   apply List.Perm.length_eq

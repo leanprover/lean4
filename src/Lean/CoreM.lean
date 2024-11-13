@@ -439,14 +439,13 @@ partial def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Uni
   if true then
     let ctx ← read
     let env ← getEnv
-    let (postEnv, prom) ← env.promiseCheckedSync
+    let (postEnv, prom) ← env.promiseChecked
     let checkAct ← runAsync do
-      setEnv env.getChecked.get
       try
         doCompile
       finally
         prom.resolve (← getEnv)
-    let checkTask ← BaseIO.mapTask (t := env.checkedSync) fun _ =>
+    let checkTask ← BaseIO.mapTask (t := env.checked) fun _ =>
       EIO.catchExceptions checkAct fun e => do dbg_trace toString (← e.toMessageData.toString.toBaseIO).toOption
     setEnv postEnv
     return

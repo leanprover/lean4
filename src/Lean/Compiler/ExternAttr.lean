@@ -71,18 +71,8 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
         if let some (.thmInfo ..) := env.find? declName then
           -- We should not mark theorems as extern
           return ()
-        let (postEnv, prom) ← env.promiseCheckedSync
-        let checkAct ← runAsync do
-          setEnv env.getChecked.get
-          try
-            let env ← getEnv
-            let env ← ofExcept <| addExtern env declName
-            setEnv env
-          finally
-            prom.resolve (← getEnv)
-        let checkTask ← BaseIO.mapTask (t := env.checkedSync) fun _ =>
-          EIO.catchExceptions checkAct fun e => do dbg_trace toString (← e.toMessageData.toString.toBaseIO).toOption
-        setEnv postEnv
+        let env ← ofExcept <| addExtern env declName
+        setEnv env
   }
 
 @[export lean_get_extern_attr_data]

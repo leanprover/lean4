@@ -128,7 +128,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
         (← async.checkAndCommitEnv (← getEnv) ctx.options ctx.cancelTk? |>.toBaseIO) |> ofExceptKernelException
       finally
         async.commitFailure
-    let checkTask ← BaseIO.mapTask (t := preEnv.checkedSync) fun _ =>
+    let checkTask ← BaseIO.mapTask (t := preEnv.checked) fun _ =>
       EIO.catchExceptions checkAct fun e => do dbg_trace toString (← e.toMessageData.toString.toBaseIO).toOption
     return
   doAdd

@@ -1120,7 +1120,7 @@ where
             let checkAct ← runAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
               checkAndCompile
               return #[]
-            let checkTask ← BaseIO.mapTask (t := (← getEnv).checkedSync) fun _ => checkAct
+            let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) fun _ => checkAct
             return #[{ range? := none, task := checkTask }]
           let _ ← BaseIO.asTask do
             let snap ← act

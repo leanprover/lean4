@@ -41,7 +41,7 @@ def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
     let ctx ← getContext
     if ctx.dischargeDepth >= ctx.maxDischargeDepth then
       return .maxDepth
-    else withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+    else withIncDischargeDepth do
       -- We save the state, so that `UsedTheorems` does not accumulate
       -- `simp` lemmas used during unsuccessful discharging.
       -- We use `withPreservedCache` to ensure the cache is restored after `discharge?`
@@ -446,10 +446,13 @@ def mkSEvalMethods : CoreM Methods := do
     wellBehavedDischarge := true
   }
 
-def mkSEvalContext : CoreM Context := do
+def mkSEvalContext : MetaM Context := do
   let s ← getSEvalTheorems
   let c ← Meta.getSimpCongrTheorems
-  return { simpTheorems := #[s], congrTheorems := c, config := { ground := true } }
+  mkContext
+    (simpTheorems := #[s])
+    (congrTheorems := c)
+    (config := { ground := true })
 
 /--
 Invoke ground/symbolic evaluator from `simp`.

@@ -762,31 +762,24 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
   descr := "disable code generation for auxiliary matcher function"
 }
 
-builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ← registerEnvExtension (pure {})
-
 /-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
 def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zetaDelta := false)
-  let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-  match (matcherExt.getState env).find? (result.value, compile) with
-  | some nameNew => return (mkMatcherConst nameNew, none)
-  | none =>
-    let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
-      result.type result.value .abbrev)
-    trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
-    let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
-      addDecl decl
-      modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
-      addMatcherInfo name mi
-      setInlineAttribute name
-      if compile then
-        compileDecl decl
-    return (mkMatcherConst name, some addMatcher)
+  let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+    result.type result.value .abbrev)
+  trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
+  let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
+    addDecl decl
+    addMatcherInfo name mi
+    setInlineAttribute name
+    if compile then
+      compileDecl decl
+  return (mkMatcherConst name, some addMatcher)
 
 structure MkMatcherInput where
   matcherName : Name

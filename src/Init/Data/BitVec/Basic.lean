@@ -29,9 +29,6 @@ section Nat
 
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
 
-@[deprecated isLt (since := "2024-03-12")]
-theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
-
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
 @[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl

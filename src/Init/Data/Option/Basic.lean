@@ -16,10 +16,6 @@ def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[deprecated getM (since := "2024-04-17")]
--- `[Monad m]` is not needed here.
-def toMonad [Monad m] [Alternative m] : Option α → m α := getM
-
 /-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool
   | some _ => true
@@ -27,8 +23,6 @@ def toMonad [Monad m] [Alternative m] : Option α → m α := getM
 
 @[simp] theorem isSome_none : @isSome α none = false := rfl
 @[simp] theorem isSome_some : isSome (some a) = true := rfl
-
-@[deprecated isSome (since := "2024-04-17"), inline] def toBool : Option α → Bool := isSome
 
 /-- Returns `true` on `none` and `false` on `some x`. -/
 @[inline] def isNone : Option α → Bool

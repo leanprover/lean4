@@ -35,7 +35,7 @@ instance : Inhabited Ordinal where default := 1
 (the number of seconds in a day).
 -/
 def Offset : Type := UnitVal 86400
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
+  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 

@@ -642,8 +642,8 @@ extern "C" LEAN_EXPORT obj_res lean_get_current_time(obj_arg /* w */) {
     long long nano = timestamp % 1000000000;
 
     lean_object *lean_ts = lean_alloc_ctor(0, 2, 0);
-    lean_ctor_set(lean_ts, 0, lean_int_to_int(static_cast<int>(secs)));
-    lean_ctor_set(lean_ts, 1, lean_int_to_int(static_cast<int>(nano)));
+    lean_ctor_set(lean_ts, 0, lean_int64_to_int(secs));
+    lean_ctor_set(lean_ts, 1, lean_int64_to_int(nano));
 
     return lean_io_result_mk_ok(lean_ts);
 }

@@ -70,11 +70,11 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
       let h := rem.truncateBottom (Int.not_le.mp h)
       (h, rawDays)
 
-  let mut quadracentennialCycles := days / daysPer400Y;
-  let mut remDays := days.val % daysPer400Y.val;
+  let mut quadracentennialCycles := days.val / daysPer400Y;
+  let mut remDays := days.val % daysPer400Y;
 
   if remDays < 0 then
-    remDays := remDays + daysPer400Y.val
+    remDays := remDays + daysPer400Y
     quadracentennialCycles := quadracentennialCycles - 1
 
   let mut centenialCycles := remDays / daysPer100Y;
@@ -96,7 +96,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
 
   remDays := remDays - remYears * 365
 
-  let mut year := 2000 + remYears + 4 * quadrennialCycles + 100 * centenialCycles + 400 * quadracentennialCycles.val
+  let mut year := 2000 + remYears + 4 * quadrennialCycles + 100 * centenialCycles + 400 * quadracentennialCycles
   let months := [31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 29];
   let mut mon : Fin 13 := 0;
 

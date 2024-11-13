@@ -38,7 +38,7 @@ instance {x y : Ordinal} : Decidable (x < y) :=
 `Offset` represents a duration offset in milliseconds.
 -/
 def Offset : Type := UnitVal (1 / 1000)
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, LE, LT, ToString
+  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩

@@ -114,10 +114,6 @@ instance : Add (UnitVal α) where add := UnitVal.add
 
 instance : Sub (UnitVal α) where sub := UnitVal.sub
 
-instance : Mul (UnitVal α) where mul x y := ⟨x.val * y.val⟩
-
-instance : Div (UnitVal α) where div x y := ⟨x.val / y.val⟩
-
 instance : Neg (UnitVal α) where neg x := ⟨-x.val⟩
 
 instance : ToString (UnitVal n) where toString n := toString n.val

@@ -1089,7 +1089,7 @@ private inductive Reason
   | optional
 
 private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon : Bool) : Parser Offset := do
-  let sign : Second.Offset ← (pchar '+' *> pure 1) <|> (pchar '-' *> pure (-1))
+  let sign ← (pchar '+' *> pure 1) <|> (pchar '-' *> pure (-1))
   let hours : Hour.Offset ← UnitVal.ofInt <$> parseNum 2
 
   let colon := if withColon then pchar ':' else pure ':'
@@ -1105,7 +1105,7 @@ private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon
 
   let hours := hours.toSeconds + (minutes.getD 0).toSeconds + (seconds.getD 0)
 
-  return Offset.ofSeconds (sign * hours)
+  return Offset.ofSeconds ⟨hours.val * sign⟩
 
 private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
   | .G format =>

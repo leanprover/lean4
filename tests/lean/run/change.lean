@@ -4,18 +4,6 @@ private axiom test_sorry : ∀ {α}, α
 set_option linter.missingDocs false
 set_option pp.mvars false
 
-/-!
-`conv` failure
--/
-/--
-error: 'change' tactic failed, pattern
-  m = ?_
-is not definitionally equal to target
-  n = m
--/
-#guard_msgs in example : n = m := by
-  change m = _
-
 example : n + 2 = m := by
   change n + 1 + 1 = _
   guard_target =ₛ n + 1 + 1 = m
@@ -53,7 +41,7 @@ noncomputable example : Nat := by
 def foo (a b c : Nat) := if a < b then c else 0
 
 /-!
-The first `change` fails with `typeclass instance problem is stuck`
+The first `change` would fail with `typeclass instance problem is stuck`
 if there weren't defeq hints in the elaborator (`SyntheticMVarKind.defeqHint`)
 -/
 example : foo 1 2 3 = 3 := by
@@ -80,6 +68,18 @@ example (α : Type) [LT α] (x : α) (h : x < x) : x < id x := by
   change _ < x
   guard_target =ₛ x < x
   exact h
+
+/-!
+basic failure
+-/
+/--
+error: 'change' tactic failed, pattern
+  m = ?_
+is not definitionally equal to target
+  n = m
+-/
+#guard_msgs in example : n = m := by
+  change m = _
 
 /-!
 `change` can create new metavariables and assign them

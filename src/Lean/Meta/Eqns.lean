@@ -199,7 +199,10 @@ private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := w
   -- Test this first as it blocks on the least data
   if !(← shouldGenerateEqnThms declName) then
     return none
-  else if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
+  -- must use `NoAsync` as otherwise we may be able to see the extension state
+  -- from a different thread without the constant being realized on this thread
+  -- yet, and also it would be a hard block
+  else if let some eqs := eqnsExt.getStateNoAsync (← getEnv) |>.map.find? declName then
     return some eqs
   else if let some eqs ← alreadyGenerated? declName then
     return some eqs

@@ -1056,7 +1056,7 @@ where
           addLocalVarInfo view.declId funFVar
         let mut async? := none
         if let (#[view], #[declId]) := (views, expandedDeclIds) then
-          if false && view.kind.isTheorem && typeCheckedPromise?.isSome &&
+          if view.kind.isTheorem && typeCheckedPromise?.isSome &&
               !deprecated.oldSectionVars.get (← getOptions) then
             let env ← getEnv
             let async ← env.addConstAsync declId.declName .thm

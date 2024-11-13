@@ -864,6 +864,9 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
   EnvExtensionInterfaceImp.getState ext env.checked.get.extensions
 
+def getStateNoAsync {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
+  EnvExtensionInterfaceImp.getState ext env.checkedNoAsync.extensions
+
 end EnvExtension
 
 /-- Environment extensions can only be registered during initialization.

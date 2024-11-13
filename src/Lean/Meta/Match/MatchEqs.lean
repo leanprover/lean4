@@ -747,7 +747,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
 /- See header at `MatchEqsExt.lean` -/
 @[export lean_get_match_equations_for]
 def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
-  match matchEqnsExt.getState (← getEnv) |>.map.find? matchDeclName with
+  match matchEqnsExt.getStateNoAsync (← getEnv) |>.map.find? matchDeclName with
   | some matchEqns => return matchEqns
   | none => mkEquationsFor matchDeclName
 

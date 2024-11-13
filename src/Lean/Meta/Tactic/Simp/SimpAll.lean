@@ -43,7 +43,7 @@ private def initEntries : M Unit := do
       let localDecl ← h.getDecl
       let proof  := localDecl.toExpr
       simpThms ← simpThms.addTheorem (.fvar h) proof
-      modify fun s => { s with ctx.simpTheorems := simpThms }
+      modify fun s => { s with ctx := s.ctx.setSimpTheorems simpThms }
       if hsNonDeps.contains h then
         -- We only simplify nondependent hypotheses
         let type ← instantiateMVars localDecl.type
@@ -62,7 +62,7 @@ private partial def loop : M Bool := do
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
-    let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
+    let ctx := ctx.setSimpTheorems simpThmsWithoutEntry
     let (r, stats) ← simpStep (← get).mvarId entry.proof entry.type ctx simprocs (stats := { (← get) with })
     modify fun s => { s with usedTheorems := stats.usedTheorems, diag := stats.diag }
     match r with
@@ -98,7 +98,7 @@ private partial def loop : M Bool := do
         simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew)
         modify fun s => { s with
           modified         := true
-          ctx.simpTheorems := simpThmsNew
+          ctx              := ctx.setSimpTheorems simpThmsNew
           entries[i]       := { entry with type := typeNew, proof := proofNew, id := .other idNew }
         }
   -- simplify target

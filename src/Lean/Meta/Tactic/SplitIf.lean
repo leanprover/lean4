@@ -19,11 +19,10 @@ def getSimpContext : MetaM Simp.Context := do
   s ← s.addConst ``if_neg
   s ← s.addConst ``dif_pos
   s ← s.addConst ``dif_neg
-  return {
-    simpTheorems  := #[s]
-    congrTheorems := (← getSimpCongrTheorems)
-    config        := { Simp.neutralConfig with dsimp := false }
-  }
+  Simp.mkContext
+    (simpTheorems  := #[s])
+    (congrTheorems := (← getSimpCongrTheorems))
+    (config        := { Simp.neutralConfig with dsimp := false })
 
 /--
   Default `discharge?` function for `simpIf` methods.

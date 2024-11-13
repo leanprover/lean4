@@ -52,6 +52,7 @@ abbrev Cache := SExprMap Result
 abbrev CongrCache := ExprMap (Option CongrTheorem)
 
 structure Context where
+  private mk ::
   config           : Config := {}
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
   maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
@@ -102,6 +103,38 @@ structure Context where
   -/
   inDSimp : Bool := false
   deriving Inhabited
+
+/--
+Helper method for bootstrapping purposes.
+It disables `arith` if support theorems have not been defined yet.
+-/
+private def updateArith (c : Config) : CoreM Config := do
+  if c.arith then
+    if (← getEnv).contains ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq then
+      return c
+    else
+      return { c with arith := false }
+  else
+    return c
+
+def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) : MetaM Context := do
+  let config ← updateArith config
+  return { config, simpTheorems, congrTheorems }
+
+def Context.setSimpTheorems (c : Context) (simpTheorems : SimpTheoremsArray) : Context :=
+  { c with simpTheorems }
+
+def Context.setLctxInitIndices (c : Context) : MetaM Context :=
+  return { c with lctxInitIndices := (← getLCtx).numIndices }
+
+def Context.setAutoUnfold (c : Context) : Context :=
+  { c with config.autoUnfold := true }
+
+def Context.setFailIfUnchanged (c : Context) (flag : Bool) : Context :=
+  { c with config.failIfUnchanged := flag }
+
+def Context.setMemoize (c : Context) (flag : Bool) : Context :=
+  { c with config.memoize := flag }
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
@@ -157,6 +190,15 @@ private def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
+
+@[inline] def withIncDischargeDepth : SimpM α → SimpM α :=
+  withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 })
+
+@[inline] def withSimpTheorems (s : SimpTheoremsArray) : SimpM α → SimpM α :=
+  withTheReader Context (fun ctx => { ctx with simpTheorems := s })
+
+@[inline] def withInDSimp : SimpM α → SimpM α :=
+  withTheReader Context (fun ctx => { ctx with inDSimp := true })
 
 @[extern "lean_simp"]
 opaque simp (e : Expr) : SimpM Result

@@ -73,7 +73,10 @@ def getSimpTheorems : CoreM SimpTheorems :=
 def getSEvalTheorems : CoreM SimpTheorems :=
   sevalSimpExtension.getTheorems
 
-def Simp.Context.mkDefault : MetaM Context :=
-  return { config := {}, simpTheorems := #[(← Meta.getSimpTheorems)], congrTheorems := (← Meta.getSimpCongrTheorems) }
+def Simp.Context.mkDefault : MetaM Context := do
+  mkContext
+    (config := {})
+    (simpTheorems := #[(← Meta.getSimpTheorems)])
+    (congrTheorems := (← Meta.getSimpCongrTheorems))
 
 end Lean.Meta

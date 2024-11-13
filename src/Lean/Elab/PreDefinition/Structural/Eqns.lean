@@ -45,7 +45,9 @@ where
       go mvarId
     else if let some mvarId ← simpIf? mvarId then
       go mvarId
-    else match (← simpTargetStar mvarId {} (simprocs := {})).1 with
+    else
+      let ctx ← Simp.mkContext
+      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go mvarId
       | TacticResultCNM.noChange =>

@@ -123,9 +123,8 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     let ctx ← read
     let checkAct ← runAsync do
       try
-        setEnv async.asyncEnv.getChecked.get
+        setEnv async.asyncEnv
         doAdd
-        --dbg_trace (← (← getEnv).dbgFormatAsyncState)
         (← async.checkAndCommitEnv (← getEnv) ctx.options ctx.cancelTk? |>.toBaseIO) |> ofExceptKernelException
       finally
         async.commitFailure

@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_instMonadExceptOfUnitOption___lambda__2___boxed(lean_
 LEAN_EXPORT lean_object* l_Option_getM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toArray(lean_object*);
 static lean_object* l_instMonadOption___closed__2;
-LEAN_EXPORT lean_object* l_Option_toMonad___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfUnitOption___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfUnitOption___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_min___rarg(lean_object*, lean_object*, lean_object*);
@@ -64,7 +63,6 @@ LEAN_EXPORT lean_object* l_Option_or(lean_object*);
 LEAN_EXPORT lean_object* l_instLTOption(lean_object*, lean_object*);
 static lean_object* l_instMonadOption___closed__4;
 LEAN_EXPORT lean_object* l_Option_isEqSome___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_toBool___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Option_instDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_join(lean_object*);
 static lean_object* l_instMonadOption___closed__1;
@@ -82,7 +80,6 @@ LEAN_EXPORT uint8_t l_Option_isSome___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_elimM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_getDM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_elim___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_toMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_get(lean_object*);
 LEAN_EXPORT lean_object* l_Option_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toList___rarg(lean_object*);
@@ -92,11 +89,9 @@ LEAN_EXPORT lean_object* l_Option_instMax___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadOption___closed__3;
-LEAN_EXPORT lean_object* l_Option_toBool(lean_object*);
 LEAN_EXPORT lean_object* l_Option_join___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_sequence___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instAlternativeOption___closed__2;
-LEAN_EXPORT uint8_t l_Option_toBool___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Option_tryCatch(lean_object*);
 static lean_object* l_instMonadExceptOfUnitOption___closed__3;
 LEAN_EXPORT lean_object* l_Option_mapM___rarg___lambda__1(lean_object*, lean_object*);
@@ -141,7 +136,6 @@ static lean_object* l_Option_toArray___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Option_merge___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftOption___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfUnitOption___lambda__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_toMonad___rarg(lean_object*, lean_object*);
 static lean_object* l_instMonadOption___closed__5;
 LEAN_EXPORT lean_object* l_Option_get___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_bindM___rarg___lambda__1(lean_object*, lean_object*);
@@ -328,31 +322,6 @@ x_3 = lean_alloc_closure((void*)(l_Option_getM___rarg), 2, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Option_toMonad___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Option_getM___rarg(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Option_toMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Option_toMonad___rarg), 2, 0);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Option_toMonad___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Option_toMonad(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT uint8_t l_Option_isSome___rarg(lean_object* x_1) {
 _start:
 {
@@ -383,41 +352,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Option_isSome___rarg(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT uint8_t l_Option_toBool___rarg(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
-}
-else
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Option_toBool(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Option_toBool___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Option_toBool___rarg___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Option_toBool___rarg(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;

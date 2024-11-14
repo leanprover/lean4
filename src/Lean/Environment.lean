@@ -551,7 +551,8 @@ structure AddConstAsyncResult where
   mainEnv : Environment
   asyncEnv : Environment
   private sigPromise : IO.Promise ConstantVal
-  private infoPromise : IO.Promise (ConstantInfo × Array EnvExtensionState)
+  private infoPromise : IO.Promise ConstantInfo
+  private extensionsPromise : IO.Promise (Array EnvExtensionState)
   private checkedEnvPromise : IO.Promise EnvironmentBase
 
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (reportExts := true) :
@@ -561,15 +562,16 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
   let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
+  let extensionsPromise ← IO.Promise.new
   let checkedEnvPromise ← IO.Promise.new
   let asyncConst := {
     info := {
       name := constName
       kind
       sig := sigPromise.result
-      info := infoPromise.result.map (sync := true) (·.1)
+      info := infoPromise.result
     }
-    exts? := guard reportExts *> some (infoPromise.result.map (sync := true) (·.2))
+    exts? := guard reportExts *> some extensionsPromise.result
   }
   return {
     constName, kind
@@ -579,7 +581,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
     asyncEnv := { env with
       asyncCtx? := some { declPrefix := privateToUserName constName }
     }
-    sigPromise, infoPromise, checkedEnvPromise
+    sigPromise, infoPromise, extensionsPromise, checkedEnvPromise
   }
 
 def AddConstAsyncResult.commitSignature (res : AddConstAsyncResult) (sig : ConstantVal) :
@@ -605,11 +607,13 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has level params {info.levelParams} but expected {sig.levelParams}"
   if sig.type != info.type then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
-  res.infoPromise.resolve (info, env.checkedNoAsync.extensions)
+  res.infoPromise.resolve info
+  res.extensionsPromise.resolve env.checkedNoAsync.extensions
 
 def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit := do
   res.sigPromise.resolve { name := res.constName, levelParams := [], type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true) }
-  res.infoPromise.resolve (/- TODO -/ default, #[])
+  res.infoPromise.resolve /- TODO -/ default
+  res.extensionsPromise.resolve #[]
   let _ ← BaseIO.mapTask (t := res.asyncEnv.checked) (sync := true) res.checkedEnvPromise.resolve
 
 def AddConstAsyncResult.checkAndCommitEnv (res : AddConstAsyncResult) (env : Environment)
@@ -713,13 +717,22 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
           | _              => throw <| .other s!"Environment.realizeConst: {constName} must be definition/theorem"
         -- must happen before `addDecl` because on the main thread that can block on a use of `constName`
         prom.resolve const
-        let env ← EIO.ofExcept <| addDecl (checkAsyncPrefix := false) (skipExisting := true) env {} decl
+        let async ← env.addConstAsync (reportExts := false) constName kind |>.adaptExcept (·.toString |> .other)
+        async.commitConst async.asyncEnv (some const) |>.adaptExcept (·.toString |> .other)
+        let checkTask ← BaseIO.mapTask (t := env.checked) fun _ => EIO.catchExceptions (h := fun e =>
+          panic! s!"realizeConst {constName} failed"
+        ) do
+          try
+            let env ← EIO.ofExcept <| addDecl (checkAsyncPrefix := false) (skipExisting := true) async.asyncEnv {} decl
+            async.checkAndCommitEnv env {} |>.adaptExcept (·.toString |> .other)  -- TODO: options cancelTk?
+          finally
+            async.commitFailure
         if const.name != constName then
           throw <| .other s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
         let kind' := .ofConstantInfo const
         if kind != kind' then
           throw <| .other s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
-        return env)
+        return async.mainEnv)
 
 end Environment
 

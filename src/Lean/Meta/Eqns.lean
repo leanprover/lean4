@@ -165,7 +165,7 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
 Returns `some declName` if `thmName` is an equational theorem for `declName`.
 -/
 def isEqnThm? (thmName : Name) : CoreM (Option Name) := do
-  return eqnsExt.getState (← getEnv) |>.mapInv.find? thmName
+  return eqnsExt.getStateNoAsync (← getEnv) |>.mapInv.find? thmName
 
 /--
 Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`

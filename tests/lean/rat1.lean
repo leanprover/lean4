@@ -1,4 +1,5 @@
-import Lean.Data.Rat
+import Std.Internal.Rat
+open Std.Internal
 open Lean
 
 #eval (15 : Rat) / 10

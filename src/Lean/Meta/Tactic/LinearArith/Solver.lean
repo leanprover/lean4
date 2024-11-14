@@ -6,9 +6,10 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Ord
 import Init.Data.Array.DecidableEq
-import Lean.Data.Rat
+import Std.Internal.Rat
 
 namespace Lean.Meta.Linear
+open Std.Internal
 
 structure Var where
   id : Nat

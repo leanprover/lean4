@@ -29,5 +29,4 @@ import Lean.Data.Xml
 import Lean.Data.NameTrie
 import Lean.Data.RBTree
 import Lean.Data.RBMap
-import Lean.Data.Rat
 import Lean.Data.RArray

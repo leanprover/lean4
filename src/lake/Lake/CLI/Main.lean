@@ -515,7 +515,7 @@ protected def translateConfig : CliM PUnit := do
   if outFile?.isNone then
     IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
-def ReservoirConfig.currentSchemaVersion : StdVer := v!"1.0.0"
+def ReservoirConfig.currentSchemaVersion : StdVer := {major := 1}
 
 structure ReservoirConfig where
   name : String

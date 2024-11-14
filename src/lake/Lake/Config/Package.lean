@@ -275,7 +275,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Packages without a defined version default to `0.0.0`.
   -/
-  version : StdVer := v!"0.0.0"
+  version : StdVer := {}
 
   /--
   Git tags of this package's repository that should be treated as versions.

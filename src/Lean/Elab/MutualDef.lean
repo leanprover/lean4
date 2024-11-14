@@ -221,7 +221,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
           tacStx?
           tacSnap? := newTacTask?
           bodyStx := view.value
-          bodySnap := mkBodyTask view.value bodyPromise
+          bodySnap := mkBodyTask view.value bodyPromise newTacTask?.isSome
         }
         newHeader := { newHeader with
           -- We should only forward the promise if we are actually waiting on the
@@ -244,10 +244,15 @@ where
     return body
 
   /-- Creates snapshot task with appropriate range from body syntax and promise. -/
-  mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :
+  mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) (incrTacs : Bool) :
       Language.SnapshotTask (Option BodyProcessedSnapshot) :=
     let rangeStx := getBodyTerm? body |>.getD body
-    { range? := rangeStx.getRange?, task := new.result }
+    -- Only use last line of body as range when we have incremental tactics as otherwise we would
+    -- cover their progress
+    let range? := if incrTacs then
+      rangeStx.getTailPos?.map fun pos => ⟨pos, pos⟩
+    else rangeStx.getRange?
+    { range?, task := new.result }
 
   /--
   If `body` allows for incremental tactic reporting and reuse, creates a snapshot task out of the

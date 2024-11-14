@@ -308,21 +308,17 @@ def acNormalizePass : Pass where
 
     return newGoal
 
-/--
-The normalization passes used by `bv_normalize` and thus `bv_decide`.
--/
-def defaultPipeline (cfg : BVDecideConfig ): List Pass :=
-  [
-    rewriteRulesPass cfg.maxSteps,
-    andFlatteningPass,
-    embeddedConstraintPass cfg.maxSteps
-  ]
-
 def passPipeline (cfg : BVDecideConfig) : List Pass := Id.run do
-  let mut passPipeline := defaultPipeline cfg
+  let mut passPipeline := [rewriteRulesPass cfg.maxSteps]
 
   if cfg.acNf then
     passPipeline := passPipeline ++ [acNormalizePass]
+
+  if cfg.andFlattening then
+    passPipeline := passPipeline ++ [andFlatteningPass]
+
+  if cfg.embeddedConstraintSubst then
+    passPipeline := passPipeline ++ [embeddedConstraintPass cfg.maxSteps]
 
   return passPipeline
 

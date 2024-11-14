@@ -173,7 +173,8 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
     | some type => return type
     | none =>
       let type ← inferType
-      modifyInferTypeCache fun c => c.insert key type
+      unless type.hasMVar do
+        modifyInferTypeCache fun c => c.insert key type
       return type
 
 @[export lean_infer_type]

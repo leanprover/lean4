@@ -121,6 +121,9 @@ def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (
   let config ← updateArith config
   return { config, simpTheorems, congrTheorems }
 
+def Context.setConfig (context : Context) (config : Config) : Context :=
+  { context with config }
+
 def Context.setSimpTheorems (c : Context) (simpTheorems : SimpTheoremsArray) : Context :=
   { c with simpTheorems }
 

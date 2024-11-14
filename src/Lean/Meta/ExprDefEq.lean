@@ -2109,7 +2109,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
-    withConfig (fun _ => { proj := .yesWithDeltaI }) <| whnfCore e
+    withConfig (fun ctx => { ctx with proj := .yesWithDeltaI }) <| whnfCore e
   else
     whnfCore e
 

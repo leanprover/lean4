@@ -397,6 +397,10 @@ static optional<pipe> setup_stdio(stdio cfg) {
     lean_unreachable();
 }
 
+#ifdef __APPLE__
+extern "C" char **environ;
+#endif
+
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
   stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
   bool inherit_env, bool do_setsid) {
@@ -409,7 +413,11 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     if (pid == 0) {
         if (!inherit_env) {
-          clearenv();
+#ifdef __APPLE__
+            environ = NULL;
+#else
+            clearenv();
+#endif
         }
         for (auto & entry : env) {
             if (entry.snd()) {

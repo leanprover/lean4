@@ -24,6 +24,8 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (s
        value, hints := ReducibilityHints.opaque,
        safety
     }
+    withTraceNode `Elab.block (fun _ => pure "") do
+      modifyEnv (·.synchronize)
     addAndCompile decl
     evalConst α name
 

@@ -46,7 +46,7 @@ def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : 
   modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
-  return declRangeExt.find? (← getEnv) declName
+  return declRangeExt.find? (allowAsync := true) (← getEnv) declName
 
 def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv

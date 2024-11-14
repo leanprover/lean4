@@ -1099,8 +1099,8 @@ where
               for preDef in preDefs do
                 trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
               addPreDefinitions preDefs
-              --if let some async := async? then
-              --  async.commitConst (← getEnv)
+              if let some async := async? then
+                async.commitConst (← getEnv)
           finally
             valPromise.resolve (Expr.const `failedAsyncElab [])
         let checkAndCompile := try

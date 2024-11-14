@@ -29,7 +29,7 @@ where
 def RArray.ofArray (xs : Array α) (h : 0 < xs.size) : RArray α :=
   .ofFn (fun i => xs.get i) h
 
-/-- The correctness theorem of `ofFn` -/
+/-- The correctness theorem for `ofFn` -/
 theorem RArray.get_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) (i : Fin n) :
     (ofFn f h).get i = f i :=
   go 0 n h (Nat.le_refl _) (Nat.zero_le _) i.2
@@ -55,9 +55,7 @@ where
   go lb ub h1 h2 : (ofFn.go f lb ub h1 h2).size = ub - lb := by
     induction lb, ub, h1, h2 using RArray.ofFn.go.induct (f := f) (n := n)
     case case1 => simp [ofFn.go, size]; omega
-    case case2 ih1 ih2 hiu =>
-      rw [ofFn.go]; simp only [↓reduceDIte, *]
-      simp [size, *]; omega
+    case case2 ih1 ih2 hiu => rw [ofFn.go]; simp [size, *]; omega
 
 section Meta
 open Lean
@@ -66,11 +64,11 @@ def RArray.toExpr (ty : Expr) (f : α → Expr) : RArray α → Expr
   | .leaf x  =>
     mkApp2 (mkConst ``RArray.leaf) ty (f x)
   | .branch p l r =>
-    mkApp4 (mkConst ``RArray.branch) ty (.lit (.natVal p)) (l.toExpr ty f) (r.toExpr ty f)
+    mkApp4 (mkConst ``RArray.branch) ty (mkRawNatLit p) (l.toExpr ty f) (r.toExpr ty f)
 
 instance [ToExpr α] : ToExpr (RArray α) where
-  toExpr a := a.toExpr (toTypeExpr α) (toExpr ·)
   toTypeExpr := mkApp (mkConst ``RArray) (toTypeExpr α)
+  toExpr a := a.toExpr (toTypeExpr α) toExpr
 
 end Meta
 

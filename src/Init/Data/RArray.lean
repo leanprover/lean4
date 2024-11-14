@@ -10,13 +10,20 @@ import Init.PropLemmas
 namespace Lean
 
 /--
-A data structure equivalent to `Fin n → α` or `Array α`, optimized for a fast kernel-reduction `get`
+A `RArray` can model `Fin n → α` or `Array α`, but is optimized for a fast kernel-reducible `get`
 operation.
 
 The primary intended use case is the “denote” function of a typical proof by reflection proof, where
 only the `get` operation is necessary. It is not suitable as a general-purpose data structure.
 
-For now not universe-polymorphic; smaller proof objects and no complication with the `ToExpr` type
+There is no well-formedness invariant attached to this data structure, to keep it concise; it's
+semantics is given through `RArray.get`. In that way one can also view an `RArray` as a decision
+tree implementing `Nat → α`.
+
+See `RArray.ofFn` and `RArray.ofArray` in module `Lean.Data.RArray` for functions that construct an
+`RArray`.
+
+It is not universe-polymorphic. ; smaller proof objects and no complication with the `ToExpr` type
 class.
 -/
 inductive RArray (α : Type) : Type where
@@ -36,7 +43,7 @@ private theorem RArray.get_eq_def (a : RArray α) (n : Nat) :
   conv => lhs; unfold RArray.get
   split <;> rfl
 
-/-- `RArray.get`, implemented conventially -/
+/-- `RArray.get`, implemented conventionally -/
 def RArray.getImpl (a : RArray α) (n : Nat) : α :=
   match a with
   | .leaf x => x

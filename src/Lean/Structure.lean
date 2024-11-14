@@ -122,7 +122,7 @@ def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name
 def getStructureInfo? (env : Environment) (structName : Name) : Option StructureInfo :=
   match env.getModuleIdxFor? structName with
   | some modIdx => structureExt.getModuleEntries env modIdx |>.binSearch { structName } StructureInfo.lt
-  | none        => structureExt.getState env |>.snd.map.find? structName
+  | none        => structureExt.getState (allowAsync := true) env |>.snd.map.find? structName
 
 /--
 Gets the `StructureInfo` for `structName`, which is assumed to have been declared as a structure to the elaborator.

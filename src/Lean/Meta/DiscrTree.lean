@@ -202,7 +202,7 @@ instance : Inhabited (DiscrTree α) where
 -/
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
-    let info := infos.get ⟨i, h⟩
+    let info := infos[i]
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
@@ -426,7 +426,7 @@ partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (conf
   if todo.isEmpty then
     return keys
   else
-    let e    := todo.back
+    let e    := todo.back!
     let todo := todo.pop
     let (k, todo) ← pushArgs root todo e config noIndexAtArgs
     mkPathAux false todo (keys.push k) config noIndexAtArgs
@@ -442,7 +442,7 @@ def mkPath (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM
 
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
-    let k := keys.get ⟨i, h⟩
+    let k := keys[i]
     let c := createNodes keys v (i+1)
     .node #[] #[(k, c)]
   else
@@ -460,7 +460,7 @@ where
   loop (i : Nat) : Array α :=
     if h : i < vs.size then
       if v == vs[i] then
-        vs.set ⟨i,h⟩ v
+        vs.set i v
       else
         loop (i+1)
     else
@@ -470,7 +470,7 @@ where
 private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
   | i, .node vs cs =>
     if h : i < keys.size then
-      let k := keys.get ⟨i, h⟩
+      let k := keys[i]
       let c := Id.run $ cs.binInsertM
           (fun a b => a.1 < b.1)
           (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
@@ -553,8 +553,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
     if isMatch then
       return (.other, #[])
     else do
-      let ctx ← read
-      if ctx.config.isDefEqStuckEx then
+      let cfg ← getConfig
+      if cfg.isDefEqStuckEx then
         /-
           When the configuration flag `isDefEqStuckEx` is set to true,
           we want `isDefEq` to throw an exception whenever it tries to assign
@@ -603,7 +603,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
     else if cs.isEmpty then
       return result
     else
-      let e     := todo.back
+      let e     := todo.back!
       let todo  := todo.pop
       let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
       let (k, args) ← getMatchKeyArgs e (root := false) config
@@ -748,7 +748,7 @@ where
       else if cs.isEmpty then
         return result
       else
-        let e     := todo.back
+        let e     := todo.back!
         let todo  := todo.pop
         let (k, args) ← getUnifyKeyArgs e (root := false) config
         let visitStar (result : Array α) : MetaM (Array α) :=
@@ -766,9 +766,6 @@ where
         | _      => visitNonStar k args (← visitStar result)
 
 namespace Trie
-
--- `Inhabited` instance to allow `partial` definitions below.
-private local instance [Monad m] : Inhabited (σ → β → m σ) := ⟨fun s _ => pure s⟩
 
 /--
 Monadically fold the keys and values stored in a `Trie`.

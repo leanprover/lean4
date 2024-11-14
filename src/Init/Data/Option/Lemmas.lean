@@ -36,11 +36,6 @@ theorem get_of_mem : ∀ {o : Option α} (h : isSome o), a ∈ o → o.get h = a
 
 theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
 
-@[simp] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
-| some _, _ => rfl
-
-@[simp] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
-
 theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.getD y) = x := by
   cases x; {contradiction}; rw [getD_some]
 
@@ -73,18 +68,10 @@ theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a 
 theorem eq_none_iff_forall_not_mem : o = none ↔ ∀ a, a ∉ o :=
   ⟨fun e a h => by rw [e] at h; (cases h), fun h => ext <| by simp; exact h⟩
 
-@[simp] theorem isSome_none : @isSome α none = false := rfl
-
-@[simp] theorem isSome_some : isSome (some a) = true := rfl
-
 theorem isSome_iff_exists : isSome x ↔ ∃ a, x = some a := by cases x <;> simp [isSome]
 
 theorem isSome_eq_isSome : (isSome x = isSome y) ↔ (x = none ↔ y = none) := by
   cases x <;> cases y <;> simp
-
-@[simp] theorem isNone_none : @isNone α none = true := rfl
-
-@[simp] theorem isNone_some : isNone (some a) = false := rfl
 
 @[simp] theorem not_isSome : isSome a = false ↔ a.isNone = true := by
   cases a <;> simp
@@ -374,8 +361,14 @@ end choice
 
 -- See `Init.Data.Option.List` for lemmas about `toList`.
 
-@[simp] theorem or_some : (some a).or o = some a := rfl
+@[simp] theorem some_or : (some a).or o = some a := rfl
 @[simp] theorem none_or : none.or o = o := rfl
+
+@[deprecated some_or (since := "2024-11-03")] theorem or_some : (some a).or o = some a := rfl
+
+/-- This will be renamed to `or_some` once the existing deprecated lemma is removed. -/
+@[simp] theorem or_some' {o : Option α} : o.or (some a) = o.getD a := by
+  cases o <;> rfl
 
 theorem or_eq_bif : or o o' = bif o.isSome then o else o' := by
   cases o <;> rfl

@@ -54,8 +54,13 @@ theorem shiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : B
     lhs >>> rhs = lhs' >>> rhs' := by
   simp[*]
 
-theorem arithShiftRight_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
+theorem arithShiftRightNat_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.sshiftRight x' n = BitVec.sshiftRight x n := by
+  simp[*]
+
+theorem arithShiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : BitVec m)
+    (rhs' : BitVec n) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    BitVec.sshiftRight' lhs rhs = BitVec.sshiftRight' lhs' rhs' := by
   simp[*]
 
 theorem add_congr (w : Nat) (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
@@ -118,9 +123,13 @@ theorem umod_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' =
     (lhs' % rhs') = (lhs % rhs) := by
   simp[*]
 
-theorem sdiv_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (BitVec.sdiv lhs' rhs') = (BitVec.sdiv lhs rhs) := by
-  simp[*]
+theorem if_true (discr : Bool) (lhs rhs : BitVec w) :
+    decide ((discr == true) = true → ((if discr = true then lhs else rhs) == lhs) = true) = true := by
+  cases discr <;> simp
+
+theorem if_false (discr : Bool) (lhs rhs : BitVec w) :
+    decide ((discr == false) = true → ((if discr = true then lhs else rhs) == rhs) = true) = true := by
+  cases discr <;> simp
 
 end BitVec
 
@@ -141,8 +150,20 @@ theorem beq_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs)
     (lhs' == rhs') = (lhs == rhs) := by
   simp[*]
 
+theorem imp_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (decide (lhs' → rhs')) = (decide (lhs → rhs)) := by
+  simp[*]
+
+theorem ite_congr (discr lhs rhs discr' lhs' rhs' : Bool) (h1 : discr' = discr) (h2 : lhs' = lhs)
+    (h3 : rhs' = rhs) :
+    (if discr' = true then lhs' else rhs') = (if discr = true then lhs else rhs) := by
+  simp[*]
+
 theorem false_of_eq_true_of_eq_false (h₁ : x = true) (h₂ : x = false) : False := by
   cases h₁; cases h₂
+
+theorem lemma_congr (x x' : Bool) (h1 : x' = x) (h2 : x = true) : x' = true := by
+  simp[*]
 
 end Bool
 

@@ -219,10 +219,13 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
             throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
-    | .coe header expectedType e f? =>
+    | .coe header expectedType e f? mkErrorMsg? =>
       mvarId.withContext do
-        throwTypeMismatchError header expectedType (← inferType e) e f?
-          m!"failed to create type class instance for{indentExpr (← getMVarDecl mvarId).type}"
+        if let some mkErrorMsg := mkErrorMsg? then
+          throwError (← mkErrorMsg mvarId expectedType e)
+        else
+          throwTypeMismatchError header expectedType (← inferType e) e f?
+            m!"failed to create type class instance for{indentExpr (← getMVarDecl mvarId).type}"
     | _ => unreachable! -- TODO handle other cases.
 
 /--
@@ -386,7 +389,7 @@ mutual
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
     | .typeClass extraErrorMsg? => synthesizePendingInstMVar mvarId extraErrorMsg?
-    | .coe _header? expectedType e _f? => mvarId.withContext do
+    | .coe _header? expectedType e _f? _ => mvarId.withContext do
       if (← withDefault do isDefEq (← inferType e) expectedType) then
         -- Types may be defeq now due to mvar assignments, type class
         -- defaulting, etc.

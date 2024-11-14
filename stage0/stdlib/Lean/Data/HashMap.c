@@ -2648,7 +2648,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_HashMap_find_x21___rarg___closed__1;
 x_2 = l_Lean_HashMap_find_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(223u);
+x_3 = lean_unsigned_to_nat(222u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_HashMap_find_x21___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

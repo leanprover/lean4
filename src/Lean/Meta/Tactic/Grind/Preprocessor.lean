@@ -38,11 +38,10 @@ abbrev PreM := ReaderT Context $ StateRefT State GrindM
 def PreM.run (x : PreM α) : GrindM α := do
   let thms ← grindNormExt.getTheorems
   let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
-  let simp : Simp.Context := {
-    config := { arith := true }
-    simpTheorems := #[thms]
-    congrTheorems := (← getSimpCongrTheorems)
-  }
+  let simp ← Simp.mkContext
+    (config := { arith := true })
+    (simpTheorems := #[thms])
+    (congrTheorems := (← getSimpCongrTheorems))
   x { simp, simprocs } |>.run' {}
 
 def simp (_goal : Goal) (e : Expr) : PreM Simp.Result := do

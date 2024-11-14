@@ -863,14 +863,30 @@ theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α�
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
   induction l generalizing init <;> simp [*]
 
-theorem foldl_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : List α) (init : γ) :
+    (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filterMap_cons, foldl_cons]
+    cases f a <;> simp [ih]
+
+theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : List α) (init : γ) :
+    (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filterMap_cons, foldr_cons]
+    cases f a <;> simp [ih]
+
+theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldl f' (g a) = g (l.foldl f a) := by
   induction l generalizing a
   · simp
   · simp [*, h]
 
-theorem foldr_map' {α β : Type u} (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
   induction l generalizing a
@@ -983,6 +999,21 @@ theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → 
     · simp
     · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
 
+@[simp] theorem foldl_add_const (l : List α) (a b : Nat) :
+    l.foldl (fun x _ => x + a) b = b + a * l.length := by
+  induction l generalizing b with
+  | nil => simp
+  | cons y l ih =>
+    simp only [foldl_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
+      Nat.add_comm a]
+
+@[simp] theorem foldr_add_const (l : List α) (a b : Nat) :
+    l.foldr (fun _ x => x + a) b = b + a * l.length := by
+  induction l generalizing b with
+  | nil => simp
+  | cons y l ih =>
+    simp only [foldr_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc]
+
 /-! ### getLast -/
 
 theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),
@@ -1014,7 +1045,7 @@ theorem getLast_eq_getLastD (a l h) : @getLast α (a::l) h = getLastD l a := by
 
 @[simp] theorem getLast_singleton (a h) : @getLast α [a] h = a := rfl
 
-theorem getLast!_cons [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
+theorem getLast!_cons_eq_getLastD [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
 
 @[simp] theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
@@ -1078,7 +1109,12 @@ theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
 
 /-! ### getLast! -/
 
-@[simp] theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
+theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
+
+@[simp] theorem getLast!_eq_getLast?_getD [Inhabited α] {l : List α} : getLast! l = (getLast? l).getD default := by
+  cases l with
+  | nil => simp [getLast!_nil]
+  | cons _ _ => simp [getLast!, getLast?_eq_getLast]
 
 theorem getLast!_of_getLast? [Inhabited α] : ∀ {l : List α}, getLast? l = some a → getLast! l = a
   | _ :: _, rfl => rfl
@@ -1456,6 +1492,22 @@ theorem forall_mem_filter {l : List α} {p : α → Bool} {P : α → Prop} :
 @[simp] theorem filter_filter (q) : ∀ l, filter p (filter q l) = filter (fun a => p a && q a) l
   | [] => rfl
   | a :: l => by by_cases hp : p a <;> by_cases hq : q a <;> simp [hp, hq, filter_filter _ l]
+
+theorem foldl_filter (p : α → Bool) (f : β → α → β) (l : List α) (init : β) :
+    (l.filter p).foldl f init = l.foldl (fun x y => if p y then f x y else x) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filter_cons, foldl_cons]
+    split <;> simp [ih]
+
+theorem foldr_filter (p : α → Bool) (f : α → β → β) (l : List α) (init : β) :
+    (l.filter p).foldr f init = l.foldr (fun x y => if p x then f x y else y) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filter_cons, foldr_cons]
+    split <;> simp [ih]
 
 theorem filter_map (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
   induction l with
@@ -2700,6 +2752,12 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
   (foldl_reverse ..).symm.trans <| by simp
 
+theorem foldl_eq_foldr_reverse (l : List α) (f : β → α → β) (b) :
+    l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp
+
+theorem foldr_eq_foldl_reverse (l : List α) (f : α → β → β) (b) :
+    l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
+
 @[simp] theorem reverse_replicate (n) (a : α) : reverse (replicate n a) = replicate n a :=
   eq_replicate_iff.2
     ⟨by rw [length_reverse, length_replicate],
@@ -2842,6 +2900,10 @@ theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.a
 theorem contains_iff_exists_mem_beq [BEq α] {l : List α} {a : α} :
     l.contains a ↔ ∃ a' ∈ l, a == a' := by
   induction l <;> simp_all
+
+theorem contains_iff_mem [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    l.contains a ↔ a ∈ l := by
+  simp
 
 /-! ## Sublists -/
 
@@ -3328,7 +3390,7 @@ theorem all_eq_not_any_not (l : List α) (p : α → Bool) : l.all p = !l.any (!
 
 @[simp] theorem all_replicate {n : Nat} {a : α} :
     (replicate n a).all f = if n = 0 then true else f a := by
-  cases n <;> simp (config := {contextual := true}) [replicate_succ]
+  cases n <;> simp +contextual [replicate_succ]
 
 @[simp] theorem any_insert [BEq α] [LawfulBEq α] {l : List α} {a : α} :
     (l.insert a).any f = (f a || l.any f) := by

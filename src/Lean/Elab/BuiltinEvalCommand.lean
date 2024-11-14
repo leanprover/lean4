@@ -136,8 +136,8 @@ private def mkFormat (e : Expr) : MetaM Expr := do
     if eval.derive.repr.get (← getOptions) then
       if let .const name _ := (← whnf (← inferType e)).getAppFn then
         try
-          trace[Elab.eval] "Attempting to derive a 'Repr' instance for '{MessageData.ofConstName name}'"
-          liftCommandElabM do applyDerivingHandlers ``Repr #[name] none
+          trace[Elab.eval] "Attempting to derive a 'Repr' instance for '{.ofConstName name}'"
+          liftCommandElabM do applyDerivingHandlers ``Repr #[name]
           resetSynthInstanceCache
           return ← mkRepr e
         catch ex =>
@@ -201,9 +201,9 @@ unsafe def elabEvalCoreUnsafe (bang : Bool) (tk term : Syntax) (expectedType? : 
           discard <| withLocalDeclD `x ty fun x => mkT x
         catch _ =>
           throw ex
-        throwError m!"unable to synthesize '{MessageData.ofConstName ``MonadEval}' instance \
+        throwError m!"unable to synthesize '{.ofConstName ``MonadEval}' instance \
           to adapt{indentExpr (← inferType e)}\n\
-          to '{MessageData.ofConstName ``IO}' or '{MessageData.ofConstName ``CommandElabM}'."
+          to '{.ofConstName ``IO}' or '{.ofConstName ``CommandElabM}'."
       addAndCompileExprForEval declName r (allowSorry := bang)
       -- `evalConst` may emit IO, but this is collected by `withIsolatedStreams` below.
       let r ← toMessageData <$> evalConst t declName

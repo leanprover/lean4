@@ -184,7 +184,7 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
-    let major := recArgs.get ⟨majorIdx, h⟩
+    let major := recArgs[majorIdx]
     let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
       -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
       -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
@@ -226,7 +226,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
 private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let process (majorPos argPos : Nat) : MetaM α :=
     if h : majorPos < recArgs.size then do
-      let major := recArgs.get ⟨majorPos, h⟩
+      let major := recArgs[majorPos]
       let major ← whnf major
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
@@ -255,7 +255,7 @@ mutual
     else do
       let majorIdx := recVal.getMajorIdx
       if h : majorIdx < recArgs.size then do
-        let major := recArgs.get ⟨majorIdx, h⟩
+        let major := recArgs[majorIdx]
         let major ← whnf major
         getStuckMVar? major
       else
@@ -264,7 +264,7 @@ mutual
   private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     let process? (majorPos : Nat) : MetaM (Option MVarId) :=
       if h : majorPos < recArgs.size then do
-        let major := recArgs.get ⟨majorPos, h⟩
+        let major := recArgs[majorPos]
         let major ← whnf major
         getStuckMVar? major
       else
@@ -529,7 +529,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
      TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
   if (← getTransparency) matches .instances | .reducible then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
-    withTransparency .instances <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+    withTransparency .instances <| withCanUnfoldPred canUnfoldAtMatcher do
       whnf e
   else
     -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
@@ -832,8 +832,8 @@ mutual
             unfoldDefault ()
     | .const declName lvls => do
       let some cinfo ← getUnfoldableConstNoEx? declName | pure none
-      -- check smart unfolding only after `getUnfoldableConstNoEx?` because `Environment.contains`
-      -- misses are more costly
+      -- check smart unfolding only after `getUnfoldableConstNoEx?` because smart unfoldings have a
+      -- significant chance of not existing and `Environment.contains` misses are more costly
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else

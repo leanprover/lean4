@@ -125,21 +125,28 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
     if proofSize > diagnostics.threshold.proofSize.get (← getOptions) then
       let sizeMsg := MessageData.trace { cls := `size } m!"{proofSize}" #[]
       let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
-      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {numOccs}" #[]
+      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{.ofConstName declName} ↦ {numOccs}" #[]
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
+    let mkDefDecl : TermElabM Declaration :=
+      return Declaration.defnDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+          all }
+    let mkThmDecl : TermElabM Declaration := do
+      let d := {
+        name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
+      }
+      reportTheoremDiag d
+      return Declaration.thmDecl d
     let decl ←
       match preDef.kind with
-      | DefKind.«theorem» =>
-        let d := {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
-        }
-        reportTheoremDiag d
-        pure <| Declaration.thmDecl d
+      | DefKind.«theorem» => mkThmDecl
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -151,12 +158,8 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
           hints := ReducibilityHints.«abbrev»
           safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
           all }
-      | _ => -- definitions and examples
-        pure <| Declaration.defnDecl {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
-          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
-          all }
+      | DefKind.def | DefKind.example => mkDefDecl
+      | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)

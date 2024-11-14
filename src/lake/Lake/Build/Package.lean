@@ -19,7 +19,10 @@ open Lean (Name)
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
-  (·.toArray) <$> self.deps.foldlM (init := OrdPackageSet.empty) fun deps dep => do
+  (·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
+    let some dep ← findPackage? cfg.name
+      | error s!"{self.name}: package not found for dependency '{cfg.name}' \
+        (this is likely a bug in Lake)"
     return (← fetch <| dep.facet `deps).foldl (·.insert ·) deps |>.insert dep
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/

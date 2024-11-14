@@ -71,7 +71,7 @@ protected def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := 
 
 /-- Throw an unknown constant error message. -/
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
-  Lean.throwError m!"unknown constant '{mkConst constName}'"
+  Lean.throwError m!"unknown constant '{.ofConstName constName}'"
 
 /-- Throw an error exception using the given message data and reference syntax. -/
 protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
@@ -81,10 +81,10 @@ protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : Messag
 Convert an `Except` into a `m` monadic action, where `m` is any monad that
 implements `MonadError`.
 -/
-def ofExcept [Monad m] [MonadError m] [ToString ε] (x : Except ε α) : m α :=
+def ofExcept [Monad m] [MonadError m] [ToMessageData ε] (x : Except ε α) : m α :=
   match x with
   | .ok a    => return a
-  | .error e => Lean.throwError <| toString e
+  | .error e => Lean.throwError <| toMessageData e
 
 /--
 Throw an error exception for the given kernel exception.

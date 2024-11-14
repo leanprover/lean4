@@ -357,7 +357,7 @@ theorem testBit_two_pow_of_ne {n m : Nat} (hm : n ≠ m) : testBit (2 ^ n) m = f
   | zero => simp
   | succ n =>
     rw [mod_eq_of_lt (a := 1) (Nat.one_lt_two_pow (by omega)), mod_two_eq_one_iff_testBit_zero, testBit_two_pow_sub_one ]
-    simp only [zero_lt_succ, decide_True]
+    simp only [zero_lt_succ, decide_true]
 
 @[simp] theorem mod_two_pos_mod_two_eq_one : x % 2 ^ j % 2 = 1 ↔ (0 < j) ∧ x % 2 = 1 := by
   rw [mod_two_eq_one_iff_testBit_zero, testBit_mod_two_pow]

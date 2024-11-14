@@ -22,6 +22,14 @@ open Lean.Parser.Term
 
 open Language
 
+builtin_initialize
+  registerTraceClass `Meta.instantiateMVars
+
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
+    instantiateMVars e
+
 /-- `DefView` plus header elaboration data and snapshot. -/
 structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
   /--
@@ -69,7 +77,7 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   if newHeader.modifiers.isPartial && newHeader.modifiers.isUnsafe then
     throwError "'unsafe' subsumes 'partial'"
   if h : 0 < prevHeaders.size then
-    let firstHeader := prevHeaders.get ⟨0, h⟩
+    let firstHeader := prevHeaders[0]
     try
       unless newHeader.levelNames == firstHeader.levelNames do
         throwError "universe parameters mismatch"
@@ -116,7 +124,7 @@ See issues #1389 and #875
 private def cleanupOfNat (type : Expr) : MetaM Expr := do
   Meta.transform type fun e => do
     if !e.isAppOfArity ``OfNat 2 then return .continue
-    let arg ← instantiateMVars e.appArg!
+    let arg ← instantiateMVarsProfiling e.appArg!
     if !arg.isAppOfArity ``OfNat.ofNat 3 then return .continue
     let argArgs := arg.getAppArgs
     if !argArgs[0]!.isConstOf ``Nat then return .continue
@@ -189,7 +197,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             -- TODO: add forbidden predicate using `shortDeclName` from `views`
             let xs ← addAutoBoundImplicits xs
             type ← mkForallFVars' xs type
-            type ← instantiateMVars type
+            type ← instantiateMVarsProfiling type
             let levelNames ← getLevelNames
             if view.type?.isSome then
               let pendingMVarIds ← getMVars type
@@ -263,7 +271,7 @@ where
 private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) := do
     if h : i < headers.size then
-      let header := headers.get ⟨i, h⟩
+      let header := headers[i]
       if header.modifiers.isNonrec then
         loop (i+1) fvars
       else
@@ -326,10 +334,6 @@ private def declValToTerminationHint (declVal : Syntax) : TermElabM TerminationH
     elabTerminationHints ⟨declVal[0][1]⟩
   else
     return .none
-
-def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
-    instantiateMVars e
 
 /--
 Runs `k` with a restricted local context where only section variables from `vars` are included that
@@ -489,7 +493,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           -- Store instantiated body in info tree for the benefit of the unused variables linter
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again
-          withInfoContext' valStx (mkInfo := mkTermInfo `MutualDef.body valStx) do
+          withInfoContext' valStx (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·)) do
             -- synthesize mvars here to force the top-level tactic block (if any) to run
             let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
             -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
@@ -550,11 +554,11 @@ private def isTheorem (views : Array DefView) : Bool :=
   views.any (·.kind.isTheorem)
 
 private def instantiateMVarsAtHeader (header : DefViewElabHeader) : TermElabM DefViewElabHeader := do
-  let type ← instantiateMVars header.type
+  let type ← instantiateMVarsProfiling header.type
   pure { header with type := type }
 
 private def instantiateMVarsAtLetRecToLift (toLift : LetRecToLift) : TermElabM LetRecToLift := do
-  let type ← instantiateMVars toLift.type
+  let type ← instantiateMVarsProfiling toLift.type
   let val ← instantiateMVarsProfiling toLift.val
   pure { toLift with type, val }
 
@@ -939,7 +943,7 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
   letRecClosures.foldlM (init := preDefs) fun preDefs c => do
     let type  := Closure.mkForall c.localDecls c.toLift.type
     let value := Closure.mkLambda c.localDecls c.toLift.val
-    let kind ← if kind.isDefOrAbbrevOrOpaque then
+    let kind ← if kind matches .def | .instance | .opaque | .abbrev then
       -- Convert any proof let recs inside a `def` to `theorem` kind
       withLCtx c.toLift.lctx c.toLift.localInstances do
         return if (← inferType c.toLift.type).isProp then .theorem else kind
@@ -987,7 +991,7 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
       Meta.check toLift.type
       Meta.check toLift.val
-      return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVars toLift.type) }
+      return { toLift with val := (← instantiateMVarsProfiling toLift.val), type := (← instantiateMVarsProfiling toLift.type) }
     let letRecClosures ← mkLetRecClosures sectionVars mainFVarIds recFVarIds letRecsToLift
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
     let mainVals    ← mainVals.mapM (instantiateMVarsProfiling ·)
@@ -1008,7 +1012,7 @@ end MutualClosure
 private def getAllUserLevelNames (headers : Array DefViewElabHeader) : List Name :=
   if h : 0 < headers.size then
     -- Recall that all top-level functions must have the same levels. See `check` method above
-    (headers.get ⟨0, h⟩).levelNames
+    headers[0].levelNames
   else
     []
 
@@ -1025,7 +1029,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
         newHeaders := newHeaders.push header
     return newHeaders
   let newHeaders ← (process).run' 1
-  newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
+  newHeaders.mapM fun header => return { header with type := (← instantiateMVarsProfiling header.type) }
 
 -- TODO: task helper that should be moved up or possibly integrated into `BaseIO.asTask`
 @[noinline]

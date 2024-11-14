@@ -38,7 +38,7 @@ theorem toListModel_mkArray_nil {c} :
 @[simp]
 theorem computeSize_eq {buckets : Array (AssocList α β)} :
     computeSize buckets = (toListModel buckets).length := by
-  rw [computeSize, toListModel, List.flatMap_eq_foldl, Array.foldl_eq_foldl_toList]
+  rw [computeSize, toListModel, List.flatMap_eq_foldl, Array.foldl_toList]
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a : α) × β a)),
       l.foldl (fun d b => d + b.toList.length) l'.length =
         (l.foldl (fun acc a => acc ++ a.toList) l').length
@@ -58,6 +58,58 @@ theorem isEmpty_eq_isEmpty [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp
     m.isEmpty = (toListModel m.buckets).isEmpty := by
   rw [Raw.isEmpty, Bool.eq_iff_iff, List.isEmpty_iff_length_eq_zero, size_eq_length h,
     Nat.beq_eq_true_eq]
+
+theorem fold_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
+    l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := by
+  simp only [Raw.fold, Raw.foldM, ← Array.foldlM_toList, Array.foldl_toList,
+    ← List.foldl_eq_foldlM, Id.run, AssocList.foldl]
+
+theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
+    l.fold (fun acc k v => f k v :: acc) acc =
+      ((toListModel l.buckets).reverse.map (fun p => f p.1 p.2)) ++ acc := by
+  rw [fold_eq, ← Array.foldl_toList, toListModel]
+  generalize l.buckets.toList = l
+  induction l generalizing acc with
+  | nil => simp
+  | cons x xs ih =>
+      rw [foldl_cons, ih, AssocList.foldl_apply]
+      simp
+
+theorem fold_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
+    l.fold (fun acc k v => ⟨k, v⟩ :: acc) acc = (toListModel l.buckets).reverse ++ acc := by
+  simp [fold_cons_apply]
+
+theorem fold_cons_key {l : Raw α β} {acc : List α} :
+    l.fold (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets).reverse ++ acc := by
+  rw [fold_cons_apply, keys_eq_map, map_reverse]
+
+theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
+  simp [Raw.toList, fold_cons]
+
+theorem keys_perm_keys_toListModel {m : Raw α β} :
+    Perm m.keys (List.keys (toListModel m.buckets)) := by
+  simp [Raw.keys, fold_cons_key, keys_eq_map]
+
+theorem length_keys_eq_length_keys {m : Raw α β} :
+    m.keys.length = (List.keys (toListModel m.buckets)).length :=
+  keys_perm_keys_toListModel.length_eq
+
+theorem isEmpty_keys_eq_isEmpty_keys {m : Raw α β} :
+    m.keys.isEmpty = (List.keys (toListModel m.buckets)).isEmpty :=
+  keys_perm_keys_toListModel.isEmpty_eq
+
+theorem contains_keys_eq_contains_keys [BEq α] {m : Raw α β} {k : α} :
+    m.keys.contains k = (List.keys (toListModel m.buckets)).contains k :=
+  keys_perm_keys_toListModel.contains_eq
+
+theorem mem_keys_iff_contains_keys [BEq α] [LawfulBEq α] {m : Raw α β} {k : α} :
+    k ∈ m.keys ↔ (List.keys (toListModel m.buckets)).contains k := by
+  rw [← List.contains_iff_mem, contains_keys_eq_contains_keys]
+
+theorem pairwise_keys_iff_pairwise_keys [BEq α] [PartialEquivBEq α] {m : Raw α β} :
+    m.keys.Pairwise (fun a b => (a == b) = false) ↔
+      (List.keys (toListModel m.buckets)).Pairwise (fun a b => (a == b) = false) :=
+  keys_perm_keys_toListModel.pairwise_iff BEq.symm_false
 
 end Raw
 
@@ -115,7 +167,7 @@ theorem toListModel_foldl_reinsertAux [BEq α] [Hashable α] [PartialEquivBEq α
 theorem expand.go_pos [Hashable α] {i : Nat} {source : Array (AssocList α β)}
     {target : { d : Array (AssocList α β) // 0 < d.size }} (h : i < source.size) :
     expand.go i source target = go (i + 1)
-      (source.set ⟨i, h⟩ .nil) ((source.get ⟨i, h⟩).foldl (reinsertAux hash) target) := by
+      (source.set i .nil) ((source[i]).foldl (reinsertAux hash) target) := by
   rw [expand.go]
   simp only [h, dite_true]
 
@@ -134,7 +186,7 @@ theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array
     simpa using this 0
   intro i
   induction i, source, target using expand.go.induct
-  · next i source target hi _ es newSource newTarget ih =>
+  · next i source target _ hi es newSource newTarget ih =>
     simp only [newSource, newTarget, es] at *
     rw [expand.go_pos hi]
     refine ih.trans ?_

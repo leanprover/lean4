@@ -31,17 +31,17 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     let c₂ := c₁.norm
     if c₂.isUnsat then
       let r := mkConst ``False
-      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (← toContextExpr ctx) (toExpr c) reflTrue
+      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (toContextExpr ctx) (toExpr c) reflTrue
       return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else if c₂.isValid then
       let r := mkConst ``True
-      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr ctx) (toExpr c) reflTrue
+      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (toContextExpr ctx) (toExpr c) reflTrue
       return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else
       let c₂ : LinearCnstr := c₂.toExpr
       let r ← c₂.toArith ctx
       if r != lhs then
-        let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
+        let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
         return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
       else
         return none
@@ -81,7 +81,7 @@ def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if p'.length < p.length then
     -- We only return some if monomials were fused
     let e' : LinearExpr := p'.toExpr
-    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') reflTrue
+    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr e) (toExpr e') reflTrue
     let r ← e'.toArith ctx
     return some (r, p)
   else

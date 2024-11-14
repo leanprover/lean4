@@ -85,7 +85,7 @@ private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.Disc
 /-
   `optConfig` is of the form `("(" "config" ":=" term ")")?`
 -/
-def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TermElabM Meta.Simp.Config := do
+def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Config := do
   match kind with
   | .simp    => elabSimpConfigCore optConfig
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
@@ -119,17 +119,22 @@ private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Ex
     thms.add id #[] e (post := post) (inv := inv)
 
 private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM SimpTheorems := do
-  let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
+  let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
     let e ← instantiateMVars e
+    if e.hasSyntheticSorry then
+      return none
     let e := e.eta
     if e.hasMVar then
       let r ← abstractMVars e
-      return (r.paramNames, r.expr)
+      return some (r.paramNames, r.expr)
     else
-      return (#[], e)
-  thms.add id levelParams proof (post := post) (inv := inv)
+      return some (#[], e)
+  if let some (levelParams, proof) := thm? then
+    thms.add id levelParams proof (post := post) (inv := inv)
+  else
+    return thms
 
 structure ElabSimpArgsResult where
   ctx      : Simp.Context
@@ -167,7 +172,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
 
     syntax simpErase := "-" ident
     -/
-    withMainContext do
+    let go := withMainContext do
       let mut thmsArray := ctx.simpTheorems
       let mut thms      := thmsArray[0]!
       let mut simprocs  := simprocs
@@ -229,7 +234,13 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             logException ex
           else
             throw ex
-      return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, simprocs, starArg }
+      return { ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms), simprocs, starArg }
+    -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
+    -- This affects `addSimpTheorem`.
+    if (← read).recover then
+      go
+    else
+      Term.withoutErrToSorry go
 where
   isSimproc? (e : Expr) : MetaM (Option Name) := do
     let .const declName _ := e | return none
@@ -300,10 +311,11 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
-  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) {
-    config      := (← elabSimpConfig stx[1] (kind := kind))
-    simpTheorems := #[simpTheorems], congrTheorems
-  }
+  let ctx ← Simp.mkContext
+     (config := (← elabSimpConfig stx[1] (kind := kind)))
+     (simpTheorems := #[simpTheorems])
+     congrTheorems
+  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) ctx
   if !r.starArg || ignoreStarArg then
     return { r with dischargeWrapper }
   else
@@ -318,7 +330,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     for h in hs do
       unless simpTheorems.isErased (.fvar h) do
         simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr
-    let ctx := { ctx with simpTheorems }
+    let ctx := ctx.setSimpTheorems simpTheorems
     return { ctx, simprocs, dischargeWrapper }
 
 register_builtin_option tactic.simp.trace : Bool := {
@@ -426,7 +438,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   Simp.reportDiag stats
 
 /-
-  "simp" (config)? (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  "simp" optConfig (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do

@@ -334,7 +334,7 @@ map in some order.
 
 /-- Support for the `for` loop construct in `do` blocks. -/
 @[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
-  b.buckets.forIn init (fun bucket acc => bucket.forInStep acc f)
+  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
 
 instance : ForM m (Raw α β) ((a : α) × β a) where
   forM m f := m.forM (fun a b => f ⟨a, b⟩)
@@ -357,10 +357,6 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
   m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
-
-/-- Returns a list of all keys present in the hash map in some order. -/
-@[inline] def keys (m : Raw α β) : List α :=
-  m.fold (fun acc k _ => k :: acc) []
 
 /-- Returns an array of all keys present in the hash map in some order. -/
 @[inline] def keysArray (m : Raw α β) : Array α :=
@@ -446,6 +442,10 @@ instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
   reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
 
 end Unverified
+
+/-- Returns a list of all keys present in the hash map in some order. -/
+@[inline] def keys (m : Raw α β) : List α :=
+  m.fold (fun acc k _ => k :: acc) []
 
 section WF
 

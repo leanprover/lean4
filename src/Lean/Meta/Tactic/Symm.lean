@@ -65,7 +65,7 @@ def applySymm (e : Expr) : MetaM Expr := do
         restoreState s
         let lem ← mkConstWithFreshMVarLevels lem
         let (args, _, body) ← withReducible <| forallMetaTelescopeReducing (← inferType lem)
-        let .true ← isDefEq args.back e | failure
+        let .true ← isDefEq args.back! e | failure
         mkExpectedTypeHint (mkAppN lem args) (← instantiateMVars body)
   lems.toList.firstM act
     <|> throwError m!"no applicable symmetry lemma found for {indentExpr tgt}"
@@ -87,7 +87,7 @@ def applySymm (g : MVarId) : MetaM MVarId := do
         let (args, _, body) ← withReducible <| forallMetaTelescopeReducing (← inferType lem)
         let .true ← isDefEq (← g.getType) body | failure
         g.assign (mkAppN lem args)
-        let g' := args.back.mvarId!
+        let g' := args.back!.mvarId!
         g'.setTag (← g.getTag)
         pure g'
   lems.toList.firstM act

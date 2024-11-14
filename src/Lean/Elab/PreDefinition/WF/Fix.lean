@@ -4,18 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Util.HasConstCache
-import Lean.Meta.Match.Match
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Cleanup
-import Lean.Meta.ArgsPacker
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.BRecOn
-import Lean.Elab.PreDefinition.WF.Basic
 import Lean.Data.Array
+import Lean.Elab.PreDefinition.Basic
+import Lean.Elab.PreDefinition.WF.Basic
+import Lean.Elab.Tactic.Basic
+import Lean.Meta.ArgsPacker
+import Lean.Meta.ForEachExpr
+import Lean.Meta.Match.MatcherApp.Transform
+import Lean.Meta.Tactic.Cleanup
+import Lean.Util.HasConstCache
 
 namespace Lean.Elab.WF
 open Meta
@@ -230,7 +227,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
     -- decreasing goals when the function has only one non fixed argument.
     -- This renaming is irrelevant if the function has multiple non fixed arguments. See `process*` functions above.
     let lctx := (← getLCtx).setUserName x.fvarId! varName
-    withTheReader Meta.Context (fun ctx => { ctx with lctx }) do
+    withLCtx' lctx do
       let F   := xs[1]!
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do

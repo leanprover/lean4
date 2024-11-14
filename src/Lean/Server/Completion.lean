@@ -212,10 +212,13 @@ private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionIt
     return CompletionItemKind.event
   else if (← isProjectionFn constInfo.name) then
     return CompletionItemKind.field
-  else if (← whnf constInfo.type).isForall then
-    return CompletionItemKind.function
   else
-    return CompletionItemKind.constant
+    let isFunction : Bool ← withTheReader Core.Context ({ · with maxHeartbeats := 0 }) do
+      return (← whnf constInfo.type).isForall
+    if isFunction then
+      return CompletionItemKind.function
+    else
+      return CompletionItemKind.constant
 
 private def addUnresolvedCompletionItemForDecl (label : Name) (declName : Name) (score : Float) : M Unit := do
   if let some c := (← getEnv).find? declName then
@@ -536,7 +539,7 @@ where
     let .const typeName _ := type.getAppFn | return ()
     modify fun s => s.insert typeName
     if isStructure (← getEnv) typeName then
-      for parentName in getAllParentStructures (← getEnv) typeName do
+      for parentName in (← getAllParentStructures typeName) do
         modify fun s => s.insert parentName
     let some type ← unfoldeDefinitionGuarded? type | return ()
     visit type

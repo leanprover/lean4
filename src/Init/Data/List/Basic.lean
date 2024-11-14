@@ -38,14 +38,14 @@ The operations are organized as follow:
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
   `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`,
   `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `modify`, `erase`, `eraseP`, `eraseIdx`.
+* Manipulating elements: `replace`, `modify`, `insert`, `insertIdx`, `erase`, `eraseP`, `eraseIdx`.
 * Finding elements: `find?`, `findSome?`, `findIdx`, `indexOf`, `findIdx?`, `indexOf?`,
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
 * Minima and maxima: `min?` and `max?`.
-* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`,
+* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `splitBy`,
   `removeAll`
   (currently these functions are mostly only used in meta code,
   and do not have API suitable for verification).
@@ -1113,12 +1113,6 @@ theorem replace_cons [BEq α] {a : α} :
     (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 
-/-! ### insert -/
-
-/-- Inserts an element into a list without duplication. -/
-@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
-  if l.elem a then l else a :: l
-
 /-! ### modify -/
 
 /--
@@ -1147,6 +1141,21 @@ Apply `f` to the nth element of the list, if it exists, replacing that element w
 -/
 def modify (f : α → α) : Nat → List α → List α :=
   modifyTailIdx (modifyHead f)
+
+/-! ### insert -/
+
+/-- Inserts an element into a list without duplication. -/
+@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
+  if l.elem a then l else a :: l
+
+/--
+`insertIdx n a l` inserts `a` into the list `l` after the first `n` elements of `l`
+```
+insertIdx 2 1 [1, 2, 3, 4] = [1, 2, 1, 3, 4]
+```
+-/
+def insertIdx (n : Nat) (a : α) : List α → List α :=
+  modifyTailIdx (cons a) n
 
 /-! ### erase -/
 
@@ -1639,23 +1648,23 @@ where
     | true  => loop as (a::rs)
     | false => (rs.reverse, a::as)
 
-/-! ### groupBy -/
+/-! ### splitBy -/
 
 /--
-`O(|l|)`. `groupBy R l` splits `l` into chains of elements
+`O(|l|)`. `splitBy R l` splits `l` into chains of elements
 such that adjacent elements are related by `R`.
 
-* `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
-* `groupBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
+* `splitBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
+* `splitBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
 -/
-@[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
+@[specialize] def splitBy (R : α → α → Bool) : List α → List (List α)
   | []    => []
   | a::as => loop as a [] []
 where
   /--
-  The arguments of `groupBy.loop l ag g gs` represent the following:
+  The arguments of `splitBy.loop l ag g gs` represent the following:
 
-  - `l : List α` are the elements which we still need to group.
+  - `l : List α` are the elements which we still need to split.
   - `ag : α` is the previous element for which a comparison was performed.
   - `g : List α` is the group currently being assembled, in **reverse order**.
   - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
@@ -1665,6 +1674,8 @@ where
     | true  => loop as a (ag::g) gs
     | false => loop as a [] ((ag::g).reverse::gs)
   | [], ag, g, gs => ((ag::g).reverse::gs).reverse
+
+@[deprecated splitBy (since := "2024-10-30"), inherit_doc splitBy] abbrev groupBy := @splitBy
 
 /-! ### removeAll -/
 

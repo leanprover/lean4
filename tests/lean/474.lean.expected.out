@@ -3,6 +3,6 @@ y.add y
 fun y_1 => y.add y_1
 fun y => Nat.add FREE y
 fun (y : Nat) => Nat.add y y
-?m.add y
+Nat.add ?m y
 Nat.add (?m #0) #0
 fun y => (y.add y).add y

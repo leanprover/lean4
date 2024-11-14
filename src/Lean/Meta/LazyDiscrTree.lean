@@ -73,7 +73,7 @@ private def tmpStar := mkMVar tmpMVarId
 -/
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
-    let info := infos.get ⟨i, h⟩
+    let info := infos[i]
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
@@ -222,8 +222,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
     if isMatch then
       return (.other, #[])
     else do
-      let ctx ← read
-      if ctx.config.isDefEqStuckEx then
+      let cfg ← getConfig
+      if cfg.isDefEqStuckEx then
         /-
           When the configuration flag `isDefEqStuckEx` is set to true,
           we want `isDefEq` to throw an exception whenever it tries to assign
@@ -396,7 +396,7 @@ private partial def buildPath (op : Bool → Array Expr → Expr → MetaM (Key 
   if todo.isEmpty then
     return keys
   else
-    let e    := todo.back
+    let e    := todo.back!
     let todo := todo.pop
     let (k, todo) ← op root todo e
     buildPath op false todo (keys.push k)
@@ -454,7 +454,7 @@ private def evalLazyEntry (config : WhnfCoreConfig)
     let values := values.push v
     pure (values, starIdx, children)
   else
-    let e    := todo.back
+    let e    := todo.back!
     let todo := todo.pop
     let (k, todo) ← withLCtx lctx.1 lctx.2 $ pushArgs false todo e config
     if k == .star then
@@ -608,7 +608,7 @@ private partial def getMatchLoop (cases : Array PartialMatch) (result : MatchRes
   if cases.isEmpty then
     pure result
   else do
-    let ca := cases.back
+    let ca := cases.back!
     let cases := cases.pop
     let (vs, star, cs) ← evalNode ca.c
     if ca.todo.isEmpty then
@@ -617,7 +617,7 @@ private partial def getMatchLoop (cases : Array PartialMatch) (result : MatchRes
     else if star == 0 && cs.isEmpty then
       getMatchLoop cases result
     else
-      let e     := ca.todo.back
+      let e     := ca.todo.back!
       let todo  := ca.todo.pop
       /- We must always visit `Key.star` edges since they are wildcards.
           Thus, `todo` is not used linearly when there is `Key.star` edge

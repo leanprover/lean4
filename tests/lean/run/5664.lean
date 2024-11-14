@@ -1,6 +1,5 @@
 import Std.Tactic.BVDecide
 
-set_option bv.ac_nf false in
 example
   (a k n : BitVec 32) :
   n < -1 - k →

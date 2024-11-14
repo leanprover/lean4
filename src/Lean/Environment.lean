@@ -805,7 +805,7 @@ private def invalidExtMsg := "invalid environment extension has been accessed"
 
 unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
   if h : ext.idx < exts.size then
-    exts.set ⟨ext.idx, h⟩ (unsafeCast s)
+    exts.set ext.idx (unsafeCast s)
   else
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
@@ -822,7 +822,7 @@ unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ
 
 unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (exts : Array EnvExtensionState) : σ :=
   if h : ext.idx < exts.size then
-    let s : EnvExtensionState := exts.get ⟨ext.idx, h⟩
+    let s : EnvExtensionState := exts[ext.idx]
     unsafeCast s
   else
     panic! invalidExtMsg
@@ -1143,20 +1143,21 @@ end TagDeclarationExtension
 /-- Environment extension for mapping declarations to values.
     Declarations must only be inserted into the mapping in the module where they were declared. -/
 
-def MapDeclarationExtension (α : Type) := SimplePersistentEnvExtension (Name × α) (NameMap α)
+def MapDeclarationExtension (α : Type) := PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
-  registerSimplePersistentEnvExtension {
-    name          := name,
-    addImportedFn := fun _ => {},
-    addEntryFn    := fun s n => s.insert n.1 n.2 ,
-    toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
+  registerPersistentEnvExtension {
+    name            := name,
+    mkInitial       := pure {}
+    addImportedFn   := fun _ => pure {}
+    addEntryFn      := fun s (n, v) => s.insert n v
+    exportEntriesFn := fun s => s.toArray
   }
 
 namespace MapDeclarationExtension
 
 instance : Inhabited (MapDeclarationExtension α) :=
-  inferInstanceAs (Inhabited (SimplePersistentEnvExtension ..))
+  inferInstanceAs (Inhabited (PersistentEnvExtension ..))
 
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
   have : Inhabited Environment := ⟨env⟩

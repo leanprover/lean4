@@ -5,9 +5,9 @@ with
 h : foo
 ⊢ foo
 issue3232.lean:8:2-8:29: error: tactic 'apply' failed, failed to unify
-  @OfNat.ofNat Int 1 instOfNat = 1
+  (1 : Int) = 1
 with
-  @OfNat.ofNat Nat 1 (instOfNatNat 1) = 1
+  (1 : Nat) = 1
 ⊢ 1 = 1
 issue3232.lean:11:2-11:25: error: tactic 'apply' failed, failed to unify
   PUnit = PUnit

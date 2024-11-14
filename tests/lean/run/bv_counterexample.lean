@@ -108,3 +108,11 @@ y = 0xffffffff#32
 #guard_msgs in
 example (x y : BitVec 32) (h1 : x.toNat = y.toNat) (h2 : x = zeros 32) : y = 0 := by
   bv_decide
+
+/--
+error: The prover found a counterexample, consider the following assignment:
+x = 0x3#2
+-/
+#guard_msgs in
+example (x : BitVec 2) : (bif x.ult 0#2 then 1#2 else 2#2) == 3#2 := by
+  bv_decide

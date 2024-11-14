@@ -108,7 +108,7 @@ where
   /-- Elaborate discriminants inferring the match-type -/
   elabDiscrs (i : Nat) (discrs : Array Discr) : TermElabM ElabMatchTypeAndDiscrsResult := do
     if h : i < discrStxs.size then
-      let discrStx := discrStxs.get ⟨i, h⟩
+      let discrStx := discrStxs[i]
       let discr     ← elabAtomicDiscr discrStx
       let discr     ← instantiateMVars discr
       let userName ← mkUserNameFor discr
@@ -176,9 +176,8 @@ structure PatternVarDecl where
 private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
-      let var := pVars.get ⟨i, h⟩
       let type ← mkFreshTypeMVar
-      withLocalDecl var.getId BinderInfo.default type fun x =>
+      withLocalDecl pVars[i].getId BinderInfo.default type fun x =>
         loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
     else
       k decls
@@ -760,7 +759,7 @@ where
     | [] => k eqs
     | p::ps =>
       if h : i < discrs.size then
-        let discr := discrs.get ⟨i, h⟩
+        let discr := discrs[i]
         if let some h := discr.h? then
           withLocalDeclD h.getId (← mkEqHEq discr.expr (← p.toExpr)) fun eq => do
             addTermInfo' h eq (isBinder := true)
@@ -957,7 +956,7 @@ where
     let mut s : CollectFVars.State := {}
     for discr in discrs do
       s := collectFVars s (← instantiateMVars (← inferType discr))
-    let (indicesFVar, indicesNonFVar) := indices.split Expr.isFVar
+    let (indicesFVar, indicesNonFVar) := indices.partition Expr.isFVar
     let indicesFVar := indicesFVar.map Expr.fvarId!
     let mut toAdd := #[]
     for fvarId in s.fvarSet.toList do

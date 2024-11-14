@@ -170,6 +170,9 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
 @[inline, inherit_doc DHashMap.Raw.isEmpty] def isEmpty (m : Raw α β) : Bool :=
   m.inner.isEmpty
 
+@[inline, inherit_doc DHashMap.Raw.keys] def keys (m : Raw α β) : List α :=
+  m.inner.keys
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -212,9 +215,6 @@ instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
 
 @[inline, inherit_doc DHashMap.Raw.Const.toArray] def toArray (m : Raw α β) : Array (α × β) :=
   DHashMap.Raw.Const.toArray m.inner
-
-@[inline, inherit_doc DHashMap.Raw.keys] def keys (m : Raw α β) : List α :=
-  m.inner.keys
 
 @[inline, inherit_doc DHashMap.Raw.keysArray] def keysArray (m : Raw α β) : Array α :=
   m.inner.keysArray

@@ -298,7 +298,7 @@ mutual
         for motiveFVar in motiveFVars do
           let motive ← forallTelescopeReducing (← inferType motiveFVar) fun ys _ => do
             let lhs ← mkSizeOf ys
-            let rhs ← mkAppM ``SizeOf.sizeOf #[ys.back]
+            let rhs ← mkAppM ``SizeOf.sizeOf #[ys.back!]
             mkLambdaFVars ys (← mkEq lhs rhs)
           r := mkApp r motive
         forallBoundedTelescope (← inferType r) recInfo.numMinors fun minorFVars _ => do

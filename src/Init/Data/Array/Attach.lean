@@ -43,6 +43,13 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
     l.attach.toList = l.toList.attachWith (· ∈ l) (by simp [mem_toList]) := by
   simp [attach]
 
+@[simp] theorem _root_.List.attachWith_mem_toArray {l : List α} :
+    l.attachWith (fun x => x ∈ l.toArray) (fun x h => by simpa using h) =
+      l.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
+  simp only [List.attachWith, List.attach, List.map_pmap]
+  apply List.pmap_congr_left
+  simp
+
 /-! ## unattach
 
 `Array.unattach` is the (one-sided) inverse of `Array.attach`. It is a synonym for `Array.map Subtype.val`.
@@ -83,7 +90,7 @@ def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) := l.map (
 
 @[simp] theorem unattach_attach {l : Array α} : l.attach.unattach = l := by
   cases l
-  simp
+  simp only [List.attach_toArray, List.unattach_toArray, List.unattach_attachWith]
 
 @[simp] theorem unattach_attachWith {p : α → Prop} {l : Array α}
     {H : ∀ a ∈ l, p a} :

@@ -118,7 +118,7 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline] def get? (m : HashMap α β) (a : α) : Option β :=
   DHashMap.Const.get? m.inner a
 
-@[deprecated get? "Use `m[a]?` or `m.get? a` instead", inherit_doc get?]
+@[deprecated get? "Use `m[a]?` or `m.get? a` instead" (since := "2024-08-07"), inherit_doc get?]
 def find? (m : HashMap α β) (a : α) : Option β :=
   m.get? a
 
@@ -145,7 +145,7 @@ Retrieves the mapping for the given key. Ensures that such a mapping exists by r
     (fallback : β) : β :=
   DHashMap.Const.getD m.inner a fallback
 
-@[deprecated getD, inherit_doc getD]
+@[deprecated getD (since := "2024-08-07"), inherit_doc getD]
 def findD (m : HashMap α β) (a : α) (fallback : β) : β :=
   m.getD a fallback
 
@@ -157,7 +157,7 @@ Tries to retrieve the mapping for the given key, panicking if no such mapping is
 @[inline] def get! [Inhabited β] (m : HashMap α β) (a : α) : β :=
   DHashMap.Const.get! m.inner a
 
-@[deprecated get! "Use `m[a]!` or `m.get! a` instead", inherit_doc get!]
+@[deprecated get! "Use `m[a]!` or `m.get! a` instead" (since := "2024-08-07"), inherit_doc get!]
 def find! [Inhabited β] (m : HashMap α β) (a : α) : Option β :=
   m.get! a
 
@@ -187,6 +187,9 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 
 @[inline, inherit_doc DHashMap.isEmpty] def isEmpty (m : HashMap α β) : Bool :=
   m.inner.isEmpty
+
+@[inline, inherit_doc DHashMap.keys] def keys (m : HashMap α β) : List α :=
+  m.inner.keys
 
 section Unverified
 
@@ -231,9 +234,6 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     Array (α × β) :=
   DHashMap.Const.toArray m.inner
 
-@[inline, inherit_doc DHashMap.keys] def keys (m : HashMap α β) : List α :=
-  m.inner.keys
-
 @[inline, inherit_doc DHashMap.keysArray] def keysArray (m : HashMap α β) :
     Array α :=
   m.inner.keysArray
@@ -244,6 +244,22 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
 @[inline, inherit_doc DHashMap.valuesArray] def valuesArray (m : HashMap α β) :
     Array β :=
   m.inner.valuesArray
+
+@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) : HashMap α β :=
+  match m.get? a with
+  | none => m
+  | some b => m.erase a |>.insert a (f b)
+
+@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α) (f : Option β → Option β) : HashMap α β :=
+  match m.get? a with
+  | none =>
+    match f none with
+    | none => m
+    | some b => m.insert a b
+  | some b =>
+    match f (some b) with
+    | none => m.erase a
+    | some b => m.erase a |>.insert a b
 
 @[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
     [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
@@ -290,7 +306,13 @@ def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
     : Std.HashMap α (Array β) := Id.run do
   let mut groups := ∅
   for x in xs do
-    let group := groups.getD (key x) #[]
-    groups := groups.erase (key x) -- make `group` referentially unique
-    groups := groups.insert (key x) (group.push x)
+    groups := groups.alter (key x) (·.getD #[] |>.push x)
   return groups
+
+/--
+Groups all elements `x`, `y` in `xs` with `key x == key y` into the same list
+`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
+-/
+def List.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : List β) :
+    Std.HashMap α (List β) :=
+  xs.foldr (init := ∅) fun x acc => acc.alter (key x) (fun v => x :: v.getD [])

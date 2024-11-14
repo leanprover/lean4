@@ -461,6 +461,30 @@ end Pairwise
 /-! ### max? -/
 
 /-! ## Monadic operations -/
+attribute [local simp] Id.run in
+#check_simp
+  (Id.run do
+    let mut s := 0
+    for i in [1,2,3,4] do
+      s := s + i
+    pure s) ~> 10
+
+attribute [local simp] Id.run in
+#check_simp
+  (Id.run do
+    let mut s := 0
+    for h : i in [1,2,3,4] do
+      s := s + i
+    pure s) ~> 10
+
+attribute [local simp] Id.run in
+variable (l : List α) (k m : Nat) in
+#check_simp
+  (Id.run do
+    let mut x := m
+    for _ in l do
+      x := x + k
+    pure x) ~> m + k * l.length
 
 /-! ### mapM -/
 

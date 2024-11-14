@@ -386,7 +386,7 @@ static lean_object* _init_l_Lake_basicFileContents___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("def hello := \"world\"", 20, 20);
+x_1 = lean_mk_string_unchecked("def hello := \"world\"\n", 21, 21);
 return x_1;
 }
 }
@@ -434,7 +434,7 @@ static lean_object* _init_l_Lake_libRootFileContents___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(".Basic", 6, 6);
+x_1 = lean_mk_string_unchecked(".Basic\n", 7, 7);
 return x_1;
 }
 }
@@ -1878,7 +1878,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(200u);
+x_3 = lean_unsigned_to_nat(202u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1899,7 +1899,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(203u);
+x_3 = lean_unsigned_to_nat(205u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

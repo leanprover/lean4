@@ -8,7 +8,7 @@
 # Ideally there would be a more principled testing framework
 # that took care of all this!
 
-rm -rf .lake/build
+rm -rf .lake
 
 # Function to process the output
 verify_output() {

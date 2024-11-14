@@ -73,7 +73,7 @@ private def tmpStar := mkMVar tmpMVarId
 -/
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
-    let info := infos.get ⟨i, h⟩
+    let info := infos[i]
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
@@ -222,8 +222,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
     if isMatch then
       return (.other, #[])
     else do
-      let ctx ← read
-      if ctx.config.isDefEqStuckEx then
+      let cfg ← getConfig
+      if cfg.isDefEqStuckEx then
         /-
           When the configuration flag `isDefEqStuckEx` is set to true,
           we want `isDefEq` to throw an exception whenever it tries to assign

@@ -25,9 +25,9 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) : Arra
   have right_le : i ≤ right := sorry
   have i_le : i ≤ i := Nat.le_refl _
   have j : {j : Fin a.size // i ≤ j} := if h : left < a.size then
-    if lt (a.get i) (a.get ⟨left, h⟩) then ⟨⟨left, h⟩, left_le⟩ else ⟨i, i_le⟩ else ⟨i, i_le⟩
+    if lt a[i] a[left] then ⟨⟨left, h⟩, left_le⟩ else ⟨i, i_le⟩ else ⟨i, i_le⟩
   have j := if h : right < a.size then
-    if lt (a.get j) (a.get ⟨right, h⟩) then ⟨⟨right, h⟩, right_le⟩ else j else j
+    if lt a[j.1.1] a[right] then ⟨⟨right, h⟩, right_le⟩ else j else j
   if h : i ≠ j then
     let a' := a.swap i j
     have : a'.size - j < a.size - i := sorry

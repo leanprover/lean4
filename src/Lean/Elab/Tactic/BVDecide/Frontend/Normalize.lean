@@ -198,11 +198,10 @@ def rewriteRulesPass (maxSteps : Nat) : Pass where
     let sevalThms ← getSEvalTheorems
     let sevalSimprocs ← Simp.getSEvalSimprocs
 
-    let simpCtx : Simp.Context := {
-      config := { failIfUnchanged := false, zetaDelta := true, maxSteps }
-      simpTheorems := #[bvThms, sevalThms]
-      congrTheorems := (← getSimpCongrTheorems)
-    }
+    let simpCtx ← Simp.mkContext
+      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps })
+      (simpTheorems := #[bvThms, sevalThms])
+      (congrTheorems := (← getSimpCongrTheorems))
 
     let hyps ← goal.getNondepPropHyps
     let ⟨result?, _⟩ ← simpGoal goal
@@ -217,35 +216,23 @@ Flatten out ands. That is look for hypotheses of the form `h : (x && y) = true` 
 with `h.left : x = true` and `h.right : y = true`. This can enable more fine grained substitutions
 in embedded constraint substitution.
 -/
-def andFlatteningPass : Pass where
+partial def andFlatteningPass : Pass where
   name := `andFlattening
   run goal := do
     goal.withContext do
       let hyps ← goal.getNondepPropHyps
       let mut newHyps := #[]
       let mut oldHyps := #[]
-      for hyp in hyps do
-        let typ ← hyp.getType
-        let_expr Eq α eqLhs eqRhs := typ | continue
-        let_expr Bool.and lhs rhs := eqLhs | continue
-        let_expr Bool := α | continue
-        let_expr Bool.true := eqRhs | continue
-        let mkEqTrue (lhs : Expr) : Expr :=
-          mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) lhs (mkConst ``Bool.true)
-        let hypExpr := (← hyp.getDecl).toExpr
-        let leftHyp : Hypothesis := {
-          userName := (← hyp.getUserName) ++ `left,
-          type := mkEqTrue lhs,
-          value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hypExpr
+      for fvar in hyps do
+        let hyp : Hypothesis := {
+          userName := (← fvar.getDecl).userName
+          type := ← fvar.getType
+          value := mkFVar fvar
         }
-        let rightHyp : Hypothesis := {
-          userName := (← hyp.getUserName) ++ `right,
-          type := mkEqTrue rhs,
-          value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hypExpr
-        }
-        newHyps := newHyps.push leftHyp
-        newHyps := newHyps.push rightHyp
-        oldHyps := oldHyps.push hyp
+        let sizeBefore := newHyps.size
+        newHyps ← splitAnds hyp newHyps
+        if newHyps.size > sizeBefore then
+          oldHyps := oldHyps.push fvar
       if newHyps.size == 0 then
         return goal
       else
@@ -253,33 +240,74 @@ def andFlatteningPass : Pass where
         -- Given that we collected the hypotheses in the correct order above the invariant is given
         let goal ← goal.tryClearMany oldHyps
         return goal
+where
+  splitAnds (hyp : Hypothesis) (hyps : Array Hypothesis) (first : Bool := true) :
+      MetaM (Array Hypothesis) := do
+    match ← trySplit hyp with
+    | some (left, right) =>
+      let hyps ← splitAnds left hyps false
+      splitAnds right hyps false
+    | none =>
+      if first then
+        return hyps
+      else
+        return hyps.push hyp
+
+  trySplit (hyp : Hypothesis) : MetaM (Option (Hypothesis × Hypothesis)) := do
+    let typ := hyp.type
+    let_expr Eq α eqLhs eqRhs := typ | return none
+    let_expr Bool.and lhs rhs := eqLhs | return none
+    let_expr Bool.true := eqRhs | return none
+    let_expr Bool := α | return none
+    let mkEqTrue (lhs : Expr) : Expr :=
+      mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) lhs (mkConst ``Bool.true)
+    let leftHyp : Hypothesis := {
+      userName := hyp.userName,
+      type := mkEqTrue lhs,
+      value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hyp.value
+    }
+    let rightHyp : Hypothesis := {
+      userName := hyp.userName,
+      type := mkEqTrue rhs,
+      value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hyp.value
+    }
+    return some (leftHyp, rightHyp)
 
 /--
 Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use
-them to substitute occurences of `x` within other hypotheses
+them to substitute occurences of `x` within other hypotheses. Additionally this drops all
+redundant top level hypotheses.
 -/
 def embeddedConstraintPass (maxSteps : Nat) : Pass where
   name := `embeddedConstraintSubsitution
   run goal := do
     goal.withContext do
       let hyps ← goal.getNondepPropHyps
-      let relevanceFilter acc hyp := do
+      let mut relevantHyps : SimpTheoremsArray := #[]
+      let mut seen : Std.HashSet Expr := {}
+      let mut duplicates : Array FVarId := #[]
+      for hyp in hyps do
         let typ ← hyp.getType
-        let_expr Eq α _ rhs := typ | return acc
-        let_expr Bool := α | return acc
-        let_expr Bool.true := rhs | return acc
-        let localDecl ← hyp.getDecl
-        let proof  := localDecl.toExpr
-        acc.addTheorem (.fvar hyp) proof
-      let relevantHyps : SimpTheoremsArray ← hyps.foldlM (init := #[]) relevanceFilter
+        let_expr Eq α lhs rhs := typ | continue
+        let_expr Bool.true := rhs | continue
+        let_expr Bool := α | continue
+        if seen.contains lhs then
+          -- collect and later remove duplicates on the fly
+          duplicates := duplicates.push hyp
+        else
+          seen := seen.insert lhs
+          let localDecl ← hyp.getDecl
+          let proof  := localDecl.toExpr
+          relevantHyps ← relevantHyps.addTheorem (.fvar hyp) proof
 
-      let simpCtx : Simp.Context := {
-        config := { failIfUnchanged := false, maxSteps }
-        simpTheorems := relevantHyps
-        congrTheorems := (← getSimpCongrTheorems)
-      }
+      let goal ← goal.tryClearMany duplicates
 
-      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
+      let simpCtx ← Simp.mkContext
+        (config := { failIfUnchanged := false, maxSteps })
+        (simpTheorems := relevantHyps)
+        (congrTheorems := (← getSimpCongrTheorems))
+
+      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← goal.getNondepPropHyps)
       let some (_, newGoal) := result? | return none
       return newGoal
 
@@ -300,21 +328,17 @@ def acNormalizePass : Pass where
 
     return newGoal
 
-/--
-The normalization passes used by `bv_normalize` and thus `bv_decide`.
--/
-def defaultPipeline (cfg : BVDecideConfig ): List Pass :=
-  [
-    rewriteRulesPass cfg.maxSteps,
-    andFlatteningPass,
-    embeddedConstraintPass cfg.maxSteps
-  ]
-
 def passPipeline (cfg : BVDecideConfig) : List Pass := Id.run do
-  let mut passPipeline := defaultPipeline cfg
+  let mut passPipeline := [rewriteRulesPass cfg.maxSteps]
 
   if cfg.acNf then
     passPipeline := passPipeline ++ [acNormalizePass]
+
+  if cfg.andFlattening then
+    passPipeline := passPipeline ++ [andFlatteningPass]
+
+  if cfg.embeddedConstraintSubst then
+    passPipeline := passPipeline ++ [embeddedConstraintPass cfg.maxSteps]
 
   return passPipeline
 

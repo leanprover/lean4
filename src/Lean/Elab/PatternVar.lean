@@ -135,7 +135,7 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
   | none =>
     if h : i < ctx.paramDecls.size then
       -- For `[match_pattern]` applications, only explicit parameters are accessible.
-      let d := ctx.paramDecls.get ⟨i, h⟩
+      let d := ctx.paramDecls[i]
       d.2.isExplicit
     else
       false

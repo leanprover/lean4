@@ -236,7 +236,8 @@ def days (leap : Bool) (month : Ordinal) : Day.Ordinal :=
   else
     let ⟨months, p⟩ := monthSizesNonLeap
     let index : Fin 12 := (month.sub 1).toFin (by decide)
-    months.get (index.cast (by rw [p]))
+    let idx := (index.cast (by rw [p]))
+    months.get idx.val idx.isLt
 
 theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
   match i with
@@ -245,8 +246,8 @@ theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
     split <;> decide
   | ⟨1, _⟩ | ⟨3, _⟩ | ⟨4, _⟩ | ⟨5, _⟩ | ⟨6, _⟩ | ⟨7, _⟩
   | ⟨8, _⟩ | ⟨9, _⟩ | ⟨10, _⟩ | ⟨11, _⟩ | ⟨12, _⟩ =>
-    simp [days, monthSizesNonLeap, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin]
-    decide
+    simp [days, monthSizesNonLeap]
+    decide +revert
 
 /--
 Returns the number of days until the `month`.
@@ -255,7 +256,7 @@ def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   let ⟨months, p⟩ := cumulativeSizes
   let index : Fin 12 := (month.sub 1).toFin (by decide)
   rw [← p] at index
-  let res := months.get index
+  let res := months.get index.val index.isLt
   exact res + (if leap ∧ month.val > 2 then 1 else 0)
 
 theorem cumulativeDays_le (leap : Bool) (month : Month.Ordinal) : cumulativeDays leap month ≥ 0 ∧ cumulativeDays leap month ≤ 334 + (if leap then 1 else 0) := by
@@ -263,7 +264,7 @@ theorem cumulativeDays_le (leap : Bool) (month : Month.Ordinal) : cumulativeDays
   | ⟨1, _⟩ | ⟨2, _⟩ | ⟨3, _⟩  | ⟨4, _⟩  | ⟨5, _⟩  | ⟨6, _⟩  | ⟨7, _⟩  | ⟨8, _⟩  | ⟨9, _⟩  | ⟨10, _⟩  | ⟨11, _⟩ | ⟨12, _⟩ =>
     simp [cumulativeSizes, Bounded.LE.sub, Bounded.LE.add, Bounded.LE.toFin, cumulativeDays]
     try split
-    all_goals decide
+    all_goals decide +revert
 
 theorem difference_eq (p : month.val ≤ 11) :
   let next := month.truncateTop p |>.addTop 1 (by decide)

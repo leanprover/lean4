@@ -77,7 +77,7 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   if newHeader.modifiers.isPartial && newHeader.modifiers.isUnsafe then
     throwError "'unsafe' subsumes 'partial'"
   if h : 0 < prevHeaders.size then
-    let firstHeader := prevHeaders.get ⟨0, h⟩
+    let firstHeader := prevHeaders[0]
     try
       unless newHeader.levelNames == firstHeader.levelNames do
         throwError "universe parameters mismatch"
@@ -273,7 +273,7 @@ where
 private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) := do
     if h : i < headers.size then
-      let header := headers.get ⟨i, h⟩
+      let header := headers[i]
       if header.modifiers.isNonrec then
         loop (i+1) fvars
       else
@@ -417,7 +417,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           -- Store instantiated body in info tree for the benefit of the unused variables linter
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again
-          withInfoContext' valStx (mkInfo := mkTermInfo `MutualDef.body valStx) do
+          withInfoContext' valStx (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·)) do
             -- synthesize mvars here to force the top-level tactic block (if any) to run
             let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
             -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
@@ -936,7 +936,7 @@ end MutualClosure
 private def getAllUserLevelNames (headers : Array DefViewElabHeader) : List Name :=
   if h : 0 < headers.size then
     -- Recall that all top-level functions must have the same levels. See `check` method above
-    (headers.get ⟨0, h⟩).levelNames
+    headers[0].levelNames
   else
     []
 

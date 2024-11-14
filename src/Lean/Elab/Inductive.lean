@@ -133,7 +133,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
 private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) :=
   Term.withAutoBoundImplicitForbiddenPred (fun n => views.any (·.shortDeclName == n)) do
     if h : i < views.size then
-      let view := views.get ⟨i, h⟩
+      let view := views[i]
       let acc ← Term.withAutoBoundImplicit <| Term.elabBinders view.binders.getArgs fun params => do
         match view.type? with
         | none         =>
@@ -250,7 +250,7 @@ private partial def withInductiveLocalDecls (rs : Array ElabHeaderResult) (x : A
   withLCtx r0.lctx r0.localInsts <| withRef r0.view.ref do
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
-        let (declName, shortDeclName, type) := namesAndTypes.get ⟨i, h⟩
+        let (declName, shortDeclName, type) := namesAndTypes[i]
         Term.withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars

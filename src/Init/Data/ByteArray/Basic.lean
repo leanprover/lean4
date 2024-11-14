@@ -42,7 +42,7 @@ def usize (a : @& ByteArray) : USize :=
   a.size.toUSize
 
 @[extern "lean_byte_array_uget"]
-def uget : (a : @& ByteArray) → (i : USize) → i.toNat < a.size → UInt8
+def uget : (a : @& ByteArray) → (i : USize) → (h : i.toNat < a.size := by get_elem_tactic) → UInt8
   | ⟨bs⟩, i, h => bs[i]
 
 @[extern "lean_byte_array_get"]
@@ -50,11 +50,11 @@ def get! : (@& ByteArray) → (@& Nat) → UInt8
   | ⟨bs⟩, i => bs.get! i
 
 @[extern "lean_byte_array_fget"]
-def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
-  | ⟨bs⟩, i => bs.get i
+def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem_tactic) → UInt8
+  | ⟨bs⟩, i, _ => bs[i]
 
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
-  getElem xs i h := xs.get ⟨i, h⟩
+  getElem xs i h := xs.get i
 
 instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
@@ -64,11 +64,11 @@ def set! : ByteArray → (@& Nat) → UInt8 → ByteArray
   | ⟨bs⟩, i, b => ⟨bs.set! i b⟩
 
 @[extern "lean_byte_array_fset"]
-def set : (a : ByteArray) → (@& Fin a.size) → UInt8 → ByteArray
-  | ⟨bs⟩, i, b => ⟨bs.set i b⟩
+def set : (a : ByteArray) → (i : @& Nat) → UInt8 → (h : i < a.size := by get_elem_tactic) → ByteArray
+  | ⟨bs⟩, i, b, h => ⟨bs.set i b h⟩
 
 @[extern "lean_byte_array_uset"]
-def uset : (a : ByteArray) → (i : USize) → UInt8 → i.toNat < a.size → ByteArray
+def uset : (a : ByteArray) → (i : USize) → UInt8 → (h : i.toNat < a.size := by get_elem_tactic) → ByteArray
   | ⟨bs⟩, i, v, h => ⟨bs.uset i v h⟩
 
 @[extern "lean_byte_array_hash"]
@@ -144,7 +144,7 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteAr
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-      match (← f (as.get ⟨as.size - 1 - i, this⟩) b) with
+      match (← f as[as.size - 1 - i] b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
@@ -178,7 +178,7 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → UInt8 →
         match i with
         | 0    => pure b
         | i'+1 =>
-          loop i' (j+1) (← f b (as.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩))
+          loop i' (j+1) (← f b as[j])
       else
         pure b
     loop (stop - start) start init

@@ -86,7 +86,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
       if h : i < args1.size then
         match (← whnf type) with
         | Expr.forallE n d b _ =>
-          let arg1 := args1.get ⟨i, h⟩
+          let arg1 := args1[i]
           if occursOrInType (← getLCtx) arg1 resultType then
             mkArgs2 (i + 1) (b.instantiate1 arg1) (args2.push arg1) args2New
           else

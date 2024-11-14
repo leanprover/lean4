@@ -321,7 +321,7 @@ private partial def processSubfields (structDeclName : Name) (parentFVar : Expr)
 where
   go (i : Nat) (infos : Array StructFieldInfo) := do
     if h : i < subfieldNames.size then
-      let subfieldName := subfieldNames.get ⟨i, h⟩
+      let subfieldName := subfieldNames[i]
       if containsFieldName infos subfieldName then
         throwError "field '{subfieldName}' from '{.ofConstName parentStructName}' has already been declared"
       let val  ← mkProjection parentFVar subfieldName
@@ -463,7 +463,7 @@ where
     let fieldNames := getStructureFields (← getEnv) parentStructName
     let rec copy (i : Nat) (infos : Array StructFieldInfo) (fieldMap : FieldMap) (expandedStructNames : NameSet) : TermElabM α := do
       if h : i < fieldNames.size then
-        let fieldName := fieldNames.get ⟨i, h⟩
+        let fieldName := fieldNames[i]
         let fieldType ← getFieldType infos parentType fieldName
         match findFieldInfo? infos fieldName with
         | some existingFieldInfo =>
@@ -548,8 +548,9 @@ where
       let parentType ← whnf type
       let parentStructName ← getStructureName parentType
       if parents.any (fun info => info.structName == parentStructName) then
-        logWarningAt parent m!"duplicate parent structure '{.ofConstName parentStructName}'"
-      if let some existingFieldName ← findExistingField? infos parentStructName then
+        logWarningAt parent m!"duplicate parent structure '{.ofConstName parentStructName}', skipping"
+        go (i + 1) infos parents
+      else if let some existingFieldName ← findExistingField? infos parentStructName then
         if structureDiamondWarning.get (← getOptions) then
           logWarning m!"field '{existingFieldName}' from '{.ofConstName parentStructName}' has already been declared"
         let parents := parents.push { ref := parent, fvar? := none, subobject := false, structName := parentStructName, type := parentType }
@@ -854,6 +855,7 @@ private def setSourceInstImplicit (type : Expr) : Expr :=
 Creates a projection function to a non-subobject parent.
 -/
 private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentStructName : Name) (parentType : Expr) : MetaM StructureParentInfo := do
+  let isProp ← Meta.isProp parentType
   let env ← getEnv
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
@@ -883,17 +885,24 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
       return result
     let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType)))
     let declName := structName ++ mkToParentName (← getStructureName parentType) fun n => !env.contains (structName ++ n)
-    addAndCompile <| Declaration.defnDecl {
-      name        := declName
-      levelParams := levelParams
-      type        := declType
-      value       := declVal
-      hints       := ReducibilityHints.abbrev
-      safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe
-    }
-    if binfo.isInstImplicit then
-      addInstance declName AttributeKind.global (eval_prio default)
+    -- Logic from `mk_projections`: prop-valued projections are theorems (or at least opaque)
+    let cval : ConstantVal := { name := declName, levelParams, type := declType }
+    if isProp then
+      addDecl <|
+        if view.modifiers.isUnsafe then
+          -- Theorems cannot be unsafe.
+          Declaration.opaqueDecl { cval with value := declVal, isUnsafe := true }
+        else
+          Declaration.thmDecl { cval with value := declVal }
     else
+      addAndCompile <| Declaration.defnDecl { cval with
+        value       := declVal
+        hints       := ReducibilityHints.abbrev
+        safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe
+      }
+    -- Logic from `mk_projections`: non-instance-implicits that aren't props become reducible.
+    -- (Instances will get instance reducibility in `Lean.Elab.Command.addParentInstances`.)
+    if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
       setReducibleAttribute declName
     return { structName := parentStructName, subobject := false, projFn := declName }
 
@@ -965,6 +974,19 @@ private def checkResolutionOrder (structName : Name) : TermElabM Unit := do
         must come after {MessageData.andList conflicts.toList}" :: defects
     logWarning m!"failed to compute strict resolution order:\n{MessageData.joinSep defects.reverse "\n"}"
 
+/--
+Adds each direct parent projection to a class as an instance, so long as the parent isn't an ancestor of the others.
+-/
+private def addParentInstances (parents : Array StructureParentInfo) : MetaM Unit := do
+  let env ← getEnv
+  let instParents := parents.filter fun parent => isClass env parent.structName
+  -- A parent is an ancestor of the others if it appears with index ≥ 1 in one of the resolution orders.
+  let resOrders : Array (Array Name) ← instParents.mapM fun parent => getStructureResolutionOrder parent.structName
+  let instParents := instParents.filter fun parent =>
+    !resOrders.any (fun resOrder => resOrder[1:].any (· == parent.structName))
+  for instParent in instParents do
+    addInstance instParent.projFn AttributeKind.global (eval_prio default)
+
 def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let scopeLevelNames ← Term.getLevelNames
   let isUnsafe := view.modifiers.isUnsafe
@@ -1008,9 +1030,6 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
           addProjections r fieldInfos
           registerStructure view.declName fieldInfos
           mkAuxConstructions view.declName
-          let instParents ← fieldInfos.filterM fun info => do
-            let decl ← Term.getFVarLocalDecl! info.fvar
-            pure (info.isSubobject && decl.binderInfo.isInstImplicit)
           withSaveInfoContext do  -- save new env
             Term.addLocalVarInfo view.ref[1] (← mkConstWithLevelParams view.declName)
             if let some _ := view.ctor.ref.getPos? (canonicalOnly := true) then
@@ -1021,8 +1040,6 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
                 Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
           withRef view.declId do
             Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
-          let projInstances := instParents.toList.map fun info => info.declName
-          projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
           let parentInfos ← r.parents.mapM fun parent => do
             if parent.subobject then
               let some info := fieldInfos.find? (·.kind == .subobject parent.structName) | unreachable!
@@ -1031,6 +1048,8 @@ def mkStructureDecl (vars : Array Expr) (view : StructView) : TermElabM Unit := 
               mkCoercionToCopiedParent levelParams params view parent.structName parent.type
           setStructureParents view.declName parentInfos
           checkResolutionOrder view.declName
+          if view.isClass then
+            addParentInstances parentInfos
 
           let lctx ← getLCtx
           /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations

@@ -23,7 +23,7 @@ private def addRecParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (
   | [], recursor => pure recursor
   | some pos :: rest, recursor =>
     if h : pos < majorTypeArgs.size then
-      addRecParams mvarId majorTypeArgs rest (mkApp recursor (majorTypeArgs.get ⟨pos, h⟩))
+      addRecParams mvarId majorTypeArgs rest (mkApp recursor (majorTypeArgs[pos]))
     else
       throwTacticEx `induction mvarId "ill-formed recursor"
   | none :: rest, recursor => do
@@ -97,7 +97,7 @@ private partial def finalize
             if arity < initialArity then throwTacticEx `induction mvarId "ill-formed recursor"
             let nparams := arity - initialArity -- number of fields due to minor premise
             let nextra  := reverted.size - indices.size - 1 -- extra dependencies that have been reverted
-            let minorGivenNames := if h : minorIdx < givenNames.size then givenNames.get ⟨minorIdx, h⟩ else {}
+            let minorGivenNames := if h : minorIdx < givenNames.size then givenNames[minorIdx] else {}
             let mvar ← mkFreshExprSyntheticOpaqueMVar d (tag ++ n)
             let recursor := mkApp recursor mvar
             let recursorType ← getTypeBody mvarId recursorType mvar

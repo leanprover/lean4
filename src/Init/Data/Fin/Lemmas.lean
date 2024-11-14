@@ -642,7 +642,7 @@ theorem pred_add_one (i : Fin (n + 2)) (h : (i : Nat) < n + 1) :
   ext
   simp
 
-@[simp] theorem subNat_one_succ (i : Fin (n + 1)) (h : 1 ≤ ↑i) : (subNat 1 i h).succ = i := by
+@[simp] theorem subNat_one_succ (i : Fin (n + 1)) (h : 1 ≤ (i : Nat)) : (subNat 1 i h).succ = i := by
   ext
   simp
   omega

@@ -1800,7 +1800,7 @@ x_8 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_3);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_findIdx_x3f_loop___rarg(x_4, x_8, x_9);
+x_10 = l_Array_findIdx_x3f_loop___rarg(x_8, x_4, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -1938,7 +1938,7 @@ x_8 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_3);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_findIdx_x3f_loop___rarg(x_4, x_8, x_9);
+x_10 = l_Array_findIdx_x3f_loop___rarg(x_8, x_4, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -2058,7 +2058,7 @@ x_8 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_3);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_findIdx_x3f_loop___rarg(x_4, x_8, x_9);
+x_10 = l_Array_findIdx_x3f_loop___rarg(x_8, x_4, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 

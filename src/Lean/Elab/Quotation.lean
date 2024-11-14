@@ -434,7 +434,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else mkNullNode contents
           -- We use `no_error_if_unused%` in auxiliary `match`-syntax to avoid spurious error messages,
           -- the outer `match` is checking for unused alternatives
-          `(match ($(discrs).sequenceMap fun
+          `(match ($(discrs).mapM fun
                 | `($contents) => no_error_if_unused% some $tuple
                 | _            => no_error_if_unused% none) with
               | some $resId => $yes

@@ -32,18 +32,9 @@ set_option maxSynthPendingDepth 2 in
 #guard_msgs in
 #synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- works
 
-/--
-info: [type_class] max synth pending failures (maxSynthPendingDepth: 1), use `set_option maxSynthPendingDepth <limit>`
-  [type_class] AddCommGroup Ruse `set_option diagnostics.threshold <num>` to control threshold for reporting counters
----
-error: failed to synthesize
-  HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R)))
+/-!
+After https://github.com/leanprover/lean4/pull/5920 works without changing maxSynthPendingDepth.
 -/
-#guard_msgs in
-set_option diagnostics true in
-#synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- fails
-
-set_option maxSynthPendingDepth 2 in
 /-- info: Submodule.hasQuotient -/
 #guard_msgs in
-#synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- still works
+#synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R)))

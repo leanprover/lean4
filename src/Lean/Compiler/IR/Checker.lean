@@ -135,8 +135,8 @@ def checkExpr (ty : IRType) : Expr → M Unit
     match xType with
     | IRType.object       => checkObjType ty
     | IRType.tobject      => checkObjType ty
-    | IRType.struct _ tys => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
-    | IRType.union _ tys  => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
+    | IRType.struct _ tys => if h : i < tys.size then checkEqTypes (tys[i]) ty else throw "invalid proj index"
+    | IRType.union _ tys  => if h : i < tys.size then checkEqTypes (tys[i]) ty else throw "invalid proj index"
     | _                   => throw s!"unexpected IR type '{xType}'"
   | Expr.uproj _ x          => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
   | Expr.sproj _ _ x        => checkObjVar x *> checkScalarType ty

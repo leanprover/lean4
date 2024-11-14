@@ -22,9 +22,9 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
   have right_le : i ≤ right := Nat.le_trans left_le (Nat.le_add_right ..)
   have i_le : i ≤ i := Nat.le_refl _
   have j : {j : Fin a.size // i ≤ j} := if h : left < a.size then
-    if lt (a.get i) (a.get ⟨left, h⟩) then ⟨⟨left, h⟩, left_le⟩ else ⟨i, i_le⟩ else ⟨i, i_le⟩
+    if lt a[i] a[left] then ⟨⟨left, h⟩, left_le⟩ else ⟨i, i_le⟩ else ⟨i, i_le⟩
   have j := if h : right < a.size then
-    if lt (a.get j) (a.get ⟨right, h⟩) then ⟨⟨right, h⟩, right_le⟩ else j else j
+    if lt a[j.1] a[right] then ⟨⟨right, h⟩, right_le⟩ else j else j
   if h : i.1 = j then ⟨a, rfl⟩ else
     let a' := a.swap i j
     let j' := ⟨j, by rw [a.size_swap i j]; exact j.1.2⟩
@@ -59,8 +59,8 @@ def heapifyUp (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
   {a' : Array α // a'.size = a.size} :=
 if i0 : i.1 = 0 then ⟨a, rfl⟩ else
   have : (i.1 - 1) / 2 < i := sorry
-  let j := ⟨(i.1 - 1) / 2, Nat.lt_trans this i.2⟩
-  if lt (a.get j) (a.get i) then
+  let j : Fin a.size := ⟨(i.1 - 1) / 2, Nat.lt_trans this i.2⟩
+  if lt a[j] a[i] then
     let a' := a.swap i j
     let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap i j]; exact j.2⟩
     ⟨a₂, h₂.trans (a.size_swap i j)⟩
@@ -84,7 +84,7 @@ def singleton (lt) (x : α) : BinaryHeap α lt := ⟨#[x]⟩
 def size {lt} (self : BinaryHeap α lt) : Nat := self.1.size
 
 /-- `O(1)`. Get an element in the heap by index. -/
-def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1.get i
+def get {lt} (self : BinaryHeap α lt) (i : Fin self.size) : α := self.1.get i i.2
 
 /-- `O(log n)`. Insert an element into a `BinaryHeap`, preserving the max-heap property. -/
 def insert {lt} (self : BinaryHeap α lt) (x : α) : BinaryHeap α lt where
@@ -132,7 +132,7 @@ def insertExtractMax {lt} (self : BinaryHeap α lt) (x : α) : α × BinaryHeap 
   | none => (x, self)
   | some m =>
     if lt x m then
-      let a := self.1.set ⟨0, size_pos_of_max e⟩ x
+      let a := self.1.set 0 x (size_pos_of_max e)
       (m, ⟨heapifyDown lt a ⟨0, by simp only [Array.size_set, a]; exact size_pos_of_max e⟩⟩)
     else (x, self)
 
@@ -141,16 +141,16 @@ def replaceMax {lt} (self : BinaryHeap α lt) (x : α) : Option α × BinaryHeap
   match e: self.max with
   | none => (none, ⟨self.1.push x⟩)
   | some m =>
-    let a := self.1.set ⟨0, size_pos_of_max e⟩ x
+    let a := self.1.set 0 x (size_pos_of_max e)
     (some m, ⟨heapifyDown lt a ⟨0, by simp only [Array.size_set, a]; exact size_pos_of_max e⟩⟩)
 
 /-- `O(log n)`. Replace the value at index `i` by `x`. Assumes that `x ≤ self.get i`. -/
 def decreaseKey {lt} (self : BinaryHeap α lt) (i : Fin self.size) (x : α) : BinaryHeap α lt where
-  arr := heapifyDown lt (self.1.set i x) ⟨i, by rw [self.1.size_set]; exact i.2⟩
+  arr := heapifyDown lt (self.1.set i x i.2) ⟨i, by rw [self.1.size_set]; exact i.2⟩
 
 /-- `O(log n)`. Replace the value at index `i` by `x`. Assumes that `self.get i ≤ x`. -/
 def increaseKey {lt} (self : BinaryHeap α lt) (i : Fin self.size) (x : α) : BinaryHeap α lt where
-  arr := heapifyUp lt (self.1.set i x) ⟨i, by rw [self.1.size_set]; exact i.2⟩
+  arr := heapifyUp lt (self.1.set i x i.2) ⟨i, by rw [self.1.size_set]; exact i.2⟩
 
 end BinaryHeap
 

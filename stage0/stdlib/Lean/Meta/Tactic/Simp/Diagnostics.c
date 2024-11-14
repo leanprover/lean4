@@ -1137,6 +1137,7 @@ lean_dec(x_19);
 x_32 = lean_ctor_get(x_1, 0);
 lean_inc(x_32);
 x_33 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Simp_recordTriedSimpTheorem___spec__1(x_32, x_17);
+lean_dec(x_17);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; size_t x_39; size_t x_40; 

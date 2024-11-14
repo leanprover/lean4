@@ -4339,7 +4339,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; lean_object* x_18; 
 x_13 = lean_array_uget(x_2, x_3);
-x_14 = lean_ctor_get(x_13, 11);
+x_14 = lean_ctor_get(x_13, 10);
 lean_inc(x_14);
 x_15 = l_Array_foldlMUnsafe_fold___at_Lake_buildImportsAndDeps___spec__7___closed__1;
 x_16 = l_Lean_RBNode_fold___at_Lake_buildImportsAndDeps___spec__6(x_13, x_15, x_14);

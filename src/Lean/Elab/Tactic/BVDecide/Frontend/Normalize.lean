@@ -216,35 +216,23 @@ Flatten out ands. That is look for hypotheses of the form `h : (x && y) = true` 
 with `h.left : x = true` and `h.right : y = true`. This can enable more fine grained substitutions
 in embedded constraint substitution.
 -/
-def andFlatteningPass : Pass where
+partial def andFlatteningPass : Pass where
   name := `andFlattening
   run goal := do
     goal.withContext do
       let hyps ← goal.getNondepPropHyps
       let mut newHyps := #[]
       let mut oldHyps := #[]
-      for hyp in hyps do
-        let typ ← hyp.getType
-        let_expr Eq α eqLhs eqRhs := typ | continue
-        let_expr Bool.and lhs rhs := eqLhs | continue
-        let_expr Bool := α | continue
-        let_expr Bool.true := eqRhs | continue
-        let mkEqTrue (lhs : Expr) : Expr :=
-          mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) lhs (mkConst ``Bool.true)
-        let hypExpr := (← hyp.getDecl).toExpr
-        let leftHyp : Hypothesis := {
-          userName := (← hyp.getUserName) ++ `left,
-          type := mkEqTrue lhs,
-          value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hypExpr
+      for fvar in hyps do
+        let hyp : Hypothesis := {
+          userName := (← fvar.getDecl).userName
+          type := ← fvar.getType
+          value := mkFVar fvar
         }
-        let rightHyp : Hypothesis := {
-          userName := (← hyp.getUserName) ++ `right,
-          type := mkEqTrue rhs,
-          value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hypExpr
-        }
-        newHyps := newHyps.push leftHyp
-        newHyps := newHyps.push rightHyp
-        oldHyps := oldHyps.push hyp
+        let sizeBefore := newHyps.size
+        newHyps ← splitAnds hyp newHyps
+        if newHyps.size > sizeBefore then
+          oldHyps := oldHyps.push fvar
       if newHyps.size == 0 then
         return goal
       else
@@ -252,6 +240,38 @@ def andFlatteningPass : Pass where
         -- Given that we collected the hypotheses in the correct order above the invariant is given
         let goal ← goal.tryClearMany oldHyps
         return goal
+where
+  splitAnds (hyp : Hypothesis) (hyps : Array Hypothesis) (first : Bool := true) :
+      MetaM (Array Hypothesis) := do
+    match ← trySplit hyp with
+    | some (left, right) =>
+      let hyps ← splitAnds left hyps false
+      splitAnds right hyps false
+    | none =>
+      if first then
+        return hyps
+      else
+        return hyps.push hyp
+
+  trySplit (hyp : Hypothesis) : MetaM (Option (Hypothesis × Hypothesis)) := do
+    let typ := hyp.type
+    let_expr Eq α eqLhs eqRhs := typ | return none
+    let_expr Bool.and lhs rhs := eqLhs | return none
+    let_expr Bool.true := eqRhs | return none
+    let_expr Bool := α | return none
+    let mkEqTrue (lhs : Expr) : Expr :=
+      mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) lhs (mkConst ``Bool.true)
+    let leftHyp : Hypothesis := {
+      userName := hyp.userName,
+      type := mkEqTrue lhs,
+      value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_left) lhs rhs hyp.value
+    }
+    let rightHyp : Hypothesis := {
+      userName := hyp.userName,
+      type := mkEqTrue rhs,
+      value := mkApp3 (mkConst ``Std.Tactic.BVDecide.Normalize.Bool.and_right) lhs rhs hyp.value
+    }
+    return some (leftHyp, rightHyp)
 
 /--
 Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use

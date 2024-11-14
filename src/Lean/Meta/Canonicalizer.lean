@@ -101,10 +101,10 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
           else
               k := mixHash k (← mkKey (e.getArg! i))
         return k
-      | .lam _ t b _
-      | .forallE _ t b _ =>
-        return mixHash (← mkKey t) (← mkKey b)
-      | .letE _ _ v b _ =>
+      | .lam n t b bi
+      | .forallE n t b bi =>
+        return mixHash (← mkKey t) (← withLocalDecl n bi t fun x => mkKey (b.instantiate1 x))
+      | .letE n t v b _ =>
         return mixHash (← mkKey v) (← mkKey b)
       | .proj _ i s =>
         return mixHash i.toUInt64 (← mkKey s)
@@ -124,11 +124,11 @@ def canon (e : Expr) : CanonM Expr := do
         if (← isDefEq e e') then
           return e'
       -- `e` is not definitionally equal to any expression in `es'`. We claim this should be rare.
-      unsafe modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k (e :: es') }
+      modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k (e :: es') }
       return e
   else
     -- `e` is the first expression we found with key `k`.
-    unsafe modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k [e] }
+    modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k [e] }
     return e
 
 end Canonicalizer

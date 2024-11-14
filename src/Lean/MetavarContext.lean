@@ -1122,15 +1122,14 @@ mutual
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
       -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
       let newMVarId    := { name := (← get).ngen.curr }
+      modify fun s => { s with ngen := s.ngen.next }
       let newMVar      := mkMVar newMVarId
       let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
       let newMVarType ← withReader (fun ctx => { ctx with mvarIdsInProgress := ctx.mvarIdsInProgress.cons mvarId result }) do
         withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
       let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
       modify fun s => { s with
-          mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs,
-          ngen := s.ngen.next
-        }
+        mctx := s.mctx.addExprMVarDecl newMVarId Name.anonymous newMVarLCtx newLocalInsts newMVarType newMVarKind numScopeArgs }
       if !mvarDecl.kind.isSyntheticOpaque then
         mvarId.assign result
       else

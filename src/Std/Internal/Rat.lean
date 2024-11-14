@@ -8,7 +8,8 @@ import Init.NotationExtra
 import Init.Data.ToString.Macro
 import Init.Data.Int.DivMod
 import Init.Data.Nat.Gcd
-namespace Lean
+namespace Std
+namespace Internal
 
 /-!
   Rational numbers for implementing decision procedures.
@@ -144,4 +145,5 @@ instance : Coe Int Rat where
   coe num := { num }
 
 end Rat
-end Lean
+end Internal
+end Std

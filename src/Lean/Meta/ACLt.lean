@@ -33,7 +33,7 @@ inductive ReduceMode where
   | none
 
 private def config : ConfigWithKey :=
-  { iota := false, proj := .no : Config }.toConfigWithKey
+  { transparency := .reducible, iota := false, proj := .no : Config }.toConfigWithKey
 
 mutual
 
@@ -64,7 +64,7 @@ where
       -- Drawback: cost.
       return e
     else match mode with
-      | .reduce => DiscrTree.reduce e {}
+      | .reduce => DiscrTree.reduce e
       | .reduceSimpleOnly => withConfigWithKey config <| DiscrTree.reduce e
       | .none => return e
 

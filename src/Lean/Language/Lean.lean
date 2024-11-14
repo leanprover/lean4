@@ -574,8 +574,8 @@ where
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
-            { range? := none, task := elabPromise.result.map (sync := true) toSnapshotTree },
-            { range? := none, task := finishedPromise.result.map (sync := true) toSnapshotTree }] ++
+            { range? := stx.getRange?, task := elabPromise.result.map (sync := true) toSnapshotTree },
+            { range? := endRange?, task := finishedPromise.result.map (sync := true) toSnapshotTree }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do

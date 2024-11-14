@@ -27,7 +27,7 @@ where
       .branch mid (go lb mid (by omega) (by omega)) (go mid ub (by omega) h2)
 
 def RArray.ofArray (xs : Array α) (h : 0 < xs.size) : RArray α :=
-  .ofFn (fun i => xs.get i) h
+  .ofFn (xs[·]) h
 
 /-- The correctness theorem for `ofFn` -/
 theorem RArray.get_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) (i : Fin n) :

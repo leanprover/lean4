@@ -159,6 +159,267 @@ builtin_simproc [bv_normalize] bv_udiv_of_two_pow (((_ : BitVec _) / (BitVec.ofN
       proof? := some proof
   }
 
+-- The following simprocs implement rewrites where we only want to look for exact syntactic
+-- matches instead of unification, example: `x == x` should simplify to true but we don't want to
+-- run unification for all `x == y` pairs.
+
+builtin_simproc [bv_normalize] bool_eq_self ((_ : Bool) = (_ : Bool)) := fun e => do
+  let_expr Eq α lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``True
+    proof? := mkApp2 (mkConst ``eq_self [1]) α lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_eq_self ((_ : BitVec _) = (_ : BitVec _)) := fun e => do
+  let_expr Eq α lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``True
+    proof? := mkApp2 (mkConst ``eq_self [1]) α lhs
+  }
+
+builtin_simproc [bv_normalize] bool_ite_self (ite _ _ _) := fun e => do
+  let_expr ite α c instDec t e := e | return .continue
+  if t != e then return .continue
+  return .done {
+    expr := t
+    proof? := mkApp4 (mkConst ``ite_self [1]) α c instDec t
+  }
+
+builtin_simproc [bv_normalize] bitvec_ite_self (ite _ _ _) := fun e => do
+  let_expr ite α c instDec t e := e | return .continue
+  if t != e then return .continue
+  return .done {
+    expr := t
+    proof? := mkApp4 (mkConst ``ite_self [1]) α c instDec t
+  }
+
+builtin_simproc [bv_normalize] bool_beq_not_self ((_ : Bool) == !(_ : Bool)) := fun e => do
+  let_expr BEq.beq _ _ lhs rhsExpr := e | return .continue
+  let_expr Bool.not rhs := rhsExpr | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.false,
+    proof? := mkApp (mkConst ``Bool.beq_not_self) lhs
+  }
+
+builtin_simproc [bv_normalize] bool_not_beq_self (!(_ : Bool) == (_ : Bool)) := fun e => do
+  let_expr BEq.beq _ _ lhsExpr rhs := e | return .continue
+  let_expr Bool.not lhs := lhsExpr | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.false,
+    proof? := mkApp (mkConst ``Bool.not_beq_self) lhs
+  }
+
+builtin_simproc [bv_normalize] beq_self_left ((_ : Bool) == ((_ : Bool) == (_ : Bool))) := fun e => do
+  let_expr BEq.beq _ _ fst rhsExpr := e | return .continue
+  let_expr BEq.beq _ _ snd thr := rhsExpr | return .continue
+  if fst != snd then return .continue
+  return .done {
+    expr := thr,
+    proof? := mkApp2 (mkConst ``Bool.beq_self_left) fst thr
+  }
+
+builtin_simproc [bv_normalize] beq_self_right (((_ : Bool) == (_ : Bool)) == (_ : Bool)) := fun e => do
+  let_expr BEq.beq _ _ lhsExpr thr := e | return .continue
+  let_expr BEq.beq _ _ fst snd := lhsExpr | return .continue
+  if snd != thr then return .continue
+  return .done {
+    expr := thr,
+    proof? := mkApp2 (mkConst ``Bool.beq_self_right) fst thr
+  }
+
+builtin_simproc [bv_normalize] and_self_left ((_ : Bool) && ((_ : Bool) && (_ : Bool))) := fun e => do
+  let_expr Bool.and fst rhsExpr := e | return .continue
+  let_expr Bool.and snd thr := rhsExpr | return .continue
+  if fst != snd then return .continue
+  return .done {
+    expr := mkApp2 (mkConst ``Bool.and) fst thr,
+    proof? := mkApp2 (mkConst ``Bool.and_self_left) fst thr
+  }
+
+builtin_simproc [bv_normalize] and_self_right (((_ : Bool) && (_ : Bool)) && (_ : Bool)) := fun e => do
+  let_expr Bool.and lhsExpr thr := e | return .continue
+  let_expr Bool.and fst snd := lhsExpr | return .continue
+  if snd != thr then return .continue
+  return .done {
+    expr := mkApp2 (mkConst ``Bool.and) fst thr,
+    proof? := mkApp2 (mkConst ``Bool.and_self_right) fst thr
+  }
+
+builtin_simproc [bv_normalize] bool_and_self ((_ : Bool) && (_ : Bool)) := fun e => do
+  let_expr Bool.and lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.true
+    proof? := mkApp (mkConst ``Bool.and_self) lhs
+  }
+
+builtin_simproc [bv_normalize] bool_xor_self ((_ : Bool) ^^ (_ : Bool)) := fun e => do
+  let_expr Bool.xor lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.false
+    proof? := mkApp (mkConst ``Bool.xor_self) lhs
+  }
+
+builtin_simproc [bv_normalize] bool_and_not_self ((_ : Bool) && !(_ : Bool)) := fun e => do
+  let_expr Bool.and lhs rhsExpr := e | return .continue
+  let_expr Bool.not rhs := rhsExpr | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.false
+    proof? := mkApp (mkConst ``Bool.and_not_self) lhs
+  }
+
+builtin_simproc [bv_normalize] bool_not_and_self (!(_ : Bool) && (_ : Bool)) := fun e => do
+  let_expr Bool.and lhsExpr rhs := e | return .continue
+  let_expr Bool.not lhs := lhsExpr | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.false
+    proof? := mkApp (mkConst ``Bool.not_and_self) lhs
+  }
+
+builtin_simproc [bv_normalize] bool_xor_not_self ((_ : Bool) ^^ !(_ : Bool)) := fun e => do
+  let_expr Bool.xor lhs rhsExpr := e | return .continue
+  let_expr Bool.not rhs := rhsExpr | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.true
+    proof? := mkApp (mkConst ``Bool.xor_not_self) lhs
+  }
+
+builtin_simproc [bv_normalize] bool_not_xor_self (!(_ : Bool) ^^ (_ : Bool)) := fun e => do
+  let_expr Bool.and lhsExpr rhs := e | return .continue
+  let_expr Bool.not lhs := lhsExpr | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.true
+    proof? := mkApp (mkConst ``Bool.not_xor_self) lhs
+  }
+
+builtin_simproc [bv_normalize] bool_beq_self ((_ : Bool) == (_ : Bool)) := fun e => do
+  let_expr BEq.beq α _ lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  return .done {
+    expr := mkConst ``Bool.true
+    proof? := mkApp3 (mkConst ``beq_self_eq_true' [0]) α (mkConst ``Bool.decEq) lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_beq_self ((_ : BitVec _) == (_ : BitVec _)) := fun e => do
+  let_expr BEq.beq α _ lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec w := α | return .continue
+  let decEq := mkApp (mkConst ``BitVec.decEq) w
+  return .done {
+    expr := mkConst ``Bool.true
+    proof? := mkApp3 (mkConst ``beq_self_eq_true' [0]) α decEq lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_and_self ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd α _ _ _ lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec w := α | return .continue
+  return .done {
+    expr := lhs
+    proof? := mkApp2 (mkConst ``BitVec.and_self) w lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_and_not_self ((_ : BitVec _) &&& ~~~(_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhs rhsExpr := e | return .continue
+  let_expr Complement.complement α _ rhs := rhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.and_contra) wExpr lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_not_and_self (~~~(_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhsExpr rhs := e | return .continue
+  let_expr Complement.complement α _ lhs := lhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.and_contra') wExpr lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_add_not_self ((_ : BitVec _) + ~~~(_ : BitVec _)) := fun e => do
+  let_expr HAdd.hAdd _ _ _ _ lhs rhsExpr := e | return .continue
+  let_expr Complement.complement α _ rhs := rhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.add_not) wExpr lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_not_add_self (~~~(_ : BitVec _) + (_ : BitVec _)) := fun e => do
+  let_expr HAdd.hAdd _ _ _ _ lhsExpr rhs := e | return .continue
+  let_expr Complement.complement α _ lhs := lhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.not_add) wExpr lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_add_neg ((_ : BitVec _) + ~~~((_ : BitVec _) + 1#_)) := fun e => do
+  let_expr HAdd.hAdd _ _ _ _ lhs rhsExpr := e | return .continue
+  let_expr Complement.complement _ _ rhsExpr := rhsExpr | return .continue
+  let_expr HAdd.hAdd α _ _ _ rhs _ := rhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.add_neg) wExpr lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_add_neg' ((_ : BitVec _) + ~~~(1#_ + (_ : BitVec _))) := fun e => do
+  let_expr HAdd.hAdd _ _ _ _ lhs rhsExpr := e | return .continue
+  let_expr Complement.complement _ _ rhsExpr := rhsExpr | return .continue
+  let_expr HAdd.hAdd α _ _ _ _ rhs := rhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.add_neg') wExpr lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_neg_add (~~~((_ : BitVec _) + 1#_) + (_ : BitVec _)) := fun e => do
+  let_expr HAdd.hAdd _ _ _ _ lhsExpr rhs := e | return .continue
+  let_expr Complement.complement _ _ lhsExpr := lhsExpr | return .continue
+  let_expr HAdd.hAdd α _ _ _ lhs _ := lhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.neg_add) wExpr lhs
+  }
+
+builtin_simproc [bv_normalize] bitvec_neg_add' (1#_ + ~~~((_ : BitVec _)) + (_ : BitVec _)) := fun e => do
+  let_expr HAdd.hAdd _ _ _ _ lhsExpr rhs := e | return .continue
+  let_expr Complement.complement _ _ lhsExpr := lhsExpr | return .continue
+  let_expr HAdd.hAdd α _ _ _ _ lhs := lhsExpr | return .continue
+  if lhs != rhs then return .continue
+  let_expr BitVec wExpr := α | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  return .done {
+    expr := toExpr 0#w
+    proof? := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.neg_add') wExpr lhs
+  }
+
 /--
 A pass in the normalization pipeline. Takes the current goal and produces a refined one or closes
 the goal fully, indicated by returning `none`.

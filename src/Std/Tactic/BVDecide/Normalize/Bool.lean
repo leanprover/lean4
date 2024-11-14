@@ -20,28 +20,13 @@ attribute [bv_normalize] Bool.and_true
 attribute [bv_normalize] Bool.true_and
 attribute [bv_normalize] Bool.and_false
 attribute [bv_normalize] Bool.false_and
-attribute [bv_normalize] beq_self_eq_true'
 attribute [bv_normalize] Bool.true_beq
 attribute [bv_normalize] Bool.false_beq
-attribute [bv_normalize] Bool.beq_not_self
-attribute [bv_normalize] Bool.not_beq_self
-attribute [bv_normalize] Bool.beq_self_left
-attribute [bv_normalize] Bool.beq_self_right
-attribute [bv_normalize] Bool.and_self
-attribute [bv_normalize] Bool.and_not_self
-attribute [bv_normalize] Bool.not_and_self
-attribute [bv_normalize] Bool.xor_self
 attribute [bv_normalize] Bool.xor_false
 attribute [bv_normalize] Bool.false_xor
 attribute [bv_normalize] Bool.true_xor
 attribute [bv_normalize] Bool.xor_true
-attribute [bv_normalize] Bool.not_xor_self
-attribute [bv_normalize] Bool.xor_not_self
 attribute [bv_normalize] Bool.not_not
-attribute [bv_normalize] Bool.and_self_left
-attribute [bv_normalize] Bool.and_self_right
-attribute [bv_normalize] eq_self
-attribute [bv_normalize] ite_self
 
 @[bv_normalize]
 theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide

@@ -18,8 +18,6 @@ attribute [bv_normalize] beq_true
 attribute [bv_normalize] Bool.true_beq
 attribute [bv_normalize] beq_false
 attribute [bv_normalize] Bool.false_beq
-attribute [bv_normalize] beq_self_eq_true
-attribute [bv_normalize] beq_self_eq_true'
 
 @[bv_normalize]
 theorem Bool.not_beq_not : ∀ (a b : Bool), ((!a) == (!b)) = (a == b) := by

@@ -136,7 +136,7 @@ section Constant
 
 attribute [bv_normalize] BitVec.add_zero
 attribute [bv_normalize] BitVec.zero_add
-attribute [bv_normalize] BitVec.setWidth_eq
+--attribute [bv_normalize] BitVec.setWidth_eq
 attribute [bv_normalize] BitVec.setWidth_zero
 attribute [bv_normalize] BitVec.getLsbD_zero
 attribute [bv_normalize] BitVec.getLsbD_zero_length
@@ -154,57 +154,47 @@ end Constant
 attribute [bv_normalize] BitVec.zero_and
 attribute [bv_normalize] BitVec.and_zero
 
--- Used in simproc because of - normalization
+-- A lot of the following are only used in simprocs
+
 theorem BitVec.ones_and (a : BitVec w) : (-1#w) &&& a = a := by
   ext
   simp [BitVec.negOne_eq_allOnes]
 
--- Used in simproc because of - normalization
 theorem BitVec.and_ones (a : BitVec w) : a &&& (-1#w) = a := by
   ext
   simp [BitVec.negOne_eq_allOnes]
 
-attribute [bv_normalize] BitVec.and_self
-
-@[bv_normalize]
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
   ext
   simp
 
-@[bv_normalize]
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
   ext
   simp
 
-@[bv_normalize]
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by
   ext
   simp [BitVec.negOne_eq_allOnes]
 
-@[bv_normalize]
 theorem BitVec.not_add (a : BitVec w) : ~~~a + a = (-1#w) := by
   rw [BitVec.add_comm]
   rw [BitVec.add_not]
 
-@[bv_normalize]
 theorem BitVec.add_neg (a : BitVec w) : a + (~~~a + 1#w) = 0#w := by
   rw [← BitVec.neg_eq_not_add]
   rw [← BitVec.sub_toAdd]
   rw [BitVec.sub_self]
 
-@[bv_normalize]
 theorem BitVec.add_neg' (a : BitVec w) : a + (1#w + ~~~a) = 0#w := by
   rw [BitVec.add_comm 1#w (~~~a)]
   rw [BitVec.add_neg]
 
-@[bv_normalize]
 theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
   rw [← BitVec.neg_eq_not_add]
   rw [BitVec.add_comm]
   rw [← BitVec.sub_toAdd]
   rw [BitVec.sub_self]
 
-@[bv_normalize]
 theorem BitVec.neg_add' (a : BitVec w) : (1#w + ~~~a) + a = 0#w := by
   rw [BitVec.add_comm 1#w (~~~a)]
   rw [BitVec.neg_add]
@@ -229,10 +219,6 @@ theorem BitVec.not_neg'' (x : BitVec w) : ~~~(x + 1#w) = ~~~x + -1#w := by
 theorem BitVec.not_neg''' (x : BitVec w) : ~~~(1#w + x) = ~~~x + -1#w := by
   rw [BitVec.add_comm 1#w x]
   rw [BitVec.not_neg'']
-
-@[bv_normalize]
-theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
-  rw [BitVec.mul_two]
 
 theorem BitVec.add_const_left (a b c : BitVec w) : a + (b + c) = (a + b) + c := by ac_rfl
 theorem BitVec.add_const_right (a b c : BitVec w) : a + (b + c) = (a + c) + b := by ac_rfl

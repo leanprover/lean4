@@ -105,7 +105,7 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
       | .forallE n t b bi =>
         return mixHash (← mkKey t) (← withLocalDecl n bi t fun x => mkKey (b.instantiate1 x))
       | .letE n t v b _ =>
-        return mixHash (← mkKey v) (← mkKey b)
+        return mixHash (← mkKey v) (← withLetDecl n t v fun x => mkKey (b.instantiate1 x))
       | .proj _ i s =>
         return mixHash i.toUInt64 (← mkKey s)
     unsafe modify fun { cache, keyToExprs} => { keyToExprs, cache := cache.insert { e } key }

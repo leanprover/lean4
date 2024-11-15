@@ -1092,19 +1092,29 @@ def coeDelaborator : Delab := whenPPOption getPPCoercions do
   let e ← getExpr
   let .const declName _ := e.getAppFn | failure
   let some info ← Meta.getCoeFnInfo? declName | failure
+  let n := e.getAppNumArgs
+  guard <| n ≥ info.numArgs
   if (← getPPOption getPPExplicit) && info.coercee != 0 then
     -- Approximation: the only implicit arguments come before the coercee
     failure
-  let n := e.getAppNumArgs
-  withOverApp info.numArgs do
-    match info.type with
-    | .coe => `(↑$(← withNaryArg info.coercee delab))
-    | .coeFun =>
-      if n = info.numArgs then
-        `(⇑$(← withNaryArg info.coercee delab))
-      else
-        withNaryArg info.coercee delab
-    | .coeSort => `(↥$(← withNaryArg info.coercee delab))
+  if n == info.numArgs then
+    delabHead info 0 false
+  else
+    let nargs := n - info.numArgs
+    delabAppCore nargs (delabHead info nargs) (unexpand := false)
+where
+  delabHead (info : CoeFnInfo) (nargs : Nat) (insertExplicit : Bool) : Delab := do
+    guard <| !insertExplicit
+    if info.type == .coeFun && nargs > 0 then
+      -- In the CoeFun case, annotate with the coercee itself.
+      -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
+      withNaryArg info.coercee <| withAnnotateTermInfo delab
+    else
+      withAnnotateTermInfo do
+        match info.type with
+        | .coe     => `(↑$(← withNaryArg info.coercee delab))
+        | .coeFun  => `(⇑$(← withNaryArg info.coercee delab))
+        | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 @[builtin_delab app.dite]
 def delabDIte : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 5 do

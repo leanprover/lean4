@@ -1196,8 +1196,8 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
 
 /--
   Similar to `Expr.abstractRange`, but handles metavariables correctly.
-  It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
-  contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
+  It uses `elimMVarDeps` to ensure `e` does not contain a metavariable `?m`
+  s.t. the local context of `?m` contains a free variable in `xs`.
 -/
 @[inline] def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
   let e ← elimMVarDeps xs e

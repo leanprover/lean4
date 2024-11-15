@@ -27,7 +27,7 @@ structure B (f : (α : Type) → α → α) extends A where
 /--
 error: don't know how to synthesize placeholder
 context:
-⊢ { α := Nat, a := id ?_ }.α
+⊢ { α := Nat, a := id ?m }.α
 -/
 #guard_msgs in
 example : B @id where
@@ -61,7 +61,7 @@ R A : Type
 inst✝² : One R
 inst✝¹ : One A
 inst✝ : OneHom R A
-⊢ ∀ (r : R), { mem := ?_ R A _example, one_mem := ⋯ }.mem (OneHom.toFun r)
+⊢ ∀ (r : R), { mem := ?m R A _example, one_mem := ⋯ }.mem (OneHom.toFun r)
 ---
 error: don't know how to synthesize placeholder
 context:

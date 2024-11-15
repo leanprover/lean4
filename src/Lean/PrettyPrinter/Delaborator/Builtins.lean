@@ -1290,15 +1290,17 @@ private opaque evalSyntaxConstant (env : Environment) (opts : Options) (constNam
 Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`.
 
 If `universes` is `false`, then the universe level parameters are omitted.
+
+If `maxBinders` is provided, it limits the number of binders that appear before the colon.
 -/
-partial def delabConstWithSignature (universes : Bool := true) : Delab := do
+partial def delabConstWithSignature (universes : Bool := true) (maxBinders : Option Nat := none): Delab := do
   let e ← getExpr
   -- use virtual expression node of arity 2 to separate name and type info
   let idStx ← descend e 0 <|
     withOptions (pp.universes.set · universes |> (pp.fullNames.set · true)) <|
       delabConst
   descend (← inferType e) 1 <|
-    delabParams {} idStx #[]
+    delabParams 0 {} idStx #[]
 where
   /--
   For types in the signature, we want to be sure pi binder types are pretty printed.
@@ -1310,17 +1312,18 @@ where
   Once it reaches a binder with an inaccessible name, or a name that has already been used,
   the remaining binders appear in pi types after the `:` of the declaration.
   -/
-  delabParams (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) := do
+  delabParams (depth : Nat) (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) := do
     let e ← getExpr
-    if e.isForall && e.binderInfo.isInstImplicit && e.bindingName!.hasMacroScopes then
+    let allowMoreBinders : Bool := maxBinders.map (decide <| depth < ·) |>.getD true
+    if allowMoreBinders && e.isForall && e.binderInfo.isInstImplicit && e.bindingName!.hasMacroScopes then
       -- Assumption: this instance can be found by instance search, so it does not need to be named.
       -- The oversight here is that this inaccessible name can appear in the pretty printed expression.
       -- We could check to see whether the instance appears in the type and avoid omitting the instance name,
       -- but this would be the usual case.
       let group ← withBindingDomain do `(bracketedBinderF|[$(← delabTy)])
-      withBindingBody e.bindingName! <| delabParams bindingNames idStx (groups.push group)
-    else if e.isForall && (!e.isArrow || !(e.bindingName!.hasMacroScopes || bindingNames.contains e.bindingName!)) then
-      delabParamsAux bindingNames idStx groups #[]
+      withBindingBody e.bindingName! <| delabParams (depth + 1) bindingNames idStx (groups.push group)
+    else if allowMoreBinders && e.isForall && (!e.isArrow || !(e.bindingName!.hasMacroScopes || bindingNames.contains e.bindingName!)) then
+      delabParamsAux depth bindingNames idStx groups #[]
     else
       let (opts', e') ← processSpine {} (← readThe SubExpr)
       withReader (fun ctx => {ctx with optionsPerPos := opts', subExpr := { ctx.subExpr with expr := e' }}) do
@@ -1333,14 +1336,14 @@ where
   - It has a name that's not inaccessible.
   - It has a name that hasn't been used yet.
   -/
-  delabParamsAux (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
+  delabParamsAux (depth : Nat) (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
     let e@(.forallE n d e' i) ← getExpr | unreachable!
     let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
     let stxN := mkIdent n
     let curIds := curIds.push ⟨stxN⟩
     if shouldGroupWithNext bindingNames e e' then
-      withBindingBody n <| delabParamsAux bindingNames idStx groups curIds
+      withBindingBody n <| delabParamsAux (depth + 1) bindingNames idStx groups curIds
     else
       let group ← withBindingDomain do
         match i with
@@ -1355,7 +1358,7 @@ where
             `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := by $tacticSyntax))
           else
             `(bracketedBinderF|($curIds* : $(← delabTy)))
-      withBindingBody n <| delabParams bindingNames idStx (groups.push group)
+      withBindingBody n <| delabParams (depth + 1) bindingNames idStx (groups.push group)
   /-
   Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
   -/

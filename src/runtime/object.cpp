@@ -1620,6 +1620,21 @@ extern "C" LEAN_EXPORT obj_res lean_float_frexp(double a) {
     return r;
 }
 
+extern "C" LEAN_EXPORT double lean_float_from_bits(uint64_t u)
+{
+    static_assert(sizeof(double) == sizeof(u), "`double` unexpected size.");
+    double ret;
+    std::memcpy(&ret, &u, sizeof(double));
+    return ret;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_float_to_bits(double d)
+{
+    uint64_t ret;
+    std::memcpy(&ret, &d, sizeof(double));
+    return ret;
+}
+
 // =======================================
 // Strings
 

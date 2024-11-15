@@ -395,7 +395,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
     let type ← whnfR type
     let (keys, perm) ←
       match type.eq? with
-      | some (_, lhs, rhs) => withSimpGlobalConfig <| pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
+      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
@@ -536,30 +536,24 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
     return d.addDeclToUnfoldCore declName
 
 /-- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
--- TODO: It is used internally
-def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr) (inv := false) (post := true) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
+def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr)
+        (inv := false) (post := true) (prio : Nat := eval_prio default)
+        (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheorems := do
   if proof.isConst then
+    -- Recall that we use `simpGlobalConfig` for processing global declarations.
     s.addConst proof.constName! post inv prio
   else
-    let simpThms ← mkSimpTheorems id levelParams proof post inv prio
+    let simpThms ← withConfigWithKey config <| mkSimpTheorems id levelParams proof post inv prio
     return simpThms.foldl addSimpTheoremEntry s
 
 abbrev SimpTheoremsArray := Array SimpTheorems
 
-/-
-This API is used to
-- Initialize bv_decide normalizer
-- Initialize `*` at `simp` frontend
-- Add contextual theorems
-- `simpTargetStar`
-- `simpAll`
--/
-def SimpTheoremsArray.addTheorem (thmsArray : SimpTheoremsArray) (id : Origin) (h : Expr) : MetaM SimpTheoremsArray :=
+def SimpTheoremsArray.addTheorem (thmsArray : SimpTheoremsArray) (id : Origin) (h : Expr) (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheoremsArray :=
   if thmsArray.isEmpty then
     let thms : SimpTheorems := {}
-    return #[ (← thms.add id #[] h) ]
+    return #[ (← thms.add id #[] h (config := config)) ]
   else
-    thmsArray.modifyM 0 fun thms => thms.add id #[] h
+    thmsArray.modifyM 0 fun thms => thms.add id #[] h (config := config)
 
 def SimpTheoremsArray.eraseTheorem (thmsArray : SimpTheoremsArray) (thmId : Origin) : SimpTheoremsArray :=
   thmsArray.map fun thms => thms.eraseCore thmId

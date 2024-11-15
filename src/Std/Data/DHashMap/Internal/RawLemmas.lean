@@ -885,7 +885,8 @@ theorem get_insertList [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List 
       else get m k (contains_of_contains_insertList _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model using List.getValueCast_insertList
 
-theorem size_insertList [LawfulBEq α][LawfulHashable α]{l: List ((a:α) × (β a))} {distinct: DistinctKeys l} {distinct2: ∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)} (h: m.1.WF): (m.insertList l).1.size = m.1.size + l.length := by
+-- try to revert extra conditions to use simp_to_model_on_them
+theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: DistinctKeys l} {distinct2: ∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)} (h: m.1.WF): (m.insertList l).1.size = m.1.size + l.length := by
   simp_to_model
   rw [← List.length_append]
   apply List.Perm.length_eq

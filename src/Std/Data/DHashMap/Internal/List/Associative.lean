@@ -299,6 +299,7 @@ theorem containsKey_eq_isSome_getEntry? [BEq α] {l : List ((a : α) × β a)} {
     · simp [getEntry?_cons_of_false h, h, ih]
     · simp [getEntry?_cons_of_true h, h]
 
+-- TODO: not needed; containsKey_congr instead
 theorem containsKey_of_eq [BEq α] [PartialEquivBEq α]{l : List ((a : α) × β a)} {a b: α} (eq: a == b): containsKey a l ↔ containsKey b l := by
   induction l with
   | nil=> simp

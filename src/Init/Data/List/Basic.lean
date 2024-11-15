@@ -551,7 +551,7 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
 /-! ### flatten -/
 
 /--
-`O(|flatten L|)`. `join L` concatenates all the lists in `L` into one list.
+`O(|flatten L|)`. `flatten L` concatenates all the lists in `L` into one list.
 * `flatten [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
 -/
 def flatten : List (List α) → List α

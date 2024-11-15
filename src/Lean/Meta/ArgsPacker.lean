@@ -196,13 +196,13 @@ where
       let packedArg := Unary.pack packedDomain args
       return e.beta #[packedArg]
   | [n] => do
-    withLocalDecl n .default domain fun x => do
+    withLocalDeclD n domain fun x => do
       let dummy := Expr.const ``Unit []
       mkLambdaFVars #[x] (← go packedDomain dummy (args.push x) [])
   | n :: ns =>
     match_expr domain with
     | PSigma a b =>
-      withLocalDecl n .default a fun x => do
+      withLocalDeclD n a fun x => do
         mkLambdaFVars #[x] (← go packedDomain (b.beta #[x]) (args.push x) ns)
     | _ => throwError "curryPSigma: Expected PSigma type, got {domain}"
 
@@ -319,7 +319,7 @@ def uncurryType (types : Array Expr) : MetaM Expr := do
     unless type.isForall do
       throwError "Mutual.uncurryType: Expected forall type, got {type}"
   let domain ← packType (types.map (·.bindingDomain!))
-  withLocalDeclD `x domain fun x => do
+  withLocalDeclD (← mkFreshUserName `x) domain fun x => do
     let codomain ← Mutual.mkCodomain types x
     mkForallFVars #[x] codomain
 
@@ -485,13 +485,14 @@ projects to the `i`th function of type,
 -/
 def curryProj (argsPacker : ArgsPacker) (e : Expr) (i : Nat) : MetaM Expr := do
   let n := argsPacker.numFuncs
-  let packedDomain := (← inferType e).bindingDomain!
+  let t ← inferType e
+  let packedDomain := t.bindingDomain!
   let unaryTypes ← Mutual.unpackType n packedDomain
   unless i < unaryTypes.length do
     throwError "curryProj: index out of range"
   let unaryType := unaryTypes[i]!
   -- unary : (x : a ⊗ b) → e[inl x]
-  let unary ← withLocalDecl `x .default unaryType fun x => do
+  let unary ← withLocalDeclD t.bindingName! unaryType fun x => do
       let packedArg ← Mutual.pack unaryTypes.length packedDomain i x
       mkLambdaFVars #[x] (e.beta #[packedArg])
   -- nary : (x : a) → (y : b) → e[inl (x,y)]

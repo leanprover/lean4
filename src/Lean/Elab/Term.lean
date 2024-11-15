@@ -61,8 +61,6 @@ inductive SyntheticMVarKind where
   | tactic (tacticCode : Syntax) (ctx : SavedContext) (kind : TacticMVarKind)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
   | postponed (ctx : SavedContext)
-  /-- A hint that the metavariable is ideally defeq to `e`. -/
-  | defeqHint (e : Expr) (t : Meta.TransparencyMode)
   deriving Inhabited
 
 /--
@@ -77,7 +75,6 @@ instance : ToString SyntheticMVarKind where
     | .coe ..       => "coe"
     | .tactic ..    => "tactic"
     | .postponed .. => "postponed"
-    | .defeqHint .. => "defeq hint"
 
 structure SyntheticMVarDecl where
   stx : Syntax
@@ -1133,16 +1130,6 @@ def ensureHasTypeWithErrorMsgs (expectedType? : Option Expr) (e : Expr)
     return e
   else
     mkCoeWithErrorMsgs expectedType e mkImmedErrorMsg mkErrorMsg
-
-/--
-Registers a hint that `e` and `e'` are ideally defeq if they are not already defeq.
-This hint gets interleaved between elaboration tasks.
--/
-def registerDefeqHint (e e' : Expr) : TermElabM Unit := do
-  unless ← isDefEq e e' do
-    let mvar ← mkFreshExprMVar (← inferType e)
-    mvar.mvarId!.assign e
-    registerSyntheticMVarWithCurrRef mvar.mvarId! (.defeqHint e' (← getTransparency))
 
 /--
   Create a synthetic sorry for the given expected type. If `expectedType? = none`, then a fresh

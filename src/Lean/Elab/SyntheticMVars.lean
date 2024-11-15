@@ -226,9 +226,6 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
         else
           throwTypeMismatchError header expectedType (← inferType e) e f?
             m!"failed to create type class instance for{indentExpr (← getMVarDecl mvarId).type}"
-    | .defeqHint .. =>
-      -- This is just a hint, so we simply forget about it.
-      pure ()
     | _ => unreachable! -- TODO handle other cases.
 
 /--
@@ -413,13 +410,6 @@ mutual
           return true
         else
           return false
-    | .defeqHint e t => mvarId.withContext do
-      try
-        withTransparency t <| isDefEq (.mvar mvarId) e
-      catch _ =>
-        -- If isDefEq throws an error, assume that isDefEq will never succeed.
-        -- This can happen for example if expressions are not type correct at the given transparency level.
-        return true
   /--
     Try to synthesize the current list of pending synthetic metavariables.
     Return `true` if at least one of them was synthesized. -/

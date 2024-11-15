@@ -41,8 +41,8 @@ noncomputable example : Nat := by
 def foo (a b c : Nat) := if a < b then c else 0
 
 /-!
-The first `change` would fail with `typeclass instance problem is stuck`
-if there weren't defeq hints in the elaborator (`SyntheticMVarKind.defeqHint`)
+The first `change` would fail with `typeclass instance problem is stuck` if we did not have
+the `Term.synthesizeSyntheticMVars (postpone := .partial); discard <| isDefEq p e` hint
 -/
 example : foo 1 2 3 = 3 := by
   change (if _ then _ else _) = _

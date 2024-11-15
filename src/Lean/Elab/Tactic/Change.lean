@@ -21,7 +21,14 @@ Unlike `(show p from ?m : e)`, this can assign synthetic opaque metavariables ap
 def elabChange (e : Expr) (p : Term) : TacticM Expr := do
   let p ← runTermElab do
     let p ← Term.elabTermEnsuringType p (← inferType e)
-    Term.registerDefeqHint p e
+    unless ← isDefEq p e do
+      /-
+      Sometimes isDefEq can fail due to postponed elaboration problems.
+      We synthesize pending synthetic mvars while allowing typeclass instances to be postponed,
+      which might enable solving for them with an additional `isDefEq`.
+      -/
+      Term.synthesizeSyntheticMVars (postpone := .partial)
+      discard <| isDefEq p e
     pure p
   withAssignableSyntheticOpaque do
     unless ← isDefEq p e do

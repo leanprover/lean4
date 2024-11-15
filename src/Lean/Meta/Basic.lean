@@ -335,7 +335,12 @@ structure ExprConfigCacheKey where
   private mk ::
   expr      : Expr
   configKey : UInt64
-  deriving Inhabited, BEq
+  deriving Inhabited
+
+instance : BEq ExprConfigCacheKey where
+  beq a b :=
+    Expr.equal a.expr b.expr &&
+    a.configKey == b.configKey
 
 instance : Hashable ExprConfigCacheKey where
   hash := fun { expr, configKey } => mixHash (hash expr) (hash configKey)

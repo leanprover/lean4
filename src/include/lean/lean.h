@@ -1259,7 +1259,8 @@ static inline lean_obj_res lean_nat_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 
 static inline bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
-        return a1 == a2;
+        // Avoid UB due to pointer comparison
+        return lean_unbox(a1) == lean_unbox(a2);
     } else {
         return lean_nat_big_eq(a1, a2);
     }
@@ -1275,7 +1276,8 @@ static inline bool lean_nat_ne(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 
 static inline bool lean_nat_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
-        return a1 <= a2;
+        // Avoid UB due to pointer comparison
+        return lean_unbox(a1) <= lean_unbox(a2);
     } else {
         return lean_nat_big_le(a1, a2);
     }
@@ -1287,7 +1289,8 @@ static inline uint8_t lean_nat_dec_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 
 static inline bool lean_nat_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
-        return a1 < a2;
+        // Avoid UB due to pointer comparison
+        return lean_unbox(a1) < lean_unbox(a2);
     } else {
         return lean_nat_big_lt(a1, a2);
     }

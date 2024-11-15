@@ -71,6 +71,7 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
   simp only [pmap, pmapImpl, List.attachWith_toArray, List.map_toArray, mk.injEq, List.map_attachWith]
   apply List.pmap_congr_left
   intro a m h₁ h₂
+  congr
 
 @[simp] theorem _root_.List.attachWith_mem_toArray {l : List α} :
     l.attachWith (fun x => x ∈ l.toArray) (fun x h => by simpa using h) =

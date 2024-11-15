@@ -177,6 +177,16 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
         modifyInferTypeCache fun c => c.insert key type
       return type
 
+private def defaultConfig : ConfigWithKey :=
+  { : Config }.toConfigWithKey
+
+private def allConfig : ConfigWithKey :=
+  { transparency := .all : Config }.toConfigWithKey
+
+@[inline] def withInferTypeConfig (x : MetaM α) : MetaM α := do
+  let cfg := if (← getTransparency) == .all then allConfig else defaultConfig
+  withConfigWithKey cfg x
+
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=
   let rec infer (e : Expr) :  MetaM Expr := do
@@ -194,7 +204,7 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
     | .forallE ..    => checkInferTypeCache e (inferForallType e)
     | .lam ..        => checkInferTypeCache e (inferLambdaType e)
     | .letE ..       => checkInferTypeCache e (inferLambdaType e)
-  withIncRecDepth <| withAtLeastTransparency TransparencyMode.default (infer e)
+  withIncRecDepth <| withInferTypeConfig (infer e)
 
 /--
   Return `LBool.true` if given level is always equivalent to universe level zero.

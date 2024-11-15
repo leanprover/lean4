@@ -910,9 +910,14 @@ structure Context where
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
   /-- Set of unassigned metavariables being abstracted. -/
   mvarIdsToAbstract  : MVarIdSet := {}
-  /-- Map of metavariable assignments that haven't yet been added to the context.
+  /--
+  Map of metavariable assignments that haven't yet been added to the metavariable context.
   This is necessary to deal with metavariables that contain themselves in their own type.
-  Without this, such a situation would lead to infinite recursion. -/
+  Without this, such a situation would lead to infinite recursion. (see #6013 and #3150)
+
+  We claim it is not necessary to run `elim` on this cached value again, because the
+  dependencies on the free variables are already eliminated. This stops the infinite recursion.
+  -/
   mvarIdsInProgress  : AssocList MVarId Expr := {}
 
 abbrev MCore := EStateM Exception State
@@ -945,7 +950,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
 
 /--
   Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
-  return a new array of free variables that contains `toRevert` and all free variables
+  return a new array of free variables that contains `toRevert` and all variables
   in `lctx` that may depend on `toRevert`.
 
   Remark: the result is sorted by `LocalDecl` indices.
@@ -1009,7 +1014,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
     We use this function when we create auxiliary metavariables at `elimMVarDepsAux`. -/
 def reduceLocalContext (lctx : LocalContext) (toRevert : Array Expr) : LocalContext :=
   toRevert.foldr (init := lctx) fun x lctx =>
-    lctx.erase x.fvarId!
+    if x.isFVar then lctx.erase x.fvarId! else lctx
 
 /-- Return free variables in `xs` that are in the local context `lctx` -/
 private def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
@@ -1034,9 +1039,12 @@ private def getInScope (lctx : LocalContext) (xs : Array Expr) : Array Expr :=
   how let-decl free variables are handled. -/
 private def mkMVarApp (lctx : LocalContext) (mvar : Expr) (xs : Array Expr) (kind : MetavarKind) : Expr :=
   xs.foldl (init := mvar) fun e x =>
-    match kind with
-    | MetavarKind.syntheticOpaque => mkApp e x
-    | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x
+    if !x.isFVar then
+      e
+    else
+      match kind with
+      | MetavarKind.syntheticOpaque => mkApp e x
+      | _                           => if (lctx.getFVar! x).isLet then e else mkApp e x
 
 mutual
 
@@ -1055,7 +1063,7 @@ mutual
     | e                => return e
 
   /--
-    Given a metavariable with type `e`, kind `kind` and free variables `xs` in its local context `lctx`,
+    Given a metavariable with type `e`, kind `kind` and free/meta variables `xs` in its local context `lctx`,
     create the type for a new auxiliary metavariable. These auxiliary metavariables are created by `elimMVar`.
 
     See "Gruesome details" section in the beginning of the file.
@@ -1066,22 +1074,30 @@ mutual
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i e => do
       let x := xs[i]!
-      match lctx.getFVar! x with
-      | LocalDecl.cdecl _ _ n type bi _ =>
-        let type := type.headBeta
+      if x.isFVar then
+        match lctx.getFVar! x with
+        | LocalDecl.cdecl _ _ n type bi _ =>
+          let type := type.headBeta
+          let type ← abstractRangeAux xs i type
+          return Lean.mkForall n bi type e
+        | LocalDecl.ldecl _ _ n type value nonDep _ =>
+          let type := type.headBeta
+          let type  ← abstractRangeAux xs i type
+          let value ← abstractRangeAux xs i value
+          let e := mkLet n type value e nonDep
+          match kind with
+          | MetavarKind.syntheticOpaque =>
+            -- See "Gruesome details" section in the beginning of the file
+            let e := e.liftLooseBVars 0 1
+            return mkForall n BinderInfo.default type e
+          | _ => pure e
+      else
+        -- `xs` may contain metavariables as "may dependencies" (see `findExprDependsOn`)
+        let mvarDecl := (← get).mctx.getDecl x.mvarId!
+        let type := mvarDecl.type.headBeta
         let type ← abstractRangeAux xs i type
-        return Lean.mkForall n bi type e
-      | LocalDecl.ldecl _ _ n type value nonDep _ =>
-        let type := type.headBeta
-        let type  ← abstractRangeAux xs i type
-        let value ← abstractRangeAux xs i value
-        let e := mkLet n type value e nonDep
-        match kind with
-        | MetavarKind.syntheticOpaque =>
-          -- See "Gruesome details" section in the beginning of the file
-          let e := e.liftLooseBVars 0 1
-          return mkForall n BinderInfo.default type e
-        | _ => pure e
+        let id ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
+        return Lean.mkForall id (← read).binderInfoForMVars type e
   where
     abstractRangeAux (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
       let e ← elim xs e
@@ -1116,7 +1132,8 @@ mutual
       let newMVarKind := if !(← mvarId.isAssignable) then MetavarKind.syntheticOpaque else mvarDecl.kind
       let args ← args.mapM (visit xs)
       -- Note that `toRevert` only contains free variables at this point since it is the result of `getInScope`;
-      -- after `collectForwardDeps`, this is still the case.
+      -- after `collectForwardDeps`, this may no longer be the case because it may include metavariables
+      -- whose local contexts depend on `toRevert` (i.e. "may dependencies")
       let toRevert ← collectForwardDeps mvarLCtx toRevert
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
@@ -1125,7 +1142,7 @@ mutual
       modify fun s => { s with ngen := s.ngen.next }
       let newMVar      := mkMVar newMVarId
       let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
-      let newMVarType ← withReader (fun ctx => { ctx with mvarIdsInProgress := ctx.mvarIdsInProgress.cons mvarId result }) do
+      let newMVarType ← withReader (fun ctx => { ctx with mvarIdsInProgress := ctx.mvarIdsInProgress.insert mvarId result }) do
         withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
       let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs
       modify fun s => { s with

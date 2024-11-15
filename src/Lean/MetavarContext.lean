@@ -1050,9 +1050,10 @@ mutual
 
   /--
     Given a metavariable with type `e`, kind `kind` and free variables `xs` in its local context `lctx`,
-    create the type for a new auxiliary metavariable. These auxiliary metavariables are created by `elimMVar`.
+    create the type `forall xs => e` for a new auxiliary metavariable. This is used by `elimMVar`.
 
-    See "Gruesome details" section in the beginning of the file.
+    See "Gruesome details" section in the beginning of the file for understanding
+    how let-decl free variables are handled.
 
     Note: It is assumed that `xs` is the result of calling `collectForwardDeps` on a subset of variables in `lctx`.
   -/
@@ -1193,8 +1194,8 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
 
 /--
   Similar to `Expr.abstractRange`, but handles metavariables correctly.
-  It uses `elimMVarDeps` to ensure `e`does not contain a metavariable `?m`
-  s.t. the local context of `?m` contains a free variable in `xs`.
+  It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
+  contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
 -/
 @[inline] def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
   let e ← elimMVarDeps xs e

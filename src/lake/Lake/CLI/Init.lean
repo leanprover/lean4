@@ -24,12 +24,14 @@ s!"/{defaultLakeDir}
 "
 
 def basicFileContents :=
-  s!"def hello := \"world\""
+s!"def hello := \"world\"
+"
 
 def libRootFileContents (libName : String) (libRoot : Name) :=
 s!"-- This module serves as the root of the `{libName}` library.
 -- Import modules here that should be built as part of the library.
-import {libRoot}.Basic"
+import {libRoot}.Basic
+"
 
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"

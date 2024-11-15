@@ -544,7 +544,7 @@ theorem reduce_postcondition {n : Nat} (c : DefaultClause n) (assignment : Array
     (∀ l : Literal (PosFin n), reduce c assignment = reducedToUnit l → ∀ (p : (PosFin n) → Bool), p ⊨ assignment → p ⊨ c → p ⊨ l) := by
   let c_arr := c.clause.toArray
   have c_clause_rw : c.clause = c_arr.toList := by simp [c_arr]
-  rw [reduce, c_clause_rw, ← Array.foldl_eq_foldl_toList]
+  rw [reduce, c_clause_rw, Array.foldl_toList]
   let motive := ReducePostconditionInductionMotive c_arr assignment
   have h_base : motive 0 reducedToEmpty := by
     have : ∀ (a : PosFin n) (b : Bool), (reducedToEmpty = reducedToUnit (a, b)) = False := by intros; simp

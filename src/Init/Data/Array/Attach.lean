@@ -71,6 +71,12 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
   simp only [pmap, pmapImpl, List.attachWith_toArray, List.map_toArray, mk.injEq, List.map_attachWith]
   apply List.pmap_congr_left
   intro a m h₁ h₂
+
+@[simp] theorem _root_.List.attachWith_mem_toArray {l : List α} :
+    l.attachWith (fun x => x ∈ l.toArray) (fun x h => by simpa using h) =
+      l.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
+  simp only [List.attachWith, List.attach, List.map_pmap]
+  apply List.pmap_congr_left
   simp
 
 /-! ## unattach
@@ -113,7 +119,7 @@ def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) := l.map (
 
 @[simp] theorem unattach_attach {l : Array α} : l.attach.unattach = l := by
   cases l
-  simp
+  simp only [List.attach_toArray, List.unattach_toArray, List.unattach_attachWith]
 
 @[simp] theorem unattach_attachWith {p : α → Prop} {l : Array α}
     {H : ∀ a ∈ l, p a} :

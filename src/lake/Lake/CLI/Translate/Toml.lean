@@ -76,7 +76,7 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.smartInsert `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
   |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
   |>.insertD `preferReleaseBuild cfg.preferReleaseBuild false
-  |>.insertD `version cfg.version v!"0.0.0"
+  |>.insertD `version cfg.version {}
   |> smartInsertVerTags cfg.versionTags
   |>.smartInsert `keywords cfg.description
   |>.smartInsert `keywords cfg.keywords

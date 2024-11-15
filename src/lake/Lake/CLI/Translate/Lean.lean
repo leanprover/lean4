@@ -119,7 +119,7 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
     |> addDeclFieldD `testDriverArgs cfg.testDriverArgs #[]
     |> addDeclFieldD `lintDriver lintDriver ""
     |> addDeclFieldD `lintDriverArgs cfg.lintDriverArgs #[]
-    |> addDeclFieldD `version cfg.version v!"0.0.0"
+    |> addDeclFieldD `version cfg.version {}
     |> addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
     |> addDeclFieldD `description cfg.description ""
     |> addDeclFieldD `keywords cfg.keywords #[]

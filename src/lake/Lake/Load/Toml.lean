@@ -207,7 +207,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
-  let version : StdVer ← t.tryDecodeD `version v!"0.0.0"
+  let version : StdVer ← t.tryDecodeD `version {}
   let versionTags ← optDecodeD defaultVersionTags (t.find? `versionTags)
     <| StrPat.decodeToml (presets := versionTagPresets)
   let description ← t.tryDecodeD `description ""

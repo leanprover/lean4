@@ -97,8 +97,8 @@ private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
 private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
   let structType ← inferType e
   let structType ← whnf structType
-  let failed {α} : Unit → MetaM α := fun _ =>
-    throwError "invalid projection{indentExpr (mkProj structName idx e)} from type {structType}"
+  let failed {α} : Unit → MetaM α := fun _ => do
+    throwError "invalid projection{indentExpr (mkProj structName idx e)}\nfrom type{indentExpr structType}"
   matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal =>
     let structTypeArgs := structType.getAppArgs
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then

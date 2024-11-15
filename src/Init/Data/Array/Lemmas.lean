@@ -1876,6 +1876,50 @@ namespace Array
   induction as
   simp
 
+/-! ### map -/
+
+@[simp] theorem map_map {f : α → β} {g : β → γ} {as : Array α} :
+    (as.map f).map g = as.map (g ∘ f) := by
+  cases as; simp
+
+@[simp] theorem map_id_fun : map (id : α → α) = id := by
+  funext l
+  induction l <;> simp_all
+
+/-- `map_id_fun'` differs from `map_id_fun` by representing the identity function as a lambda, rather than `id`. -/
+@[simp] theorem map_id_fun' : map (fun (a : α) => a) = id := map_id_fun
+
+-- This is not a `@[simp]` lemma because `map_id_fun` will apply.
+theorem map_id (as : Array α) : map (id : α → α) as = as := by
+  cases as <;> simp_all
+
+/-- `map_id'` differs from `map_id` by representing the identity function as a lambda, rather than `id`. -/
+-- This is not a `@[simp]` lemma because `map_id_fun'` will apply.
+theorem map_id' (as : Array α) : map (fun (a : α) => a) as = as := map_id as
+
+/-- Variant of `map_id`, with a side condition that the function is pointwise the identity. -/
+theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (as : Array α) : map f as = as := by
+  simp [show f = id from funext h]
+
+theorem array_array_induction (P : Array (Array α) → Prop) (h : ∀ (xss : List (List α)), P (xss.map List.toArray).toArray)
+    (ass : Array (Array α)) : P ass := by
+  specialize h (ass.toList.map toList)
+  simpa [← toList_map, Function.comp_def, map_id] using h
+
+/-! ### flatten -/
+
+@[simp] theorem flatten_empty : flatten (#[] : Array (Array α)) = #[] := rfl
+
+@[simp] theorem flatten_toArray_map_toArray (xss : List (List α)) :
+    (xss.map List.toArray).toArray.flatten = xss.flatten.toArray := by
+  simp [flatten]
+  suffices ∀ as, List.foldl (fun r a => r ++ a) as (List.map List.toArray xss) = as ++ xss.flatten.toArray by
+    simpa using this #[]
+  intro as
+  induction xss generalizing as with
+  | nil => simp
+  | cons xs xss ih => simp [ih]
+
 /-! ### findSomeRevM?, findRevM?, findSomeRev?, findRev? -/
 
 @[simp] theorem findSomeRevM?_eq_findSomeM?_reverse

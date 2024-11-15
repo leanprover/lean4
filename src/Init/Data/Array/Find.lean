@@ -72,17 +72,22 @@ theorem findSome?_map (f : β → γ) (l : Array β) : findSome? p (l.map f) = l
 theorem findSome?_append {l₁ l₂ : Array α} : (l₁ ++ l₂).findSome? f = (l₁.findSome? f).or (l₂.findSome? f) := by
   cases l₁; cases l₂; simp [List.findSome?_append]
 
-theorem getElem?_zero_flatten {L : Array (Array α)} :
-    (flatten L)[0]? = (L.findSome? fun l => l[0]?) := by
-  cases L
-  simp
+theorem getElem?_zero_flatten (L : Array (Array α)) :
+    (flatten L)[0]? = L.findSome? fun l => l[0]? := by
+  cases L using array_array_induction
+  simp [← List.head?_eq_getElem?, List.head?_flatten, List.findSome?_map, Function.comp_def]
+
+theorem getElem_zero_flatten.proof {L : Array (Array α)} (h : 0 < L.flatten.size) :
+    (L.findSome? fun l => l[0]?).isSome := by
+  cases L using array_array_induction
+  simp [List.findSome?_map, Function.comp_def]
   sorry
 
 theorem getElem_zero_flatten {L : Array (Array α)} (h) :
-    (flatten L)[0] = (L.findSome? fun l => l[0]?).get (by sorry) := by
-  cases L
-  simp
-  sorry
+    (flatten L)[0] = (L.findSome? fun l => l[0]?).get (getElem_zero_flatten.proof h) := by
+  have t := getElem?_zero_flatten L
+  simp [getElem?_eq_getElem, h] at t
+  simp [← t]
 
 theorem back?_flatten {L : Array (Array α)} :
     (flatten L).back? =
@@ -231,10 +236,10 @@ theorem find?_mkArray_eq_none {n : Nat} {a : α} {p : α → Bool} :
 @[simp] theorem get_find?_mkArray (n : Nat) (a : α) (p : α → Bool) (h) : ((mkArray n a).find? p).get h = a := by
   simp [mkArray_eq_toArray_replicate]
 
-theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Array α)
-    (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :
-    (xs.pmap f H).find? p = (xs.attach.find? (fun ⟨a, m⟩ => p (f a (H a m)))).map fun ⟨a, m⟩ => f a (H a m) := by
-  simp only [pmap_eq_map_attach, find?_map]
-  rfl
+-- theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Array α)
+--     (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :
+--     (xs.pmap f H).find? p = (xs.attach.find? (fun ⟨a, m⟩ => p (f a (H a m)))).map fun ⟨a, m⟩ => f a (H a m) := by
+--   simp only [pmap_eq_map_attach, find?_map]
+--   rfl
 
 end Array

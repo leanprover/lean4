@@ -39,7 +39,11 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : Array α} {b : β} :
     l.findSome? f = some b ↔ ∃ (l₁ : Array α) (a : α) (l₂ : Array α), l = l₁.push a ++ l₂ ∧ f a = some b ∧ ∀ x ∈ l₁, f x = none := by
   cases l
   simp only [List.findSome?_toArray, List.findSome?_eq_some_iff]
-  sorry
+  constructor
+  · rintro ⟨l₁, a, l₂, rfl, h₁, h₂⟩
+    exact ⟨l₁.toArray, a, l₂.toArray, by simp_all⟩
+  · rintro ⟨l₁, a, l₂, h₀, h₁, h₂⟩
+    exact ⟨l₁.toList, a, l₂.toList, by simpa using congrArg toList h₀, h₁, by simpa [← mem_def]⟩
 
 @[simp] theorem findSome?_guard (l : Array α) : findSome? (Option.guard fun x => p x) l = find? p l := by
   cases l; simp
@@ -48,7 +52,7 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : Array α} {b : β} :
   cases l; simp [← List.head?_eq_getElem?]
 
 @[simp] theorem getElem_zero_filterMap (f : α → Option β) (l : Array α) (h) :
-    (l.filterMap f)[0] = (l.findSome? f).get (by sorry) := by
+    (l.filterMap f)[0] = (l.findSome? f).get (by cases l; simpa [List.length_filterMap_eq_countP] using h) := by
   cases l; simp [← List.head_eq_getElem, ← getElem?_zero_filterMap]
 
 @[simp] theorem back?_filterMap (f : α → Option β) (l : Array α) : (l.filterMap f).back? = l.findSomeRev? f := by

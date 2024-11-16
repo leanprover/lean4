@@ -328,6 +328,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
     uint64_t tid;
 #ifdef __APPLE__
     lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
+#elif defined(LEAN_EMSCRIPTEN)
+    tid = 0;
 #else
     // since Linux 2.4.11, our glibc 2.27 requires at least 3.2
     // glibc 2.30 would provide a wrapper

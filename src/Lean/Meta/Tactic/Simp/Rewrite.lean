@@ -203,7 +203,7 @@ def rewrite? (e : Expr) (s : SimpTheoremTree) (erased : PHashSet Origin) (tag : 
 where
   /-- For `(← getConfig).index := true`, use discrimination tree structure when collecting `simp` theorem candidates. -/
   rewriteUsingIndex? : SimpM (Option Result) := do
-    let candidates ← withSimpConfig <| s.getMatchWithExtra e
+    let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
@@ -221,7 +221,7 @@ where
   Only the root symbol is taken into account. Most of the structure of the discrimination tree is ignored.
   -/
   rewriteNoIndex? : SimpM (Option Result) := do
-    let (candidates, numArgs) ← withSimpConfig <| s.getMatchLiberal e
+    let (candidates, numArgs) ← withSimpIndexConfig <| s.getMatchLiberal e
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
@@ -245,7 +245,7 @@ where
 
   diagnoseWhenNoIndex (thm : SimpTheorem) : SimpM Unit := do
     if (← isDiagnosticsEnabled) then
-      let candidates ← withSimpConfig <| s.getMatchWithExtra e
+      let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
       for (candidate, _) in candidates do
         if unsafe ptrEq thm candidate then
           return ()

@@ -55,6 +55,7 @@ structure Context where
   private mk ::
   config            : Config := {}
   metaConfig        : ConfigWithKey := default
+  indexConfig       : ConfigWithKey := default
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
   maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
@@ -119,8 +120,18 @@ private def updateArith (c : Config) : CoreM Config := do
     return c
 
 /--
-Converts `Simp.Config` into `Meta.ConfigWithKey`.
+Converts `Simp.Config` into `Meta.ConfigWithKey` used for indexing.
 -/
+private def mkIndexConfig (c : Config) : ConfigWithKey :=
+  { c with
+    proj         := .no
+    transparency := .reducible
+  : Meta.Config }.toConfigWithKey
+
+/--
+Converts `Simp.Config` into `Meta.ConfigWithKey` used for `isDefEq`.
+-/
+-- TODO: use `metaConfig` at `isDefEq`. It is not being used yet because it will break Mathlib.
 private def mkMetaConfig (c : Config) : ConfigWithKey :=
   { c with
     proj         := if c.proj then .yesWithDelta else .no
@@ -129,7 +140,11 @@ private def mkMetaConfig (c : Config) : ConfigWithKey :=
 
 def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) : MetaM Context := do
   let config ← updateArith config
-  return { config, simpTheorems, congrTheorems, metaConfig := mkMetaConfig config }
+  return {
+    config, simpTheorems, congrTheorems
+    metaConfig := mkMetaConfig config
+    indexConfig := mkIndexConfig config
+  }
 
 def Context.setConfig (context : Context) (config : Config) : Context :=
   { context with config }
@@ -214,12 +229,13 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
   withTheReader Context (fun ctx => { ctx with inDSimp := true })
 
 /--
-Executes `x` using a `MetaM` configuration inferred from `Simp.Config`.
+Executes `x` using a `MetaM` configuration for indexing terms.
+It is inferred from `Simp.Config`.
 For example, if the user has set `simp (config := { zeta := false })`,
 `isDefEq` and `whnf` in `MetaM` should not perform `zeta` reduction.
 -/
-@[inline] def withSimpConfig (x : SimpM α) : SimpM α := do
-  withConfigWithKey (← readThe Simp.Context).metaConfig x
+@[inline] def withSimpIndexConfig (x : SimpM α) : SimpM α := do
+  withConfigWithKey (← readThe Simp.Context).indexConfig x
 
 @[extern "lean_simp"]
 opaque simp (e : Expr) : SimpM Result

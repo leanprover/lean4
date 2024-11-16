@@ -242,7 +242,7 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
       let ctx ← getContext
       for x in xs do
         if (← isProof x) then
-          s ← s.addTheorem (.fvar x.fvarId!) x (config := ctx.metaConfig)
+          s ← s.addTheorem (.fvar x.fvarId!) x (config := ctx.indexConfig)
           updated := true
       if updated then
         withSimpTheorems s f
@@ -833,7 +833,7 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsAr
   for h in (← getPropHyps) do
     let localDecl ← h.getDecl
     let proof  := localDecl.toExpr
-    let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof (config := ctx.metaConfig)
+    let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof (config := ctx.indexConfig)
     ctx := ctx.setSimpTheorems simpTheorems
   match (← simpTarget mvarId ctx simprocs discharge? (stats := stats)) with
   | (none, stats) => return (TacticResultCNM.closed, stats)

@@ -212,7 +212,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             match (← resolveSimpIdTheorem? term) with
             | .expr e  =>
               let name ← mkFreshId
-              thms ← addDeclToUnfoldOrTheorem ctx.metaConfig thms (.stx name arg) e post inv kind
+              thms ← addDeclToUnfoldOrTheorem ctx.indexConfig thms (.stx name arg) e post inv kind
             | .simproc declName =>
               simprocs ← simprocs.add declName post
             | .ext (some ext₁) (some ext₂) _ =>
@@ -224,7 +224,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               simprocs  := simprocs.push (← ext₂.getSimprocs)
             | .none    =>
               let name ← mkFreshId
-              thms ← addSimpTheorem ctx.metaConfig thms (.stx name arg) term post inv
+              thms ← addSimpTheorem ctx.indexConfig thms (.stx name arg) term post inv
           else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
             starArg := true
           else
@@ -329,7 +329,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     let hs ← getPropHyps
     for h in hs do
       unless simpTheorems.isErased (.fvar h) do
-        simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.metaConfig)
+        simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
     let ctx := ctx.setSimpTheorems simpTheorems
     return { ctx, simprocs, dischargeWrapper }
 

@@ -43,7 +43,7 @@ private def initEntries : M Unit := do
       let localDecl ← h.getDecl
       let proof  := localDecl.toExpr
       let ctx := (← get).ctx
-      simpThms ← simpThms.addTheorem (.fvar h) proof (config := ctx.metaConfig)
+      simpThms ← simpThms.addTheorem (.fvar h) proof (config := ctx.indexConfig)
       modify fun s => { s with ctx := s.ctx.setSimpTheorems simpThms }
       if hsNonDeps.contains h then
         -- We only simplify nondependent hypotheses
@@ -96,7 +96,7 @@ private partial def loop : M Bool := do
         trace[Meta.Tactic.simp.all] "entry.id: {← ppOrigin entry.id}, {entry.type} => {typeNew}"
         let mut simpThmsNew := (← getSimpTheorems).eraseTheorem (.fvar entry.fvarId)
         let idNew ← mkFreshId
-        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew) (config := ctx.metaConfig)
+        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew) (config := ctx.indexConfig)
         modify fun s => { s with
           modified         := true
           ctx              := ctx.setSimpTheorems simpThmsNew

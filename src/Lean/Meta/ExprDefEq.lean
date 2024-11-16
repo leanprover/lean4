@@ -1387,7 +1387,11 @@ private abbrev unfold (e : Expr) (failK : MetaM α) (successK : Expr → MetaM �
 /-- Auxiliary method for isDefEqDelta -/
 private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
   match t, s with
-  | Expr.const _ ls₁, Expr.const _ ls₂ => isListLevelDefEq ls₁ ls₂
+  | Expr.const _ ls₁, Expr.const _ ls₂ =>
+      if (← isListLevelDefEq ls₁ ls₂) == LBool.true then
+        pure LBool.true
+      else
+        pure LBool.undef
   | Expr.app _ _,     Expr.app _ _     =>
     if (← tryHeuristic t s) then
       pure LBool.true
@@ -2054,8 +2058,9 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     -- which is very costly because it requires us to unify the fields.
     if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
       return true
-    if t.isConst && s.isConst then
-      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    if ← (pure (t.isConst && s.isConst && t.constName! == s.constName!) <&&>
+          isListLevelDefEqAux t.constLevels! s.constLevels!) then
+      return true
     else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
       return true
     else

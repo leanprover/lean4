@@ -939,29 +939,6 @@ def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (m
 
 end CheckAssignmentQuick
 
-/--
-Auxiliary function used at `typeOccursCheckImp`.
-Given `type`, it tries to eliminate "dependencies". For example, suppose we are trying to
-perform the assignment `?m := f (?n a b)` where
-```
-?n : let k := g ?m; A -> h k ?m -> C
-```
-If we just perform occurs check `?m` at the type of `?n`, we get a failure, but
-we claim these occurrences are ok because the type `?n a b : C`.
-In the example above, `typeOccursCheckImp` invokes this function with `n := 2`.
-Note that we avoid using `whnf` and `inferType` at `typeOccursCheckImp` to minimize the
-performance impact of this extra check.
-
-See test `typeOccursCheckIssue.lean` for an example where this refinement is needed.
-The test is derived from a Mathlib file.
--/
-private partial def skipAtMostNumBinders (type : Expr) (n : Nat) : Expr :=
-  match type, n with
-  | .forallE _ _ b _, n+1 => skipAtMostNumBinders b n
-  | .mdata _ b,       n   => skipAtMostNumBinders b n
-  | .letE _ _ v b _,  n   => skipAtMostNumBinders (b.instantiate1 v) n
-  | type,             _   => type
-
 /-- `typeOccursCheck` implementation using unsafe (i.e., pointer equality) features. -/
 private unsafe def typeOccursCheckImp (mctx : MetavarContext) (mvarId : MVarId) (v : Expr) : Bool :=
   if v.hasExprMVar then
@@ -982,9 +959,36 @@ where
     -- this function assumes all assigned metavariables have already been
     -- instantiated.
     go.run' mctx
+  /--
+    Given `type`, it tries to eliminate "dependencies". For example, suppose we are trying to
+    perform the assignment `?m := f (?n a b)` where
+    ```
+    ?n : let k := g ?m; A -> h k ?m -> C
+    ```
+    If we just perform occurs check `?m` at the type of `?n`, we get a failure, but
+    we claim these occurrences are ok because the type `?n a b : C`.
+    In the example above, `typeOccursCheckImp` invokes this function with `n := 2`.
+    Note that we avoid using `whnf` and `inferType` at `typeOccursCheckImp` to minimize the
+    performance impact of this extra check.
+
+    See test `typeOccursCheckIssue.lean` for an example where this refinement is needed.
+    The test is derived from a Mathlib file.
+
+    Remark: note that we perform `occursCheck` at the type and value of a let-declaration.
+    See test `typeOccursCheckIssue2.lean`.
+    -/
+  skipAtMostNumBinders? (type : Expr) (n : Nat) : Option Expr :=
+    match type, n with
+    | .forallE _ _ b _, n+1 => skipAtMostNumBinders? b n
+    | .mdata _ b,       n   => skipAtMostNumBinders? b n
+    | .letE _ t v b _,  n   => if occursCheck t && occursCheck v then skipAtMostNumBinders? b n else none
+    | type,             _   => some type
   visitMVar (mvarId' : MVarId) (numArgs : Nat := 0) : Bool :=
     if let some mvarDecl := mctx.findDecl? mvarId' then
-      occursCheck (skipAtMostNumBinders mvarDecl.type numArgs)
+      if let some b := skipAtMostNumBinders? mvarDecl.type numArgs then
+        occursCheck b
+      else
+        false
     else
       false
   visitApp (e : Expr) : StateM (PtrSet Expr) Bool :=

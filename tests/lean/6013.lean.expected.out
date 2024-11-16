@@ -1,0 +1,5 @@
+6013.lean:4:0: error: unexpected end of input
+6013.lean:2:29-2:30: error: don't know how to synthesize placeholder
+context:
+a : String
+⊢ String → String

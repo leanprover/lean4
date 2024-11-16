@@ -191,21 +191,21 @@ structure Config where
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
 private def Config.toKey (c : Config) : UInt64 :=
-  c.foApprox.toUInt64 |||
-  (c.ctxApprox.toUInt64 <<< 1) |||
-  (c.quasiPatternApprox.toUInt64 <<< 2) |||
-  (c.constApprox.toUInt64 <<< 3) |||
-  (c.isDefEqStuckEx.toUInt64 <<< 4) |||
-  (c.unificationHints.toUInt64 <<< 5) |||
-  (c.proofIrrelevance.toUInt64 <<< 6) |||
-  (c.assignSyntheticOpaque.toUInt64 <<< 7) |||
-  (c.offsetCnstrs.toUInt64 <<< 8) |||
-  (c.iota.toUInt64 <<< 9) |||
-  (c.beta.toUInt64 <<< 10) |||
-  (c.zeta.toUInt64 <<< 11) |||
-  (c.zetaDelta.toUInt64 <<< 12) |||
-  (c.univApprox.toUInt64 <<< 13) |||
-  (c.transparency.toUInt64 <<< 14) |||
+  c.transparency.toUInt64 |||
+  (c.foApprox.toUInt64 <<< 2) |||
+  (c.ctxApprox.toUInt64 <<< 3) |||
+  (c.quasiPatternApprox.toUInt64 <<< 4) |||
+  (c.constApprox.toUInt64 <<< 5) |||
+  (c.isDefEqStuckEx.toUInt64 <<< 6) |||
+  (c.unificationHints.toUInt64 <<< 7) |||
+  (c.proofIrrelevance.toUInt64 <<< 8) |||
+  (c.assignSyntheticOpaque.toUInt64 <<< 9) |||
+  (c.offsetCnstrs.toUInt64 <<< 10) |||
+  (c.iota.toUInt64 <<< 11) |||
+  (c.beta.toUInt64 <<< 12) |||
+  (c.zeta.toUInt64 <<< 13) |||
+  (c.zetaDelta.toUInt64 <<< 14) |||
+  (c.univApprox.toUInt64 <<< 15) |||
   (c.etaStruct.toUInt64 <<< 16) |||
   (c.proj.toUInt64 <<< 18)
 
@@ -1095,8 +1095,15 @@ Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
 
+@[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
+  let config := { ctx.config with transparency }
+  -- Recall that `transparency` is stored in the first 2 bits
+  let configKey : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
+  { ctx with config, configKey }
+
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
-  withConfig (fun config => { config with transparency := mode })
+  -- We avoid `withConfig` for performance reasons.
+  mapMetaM <| withReader (·.setTransparency mode)
 
 /-- `withDefault x` executes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=
@@ -1118,11 +1125,9 @@ Execute `x` ensuring the transparency setting is at least `mode`.
 Recall that `.all > .default > .instances > .reducible`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
-  withConfig fun config =>
-    let oldMode := config.transparency
-    let mode    := if oldMode.lt mode then mode else oldMode
-    { config with transparency := mode }
-
+  mapMetaM <| withReader fun ctx =>
+    let modeOld := ctx.config.transparency
+    ctx.setTransparency <| if modeOld.lt mode then mode else modeOld
 
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=

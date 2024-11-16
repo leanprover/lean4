@@ -84,6 +84,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+    return lean_io_result_mk_ok(box_uint64(GetCurrentThreadId()));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
@@ -322,9 +326,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
     uint64_t tid;
-#ifdef LEAN_WINDOWS
-    tid = GetCurrentThreadId();
-#elif defined(__APPLE__)
+#ifdef __APPLE__
     lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
 #else
     // since Linux 2.4.11, our glibc 2.27 requires at least 3.2

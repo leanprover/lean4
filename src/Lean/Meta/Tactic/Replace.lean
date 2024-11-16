@@ -33,17 +33,21 @@ def _root_.Lean.MVarId.replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqP
     return mvarNew.mvarId!
 
 /--
-  Convert the given goal `Ctx |- target` into `Ctx |- targetNew`. It assumes the goals are definitionally equal.
-  We use the proof term
-  ```
-  @id target mvarNew
-  ```
-  to create a checkpoint. -/
+Converts the given goal `Ctx |- target` into `Ctx |- targetNew`. It assumes the goals are definitionally equal.
+We use the proof term
+```
+@id target mvarNew
+```
+to create a checkpoint.
+
+If `targetNew` is equal to `target`, then returns `mvarId` unchanged.
+Uses `Expr.equal` for the comparison so that it is possible to update binder names, etc., which are user-visible.
+-/
 def _root_.Lean.MVarId.replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
   mvarId.withContext do
     mvarId.checkNotAssigned `change
     let target  ← mvarId.getType
-    if target == targetNew then
+    if Expr.equal target targetNew then
       return mvarId
     else
       let tag     ← mvarId.getTag
@@ -95,12 +99,15 @@ abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (
   replaceLocalDeclCore mvarId fvarId typeNew eqProof
 
 /--
-Replace the type of `fvarId` at `mvarId` with `typeNew`.
+Replaces the type of `fvarId` at `mvarId` with `typeNew`.
 Remark: this method assumes that `typeNew` is definitionally equal to the current type of `fvarId`.
+
+If `typeNew` is equal to current type of `fvarId`, then returns `mvarId` unchanged.
+Uses `Expr.equal` for the comparison so that it is possible to update binder names, etc., which are user-visible.
 -/
 def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
   mvarId.withContext do
-    if typeNew == (← fvarId.getType) then
+    if Expr.equal typeNew (← fvarId.getType) then
       return mvarId
     else
       let mvarDecl ← mvarId.getDecl

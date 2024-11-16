@@ -149,7 +149,7 @@ def withCollectingNewGoalsFrom (k : TacticM Expr) (parentTag : Name) (tagSuffix 
 where
   go := do
     let mvarCounterSaved := (← getMCtx).mvarCounter
-    let val ← k
+    let val ← Term.withProcessEllipsisMVars k (parentTag := (← getMainTag))
     let newMVarIds ← getMVarsNoDelayed val
     /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
     let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)

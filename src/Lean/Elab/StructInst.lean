@@ -250,9 +250,12 @@ instance : ToFormat FieldLHS := ⟨fun lhs =>
   | .modifyOp _ i   => "[" ++ i.prettyPrint ++ "]"⟩
 
 inductive FieldVal (σ : Type) where
-  | term  (stx : Syntax) : FieldVal σ
-  | nested (s : σ)       : FieldVal σ
-  | default              : FieldVal σ -- mark that field must be synthesized using default value
+  | term (stx : Syntax)     : FieldVal σ
+  | nested (s : σ)          : FieldVal σ
+  /-- The field is filled in using `..`. -/
+  | implicit (stx : Syntax) : FieldVal σ
+  /-- The field must be synthesized using default value. -/
+  | default                 : FieldVal σ
   deriving Inhabited
 
 structure Field (σ : Type) where
@@ -291,16 +294,18 @@ def Struct.source : Struct → Source
 /-- `true` iff all fields of the given structure are marked as `default` -/
 partial def Struct.allDefault (s : Struct) : Bool :=
   s.fields.all fun { val := val,  .. } => match val with
-    | .term _   => false
-    | .default  => true
-    | .nested s => allDefault s
+    | .term _     => false
+    | .default    => true
+    | .implicit _ => false
+    | .nested s   => allDefault s
 
 def formatField (formatStruct : Struct → Format) (field : Field Struct) : Format :=
   Format.joinSep field.lhs " . " ++ " := " ++
     match field.val with
-    | .term v   => v.prettyPrint
-    | .nested s => formatStruct s
-    | .default  => "<default>"
+    | .term v     => v.prettyPrint
+    | .nested s   => formatStruct s
+    | .implicit _ => "_"
+    | .default    => "<default>"
 
 partial def formatStruct : Struct → Format
   | ⟨_, _,          _, fields, source⟩ =>
@@ -565,7 +570,7 @@ mutual
             if let some val ← s.source.explicit.findSomeM? fun source => mkProjStx? source.stx source.structName fieldName then
               addField (FieldVal.term val)
             else if s.source.implicit.isSome then
-              addField (FieldVal.term (mkHole ref))
+              addField (FieldVal.implicit ref)
             else
               addField FieldVal.default
       return s.setFields fields.reverse
@@ -674,6 +679,11 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
             let { val, struct := sNew, instMVars := instMVarsNew } ← elabStruct s (some d)
             let val ← ensureHasType d val
             cont val { field with val := FieldVal.nested sNew } (instMVars ++ instMVarsNew)
+        | .implicit stx =>
+          let mvar ← mkFreshExprMVar d.consumeTypeAnnotations .natural
+          registerMVarErrorHoleInfo mvar.mvarId! stx
+          registerEllipsisMVar mvar.mvarId! fieldName
+          cont mvar field
         | .default  =>
           match d.getAutoParamTactic? with
           | some (.const tacticDecl ..) =>

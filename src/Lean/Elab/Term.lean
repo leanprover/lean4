@@ -123,6 +123,15 @@ structure LevelMVarErrorInfo where
   deriving Inhabited
 
 /--
+A metavariable that can be turned into a synthetic opaque metavariable using `withProcessEllipsisMVars`.
+-/
+structure EllipsisMVarInfo where
+  mvarId : MVarId
+  /-- The suffix for the username to use when it is turned into a synthetic opaque metavariable. -/
+  userName : Name
+  deriving Inhabited
+
+/--
   Nested `let rec` expressions are eagerly lifted by the elaborator.
   We store the information necessary for performing the lifting here.
 -/
@@ -146,11 +155,13 @@ structure LetRecToLift where
 structure State where
   levelNames        : List Name       := []
   syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
-  pendingMVars      : List MVarId := {}
+  pendingMVars      : List MVarId := []
+  /-- Metavariables from ellipses should be natural so that they can be solved for,
+  but at the same time if they are not solved for they should become new goals.
+  This keeps track of natural mvars whose kind should later become syntheticOpaque. -/
+  ellipsisMVarInfos : List EllipsisMVarInfo := []
   /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
   mvarErrorInfos    : List MVarErrorInfo := []
-  /-- List of data to be able to localize universe level metavariable errors to particular expressions. -/
-  levelMVarErrorInfos   : List LevelMVarErrorInfo := []
   /--
     `mvarArgNames` stores the argument names associated to metavariables.
     These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
@@ -163,6 +174,8 @@ structure State where
     but this doesn't work if the argument name is available _before_ the `mvarErrorInfos` is set for that metavariable.
   -/
   mvarArgNames      : MVarIdMap Name := {}
+  /-- List of data to be able to localize universe level metavariable errors to particular expressions. -/
+  levelMVarErrorInfos   : List LevelMVarErrorInfo := []
   letRecsToLift     : List LetRecToLift := []
   deriving Inhabited
 
@@ -872,6 +885,34 @@ def logUnassignedLevelMVarsUsingErrorInfos (pendingLevelMVarIds : Array LMVarId)
     for error in errors do
       error.logError
     return hasNewErrors
+
+def registerEllipsisMVar (mvarId : MVarId) (userName : Name := .anonymous) : TermElabM Unit :=
+  modify fun s => { s with ellipsisMVarInfos := { mvarId, userName } :: s.ellipsisMVarInfos }
+
+/--
+Turn each unassigned ellipsis metavariable into a synthetic opaque metavariable.
+-/
+def processEllipsisMVars (parentTag : Name := .anonymous) : TermElabM Unit := do
+  let infos ← modifyGet fun s => (s.ellipsisMVarInfos, { s with ellipsisMVarInfos := [] })
+  for { mvarId, userName } in infos do
+    let e ← instantiateMVars (.mvar mvarId)
+    if let .mvar mvarId' := e then
+      if (← mvarId'.getKind).isNatural then
+        mvarId'.setKind .syntheticOpaque
+        if !userName.isAnonymous && (← mvarId'.getDecl).userName.isAnonymous then
+          mvarId'.setUserName (parentTag ++ userName)
+
+def withProcessEllipsisMVarsImp (k : TermElabM α) (parentTag : Name := .anonymous) : TermElabM α := do
+  let saved := (← get).ellipsisMVarInfos
+  try
+    let res ← k
+    processEllipsisMVars parentTag
+    return res
+  finally
+    modify fun s => { s with ellipsisMVarInfos := saved }
+
+@[inline] def withProcessEllipsisMVars [MonadFunctorT TermElabM m] (k : m α) (parentTag : Name := .anonymous) : m α :=
+  monadMap (m := TermElabM) (withProcessEllipsisMVarsImp · parentTag) k
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do

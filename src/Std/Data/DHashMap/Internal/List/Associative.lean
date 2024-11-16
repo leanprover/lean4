@@ -18,17 +18,17 @@ File contents: Verification of associative lists
 
 -- TODO: this does not belong here; maybe create a new datatype for such dependant associative lists?
 def List.get_by_key {α : Type u} {β : α -> Type v} [BEq α] [LawfulBEq α] (l: List ((a:α) × (β a))) (k: α) (h : (l.map Sigma.fst).contains k) : β k :=
-  match l with 
+  match l with
   | .nil => by simp at h
-  | .cons ⟨k', v⟩ l => if h' : k == k' 
-    then 
+  | .cons ⟨k', v⟩ l => if h' : k == k'
+    then
       have : k = k' := LawfulBEq.eq_of_beq h'
-      cast (by rw [this]) v 
+      cast (by rw [this]) v
     else List.get_by_key l k (by unfold List.map at h; rw [List.contains_cons] at h; rw [Bool.or_eq_true_iff] at h; cases h with | inl hl => simp at hl; rw [hl] at h'; simp at h' | inr _ => assumption)
 
-theorem List.get_by_key_append_elem {α : Type u} {β : α -> Type v} [BEq α] [LawfulBEq α] (l: List ((a:α) × (β a))) (elem: ((a:α) × (β a))) (k: α) (h : (l.map Sigma.fst).contains k) : ∀ h', (l ++ [elem]).get_by_key k h' = l.get_by_key k h := by 
+theorem List.get_by_key_append_elem {α : Type u} {β : α -> Type v} [BEq α] [LawfulBEq α] (l: List ((a:α) × (β a))) (elem: ((a:α) × (β a))) (k: α) (h : (l.map Sigma.fst).contains k) : ∀ h', (l ++ [elem]).get_by_key k h' = l.get_by_key k h := by
   intro h'
-  induction l with 
+  induction l with
   | nil => simp at h
   | cons elem' l ih =>
     simp [get_by_key]
@@ -36,21 +36,21 @@ theorem List.get_by_key_append_elem {α : Type u} {β : α -> Type v} [BEq α] [
     . rfl
     . apply ih
 
-theorem List.get_by_key_append_elem' {α : Type u} {β : α -> Type v} [BEq α] [LawfulBEq α] (l: List ((a:α) × (β a))) (elem: ((a:α) × (β a))) (k: α) (h : ¬(l.map Sigma.fst).contains k) : ∀ h', (l ++ [elem]).get_by_key k h' = cast (by simp at h'; simp at h; cases h' with 
-  | inl h' => cases h' with | intro a h' => specialize h a h'.left h'.right; simp at h 
-  | inr h' => rw [h']) elem.snd := 
-by 
+theorem List.get_by_key_append_elem' {α : Type u} {β : α -> Type v} [BEq α] [LawfulBEq α] (l: List ((a:α) × (β a))) (elem: ((a:α) × (β a))) (k: α) (h : ¬(l.map Sigma.fst).contains k) : ∀ h', (l ++ [elem]).get_by_key k h' = cast (by simp at h'; simp at h; cases h' with
+  | inl h' => cases h' with | intro a h' => specialize h a h'.left h'.right; simp at h
+  | inr h' => rw [h']) elem.snd :=
+by
   intro h'
-  induction l with 
+  induction l with
   | nil => simp at h'; simp [get_by_key, h']
   | cons elem' l ih =>
     simp [get_by_key]
     simp at h
     simp at h'
-    cases h' with 
+    cases h' with
     | inl h' => rw [h'] at h; simp at h
-    | inr h' => 
-      cases h' with 
+    | inr h' =>
+      cases h' with
       | inl h' => cases h' with | intro a h' => have hr := h.right; specialize hr a h'.left h'.right; simp at hr
       | inr h' =>
         simp [h.left]
@@ -1929,36 +1929,36 @@ theorem containsKey_insertList [BEq α] [PartialEquivBEq α] (l toInsert : List 
 theorem containsKey_of_containsKey_insertList [BEq α] [PartialEquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α} (h₁ : containsKey k (insertList l toInsert))
     (h₂ : (toInsert.map Sigma.fst).contains k = false) : containsKey k l := by
-  rw [containsKey_insertList, h₂] at h₁; simp at h₁; exact h₁  
+  rw [containsKey_insertList, h₂] at h₁; simp at h₁; exact h₁
 
-theorem getValueCast_insertList [BEq α] [LawfulBEq α] 
+theorem getValueCast_insertList [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
     {h} : getValueCast k (insertList l toInsert) h =
       if h' : (toInsert.map Sigma.fst).contains k then List.get_by_key toInsert.reverse k (by simp; simp at h'; exact h')
       else getValueCast k l (containsKey_of_containsKey_insertList h (Bool.eq_false_iff.2 h')) := by
-  induction toInsert generalizing l with 
+  induction toInsert generalizing l with
   | nil => simp [insertList]
-  | cons elem toInsert ih => 
+  | cons elem toInsert ih =>
     simp [insertList]
     rw [ih]
     split
-    case isTrue eq => 
+    case isTrue eq =>
       split
       case isTrue eq2 => rw [List.get_by_key_append_elem]
       case isFalse eq2 => rw [List.contains_cons] at eq2; rw [eq] at eq2; simp at eq2
-    case isFalse eq => 
+    case isFalse eq =>
       rw [getValueCast_insertEntry]
       split
-      case isTrue eq2 => 
-        split 
+      case isTrue eq2 =>
+        split
         case isTrue eq3 => rw [List.get_by_key_append_elem']; simp; simp at eq; exact eq
         case isFalse eq3 => simp at eq3; simp at eq2; rw [eq2] at eq3; simp at eq3
-      case isFalse eq2 => 
-        split 
+      case isFalse eq2 =>
+        split
         case isTrue eq3 => simp at eq3; simp at eq; cases eq3 with | inl hl => rw [hl] at eq2; simp at eq2 | inr hr => cases hr with | intro a hr => specialize eq a hr.left hr.right; simp at eq
         case isFalse eq3 => rfl
 
-theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: DistinctKeys toInsert) (distinct_both: ∀ (a:α), ¬ containsKey a l ∨  ¬ containsKey a toInsert):
+theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: DistinctKeys toInsert) (distinct_both: ∀ (a:α), ¬ (containsKey a l ∧ containsKey a toInsert)):
     Perm (insertList l toInsert) (l++toInsert) := by
   induction toInsert generalizing l with
   | nil => simp[insertList]

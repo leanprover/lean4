@@ -863,11 +863,12 @@ theorem insertMany_eq_insertList
   rw [insertList_eq_foldl, insertMany_val]
 
 @[simp]
-theorem insertList_nil : m.insertList [] = m := by
+theorem insertList_nil: m.insertList [] = m := by
   simp[insertList, Id.run]
 
 @[simp]
-theorem insertList_singleton {k: α} {v: β k}: m.insertList [⟨k,v⟩] = m.insert k v := by
+theorem insertList_singleton {k: α} {v: β k} (h: m.1.WF): m.insertList [⟨k,v⟩] = m.insert k v := by
+  simp_to_model
   simp[insertList, Id.run]
 
 @[simp]
@@ -908,22 +909,17 @@ theorem get_insertList [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List 
       else get m k (contains_of_contains_insertList _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model using List.getValueCast_insertList
 
--- try to revert extra conditions to use simp_to_model_on_them
-theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: DistinctKeys l} {distinct2: ∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)} (h: m.1.WF): (m.insertList l).1.size = m.1.size + l.length := by
+theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: DistinctKeys l} (h: m.1.WF): (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) →  (m.insertList l).1.size = m.1.size + l.length := by
   simp_to_model
   rw [← List.length_append]
+  intro distinct'
   apply List.Perm.length_eq
   apply List.insertList_perm
   . apply (Raw.WF.out h).distinct
   . exact distinct
-  . simp at distinct2
-    intro a
-    cases eq : containsKey a (toListModel m.val.buckets) with
-    | false => simp
-    | true =>
-      simp
-      apply distinct2
-      simp_to_model
+  . apply distinct'
+
+
 end Raw₀
 
 end Std.DHashMap.Internal

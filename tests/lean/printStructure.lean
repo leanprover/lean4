@@ -10,7 +10,7 @@ fields:
   Prod.fst : α
   Prod.snd : β
 constructor:
-  Prod.mk : {α : Type u} → {β : Type v} → α → β → α × β
+  Prod.mk.{u, v} {α : Type u} {β : Type v} (fst : α) (snd : β) : α × β
 -/
 #guard_msgs in
 #print Prod
@@ -22,7 +22,7 @@ number of parameters: 1
 fields:
   Inhabited.default : α
 constructor:
-  Inhabited.mk : {α : Sort u} → α → Inhabited α
+  Inhabited.mk.{u} {α : Sort u} (default : α) : Inhabited α
 -/
 #guard_msgs in
 #print Inhabited
@@ -34,7 +34,7 @@ number of parameters: 1
 fields:
   private _root_.Thunk.fn : Unit → α
 constructor:
-  Thunk.mk : {α : Type u} → (Unit → α) → Thunk α
+  Thunk.mk.{u} {α : Type u} (fn : Unit → α) : Thunk α
 -/
 #guard_msgs in
 #print Thunk
@@ -55,8 +55,8 @@ fields:
   Alternative.failure : {α : Type u} → f α
   Alternative.orElse : {α : Type u} → f α → (Unit → f α) → f α
 constructor:
-  Alternative.mk : {f : Type u → Type v} →
-    [toApplicative : Applicative f] → ({α : Type u} → f α) → ({α : Type u} → f α → (Unit → f α) → f α) → Alternative f
+  Alternative.mk.{u, v} {f : Type u → Type v} [toApplicative : Applicative f] (failure : {α : Type u} → f α)
+    (orElse : {α : Type u} → f α → (Unit → f α) → f α) : Alternative f
 resolution order:
   Alternative, Applicative, Functor, Pure, Seq, SeqLeft, SeqRight
 -/
@@ -81,9 +81,8 @@ fields:
   SeqLeft.seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
   SeqRight.seqRight : {α β : Type u} → f α → (Unit → f β) → f β
 constructor:
-  Applicative.mk : {f : Type u → Type v} →
-    [toFunctor : Functor f] →
-      [toPure : Pure f] → [toSeq : Seq f] → [toSeqLeft : SeqLeft f] → [toSeqRight : SeqRight f] → Applicative f
+  Applicative.mk.{u, v} {f : Type u → Type v} [toFunctor : Functor f] [toPure : Pure f] [toSeq : Seq f]
+    [toSeqLeft : SeqLeft f] [toSeqRight : SeqRight f] : Applicative f
 resolution order:
   Applicative, Functor, Pure, Seq, SeqLeft, SeqRight
 -/
@@ -101,7 +100,7 @@ number of parameters: 2
 fields:
   Weird.a : α
 constructor:
-  Weird.mk : {α : Type u_1} → {β : Type u_2} → α → Weird α β
+  Weird.mk.{u_1, u_2} {α : Type u_1} {β : Type u_2} (a : α) : Weird α β
 -/
 #guard_msgs in
 #print Weird

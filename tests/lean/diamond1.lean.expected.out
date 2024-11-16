@@ -13,7 +13,7 @@ fields:
   Baz.c : Bool → α
   Baz.d : Nat
 constructor:
-  Foo.mk : {α : Type} → Bar (α → α) → (Bool → α) → Nat → Foo α
+  Foo.mk {α : Type} (toBar : Bar (α → α)) (c : Bool → α) (d : Nat) : Foo α
 resolution order:
   Foo, Bar, Baz
 def f : Nat → Foo Nat :=

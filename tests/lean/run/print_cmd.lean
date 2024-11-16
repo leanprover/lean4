@@ -28,7 +28,7 @@ fields:
   Prod.fst : α
   Prod.snd : β
 constructor:
-  Prod.mk : {α : Type u} → {β : Type v} → α → β → α × β
+  Prod.mk.{u, v} {α : Type u} {β : Type v} (fst : α) (snd : β) : α × β
 -/
 #guard_msgs in #print Prod
 /-- info: constructor Prod.mk.{u, v} : {α : Type u} → {β : Type v} → α → β → α × β -/
@@ -93,7 +93,7 @@ fields:
   C.c : Nat
   D.d : Nat
 constructor:
-  D.mk : B → Nat → Nat → D
+  D.mk (toB : B) (c d : Nat) : D
 resolution order:
   D, B, C, A
 -/

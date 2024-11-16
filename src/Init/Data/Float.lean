@@ -53,7 +53,7 @@ Raw transmutation from `UInt64`.
 Floats and UInts have the same endianness on all supported platforms.
 IEEE 754 very precisely specifies the bit layout of floats.
 -/
-@[extern "lean_float_from_bits"] opaque Float.fromBits : UInt64 → Float
+@[extern "lean_float_of_bits"] opaque Float.ofBits : UInt64 → Float
 
 /--
 Raw transmutation to `UInt64`.

@@ -2691,7 +2691,7 @@ static inline size_t lean_float_to_usize(double a) {
     else
         return (size_t) lean_float_to_uint32(a); // NOLINT
 }
-LEAN_EXPORT double lean_float_from_bits(uint64_t u);
+LEAN_EXPORT double lean_float_of_bits(uint64_t u);
 LEAN_EXPORT uint64_t lean_float_to_bits(double d);
 static inline double lean_float_add(double a, double b) { return a + b; }
 static inline double lean_float_sub(double a, double b) { return a - b; }

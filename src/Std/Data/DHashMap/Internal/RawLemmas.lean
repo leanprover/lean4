@@ -839,6 +839,29 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
 
+theorem insertList_eq_foldl
+    (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    insertList m l = l.foldl (init := m) fun m' p => m'.insert p.1 p.2 := by
+  simp [insertList, Id.run]
+
+theorem insertMany_val (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    (insertMany m l).val = l.foldl (init := m) fun m' p => m'.insert p.1 p.2 := by
+  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
+    (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),
+      (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+    List.foldl (fun m' p => m'.insert p.fst p.snd) t.val l from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp
+  | cons h t ih =>
+    simp
+    rw [ih]
+
+theorem insertMany_eq_insertList
+    (m : Raw₀ α β) (l : List ((a : α) × β a)) : (insertMany m l).val = insertList m l := by
+  rw [insertList_eq_foldl, insertMany_val]
+
 @[simp]
 theorem insertList_nil : m.insertList [] = m := by
   simp[insertList, Id.run]
@@ -875,7 +898,7 @@ theorem contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: L
     (m.insertList l).contains k ↔ m.contains k ∨ (l.map Sigma.fst).contains k := by
   simp_to_model using List.containsKey_insertList
 
-theorem contains_of_contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} : 
+theorem contains_of_contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} :
     (m.insertList l).contains k → (l.map Sigma.fst).contains k = false → m.contains k := by
   simp_to_model using List.containsKey_of_containsKey_insertList
 
@@ -893,11 +916,11 @@ theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (�
   apply List.insertList_perm
   . apply (Raw.WF.out h).distinct
   . exact distinct
-  . simp at distinct2 
+  . simp at distinct2
     intro a
-    cases eq : containsKey a (toListModel m.val.buckets) with 
+    cases eq : containsKey a (toListModel m.val.buckets) with
     | false => simp
-    | true => 
+    | true =>
       simp
       apply distinct2
       simp_to_model

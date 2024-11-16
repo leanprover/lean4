@@ -360,16 +360,6 @@ def insertList [BEq α] [Hashable α]
     r:= r.insert a b
   return r
 
-theorem insertMany_eq_insertList [BEq α] [Hashable α] (m : Raw₀ α β) (l : List ((a : α) × β a)) : (m.insertMany l).val = m.insertList l := by 
-  simp [insertMany, Id.run]
-  induction l generalizing m with 
-  | nil => simp [insertList, Id.run]
-  | cons elem l ih => 
-    simp [insertList]
-    refine Eq.trans (ih (m.insert elem.fst elem.snd)) ?_
-    rw [ih (m.insert elem.fst elem.snd)]
-    sorry
-
 section
 
 variable {β : Type v}

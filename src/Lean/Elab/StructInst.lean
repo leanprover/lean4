@@ -900,8 +900,16 @@ partial def tryToSynthesizeDefault (structs : Array Struct) (allStructNames : Ar
           | none   =>
             let mvarDecl ← getMVarDecl mvarId
             let val ← ensureHasType mvarDecl.type val
-            mvarId.assign val
-            return true
+            /-
+            We must use `checkedAssign` here to ensure we do not create a cyclic
+            assignment. See #3150.
+            This can happen when there are holes in the the fields the default value
+            depends on.
+            Possible improvement: create a new `_` instead of returning `false` when
+            `checkedAssign` fails. Reason: the field will not be needed after the
+            other `_` are resolved by the user.
+            -/
+            mvarId.checkedAssign val
       | _ => loop (i+1) dist
     else
       return false

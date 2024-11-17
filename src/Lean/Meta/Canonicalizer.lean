@@ -111,7 +111,7 @@ private partial def mkKey (e : Expr) : CanonM UInt64 := do
         return k
       | .lam n t b bi
       | .forallE n t b bi =>
-        -- Note this we do not use `withLocalDecl` here, for performance reasons.
+        -- Note that we do not use `withLocalDecl` here, for performance reasons.
         -- Instead we have a guard for loose bound variables in the `.app` case above.
         return mixHash (← mkKey t) (← mkKey b)
       | .letE n t v b _ =>

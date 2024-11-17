@@ -23,7 +23,7 @@ namespace BVPred
 def bitblast (aig : AIG BVBit) (pred : BVPred) : AIG.Entrypoint BVBit :=
   match pred with
   | .bin lhs op rhs =>
-    let res := lhs.bitblast aig
+    have res := lhs.bitblast aig
     let aig := res.aig
     let lhsRefs := res.vec
     let res := rhs.bitblast aig

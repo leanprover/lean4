@@ -38,10 +38,12 @@ extern "C" {
 #define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
 #define LEAN_LIKELY(x) (__builtin_expect((x), 1))
 
-// We have observed stack frame increases from forced inlining overflowing the stack in debug builds,
-// let's leave the decision to the compiler in that case
 #ifdef NDEBUG
 #define LEAN_ALWAYS_INLINE __attribute__((always_inline))
+#else
+// We have observed stack frame increases from forced inlining overflowing the stack in debug builds,
+// let's leave the decision to the compiler in that case
+#define LEAN_ALWAYS_INLINE
 #endif
 
 #else

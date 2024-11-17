@@ -22,11 +22,11 @@ open Meta
     changeLhs lhs'
   | _ => throwUnsupportedSyntax
 
-@[builtin_tactic Lean.Parser.Tactic.Conv.changeWith] def evalChangeWith : Tactic
-  | `(conv| change $p:term with $t:term) => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.changeMatching] def evalChangeMatching : Tactic
+  | `(conv| change_matching $p:term with $t:term) => do
     let lhs ← getLhs
     let mvarCounterSaved := (← getMCtx).mvarCounter
-    let lhs' ← elabChangeWith lhs p t
+    let lhs' ← elabChangeMatching lhs p t
     logUnassignedAndAbort (← filterOldMVars (← getMVars lhs') mvarCounterSaved)
     changeLhs lhs'
   | _ => throwUnsupportedSyntax

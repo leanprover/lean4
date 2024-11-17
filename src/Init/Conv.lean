@@ -103,9 +103,9 @@ syntax (name := ext) "ext" (ppSpace colGt ident)* : conv
 assuming `t` and `t'` are definitionally equal. -/
 syntax (name := change) "change " term : conv
 
-/-- `change p with t` replaces all occurrences of `p` in the target with `t`,
+/-- `change_matching p with t` replaces all occurrences of `p` in the target with `t`,
 assuming `p` and `t` are definitionally equal. -/
-syntax (name := changeWith) "change " term " with " term : conv
+syntax (name := changeMatching) "change_matching " term " with " term : conv
 
 /-- `delta id1 id2 ...` unfolds all occurrences of `id1`, `id2`, ... in the target.
 Like the `delta` tactic, this ignores any definitional equations and uses

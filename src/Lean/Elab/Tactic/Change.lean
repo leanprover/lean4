@@ -33,10 +33,10 @@ def elabChange (e : Expr) (p : Term) : TacticM Expr := do
     pure p
   withAssignableSyntheticOpaque do
     unless ← isDefEq p e do
-      let (p, tgt) ← addPPExplicitToExposeDiff p e
+      let (p, e) ← addPPExplicitToExposeDiff p e
       throwError "\
         'change' tactic failed, pattern{indentExpr p}\n\
-        is not definitionally equal to target{indentExpr tgt}"
+        is not definitionally equal to target{indentExpr e}"
     instantiateMVars p
 
 @[builtin_tactic change] elab_rules : tactic
@@ -45,18 +45,24 @@ def elabChange (e : Expr) (p : Term) : TacticM Expr := do
       (atLocal := fun h => do
         let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChange (← h.getType) newType) (← getMainTag) `change
         liftMetaTactic fun mvarId => do
-          return (← mvarId.changeLocalDecl h hTy') :: mvars)
+          if ← occursCheck mvarId hTy' then
+            return (← mvarId.changeLocalDecl h hTy') :: mvars
+          else
+            throwError "occurs check failed, expression{indentExpr hTy'}\ncontains the goal {Expr.mvar mvarId}")
       (atTarget := do
         let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange (← getMainTarget) newType) (← getMainTag) `change
         liftMetaTactic fun mvarId => do
-          return (← mvarId.replaceTargetDefEq tgt') :: mvars)
+          if ← occursCheck mvarId tgt' then
+            return (← mvarId.replaceTargetDefEq tgt') :: mvars
+          else
+            throwError "occurs check failed, expression{indentExpr tgt'}\ncontains the goal {Expr.mvar mvarId}")
       (failed := fun _ => throwError "'change' tactic failed")
 
 /--
 Replaces each occurrence of `p` in `e` with `t`.
-This is roughly the same as doing `rewrite [show p = t by rfl]` on `e`.
+This is roughly like doing `rewrite [show p = t by rfl]` on `e`, but it does not require a type-correct motive.
 -/
-def elabChangeWith (e : Expr) (p t : Term) : TacticM Expr := do
+def elabChangeMatching (e : Expr) (p t : Term) : TacticM Expr := do
   -- Set `mayPostpone := true` like when elaborating `rewrite` rules.
   let (p, t) ← runTermElab (mayPostpone := true) do
     let p ← Term.elabTerm p none
@@ -66,30 +72,36 @@ def elabChangeWith (e : Expr) (p t : Term) : TacticM Expr := do
   let e' ← kabstract e p
   unless e'.hasLooseBVars do
     throwError "\
-      'change with' tactic failed, did not find instance of the pattern{indentExpr p}\n\
+      'change_matching' tactic failed, did not find instance of the pattern{indentExpr p}\n\
       in the expression{indentExpr e}"
+  -- Now that `kabstract` has unified `p` with a subterm of `e`, make sure elaboration is complete.
   Term.synthesizeSyntheticMVarsNoPostponing
   withAssignableSyntheticOpaque do
     unless ← isDefEq p t do
       let (p, t) ← addPPExplicitToExposeDiff p t
       throwError "\
-        'change with' tactic failed, pattern{indentExpr p}\n\
+        'change_matching' tactic failed, pattern{indentExpr p}\n\
         is not definitionally equal to replacement{indentExpr t}"
     instantiateMVars (e'.instantiate1 t)
 
-@[builtin_tactic changeWith] elab_rules : tactic
-  | `(tactic| change $p:term with $t:term $[$loc:location]?) => do
+@[builtin_tactic changeMatching] elab_rules : tactic
+  | `(tactic| change_matching $p:term with $t:term $[$loc:location]?) => do
     withLocation (expandOptLocation (mkOptionalNode loc))
       (atLocal := fun h => do
         let hTy ← h.getType
-        let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChangeWith hTy p t) (← getMainTag) `change
+        let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChangeMatching hTy p t) (← getMainTag) `change_matching
         liftMetaTactic fun mvarId => do
-          return (← mvarId.changeLocalDecl h hTy') :: mvars)
+          if ← occursCheck mvarId hTy' then
+            return (← mvarId.changeLocalDecl h hTy') :: mvars
+          else
+            throwError "occurs check failed, expression{indentExpr hTy'}\ncontains the goal {Expr.mvar mvarId}")
       (atTarget := do
-        let g ← popMainGoal
-        let (e', mvars) ← withCollectingNewGoalsFrom (elabChangeWith (← g.getType) p t) (← g.getTag) `change
-        let g ← g.replaceTargetDefEq e'
-        pushGoals (g :: mvars))
-      (failed := fun _ => throwError "'change with' tactic failed")
+        let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChangeMatching (← getMainTarget) p t) (← getMainTag) `change_matching
+        liftMetaTactic fun mvarId => do
+          if ← occursCheck mvarId tgt' then
+            return (← mvarId.replaceTargetDefEq tgt') :: mvars
+          else
+            throwError "occurs check failed, expression{indentExpr tgt'}\ncontains the goal {Expr.mvar mvarId}")
+      (failed := fun _ => throwError "'change_matching' tactic failed")
 
 end Lean.Elab.Tactic

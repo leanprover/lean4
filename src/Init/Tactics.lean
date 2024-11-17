@@ -496,11 +496,11 @@ Notice that the placeholders in `_ + 1 = _` are not constant across hypotheses.
 syntax (name := change) "change " term (location)? : tactic
 
 /--
-* `change a with b` will change occurrences of `a` to `b` in the goal,
+* `change_matching a with b` will change occurrences of `a` to `b` in the goal,
   assuming `a` and `b` are definitionally equal.
-* `change a with b at h` similarly changes occurrences of `a` to `b` in the type of hypothesis `h`.
+* `change_matching a with b at h` similarly changes occurrences of `a` to `b` in the type of hypothesis `h`.
 -/
-syntax (name := changeWith) "change " term " with " term (location)? : tactic
+syntax (name := changeMatching) "change_matching " term " with " term (location)? : tactic
 
 /--
 If `thm` is a theorem `a = b`, then as a rewrite rule,

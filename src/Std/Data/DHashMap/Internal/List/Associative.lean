@@ -1999,4 +1999,23 @@ theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: 
       apply Perm.symm
       apply List.perm_middle
 
+theorem insertList_not_isEmpty_if_start_not_isEmpty [BEq α]{l toInsert: List ((a : α) × β a)} {h:l.isEmpty = false}:
+    (List.insertList l toInsert).isEmpty = false := by
+  induction toInsert generalizing l with
+  | nil => simp[insertList, h]
+  | cons hd tl ih =>
+    simp[insertList, ih]
+
+
+theorem insertList_isEmpty [BEq α]{l toInsert: List ((a : α) × β a)}: (List.insertList l toInsert).isEmpty ↔ l.isEmpty ∧ toInsert.isEmpty := by
+  induction toInsert with
+  | nil => simp[insertList]
+  | cons hd tl ih =>
+    simp only [insertList, List.isEmpty_cons, Bool.false_eq_true, and_false,
+      iff_false]
+    apply ne_true_of_eq_false
+    apply insertList_not_isEmpty_if_start_not_isEmpty
+    simp
+
+
 end List

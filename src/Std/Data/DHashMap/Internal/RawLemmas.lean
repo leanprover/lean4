@@ -858,6 +858,7 @@ theorem insertMany_val (m : Raw₀ α β) (l : List ((a : α) × β a)) :
     simp
     rw [ih]
 
+@[simp]
 theorem insertMany_eq_insertList
     (m : Raw₀ α β) (l : List ((a : α) × β a)) : (insertMany m l).val = insertList m l := by
   rw [insertList_eq_foldl, insertMany_val]
@@ -867,8 +868,7 @@ theorem insertList_nil: m.insertList [] = m := by
   simp[insertList, Id.run]
 
 @[simp]
-theorem insertList_singleton {k: α} {v: β k} (h: m.1.WF): m.insertList [⟨k,v⟩] = m.insert k v := by
-  simp_to_model
+theorem insertList_singleton [EquivBEq α] [LawfulHashable α] {k: α} {v: β k}: m.insertList [⟨k,v⟩] = m.insert k v := by
   simp[insertList, Id.run]
 
 @[simp]
@@ -919,7 +919,11 @@ theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (�
   . exact distinct
   . apply distinct'
 
+theorem insertList_notEmpty_if_m_notEmpty [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))}(h: m.1.WF): (m.1.isEmpty = false) → (m.insertList l).1.isEmpty  = false := by
+  simp_to_model using List.insertList_not_isEmpty_if_start_not_isEmpty
 
+theorem insertList_isEmpty [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))}(h: m.1.WF): (m.insertList l).1.isEmpty ↔ m.1.isEmpty ∧ l.isEmpty := by
+  simp_to_model using List.insertList_isEmpty
 end Raw₀
 
 end Std.DHashMap.Internal

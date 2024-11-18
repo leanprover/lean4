@@ -4388,7 +4388,7 @@ return x_48;
 }
 }
 }
-case 2:
+case 3:
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
 x_49 = lean_ctor_get(x_21, 0);
@@ -4689,7 +4689,7 @@ if (lean_obj_tag(x_4) == 1)
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
-if (lean_obj_tag(x_6) == 2)
+if (lean_obj_tag(x_6) == 3)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_7 = lean_ctor_get(x_6, 0);

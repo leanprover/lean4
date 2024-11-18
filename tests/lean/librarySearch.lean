@@ -15,6 +15,8 @@
 -- 1. update the comment using the code action on `#guard_msgs`
 -- 2. (optional) add `(drop info)` after `#guard_msgs` and change the doc-comment to a comment
 
+set_option linter.unusedVariables false
+
 noncomputable section
 
 /-- info: Try this: exact Nat.lt_add_one x -/
@@ -256,9 +258,6 @@ theorem Bool_eq_iff2 {A B : Bool} : (A = B) = (A ↔ B) := by
 info: Try this: refine Int.mul_ne_zero ?_ h
 ---
 warning: declaration uses 'sorry'
----
-warning: unused variable `h`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
 -/
 #guard_msgs in
 example {x : Int} (h : x ≠ 0) : 2 * x ≠ 0 := by

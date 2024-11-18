@@ -236,8 +236,9 @@ where
     -- Pretty-printing instructions shouldn't affect validity
     let s := s.trim
     !s.isEmpty &&
-    (s.front != '\'' || s == "''") &&
+    (s.front != '\'' || "''".isPrefixOf s) &&
     s.front != '\"' &&
+    !(isIdBeginEscape s.front) &&
     !(s.front == '`' && (s.endPos == ⟨1⟩ || isIdFirst (s.get ⟨1⟩) || isIdBeginEscape (s.get ⟨1⟩))) &&
     !s.front.isDigit &&
     !(s.any Char.isWhitespace)

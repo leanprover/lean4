@@ -3125,7 +3125,7 @@ x_35 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_24);
 lean_ctor_set(x_35, 2, x_31);
-lean_ctor_set_tag(x_14, 9);
+lean_ctor_set_tag(x_14, 10);
 lean_ctor_set(x_14, 0, x_35);
 x_36 = l_Lean_Elab_pushInfoLeaf___at_Lean_MVarId_withReverted___spec__1(x_14, x_7, x_8, x_9, x_10, x_34);
 x_37 = lean_ctor_get(x_36, 1);
@@ -3186,7 +3186,7 @@ x_49 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_49, 0, x_47);
 lean_ctor_set(x_49, 1, x_24);
 lean_ctor_set(x_49, 2, x_45);
-x_50 = lean_alloc_ctor(9, 1, 0);
+x_50 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 x_51 = l_Lean_Elab_pushInfoLeaf___at_Lean_MVarId_withReverted___spec__1(x_50, x_7, x_8, x_9, x_10, x_48);
 x_52 = lean_ctor_get(x_51, 1);
@@ -3279,10 +3279,10 @@ lean_ctor_set(x_72, 0, x_70);
 lean_ctor_set(x_72, 1, x_60);
 lean_ctor_set(x_72, 2, x_67);
 if (lean_is_scalar(x_68)) {
- x_73 = lean_alloc_ctor(9, 1, 0);
+ x_73 = lean_alloc_ctor(10, 1, 0);
 } else {
  x_73 = x_68;
- lean_ctor_set_tag(x_73, 9);
+ lean_ctor_set_tag(x_73, 10);
 }
 lean_ctor_set(x_73, 0, x_72);
 x_74 = l_Lean_Elab_pushInfoLeaf___at_Lean_MVarId_withReverted___spec__1(x_73, x_7, x_8, x_9, x_10, x_71);

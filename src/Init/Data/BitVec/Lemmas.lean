@@ -756,6 +756,15 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
   unfold allOnes
   simp
 
+@[simp] theorem toInt_allOnes : (allOnes w).toInt = if 0 < w then -1 else 0 := by
+  norm_cast
+  by_cases h : w = 0
+  · subst h
+    simp
+  · have : 1 < 2 ^ w := by simp [h]
+    simp [BitVec.toInt]
+    omega
+
 @[simp] theorem getLsbD_allOnes : (allOnes v).getLsbD i = decide (i < v) := by
   simp [allOnes]
 
@@ -2214,6 +2223,59 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)],
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
+
+/-! ### fill -/
+
+@[simp]
+theorem getLsbD_fill {w i : Nat} {v : Bool} :
+    (fill w v).getLsbD i = (v && i < w) := by
+  simp [BitVec.fill]
+  by_cases h : v
+  <;> simp [h, BitVec.negOne_eq_allOnes]
+
+@[simp]
+theorem getMsbD_fill {w i : Nat} {v : Bool} :
+    (fill w v).getMsbD i = (v && i < w) := by
+  simp [BitVec.fill]
+  by_cases h : v
+  <;> simp [h, BitVec.negOne_eq_allOnes]
+
+@[simp]
+theorem getElem_fill {w i : Nat} {v : Bool} (h : i < w) :
+    (fill w v)[i] = v := by
+  simp [BitVec.fill]
+  by_cases h : v
+  <;> simp [h, BitVec.negOne_eq_allOnes]
+
+@[simp]
+theorem msb_fill {w : Nat} {v : Bool} :
+    (fill w v).msb = (v && 0 < w) := by
+  simp [BitVec.msb]
+
+theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v then allOnes w else 0#w := by
+  by_cases h : v <;> (simp [h] ; ext ; simp)
+
+@[simp]
+theorem fill_eq_allOnes {w : Nat} : fill w true = allOnes w := by
+  simp [fill_eq]
+
+@[simp]
+theorem fill_eq_zero {w : Nat} : fill w false = 0#w := by
+  simp [fill_eq]
+
+@[simp] theorem fill_toNat {w : Nat} {v : Bool} :
+    (fill w v).toNat = if v then 2^w - 1 else 0 := by
+  by_cases h : v <;> simp [h]
+
+@[simp] theorem fill_toInt {w : Nat} {v : Bool} :
+    (fill w v).toInt = if v then (allOnes w).toInt else 0 := by
+  simp
+  by_cases h : v <;> simp [h]
+
+@[simp] theorem fill_toFin {w : Nat} {v : Bool} :
+    (fill w v).toFin = if v then (allOnes w).toFin else (0#w).toFin := by
+  simp
+  by_cases h : v <;> simp [h]
 
 /-! ### mul -/
 

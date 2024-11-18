@@ -8,7 +8,7 @@ inductive Nested where
   | other
 
 /--
-info: theorem Nested.nest.sizeOf_spec : ∀ (a : StructLike Nested), sizeOf (Nested.nest a) = 1 + sizeOf a :=
+info: @[simp] theorem Nested.nest.sizeOf_spec : ∀ (a : StructLike Nested), sizeOf (Nested.nest a) = 1 + sizeOf a :=
 fun a => Eq.refl (1 + sizeOf a)
 -/
 #guard_msgs in

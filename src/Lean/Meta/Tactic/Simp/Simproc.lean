@@ -376,7 +376,7 @@ def addSimprocAttr (ext : SimprocExtension) (declName : Name) (stx : Syntax) (at
 
 def printSimprocAttr (ext : SimprocExtension) (declName : Name) : StateT (Array (TSyntax `attr)) AttrM Unit := do
   if (ext.getState (← getEnv)).simprocNames.contains declName then
-    modify (·.push <| Unhygienic.run `(attr| simproc)) -- FIXME: pre/post
+    modify (·.push <| Unhygienic.run `(attr| $(mkIdent `simproc):ident)) -- FIXME: pre/post
 
 def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension) (name : Name) : IO Unit := do
   registerBuiltinAttribute {

@@ -33,7 +33,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
       let key {k} (stx : TSyntax k) := (stx.raw.getKind, stx.raw[0].getKind)
       have : Ord (Name × Name) := Ord.lex ⟨Name.cmp⟩ ⟨Name.cmp⟩
       let attrs := attrs.qsort (fun a b => compare (key a) (key b) = .lt)
-      "@[" ++ MessageData.joinSep (attrs.toList.map fun s => .ofSyntax s.raw) ", " ++ "] "
+      MessageData.group ("@[" ++ MessageData.joinSep (attrs.toList.map fun s => .ofSyntax s.raw) ", " ++ "]") ++ Format.line
     let m :=
     m ++
     match safety with
@@ -45,7 +45,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
     | some id => (m ++ "private ", id)
     | none    => (m, id)
   let m := m ++ kind ++ " " ++ id ++ levelParamsToMessageData levelParams ++ " : " ++ type
-  pure m
+  pure m.group
 
 private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData :=
   mkHeader kind id levelParams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe)

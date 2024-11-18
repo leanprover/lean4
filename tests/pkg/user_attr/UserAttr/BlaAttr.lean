@@ -18,6 +18,9 @@ initialize fooAttr : ParametricAttribute (Nat × Bool) ←
       | `(attr| foo $prio:num $[important%$imp]?) =>
         return (prio.getNat, imp.isSome)
       | _  => throwError "unexpected foo attribute"
+    delabParam := fun _ (prio, imp) =>
+      let imp := if imp then some default else none
+      modify (·.push <| Unhygienic.run `(attr| foo $(Syntax.mkNatLit prio) $[important%$imp]?))
     afterSet := fun declName _ => do
       IO.println s!"set attribute [foo] at {declName}"
   }
@@ -29,5 +32,6 @@ initialize registerBuiltinAttribute {
   descr := "Simply traces when added, to debug double-application bugs"
   add   := fun decl _stx _kind => do
     logInfo m!"trace_add attribute added to {decl}"
+  delab := fun _ => pure ()
   -- applicationTime := .afterCompilation
 }

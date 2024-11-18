@@ -43,7 +43,7 @@ initialize registerBuiltinAttribute {
     reflExt.add (decl, key) kind
   delab := fun decl => do
     if (reflExt.getState (← getEnv)).foldValues (· || decl == ·) false then
-      modify (·.push <| Unhygienic.run `(attr| refl))
+      modify (·.push <| Unhygienic.run `(attr| $(mkIdent `refl):ident))
 }
 
 open Elab Tactic

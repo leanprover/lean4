@@ -73,7 +73,7 @@ builtin_initialize
       discard <| CSimp.add declName attrKind
     delab := fun declName => do
       if hasCSimpAttribute (← getEnv) declName then
-        modify (·.push <| Unhygienic.run `(attr| csimp))
+        modify (·.push <| Unhygienic.run `(attr|  $(mkIdent `csimp):ident))
   }
 
 end Lean.Compiler

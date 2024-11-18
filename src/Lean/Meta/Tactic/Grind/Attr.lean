@@ -66,7 +66,7 @@ builtin_initialize
       grindCasesExt.add declName attrKind
     delab := fun decl => do
       if ← isGrindCasesTarget decl then
-        modify (·.push <| Unhygienic.run `(attr| grind_cases))
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent `grind_cases):ident))
   }
 
 end Lean.Meta.Grind

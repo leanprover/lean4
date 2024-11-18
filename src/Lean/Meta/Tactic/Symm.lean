@@ -41,7 +41,7 @@ builtin_initialize registerBuiltinAttribute {
     symmExt.add (decl, key) kind
   delab := fun decl => do
     if (symmExt.getState (← getEnv)).foldValues (· || decl == ·) false then
-      modify (·.push <| Unhygienic.run `(attr| symm))
+      modify (·.push <| Unhygienic.run `(attr| $(mkIdent `symm):ident))
 }
 
 end Lean.Meta.Symm

@@ -2160,7 +2160,7 @@ builtin_initialize
       declareBuiltin decl <| mkApp (mkConst ``addBuiltinIncrementalElab) (toExpr decl)
     delab           := fun decl => do
       if (← builtinIncrementalElabs.get).contains decl then
-        modify (·.push <| Unhygienic.run `(attr| builtin_incremental))
+        modify (·.push <| Unhygienic.run `(attr|  $(mkIdent `builtin_incremental):ident))
   }
 
 /-- Checks whether a declaration is annotated with `[builtin_incremental]` or `[incremental]`. -/

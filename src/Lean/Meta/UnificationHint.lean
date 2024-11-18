@@ -96,7 +96,7 @@ builtin_initialize
       discard <| addUnificationHint declName kind |>.run
     delab := fun decl => do
       if (unificationHintExtension.getState (← getEnv)).discrTree.foldValues (· || decl == ·) false then
-        modify (·.push <| Unhygienic.run `(attr| unification_hint))
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent `unification_hint):ident))
   }
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do

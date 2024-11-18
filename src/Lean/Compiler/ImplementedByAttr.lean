@@ -30,7 +30,7 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
     return fnName
   delabParam := fun _ val => do
     let val ← unresolveNameGlobal val
-    modify (·.push <| Unhygienic.run `(attr| implemented_by $(mkIdent val):ident))
+    modify (·.push <| Unhygienic.run `(attr| $(mkIdent `implemented_by):ident $(mkIdent val):ident))
 }
 
 @[export lean_get_implemented_by]

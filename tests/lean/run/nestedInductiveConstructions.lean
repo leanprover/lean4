@@ -35,8 +35,8 @@ fun {motive_1} {motive_2} t =>
 #print Tree.below_1
 
 /--
-info: @[reducible] protected def Ex1.Tree.ibelow_1 : {motive_1 : Tree → Prop} →
-  {motive_2 : List.{0} Tree → Prop} → List.{0} Tree → Prop :=
+info: @[reducible]
+protected def Ex1.Tree.ibelow_1 : {motive_1 : Tree → Prop} → {motive_2 : List.{0} Tree → Prop} → List.{0} Tree → Prop :=
 fun {motive_1} {motive_2} t =>
   Tree.rec_1.{1} (fun a a_ih => And (motive_2 a) a_ih) True
     (fun head tail head_ih tail_ih => And (And (motive_1 head) head_ih) (And (motive_2 tail) tail_ih)) t

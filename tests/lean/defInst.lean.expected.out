@@ -9,5 +9,5 @@ fun x y => x == y : Foo → Foo → Bool
 false
 true
 true
-def instMMonad : Monad M :=
+@[instance] def instMMonad : Monad M :=
 ReaderT.instMonad

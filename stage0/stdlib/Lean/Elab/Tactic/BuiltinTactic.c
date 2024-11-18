@@ -21220,7 +21220,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addCompletionInfo___at_Lean_Elab_Tactic_ela
 _start:
 {
 lean_object* x_11; lean_object* x_12; 
-x_11 = lean_alloc_ctor(6, 1, 0);
+x_11 = lean_alloc_ctor(7, 1, 0);
 lean_ctor_set(x_11, 0, x_1);
 x_12 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_elabSetOption___spec__3(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
@@ -21434,7 +21434,7 @@ x_30 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_30, 0, x_1);
 lean_ctor_set(x_30, 1, x_25);
 lean_ctor_set(x_30, 2, x_29);
-x_31 = lean_alloc_ctor(4, 1, 0);
+x_31 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
 x_32 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_elabSetOption___spec__3(x_31, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_28);
 x_33 = !lean_is_exclusive(x_32);
@@ -21829,7 +21829,7 @@ x_122 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_122, 0, x_1);
 lean_ctor_set(x_122, 1, x_117);
 lean_ctor_set(x_122, 2, x_121);
-x_123 = lean_alloc_ctor(4, 1, 0);
+x_123 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_123, 0, x_122);
 x_124 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_elabSetOption___spec__3(x_123, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_120);
 x_125 = lean_ctor_get(x_124, 1);

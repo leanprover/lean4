@@ -16636,7 +16636,7 @@ lean_inc(x_28);
 x_29 = lean_ctor_get(x_27, 1);
 lean_inc(x_29);
 lean_dec(x_27);
-x_30 = lean_alloc_ctor(10, 1, 0);
+x_30 = lean_alloc_ctor(11, 1, 0);
 lean_ctor_set(x_30, 0, x_2);
 x_31 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Term_addDotCompletionInfo___spec__2(x_30, x_14, x_15, x_16, x_17, x_18, x_19, x_29);
 x_32 = lean_ctor_get(x_31, 1);

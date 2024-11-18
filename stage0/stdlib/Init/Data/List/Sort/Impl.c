@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_2003_;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevAt_go___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082_run_x27(lean_object*);
@@ -62,6 +61,7 @@ LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082_run___rarg_
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevInTwo_x27___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1127____closed__28;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeSortTR_u2082(lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1991_;
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1127____closed__58;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -1379,7 +1379,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_List_Sort_Impl___hyg_2003_() {
+static lean_object* _init_l___auto____x40_Init_Data_List_Sort_Impl___hyg_1991_() {
 _start:
 {
 lean_object* x_1; 
@@ -1789,8 +1789,8 @@ l___auto____x40_Init_Data_List_Sort_Impl___hyg_1127____closed__59 = _init_l___au
 lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Impl___hyg_1127____closed__59);
 l___auto____x40_Init_Data_List_Sort_Impl___hyg_1127_ = _init_l___auto____x40_Init_Data_List_Sort_Impl___hyg_1127_();
 lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Impl___hyg_1127_);
-l___auto____x40_Init_Data_List_Sort_Impl___hyg_2003_ = _init_l___auto____x40_Init_Data_List_Sort_Impl___hyg_2003_();
-lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Impl___hyg_2003_);
+l___auto____x40_Init_Data_List_Sort_Impl___hyg_1991_ = _init_l___auto____x40_Init_Data_List_Sort_Impl___hyg_1991_();
+lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Impl___hyg_1991_);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

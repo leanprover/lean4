@@ -23,9 +23,9 @@ structure RecArgInfo where
   fnName       : Name
   /-- the fixed prefix of arguments of the function we are trying to justify termination using structural recursion. -/
   numFixed     : Nat
-  /-- position of the argument (counted including fixed prefix) we are recursing on -/
+  /-- position (counted including fixed prefix) of the argument we are recursing on -/
   recArgPos    : Nat
-  /-- position of the indices (counted including fixed prefix) of the inductive datatype indices we are recursing on -/
+  /-- position (counted including fixed prefix) of the indices of the inductive datatype we are recursing on -/
   indicesPos   : Array Nat
   /-- The inductive group (with parameters) of the argument's type -/
   indGroupInst : IndGroupInst
@@ -34,20 +34,23 @@ structure RecArgInfo where
   If `< indAll.all`, a normal data type, else an auxiliary data type due to nested recursion
   -/
   indIdx       : Nat
-deriving Inhabited
+deriving Inhabited, Repr
 
 /--
 If `xs` are the parameters of the functions (excluding fixed prefix), partitions them
 into indices and major arguments, and other parameters.
 -/
 def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
+  -- First indices and major arg, using the order they appear in `info.indicesPos`
   let mut indexMajorArgs := #[]
+  let indexMajorPos := info.indicesPos.push info.recArgPos
+  for j in indexMajorPos do
+    assert! info.numFixed ≤ j && j - info.numFixed < xs.size
+    indexMajorArgs := indexMajorArgs.push xs[j - info.numFixed]!
+  -- Then the other arguments, in the order they appear in `xs`
   let mut otherArgs := #[]
   for h : i in [:xs.size] do
-    let j := i + info.numFixed
-    if j = info.recArgPos || info.indicesPos.contains j then
-      indexMajorArgs := indexMajorArgs.push xs[i]
-    else
+    unless indexMajorPos.contains (i + info.numFixed) do
       otherArgs := otherArgs.push xs[i]
   return (indexMajorArgs, otherArgs)
 

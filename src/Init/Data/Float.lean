@@ -47,6 +47,25 @@ def Float.lt : Float → Float → Prop := fun a b =>
 def Float.le : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
 
+/--
+Raw transmutation from `UInt64`.
+
+Floats and UInts have the same endianness on all supported platforms.
+IEEE 754 very precisely specifies the bit layout of floats.
+-/
+@[extern "lean_float_of_bits"] opaque Float.ofBits : UInt64 → Float
+
+/--
+Raw transmutation to `UInt64`.
+
+Floats and UInts have the same endianness on all supported platforms.
+IEEE 754 very precisely specifies the bit layout of floats.
+
+Note that this function is distinct from `Float.toUInt64`, which attempts
+to preserve the numeric value, and not the bitwise value.
+-/
+@[extern "lean_float_to_bits"] opaque Float.toBits : Float → UInt64
+
 instance : Add Float := ⟨Float.add⟩
 instance : Sub Float := ⟨Float.sub⟩
 instance : Mul Float := ⟨Float.mul⟩

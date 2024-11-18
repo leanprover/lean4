@@ -99,17 +99,5 @@ attribute [bv_normalize] BitVec.mul_eq
 attribute [bv_normalize] BitVec.udiv_eq
 attribute [bv_normalize] BitVec.umod_eq
 
-@[bv_normalize]
-theorem Bool.and_eq_and (x y : Bool) : x.and y = (x && y) := by
-  rfl
-
-@[bv_normalize]
-theorem Bool.or_eq_or (x y : Bool) : x.or y = (x || y) := by
-  rfl
-
-@[bv_normalize]
-theorem Bool.no_eq_not (x : Bool) : x.not = !x := by
-  rfl
-
 end Normalize
 end Std.Tactic.BVDecide

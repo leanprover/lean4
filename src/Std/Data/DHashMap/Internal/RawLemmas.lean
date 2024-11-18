@@ -900,30 +900,38 @@ theorem contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: L
   simp_to_model using List.containsKey_insertList
 
 theorem contains_insertList_of_contains_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} {v: β k}: ⟨k,v⟩ ∈ l → (m.insertList l).contains k := by
-  sorry
+  rw [contains_insertList _ h]
+  rw [List.contains_iff_exists_mem_beq]
+  intro h
+  right
+  exists k
+  simp
+  exists ⟨k,v⟩
+
 
 theorem contains_of_contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} :
     (m.insertList l).contains k → (l.map Sigma.fst).contains k = false → m.contains k := by
   simp_to_model using List.containsKey_of_containsKey_insertList
 
-theorem get?_insertList_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) → (m.insertList l).get? k' = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
+theorem get?_insertList_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).get? k' = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
   simp_to_model using getValueCast?_insertList_toInsert_mem
 
 
-
-theorem get!_insertList_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k)] {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) → (m.insertList l).get! k = v := by
+theorem get?_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k: α} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {mem: ¬ k ∈ (l.map (Sigma.fst))} (h: m.1.WF): (m.insertList l).get? k = m.get? k := by
   simp_to_model
   sorry
 
-theorem get_insertList_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k)] {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) → (m.insertList l).get k (contains_insertList_of_contains_list _ h mem)= v := by
+theorem get!_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k')] {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).get! k' = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
   simp_to_model
   sorry
 
-theorem get_insertList [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} {h₁} :
-    get (m.insertList l) k h₁ =
-      if h₂ : (l.map Sigma.fst).contains k then List.get_by_key l.reverse k (by simp; simp at h₂; exact h₂)
-      else get m k (contains_of_contains_insertList _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
-  simp_to_model using List.getValueCast_insertList
+theorem getD_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k} {fallback: β k'} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).getD k' fallback = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
+  simp_to_model
+  sorry
+
+theorem get_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k)] {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).get k (contains_insertList_of_contains_list _ h mem)= v := by
+  simp_to_model
+  sorry
 
 theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: DistinctKeys l} (h: m.1.WF): (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) →  (m.insertList l).1.size = m.1.size + l.length := by
   simp_to_model

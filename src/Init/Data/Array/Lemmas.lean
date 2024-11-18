@@ -601,7 +601,7 @@ theorem getElem?_mkArray (n : Nat) (v : α) (i : Nat) :
 
 /-- # mem -/
 
-theorem mem_toList {a : α} {l : Array α} : a ∈ l.toList ↔ a ∈ l := mem_def.symm
+@[simp] theorem mem_toList {a : α} {l : Array α} : a ∈ l.toList ↔ a ∈ l := mem_def.symm
 
 theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
 
@@ -620,19 +620,19 @@ theorem getElem?_of_mem {a : α} {as : Array α} :
 
 @[simp] theorem mem_dite_empty_left {x : α} [Decidable p] {l : ¬ p → Array α} :
     (x ∈ if h : p then #[] else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
-  split <;> simp_all [mem_def]
+  split <;> simp_all
 
 @[simp] theorem mem_dite_empty_right {x : α} [Decidable p] {l : p → Array α} :
     (x ∈ if h : p then l h else #[]) ↔ ∃ h : p, x ∈ l h := by
-  split <;> simp_all [mem_def]
+  split <;> simp_all
 
 @[simp] theorem mem_ite_empty_left {x : α} [Decidable p] {l : Array α} :
     (x ∈ if p then #[] else l) ↔ ¬ p ∧ x ∈ l := by
-  split <;> simp_all [mem_def]
+  split <;> simp_all
 
 @[simp] theorem mem_ite_empty_right {x : α} [Decidable p] {l : Array α} :
     (x ∈ if p then l else #[]) ↔ p ∧ x ∈ l := by
-  split <;> simp_all [mem_def]
+  split <;> simp_all
 
 /-- # get lemmas -/
 
@@ -1217,6 +1217,14 @@ theorem push_eq_append_singleton (as : Array α) (x) : as.push x = as ++ #[x] :=
 
 @[simp] theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := by
   simp only [size, toList_append, List.length_append]
+
+@[simp] theorem empty_append (as : Array α) : #[] ++ as = as := by
+  cases as
+  simp
+
+@[simp] theorem append_empty (as : Array α) : as ++ #[] = as := by
+  cases as
+  simp
 
 theorem getElem_append {as bs : Array α} (h : i < (as ++ bs).size) :
     (as ++ bs)[i] = if h' : i < as.size then as[i] else bs[i - as.size]'(by simp at h; omega) := by
@@ -1876,6 +1884,50 @@ namespace Array
   induction as
   simp
 
+/-! ### map -/
+
+@[simp] theorem map_map {f : α → β} {g : β → γ} {as : Array α} :
+    (as.map f).map g = as.map (g ∘ f) := by
+  cases as; simp
+
+@[simp] theorem map_id_fun : map (id : α → α) = id := by
+  funext l
+  induction l <;> simp_all
+
+/-- `map_id_fun'` differs from `map_id_fun` by representing the identity function as a lambda, rather than `id`. -/
+@[simp] theorem map_id_fun' : map (fun (a : α) => a) = id := map_id_fun
+
+-- This is not a `@[simp]` lemma because `map_id_fun` will apply.
+theorem map_id (as : Array α) : map (id : α → α) as = as := by
+  cases as <;> simp_all
+
+/-- `map_id'` differs from `map_id` by representing the identity function as a lambda, rather than `id`. -/
+-- This is not a `@[simp]` lemma because `map_id_fun'` will apply.
+theorem map_id' (as : Array α) : map (fun (a : α) => a) as = as := map_id as
+
+/-- Variant of `map_id`, with a side condition that the function is pointwise the identity. -/
+theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (as : Array α) : map f as = as := by
+  simp [show f = id from funext h]
+
+theorem array_array_induction (P : Array (Array α) → Prop) (h : ∀ (xss : List (List α)), P (xss.map List.toArray).toArray)
+    (ass : Array (Array α)) : P ass := by
+  specialize h (ass.toList.map toList)
+  simpa [← toList_map, Function.comp_def, map_id] using h
+
+/-! ### flatten -/
+
+@[simp] theorem flatten_empty : flatten (#[] : Array (Array α)) = #[] := rfl
+
+@[simp] theorem flatten_toArray_map_toArray (xss : List (List α)) :
+    (xss.map List.toArray).toArray.flatten = xss.flatten.toArray := by
+  simp [flatten]
+  suffices ∀ as, List.foldl (fun r a => r ++ a) as (List.map List.toArray xss) = as ++ xss.flatten.toArray by
+    simpa using this #[]
+  intro as
+  induction xss generalizing as with
+  | nil => simp
+  | cons xs xss ih => simp [ih]
+
 /-! ### findSomeRevM?, findRevM?, findSomeRev?, findRev? -/
 
 @[simp] theorem findSomeRevM?_eq_findSomeM?_reverse
@@ -1939,6 +1991,27 @@ namespace Array
     as.unzip.2.toList = as.toList.unzip.2 := by
   cases as
   simp
+
+@[simp] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
+
+@[simp] theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) :
+    (a :: as).toArray.flatMap f = f a ++ as.toArray.flatMap f := by
+  simp [flatMap]
+  suffices ∀ cs, List.foldl (fun bs a => bs ++ f a) (f a ++ cs) as =
+      f a ++ List.foldl (fun bs a => bs ++ f a) cs as by
+    erw [empty_append] -- Why doesn't this work via `simp`?
+    simpa using this #[]
+  intro cs
+  induction as generalizing cs <;> simp_all
+
+@[simp] theorem flatMap_toArray {β} (f : α → Array β) (as : List α) :
+    as.toArray.flatMap f = (as.flatMap (fun a => (f a).toList)).toArray := by
+  induction as with
+  | nil => simp
+  | cons a as ih =>
+    apply ext'
+    simp [ih]
+
 
 end Array
 

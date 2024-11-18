@@ -1879,7 +1879,7 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
     (concat x b)[i + 1] = x[i] := by
   simp [getElem_concat, h, getLsbD_eq_getElem]
 
-@[simp] theorem not_concat (x : BitVec w) (b : Bool) : ~~~(concat x b) = concat (~~~x) !b := by
+@[simp] theorem not_concat (x : BitVec w) (b : Bool) : ~~~(concat x b) = concat (~~~x) (!b) := by
   ext i; cases i using Fin.succRecOn <;> simp [*, Nat.succ_lt_succ]
 
 @[simp] theorem concat_or_concat (x y : BitVec w) (a b : Bool) :

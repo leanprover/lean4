@@ -430,7 +430,7 @@ mutual
        let succeeded ← synthesizeSyntheticMVar mvarId postponeOnError runTactics
        if succeeded then markAsResolved mvarId
        trace[Elab.postpone] if succeeded then format "succeeded" else format "not ready yet"
-       pure !succeeded
+       return !succeeded
     -- Merge new synthetic metavariables with `remainingPendingMVars`, i.e., metavariables that still couldn't be synthesized
     modify fun s => { s with pendingMVars := s.pendingMVars ++ remainingPendingMVars }
     return numSyntheticMVars != remainingPendingMVars.length

@@ -102,7 +102,7 @@ def mkUnexpander (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Mac
   The user could mention the same antiquotation from the lhs multiple
   times on the rhs, this heuristic does not support this.
   -/
-  guard !hasDuplicateAntiquot args
+  guard <| !hasDuplicateAntiquot args
   -- replace head constant with antiquotation so we're not dependent on the exact pretty printing of the head
   -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
   let lhs ← `($$f:ident)

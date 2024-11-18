@@ -54,7 +54,7 @@ instance : OfNat Expr n where
   | _,    _,        _        => none
 
 @[simp] def UnaryOp.eval : UnaryOp → Val → Option Val
-  | .not, .bool b => some (.bool !b)
+  | .not, .bool b => some (.bool $ !b)
   | _,    _       => none
 
 inductive Stmt where
@@ -329,7 +329,7 @@ instance : Repr State where
   | op, a, b => .bin a op b
 
 @[simp] def UnaryOp.simplify : UnaryOp → Expr → Expr
-  | .not, .val (.bool b) => .val (.bool !b)
+  | .not, .val (.bool b) => .val (.bool $ !b)
   | op, a => .una op a
 
 @[simp] def Expr.simplify : Expr → Expr

@@ -555,6 +555,10 @@ private def getVarDecls (s : State) : Array Syntax :=
 instance {α} : Inhabited (CommandElabM α) where
   default := throw default
 
+/--
+The environment linter framework needs to be able to run linters with the same context
+as `liftTermElabM`, so we expose that context as a public function here.
+-/
 def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }

@@ -53,7 +53,9 @@ abbrev CongrCache := ExprMap (Option CongrTheorem)
 
 structure Context where
   private mk ::
-  config           : Config := {}
+  config            : Config := {}
+  metaConfig        : ConfigWithKey := default
+  indexConfig       : ConfigWithKey := default
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
   maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
@@ -117,9 +119,32 @@ private def updateArith (c : Config) : CoreM Config := do
   else
     return c
 
+/--
+Converts `Simp.Config` into `Meta.ConfigWithKey` used for indexing.
+-/
+private def mkIndexConfig (c : Config) : ConfigWithKey :=
+  { c with
+    proj         := .no
+    transparency := .reducible
+  : Meta.Config }.toConfigWithKey
+
+/--
+Converts `Simp.Config` into `Meta.ConfigWithKey` used for `isDefEq`.
+-/
+-- TODO: use `metaConfig` at `isDefEq`. It is not being used yet because it will break Mathlib.
+private def mkMetaConfig (c : Config) : ConfigWithKey :=
+  { c with
+    proj         := if c.proj then .yesWithDelta else .no
+    transparency := .reducible
+  : Meta.Config }.toConfigWithKey
+
 def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (congrTheorems : SimpCongrTheorems := {}) : MetaM Context := do
   let config ← updateArith config
-  return { config, simpTheorems, congrTheorems }
+  return {
+    config, simpTheorems, congrTheorems
+    metaConfig := mkMetaConfig config
+    indexConfig := mkIndexConfig config
+  }
 
 def Context.setConfig (context : Context) (config : Config) : Context :=
   { context with config }
@@ -202,6 +227,15 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
 @[inline] def withInDSimp : SimpM α → SimpM α :=
   withTheReader Context (fun ctx => { ctx with inDSimp := true })
+
+/--
+Executes `x` using a `MetaM` configuration for indexing terms.
+It is inferred from `Simp.Config`.
+For example, if the user has set `simp (config := { zeta := false })`,
+`isDefEq` and `whnf` in `MetaM` should not perform `zeta` reduction.
+-/
+@[inline] def withSimpIndexConfig (x : SimpM α) : SimpM α := do
+  withConfigWithKey (← readThe Simp.Context).indexConfig x
 
 @[extern "lean_simp"]
 opaque simp (e : Expr) : SimpM Result
@@ -678,16 +712,6 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   else
     /- See comment above. This is reachable if `hasCast == true`. The `rhs` is not structurally equal to `mkAppN f argsNew` -/
     return some { expr := rhs }
-
-/--
-Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
-If user has disabled `zeta` and/or `beta` reduction in the simplifier, or enabled `zetaDelta`,
-we must also disable/enable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
--/
-def getDtConfig (cfg : Config) : WhnfCoreConfig :=
-  match cfg.beta, cfg.zeta, cfg.zetaDelta with
-  | true, true, false => simpDtConfig
-  | _,    _,    _     => { simpDtConfig with zeta := cfg.zeta, beta := cfg.beta, zetaDelta := cfg.zetaDelta }
 
 def Result.addExtraArgs (r : Result) (extraArgs : Array Expr) : MetaM Result := do
   match r.proof? with

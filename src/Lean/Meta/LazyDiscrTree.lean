@@ -184,9 +184,9 @@ private def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
       else
         return .continue)
 
-private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig) :
+private def getKeyArgs (e : Expr) (isMatch root : Bool) :
     MetaM (Key × Array Expr) := do
-  let e ← DiscrTree.reduceDT e root config
+  let e ← DiscrTree.reduceDT e root
   unless root do
     -- See pushArgs
     if let some v := toNatLit? e then
@@ -259,9 +259,9 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
 /-
 Given an expression we are looking for patterns that match, return the key and sub-expressions.
 -/
-private abbrev getMatchKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig) :
+private abbrev getMatchKeyArgs (e : Expr) (root : Bool) :
     MetaM (Key × Array Expr) :=
-  getKeyArgs e (isMatch := true) (root := root) (config := config)
+  getKeyArgs e (isMatch := true) (root := root)
 
 end MatchClone
 
@@ -313,8 +313,6 @@ discriminator key is computed and processing the remaining
 terms is deferred until demanded by a match.
 -/
 structure LazyDiscrTree (α : Type) where
-  /-- Configuration for normalization. -/
-  config : Lean.Meta.WhnfCoreConfig := {}
   /-- Backing array of trie entries.  Should be owned by this trie. -/
   tries : Array (LazyDiscrTree.Trie α) := #[default]
   /-- Map from discriminator trie roots to the index. -/
@@ -332,12 +330,12 @@ open Lean.Meta.DiscrTree (mkNoindexAnnotation hasNoindexAnnotation reduceDT)
 /--
 Specialization of Lean.Meta.DiscrTree.pushArgs
 -/
-private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : WhnfCoreConfig) :
+private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) :
     MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
   else
-    let e ← reduceDT e root config
+    let e ← reduceDT e root
     let fn := e.getAppFn
     let push (k : Key) (nargs : Nat) (todo : Array Expr) : MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
@@ -389,8 +387,8 @@ private def initCapacity := 8
 /--
 Get the root key and rest of terms of an expression using the specified config.
 -/
-private def rootKey (cfg: WhnfCoreConfig) (e : Expr) : MetaM (Key × Array Expr) :=
-  pushArgs true (Array.mkEmpty initCapacity) e cfg
+private def rootKey (e : Expr) : MetaM (Key × Array Expr) :=
+  pushArgs true (Array.mkEmpty initCapacity) e
 
 private partial def buildPath (op : Bool → Array Expr → Expr → MetaM (Key × Array Expr)) (root : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
   if todo.isEmpty then
@@ -407,9 +405,9 @@ Create a key path from an expression using the function used for patterns.
 This differs from Lean.Meta.DiscrTree.mkPath and targetPath in that the expression
 should uses free variables rather than meta-variables for holes.
 -/
-def patternPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
+def patternPath (e : Expr) : MetaM (Array Key) := do
   let todo : Array Expr := .mkEmpty initCapacity
-  let op root todo e := pushArgs root todo e config
+  let op root todo e := pushArgs root todo e
   buildPath op (root := true) (todo.push e) (.mkEmpty initCapacity)
 
 /--
@@ -417,21 +415,21 @@ Create a key path from an expression we are matching against.
 
 This should have mvars instantiated where feasible.
 -/
-def targetPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
+def targetPath (e : Expr) : MetaM (Array Key) := do
   let todo : Array Expr := .mkEmpty initCapacity
   let op root todo e := do
-        let (k, args) ← MatchClone.getMatchKeyArgs e root config
+        let (k, args) ← MatchClone.getMatchKeyArgs e root
         pure (k, todo ++ args)
   buildPath op (root := true) (todo.push e) (.mkEmpty initCapacity)
 
 /- Monad for finding matches while resolving deferred patterns. -/
 @[reducible]
-private def MatchM α := ReaderT WhnfCoreConfig (StateRefT (Array (Trie α)) MetaM)
+private def MatchM α := StateRefT (Array (Trie α)) MetaM
 
 private def runMatch (d : LazyDiscrTree α) (m : MatchM α β)  : MetaM (β × LazyDiscrTree α) := do
-  let { config := c, tries := a, roots := r } := d
-  let (result, a) ← withReducible $ (m.run c).run a
-  pure (result, { config := c, tries := a, roots := r})
+  let { tries := a, roots := r } := d
+  let (result, a) ← withReducible <| m.run a
+  return (result, { tries := a, roots := r})
 
 private def setTrie (i : TrieIndex) (v : Trie α) : MatchM α Unit :=
   modify (·.set! i v)
@@ -444,7 +442,7 @@ private def newTrie [Monad m] [MonadState (Array (Trie α)) m] (e : LazyEntry α
 private def addLazyEntryToTrie (i:TrieIndex) (e : LazyEntry α) : MatchM α Unit :=
   modify (·.modify i (·.pushPending e))
 
-private def evalLazyEntry (config : WhnfCoreConfig)
+private def evalLazyEntry
     (p : Array α × TrieIndex × Std.HashMap Key TrieIndex)
     (entry : LazyEntry α)
     : MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
@@ -456,7 +454,7 @@ private def evalLazyEntry (config : WhnfCoreConfig)
   else
     let e    := todo.back!
     let todo := todo.pop
-    let (k, todo) ← withLCtx lctx.1 lctx.2 $ pushArgs false todo e config
+    let (k, todo) ← withLCtx lctx.1 lctx.2 <| pushArgs false todo e
     if k == .star then
       if starIdx = 0 then
         let starIdx ← newTrie (todo, lctx, v)
@@ -477,26 +475,25 @@ private def evalLazyEntry (config : WhnfCoreConfig)
 This evaluates all lazy entries in a trie and updates `values`, `starIdx`, and `children`
 accordingly.
 -/
-private partial def evalLazyEntries (config : WhnfCoreConfig)
+private partial def evalLazyEntries
     (values : Array α) (starIdx : TrieIndex) (children : Std.HashMap Key TrieIndex)
     (entries : Array (LazyEntry α)) :
     MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
   let mut values := values
   let mut starIdx := starIdx
   let mut children := children
-  entries.foldlM (init := (values, starIdx, children)) (evalLazyEntry config)
+  entries.foldlM (init := (values, starIdx, children)) evalLazyEntry
 
 private def evalNode (c : TrieIndex) :
     MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
   let .node vs star cs pending := (←get).get! c
   if pending.size = 0 then
-    pure (vs, star, cs)
+    return (vs, star, cs)
   else
-    let config ← read
     setTrie c default
-    let (vs, star, cs) ← evalLazyEntries config vs star cs pending
+    let (vs, star, cs) ← evalLazyEntries vs star cs pending
     setTrie c <| .node vs star cs #[]
-    pure (vs, star, cs)
+    return (vs, star, cs)
 
 def dropKeyAux (next : TrieIndex) (rest : List Key) :
     MatchM α Unit :=
@@ -723,11 +720,11 @@ private def push (d : PreDiscrTree α) (k : Key) (e : LazyEntry α) : PreDiscrTr
   d.modifyAt k (·.push e)
 
 /-- Convert a pre-discrimination tree to a lazy discrimination tree. -/
-private def toLazy (d : PreDiscrTree α) (config : WhnfCoreConfig := {}) : LazyDiscrTree α :=
+private def toLazy (d : PreDiscrTree α) : LazyDiscrTree α :=
   let { roots, tries } := d
   -- Adjust trie indices so the first value is reserved (so 0 is never a valid trie index)
   let roots := roots.fold (init := roots) (fun m k n => m.insert k (n+1))
-  { config, roots, tries := #[default] ++ tries.map (.node {} 0 {}) }
+  { roots, tries := #[default] ++ tries.map (.node {} 0 {}) }
 
 /-- Merge two discrimination trees. -/
 protected def append (x y : PreDiscrTree α) : PreDiscrTree α :=
@@ -756,12 +753,12 @@ namespace InitEntry
 /--
 Constructs an initial entry from an expression and value.
 -/
-def fromExpr (expr : Expr) (value : α) (config : WhnfCoreConfig := {}) : MetaM (InitEntry α) := do
+def fromExpr (expr : Expr) (value : α) : MetaM (InitEntry α) := do
   let lctx ← getLCtx
   let linst ← getLocalInstances
   let lctx := (lctx, linst)
-  let (key, todo) ← LazyDiscrTree.rootKey config expr
-  pure <| { key, entry := (todo, lctx, value) }
+  let (key, todo) ← LazyDiscrTree.rootKey expr
+  return { key, entry := (todo, lctx, value) }
 
 /--
 Creates an entry for a subterm of an initial entry.
@@ -769,11 +766,11 @@ Creates an entry for a subterm of an initial entry.
 This is slightly more efficient than using `fromExpr` on subterms since it avoids a redundant call
 to `whnf`.
 -/
-def mkSubEntry (e : InitEntry α) (idx : Nat) (value : α) (config : WhnfCoreConfig := {}) :
+def mkSubEntry (e : InitEntry α) (idx : Nat) (value : α) :
     MetaM (InitEntry α) := do
   let (todo, lctx, _) := e.entry
-  let (key, todo) ← LazyDiscrTree.rootKey config todo[idx]!
-  pure <| { key, entry := (todo, lctx, value) }
+  let (key, todo) ← LazyDiscrTree.rootKey todo[idx]!
+  return { key, entry := (todo, lctx, value) }
 
 end InitEntry
 

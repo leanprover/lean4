@@ -19,9 +19,6 @@ namespace Lean.Meta.Rfl
 
 open Lean Meta
 
-/-- Discrimation tree settings for the `refl` extension. -/
-def reflExt.config : WhnfCoreConfig := {}
-
 /-- Environment extensions for `refl` lemmas -/
 initialize reflExt :
     SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
@@ -42,7 +39,7 @@ initialize registerBuiltinAttribute {
     if let .app (.const ``Eq [_]) _ := rel then
       throwError "@[refl] attribute may not be used on `Eq.refl`."
     unless ← withNewMCtxDepth <| isDefEq lhs rhs do fail
-    let key ← DiscrTree.mkPath rel reflExt.config
+    let key ← DiscrTree.mkPath rel
     reflExt.add (decl, key) kind
 }
 
@@ -91,7 +88,7 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
     goal.setType (.app t.appFn! lhs)
     let s ← saveState
     let mut ex? := none
-    for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
+    for lem in ← (reflExt.getState (← getEnv)).getMatch rel do
       try
         let gs ← goal.apply (← mkConstWithFreshMVarLevels lem)
         if gs.isEmpty then return () else
@@ -123,7 +120,7 @@ def _root_.Lean.MVarId.liftReflToEq (mvarId : MVarId) : MetaM MVarId := do
   if rel.isAppOf `Eq then
     -- No need to lift Eq to Eq
     return mvarId
-  for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
+  for lem in ← (reflExt.getState (← getEnv)).getMatch rel do
     let res ← observing? do
       -- First create an equality relating the LHS and RHS
       -- and reduce the goal to proving that LHS is related to LHS.

@@ -2079,50 +2079,37 @@ Structure for storing defeq cache key information.
 -/
 structure DefEqCacheKeyInfo where
   kind : DefEqCacheKind
-  key  : Expr × Expr
+  key  : DefEqCacheKey
 
 private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do
   let kind ← getDefEqCacheKind t s
-  let key := if Expr.quickLt t s then (t, s) else (s, t)
+  let key ← mkDefEqCacheKey t s
   return { key, kind }
 
 private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
   let cache ← match keyInfo.kind with
     | .transient => pure (← get).cache.defEqTrans
     | .permanent => pure (← get).cache.defEqPerm
-  let cache := match (← getTransparency) with
-    | .reducible => cache.reducible
-    | .instances => cache.instances
-    | .default   => cache.default
-    | .all       => cache.all
   match cache.find? keyInfo.key with
   | some val => return val.toLBool
   | none => return .undef
 
-def DefEqCache.update (cache : DefEqCache) (mode : TransparencyMode) (key : Expr × Expr) (result : Bool) : DefEqCache :=
-  match mode with
-  | .reducible => { cache with reducible := cache.reducible.insert key result }
-  | .instances => { cache with instances := cache.instances.insert key result }
-  | .default   => { cache with default   := cache.default.insert key result }
-  | .all       => { cache with all       := cache.all.insert key result }
-
 private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Unit := do
-  let mode ← getTransparency
   let key := keyInfo.key
   match keyInfo.kind with
-  | .permanent => modifyDefEqPermCache fun c => c.update mode key result
+  | .permanent => modifyDefEqPermCache fun c => c.insert key result
   | .transient =>
     /-
     We must ensure that all assigned metavariables in the key are replaced by their current assignments.
     Otherwise, the key is invalid after the assignment is "backtracked".
     See issue #1870 for an example.
     -/
-    let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
-    modifyDefEqTransientCache fun c => c.update mode key result
+    let key ← mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs)
+    modifyDefEqTransientCache fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
-    whnfCore e (config := { proj := .yesWithDeltaI })
+    withConfig (fun ctx => { ctx with proj := .yesWithDeltaI }) <| whnfCore e
   else
     whnfCore e
 

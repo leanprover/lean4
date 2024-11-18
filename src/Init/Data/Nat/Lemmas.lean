@@ -1029,3 +1029,12 @@ instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
+
+/-! ### Results about `List.sum` specialized to `Nat` -/
+
+protected theorem sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp [← ih]
+    omega

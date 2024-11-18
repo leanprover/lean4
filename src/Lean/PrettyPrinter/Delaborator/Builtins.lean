@@ -1089,19 +1089,20 @@ and when re-parsing this we can (usually) recover the specific coercion being us
 -/
 @[builtin_delab app]
 def coeDelaborator : Delab := whenPPOption getPPCoercions do
-  let e ← getExpr
-  let .const declName _ := e.getAppFn | failure
-  let some info ← Meta.getCoeFnInfo? declName | failure
-  let n := e.getAppNumArgs
-  guard <| n ≥ info.numArgs
-  if (← getPPOption getPPExplicit) && info.coercee != 0 then
-    -- Approximation: the only implicit arguments come before the coercee
-    failure
-  if n == info.numArgs then
-    delabHead info 0 false
-  else
-    let nargs := n - info.numArgs
-    delabAppCore nargs (delabHead info nargs) (unexpand := false)
+  withTypeAscription (cond := ← getPPOption getPPCoercionsTypes) do
+    let e ← getExpr
+    let .const declName _ := e.getAppFn | failure
+    let some info ← Meta.getCoeFnInfo? declName | failure
+    let n := e.getAppNumArgs
+    guard <| n ≥ info.numArgs
+    if (← getPPOption getPPExplicit) && info.coercee != 0 then
+      -- Approximation: the only implicit arguments come before the coercee
+      failure
+    if n == info.numArgs then
+      delabHead info 0 false
+    else
+      let nargs := n - info.numArgs
+      delabAppCore nargs (delabHead info nargs) (unexpand := false)
 where
   delabHead (info : CoeFnInfo) (nargs : Nat) (insertExplicit : Bool) : Delab := do
     guard <| !insertExplicit

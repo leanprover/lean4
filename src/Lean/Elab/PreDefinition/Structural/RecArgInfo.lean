@@ -41,7 +41,7 @@ If `xs` are the parameters of the functions (excluding fixed prefix), partitions
 into indices and major arguments, and other parameters.
 -/
 def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
-  -- First indices and major arg, using the order they appear in `indexMajorArgs`
+  -- First indices and major arg, using the order they appear in `info.indicesPos`
   let mut indexMajorArgs := #[]
   let indexMajorPos := info.indicesPos.push info.recArgPos
   for j in indexMajorPos do

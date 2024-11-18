@@ -2415,7 +2415,7 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
 
 @[simp] theorem getElem_replicate (a : α) {n : Nat} {m} (h : m < (replicate n a).length) :
     (replicate n a)[m] = a :=
-  eq_of_mem_replicate (get_mem _ _ _)
+  eq_of_mem_replicate (getElem_mem _)
 
 @[deprecated getElem_replicate (since := "2024-06-12")]
 theorem get_replicate (a : α) {n : Nat} (m : Fin _) : (replicate n a).get m = a := by

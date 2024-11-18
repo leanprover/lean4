@@ -114,10 +114,11 @@ where
         if lhs.isRawNatLit && rhs.isRawNatLit then cont
         else
           try
-            match (← injection mvarId fvarId newNames) with
-            | .solved  => return .solved
-            | .subgoal mvarId newEqs remainingNames =>
-              mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId remainingNames
+            commitIfNoEx do
+              match (← injection mvarId fvarId newNames) with
+              | .solved  => return .solved
+              | .subgoal mvarId newEqs remainingNames =>
+                mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId remainingNames
           catch _ => cont
       else cont
 

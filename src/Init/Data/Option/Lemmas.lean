@@ -55,7 +55,9 @@ theorem get_eq_getD {fallback : α} : (o : Option α) → {h : o.isSome} → o.g
 theorem some_get! [Inhabited α] : (o : Option α) → o.isSome → some (o.get!) = o
   | some _, _ => rfl
 
-theorem get!_eq_getD_default [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
+theorem get!_eq_getD [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
+
+@[deprecated get!_eq_getD (since := "2024-11-18")] abbrev get!_eq_getD_default := @get!_eq_getD
 
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb

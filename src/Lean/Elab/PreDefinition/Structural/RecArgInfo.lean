@@ -41,14 +41,14 @@ If `xs` are the parameters of the functions (excluding fixed prefix), partitions
 into indices and major arguments, and other parameters.
 -/
 def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
-  let indexMajorPos := info.indicesPos.push info.recArgPos
-  let mut indexMajorArgs := #[]
-  let mut otherArgs := #[]
   -- First indices and major arg, using the order they appear in `indexMajorArgs`
+  let mut indexMajorArgs := #[]
+  let indexMajorPos := info.indicesPos.push info.recArgPos
   for j in indexMajorPos do
     assert! info.numFixed ≤ j && j - info.numFixed < xs.size
     indexMajorArgs := indexMajorArgs.push xs[j - info.numFixed]!
   -- Then the other arguments, in the order they appear in `xs`
+  let mut otherArgs := #[]
   for h : i in [:xs.size] do
     let j := i + info.numFixed
     unless indexMajorPos.contains j do

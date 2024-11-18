@@ -7,6 +7,7 @@ prelude
 import Init.Data.BEq
 import Init.Data.Nat.Simproc
 import Init.Data.List.Perm
+import Init.Data.List.Find
 import Std.Data.DHashMap.Internal.List.Defs
 
 /-!
@@ -2111,6 +2112,15 @@ theorem insertList_perm_of_perm_first [BEq α] [EquivBEq α] (l1 l2 toInsert: Li
     exact h
     apply DistinctKeys.insertEntry distinct
 
+theorem containsKey_eq_contains_map_fst [BEq α] [PartialEquivBEq α] (l : List ((a : α) × β a)) (k : α) : containsKey k l =
+(l.map Sigma.fst).contains k := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    rw [containsKey_cons, ih]
+    simp
+    rw [BEq.comm]
+
 theorem containsKey_insertList [BEq α] [PartialEquivBEq α] (l toInsert : List ((a : α) × β a)) (k: α): containsKey k (List.insertList l toInsert) ↔ containsKey k l ∨ (toInsert.map Sigma.fst).contains k := by
   induction toInsert generalizing l with
   | nil => simp[insertList]
@@ -2360,6 +2370,59 @@ theorem getValueCast_insertList_not_toInsert_mem [BEq α] [LawfulBEq α] (l toIn
   · exact k_eq
   · exact not_mem
   · exact distinct
+
+theorem getKey?_insertList [BEq α] [PartialEquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α} :
+    getKey? k (insertList l toInsert) =
+      if (toInsert.map Sigma.fst).contains k then (toInsert.map Sigma.fst).reverse.find? (fun a => k == a) else getKey? k l := by
+  rw [← containsKey_eq_contains_map_fst]
+  induction toInsert generalizing l with
+  | nil => simp [insertList]
+  | cons hd tl ih =>
+    unfold insertList
+    rw [ih]
+    rw [getKey?_insertEntry]
+    rw [containsKey_cons]
+    simp
+    cases eq : containsKey k tl with
+    | true =>
+      simp
+      rw [containsKey_eq_contains_map_fst, List.contains_iff_exists_mem_beq] at eq
+      rw [Option.or_of_isSome]
+      simp
+      rcases eq with ⟨a, a_mem, a_eq⟩
+      simp at a_mem
+      rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
+      exists a
+      constructor
+      . exists pair
+      . exact a_eq
+    | false =>
+      simp
+      cases eq2 : hd.fst == k with
+      | true =>
+        simp
+        rw [containsKey_eq_contains_map_fst, ← Bool.not_eq_true, List.contains_iff_exists_mem_beq] at eq
+        simp at eq
+        have : (tl.map Sigma.fst).reverse.find? (fun a => k == a) = none := by simp; exact eq
+        simp [this]
+        rw [BEq.comm]
+        exact eq2
+      | false => simp
+
+theorem getKey?_insertList_lawful [BEq α] [LawfulBEq α] {l toInsert : List ((a : α) × β a)} {k : α} :
+    getKey? k (insertList l toInsert) =
+      if (toInsert.map Sigma.fst).contains k then some k else getKey? k l := by
+  rw [← containsKey_eq_contains_map_fst]
+  induction toInsert generalizing l with
+  | nil => simp [insertList]
+  | cons hd tl ih =>
+    unfold insertList
+    rw [ih]
+    rw [getKey?_insertEntry]
+    rw [containsKey_cons]
+    cases containsKey k tl with
+    | true => simp
+    | false => simp; cases eq : hd.fst == k <;> simp; apply LawfulBEq.eq_of_beq; assumption
 
 theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: DistinctKeys toInsert) (distinct_both: ∀ (a:α), ¬ (containsKey a l ∧ containsKey a toInsert)):
     Perm (insertList l toInsert) (l++toInsert) := by

@@ -2662,7 +2662,7 @@ theorem getMsbD_rotateLeft_of_le {n w : Nat} {x : BitVec w} (hi : r < w):
     · simp [getMsbD_rotateLeftAux_of_le h, Nat.mod_eq_of_lt, show r + n < (w + 1) by omega, show n < w + 1 by omega]
     · simp [getMsbD_rotateLeftAux_of_geq <| Nat.ge_of_not_lt h]
       by_cases h₁ : n < w + 1
-      · simp only [h₁, decide_True, Bool.true_and]
+      · simp only [h₁, decide_true, Bool.true_and]
         have h₂ : (r + n) < 2 * (w + 1) := by omega
         rw [add_mod_eq_add_sub (by omega) (by omega)]
         congr 1
@@ -2788,14 +2788,14 @@ theorem getMsbD_rotateRight_of_le {w n m : Nat} {x : BitVec w} (hr : m < w):
   · simp
   · rw [rotateRight_eq_rotateRightAux_of_lt (by omega)]
     by_cases h : n < m
-    · simp only [getMsbD_rotateRightAux_of_le h, show n < w + 1 by omega, decide_True,
+    · simp only [getMsbD_rotateRightAux_of_le h, show n < w + 1 by omega, decide_true,
         show m % (w + 1) = m by rw [Nat.mod_eq_of_lt hr], h, ↓reduceIte,
         show (w + 1 + n - m) < (w + 1) by omega, Nat.mod_eq_of_lt, Bool.true_and]
       congr 1
       omega
     · simp [h, getMsbD_rotateRightAux_of_geq <| Nat.ge_of_not_lt h]
       by_cases h₁ : n < w + 1
-      · simp [h, h₁, decide_True, Bool.true_and, Nat.mod_eq_of_lt hr]
+      · simp [h, h₁, decide_true, Bool.true_and, Nat.mod_eq_of_lt hr]
       · simp [h₁]
 
 @[simp]
@@ -2814,7 +2814,7 @@ theorem msb_rotateRight {r w: Nat} {x : BitVec w} :
     (x.rotateRight r).msb = x.getMsbD ((w - r % w) % w) := by
   simp only [BitVec.msb, getMsbD_rotateRight]
   by_cases h₀ : 0 < w
-  · simp only [h₀, decide_True, Nat.add_zero, Nat.zero_le, Nat.sub_eq_zero_of_le, Bool.true_and,
+  · simp only [h₀, decide_true, Nat.add_zero, Nat.zero_le, Nat.sub_eq_zero_of_le, Bool.true_and,
     ite_eq_left_iff, Nat.not_lt, Nat.le_zero_eq]
     intro h₁
     simp [h₁]

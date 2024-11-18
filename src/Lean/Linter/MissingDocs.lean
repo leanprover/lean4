@@ -97,6 +97,7 @@ builtin_initialize
         declareBuiltin declName <| mkApp2 (mkConst ``addBuiltinHandler) (toExpr key) h
       else
         setEnv <| missingDocsExt.addEntry env (declName, key, ← mkHandler declName)
+    delab           := fun _ => pure ()
   }
   mkAttr true `builtin_missing_docs_handler
   mkAttr false `missing_docs_handler

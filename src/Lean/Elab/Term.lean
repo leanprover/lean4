@@ -2158,6 +2158,9 @@ builtin_initialize
       unless kind == AttributeKind.global do
         throwError "invalid attribute 'builtin_incremental', must be global"
       declareBuiltin decl <| mkApp (mkConst ``addBuiltinIncrementalElab) (toExpr decl)
+    delab           := fun decl => do
+      if (← builtinIncrementalElabs.get).contains decl then
+        modify (·.push <| Unhygienic.run `(attr| builtin_incremental))
   }
 
 /-- Checks whether a declaration is annotated with `[builtin_incremental]` or `[incremental]`. -/

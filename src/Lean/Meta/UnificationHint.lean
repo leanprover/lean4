@@ -94,6 +94,9 @@ builtin_initialize
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       discard <| addUnificationHint declName kind |>.run
+    delab := fun decl => do
+      if (unificationHintExtension.getState (← getEnv)).discrTree.foldValues (· || decl == ·) false then
+        modify (·.push <| Unhygienic.run `(attr| unification_hint))
   }
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do

@@ -13,6 +13,11 @@ structure OrderedTagAttribute where
   ext  : PersistentEnvExtension Name Name (Array Name)
   deriving Inhabited
 
+private def OrderedTagAttribute.hasTagCore (ext : PersistentEnvExtension Name Name (Array Name)) (env : Environment) (decl : Name) : Bool :=
+  match env.getModuleIdxFor? decl with
+  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
+  | none        => (ext.getState env).contains decl
+
 def registerOrderedTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) : IO OrderedTagAttribute := do
   let ext ← registerPersistentEnvExtension {
@@ -35,14 +40,15 @@ def registerOrderedTagAttribute (name : Name) (descr : String)
         throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl
       modifyEnv fun env => ext.addEntry env decl
+    delab := fun decl => do
+      if OrderedTagAttribute.hasTagCore ext (← getEnv) decl then
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent name):ident))
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext }
 
 def OrderedTagAttribute.hasTag (attr : OrderedTagAttribute) (env : Environment) (decl : Name) : Bool :=
-  match env.getModuleIdxFor? decl with
-  | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.getState env).contains decl
+  hasTagCore attr.ext env decl
 
 /-- Get all tagged declaration names, both those imported and those in the current module. -/
 def OrderedTagAttribute.getAllEntries (attr : OrderedTagAttribute) (env : Environment) : Array Name :=

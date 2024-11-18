@@ -103,6 +103,9 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
           declareBuiltin decl <| mkApp2 (mkConst ``addBuiltinModule) (toExpr decl) h
         else
           setEnv <| moduleRegistry.addEntry env (mod.javascriptHash, decl, e)
+      delab           := fun decl => do
+        if (moduleRegistry.getState (← getEnv)).fold (fun b _ x => b || decl == x.1) false then
+          modify (·.push <| Unhygienic.run `(attr| $(mkIdent name):ident))
     }
     registerBuiltinAttribute impl
     return impl

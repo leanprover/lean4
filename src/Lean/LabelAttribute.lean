@@ -54,6 +54,9 @@ registerBuiltinAttribute {
   applicationTime := AttributeApplicationTime.afterCompilation
   add   := fun declName _ kind =>
     ext.add declName kind
+  delab := fun declName => do
+    if (ext.getState (← getEnv)).contains declName then
+      modify (·.push <| Unhygienic.run `(attr| $(mkIdent attrName):ident))
   erase := fun declName => do
     let s := ext.getState (← getEnv)
     modifyEnv fun env => ext.modifyState env fun _ => s.erase declName

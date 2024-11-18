@@ -169,6 +169,9 @@ builtin_initialize
       unless kind == AttributeKind.global do throwError "invalid attribute 'class', must be global"
       let env ← ofExcept (addClass env decl)
       setEnv env
+    delab := fun decl => do
+      if isClass (← getEnv) decl then
+        modify (·.push <| Unhygienic.run `(attr| class))
   }
 
 end Lean

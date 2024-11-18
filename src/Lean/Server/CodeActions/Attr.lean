@@ -54,6 +54,7 @@ builtin_initialize
         throwError "invalid attribute 'hole_code_action', must be global"
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (holeCodeActionExt.addEntry · (decl, ← mkHoleCodeAction decl))
+    delab := fun _ => pure ()
   }
 
 /-- A command code action extension. -/
@@ -124,6 +125,7 @@ builtin_initialize
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
+    delab := fun _ => pure ()
   }
 
 private def addBuiltin (declName : Name) (args : Array Name) : AttrM Unit := do
@@ -135,7 +137,6 @@ private def addBuiltin (declName : Name) (args : Array Name) : AttrM Unit := do
 
 builtin_initialize
   registerBuiltinAttribute {
-    ref             := by exact decl_name%
     name            := `builtin_command_code_action
     descr           := "Declare a new builtin command code action, to appear in the code actions on commands"
     applicationTime := .afterCompilation
@@ -147,4 +148,5 @@ builtin_initialize
       let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       addBuiltin decl args
+    delab := fun _ => pure ()
   }

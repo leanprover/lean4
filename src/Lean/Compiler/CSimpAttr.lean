@@ -48,15 +48,6 @@ def add (declName : Name) (kind : AttributeKind) : CoreM Unit := do
   else
     throwError "invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported."
 
-builtin_initialize
-  registerBuiltinAttribute {
-    name  := `csimp
-    descr := "simplification theorem for the compiler"
-    add   := fun declName stx attrKind => do
-      Attribute.Builtin.ensureNoArgs stx
-      discard <| add declName attrKind
-  }
-
 @[export lean_csimp_replace_constants]
 def replaceConstants (env : Environment) (e : Expr) : Expr :=
   let s := ext.getState env
@@ -72,5 +63,17 @@ end CSimp
 
 def hasCSimpAttribute (env : Environment) (declName : Name) : Bool :=
   CSimp.ext.getState env |>.thmNames.contains declName
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `csimp
+    descr := "simplification theorem for the compiler"
+    add   := fun declName stx attrKind => do
+      Attribute.Builtin.ensureNoArgs stx
+      discard <| CSimp.add declName attrKind
+    delab := fun declName => do
+      if hasCSimpAttribute (← getEnv) declName then
+        modify (·.push <| Unhygienic.run `(attr| csimp))
+  }
 
 end Lean.Compiler

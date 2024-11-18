@@ -133,6 +133,10 @@ private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Synta
   let ns ← getCurrNamespace
   modifyEnv fun env => setReducibilityStatusCore env declName status attrKind ns
 
+private def printAttr (status : ReducibilityStatus) (attrName : Name) (declName : Name) : StateT (Array (TSyntax `attr)) AttrM Unit := do
+  if getReducibilityStatusCore (← getEnv) declName == status then
+    modify (·.push <| Unhygienic.run `(attr| $(mkIdent attrName):ident))
+
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
@@ -140,6 +144,7 @@ builtin_initialize
     descr           := "irreducible declaration"
     add             := addAttr .irreducible
     applicationTime := .afterTypeChecking
+    delab           := printAttr .irreducible `irreducible
  }
 
 builtin_initialize
@@ -149,6 +154,7 @@ builtin_initialize
     descr           := "reducible declaration"
     add             := addAttr .reducible
     applicationTime := .afterTypeChecking
+    delab           := printAttr .reducible `reducible
  }
 
 builtin_initialize
@@ -158,6 +164,7 @@ builtin_initialize
     descr           := "semireducible declaration"
     add             := addAttr .semireducible
     applicationTime := .afterTypeChecking
+    delab           := fun _ => pure ()
  }
 
 /-- Return the reducibility attribute for the given declaration. -/

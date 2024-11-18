@@ -116,6 +116,7 @@ builtin_initialize
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwError "invalid attribute 'cpass', must be global"
       discard <| addPass declName
+    delab := fun _ => pure ()
     applicationTime := .afterCompilation
   }
 

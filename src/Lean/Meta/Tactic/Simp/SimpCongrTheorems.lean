@@ -116,6 +116,7 @@ builtin_initialize
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addSimpCongrTheorem declName attrKind prio |>.run {} {}
+    delab := fun _ => pure ()
   }
 
 def getSimpCongrTheorems : CoreM SimpCongrTheorems :=

@@ -46,6 +46,15 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
           else
             throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
         discard <| go.run {} {}
+    delab := fun declName => do
+      if attrName == `simp then -- TODO: other simp-like attrs
+        let s := ext.getState (← getEnv)
+        if s.isLemma (.decl declName) ||
+          s.isDeclToUnfold declName || s.toUnfoldThms.contains declName
+        then
+          modify (·.push <| Unhygienic.run `(attr| simp))
+        else if s.isLemma (.decl declName (inv := true)) then
+          modify (·.push <| Unhygienic.run `(attr| simp ←))
     erase := fun declName => do
       if (← isSimproc declName <||> isBuiltinSimproc declName) then
         let simprocAttrName := simpAttrNameToSimprocAttrName attrName

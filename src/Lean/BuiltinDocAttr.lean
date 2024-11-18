@@ -22,6 +22,7 @@ builtin_initialize
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       declareBuiltinDocStringAndRanges decl
+    delab := fun _ => pure ()
   }
 
 end Lean

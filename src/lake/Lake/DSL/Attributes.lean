@@ -18,5 +18,6 @@ initialize
       logWarningAt stx "@[test_runner] has been deprecated, use @[test_driver] instead"
       testDriverAttr.attr.add decl stx attrKind
     applicationTime := testDriverAttr.attr.applicationTime
+    delab           := fun decl => testDriverAttr.attr.delab decl
     erase           := fun decl => testDriverAttr.attr.erase decl
  }

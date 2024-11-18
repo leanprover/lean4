@@ -32,6 +32,11 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
       let text? := text?.map TSyntax.getString
       let since? := since?.map TSyntax.getString
       return { newName?, text?, since? }
+    delabParam := fun _ { newName?, text?, since? } => do
+      let id? ← newName?.mapM (mkIdent <$> unresolveNameGlobal ·)
+      let text? := text?.map Syntax.mkStrLit
+      let since? := since?.map Syntax.mkStrLit
+      modify (·.push <| Unhygienic.run `(attr| deprecated $(id?)? $(text?)? $[(since := $since?)]?))
   }
 
 def isDeprecated (env : Environment) (declName : Name) : Bool :=

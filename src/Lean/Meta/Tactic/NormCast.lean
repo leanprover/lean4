@@ -159,6 +159,7 @@ builtin_initialize registerBuiltinAttribute {
     | "squash" => addSquash decl kind prio
     | none => addInfer decl kind prio
     | _ => unreachable!
+  delab := fun _ => pure ()
 }
 
 end Lean.Meta.NormCast

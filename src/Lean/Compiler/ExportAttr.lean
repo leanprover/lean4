@@ -26,6 +26,8 @@ builtin_initialize exportAttr : ParametricAttribute Name ←
       unless isValidCppName exportName do
         throwError "invalid 'export' function name, is not a valid C++ identifier"
       return exportName
+    delabParam := fun _ exportName => do
+      modify (·.push <| Unhygienic.run `(attr| export $(mkIdent exportName)))
   }
 
 @[export lean_get_export_name_for]

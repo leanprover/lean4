@@ -231,6 +231,8 @@ builtin_initialize recursorAttribute : ParametricAttribute Nat ←
     name := `recursor,
     descr := "user defined recursor, numerical parameter specifies position of the major premise",
     getParam := fun _ stx => Attribute.Recursor.getMajorPos stx
+    delabParam := fun _ val =>
+      modify (·.push <| Unhygienic.run `(attr| recursor $(Syntax.mkNatLit (val+1))))
     afterSet := fun declName majorPos => do
       discard <| mkRecursorInfoCore declName (some majorPos) |>.run'
   }

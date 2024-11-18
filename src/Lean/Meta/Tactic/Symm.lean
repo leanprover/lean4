@@ -39,6 +39,9 @@ builtin_initialize registerBuiltinAttribute {
     let .app (.app rel _) _ := targetTy | fail
     let key ← withReducible <| DiscrTree.mkPath rel
     symmExt.add (decl, key) kind
+  delab := fun decl => do
+    if (symmExt.getState (← getEnv)).foldValues (· || decl == ·) false then
+      modify (·.push <| Unhygienic.run `(attr| symm))
 }
 
 end Lean.Meta.Symm

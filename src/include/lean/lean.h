@@ -406,6 +406,13 @@ static inline unsigned lean_ptr_other(lean_object * o) {
    small objects is a multiple of LEAN_OBJECT_SIZE_DELTA */
 LEAN_EXPORT size_t lean_object_byte_size(lean_object * o);
 
+/* Returns the size of the salient part of an object's storage,
+   i.e. the parts that contribute to the value representation;
+   padding or unused capacity is excluded. Operations that read
+   from an object's storage must only access these parts, since
+   the non-salient parts may not be initialized. */
+LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o);
+
 static inline bool lean_is_mt(lean_object * o) {
     return o->m_rc < 0;
 }
@@ -695,6 +702,9 @@ static inline size_t lean_array_capacity(b_lean_obj_arg o) { return lean_to_arra
 static inline size_t lean_array_byte_size(lean_object * o) {
     return sizeof(lean_array_object) + sizeof(void*)*lean_array_capacity(o);
 }
+static inline size_t lean_array_data_byte_size(lean_object * o) {
+    return sizeof(lean_array_object) + sizeof(void*)*lean_array_size(o);
+}
 static inline lean_object ** lean_array_cptr(lean_object * o) { return lean_to_array(o)->m_data; }
 static inline void lean_array_set_size(u_lean_obj_arg o, size_t sz) {
     assert(lean_is_array(o));
@@ -852,6 +862,9 @@ static inline size_t lean_sarray_byte_size(lean_object * o) {
     return sizeof(lean_sarray_object) + lean_sarray_elem_size(o)*lean_sarray_capacity(o);
 }
 static inline size_t lean_sarray_size(b_lean_obj_arg o) { return lean_to_sarray(o)->m_size; }
+static inline size_t lean_sarray_data_byte_size(lean_object * o) {
+    return sizeof(lean_sarray_object) + lean_sarray_elem_size(o)*lean_sarray_size(o);
+}
 static inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
     assert(lean_is_exclusive(o));
     assert(sz <= lean_sarray_capacity(o));
@@ -1013,6 +1026,7 @@ static inline char const * lean_string_cstr(b_lean_obj_arg o) {
 }
 static inline size_t lean_string_size(b_lean_obj_arg o) { return lean_to_string(o)->m_size; }
 static inline size_t lean_string_len(b_lean_obj_arg o) { return lean_to_string(o)->m_length; }
+static inline size_t lean_string_data_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_size(o); }
 LEAN_EXPORT lean_obj_res lean_string_push(lean_obj_arg s, uint32_t c);
 LEAN_EXPORT lean_obj_res lean_string_append(lean_obj_arg s1, b_lean_obj_arg s2);
 static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_box(lean_string_len(s)); }

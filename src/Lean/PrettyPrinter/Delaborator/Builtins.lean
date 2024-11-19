@@ -91,21 +91,32 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
-
-  let mut c ← unresolveNameGlobal c₀ (fullNames := ← getPPOption getPPFullNames)
-  let stx ← if ls.isEmpty || !(← getPPOption getPPUniverses) then
-    if (← getLCtx).usesUserName c then
-      -- `c` is also a local declaration
-      if c == c₀ && !(← read).inPattern then
-        -- `c` is the fully qualified named. So, we append the `_root_` prefix
-        c := `_root_ ++ c
+  let mut c₀ := c₀
+  let mut c  := c₀
+  if let some n := privateToUserName? c₀ then
+    unless (← getPPOption getPPPrivateNames) do
+      if c₀ == mkPrivateName (← getEnv) n then
+        -- The name is defined in this module, so use `n` as the name and unresolve like any other name.
+        c₀ := n
+        c ← unresolveNameGlobal n (fullNames := ← getPPOption getPPFullNames)
       else
-        c := c₀
-    pure <| mkIdent c
+        -- The name is not defined in this module, so make inaccessible. Unresolving does not make sense to do.
+        c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
   else
-    let mvars ← getPPOption getPPMVarsLevels
-    `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+    c ← unresolveNameGlobal c (fullNames := ← getPPOption getPPFullNames)
+  let stx ←
+    if ls.isEmpty || !(← getPPOption getPPUniverses) then
+      if (← getLCtx).usesUserName c then
+        -- `c` is also a local declaration
+        if c == c₀ && !(← read).inPattern then
+          -- `c` is the fully qualified named. So, we append the `_root_` prefix
+          c := `_root_ ++ c
+        else
+          c := c₀
+      pure <| mkIdent c
+    else
+      let mvars ← getPPOption getPPMVarsLevels
+      `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
 
   let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then

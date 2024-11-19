@@ -113,10 +113,11 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
           let proj ← getFieldOrigin source field
           let modifier := if isPrivateName proj then "private " else ""
           let ftype ← inferType (← mkProjection self field)
-          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)}" ++ " : " ++ ftype)
+          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {ftype}")
       -- Constructor
       let cinfo := getStructureCtor (← getEnv) id
-      m := m ++ Format.line ++ "constructor:" ++ indentD (.signature cinfo.name)
+      let ctorModifier := if isPrivateName cinfo.name then "private " else ""
+      m := m ++ Format.line ++ "constructor:" ++ indentD (ctorModifier ++ .signature cinfo.name)
       -- Resolution order
       let resOrder ← getStructureResolutionOrder id
       if resOrder.size > 1 then

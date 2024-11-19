@@ -1,8 +1,8 @@
 /-!
-  Test #print command for structures and classes
+# Test `#print` command for structures and classes
 -/
 
-/- Structure -/
+/-! Structure -/
 /--
 info: structure Prod.{u, v} (α : Type u) (β : Type v) : Type (max u v)
 number of parameters: 2
@@ -15,7 +15,7 @@ constructor:
 #guard_msgs in
 #print Prod
 
-/- Class -/
+/-! Class -/
 /--
 info: class Inhabited.{u} (α : Sort u) : Sort (max 1 u)
 number of parameters: 1
@@ -27,19 +27,60 @@ constructor:
 #guard_msgs in
 #print Inhabited
 
-/- Structure with private field -/
+/-! Structure with private field, imported -/
 /--
 info: structure Thunk.{u} (α : Type u) : Type u
 number of parameters: 1
 fields:
-  private _root_.Thunk.fn : Unit → α
+  private Thunk.fn✝ : Unit → α
 constructor:
   Thunk.mk.{u} {α : Type u} (fn : Unit → α) : Thunk α
 -/
 #guard_msgs in
 #print Thunk
 
-/- Extended class -/
+/-! Structure with private field, current module -/
+structure PrivField where
+  private x : Nat
+
+/--
+info: structure PrivField : Type
+number of parameters: 0
+fields:
+  private PrivField.x : Nat
+constructor:
+  PrivField.mk (x : Nat) : PrivField
+-/
+#guard_msgs in
+#print PrivField
+
+/-! Private constructor, imported -/
+/--
+info: class TypeName.{u} (α : Type u) : Type
+number of parameters: 1
+fields:
+  private TypeName.data✝ : (TypeNameData✝ α).type
+constructor:
+  private TypeName.mk'✝.{u} {α : Type u} (data : (TypeNameData✝ α).type) : TypeName α
+-/
+#guard_msgs in
+#print TypeName
+
+/-! Private constructor, current module -/
+structure PrivCtor where private mk ::
+  x : Nat
+/--
+info: structure PrivCtor : Type
+number of parameters: 0
+fields:
+  PrivCtor.x : Nat
+constructor:
+  private PrivCtor.mk (x : Nat) : PrivCtor
+-/
+#guard_msgs in
+#print PrivCtor
+
+/-! Extended class -/
 /--
 info: class Alternative.{u, v} (f : Type u → Type v) : Type (max (u + 1) v)
 number of parameters: 1
@@ -63,7 +104,7 @@ resolution order:
 #guard_msgs in
 #print Alternative
 
-/- Multiply extended class -/
+/-! Multiply extended class -/
 /--
 info: class Applicative.{u, v} (f : Type u → Type v) : Type (max (u + 1) v)
 number of parameters: 1
@@ -89,7 +130,7 @@ resolution order:
 #guard_msgs in
 #print Applicative
 
-/- Structure with unused parameter -/
+/-! Structure with unused parameter -/
 
 structure Weird (α β : Type _) where
   a : α
@@ -105,7 +146,7 @@ constructor:
 #guard_msgs in
 #print Weird
 
-/- Structure-like inductive -/
+/-! Structure-like inductive -/
 
 inductive Fake (α : Type _) where
   | mk : (x : α) → Fake α

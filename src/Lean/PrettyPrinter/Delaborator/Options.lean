@@ -45,7 +45,7 @@ register_builtin_option pp.coercions : Bool := {
   descr    := "(pretty printer) hide coercion applications"
 }
 register_builtin_option pp.coercions.types : Bool := {
-  defValue := true
+  defValue := false
   group    := "pp"
   descr    := "(pretty printer) display coercion applications with a type ascription"
 }

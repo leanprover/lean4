@@ -960,7 +960,6 @@ theorem getKey?_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l : L
       if (l.map Sigma.fst).contains k then (l.map Sigma.fst).reverse.find? (fun a => k == a) else m.getKey? k := by
   simp_to_model using List.getKey?_insertList
 
--- TODO: have the lawful variants for other getKey theorems below
 theorem getKey?_insertList_lawful [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k : α} :
     (m.insertList l).getKey? k =
       if (l.map Sigma.fst).contains k then some k else m.getKey? k := by
@@ -969,54 +968,40 @@ theorem getKey?_insertList_lawful [LawfulBEq α] [LawfulHashable α] (h : m.1.WF
 theorem getKey_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k
 : α} {h₁} :
     (m.insertList l).getKey k h₁ =
-      if h₂ : (l.map Sigma.fst).contains k then ((l.map Sigma.fst).reverse.find? (fun a => k == a)).get (by
-        -- TODO: maybe extract this result...
-        simp
-        rw [List.contains_iff_exists_mem_beq] at h₂
-        rcases h₂ with ⟨a, a_mem, a_eq⟩
-        simp at a_mem
-        rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
-        exists a
-        constructor
-        . exists pair
-        . exact a_eq)
+      if h₂ : (l.map Sigma.fst).contains k then ((l.map Sigma.fst).reverse.find? (fun a => k == a)).get (List.find?_isSome_of_map_fst_contains h₂)
       else m.getKey k (contains_of_contains_insertList _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
-  simp_to_model
-  sorry
+  simp_to_model using List.getKey_insertList
+
+theorem getKey_insertList_lawful [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k
+: α} {h₁} :
+    (m.insertList l).getKey k h₁ =
+      if h₂ : (l.map Sigma.fst).contains k then k
+      else m.getKey k (contains_of_contains_insertList _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
+  simp_to_model using List.getKey_insertList_lawful
 
 theorem getKey!_insertList [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k : α} :
     (m.insertList l).getKey! k =
-      if h₂ : (l.map Sigma.fst).contains k then ((l.map Sigma.fst).reverse.find? (fun a => k == a)).get (by
-        -- TODO: maybe extract this result...
-        simp
-        rw [List.contains_iff_exists_mem_beq] at h₂
-        rcases h₂ with ⟨a, a_mem, a_eq⟩
-        simp at a_mem
-        rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
-        exists a
-        constructor
-        . exists pair
-        . exact a_eq)
+      if h₂ : (l.map Sigma.fst).contains k then ((l.map Sigma.fst).reverse.find? (fun a => k == a)).get (List.find?_isSome_of_map_fst_contains h₂)
       else m.getKey! k := by
-  simp_to_model
-  sorry
+  simp_to_model using List.getKey!_insertList
 
-theorem getKeyD_insertList [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k fallback : α} :
+theorem getKey!_insertList_lawful [LawfulBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k : α} :
+    (m.insertList l).getKey! k =
+      if (l.map Sigma.fst).contains k then k
+      else m.getKey! k := by
+  simp_to_model using List.getKey!_insertList_lawful
+
+theorem getKeyD_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k fallback : α} :
     (m.insertList l).getKeyD k fallback =
-      if h₂ : (l.map Sigma.fst).contains k then ((l.map Sigma.fst).reverse.find? (fun a => k == a)).get (by
-        -- TODO: maybe extract this result...
-        simp
-        rw [List.contains_iff_exists_mem_beq] at h₂
-        rcases h₂ with ⟨a, a_mem, a_eq⟩
-        simp at a_mem
-        rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
-        exists a
-        constructor
-        . exists pair
-        . exact a_eq)
+      if h₂ : (l.map Sigma.fst).contains k then ((l.map Sigma.fst).reverse.find? (fun a => k == a)).get (List.find?_isSome_of_map_fst_contains h₂)
       else m.getKeyD k fallback := by
-  simp_to_model
-  sorry
+  simp_to_model using List.getKeyD_insertList
+
+theorem getKeyD_insertList_lawful [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k fallback : α} :
+    (m.insertList l).getKeyD k fallback =
+      if (l.map Sigma.fst).contains k then k
+      else m.getKeyD k fallback := by
+  simp_to_model using List.getKeyD_insertList_lawful
 
 theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: DistinctKeys l} (h: m.1.WF):
     (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) →

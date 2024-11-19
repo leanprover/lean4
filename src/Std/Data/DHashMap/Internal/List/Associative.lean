@@ -18,6 +18,21 @@ File contents: Verification of associative lists
 -/
 
 
+-- TODO: should this go somwhere else?
+theorem List.find?_isSome_of_map_fst_contains {α : Type u} {β : α -> Type v} [BEq α] {l : List ((a : α) × β a)} {k : α} :
+    (l.map Sigma.fst).contains k ->
+      ((l.map Sigma.fst).reverse.find? (fun a => k == a)).isSome := by
+  intro h
+  simp
+  rw [List.contains_iff_exists_mem_beq] at h
+  rcases h with ⟨a, a_mem, a_eq⟩
+  simp at a_mem
+  rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
+  exists a
+  constructor
+  . exists pair
+  . exact a_eq
+
 set_option linter.missingDocs true
 set_option autoImplicit false
 
@@ -2423,6 +2438,71 @@ theorem getKey?_insertList_lawful [BEq α] [LawfulBEq α] {l toInsert : List ((a
     cases containsKey k tl with
     | true => simp
     | false => simp; cases eq : hd.fst == k <;> simp; apply LawfulBEq.eq_of_beq; assumption
+
+theorem getKey_insertList [BEq α] [PartialEquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+{h₁} :
+    getKey k (insertList l toInsert) h₁ =
+      if h₂ : (toInsert.map Sigma.fst).contains k then ((toInsert.map Sigma.fst).reverse.find? (fun a =>
+        k == a)).get (List.find?_isSome_of_map_fst_contains h₂) else getKey k l
+        (containsKey_of_containsKey_insertList h₁ (Bool.eq_false_iff.2 h₂)) := by
+  rw [← Option.some_inj]
+  rw [← getKey?_eq_some_getKey]
+  rw [getKey?_insertList]
+  split
+  . simp
+  . rw [getKey?_eq_some_getKey]
+
+theorem getKey_insertList_lawful [BEq α] [LawfulBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
+{h₁} :
+    getKey k (insertList l toInsert) h₁ =
+      if h₂ : (toInsert.map Sigma.fst).contains k then k else getKey k l
+        (containsKey_of_containsKey_insertList h₁ (Bool.eq_false_iff.2 h₂)) := by
+  rw [← Option.some_inj]
+  rw [← getKey?_eq_some_getKey]
+  rw [getKey?_insertList_lawful]
+  split
+  . simp
+  . rw [getKey?_eq_some_getKey]
+
+theorem getKey!_insertList [BEq α] [PartialEquivBEq α] [Inhabited α] {l toInsert : List ((a : α) × β a)} {k : α} :
+    getKey! k (insertList l toInsert) =
+      if h₂ : (toInsert.map Sigma.fst).contains k then ((toInsert.map Sigma.fst).reverse.find? (fun a =>
+        k == a)).get (List.find?_isSome_of_map_fst_contains h₂) else getKey! k l := by
+  rw [getKey!_eq_getKey?]
+  rw [getKey?_insertList]
+  split
+  . rw [Option.get_eq_get!]
+  . rw [getKey!_eq_getKey?]
+
+theorem getKey!_insertList_lawful [BEq α] [LawfulBEq α] [Inhabited α] {l toInsert : List ((a : α) × β a)} {k : α} :
+    getKey! k (insertList l toInsert) =
+      if (toInsert.map Sigma.fst).contains k then k else getKey! k l := by
+  rw [getKey!_eq_getKey?]
+  rw [getKey?_insertList_lawful]
+  split
+  . simp
+  . rw [getKey!_eq_getKey?]
+
+theorem getKeyD_insertList [BEq α] [PartialEquivBEq α] {l toInsert : List ((a : α) × β
+a)} {k fallback : α} :
+    getKeyD k (insertList l toInsert) fallback =
+      if h₂ : (toInsert.map Sigma.fst).contains k then ((toInsert.map Sigma.fst).reverse.find? (fun a =>
+        k == a)).get (List.find?_isSome_of_map_fst_contains h₂) else getKeyD k l fallback := by
+  rw [getKeyD_eq_getKey?]
+  rw [getKey?_insertList]
+  split
+  . rw [Option.get_eq_getD]
+  . rw [getKeyD_eq_getKey?]
+
+theorem getKeyD_insertList_lawful [BEq α] [LawfulBEq α] {l toInsert : List ((a : α) × β a)} {k
+fallback : α} :
+    getKeyD k (insertList l toInsert) fallback =
+      if (toInsert.map Sigma.fst).contains k then k else getKeyD k l fallback := by
+  rw [getKeyD_eq_getKey?]
+  rw [getKey?_insertList_lawful]
+  split
+  . simp
+  . rw [getKeyD_eq_getKey?]
 
 theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: DistinctKeys toInsert) (distinct_both: ∀ (a:α), ¬ (containsKey a l ∧ containsKey a toInsert)):
     Perm (insertList l toInsert) (l++toInsert) := by

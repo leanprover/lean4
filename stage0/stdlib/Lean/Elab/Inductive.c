@@ -7070,7 +7070,6 @@ lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 1;
 x_19 = 1;
-lean_inc(x_16);
 x_20 = l_Lean_Meta_mkForallFVars(x_16, x_1, x_11, x_18, x_19, x_5, x_6, x_7, x_8, x_17);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -8780,6 +8779,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_10;
 }
 }
@@ -12482,6 +12482,7 @@ x_30 = 1;
 x_31 = 1;
 lean_inc(x_3);
 x_32 = l_Lean_Meta_mkForallFVars(x_28, x_3, x_29, x_30, x_31, x_4, x_5, x_6, x_7, x_24);
+lean_dec(x_28);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -12645,6 +12646,7 @@ x_70 = 1;
 x_71 = 1;
 lean_inc(x_3);
 x_72 = l_Lean_Meta_mkForallFVars(x_68, x_3, x_69, x_70, x_71, x_4, x_5, x_6, x_7, x_64);
+lean_dec(x_68);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
@@ -14510,6 +14512,7 @@ x_16 = 0;
 x_17 = 1;
 x_18 = 1;
 x_19 = l_Lean_Meta_mkForallFVars(x_15, x_3, x_16, x_17, x_18, x_10, x_11, x_12, x_13, x_14);
+lean_dec(x_15);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -14686,7 +14689,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_67 = !lean_is_exclusive(x_22);
 if (x_67 == 0)
 {
@@ -14716,7 +14718,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_71 = !lean_is_exclusive(x_19);
 if (x_71 == 0)
 {
@@ -14978,7 +14979,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 x_81 = !lean_is_exclusive(x_16);
 if (x_81 == 0)
 {
@@ -15010,7 +15010,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 x_85 = !lean_is_exclusive(x_14);
 if (x_85 == 0)
 {
@@ -15544,6 +15543,7 @@ x_15 = l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_2);
 return x_15;
 }
@@ -15553,6 +15553,7 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors___spec__2___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_12;
 }
@@ -24563,7 +24564,6 @@ x_19 = lean_ctor_get(x_14, 2);
 x_20 = 0;
 x_21 = 1;
 x_22 = 1;
-lean_inc(x_1);
 x_23 = l_Lean_Meta_mkForallFVars(x_1, x_18, x_20, x_21, x_22, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -24689,7 +24689,6 @@ lean_dec(x_14);
 x_43 = 0;
 x_44 = 1;
 x_45 = 1;
-lean_inc(x_1);
 x_46 = l_Lean_Meta_mkForallFVars(x_1, x_41, x_43, x_44, x_45, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_46) == 0)
 {
@@ -24833,7 +24832,6 @@ if (lean_is_exclusive(x_63)) {
 x_69 = 0;
 x_70 = 1;
 x_71 = 1;
-lean_inc(x_1);
 x_72 = l_Lean_Meta_mkForallFVars(x_1, x_66, x_69, x_70, x_71, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_72) == 0)
 {
@@ -25384,6 +25382,7 @@ x_14 = 0;
 x_15 = 1;
 x_16 = 1;
 x_17 = l_Lean_Meta_mkForallFVars(x_3, x_13, x_14, x_15, x_16, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_3);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -32789,7 +32788,6 @@ lean_dec(x_47);
 x_51 = 0;
 x_52 = 1;
 x_53 = 1;
-lean_inc(x_4);
 x_54 = l_Lean_Meta_mkForallFVars(x_4, x_50, x_51, x_52, x_53, x_17, x_18, x_19, x_20, x_48);
 if (lean_obj_tag(x_54) == 0)
 {
@@ -32931,7 +32929,6 @@ lean_dec(x_77);
 x_81 = 0;
 x_82 = 1;
 x_83 = 1;
-lean_inc(x_4);
 x_84 = l_Lean_Meta_mkForallFVars(x_4, x_80, x_81, x_82, x_83, x_17, x_18, x_19, x_20, x_78);
 if (lean_obj_tag(x_84) == 0)
 {

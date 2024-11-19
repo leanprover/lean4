@@ -92,6 +92,7 @@ LEAN_EXPORT lean_object* l_IO_FS_withTempFile___rarg(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_EIO_toIO___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_createDirAll___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_hasFinished(lean_object*);
+lean_object* lean_io_get_tid(lean_object*);
 LEAN_EXPORT lean_object* l_IO_CancelToken_isSet(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withTempFile___rarg___lambda__1___boxed(lean_object*, lean_object*);
 static uint32_t l_IO_FS_instInhabitedStream___lambda__1___closed__1;
@@ -366,6 +367,7 @@ LEAN_EXPORT lean_object* lean_stream_of_handle(lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_System_IO___hyg_1712____closed__23;
+LEAN_EXPORT lean_object* l_IO_getTID___boxed(lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___rarg___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_2921____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_removeDirAll(lean_object*, lean_object*);
@@ -9218,6 +9220,14 @@ x_4 = lean_unbox(x_2);
 lean_dec(x_2);
 x_5 = lean_io_exit(x_4, x_3);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_IO_getTID___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_io_get_tid(x_1);
+return x_2;
 }
 }
 static uint32_t _init_l_IO_AccessRight_flags___closed__1() {

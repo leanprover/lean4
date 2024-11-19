@@ -1061,6 +1061,22 @@ theorem containsKey_of_mem [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} {
 theorem DistinctKeys.nil [BEq α] : DistinctKeys ([] : List ((a : α) × β a)) :=
   ⟨by simp⟩
 
+theorem DistinctKeys.def [BEq α] {l : List ((a : α) × β a)}: DistinctKeys l ↔ List.Pairwise (fun a b => ! (a.1 == b.1)) l := by
+  have h: ∀ (l' : List ((a : α) × β a)), List.Pairwise (fun a b => (a==b)= false) (keys l') ↔ List.Pairwise (fun a b => !(a.1 == b.1)) l':= by
+    intro l'
+    induction l' with
+    | nil => simp
+    | cons hd tl ih=>
+      simp only [keys_eq_map, List.map_cons, pairwise_cons]
+      rw [← ih]
+      simp [keys_eq_map]
+  rw [← h]
+  constructor
+  · intro h
+    apply h.distinct
+  · intro h
+    exact ⟨h⟩
+
 open List
 
 theorem DistinctKeys.perm_keys [BEq α] [PartialEquivBEq α] {l l' : List ((a : α) × β a)}
@@ -2154,7 +2170,8 @@ theorem getValueCast?_insertList_start_mem [BEq α] [LawfulBEq α] (l toInsert: 
     · simp[containsKey] at mem'
       apply And.right mem'
 
-theorem getValueCast?_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {k_eq: k == k'} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) toInsert} {distinct2: List.Pairwise (fun a b => ! a.1 == b.1) l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast? k' (insertList l toInsert) = some (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
+theorem getValueCast?_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {k_eq: k == k'} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast? k' (insertList l toInsert) = some (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
+  rw [DistinctKeys.def] at distinct2
   induction toInsert generalizing l with
   | nil => simp at mem
   | cons hd tl ih =>

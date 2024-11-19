@@ -430,11 +430,13 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
   logInfoAt ref m!"{header}{msgs}"
   addSuggestionCore ref suggestions header (isInline := false) origSpan? style? codeActionPrefix?
 
-private def addExactSuggestionCore (addSubgoalsMsg : Bool) (e : Expr) : MetaM Suggestion := do
+private def addExactSuggestionCore (addSubgoalsMsg : Bool) (e : Expr) : MetaM Suggestion :=
+  withOptions (pp.mvars.set · false) do
   let stx ← delabToRefinableSyntax e
   let mvars ← getMVars e
   let suggestion ← if mvars.isEmpty then `(tactic| exact $stx) else `(tactic| refine $stx)
-  let messageData? := if mvars.isEmpty then m!"exact {e}" else m!"refine {e}"
+  let pp ← ppExpr e
+  let messageData? := if mvars.isEmpty then m!"exact {pp}" else m!"refine {pp}"
   let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
     let mut str := "\nRemaining subgoals:"
     for g in mvars do

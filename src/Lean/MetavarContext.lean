@@ -1072,16 +1072,25 @@ mutual
           let type ← abstractRangeAux xs i type
           return Lean.mkForall n bi type e
         | LocalDecl.ldecl _ _ n type value nonDep _ =>
-          let type := type.headBeta
-          let type  ← abstractRangeAux xs i type
-          let value ← abstractRangeAux xs i value
-          let e := mkLet n type value e nonDep
-          match kind with
-          | MetavarKind.syntheticOpaque =>
-            -- See "Gruesome details" section in the beginning of the file
-            let e := e.liftLooseBVars 0 1
-            return mkForall n BinderInfo.default type e
-          | _ => pure e
+          if e.hasLooseBVar 0 then
+            let type := type.headBeta
+            let type  ← abstractRangeAux xs i type
+            let value ← abstractRangeAux xs i value
+            let e := mkLet n type value e nonDep
+            match kind with
+            | MetavarKind.syntheticOpaque =>
+              -- See "Gruesome details" section in the beginning of the file
+              let e := e.liftLooseBVars 0 1
+              return mkForall n BinderInfo.default type e
+            | _ => pure e
+          else
+            match kind with
+            | MetavarKind.syntheticOpaque =>
+              let type := type.headBeta
+              let type  ← abstractRangeAux xs i type
+              return mkForall n BinderInfo.default type e
+            | _ =>
+              return e.lowerLooseBVars 1 1
       else
         -- `xs` may contain metavariables as "may dependencies" (see `findExprDependsOn`)
         let mvarDecl := (← get).mctx.getDecl x.mvarId!

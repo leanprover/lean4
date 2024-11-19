@@ -32,7 +32,6 @@ static lean_object* l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClass
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6;
 static lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__4___closed__4;
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalClassical___spec__1___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalClassical___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +63,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addInstance(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__5;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTactic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -348,41 +346,14 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__2;
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__2;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
+lean_ctor_set(x_2, 5, x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__4;
-x_2 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__2;
-x_3 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__5;
-x_4 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_2);
-lean_ctor_set(x_4, 3, x_2);
-lean_ctor_set(x_4, 4, x_2);
-lean_ctor_set(x_4, 5, x_3);
-lean_ctor_set(x_4, 6, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
@@ -423,7 +394,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; lean_object* x_46; 
 x_39 = lean_ctor_get(x_36, 1);
 lean_dec(x_39);
-x_40 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6;
+x_40 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__4;
 lean_ctor_set(x_36, 1, x_40);
 x_41 = lean_st_ref_set(x_7, x_36, x_37);
 x_42 = lean_ctor_get(x_41, 1);
@@ -976,7 +947,7 @@ lean_inc(x_183);
 lean_inc(x_182);
 lean_inc(x_181);
 lean_dec(x_36);
-x_185 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6;
+x_185 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__4;
 x_186 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_186, 0, x_181);
 lean_ctor_set(x_186, 1, x_185);
@@ -1340,7 +1311,7 @@ if (lean_is_exclusive(x_273)) {
  lean_dec_ref(x_273);
  x_279 = lean_box(0);
 }
-x_280 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6;
+x_280 = l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__4;
 if (lean_is_scalar(x_279)) {
  x_281 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1939,10 +1910,6 @@ l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___clo
 lean_mark_persistent(l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__3);
 l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__4 = _init_l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__4();
 lean_mark_persistent(l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__4);
-l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__5 = _init_l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__5();
-lean_mark_persistent(l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__5);
-l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6 = _init_l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6();
-lean_mark_persistent(l_Lean_Elab_Tactic_classical___at_Lean_Elab_Tactic_evalClassical___spec__2___closed__6);
 l_Lean_Elab_Tactic_evalClassical___closed__1 = _init_l_Lean_Elab_Tactic_evalClassical___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_evalClassical___closed__1);
 l_Lean_Elab_Tactic_evalClassical___closed__2 = _init_l_Lean_Elab_Tactic_evalClassical___closed__2();

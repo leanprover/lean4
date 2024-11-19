@@ -20,11 +20,9 @@ extern lean_object* l_Lean_auxRecExt;
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_mkCasesOn___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6;
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_mkCasesOn___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkCasesOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__5;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_mkCasesOn___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_mkCasesOnImp___boxed(lean_object*, lean_object*);
@@ -163,41 +161,14 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__2;
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__2;
-x_2 = lean_alloc_ctor(0, 4, 0);
+x_2 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
+lean_ctor_set(x_2, 5, x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4;
-x_2 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__2;
-x_3 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__5;
-x_4 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_2);
-lean_ctor_set(x_4, 3, x_2);
-lean_ctor_set(x_4, 4, x_2);
-lean_ctor_set(x_4, 5, x_3);
-lean_ctor_set(x_4, 6, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -239,7 +210,7 @@ if (x_23 == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_24 = lean_ctor_get(x_21, 1);
 lean_dec(x_24);
-x_25 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6;
+x_25 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4;
 lean_ctor_set(x_21, 1, x_25);
 x_26 = lean_st_ref_set(x_4, x_21, x_22);
 x_27 = !lean_is_exclusive(x_26);
@@ -277,7 +248,7 @@ lean_inc(x_35);
 lean_inc(x_34);
 lean_inc(x_33);
 lean_dec(x_21);
-x_37 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6;
+x_37 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4;
 x_38 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_38, 0, x_33);
 lean_ctor_set(x_38, 1, x_37);
@@ -363,7 +334,7 @@ if (lean_is_exclusive(x_58)) {
  lean_dec_ref(x_58);
  x_64 = lean_box(0);
 }
-x_65 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6;
+x_65 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4;
 if (lean_is_scalar(x_64)) {
  x_66 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -484,7 +455,7 @@ if (x_36 == 0)
 lean_object* x_37; lean_object* x_38; lean_object* x_39; uint8_t x_40; 
 x_37 = lean_ctor_get(x_34, 1);
 lean_dec(x_37);
-x_38 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6;
+x_38 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4;
 lean_ctor_set(x_34, 1, x_38);
 x_39 = lean_st_ref_set(x_3, x_34, x_35);
 x_40 = !lean_is_exclusive(x_39);
@@ -522,7 +493,7 @@ lean_inc(x_48);
 lean_inc(x_47);
 lean_inc(x_46);
 lean_dec(x_34);
-x_50 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6;
+x_50 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4;
 x_51 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_51, 0, x_46);
 lean_ctor_set(x_51, 1, x_50);
@@ -608,7 +579,7 @@ if (lean_is_exclusive(x_70)) {
  lean_dec_ref(x_70);
  x_76 = lean_box(0);
 }
-x_77 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6;
+x_77 = l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4;
 if (lean_is_scalar(x_76)) {
  x_78 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -773,10 +744,6 @@ l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__3 = _init_l
 lean_mark_persistent(l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__3);
 l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4 = _init_l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4();
 lean_mark_persistent(l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__4);
-l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__5 = _init_l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__5();
-lean_mark_persistent(l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__5);
-l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6 = _init_l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6();
-lean_mark_persistent(l_Lean_setReducibilityStatus___at_Lean_mkCasesOn___spec__4___closed__6);
 l_Lean_mkCasesOn___closed__1 = _init_l_Lean_mkCasesOn___closed__1();
 lean_mark_persistent(l_Lean_mkCasesOn___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

@@ -6074,6 +6074,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_13;
 }
 else
@@ -6133,6 +6134,7 @@ x_44 = 0;
 x_45 = 1;
 x_46 = 1;
 x_47 = l_Lean_Meta_mkForallFVars(x_1, x_2, x_44, x_45, x_46, x_3, x_4, x_5, x_6, x_43);
+lean_dec(x_1);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 

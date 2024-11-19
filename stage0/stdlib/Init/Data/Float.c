@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Float_toUInt64___boxed(lean_object*);
+uint64_t lean_float_to_bits(double);
 uint8_t lean_float_isinf(double);
 LEAN_EXPORT lean_object* l_instBEqFloat;
 double exp2(double);
@@ -78,8 +79,10 @@ lean_object* lean_float_frexp(double);
 double log(double);
 LEAN_EXPORT lean_object* l_Float_decLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_floatSpec;
+LEAN_EXPORT lean_object* l_Float_toBits___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_abs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instLTFloat;
+double lean_float_of_bits(uint64_t);
 double asinh(double);
 double pow(double, double);
 double atan2(double, double);
@@ -137,6 +140,7 @@ LEAN_EXPORT lean_object* l_Float_tan___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHomogeneousPowFloat;
 LEAN_EXPORT lean_object* l_Float_log2___boxed(lean_object*);
 static lean_object* l_instHomogeneousPowFloat___closed__1;
+LEAN_EXPORT lean_object* l_Float_ofBits___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_sin___boxed(lean_object*);
 uint8_t lean_float_isfinite(double);
 LEAN_EXPORT lean_object* l_Float_log10___boxed(lean_object*);
@@ -268,6 +272,28 @@ x_2 = lean_unbox_float(x_1);
 lean_dec(x_1);
 x_3 = lean_float_negate(x_2);
 x_4 = lean_box_float(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Float_ofBits___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; double x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint64(x_1);
+lean_dec(x_1);
+x_3 = lean_float_of_bits(x_2);
+x_4 = lean_box_float(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Float_toBits___boxed(lean_object* x_1) {
+_start:
+{
+double x_2; uint64_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_float(x_1);
+lean_dec(x_1);
+x_3 = lean_float_to_bits(x_2);
+x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }

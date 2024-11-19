@@ -1235,6 +1235,7 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_17);
 return x_21;
 }
 else
@@ -2548,6 +2549,7 @@ x_44 = 1;
 x_45 = 1;
 lean_inc(x_23);
 x_46 = l_Lean_Meta_mkLambdaFVars(x_42, x_23, x_43, x_44, x_43, x_45, x_15, x_16, x_17, x_18, x_40);
+lean_dec(x_42);
 if (lean_obj_tag(x_46) == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
@@ -2685,6 +2687,7 @@ x_67 = 1;
 x_68 = 1;
 lean_inc(x_23);
 x_69 = l_Lean_Meta_mkLambdaFVars(x_65, x_23, x_66, x_67, x_66, x_68, x_15, x_16, x_17, x_18, x_63);
+lean_dec(x_65);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; 
@@ -3040,6 +3043,7 @@ x_121 = 0;
 x_122 = 1;
 x_123 = 1;
 x_124 = l_Lean_Meta_mkLambdaFVars(x_120, x_23, x_121, x_122, x_121, x_123, x_15, x_16, x_17, x_18, x_92);
+lean_dec(x_120);
 if (lean_obj_tag(x_124) == 0)
 {
 lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -3367,6 +3371,7 @@ x_170 = 0;
 x_171 = 1;
 x_172 = 1;
 x_173 = l_Lean_Meta_mkLambdaFVars(x_169, x_23, x_170, x_171, x_170, x_172, x_15, x_16, x_17, x_18, x_140);
+lean_dec(x_169);
 if (lean_obj_tag(x_173) == 0)
 {
 lean_object* x_174; lean_object* x_175; lean_object* x_176; 
@@ -3511,6 +3516,7 @@ x_195 = 1;
 x_196 = 1;
 lean_inc(x_23);
 x_197 = l_Lean_Meta_mkLambdaFVars(x_193, x_23, x_194, x_195, x_194, x_196, x_15, x_16, x_17, x_18, x_190);
+lean_dec(x_193);
 if (lean_obj_tag(x_197) == 0)
 {
 lean_object* x_198; lean_object* x_199; lean_object* x_200; 
@@ -3878,6 +3884,7 @@ x_250 = 0;
 x_251 = 1;
 x_252 = 1;
 x_253 = l_Lean_Meta_mkLambdaFVars(x_249, x_23, x_250, x_251, x_250, x_252, x_15, x_16, x_17, x_18, x_219);
+lean_dec(x_249);
 if (lean_obj_tag(x_253) == 0)
 {
 lean_object* x_254; lean_object* x_255; lean_object* x_256; 

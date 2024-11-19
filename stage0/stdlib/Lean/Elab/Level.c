@@ -90,7 +90,6 @@ static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed_
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__20;
-lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__5;
 LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*, lean_object*);
@@ -146,6 +145,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__4;
 LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__14;
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__1;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__8;
@@ -861,7 +861,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__2;
 x_3 = l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__5;
 x_4 = l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__9;
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_5____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }

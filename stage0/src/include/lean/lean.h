@@ -37,7 +37,15 @@ extern "C" {
 #if defined(__GNUC__) || defined(__clang__)
 #define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
 #define LEAN_LIKELY(x) (__builtin_expect((x), 1))
+
+#ifdef NDEBUG
 #define LEAN_ALWAYS_INLINE __attribute__((always_inline))
+#else
+// We have observed stack frame increases from forced inlining overflowing the stack in debug builds,
+// let's leave the decision to the compiler in that case
+#define LEAN_ALWAYS_INLINE
+#endif
+
 #else
 #define LEAN_UNLIKELY(x) (x)
 #define LEAN_LIKELY(x) (x)
@@ -286,7 +294,7 @@ typedef struct {
     void *                m_data;
 } lean_external_object;
 
-static inline bool lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
+static inline LEAN_ALWAYS_INLINE bool lean_is_scalar(lean_object * o) { return ((size_t)(o) & 1) == 1; }
 static inline lean_object * lean_box(size_t n) { return (lean_object*)(((size_t)(n) << 1) | 1); }
 static inline size_t lean_unbox(lean_object * o) { return (size_t)(o) >> 1; }
 
@@ -440,16 +448,16 @@ static inline void lean_inc_ref_n(lean_object * o, size_t n) {
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
 
-static inline void lean_dec_ref(lean_object * o) {
+static inline LEAN_ALWAYS_INLINE void lean_dec_ref(lean_object * o) {
     if (LEAN_LIKELY(o->m_rc > 1)) {
         o->m_rc--;
     } else if (o->m_rc != 0) {
         lean_dec_ref_cold(o);
     }
 }
-static inline void lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }
+static inline void LEAN_ALWAYS_INLINE lean_inc(lean_object * o) { if (!lean_is_scalar(o)) lean_inc_ref(o); }
 static inline void lean_inc_n(lean_object * o, size_t n) { if (!lean_is_scalar(o)) lean_inc_ref_n(o, n); }
-static inline void lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_ref(o); }
+static inline void LEAN_ALWAYS_INLINE lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_ref(o); }
 
 static inline bool lean_is_ctor(lean_object * o) { return lean_ptr_tag(o) <= LeanMaxCtorTag; }
 static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == LeanClosure; }
@@ -1195,14 +1203,14 @@ static inline lean_obj_res lean_nat_succ(b_lean_obj_arg a) {
         return lean_nat_big_succ(a);
 }
 
-static inline lean_obj_res lean_nat_add(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_add(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2)))
         return lean_usize_to_nat(lean_unbox(a1) + lean_unbox(a2));
     else
         return lean_nat_big_add(a1, a2);
 }
 
-static inline lean_obj_res lean_nat_sub(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_sub(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         size_t n1 = lean_unbox(a1);
         size_t n2 = lean_unbox(a2);
@@ -1215,7 +1223,7 @@ static inline lean_obj_res lean_nat_sub(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-static inline lean_obj_res lean_nat_mul(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE lean_obj_res lean_nat_mul(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         size_t n1 = lean_unbox(a1);
         if (n1 == 0)
@@ -1257,15 +1265,17 @@ static inline lean_obj_res lean_nat_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-static inline bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE bool lean_nat_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        // This comparison is UB according to the standard but allowed as per the
+        // GCC documentation and the address sanitizer does not complain about it.
         return a1 == a2;
     } else {
         return lean_nat_big_eq(a1, a2);
     }
 }
 
-static inline uint8_t lean_nat_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE uint8_t lean_nat_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     return lean_nat_eq(a1, a2);
 }
 
@@ -1273,27 +1283,31 @@ static inline bool lean_nat_ne(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     return !lean_nat_eq(a1, a2);
 }
 
-static inline bool lean_nat_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE bool lean_nat_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        // This comparison is UB according to the standard but allowed as per the
+        // GCC documentation and the address sanitizer does not complain about it.
         return a1 <= a2;
     } else {
         return lean_nat_big_le(a1, a2);
     }
 }
 
-static inline uint8_t lean_nat_dec_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE uint8_t lean_nat_dec_le(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     return lean_nat_le(a1, a2);
 }
 
-static inline bool lean_nat_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE bool lean_nat_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        // This comparison is UB according to the standard but allowed as per the
+        // GCC documentation and the address sanitizer does not complain about it.
         return a1 < a2;
     } else {
         return lean_nat_big_lt(a1, a2);
     }
 }
 
-static inline uint8_t lean_nat_dec_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline LEAN_ALWAYS_INLINE uint8_t lean_nat_dec_lt(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     return lean_nat_lt(a1, a2);
 }
 
@@ -2685,6 +2699,8 @@ static inline size_t lean_float_to_usize(double a) {
     else
         return (size_t) lean_float_to_uint32(a); // NOLINT
 }
+LEAN_EXPORT double lean_float_of_bits(uint64_t u);
+LEAN_EXPORT uint64_t lean_float_to_bits(double d);
 static inline double lean_float_add(double a, double b) { return a + b; }
 static inline double lean_float_sub(double a, double b) { return a - b; }
 static inline double lean_float_mul(double a, double b) { return a * b; }

@@ -3783,6 +3783,7 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
+lean_dec(x_8);
 if (lean_obj_tag(x_23) == 0)
 {
 uint8_t x_24; 
@@ -6687,7 +6688,7 @@ lean_inc(x_10);
 if (lean_obj_tag(x_10) == 5)
 {
 lean_object* x_11; 
-x_11 = lean_ctor_get(x_3, 3);
+x_11 = lean_ctor_get(x_3, 5);
 lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
 {

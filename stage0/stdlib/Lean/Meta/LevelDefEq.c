@@ -1775,7 +1775,7 @@ default:
 {
 lean_object* x_69; uint8_t x_70; 
 x_69 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___closed__1;
-x_70 = lean_ctor_get_uint8(x_3, sizeof(void*)*6);
+x_70 = lean_ctor_get_uint8(x_3, sizeof(void*)*6 + 8);
 if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; 
@@ -2649,7 +2649,7 @@ else
 {
 lean_object* x_264; uint8_t x_265; 
 x_264 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___closed__1;
-x_265 = lean_ctor_get_uint8(x_3, sizeof(void*)*6);
+x_265 = lean_ctor_get_uint8(x_3, sizeof(void*)*6 + 8);
 if (x_265 == 0)
 {
 lean_object* x_266; lean_object* x_267; 

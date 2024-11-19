@@ -2,14 +2,20 @@ diamond1.lean:11:40-11:45: error: parent field type mismatch, field 'a' from par
   α → α : Type
 but is expected to have type
   α : Type
-structure Foo : Type → Type
+structure Foo (α : Type) : Type
 number of parameters: 1
-constructor:
-Foo.mk : {α : Type} → Bar (α → α) → (Bool → α) → Nat → Foo α
+parents:
+  Foo.toBar : Bar (α → α)
+  Foo.toBaz : Baz α
 fields:
-toBar : Bar (α → α)
-c : Bool → α
-d : Nat
+  Bar.a : α → α
+  Bar.b : Nat → α → α
+  Baz.c : Bool → α
+  Baz.d : Nat
+constructor:
+  Foo.mk {α : Type} (toBar : Bar (α → α)) (c : Bool → α) (d : Nat) : Foo α
+resolution order:
+  Foo, Bar, Baz
 def f : Nat → Foo Nat :=
 fun x => { a := fun y => x + y, b := fun x1 x2 => x1 + x2, c := fun x_1 => x, d := x }
 diamond1.lean:27:47-27:52: warning: field 'a' from 'Baz' has already been declared

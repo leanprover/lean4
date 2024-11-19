@@ -1,0 +1,6 @@
+{"textDocument": {"uri": "file:///completionDanglingDot.lean"},
+ "position": {"line": 4, "character": 4}}
+{"items": [], "isIncomplete": true}
+{"textDocument": {"uri": "file:///completionDanglingDot.lean"},
+ "position": {"line": 9, "character": 15}}
+{"items": [], "isIncomplete": true}

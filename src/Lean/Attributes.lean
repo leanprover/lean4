@@ -51,6 +51,9 @@ structure AttributeImpl extends AttributeImplCore where
   /-- This is run when the attribute is applied to a declaration `decl`. `stx` is the syntax of the attribute including arguments. -/
   add (decl : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
+  /-- Implementations should push an `attr` syntax corresponding to (a best approximation of)
+  the attribute state for the given definition. -/
+  delab (decl : Name) : StateT (Array (TSyntax `attr)) AttrM Unit
   deriving Inhabited
 
 builtin_initialize attributeMapRef : IO.Ref (Std.HashMap Name AttributeImpl) ← IO.mkRef {}
@@ -134,6 +137,15 @@ structure TagAttribute where
   ext  : PersistentEnvExtension Name Name NameSet
   deriving Inhabited
 
+namespace TagAttribute
+
+private def hasTagCore (ext : PersistentEnvExtension Name Name NameSet) (env : Environment) (decl : Name) : Bool :=
+  match env.getModuleIdxFor? decl with
+  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
+  | none        => (ext.getState env).contains decl
+
+end TagAttribute
+
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
@@ -156,6 +168,9 @@ def registerTagAttribute (name : Name) (descr : String)
         throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl
       modifyEnv fun env => ext.addEntry env decl
+    delab := fun decl => do
+      if TagAttribute.hasTagCore ext (← getEnv) decl then
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent name):ident))
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -163,9 +178,7 @@ def registerTagAttribute (name : Name) (descr : String)
 namespace TagAttribute
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
-  match env.getModuleIdxFor? decl with
-  | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.getState env).contains decl
+  hasTagCore attr.ext env decl
 
 end TagAttribute
 
@@ -182,10 +195,21 @@ structure ParametricAttribute (α : Type) where
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   getParam : Name → Syntax → AttrM α
+  delabParam : Name → α → StateT (Array (TSyntax `attr)) AttrM Unit
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
-def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
+def ParametricAttribute.getParam?Core [Inhabited α]
+    (ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
+    (env : Environment) (decl : Name) : Option α :=
+  match env.getModuleIdxFor? decl with
+  | some modIdx =>
+    match (ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
+    | some (_, val) => some val
+    | none          => none
+  | none        => (ext.getState env).find? decl
+
+def registerParametricAttribute [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
   let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := impl.ref
     mkInitial       := pure {}
@@ -198,7 +222,7 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
   }
   let attrImpl : AttributeImpl := {
     impl.toAttributeImplCore with
-    add   := fun decl stx kind => do
+    add := fun decl stx kind => do
       unless kind == AttributeKind.global do throwError "invalid attribute '{impl.name}', must be global"
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
@@ -206,6 +230,9 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
       let val ← impl.getParam decl stx
       modifyEnv fun env => ext.addEntry env (decl, val)
       try impl.afterSet decl val catch _ => setEnv env
+    delab := fun decl => do
+      if let some val := ParametricAttribute.getParam?Core ext (← getEnv) decl then
+        impl.delabParam decl val
   }
   registerBuiltinAttribute attrImpl
   pure { attr := attrImpl, ext := ext }
@@ -213,12 +240,7 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
 namespace ParametricAttribute
 
 def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
-  match env.getModuleIdxFor? decl with
-  | some modIdx =>
-    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
-    | some (_, val) => some val
-    | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  getParam?Core attr.ext env decl
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
@@ -239,7 +261,17 @@ structure EnumAttributes (α : Type) where
   ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
   deriving Inhabited
 
-def registerEnumAttributes (attrDescrs : List (Name × String × α))
+private def EnumAttributes.getValueCore [Inhabited α]
+    (ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α))
+    (env : Environment) (decl : Name) : Option α :=
+  match env.getModuleIdxFor? decl with
+  | some modIdx =>
+    match (ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
+    | some (_, val) => some val
+    | none          => none
+  | none        => (ext.getState env).find? decl
+
+def registerEnumAttributes [Inhabited α] [BEq α] (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
     (ref : Name := by exact decl_name%) : IO (EnumAttributes α) := do
@@ -265,6 +297,10 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
         throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl val
       modifyEnv fun env => ext.addEntry env (decl, val)
+    delab           := fun decl => do
+      if let some v := EnumAttributes.getValueCore ext (← getEnv) decl then
+        if v == val then
+          modify (·.push <| Unhygienic.run `(attr| $(mkIdent name):ident))
     applicationTime := applicationTime
     : AttributeImpl
   }
@@ -274,12 +310,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
 namespace EnumAttributes
 
 def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
-  match env.getModuleIdxFor? decl with
-  | some modIdx =>
-    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
-    | some (_, val) => some val
-    | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  getValueCore attr.ext env decl
 
 def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
@@ -376,6 +407,11 @@ def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   match m[attrName]? with
   | some attr => pure attr
   | none      => throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
+
+def delabAttributesOfDecl (declName : Name) : AttrM (Array (TSyntax `attr)) := do
+  let m ← attributeMapRef.get
+  let act := m.forM fun _ attr => attr.delab declName
+  (·.2) <$> act.run #[]
 
 @[export lean_attribute_application_time]
 def getBuiltinAttributeApplicationTime (n : Name) : IO AttributeApplicationTime := do

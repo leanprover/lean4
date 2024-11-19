@@ -23,12 +23,18 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
     return m ++ "}"
 
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) : CommandElabM MessageData := do
+  let attrs ← liftCoreM <| delabAttributesOfDecl id
   let m : MessageData :=
-    match (← getReducibilityStatus id) with
-    | ReducibilityStatus.irreducible => "@[irreducible] "
-    | ReducibilityStatus.reducible => "@[reducible] "
-    | ReducibilityStatus.semireducible => ""
-  let m :=
+    if attrs.isEmpty then
+      ""
+    else
+      -- This sorting is not perfect, but we need to do some sorting here because
+      -- otherwise the attributes come out in random order which causes problems for reproducibility
+      let key {k} (stx : TSyntax k) := (stx.raw.getKind, stx.raw[0].getKind)
+      have : Ord (Name × Name) := Ord.lex ⟨Name.cmp⟩ ⟨Name.cmp⟩
+      let attrs := attrs.qsort (fun a b => compare (key a) (key b) = .lt)
+      MessageData.group ("@[" ++ MessageData.joinSep (attrs.toList.map fun s => .ofSyntax s.raw) ", " ++ "]") ++ Format.line
+    let m :=
     m ++
     match safety with
     | DefinitionSafety.unsafe  => "unsafe "
@@ -39,7 +45,7 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
     | some id => (m ++ "private ", id)
     | none    => (m, id)
   let m := m ++ kind ++ " " ++ id ++ levelParamsToMessageData levelParams ++ " : " ++ type
-  pure m
+  pure m.group
 
 private def mkHeader' (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : CommandElabM MessageData :=
   mkHeader kind id levelParams type (if isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe)

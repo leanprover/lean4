@@ -21,9 +21,9 @@ theorem List.append.eq_2.{u} : ∀ {α : Type u} (x : List α) (a : α) (l : Lis
 
 /--
 info: equations:
-theorem ack.eq_1 : ∀ (x : Nat), ack 0 x = x + 1
-theorem ack.eq_2 : ∀ (x_2 : Nat), ack x_2.succ 0 = ack x_2 1
-theorem ack.eq_3 : ∀ (x_2 y : Nat), ack x_2.succ y.succ = ack x_2 (ack (x_2 + 1) y)
+@[simp] theorem ack.eq_1 : ∀ (x : Nat), ack 0 x = x + 1
+@[simp] theorem ack.eq_2 : ∀ (x_2 : Nat), ack x_2.succ 0 = ack x_2 1
+@[simp] theorem ack.eq_3 : ∀ (x_2 y : Nat), ack x_2.succ y.succ = ack x_2 (ack (x_2 + 1) y)
 -/
 #guard_msgs in
 #print eqns ack

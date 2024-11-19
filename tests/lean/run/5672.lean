@@ -9,7 +9,7 @@ class A : Prop
 instance a : A where
 
 /--
-info: theorem a : A :=
+info: @[instance] theorem a : A :=
 { }
 -/
 #guard_msgs in #print a

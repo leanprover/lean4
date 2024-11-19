@@ -8,6 +8,7 @@ initialize registerBuiltinAttribute {
     name := `bar,
     descr := "",
     add := fun _ _ _ => pure ()
+    delab := fun _ => pure ()
   }
 
 def myFun (x : Nat) :=

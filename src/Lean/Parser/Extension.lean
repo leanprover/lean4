@@ -318,6 +318,7 @@ builtin_initialize
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := true)
+    delab := fun _ => pure () -- not persistent
   }
 
 builtin_initialize
@@ -327,6 +328,7 @@ builtin_initialize
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := false)
+    delab := fun _ => pure () -- not persistent
   }
 
 private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → ImportM Entry
@@ -491,6 +493,20 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   declareBuiltinDocStringAndRanges declName
   runParserAttributeHooks catName declName (builtin := true)
 
+private def BuiltinParserAttribute.print (attrName : Name) (catName : Name)
+    (declName : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit := do
+  let prio ← Attribute.Builtin.getPrio stx
+  unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
+  let decl ← getConstInfo declName
+  match decl.type with
+  | Expr.const `Lean.Parser.TrailingParser _ =>
+    declareTrailingBuiltinParser catName declName prio
+  | Expr.const `Lean.Parser.Parser _ =>
+    declareLeadingBuiltinParser catName declName prio
+  | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  declareBuiltinDocStringAndRanges declName
+  runParserAttributeHooks catName declName (builtin := true)
+
 /--
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
@@ -505,6 +521,7 @@ def registerBuiltinParserAttribute (attrName declName : Name)
     name            := attrName
     descr           := "Builtin parser"
     add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind
+    delab           := fun _ => pure () -- not persistent
     applicationTime := AttributeApplicationTime.afterCompilation
   }
 
@@ -535,6 +552,7 @@ def mkParserAttributeImpl (attrName catName : Name) (ref : Name := by exact decl
   name                      := attrName
   descr                     := "parser"
   add declName stx attrKind := ParserAttribute.add attrName catName declName stx attrKind
+  delab _                   := pure () -- FIXME no reverse lookup
   applicationTime           := AttributeApplicationTime.afterCompilation
 
 /-- A builtin parser attribute that can be extended by users. -/

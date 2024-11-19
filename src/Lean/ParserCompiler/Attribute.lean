@@ -32,6 +32,10 @@ def registerCombinatorAttribute (name : Name) (descr : String) (ref : Name := by
       let env ← getEnv
       let parserDeclName ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
       setEnv <| ext.addEntry env (parserDeclName, decl)
+    delab := fun decl => do
+      if let some val := (ext.getState (← getEnv)).find? decl then
+        let val ← unresolveNameGlobal val
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent name):ident $(mkIdent val)))
   }
   registerBuiltinAttribute attrImpl
   pure { impl := attrImpl, ext := ext }

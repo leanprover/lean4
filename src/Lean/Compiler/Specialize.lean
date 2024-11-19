@@ -46,6 +46,9 @@ builtin_initialize specializeAttr : ParametricAttribute (Array Nat) ←
     getParam := fun declName stx => do
       let args := stx[1].getArgs
       elabSpecArgs declName args |>.run'
+    delabParam := fun declName val => do
+      let val := val.map fun n => Syntax.mkNatLit (n + 1)
+      modify (·.push <| Unhygienic.run `(attr| specialize $val*))
   }
 
 def getSpecializationArgs? (env : Environment) (declName : Name) : Option (Array Nat) :=

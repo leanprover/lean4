@@ -57,6 +57,20 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
       entries := entries.push <| ExternEntry.inline backend str
   return { arity? := arity?, entries := entries.toList }
 
+private def externAttrDataToSyntax (data : ExternAttrData) : AttrM (TSyntax `attr) := do
+  let arity? := data.arity?.map Syntax.mkNatLit
+  let mut entries := #[]
+  unless data matches {arity? := none, entries := [.adhoc `all]} do
+    for entry in data.entries do
+      let (inline, backend, str) ←  match entry with
+        | .standard backend str => pure (none, backend, str)
+        | .inline backend str => pure (some (mkAtom "inline"), backend, str)
+        | _ => continue
+      let backend := if backend == `all then none else some (mkIdent backend)
+      entries := entries.push <| mkNode `Lean.Parser.Attr.externEntry #[
+        mkOptionalNode backend, mkOptionalNode inline, Syntax.mkStrLit str]
+  `(attr| extern $(arity?)? $entries*)
+
 @[extern "lean_add_extern"]
 opaque addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
 
@@ -73,6 +87,9 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
           return ()
         let env ← ofExcept <| addExtern env declName
         setEnv env
+    delabParam := fun decl val => do
+      let stx ← externAttrDataToSyntax val
+      modify (·.push stx)
   }
 
 @[export lean_get_extern_attr_data]

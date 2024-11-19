@@ -82,6 +82,9 @@ builtin_initialize registerBuiltinAttribute {
     unless kind == .global do
       throwError "cannot add local or scoped coe attribute"
     registerCoercion decl
+  delab := fun decl => do
+    if let some _ ← getCoeFnInfo? decl then
+      modify (·.push <| Unhygienic.run `(attr| coe))
 }
 
 end Lean.Meta

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Attributes
+import Lean.Structure
 
 namespace Lean
 
@@ -169,6 +170,11 @@ builtin_initialize
       unless kind == AttributeKind.global do throwError "invalid attribute 'class', must be global"
       let env ← ofExcept (addClass env decl)
       setEnv env
+    delab := fun decl => do
+      let env ← getEnv
+      -- We deliberately skip structures to avoid `@[class] class` in #print
+      if isClass env decl && (getStructureInfo? env decl).isNone then
+        modify (·.push <| Unhygienic.run `(attr| class))
   }
 
 end Lean

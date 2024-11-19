@@ -89,6 +89,11 @@ builtin_initialize
       if (← findSimpleDocString? (← getEnv) decl).isSome then
         logWarningAt stx m!"Docstring for '{decl}' will be ignored because it is an alternative"
 
+    delab := fun decl => do
+      if let some tgt := alternativeOfTactic (← getEnv) decl then
+        let tgt ← unresolveNameGlobal tgt
+        modify (·.push <| Unhygienic.run `(attr| tactic_alt $(Lean.mkIdent tgt)))
+
     descr :=
       "Register a tactic parser as an alternative form of an existing tactic, so they " ++
       "can be grouped together in documentation.",
@@ -213,6 +218,12 @@ builtin_initialize
               m!"(expected {suggestions})"
 
           throwErrorAt t (m!"unknown tag '{tagName}' " ++ extra)
+
+    delab := fun decl => do
+      if let some tags := (tacticTagExt.getState (← getEnv)).find? decl then
+        let tags := tags.fold (·.push <| Lean.mkIdent ·) #[]
+        modify (·.push <| Unhygienic.run `(attr| tactic_tag $tags*))
+
     descr := "Register a tactic parser as an alternative of an existing tactic, so they can be " ++
       "grouped together in documentation.",
     -- This runs prior to elaboration because it allows a check for whether the decl is present

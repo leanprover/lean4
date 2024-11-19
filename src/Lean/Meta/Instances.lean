@@ -232,19 +232,6 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
-builtin_initialize
-  registerBuiltinAttribute {
-    name  := `instance
-    descr := "type class instance"
-    add   := fun declName stx attrKind => do
-      let prio ← getAttrParamOptPrio stx[1]
-      discard <| addInstance declName attrKind prio |>.run {} {}
-    erase := fun declName => do
-      let s := instanceExtension.getState (← getEnv)
-      let s ← s.erase declName
-      modifyEnv fun env => instanceExtension.modifyState env fun _ => s
-  }
-
 def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
   return Meta.instanceExtension.getState (← getEnv) |>.discrTree
 
@@ -264,6 +251,22 @@ def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
 def getInstanceAttrKind? (declName : Name) : CoreM (Option AttributeKind) := do
   let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
   return entry.attrKind
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `instance
+    descr := "type class instance"
+    add   := fun declName stx attrKind => do
+      let prio ← getAttrParamOptPrio stx[1]
+      discard <| addInstance declName attrKind prio |>.run {} {}
+    delab := fun declName => do
+      if ← isInstance declName then
+        modify (·.push <| Unhygienic.run `(attr| instance))
+    erase := fun declName => do
+      let s := instanceExtension.getState (← getEnv)
+      let s ← s.erase declName
+      modifyEnv fun env => instanceExtension.modifyState env fun _ => s
+  }
 
 /-! # Default instance support -/
 
@@ -311,6 +314,16 @@ builtin_initialize
       let prio ← getAttrParamOptPrio stx[1]
       unless kind == AttributeKind.global do throwError "invalid attribute 'default_instance', must be global"
       discard <| addDefaultInstance declName prio |>.run {} {}
+    delab := fun declName => do
+      -- TODO: this is a global search, which could be slow. Maybe add a reverse lookup?
+      for (_, ls) in defaultInstanceExtension.getState (← getEnv) |>.defaultInstances do
+        for (inst, prio) in ls do
+          if inst == declName then
+            let prio :=
+              if prio = eval_prio default then none
+              else some (Syntax.mkNumLit (toString prio))
+            modify (·.push <| Unhygienic.run `(attr| default_instance $(prio)?))
+            return
   }
   registerTraceClass `Meta.synthOrder
 

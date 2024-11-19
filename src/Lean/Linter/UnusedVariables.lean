@@ -181,6 +181,7 @@ builtin_initialize
         declareBuiltin decl <| mkApp (mkConst ``addBuiltinUnusedVariablesIgnoreFn) h
       else
         setEnv <| unusedVariablesIgnoreFnsExt.addEntry env (decl, ← mkIgnoreFn decl)
+    delab           := fun _ => pure () -- builtin: not persistent, regular: FIXME no reverse lookup
   }
   mkAttr true `builtin_unused_variables_ignore_fn
   mkAttr false `unused_variables_ignore_fn

@@ -374,6 +374,10 @@ def addSimprocAttr (ext : SimprocExtension) (declName : Name) (stx : Syntax) (at
     addSimprocAttrCore ext declName attrKind post
   discard <| go.run {} {}
 
+def printSimprocAttr (ext : SimprocExtension) (declName : Name) : StateT (Array (TSyntax `attr)) AttrM Unit := do
+  if (ext.getState (← getEnv)).simprocNames.contains declName then
+    modify (·.push <| Unhygienic.run `(attr| $(mkIdent `simproc):ident)) -- FIXME: pre/post
+
 def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension) (name : Name) : IO Unit := do
   registerBuiltinAttribute {
     ref   := name
@@ -381,6 +385,7 @@ def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
     add   := addSimprocAttr ext
+    delab := printSimprocAttr ext
     erase := eraseSimprocAttr ext
   }
 
@@ -413,22 +418,22 @@ private def addBuiltin (declName : Name) (stx : Syntax) (addDeclName : Name) : A
 
 builtin_initialize
   registerBuiltinAttribute {
-    ref             := by exact decl_name%
     name            := `simprocBuiltinAttr
     descr           := "Builtin simplification procedure"
     applicationTime := AttributeApplicationTime.afterCompilation
     erase           := fun _ => throwError "Not implemented yet, [-builtin_simproc]"
     add             := fun declName stx _ => addBuiltin declName stx ``addSimprocBuiltinAttr
+    delab           := fun _ => pure () -- not persistent
   }
 
 builtin_initialize
   registerBuiltinAttribute {
-    ref             := by exact decl_name%
     name            := `sevalprocBuiltinAttr
     descr           := "Builtin symbolic evaluation procedure"
     applicationTime := AttributeApplicationTime.afterCompilation
     erase           := fun _ => throwError "Not implemented yet, [-builtin_sevalproc]"
     add             := fun declName stx _ => addBuiltin declName stx ``addSEvalprocBuiltinAttr
+    delab           := fun _ => pure () -- not persistent
   }
 
 def getSimprocs : CoreM Simprocs :=

@@ -97,6 +97,9 @@ builtin_initialize
         declareBuiltin decl <| mkApp2 (mkConst ``addBuiltinCodeActionProvider) (toExpr decl) h
       else
         setEnv <| codeActionProviderExt.addEntry env decl
+    delab           := fun decl => do
+      if (codeActionProviderExt.getState (← getEnv)).contains decl then
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent name):ident))
   }
   mkAttr true `builtin_code_action_provider
   mkAttr false `code_action_provider

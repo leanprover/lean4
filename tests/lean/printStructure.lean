@@ -4,7 +4,7 @@
 
 /- Structure -/
 /--
-info: structure Prod.{u, v} : Type u → Type v → Type (max u v)
+info: @[unbox, grind_cases] structure Prod.{u, v} : Type u → Type v → Type (max u v)
 number of parameters: 2
 constructor:
 Prod.mk : {α : Type u} → {β : Type v} → α → β → α × β
@@ -17,7 +17,7 @@ snd : β
 
 /- Class -/
 /--
-info: class Inhabited.{u} : Sort u → Sort (max 1 u)
+info: @[nospecialize] class Inhabited.{u} : Sort u → Sort (max 1 u)
 number of parameters: 1
 constructor:
 Inhabited.mk : {α : Sort u} → α → Inhabited α

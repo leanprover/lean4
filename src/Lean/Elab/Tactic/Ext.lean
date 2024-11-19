@@ -261,6 +261,12 @@ builtin_initialize registerBuiltinAttribute {
     -- Realize iff theorem
     if iff then
       discard <| liftCommandElabM <| withRef stx <| realizeExtIffTheorem declName
+  delab := fun decl => do
+    if let some {priority, .. : ExtTheorem} := (extExtension.getState (← getEnv)).tree.fold
+      (fun o _ v => o <|> guard (v.declName == decl) *> pure v) none
+    then
+      let prio := if priority = eval_prio default then none else some (Syntax.mkNatLit priority)
+      modify (·.push <| Unhygienic.run `(attr| ext $[$prio:num]?))
   erase := fun declName => do
     let s := extExtension.getState (← getEnv)
     let s ← s.erase declName

@@ -58,12 +58,12 @@ def addBVNormalizeProcBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Si
 
 builtin_initialize
   registerBuiltinAttribute {
-    ref             := by exact decl_name%
     name            := `bvNormalizeProcBuiltinAttr
     descr           := "Builtin bv_normalize simproc"
     applicationTime := AttributeApplicationTime.afterCompilation
     erase           := fun _ => throwError "Not implemented yet, [-builtin_bv_normalize_proc]"
     add             := fun declName stx _ => addBuiltin declName stx ``addBVNormalizeProcBuiltinAttr
+    delab           := fun _ => pure ()
   }
 
 end Frontend

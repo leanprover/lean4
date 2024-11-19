@@ -8,7 +8,7 @@ import Lean
 Basic functionality
 -/
 /--
-info: def Nat.pred : Nat → Nat :=
+info: @[extern "lean_nat_pred"] def Nat.pred : Nat → Nat :=
 fun x =>
   match x with
   | 0 => 0

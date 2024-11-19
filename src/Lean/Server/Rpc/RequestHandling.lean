@@ -135,6 +135,9 @@ builtin_initialize registerBuiltinAttribute {
   applicationTime := AttributeApplicationTime.afterCompilation
   add := fun decl _ _ =>
     registerRpcProcedure decl
+  delab := fun decl => do
+    if userRpcProcedures.contains (← getEnv) decl then
+      modify (·.push <| Unhygienic.run `(attr| $(mkIdent `server_rpc_method):ident))
 }
 
 end Lean.Server

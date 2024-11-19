@@ -56,6 +56,12 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
       | none =>
         if isIOUnit decl.type then pure Name.anonymous
         else throwError "initialization function must have type `IO Unit`"
+    delabParam := fun _ val => do
+      if val.isAnonymous then
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent attrName):ident))
+      else
+        let val ← unresolveNameGlobal val
+        modify (·.push <| Unhygienic.run `(attr| $(mkIdent attrName):ident $(mkIdent val)))
     afterImport := fun entries => do
       let ctx ← read
       if runAfterImport && (← isInitializerExecutionEnabled) then

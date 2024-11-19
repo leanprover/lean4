@@ -1674,11 +1674,12 @@ private partial def isDefEqQuick (t s : Expr) : MetaM LBool :=
   -- | Expr.mdata _ t _,    s                   => isDefEqQuick t s
   -- | t,                   Expr.mdata _ s _    => isDefEqQuick t s
   | .fvar fvarId₁, .fvar fvarId₂ => do
-    if (← fvarId₁.isLetVar <||> fvarId₂.isLetVar) then
-      return LBool.undef
-    else if fvarId₁ == fvarId₂ then
-      return LBool.true
+    if fvarId₁ == fvarId₂ then
+      return .true
+    else if (← fvarId₁.isLetVar <||> fvarId₂.isLetVar) then
+      return .undef
     else
+      -- If `t` and `s` are not proofs or let-variables, we still return `.undef` and let other rules (e.g., unit-like) kick in.
       isDefEqProofIrrel t s
   | t, s =>
     isDefEqQuickOther t s

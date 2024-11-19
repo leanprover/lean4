@@ -1387,15 +1387,21 @@ private abbrev unfold (e : Expr) (failK : MetaM α) (successK : Expr → MetaM �
 /-- Auxiliary method for isDefEqDelta -/
 private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
   match t, s with
-  | Expr.const _ ls₁, Expr.const _ ls₂ => isListLevelDefEq ls₁ ls₂
-  | Expr.app _ _,     Expr.app _ _     =>
+  | .const _ ls₁, .const _ ls₂ =>
+    match (← isListLevelDefEq ls₁ ls₂) with
+    | .true => return .true
+    | _ =>
+    unfold t (pure .undef) fun t =>
+    unfold s (pure .undef) fun s =>
+      isDefEqLeftRight fn t s
+  | .app _ _,     .app _ _     =>
     if (← tryHeuristic t s) then
-      pure LBool.true
+      return .true
     else
       unfold t
-       (unfold s (pure LBool.undef) (fun s => isDefEqRight fn t s))
+       (unfold s (pure .undef) fun s => isDefEqRight fn t s)
        (fun t => unfold s (isDefEqLeft fn t s) (fun s => isDefEqLeftRight fn t s))
-  | _, _ => pure LBool.false
+  | _, _ => return .false
 
 private def sameHeadSymbol (t s : Expr) : Bool :=
   match t.getAppFn, s.getAppFn with

@@ -92,5 +92,7 @@ example (s : S) : S := { s with   : S } -- All field completions expected
 example (s : S) : S := { s with f  } -- All field completions matching `f` expected
                                --^ textDocument/completion
 
-example (aLongUniqueIdentifier : Nat) : Std.HashSet Nat := { aLongUniqueIdentifier } -- Identifier completion matching `aLongUniqueIdentifier`
-                                                                                --^ textDocument/completion
+def aLongUniqueIdentifier := 0
+
+example : Std.HashSet Nat := { aLongUniqueIdentifier } -- Identifier completion matching `aLongUniqueIdentifier`
+                                                  --^ textDocument/completion

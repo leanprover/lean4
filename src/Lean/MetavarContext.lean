@@ -1061,7 +1061,7 @@ mutual
 
     Note: It is assumed that `xs` is the result of calling `collectForwardDeps` on a subset of variables in `lctx`.
   -/
-  private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
+  private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) (usedLetOnly : Bool) : M Expr := do
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i e => do
       let x := xs[i]!
@@ -1072,7 +1072,7 @@ mutual
           let type ← abstractRangeAux xs i type
           return Lean.mkForall n bi type e
         | LocalDecl.ldecl _ _ n type value nonDep _ =>
-          if e.hasLooseBVar 0 then
+          if !usedLetOnly || e.hasLooseBVar 0 then
             let type := type.headBeta
             let type  ← abstractRangeAux xs i type
             let value ← abstractRangeAux xs i value
@@ -1110,7 +1110,7 @@ mutual
 
     See details in the comment at the top of the file.
   -/
-  private partial def elimMVar (xs : Array Expr) (mvarId : MVarId) (args : Array Expr) : M (Expr × Array Expr) := do
+  private partial def elimMVar (xs : Array Expr) (mvarId : MVarId) (args : Array Expr) (usedLetOnly : Bool) : M (Expr × Array Expr) := do
     let mvarDecl  := (← getMCtx).getDecl mvarId
     let mvarLCtx  := mvarDecl.lctx
     let toRevert  := getInScope mvarLCtx xs
@@ -1138,7 +1138,7 @@ mutual
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
       -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
-      let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
+      let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type usedLetOnly
       let newMVarId    := { name := (← get).ngen.curr }
       let newMVar      := mkMVar newMVarId
       let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
@@ -1179,7 +1179,7 @@ mutual
         if (← read).mvarIdsToAbstract.contains mvarId then
           return mkAppN f (← args.mapM (visit xs))
         else
-          return (← elimMVar xs mvarId args).1
+          return (← elimMVar xs mvarId args true).1
     | _ =>
       return mkAppN (← visit xs f) (← args.mapM (visit xs))
 
@@ -1201,7 +1201,7 @@ partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M Expr :=
 -/
 partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) :=
   withFreshCache do
-    elimMVar xs mvarId #[]
+    elimMVar xs mvarId #[] false
 
 /--
   Similar to `Expr.abstractRange`, but handles metavariables correctly.

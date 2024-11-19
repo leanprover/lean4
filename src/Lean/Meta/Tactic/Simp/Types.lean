@@ -131,7 +131,6 @@ private def mkIndexConfig (c : Config) : ConfigWithKey :=
 /--
 Converts `Simp.Config` into `Meta.ConfigWithKey` used for `isDefEq`.
 -/
--- TODO: use `metaConfig` at `isDefEq`. It is not being used yet because it will break Mathlib.
 private def mkMetaConfig (c : Config) : ConfigWithKey :=
   { c with
     proj         := if c.proj then .yesWithDelta else .no
@@ -236,6 +235,12 @@ For example, if the user has set `simp (config := { zeta := false })`,
 -/
 @[inline] def withSimpIndexConfig (x : SimpM α) : SimpM α := do
   withConfigWithKey (← readThe Simp.Context).indexConfig x
+
+/--
+Executes `x` using a `MetaM` configuration for inferred from `Simp.Config`.
+-/
+@[inline] def withSimpMetaConfig (x : SimpM α) : SimpM α := do
+  withConfigWithKey (← readThe Simp.Context).metaConfig x
 
 @[extern "lean_simp"]
 opaque simp (e : Expr) : SimpM Result

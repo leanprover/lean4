@@ -166,7 +166,8 @@ def Array.toBinaryHeap (lt : α → α → Bool) (a : Array α) : BinaryHeap α 
     | none => out
     | some x =>
       have : a.popMax.size < a.size := by
-        simp; exact Nat.sub_lt (BinaryHeap.size_pos_of_max e) Nat.zero_lt_one
+        simp +zetaDelta
+        exact Nat.sub_lt (BinaryHeap.size_pos_of_max e) Nat.zero_lt_one
       loop a.popMax (out.push x)
     termination_by a.size
     decreasing_by assumption

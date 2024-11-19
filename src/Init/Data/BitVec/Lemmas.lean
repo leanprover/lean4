@@ -2681,8 +2681,12 @@ theorem getMsbD_rotateLeft {r n w : Nat} {x : BitVec w} :
 
 @[simp]
 theorem msb_rotateLeft {m w : Nat} {x : BitVec w} :
-    (x.rotateLeft m).msb = decide (0 < w && x.getMsbD (m % w)) := by
-  simp [BitVec.msb, getMsbD_rotateLeft]
+    (x.rotateLeft m).msb = x.getMsbD (m % w) := by
+  simp only [BitVec.msb, getMsbD_rotateLeft]
+  by_cases h : w = 0
+  · simp [h]
+  · simp
+    omega
 
 /-! ## Rotate Right -/
 

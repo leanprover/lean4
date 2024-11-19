@@ -27,5 +27,5 @@ builtin_initialize
           | logWarningAt id m!"{← mkConstWithLevelParams declName} does not have a doc string"
         addDocString decl doc
       | _  => throwError "invalid `[inherit_doc]` attribute"
-    delab := fun _ => pure ()
+    delab := fun _ => pure () -- not persistent
   }

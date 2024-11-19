@@ -164,7 +164,7 @@ builtin_initialize
     descr           := "semireducible declaration"
     add             := addAttr .semireducible
     applicationTime := .afterTypeChecking
-    delab           := fun _ => pure ()
+    delab           := fun _ => pure () -- default setting so skip
  }
 
 /-- Return the reducibility attribute for the given declaration. -/

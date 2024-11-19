@@ -423,7 +423,7 @@ builtin_initialize
     applicationTime := AttributeApplicationTime.afterCompilation
     erase           := fun _ => throwError "Not implemented yet, [-builtin_simproc]"
     add             := fun declName stx _ => addBuiltin declName stx ``addSimprocBuiltinAttr
-    delab           := fun _ => pure ()
+    delab           := fun _ => pure () -- not persistent
   }
 
 builtin_initialize
@@ -433,7 +433,7 @@ builtin_initialize
     applicationTime := AttributeApplicationTime.afterCompilation
     erase           := fun _ => throwError "Not implemented yet, [-builtin_sevalproc]"
     add             := fun declName stx _ => addBuiltin declName stx ``addSEvalprocBuiltinAttr
-    delab           := fun _ => pure ()
+    delab           := fun _ => pure () -- not persistent
   }
 
 def getSimprocs : CoreM Simprocs :=

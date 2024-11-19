@@ -122,7 +122,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       ref   := attrDeclName
       name  := df.builtinName
       descr := "(builtin) " ++ df.descr
-      delab := fun _ => pure ()
+      delab := fun _ => pure () -- not persistent
       add   := fun declName stx kind => do
         unless kind == AttributeKind.global do throwError "invalid attribute '{df.builtinName}', must be global"
         let key ← df.evalKey true stx
@@ -146,7 +146,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
       let s := ext.getState (← getEnv)
       let s ← s.erase df.name declName
       modifyEnv fun env => ext.modifyState env fun _ => s
-    delab           := fun _ => pure ()
+    delab           := fun _ => pure () -- not persistent
     add             := fun declName stx attrKind => do
       let key ← df.evalKey false stx
       match IR.getSorryDep (← getEnv) declName with

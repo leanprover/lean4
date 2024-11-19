@@ -318,7 +318,7 @@ builtin_initialize
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := true)
-    delab := fun _ => pure ()
+    delab := fun _ => pure () -- not persistent
   }
 
 builtin_initialize
@@ -328,7 +328,7 @@ builtin_initialize
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := false)
-    delab := fun _ => pure ()
+    delab := fun _ => pure () -- not persistent
   }
 
 private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → ImportM Entry
@@ -521,7 +521,7 @@ def registerBuiltinParserAttribute (attrName declName : Name)
     name            := attrName
     descr           := "Builtin parser"
     add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind
-    delab           := fun _ => pure ()
+    delab           := fun _ => pure () -- not persistent
     applicationTime := AttributeApplicationTime.afterCompilation
   }
 
@@ -552,7 +552,7 @@ def mkParserAttributeImpl (attrName catName : Name) (ref : Name := by exact decl
   name                      := attrName
   descr                     := "parser"
   add declName stx attrKind := ParserAttribute.add attrName catName declName stx attrKind
-  delab                     := fun _ => pure ()
+  delab _                   := pure () -- FIXME no reverse lookup
   applicationTime           := AttributeApplicationTime.afterCompilation
 
 /-- A builtin parser attribute that can be extended by users. -/

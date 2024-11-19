@@ -2909,6 +2909,14 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   ext i
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
+/--
+The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,
+when `k` is less than the bitwidth `w`.
+-/
+theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x / (twoPow w k) = x >>> k := by
+  have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) hk
+  simp [bv_toNat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
+
 /- ### cons -/
 
 @[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by

@@ -214,7 +214,7 @@ private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceStat
   let mut log := log
   let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
   for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
+    let data := .tagged `trace <| .joinSep traceMsg.toList "\n"
     log := log.add <| mkMessageCore ctx.fileName ctx.fileMap data .information pos endPos
   return log
 
@@ -555,7 +555,11 @@ private def getVarDecls (s : State) : Array Syntax :=
 instance {α} : Inhabited (CommandElabM α) where
   default := throw default
 
-private def mkMetaContext : Meta.Context := {
+/--
+The environment linter framework needs to be able to run linters with the same context
+as `liftTermElabM`, so we expose that context as a public function here.
+-/
+def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 

@@ -9,7 +9,7 @@ variable (j_lt : j < (a.set! i v).size)
 
 #check_simp (i + 0) ~> i
 
-#check_simp (a.set! i v).get ⟨i, g⟩ ~> v
+#check_simp (a.set! i v).get i g ~> v
 #check_simp (a.set! i v).get! i ~> (a.setD i v)[i]!
 #check_simp (a.set! i v).getD i d ~> if i < a.size then v else d
 #check_simp (a.set! i v)[i] ~> v

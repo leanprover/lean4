@@ -308,7 +308,7 @@ def evalTacticSeq : Tactic :=
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
-    let tactic := tactics.get ⟨i, h⟩
+    let tactic := tactics[i]
     catchInternalId unsupportedSyntaxExceptionId
       (evalTactic tactic)
       (fun _ => evalChoiceAux tactics (i+1))

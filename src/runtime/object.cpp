@@ -1620,6 +1620,25 @@ extern "C" LEAN_EXPORT obj_res lean_float_frexp(double a) {
     return r;
 }
 
+extern "C" LEAN_EXPORT double lean_float_of_bits(uint64_t u)
+{
+    static_assert(sizeof(double) == sizeof(u), "`double` unexpected size.");
+    double ret;
+    std::memcpy(&ret, &u, sizeof(double));
+    if (isnan(ret))
+        ret = std::numeric_limits<double>::quiet_NaN();
+    return ret;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_float_to_bits(double d)
+{
+    uint64_t ret;
+    if (isnan(d))
+        d = std::numeric_limits<double>::quiet_NaN();
+    std::memcpy(&ret, &d, sizeof(double));
+    return ret;
+}
+
 // =======================================
 // Strings
 

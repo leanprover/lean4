@@ -90,10 +90,9 @@ def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
 
 def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
   if h : i < source.size then
-     let idx : Fin source.size := ⟨i, h⟩
-     let es  : AssocList α β   := source.get idx
+     let es  : AssocList α β   := source[i]
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
-     let source                := source.set idx AssocList.nil
+     let source                := source.set i AssocList.nil
      let target                := es.foldl (reinsertAux hash) target
      moveEntries (i+1) source target
   else target

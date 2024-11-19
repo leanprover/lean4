@@ -8,7 +8,7 @@ def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (
 termination_by a.size - i
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-theorem eq_of_isEqvAux [DecidableEq α] (a b : Array α) (hsz : a.size = b.size) (i : Nat) (hi : i ≤ a.size) (heqv : isEqvAux a b hsz (fun x y => x = y) i) : ∀ (j : Nat) (hl : i ≤ j) (hj : j < a.size), a.get ⟨j, hj⟩ = b.get ⟨j, hsz ▸ hj⟩ := by
+theorem eq_of_isEqvAux [DecidableEq α] (a b : Array α) (hsz : a.size = b.size) (i : Nat) (hi : i ≤ a.size) (heqv : isEqvAux a b hsz (fun x y => x = y) i) : ∀ (j : Nat) (hl : i ≤ j) (hj : j < a.size), a[j] = b[j] := by
   intro j low high
   by_cases h : i < a.size
   · unfold isEqvAux at heqv

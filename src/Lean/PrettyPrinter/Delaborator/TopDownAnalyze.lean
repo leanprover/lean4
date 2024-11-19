@@ -205,7 +205,7 @@ def replaceLPsWithVars (e : Expr) : MetaM Expr := do
     | l => if !l.hasParam then some l else none
 
 def isDefEqAssigning (t s : Expr) : MetaM Bool := do
-  withReader (fun ctx => { ctx with config := { ctx.config with assignSyntheticOpaque := true }}) $
+  withConfig (fun cfg => { cfg with assignSyntheticOpaque := true }) do
     Meta.isDefEq t s
 
 def checkpointDefEq (t s : Expr) : MetaM Bool := do
@@ -624,7 +624,7 @@ open TopDownAnalyze SubExpr
 def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
   let s₀ ← get
   withTraceNode `pp.analyze (fun _ => return e) do
-    withReader (fun ctx => { ctx with config := Elab.Term.setElabConfig ctx.config }) do
+    withConfig Elab.Term.setElabConfig do
       let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; pure (← get).annotations
       try
         let knowsType := getPPAnalyzeKnowsType (← getOptions)

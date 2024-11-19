@@ -372,6 +372,17 @@ theorem getElem?_concat_length (l : List α) (a : α) : (l ++ [a])[l.length]? = 
 @[deprecated getElem?_concat_length (since := "2024-06-12")]
 theorem get?_concat_length (l : List α) (a : α) : (l ++ [a]).get? l.length = some a := by simp
 
+@[simp] theorem isSome_getElem? {l : List α} {n : Nat} : l[n]?.isSome ↔ n < l.length := by
+  by_cases h : n < l.length
+  · simp_all
+  · simp [h]
+    simp_all
+
+@[simp] theorem isNone_getElem? {l : List α} {n : Nat} : l[n]?.isNone ↔ l.length ≤ n := by
+  by_cases h : n < l.length
+  · simp_all
+  · simp [h]
+
 /-! ### mem -/
 
 @[simp] theorem not_mem_nil (a : α) : ¬ a ∈ [] := nofun
@@ -1025,6 +1036,10 @@ theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),
   | _ :: _ :: _, _ => by
     simp [getLast, get, Nat.succ_sub_succ, getLast_eq_getElem]
 
+theorem getElem_length_sub_one_eq_getLast (l : List α) (h) :
+    l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by
+  rw [← getLast_eq_getElem]
+
 @[deprecated getLast_eq_getElem (since := "2024-07-15")]
 theorem getLast_eq_get (l : List α) (h : l ≠ []) :
     getLast l h = l.get ⟨l.length - 1, by
@@ -1045,7 +1060,7 @@ theorem getLast_eq_getLastD (a l h) : @getLast α (a::l) h = getLastD l a := by
 
 @[simp] theorem getLast_singleton (a h) : @getLast α [a] h = a := rfl
 
-theorem getLast!_cons [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
+theorem getLast!_cons_eq_getLastD [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
 
 @[simp] theorem getLast_mem : ∀ {l : List α} (h : l ≠ []), getLast l h ∈ l
@@ -1109,7 +1124,12 @@ theorem getLastD_concat (a b l) : @getLastD α (l ++ [b]) a = b := by
 
 /-! ### getLast! -/
 
-@[simp] theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
+theorem getLast!_nil [Inhabited α] : ([] : List α).getLast! = default := rfl
+
+@[simp] theorem getLast!_eq_getLast?_getD [Inhabited α] {l : List α} : getLast! l = (getLast? l).getD default := by
+  cases l with
+  | nil => simp [getLast!_nil]
+  | cons _ _ => simp [getLast!, getLast?_eq_getLast]
 
 theorem getLast!_of_getLast? [Inhabited α] : ∀ {l : List α}, getLast? l = some a → getLast! l = a
   | _ :: _, rfl => rfl
@@ -1140,6 +1160,11 @@ theorem head?_eq_getElem? : ∀ l : List α, head? l = l[0]?
   | a :: l => by simp
 
 theorem head_eq_getElem (l : List α) (h : l ≠ []) : head l h = l[0]'(length_pos.mpr h) := by
+  cases l with
+  | nil => simp at h
+  | cons _ _ => simp
+
+theorem getElem_zero_eq_head (l : List α) (h) : l[0] = head l (by simpa [length_pos] using h) := by
   cases l with
   | nil => simp at h
   | cons _ _ => simp

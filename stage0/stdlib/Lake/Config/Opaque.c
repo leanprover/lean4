@@ -14,15 +14,8 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OpaquePackage_nonemptyType;
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_nonemptyType;
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_nonemptyType(lean_object*, lean_object*, lean_object*);
-static lean_object* _init_l_Lake_OpaquePackage_nonemptyType() {
-_start:
-{
-return lean_box(0);
-}
-}
 static lean_object* _init_l_Lake_OpaqueWorkspace_nonemptyType() {
 _start:
 {
@@ -62,7 +55,6 @@ lean_dec_ref(res);
 res = initialize_Lake_Util_Opaque(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_OpaquePackage_nonemptyType = _init_l_Lake_OpaquePackage_nonemptyType();
 l_Lake_OpaqueWorkspace_nonemptyType = _init_l_Lake_OpaqueWorkspace_nonemptyType();
 return lean_io_result_mk_ok(lean_box(0));
 }

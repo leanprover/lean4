@@ -332,7 +332,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
 @[specialize] partial def isDefEqBindingDomain (fvars : Array Expr) (ds₂ : Array Expr) (k : MetaM Bool) : MetaM Bool :=
   let rec loop (i : Nat) := do
     if h : i < fvars.size then do
-      let fvar := fvars.get ⟨i, h⟩
+      let fvar := fvars[i]
       let fvarDecl ← getFVarLocalDecl fvar
       let fvarType := fvarDecl.type
       let d₂       := ds₂[i]!
@@ -364,7 +364,7 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   | Expr.forallE n d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | Expr.lam     n d₁ b₁ _, Expr.lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
   | _,                      _                      =>
-    withReader (fun ctx => { ctx with lctx := lctx }) do
+    withLCtx' lctx do
       isDefEqBindingDomain fvars ds₂ do
         Meta.isExprDefEqAux (e₁.instantiateRev fvars) (e₂.instantiateRev fvars)
 
@@ -758,8 +758,8 @@ mutual
     if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
       traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
       throwCheckAssignmentFailure
-    let ctxMeta ← readThe Meta.Context
-    unless ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx do
+    let cfg ← getConfig
+    unless cfg.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx do
       traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
       throwCheckAssignmentFailure
     /- Create an auxiliary metavariable with a smaller context and "checked" type.
@@ -814,8 +814,8 @@ mutual
 
   partial def checkApp (e : Expr) : CheckAssignmentM Expr :=
     e.withApp fun f args => do
-      let ctxMeta ← readThe Meta.Context
-      if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then
+      let cfg ← getConfig
+      if f.isMVar && cfg.ctxApprox && args.all Expr.isFVar then
         let f ← check f
         catchInternalId outOfScopeExceptionId
           (do
@@ -1203,7 +1203,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
       let useFOApprox (args : Array Expr) : MetaM Bool :=
         processAssignmentFOApprox mvar args v <||> processConstApprox mvar args i v
       if h : i < args.size then
-        let arg := args.get ⟨i, h⟩
+        let arg := args[i]
         let arg ← simpAssignmentArg arg
         let args := args.set i arg
         match arg with
@@ -1794,8 +1794,8 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
         | LBool.true => return LBool.true
         | LBool.false => return LBool.false
         | _ =>
-          let ctx ← read
-          if ctx.config.isDefEqStuckEx then do
+          let cfg ← getConfig
+          if cfg.isDefEqStuckEx then do
             trace[Meta.isDefEq.stuck] "{t} =?= {s}"
             Meta.throwIsDefEqStuck
           else
@@ -1834,7 +1834,7 @@ end
       let e ← instantiateMVars e
       successK e
     else
-      if (← read).config.isDefEqStuckEx then
+      if (← getConfig).isDefEqStuckEx then
         /-
         When `isDefEqStuckEx := true` and `mvar` was created in a previous level,
         we should throw an exception. See issue #2736 for a situation where this can happen.
@@ -2079,50 +2079,37 @@ Structure for storing defeq cache key information.
 -/
 structure DefEqCacheKeyInfo where
   kind : DefEqCacheKind
-  key  : Expr × Expr
+  key  : DefEqCacheKey
 
 private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do
   let kind ← getDefEqCacheKind t s
-  let key := if Expr.quickLt t s then (t, s) else (s, t)
+  let key ← mkDefEqCacheKey t s
   return { key, kind }
 
 private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
   let cache ← match keyInfo.kind with
     | .transient => pure (← get).cache.defEqTrans
     | .permanent => pure (← get).cache.defEqPerm
-  let cache := match (← getTransparency) with
-    | .reducible => cache.reducible
-    | .instances => cache.instances
-    | .default   => cache.default
-    | .all       => cache.all
   match cache.find? keyInfo.key with
   | some val => return val.toLBool
   | none => return .undef
 
-def DefEqCache.update (cache : DefEqCache) (mode : TransparencyMode) (key : Expr × Expr) (result : Bool) : DefEqCache :=
-  match mode with
-  | .reducible => { cache with reducible := cache.reducible.insert key result }
-  | .instances => { cache with instances := cache.instances.insert key result }
-  | .default   => { cache with default   := cache.default.insert key result }
-  | .all       => { cache with all       := cache.all.insert key result }
-
 private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Unit := do
-  let mode ← getTransparency
   let key := keyInfo.key
   match keyInfo.kind with
-  | .permanent => modifyDefEqPermCache fun c => c.update mode key result
+  | .permanent => modifyDefEqPermCache fun c => c.insert key result
   | .transient =>
     /-
     We must ensure that all assigned metavariables in the key are replaced by their current assignments.
     Otherwise, the key is invalid after the assignment is "backtracked".
     See issue #1870 for an example.
     -/
-    let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
-    modifyDefEqTransientCache fun c => c.update mode key result
+    let key ← mkDefEqCacheKey (← instantiateMVars key.lhs) (← instantiateMVars key.rhs)
+    modifyDefEqTransientCache fun c => c.insert key result
 
 private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
   if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
-    whnfCore e (config := { proj := .yesWithDeltaI })
+    withConfig (fun ctx => { ctx with proj := .yesWithDeltaI }) <| whnfCore e
   else
     whnfCore e
 

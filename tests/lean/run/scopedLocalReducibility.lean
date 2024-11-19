@@ -1,10 +1,11 @@
 @[irreducible] def f (x : Nat) := x + 1
 set_option allowUnsafeReducibility true
+set_option pp.mvars false
 /--
 error: type mismatch
   rfl
 has type
-  f x = f x : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   f x = x + 1 : Prop
 -/
@@ -22,7 +23,7 @@ end
 error: type mismatch
   rfl
 has type
-  f x = f x : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   f x = x + 1 : Prop
 -/
@@ -38,7 +39,7 @@ end Boo
 error: type mismatch
   rfl
 has type
-  f x = f x : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   f x = x + 1 : Prop
 -/
@@ -54,7 +55,7 @@ example : f x = x + 1 :=
 error: type mismatch
   rfl
 has type
-  f x = f x : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   f x = x + 1 : Prop
 -/

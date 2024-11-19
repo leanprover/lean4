@@ -10158,7 +10158,7 @@ lean_inc(x_7);
 x_17 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_17, 0, x_7);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_Array_findIdx_x3f_loop___rarg(x_1, x_17, x_18);
+x_19 = l_Array_findIdx_x3f_loop___rarg(x_17, x_1, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
@@ -10609,7 +10609,7 @@ lean_inc(x_7);
 x_104 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_104, 0, x_7);
 x_105 = lean_unsigned_to_nat(0u);
-x_106 = l_Array_findIdx_x3f_loop___rarg(x_1, x_104, x_105);
+x_106 = l_Array_findIdx_x3f_loop___rarg(x_104, x_1, x_105);
 if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_107; 
@@ -11060,7 +11060,7 @@ lean_inc(x_7);
 x_191 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_191, 0, x_7);
 x_192 = lean_unsigned_to_nat(0u);
-x_193 = l_Array_findIdx_x3f_loop___rarg(x_1, x_191, x_192);
+x_193 = l_Array_findIdx_x3f_loop___rarg(x_191, x_1, x_192);
 if (lean_obj_tag(x_193) == 0)
 {
 lean_object* x_194; 
@@ -11511,7 +11511,7 @@ lean_inc(x_7);
 x_278 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_278, 0, x_7);
 x_279 = lean_unsigned_to_nat(0u);
-x_280 = l_Array_findIdx_x3f_loop___rarg(x_1, x_278, x_279);
+x_280 = l_Array_findIdx_x3f_loop___rarg(x_278, x_1, x_279);
 if (lean_obj_tag(x_280) == 0)
 {
 lean_object* x_281; 
@@ -11962,7 +11962,7 @@ lean_inc(x_7);
 x_365 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_365, 0, x_7);
 x_366 = lean_unsigned_to_nat(0u);
-x_367 = l_Array_findIdx_x3f_loop___rarg(x_1, x_365, x_366);
+x_367 = l_Array_findIdx_x3f_loop___rarg(x_365, x_1, x_366);
 if (lean_obj_tag(x_367) == 0)
 {
 lean_object* x_368; 
@@ -12430,7 +12430,7 @@ lean_inc(x_7);
 x_458 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_458, 0, x_7);
 x_459 = lean_unsigned_to_nat(0u);
-x_460 = l_Array_findIdx_x3f_loop___rarg(x_1, x_458, x_459);
+x_460 = l_Array_findIdx_x3f_loop___rarg(x_458, x_1, x_459);
 if (lean_obj_tag(x_460) == 0)
 {
 lean_object* x_461; 
@@ -12881,7 +12881,7 @@ lean_inc(x_7);
 x_545 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_545, 0, x_7);
 x_546 = lean_unsigned_to_nat(0u);
-x_547 = l_Array_findIdx_x3f_loop___rarg(x_1, x_545, x_546);
+x_547 = l_Array_findIdx_x3f_loop___rarg(x_545, x_1, x_546);
 if (lean_obj_tag(x_547) == 0)
 {
 lean_object* x_548; 
@@ -13332,7 +13332,7 @@ lean_inc(x_7);
 x_632 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_632, 0, x_7);
 x_633 = lean_unsigned_to_nat(0u);
-x_634 = l_Array_findIdx_x3f_loop___rarg(x_1, x_632, x_633);
+x_634 = l_Array_findIdx_x3f_loop___rarg(x_632, x_1, x_633);
 if (lean_obj_tag(x_634) == 0)
 {
 lean_object* x_635; 
@@ -13783,7 +13783,7 @@ lean_inc(x_7);
 x_719 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_719, 0, x_7);
 x_720 = lean_unsigned_to_nat(0u);
-x_721 = l_Array_findIdx_x3f_loop___rarg(x_1, x_719, x_720);
+x_721 = l_Array_findIdx_x3f_loop___rarg(x_719, x_1, x_720);
 if (lean_obj_tag(x_721) == 0)
 {
 lean_object* x_722; 
@@ -14234,7 +14234,7 @@ lean_inc(x_7);
 x_806 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_806, 0, x_7);
 x_807 = lean_unsigned_to_nat(0u);
-x_808 = l_Array_findIdx_x3f_loop___rarg(x_1, x_806, x_807);
+x_808 = l_Array_findIdx_x3f_loop___rarg(x_806, x_1, x_807);
 if (lean_obj_tag(x_808) == 0)
 {
 lean_object* x_809; 
@@ -14685,7 +14685,7 @@ lean_inc(x_7);
 x_893 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_893, 0, x_7);
 x_894 = lean_unsigned_to_nat(0u);
-x_895 = l_Array_findIdx_x3f_loop___rarg(x_1, x_893, x_894);
+x_895 = l_Array_findIdx_x3f_loop___rarg(x_893, x_1, x_894);
 if (lean_obj_tag(x_895) == 0)
 {
 lean_object* x_896; 
@@ -15489,7 +15489,7 @@ lean_inc(x_7);
 x_17 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_17, 0, x_7);
 x_18 = lean_unsigned_to_nat(0u);
-x_19 = l_Array_findIdx_x3f_loop___rarg(x_1, x_17, x_18);
+x_19 = l_Array_findIdx_x3f_loop___rarg(x_17, x_1, x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
@@ -15940,7 +15940,7 @@ lean_inc(x_7);
 x_104 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_104, 0, x_7);
 x_105 = lean_unsigned_to_nat(0u);
-x_106 = l_Array_findIdx_x3f_loop___rarg(x_1, x_104, x_105);
+x_106 = l_Array_findIdx_x3f_loop___rarg(x_104, x_1, x_105);
 if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_107; 
@@ -16391,7 +16391,7 @@ lean_inc(x_7);
 x_191 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_191, 0, x_7);
 x_192 = lean_unsigned_to_nat(0u);
-x_193 = l_Array_findIdx_x3f_loop___rarg(x_1, x_191, x_192);
+x_193 = l_Array_findIdx_x3f_loop___rarg(x_191, x_1, x_192);
 if (lean_obj_tag(x_193) == 0)
 {
 lean_object* x_194; 
@@ -16842,7 +16842,7 @@ lean_inc(x_7);
 x_278 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_278, 0, x_7);
 x_279 = lean_unsigned_to_nat(0u);
-x_280 = l_Array_findIdx_x3f_loop___rarg(x_1, x_278, x_279);
+x_280 = l_Array_findIdx_x3f_loop___rarg(x_278, x_1, x_279);
 if (lean_obj_tag(x_280) == 0)
 {
 lean_object* x_281; 
@@ -17293,7 +17293,7 @@ lean_inc(x_7);
 x_365 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_365, 0, x_7);
 x_366 = lean_unsigned_to_nat(0u);
-x_367 = l_Array_findIdx_x3f_loop___rarg(x_1, x_365, x_366);
+x_367 = l_Array_findIdx_x3f_loop___rarg(x_365, x_1, x_366);
 if (lean_obj_tag(x_367) == 0)
 {
 lean_object* x_368; 
@@ -17761,7 +17761,7 @@ lean_inc(x_7);
 x_458 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_458, 0, x_7);
 x_459 = lean_unsigned_to_nat(0u);
-x_460 = l_Array_findIdx_x3f_loop___rarg(x_1, x_458, x_459);
+x_460 = l_Array_findIdx_x3f_loop___rarg(x_458, x_1, x_459);
 if (lean_obj_tag(x_460) == 0)
 {
 lean_object* x_461; 
@@ -18212,7 +18212,7 @@ lean_inc(x_7);
 x_545 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_545, 0, x_7);
 x_546 = lean_unsigned_to_nat(0u);
-x_547 = l_Array_findIdx_x3f_loop___rarg(x_1, x_545, x_546);
+x_547 = l_Array_findIdx_x3f_loop___rarg(x_545, x_1, x_546);
 if (lean_obj_tag(x_547) == 0)
 {
 lean_object* x_548; 
@@ -18663,7 +18663,7 @@ lean_inc(x_7);
 x_632 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_632, 0, x_7);
 x_633 = lean_unsigned_to_nat(0u);
-x_634 = l_Array_findIdx_x3f_loop___rarg(x_1, x_632, x_633);
+x_634 = l_Array_findIdx_x3f_loop___rarg(x_632, x_1, x_633);
 if (lean_obj_tag(x_634) == 0)
 {
 lean_object* x_635; 
@@ -19114,7 +19114,7 @@ lean_inc(x_7);
 x_719 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_719, 0, x_7);
 x_720 = lean_unsigned_to_nat(0u);
-x_721 = l_Array_findIdx_x3f_loop___rarg(x_1, x_719, x_720);
+x_721 = l_Array_findIdx_x3f_loop___rarg(x_719, x_1, x_720);
 if (lean_obj_tag(x_721) == 0)
 {
 lean_object* x_722; 
@@ -19565,7 +19565,7 @@ lean_inc(x_7);
 x_806 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_806, 0, x_7);
 x_807 = lean_unsigned_to_nat(0u);
-x_808 = l_Array_findIdx_x3f_loop___rarg(x_1, x_806, x_807);
+x_808 = l_Array_findIdx_x3f_loop___rarg(x_806, x_1, x_807);
 if (lean_obj_tag(x_808) == 0)
 {
 lean_object* x_809; 
@@ -20016,7 +20016,7 @@ lean_inc(x_7);
 x_893 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_893, 0, x_7);
 x_894 = lean_unsigned_to_nat(0u);
-x_895 = l_Array_findIdx_x3f_loop___rarg(x_1, x_893, x_894);
+x_895 = l_Array_findIdx_x3f_loop___rarg(x_893, x_1, x_894);
 if (lean_obj_tag(x_895) == 0)
 {
 lean_object* x_896; 
@@ -20910,7 +20910,7 @@ lean_inc(x_9);
 x_19 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_19, 0, x_9);
 x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Array_findIdx_x3f_loop___rarg(x_1, x_19, x_20);
+x_21 = l_Array_findIdx_x3f_loop___rarg(x_19, x_1, x_20);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 
@@ -21358,7 +21358,7 @@ lean_inc(x_9);
 x_104 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_104, 0, x_9);
 x_105 = lean_unsigned_to_nat(0u);
-x_106 = l_Array_findIdx_x3f_loop___rarg(x_1, x_104, x_105);
+x_106 = l_Array_findIdx_x3f_loop___rarg(x_104, x_1, x_105);
 if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_107; 
@@ -21806,7 +21806,7 @@ lean_inc(x_9);
 x_189 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_189, 0, x_9);
 x_190 = lean_unsigned_to_nat(0u);
-x_191 = l_Array_findIdx_x3f_loop___rarg(x_1, x_189, x_190);
+x_191 = l_Array_findIdx_x3f_loop___rarg(x_189, x_1, x_190);
 if (lean_obj_tag(x_191) == 0)
 {
 lean_object* x_192; 
@@ -22254,7 +22254,7 @@ lean_inc(x_9);
 x_274 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_274, 0, x_9);
 x_275 = lean_unsigned_to_nat(0u);
-x_276 = l_Array_findIdx_x3f_loop___rarg(x_1, x_274, x_275);
+x_276 = l_Array_findIdx_x3f_loop___rarg(x_274, x_1, x_275);
 if (lean_obj_tag(x_276) == 0)
 {
 lean_object* x_277; 
@@ -22702,7 +22702,7 @@ lean_inc(x_9);
 x_359 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_359, 0, x_9);
 x_360 = lean_unsigned_to_nat(0u);
-x_361 = l_Array_findIdx_x3f_loop___rarg(x_1, x_359, x_360);
+x_361 = l_Array_findIdx_x3f_loop___rarg(x_359, x_1, x_360);
 if (lean_obj_tag(x_361) == 0)
 {
 lean_object* x_362; 
@@ -23167,7 +23167,7 @@ lean_inc(x_9);
 x_450 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_450, 0, x_9);
 x_451 = lean_unsigned_to_nat(0u);
-x_452 = l_Array_findIdx_x3f_loop___rarg(x_1, x_450, x_451);
+x_452 = l_Array_findIdx_x3f_loop___rarg(x_450, x_1, x_451);
 if (lean_obj_tag(x_452) == 0)
 {
 lean_object* x_453; 
@@ -23615,7 +23615,7 @@ lean_inc(x_9);
 x_535 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_535, 0, x_9);
 x_536 = lean_unsigned_to_nat(0u);
-x_537 = l_Array_findIdx_x3f_loop___rarg(x_1, x_535, x_536);
+x_537 = l_Array_findIdx_x3f_loop___rarg(x_535, x_1, x_536);
 if (lean_obj_tag(x_537) == 0)
 {
 lean_object* x_538; 
@@ -24063,7 +24063,7 @@ lean_inc(x_9);
 x_620 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_620, 0, x_9);
 x_621 = lean_unsigned_to_nat(0u);
-x_622 = l_Array_findIdx_x3f_loop___rarg(x_1, x_620, x_621);
+x_622 = l_Array_findIdx_x3f_loop___rarg(x_620, x_1, x_621);
 if (lean_obj_tag(x_622) == 0)
 {
 lean_object* x_623; 
@@ -24511,7 +24511,7 @@ lean_inc(x_9);
 x_705 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_705, 0, x_9);
 x_706 = lean_unsigned_to_nat(0u);
-x_707 = l_Array_findIdx_x3f_loop___rarg(x_1, x_705, x_706);
+x_707 = l_Array_findIdx_x3f_loop___rarg(x_705, x_1, x_706);
 if (lean_obj_tag(x_707) == 0)
 {
 lean_object* x_708; 
@@ -24959,7 +24959,7 @@ lean_inc(x_9);
 x_790 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_790, 0, x_9);
 x_791 = lean_unsigned_to_nat(0u);
-x_792 = l_Array_findIdx_x3f_loop___rarg(x_1, x_790, x_791);
+x_792 = l_Array_findIdx_x3f_loop___rarg(x_790, x_1, x_791);
 if (lean_obj_tag(x_792) == 0)
 {
 lean_object* x_793; 
@@ -25407,7 +25407,7 @@ lean_inc(x_9);
 x_875 = lean_alloc_closure((void*)(l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__22___lambda__1___boxed), 2, 1);
 lean_closure_set(x_875, 0, x_9);
 x_876 = lean_unsigned_to_nat(0u);
-x_877 = l_Array_findIdx_x3f_loop___rarg(x_1, x_875, x_876);
+x_877 = l_Array_findIdx_x3f_loop___rarg(x_875, x_1, x_876);
 if (lean_obj_tag(x_877) == 0)
 {
 lean_object* x_878; 
@@ -31732,7 +31732,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = lean_alloc_closure((void*)(l_Array_getIdx_x3f___at_Lean_Elab_Structural_mkBrecOnApp___spec__6___lambda__1___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_Array_findIdx_x3f_loop___rarg(x_1, x_3, x_4);
+x_5 = l_Array_findIdx_x3f_loop___rarg(x_3, x_1, x_4);
 return x_5;
 }
 }

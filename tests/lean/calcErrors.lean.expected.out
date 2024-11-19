@@ -1,7 +1,7 @@
 calcErrors.lean:7:30-7:33: error: type mismatch
   rfl
 has type
-  b + b = b + b : Prop
+  ?m = ?m : Prop
 but is expected to have type
   b + b = 0 + c + b : Prop
 calcErrors.lean:13:8-13:29: error: invalid 'calc' step, left-hand side is

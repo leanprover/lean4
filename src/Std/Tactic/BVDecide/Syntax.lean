@@ -29,6 +29,16 @@ structure BVDecideConfig where
   -/
   acNf : Bool := false
   /--
+  Split hypotheses of the form `h : (x && y) = true` into `h1 : x = true` and `h2 : y = true`.
+  This has synergy potential with embedded constraint substitution.
+  -/
+  andFlattening : Bool := true
+  /--
+  Look at all hypotheses of the form `h : x = true`, if `x` occurs in another hypothesis substitute
+  it with `true`.
+  -/
+  embeddedConstraintSubst : Bool := true
+  /--
   Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the
   Lean process.
   -/

@@ -86,6 +86,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanc___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_getEnvSharedLibPath___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_getNoCache___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_getNoCache___rarg___lambda__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_runLakeT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getRootPackage(lean_object*);
 lean_object* l_Lake_Workspace_findModule_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getAugmentedLeanSrcPath(lean_object*);
@@ -151,6 +152,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanSharedLib___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lake_LakeEnvT_run___rarg(lean_object*, lean_object*);
 lean_object* l_Lake_Env_toolchain___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeSrcDir___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_runLakeT(lean_object*, lean_object*);
 static lean_object* l_Lake_getLakeHome___rarg___closed__1;
 static lean_object* l_Lake_getLakeInstall___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_getLeanInstall___rarg___lambda__1(lean_object*);
@@ -298,6 +300,22 @@ lean_object* x_2;
 x_2 = l_Lake_mkLakeContext(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_runLakeT___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_runLakeT(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lake_Workspace_runLakeT___rarg), 2, 0);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instMonadLakeOfMonadWorkspaceOfFunctor___rarg___lambda__1(lean_object* x_1) {

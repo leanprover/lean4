@@ -238,7 +238,7 @@ theorem get_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : �
     (hn : n < (pmap f l h).length) :
     get (pmap f l h) ⟨n, hn⟩ =
       f (get l ⟨n, @length_pmap _ _ p f l h ▸ hn⟩)
-        (h _ (get_mem l n (@length_pmap _ _ p f l h ▸ hn))) := by
+        (h _ (get_mem l ⟨n, @length_pmap _ _ p f l h ▸ hn⟩)) := by
   simp only [get_eq_getElem]
   simp [getElem_pmap]
 

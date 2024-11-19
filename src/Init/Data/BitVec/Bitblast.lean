@@ -348,7 +348,7 @@ theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
 
 theorem getElem_sub {i : Nat} {x y : BitVec w} (h : i < w) :
     (x - y)[i] = (x[i] ^^ ((~~~y + 1#w)[i] ^^ carry i x (~~~y + 1#w) false)) := by
-  rw [sub_toAdd, neg_eq_not_add, getElem_add]
+  simp [← getLsbD_eq_getElem, getLsbD_sub, h]
 
 theorem msb_sub {x y: BitVec w} :
     (x - y).msb

@@ -598,15 +598,15 @@
     "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
- "position": {"line": 94, "character": 82}}
+ "position": {"line": 96, "character": 52}}
 {"items":
  [{"sortText": "0",
    "label": "aLongUniqueIdentifier",
-   "kind": 6,
+   "kind": 21,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
-     "position": {"line": 94, "character": 82}},
-    "id": {"fvar": {"id": "_uniq.1028"}},
+     "position": {"line": 96, "character": 52}},
+    "id": {"const": {"declName": "aLongUniqueIdentifier"}},
     "cPos": 0}}],
  "isIncomplete": true}

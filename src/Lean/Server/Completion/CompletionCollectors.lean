@@ -185,7 +185,9 @@ end Utils
 
 section IdCompletionUtils
 
-  private def matchAtomic (id : Name) (declName : Name) : Option Float :=
+  private def matchAtomic (id : Name) (declName : Name) (danglingDot : Bool) : Option Float := do
+    if danglingDot then
+      none
     match id, declName with
     | .str .anonymous s₁, .str .anonymous s₂ => fuzzyMatchScoreWithThreshold? s₁ s₂
     | _, _ => none
@@ -363,7 +365,7 @@ private def idCompletionCore
   if id.isAtomic then
     -- search for matches in the local context
     for localDecl in (← getLCtx) do
-      if let some score := matchAtomic id localDecl.userName then
+      if let some score := matchAtomic id localDecl.userName danglingDot then
         addUnresolvedCompletionItem localDecl.userName (.fvar localDecl.fvarId) (kind := CompletionItemKind.variable) score
   -- search for matches in the environment
   let env ← getEnv
@@ -398,10 +400,11 @@ private def idCompletionCore
       matchUsingNamespace Name.anonymous
     if let some (bestLabel, bestScore) := bestMatch? then
       addUnresolvedCompletionItem bestLabel (.const declName) (← getCompletionKindForDecl c) bestScore
-  -- Recall that aliases may not be atomic and include the namespace where they were created.
   let matchAlias (ns : Name) (alias : Name) : Option Float :=
+    -- Recall that aliases may not be atomic and include the namespace where they were created.
     if ns.isPrefixOf alias then
-      matchAtomic id (alias.replacePrefix ns Name.anonymous)
+      let alias := alias.replacePrefix ns Name.anonymous
+      matchAtomic id alias danglingDot
     else
       none
   let eligibleHeaderDecls ← getEligibleHeaderDecls env
@@ -415,7 +418,7 @@ private def idCompletionCore
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
       if allowCompletion eligibleHeaderDecls env resolvedId then
-        if let some score := matchAtomic id openedId then
+        if let some score := matchAtomic id openedId danglingDot then
           addUnresolvedCompletionItemForDecl (.mkSimple openedId.getString!) resolvedId score
     | OpenDecl.simple ns _      =>
       getAliasState env |>.forM fun alias declNames => do
@@ -433,11 +436,12 @@ private def idCompletionCore
         | _ => return ()
     searchAlias ctx.currNamespace
   -- Search keywords
-  if let .str .anonymous s := id then
-    let keywords := Parser.getTokenTable env
-    for keyword in keywords.findPrefix s do
-      if let some score := fuzzyMatchScoreWithThreshold? s keyword then
-        addKeywordCompletionItem keyword score
+  if !danglingDot then
+    if let .str .anonymous s := id then
+      let keywords := Parser.getTokenTable env
+      for keyword in keywords.findPrefix s do
+        if let some score := fuzzyMatchScoreWithThreshold? s keyword then
+          addKeywordCompletionItem keyword score
   -- Search namespaces
   completeNamespaces ctx id danglingDot
 

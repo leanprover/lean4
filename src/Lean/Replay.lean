@@ -55,7 +55,7 @@ def throwKernelException (ex : Kernel.Exception) : M Unit := do
 
 /-- Add a declaration, possibly throwing a `Kernel.Exception`. -/
 def addDecl (d : Declaration) : M Unit := do
-  match (← get).env.addDecl {} d with
+  match (← get).env.addDeclCore 0 d (cancelTk? := none) with
   | .ok env => modify fun s => { s with env := env }
   | .error ex => throwKernelException ex
 

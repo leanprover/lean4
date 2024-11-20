@@ -87,7 +87,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
   let defView := mkDefViewOfDef { isUnsafe := true }
     (← `(Parser.Command.definition|
           def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
-  Term.elabMutualDef #[] { header := "" } #[defView] none
+  Term.elabMutualDef #[] { header := "" } #[defView]
   unless allowSorry do
     let axioms ← collectAxioms declName
     if axioms.contains ``sorryAx then

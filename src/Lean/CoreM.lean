@@ -495,28 +495,16 @@ register_builtin_option compiler.enableNew : Bool := {
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
-/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
-def runAsync (act : CoreM α) : CoreM (EIO Exception α) := do
-  let st ← get
-  let ctx ← read
-  let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
-  return withCurrHeartbeats (do
-      IO.addHeartbeats heartbeats.toUInt64
-      act : CoreM _)
-    |>.run' ctx st
-
-partial def compileDecls (decls : List Name) (allowPostpone := true) : CoreM Unit := do
+partial def compileDecls (decls : List Name) : CoreM Unit := do
   if true then
-    let ctx ← read
     let env ← getEnv
     let (postEnv, prom) ← env.promiseChecked
-    let checkAct ← runAsync do
+    let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
       try
         doCompile
       finally
         prom.resolve (← getEnv)
-    let checkTask ← BaseIO.mapTask (t := env.checked) fun _ =>
-      EIO.catchExceptions checkAct fun e => do dbg_trace toString (← e.toMessageData.toString.toBaseIO).toOption
+    let _ ← BaseIO.mapTask (fun _ => checkAct) env.checked
     setEnv postEnv
     return
   doCompile

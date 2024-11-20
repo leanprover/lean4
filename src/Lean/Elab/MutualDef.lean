@@ -390,82 +390,6 @@ register_builtin_option linter.unusedSectionVars : Bool := {
   descr := "enable the 'unused section variables in theorem body' linter"
 }
 
-private def addTraceAsMessagesCore [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] (log : MessageLog) : m MessageLog := do
-  let traces ← getResetTraces
-  if traces.isEmpty then return log
-  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
-  for traceElem in traces do
-    let ref := replaceRef traceElem.ref (← getRef)
-    let pos := ref.getPos?.getD 0
-    let endPos := ref.getTailPos?.getD pos
-    pos2traces := pos2traces.insert (pos, endPos) <| pos2traces.getD (pos, endPos) #[] |>.push traceElem.msg
-  let mut log := log
-  let traces' := pos2traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
-  for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
-    log := log.add <| mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
-  return log
-
-def addTraceAsMessages : TermElabM Unit := do
-  -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
-  -- pretty printing the trace messages is expensive
-  if trace.profiler.output.get? (← getOptions) |>.isNone then
-    Core.setMessageLog (← addTraceAsMessagesCore (← Core.getMessageLog))
-
-/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
-def runAsync (act : TermElabM α) : TermElabM (EIO Exception α) := do
-  let coreSt ← getThe Core.State
-  let metaSt ← getThe Meta.State
-  let st ← get
-  let coreCtx ← readThe Core.Context
-  let metaCtx ← readThe Meta.Context
-  let ctx ← read
-  let heartbeats := (← IO.getNumHeartbeats) - coreCtx.initHeartbeats
-  return withCurrHeartbeats (do
-      IO.addHeartbeats heartbeats.toUInt64
-      act : TermElabM _)
-    |>.run' ctx st
-    |>.run' metaCtx metaSt
-    |>.run' coreCtx coreSt
-
-/--
-Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for the
-message log, which is reported in the returned snapshot.
--/
-def runAsyncAsSnapshot (act : Unit → TermElabM (Array (SnapshotTask SnapshotTree))) (desc := "") : TermElabM (BaseIO SnapshotTree) := do
-  let t ← runAsync do
-   IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
-    let tid ← IO.getLeanThreadID
-    modifyTraceState fun _ => { tid }
-    let trees ←
-      try
-        withTraceNode `Elab.async (fun _ => return desc) do
-          act ()
-      catch e =>
-        logError e.toMessageData
-        pure #[]
-      finally
-        addTraceAsMessages
-    return (trees, (← saveState))
-  let ctx ← readThe Core.Context
-  return do
-    match (← t.toBaseIO) with
-    | .ok (output, trees, st) =>
-      let mut msgs := st.meta.core.messages
-      if !output.isEmpty then
-        msgs := msgs.add {
-          fileName := ctx.fileName
-          severity := MessageSeverity.information
-          pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
-          data     := output
-        }
-      return .mk {
-        desc
-        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
-        traces := st.meta.core.traceState
-      } trees
-    | .error _ => unreachable!
-
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr)
     (sc : Command.Scope) :
     TermElabM (Array Expr) :=
@@ -1035,8 +959,8 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
 @[noinline]
 private def delayBaseIO (f : Unit → BaseIO α) : BaseIO α := f ()
 
-def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView)
-    (typeCheckedPromise? : Option (IO.Promise SnapshotTree)) : TermElabM Unit :=
+def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) :
+    TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
@@ -1060,8 +984,7 @@ where
           addLocalVarInfo view.declId funFVar
         let mut async? := none
         if let (#[view], #[declId]) := (views, expandedDeclIds) then
-          if view.kind.isTheorem && typeCheckedPromise?.isSome &&
-              !deprecated.oldSectionVars.get (← getOptions) then
+          if view.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then
             let env ← getEnv
             let async ← env.addConstAsync declId.declName .thm
             modifyEnv fun _=> async.mainEnv
@@ -1116,20 +1039,15 @@ where
             tacPromises.forM (·.resolve default)
             async?.forM (·.commitFailure)
         if let some async := async? then
-          let env ← getEnv
           let headers := headers.map fun header => { header with modifiers.attrs := #[] }
-          let act ← runAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
+          let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
             modifyEnv fun _ => async.asyncEnv
             finishElab headers
-            let checkAct ← runAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
+            let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
               checkAndCompile
-              return #[]
             let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) fun _ => checkAct
-            return #[{ range? := none, task := checkTask }]
-          let _ ← BaseIO.asTask do
-            let snap ← act
-            if let some typeCheckedPromise := typeCheckedPromise? then
-              typeCheckedPromise.resolve snap
+            Core.logSnapshotTask { range? := none, task := checkTask }
+          Core.logSnapshotTask { range? := none, task := (← BaseIO.asTask act) }
           for view in views, declId in expandedDeclIds do
             applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
             applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
@@ -1139,14 +1057,10 @@ where
             modifiers.attrs := header.modifiers.attrs.filter fun attr =>
               getAttributeImpl env attr.name |>.map (·.applicationTime != .afterCompilation) |>.toOption |>.getD false
           }
-          try
-            finishElab headers
-            checkAndCompile
-            for view in views, declId in expandedDeclIds do
-              applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-          finally
-            if let some typeCheckedPromise := typeCheckedPromise? then
-              typeCheckedPromise.resolve default
+          finishElab headers
+          checkAndCompile
+          for view in views, declId in expandedDeclIds do
+            applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
       for view in views, declId in expandedDeclIds do
         -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
         -- that depends only on a part of the ref
@@ -1203,19 +1117,14 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
       views := views.push view
     let sc ← getScope
-    runTermElabM fun vars =>
+    runTermElabM fun vars => do
       if let some snap := snap? then
-        withPromiseResolvedOnException fun typeCheckedPromise => do
-          let range? := (fun endPos => ⟨endPos, endPos⟩) <$> (← getRef).getTailPos?
-          -- no non-fatal diagnostics at this point
-          snap.new.resolve <| .ofTyped {
-            desc := s!"{decl_name%}: {views.map (·.declId)}"
-            defs
-            typeCheckedSnap := { range?, task := typeCheckedPromise.result }
-            diagnostics := .empty : DefsParsedSnapshot }
-          Term.elabMutualDef vars sc views typeCheckedPromise
-      else
-        Term.elabMutualDef vars sc views none
+        -- no non-fatal diagnostics at this point
+        snap.new.resolve <| .ofTyped {
+          desc := s!"{decl_name%}: {views.map (·.declId)}"
+          defs
+          diagnostics := .empty : DefsParsedSnapshot }
+      Term.elabMutualDef vars sc views
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure

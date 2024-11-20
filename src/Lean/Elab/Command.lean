@@ -318,9 +318,6 @@ open Language in
 Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
 `logSnapshotTask` tasks, which are reported as part of the returned tree.
 -/
-
-def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTree) :
-    CommandElabM Unit := do
 -- `CoreM` and `CommandElabM` are too different to meaningfully share this code
 def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
     (desc : String := by exact decl_name%.toString) :
@@ -359,24 +356,18 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
 
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
+
+def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   let opts ← getOptions
-  let hasLintTrace := opts.entries.any ((`trace.Elab.lint).isPrefixOf ·.1)
   -- TODO: `runAsync` introduces too much overhead for now compared to the actual linters execution,
   -- re-evaluate once we do more async elaboration anyway
-  if Language.internal.cmdlineSnapshots.get opts || hasLintTrace || trace.profiler.get opts then
-    -- NOTE: can't currently report traces from tasks
+  if Language.internal.cmdlineSnapshots.get opts then
     runLinters stx
-    lintPromise.resolve default
   else
     -- We only start one task for all linters for now as most linters are fast and we simply want
     -- to unblock elaboration of the next command
-    lintPromise.resolve <| .mk {
-      diagnostics := .empty
-    } #[{
-      range? := none
-      task   := (← runAsyncAsSnapshot <| runLinters stx)
-    }]
-
+    let lintAct ← wrapAsyncAsSnapshot fun _ => runLinters stx
+    logSnapshotTask { range? := none, task := (← BaseIO.asTask lintAct) }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -569,12 +560,11 @@ structure CommandProcessingSnapshot extends Snapshot where
   `Context.snap?`.
   -/
   elabSnap : SnapshotTask DynamicSnapshot
+
 deriving Inhabited
 open Language in
 instance : ToSnapshotTree CommandProcessingSnapshot where
-  toSnapshotTree s := .mk s.toSnapshot #[
-    s.elabSnap.map (sync := true) toSnapshotTree,
-    s.lintSnap.map (sync := true) toSnapshotTree]
+  toSnapshotTree s := .mk s.toSnapshot #[s.elabSnap.map (sync := true) toSnapshotTree]
 
 builtin_initialize
   registerTraceClass `Elab.info
@@ -595,13 +585,10 @@ def elabCommandTopLevel (stx : Syntax)
   let initInfoTrees ← getResetInfoTrees
   try
     if let some snap := snap? then
-      Language.withAlwaysResolvedPromise fun elabPromise =>
-      Language.withPromiseResolvedOnException fun lintPromise => do
-        let endRange? := (fun endPos => ⟨endPos, endPos⟩) <$> stx.getTailPos?
+      Language.withAlwaysResolvedPromise fun elabPromise => do
         snap.new.resolve {
           diagnostics := .empty
-          elabSnap := { range? := none, task := elabPromise.result }
-          lintSnap := { range? := endRange?, task := lintPromise.result }}
+          elabSnap := { range? := none, task := elabPromise.result }}
         withReader ({ · with snap? := some {
           old? := snap.old?.map (·.mapVal (·.bind (·.elabSnap)))
           new := elabPromise
@@ -613,11 +600,9 @@ def elabCommandTopLevel (stx : Syntax)
         -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
         -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
         -- rather than engineer a general solution.
-        if (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome then
-          lintPromise.resolve default
-        else
+        if (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isNone then
           withLogging do
-            runLintersAsync stx lintPromise
+            runLintersAsync stx
       else
         elabCommand stx
   finally

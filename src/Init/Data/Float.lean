@@ -31,7 +31,7 @@ opaque floatSpec : FloatSpec := {
 structure Float where
   val : floatSpec.float
 
-instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
+instance : Nonempty Float := ⟨{ val := floatSpec.val }⟩
 
 @[extern "lean_float_add"] opaque Float.add : Float → Float → Float
 @[extern "lean_float_sub"] opaque Float.sub : Float → Float → Float
@@ -135,6 +135,9 @@ instance : ToString Float where
   toString := Float.toString
 
 @[extern "lean_uint64_to_float"] opaque UInt64.toFloat (n : UInt64) : Float
+
+instance : Inhabited Float where
+  default := UInt64.toFloat 0
 
 instance : Repr Float where
   reprPrec n prec := if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n

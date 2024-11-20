@@ -56,6 +56,11 @@ structure Snapshot where
   /-- General elaboration metadata produced by this step. -/
   infoTree? : Option Elab.InfoTree := none
   /--
+  Trace data produced by this step. Currently used only by `trace.profiler.output`, otherwise we
+  depend on the elaborator adding traces to `diagnostics` eventually.
+  -/
+  traces : TraceState := {}
+  /--
   Whether it should be indicated to the user that a fatal error (which should be part of
   `diagnostics`) occurred that prevents processing of the remainder of the file.
   -/

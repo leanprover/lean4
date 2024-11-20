@@ -64,6 +64,8 @@ structure TraceElem where
   deriving Inhabited
 
 structure TraceState where
+  /-- Thread ID, used by `trace.profiler.output`. -/
+  tid     : UInt64 := 0
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 

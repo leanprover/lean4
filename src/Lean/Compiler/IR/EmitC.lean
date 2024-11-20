@@ -108,8 +108,8 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     if ps.size > closureMaxArgs && isBoxedName decl.name then
       emit "lean_object**"
     else
-      ps.size.forM fun i => do
-        if i.1 > 0 then emit ", "
+      ps.size.forM fun i _ => do
+        if i > 0 then emit ", "
         emit (toCType ps[i].ty)
     emit ")"
   emitLn ";"
@@ -322,7 +322,7 @@ def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M U
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit := do
   let ps ← getJPParams j
   if h : xs.size = ps.size then
-    xs.size.forM fun i => do
+    xs.size.forM fun i _ => do
       let p := ps[i]
       let x := xs[i]
       emit p.x; emit " = "; emitArg x; emitLn ";"
@@ -334,8 +334,8 @@ def emitLhs (z : VarId) : M Unit := do
   emit z; emit " = "
 
 def emitArgs (ys : Array Arg) : M Unit :=
-  ys.size.forM fun i => do
-    if i.1 > 0 then emit ", "
+  ys.size.forM fun i _ => do
+    if i > 0 then emit ", "
     emitArg ys[i]
 
 def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit := do
@@ -348,7 +348,7 @@ def emitAllocCtor (c : CtorInfo) : M Unit := do
   emitCtorScalarSize c.usize c.ssize; emitLn ");"
 
 def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
-  ys.size.forM fun i => do
+  ys.size.forM fun i _ => do
     emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]; emitLn ");"
 
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
@@ -360,7 +360,7 @@ def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
 
 def emitReset (z : VarId) (n : Nat) (x : VarId) : M Unit := do
   emit "if (lean_is_exclusive("; emit x; emitLn ")) {";
-  n.forM fun i => do
+  n.forM fun i _ => do
     emit " lean_ctor_release("; emit x; emit ", "; emit i; emitLn ");"
   emit " "; emitLhs z; emit x; emitLn ";";
   emitLn "} else {";
@@ -401,7 +401,7 @@ def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M 
   emit f; emit "("
   -- We must remove irrelevant arguments to extern calls.
   discard <| ys.size.foldM
-    (fun i (first : Bool) =>
+    (fun i _ (first : Bool) =>
       if ps[i]!.ty.isIrrelevant then
         pure first
       else do
@@ -433,7 +433,7 @@ def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl f
   let arity := decl.params.size;
   emitLhs z; emit "lean_alloc_closure((void*)("; emitCName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
-  ys.size.forM fun i => do
+  ys.size.forM fun i _ => do
     let y := ys[i]
     emit "lean_closure_set("; emit z; emit ", "; emit i; emit ", "; emitArg y; emitLn ");"
 
@@ -558,18 +558,18 @@ def emitTailCall (v : Expr) : M Unit :=
     if h : ps.size = ys.size then
       if overwriteParam ps ys then
         emitLn "{"
-        ps.size.forM fun i => do
+        ps.size.forM fun i _ => do
           let p := ps[i]
           let y := ys[i]
           unless paramEqArg p y do
             emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
-        ps.size.forM fun i => do
+        ps.size.forM fun i _ => do
           let p := ps[i]
           let y := ys[i]
           unless paramEqArg p y do emit p.x; emit " = _tmp_"; emit i; emitLn ";"
         emitLn "}"
       else
-        ys.size.forM fun i => do
+        ys.size.forM fun i _ => do
           let p := ps[i]
           let y := ys[i]
           unless paramEqArg p y do emit p.x; emit " = "; emitArg y; emitLn ";"
@@ -658,8 +658,8 @@ def emitDeclAux (d : Decl) : M Unit := do
         if xs.size > closureMaxArgs && isBoxedName d.name then
           emit "lean_object** _args"
         else
-          xs.size.forM fun i => do
-            if i.1 > 0 then emit ", "
+          xs.size.forM fun i _ => do
+            if i > 0 then emit ", "
             let x := xs[i]
             emit (toCType x.ty); emit " "; emit x.x
         emit ")"
@@ -667,7 +667,7 @@ def emitDeclAux (d : Decl) : M Unit := do
         emit ("_init_" ++ baseName ++ "()")
       emitLn " {";
       if xs.size > closureMaxArgs && isBoxedName d.name then
-        xs.size.forM fun i => do
+        xs.size.forM fun i _ => do
           let x := xs[i]!
           emit "lean_object* "; emit x.x; emit " = _args["; emit i; emitLn "];"
       emitLn "_start:";

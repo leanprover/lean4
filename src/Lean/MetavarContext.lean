@@ -979,9 +979,9 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
   else
     if (← preserveOrder) then
       -- Make sure toRevert[j] does not depend on toRevert[i] for j < i
-      toRevert.size.forM fun i => do
+      toRevert.size.forM fun i _ => do
         let fvar := toRevert[i]
-        i.1.forM fun j => do
+        i.forM fun j _ => do
           let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar
           if (← localDeclDependsOn prevDecl fvar.fvarId!) then
@@ -1061,7 +1061,7 @@ mutual
   -/
   private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
     let e ← abstractRangeAux xs xs.size e
-    xs.size.foldRevM (init := e) fun i e => do
+    xs.size.foldRevM (init := e) fun i _ e => do
       let x := xs[i]
       if x.isFVar then
         match lctx.getFVar! x with
@@ -1219,7 +1219,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
   If `usedLetOnly == true` then `let` expressions are created only for used (let-) variables. -/
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
-  xs.size.foldRevM (init := e) fun i e => do
+  xs.size.foldRevM (init := e) fun i _ e => do
       let x := xs[i]
       if x.isFVar then
         match lctx.getFVar! x with

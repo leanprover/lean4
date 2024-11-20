@@ -283,7 +283,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun xs _body => do
             -- Remove the old IH that was added in mkFix
             let eType ← newIH.getType
-            let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
+            let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i _ eTypeAbst => do
               let motiveArg := xs[i]!
               let discr     := matcherApp.discrs[i]
               let eTypeAbst ← kabstract eTypeAbst discr

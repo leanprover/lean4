@@ -59,7 +59,7 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let eType ← inferType e
-    let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
+    let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i _ eTypeAbst => do
       let motiveArg := motiveArgs[i]!
       let discr     := matcherApp.discrs[i]
       let eTypeAbst ← kabstract eTypeAbst discr
@@ -118,7 +118,7 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "failed to transfer argument through matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
 
-    let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i eAbst => do
+    let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i _ eAbst => do
       let motiveArg := motiveArgs[i]!
       let discr     := matcherApp.discrs[i]
       let eTypeAbst ← kabstract eAbst discr

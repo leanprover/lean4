@@ -457,7 +457,7 @@ def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext
   let st ← get
   if !getSanitizeNames st.options then pure lctx else
     StateT.run' (s := ({} : NameSet)) <|
-      lctx.decls.size.foldRevM (init := lctx) fun i lctx => do
+      lctx.decls.size.foldRevM (init := lctx) fun i _ lctx => do
         match lctx.decls[i]! with
         | none      => pure lctx
         | some decl =>

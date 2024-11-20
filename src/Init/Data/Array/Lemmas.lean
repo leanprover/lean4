@@ -621,6 +621,18 @@ theorem getElem?_ofFn (f : Fin n → α) (i : Nat) :
     (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none := by
   simp [getElem?_def]
 
+@[simp] theorem ofFn_zero (f : Fin 0 → α) : ofFn f = #[] := rfl
+theorem ofFn_succ (f : Fin (n+1) → α) :
+    ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
+  ext i h₁ h₂
+  · simp
+  · simp [getElem_push]
+    split <;> rename_i h₃
+    · rfl
+    · congr
+      simp at h₁ h₂
+      omega
+
 /-- # mkArray -/
 
 @[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
@@ -840,16 +852,10 @@ theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rf
   simp only [reverse]; split <;> simp [go]
 
 @[simp] theorem size_range {n : Nat} : (range n).size = n := by
-  unfold range
-  induction n with
-  | zero      => simp [Nat.fold]
-  | succ k ih =>
-    rw [Nat.fold, flip]
-    simp only [mkEmpty_eq, size_push] at *
-    omega
+  induction n <;> simp [range]
 
 @[simp] theorem toList_range (n : Nat) : (range n).toList = List.range n := by
-  induction n <;> simp_all [range, Nat.fold, flip, List.range_succ]
+  apply List.ext_getElem <;> simp [range]
 
 @[simp]
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by

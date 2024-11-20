@@ -76,7 +76,7 @@ def getType (fvarId : FVarId) : InferTypeM Expr := do
 
 def mkForallFVars (xs : Array Expr) (type : Expr) : InferTypeM Expr :=
   let b := type.abstract xs
-  xs.size.foldRevM (init := b) fun i b => do
+  xs.size.foldRevM (init := b) fun i _ b => do
     let x := xs[i]
     let n ← InferType.getBinderName x.fvarId!
     let ty ← InferType.getType x.fvarId!

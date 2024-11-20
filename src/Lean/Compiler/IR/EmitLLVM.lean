@@ -571,7 +571,7 @@ def emitAllocCtor (builder : LLVM.Builder llvmctx)
 
 def emitCtorSetArgs (builder : LLVM.Builder llvmctx)
     (z : VarId) (ys : Array Arg) : M llvmctx Unit := do
-  ys.size.forM fun i => do
+  ys.size.forM fun i _ => do
     let zv ← emitLhsVal builder z
     let (_yty, yv) ← emitArgVal builder ys[i]
     let iv ← constIntUnsigned i
@@ -702,7 +702,7 @@ def emitPartialApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys 
                                     (← constIntUnsigned arity)
                                     (← constIntUnsigned ys.size)
   LLVM.buildStore builder zval zslot
-  ys.size.forM fun i => do
+  ys.size.forM fun i _ => do
     let (yty, yslot) ← emitArgSlot_ builder ys[i]
     let yval ← LLVM.buildLoad2 builder yty yslot
     callLeanClosureSetFn builder zval (← constIntUnsigned i) yval
@@ -922,7 +922,7 @@ def emitReset (builder : LLVM.Builder llvmctx) (z : VarId) (n : Nat) (x : VarId)
   buildIfThenElse_ builder "isExclusive" isExclusive
    (fun builder => do
      let xv ← emitLhsVal builder x
-     n.forM fun i => do
+     n.forM fun i _ => do
          callLeanCtorRelease builder xv (← constIntUnsigned i)
      emitLhsSlotStore builder z xv
      return ShouldForwardControlFlow.yes

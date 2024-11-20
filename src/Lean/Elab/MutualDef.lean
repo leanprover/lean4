@@ -871,7 +871,7 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
 
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
-  mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
+  mainHeaders.size.foldM (init := preDefs) fun i _ preDefs => do
     let header := mainHeaders[i]
     let termination ← declValToTerminationHint header.value
     let termination := termination.rememberExtraParams header.numParams mainVals[i]!

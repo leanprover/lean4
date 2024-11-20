@@ -104,7 +104,7 @@ def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Arr
     newMVars[0]!.mvarId!.setTag parentTag
   else
     unless parentTag.isAnonymous do
-      newMVars.size.forM fun i => do
+      newMVars.size.forM fun i _ => do
         let mvarIdNew := newMVars[i].mvarId!
         unless (← mvarIdNew.isAssigned) do
           unless binderInfos[i]!.isInstImplicit do

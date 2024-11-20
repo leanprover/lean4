@@ -32,7 +32,7 @@ namespace Nat
 -/
 @[specialize] def foldRev {α : Type u} : (n : Nat) → (f : (i : Nat) → i < n → α → α) → (init : α) → α
   | 0,      f, a => a
-  | succ n, f, a => foldRev n (fun i h => f (n - succ i) (by omega)) (f n (by omega) a)
+  | succ n, f, a => foldRev n (fun i h => f i (by omega)) (f n (by omega) a)
 
 /-- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
 @[specialize] def any : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool

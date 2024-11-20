@@ -230,7 +230,7 @@ instance : ToSnapshotTree TacticFinishedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Language.Snapshot where
+structure TacticParsedSnapshot extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
   /-- Task for nested incrementality, if enabled for tactic. -/
@@ -240,16 +240,9 @@ structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Languag
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 deriving Inhabited
-
-/-- State after execution of a single synchronous tactic step. -/
-inductive TacticParsedSnapshot where
-  | mk (data : TacticParsedSnapshotData TacticParsedSnapshot)
-deriving Inhabited
-abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData TacticParsedSnapshot
-  | .mk data => data
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
-    go := fun ⟨s⟩ => ⟨s.toSnapshot,
+    go := fun s => ⟨s.toSnapshot,
       s.inner?.toArray.map (·.map (sync := true) go) ++
       #[s.finished.map (sync := true) toSnapshotTree] ++
       s.next.map (·.map (sync := true) go)⟩

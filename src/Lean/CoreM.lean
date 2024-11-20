@@ -11,6 +11,7 @@ import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
 import Lean.Elab.Exception
+import Lean.Language.Types
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -64,6 +65,13 @@ structure State where
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
+  /--
+  Snapshot trees of asynchronous subtasks. As these are untyped and reported only at the end of the
+  command's main elaboration thread, they are only useful for basic message log reporting; for
+  incremental reporting and reuse within a long-running elaboration thread, types rooted in
+  `CommandParsedSnapshot` need to be adjusted.
+  -/
+  snapshotTasks : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
 /-- Context for the CoreM monad. -/
@@ -192,7 +200,8 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache, messages, infoState⟩ => ⟨env, next, ngen, trace, f cache, messages, infoState⟩
+  modify fun ⟨env, next, ngen, trace, cache, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, trace, f cache, messages, infoState, snaps⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -362,6 +371,67 @@ instance : MonadLog CoreM where
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
+
+def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM Unit :=
+  modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
+
+/-- Option for capturing output to stderr during elaboration. -/
+register_builtin_option stderrAsMessages : Bool := {
+  defValue := true
+  group    := "server"
+  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
+}
+
+/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
+def wrapAsync (act : Unit → CoreM α) : CoreM (EIO Exception α) := do
+  let st ← get
+  let ctx ← read
+  let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
+  return withCurrHeartbeats (do
+      IO.addHeartbeats heartbeats.toUInt64
+      -- Reset log so as not to report messages twice, from either thread
+      modify ({ · with messages := {} })
+      act () : CoreM _)
+    |>.run' ctx st
+
+open Language in
+/--
+Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
+`logSnapshotTask` tasks, which are reported as part of the returned tree.
+-/
+def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact decl_name%.toString) :
+    CoreM (BaseIO SnapshotTree) := do
+  let t ← wrapAsync fun _ => do
+    IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
+      let tid ← IO.getLeanThreadID
+      modifyTraceState fun _ => { tid }
+      try
+        withTraceNode `Elab.async (fun _ => return desc) do
+          act ()
+      catch e =>
+        logError e.toMessageData
+      finally
+        addTraceAsMessages
+      get
+  let ctx ← readThe Core.Context
+  return do
+    match (← t.toBaseIO) with
+    | .ok (output, st) =>
+      let mut msgs := st.messages
+      if !output.isEmpty then
+        msgs := msgs.add {
+          fileName := ctx.fileName
+          severity := MessageSeverity.information
+          pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+          data     := output
+        }
+      return .mk {
+        desc
+        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
+        traces := st.traceState
+      } st.snapshotTasks
+    -- interrupt or abort exception as `try catch` above should have caught any others
+    | .error _ => default
 
 end Core
 

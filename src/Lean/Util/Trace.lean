@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
-import Lean.Exception
+import Lean.Elab.Exception
+import Lean.Log
 
 /-!
 # Trace messages
@@ -331,5 +332,24 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref msg
   MonadExcept.ofExcept res
+
+def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
+  if trace.profiler.output.get? (← getOptions) |>.isSome then
+    -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
+    -- pretty printing the trace messages is expensive
+    return
+  let traces ← getResetTraces
+  if traces.isEmpty then
+    return
+  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  for traceElem in traces do
+    let ref := replaceRef traceElem.ref (← getRef)
+    let pos := ref.getPos?.getD 0
+    let endPos := ref.getTailPos?.getD pos
+    pos2traces := pos2traces.insert (pos, endPos) <| pos2traces.getD (pos, endPos) #[] |>.push traceElem.msg
+  let traces' := pos2traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
+  for ((pos, endPos), traceMsg) in traces' do
+    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
+    logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
 
 end Lean

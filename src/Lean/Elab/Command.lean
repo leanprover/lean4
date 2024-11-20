@@ -84,6 +84,7 @@ structure State where
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
+  snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
 structure Context where
@@ -200,31 +201,6 @@ def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severit
   let endPos := ref.getTailPos?.getD pos
   mkMessageCore ctx.fileName ctx.fileMap msgData severity pos endPos
 
-private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
-  if traceState.traces.isEmpty then return log
-  let mut traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
-  for traceElem in traceState.traces do
-    let ref := replaceRef traceElem.ref ctx.ref
-    let pos := ref.getPos?.getD 0
-    let endPos := ref.getTailPos?.getD pos
-    traces := traces.insert (pos, endPos) <| traces.getD (pos, endPos) #[] |>.push traceElem.msg
-  let mut log := log
-  let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
-  for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `trace <| .joinSep traceMsg.toList "\n"
-    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap data .information pos endPos
-  return log
-
-def addTraceAsMessages : CommandElabM Unit := do
-  let ctx ← read
-  -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
-  -- pretty printing the trace messages is expensive
-  if trace.profiler.output.get? (← getOptions) |>.isNone then
-    modify fun s => { s with
-      messages          := addTraceAsMessagesCore ctx s.messages s.traceState
-      traceState.traces := {}
-    }
-
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -250,6 +226,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
     traceState := s.traceState
+    snapshotTasks := s.snapshotTasks
   }
   let (ea, coreS) ← liftM x
   modify fun s => { s with
@@ -258,6 +235,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     ngen              := coreS.ngen
     infoState.trees   := s.infoState.trees.append coreS.infoState.trees
     traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
+    snapshotTasks     := coreS.snapshotTasks
     messages          := s.messages ++ coreS.messages
   }
   return ea
@@ -327,27 +305,60 @@ Interrupt and abort exceptions are caught but not logged.
 @[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabM Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
-/-- Runs the given action in a separate task, discarding its final state. -/
-def runAsync (act : CommandElabM α) : CommandElabM (Task (Except Exception α)) := do
-  EIO.asTask (act.run (← read) |>.run' (← get))
+/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
+def wrapAsync (act : Unit → CommandElabM α) : CommandElabM (EIO Exception α) := do
+  return (do
+      -- Reset log so as not to report messages twice, from either thread
+      modify ({ · with messages := {} })
+      act () : CommandElabM _)
+    |>.run (← read) |>.run' (← get)
 
+open Language in
 /--
-Runs the given action in a separate task, discarding its final state except for the message log,
-which is reported in the returned snapshot.
+Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
+`logSnapshotTask` tasks, which are reported as part of the returned tree.
 -/
-def runAsyncAsSnapshot (act : CommandElabM Unit) : CommandElabM (Task Language.SnapshotTree) := do
-  let t ← runAsync do
-    -- Reset log so as not to report messages twice, from either thread
-    modify ({ · with messages := {} })
-    withLoggingExceptions act
-    get
-  BaseIO.mapTask (t := t) fun
-    | .ok st =>
-      return .mk { diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog st.messages) } #[]
-    | .error _ => unreachable!
 
 def runLintersAsync (stx : Syntax) (lintPromise : IO.Promise Language.SnapshotTree) :
     CommandElabM Unit := do
+-- `CoreM` and `CommandElabM` are too different to meaningfully share this code
+def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
+    (desc : String := by exact decl_name%.toString) :
+    CommandElabM (BaseIO SnapshotTree) := do
+  let t ← wrapAsync fun _ => do
+    IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
+      let tid ← IO.getLeanThreadID
+      modifyTraceState fun _ => { tid }
+      try
+        withTraceNode `Elab.async (fun _ => return desc) do
+          act ()
+      catch e =>
+        logError e.toMessageData
+      finally
+        addTraceAsMessages
+      get
+  let ctx ← read
+  return do
+    match (← t.toBaseIO) with
+    | .ok (output, st) =>
+      let mut msgs := st.messages
+      if !output.isEmpty then
+        msgs := msgs.add {
+          fileName := ctx.fileName
+          severity := MessageSeverity.information
+          pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+          data     := output
+        }
+      return .mk {
+        desc
+        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
+        traces := st.traceState
+      } st.snapshotTasks
+    -- interrupt or abort exception as `try catch` above should have caught any others
+    | .error _ => default
+
+def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
+  modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
   let opts ← getOptions
   let hasLintTrace := opts.entries.any ((`trace.Elab.lint).isPrefixOf ·.1)
   -- TODO: `runAsync` introduces too much overhead for now compared to the actual linters execution,
@@ -558,8 +569,6 @@ structure CommandProcessingSnapshot extends Snapshot where
   `Context.snap?`.
   -/
   elabSnap : SnapshotTask DynamicSnapshot
-  /-- Snapshot task for async linting. -/
-  lintSnap : SnapshotTask SnapshotTree
 deriving Inhabited
 open Language in
 instance : ToSnapshotTree CommandProcessingSnapshot where

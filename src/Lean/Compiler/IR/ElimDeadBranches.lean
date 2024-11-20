@@ -63,7 +63,7 @@ partial def merge (v₁ v₂ : Value) : Value :=
   | top, _ => top
   | _, top => top
   | v₁@(ctor i₁ vs₁), v₂@(ctor i₂ vs₂) =>
-    if i₁ == i₂ then ctor i₁ <| vs₁.size.fold (init := #[]) fun i r => r.push (merge vs₁[i]! vs₂[i]!)
+    if i₁ == i₂ then ctor i₁ <| vs₁.size.fold (init := #[]) fun i _ r => r.push (merge vs₁[i] vs₂[i]!)
     else choice [v₁, v₂]
   | choice vs₁, choice vs₂ => choice <| vs₁.foldl (addChoice merge) vs₂
   | choice vs, v => choice <| addChoice merge vs v
@@ -336,8 +336,8 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let funVals := s.funVals
   let assignments := s.assignments
   modify fun s =>
-    let env := decls.size.fold (init := s.env) fun i env =>
-      addFunctionSummary env decls[i]!.name funVals[i]!
+    let env := decls.size.fold (init := s.env) fun i _ env =>
+      addFunctionSummary env decls[i].name funVals[i]!
     { s with env := env }
   return decls.mapIdx fun i decl => elimDead assignments[i]! decl
 

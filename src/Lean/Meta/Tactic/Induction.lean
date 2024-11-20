@@ -105,10 +105,10 @@ private partial def finalize
             let mvarId' ← mvar.mvarId!.tryClear major.fvarId!
             let (fields, mvarId') ←  mvarId'.introN nparams minorGivenNames.varNames (useNamesForExplicitOnly := !minorGivenNames.explicit)
             let (extra,  mvarId') ← mvarId'.introNP nextra
-            let subst := reverted.size.fold (init := baseSubst) fun i (subst : FVarSubst) =>
+            let subst := reverted.size.fold (init := baseSubst) fun i _ (subst : FVarSubst) =>
               if i < indices.size + 1 then subst
               else
-                let revertedFVarId := reverted[i]!
+                let revertedFVarId := reverted[i]
                 let newFVarId      := extra[i - indices.size - 1]!
                 subst.insert revertedFVarId (mkFVar newFVarId)
             let fields := fields.map mkFVar

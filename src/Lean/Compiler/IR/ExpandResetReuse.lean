@@ -142,7 +142,7 @@ def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
       pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
-  zs.size.fold (init := b) fun i b => FnBody.set y i (zs.get! i) b
+  zs.size.fold (init := b) fun i _ b => FnBody.set y i zs[i] b
 
 /-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=

@@ -372,7 +372,7 @@ instance : ToString Stats := ⟨Stats.toString⟩
 end PersistentArray
 
 def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
-  n.fold (init := PersistentArray.empty) fun _ p => p.push v
+  n.fold (init := PersistentArray.empty) fun _ _ p => p.push v
 
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v

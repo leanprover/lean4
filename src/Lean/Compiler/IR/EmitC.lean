@@ -546,9 +546,9 @@ That is, we have
 -/
 def overwriteParam (ps : Array Param) (ys : Array Arg) : Bool :=
   let n := ps.size;
-  n.any fun i =>
-    let p := ps[i]!
-    (i+1, n).anyI fun j => paramEqArg p ys[j]!
+  n.any fun i _ =>
+    let p := ps[i]
+    (i+1, n).anyI fun j _ _ => paramEqArg p ys[j]!
 
 def emitTailCall (v : Expr) : M Unit :=
   match v with

@@ -164,8 +164,8 @@ def runFrontend
     | return (← mkEmptyEnvironment, false)
 
   if let some out := trace.profiler.output.get? opts then
-    let traceState := cmdState.traceState
-    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+    let traceStates := snaps.getAll.map (·.traces)
+    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
     IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
   let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)

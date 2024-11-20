@@ -1481,7 +1481,7 @@ theorem getLsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
   simp only [BitVec.sshiftRight', BitVec.getLsbD_sshiftRight]
 
 @[simp]
-theorem getElem_sshiftRight' {x y : BitVec w} {i : Nat} {h : i < w} :
+theorem getElem_sshiftRight' {x y : BitVec w} {i : Nat} (h : i < w) :
     (x.sshiftRight' y)[i] =
       (!decide (w ≤ i) && if y.toNat + i < w then x.getLsbD (y.toNat + i) else x.msb) := by
   simp only [← getLsbD_eq_getElem, BitVec.sshiftRight', BitVec.getLsbD_sshiftRight]

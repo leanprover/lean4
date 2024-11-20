@@ -256,7 +256,7 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
       have : a ∈ as := by
         have ⟨bs, h⟩ := h
         subst h
-        exact mem_append_of_mem_right _ (Mem.head ..)
+        exact mem_append_right _ (Mem.head ..)
       match (← f a this b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b =>

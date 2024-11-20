@@ -1637,9 +1637,9 @@ theorem swap_comm (a : Array α) {i j : Fin a.size} : a.swap i j = a.swap j i :=
 
 /-! ### eraseIdx -/
 
-theorem feraseIdx_eq_eraseIdx {a : Array α} {i : Fin a.size} :
-    a.feraseIdx i = a.eraseIdx i.1 := by
-  simp [eraseIdx]
+theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size) :
+    a.eraseIdx i h = a.eraseIdxIfInBounds i := by
+  simp [eraseIdxIfInBounds, h]
 
 /-! ### isPrefixOf -/
 
@@ -1869,16 +1869,15 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
     l.toArray.takeWhile p = (l.takeWhile p).toArray := by
   simp [Array.takeWhile, takeWhile_go_toArray]
 
-@[simp] theorem feraseIdx_toArray (l : List α) (i : Fin l.toArray.size) :
-    l.toArray.feraseIdx i = (l.eraseIdx i).toArray := by
-  rw [feraseIdx]
-  split <;> rename_i h
-  · rw [feraseIdx_toArray]
+@[simp] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
+    l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
+  rw [Array.eraseIdx]
+  split <;> rename_i h'
+  · rw [eraseIdx_toArray]
     simp only [swap_toArray, Fin.getElem_fin, toList_toArray, mk.injEq]
     rw [eraseIdx_set_gt (by simp), eraseIdx_set_eq]
     simp
-  · rcases i with ⟨i, w⟩
-    simp at h w
+  · simp at h h'
     have t : i = l.length - 1 := by omega
     simp [t]
 termination_by l.length - i
@@ -1888,9 +1887,9 @@ decreasing_by
   simp
   omega
 
-@[simp] theorem eraseIdx_toArray (l : List α) (i : Nat) :
-    l.toArray.eraseIdx i = (l.eraseIdx i).toArray := by
-  rw [Array.eraseIdx]
+@[simp] theorem eraseIdxIfInBounds_toArray (l : List α) (i : Nat) :
+    l.toArray.eraseIdxIfInBounds i = (l.eraseIdx i).toArray := by
+  rw [Array.eraseIdxIfInBounds]
   split
   · simp
   · simp_all [eraseIdx_eq_self.2]
@@ -1909,13 +1908,13 @@ namespace Array
     (as.takeWhile p).toList = as.toList.takeWhile p := by
   induction as; simp
 
-@[simp] theorem toList_feraseIdx (as : Array α) (i : Fin as.size) :
-    (as.feraseIdx i).toList = as.toList.eraseIdx i.1 := by
+@[simp] theorem toList_eraseIdx (as : Array α) (i : Nat) (h : i < as.size) :
+    (as.eraseIdx i h).toList = as.toList.eraseIdx i := by
   induction as
   simp
 
-@[simp] theorem toList_eraseIdx (as : Array α) (i : Nat) :
-    (as.eraseIdx i).toList = as.toList.eraseIdx i := by
+@[simp] theorem toList_eraseIdxIfInBounds (as : Array α) (i : Nat) :
+    (as.eraseIdxIfInBounds i).toList = as.toList.eraseIdx i := by
   induction as
   simp
 

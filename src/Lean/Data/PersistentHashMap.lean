@@ -233,10 +233,10 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β
   | n@(Node.collision keys vals heq), _, k =>
     match keys.indexOf? k with
     | some idx =>
-      let keys' := keys.feraseIdx idx
-      have keq := keys.size_feraseIdx idx
-      let vals' := vals.feraseIdx (Eq.ndrec idx heq)
-      have veq := vals.size_feraseIdx (Eq.ndrec idx heq)
+      let keys' := keys.eraseIdx idx
+      have keq := keys.size_eraseIdx idx _
+      let vals' := vals.eraseIdx (Eq.ndrec idx heq)
+      have veq := vals.size_eraseIdx (Eq.ndrec idx heq) _
       have : keys.size - 1 = vals.size - 1 := by rw [heq]
       Node.collision keys' vals' (keq.trans (this.trans veq.symm))
     | none     => n

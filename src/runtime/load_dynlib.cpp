@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Mac Malone
 */
 #include "util/io.h"
-#include "util/path.h"
 #include "runtime/io.h"
 #include "runtime/object.h"
 #include "runtime/sstream.h"
@@ -44,41 +43,71 @@ extern "C" LEAN_EXPORT obj_res lean_load_dynlib(b_obj_arg path, obj_arg) {
     }
 }
 
-void load_plugin(std::string path) {
-    void * init;
+/* loadPlugin : System.FilePath -> IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_load_plugin(b_obj_arg path, obj_arg) {
     // we never want to look up plugins using the system library search
-    path = lrealpath(path);
-    std::string pkg = stem(path);
+    std::string rpath;
+#if defined(LEAN_EMSCRIPTEN)
+    rpath = string_to_std(path);
+    auto sep = rpath.rfind('/');
+#elif defined(LEAN_WINDOWS)
+    constexpr unsigned BufferSize = 8192;
+    char buffer[BufferSize];
+    DWORD retval = GetFullPathName(string_cstr(path), BufferSize, buffer, nullptr);
+    if (retval == 0 || retval > BufferSize) {
+        rpath = string_to_std(path);
+    } else {
+        rpath = std::string(buffer);
+    }
+    auto sep = rpath.rfind('\\');
+#else
+    char buffer[PATH_MAX];
+    char * tmp = realpath(string_cstr(path), buffer);
+    if (tmp) {
+        rpath = std::string(tmp);
+    } else {
+        inc(path);
+        return io_result_mk_error(lean_mk_io_error_no_file_or_directory(path, ENOENT, mk_string("")));
+    }
+    auto sep = rpath.rfind('/');
+#endif
+    if (sep == std::string::npos) {
+        sep = 0;
+    } else {
+        sep++;
+    }
+    auto dot = rpath.rfind(".");
+    if (dot == std::string::npos) {
+        dot = rpath.size();
+    }
+    std::string pkg = rpath.substr(sep, dot - sep);
     std::string sym = "initialize_" + pkg;
+    void * init;
 #ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
+    HMODULE h = LoadLibrary(rpath.c_str());
     if (!h) {
-        throw exception(sstream() << "error loading plugin " << path << ": " << GetLastError());
+        return io_result_mk_error((sstream()
+            << "error loading plugin " << rpath << ": " << GetLastError()).str());
     }
     init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
 #else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY);
+    void *handle = dlopen(rpath.c_str(), RTLD_LAZY);
     if (!handle) {
-        throw exception(sstream() << "error loading plugin, " << dlerror());
+        return io_result_mk_error((sstream()
+            << "error loading plugin, " << dlerror()).str());
     }
     init = dlsym(handle, sym.c_str());
 #endif
     if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
+        return io_result_mk_error((sstream()
+            << "error, plugin " << rpath << " does not seem to contain a module '" << pkg << "'").str());
     }
     auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
-    object *r = init_fn(1 /* builtin */, io_mk_world());
-    consume_io_result(r);
+    return init_fn(1 /* builtin */, io_mk_world());
     // NOTE: we never unload plugins
 }
 
-/* loadPlugin : System.FilePath -> IO Unit */
-extern "C" LEAN_EXPORT obj_res lean_load_plugin(b_obj_arg path, obj_arg) {
-    try {
-        load_plugin(string_cstr(path));
-        return io_result_mk_ok(box(0));
-    } catch (exception & ex) {
-        return io_result_mk_error(ex.what());
-    }
+void load_plugin(std::string path) {
+    consume_io_result(lean_load_plugin(mk_string(path), io_mk_world()));
 }
 }

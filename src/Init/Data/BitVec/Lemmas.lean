@@ -3015,6 +3015,58 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
       simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
 
+theorem append_assoc_left {a b c : Nat} (x : BitVec a) (y : BitVec b) (z : BitVec c) :
+    have : a + b + c = a + (b + c) := by rw [Nat.add_assoc]
+    (x ++ y) ++ z =  cast (by omega) (x ++ (y ++ z)) := by
+  ext k
+  simp only [getLsbD_cast, getLsbD_append]
+  by_cases h₀ : (↑k < c) <;> by_cases h₁ : (↑k < b + c)
+  · simp [h₀, h₁]
+  · simp [h₀, h₁]
+    omega
+  · simp [h₀, h₁]
+    by_cases h₂ : (↑k - c < b)
+    · simp [h₂]
+    · simp [h₂]
+      omega
+  · simp [h₀, h₁]
+    by_cases h₂ : (↑k - c < b)
+    · simp [h₂]
+      omega
+    · simp [h₂]
+      rw [Nat.sub_sub, Nat.add_comm (n := c)]
+
+theorem append_assoc_right {a b c : Nat} (x : BitVec a) (y : BitVec b) (z : BitVec c) :
+    have : a + (b + c) = a + b + c := by rw [Nat.add_assoc]
+    x ++ (y ++ z) =  cast (by omega) ((x ++ y) ++ z) := by
+  rw [append_assoc_left]
+  norm_cast
+
+theorem append_replicate_comm {n w : Nat} {x : BitVec w} :
+    have : w * n + w = w + w * n := by rw [Nat.add_comm]
+    x ++ (replicate n x) = cast (by omega) (replicate n x ++ x) := by
+  induction n generalizing x
+  case zero => simp
+  case succ nn ih =>
+    simp only [replicate_succ_eq, ih, cast_cast, cast_eq]
+    rw [append_assoc_right, ih]
+    norm_cast
+
+@[simp]
+theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
+    (x.replicate n).getMsbD i =
+    (decide (i < w * n) && x.getMsbD (i % w)) := by
+  induction n generalizing x
+  case zero => simp
+  case succ n ih =>
+    simp [replicate_succ_eq]
+    by_cases h₀ : w ≤ i
+    · simp [h₀]
+      sorry
+    · simp [h₀]
+      by_cases h₁ : i < w
+      sorry
+
 @[simp]
 theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
     (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by

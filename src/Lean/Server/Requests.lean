@@ -204,7 +204,7 @@ partial def findInfoTreeAtPos
   findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
     | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
       | some infoTree => .pure <| some infoTree
-      | none          => cmdParsed.data.finishedSnap.task.map (sync := true) fun s =>
+      | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
         -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
         assert! s.cmdState.infoState.trees.size == 1
         some s.cmdState.infoState.trees[0]!
@@ -225,11 +225,11 @@ def findCmdDataAtPos
     : Task (Option (Syntax × Elab.InfoTree)) :=
   findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
     | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
-      | some infoTree => .pure <| some (cmdParsed.data.stx, infoTree)
-      | none          => cmdParsed.data.finishedSnap.task.map (sync := true) fun s =>
+      | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
+      | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
         -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
         assert! s.cmdState.infoState.trees.size == 1
-        some (cmdParsed.data.stx, s.cmdState.infoState.trees[0]!)
+        some (cmdParsed.stx, s.cmdState.infoState.trees[0]!)
     | none => .pure none
 
 /--
@@ -244,7 +244,7 @@ def findInfoTreeAtPosWithTrailingWhitespace
     : Task (Option Elab.InfoTree) :=
   -- NOTE: use `>=` since the cursor can be *after* the input (and there is no interesting info on
   -- the first character of the subsequent command if any)
-  findInfoTreeAtPos doc (·.data.parserState.pos ≥ pos) pos
+  findInfoTreeAtPos doc (·.parserState.pos ≥ pos) pos
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do

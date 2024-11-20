@@ -271,9 +271,9 @@ def emitTag (x : VarId) (xType : IRType) : M Unit := do
     emit x
 
 def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
-  if alts.size != 2 then none
-  else match alts[0]! with
-    | Alt.ctor c b => some (c.cidx, b, alts[1]!.body)
+  if h : alts.size ≠ 2 then none
+  else match alts[0] with
+    | Alt.ctor c b => some (c.cidx, b, alts[1].body)
     | _            => none
 
 def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit := do

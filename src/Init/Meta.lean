@@ -431,21 +431,20 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
     }
   | _, _ => none
 
-@[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
-  if i == 0 then
-    none
-  else
-    let i := i - 1
-    let v := a[i]!
+@[specialize] private partial def updateLast {α} (a : Array α) (f : α → Option α) (i : Fin (a.size + 1)) : Option (Array α) :=
+  match i with
+  | 0 => none
+  | ⟨i + 1, h⟩ =>
+    let v := a[i]'(Nat.succ_lt_succ_iff.mp h)
     match f v with
-    | some v => some <| a.set! i v
-    | none   => updateLast a f i
+    | some v => some <| a.set i v (Nat.succ_lt_succ_iff.mp h)
+    | none   => updateLast a f ⟨i, Nat.lt_of_succ_lt h⟩
 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
   | node info' k args      =>
-    match updateLast args (setTailInfoAux info) args.size with
+    match updateLast args (setTailInfoAux info) ⟨args.size, by simp⟩ with
     | some args => some <| node info' k args
     | none      => none
   | _                      => none

@@ -255,8 +255,8 @@ private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
-  for i in [:paramInfo.size] do
-    let info := paramInfo[i]!
+  for h : i in [:paramInfo.size] do
+    let info := paramInfo[i]
     let a₁ := args₁[i]!
     let a₂ := args₂[i]!
     if info.dependsOnHigherOrderOutParam || info.higherOrderOutParam then

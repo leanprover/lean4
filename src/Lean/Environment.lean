@@ -317,8 +317,8 @@ partial def ensureExtensionsArraySize (exts : Array EnvExtensionState) : IO (Arr
 where
   loop (i : Nat) (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
     let envExtensions ← envExtensionsRef.get
-    if i < envExtensions.size then
-      let s ← envExtensions[i]!.mkInitial
+    if h : i < envExtensions.size then
+      let s ← envExtensions[i].mkInitial
       let exts := exts.push s
       loop (i + 1) exts
     else
@@ -726,7 +726,6 @@ def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
   let descrs ← persistentEnvExtensionsRef.get
   let mut result := {}
   for h : i in [startingAt : descrs.size] do
-    have : i < descrs.size := h.upper
     let descr := descrs[i]
     result := result.insert descr.name i
   return result
@@ -740,7 +739,6 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in [:mods.size] do
-    have : modIdx < mods.size := h.upper
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
@@ -860,7 +858,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.empty (capacity := numConsts)
   let mut constantMap : Std.HashMap Name ConstantInfo := Std.HashMap.empty (capacity := numConsts)
   for h : modIdx in [0:s.moduleData.size] do
-    let mod := s.moduleData[modIdx]'h.upper
+    let mod := s.moduleData[modIdx]
     for cname in mod.constNames, cinfo in mod.constants do
       match constantMap.getThenInsertIfNew? cname cinfo with
       | (cinfoPrev?, constantMap') =>

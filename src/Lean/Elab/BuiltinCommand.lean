@@ -211,7 +211,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         else
           `(bracketedBinderF| {$id $[: $ty?]?})
       for id in ids.reverse do
-        if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
+        if let some idx := binderIds.findFinIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
           varDeclsNew := varDeclsNew.push (← mkBinder id explicit)

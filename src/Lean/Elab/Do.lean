@@ -1518,7 +1518,7 @@ mutual
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
     let doForDecls := doFor[1].getSepArgs
-    if doForDecls.size > 1 then
+    if h : doForDecls.size > 1 then
       /-
         Expand
         ```

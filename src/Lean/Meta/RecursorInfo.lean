@@ -107,7 +107,7 @@ private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : 
     if motiveArgs.isEmpty then
       throwError "invalid user defined recursor, '{declName}' does not support dependent elimination, and position of the major premise was not specified (solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)"
     let major := motiveArgs.back!
-    match xs.getIdx? major with
+    match xs.indexOf? major with
     | some majorPos => pure (major, majorPos, true)
     | none          => throwError "ill-formed recursor '{declName}'"
 

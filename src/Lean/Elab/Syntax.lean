@@ -142,7 +142,7 @@ where
     let args := stx.getArgs
     if (← checkLeftRec stx[0]) then
       if args.size == 1 then throwErrorAt stx "invalid atomic left recursive syntax"
-      let args := args.eraseIdx 0
+      let args := args.eraseIdxIfInBounds 0
       let args ← args.mapM fun arg => withNestedParser do process arg
       mkParserSeq args
     else

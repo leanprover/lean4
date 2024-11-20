@@ -40,7 +40,7 @@ private partial def post (fixedPrefix : Nat) (argsPacker : ArgsPacker) (funNames
     return TransformStep.done e
   let declName := f.constName!
   let us       := f.constLevels!
-  if let some fidx := funNames.getIdx? declName then
+  if let some fidx := funNames.indexOf? declName then
     let arity := fixedPrefix + argsPacker.varNamess[fidx]!.size
     let e' ← withAppN arity e fun args => do
       let fixedArgs := args[:fixedPrefix]

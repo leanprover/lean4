@@ -1347,7 +1347,7 @@ where
     let mut unusableNamedArgs := unusableNamedArgs
     for x in xs, bInfo in bInfos do
       let xDecl ← x.mvarId!.getDecl
-      if let some idx := remainingNamedArgs.findIdx? (·.name == xDecl.userName) then
+      if let some idx := remainingNamedArgs.findFinIdx? (·.name == xDecl.userName) then
         /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
         remainingNamedArgs := remainingNamedArgs.eraseIdx idx
       else
@@ -1355,9 +1355,9 @@ where
           /- We found a type of the form (baseName ...).
              First, we check if the current argument is an explicit one,
              and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
-          if argIdx ≤ args.size && bInfo.isExplicit then
+          if h : argIdx ≤ args.size ∧ bInfo.isExplicit then
             /- We can insert `e` as an explicit argument -/
-            return (args.insertAt! argIdx (Arg.expr e), namedArgs)
+            return (args.insertIdx argIdx (Arg.expr e), namedArgs)
           else
             /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
                if there isn't an argument with the same name occurring before it. -/

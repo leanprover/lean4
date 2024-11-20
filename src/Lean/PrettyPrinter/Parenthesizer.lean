@@ -332,7 +332,7 @@ partial def parenthesizeCategoryCore (cat : Name) (_prec : Nat) : Parenthesizer 
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur
     if stx.getKind == `choice then
-      visitArgs $ stx.getArgs.size.forM fun _ _=> do
+      visitArgs $ stx.getArgs.size.forM fun _ _ => do
         parenthesizeCategoryCore cat _prec
     else
       withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString cat (isPseudoKind := true)) (parenthesizerForKind stx.getKind)

@@ -111,7 +111,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           ⟨units.size, units_size_lt_updatedUnits_size⟩
         have i_gt_zero : i.1 > 0 := by rw [i_eq_l]; exact l.1.2.1
         refine ⟨mostRecentUnitIdx, l.2, i_gt_zero, ?_⟩
-        simp only [insertUnit, h3, ite_false, Array.getElem_push_eq, i_eq_l, reduceCtorEq]
+        simp +zetaDelta only [insertUnit, h3, ite_false, Array.getElem_push_eq, i_eq_l, reduceCtorEq]
         constructor
         · rfl
         · constructor
@@ -131,7 +131,6 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                   exact k_property
                 · intro h
                   simp only [← h, not_true, mostRecentUnitIdx] at hk
-                  exact hk rfl
               rw [Array.getElem_push_lt _ _ _ k_in_bounds]
               rw [i_eq_l] at h2
               exact h2 ⟨k.1, k_in_bounds⟩
@@ -193,7 +192,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           constructor
           · rw [Array.getElem_push_lt units l j.1 j.2, h1]
           · constructor
-            · simp [i_eq_l, ← hl]
+            · simp +zetaDelta [i_eq_l, ← hl]
               rfl
             · constructor
               · simp only [i_eq_l]
@@ -228,7 +227,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           refine ⟨mostRecentUnitIdx, ⟨j.1, j_lt_updatedUnits_size⟩, i_gt_zero, ?_⟩
           simp [insertUnit, h5, ite_false, Array.getElem_push_eq, ne_eq]
           constructor
-          · simp [i_eq_l, ← hl]
+          · simp +zetaDelta [i_eq_l, ← hl]
             rfl
           · constructor
             · rw [Array.getElem_push_lt units l j.1 j.2, h1]
@@ -1330,7 +1329,7 @@ theorem rupAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (ru
         have fc_assignments_size : (insertRupUnits f (negate c)).1.assignments.size = n := by
           rw [size_assignments_insertRupUnits f (negate c)]
           exact f_readyForRupAdd.2.1
-        simp only [clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
+        simp +zetaDelta only [clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
           restoreAssignments_performRupCheck fc fc_assignments_size, Prod.mk.injEq, and_true] at rupAddSuccess
         have rupAddSuccess : DefaultFormula.insert (clearRupUnits (insertRupUnits f (negate c)).fst) c = f' := by
           rw [rupAddSuccess]

@@ -349,7 +349,7 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
     if idx == 0 then
       -- If it's the first argument, then we can tag `obj.field` with the first app.
       head ← withBoundedAppFn (numArgs - 1) <| annotateTermInfo head
-    return Syntax.mkApp head (argStxs.eraseIdx idx)
+    return Syntax.mkApp head (argStxs.eraseIdxIfInBounds idx)
   else
     return Syntax.mkApp fnStx argStxs
 
@@ -876,7 +876,7 @@ def delabLam : Delab :=
           -- "default" binder group is the only one that expects binder names
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
-            if curNames.size > 1 then
+            if h : curNames.size > 1 then
               `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
             else
               pure $ curNames.get! 0;

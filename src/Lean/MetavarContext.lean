@@ -248,9 +248,7 @@ instance : Hashable LocalInstance where
 
 /-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  match localInsts.findIdx? (fun inst => inst.fvar.fvarId! == fvarId) with
-  | some idx => localInsts.eraseIdx idx
-  | _        => localInsts
+  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
 
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/

@@ -272,4 +272,10 @@ theorem find?_mkArray_eq_none {n : Nat} {a : α} {p : α → Bool} :
     ((mkArray n a).find? p).get h = a := by
   simp [mkArray_eq_toArray_replicate]
 
+theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Array α)
+    (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :
+    (xs.pmap f H).find? p = (xs.attach.find? (fun ⟨a, m⟩ => p (f a (H a m)))).map fun ⟨a, m⟩ => f a (H a m) := by
+  simp only [pmap_eq_map_attach, find?_map]
+  rfl
+
 end Array

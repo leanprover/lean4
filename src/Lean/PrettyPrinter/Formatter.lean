@@ -487,7 +487,7 @@ def many1Unbox.formatter (p : Formatter) : Formatter := do
 @[combinator_formatter sepByNoAntiquot]
 def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs <| stx.getArgs.size.forRevM fun i => if i % 2 == 0 then p else pSep
+  visitArgs <| stx.getArgs.size.forRevM fun i => if i.1 % 2 == 0 then p else pSep
 
 @[combinator_formatter sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 

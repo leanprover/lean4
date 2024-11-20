@@ -980,9 +980,9 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
     if (← preserveOrder) then
       -- Make sure toRevert[j] does not depend on toRevert[i] for j < i
       toRevert.size.forM fun i => do
-        let fvar := toRevert[i]!
-        i.forM fun j => do
-          let prevFVar := toRevert[j]!
+        let fvar := toRevert[i]
+        i.1.forM fun j => do
+          let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar
           if (← localDeclDependsOn prevDecl fvar.fvarId!) then
             throw (Exception.revertFailure (← getMCtx) lctx toRevert prevDecl.userName.toString)
@@ -1062,7 +1062,7 @@ mutual
   private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i e => do
-      let x := xs[i]!
+      let x := xs[i]
       if x.isFVar then
         match lctx.getFVar! x with
         | LocalDecl.cdecl _ _ n type bi _ =>
@@ -1220,7 +1220,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
   xs.size.foldRevM (init := e) fun i e => do
-      let x := xs[i]!
+      let x := xs[i]
       if x.isFVar then
         match lctx.getFVar! x with
         | LocalDecl.cdecl _ _ n type bi _ =>

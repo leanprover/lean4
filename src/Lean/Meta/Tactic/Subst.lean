@@ -81,8 +81,8 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                 let (newFVars, mvarId) ← mvarId.introNP (vars.size - 2)
                 trace[Meta.Tactic.subst] "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
                 let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
-                    let var     := vars[i+2]!
-                    let newFVar := newFVars[i]!
+                    let var     := vars[i.1+2]!
+                    let newFVar := newFVars[i]
                     pure $ fvarSubst.insert var (mkFVar newFVar)
                 let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId)
                 let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId)

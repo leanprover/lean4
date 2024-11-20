@@ -285,7 +285,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             let eType ← newIH.getType
             let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
               let motiveArg := xs[i]!
-              let discr     := matcherApp.discrs[i]!
+              let discr     := matcherApp.discrs[i]
               let eTypeAbst ← kabstract eTypeAbst discr
               return eTypeAbst.instantiate1 motiveArg
 

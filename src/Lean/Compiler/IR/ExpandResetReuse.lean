@@ -135,7 +135,7 @@ abbrev M := ReaderT Context (StateM Nat)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
   mask.size.foldM (init := b) fun i b =>
-    match mask.get! i with
+    match mask[i] with
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh

@@ -135,8 +135,8 @@ def getMajorTypeIndices (mvarId : MVarId) (tacticName : Name) (recursorInfo : Re
     let idx := majorTypeArgs.get! idxPos
     unless idx.isFVar do throwTacticEx tacticName mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
     majorTypeArgs.size.forM fun i => do
-      let arg := majorTypeArgs[i]!
-      if i != idxPos && arg == idx then
+      let arg := majorTypeArgs[i]
+      if i.1 != idxPos && arg == idx then
         throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
       if i < idxPos then
         if (← exprDependsOn arg idx.fvarId!) then
@@ -146,7 +146,7 @@ def getMajorTypeIndices (mvarId : MVarId) (tacticName : Name) (recursorInfo : Re
       if i > idxPos && recursorInfo.indicesPos.contains i && arg.isFVar then
         let idxDecl ← idx.fvarId!.getDecl
         if (← localDeclDependsOn idxDecl arg.fvarId!) then
-          throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
+          throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i.1+1}"
     return idx
 
 /--

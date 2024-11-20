@@ -226,7 +226,7 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
   let ctx ← read
   let currFnIdx := ctx.currFnIdx
   ys.size.foldM (init := false) fun i r => do
-    let y := ys[i]!
+    let y := ys[i]
     let x := xs[i]!
     let yVal ← findVarValue y.x
     let xVal ← findArgValue x
@@ -283,7 +283,7 @@ def inferStep : M Bool := do
   let ctx ← read
   modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
   ctx.decls.size.foldM (init := false) fun idx modified => do
-    match ctx.decls[idx]! with
+    match ctx.decls[idx] with
     | .fdecl (xs := ys) (body := b) .. => do
       let s ← get
       let currVals := s.funVals[idx]!

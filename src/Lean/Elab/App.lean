@@ -808,7 +808,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
     -/
     let initMotiveFVars : CollectFVars.State := motiveArgs.foldl (init := {}) collectFVars
     let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i s => do
-      let x := xs[i]!
+      let x := xs[i]
       if s.fvarSet.contains x.fvarId! then
         return collectFVars s (← inferType x)
       else

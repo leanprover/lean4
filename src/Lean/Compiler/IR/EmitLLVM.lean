@@ -573,7 +573,7 @@ def emitCtorSetArgs (builder : LLVM.Builder llvmctx)
     (z : VarId) (ys : Array Arg) : M llvmctx Unit := do
   ys.size.forM fun i => do
     let zv ← emitLhsVal builder z
-    let (_yty, yv) ← emitArgVal builder ys[i]!
+    let (_yty, yv) ← emitArgVal builder ys[i]
     let iv ← constIntUnsigned i
     callLeanCtorSet builder zv iv yv
     emitLhsSlotStore builder z zv
@@ -703,7 +703,7 @@ def emitPartialApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys 
                                     (← constIntUnsigned ys.size)
   LLVM.buildStore builder zval zslot
   ys.size.forM fun i => do
-    let (yty, yslot) ← emitArgSlot_ builder ys[i]!
+    let (yty, yslot) ← emitArgSlot_ builder ys[i]
     let yval ← LLVM.buildLoad2 builder yty yslot
     callLeanClosureSetFn builder zval (← constIntUnsigned i) yval
 

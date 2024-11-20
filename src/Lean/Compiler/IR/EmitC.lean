@@ -109,8 +109,8 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
       emit "lean_object**"
     else
       ps.size.forM fun i => do
-        if i > 0 then emit ", "
-        emit (toCType ps[i]!.ty)
+        if i.1 > 0 then emit ", "
+        emit (toCType ps[i].ty)
     emit ")"
   emitLn ";"
 
@@ -321,20 +321,22 @@ def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M U
 
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit := do
   let ps ← getJPParams j
-  unless xs.size == ps.size do throw "invalid goto"
-  xs.size.forM fun i => do
-    let p := ps[i]!
-    let x := xs[i]!
-    emit p.x; emit " = "; emitArg x; emitLn ";"
-  emit "goto "; emit j; emitLn ";"
+  if h : xs.size = ps.size then
+    xs.size.forM fun i => do
+      let p := ps[i]
+      let x := xs[i]
+      emit p.x; emit " = "; emitArg x; emitLn ";"
+    emit "goto "; emit j; emitLn ";"
+  else
+    do throw "invalid goto"
 
 def emitLhs (z : VarId) : M Unit := do
   emit z; emit " = "
 
 def emitArgs (ys : Array Arg) : M Unit :=
   ys.size.forM fun i => do
-    if i > 0 then emit ", "
-    emitArg ys[i]!
+    if i.1 > 0 then emit ", "
+    emitArg ys[i]
 
 def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit := do
   if usize == 0 then emit ssize
@@ -347,7 +349,7 @@ def emitAllocCtor (c : CtorInfo) : M Unit := do
 
 def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
   ys.size.forM fun i => do
-    emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]!; emitLn ");"
+    emit "lean_ctor_set("; emit z; emit ", "; emit i; emit ", "; emitArg ys[i]; emitLn ");"
 
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit := do
   emitLhs z;
@@ -404,7 +406,7 @@ def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M 
         pure first
       else do
         unless first do emit ", "
-        emitArg ys[i]!
+        emitArg ys[i]
         pure false)
     true
   emitLn ");"
@@ -432,7 +434,7 @@ def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit := do
   let arity := decl.params.size;
   emitLhs z; emit "lean_alloc_closure((void*)("; emitCName f; emit "), "; emit arity; emit ", "; emit ys.size; emitLn ");";
   ys.size.forM fun i => do
-    let y := ys[i]!
+    let y := ys[i]
     emit "lean_closure_set("; emit z; emit ", "; emit i; emit ", "; emitArg y; emitLn ");"
 
 def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
@@ -553,25 +555,27 @@ def emitTailCall (v : Expr) : M Unit :=
   | Expr.fap _ ys => do
     let ctx ← read
     let ps := ctx.mainParams
-    unless ps.size == ys.size do throw "invalid tail call"
-    if overwriteParam ps ys then
-      emitLn "{"
-      ps.size.forM fun i => do
-        let p := ps[i]!
-        let y := ys[i]!
-        unless paramEqArg p y do
-          emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
-      ps.size.forM fun i => do
-        let p := ps[i]!
-        let y := ys[i]!
-        unless paramEqArg p y do emit p.x; emit " = _tmp_"; emit i; emitLn ";"
-      emitLn "}"
+    if h : ps.size = ys.size then
+      if overwriteParam ps ys then
+        emitLn "{"
+        ps.size.forM fun i => do
+          let p := ps[i]
+          let y := ys[i]
+          unless paramEqArg p y do
+            emit (toCType p.ty); emit " _tmp_"; emit i; emit " = "; emitArg y; emitLn ";"
+        ps.size.forM fun i => do
+          let p := ps[i]
+          let y := ys[i]
+          unless paramEqArg p y do emit p.x; emit " = _tmp_"; emit i; emitLn ";"
+        emitLn "}"
+      else
+        ys.size.forM fun i => do
+          let p := ps[i]
+          let y := ys[i]
+          unless paramEqArg p y do emit p.x; emit " = "; emitArg y; emitLn ";"
+      emitLn "goto _start;"
     else
-      ys.size.forM fun i => do
-        let p := ps[i]!
-        let y := ys[i]!
-        unless paramEqArg p y do emit p.x; emit " = "; emitArg y; emitLn ";"
-    emitLn "goto _start;"
+      throw "invalid tail call"
   | _ => throw "bug at emitTailCall"
 
 mutual
@@ -655,8 +659,8 @@ def emitDeclAux (d : Decl) : M Unit := do
           emit "lean_object** _args"
         else
           xs.size.forM fun i => do
-            if i > 0 then emit ", "
-            let x := xs[i]!
+            if i.1 > 0 then emit ", "
+            let x := xs[i]
             emit (toCType x.ty); emit " "; emit x.x
         emit ")"
       else

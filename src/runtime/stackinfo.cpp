@@ -73,6 +73,10 @@ size_t get_stack_size(bool main) {
 }
 #endif
 
+#ifndef __has_builtin
+#define __has_builtin(x) 0 /* for non-clang compilers */
+#endif
+
 // taken from https://github.com/llvm/llvm-project/blob/llvmorg-10.0.0-rc1/clang/lib/Basic/Stack.cpp#L24
 static void *get_stack_pointer() {
 #if __GNUC__ || __has_builtin(__builtin_frame_address)

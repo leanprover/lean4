@@ -22,26 +22,55 @@ def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Decl
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
+private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
+@[deprecated "use `Lean.addDecl` instead to ensure new namespaces are registered" (since := "2024-12-03")]
+def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
+  Environment.addDeclAux env opts decl cancelTk?
+
+@[deprecated "use `Lean.addAndCompile`  instead to ensure new namespaces are registered" (since := "2024-12-03")]
 def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
-  let env ← addDecl env opts decl cancelTk?
+  let env ← addDeclAux env opts decl cancelTk?
   compileDecl env opts decl
+
+private def isNamespaceName : Name → Bool
+  | .str .anonymous _ => true
+  | .str p _          => isNamespaceName p
+  | _                 => false
+
+private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
+  match name with
+    | .str _ s =>
+      if s.get 0 == '_' then
+        -- Do not register namespaces that only contain internal declarations.
+        env
+      else
+        go env name
+    | _ => env
+where go env
+  | .str p _ => if isNamespaceName p then go (env.registerNamespace p) p else env
+  | _        => env
 
 def addDecl (decl : Declaration) : CoreM Unit := do
   profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
+    let mut env ← withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
       if !(← MonadLog.hasErrors) && decl.hasSorry then
         logWarning "declaration uses 'sorry'"
-      match (← getEnv).addDecl (← getOptions) decl (← read).cancelTk? with
-      | .ok    env => setEnv env
-      | .error ex  => throwKernelException ex
+      (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk? |> ofExceptKernelException
+
+    -- register namespaces for newly added constants; this used to be done by the kernel itself
+    -- but that is incompatible with moving it to a separate task
+    env := decl.getNames.foldl registerNamePrefixes env
+    if let .inductDecl _ _ types _ := decl then
+      env := types.foldl (registerNamePrefixes · <| ·.name ++ `rec) env
+    setEnv env
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl

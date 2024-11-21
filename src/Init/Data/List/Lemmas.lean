@@ -394,9 +394,9 @@ theorem get?_concat_length (l : List α) (a : α) : (l ++ [a]).get? l.length = s
 theorem mem_cons_self (a : α) (l : List α) : a ∈ a :: l := .head ..
 
 theorem mem_concat_self (xs : List α) (a : α) : a ∈ xs ++ [a] :=
-  mem_append_of_mem_right xs (mem_cons_self a _)
+  mem_append_right xs (mem_cons_self a _)
 
-theorem mem_append_cons_self : a ∈ xs ++ a :: ys := mem_append_of_mem_right _ (mem_cons_self _ _)
+theorem mem_append_cons_self : a ∈ xs ++ a :: ys := mem_append_right _ (mem_cons_self _ _)
 
 theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
     ∃ as bs, xs = as ++ a :: bs ∧ a ∉ as := by
@@ -503,15 +503,19 @@ theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n : Nat, l[n]? = s
 theorem get?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n, l.get? n = some a :=
   let ⟨⟨n, _⟩, e⟩ := get_of_mem h; ⟨n, e ▸ get?_eq_get _⟩
 
-theorem get_mem : ∀ (l : List α) n h, get l ⟨n, h⟩ ∈ l
-  | _ :: _, 0, _ => .head ..
-  | _ :: l, _+1, _ => .tail _ (get_mem l ..)
+theorem get_mem : ∀ (l : List α) n, get l n ∈ l
+  | _ :: _, ⟨0, _⟩ => .head ..
+  | _ :: l, ⟨_+1, _⟩ => .tail _ (get_mem l ..)
 
-theorem getElem?_mem {l : List α} {n : Nat} {a : α} (e : l[n]? = some a) : a ∈ l :=
+theorem mem_of_getElem? {l : List α} {n : Nat} {a : α} (e : l[n]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
 
-theorem get?_mem {l : List α} {n a} (e : l.get? n = some a) : a ∈ l :=
+@[deprecated mem_of_getElem? (since := "2024-09-06")] abbrev getElem?_mem := @mem_of_getElem?
+
+theorem mem_of_get? {l : List α} {n a} (e : l.get? n = some a) : a ∈ l :=
   let ⟨_, e⟩ := get?_eq_some.1 e; e ▸ get_mem ..
+
+@[deprecated mem_of_get? (since := "2024-09-06")] abbrev get?_mem := @mem_of_get?
 
 theorem mem_iff_getElem {a} {l : List α} : a ∈ l ↔ ∃ (n : Nat) (h : n < l.length), l[n]'h = a :=
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
@@ -1997,11 +2001,8 @@ theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t
 theorem mem_append_eq (a : α) (s t : List α) : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
   propext mem_append
 
-theorem mem_append_left {a : α} {l₁ : List α} (l₂ : List α) (h : a ∈ l₁) : a ∈ l₁ ++ l₂ :=
-  mem_append.2 (Or.inl h)
-
-theorem mem_append_right {a : α} (l₁ : List α) {l₂ : List α} (h : a ∈ l₂) : a ∈ l₁ ++ l₂ :=
-  mem_append.2 (Or.inr h)
+@[deprecated mem_append_left (since := "2024-11-20")] abbrev mem_append_of_mem_left := @mem_append_left
+@[deprecated mem_append_right (since := "2024-11-20")] abbrev mem_append_of_mem_right := @mem_append_right
 
 theorem mem_iff_append {a : α} {l : List α} : a ∈ l ↔ ∃ s t : List α, l = s ++ a :: t :=
   ⟨append_of_mem, fun ⟨s, t, e⟩ => e ▸ by simp⟩
@@ -2415,7 +2416,7 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
 
 @[simp] theorem getElem_replicate (a : α) {n : Nat} {m} (h : m < (replicate n a).length) :
     (replicate n a)[m] = a :=
-  eq_of_mem_replicate (get_mem _ _ _)
+  eq_of_mem_replicate (getElem_mem _)
 
 @[deprecated getElem_replicate (since := "2024-06-12")]
 theorem get_replicate (a : α) {n : Nat} (m : Fin _) : (replicate n a).get m = a := by

@@ -613,8 +613,15 @@ def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
-def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
-  a.findIdx? fun a => a == v
+@[inline]
+def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as.size) :=
+  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
+  loop (j : Nat) :=
+    if h : j < as.size then
+      if p as[j] then some ⟨j, h⟩ else loop (j + 1)
+    else none
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
+  loop 0
 
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
@@ -626,6 +633,10 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
+
+@[deprecated indexOf? (since := "2024-11-20")]
+def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
+  a.findIdx? fun a => a == v
 
 @[inline]
 def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
@@ -766,48 +777,62 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   go 0 #[]
 
-/-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
+/--
+Remove the element at a given index from an array without a runtime bounds checks,
+using a `Nat` index and a tactic-provided bound.
 
-  This function takes worst case O(n) time because
-  it has to backshift all elements at positions greater than `i`.-/
+This function takes worst case O(n) time because
+it has to backshift all elements at positions greater than `i`.-/
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
-  if h : i.val + 1 < a.size then
-    let a' := a.swap ⟨i.val + 1, h⟩ i
-    let i' : Fin a'.size := ⟨i.val + 1, by simp [a', h]⟩
-    a'.feraseIdx i'
+def eraseIdx (a : Array α) (i : Nat) (h : i < a.size := by get_elem_tactic) : Array α :=
+  if h' : i + 1 < a.size then
+    let a' := a.swap ⟨i + 1, h'⟩ ⟨i, h⟩
+    a'.eraseIdx (i + 1) (by simp [a', h'])
   else
     a.pop
-termination_by a.size - i.val
-decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
+termination_by a.size - i
+decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-@[simp] theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
-  induction a, i using Array.feraseIdx.induct with
-  | @case1 a i h a' _ ih =>
-    unfold feraseIdx
-    simp [h, a', ih]
-  | case2 a i h =>
-    unfold feraseIdx
-    simp [h]
+@[simp] theorem size_eraseIdx (a : Array α) (i : Nat) (h) : (a.eraseIdx i h).size = a.size - 1 := by
+  induction a, i, h using Array.eraseIdx.induct with
+  | @case1 a i h h' a' ih =>
+    unfold eraseIdx
+    simp [h', a', ih]
+  | case2 a i h h' =>
+    unfold eraseIdx
+    simp [h']
 
 /-- Remove the element at a given index from an array, or do nothing if the index is out of bounds.
 
   This function takes worst case O(n) time because
   it has to backshift all elements at positions greater than `i`.-/
-def eraseIdx (a : Array α) (i : Nat) : Array α :=
-  if h : i < a.size then a.feraseIdx ⟨i, h⟩ else a
+def eraseIdxIfInBounds (a : Array α) (i : Nat) : Array α :=
+  if h : i < a.size then a.eraseIdx i h else a
+
+/-- Remove the element at a given index from an array, or panic if the index is out of bounds.
+
+This function takes worst case O(n) time because
+it has to backshift all elements at positions greater than `i`. -/
+def eraseIdx! (a : Array α) (i : Nat) : Array α :=
+  if h : i < a.size then a.eraseIdx i h else panic! "invalid index"
 
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.indexOf? a with
   | none   => as
-  | some i => as.feraseIdx i
+  | some i => as.eraseIdx i
+
+/-- Erase the first element that satisfies the predicate `p`. -/
+def eraseP (as : Array α) (p : α → Bool) : Array α :=
+  match as.findIdx? p with
+  | none   => as
+  | some i => as.eraseIdxIfInBounds i
 
 /-- Insert element `a` at position `i`. -/
-@[inline] def insertAt (as : Array α) (i : Fin (as.size + 1)) (a : α) : Array α :=
+@[inline] def insertIdx (as : Array α) (i : Nat) (a : α) (_ : i ≤ as.size := by get_elem_tactic) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (as : Array α) (j : Fin as.size) :=
-    if i.1 < j then
+    if i < j then
       let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
       let as := as.swap j' j
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
@@ -818,11 +843,22 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
 
+@[deprecated insertIdx (since := "2024-11-20")] abbrev insertAt := @insertIdx
+
 /-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
-def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
+def insertIdx! (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
-    insertAt as ⟨i, Nat.lt_succ_of_le h⟩ a
+    insertIdx as i a
   else panic! "invalid index"
+
+@[deprecated insertIdx! (since := "2024-11-20")] abbrev insertAt! := @insertIdx!
+
+/-- Insert element `a` at position `i`, or do nothing if `as.size < i`. -/
+def insertIdxIfInBounds (as : Array α) (i : Nat) (a : α) : Array α :=
+  if h : i ≤ as.size then
+    insertIdx as i a
+  else
+    as
 
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=

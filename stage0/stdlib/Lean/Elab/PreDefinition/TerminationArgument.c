@@ -423,6 +423,7 @@ x_15 = 0;
 x_16 = 1;
 x_17 = 1;
 x_18 = l_Lean_Meta_mkLambdaFVars(x_14, x_3, x_15, x_16, x_15, x_17, x_8, x_9, x_10, x_11, x_12);
+lean_dec(x_14);
 return x_18;
 }
 }

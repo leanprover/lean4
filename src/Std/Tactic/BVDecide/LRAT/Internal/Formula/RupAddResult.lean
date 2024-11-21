@@ -815,7 +815,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
             have k'_in_bounds : k' < acc.2.1.length := by
               simp only [List.length_cons, Nat.succ_eq_add_one] at k'_succ_in_bounds
               exact Nat.lt_of_succ_lt_succ k'_succ_in_bounds
-            exact h2 (acc.2.1.get ⟨k', k'_in_bounds⟩) <| List.get_mem acc.snd.fst k' k'_in_bounds
+            exact h2 (acc.2.1.get ⟨k', k'_in_bounds⟩) <| List.get_mem acc.snd.fst ⟨k', k'_in_bounds⟩
     · next l_ne_i =>
       apply Or.inl
       constructor

@@ -73,6 +73,7 @@ lean_object* l_Lean_MVarId_refl(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_Meta_mkInjectiveTheorems___closed__5;
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremValue___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_elimOptParam___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 extern lean_object* l_Lean_trace_profiler_useHeartbeats;
@@ -219,6 +220,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOfCtorEq___closed__2;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkInjectiveTheoremNameFor___closed__2;
 static lean_object* l_panic___at___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOfCtorEq___spec__1___closed__1;
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1749,7 +1751,6 @@ return x_30;
 else
 {
 uint8_t x_31; 
-lean_dec(x_3);
 x_31 = !lean_is_exclusive(x_16);
 if (x_31 == 0)
 {
@@ -1773,8 +1774,6 @@ return x_34;
 else
 {
 uint8_t x_35; 
-lean_dec(x_3);
-lean_dec(x_2);
 x_35 = !lean_is_exclusive(x_13);
 if (x_35 == 0)
 {
@@ -1857,9 +1856,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_3);
 x_36 = lean_box(0);
 lean_ctor_set(x_30, 0, x_36);
 return x_30;
@@ -1919,9 +1915,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_3);
 x_47 = !lean_is_exclusive(x_43);
 if (x_47 == 0)
 {
@@ -1964,9 +1957,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_3);
 x_55 = lean_box(0);
 x_56 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_56, 0, x_55);
@@ -2027,9 +2017,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_3);
 x_67 = lean_ctor_get(x_63, 0);
 lean_inc(x_67);
 x_68 = lean_ctor_get(x_63, 1);
@@ -2063,9 +2050,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_4);
-lean_dec(x_3);
 x_71 = !lean_is_exclusive(x_30);
 if (x_71 == 0)
 {
@@ -2093,11 +2077,8 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_75 = !lean_is_exclusive(x_19);
 if (x_75 == 0)
 {
@@ -2302,6 +2283,9 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_10;
 }
 }
@@ -2312,6 +2296,9 @@ uint8_t x_14; lean_object* x_15;
 x_14 = lean_unbox(x_6);
 lean_dec(x_6);
 x_15 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___lambda__2(x_1, x_2, x_3, x_4, x_5, x_14, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+lean_dec(x_8);
+lean_dec(x_4);
+lean_dec(x_3);
 return x_15;
 }
 }
@@ -2848,7 +2835,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 x_23 = !lean_is_exclusive(x_17);
 if (x_23 == 0)
 {
@@ -2874,11 +2860,20 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiv
 _start:
 {
 lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_8 = lean_alloc_closure((void*)(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremValue___lambda__1), 8, 1);
+x_8 = lean_alloc_closure((void*)(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremValue___lambda__1___boxed), 8, 1);
 lean_closure_set(x_8, 0, x_1);
 x_9 = 0;
 x_10 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(x_2, x_8, x_9, x_3, x_4, x_5, x_6, x_7);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremValue___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremValue___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_2);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_Meta_mkInjectiveTheoremNameFor___closed__1() {
@@ -3476,7 +3471,6 @@ if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_12);
-lean_dec(x_2);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
@@ -3505,7 +3499,6 @@ if (lean_obj_tag(x_25) == 0)
 {
 uint8_t x_26; 
 lean_dec(x_12);
-lean_dec(x_2);
 x_26 = !lean_is_exclusive(x_18);
 if (x_26 == 0)
 {
@@ -3695,7 +3688,6 @@ else
 {
 uint8_t x_72; 
 lean_dec(x_12);
-lean_dec(x_2);
 x_72 = !lean_is_exclusive(x_67);
 if (x_72 == 0)
 {
@@ -3840,7 +3832,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_95 = !lean_is_exclusive(x_59);
 if (x_95 == 0)
@@ -3870,7 +3861,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_99 = !lean_is_exclusive(x_56);
 if (x_99 == 0)
@@ -3901,7 +3891,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_103 = !lean_is_exclusive(x_54);
 if (x_103 == 0)
@@ -3933,7 +3922,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_107 = !lean_is_exclusive(x_50);
 if (x_107 == 0)
@@ -3964,7 +3952,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_111 = !lean_is_exclusive(x_45);
 if (x_111 == 0)
@@ -3991,7 +3978,6 @@ else
 uint8_t x_115; 
 lean_dec(x_18);
 lean_dec(x_12);
-lean_dec(x_2);
 x_115 = !lean_is_exclusive(x_25);
 if (x_115 == 0)
 {
@@ -4100,7 +4086,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_140 = !lean_is_exclusive(x_17);
 if (x_140 == 0)
@@ -4147,7 +4132,6 @@ if (lean_obj_tag(x_150) == 0)
 {
 lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; 
 lean_dec(x_144);
-lean_dec(x_2);
 x_151 = lean_ctor_get(x_149, 1);
 lean_inc(x_151);
 lean_dec(x_149);
@@ -4176,7 +4160,6 @@ if (lean_obj_tag(x_158) == 0)
 {
 lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; 
 lean_dec(x_144);
-lean_dec(x_2);
 if (lean_is_exclusive(x_150)) {
  lean_ctor_release(x_150, 0);
  lean_ctor_release(x_150, 1);
@@ -4346,7 +4329,6 @@ else
 {
 lean_object* x_199; lean_object* x_200; lean_object* x_201; uint8_t x_202; 
 lean_dec(x_144);
-lean_dec(x_2);
 x_199 = lean_ctor_get(x_194, 0);
 lean_inc(x_199);
 x_200 = lean_ctor_get(x_194, 1);
@@ -4442,7 +4424,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_212 = lean_ctor_get(x_186, 0);
 lean_inc(x_212);
@@ -4474,7 +4455,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_216 = lean_ctor_get(x_183, 0);
 lean_inc(x_216);
@@ -4507,7 +4487,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_220 = lean_ctor_get(x_181, 0);
 lean_inc(x_220);
@@ -4541,7 +4520,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_224 = lean_ctor_get(x_177, 0);
 lean_inc(x_224);
@@ -4574,7 +4552,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_228 = lean_ctor_get(x_172, 0);
 lean_inc(x_228);
@@ -4603,7 +4580,6 @@ else
 lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; lean_object* x_237; lean_object* x_238; lean_object* x_239; lean_object* x_240; 
 lean_dec(x_150);
 lean_dec(x_144);
-lean_dec(x_2);
 if (lean_is_exclusive(x_158)) {
  lean_ctor_release(x_158, 0);
  lean_ctor_release(x_158, 1);
@@ -4660,7 +4636,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_241 = lean_ctor_get(x_149, 0);
 lean_inc(x_241);
@@ -4690,7 +4665,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiv
 _start:
 {
 lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_8 = lean_alloc_closure((void*)(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2), 8, 1);
+x_8 = lean_alloc_closure((void*)(l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___boxed), 8, 1);
 lean_closure_set(x_8, 0, x_1);
 x_9 = 0;
 x_10 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(x_2, x_8, x_9, x_3, x_4, x_5, x_6, x_7);
@@ -4707,6 +4682,16 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_1);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_2);
 return x_9;
 }
 }

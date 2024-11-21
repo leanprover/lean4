@@ -248,11 +248,11 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
   | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
   | Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
   | n@(Syntax.node info k args)        =>
-    if args.size == 0 then n
+    if h : args.size = 0 then n
     else
      let i    := args.size - 1
-     let last := updateTrailing trailing args[i]!
-     let args := args.set! i last;
+     let last := updateTrailing trailing args[i]
+     let args := args.set i last;
      Syntax.node info k args
   | s => s
 

@@ -175,13 +175,13 @@ def Array.toBinaryHeap (lt : α → α → Bool) (a : Array α) : BinaryHeap α 
 attribute [simp] Array.heapSort.loop
 
 /--
-info: Array.heapSort.loop.eq_1.{u_1} {α : Type u_1} (lt : α → α → Bool) (a : BinaryHeap α fun y x => lt x y) (out : Array α) :
-  Array.heapSort.loop lt a out =
+info: Array.heapSort.loop.eq_1.{u_1} {α : Type u_1} (gt : α → α → Bool) (a : BinaryHeap α gt) (out : Array α) :
+  Array.heapSort.loop gt a out =
     match e : a.max with
     | none => out
     | some x =>
       let_fun this := ⋯;
-      Array.heapSort.loop lt a.popMax (out.push x)
+      Array.heapSort.loop gt a.popMax (out.push x)
 -/
 #guard_msgs in
 #check Array.heapSort.loop.eq_1

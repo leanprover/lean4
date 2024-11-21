@@ -63,7 +63,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MVarId_changeLocalDecl
 lean_object* l_Lean_ForEachExpr_visit___at_Lean_MVarId_replace_findMaxFVar___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___at_Lean_LocalContext_mkLocalDecl___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_changeLocalDecl___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withReverted___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -93,6 +92,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_repla
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MVarId_changeLocalDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_expr_equal(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_changeLocalDecl___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_MVarId_replaceTargetEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -813,7 +813,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_13 = lean_ctor_get(x_11, 0);
 x_14 = lean_ctor_get(x_11, 1);
-x_15 = lean_expr_eqv(x_13, x_3);
+x_15 = lean_expr_equal(x_13, x_3);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -958,7 +958,7 @@ x_41 = lean_ctor_get(x_11, 1);
 lean_inc(x_41);
 lean_inc(x_40);
 lean_dec(x_11);
-x_42 = lean_expr_eqv(x_40, x_3);
+x_42 = lean_expr_equal(x_40, x_3);
 if (x_42 == 0)
 {
 lean_object* x_43; 
@@ -1912,7 +1912,7 @@ if (x_10 == 0)
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = lean_ctor_get(x_9, 1);
-x_13 = lean_expr_eqv(x_2, x_11);
+x_13 = lean_expr_equal(x_2, x_11);
 lean_dec(x_11);
 if (x_13 == 0)
 {
@@ -2238,7 +2238,7 @@ x_113 = lean_ctor_get(x_9, 1);
 lean_inc(x_113);
 lean_inc(x_112);
 lean_dec(x_9);
-x_114 = lean_expr_eqv(x_2, x_112);
+x_114 = lean_expr_equal(x_2, x_112);
 lean_dec(x_112);
 if (x_114 == 0)
 {

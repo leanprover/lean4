@@ -129,9 +129,9 @@ where
           let typeNew := b.instantiate1 y
           if let some (_, lhs, rhs) ← matchEq? d then
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some j  := ys.getIdx? lhs | unreachable!
+               let some j  := ys.indexOf? lhs | unreachable!
                let ys      := ys.eraseIdx j
-               let some k  := args.getIdx? lhs | unreachable!
+               let some k  := args.indexOf? lhs | unreachable!
                let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let arg     ← mkEqRefl rhs
@@ -557,8 +557,8 @@ where
         let mut minorBodyNew := minor
         -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
         let mut m ← read
-        for i in [:isAlt.size] do
-          if isAlt[i]! then
+        for h : i in [:isAlt.size] do
+          if isAlt[i] then
             -- `convertTemplate` will correct occurrences of the alternative
             let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
             let some (_, numParams, argMask) := m.find? alt.fvarId! | unreachable!

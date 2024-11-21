@@ -26,7 +26,7 @@ def withAbstractAtoms (atoms : Array Expr) (k : Array Expr → MetaM (Option (Ex
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
   withAbstractAtoms atoms fun ctx => do
-    let lhs ← c.toArith ctx
+    let lhs := c.toArith ctx
     let c₁ := c.toPoly
     let c₂ := c₁.norm
     if c₂.isUnsat then
@@ -39,7 +39,7 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else
       let c₂ : LinearCnstr := c₂.toExpr
-      let r ← c₂.toArith ctx
+      let r := c₂.toArith ctx
       if r != lhs then
         let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
         return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
@@ -82,7 +82,7 @@ def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     -- We only return some if monomials were fused
     let e' : LinearExpr := p'.toExpr
     let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr e) (toExpr e') reflTrue
-    let r ← e'.toArith ctx
+    let r := e'.toArith ctx
     return some (r, p)
   else
     return none

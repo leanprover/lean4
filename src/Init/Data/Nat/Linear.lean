@@ -27,19 +27,25 @@ def Var.denote (ctx : Context) (v : Var) : Nat :=
   bif v == fixedVar then 1 else ctx.get v
 
 inductive Expr where
-  | num  (v : Nat)
-  | var  (i : Var)
-  | add  (a b : Expr)
-  | mulL (k : Nat) (a : Expr)
-  | mulR (a : Expr) (k : Nat)
+  | num   (v : Nat)
+  | var   (i : Var)
+  | add   (a b : Expr)
+  | addO  (a b : Expr)
+  | mulL  (k : Nat) (a : Expr)
+  | mulLO (k : Nat) (a : Expr)
+  | mulR  (a : Expr) (k : Nat)
+  | mulRO (a : Expr) (k : Nat)
   deriving Inhabited
 
 def Expr.denote (ctx : Context) : Expr → Nat
-  | Expr.add a b  => Nat.add (denote ctx a) (denote ctx b)
-  | Expr.num k    => k
+  | Expr.add  a b  => Nat.add (denote ctx a) (denote ctx b)
+  | Expr.addO a b  => denote ctx a + denote ctx b
+  | Expr.num k          => k
   | Expr.var v    => v.denote ctx
-  | Expr.mulL k e => Nat.mul k (denote ctx e)
-  | Expr.mulR e k => Nat.mul (denote ctx e) k
+  | Expr.mulL  k e => Nat.mul k (denote ctx e)
+  | Expr.mulLO k e => k * denote ctx e
+  | Expr.mulR  e k => Nat.mul (denote ctx e) k
+  | Expr.mulRO e k => denote ctx e * k
 
 abbrev Poly := List (Nat × Var)
 
@@ -148,9 +154,12 @@ where
   go (coeff : Nat) : Expr → (Poly → Poly)
     | Expr.num k    => bif k == 0 then id else ((coeff * k, fixedVar) :: ·)
     | Expr.var i    => ((coeff, i) :: ·)
-    | Expr.add a b  => go coeff a ∘ go coeff b
+    | Expr.add a b
+    | Expr.addO a b  => go coeff a ∘ go coeff b
     | Expr.mulL k a
-    | Expr.mulR a k => bif k == 0 then id else go (coeff * k) a
+    | Expr.mulR a k
+    | Expr.mulLO k a
+    | Expr.mulRO a k => bif k == 0 then id else go (coeff * k) a
 
 def Expr.toNormPoly (e : Expr) : Poly :=
   e.toPoly.norm
@@ -517,9 +526,12 @@ theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
     · simp [h, eq_of_beq h]
     · simp [h, Var.denote]
   | case2 k i => simp [toPoly.go]
-  | case3 k a b iha ihb => simp [toPoly.go, iha, ihb]
-  | case4 k k' a ih
-  | case5 k a k' ih =>
+  | case3 k a b iha ihb
+  | case4 k a b iha ihb => simp [toPoly.go, iha, ihb]
+  | case5 k k' a ih
+  | case6 k a k' ih
+  | case7 k k' a ih
+  | case8 k a k' ih =>
     simp only [toPoly.go, denote, mul_eq]
     by_cases h : k' == 0
     · simp [h, eq_of_beq h]
@@ -718,8 +730,7 @@ theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly
 
 end Linear
 
-def elimOffset {α : Sort u} (a b k : Nat) (h₁ : a + k = b + k) (h₂ : a = b → α) : α := by
-  simp_arith at h₁
-  exact h₂ h₁
+def elimOffset {α : Sort u} (a b k : Nat) (h₁ : a + k = b + k) (h₂ : a = b → α) : α :=
+  h₂ (Nat.add_right_cancel h₁)
 
 end Nat

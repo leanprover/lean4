@@ -23,11 +23,14 @@ abbrev PolyExpr := Nat.Linear.Poly
 def LinearExpr.toExpr (e : LinearExpr) : Expr :=
   open Nat.Linear.Expr in
   match e with
-  | num v    => mkApp (mkConst ``num) (mkNatLit v)
-  | var i    => mkApp (mkConst ``var) (mkNatLit i)
-  | add a b  => mkApp2 (mkConst ``add) (toExpr a) (toExpr b)
-  | mulL k a => mkApp2 (mkConst ``mulL) (mkNatLit k) (toExpr a)
-  | mulR a k => mkApp2 (mkConst ``mulR) (toExpr a) (mkNatLit k)
+  | num v       => mkApp  (mkConst ``num)   (mkNatLit v)
+  | var i       => mkApp  (mkConst ``var)   (mkNatLit i)
+  | add a b     => mkApp2 (mkConst ``add)   (toExpr a) (toExpr b)
+  | addO a b    => mkApp2 (mkConst ``addO)  (toExpr a) (toExpr b)
+  | mulL k a    => mkApp2 (mkConst ``mulL)  (mkNatLit k) (toExpr a)
+  | mulLO k a   => mkApp2 (mkConst ``mulLO) (mkNatLit k) (toExpr a)
+  | mulR a k    => mkApp2 (mkConst ``mulR)  (toExpr a) (mkNatLit k)
+  | mulRO a k   => mkApp2 (mkConst ``mulRO) (toExpr a) (mkNatLit k)
 
 instance : ToExpr LinearExpr where
   toExpr a := a.toExpr
@@ -41,19 +44,21 @@ instance : ToExpr LinearCnstr where
   toTypeExpr := mkConst ``Nat.Linear.ExprCnstr
 
 open Nat.Linear.Expr in
-def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
-  match e with
-  | num v    => return mkNatLit v
-  | var i    => return ctx[i]!
-  | add a b  => return mkNatAdd (← toArith ctx a) (← toArith ctx b)
-  | mulL k a => return mkNatMul (mkNatLit k) (← toArith ctx a)
-  | mulR a k => return mkNatMul (← toArith ctx a) (mkNatLit k)
+def LinearExpr.toArith (ctx : Array Expr) : LinearExpr → Expr
+  | num v    => mkNatLit v
+  | var i    => ctx[i]!
+  | add   a b => mkApp2 (mkConst ``Nat.add) (toArith ctx a) (toArith ctx b)
+  | addO  a b => mkNatAdd (toArith ctx a) (toArith ctx b)
+  | mulL  k a => mkApp2 (mkConst ``Nat.mul) (mkNatLit k) (toArith ctx a)
+  | mulLO k a => mkNatMul (mkNatLit k) (toArith ctx a)
+  | mulR  a k => mkApp2 (mkConst ``Nat.mul) (toArith ctx a) (mkNatLit k)
+  | mulRO a k => mkNatMul (toArith ctx a) (mkNatLit k)
 
-def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : MetaM Expr := do
+def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : Expr :=
   if c.eq then
-    return mkNatEq (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
+    mkNatEq (LinearExpr.toArith ctx c.lhs) (LinearExpr.toArith ctx c.rhs)
   else
-    return mkNatLE (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
+    mkNatLE (LinearExpr.toArith ctx c.lhs) (LinearExpr.toArith ctx c.rhs)
 
 namespace ToLinear
 
@@ -84,11 +89,11 @@ partial def toLinearExpr (e : Expr) : M LinearExpr := do
   | _                     => addAsVar e
 where
   visit (e : Expr) : M LinearExpr := do
-    let mul (a b : Expr) := do
+    let mul o (a b : Expr) := do
       match (← evalNat a |>.run) with
-      | some k => return mulL k (← toLinearExpr b)
+      | some k => return (if o then mulLO else mulL) k (← toLinearExpr b)
       | none => match (← evalNat b |>.run) with
-        | some k => return mulR (← toLinearExpr a) k
+        | some k => return (if o then mulRO else mulR) (← toLinearExpr a) k
         | none => addAsVar e
     match_expr e with
     | OfNat.ofNat _ n i =>
@@ -97,17 +102,17 @@ where
     | Nat.succ a => return inc (← toLinearExpr a)
     | Nat.add a b => return add (← toLinearExpr a) (← toLinearExpr b)
     | Add.add _ i a b =>
-      if (← isInstAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
+      if (← isInstAddNat i) then return addO (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HAdd.hAdd _ _ _ i a b =>
-      if (← isInstHAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
+      if (← isInstHAddNat i) then return addO (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
-    | Nat.mul a b => mul a b
+    | Nat.mul a b => mul false a b
     | Mul.mul _ i a b =>
-      if (← isInstMulNat i) then mul a b
+      if (← isInstMulNat i) then mul true a b
       else addAsVar e
     | HMul.hMul _ _ _ i a b =>
-      if (← isInstHMulNat i) then mul a b
+      if (← isInstHMulNat i) then mul true  a b
       else addAsVar e
     | _ => addAsVar e
 

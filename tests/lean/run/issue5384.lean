@@ -5,12 +5,59 @@ termination_by n
 
 theorem foo : 2 * bad 42000 = bad 42000 + bad 42000 := by simp_arith
 
-theorem foo2 (h : 2 * bad 42000 = bad 42000 + bad 42000 + 1) : False := by simp_arith at h
+theorem foo' : Nat.mul 2 (bad 42000) = Nat.add (bad 42000) (bad 42000) := by simp_arith
 
-theorem foo3 (h : bad 42000 + bad 42000 = x) : (2 * bad 42000 = x) := by simp_arith at h; assumption
+theorem foo'' : Nat.mul 2 (bad 42000) = Nat.add (bad 42000) (bad 42000) := by omega
 
-@[irreducible] def f : Nat → Nat := fun x => x
 
-theorem doesn't_do_anything : f 3 = 3 := by
-  fail_if_success simp_arith -- does not apply f_eq and g_eq
-  rw [f]
+-- works
+theorem foo1 : 2 * bad 42000 = bad 42000 + bad 42000 :=
+  of_eq_true
+    ((fun (x : Nat) =>
+        @id ((2 * x = x + x) = True)
+          (Nat.Linear.ExprCnstr.eq_true_of_isValid (Lean.RArray.leaf x)
+            { eq := true, lhs := Nat.Linear.Expr.mulL 2 (Nat.Linear.Expr.var 0),
+              rhs := (Nat.Linear.Expr.var 0).add (Nat.Linear.Expr.var 0) }
+            (Eq.refl true)))
+      (bad 42000))
+
+-- fails
+theorem foo2 : 2 * bad 42000 = bad 42000 + bad 42000 :=
+  of_eq_true
+    ((fun (x : Nat) =>
+        @id ((Nat.mul 2 x = Nat.add x x) = True)
+          (Nat.Linear.ExprCnstr.eq_true_of_isValid (Lean.RArray.leaf x)
+            { eq := true, lhs := Nat.Linear.Expr.mulL 2 (Nat.Linear.Expr.var 0),
+              rhs := (Nat.Linear.Expr.var 0).add (Nat.Linear.Expr.var 0) }
+            (Eq.refl true)))
+      (bad 42000))
+
+-- fails
+theorem foo4 : 2 * bad 42000 = bad 42000 + bad 42000 :=
+  of_eq_true
+    (@id ((2 * bad 42000 = bad 42000 + bad 42000) = True)
+      (Nat.Linear.ExprCnstr.eq_true_of_isValid (Lean.RArray.leaf (bad 42000))
+        { eq := true, lhs := Nat.Linear.Expr.mulL 2 (Nat.Linear.Expr.var 0),
+          rhs := (Nat.Linear.Expr.var 0).add (Nat.Linear.Expr.var 0) }
+        (Eq.refl true)))
+
+-- fails
+theorem foo5 : 2 * bad 42000 = bad 42000 + bad 42000 :=
+  of_eq_true
+    (@id ((Nat.mul 2 (bad 42000) = Nat.add (bad 42000) (bad 42000)) = True)
+      (Nat.Linear.ExprCnstr.eq_true_of_isValid (Lean.RArray.leaf (bad 42000))
+        { eq := true, lhs := Nat.Linear.Expr.mulL 2 (Nat.Linear.Expr.var 0),
+          rhs := (Nat.Linear.Expr.var 0).add (Nat.Linear.Expr.var 0) }
+        (Eq.refl true)))
+
+
+theorem foo6 : 2 * bad 42000 = 0         := sorryAx ((Nat.mul 2 (bad 42000) = 0))
+theorem foo7 : Nat.mul 2 (bad 42000) = 0 := sorryAx ((2 * (bad 42000) = 0))
+
+theorem foo8 : (Nat.mul 2 (bad 42000) = Nat.add (bad 42000) (bad 42000)) :=
+  of_eq_true
+    (@id ((Nat.mul 2 (bad 42000) = Nat.add (bad 42000) (bad 42000)) = True)
+      (Nat.Linear.ExprCnstr.eq_true_of_isValid (Lean.RArray.leaf (bad 42000))
+        { eq := true, lhs := Nat.Linear.Expr.mulL 2 (Nat.Linear.Expr.var 0),
+          rhs := (Nat.Linear.Expr.var 0).add (Nat.Linear.Expr.var 0) }
+        (Eq.refl true)))

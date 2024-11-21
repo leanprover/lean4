@@ -772,6 +772,12 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
 @[simp] theorem toNat_or (x y : BitVec v) :
     BitVec.toNat (x ||| y) = BitVec.toNat x ||| BitVec.toNat y := rfl
 
+@[simp] theorem toInt_or (x y : BitVec w) :
+    BitVec.toInt (x ||| y) = Int.bmod (BitVec.toNat x ||| BitVec.toNat y) (2^w) := by
+  rw_mod_cast [Int.bmod_def, BitVec.toInt, toNat_or, Nat.mod_eq_of_lt
+    (Nat.or_lt_two_pow (BitVec.isLt x) (BitVec.isLt y))]
+  omega
+
 @[simp] theorem toFin_or (x y : BitVec v) :
     BitVec.toFin (x ||| y) = BitVec.toFin x ||| BitVec.toFin y := by
   apply Fin.eq_of_val_eq
@@ -839,6 +845,12 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
 @[simp] theorem toNat_and (x y : BitVec v) :
     BitVec.toNat (x &&& y) = BitVec.toNat x &&& BitVec.toNat y := rfl
 
+@[simp] theorem toInt_and (x y : BitVec w) :
+    BitVec.toInt (x &&& y) = Int.bmod (BitVec.toNat x &&& BitVec.toNat y) (2^w) := by
+  rw_mod_cast [Int.bmod_def, BitVec.toInt, toNat_and, Nat.mod_eq_of_lt
+    (Nat.and_lt_two_pow x.toNat (BitVec.isLt y))]
+  omega
+
 @[simp] theorem toFin_and (x y : BitVec v) :
     BitVec.toFin (x &&& y) = BitVec.toFin x &&& BitVec.toFin y := by
   apply Fin.eq_of_val_eq
@@ -905,6 +917,12 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) wher
 
 @[simp] theorem toNat_xor (x y : BitVec v) :
     BitVec.toNat (x ^^^ y) = BitVec.toNat x ^^^ BitVec.toNat y := rfl
+
+@[simp] theorem toInt_xor (x y : BitVec w) :
+    BitVec.toInt (x ^^^ y) = Int.bmod (BitVec.toNat x ^^^ BitVec.toNat y) (2^w) := by
+  rw_mod_cast [Int.bmod_def, BitVec.toInt, toNat_xor, Nat.mod_eq_of_lt
+    (Nat.xor_lt_two_pow (BitVec.isLt x) (BitVec.isLt y))]
+  omega
 
 @[simp] theorem toFin_xor (x y : BitVec v) :
     BitVec.toFin (x ^^^ y) = BitVec.toFin x ^^^ BitVec.toFin y := by
@@ -982,6 +1000,13 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
         calc BitVec.toNat x < 2 ^ v := isLt _
           _ ≤ 2 ^ i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two w
       · simp
+
+@[simp] theorem toInt_not {x : BitVec w} :
+    (~~~x).toInt = Int.bmod (2^w - 1 - x.toNat) (2^w) := by
+  rw_mod_cast [BitVec.toInt, BitVec.toNat_not, Int.bmod_def]
+  simp [show ((2^w : Nat) : Int) - 1 - x.toNat = ((2^w - 1 - x.toNat) : Nat) by omega]
+  rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
+  omega
 
 @[simp] theorem ofInt_negSucc_eq_not_ofNat {w n : Nat} :
     BitVec.ofInt w (Int.negSucc n) = ~~~.ofNat w n := by

@@ -464,8 +464,7 @@ Note that it is the caller's job to remove the file after use.
 
 /--
 Creates a temporary directory in the most secure manner possible. There are no race conditions in the
-file’s creation. The file is readable and writable only by the creating user ID. Additionally
-on UNIX style platforms the file is executable by nobody.
+directory’s creation. The directory is readable and writable only by the creating user ID.
 
 Returns the new directory's path.
 

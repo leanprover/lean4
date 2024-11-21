@@ -39,6 +39,7 @@ private def baseNames : Array Name :=
     ``getThenInsertIfNew?_snd_eq, ``getThenInsertIfNew?_snd_val,
     ``map_eq, ``map_val,
     ``filter_eq, ``filter_val,
+    ``insertList_eq, ``insertList_val,
     ``erase_eq, ``erase_val,
     ``filterMap_eq, ``filterMap_val,
     ``Const.getThenInsertIfNew?_snd_eq, ``Const.getThenInsertIfNew?_snd_val,
@@ -1039,7 +1040,7 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
 
 @[simp]
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
-    k ∈ m.keys ↔ k ∈ m := by 
+    k ∈ m.keys ↔ k ∈ m := by
   rw [mem_iff_contains]
   simp_to_raw using Raw₀.mem_keys ⟨m, _⟩ h
 

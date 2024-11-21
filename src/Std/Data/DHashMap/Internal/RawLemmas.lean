@@ -951,7 +951,7 @@ theorem contains_of_beq [EquivBEq α][LawfulHashable α] {k k': α} (k_eq: k == 
   intro h'
   apply containsKey_of_beq h' k_eq
 
-theorem get_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k)]{k_eq: k == k'} {mem_list: ¬ k ∈ (l.map (Sigma.fst))} (h: m.1.WF):
+theorem get_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {k_eq: k == k'} {mem_list: ¬ k ∈ (l.map (Sigma.fst))} (h: m.1.WF):
     (h': m.contains k = true) → (m.insertList l).get k' (contains_insertList_of_contains_map m h k_eq h') = m.get k' (contains_of_beq m k_eq h h') := by
   simp_to_model using getValueCast_insertList_not_toInsert_mem
 

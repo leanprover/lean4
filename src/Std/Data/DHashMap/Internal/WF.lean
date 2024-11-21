@@ -757,6 +757,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   · next h => exact Raw₀.wfImp_getThenInsertIfNew? (by apply h)
   · next h => exact Raw₀.wfImp_filter (by apply h)
   · next h => exact Raw₀.Const.wfImp_getThenInsertIfNew? (by apply h)
+  · next h => exact Raw₀.wfImp_insertList (by apply h)
 
 end Raw
 

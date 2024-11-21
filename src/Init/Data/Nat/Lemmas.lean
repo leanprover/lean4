@@ -691,17 +691,13 @@ theorem mod_eq_sub_of_le_of_lt {x w n : Nat} (x_ge : w * n ≤ x) (x_lt : x < w 
     · by_cases h_w : w = 0
       · subst h_w
         omega
-      · have hh : 0 < w := by omega
-        by_cases h : w * (nn + 1) = x
+      · by_cases h : w * (nn + 1) = x
         · subst h
           have : w * (nn + 1) - w = w * nn := by rw [Nat.mul_add, Nat.mul_one, Nat.add_sub_cancel]
           omega
         · have hh : w * (nn + 1) < x := by omega
-          simp [Nat.mul_add, Nat.mul_one] at hh
-          have hhh : (w * nn + w < x) = (w * nn < x - w) := by
-            simp
-            omega
-          rw [hhh] at hh
+          simp_all [Nat.mul_add, Nat.mul_one,
+            show (w * nn + w < x) = (w * nn < x - w) by simp only [eq_iff_iff]; omega, ge_iff_le, h, hh, h_w, x_lt, x_ge]
           omega
     · rw [Nat.mul_add, Nat.mul_one]
       by_cases h : w * (nn + 1) = x
@@ -709,13 +705,13 @@ theorem mod_eq_sub_of_le_of_lt {x w n : Nat} (x_ge : w * n ≤ x) (x_lt : x < w 
         rw [Nat.mul_add, Nat.mul_one, Nat.add_sub_cancel]
         by_cases hh : 0 < w
         · omega
-        · simp_all [show w = 0 by omega]
+        · simp_all only [show w = 0 by omega, Nat.zero_mul, zero_le, not_lt_zero, mod_zero,
+            Nat.sub_zero, implies_true, imp_self, Nat.le_refl, Nat.lt_irrefl]
       · by_cases hh : 0 < w
-        · have hh : w * (nn + 1) < x := by omega
-          have hhhh : (x - w < w * nn + w) = (x < w * nn + w * 2) := by simp; omega
-          rw [← Nat.mul_add] at hhhh
-          simp_all
-        · simp_all [show w = 0 by omega]
+        · simp only [show (x - w < w * nn + w) = (x < w * nn + w * 2) by simp only [eq_iff_iff]; omega, ←
+            Nat.mul_add, x_lt]
+        · simp_all [show w = 0 by omega, Nat.zero_mul, zero_le, not_lt_zero, mod_zero,
+            Nat.sub_zero, implies_true, imp_self, h, x_ge, x_lt]
     · have : w ≤ w * (nn + 1) := by rw [Nat.mul_add, Nat.mul_one]; omega
       omega
 

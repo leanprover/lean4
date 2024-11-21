@@ -1,7 +1,8 @@
 # This workflow allows any user to add one of the `awaiting-review`, `awaiting-author`, `WIP`,
-# or `release-ci` labels by commenting on the PR or issue.
+# `release-ci`, or a `changelog-XXX` label by commenting on the PR or issue.
 # If any labels from the set {`awaiting-review`, `awaiting-author`, `WIP`} are added, other labels
 # from that set are removed automatically at the same time.
+# Similarly, if any `changelog-XXX` label is added, other `changelog-YYY` labels are removed.
 
 name: Label PR based on Comment
 
@@ -11,7 +12,7 @@ on:
 
 jobs:
   update-label:
-    if: github.event.issue.pull_request != null && (contains(github.event.comment.body, 'awaiting-review') || contains(github.event.comment.body, 'awaiting-author') || contains(github.event.comment.body, 'WIP') || contains(github.event.comment.body, 'release-ci'))
+    if: github.event.issue.pull_request != null && (contains(github.event.comment.body, 'awaiting-review') || contains(github.event.comment.body, 'awaiting-author') || contains(github.event.comment.body, 'WIP') || contains(github.event.comment.body, 'release-ci') || contains(github.event.comment.body, 'changelog-'))
     runs-on: ubuntu-latest
 
     steps:
@@ -20,13 +21,14 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const { owner, repo, number: issue_number  } = context.issue;
+          const { owner, repo, number: issue_number } = context.issue;
           const commentLines = context.payload.comment.body.split('\r\n');
 
           const awaitingReview = commentLines.includes('awaiting-review');
           const awaitingAuthor = commentLines.includes('awaiting-author');
           const wip = commentLines.includes('WIP');
           const releaseCI = commentLines.includes('release-ci');
+          const changelogMatch = commentLines.find(line => line.startsWith('changelog-'));
 
           if (awaitingReview || awaitingAuthor || wip) {
             await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'awaiting-review' }).catch(() => {});
@@ -46,4 +48,20 @@ jobs:
 
           if (releaseCI) {
             await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['release-ci'] });
+          }
+
+          if (changelogMatch) {
+            const changelogLabel = changelogMatch.trim();
+            const { data: existingLabels } = await github.rest.issues.listLabelsOnIssue({ owner, repo, issue_number });
+            const changelogLabels = existingLabels.filter(label => label.name.startsWith('changelog-'));
+
+            // Remove all other changelog labels
+            for (const label of changelogLabels) {
+              if (label.name !== changelogLabel) {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number, name: label.name }).catch(() => {});
+              }
+            }
+
+            // Add the new changelog label
+            await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [changelogLabel] });
           }

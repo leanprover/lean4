@@ -899,39 +899,49 @@ theorem contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: L
     (m.insertList l).contains k ↔ m.contains k ∨ (l.map Sigma.fst).contains k := by
   simp_to_model using List.containsKey_insertList
 
-theorem contains_insertList_of_contains_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} {v: β k}: ⟨k,v⟩ ∈ l → (m.insertList l).contains k := by
-  rw [contains_insertList _ h]
-  rw [List.contains_iff_exists_mem_beq]
-  intro h
-  right
-  exists k
-  simp
-  exists ⟨k,v⟩
+theorem contains_insertList_of_mem_list [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k k': α} (k_eq: k == k') {v: β k}: ⟨k,v⟩ ∈ l → (m.insertList l).contains k' := by
+  simp_to_model using contains_insertList_of_mem
 
 
 theorem contains_of_contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α} :
     (m.insertList l).contains k → (l.map Sigma.fst).contains k = false → m.contains k := by
   simp_to_model using List.containsKey_of_containsKey_insertList
 
+theorem contains_insertList_of_contains_map [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k k': α} (k_eq: k == k'): m.contains k = true → (m.insertList l).contains k' := by
+  simp_to_model using contains_insertList_of_contains_first
+
 theorem get?_insertList_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).get? k' = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
   simp_to_model using getValueCast?_insertList_toInsert_mem
 
 
-theorem get?_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k: α} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {mem: ¬ k ∈ (l.map (Sigma.fst))} (h: m.1.WF): (m.insertList l).get? k = m.get? k := by
-  simp_to_model
-  sorry
+theorem get?_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF): (m.insertList l).get? k' = m.get? k' := by
+  simp_to_model using getValueCast?_insertList_not_toInsert_mem
 
 theorem get!_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k')] {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).get! k' = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
-  simp_to_model
-  sorry
+  simp_to_model using getValueCast!_insertList_toInsert_mem
+
+theorem get!_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} [Inhabited (β k')] {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF): (m.insertList l).get! k' = m.get! k' := by
+  simp_to_model using getValueCast!_insertList_not_toInsert_mem
 
 theorem getD_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k} {fallback: β k'} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).getD k' fallback = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
-  simp_to_model
-  sorry
+  simp_to_model using getValueCastD_insertList_toInsert_mem
 
-theorem get_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k)] {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).get k (contains_insertList_of_contains_list _ h mem)= v := by
+theorem getD_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {fallback: β k'} {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF): (m.insertList l).getD k' fallback = m.getD k' fallback := by
+  simp_to_model using getValueCastD_insertList_not_toInsert_mem
+
+
+theorem get_insertList_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF): (m.insertList l).get k' (contains_insertList_of_mem_list _ h k_eq mem)= cast (by congr; apply LawfulBEq.eq_of_beq k_eq ) v := by
+  simp_to_model using getValueCast_insertList_toInsert_mem
+
+theorem contains_of_beq [EquivBEq α][LawfulHashable α] {k k': α} (k_eq: k == k') (h: m.1.WF):
+    m.contains k = true → m.contains k' = true := by
   simp_to_model
-  sorry
+  intro h'
+  apply containsKey_of_beq h' k_eq
+
+theorem get_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k)]{k_eq: k == k'} {mem_list: ¬ k ∈ (l.map (Sigma.fst))} (h: m.1.WF):
+    (h': m.contains k = true) → (m.insertList l).get k' (contains_insertList_of_contains_map m h k_eq h') = m.get k' (contains_of_beq m k_eq h h') := by
+  simp_to_model using getValueCast_insertList_not_toInsert_mem
 
 theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: DistinctKeys l} (h: m.1.WF): (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) →  (m.insertList l).1.size = m.1.size + l.length := by
   simp_to_model
@@ -943,10 +953,12 @@ theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (�
   . exact distinct
   . apply distinct'
 
-theorem insertList_notEmpty_if_m_notEmpty [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))}(h: m.1.WF): (m.1.isEmpty = false) → (m.insertList l).1.isEmpty  = false := by
+theorem insertList_notEmpty_if_m_notEmpty [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))}(h: m.1.WF):
+    (m.1.isEmpty = false) → (m.insertList l).1.isEmpty  = false := by
   simp_to_model using List.insertList_not_isEmpty_if_start_not_isEmpty
 
-theorem insertList_isEmpty [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))}(h: m.1.WF): (m.insertList l).1.isEmpty ↔ m.1.isEmpty ∧ l.isEmpty := by
+theorem insertList_isEmpty [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))}(h: m.1.WF):
+    (m.insertList l).1.isEmpty ↔ m.1.isEmpty ∧ l.isEmpty := by
   simp_to_model using List.insertList_isEmpty
 end Raw₀
 

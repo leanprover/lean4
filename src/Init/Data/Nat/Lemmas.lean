@@ -679,6 +679,46 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
 @[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
   rw [mul_mod, mod_mod, ← mul_mod]
 
+@[simp]
+theorem mod_eq_sub_of_le_of_lt {x w n : Nat} (x_ge : w * n ≤ x) (x_lt : x < w * (n + 1)) :
+    x % w = x - w * n := by
+  induction n generalizing x
+  case zero =>
+    simp_all [Nat.mul_zero, Nat.mod_eq_of_lt]
+  case succ nn ih =>
+    rw [Nat.mod_eq_sub_mod, ih]
+    · rw [← Nat.sub_add_eq, Nat.mul_add, Nat.add_comm, Nat.mul_one]
+    · by_cases h_w : w = 0
+      · subst h_w
+        omega
+      · have hh : 0 < w := by omega
+        by_cases h : w * (nn + 1) = x
+        · subst h
+          have : w * (nn + 1) - w = w * nn := by rw [Nat.mul_add, Nat.mul_one, Nat.add_sub_cancel]
+          omega
+        · have hh : w * (nn + 1) < x := by omega
+          simp [Nat.mul_add, Nat.mul_one] at hh
+          have hhh : (w * nn + w < x) = (w * nn < x - w) := by
+            simp
+            omega
+          rw [hhh] at hh
+          omega
+    · rw [Nat.mul_add, Nat.mul_one]
+      by_cases h : w * (nn + 1) = x
+      · subst h
+        rw [Nat.mul_add, Nat.mul_one, Nat.add_sub_cancel]
+        by_cases hh : 0 < w
+        · omega
+        · simp_all [show w = 0 by omega]
+      · by_cases hh : 0 < w
+        · have hh : w * (nn + 1) < x := by omega
+          have hhhh : (x - w < w * nn + w) = (x < w * nn + w * 2) := by simp; omega
+          rw [← Nat.mul_add] at hhhh
+          simp_all
+        · simp_all [show w = 0 by omega]
+    · have : w ≤ w * (nn + 1) := by rw [Nat.mul_add, Nat.mul_one]; omega
+      omega
+
 /-! ### pow -/
 
 theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by

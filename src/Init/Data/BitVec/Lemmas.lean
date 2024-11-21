@@ -3044,7 +3044,7 @@ theorem append_assoc_right {a b c : Nat} (x : BitVec a) (y : BitVec b) (z : BitV
 
 theorem append_replicate_comm {n w : Nat} {x : BitVec w} :
     have : w * n + w = w + w * n := by rw [Nat.add_comm]
-    x ++ (replicate n x) = cast (by omega) (replicate n x ++ x) := by
+    (replicate n x) ++ x = cast (by omega) (x ++ replicate n x) := by
   induction n generalizing x
   case zero => simp
   case succ nn ih =>
@@ -3053,18 +3053,55 @@ theorem append_replicate_comm {n w : Nat} {x : BitVec w} :
     norm_cast
 
 @[simp]
+theorem mod_eq_sub_of_le_of_lt' {x w n : Nat} (x_ge : w * n ≤ x) (x_lt : x < w * (n + 1)) : 
+    x % w = x - w * n := by 
+  induction n generalizing x 
+  case zero => simp; omega
+  case succ nn ih => 
+    rw [Nat.mod_eq_sub_mod, ih]
+    · rw [← Nat.sub_add_eq, Nat.mul_add, Nat.add_comm, Nat.mul_one]
+    · by_cases h_w : w = 0
+      · subst h_w
+        omega
+      · have hh : 0 < w := by omega
+        by_cases h : w * (nn + 1) = x
+        · subst h 
+          omega
+        · have hhh : w < x := by omega
+          omega
+    · by_cases h : w = 0
+      · subst h 
+        omega
+      · have hhhh : 0 < w := by omega
+        have h : x < w * (nn + 2) := by omega
+        have hh : w * (nn + 1) < w * (nn + 2) := by omega
+        have hhh : x - w < w * (nn + 2) - w := by rw [Nat.sub+
+        sorry
+    · omega
+  
+
+@[simp]
 theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getMsbD i =
     (decide (i < w * n) && x.getMsbD (i % w)) := by
   induction n generalizing x
   case zero => simp
   case succ n ih =>
-    simp [replicate_succ_eq]
-    by_cases h₀ : w ≤ i
+    rw [replicate_succ_eq, ←append_replicate_comm]
+    simp [getMsbD_append, ih]
+    by_cases h₀ : w * n ≤ i 
     · simp [h₀]
-      sorry
-    · simp [h₀]
-      by_cases h₁ : i < w
+      by_cases h₁ : i < w * (n + 1)
+      · simp [h₁]
+        congr 1 
+        rw [mod_eq_sub_of_le_of_lt']
+        ·  
+        sorry
+        · sorry
+        · sorry
+      · simp [h₁]
+        sorry
+    · 
       sorry
 
 @[simp]

@@ -3002,6 +3002,11 @@ theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
   have := @Nat.two_pow_pred_mul_two w (by omega)
   split <;> split <;> omega
 
+theorem toInt_neg_eq_ite {x : BitVec w} :
+    (-x).toInt = if x = intMin w then x.toInt else -(x.toInt) := by
+  by_cases hx : x = intMin w <;>
+    simp [hx, neg_intMin, toInt_neg_of_ne_intMin]
+
 theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
   by_cases h : 0 < w <;> simp_all

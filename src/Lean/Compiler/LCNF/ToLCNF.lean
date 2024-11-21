@@ -499,8 +499,8 @@ where
       match app with
       | .fvar f =>
         let mut argsNew := #[]
-        for i in [arity : args.size] do
-          argsNew := argsNew.push (← visitAppArg args[i]!)
+        for h :i in [arity : args.size] do
+          argsNew := argsNew.push (← visitAppArg args[i])
         letValueToArg <| .fvar f argsNew
       | .erased | .type .. => return .erased
 

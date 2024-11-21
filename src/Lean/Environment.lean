@@ -464,6 +464,9 @@ def toKernelEnvUnchecked (env : Environment) : Kernel.Environment := Id.run do
 def toKernelEnv (env : Environment) : Kernel.Environment :=
   env.checked.get.kernel
 
+def constants (env : Environment) : ConstMap :=
+  env.checked.get.kernel.constants
+
 def getImportedConstants (env : Environment) : Std.HashMap Name ConstantInfo :=
   env.checkedNoAsync.kernel.constants.map₁
 

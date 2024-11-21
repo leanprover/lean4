@@ -3154,12 +3154,11 @@ theorem toInt_abs {x : BitVec w} :
   · simp [hx]
   · simp [hx]
     by_cases hx₂ : x.msb
-    · simp only [abs_eq, hx₂, ↓reduceIte, toInt_neg_of_ne_intMin hx]
+    · simp [hx₂, abs_eq, toInt_neg_of_ne_intMin hx]
     · simp [hx₂, hx, abs_eq]
 
 /--
-A variant of `toInt_abs` that
-hides the case split for `x` being positive or negative by using `natAbs`.
+A variant of `toInt_abs` that hides the case split for `x` being positive or negative by using `natAbs`.
 -/
 theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
     if x = intMin w then (intMin w).toInt else x.toInt.natAbs := by
@@ -3168,13 +3167,13 @@ theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
   · simp [hx]
   · simp [hx]
     by_cases h : x.msb
-    · simp [h]
+    · simp only [h, ↓reduceIte]
       have : x.toInt < 0 := by
         rw [toInt_neg_iff]
         have := msb_eq_true_iff_two_mul_ge.mp h
         omega
       omega
-    · simp [h]
+    · simp only [h, Bool.false_eq_true, ↓reduceIte]
       have : 0 ≤ x.toInt := by
         rw [toInt_pos_iff]
         exact msb_eq_false_iff_two_mul_lt.mp (by simp [h])

@@ -3136,6 +3136,50 @@ theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
+/-
+The absolute value of `x : BitVec w` is naively a case split on the sign of `x`.
+However, recall that when `x = intMin w`, `-x = x`.
+Thus, the full value of `abs x` is computed by the case split:
+- If `x : BitVec w` is `intMin`, then its absolute value is also `intMin w`, and
+  thus `toInt` will equal `intMin.toInt`.
+- Otherwise, if `x` is negative, then `x.abs.toInt = (-x).toInt`.
+- If `x` is positive, then it is equal to `x.abs.toInt = x.toInt`.
+-/
+theorem toInt_abs {x : BitVec w} :
+  x.abs.toInt =
+    if x = intMin w then (intMin w).toInt
+    else if x.msb then -x.toInt
+    else x.toInt := by
+  by_cases hx : x = intMin w
+  · simp [hx]
+  · simp [hx]
+    by_cases hx₂ : x.msb
+    · simp only [abs_eq, hx₂, ↓reduceIte, toInt_neg_of_ne_intMin hx]
+    · simp [hx₂, hx, abs_eq]
+
+/--
+A variant of `toInt_abs` that
+hides the case split for `x` being positive or negative by using `natAbs`.
+-/
+theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
+    if x = intMin w then (intMin w).toInt else x.toInt.natAbs := by
+  rw [toInt_abs]
+  by_cases hx : x = intMin w
+  · simp [hx]
+  · simp [hx]
+    by_cases h : x.msb
+    · simp [h]
+      have : x.toInt < 0 := by
+        rw [toInt_neg_iff]
+        have := msb_eq_true_iff_two_mul_ge.mp h
+        omega
+      omega
+    · simp [h]
+      have : 0 ≤ x.toInt := by
+        rw [toInt_pos_iff]
+        exact msb_eq_false_iff_two_mul_lt.mp (by simp [h])
+      omega
+
 /-! ### Decidable quantifiers -/
 
 theorem forall_zero_iff {P : BitVec 0 → Prop} :

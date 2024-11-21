@@ -173,15 +173,15 @@ private def checkUnsafe (rs : Array ElabHeaderResult) : TermElabM Unit := do
       throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes"
 
 private def InductiveView.checkLevelNames (views : Array InductiveView) : TermElabM Unit := do
-  if views.size > 1 then
-    let levelNames := views[0]!.levelNames
+  if h : views.size > 1 then
+    let levelNames := views[0].levelNames
     for view in views do
       unless view.levelNames == levelNames do
         throwErrorAt view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
 
 private def ElabHeaderResult.checkLevelNames (rs : Array ElabHeaderResult) : TermElabM Unit := do
-  if rs.size > 1 then
-    let levelNames := rs[0]!.levelNames
+  if h : rs.size > 1 then
+    let levelNames := rs[0].levelNames
     for r in rs do
       unless r.levelNames == levelNames do
         throwErrorAt r.view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
@@ -433,8 +433,8 @@ where
         let mut args := e.getAppArgs
         unless args.size ≥ params.size do
           throwError "unexpected inductive type occurrence{indentExpr e}"
-        for i in [:params.size] do
-          let param := params[i]!
+        for h : i in [:params.size] do
+          let param := params[i]
           let arg := args[i]!
           unless (← isDefEq param arg) do
             throwError "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
@@ -694,8 +694,8 @@ private def collectLevelParamsInInductive (indTypes : List InductiveType) : Arra
 private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := Id.run do
   let levelParams := levelNames.map mkLevelParam;
   let mut m : ExprMap Expr := {}
-  for i in [:views.size] do
-    let view    := views[i]!
+  for h : i in [:views.size] do
+    let view    := views[i]
     let indFVar := indFVars[i]!
     m := m.insert indFVar (mkConst view.declName levelParams)
   return m
@@ -856,9 +856,9 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
     withInductiveLocalDecls rs fun params indFVars => do
       trace[Elab.inductive] "indFVars: {indFVars}"
       let mut indTypesArray := #[]
-      for i in [:views.size] do
+      for h : i in [:views.size] do
         let indFVar := indFVars[i]!
-        Term.addLocalVarInfo views[i]!.declId indFVar
+        Term.addLocalVarInfo views[i].declId indFVar
         let r     := rs[i]!
         /- At this point, because of `withInductiveLocalDecls`, the only fvars that are in context are the ones related to the first inductive type.
            Because of this, we need to replace the fvars present in each inductive type's header of the mutual block with those of the first inductive.

@@ -122,8 +122,8 @@ def mkHCongr (f : Expr) : MetaM CongrTheorem := do
 private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind) : Array CongrArgKind := Id.run do
   let mut kinds := kinds
   for i in [:info.paramInfo.size] do
-    for j in [i+1:info.paramInfo.size] do
-      if info.paramInfo[j]!.backDeps.contains i then
+    for hj : j in [i+1:info.paramInfo.size] do
+      if info.paramInfo[j].backDeps.contains i then
         if kinds[j]! matches CongrArgKind.eq || kinds[j]! matches CongrArgKind.fixed then
           -- We must fix `i` because there is a `j` that depends on `i` and `j` is not cast-fixed.
           kinds := kinds.set! i CongrArgKind.fixed

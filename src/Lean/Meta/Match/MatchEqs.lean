@@ -557,8 +557,8 @@ where
         let mut minorBodyNew := minor
         -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
         let mut m ← read
-        for i in [:isAlt.size] do
-          if isAlt[i]! then
+        for h : i in [:isAlt.size] do
+          if isAlt[i] then
             -- `convertTemplate` will correct occurrences of the alternative
             let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
             let some (_, numParams, argMask) := m.find? alt.fvarId! | unreachable!

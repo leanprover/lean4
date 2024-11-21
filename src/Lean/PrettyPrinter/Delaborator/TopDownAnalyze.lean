@@ -308,12 +308,12 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     let args := e.getAppArgs
     let fType ← replaceLPsWithVars (← inferType e.getAppFn)
     let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType e.getAppArgs.size
-    for i in [:mvars.size] do
+    for h : i in [:mvars.size] do
       if bInfos[i]! == BinderInfo.instImplicit then
-        inspectOutParams args[i]! mvars[i]!
+        inspectOutParams args[i]! mvars[i]
       else if bInfos[i]! == BinderInfo.default then
-        if ← isTrivialBottomUp args[i]! then tryUnify args[i]! mvars[i]!
-        else if ← typeUnknown mvars[i]! <&&> canBottomUp args[i]! (some mvars[i]!) fuel then tryUnify args[i]! mvars[i]!
+        if ← isTrivialBottomUp args[i]! then tryUnify args[i]! mvars[i]
+        else if ← typeUnknown mvars[i] <&&> canBottomUp args[i]! (some mvars[i]) fuel then tryUnify args[i]! mvars[i]
     if ← (pure (isHBinOp e) <&&> (valUnknown mvars[0]! <||> valUnknown mvars[1]!)) then tryUnify mvars[0]! mvars[1]!
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     return !(← valUnknown resultType)
@@ -487,22 +487,22 @@ mutual
     collectBottomUps := do
       let { args, mvars, bInfos, ..} ← read
       for target in [fun _ => none, fun i => some mvars[i]!] do
-        for i in [:args.size] do
+        for h : i in [:args.size] do
           if bInfos[i]! == BinderInfo.default then
-            if ← typeUnknown mvars[i]! <&&> canBottomUp args[i]! (target i) then
+            if ← typeUnknown mvars[i]! <&&> canBottomUp args[i] (target i) then
               tryUnify args[i]! mvars[i]!
               modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     checkOutParams := do
       let { args, mvars, bInfos, ..} ← read
-      for i in [:args.size] do
-        if bInfos[i]! == BinderInfo.instImplicit then inspectOutParams args[i]! mvars[i]!
+      for h : i in [:args.size] do
+        if bInfos[i]! == BinderInfo.instImplicit then inspectOutParams args[i] mvars[i]!
 
     collectHigherOrders := do
       let { args, mvars, bInfos, ..} ← read
-      for i in [:args.size] do
+      for h : i in [:args.size] do
         if !(bInfos[i]! == BinderInfo.implicit || bInfos[i]! == BinderInfo.strictImplicit) then continue
-        if !(← isHigherOrder (← inferType args[i]!)) then continue
+        if !(← isHigherOrder (← inferType args[i])) then continue
         if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i]! then continue
 
         if getPPAnalyzeTrustKnownFOType2TypeHOFuns (← getOptions) && !(← valUnknown mvars[i]!)
@@ -520,9 +520,9 @@ mutual
       -- motivation: prevent levels from printing in
       -- Boo.mk : {α : Type u_1} → {β : Type u_2} → α → β → Boo.{u_1, u_2} α β
       let { args, mvars, bInfos, ..} ← read
-      for i in [:args.size] do
+      for h : i in [:args.size] do
         if bInfos[i]! == BinderInfo.default then
-          if ← valUnknown mvars[i]! <&&> isTrivialBottomUp args[i]! then
+          if ← valUnknown mvars[i]! <&&> isTrivialBottomUp args[i] then
             tryUnify args[i]! mvars[i]!
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 

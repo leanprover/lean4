@@ -19,12 +19,12 @@ def expandOptPrecedence (stx : Syntax) : MacroM (Option Nat) :=
     return some (← evalPrec stx[0][1])
 
 private def mkParserSeq (ds : Array (Term × Nat)) : TermElabM (Term × Nat) := do
-  if ds.size == 0 then
+  if h₀ : ds.size = 0 then
     throwUnsupportedSyntax
-  else if ds.size == 1 then
-    pure ds[0]!
+  else if h₁ : ds.size = 1 then
+    pure ds[0]
   else
-    let mut (r, stackSum) := ds[0]!
+    let mut (r, stackSum) := ds[0]
     for (d, stackSz) in ds[1:ds.size] do
       r ← `(ParserDescr.binary `andthen $r $d)
       stackSum := stackSum + stackSz

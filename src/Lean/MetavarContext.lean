@@ -1179,7 +1179,8 @@ mutual
         if (← read).mvarIdsToAbstract.contains mvarId then
           return mkAppN f (← args.mapM (visit xs))
         else
-          return (← elimMVar xs mvarId args true).1
+          -- We set `usedLetOnly := true` to avoid unnecessary let binders in the new metavariable type.
+          return (← elimMVar xs mvarId args (usedLetOnly := true)).1
     | _ =>
       return mkAppN (← visit xs f) (← args.mapM (visit xs))
 
@@ -1201,7 +1202,9 @@ partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M Expr :=
 -/
 partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) :=
   withFreshCache do
-    elimMVar xs mvarId #[] false
+    -- We set `usedLetOnly := false`, because in the `revert` tactic
+    -- we expect that reverting a let variable always results in a let binder.
+    elimMVar xs mvarId #[] (usedLetOnly := false)
 
 /--
   Similar to `Expr.abstractRange`, but handles metavariables correctly.

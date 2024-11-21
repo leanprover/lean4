@@ -2644,12 +2644,6 @@ theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
       if h' : i < r % w then x[(w - (r % w) + i)] else x[i - (r % w)] := by
   simp [← BitVec.getLsbD_eq_getElem, h]
 
-/-- If `w ≤ x < 2 * w`, then `x % w = x - w` -/
-theorem mod_eq_sub_of_le_of_lt {x w : Nat} (x_le : w ≤ x) (x_lt : x < 2 * w) :
-    x % w = x - w := by
-  rw [Nat.mod_eq_sub_mod, Nat.mod_eq_of_lt (by omega)]
-  omega
-
 theorem getMsbD_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} {i : Nat} (hi : i < w - r) :
     (x.rotateLeftAux r).getMsbD i = x.getMsbD (r + i) := by
   rw [rotateLeftAux, getMsbD_or]
@@ -2671,9 +2665,11 @@ theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
       by_cases h₁ : n < w + 1
       · simp only [h₁, decide_true, Bool.true_and]
         have h₂ : (r + n) < 2 * (w + 1) := by omega
-        rw [mod_eq_sub_of_le_of_lt (by omega) (by omega)]
+        rw [Nat.mod_eq_sub_of_le_of_lt (n := 1)]
         congr 1
-        omega
+        · omega
+        · omega
+        · omega
       · simp [h₁]
 
 theorem getMsbD_rotateLeft {r n w : Nat} {x : BitVec w} :

@@ -3155,7 +3155,7 @@ theorem toInt_abs {x : BitVec w} :
   · simp [hx]
     by_cases hx₂ : x.msb
     · simp [hx₂, abs_eq, toInt_neg_of_ne_intMin hx]
-    · simp [hx₂, hx, abs_eq]
+    · simp [hx₂, abs_eq]
 
 /--
 A variant of `toInt_abs` that hides the case split for `x` being positive or negative by using `natAbs`.

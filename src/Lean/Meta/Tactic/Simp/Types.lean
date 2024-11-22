@@ -178,8 +178,12 @@ def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (
     indexConfig := (← mkIndexConfig config)
   }
 
-def Context.setConfig (context : Context) (config : Config) : Context :=
-  { context with config }
+def Context.setConfig (context : Context) (config : Config) : MetaM Context := do
+  return { context with
+    config
+    metaConfig := (← mkMetaConfig config)
+    indexConfig := (← mkIndexConfig config)
+  }
 
 def Context.setSimpTheorems (c : Context) (simpTheorems : SimpTheoremsArray) : Context :=
   { c with simpTheorems }

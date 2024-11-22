@@ -88,7 +88,6 @@ static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____
 static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_56____closed__16;
 lean_object* l_Lean_registerSimpleScopedEnvExtension___rarg(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
-lean_object* l_Array_feraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Lean_labelled___closed__2;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__10;
@@ -139,6 +138,7 @@ static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____
 lean_object* l_Lean_TSyntax_getDocString(lean_object*);
 LEAN_EXPORT uint8_t l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___lambda__1(lean_object*);
 static lean_object* l_Lean_mkLabelExt___closed__1;
+lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__55;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__6;
@@ -813,7 +813,7 @@ lean_object* x_5; lean_object* x_6;
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = l_Array_feraseIdx___rarg(x_1, x_5);
+x_6 = l_Array_eraseIdx___rarg(x_1, x_5, lean_box(0));
 return x_6;
 }
 }

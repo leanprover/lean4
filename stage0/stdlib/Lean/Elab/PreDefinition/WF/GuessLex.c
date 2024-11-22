@@ -548,7 +548,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_instInhabitedMeasure;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_RecCallCache_mk___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMetaM;
 static lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_WF_GuessLex_mkProdElem___spec__1___closed__3;
-lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
+lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_GuessLex_mayOmitSizeOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_guessLex___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25344,7 +25344,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_GuessLex_s
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_9 = l_Array_eraseIdx___rarg(x_1, x_2);
+x_9 = l_Array_eraseIdx___rarg(x_1, x_2, lean_box(0));
 x_10 = lean_array_push(x_3, x_4);
 lean_inc(x_5);
 x_11 = l_Lean_Elab_WF_GuessLex_solve_go___rarg(x_5, x_9, x_6, x_10);
@@ -33419,7 +33419,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_guessLex__
 _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = l_Array_eraseIdx___rarg(x_1, x_2);
+x_12 = l_Array_eraseIdx___rarg(x_1, x_2, lean_box(0));
 x_13 = lean_array_push(x_3, x_4);
 x_14 = l_Lean_Elab_WF_GuessLex_solve_go___at_Lean_Elab_WF_guessLex___spec__8(x_12, x_5, x_13, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_14) == 0)

@@ -158,6 +158,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___lambda__5___closed__4;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__13(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_range___lambda__1___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___spec__1___closed__2;
@@ -188,6 +189,7 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Elab_PreDefinitio
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_Structural_getMutualFixedPrefix___spec__7___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_ofFn___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__1(lean_object*);
 lean_object* l_Lean_Elab_addNonRec___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -261,10 +263,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_withCommonTelescope_go___rarg(le
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_getFixedPrefix___closed__1;
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_inferRecArgPos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__4;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__5___closed__2;
-lean_object* l_Array_range(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_Structural_getMutualFixedPrefix___spec__7(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__6;
@@ -6511,6 +6513,14 @@ return x_9;
 }
 }
 }
+static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Array_range___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
@@ -6524,63 +6534,63 @@ return x_6;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; size_t x_15; size_t x_16; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; size_t x_16; size_t x_17; 
 x_8 = lean_array_uget(x_6, x_5);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_6, x_5, x_9);
 x_11 = lean_array_get_size(x_3);
-lean_inc(x_11);
-x_12 = l_Array_range(x_11);
-x_13 = lean_array_get_size(x_12);
-x_14 = lean_nat_dec_lt(x_9, x_13);
-x_15 = 1;
-x_16 = lean_usize_add(x_5, x_15);
-if (x_14 == 0)
+x_12 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1;
+x_13 = l_Array_ofFn___rarg(x_11, x_12);
+x_14 = lean_array_get_size(x_13);
+x_15 = lean_nat_dec_lt(x_9, x_14);
+x_16 = 1;
+x_17 = lean_usize_add(x_5, x_16);
+if (x_15 == 0)
 {
-lean_object* x_17; lean_object* x_18; 
+lean_object* x_18; lean_object* x_19; 
+lean_dec(x_14);
 lean_dec(x_13);
-lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_8);
-x_17 = l_Lean_Elab_Structural_withCommonTelescope___rarg___closed__1;
-x_18 = lean_array_uset(x_10, x_5, x_17);
-x_5 = x_16;
-x_6 = x_18;
+x_18 = l_Lean_Elab_Structural_withCommonTelescope___rarg___closed__1;
+x_19 = lean_array_uset(x_10, x_5, x_18);
+x_5 = x_17;
+x_6 = x_19;
 goto _start;
 }
 else
 {
-uint8_t x_20; 
-x_20 = lean_nat_dec_le(x_13, x_13);
-if (x_20 == 0)
+uint8_t x_21; 
+x_21 = lean_nat_dec_le(x_14, x_14);
+if (x_21 == 0)
 {
-lean_object* x_21; lean_object* x_22; 
+lean_object* x_22; lean_object* x_23; 
+lean_dec(x_14);
 lean_dec(x_13);
-lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_8);
-x_21 = l_Lean_Elab_Structural_withCommonTelescope___rarg___closed__1;
-x_22 = lean_array_uset(x_10, x_5, x_21);
-x_5 = x_16;
-x_6 = x_22;
+x_22 = l_Lean_Elab_Structural_withCommonTelescope___rarg___closed__1;
+x_23 = lean_array_uset(x_10, x_5, x_22);
+x_5 = x_17;
+x_6 = x_23;
 goto _start;
 }
 else
 {
-size_t x_24; size_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_24 = 0;
-x_25 = lean_usize_of_nat(x_13);
-lean_dec(x_13);
-x_26 = l_Lean_Elab_Structural_withCommonTelescope___rarg___closed__1;
+size_t x_25; size_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_25 = 0;
+x_26 = lean_usize_of_nat(x_14);
+lean_dec(x_14);
+x_27 = l_Lean_Elab_Structural_withCommonTelescope___rarg___closed__1;
 lean_inc(x_2);
 lean_inc(x_1);
-x_27 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__5(x_1, x_2, x_3, x_8, x_11, x_12, x_24, x_25, x_26);
-lean_dec(x_12);
+x_28 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__5(x_1, x_2, x_3, x_8, x_11, x_13, x_25, x_26, x_27);
+lean_dec(x_13);
 lean_dec(x_11);
 lean_dec(x_8);
-x_28 = lean_array_uset(x_10, x_5, x_27);
-x_5 = x_16;
-x_6 = x_28;
+x_29 = lean_array_uset(x_10, x_5, x_28);
+x_5 = x_17;
+x_6 = x_29;
 goto _start;
 }
 }
@@ -6695,86 +6705,88 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
+size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; 
 x_5 = lean_array_size(x_4);
 x_6 = 0;
 x_7 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6(x_1, x_2, x_3, x_5, x_6, x_4);
 x_8 = lean_array_get_size(x_3);
-x_9 = l_Array_range(x_8);
-x_10 = lean_array_get_size(x_7);
-x_11 = lean_unsigned_to_nat(0u);
-x_12 = lean_nat_dec_lt(x_11, x_10);
-x_13 = lean_array_get_size(x_9);
-if (x_12 == 0)
+x_9 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1;
+x_10 = l_Array_ofFn___rarg(x_8, x_9);
+lean_dec(x_8);
+x_11 = lean_array_get_size(x_7);
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = lean_nat_dec_lt(x_12, x_11);
+x_14 = lean_array_get_size(x_10);
+if (x_13 == 0)
 {
-lean_object* x_27; 
-lean_dec(x_10);
-x_27 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1;
-x_14 = x_27;
-goto block_26;
+lean_object* x_28; 
+lean_dec(x_11);
+x_28 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1;
+x_15 = x_28;
+goto block_27;
 }
 else
 {
-uint8_t x_28; 
-x_28 = lean_nat_dec_le(x_10, x_10);
-if (x_28 == 0)
+uint8_t x_29; 
+x_29 = lean_nat_dec_le(x_11, x_11);
+if (x_29 == 0)
 {
-lean_object* x_29; 
-lean_dec(x_10);
-x_29 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1;
-x_14 = x_29;
-goto block_26;
+lean_object* x_30; 
+lean_dec(x_11);
+x_30 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1;
+x_15 = x_30;
+goto block_27;
 }
 else
 {
-size_t x_30; lean_object* x_31; lean_object* x_32; 
-x_30 = lean_usize_of_nat(x_10);
-lean_dec(x_10);
-x_31 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1;
-x_32 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Structural_Positions_groupAndSort___spec__6(x_7, x_6, x_30, x_31);
-x_14 = x_32;
-goto block_26;
+size_t x_31; lean_object* x_32; lean_object* x_33; 
+x_31 = lean_usize_of_nat(x_11);
+lean_dec(x_11);
+x_32 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1;
+x_33 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Structural_Positions_groupAndSort___spec__6(x_7, x_6, x_31, x_32);
+x_15 = x_33;
+goto block_27;
 }
 }
-block_26:
+block_27:
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
-x_15 = lean_array_get_size(x_14);
-x_16 = lean_unsigned_to_nat(1u);
-x_17 = lean_nat_sub(x_15, x_16);
-lean_dec(x_15);
-lean_inc(x_14);
-x_18 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__3(x_14, x_11, x_17);
-lean_dec(x_17);
-x_19 = lean_array_get_size(x_18);
-x_20 = lean_nat_dec_eq(x_13, x_19);
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
+x_16 = lean_array_get_size(x_15);
+x_17 = lean_unsigned_to_nat(1u);
+x_18 = lean_nat_sub(x_16, x_17);
+lean_dec(x_16);
+lean_inc(x_15);
+x_19 = l_Array_qsort_sort___at_Lean_Elab_Structural_Positions_groupAndSort___spec__3(x_15, x_12, x_18);
+lean_dec(x_18);
+x_20 = lean_array_get_size(x_19);
+x_21 = lean_nat_dec_eq(x_14, x_20);
+lean_dec(x_20);
+if (x_21 == 0)
+{
+lean_object* x_22; lean_object* x_23; 
 lean_dec(x_19);
-if (x_20 == 0)
-{
-lean_object* x_21; lean_object* x_22; 
-lean_dec(x_18);
+lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_9);
+lean_dec(x_10);
 lean_dec(x_7);
-x_21 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__7;
-x_22 = l_panic___at_Lean_Elab_Structural_Positions_groupAndSort___spec__4(x_21);
-return x_22;
+x_22 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__7;
+x_23 = l_panic___at_Lean_Elab_Structural_Positions_groupAndSort___spec__4(x_22);
+return x_23;
 }
 else
 {
-uint8_t x_23; 
-x_23 = l_Array_isEqvAux___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__7(x_3, x_14, lean_box(0), x_9, x_18, x_13, lean_box(0));
-lean_dec(x_18);
-lean_dec(x_9);
-lean_dec(x_14);
-if (x_23 == 0)
+uint8_t x_24; 
+x_24 = l_Array_isEqvAux___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__7(x_3, x_15, lean_box(0), x_10, x_19, x_14, lean_box(0));
+lean_dec(x_19);
+lean_dec(x_10);
+lean_dec(x_15);
+if (x_24 == 0)
 {
-lean_object* x_24; lean_object* x_25; 
+lean_object* x_25; lean_object* x_26; 
 lean_dec(x_7);
-x_24 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__7;
-x_25 = l_panic___at_Lean_Elab_Structural_Positions_groupAndSort___spec__4(x_24);
-return x_25;
+x_25 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__7;
+x_26 = l_panic___at_Lean_Elab_Structural_Positions_groupAndSort___spec__4(x_25);
+return x_26;
 }
 else
 {
@@ -8137,106 +8149,108 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14) {
 _start:
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_15 = l_Lean_InductiveVal_numTypeFormers(x_1);
-x_16 = l_Array_range(x_15);
-x_17 = l_Lean_Elab_Structural_instInhabitedRecArgInfo;
-x_18 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__1;
-x_19 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4(x_17, x_18, x_2, x_16);
-x_20 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__5;
-x_21 = l_Lean_isTracingEnabledFor___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp___spec__2(x_20, x_9, x_10, x_11, x_12, x_13, x_14);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-x_23 = lean_unbox(x_22);
-lean_dec(x_22);
-if (x_23 == 0)
+x_16 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1;
+x_17 = l_Array_ofFn___rarg(x_15, x_16);
+lean_dec(x_15);
+x_18 = l_Lean_Elab_Structural_instInhabitedRecArgInfo;
+x_19 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__1;
+x_20 = l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4(x_18, x_19, x_2, x_17);
+x_21 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__5;
+x_22 = l_Lean_isTracingEnabledFor___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp___spec__2(x_21, x_9, x_10, x_11, x_12, x_13, x_14);
+x_23 = lean_ctor_get(x_22, 0);
+lean_inc(x_23);
+x_24 = lean_unbox(x_23);
+lean_dec(x_23);
+if (x_24 == 0)
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_7);
-x_24 = lean_ctor_get(x_21, 1);
-lean_inc(x_24);
-lean_dec(x_21);
-x_25 = lean_box(0);
-x_26 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__5(x_2, x_3, x_4, x_20, x_19, x_5, x_6, x_25, x_9, x_10, x_11, x_12, x_13, x_24);
-return x_26;
+x_25 = lean_ctor_get(x_22, 1);
+lean_inc(x_25);
+lean_dec(x_22);
+x_26 = lean_box(0);
+x_27 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__5(x_2, x_3, x_4, x_21, x_20, x_5, x_6, x_26, x_9, x_10, x_11, x_12, x_13, x_25);
+return x_27;
 }
 else
 {
-uint8_t x_27; 
-x_27 = !lean_is_exclusive(x_21);
-if (x_27 == 0)
+uint8_t x_28; 
+x_28 = !lean_is_exclusive(x_22);
+if (x_28 == 0)
 {
-lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_28 = lean_ctor_get(x_21, 1);
-x_29 = lean_ctor_get(x_21, 0);
-lean_dec(x_29);
-x_30 = l_Lean_MessageData_ofName(x_7);
-x_31 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__7;
-lean_ctor_set_tag(x_21, 7);
-lean_ctor_set(x_21, 1, x_30);
-lean_ctor_set(x_21, 0, x_31);
-x_32 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__9;
-x_33 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_33, 0, x_21);
-lean_ctor_set(x_33, 1, x_32);
-lean_inc(x_19);
-x_34 = lean_array_to_list(x_19);
-x_35 = lean_box(0);
-x_36 = l_List_mapTR_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__16(x_34, x_35);
-x_37 = l_Lean_MessageData_ofList(x_36);
-x_38 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_38, 0, x_33);
-lean_ctor_set(x_38, 1, x_37);
-x_39 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__3___closed__4;
-x_40 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_40, 0, x_38);
-lean_ctor_set(x_40, 1, x_39);
-x_41 = l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp___spec__3(x_20, x_40, x_9, x_10, x_11, x_12, x_13, x_28);
-x_42 = lean_ctor_get(x_41, 0);
-lean_inc(x_42);
-x_43 = lean_ctor_get(x_41, 1);
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
+x_29 = lean_ctor_get(x_22, 1);
+x_30 = lean_ctor_get(x_22, 0);
+lean_dec(x_30);
+x_31 = l_Lean_MessageData_ofName(x_7);
+x_32 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__7;
+lean_ctor_set_tag(x_22, 7);
+lean_ctor_set(x_22, 1, x_31);
+lean_ctor_set(x_22, 0, x_32);
+x_33 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__9;
+x_34 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_34, 0, x_22);
+lean_ctor_set(x_34, 1, x_33);
+lean_inc(x_20);
+x_35 = lean_array_to_list(x_20);
+x_36 = lean_box(0);
+x_37 = l_List_mapTR_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__16(x_35, x_36);
+x_38 = l_Lean_MessageData_ofList(x_37);
+x_39 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_39, 0, x_34);
+lean_ctor_set(x_39, 1, x_38);
+x_40 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__3___closed__4;
+x_41 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_41, 0, x_39);
+lean_ctor_set(x_41, 1, x_40);
+x_42 = l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp___spec__3(x_21, x_41, x_9, x_10, x_11, x_12, x_13, x_29);
+x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
-lean_dec(x_41);
-x_44 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__5(x_2, x_3, x_4, x_20, x_19, x_5, x_6, x_42, x_9, x_10, x_11, x_12, x_13, x_43);
+x_44 = lean_ctor_get(x_42, 1);
+lean_inc(x_44);
 lean_dec(x_42);
-return x_44;
+x_45 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__5(x_2, x_3, x_4, x_21, x_20, x_5, x_6, x_43, x_9, x_10, x_11, x_12, x_13, x_44);
+lean_dec(x_43);
+return x_45;
 }
 else
 {
-lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
-x_45 = lean_ctor_get(x_21, 1);
-lean_inc(x_45);
-lean_dec(x_21);
-x_46 = l_Lean_MessageData_ofName(x_7);
-x_47 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__7;
-x_48 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_48, 0, x_47);
-lean_ctor_set(x_48, 1, x_46);
-x_49 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__9;
-x_50 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_50, 0, x_48);
-lean_ctor_set(x_50, 1, x_49);
-lean_inc(x_19);
-x_51 = lean_array_to_list(x_19);
-x_52 = lean_box(0);
-x_53 = l_List_mapTR_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__16(x_51, x_52);
-x_54 = l_Lean_MessageData_ofList(x_53);
-x_55 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_55, 0, x_50);
-lean_ctor_set(x_55, 1, x_54);
-x_56 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__3___closed__4;
-x_57 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_57, 0, x_55);
-lean_ctor_set(x_57, 1, x_56);
-x_58 = l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp___spec__3(x_20, x_57, x_9, x_10, x_11, x_12, x_13, x_45);
-x_59 = lean_ctor_get(x_58, 0);
-lean_inc(x_59);
-x_60 = lean_ctor_get(x_58, 1);
+lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_46 = lean_ctor_get(x_22, 1);
+lean_inc(x_46);
+lean_dec(x_22);
+x_47 = l_Lean_MessageData_ofName(x_7);
+x_48 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__7;
+x_49 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_49, 0, x_48);
+lean_ctor_set(x_49, 1, x_47);
+x_50 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__6___closed__9;
+x_51 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_51, 0, x_49);
+lean_ctor_set(x_51, 1, x_50);
+lean_inc(x_20);
+x_52 = lean_array_to_list(x_20);
+x_53 = lean_box(0);
+x_54 = l_List_mapTR_loop___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__16(x_52, x_53);
+x_55 = l_Lean_MessageData_ofList(x_54);
+x_56 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_56, 0, x_51);
+lean_ctor_set(x_56, 1, x_55);
+x_57 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__3___closed__4;
+x_58 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_58, 0, x_56);
+lean_ctor_set(x_58, 1, x_57);
+x_59 = l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApp___spec__3(x_21, x_58, x_9, x_10, x_11, x_12, x_13, x_46);
+x_60 = lean_ctor_get(x_59, 0);
 lean_inc(x_60);
-lean_dec(x_58);
-x_61 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__5(x_2, x_3, x_4, x_20, x_19, x_5, x_6, x_59, x_9, x_10, x_11, x_12, x_13, x_60);
+x_61 = lean_ctor_get(x_59, 1);
+lean_inc(x_61);
 lean_dec(x_59);
-return x_61;
+x_62 = l___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___lambda__5(x_2, x_3, x_4, x_21, x_20, x_5, x_6, x_60, x_9, x_10, x_11, x_12, x_13, x_61);
+lean_dec(x_60);
+return x_62;
 }
 }
 }
@@ -16303,6 +16317,8 @@ l_Lean_getConstInfoInduct___at___private_Lean_Elab_PreDefinition_Structural_Main
 lean_mark_persistent(l_Lean_getConstInfoInduct___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__2___closed__3);
 l_Lean_getConstInfoInduct___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__2___closed__4 = _init_l_Lean_getConstInfoInduct___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__2___closed__4();
 lean_mark_persistent(l_Lean_getConstInfoInduct___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__2___closed__4);
+l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1 = _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1();
+lean_mark_persistent(l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__6___closed__1);
 l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1 = _init_l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__1);
 l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__2 = _init_l_Lean_Elab_Structural_Positions_groupAndSort___at___private_Lean_Elab_PreDefinition_Structural_Main_0__Lean_Elab_Structural_elimMutualRecursion___spec__4___closed__2();

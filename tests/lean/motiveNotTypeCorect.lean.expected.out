@@ -1,8 +1,4 @@
-motiveNotTypeCorect.lean:7:6-7:7: error: tactic 'rewrite' failed, motive is not type correct
-
-Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' in the following way. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm' with the property that 'e = m a'. Third, we observe that 'congrArg' implies that `m a = m b`. Thus, if the goal was 'e', it suffices to prove 'm b' using 'Eq.mpr'. This function 'm' is called the *motive*. If 'e' depends on specific properties of 'a', then the motive might not typecheck.
-
-Type-incorrect motive:
+motiveNotTypeCorect.lean:7:6-7:7: error: tactic 'rewrite' failed, motive is not type correct:
   fun _a => P _a d
 Error: application type mismatch
   P _a d
@@ -12,6 +8,10 @@ has type
   D (f t) : Type
 but is expected to have type
   D _a : Type
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' using the following process. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, with the property that 'm a' is 'e'. Third, we observe that 'congrArg' implies that 'm a = m b', which can be used with lemmas such as 'Eq.mpr' to change the goal. If 'e' depends on specific properties of 'a', then the motive function might not typecheck.
+
+Possible solutions: use the 'occs' configuration to limit which occurrences are rewritten, or use 'simp' or 'conv' mode if the dependence is a proof or 'Decidable' instance or if a custom '@[congr]' theorem could enable the rewrite.
 t : Nat
 f : Nat → Nat
 h : f t = t

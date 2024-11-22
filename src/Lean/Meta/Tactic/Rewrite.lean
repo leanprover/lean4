@@ -49,13 +49,16 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
             check motive
           catch ex =>
             throwTacticEx `rewrite mvarId m!"\
-              motive is not type correct\
+              motive is not type correct:{indentD motive}\nError: {ex.toMessageData}\
               \n\n\
-              Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' in the following way. \
-              First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm' with the property that 'e = m a'. \
-              Third, we observe that '{.ofConstName ``congrArg}' implies that `m a = m b`. Thus, if the goal was 'e', it suffices to prove 'm b' using '{.ofConstName ``Eq.mpr}'. \
-              This function 'm' is called the *motive*. If 'e' depends on specific properties of 'a', then the motive might not typecheck.\n\n\
-              Type-incorrect motive:{indentD motive}\nError: {ex.toMessageData}"
+              Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' using the following process. \
+              First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, \
+              with the property that 'm a' is 'e'. \
+              Third, we observe that '{.ofConstName ``congrArg}' implies that 'm a = m b', which can be used with lemmas such as '{.ofConstName ``Eq.mpr}' to change the goal. \
+              If 'e' depends on specific properties of 'a', then the motive function might not typecheck.\
+              \n\n\
+              Possible solutions: use the 'occs' configuration to limit which occurrences are rewritten, \
+              or use 'simp' or 'conv' mode if the dependence is a proof or '{.ofConstName ``Decidable}' instance or if a custom '@[congr]' theorem could enable the rewrite."
           unless (← withLocalDeclD `_a α fun a => do isDefEq (← inferType (eAbst.instantiate1 a)) eType) do
             -- NB: using motive.arrow? would disallow motives where the dependency
             -- can be reduced away

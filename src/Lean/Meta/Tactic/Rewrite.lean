@@ -45,12 +45,21 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let eNew ← instantiateMVars eNew
           let eType ← inferType e
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
-          unless (← isTypeCorrect motive) do
-            throwTacticEx `rewrite mvarId "motive is not type correct"
+          try
+            check motive
+          catch ex =>
+            throwTacticEx `rewrite mvarId m!"\
+              motive is not type correct\
+              \n\n\
+              Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' in the following way. \
+              First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm' with the property that 'e = m a'. \
+              Third, we observe that '{.ofConstName ``congrArg}' implies that `m a = m b`. Thus, if the goal was 'e', it suffices to prove 'm b' using '{.ofConstName ``Eq.mpr}'. \
+              This function 'm' is called the *motive*. If 'e' depends on specific properties of 'a', then the motive might not typecheck.\n\n\
+              Type-incorrect motive:{indentD motive}\nError: {ex.toMessageData}"
           unless (← withLocalDeclD `_a α fun a => do isDefEq (← inferType (eAbst.instantiate1 a)) eType) do
             -- NB: using motive.arrow? would disallow motives where the dependency
             -- can be reduced away
-            throwTacticEx `rewrite mvarId "motive is dependent"
+            throwTacticEx `rewrite mvarId m!"motive is dependent{indentD motive}"
           let u1 ← getLevel α
           let u2 ← getLevel eType
           let eqPrf := mkApp6 (.const ``congrArg [u1, u2]) α eType lhs rhs motive heq

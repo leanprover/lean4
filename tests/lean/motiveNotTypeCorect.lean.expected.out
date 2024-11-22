@@ -1,4 +1,17 @@
 motiveNotTypeCorect.lean:7:6-7:7: error: tactic 'rewrite' failed, motive is not type correct
+
+Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' in the following way. First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm' with the property that 'e = m a'. Third, we observe that 'congrArg' implies that `m a = m b`. Thus, if the goal was 'e', it suffices to prove 'm b' using 'Eq.mpr'. This function 'm' is called the *motive*. If 'e' depends on specific properties of 'a', then the motive might not typecheck.
+
+Type-incorrect motive:
+  fun _a => P _a d
+Error: application type mismatch
+  P _a d
+argument
+  d
+has type
+  D (f t) : Type
+but is expected to have type
+  D _a : Type
 t : Nat
 f : Nat → Nat
 h : f t = t
@@ -6,6 +19,7 @@ d : D (f t)
 P : (t : Nat) → D t → Prop
 ⊢ P (f t) d
 motiveNotTypeCorect.lean:18:8-18:9: error: tactic 'rewrite' failed, motive is dependent
+  fun _a => A _a
 h : true = false
 A : (b : Bool) → if b = true then Prop else Nat
 ⊢ A true

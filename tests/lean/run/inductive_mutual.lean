@@ -70,13 +70,13 @@ inductive I3 (β : Type _) where
   | s : S1 β → I3 β
 end
 /--
-info: structure S1.{u_1, u_2} : Type u_1 → Type u_2 → Type u_1
+info: structure S1.{u_1, u_2} (α : Type u_1) (β : Type u_2) : Type u_1
 number of parameters: 2
-constructor:
-S1.mk : {α : Type u_1} → {β : Type u_2} → α → (Nat → I3 α β) → S1 α β
 fields:
-x : α
-ys : Nat → I3 α β
+  S1.x : α
+  S1.ys : Nat → I3 α β
+constructor:
+  S1.mk.{u_1, u_2} {α : Type u_1} {β : Type u_2} (x : α) (ys : Nat → I3 α β) : S1 α β
 -/
 #guard_msgs in #print S1
 /--
@@ -100,20 +100,20 @@ end
 /--
 info: structure S2 : Type
 number of parameters: 0
-constructor:
-S2.mk : List S3 → S2
 fields:
-xs : List S3
+  S2.xs : List S3
+constructor:
+  S2.mk (xs : List S3) : S2
 -/
 #guard_msgs in #print S2
 /--
 info: structure S3 : Type
 number of parameters: 0
-constructor:
-S3.mk : List S2 → List S3 → S3
 fields:
-ys : List S2
-zs : List S3
+  S3.ys : List S2
+  S3.zs : List S3
+constructor:
+  S3.mk (ys : List S2) (zs : List S3) : S3
 -/
 #guard_msgs in #print S3
 

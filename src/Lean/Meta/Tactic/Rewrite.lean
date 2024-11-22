@@ -51,7 +51,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
             throwTacticEx `rewrite mvarId m!"\
               motive is not type correct:{indentD motive}\nError: {ex.toMessageData}\
               \n\n\
-              Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' using the following process. \
+              Explanation: The rewrite tactic rewrites an expression 'e' using an equality 'a = b' by the following process. \
               First, it looks for all 'a' in 'e'. Second, it tries to abstract these occurrences of 'a' to create a function 'm := fun _a => ...', called the *motive*, \
               with the property that 'm a' is 'e'. \
               Third, we observe that '{.ofConstName ``congrArg}' implies that 'm a = m b', which can be used with lemmas such as '{.ofConstName ``Eq.mpr}' to change the goal. \

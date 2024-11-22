@@ -2228,13 +2228,13 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
 
 @[simp]
 theorem getLsbD_fill {w i : Nat} {v : Bool} :
-    (fill w v).getLsbD i = (v && i < w) := by
+    (fill w v).getLsbD i = (v && decide (i < w)) := by
   by_cases h : v
   <;> simp [h, BitVec.fill, BitVec.negOne_eq_allOnes]
 
 @[simp]
 theorem getMsbD_fill {w i : Nat} {v : Bool} :
-    (fill w v).getMsbD i = (v && i < w) := by
+    (fill w v).getMsbD i = (v && decide (i < w)) := by
   by_cases h : v
   <;> simp [h, BitVec.fill, BitVec.negOne_eq_allOnes]
 
@@ -2246,7 +2246,7 @@ theorem getElem_fill {w i : Nat} {v : Bool} (h : i < w) :
 
 @[simp]
 theorem msb_fill {w : Nat} {v : Bool} :
-    (fill w v).msb = (v && 0 < w) := by
+    (fill w v).msb = (v && decide (0 < w)) := by
   simp [BitVec.msb]
 
 theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v then allOnes w else 0#w := by
@@ -2265,11 +2265,11 @@ theorem fill_eq_zero {w : Nat} : fill w false = 0#w := by
   by_cases h : v <;> simp [h]
 
 @[simp] theorem fill_toInt {w : Nat} {v : Bool} :
-    (fill w v).toInt = if v then (allOnes w).toInt else 0 := by
+    (fill w v).toInt = if v && 0 < w then -1 else 0 := by
   by_cases h : v <;> simp [h]
 
 @[simp] theorem fill_toFin {w : Nat} {v : Bool} :
-    (fill w v).toFin = if v then (allOnes w).toFin else (0#w).toFin := by
+    (fill w v).toFin = if v then (allOnes w).toFin else Fin.ofNat' (2 ^ w) 0 := by
   by_cases h : v <;> simp [h]
 
 /-! ### mul -/

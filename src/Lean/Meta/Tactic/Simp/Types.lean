@@ -144,24 +144,7 @@ Converts `Simp.Config` into `Meta.ConfigWithKey` used for `isDefEq`.
 private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
   let curr ← Meta.getConfig
   return { curr with
-    /-
-    Remark: We do **not** propagate `c.beta` to the `Meta.Config` used for `isDefEq` in `simp`.
-    Reason: When solving a unification constraint such as `?x =?= t`, we also unify their types,
-    and we often need beta-reduction for them. For example, suppose `t` is a recursor, then
-    its type will often produce an application such as `(fun x => Nat) 0` where `fun x => Nat` is the
-    motive of the recursor. If `?x` has type `Nat`, the unification will fail without beta.
-
-    Not propagating `beta`, may surprise users, in examples such as
-    ```
-    opaque f : Nat → Nat
-    @[simp] axiom f_ax : f (no_index 0) = 1
-    example : f ((fun x => x) 0) = 1 := by
-      simp -beta -- Oh no, it succeeds because the term was beta-reduced by `isDefEq`.
-    ```
-    The example above looks artificial. If users complain, we can try a more complicated solution
-    that forces `beta := true` only when `isDefEq` is unifying the type of a meta-variable with the
-    type of the term being assigned to it.
-    -/
+    beta         := c.beta
     iota         := c.iota
     zeta         := c.zeta
     zetaDelta    := c.zetaDelta

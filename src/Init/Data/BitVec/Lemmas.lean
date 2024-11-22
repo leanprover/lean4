@@ -3145,7 +3145,7 @@ Thus, the full value of `abs x` is computed by the case split:
 - Otherwise, if `x` is negative, then `x.abs.toInt = (-x).toInt`.
 - If `x` is positive, then it is equal to `x.abs.toInt = x.toInt`.
 -/
-theorem toInt_abs {x : BitVec w} :
+theorem toInt_abs_eq_ite {x : BitVec w} :
   x.abs.toInt =
     if x = intMin w then (intMin w).toInt
     else if x.msb then -x.toInt
@@ -3158,11 +3158,14 @@ theorem toInt_abs {x : BitVec w} :
     · simp [hx₂, abs_eq]
 
 /--
-A variant of `toInt_abs` that hides the case split for `x` being positive or negative by using `natAbs`.
+When `x = intMin w`, then `x.abs.toInt` equals `(intMin w).toInt`, and in all other cases,
+it equals the absolute value of the `toInt`, which is `x.toInt.natAbs`.
+
+This is a simpler version of `BitVec.toInt_abs_eq_ite`, which hides a case split on `x.msb`.
 -/
-theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
+theorem toInt_abs {x : BitVec w} : x.abs.toInt =
     if x = intMin w then (intMin w).toInt else x.toInt.natAbs := by
-  rw [toInt_abs]
+  rw [toInt_abs_eq_ite]
   by_cases hx : x = intMin w
   · simp [hx]
   · simp [hx]

@@ -865,30 +865,29 @@ lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Server_FileWorker_findCompletionCmdDataAtPos___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_ctor_get(x_3, 1);
-x_5 = 0;
-x_6 = l_Lean_Syntax_getTailPos_x3f(x_4, x_5);
-if (lean_obj_tag(x_6) == 0)
+lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = 0;
+x_5 = l_Lean_Syntax_getTailPos_x3f(x_3, x_4);
+if (lean_obj_tag(x_5) == 0)
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = lean_ctor_get(x_6, 0);
-lean_inc(x_8);
-lean_dec(x_6);
-x_9 = l_Lean_Syntax_getTrailingSize(x_4);
-x_10 = lean_nat_add(x_8, x_9);
-lean_dec(x_9);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = lean_ctor_get(x_5, 0);
+lean_inc(x_7);
+lean_dec(x_5);
+x_8 = l_Lean_Syntax_getTrailingSize(x_3);
+x_9 = lean_nat_add(x_7, x_8);
 lean_dec(x_8);
-x_11 = lean_nat_dec_le(x_1, x_10);
-lean_dec(x_10);
-return x_11;
+lean_dec(x_7);
+x_10 = lean_nat_dec_le(x_1, x_9);
+lean_dec(x_9);
+return x_10;
 }
 }
 }

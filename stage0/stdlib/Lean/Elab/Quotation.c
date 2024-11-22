@@ -458,6 +458,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Quotat
 lean_object* l_Lean_Syntax_getAtomVal(lean_object*);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__25___closed__2;
 lean_object* lean_nat_div(lean_object*, lean_object*);
+lean_object* l_Array_eraseIdxIfInBounds___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation___aux__Lean__Elab__Quotation______macroRules__Lean__Elab__Term__Quotation__commandElab__stx__quot____1___closed__22;
 static lean_object* l_Lean_Elab_Term_Quotation_mkSyntaxQuotation___closed__15;
 static lean_object* l_Lean_Elab_Term_Quotation_ArrayStxBuilder_mkNode___closed__70;
@@ -731,7 +732,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quota
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Term_Quotation_match__syntax_expand___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_mkTuple___closed__14;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__23___closed__37;
-lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___spec__4___closed__2;
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___lambda__2___closed__3;
@@ -2686,7 +2686,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 lean_inc(x_1);
-x_14 = l_Array_eraseIdx___rarg(x_1, x_10);
+x_14 = l_Array_eraseIdxIfInBounds___rarg(x_1, x_10);
 lean_inc(x_6);
 x_15 = l_Lean_Elab_Term_Quotation_mkTuple(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_16 = lean_ctor_get(x_15, 0);

@@ -270,6 +270,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSEvalSimprocs___rarg___boxed(lean_o
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_userPostSimprocs___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simprocCore___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Simp_Simprocs_addCore___spec__3___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_insertIdx_x21___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_Simp_Simprocs_addCore___spec__9___closed__1;
 static lean_object* l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_6158____closed__4;
 lean_object* l_outOfBounds___rarg(lean_object*);
@@ -487,7 +488,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Simp_Simprocs_add___sp
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_mkSimprocExt___lambda__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Meta_Simp_getSimprocExtensionCore_x3f___spec__1(lean_object*, lean_object*);
-lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlReaderT___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_187____closed__4;
@@ -6967,7 +6967,7 @@ lean_ctor_set(x_41, 0, x_4);
 lean_ctor_set(x_41, 1, x_40);
 x_42 = lean_nat_add(x_7, x_38);
 lean_dec(x_7);
-x_43 = l_Array_insertAt_x21___rarg(x_5, x_42, x_41);
+x_43 = l_Array_insertIdx_x21___rarg(x_5, x_42, x_41);
 lean_dec(x_42);
 return x_43;
 }
@@ -7163,7 +7163,7 @@ lean_dec(x_64);
 x_66 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_66, 0, x_4);
 lean_ctor_set(x_66, 1, x_65);
-x_67 = l_Array_insertAt_x21___rarg(x_5, x_8, x_66);
+x_67 = l_Array_insertIdx_x21___rarg(x_5, x_8, x_66);
 return x_67;
 }
 }

@@ -46,6 +46,8 @@ structure CommandParsedSnapshot extends Snapshot where
   elabSnap : SnapshotTask DynamicSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
+  /-- Additional, untyped snapshots used for reporting, not reuse. -/
+  reportSnap : SnapshotTask SnapshotTree
   /-- Cache for `save`; to be replaced with incrementality. -/
   tacticCache : IO.Ref Tactic.Cache
   /-- Next command, unless this is a terminal command. -/
@@ -55,7 +57,8 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.toSnapshot,
       #[s.elabSnap.map (sync := true) toSnapshotTree,
-        s.finishedSnap.map (sync := true) toSnapshotTree] |>
+        s.finishedSnap.map (sync := true) toSnapshotTree,
+        s.reportSnap] |>
         pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
 
 /-- State after successful importing. -/

@@ -2249,7 +2249,7 @@ theorem msb_fill {w : Nat} {v : Bool} :
     (fill w v).msb = (v && decide (0 < w)) := by
   simp [BitVec.msb]
 
-theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v then allOnes w else 0#w := by
+theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v = true then allOnes w else 0#w := by
   by_cases h : v <;> (simp only [h] ; ext ; simp)
 
 @[simp]
@@ -2261,15 +2261,15 @@ theorem fill_eq_zero {w : Nat} : fill w false = 0#w := by
   simp [fill_eq]
 
 @[simp] theorem fill_toNat {w : Nat} {v : Bool} :
-    (fill w v).toNat = if v then 2^w - 1 else 0 := by
+    (fill w v).toNat = if v = true then 2^w - 1 else 0 := by
   by_cases h : v <;> simp [h]
 
 @[simp] theorem fill_toInt {w : Nat} {v : Bool} :
-    (fill w v).toInt = if v && 0 < w then -1 else 0 := by
+    (fill w v).toInt = if v = true && 0 < w then -1 else 0 := by
   by_cases h : v <;> simp [h]
 
 @[simp] theorem fill_toFin {w : Nat} {v : Bool} :
-    (fill w v).toFin = if v then (allOnes w).toFin else Fin.ofNat' (2 ^ w) 0 := by
+    (fill w v).toFin = if v = true then (allOnes w).toFin else Fin.ofNat' (2 ^ w) 0 := by
   by_cases h : v <;> simp [h]
 
 /-! ### mul -/

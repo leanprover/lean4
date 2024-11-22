@@ -285,7 +285,7 @@ private def findExistingField? (infos : Array StructFieldInfo) (parentStructName
       return some fieldName
   return none
 
-private partial def processSubfields (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
+private def processSubfields (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
     (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α :=
   go 0 infos
 where
@@ -506,7 +506,7 @@ private partial def mkToParentName (parentStructName : Name) (p : Name → Bool)
       if p curr then curr else go (i+1)
     go 1
 
-private partial def withParents (view : StructView) (rs : Array ElabHeaderResult) (indFVar : Expr)
+private def withParents (view : StructView) (rs : Array ElabHeaderResult) (indFVar : Expr)
     (k : Array StructFieldInfo → Array StructParentInfo → TermElabM α) : TermElabM α := do
   go 0 #[] #[]
 where
@@ -775,57 +775,81 @@ private def setSourceInstImplicit (type : Expr) : Expr :=
 /--
 Creates a projection function to a non-subobject parent.
 -/
-private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentStructName : Name) (parentType : Expr) : MetaM StructureParentInfo := do
+private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (source : Expr) (parentStructName : Name) (parentType : Expr) : MetaM StructureParentInfo := do
   let isProp ← Meta.isProp parentType
   let env ← getEnv
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
-  let structType := mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
   let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
+  let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
+  if view.isClass && isClass env parentStructName then
+    declType := setSourceInstImplicit declType
+  declType := declType.inferImplicit params.size true
+  let rec copyFields (parentType : Expr) : MetaM Expr := do
+    let Expr.const parentStructName us ← pure parentType.getAppFn | unreachable!
+    let parentCtor := getStructureCtor env parentStructName
+    let mut result := mkAppN (mkConst parentCtor.name us) parentType.getAppArgs
+    for fieldName in getStructureFields env parentStructName do
+      if sourceFieldNames.contains fieldName then
+        let fieldVal ← mkProjection source fieldName
+        result := mkApp result fieldVal
+      else
+        -- fieldInfo must be a field of `parentStructName`
+        let some fieldInfo := getFieldInfo? env parentStructName fieldName | unreachable!
+        if fieldInfo.subobject?.isNone then throwError "failed to build coercion to parent structure"
+        let resultType ← whnfD (← inferType result)
+        unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpected type{indentExpr resultType}"
+        let fieldVal ← copyFields resultType.bindingDomain!
+        result := mkApp result fieldVal
+    return result
+  let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType)))
+  let declName := structName ++ mkToParentName (← getStructureName parentType) fun n => !env.contains (structName ++ n)
+  -- Logic from `mk_projections`: prop-valued projections are theorems (or at least opaque)
+  let cval : ConstantVal := { name := declName, levelParams, type := declType }
+  if isProp then
+    addDecl <|
+      if view.modifiers.isUnsafe then
+        -- Theorems cannot be unsafe.
+        Declaration.opaqueDecl { cval with value := declVal, isUnsafe := true }
+      else
+        Declaration.thmDecl { cval with value := declVal }
+  else
+    addAndCompile <| Declaration.defnDecl { cval with
+      value       := declVal
+      hints       := ReducibilityHints.abbrev
+      safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe
+    }
+  -- Logic from `mk_projections`: non-instance-implicits that aren't props become reducible.
+  -- (Instances will get instance reducibility in `Lean.Elab.Command.addParentInstances`.)
+  if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
+    setReducibleAttribute declName
+  return { structName := parentStructName, subobject := false, projFn := declName }
+
+private def mkRemainingProjections (levelParams : List Name) (params : Array Expr) (view : StructView)
+    (parents : Array StructParentInfo) (fieldInfos : Array StructFieldInfo) : TermElabM (Array StructureParentInfo) := do
+  let structType := mkAppN (Lean.mkConst view.declName (levelParams.map mkLevelParam)) params
   withLocalDeclD `self structType fun source => do
-    let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
-    if view.isClass && isClass env parentStructName then
-      declType := setSourceInstImplicit declType
-    declType := declType.inferImplicit params.size true
-    let rec copyFields (parentType : Expr) : MetaM Expr := do
-      let Expr.const parentStructName us ← pure parentType.getAppFn | unreachable!
-      let parentCtor := getStructureCtor env parentStructName
-      let mut result := mkAppN (mkConst parentCtor.name us) parentType.getAppArgs
-      for fieldName in getStructureFields env parentStructName do
-        if sourceFieldNames.contains fieldName then
-          let fieldVal ← mkProjection source fieldName
-          result := mkApp result fieldVal
+    /-
+    Remark: copied parents might still be referring to the fvars of other parents. We need to replace these fvars with projection constants.
+    For subobject parents, this has already been done by `mkProjections`.
+    https://github.com/leanprover/lean4/issues/2611
+    -/
+    let mut parentInfos := #[]
+    let mut parentFVarToConst : ExprMap Expr := {}
+    for h : i in [0:parents.size] do
+      let parent := parents[i]
+      let parentInfo : StructureParentInfo ← (do
+        if parent.subobject then
+          let some info := fieldInfos.find? (·.kind == .subobject parent.structName) | unreachable!
+          pure { structName := parent.structName, subobject := true, projFn := info.declName }
         else
-          -- fieldInfo must be a field of `parentStructName`
-          let some fieldInfo := getFieldInfo? env parentStructName fieldName | unreachable!
-          if fieldInfo.subobject?.isNone then throwError "failed to build coercion to parent structure"
-          let resultType ← whnfD (← inferType result)
-          unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpected type{indentExpr resultType}"
-          let fieldVal ← copyFields resultType.bindingDomain!
-          result := mkApp result fieldVal
-      return result
-    let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] (← copyFields parentType)))
-    let declName := structName ++ mkToParentName (← getStructureName parentType) fun n => !env.contains (structName ++ n)
-    -- Logic from `mk_projections`: prop-valued projections are theorems (or at least opaque)
-    let cval : ConstantVal := { name := declName, levelParams, type := declType }
-    if isProp then
-      addDecl <|
-        if view.modifiers.isUnsafe then
-          -- Theorems cannot be unsafe.
-          Declaration.opaqueDecl { cval with value := declVal, isUnsafe := true }
-        else
-          Declaration.thmDecl { cval with value := declVal }
-    else
-      addAndCompile <| Declaration.defnDecl { cval with
-        value       := declVal
-        hints       := ReducibilityHints.abbrev
-        safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe
-      }
-    -- Logic from `mk_projections`: non-instance-implicits that aren't props become reducible.
-    -- (Instances will get instance reducibility in `Lean.Elab.Command.addParentInstances`.)
-    if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
-      setReducibleAttribute declName
-    return { structName := parentStructName, subobject := false, projFn := declName }
+          let parent_type := (← instantiateMVars parent.type).replace fun e => parentFVarToConst[e]?
+          mkCoercionToCopiedParent levelParams params view source parent.structName parent_type)
+      parentInfos := parentInfos.push parentInfo
+      if let some fvar := parent.fvar? then
+        parentFVarToConst := parentFVarToConst.insert fvar <|
+          mkApp (mkAppN (.const parentInfo.projFn (levelParams.map mkLevelParam)) params) source
+    pure parentInfos
 
 /--
 Precomputes the structure's resolution order.
@@ -887,12 +911,7 @@ def elabStructureCommand : InductiveElabDescr where
                   if (← getEnv).contains field.declName then
                     Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
             finalize := fun levelParams params replaceIndFVars => do
-              let parentInfos ← parents.mapM fun parent => do
-                if parent.subobject then
-                  let some info := fieldInfos.find? (·.kind == .subobject parent.structName) | unreachable!
-                  pure { structName := parent.structName, subobject := true, projFn := info.declName }
-                else
-                  mkCoercionToCopiedParent levelParams params view parent.structName parent.type
+              let parentInfos ← mkRemainingProjections levelParams params view parents fieldInfos
               setStructureParents view.declName parentInfos
               checkResolutionOrder view.declName
               if view.isClass then

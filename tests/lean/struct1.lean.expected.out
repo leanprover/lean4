@@ -1,4 +1,4 @@
-struct1.lean:9:14-9:17: error: invalid structure type, expecting 'Type _' or 'Prop'
+struct1.lean:9:14-9:17: error: invalid resulting type, expecting 'Type _' or 'Prop'
 struct1.lean:12:20-12:29: error: expected structure
 struct1.lean:15:28-15:33: warning: field 'x' from 'B' has already been declared
 struct1.lean:16:1-16:2: error: field 'x' has been declared in parent structure

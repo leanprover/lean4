@@ -2,36 +2,36 @@ ctorUnivTooBig.lean:3:2-3:45: error: invalid universe level in constructor 'Bla.
   Type u
 at universe level
   u+2
-it must be smaller than or equal to the inductive datatype universe level
+which is not less than or equal to the inductive type's resulting universe level
   u+1
 ctorUnivTooBig.lean:7:2-7:25: error: invalid universe level in constructor 'Foo.mk', parameter 'α' has type
   Type
 at universe level
   2
-it must be smaller than or equal to the inductive datatype universe level
+which is not less than or equal to the inductive type's resulting universe level
   1
 ctorUnivTooBig.lean:12:2-12:34: error: invalid universe level in constructor 'Foo'.mk', parameter has type
   Sort (max u v)
 at universe level
   max (u+1) (v+1)
-it must be smaller than or equal to the inductive datatype universe level
+which is not less than or equal to the inductive type's resulting universe level
   u+1
 Ex1.Member.head.{u} {α : Type u} {a : α} {as : List α} : Member a (a :: as)
 ctorUnivTooBig.lean:35:2-35:27: error: invalid universe level in constructor 'Ex3.Member.head', parameter 'as' has type
   List α
 at universe level
-  ?u+1
-it must be smaller than or equal to the inductive datatype universe level
+  u_1+1
+which is not less than or equal to the inductive type's resulting universe level
   max (u+1) (v+1)
 ctorUnivTooBig.lean:41:2-41:27: error: invalid universe level in constructor 'Ex4.Member.head', parameter 'as' has type
   List α
 at universe level
-  ?u+1
-it must be smaller than or equal to the inductive datatype universe level
+  u_1+1
+which is not less than or equal to the inductive type's resulting universe level
   u+2
 ctorUnivTooBig.lean:47:2-47:27: error: invalid universe level in constructor 'Ex5.Member.head', parameter 'as' has type
   List α
 at universe level
-  ?u+1
-it must be smaller than or equal to the inductive datatype universe level
+  u_1+1
+which is not less than or equal to the inductive type's resulting universe level
   2

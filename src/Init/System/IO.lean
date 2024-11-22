@@ -462,6 +462,16 @@ Note that it is the caller's job to remove the file after use.
 -/
 @[extern "lean_io_create_tempfile"] opaque createTempFile : IO (Handle × FilePath)
 
+/--
+Creates a temporary directory in the most secure manner possible. There are no race conditions in the
+directory’s creation. The directory is readable and writable only by the creating user ID.
+
+Returns the new directory's path.
+
+It is the caller's job to remove the directory after use.
+-/
+@[extern "lean_io_create_tempdir"] opaque createTempDir : IO FilePath
+
 end FS
 
 @[extern "lean_io_getenv"] opaque getEnv (var : @& String) : BaseIO (Option String)
@@ -473,17 +483,6 @@ namespace FS
 @[inline]
 def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
-
-/--
-Like `createTempFile` but also takes care of removing the file after usage.
--/
-def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → FilePath → m α) :
-    m α := do
-  let (handle, path) ← createTempFile
-  try
-    f handle path
-  finally
-    removeFile path
 
 def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
@@ -675,8 +674,10 @@ def appDir : IO FilePath := do
     | throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
   FS.realPath p
 
+namespace FS
+
 /-- Create given path and all missing parents as directories. -/
-partial def FS.createDirAll (p : FilePath) : IO Unit := do
+partial def createDirAll (p : FilePath) : IO Unit := do
   if ← p.isDir then
     return ()
   if let some parent := p.parent then
@@ -693,13 +694,39 @@ partial def FS.createDirAll (p : FilePath) : IO Unit := do
 /--
   Fully remove given directory by deleting all contained files and directories in an unspecified order.
   Fails if any contained entry cannot be deleted or was newly created during execution. -/
-partial def FS.removeDirAll (p : FilePath) : IO Unit := do
+partial def removeDirAll (p : FilePath) : IO Unit := do
   for ent in (← p.readDir) do
     if (← ent.path.isDir : Bool) then
       removeDirAll ent.path
     else
       removeFile ent.path
   removeDir p
+
+/--
+Like `createTempFile`, but also takes care of removing the file after usage.
+-/
+def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → FilePath → m α) :
+    m α := do
+  let (handle, path) ← createTempFile
+  try
+    f handle path
+  finally
+    removeFile path
+
+/--
+Like `createTempDir`, but also takes care of removing the directory after usage.
+
+All files in the directory are recursively deleted, regardless of how or when they were created.
+-/
+def withTempDir [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : FilePath → m α) :
+    m α := do
+  let path ← createTempDir
+  try
+    f path
+  finally
+    removeDirAll path
+
+end FS
 
 namespace Process
 

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Linter_omit___elambda__1___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_6_(lean_object*);
-lean_object* l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_omit___elambda__1___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_169_(lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_omit___elambda__1___spec__1___closed__2;
@@ -58,6 +57,7 @@ lean_object* l_Lean_Syntax_findAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_omit___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope;
 static lean_object* l_Lean_Linter_omit___closed__2;
+lean_object* l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_linter_omit;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_omit___closed__3;
@@ -260,7 +260,7 @@ x_20 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_20, 0, x_8);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = 1;
-x_22 = l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(x_2, x_20, x_21, x_4, x_5, x_6);
+x_22 = l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(x_2, x_20, x_21, x_4, x_5, x_6);
 return x_22;
 }
 else
@@ -297,7 +297,7 @@ x_35 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_35, 0, x_23);
 lean_ctor_set(x_35, 1, x_34);
 x_36 = 1;
-x_37 = l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(x_2, x_35, x_36, x_4, x_5, x_6);
+x_37 = l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(x_2, x_35, x_36, x_4, x_5, x_6);
 return x_37;
 }
 }

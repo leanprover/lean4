@@ -807,8 +807,8 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
     These are the primary set of major parameters.
     -/
     let initMotiveFVars : CollectFVars.State := motiveArgs.foldl (init := {}) collectFVars
-    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i s => do
-      let x := xs[i]!
+    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i _ s => do
+      let x := xs[i]
       if s.fvarSet.contains x.fvarId! then
         return collectFVars s (← inferType x)
       else

@@ -587,15 +587,15 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     refer to the docstring of `Decl.safe`.
     -/
     if decls[i]!.safe then .bot else .top
-  let mut funVals := decls.size.fold (init := .empty) fun i p => p.push (initialVal i)
+  let mut funVals := decls.size.fold (init := .empty) fun i _ p => p.push (initialVal i)
   let ctx := { decls }
   let mut state := { assignments, funVals }
   (_, state) ← inferMain |>.run ctx |>.run state
   funVals := state.funVals
   assignments := state.assignments
   modifyEnv fun e =>
-    decls.size.fold (init := e) fun i env =>
-      addFunctionSummary env decls[i]!.name funVals[i]!
+    decls.size.fold (init := e) fun i _ env =>
+      addFunctionSummary env decls[i].name funVals[i]!
 
   decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
 

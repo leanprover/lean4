@@ -105,10 +105,10 @@ private partial def finalize
             let mvarId' ← mvar.mvarId!.tryClear major.fvarId!
             let (fields, mvarId') ←  mvarId'.introN nparams minorGivenNames.varNames (useNamesForExplicitOnly := !minorGivenNames.explicit)
             let (extra,  mvarId') ← mvarId'.introNP nextra
-            let subst := reverted.size.fold (init := baseSubst) fun i (subst : FVarSubst) =>
+            let subst := reverted.size.fold (init := baseSubst) fun i _ (subst : FVarSubst) =>
               if i < indices.size + 1 then subst
               else
-                let revertedFVarId := reverted[i]!
+                let revertedFVarId := reverted[i]
                 let newFVarId      := extra[i - indices.size - 1]!
                 subst.insert revertedFVarId (mkFVar newFVarId)
             let fields := fields.map mkFVar
@@ -134,8 +134,8 @@ def getMajorTypeIndices (mvarId : MVarId) (tacticName : Name) (recursorInfo : Re
     if idxPos ≥ majorTypeArgs.size then throwTacticEx tacticName mvarId m!"major premise type is ill-formed{indentExpr majorType}"
     let idx := majorTypeArgs.get! idxPos
     unless idx.isFVar do throwTacticEx tacticName mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
-    majorTypeArgs.size.forM fun i => do
-      let arg := majorTypeArgs[i]!
+    majorTypeArgs.size.forM fun i _ => do
+      let arg := majorTypeArgs[i]
       if i != idxPos && arg == idx then
         throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
       if i < idxPos then

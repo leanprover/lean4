@@ -286,8 +286,8 @@ partial def process : ClosureM Unit := do
 @[inline] def mkBinding (isLambda : Bool) (decls : Array LocalDecl) (b : Expr) : Expr :=
   let xs := decls.map LocalDecl.toExpr
   let b  := b.abstract xs
-  decls.size.foldRev (init := b) fun i b =>
-    let decl := decls[i]!
+  decls.size.foldRev (init := b) fun i _ b =>
+    let decl := decls[i]
     match decl with
     | .cdecl _ _ n ty bi _ =>
       let ty := ty.abstractRange i xs

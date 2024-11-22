@@ -48,9 +48,9 @@ def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
 def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let ps := decl.params
   let qs ← ps.mapM fun _ => do let x ← N.mkFresh; pure { x := x, ty := IRType.object, borrow := false : Param }
-  let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i (newVDecls, xs) => do
+  let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i _ (newVDecls, xs) => do
     let p := ps[i]!
-    let q := qs[i]!
+    let q := qs[i]
     if !p.ty.isScalar then
       pure (newVDecls, xs.push (Arg.var q.x))
     else

@@ -233,7 +233,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 
 /-- The array `#[0, 1, ..., n - 1]`. -/
 def range (n : Nat) : Array Nat :=
-  n.fold (flip Array.push) (mkEmpty n)
+  ofFn fun (i : Fin n) => i
 
 def singleton (v : α) : Array α :=
   mkArray 1 v

@@ -4,13 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
 prelude
-import Lean.Data.Name
 import Lean.Data.NameTrie
-import Lean.Data.Lsp.Utf16
-import Lean.Data.Lsp.LanguageFeatures
 import Lean.Util.Paths
 import Lean.Util.LakePath
-import Lean.Server.CompletionItemData
+import Lean.Server.Completion.CompletionItemData
 
 namespace ImportCompletion
 

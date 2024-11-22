@@ -346,6 +346,10 @@ theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
   · rfl
   · omega
 
+theorem getElem_sub {i : Nat} {x y : BitVec w} (h : i < w) :
+    (x - y)[i] = (x[i] ^^ ((~~~y + 1#w)[i] ^^ carry i x (~~~y + 1#w) false)) := by
+  simp [← getLsbD_eq_getElem, getLsbD_sub, h]
+
 theorem msb_sub {x y: BitVec w} :
     (x - y).msb
       = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
@@ -403,12 +407,16 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       rw [carry_succ_one _ _ (by omega), ← Bool.xor_not, ← decide_not]
       simp only [add_one_ne_zero, decide_false, getLsbD_not, and_eq_true, decide_eq_true_eq,
         not_eq_eq_eq_not, Bool.not_true, false_bne, not_exists, _root_.not_and, not_eq_true,
-        bne_left_inj, decide_eq_decide]
+        bne_right_inj, decide_eq_decide]
       constructor
       · rintro h j hj; exact And.right <| h j (by omega)
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
   · have h_ge : w ≤ i := by omega
     simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+
+theorem getElem_neg {i : Nat} {x : BitVec w} (h : i < w) :
+    (-x)[i] = (x[i] ^^ decide (∃ j < i, x.getLsbD j = true)) := by
+  simp [← getLsbD_eq_getElem, getLsbD_neg, h]
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i =
@@ -419,7 +427,7 @@ theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     simp [hi]; omega
   case pos =>
     have h₁ : w - 1 - i < w := by omega
-    simp only [hi, decide_true, h₁, Bool.true_and, Bool.bne_left_inj, decide_eq_decide]
+    simp only [hi, decide_true, h₁, Bool.true_and, Bool.bne_right_inj, decide_eq_decide]
     constructor
     · rintro ⟨j, hj, h⟩
       refine ⟨w - 1 - j, by omega, by omega, by omega, _root_.cast ?_ h⟩

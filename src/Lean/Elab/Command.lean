@@ -113,7 +113,7 @@ structure Context where
   -/
   suppressElabErrors : Bool := false
 
-abbrev CommandElabM := ReaderT Context <| StateRefT State (EIO Exception)
+abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 structure Linter where
   run : Syntax → CommandElabM Unit
@@ -196,11 +196,6 @@ instance : AddErrorMessageContext CommandElabM where
     let msg ← addMacroStack msg ctx.macroStack
     return (ref, msg)
 
-def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-  let pos := ref.getPos?.getD ctx.cmdPos
-  let endPos := ref.getTailPos?.getD pos
-  mkMessageCore ctx.fileName ctx.fileMap msgData severity pos endPos
-
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -243,10 +238,6 @@ private def runCore (x : CoreM α) : CommandElabM α := do
 def liftCoreM (x : CoreM α) : CommandElabM α := do
   MonadExcept.ofExcept (← runCore (observing x))
 
-private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
-  let ref := getBetterRef ref ctx.macroStack
-  mkMessageAux ctx ref (toString err) MessageSeverity.error
-
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
   let ctx ← read
   IO.toEIO (fun (ex : IO.Error) => Exception.error ctx.ref ex.toString) x
@@ -269,9 +260,8 @@ instance : MonadLog CommandElabM where
   logMessage msg := do
     if (← read).suppressElabErrors then
       -- discard elaboration errors on parse error
-      -- NOTE: unlike `CoreM`'s `logMessage`, we do not currently have any command-level errors that
-      -- we want to allowlist
-      return
+      unless msg.data.hasTag (· matches `trace) do
+        return
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
@@ -305,27 +295,21 @@ Interrupt and abort exceptions are caught but not logged.
 @[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabM Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
-/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
+@[inherit_doc Core.wrapAsync]
 def wrapAsync (act : Unit → CommandElabM α) : CommandElabM (EIO Exception α) := do
-  return (do
-      -- Reset log so as not to report messages twice, from either thread
-      modify ({ · with messages := {} })
-      act () : CommandElabM _)
-    |>.run (← read) |>.run' (← get)
+  return act () |>.run (← read) |>.run' (← get)
 
 open Language in
-/--
-Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
-`logSnapshotTask` tasks, which are reported as part of the returned tree.
--/
+@[inherit_doc Core.wrapAsyncAsSnapshot]
 -- `CoreM` and `CommandElabM` are too different to meaningfully share this code
 def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
     (desc : String := by exact decl_name%.toString) :
     CommandElabM (BaseIO SnapshotTree) := do
   let t ← wrapAsync fun _ => do
     IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
-      let tid ← IO.getLeanThreadID
-      modifyTraceState fun _ => { tid }
+      let tid ← IO.getTID
+      -- reset trace state and message log so as not to report them twice
+      modify ({ · with messages := {}, traceState := { tid } })
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
@@ -354,6 +338,7 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
     -- interrupt or abort exception as `try catch` above should have caught any others
     | .error _ => default
 
+@[inherit_doc Core.logSnapshotTask]
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
@@ -628,7 +613,11 @@ private def getVarDecls (s : State) : Array Syntax :=
 instance {α} : Inhabited (CommandElabM α) where
   default := throw default
 
-private def mkMetaContext : Meta.Context := {
+/--
+The environment linter framework needs to be able to run linters with the same context
+as `liftTermElabM`, so we expose that context as a public function here.
+-/
+def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 

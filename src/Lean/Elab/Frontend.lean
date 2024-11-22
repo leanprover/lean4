@@ -102,7 +102,7 @@ partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
 where
   go initialSnap t commands :=
     let snap := t.get
-    let commands := commands.push snap.data
+    let commands := commands.push snap
     if let some next := snap.nextCmdSnap? then
       go initialSnap next.task commands
     else
@@ -115,9 +115,9 @@ where
       -- snapshots as they subsume any info trees reported incrementally by their children.
       let trees := commands.map (·.finishedSnap.get.infoTree?) |>.filterMap id |>.toPArray'
       return {
-        commandState := { snap.data.finishedSnap.get.cmdState with messages, infoState.trees := trees }
-        parserState := snap.data.parserState
-        cmdPos := snap.data.parserState.pos
+        commandState := { snap.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        parserState := snap.parserState
+        cmdPos := snap.parserState.pos
         commands := commands.map (·.stx)
         inputCtx, initialSnap
       }

@@ -113,10 +113,10 @@ initialize IO.stdGenRef : IO.Ref StdGen ←
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
   IO.mkRef (mkStdGen seed)
 
-def IO.setRandSeed (n : Nat) : IO Unit :=
+def IO.setRandSeed (n : Nat) : BaseIO Unit :=
   IO.stdGenRef.set (mkStdGen n)
 
-def IO.rand (lo hi : Nat) : IO Nat := do
+def IO.rand (lo hi : Nat) : BaseIO Nat := do
   let gen ← IO.stdGenRef.get
   let (r, gen) := randNat gen lo hi
   IO.stdGenRef.set gen

@@ -31,6 +31,10 @@ Author: Jared Roesch
 #include <sys/syscall.h>
 #endif
 
+#ifdef __linux
+#include <sys/syscall.h>
+#endif
+
 #include "runtime/object.h"
 #include "runtime/io.h"
 #include "runtime/array_ref.h"
@@ -82,6 +86,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+    return lean_io_result_mk_ok(box_uint64(GetCurrentThreadId()));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
@@ -320,12 +328,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     return lean_io_result_mk_ok(box_uint32(getpid()));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_get_thread_id(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
     uint64_t tid;
-#ifdef LEAN_WINDOWS
-    tid = GetCurrentThreadId();
-#elif defined(__APPLE__)
-    pthread_threadid_np(NULL, &tid);
+#ifdef __APPLE__
+    lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
+#elif defined(LEAN_EMSCRIPTEN)
+    tid = 0;
 #else
     // since Linux 2.4.11, our glibc 2.27 requires at least 3.2
     // glibc 2.30 would provide a wrapper

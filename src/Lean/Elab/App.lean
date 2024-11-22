@@ -807,8 +807,8 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
     These are the primary set of major parameters.
     -/
     let initMotiveFVars : CollectFVars.State := motiveArgs.foldl (init := {}) collectFVars
-    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i s => do
-      let x := xs[i]!
+    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i _ s => do
+      let x := xs[i]
       if s.fvarSet.contains x.fvarId! then
         return collectFVars s (← inferType x)
       else
@@ -1347,7 +1347,7 @@ where
     let mut unusableNamedArgs := unusableNamedArgs
     for x in xs, bInfo in bInfos do
       let xDecl ← x.mvarId!.getDecl
-      if let some idx := remainingNamedArgs.findIdx? (·.name == xDecl.userName) then
+      if let some idx := remainingNamedArgs.findFinIdx? (·.name == xDecl.userName) then
         /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
         remainingNamedArgs := remainingNamedArgs.eraseIdx idx
       else
@@ -1355,9 +1355,9 @@ where
           /- We found a type of the form (baseName ...).
              First, we check if the current argument is an explicit one,
              and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
-          if argIdx ≤ args.size && bInfo.isExplicit then
+          if h : argIdx ≤ args.size ∧ bInfo.isExplicit then
             /- We can insert `e` as an explicit argument -/
-            return (args.insertAt! argIdx (Arg.expr e), namedArgs)
+            return (args.insertIdx argIdx (Arg.expr e), namedArgs)
           else
             /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
                if there isn't an argument with the same name occurring before it. -/
@@ -1399,8 +1399,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   let rec loop : Expr → List LVal → TermElabM Expr
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
-    if let LVal.fieldName (fullRef := fullRef) .. := lval then
-      addDotCompletionInfo fullRef f expectedType?
+    if let LVal.fieldName (ref := ref) .. := lval then
+      addDotCompletionInfo ref f expectedType?
     let hasArgs := !namedArgs.isEmpty || !args.isEmpty
     let (f, lvalRes) ← resolveLVal f lval hasArgs
     match lvalRes with
@@ -1650,6 +1650,14 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
 -/
 private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
   let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
+  let trees := failures.map (fun | .error _ s => s.meta.core.infoState.trees | _ => unreachable!)
+    |>.filterMap (·[0]?)
+  -- Retain partial `InfoTree` subtrees in an `.ofChoiceInfo` node in case of multiple failures.
+  -- This ensures that the language server still has `Info` to work with when multiple overloaded
+  -- elaborators fail.
+  withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := ← getRef }) do
+    for tree in trees do
+      pushInfoTree tree
   throwErrorWithNestedErrors "overloaded" exs
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do

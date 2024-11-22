@@ -282,8 +282,8 @@ where
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goType tArg dArg)
-      for i in [info.numParams : tArgs.size] do
-        let tArg := tArgs[i]!
+      for h : i in [info.numParams : tArgs.size] do
+        let tArg := tArgs[i]
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goIndex tArg dArg)
@@ -644,7 +644,7 @@ where
       if inaccessible? p |>.isSome then
         return mkMData k (← withReader (fun _ => true) (go b))
       else if let some (stx, p) := patternWithRef? p then
-        Elab.withInfoContext' (go p) fun p => do
+        Elab.withInfoContext' (go p) (mkInfoOnError := mkPartialTermInfo .anonymous stx) fun p => do
           /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/
           mkTermInfo Name.anonymous stx p (isBinder := p.isFVar && !(← read))
       else

@@ -31,7 +31,7 @@ This file defines basic operations on the the sum type `α ⊕ β`.
 
 ## Further material
 
-See `Batteries.Data.Sum.Lemmas` for theorems about these definitions.
+See `Init.Data.Sum.Lemmas` for theorems about these definitions.
 
 ## Notes
 

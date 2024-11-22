@@ -96,6 +96,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassManager_findHighestOccurrence(
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installBefore___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_findFinIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassInstaller_getPassInstallerUnsafe___closed__2;
 LEAN_EXPORT uint8_t l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__1___lambda__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAtEnd___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -121,7 +122,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Pass_mkP
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_139____closed__22;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instInhabitedPass___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_139____closed__15;
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__1___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -164,6 +164,7 @@ static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_139____
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Pass_mkPerDeclaration___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
+lean_object* l_Array_insertIdx_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PassInstaller_withEachOccurrence___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Phase_toNat(uint8_t x_1) {
@@ -1800,7 +1801,7 @@ x_8 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_3);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_findIdx_x3f_loop___rarg(x_8, x_4, x_9);
+x_10 = l_Array_findFinIdx_x3f_loop___rarg(x_8, x_4, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -1830,44 +1831,25 @@ return x_27;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; uint8_t x_30; lean_object* x_31; lean_object* x_32; 
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_3);
 lean_dec(x_1);
 x_28 = lean_ctor_get(x_10, 0);
 lean_inc(x_28);
 lean_dec(x_10);
-x_29 = lean_array_get_size(x_4);
-x_30 = lean_nat_dec_lt(x_28, x_29);
-lean_dec(x_29);
-x_31 = lean_unsigned_to_nat(1u);
-x_32 = lean_nat_add(x_28, x_31);
-if (x_30 == 0)
-{
-lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+x_29 = lean_array_fget(x_4, x_28);
+x_30 = lean_unsigned_to_nat(1u);
+x_31 = lean_nat_add(x_28, x_30);
 lean_dec(x_28);
-x_33 = l_Lean_Compiler_LCNF_instInhabitedPass;
-x_34 = l_outOfBounds___rarg(x_33);
-x_35 = lean_apply_1(x_2, x_34);
-x_36 = l_Array_insertAt_x21___rarg(x_4, x_32, x_35);
-lean_dec(x_32);
-x_37 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_37, 0, x_36);
-lean_ctor_set(x_37, 1, x_7);
-return x_37;
-}
-else
-{
-lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_38 = lean_array_fget(x_4, x_28);
-lean_dec(x_28);
-x_39 = lean_apply_1(x_2, x_38);
-x_40 = l_Array_insertAt_x21___rarg(x_4, x_32, x_39);
-lean_dec(x_32);
-x_41 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_7);
-return x_41;
-}
+x_32 = lean_apply_1(x_2, x_29);
+x_33 = lean_array_get_size(x_4);
+x_34 = lean_array_push(x_4, x_32);
+x_35 = l_Array_insertIdx_loop___rarg(x_31, x_34, x_33);
+lean_dec(x_31);
+x_36 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_36, 0, x_35);
+lean_ctor_set(x_36, 1, x_7);
+return x_36;
 }
 }
 }
@@ -1938,7 +1920,7 @@ x_8 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PassInstaller_installAfter
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_3);
 x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_findIdx_x3f_loop___rarg(x_8, x_4, x_9);
+x_10 = l_Array_findFinIdx_x3f_loop___rarg(x_8, x_4, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
@@ -1968,40 +1950,22 @@ return x_27;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; uint8_t x_30; 
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 lean_dec(x_3);
 lean_dec(x_1);
 x_28 = lean_ctor_get(x_10, 0);
 lean_inc(x_28);
 lean_dec(x_10);
-x_29 = lean_array_get_size(x_4);
-x_30 = lean_nat_dec_lt(x_28, x_29);
-lean_dec(x_29);
-if (x_30 == 0)
-{
-lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_31 = l_Lean_Compiler_LCNF_instInhabitedPass;
-x_32 = l_outOfBounds___rarg(x_31);
-x_33 = lean_apply_1(x_2, x_32);
-x_34 = l_Array_insertAt_x21___rarg(x_4, x_28, x_33);
+x_29 = lean_array_fget(x_4, x_28);
+x_30 = lean_apply_1(x_2, x_29);
+x_31 = lean_array_get_size(x_4);
+x_32 = lean_array_push(x_4, x_30);
+x_33 = l_Array_insertIdx_loop___rarg(x_28, x_32, x_31);
 lean_dec(x_28);
-x_35 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_35, 0, x_34);
-lean_ctor_set(x_35, 1, x_7);
-return x_35;
-}
-else
-{
-lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_36 = lean_array_fget(x_4, x_28);
-x_37 = lean_apply_1(x_2, x_36);
-x_38 = l_Array_insertAt_x21___rarg(x_4, x_28, x_37);
-lean_dec(x_28);
-x_39 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_39, 0, x_38);
-lean_ctor_set(x_39, 1, x_7);
-return x_39;
-}
+x_34 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_34, 0, x_33);
+lean_ctor_set(x_34, 1, x_7);
+return x_34;
 }
 }
 }

@@ -11,7 +11,7 @@ import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
 import Lean.Elab.Exception
-import Lean.Language.Types
+import Lean.Language.Basic
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -365,22 +365,23 @@ instance : MonadLog CoreM where
     if (← read).suppressElabErrors then
       -- discard elaboration errors, except for a few important and unlikely misleading ones, on
       -- parse error
-      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals) do
+      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals | `trace) do
         return
 
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
 
+/--
+Includes a given task (such as from `wrapAsyncAsSnapshot`) in the overall snapshot tree for this
+command's elaboration, making its result available to reporting and the language server. The
+reporter will not know about this snapshot tree node until the main elaboration thread for this
+command has finished so this function is not useful for incremental reporting within a longer
+elaboration thread but only for tasks that outlive it such as background kernel checking or proof
+elaboration.
+-/
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
-
-/-- Option for capturing output to stderr during elaboration. -/
-register_builtin_option stderrAsMessages : Bool := {
-  defValue := true
-  group    := "server"
-  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
-}
 
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
 def wrapAsync (act : Unit → CoreM α) : CoreM (EIO Exception α) := do
@@ -388,11 +389,18 @@ def wrapAsync (act : Unit → CoreM α) : CoreM (EIO Exception α) := do
   let ctx ← read
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
   return withCurrHeartbeats (do
+      -- include heartbeats since start of elaboration in new thread as well such that forking off
+      -- an action doesn't suddenly allow it to succeed from a lower heartbeat count
       IO.addHeartbeats heartbeats.toUInt64
-      -- Reset log so as not to report messages twice, from either thread
-      modify ({ · with messages := {} })
       act () : CoreM _)
     |>.run' ctx st
+
+/-- Option for capturing output to stderr during elaboration. -/
+register_builtin_option stderrAsMessages : Bool := {
+  defValue := true
+  group    := "server"
+  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
+}
 
 open Language in
 /--
@@ -403,8 +411,9 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact d
     CoreM (BaseIO SnapshotTree) := do
   let t ← wrapAsync fun _ => do
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
-      let tid ← IO.getLeanThreadID
-      modifyTraceState fun _ => { tid }
+      let tid ← IO.getTID
+      -- reset trace state and message log so as not to report them twice
+      modify ({ · with messages := {}, traceState := { tid } })
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()

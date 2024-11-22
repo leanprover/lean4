@@ -882,7 +882,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
       | none => pure ()
 
     trace[Meta.Match.debug] "matcher: {matcher}"
-    let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
+    let unusedAltIdxs := lhss.length.fold (init := []) fun i _ r =>
       if s.used.contains i then r else i::r
     return {
       matcher,

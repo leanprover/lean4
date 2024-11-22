@@ -26,7 +26,7 @@ def tst2 : IO Unit :=
 do let Map := RBMap Nat Nat compare
    let m : Map := {}
    let n : Nat := 10000
-   let mut m := n.fold (fun i (m : Map) => m.insert i (i*10)) m
+   let mut m := n.fold (fun i _ (m : Map) => m.insert i (i*10)) m
    check (m.all (fun k v => v == k*10))
    check (sz m == n)
    IO.println (">> " ++ toString (depth m) ++ ", " ++ toString (sz m))

@@ -54,7 +54,7 @@ abbrev Mask := Array (Option VarId)
 partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (keep : Array FnBody) : Array FnBody × Mask :=
   let done (_ : Unit)        := (bs ++ keep.reverse, mask)
   let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop mask (keep.push b)
-  if bs.size < 2 then done ()
+  if h : bs.size < 2 then done ()
   else
     let b := bs.back!
     match b with
@@ -62,7 +62,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
     | .vdecl _ _ (.uproj _ _) _   => keepInstr b
     | .inc z n c p _ =>
       if n == 0 then done () else
-      let b' := bs[bs.size - 2]!
+      let b' := bs[bs.size - 2]
       match b' with
       | .vdecl w _ (.proj i x) _ =>
         if w == z && y == x then
@@ -134,15 +134,15 @@ abbrev M := ReaderT Context (StateM Nat)
   modifyGet fun n => ({ idx := n }, n + 1)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
-  mask.size.foldM (init := b) fun i b =>
-    match mask.get! i with
+  mask.size.foldM (init := b) fun i _ b =>
+    match mask[i] with
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh
       pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
-  zs.size.fold (init := b) fun i b => FnBody.set y i (zs.get! i) b
+  zs.size.fold (init := b) fun i _ b => FnBody.set y i zs[i] b
 
 /-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=

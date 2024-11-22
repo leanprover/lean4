@@ -6,6 +6,8 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 prelude
 import Lean.Elab.Exception
 import Lean.Log
+import Lean.Elab.Exception
+import Lean.Log
 
 /-!
 # Trace messages
@@ -103,11 +105,11 @@ where
       false
 
 def isTracingEnabledForCore (cls : Name) (opts : Options) : BaseIO Bool := do
-  let inherited ← (inheritedTraceOptions.get : BaseIO _)
-  pure (checkTraceOption inherited opts cls)
+  let inherited ← inheritedTraceOptions.get
+  return checkTraceOption inherited opts cls
 
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  isTracingEnabledForCore cls (← getOptions) |>.toIO
+  (isTracingEnabledForCore cls (← getOptions) : IO _)
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -349,7 +351,7 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
     pos2traces := pos2traces.insert (pos, endPos) <| pos2traces.getD (pos, endPos) #[] |>.push traceElem.msg
   let traces' := pos2traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
   for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
+    let data := .tagged `trace <| .joinSep traceMsg.toList "\n"
     logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
 
 end Lean

@@ -149,9 +149,9 @@ private partial def getFirstStart? : MessageData → Option Float
 
 private partial def addTrace (pp : Bool) (thread : ThreadWithMaps) (trace : MessageData) :
     IO ThreadWithMaps :=
-  (·.2) <$> StateT.run (go none trace) thread
+  (·.2) <$> StateT.run (go none none trace) thread
 where
-  go parentStackIdx? : _ → StateT ThreadWithMaps IO Unit
+  go parentStackIdx? ctx? : _ → StateT ThreadWithMaps IO Unit
     | .trace data msg children => do
       if data.startTime == 0 then
         return  -- no time data, skip
@@ -159,7 +159,7 @@ where
       if !data.tag.isEmpty then
         funcName := s!"{funcName}: {data.tag}"
       if pp then
-        funcName := s!"{funcName}: {← msg.format}"
+        funcName := s!"{funcName}: {← msg.format ctx?}"
       let strIdx ← modifyGet fun thread =>
         if let some idx := thread.stringMap[funcName]? then
           (idx, thread)
@@ -215,7 +215,7 @@ where
             threadCPUDelta := thread.samples.threadCPUDelta.push 0.0 |>.push (nextStart - thread.lastTime)
             length := thread.samples.length + 2
           } }
-          go (some stackIdx) c
+          go (some stackIdx) ctx? c
       -- add remaining slice after last child
       modify fun thread => { thread with
         lastTime := data.stopTime
@@ -226,7 +226,7 @@ where
           threadCPUDelta := thread.samples.threadCPUDelta.push 0.0 |>.push (data.stopTime - thread.lastTime)
           length := thread.samples.length + 2
         } }
-    | .withContext _ msg => go parentStackIdx? msg
+    | .withContext ctx msg => go parentStackIdx? (some ctx) msg
     | _ => return
 
 def Thread.new (name : String) : Thread := {

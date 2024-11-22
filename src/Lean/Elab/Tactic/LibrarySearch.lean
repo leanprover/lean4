@@ -40,7 +40,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
     | some suggestions =>
       if requireClose then throwError
         "`exact?` could not close the goal. Try `apply?` to see partial suggestions."
-      reportOutOfHeartbeats `library_search ref
+      reportOutOfHeartbeats `apply? ref
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
           addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (addSubgoalsMsg := true)

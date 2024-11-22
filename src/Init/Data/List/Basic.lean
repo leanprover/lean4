@@ -551,7 +551,7 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
 /-! ### flatten -/
 
 /--
-`O(|flatten L|)`. `join L` concatenates all the lists in `L` into one list.
+`O(|flatten L|)`. `flatten L` concatenates all the lists in `L` into one list.
 * `flatten [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
 -/
 def flatten : List (List α) → List α
@@ -726,13 +726,13 @@ theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : List α} (h :
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
-theorem mem_append_of_mem_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
+theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h
   induction h with
   | head => apply Mem.head
   | tail => apply Mem.tail; assumption
 
-theorem mem_append_of_mem_right {b : α} {bs : List α} (as : List α) : b ∈ bs → b ∈ as ++ bs := by
+theorem mem_append_right {b : α} {bs : List α} (as : List α) : b ∈ bs → b ∈ as ++ bs := by
   intro h
   induction as with
   | nil  => simp [h]

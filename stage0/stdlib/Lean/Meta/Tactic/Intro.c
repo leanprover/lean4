@@ -386,7 +386,6 @@ x_17 = 0;
 x_18 = 1;
 x_19 = 1;
 lean_inc(x_15);
-lean_inc(x_3);
 x_20 = l_Lean_Meta_mkLambdaFVars(x_3, x_15, x_17, x_18, x_17, x_19, x_4, x_5, x_6, x_7, x_16);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -500,7 +499,6 @@ x_42 = 0;
 x_43 = 1;
 x_44 = 1;
 lean_inc(x_40);
-lean_inc(x_3);
 x_45 = l_Lean_Meta_mkLambdaFVars(x_3, x_40, x_42, x_43, x_42, x_44, x_4, x_5, x_6, x_7, x_41);
 if (lean_obj_tag(x_45) == 0)
 {

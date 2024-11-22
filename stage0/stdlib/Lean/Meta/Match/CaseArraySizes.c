@@ -507,6 +507,7 @@ x_15 = 0;
 x_16 = 1;
 x_17 = 1;
 x_18 = l_Lean_Meta_mkForallFVars(x_14, x_12, x_15, x_16, x_17, x_6, x_7, x_8, x_9, x_13);
+lean_dec(x_14);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 

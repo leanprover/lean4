@@ -380,12 +380,13 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
-      let vType ← inferType v
-      if (← withAtLeastTransparency .default <| withInferTypeConfig <| Meta.isExprDefEqAux mvarType vType) then
-        mvar.mvarId!.assign v
-        pure true
-      else
-        pure false
+      withInferTypeConfig do
+        let vType ← inferType v
+        if (← Meta.isExprDefEqAux mvarType vType) then
+          mvar.mvarId!.assign v
+          pure true
+        else
+          pure false
 
 /--
 Auxiliary method for solving constraints of the form `?m xs := v`.

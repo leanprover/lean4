@@ -177,15 +177,20 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
         modifyInferTypeCache fun c => c.insert key type
       return type
 
-private def defaultConfig : ConfigWithKey :=
-  { : Config }.toConfigWithKey
+/--
+Ensure `MetaM` configuration is strong enough for inferring/checking types.
+For example, `beta := true` is essential when type checking.
 
-private def allConfig : ConfigWithKey :=
-  { transparency := .all : Config }.toConfigWithKey
-
-@[inline] def withInferTypeConfig (x : MetaM α) : MetaM α := do
-  let cfg := if (← getTransparency) == .all then allConfig else defaultConfig
-  withConfigWithKey cfg x
+Remark: we previously use the default configuration here, but this is problematic
+because it overrides unrelated configurations.
+-/
+@[inline] def withInferTypeConfig (x : MetaM α) : MetaM α :=
+  withAtLeastTransparency .default do
+    let cfg ← getConfig
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaDelta && cfg.proj != .no then
+      x
+    else
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaDelta := true, proj := .yesWithDelta }) x
 
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=

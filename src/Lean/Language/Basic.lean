@@ -198,17 +198,12 @@ def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] 
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this
   data structure. -/
-inductive SnapshotTree where
-  /-- Creates a snapshot tree node. -/
-  | mk (element : Snapshot) (children : Array (SnapshotTask SnapshotTree))
+structure SnapshotTree where
+  /-- The immediately available element of the snapshot tree node. -/
+  element : Snapshot
+  /-- The asynchronously available children of the snapshot tree node. -/
+  children : Array (SnapshotTask SnapshotTree)
 deriving Inhabited
-
-/-- The immediately available element of the snapshot tree node. -/
-abbrev SnapshotTree.element : SnapshotTree → Snapshot
-  | mk s _ => s
-/-- The asynchronously available children of the snapshot tree node. -/
-abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
-  | mk _ children => children
 
 /-- Produces trace of given snapshot tree, synchronously waiting on all children. -/
 partial def SnapshotTree.trace (s : SnapshotTree) : CoreM Unit :=

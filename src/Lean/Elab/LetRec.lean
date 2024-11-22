@@ -87,8 +87,8 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
   view.decls.mapM fun view => do
     forallBoundedTelescope view.type view.binderIds.size fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-      for i in [0:view.binderIds.size] do
-        addLocalVarInfo view.binderIds[i]! xs[i]!
+      for h : i in [0:view.binderIds.size] do
+        addLocalVarInfo view.binderIds[i] xs[i]!
       withDeclName view.declName do
         withInfoContext' view.valStx
           (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx ·))

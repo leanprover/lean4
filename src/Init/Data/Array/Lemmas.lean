@@ -622,6 +622,7 @@ theorem getElem?_ofFn (f : Fin n → α) (i : Nat) :
   simp [getElem?_def]
 
 @[simp] theorem ofFn_zero (f : Fin 0 → α) : ofFn f = #[] := rfl
+
 theorem ofFn_succ (f : Fin (n+1) → α) :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h₁ h₂
@@ -633,7 +634,7 @@ theorem ofFn_succ (f : Fin (n+1) → α) :
       simp at h₁ h₂
       omega
 
-/-- # mkArray -/
+/-! # mkArray -/
 
 @[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
   List.length_replicate ..
@@ -649,7 +650,7 @@ theorem getElem?_mkArray (n : Nat) (v : α) (i : Nat) :
     (mkArray n v)[i]? = if i < n then some v else none := by
   simp [getElem?_def]
 
-/-- # mem -/
+/-! # mem -/
 
 @[simp] theorem mem_toList {a : α} {l : Array α} : a ∈ l.toList ↔ a ∈ l := mem_def.symm
 
@@ -671,7 +672,7 @@ theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
     (x ∈ if p then l else #[]) ↔ p ∧ x ∈ l := by
   split <;> simp_all
 
-/-- # get lemmas -/
+/-! # get lemmas -/
 
 theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size} (_ : a[idx] = x) :
     idx < a.size :=

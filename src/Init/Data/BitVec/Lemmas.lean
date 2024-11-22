@@ -2250,7 +2250,7 @@ theorem msb_fill {w : Nat} {v : Bool} :
   simp [BitVec.msb]
 
 theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v then allOnes w else 0#w := by
-  by_cases h : v <;> (simp [h] ; ext ; simp)
+  by_cases h : v <;> (simp only [h] ; ext ; simp)
 
 @[simp]
 theorem fill_eq_allOnes {w : Nat} : fill w true = allOnes w := by

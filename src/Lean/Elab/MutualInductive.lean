@@ -725,7 +725,7 @@ private partial def propagateUniversesToConstructors (numParams : Nat) (indTypes
           let v := (← instantiateLevelMVars (← getLevel type)).normalize
           if v.hasMVar then
             if r matches .param .. | .zero then
-              commitIfNoEx <| propagateConstraint v r k
+              discard <| observing? <| propagateConstraint v r k
 where
   /--
   Solves for metavariables in `v` that are fully determined by the constraint `v ≤ r + k`,
@@ -739,7 +739,7 @@ where
   propagateConstraint (v : Level) (r : Level) (k : Nat) : MetaM Unit := do
     match v, k with
     | .zero,     _   => pure ()
-    | .succ _,   0   => failure
+    | .succ _,   0   => throwError "(for debug) {v} ≤ 0 is impossible"
     | .succ u,   k+1 => propagateConstraint u r k
     | .max u v,  k   => propagateConstraint u r k; propagateConstraint v r k
     /-

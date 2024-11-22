@@ -23,6 +23,7 @@ import Lean.Elab.Quotation
 import Lean.Elab.Syntax
 import Lean.Elab.Do
 import Lean.Elab.StructInst
+import Lean.Elab.MutualInductive
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.Print

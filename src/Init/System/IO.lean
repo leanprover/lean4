@@ -715,6 +715,8 @@ def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → Fi
 
 /--
 Like `createTempDir`, but also takes care of removing the directory after usage.
+
+All files in the directory are recursively deleted, regardless of how or when they were created.
 -/
 def withTempDir [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : FilePath → m α) :
     m α := do

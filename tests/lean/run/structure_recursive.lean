@@ -109,6 +109,18 @@ structure A5 extends A4 Nat Bool where
   y := true
 
 /-!
+Default value whose type depends on the recursive structure.
+Reported in https://github.com/leanprover/lean4/issues/6140
+-/
+
+structure RecS where
+  n : Nat
+  recS : Option RecS := none
+
+/-- info: { n := 0, recS := none } : RecS -/
+#guard_msgs in #check ({ n := 0 } : RecS)
+
+/-!
 Incidental new feature: checking projections when the structure is Prop.
 -/
 /-- error: failed to generate projections for 'Prop' structure, field 'x' is not a proof -/

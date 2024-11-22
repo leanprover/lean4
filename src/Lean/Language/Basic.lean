@@ -10,9 +10,8 @@ Authors: Sebastian Ullrich
 
 prelude
 import Init.System.Promise
-import Lean.Message
 import Lean.Parser.Types
-import Lean.Elab.InfoTree
+import Lean.Util.Trace
 
 set_option linter.missingDocs true
 
@@ -205,20 +204,6 @@ structure SnapshotTree where
   children : Array (SnapshotTask SnapshotTree)
 deriving Inhabited
 
-/-- Produces trace of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.trace (s : SnapshotTree) : CoreM Unit :=
-  go none s
-where go range? s := do
-  let file ← getFileMap
-  let mut desc := f!"{s.element.desc}"
-  if let some range := range? then
-    desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
-  desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
-  if let some t := s.element.infoTree? then
-    trace[Elab.info] (← t.format)
-  withTraceNode `Elab.snapshotTree (fun _ => pure desc) do
-    s.children.toList.forM fun c => go c.range? c.get
-
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
   representation. -/
@@ -302,6 +287,14 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
   s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
+
+/-- Returns a task that waits on all snapshots in the tree. -/
+def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+  | mk _ children => go children.toList
+where
+  go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
+    | [] => return .pure ()
+    | t::ts => BaseIO.bindTask t.task fun _ => go ts
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

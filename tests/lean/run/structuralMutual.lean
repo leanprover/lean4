@@ -250,8 +250,8 @@ theorem eq_false_of_not_eq_true {b : Bool} : (! b) = true → b = false := by si
 
 /--
 info: n : Nat
-h : EvenOdd.isOdd (n + 1) = false
-⊢ EvenOdd.isEven n = true
+h : isOdd (n + 1) = false
+⊢ isEven n = true
 -/
 #guard_msgs in
 theorem ex1 (n : Nat) (h : isEven (n+2) = true) : isEven n = true := by

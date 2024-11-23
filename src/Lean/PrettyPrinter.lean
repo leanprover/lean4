@@ -90,12 +90,11 @@ def ppModule (stx : TSyntax ``Parser.Module.module) : CoreM Format := do
 open Delaborator in
 /-- Pretty-prints a declaration `c` as `c.{<levels>} <params> : <type>`. -/
 def ppSignature (c : Name) : MetaM FormatWithInfos := do
+  let decl ← getConstInfo c
+  let e := Expr.const c (decl.levelParams.map mkLevelParam)
   if pp.raw.get (← getOptions) then
-    let info ← getConstInfo c
-    return s!"{mkConst c (info.levelParams.map mkLevelParam)} : {info.type}"
+    return s!"{e} : {decl.type}"
   else
-    let decl ← getConstInfo c
-    let e := .const c (decl.levelParams.map mkLevelParam)
     let (stx, infos) ← delabCore e (delab := delabConstWithSignature)
     return ⟨← ppTerm ⟨stx⟩, infos⟩  -- HACK: not a term
 

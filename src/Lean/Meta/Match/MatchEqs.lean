@@ -222,16 +222,16 @@ private def contradiction (mvarId : MVarId) : MetaM Bool :=
   Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
   We use it to discard redundant hypotheses.
 -/
-partial def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
+partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Bool :=
   commitWhen do
     let mvarId ← substVars mvarId
-    match (← injections mvarId) with
+    match (← injections mvarId (forbidden := forbidden)) with
     | .solved => return true -- closed goal
-    | .subgoal mvarId' _ =>
+    | .subgoal mvarId' _ forbidden =>
       if mvarId' == mvarId then
         contradiction mvarId
       else
-        trySubstVarsAndContradiction mvarId'
+        trySubstVarsAndContradiction mvarId' forbidden
 
 private def processNextEq : M Bool := do
   let s ← get

@@ -61,16 +61,16 @@ def ofPlainDateTime (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : ZonedDateT
 
   let transition :=
     let value := tm.toSecondsSinceUnixEpoch
-    if let some idx := zr.transitions.findIdx? (fun t => t.time.val ≥ value.val)
-      then do
-        let last ← zr.transitions.get? (idx - 1)
-        let next ← zr.transitions.get? idx <|> zr.transitions.back?
+    if let some idx := zr.transitions.findFinIdx? (fun t => t.time.val ≥ value.val)
+      then
+        let last := zr.transitions[idx.1 - 1]
+        let next := zr.transitions[idx]
 
         let utcNext := next.time.sub last.localTimeType.gmtOffset.second.abs
 
         if utcNext.val > tm.toSecondsSinceUnixEpoch.val
-          then pure last
-          else pure next
+          then some last
+          else some next
 
       else zr.transitions.back?
 

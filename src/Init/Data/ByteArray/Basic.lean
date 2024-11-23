@@ -108,8 +108,18 @@ def toList (bs : ByteArray) : List UInt8 :=
 
 @[inline] def findIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option Nat :=
   let rec @[specialize] loop (i : Nat) :=
-    if i < a.size then
-      if p (a.get! i) then some i else loop (i+1)
+    if h : i < a.size then
+      if p a[i] then some i else loop (i+1)
+    else
+      none
+    termination_by a.size - i
+    decreasing_by decreasing_trivial_pre_omega
+  loop start
+
+@[inline] def findFinIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option (Fin a.size) :=
+  let rec @[specialize] loop (i : Nat) :=
+    if h : i < a.size then
+      if p a[i] then some ⟨i, h⟩ else loop (i+1)
     else
       none
     termination_by a.size - i

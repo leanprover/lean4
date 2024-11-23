@@ -246,6 +246,9 @@ instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 
+theorem System.Platform.numBits_lt_usize : numBits < USize.size := by
+  cases numBits_eq <;> simp_all [USize.size]
+
 @[extern "lean_usize_mul"]
 def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_usize_div"]
@@ -261,9 +264,9 @@ def USize.lor (a b : USize) : USize := ⟨a.toBitVec ||| b.toBitVec⟩
 @[extern "lean_usize_xor"]
 def USize.xor (a b : USize) : USize := ⟨a.toBitVec ^^^ b.toBitVec⟩
 @[extern "lean_usize_shift_left"]
-def USize.shiftLeft (a b : USize) : USize := ⟨a.toBitVec <<< (mod b (USize.ofNat System.Platform.numBits)).toBitVec⟩
+def USize.shiftLeft (a b : USize) : USize := ⟨a.toBitVec <<< (mod b (USize.ofNatCore System.Platform.numBits System.Platform.numBits_lt_usize)).toBitVec⟩
 @[extern "lean_usize_shift_right"]
-def USize.shiftRight (a b : USize) : USize := ⟨a.toBitVec >>> (mod b (USize.ofNat System.Platform.numBits)).toBitVec⟩
+def USize.shiftRight (a b : USize) : USize := ⟨a.toBitVec >>> (mod b (USize.ofNatCore System.Platform.numBits System.Platform.numBits_lt_usize)).toBitVec⟩
 @[extern "lean_uint32_to_usize"]
 def UInt32.toUSize (a : UInt32) : USize := USize.ofNat32 a.toBitVec.toNat a.toBitVec.isLt
 @[extern "lean_usize_to_uint32"]

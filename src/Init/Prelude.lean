@@ -3432,10 +3432,6 @@ class Hashable (α : Sort u) where
 
 export Hashable (hash)
 
-/-- Converts a `UInt64` to a `USize` by reducing modulo `USize.size`. -/
-@[extern "lean_uint64_to_usize"]
-opaque UInt64.toUSize (u : UInt64) : USize
-
 /--
 Upcast a `USize` to a `UInt64`.
 This is lossless because `USize.size` is either `2^32` or `2^64`.

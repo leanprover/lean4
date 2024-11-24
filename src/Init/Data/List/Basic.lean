@@ -1427,10 +1427,10 @@ def zipWithAll (f : Option α → Option β → γ) : List α → List β → Li
   | a :: as, [] => (a :: as).map fun a => f (some a) none
   | a :: as, b :: bs => f a b :: zipWithAll f as bs
 
-@[simp] theorem zipWithAll_nil_right :
+@[simp] theorem zipWithAll_nil :
     zipWithAll f as [] = as.map fun a => f (some a) none := by
   cases as <;> rfl
-@[simp] theorem zipWithAll_nil_left :
+@[simp] theorem nil_zipWithAll :
     zipWithAll f [] bs = bs.map fun b => f none (some b) := rfl
 @[simp] theorem zipWithAll_cons_cons :
     zipWithAll f (a :: as) (b :: bs) = f (some a) (some b) :: zipWithAll f as bs := rfl

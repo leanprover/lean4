@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 
-@[inline] def Array.insertionSort (a : Array α) (lt : α → α → Bool) : Array α :=
+@[inline] def Array.insertionSort (a : Array α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
   traverse a 0 a.size
 where
   @[specialize] traverse (a : Array α) (i : Nat) (fuel : Nat) : Array α :=

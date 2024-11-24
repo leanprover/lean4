@@ -551,10 +551,10 @@ theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = no
 theorem getD_get? (a : Array α) (i : Nat) (d : α) :
   Option.getD a[i]? d = if p : i < a.size then a[i]'p else d := by
   if h : i < a.size then
-    simp [setD, h, getElem?_def]
+    simp [setIfInBounds, h, getElem?_def]
   else
     have p : i ≥ a.size := Nat.le_of_not_gt h
-    simp [setD, getElem?_len_le _ p, h]
+    simp [setIfInBounds, getElem?_len_le _ p, h]
 
 @[simp] theorem getD_eq_get? (a : Array α) (n d) : a.getD n d = (a[n]?).getD d := by
   simp only [getD, get_eq_getElem, get?_eq_getElem?]; split <;> simp [getD_get?, *]
@@ -590,31 +590,32 @@ theorem getElem_set (a : Array α) (i : Nat) (h' : i < a.size) (v : α) (j : Nat
     (ne : i ≠ j) : (a.set i v)[j]? = a[j]? := by
   by_cases h : j < a.size <;> simp [getElem?_lt, getElem?_ge, Nat.ge_of_not_lt, ne, h]
 
-/-! # setD -/
+/-! # setIfInBounds -/
 
-@[simp] theorem set!_is_setD : @set! = @setD := rfl
+@[simp] theorem set!_is_setIfInBounds : @set! = @setIfInBounds := rfl
 
-@[simp] theorem size_setD (a : Array α) (index : Nat) (val : α) :
-    (Array.setD a index val).size = a.size := by
+@[simp] theorem size_setIfInBounds (a : Array α) (index : Nat) (val : α) :
+    (Array.setIfInBounds a index val).size = a.size := by
   if h : index < a.size  then
-    simp [setD, h]
+    simp [setIfInBounds, h]
   else
-    simp [setD, h]
+    simp [setIfInBounds, h]
 
-@[simp] theorem getElem_setD_eq (a : Array α) {i : Nat} (v : α) (h : _) :
-    (setD a i v)[i]'h = v := by
+@[simp] theorem getElem_setIfInBounds_eq (a : Array α) {i : Nat} (v : α) (h : _) :
+    (setIfInBounds a i v)[i]'h = v := by
   simp at h
-  simp only [setD, h, ↓reduceDIte, getElem_set_eq]
+  simp only [setIfInBounds, h, ↓reduceDIte, getElem_set_eq]
 
 @[simp]
-theorem getElem?_setD_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) : (a.setD i v)[i]? = some v := by
+theorem getElem?_setIfInBounds_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) :
+    (a.setIfInBounds i v)[i]? = some v := by
   simp [getElem?_lt, p]
 
 /-- Simplifies a normal form from `get!` -/
-@[simp] theorem getD_get?_setD (a : Array α) (i : Nat) (v d : α) :
-    Option.getD (setD a i v)[i]? d = if i < a.size then v else d := by
+@[simp] theorem getD_get?_setIfInBounds (a : Array α) (i : Nat) (v d : α) :
+    Option.getD (setIfInBounds a i v)[i]? d = if i < a.size then v else d := by
   by_cases h : i < a.size <;>
-    simp [setD, Nat.not_lt_of_le, h,  getD_get?]
+    simp [setIfInBounds, Nat.not_lt_of_le, h,  getD_get?]
 
 /-! # ofFn -/
 
@@ -806,10 +807,10 @@ theorem get_set (a : Array α) (i : Nat) (hi : i < a.size) (j : Nat) (hj : j < a
     (h : i ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
   simp only [set, getElem_eq_getElem_toList, List.getElem_set_ne h]
 
-theorem getElem_setD (a : Array α) (i : Nat) (v : α) (h : i < (setD a i v).size) :
-    (setD a i v)[i] = v := by
+theorem getElem_setIfInBounds (a : Array α) (i : Nat) (v : α) (h : i < (setIfInBounds a i v).size) :
+    (setIfInBounds a i v)[i] = v := by
   simp at h
-  simp only [setD, h, ↓reduceDIte, getElem_set_eq]
+  simp only [setIfInBounds, h, ↓reduceDIte, getElem_set_eq]
 
 theorem set_set (a : Array α) (i : Nat) (h) (v v' : α) :
     (a.set i v h).set i v' (by simp [h]) = a.set i v' := by simp [set, List.set_set]
@@ -1790,10 +1791,10 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
   apply ext'
   simp
 
-@[simp] theorem setD_toArray (l : List α) (i : Nat) (a : α) :
-    l.toArray.setD i a  = (l.set i a).toArray := by
+@[simp] theorem setIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
+    l.toArray.setIfInBounds i a  = (l.set i a).toArray := by
   apply ext'
-  simp only [setD]
+  simp only [setIfInBounds]
   split
   · simp
   · simp_all [List.set_eq_of_length_le]
@@ -2145,6 +2146,8 @@ theorem toArray_concat {as : List α} {x : α} :
 
 @[deprecated back!_toArray (since := "2024-10-31")] abbrev back_toArray := @back!_toArray
 
+@[deprecated setIfInBounds_toArray (since := "2024-11-24")] abbrev setD_toArray := @setIfInBounds_toArray
+
 end List
 
 namespace Array
@@ -2289,5 +2292,12 @@ abbrev get_swap' := @getElem_swap'
 @[deprecated back!_push (since := "2024-10-31")] abbrev back_push := @back!_push
 @[deprecated eq_push_pop_back!_of_size_ne_zero (since := "2024-10-31")]
 abbrev eq_push_pop_back_of_size_ne_zero := @eq_push_pop_back!_of_size_ne_zero
+
+@[deprecated set!_is_setIfInBounds (since := "2024-11-24")] abbrev set_is_setIfInBounds := @set!_is_setIfInBounds
+@[deprecated size_setIfInBounds (since := "2024-11-24")] abbrev size_setD := @size_setIfInBounds
+@[deprecated getElem_setIfInBounds_eq (since := "2024-11-24")] abbrev getElem_setD_eq := @getElem_setIfInBounds_eq
+@[deprecated getElem?_setIfInBounds_eq (since := "2024-11-24")] abbrev get?_setD_eq := @getElem?_setIfInBounds_eq
+@[deprecated getD_get?_setIfInBounds (since := "2024-11-24")] abbrev getD_setD := @getD_get?_setIfInBounds
+@[deprecated getElem_setIfInBounds (since := "2024-11-24")] abbrev getElem_setD := @getElem_setIfInBounds
 
 end Array

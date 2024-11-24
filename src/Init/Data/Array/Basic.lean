@@ -884,25 +884,25 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
     false
 
 @[semireducible, specialize] -- This is otherwise irreducible because it uses well-founded recursion.
-def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) : Array γ :=
+def zipWithAux (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat) (cs : Array γ) : Array γ :=
   if h : i < as.size then
     let a := as[i]
     if h : i < bs.size then
       let b := bs[i]
-      zipWithAux f as bs (i+1) <| cs.push <| f a b
+      zipWithAux as bs f (i+1) <| cs.push <| f a b
     else
       cs
   else
     cs
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
-  zipWithAux f as bs 0 #[]
+@[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
+  zipWithAux as bs f 0 #[]
 
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
-  zipWith Prod.mk as bs
+  zipWith as bs Prod.mk
 
-def zipWithAll (f : Option α → Option β → γ) (as : Array α) (bs : Array β) : Array γ :=
+def zipWithAll (as : Array α) (bs : Array β) (f : Option α → Option β → γ) : Array γ :=
   go as bs 0 #[]
 where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
   if i < max as.size bs.size then

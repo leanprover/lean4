@@ -343,8 +343,8 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
         rw [ih]
         simp_all
 
-theorem zipWithAux_toArray_succ (f : α → β → γ) (as : List α) (bs : List β) (i : Nat) (cs : Array γ) :
-    zipWithAux f as.toArray bs.toArray (i + 1) cs = zipWithAux f as.tail.toArray bs.tail.toArray i cs := by
+theorem zipWithAux_toArray_succ (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (cs : Array γ) :
+    zipWithAux as.toArray bs.toArray f (i + 1) cs = zipWithAux as.tail.toArray bs.tail.toArray f i cs := by
   rw [zipWithAux]
   conv => rhs; rw [zipWithAux]
   simp only [size_toArray, getElem_toArray, length_tail, getElem_tail]
@@ -355,8 +355,8 @@ theorem zipWithAux_toArray_succ (f : α → β → γ) (as : List α) (bs : List
       rw [dif_neg (by omega)]
   · rw [dif_neg (by omega)]
 
-theorem zipWithAux_toArray_succ' (f : α → β → γ) (as : List α) (bs : List β) (i : Nat) (cs : Array γ) :
-    zipWithAux f as.toArray bs.toArray (i + 1) cs = zipWithAux f (as.drop (i+1)).toArray (bs.drop (i+1)).toArray 0 cs := by
+theorem zipWithAux_toArray_succ' (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (cs : Array γ) :
+    zipWithAux as.toArray bs.toArray f (i + 1) cs = zipWithAux (as.drop (i+1)).toArray (bs.drop (i+1)).toArray f 0 cs := by
   induction i generalizing as bs cs with
   | zero => simp [zipWithAux_toArray_succ]
   | succ i ih =>
@@ -364,7 +364,7 @@ theorem zipWithAux_toArray_succ' (f : α → β → γ) (as : List α) (bs : Lis
     simp
 
 theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List β) (cs : Array γ) :
-    zipWithAux f as.toArray bs.toArray 0 cs = cs ++ (List.zipWith f as bs).toArray := by
+    zipWithAux as.toArray bs.toArray f 0 cs = cs ++ (List.zipWith f as bs).toArray := by
   rw [Array.zipWithAux]
   match as, bs with
   | [], _ => simp
@@ -372,8 +372,8 @@ theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List
   | a :: as, b :: bs =>
     simp [zipWith_cons_cons, zipWithAux_toArray_succ', zipWithAux_toArray_zero, push_append_toArray]
 
-@[simp] theorem zipWith_toArray (f : α → β → γ) (as : List α) (bs : List β) :
-    Array.zipWith f as.toArray bs.toArray = (List.zipWith f as bs).toArray := by
+@[simp] theorem zipWith_toArray (as : List α) (bs : List β) (f : α → β → γ) :
+    Array.zipWith as.toArray bs.toArray f = (List.zipWith f as bs).toArray := by
   rw [Array.zipWith]
   simp [zipWithAux_toArray_zero]
 
@@ -381,7 +381,7 @@ theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List
     Array.zip as.toArray bs.toArray = (List.zip as bs).toArray := by
   simp [Array.zip, zipWith_toArray, zip]
 
-theorem zipWithAll_go_toArray (f : Option α → Option β → γ) (as : List α) (bs : List β) (i : Nat) (cs : Array γ) :
+theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → Option β → γ) (i : Nat) (cs : Array γ) :
     zipWithAll.go f as.toArray bs.toArray i cs = cs ++ (List.zipWithAll f (as.drop i) (bs.drop i)).toArray := by
   unfold zipWithAll.go
   split <;> rename_i h
@@ -416,7 +416,7 @@ theorem zipWithAll_go_toArray (f : Option α → Option β → γ) (as : List α
   decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[simp] theorem zipWithAll_toArray (f : Option α → Option β → γ) (as : List α) (bs : List β) :
-    Array.zipWithAll f as.toArray bs.toArray = (List.zipWithAll f as bs).toArray := by
+    Array.zipWithAll as.toArray bs.toArray f = (List.zipWithAll f as bs).toArray := by
   simp [Array.zipWithAll, zipWithAll_go_toArray]
 
 end List
@@ -1697,7 +1697,7 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
 /-! ### zipWith -/
 
 @[simp] theorem toList_zipWith (f : α → β → γ) (as : Array α) (bs : Array β) :
-    (Array.zipWith f as bs).toList = List.zipWith f as.toList bs.toList := by
+    (Array.zipWith as bs f).toList = List.zipWith f as.toList bs.toList := by
   cases as
   cases bs
   simp
@@ -1707,7 +1707,7 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
   simp [zip, toList_zipWith, List.zip]
 
 @[simp] theorem toList_zipWithAll (f : Option α → Option β → γ) (as : Array α) (bs : Array β) :
-    (Array.zipWithAll f as bs).toList = List.zipWithAll f as.toList bs.toList := by
+    (Array.zipWithAll as bs f).toList = List.zipWithAll f as.toList bs.toList := by
   cases as
   cases bs
   simp

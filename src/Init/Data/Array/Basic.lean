@@ -13,6 +13,7 @@ import Init.Data.ToString.Basic
 import Init.GetElem
 import Init.Data.List.ToArray
 import Init.Data.Array.Set
+
 universe u v w
 
 /-! ### Array literal syntax -/
@@ -901,6 +902,18 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
   zipWith as bs Prod.mk
 
+def zipWithAll (f : Option α → Option β → γ) (as : Array α) (bs : Array β) : Array γ :=
+  go as bs 0 #[]
+where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
+  if i < max as.size bs.size then
+    let a := as[i]?
+    let b := bs[i]?
+    go as bs (i+1) (cs.push (f a b))
+  else
+    cs
+  termination_by max as.size bs.size - i
+  decreasing_by simp_wf; decreasing_trivial_pre_omega
+
 def unzip (as : Array (α × β)) : Array α × Array β :=
   as.foldl (init := (#[], #[])) fun (as, bs) (a, b) => (as.push a, bs.push b)
 
@@ -961,6 +974,13 @@ def allDiff [BEq α] (as : Array α) : Bool :=
       (false, r.push a)
     else
       (true, r)
+
+/-- Pad an array to the right with a given element. -/
+def padRight (as : Array α) (n : Nat) (a : α) : Array α :=
+  go (n - as.size) as
+where go : Nat → Array α → Array α
+  | 0, r => r
+  | n+1, r => go n (r.push a)
 
 /-! ### Repr and ToString -/
 

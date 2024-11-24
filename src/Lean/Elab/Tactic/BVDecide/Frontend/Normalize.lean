@@ -372,7 +372,6 @@ def fixpointPipeline (cfg : BVDecideConfig) : List Pass := Id.run do
 
   return passPipeline
 
-
 end Pass
 
 def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := do

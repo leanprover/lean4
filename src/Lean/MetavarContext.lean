@@ -1121,6 +1121,7 @@ mutual
       let args ← args.mapM (visit xs)
       -- Note that `toRevert` only contains free variables
       let toRevert ← collectForwardDeps mvarLCtx toRevert
+      assert! toRevert.all (·.isFVar)
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
       -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`

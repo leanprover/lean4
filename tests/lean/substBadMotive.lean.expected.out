@@ -1,5 +1,0 @@
-substBadMotive.lean:7:4-7:16: warning: declaration uses 'sorry'
-substBadMotive.lean:9:23-9:44: error: invalid `▸` notation, failed to compute motive for the substitution
-substBadMotive.lean:15:22-15:43: error: invalid `▸` notation, failed to compute motive for the substitution
-substBadMotive.lean:13:0-17:24: error: well-founded recursion cannot be used, 'Ex3.heapifyDown' does not take any (non-fixed) arguments
-substBadMotive.lean:34:30-34:53: error: invalid `▸` notation, failed to compute motive for the substitution

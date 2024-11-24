@@ -171,7 +171,7 @@ def swap (a : Array α) (i j : @& Nat) (hi : i < a.size := by get_elem_tactic) (
   let a'  := a.set i v₂
   a'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set a i v₂ _).symm)
 
-@[simp] theorem size_swap (a : Array α) (i j : Nat) (hi hj) : (a.swap i j hi hj).size = a.size := by
+@[simp] theorem size_swap (a : Array α) (i j : Nat) {hi hj} : (a.swap i j hi hj).size = a.size := by
   show ((a.set i a[j]).set j a[i]
     (Nat.lt_of_lt_of_eq hj (size_set a i a[j] _).symm)).size = a.size
   rw [size_set, size_set]

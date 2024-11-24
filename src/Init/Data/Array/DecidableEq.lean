@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 import Init.Data.BEq
-import Init.Data.Nat.Lemmas
 import Init.Data.List.Nat.BEq
 import Init.ByCases
 

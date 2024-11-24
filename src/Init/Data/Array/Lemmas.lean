@@ -396,7 +396,7 @@ theorem zipWithAll_go_toArray (f : Option α → Option β → γ) (as : List α
         simp only [Nat.not_lt] at hb
         rw [List.drop_eq_getElem_cons ha]
         rw [(drop_eq_nil_iff (l := bs)).mpr (by omega), (drop_eq_nil_iff (l := bs)).mpr (by omega)]
-        simp only [zipWithAll_nil_right, map_drop, map_cons]
+        simp only [zipWithAll_nil, map_drop, map_cons]
         rw [getElem?_eq_getElem ha]
         rw [getElem?_eq_none hb]
     else
@@ -404,7 +404,7 @@ theorem zipWithAll_go_toArray (f : Option α → Option β → γ) (as : List α
         simp only [Nat.not_lt] at ha
         rw [List.drop_eq_getElem_cons hb]
         rw [(drop_eq_nil_iff (l := as)).mpr (by omega), (drop_eq_nil_iff (l := as)).mpr (by omega)]
-        simp only [zipWithAll_nil_left, map_drop, map_cons]
+        simp only [nil_zipWithAll, map_drop, map_cons]
         rw [getElem?_eq_getElem hb]
         rw [getElem?_eq_none ha]
       else

@@ -778,22 +778,22 @@ theorem set_set (a : Array α) (i : Nat) (h) (v v' : α) :
 
 private theorem fin_cast_val (e : n = n') (i : Fin n) : e ▸ i = ⟨i.1, e ▸ i.2⟩ := by cases e; rfl
 
-theorem swap_def (a : Array α) (i j : Fin a.size) :
-    a.swap i j = (a.set i a[j]).set j a[i] := by
+theorem swap_def (a : Array α) (i j : Nat) (hi hj) :
+    a.swap i j hi hj = (a.set i a[j]).set j a[i] (by simpa using hj) := by
   simp [swap, fin_cast_val]
 
-@[simp] theorem toList_swap (a : Array α) (i j : Fin a.size) :
-    (a.swap i j).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
+@[simp] theorem toList_swap (a : Array α) (i j : Nat) (hi hj) :
+    (a.swap i j hi hj).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
 
-theorem getElem?_swap (a : Array α) (i j : Fin a.size) (k : Nat) : (a.swap i j)[k]? =
-    if j = k then some a[i.1] else if i = k then some a[j.1] else a[k]? := by
+theorem getElem?_swap (a : Array α) (i j : Nat) (hi hj) (k : Nat) : (a.swap i j hi hj)[k]? =
+    if j = k then some a[i] else if i = k then some a[j] else a[k]? := by
   simp [swap_def, get?_set, ← getElem_fin_eq_getElem_toList]
 
-@[simp] theorem swapAt_def (a : Array α) (i : Fin a.size) (v : α) :
-    a.swapAt i v = (a[i.1], a.set i v) := rfl
+@[simp] theorem swapAt_def (a : Array α) (i : Nat) (v : α) (hi) :
+    a.swapAt i v hi = (a[i], a.set i v) := rfl
 
-@[simp] theorem size_swapAt (a : Array α) (i : Fin a.size) (v : α) :
-    (a.swapAt i v).2.size = a.size := by simp [swapAt_def]
+@[simp] theorem size_swapAt (a : Array α) (i : Nat) (v : α) (hi) :
+    (a.swapAt i v hi).2.size = a.size := by simp [swapAt_def]
 
 @[simp]
 theorem swapAt!_def (a : Array α) (i : Nat) (v : α) (h : i < a.size) :
@@ -840,8 +840,10 @@ theorem eq_push_of_size_ne_zero {as : Array α} (h : as.size ≠ 0) :
 
 theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rfl
 
-@[simp] theorem size_swap! (a : Array α) (i j) :
-    (a.swap! i j).size = a.size := by unfold swap!; split <;> (try split) <;> simp [size_swap]
+@[simp] theorem size_swapIfInBounds (a : Array α) (i j) :
+    (a.swapIfInBounds i j).size = a.size := by unfold swapIfInBounds; split <;> (try split) <;> simp [size_swap]
+
+@[deprecated size_swapIfInBounds (since := "2024-11-24")] abbrev size_swap! := @size_swapIfInBounds
 
 @[simp] theorem size_reverse (a : Array α) : a.reverse.size = a.size := by
   let rec go (as : Array α) (i j) : (reverse.loop as i j).size = as.size := by
@@ -1603,28 +1605,30 @@ instance [DecidableEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
 
 open Fin
 
-@[simp] theorem getElem_swap_right (a : Array α) {i j : Fin a.size} : (a.swap i j)[j.1] = a[i] := by
+@[simp] theorem getElem_swap_right (a : Array α) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj)[j]'(by simpa using hj) = a[i] := by
   simp [swap_def, getElem_set]
 
-@[simp] theorem getElem_swap_left (a : Array α) {i j : Fin a.size} : (a.swap i j)[i.1] = a[j] := by
+@[simp] theorem getElem_swap_left (a : Array α) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj)[i]'(by simpa using hi) = a[j] := by
   simp +contextual [swap_def, getElem_set]
 
-@[simp] theorem getElem_swap_of_ne (a : Array α) {i j : Fin a.size} (hp : p < a.size)
-    (hi : p ≠ i) (hj : p ≠ j) : (a.swap i j)[p]'(a.size_swap .. |>.symm ▸ hp) = a[p] := by
-  simp [swap_def, getElem_set, hi.symm, hj.symm]
+@[simp] theorem getElem_swap_of_ne (a : Array α) {i j : Nat} {hi hj} (hp : p < a.size)
+    (hi' : p ≠ i) (hj' : p ≠ j) : (a.swap i j hi hj)[p]'(a.size_swap .. |>.symm ▸ hp) = a[p] := by
+  simp [swap_def, getElem_set, hi'.symm, hj'.symm]
 
-theorem getElem_swap' (a : Array α) (i j : Fin a.size) (k : Nat) (hk : k < a.size) :
-    (a.swap i j)[k]'(by simp_all) = if k = i then a[j] else if k = j then a[i] else a[k] := by
+theorem getElem_swap' (a : Array α) (i j : Nat) {hi hj} (k : Nat) (hk : k < a.size) :
+    (a.swap i j hi hj)[k]'(by simp_all) = if k = i then a[j] else if k = j then a[i] else a[k] := by
   split
   · simp_all only [getElem_swap_left]
   · split <;> simp_all
 
-theorem getElem_swap (a : Array α) (i j : Fin a.size) (k : Nat) (hk : k < (a.swap i j).size) :
-    (a.swap i j)[k] = if k = i then a[j] else if k = j then a[i] else a[k]'(by simp_all) := by
+theorem getElem_swap (a : Array α) (i j : Nat) {hi hj}(k : Nat) (hk : k < (a.swap i j).size) :
+    (a.swap i j hi hj)[k] = if k = i then a[j] else if k = j then a[i] else a[k]'(by simp_all) := by
   apply getElem_swap'
 
-@[simp] theorem swap_swap (a : Array α) {i j : Fin a.size} :
-    (a.swap i j).swap ⟨i.1, (a.size_swap ..).symm ▸ i.2⟩ ⟨j.1, (a.size_swap ..).symm ▸ j.2⟩ = a := by
+@[simp] theorem swap_swap (a : Array α) {i j : Nat} (hi hj) :
+    (a.swap i j hi hj).swap i j ((a.size_swap ..).symm ▸ hi) ((a.size_swap ..).symm ▸ hj) = a := by
   apply ext
   · simp only [size_swap]
   · intros
@@ -1633,7 +1637,7 @@ theorem getElem_swap (a : Array α) (i j : Fin a.size) (k : Nat) (hk : k < (a.sw
     · simp_all
     · split <;> simp_all
 
-theorem swap_comm (a : Array α) {i j : Fin a.size} : a.swap i j = a.swap j i := by
+theorem swap_comm (a : Array α) {i j : Nat} {hi hj} : a.swap i j hi hj = a.swap j i hj hi := by
   apply ext
   · simp only [size_swap]
   · intros
@@ -1790,8 +1794,8 @@ theorem all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p 
   subst h
   rw [all_toList]
 
-@[simp] theorem swap_toArray (l : List α) (i j : Fin l.toArray.size) :
-    l.toArray.swap i j = ((l.set i l[j]).set j l[i]).toArray := by
+@[simp] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
+    l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
   apply ext'
   simp
 

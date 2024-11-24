@@ -103,10 +103,10 @@ def popMaxAux {lt} (self : BinaryHeap α lt) : {a' : BinaryHeap α lt // a'.size
   match e: self.1.size with
   | 0 => ⟨self, by simp [size, e]⟩
   | n+1 =>
-    have h0 := by rw [e]; apply Nat.succ_pos
-    have hn := by rw [e]; apply Nat.lt_succ_self
+    have h0 : 0 < self.1.size := by rw [e]; apply Nat.succ_pos
+    have hn : n < self.1.size := by rw [e]; apply Nat.lt_succ_self
     if hn0 : 0 < n then
-      let a := self.1.swap ⟨0, h0⟩ ⟨n, hn⟩ |>.pop
+      let a := self.1.swap 0 n |>.pop
       ⟨⟨heapifyDown lt a ⟨0, sorry⟩⟩,
         by simp [size, a]⟩
     else

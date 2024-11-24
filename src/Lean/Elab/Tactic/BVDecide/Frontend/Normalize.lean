@@ -170,19 +170,25 @@ structure Pass where
 namespace Pass
 
 /--
-Repeatedly run a list of `Pass` until they either close the goal or an iteration doesn't change
-the goal anymore.
+Run a sequence of `Pass` on `goal`, producing either a remaining goal or `none` if the goal is
+closed.
 -/
-partial def fixpointPipeline (passes : List Pass) (goal : MVarId) : MetaM (Option MVarId) := do
+def runPipeline (passes : List Pass) (goal : MVarId) : MetaM (Option MVarId) :=
   let runPass (goal? : Option MVarId) (pass : Pass) : MetaM (Option MVarId) := do
     let some goal := goal? | return none
     withTraceNode `bv (fun _ => return s!"Running pass: {pass.name}") do
       pass.run goal
+  passes.foldlM (init := some goal) runPass
 
-  let some newGoal := ← passes.foldlM (init := some goal) runPass | return none
+/--
+Repeatedly run a list of `Pass` until they either close the goal or an iteration doesn't change
+the goal anymore.
+-/
+partial def runToFixpoint (passes : List Pass) (goal : MVarId) : MetaM (Option MVarId) := do
+  let some newGoal ← runPipeline passes goal | return none
   if goal != newGoal then
     trace[Meta.Tactic.bv] m!"Rerunning pipeline on:\n{newGoal}"
-    fixpointPipeline passes newGoal
+    runToFixpoint passes newGoal
   else
     trace[Meta.Tactic.bv] "Pipeline reached a fixpoint"
     return newGoal
@@ -199,7 +205,7 @@ def rewriteRulesPass (maxSteps : Nat) : Pass where
     let sevalSimprocs ← Simp.getSEvalSimprocs
 
     let simpCtx ← Simp.mkContext
-      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps })
+      (config := { failIfUnchanged := false, maxSteps })
       (simpTheorems := #[bvThms, sevalThms])
       (congrTheorems := (← getSimpCongrTheorems))
 
@@ -328,7 +334,31 @@ def acNormalizePass : Pass where
 
     return newGoal
 
-def passPipeline (cfg : BVDecideConfig) : List Pass := Id.run do
+/--
+Inline all let binders.
+-/
+def removeLetsPass (cfg : BVDecideConfig) : Pass where
+  name := `remove_lets
+  run goal := do
+    let simpCtx ← Simp.mkContext
+      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps := cfg.maxSteps })
+      (congrTheorems := (← getSimpCongrTheorems))
+
+    let hyps ← goal.getNondepPropHyps
+    let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
+    let some (_, goal) := result? | return none
+    return goal
+
+/--
+The pipeline that is run at the very beginning once.
+-/
+def initialPipeline (cfg : BVDecideConfig) : List Pass :=
+  [removeLetsPass cfg]
+
+/--
+The pipeline that is run after the initial one up to fixpoint.
+-/
+def fixpointPipeline (cfg : BVDecideConfig) : List Pass := Id.run do
   let mut passPipeline := [rewriteRulesPass cfg.maxSteps]
 
   if cfg.acNf then
@@ -342,6 +372,7 @@ def passPipeline (cfg : BVDecideConfig) : List Pass := Id.run do
 
   return passPipeline
 
+
 end Pass
 
 def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := do
@@ -349,7 +380,9 @@ def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := d
     -- Contradiction proof
     let some g ← g.falseOrByContra | return none
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
-    Pass.fixpointPipeline (Pass.passPipeline cfg) g
+    let some g ← Pass.runPipeline (Pass.initialPipeline cfg) g | return none
+    trace[Meta.Tactic.bv] m!"Finished initial preprocessing step:\n{g}"
+    Pass.runToFixpoint (Pass.fixpointPipeline cfg) g
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

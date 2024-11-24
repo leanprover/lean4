@@ -5,24 +5,43 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
+import Init.Data.Nat.Fold
+import Init.Data.Vector.Basic
 
-@[inline] def Array.insertionSort (a : Array α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
-  traverse a 0 a.size
+namespace Vector
+
+theorem getElem_push_lt {n} (a : Vector α n) (x : α) (i : Nat) (h : i < n) : (a.push x)[i] = a[i] := by
+  cases a
+  simp
+
+end Vector
+
+namespace Array
+
+@[inline] def insertionSort (a : Array α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
+  a.size.fold (init := ⟨a, rfl⟩) (f := fun i h acc => swapLoop acc i h) |>.toArray
 where
-  @[specialize] traverse (a : Array α) (i : Nat) (fuel : Nat) : Array α :=
-    match fuel with
-    | 0      => a
-    | fuel+1 =>
-      if h : i < a.size then
-        traverse (swapLoop a i h) (i+1) fuel
-      else
-        a
-  @[specialize] swapLoop (a : Array α) (j : Nat) (h : j < a.size) : Array α :=
-    match (generalizing := false) he:j with -- using `generalizing` because we don't want to refine the type of `h`
+  @[specialize] swapLoop {n} (a : Vector α n) (j : Nat) (h : j < n := by get_elem_tactic) : Vector α n :=
+    match h' : j with
     | 0    => a
     | j'+1 =>
-      have h' : j' < a.size := by subst j; exact Nat.lt_trans (Nat.lt_succ_self _) h
       if lt a[j] a[j'] then
-        swapLoop (a.swap j j') j' (by rw [size_swap]; assumption; done)
+        swapLoop (a.swap j j') j'
       else
         a
+
+@[simp] theorem size_insertionSort (a : Array α) : (a.insertionSort lt).size = a.size := by
+  simp [insertionSort]
+
+theorem insertionSort_swapLoop_push {n} (a : Vector α n) (x : α) (j : Nat) (h : j < n) :
+    insertionSort.swapLoop lt (a.push x) j = (insertionSort.swapLoop lt a j).push x := by
+  induction j generalizing a with
+  | zero => simp [insertionSort.swapLoop]
+  | succ j ih =>
+    simp [insertionSort.swapLoop]
+    split <;> rename_i h
+    · rw [getElem_push_lt] at h
+    · sorry
+
+
+end Array

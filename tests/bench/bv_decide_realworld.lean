@@ -29,7 +29,7 @@ def parity32_spec_rec (i : Nat) (x : BitVec 32) : Bool :=
   | 0 => false
   | i' + 1 =>
     let bit_idx := BitVec.getLsbD x i'
-    Bool.xor bit_idx (parity32_spec_rec i' x)
+    bit_idx ^^ (parity32_spec_rec i' x)
 
 def parity32_spec (x : BitVec 32) : Bool :=
   parity32_spec_rec 32 x

@@ -14,7 +14,7 @@ instance coeToNat : CoeOut (Fin n) Nat :=
   ⟨fun v => v.val⟩
 
 /--
-From the empty type `Fin 0`, any desired result `α` can be derived. This is simlar to `Empty.elim`.
+From the empty type `Fin 0`, any desired result `α` can be derived. This is similar to `Empty.elim`.
 -/
 def elim0.{u} {α : Sort u} : Fin 0 → α
   | ⟨_, h⟩ => absurd h (not_lt_zero _)
@@ -31,7 +31,7 @@ This differs from addition, which wraps around:
 (2 : Fin 3) + 1 = (0 : Fin 3)
 ```
 -/
-def succ : Fin n → Fin n.succ
+def succ : Fin n → Fin (n + 1)
   | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
 
 variable {n : Nat}
@@ -39,16 +39,20 @@ variable {n : Nat}
 /--
 Returns `a` modulo `n + 1` as a `Fin n.succ`.
 -/
-protected def ofNat {n : Nat} (a : Nat) : Fin n.succ :=
+protected def ofNat {n : Nat} (a : Nat) : Fin (n + 1) :=
   ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
 
 /--
 Returns `a` modulo `n` as a `Fin n`.
 
-The assumption `n > 0` ensures that `Fin n` is nonempty.
+The assumption `NeZero n` ensures that `Fin n` is nonempty.
 -/
-protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
-  ⟨a % n, Nat.mod_lt _ h⟩
+protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
+  ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
+
+-- We intend to deprecate `Fin.ofNat` in favor of `Fin.ofNat'` (and later rename).
+-- This is waiting on https://github.com/leanprover/lean4/pull/5323
+-- attribute [deprecated Fin.ofNat' (since := "2024-09-16")] Fin.ofNat
 
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
   | 0,   h => Nat.mod_lt _ h
@@ -141,10 +145,10 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
-instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin (no_index n)) i where
-  ofNat := Fin.ofNat' i (pos_of_neZero _)
+instance instOfNat {n : Nat} [NeZero n] {i : Nat} : OfNat (Fin n) i where
+  ofNat := Fin.ofNat' n i
 
-instance : Inhabited (Fin (no_index (n+1))) where
+instance instInhabited {n : Nat} [NeZero n] : Inhabited (Fin n) where
   default := 0
 
 @[simp] theorem zero_eta : (⟨0, Nat.zero_lt_succ _⟩ : Fin (n + 1)) = 0 := rfl
@@ -161,6 +165,7 @@ theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (modn i m).val < m
 theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
   Nat.lt_of_lt_of_le i.isLt h
 
+/-- If you actually have an element of `Fin n`, then the `n` is always positive -/
 protected theorem pos (i : Fin n) : 0 < n :=
   Nat.lt_of_le_of_lt (Nat.zero_le _) i.2
 

@@ -31,7 +31,7 @@ Matches a string that satisfies an arbitrary predicate
 (optionally identified by a `Name`).
 -/
 | satisfies (f : String → Bool) (name := Name.anonymous)
-/-- Matches a string that is a member of the the array -/
+/-- Matches a string that is a member of the array -/
 | mem (xs : Array String)
 /-- Matches a string that starts with this prefix. -/
 | startsWith (pre : String)
@@ -275,7 +275,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Packages without a defined version default to `0.0.0`.
   -/
-  version : StdVer := v!"0.0.0"
+  version : StdVer := {}
 
   /--
   Git tags of this package's repository that should be treated as versions.
@@ -283,7 +283,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   the Git revisions corresponding to released versions.
 
   Defaults to tags that are "version-like".
-  That is, start with a `v` and are followed by a digit.
+  That is, start with a `v` followed by a digit.
   -/
   versionTags : StrPat := defaultVersionTags
 
@@ -299,7 +299,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   `devtool`), specific subtopics (e.g., `topology`,  `cryptology`), and
   significant implementation details (e.g., `dsl`, `ffi`, `cli`).
   For instance, Lake's keywords could be `devtool`, `cli`, `dsl`,
-  `package-manager`, `build-system`.
+  `package-manager`, and `build-system`.
   -/
   keywords : Array String := #[]
 
@@ -308,7 +308,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Reservoir will already include a link to the package's GitHub repository
   (if the package is sourced from there). Thus, users are advised to specify
-  something else for this link (if anything).
+  something else for this (if anything).
   -/
   homepage : String := ""
 
@@ -340,8 +340,11 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The path to the package's README.
-  A README should be a markdown file containing an overview of the package.
-  Reservoir displays the rendered HTML of this README on a package's page.
+
+  A README should be a Markdown file containing an overview of the package.
+  Reservoir displays the rendered HTML of this file on a package's page.
+  A nonstandard location can be used to provide a different README for Reservoir
+  and GitHub.
 
   Defaults to `README.md`.
   -/
@@ -376,10 +379,10 @@ structure Package where
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
+  /-- The package's scope (e.g., in Reservoir). -/
+  scope : String
   /-- The URL to this package's Git remote. -/
-  remoteUrl? : Option String := none
-  /-- (Opaque references to) the package's direct dependencies. -/
-  opaqueDeps : Array OpaquePackage := #[]
+  remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
@@ -413,8 +416,6 @@ structure Package where
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
   ⟨by constructor <;> exact default⟩
-
-hydrate_opaque_type OpaquePackage Package
 
 instance : Hashable Package where hash pkg := hash pkg.config.name
 instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
@@ -503,10 +504,6 @@ namespace Package
 @[inline] def readmeFile (self : Package) : FilePath  :=
   self.dir / self.config.readmeFile
 
-/-- The package's direct dependencies. -/
-@[inline] def deps (self : Package) : Array Package  :=
-  self.opaqueDeps.map (·.get)
-
 /-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
 @[inline] def relLakeDir (_ : Package) : FilePath :=
   defaultLakeDir
@@ -555,6 +552,10 @@ namespace Package
 @[inline] def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo <|> self.config.releaseRepo?
 
+/-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
+@[inline] def remoteUrl? (self : Package) : Option String :=
+  if self.remoteUrl.isEmpty then some self.remoteUrl else none
+
 /-- The package's `buildArchive`/`buildArchive?` configuration. -/
 @[inline] def buildArchive (self : Package) : String :=
   self.config.buildArchive
@@ -562,6 +563,10 @@ namespace Package
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=
   self.lakeDir / self.buildArchive
+
+/-- The path where Lake stores the package's barrel (downloaded from Reservoir). -/
+@[inline] def barrelFile (self : Package) : FilePath :=
+  self.lakeDir / "build.barrel"
 
 /-- The package's `preferReleaseBuild` configuration. -/
 @[inline] def preferReleaseBuild (self : Package) : Bool :=

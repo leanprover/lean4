@@ -217,7 +217,7 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "msys2 {0}",
-                "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
+                "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
                 // for reasons unknown, interactivetests are flaky on Windows
                 "CTEST_OPTIONS": "--repeat until-pass:2",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
@@ -227,7 +227,7 @@ jobs:
               {
                 "name": "Linux aarch64",
                 "os": "nscloud-ubuntu-22.04-arm64-4x8",
-                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
+                "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-linux_aarch64",
                 "release": true,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
@@ -257,7 +257,7 @@ jobs:
                 "cross": true,
                 "shell": "bash -euxo pipefail {0}",
                 // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_libuv\\.lean\""
+                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
@@ -316,9 +316,9 @@ jobs:
           git fetch --depth=1 origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock
         if: github.event_name == 'pull_request'
-      # (needs to be after "Checkout" so files don't get overriden)
+      # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v12
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: 3.1.44
           actions-cache-folder: emsdk
@@ -454,7 +454,7 @@ jobs:
         run: ccache -s
 
   # This job collects results from all the matrix jobs
-  # This can be made the “required” job, instead of listing each
+  # This can be made the "required" job, instead of listing each
   # matrix job separately
   all-done:
     name: Build matrix complete
@@ -494,7 +494,7 @@ jobs:
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -538,7 +538,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body_path: diff.md
           prerelease: true

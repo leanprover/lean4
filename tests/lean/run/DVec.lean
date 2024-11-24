@@ -5,7 +5,7 @@ def Vec (α : Type _) (n : Nat) : Type _
 abbrev TypeVec : Nat → Type _
   := Vec (Type _)
 
-/-- A dependent vector is a heterogenous list of statically known size -/
+/-- A dependent vector is a heterogeneous list of statically known size -/
 def DVec {n : Nat} (αs : TypeVec n) : Type _
   := (i : Fin n) → (αs i)
 

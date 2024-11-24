@@ -65,6 +65,14 @@ inductive BVBinOp where
   Multiplication.
   -/
   | mul
+  /--
+  Unsigned division.
+  -/
+  | udiv
+  /--
+  Unsigned modulo.
+  -/
+  | umod
 
 namespace BVBinOp
 
@@ -74,6 +82,8 @@ def toString : BVBinOp → String
   | xor => "^"
   | add => "+"
   | mul => "*"
+  | udiv => "/ᵤ"
+  | umod => "%ᵤ"
 
 instance : ToString BVBinOp := ⟨toString⟩
 
@@ -86,12 +96,16 @@ def eval : BVBinOp → (BitVec w → BitVec w → BitVec w)
   | xor => (· ^^^ ·)
   | add => (· + ·)
   | mul => (· * ·)
+  | udiv => (· / ·)
+  | umod => (· % · )
 
 @[simp] theorem eval_and : eval .and = ((· &&& ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_or : eval .or = ((· ||| ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_xor : eval .xor = ((· ^^^ ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_add : eval .add = ((· + ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_mul : eval .mul = ((· * ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_udiv : eval .udiv = ((· / ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_umod : eval .umod = ((· % ·) : BitVec w → BitVec w → BitVec w) := by rfl
 
 end BVBinOp
 
@@ -142,8 +156,8 @@ def toString : BVUnOp → String
   | not => "~"
   | shiftLeftConst n => s!"<< {n}"
   | shiftRightConst n => s!">> {n}"
-  | rotateLeft n => s! "rotL {n}"
-  | rotateRight n => s! "rotR {n}"
+  | rotateLeft n => s!"rotL {n}"
+  | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
 
 instance : ToString BVUnOp := ⟨toString⟩
@@ -231,6 +245,10 @@ inductive BVExpr : Nat → Type where
   shift right by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
   | shiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
+  /--
+  shift right arithmetically by another BitVec expression. For constant shifts there exists a `BVUnop`.
+  -/
+  | arithShiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
 
 namespace BVExpr
 
@@ -238,7 +256,7 @@ def toString : BVExpr w → String
   | .var idx => s!"var{idx}"
   | .const val => ToString.toString val
   | .zeroExtend v expr => s!"(zext {v} {expr.toString})"
-  | .extract hi lo expr => s!"{expr.toString}[{hi}:{lo}]"
+  | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
   | .un op operand => s!"({op.toString} {toString operand})"
   | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"
@@ -246,6 +264,7 @@ def toString : BVExpr w → String
   | .signExtend v expr => s!"(sext {v} {expr.toString})"
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
+  | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
 
 
 instance : ToString (BVExpr w) := ⟨toString⟩
@@ -285,6 +304,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
   | .signExtend v expr => BitVec.signExtend v (eval assign expr)
   | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
   | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
+  | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
 
 @[simp]
 theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.getD idx).bv.truncate _ := by
@@ -327,6 +347,11 @@ theorem eval_shiftLeft : eval assign (.shiftLeft lhs rhs) = (eval assign lhs) <<
 
 @[simp]
 theorem eval_shiftRight : eval assign (.shiftRight lhs rhs) = (eval assign lhs) >>> (eval assign rhs) := by
+  rfl
+
+@[simp]
+theorem eval_arithShiftRight :
+    eval assign (.arithShiftRight lhs rhs) = BitVec.sshiftRight' (eval assign lhs) (eval assign rhs) := by
   rfl
 
 end BVExpr
@@ -427,6 +452,8 @@ def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
 @[simp] theorem eval_const : eval assign (.const b) = b := rfl
 @[simp] theorem eval_not : eval assign (.not x) = !eval assign x := rfl
 @[simp] theorem eval_gate : eval assign (.gate g x y) = g.eval (eval assign x) (eval assign y) := rfl
+@[simp] theorem eval_ite :
+  eval assign (.ite d l r) = if (eval assign d) then (eval assign l) else (eval assign r) := rfl
 
 def Sat (x : BVLogicalExpr) (assign : BVExpr.Assignment) : Prop := eval assign x = true
 

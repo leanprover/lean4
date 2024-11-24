@@ -4,12 +4,12 @@ open BitVec
 
 /--
 error: The SAT solver timed out while solving the problem.
-Consider increasing the timeout with `set_option sat.timeout <sec>`
+Consider increasing the timeout with the `timeout` config option.
+If solving your problem relies inherently on using associativity or commutativity, consider enabling the `acNf` config option.
 -/
 #guard_msgs in
-set_option sat.timeout 1 in
 theorem timeout (x y z : BitVec 1024) : x - (y + z) = x - y - z := by
-  bv_decide
+  bv_decide (config := { timeout := 1 })
 
 /--
 error: None of the hypotheses are in the supported BitVec fragment.

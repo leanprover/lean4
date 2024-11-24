@@ -207,7 +207,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
     | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
       let globalInstances ← getGlobalInstancesIndex
-      let result ← globalInstances.getUnify type tcDtConfig
+      let result ← globalInstances.getUnify type
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
       -- Most instances have default priority.
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
@@ -442,7 +442,7 @@ private def hasUnusedArguments : Expr → Bool
 
 /--
   If the type of the metavariable `mvar` has unused argument, return a pair `(α, transformer)`
-  where `α` is a new type without the unused arguments and the `transformer` is a function for coverting a
+  where `α` is a new type without the unused arguments and the `transformer` is a function for converting a
   solution with type `α` into a value that can be assigned to `mvar`.
   Example: suppose `mvar` has type `(a : A) → (b : B a) → (c : C a) → D a c`, the result is the pair
   ```
@@ -534,7 +534,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
          tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode :=
-  return (← get).generatorStack.back
+  return (← get).generatorStack.back!
 
 @[inline] def modifyTop (f : GeneratorNode → GeneratorNode) : SynthM Unit :=
   modify fun s => { s with generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f }
@@ -578,7 +578,7 @@ def generate : SynthM Unit := do
       return none
 
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
-  let r := (← get).resumeStack.back
+  let r := (← get).resumeStack.back!
   modify fun s => { s with resumeStack := s.resumeStack.pop }
   return r
 
@@ -665,13 +665,13 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
     let type ← whnf type
     match type with
     | .forallE _ d b _ => do
-      let arg := args.get ⟨i, h⟩
+      let arg := args[i]
       /-
       We should not simply check `d.isOutParam`. See `checkOutParam` and issue #1852.
       If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
       -/
       let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
-      let args := args.set ⟨i, h⟩ arg
+      let args := args.set i arg
       preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
     | _ =>
       throwError "type class resolution failed, insufficient number of arguments" -- TODO improve error message
@@ -752,7 +752,7 @@ private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option Abstr
   let some abstResult := abstResult? | return none
   if abstResult.numMVars == 0 && abstResult.paramNames.isEmpty then
     /-
-    Result does not instroduce new metavariables, thus we don't need to perform (again)
+    Result does not introduce new metavariables, thus we don't need to perform (again)
     the `check` at `applyAbstractResult?`.
     This is an optimization.
     -/
@@ -782,7 +782,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }) do
-  withReader (fun ctx => { ctx with inTypeClassResolution := true }) do
+  withInTypeClassResolution do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let type ← preprocess type
@@ -839,7 +839,7 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
         recordSynthPendingFailure mvarDecl.type
         return false
       else
-        withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 }) do
+        withIncSynthPending do
           trace[Meta.synthPending] "synthPending {mkMVar mvarId}"
           let val? ← catchInternalId isDefEqStuckExceptionId (synthInstance? mvarDecl.type (maxResultSize? := none)) (fun _ => pure none)
           match val? with

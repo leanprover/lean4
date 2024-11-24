@@ -92,7 +92,7 @@ def mkAuxName [Monad m] [MonadEnv m] (baseName : Name) (idx : Nat) : m Name := d
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info
-  | none      => throwError "unknown constant '{mkConst constName}'"
+  | none      => throwError "unknown constant '{.ofConstName constName}'"
 
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstInfo constName
@@ -101,24 +101,43 @@ def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Na
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.defnInfo v => pure v
-  | _                       => throwError "'{mkConst constName}' is not a definition"
+  | _                       => throwError "'{.ofConstName constName}' is not a definition"
 
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.inductInfo v => pure v
-  | _                         => throwError "'{mkConst constName}' is not a inductive type"
+  | _                         => throwError "'{.ofConstName constName}' is not a inductive type"
 
 def getConstInfoCtor [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstructorVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.ctorInfo v => pure v
-  | _                       => throwError "'{mkConst constName}' is not a constructor"
+  | _                       => throwError "'{.ofConstName constName}' is not a constructor"
 
 def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m RecursorVal := do
   match (← getConstInfo constName) with
   | ConstantInfo.recInfo v => pure v
-  | _                      => throwError "'{mkConst constName}' is not a recursor"
+  | _                      => throwError "'{.ofConstName constName}' is not a recursor"
 
-@[inline] def matchConstStruct [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
+/--
+Matches if `e` is a constant that is an inductive type with one constructor.
+Such types can be used with primitive projections.
+See also `Lean.matchConstStructLike` for a more restrictive version.
+-/
+@[inline] def matchConstStructure [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
+  matchConstInduct e failK fun ival us => do
+    match ival.ctors with
+      | [ctor] =>
+        match (← getConstInfo ctor) with
+        | ConstantInfo.ctorInfo cval => k ival us cval
+        | _ => failK ()
+      | _ => failK ()
+
+/--
+Matches if `e` is a constant that is an non-recursive inductive type with no indices and with one constructor.
+Such a type satisfies `Lean.isStructureLike`.
+See also `Lean.matchConstStructure` for a less restrictive version.
+-/
+@[inline] def matchConstStructureLike [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
   matchConstInduct e failK fun ival us => do
     if ival.isRec || ival.numIndices != 0 then failK ()
     else match ival.ctors with

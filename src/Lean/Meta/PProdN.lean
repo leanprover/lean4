@@ -8,7 +8,7 @@ prelude
 import Lean.Meta.InferType
 
 /-!
-This module provides functios to pack and unpack values using nested `PProd` or `And`,
+This module provides functions to pack and unpack values using nested `PProd` or `And`,
 as used in the `.below` construction, in the `.brecOn` construction for mutual recursion and
 and the `mutual_induct` construction.
 
@@ -71,7 +71,7 @@ def pack (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True []
                          else return .const ``PUnit [lvl]
-  let xBack := xs.back
+  let xBack := xs.back!
   xs.pop.foldrM mkPProd xBack
 
 /-- Given values `xᵢ` of type `tᵢ`, produces value of type `t₁ ×' t₂ ×' t₃` -/
@@ -79,7 +79,7 @@ def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True.intro []
                          else return .const ``PUnit.unit [lvl]
-  let xBack := xs.back
+  let xBack := xs.back!
   xs.pop.foldrM mkPProdMk xBack
 
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
@@ -115,8 +115,8 @@ It returns a dummy motive `(xs : ) → PUnit` or `(xs : … ) → True` if no ex
 
 -/
 def packLambdas (type : Expr) (es : Array Expr) : MetaM Expr := do
-  if es.size = 1 then
-    return es[0]!
+  if h : es.size = 1 then
+    return es[0]
   forallTelescope type fun xs sort => do
     assert! sort.isSort
     -- NB: Use beta, not instantiateLambda; when constructing the belowDict below
@@ -131,8 +131,8 @@ The value analogue to `PProdN.packLambdas`.
 It is the identity if `es.size = 1`.
 -/
 def mkLambdas (type : Expr) (es : Array Expr) : MetaM Expr := do
-  if es.size = 1 then
-    return es[0]!
+  if h : es.size = 1 then
+    return es[0]
   forallTelescope type fun xs body => do
     let lvl ← getLevel body
     let es' := es.map (·.beta xs)

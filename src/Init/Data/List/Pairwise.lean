@@ -76,11 +76,11 @@ theorem pairwise_of_forall {l : List α} (H : ∀ x y, R x y) : Pairwise R l := 
 
 theorem Pairwise.and_mem {l : List α} :
     Pairwise R l ↔ Pairwise (fun x y => x ∈ l ∧ y ∈ l ∧ R x y) l :=
-  Pairwise.iff_of_mem <| by simp (config := { contextual := true })
+  Pairwise.iff_of_mem <| by simp +contextual
 
 theorem Pairwise.imp_mem {l : List α} :
     Pairwise R l ↔ Pairwise (fun x y => x ∈ l → y ∈ l → R x y) l :=
-  Pairwise.iff_of_mem <| by simp (config := { contextual := true })
+  Pairwise.iff_of_mem <| by simp +contextual
 
 theorem Pairwise.forall_of_forall_of_flip (h₁ : ∀ x ∈ l, R x x) (h₂ : Pairwise R l)
     (h₃ : l.Pairwise (flip R)) : ∀ ⦃x⦄, x ∈ l → ∀ ⦃y⦄, y ∈ l → R x y := by
@@ -160,21 +160,25 @@ theorem pairwise_middle {R : α → α → Prop} (s : ∀ {x y}, R x y → R y x
   rw [← append_assoc, pairwise_append, @pairwise_append _ _ ([a] ++ l₁), pairwise_append_comm s]
   simp only [mem_append, or_comm]
 
-theorem pairwise_join {L : List (List α)} :
-    Pairwise R (join L) ↔
+theorem pairwise_flatten {L : List (List α)} :
+    Pairwise R (flatten L) ↔
       (∀ l ∈ L, Pairwise R l) ∧ Pairwise (fun l₁ l₂ => ∀ x ∈ l₁, ∀ y ∈ l₂, R x y) L := by
   induction L with
   | nil => simp
   | cons l L IH =>
-    simp only [join, pairwise_append, IH, mem_join, exists_imp, and_imp, forall_mem_cons,
+    simp only [flatten, pairwise_append, IH, mem_flatten, exists_imp, and_imp, forall_mem_cons,
       pairwise_cons, and_assoc, and_congr_right_iff]
     rw [and_comm, and_congr_left_iff]
     intros; exact ⟨fun h a b c d e => h c d e a b, fun h c d e a b => h a b c d e⟩
 
-theorem pairwise_bind {R : β → β → Prop} {l : List α} {f : α → List β} :
-    List.Pairwise R (l.bind f) ↔
+@[deprecated pairwise_flatten (since := "2024-10-14")] abbrev pairwise_join := @pairwise_flatten
+
+theorem pairwise_flatMap {R : β → β → Prop} {l : List α} {f : α → List β} :
+    List.Pairwise R (l.flatMap f) ↔
       (∀ a ∈ l, Pairwise R (f a)) ∧ Pairwise (fun a₁ a₂ => ∀ x ∈ f a₁, ∀ y ∈ f a₂, R x y) l := by
-  simp [List.bind, pairwise_join, pairwise_map]
+  simp [List.flatMap, pairwise_flatten, pairwise_map]
+
+@[deprecated pairwise_flatMap (since := "2024-10-14")] abbrev pairwise_bind := @pairwise_flatMap
 
 theorem pairwise_reverse {l : List α} :
     l.reverse.Pairwise R ↔ l.Pairwise (fun a b => R b a) := by

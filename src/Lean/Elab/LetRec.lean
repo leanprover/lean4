@@ -51,7 +51,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
       addDocString' declName docStr?
-      addAuxDeclarationRanges declName decl declId
+      addDeclarationRangesFromSyntax declName decl declId
       let binders := decl[1].getArgs
       let typeStx := expandOptType declId decl[2]
       let (type, binderIds) ← elabBindersEx binders fun xs => do
@@ -77,7 +77,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
 private partial def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
     if h : i < views.size then
-      let view := views.get ⟨i, h⟩
+      let view := views[i]
       withAuxDecl view.shortDeclName view.type view.declName fun fvar => loop (i+1) (fvars.push fvar)
     else
       k fvars
@@ -87,11 +87,15 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
   view.decls.mapM fun view => do
     forallBoundedTelescope view.type view.binderIds.size fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-      for i in [0:view.binderIds.size] do
-        addLocalVarInfo view.binderIds[i]! xs[i]!
+      for h : i in [0:view.binderIds.size] do
+        addLocalVarInfo view.binderIds[i] xs[i]!
       withDeclName view.declName do
-         let value ← elabTermEnsuringType view.valStx type
-         mkLambdaFVars xs value
+        withInfoContext' view.valStx
+          (mkInfo := (pure <| .inl <| mkBodyInfo view.valStx ·))
+          (mkInfoOnError := (pure <| mkBodyInfo view.valStx none))
+          do
+             let value ← elabTermEnsuringType view.valStx type
+             mkLambdaFVars xs value
 
 private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array Expr) (values : Array Expr) : TermElabM Unit := do
   let letRecsToLiftCurr := (← get).letRecsToLift

@@ -137,7 +137,7 @@ def declValEqns      := leading_parser
 def whereStructField := leading_parser
   Term.letDecl
 def whereStructInst  := leading_parser
-  ppIndent ppSpace >> "where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >>
+  ppIndent ppSpace >> "where" >> Term.structInstFields (sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true)) >>
   optional Term.whereDecls
 /-- `declVal` matches the right-hand side of a declaration, one of:
 * `:= expr` (a "simple declaration")
@@ -173,7 +173,7 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> ppIndent Term.structInst))) ", "
+def derivingClasses  := sepBy1 ident ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -285,7 +285,7 @@ When a definition mentions a variable, Lean will add it as an argument of the de
 useful in particular when writing many definitions that have parameters in common (see below for an
 example).
 
-Variable declarations have the same flexibility as regular function paramaters. In particular they
+Variable declarations have the same flexibility as regular function parameters. In particular they
 can be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they
 can be anonymous). This can be changed, for instance one can turn explicit variable `x` into an
 implicit one with `variable {x}`. Note that currently, you should avoid changing how variables are
@@ -462,9 +462,33 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
-@[builtin_command_parser] def eval           := leading_parser
+/--
+`#eval e` evaluates the expression `e` by compiling and evaluating it.
+
+* The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
+* If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`
+  to one of the monads that `#eval` supports, which include `IO`, `CoreM`, `MetaM`, `TermElabM`, and `CommandElabM`.
+  Users can define `MonadEval` instances to extend the list of supported monads.
+
+The `#eval` command gracefully degrades in capability depending on what is imported.
+Importing the `Lean.Elab.Command` module provides full capabilities.
+
+Due to unsoundness, `#eval` refuses to evaluate expressions that depend on `sorry`, even indirectly,
+since the presence of `sorry` can lead to runtime instability and crashes.
+This check can be overridden with the `#eval! e` command.
+
+Options:
+* If `eval.pp` is true (default: true) then tries to use `ToExpr` instances to make use of the
+  usual pretty printer. Otherwise, only tries using `Repr` and `ToString` instances.
+* If `eval.type` is true (default: false) then pretty prints the type of the evaluated value.
+* If `eval.derive.repr` is true (default: true) then attempts to auto-derive a `Repr` instance
+  when there is no other way to print the result.
+
+See also: `#reduce e` for evaluation by term reduction.
+-/
+@[builtin_command_parser, builtin_doc] def eval := leading_parser
   "#eval " >> termParser
-@[builtin_command_parser] def evalBang       := leading_parser
+@[builtin_command_parser, inherit_doc eval] def evalBang := leading_parser
   "#eval! " >> termParser
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser
@@ -481,6 +505,16 @@ Displays all available tactic tags, with documentation.
 -/
 @[builtin_command_parser] def printTacTags   := leading_parser
   "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
+/--
+`#where` gives a description of the state of the current scope scope.
+This includes the current namespace, `open` namespaces, `universe` and `variable` commands,
+and options set with `set_option`.
+-/
+@[builtin_command_parser] def «where»        := leading_parser
+  "#where"
+/-- Shows the current Lean version. Prints `Lean.versionString`. -/
+@[builtin_command_parser] def version        := leading_parser
+  "#version"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit

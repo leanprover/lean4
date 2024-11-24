@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Count
+import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.Nat.Lemmas
 
@@ -17,6 +18,26 @@ In particular, `omega` is available here.
 open Nat
 
 namespace List
+
+/-! ### dropLast -/
+
+theorem tail_dropLast (l : List α) : tail (dropLast l) = dropLast (tail l) := by
+  ext1
+  simp only [getElem?_tail, getElem?_dropLast, length_tail]
+  split <;> split
+  · rfl
+  · omega
+  · omega
+  · rfl
+
+@[simp] theorem dropLast_reverse (l : List α) : l.reverse.dropLast = l.tail.reverse := by
+  apply ext_getElem
+  · simp
+  · intro i h₁ h₂
+    simp only [getElem_dropLast, getElem_reverse, length_tail, getElem_tail]
+    congr
+    simp only [length_dropLast, length_reverse, length_tail] at h₁ h₂
+    omega
 
 /-! ### filter -/
 
@@ -37,7 +58,8 @@ theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :
 
 /-- The length of the List returned by `List.leftpad n a l` is equal
   to the larger of `n` and `l.length` -/
-@[simp]
+-- We don't mark this as a `@[simp]` lemma since we allow `simp` to unfold `leftpad`,
+-- so the left hand side simplifies directly to `n - l.length + l.length`.
 theorem leftpad_length (n : Nat) (a : α) (l : List α) :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
@@ -64,70 +86,66 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
     obtain ⟨h', -⟩ := getElem?_eq_some_iff.1 h
     exact ⟨h', h⟩
 
-/-! ### minimum? -/
+/-! ### min? -/
 
--- A specialization of `minimum?_eq_some_iff` to Nat.
-theorem minimum?_eq_some_iff' {xs : List Nat} :
-    xs.minimum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  minimum?_eq_some_iff
+-- A specialization of `min?_eq_some_iff` to Nat.
+theorem min?_eq_some_iff' {xs : List Nat} :
+    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
+  min?_eq_some_iff
     (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => by omega)
-    (le_min_iff := fun _ _ _ => by omega)
+    (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
+    (le_min_iff := fun _ _ _ => Nat.le_min)
 
--- This could be generalized,
--- but will first require further work on order typeclasses in the core repository.
-theorem minimum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).minimum? = some (match l.minimum? with
-    | none => a
-    | some m => min a m) := by
-  rw [minimum?_eq_some_iff']
-  split <;> rename_i h m
-  · simp_all
-  · rw [minimum?_eq_some_iff'] at m
-    obtain ⟨m, le⟩ := m
-    rw [Nat.min_def]
-    constructor
-    · split
-      · exact mem_cons_self a l
-      · exact mem_cons_of_mem a m
-    · intro b m
-      cases List.mem_cons.1 m with
-      | inl => split <;> omega
-      | inr h =>
-        specialize le b h
-        split <;> omega
+theorem min?_get_le_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
+    l.min?.get (isSome_min?_of_mem h) ≤ a := by
+  induction l with
+  | nil => simp at h
+  | cons b t ih =>
+    simp only [min?_cons, Option.get_some] at ih ⊢
+    rcases mem_cons.1 h with (rfl|h)
+    · cases t.min? with
+      | none => simp
+      | some b => simpa using Nat.min_le_left _ _
+    · obtain ⟨q, hq⟩ := Option.isSome_iff_exists.1 (isSome_min?_of_mem h)
+      simp only [hq, Option.elim_some] at ih ⊢
+      exact Nat.le_trans (Nat.min_le_right _ _) (ih h)
 
-/-! ### maximum? -/
+theorem min?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) : l.min?.getD k ≤ a :=
+  Option.get_eq_getD _ ▸ min?_get_le_of_mem h
 
--- A specialization of `maximum?_eq_some_iff` to Nat.
-theorem maximum?_eq_some_iff' {xs : List Nat} :
-    xs.maximum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
-  maximum?_eq_some_iff
+/-! ### max? -/
+
+-- A specialization of `max?_eq_some_iff` to Nat.
+theorem max?_eq_some_iff' {xs : List Nat} :
+    xs.max? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
+  max?_eq_some_iff
     (le_refl := Nat.le_refl)
-    (max_eq_or := fun _ _ => by omega)
-    (max_le_iff := fun _ _ _ => by omega)
+    (max_eq_or := fun _ _ => Nat.max_def .. ▸ by split <;> simp)
+    (max_le_iff := fun _ _ _ => Nat.max_le)
 
--- This could be generalized,
--- but will first require further work on order typeclasses in the core repository.
-theorem maximum?_cons' {a : Nat} {l : List Nat} :
-    (a :: l).maximum? = some (match l.maximum? with
-    | none => a
-    | some m => max a m) := by
-  rw [maximum?_eq_some_iff']
-  split <;> rename_i h m
-  · simp_all
-  · rw [maximum?_eq_some_iff'] at m
-    obtain ⟨m, le⟩ := m
-    rw [Nat.max_def]
-    constructor
-    · split
-      · exact mem_cons_of_mem a m
-      · exact mem_cons_self a l
-    · intro b m
-      cases List.mem_cons.1 m with
-      | inl => split <;> omega
-      | inr h =>
-        specialize le b h
-        split <;> omega
+theorem le_max?_get_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
+    a ≤ l.max?.get (isSome_max?_of_mem h) := by
+  induction l with
+  | nil => simp at h
+  | cons b t ih =>
+    simp only [max?_cons, Option.get_some] at ih ⊢
+    rcases mem_cons.1 h with (rfl|h)
+    · cases t.max? with
+      | none => simp
+      | some b => simpa using Nat.le_max_left _ _
+    · obtain ⟨q, hq⟩ := Option.isSome_iff_exists.1 (isSome_max?_of_mem h)
+      simp only [hq, Option.elim_some] at ih ⊢
+      exact Nat.le_trans (ih h) (Nat.le_max_right _ _)
+
+theorem le_max?_getD_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) :
+    a ≤ l.max?.getD k :=
+  Option.get_eq_getD _ ▸ le_max?_get_of_mem h
+
+@[deprecated min?_eq_some_iff' (since := "2024-09-29")] abbrev minimum?_eq_some_iff' := @min?_eq_some_iff'
+@[deprecated min?_cons' (since := "2024-09-29")] abbrev minimum?_cons' := @min?_cons'
+@[deprecated min?_getD_le_of_mem (since := "2024-09-29")] abbrev minimum?_getD_le_of_mem := @min?_getD_le_of_mem
+@[deprecated max?_eq_some_iff' (since := "2024-09-29")] abbrev maximum?_eq_some_iff' := @max?_eq_some_iff'
+@[deprecated max?_cons' (since := "2024-09-29")] abbrev maximum?_cons' := @max?_cons'
+@[deprecated le_max?_getD_of_mem (since := "2024-09-29")] abbrev le_maximum?_getD_of_mem := @le_max?_getD_of_mem
 
 end List

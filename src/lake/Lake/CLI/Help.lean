@@ -41,13 +41,15 @@ BASIC OPTIONS:
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
-  --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
-  --update, -U          update manifest before building
+  --update, -U          update dependencies on load (e.g., before a build)
   --reconfigure, -R     elaborate configuration files instead of using OLeans
+  --keep-toolchain      do not update toolchain on workspace update
   --no-build            exit immediately if a build target is not up-to-date
+  --no-cache            build packages locally; do not download build caches
+  --try-cache           attempt to download build caches for supported packages
 
 OUTPUT OPTIONS:
   --quiet, -q           hide informational logs and the progress indicator
@@ -367,7 +369,7 @@ def helpLean :=
 USAGE:
   lake lean <file> [-- <args>...]
 
-Build the imports of the the given file and then runs `lean` on it using
+Build the imports of the given file and then runs `lean` on it using
 the workspace's root package's additional Lean arguments and the given args
 (in that order). The `lean` process is executed in Lake's environment like
 `lake env lean` (see `lake help env` for how the environment is set up)."

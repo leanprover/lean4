@@ -28,14 +28,14 @@ open Snapshots
 
 open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 
-def findCompletionInfoTreeAtPos
+def findCompletionCmdDataAtPos
     (doc : EditableDocument)
     (pos : String.Pos)
-    : Task (Option Elab.InfoTree) :=
-  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
-  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
-  -- snapshot that is eligible for completion should be separated by some delimiter.
-  findInfoTreeAtPos doc (fun s => s.data.stx.getTailPos?.any (· + ⟨1⟩ >= pos)) pos
+    : Task (Option (Syntax × Elab.InfoTree)) :=
+  findCmdDataAtPos doc (pos := pos) fun s => Id.run do
+    let some tailPos := s.stx.getTailPos?
+      | return false
+    return pos.byteIdx <= tailPos.byteIdx + s.stx.getTrailingSize
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -43,13 +43,14 @@ def handleCompletion (p : CompletionParams)
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let caps := (← read).initParams.capabilities
-  mapTask (findCompletionInfoTreeAtPos doc pos) fun infoTree? => do
-    let some infoTree := infoTree?
+  mapTask (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
+    let some (cmdStx, infoTree) := cmdData?
       -- work around https://github.com/microsoft/vscode/issues/155738
-      | return { items := #[{label := "-"}], isIncomplete := true }
-    if let some r ← Completion.find? p doc.meta.text pos infoTree caps then
-      return r
-    return { items := #[ ], isIncomplete := true }
+      | return {
+        items := #[{label := "-", data? := toJson { params := p : Lean.Lsp.CompletionItemData }}],
+        isIncomplete := true
+      }
+    Completion.find? p doc.meta.text pos cmdStx infoTree caps
 
 /--
 Handles `completionItem/resolve` requests that are sent by the client after the user selects
@@ -62,15 +63,15 @@ def handleCompletionItemResolve (item : CompletionItem)
     : RequestM (RequestTask CompletionItem) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let some (data : CompletionItemDataWithId) := item.data?.bind fun data => (fromJson? data).toOption
+  let some (data : ResolvableCompletionItemData) := item.data?.bind fun data => (fromJson? data).toOption
     | return .pure item
   let some id := data.id?
     | return .pure item
   let pos := text.lspPosToUtf8Pos data.params.position
-  mapTask (findCompletionInfoTreeAtPos doc pos) fun infoTree? => do
-    let some infoTree := infoTree?
+  mapTask (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
+    let some (cmdStx, infoTree) := cmdData?
       | return item
-    Completion.resolveCompletionItem? text pos infoTree item id
+    Completion.resolveCompletionItem? text pos cmdStx infoTree item id data.cPos
 
 open Elab in
 def handleHover (p : HoverParams)
@@ -248,7 +249,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
       let goals ← ci.runMetaM {} (do
         let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
         let goals ← goals.mapM Widget.goalToInteractive
-        return {goals}
+        return ⟨goals⟩
       )
       -- compute the goal diff
       ciAfter.runMetaM {} (do

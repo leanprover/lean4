@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2021 Scott Morrison. All rights reserved.
+Copyright (c) 2021 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 
 /-- info: Try this: exact (n, 37) -/
@@ -11,7 +11,7 @@ Authors: Scott Morrison
     exact n
     exact 37
 
-/-- info: Try this: refine (?fst, ?snd) -/
+/-- info: Try this: refine (?_, ?_) -/
 #guard_msgs in example : Nat × Nat := by
   show_term constructor
   repeat exact 42

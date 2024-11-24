@@ -22,7 +22,8 @@ aux started
 y: 10, z: 10
 aux started
 y: 10, z: 10
-20
+---
+info: 20
 -/
 #guard_msgs in
 #eval f 10
@@ -36,14 +37,16 @@ return xs.length
 
 /--
 info: >>> xs: [1, 2, 3]
-3
+---
+info: 3
 -/
 #guard_msgs in
 #eval g [1, 2, 3] |>.run' 10
 
 /--
 info: >>> xs: [10]
-1
+---
+info: 1
 -/
 #guard_msgs in
 #eval g [] |>.run' 10
@@ -86,7 +89,8 @@ return sum
 info: >> x: 1
 >> x: 3
 >> x: 5
-16
+---
+info: 16
 -/
 #guard_msgs in
 #eval sumOdd [1, 2, 3, 4, 5, 6, 7, 9, 11, 101] 10
@@ -193,7 +197,8 @@ def f5 (x y : Nat) : Nat × Nat := Id.run <| do
 
 /--
 info: z: 4
-(11, 6)
+---
+info: (11, 6)
 -/
 #guard_msgs in
 #eval f5 5 6

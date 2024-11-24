@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021-2024 Gabriel Ebner and Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gabriel Ebner, Joe Hendrix, Scott Morrison
+Authors: Gabriel Ebner, Joe Hendrix, Kim Morrison
 -/
 prelude
 import Lean.Meta.Tactic.LibrarySearch
@@ -40,7 +40,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
     | some suggestions =>
       if requireClose then throwError
         "`exact?` could not close the goal. Try `apply?` to see partial suggestions."
-      reportOutOfHeartbeats `library_search ref
+      reportOutOfHeartbeats `apply? ref
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
           addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (addSubgoalsMsg := true)

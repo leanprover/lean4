@@ -6,6 +6,7 @@ Authors: Kim Morrison, Henrik Böving
 prelude
 import Lean.Util.Trace
 import Lean.Elab.Tactic.Simp
+import Std.Tactic.BVDecide.Syntax
 
 /-!
 Provides environment extensions around the `bv_decide` tactic frontends.
@@ -24,7 +25,7 @@ register_builtin_option sat.solver : String := {
   defValue := ""
   descr :=
     "Name of the SAT solver used by Lean.Elab.Tactic.BVDecide tactics.\n
-     1. If this is set to something besides the emtpy string they will use that binary.\n
+     1. If this is set to something besides the empty string they will use that binary.\n
      2. If this is set to the empty string they will check if there is a cadical binary next to the\
         executing program. Usually that program is going to be `lean` itself and we do ship a\
         `cadical` next to it.\n
@@ -32,25 +33,7 @@ register_builtin_option sat.solver : String := {
         to use the one that ships with Lean."
 }
 
-register_builtin_option sat.timeout : Nat := {
-  defValue := 10
-  descr := "the number of seconds that the sat solver is run before aborting"
-}
-
-register_builtin_option sat.trimProofs : Bool := {
-  defValue := true
-  descr := "Whether to run the trimming algorithm on LRAT proofs"
-}
-
-register_builtin_option sat.binaryProofs : Bool := {
-  defValue := true
-  descr := "Whether to use the binary LRAT proof format. Currently set to false and ignored on Windows due to a bug in CaDiCal."
-}
-
-register_builtin_option debug.bv.graphviz : Bool := {
-  defValue := false
-  descr := "Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the Lean process."
-}
+declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.Frontend.BVDecideConfig
 
 builtin_initialize bvNormalizeExt : Meta.SimpExtension ←
   Meta.registerSimpAttr `bv_normalize "simp theorems used by bv_normalize"

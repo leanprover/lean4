@@ -11,8 +11,7 @@ import Lake.Util.RBArray
 open Lean
 
 namespace Lake
-
-export Lean (Name NameMap)
+open Lean (Name NameMap)
 
 /--
 First tries to convert a string into a legal name.
@@ -53,7 +52,7 @@ namespace Name
 open Lean.Name
 
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
-  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp (config := { decide := true })
+  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp +decide
 
 @[simp] theorem isPrefixOf_self {n : Name} : n.isPrefixOf n := by
   cases n <;> simp [isPrefixOf]

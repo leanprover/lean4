@@ -84,7 +84,7 @@ decreasing_by apply div_rec_lemma; assumption
 protected def mod : @& Nat → @& Nat → Nat
   /-
   Nat.modCore is defined by well-founded recursion and thus irreducible. Nevertheless it is
-  desireable if trivial `Nat.mod` calculations, namely
+  desirable if trivial `Nat.mod` calculations, namely
   * `Nat.mod 0 m` for all `m`
   * `Nat.mod n (m+n)` for concrete literals `n`
   reduce definitionally.
@@ -134,6 +134,19 @@ theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
     if_neg h'
   (mod_eq a b).symm ▸ this
 
+@[simp] theorem one_mod_eq_zero_iff {n : Nat} : 1 % n = 0 ↔ n = 1 := by
+  match n with
+  | 0 => simp
+  | 1 => simp
+  | n + 2 =>
+    rw [mod_eq_of_lt (by exact Nat.lt_of_sub_eq_succ rfl)]
+    simp only [add_one_ne_zero, false_iff, ne_eq]
+    exact ne_of_beq_eq_false rfl
+
+@[simp] theorem Nat.zero_eq_one_mod_iff {n : Nat} : 0 = 1 % n ↔ n = 1 := by
+  rw [eq_comm]
+  simp
+
 theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   match eq_zero_or_pos b with
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
@@ -156,6 +169,13 @@ theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
     have ⟨_, h₁⟩ := h
     rw [mod_eq_sub_mod h₁]
     exact h₂ h₃
+
+@[simp] protected theorem sub_mod_add_mod_cancel (a b : Nat) [NeZero a] : a - b % a + b % a = a := by
+  rw [Nat.sub_add_cancel]
+  cases a with
+  | zero => simp_all
+  | succ a =>
+    exact Nat.le_of_lt (mod_lt b (zero_lt_succ a))
 
 theorem mod_le (x y : Nat) : x % y ≤ x := by
   match Nat.lt_or_ge x y with
@@ -196,7 +216,6 @@ decreasing_by apply div_rec_lemma; assumption
 
 theorem div_eq_sub_div (h₁ : 0 < b) (h₂ : b ≤ a) : a / b = (a - b) / b + 1 := by
  rw [div_eq a, if_pos]; constructor <;> assumption
-
 
 theorem mod_add_div (m k : Nat) : m % k + k * (m / k) = m := by
   induction m, k using mod.inductionOn with rw [div_eq, mod_eq]
@@ -250,7 +269,7 @@ protected theorem div_div_eq_div_mul (m n k : Nat) : m / n / k = m / (n * k) := 
 
 theorem div_mul_le_self : ∀ (m n : Nat), m / n * n ≤ m
   | m, 0   => by simp
-  | m, n+1 => (le_div_iff_mul_le (Nat.succ_pos _)).1 (Nat.le_refl _)
+  | _, _+1 => (le_div_iff_mul_le (Nat.succ_pos _)).1 (Nat.le_refl _)
 
 theorem div_lt_iff_lt_mul (Hk : 0 < k) : x / k < y ↔ x < y * k := by
   rw [← Nat.not_le, ← Nat.not_le]; exact not_congr (le_div_iff_mul_le Hk)

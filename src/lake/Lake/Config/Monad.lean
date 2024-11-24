@@ -7,7 +7,7 @@ import Lake.Config.Context
 import Lake.Config.Workspace
 
 open System
-open Lean (Name)
+open Lean (Name NameMap)
 
 /-! # Lake Configuration Monads
 Definitions and helpers for interacting with the Lake configuration monads.
@@ -44,6 +44,10 @@ abbrev MonadLake (m : Type → Type u) :=
 /-- Make a `Lake.Context` from a `Workspace`. -/
 @[inline] def mkLakeContext (ws : Workspace) : Lake.Context where
   opaqueWs := ws
+
+/-- Run a `LakeT` monad in the context of this workspace. -/
+@[inline] def Workspace.runLakeT (ws : Workspace) (x : LakeT m α) : m α :=
+  x.run (mkLakeContext ws)
 
 instance [MonadWorkspace m] [Functor m] : MonadLake m where
   read := (mkLakeContext ·) <$> getWorkspace
@@ -127,6 +131,14 @@ variable [MonadLakeEnv m]
   read
 
 variable [Functor m]
+
+/-- Get the `LAKE_NO_CACHE`/`--no-cache` Lake configuration. -/
+@[inline] def getNoCache [Functor m] [MonadBuild m] : m Bool :=
+  (·.noCache) <$> getLakeEnv
+
+/-- Get whether the `LAKE_NO_CACHE`/`--no-cache` Lake configuration is **NOT** set. -/
+@[inline] def getTryCache [Functor m] [MonadBuild m] : m Bool :=
+  (!·.noCache) <$> getLakeEnv
 
 /-- Get the `LAKE_PACKAGE_URL_MAP` for the Lake environment. Empty if none. -/
 @[inline] def getPkgUrlMap : m (NameMap String) :=

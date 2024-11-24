@@ -60,7 +60,7 @@ where
     if let some snap := (← readThe Term.Context).tacSnap? then
       if let some old := snap.old? then
         let oldParsed := old.val.get
-        oldInner? := oldParsed.data.inner? |>.map (⟨oldParsed.data.stx, ·⟩)
+        oldInner? := oldParsed.inner? |>.map (⟨oldParsed.stx, ·⟩)
     -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
     Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
@@ -70,10 +70,10 @@ where
       if let some old := snap.old? then
         -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
         let oldParsed := old.val.get
-        if let some state := oldParsed.data.finished.get.state? then
+        if let some state := oldParsed.finished.get.state? then
           reusableResult? := some ((), state)
           -- only allow `next` reuse in this case
-          oldNext? := oldParsed.data.next.get? 0 |>.map (⟨old.stx, ·⟩)
+          oldNext? := oldParsed.next.get? 0 |>.map (⟨old.stx, ·⟩)
 
       -- For `tac`'s snapshot task range, disregard synthetic info as otherwise
       -- `SnapshotTree.findInfoTreeAtPos` might choose the wrong snapshot: for example, when
@@ -89,7 +89,8 @@ where
       withAlwaysResolvedPromise fun next => do
         withAlwaysResolvedPromise fun finished => do
           withAlwaysResolvedPromise fun inner => do
-            snap.new.resolve <| .mk {
+            snap.new.resolve {
+              desc := tac.getKind.toString
               diagnostics := .empty
               stx := tac
               inner? := some { range?, task := inner.result }
@@ -262,18 +263,26 @@ private def getOptRotation (stx : Syntax) : Nat :=
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
+  let mut abort := false
+  let mut mctxSaved ← getMCtx
   for mvarId in mvarIds do
     unless (← mvarId.isAssigned) do
       setGoals [mvarId]
-      try
-        evalTactic stx[1]
-        mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
-      catch ex =>
-        if (← read).recover then
-          logException ex
-          mvarIdsNew := mvarIdsNew.push mvarId
-        else
-          throw ex
+      abort ← Tactic.tryCatch
+        (do
+          evalTactic stx[1]
+          pure abort)
+        (fun ex => do
+          if (← read).recover then
+            logException ex
+            pure true
+          else
+            throw ex)
+      mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
+  if abort then
+    setMCtx mctxSaved
+    mvarIds.forM fun mvarId => unless (← mvarId.isAssigned) do admitGoal mvarId
+    throwAbortTactic
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
@@ -299,7 +308,7 @@ def evalTacticSeq : Tactic :=
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
-    let tactic := tactics.get ⟨i, h⟩
+    let tactic := tactics[i]
     catchInternalId unsupportedSyntaxExceptionId
       (evalTactic tactic)
       (fun _ => evalChoiceAux tactics (i+1))
@@ -312,7 +321,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtin_tactic skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtin_tactic unknown] def evalUnknown : Tactic := fun stx => do
-  addCompletionInfo <| CompletionInfo.tactic stx (← getGoals)
+  addCompletionInfo <| CompletionInfo.tactic stx
 
 @[builtin_tactic failIfSuccess] def evalFailIfSuccess : Tactic := fun stx =>
   Term.withoutErrToSorry <| withoutRecover do
@@ -463,7 +472,7 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
         let inaccessible := !(extractMacroScopes localDecl.userName |>.equalScope callerScopes)
         let shadowed := found.contains localDecl.userName
         if inaccessible || shadowed then
-          if let `(binderIdent| $h:ident) := hs.back then
+          if let `(binderIdent| $h:ident) := hs.back! then
             let newName := h.getId
             lctx := lctx.setUserName localDecl.fvarId newName
             info := info.push (localDecl.fvarId, h)
@@ -519,7 +528,7 @@ where
 
 @[builtin_tactic «case», builtin_incremental]
 def evalCase : Tactic
-  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
+  | stx@`(tactic| case%$caseTk $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
     -- disable incrementality if body is run multiple times
     Term.withoutTacticIncrementality (tag.size > 1) do
       for tag in tag, hs in hs do
@@ -527,20 +536,20 @@ def evalCase : Tactic
         let g ← renameInaccessibles g hs
         setGoals [g]
         g.setTag Name.anonymous
-        withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
+        withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[caseTk, arr]) <|
           Term.withNarrowedArgTacticReuse (argIdx := 3) (evalTactic ·) stx
         setGoals gs
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic «case'»] def evalCase' : Tactic
-  | `(tactic| case' $[$tag $hs*]|* =>%$arr $tac:tacticSeq) => do
+  | `(tactic| case'%$caseTk $[$tag $hs*]|* =>%$arr $tac:tacticSeq) => do
     let mut acc := #[]
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag
       let g ← renameInaccessibles g hs
       let mvarTag ← g.getTag
       setGoals [g]
-      withCaseRef arr tac (evalTactic tac)
+      withCaseRef arr tac <| withTacticInfoContext (mkNullNode #[caseTk, arr]) <| evalTactic tac
       let gs' ← getUnsolvedGoals
       if let [g'] := gs' then
         g'.setTag mvarTag

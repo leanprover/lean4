@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.CachedGates
 import Std.Sat.AIG.LawfulOperator
 
@@ -32,7 +33,7 @@ private theorem or_as_aig : ∀ (a b : Bool), (!(!a && !b)) = (a || b) := by
 /--
 Encoding of XOR as boolean expression in AIG form.
 -/
-private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (xor a b) := by
+private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (a ^^ b) := by
   decide
 
 /--

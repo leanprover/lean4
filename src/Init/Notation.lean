@@ -341,16 +341,19 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
 @[inherit_doc] infixr:67 " :: " => List.cons
-@[inherit_doc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
-@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
-@[inherit_doc] infixl:55  " >>= " => Bind.bind
-@[inherit_doc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
 @[inherit_doc] infixr:100 " <$> " => Functor.map
+@[inherit_doc] infixl:55  " >>= " => Bind.bind
+@[inherit_doc HOrElse.hOrElse]   syntax:20 term:21 " <|> " term:20 : term
+@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
+@[inherit_doc Seq.seq]           syntax:60 term:60 " <*> " term:61 : term
+@[inherit_doc SeqLeft.seqLeft]   syntax:60 term:60 " <* " term:61 : term
+@[inherit_doc SeqRight.seqRight] syntax:60 term:60 " *> " term:61 : term
 
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
+macro_rules | `($x <*> $y) => `(Seq.seq $x fun _ : Unit => $y)
+macro_rules | `($x <* $y)  => `(SeqLeft.seqLeft $x fun _ : Unit => $y)
+macro_rules | `($x *> $y)  => `(SeqRight.seqRight $x fun _ : Unit => $y)
 
 namespace Lean
 
@@ -535,24 +538,21 @@ syntax (name := includeStr) "include_str " term : term
 
 /--
 The `run_cmd doSeq` command executes code in `CommandElabM Unit`.
-This is almost the same as `#eval show CommandElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show CommandElabM Unit from discard do doSeq`.
 -/
 syntax (name := runCmd) "run_cmd " doSeq : command
 
 /--
 The `run_elab doSeq` command executes code in `TermElabM Unit`.
-This is almost the same as `#eval show TermElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show TermElabM Unit from discard do doSeq`.
 -/
 syntax (name := runElab) "run_elab " doSeq : command
 
 /--
 The `run_meta doSeq` command executes code in `MetaM Unit`.
-This is almost the same as `#eval show MetaM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show MetaM Unit from do discard doSeq`.
 
-(This is effectively a synonym for `run_elab`.)
+(This is effectively a synonym for `run_elab` since `MetaM` lifts to `TermElabM`.)
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
@@ -675,6 +675,13 @@ Message ordering:
 
 For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
 everything else.
+
+The command elaborator has special support for `#guard_msgs` for linting.
+The `#guard_msgs` itself wants to capture linter warnings,
+so it elaborates the command it is attached to as if it were a top-level command.
+However, the command elaborator runs linters for *all* top-level commands,
+which would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.
+The top-level command elaborator only runs the linters if `#guard_msgs` is not present.
 -/
 syntax (name := guardMsgsCmd)
   (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command

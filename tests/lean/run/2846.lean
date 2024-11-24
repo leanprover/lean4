@@ -30,30 +30,40 @@ def Nat.pos_pow_of_pos' {n : Nat} (m : Nat) : 0 < n → 0 < n ^ m := Nat.pos_pow
 
 /-!
 Repetition of a named argument, only the first is printed as a named argument.
+The second is made hygienic.
 -/
 def foo (n n : Nat) : Fin (n + 1) := 0
 
-/-- info: foo (n : Nat) : (n : Nat) → Fin (n + 1) -/
+/-- info: foo (n n✝ : Nat) : Fin (n✝ + 1) -/
 #guard_msgs in #check foo
 
 /-!
-Repetition of a named argument, only the first is printed as a named argument.
-This is checking that shadowing is handled correctly (that's not the responsibility of
-`delabConstWithSignature`, but it assumes that the main delaborator will handle this correctly).
+Same, but a named argument still follows, and its name is preserved.
 -/
+
 def foo' (n n : Nat) (a : Fin ((by clear n; exact n) + 1)) : Fin (n + 1) := 0
 
-/-- info: foo' (n : Nat) : (n_1 : Nat) → Fin (n + 1) → Fin (n_1 + 1) -/
+/-- info: foo' (n n✝ : Nat) (a : Fin (n + 1)) : Fin (n✝ + 1) -/
 #guard_msgs in #check foo'
 
 /-!
-Named argument after inaccesible name, still stays after the colon.
-But, it does not print using named pi notation since this is not a dependent type.
+Named argument after non-dependent inaccessible name, still stays after the colon.
+Prints with named pi notation.
 -/
 def foo'' : String → (needle : String) → String := fun _ yo => yo
 
-/-- info: foo'' : String → String → String -/
+/-- info: foo'' : String → (needle : String) → String -/
 #guard_msgs in #check foo''
+
+/-!
+Named argument after inaccessible name that's still a dependent argument.
+Stays before the colon, and the names are grouped.
+-/
+
+def foo''' : (_ : Nat) → (n : Nat) → Fin (n + by clear n; assumption) := sorry
+
+/-- info: foo''' (x✝ n : Nat) : Fin (n + x✝) -/
+#guard_msgs in #check foo'''
 
 /-!
 Named argument after inaccessible name, still stays after the colon.

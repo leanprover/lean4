@@ -30,12 +30,9 @@ $LAKE update
 git -C .lake/packages/dep tag -d release
 
 # Test that a direct invocation fo `lake build *:release` fails
-REV_STR="'${INIT_REV}'"
 ($LAKE build dep:release && exit 1 || true) | diff -u --strip-trailing-cr <(cat << EOF
-✖ [1/2] (Optional) Fetching dep:optRelease
-error: no release tag found for revision ${REV_STR}
 ✖ [2/2] Running dep:release
-error: failed to fetch cloud release (see 'dep:optRelease' for details)
+error: failed to fetch GitHub release (run with '-v' for details)
 Some required builds logged failures:
 - dep:release
 EOF
@@ -43,26 +40,25 @@ EOF
 
 # Test that an indirect fetch on the release does not cause the build to fail
 $LAKE build Test | diff -u --strip-trailing-cr <(cat << EOF
-✖ [1/5] (Optional) Fetching dep:optRelease
-error: no release tag found for revision ${REV_STR}
-⚠ [2/5] Ran dep:extraDep
-warning: building from source; failed to fetch cloud release (see 'dep:optRelease' for details)
-✔ [4/5] Built Test
+⚠ [3/6] Ran dep:extraDep
+warning: building from source; failed to fetch GitHub release (run with '-v' for details)
+✔ [4/6] Built Dep
+✔ [5/6] Built Test
 Build completed successfully.
 EOF
 ) -
 
 # Test download failure
 $LAKE update # re-fetch release tag
-($LAKE build dep:release && exit 1 || true) | grep --color "downloading"
+($LAKE -v build dep:release && exit 1 || true) | grep --color "curl"
 
 # Test automatic cloud release unpacking
 mkdir -p .lake/packages/dep/.lake/build
 $LAKE -d .lake/packages/dep pack 2>&1 | grep --color "packing"
 test -f .lake/packages/dep/.lake/release.tgz
 echo 4225503363911572621 > .lake/packages/dep/.lake/release.tgz.trace
-rmdir .lake/packages/dep/.lake/build
-$LAKE build dep:release -v | grep --color "unpacking"
+rm -rf .lake/packages/dep/.lake/build
+$LAKE build dep:release -v | grep --color "tar"
 test -d .lake/packages/dep/.lake/build
 
 # Test that the job prints nothing if the archive is already fetched and unpacked

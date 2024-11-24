@@ -78,6 +78,12 @@ equal (with regard to `==`) to the given element, then the hash set is returned 
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insertIfNew a ()⟩
 
+instance [BEq α] [Hashable α] : Singleton α (Raw α) := ⟨fun a => Raw.empty.insert a⟩
+
+instance [BEq α] [Hashable α] : Insert α (Raw α) := ⟨fun a s => s.insert a⟩
+
+instance [BEq α] [Hashable α] : LawfulSingleton α (Raw α) := ⟨fun _ => rfl⟩
+
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
 If the hash set already contains an element that is equal (with regard to `==`) to the given
@@ -151,6 +157,10 @@ for all `a`.
 @[inline] def isEmpty (m : Raw α) : Bool :=
   m.inner.isEmpty
 
+/-- Transforms the hash set into a list of elements in some order. -/
+@[inline] def toList (m : Raw α) : List α :=
+  m.inner.keys
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -188,9 +198,18 @@ instance {m : Type v → Type v} : ForM m (Raw α) α where
 instance {m : Type v → Type v} : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
 
-/-- Transforms the hash set into a list of elements in some order. -/
-@[inline] def toList (m : Raw α) : List α :=
-  m.inner.keys
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : Raw α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a then return false
+  return true
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : Raw α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if p a then return true
+  return false
+
 
 /-- Transforms the hash set into an array of elements in some order. -/
 @[inline] def toArray (m : Raw α) : Array α :=
@@ -212,6 +231,20 @@ in the collection will be present in the returned hash set.
 -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
+
+/--
+Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : Raw α :=
+  ⟨HashMap.Raw.unitOfArray l⟩
+
+/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α) : Raw α :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (Raw α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

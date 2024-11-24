@@ -68,8 +68,8 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
       | some targetPos => pure targetPos.val
     let mut altsInfo := #[]
     let env ← getEnv
-    for i in [:xs.size] do
-      let x := xs[i]!
+    for h : i in [:xs.size] do
+      let x := xs[i]
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
@@ -148,13 +148,13 @@ def mkCustomEliminator (elimName : Name) (induction : Bool) : MetaM CustomElimin
   let info ← getConstInfo elimName
   forallTelescopeReducing info.type fun xs _ => do
     let mut typeNames := #[]
-    for i in [:elimInfo.targetsPos.size] do
-      let targetPos := elimInfo.targetsPos[i]!
+    for hi : i in [:elimInfo.targetsPos.size] do
+      let targetPos := elimInfo.targetsPos[i]
       let x := xs[targetPos]!
       /- Return true if there is another target that depends on `x`. -/
       let isImplicitTarget : MetaM Bool := do
-        for j in [i+1:elimInfo.targetsPos.size] do
-          let y := xs[elimInfo.targetsPos[j]!]!
+        for hj : j in [i+1:elimInfo.targetsPos.size] do
+          let y := xs[elimInfo.targetsPos[j]]!
           let yType ← inferType y
           if (← dependsOn yType x.fvarId!) then
             return true

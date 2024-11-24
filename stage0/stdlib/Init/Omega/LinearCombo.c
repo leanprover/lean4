@@ -31,16 +31,15 @@ LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_smul___boxed(lean_object*, lea
 static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____closed__10;
 LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqLinearCombo___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____closed__1;
+static lean_object* l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 LEAN_EXPORT lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1(lean_object*, lean_object*);
 lean_object* l_List_zipWithAll___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_eval(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_coeffs___default;
 LEAN_EXPORT lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__8;
 static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____closed__15;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_smul(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_instDecidableEqLinearCombo(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_hasDecEq___at___private_Init_Omega_LinearCombo_0__Lean_Omega_decEqLinearCombo____x40_Init_Omega_LinearCombo___hyg_28____spec__1(lean_object*, lean_object*);
 static lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__6;
 static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____closed__5;
@@ -61,7 +60,6 @@ static lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lea
 LEAN_EXPORT lean_object* l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___boxed(lean_object*);
 static lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__1;
 static lean_object* l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_const___default;
 static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____closed__16;
 static lean_object* l_Lean_Omega_LinearCombo_instInhabited___closed__1;
 lean_object* lean_int_sub(lean_object*, lean_object*);
@@ -76,11 +74,11 @@ static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearC
 static lean_object* l_Lean_Omega_LinearCombo_sub___closed__1;
 lean_object* l_Lean_Omega_IntList_sub___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
-static lean_object* l_Lean_Omega_LinearCombo_const___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_coordinate(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_isAtom___boxed(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1___closed__2;
 static lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instAdd;
@@ -121,31 +119,6 @@ static lean_object* l_Lean_Omega_LinearCombo_instNeg___closed__1;
 lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
 static lean_object* l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__5;
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Omega_LinearCombo_isAtom___spec__1(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Omega_LinearCombo_const___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Omega_LinearCombo_const___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Omega_LinearCombo_const___default___closed__1;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Omega_LinearCombo_coeffs___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l_List_hasDecEq___at___private_Init_Omega_LinearCombo_0__Lean_Omega_decEqLinearCombo____x40_Init_Omega_LinearCombo___hyg_28____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -260,11 +233,20 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Lean_Omega_LinearCombo_const___default___closed__1;
+x_2 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -704,7 +686,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-x_4 = l_Lean_Omega_LinearCombo_const___default___closed__1;
+x_4 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 x_5 = lean_int_dec_lt(x_3, x_4);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
@@ -932,7 +914,7 @@ x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_add(x_7, x_9);
 lean_dec(x_7);
 x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
-x_12 = l_Lean_Omega_LinearCombo_const___default___closed__1;
+x_12 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 x_13 = lean_int_dec_lt(x_8, x_12);
 if (x_13 == 0)
 {
@@ -1009,7 +991,7 @@ x_42 = lean_unsigned_to_nat(1u);
 x_43 = lean_nat_add(x_40, x_42);
 lean_dec(x_40);
 x_44 = l___private_Init_Data_Repr_0__Nat_reprFast(x_43);
-x_45 = l_Lean_Omega_LinearCombo_const___default___closed__1;
+x_45 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 x_46 = lean_int_dec_lt(x_41, x_45);
 if (x_46 == 0)
 {
@@ -1082,7 +1064,7 @@ x_7 = l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1(x_5, 
 x_8 = l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1___closed__3;
 x_9 = l_List_foldl___at_String_join___spec__1(x_8, x_7);
 lean_dec(x_7);
-x_10 = l_Lean_Omega_LinearCombo_const___default___closed__1;
+x_10 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 x_11 = lean_int_dec_lt(x_2, x_10);
 if (x_11 == 0)
 {
@@ -1246,7 +1228,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Omega_LinearCombo_const___default___closed__1;
+x_3 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 x_4 = lean_int_dec_eq(x_2, x_3);
 lean_dec(x_2);
 if (x_4 == 0)
@@ -1337,7 +1319,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_box(0);
 x_3 = l_Lean_Omega_LinearCombo_instInhabited___closed__1;
 x_4 = l_Lean_Omega_IntList_set(x_2, x_1, x_3);
-x_5 = l_Lean_Omega_LinearCombo_const___default___closed__1;
+x_5 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -1566,12 +1548,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Omega_LinearCombo_const___default___closed__1 = _init_l_Lean_Omega_LinearCombo_const___default___closed__1();
-lean_mark_persistent(l_Lean_Omega_LinearCombo_const___default___closed__1);
-l_Lean_Omega_LinearCombo_const___default = _init_l_Lean_Omega_LinearCombo_const___default();
-lean_mark_persistent(l_Lean_Omega_LinearCombo_const___default);
-l_Lean_Omega_LinearCombo_coeffs___default = _init_l_Lean_Omega_LinearCombo_coeffs___default();
-lean_mark_persistent(l_Lean_Omega_LinearCombo_coeffs___default);
+l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1 = _init_l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1();
+lean_mark_persistent(l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1);
 l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__1 = _init_l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__1();
 lean_mark_persistent(l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__1);
 l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__2 = _init_l_List_repr_x27___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__1___closed__2();

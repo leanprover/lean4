@@ -1075,7 +1075,7 @@ def emitSetTag (builder : LLVM.Builder llvmctx) (x : VarId) (i : Nat) : M llvmct
 def ensureHasDefault' (alts : Array Alt) : Array Alt :=
   if alts.any Alt.isDefault then alts
   else
-    let last := alts.back
+    let last := alts.back!
     let alts := alts.pop
     alts.push (Alt.default last.body)
 
@@ -1172,8 +1172,8 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
     (needsPackedArgs? : Bool)  (llvmfn : LLVM.Value llvmctx) (params : Array Param) : M llvmctx Unit := do
   if needsPackedArgs? then do
       let argsp ← LLVM.getParam llvmfn 0 -- lean_object **args
-      for i in List.range params.size do
-          let param := params[i]!
+      for h : i in [:params.size] do
+          let param := params[i]
           -- argsi := (args + i)
           let argsi ← LLVM.buildGEP2 builder (← LLVM.voidPtrType llvmctx) argsp #[← constIntUnsigned i] s!"packed_arg_{i}_slot"
           let llvmty ← toLLVMType param.ty
@@ -1182,15 +1182,16 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           -- slot for arg[i] which is always void* ?
           let alloca ← buildPrologueAlloca builder llvmty s!"arg_{i}"
           LLVM.buildStore builder pv alloca
-          addVartoState params[i]!.x alloca llvmty
+          addVartoState param.x alloca llvmty
   else
       let n ← LLVM.countParams llvmfn
-      for i in (List.range n.toNat) do
-        let llvmty ← toLLVMType params[i]!.ty
+      for i in [:n.toNat] do
+        let param := params[i]!
+        let llvmty ← toLLVMType param.ty
         let alloca ← buildPrologueAlloca builder  llvmty s!"arg_{i}"
         let arg ← LLVM.getParam llvmfn (UInt64.ofNat i)
         let _ ← LLVM.buildStore builder arg alloca
-        addVartoState params[i]!.x alloca llvmty
+        addVartoState param.x alloca llvmty
 
 def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : Decl) : M llvmctx Unit := do
   let env ← getEnv

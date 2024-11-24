@@ -13,12 +13,11 @@ import Lean.Meta.Tactic.Generalize
 namespace Lean.Meta
 namespace Split
 
-def getSimpMatchContext : MetaM Simp.Context :=
-   return {
-      simpTheorems   := {}
-      congrTheorems := (← getSimpCongrTheorems)
-      config        := { Simp.neutralConfig with dsimp := false }
-   }
+def getSimpMatchContext : MetaM Simp.Context := do
+   Simp.mkContext
+      (simpTheorems   := {})
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := { Simp.neutralConfig with dsimp := false })
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
   let discharge? ← SplitIf.mkDischarge?
@@ -141,8 +140,8 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           let matcherApp := { matcherApp with discrs := discrVars }
           foundRef.set true
           let mut altsNew := #[]
-          for i in [:matcherApp.alts.size] do
-            let alt := matcherApp.alts[i]!
+          for h : i in [:matcherApp.alts.size] do
+            let alt := matcherApp.alts[i]
             let altNumParams := matcherApp.altNumParams[i]!
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then

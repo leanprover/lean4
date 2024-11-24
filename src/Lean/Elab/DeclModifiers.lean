@@ -25,19 +25,19 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
   if env.contains declName then
     addInfo declName
     match privateToUserName? declName with
-    | none          => throwError "'{declName}' has already been declared"
-    | some declName => throwError "private declaration '{declName}' has already been declared"
+    | none          => throwError "'{.ofConstName declName true}' has already been declared"
+    | some declName => throwError "private declaration '{.ofConstName declName true}' has already been declared"
   if isReservedName env declName then
     throwError "'{declName}' is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
-    throwError "a private declaration '{declName}' has already been declared"
+    throwError "a private declaration '{.ofConstName declName true}' has already been declared"
   match privateToUserName? declName with
   | none => pure ()
   | some declName =>
     if env.contains declName then
       addInfo declName
-      throwError "a non-private declaration '{declName}' has already been declared"
+      throwError "a non-private declaration '{.ofConstName declName true}' has already been declared"
 
 /-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/
 inductive Visibility where
@@ -57,6 +57,8 @@ inductive RecKind where
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
+  /-- Input syntax, used for adjusting declaration range (unless missing) -/
+  stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   docString?      : Option String := none
   visibility      : Visibility := Visibility.regular
   isNoncomputable : Bool := false
@@ -120,17 +122,17 @@ section Methods
 
 variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
-/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `proctected`, `unsafe`, `noncomputable`, doc string)-/
-def elabModifiers (stx : Syntax) : m Modifiers := do
-  let docCommentStx := stx[0]
-  let attrsStx      := stx[1]
-  let visibilityStx := stx[2]
-  let noncompStx    := stx[3]
-  let unsafeStx     := stx[4]
+/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `noncomputable`, doc string)-/
+def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
+  let docCommentStx := stx.raw[0]
+  let attrsStx      := stx.raw[1]
+  let visibilityStx := stx.raw[2]
+  let noncompStx    := stx.raw[3]
+  let unsafeStx     := stx.raw[4]
   let recKind       :=
-    if stx[5].isNone then
+    if stx.raw[5].isNone then
       RecKind.default
-    else if stx[5][0].getKind == ``Parser.Command.partial then
+    else if stx.raw[5][0].getKind == ``Parser.Command.partial then
       RecKind.partial
     else
       RecKind.nonrec
@@ -148,7 +150,7 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
     | none       => pure #[]
     | some attrs => elabDeclAttrs attrs
   return {
-    docString?, visibility, recKind, attrs,
+    stx, docString?, visibility, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
     isNoncomputable := !noncompStx.isNone
   }

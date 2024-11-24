@@ -129,9 +129,9 @@ See comment at `.fixedNeutral`.
 -/
 private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat) : Bool := Id.run do
   let param := decl.params[j]!
-  for k in [j+1 : decl.params.size] do
+  for h : k in [j+1 : decl.params.size] do
     if paramsInfo[k]! matches .user | .fixedHO | .fixedInst then
-      let param' := decl.params[k]!
+      let param' := decl.params[k]
       if param'.type.containsFVar param.fvarId then
         return true
   return false
@@ -152,8 +152,8 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       let specArgs? := getSpecializationArgs? (← getEnv) decl.name
       let contains (i : Nat) : Bool := specArgs?.getD #[] |>.contains i
       let mut paramsInfo : Array SpecParamInfo := #[]
-      for i in [:decl.params.size] do
-        let param := decl.params[i]!
+      for h :i in [:decl.params.size] do
+        let param := decl.params[i]
         let info ←
           if contains i then
             pure .user
@@ -181,14 +181,14 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       declsInfo := declsInfo.push paramsInfo
   if declsInfo.any fun paramsInfo => paramsInfo.any (· matches .user | .fixedInst | .fixedHO) then
     let m := mkFixedParamsMap decls
-    for i in [:decls.size] do
-      let decl := decls[i]!
+    for hi : i in [:decls.size] do
+      let decl := decls[i]
       let mut paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
       trace[Compiler.specialize.info] "{decl.name} {mask}"
       paramsInfo := paramsInfo.zipWith mask fun info fixed => if fixed || info matches .user then info else .other
       for j in [:paramsInfo.size] do
-        let mut info  := paramsInfo[j]!
+        let mut info := paramsInfo[j]!
         if info matches .fixedNeutral && !hasFwdDeps decl paramsInfo j then
           paramsInfo := paramsInfo.set! j .other
       if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
@@ -214,4 +214,3 @@ builtin_initialize
   registerTraceClass `Compiler.specialize.info
 
 end Lean.Compiler.LCNF
-

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lake_instMonadCycleOfBuildKeyRecBuildM___closed__3;
+lean_object* l_Array_take___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RecBuildM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftLogIORecBuildM(lean_object*);
@@ -88,7 +89,6 @@ LEAN_EXPORT lean_object* l_Lake_withRegisterJob(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_instMonadCycleOfBuildKeyRecBuildM___closed__5;
 LEAN_EXPORT lean_object* l_Lake_registerJob___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_shrink___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildCycleError(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildCycleError___rarg(lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -4543,7 +4543,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec__1___rarg___closed__2;
 x_2 = l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec__1___rarg___closed__3;
-x_3 = lean_unsigned_to_nat(92u);
+x_3 = lean_unsigned_to_nat(100u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec__1___rarg___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6064,7 +6064,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 x_15 = lean_ctor_get(x_11, 0);
 x_16 = lean_ctor_get(x_11, 1);
 lean_inc(x_16);
-x_17 = l_Array_shrink___rarg(x_16, x_8);
+x_17 = l_Array_take___rarg(x_16, x_8);
 x_18 = lean_array_get_size(x_16);
 x_19 = l_Array_extract___rarg(x_16, x_8, x_18);
 lean_dec(x_18);
@@ -6137,7 +6137,7 @@ lean_inc(x_40);
 lean_inc(x_39);
 lean_dec(x_11);
 lean_inc(x_40);
-x_41 = l_Array_shrink___rarg(x_40, x_8);
+x_41 = l_Array_take___rarg(x_40, x_8);
 x_42 = lean_array_get_size(x_40);
 x_43 = l_Array_extract___rarg(x_40, x_8, x_42);
 lean_dec(x_42);
@@ -6218,7 +6218,7 @@ if (lean_is_exclusive(x_11)) {
  x_63 = lean_box(0);
 }
 lean_inc(x_62);
-x_64 = l_Array_shrink___rarg(x_62, x_8);
+x_64 = l_Array_take___rarg(x_62, x_8);
 x_65 = lean_array_get_size(x_62);
 x_66 = l_Array_extract___rarg(x_62, x_8, x_65);
 lean_dec(x_65);
@@ -6309,7 +6309,7 @@ x_88 = lean_ctor_get(x_11, 1);
 x_89 = lean_ctor_get(x_11, 0);
 lean_dec(x_89);
 lean_inc(x_88);
-x_90 = l_Array_shrink___rarg(x_88, x_8);
+x_90 = l_Array_take___rarg(x_88, x_8);
 x_91 = lean_array_get_size(x_88);
 x_92 = l_Array_extract___rarg(x_88, x_8, x_91);
 lean_dec(x_91);
@@ -6344,7 +6344,7 @@ x_102 = lean_ctor_get(x_11, 1);
 lean_inc(x_102);
 lean_dec(x_11);
 lean_inc(x_102);
-x_103 = l_Array_shrink___rarg(x_102, x_8);
+x_103 = l_Array_take___rarg(x_102, x_8);
 x_104 = lean_array_get_size(x_102);
 x_105 = l_Array_extract___rarg(x_102, x_8, x_104);
 lean_dec(x_104);
@@ -6391,7 +6391,7 @@ if (lean_is_exclusive(x_11)) {
  x_118 = lean_box(0);
 }
 lean_inc(x_117);
-x_119 = l_Array_shrink___rarg(x_117, x_8);
+x_119 = l_Array_take___rarg(x_117, x_8);
 x_120 = lean_array_get_size(x_117);
 x_121 = l_Array_extract___rarg(x_117, x_8, x_120);
 lean_dec(x_120);

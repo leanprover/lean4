@@ -21,7 +21,7 @@ constructor expected
 [false, true, true]
 match1.lean:136:7-136:22: error: invalid match-expression, type of pattern variable 'a' contains metavariables
   ?m
-fun x => ?m x : ?m × ?m → ?m
+fun x => ?m : ?m × ?m → ?m
 fun x =>
   match x with
   | (a, b) => a + b : Nat × Nat → Nat
@@ -46,6 +46,6 @@ fun x =>
   | #[] => 0
   | #[3, 4, 5] => 3
   | x => 4 : Array Nat → Nat
-g.match_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) :
-  (x : List α) → ((a : α) → motive [a]) → ((x : List α) → motive x) → motive x
+g.match_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α) (h_1 : (a : α) → motive [a])
+  (h_2 : (x : List α) → motive x) : motive x✝
 fun e => nomatch e : Empty → False

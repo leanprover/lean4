@@ -1039,6 +1039,14 @@ def getForallBinderNames : Expr → List Name
   | _ => []
 
 /--
+Returns the number of leading `∀` binders of an expression. Ignores metadata.
+-/
+def getNumHeadForalls : Expr → Nat
+  | mdata _ b => getNumHeadForalls b
+  | forallE _ _ body _ => getNumHeadForalls body + 1
+  | _ => 0
+
+/--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.
 Otherwise return the input expression.
@@ -1084,6 +1092,16 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 /-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
+
+/-- Like `getAppNumArgs` but ignores metadata. -/
+def getAppNumArgs' (e : Expr) : Nat :=
+  go e 0
+where
+  /-- Auxiliary definition for `getAppNumArgs'`. -/
+  go : Expr → Nat → Nat
+    | mdata _ b, n => go b n
+    | app f _  , n => go f (n + 1)
+    | _        , n => n
 
 /--
 Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
@@ -1628,7 +1646,7 @@ def nat? (e : Expr) : Option Nat := do
 /--
 Checks if an expression is an "integer numeral in normal form",
 i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
-or the negation of a positive natural number numberal in normal form,
+or the negation of a positive natural number numeral in normal form,
 and if so returns the integer.
 -/
 def int? (e : Expr) : Option Int :=
@@ -1817,6 +1835,27 @@ The delaborator uses `pp` options.
 -/
 def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
+
+/--
+Annotate `e` with `pp.piBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPPiBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.piBinderTypes flag
+
+/--
+Annotate `e` with `pp.funBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.funBinderTypes flag
+
+/--
+Annotate `e` with `pp.explicit := flag`
+The delaborator uses `pp` options.
+-/
+def setPPNumericTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.numericTypes flag
 
 /--
 If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,

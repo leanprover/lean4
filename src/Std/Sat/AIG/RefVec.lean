@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.LawfulOperator
 import Std.Sat.AIG.CachedGatesLemmas
 
@@ -58,7 +59,7 @@ def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
     by simp [hlen],
     by
       intro i hi
-      simp only [Array.get_push]
+      simp only [Array.getElem_push]
       split
       · apply hrefs
         omega
@@ -84,7 +85,7 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
   simp only [get, push, Ref.mk.injEq]
   cases ref
   simp only [Ref.mk.injEq]
-  rw [Array.get_push_lt]
+  rw [Array.getElem_push_lt]
 
 @[simp]
 theorem get_cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (idx : Nat) (hidx : idx < len)
@@ -104,10 +105,10 @@ def append (lhs : RefVec aig lw) (rhs : RefVec aig rw) : RefVec aig (lw + rw) :=
     by
       intro i h
       by_cases hsplit : i < lrefs.size
-      · rw [Array.get_append_left]
+      · rw [Array.getElem_append_left]
         apply hl2
         omega
-      · rw [Array.get_append_right]
+      · rw [Array.getElem_append_right]
         · apply hr2
           omega
         · omega
@@ -124,9 +125,9 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
   simp only [get, append]
   split
   · simp [Ref.mk.injEq]
-    rw [Array.get_append_left]
+    rw [Array.getElem_append_left]
   · simp only [Ref.mk.injEq]
-    rw [Array.get_append_right]
+    rw [Array.getElem_append_right]
     · simp [lhs.hlen]
     · rw [lhs.hlen]
       omega
@@ -149,6 +150,14 @@ theorem get_out_bound (s : RefVec aig len) (idx : Nat) (alt : Ref aig) (hidx : l
   split
   · omega
   · rfl
+
+def countKnown [Inhabited α] (aig : AIG α) (s : RefVec aig len) : Nat := Id.run do
+  let folder acc ref :=
+    let decl := aig.decls[ref]!
+    match decl with
+    | .const .. => acc + 1
+    | _ => acc
+  return s.refs.foldl (init := 0) folder
 
 end RefVec
 

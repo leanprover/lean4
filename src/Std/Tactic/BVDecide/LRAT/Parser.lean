@@ -335,7 +335,7 @@ partial def lratProofToBinary (proof : Array IntAction) : ByteArray :=
   go 0 (ByteArray.mkEmpty (4 * proof.size))
 where
   go (idx : Nat) (acc : ByteArray) : ByteArray :=
-    if h:idx < proof.size then
+    if h : idx < proof.size then
       let acc :=
         match proof[idx] with
         | .addEmpty id hints =>

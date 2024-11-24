@@ -1,3 +1,5 @@
+set_option pp.mvars false
+
 def f (x : Nat) := x + 1
 
 example : f x = x + 1 := rfl
@@ -6,7 +8,7 @@ example : f x = x + 1 := rfl
 error: type mismatch
   rfl
 has type
-  f x = f x : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   f x = x + 1 : Prop
 -/
@@ -22,7 +24,7 @@ seal f
 error: type mismatch
   rfl
 has type
-  f x = f x : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   f x = x + 1 : Prop
 -/

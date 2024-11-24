@@ -18,8 +18,8 @@ $LAKE script run dep/hello | tee -a produced.out
 # Test that non-indentifier names work
 # https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Running.20.60lake.60.20scripts.20from.20the.20command.20line/near/446944450
 $LAKE script run say-goodbye | tee -a produced.out
-($LAKE script run nonexistant 2>&1 | tee -a produced.out) && exit 1 || true
-($LAKE script doc nonexistant 2>&1 | tee -a produced.out) && exit 1 || true
+($LAKE script run nonexistent 2>&1 | tee -a produced.out) && exit 1 || true
+($LAKE script doc nonexistent 2>&1 | tee -a produced.out) && exit 1 || true
 $LAKE scripts | tee -a produced.out
 $LAKE run | tee -a produced.out
 

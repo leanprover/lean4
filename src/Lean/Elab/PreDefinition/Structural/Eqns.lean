@@ -45,7 +45,9 @@ where
       go mvarId
     else if let some mvarId ← simpIf? mvarId then
       go mvarId
-    else match (← simpTargetStar mvarId {} (simprocs := {})).1 with
+    else
+      let ctx ← Simp.mkContext
+      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go mvarId
       | TacticResultCNM.noChange =>
@@ -67,8 +69,8 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     mkEqnTypes info.declNames goal.mvarId!
   let baseName := info.declName
   let mut thmNames := #[]
-  for i in [: eqnTypes.size] do
-    let type := eqnTypes[i]!
+  for h : i in [: eqnTypes.size] do
+    let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name

@@ -204,10 +204,32 @@ partial def findInfoTreeAtPos
   findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
     | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
       | some infoTree => .pure <| some infoTree
-      | none          => cmdParsed.data.finishedSnap.task.map (sync := true) fun s =>
+      | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
         -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
         assert! s.cmdState.infoState.trees.size == 1
         some s.cmdState.infoState.trees[0]!
+    | none => .pure none
+
+open Language in
+/--
+Finds the command syntax and info tree of the first snapshot task matching `isMatchingSnapshot` and
+containing `pos`, asynchronously. The info tree may be from a nested snapshot,
+such as a single tactic.
+
+See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
+-/
+def findCmdDataAtPos
+    (doc : EditableDocument)
+    (isMatchingSnapshot : Lean.CommandParsedSnapshot → Bool)
+    (pos : String.Pos)
+    : Task (Option (Syntax × Elab.InfoTree)) :=
+  findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
+    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
+      | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
+      | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
+        -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
+        assert! s.cmdState.infoState.trees.size == 1
+        some (cmdParsed.stx, s.cmdState.infoState.trees[0]!)
     | none => .pure none
 
 /--
@@ -222,7 +244,7 @@ def findInfoTreeAtPosWithTrailingWhitespace
     : Task (Option Elab.InfoTree) :=
   -- NOTE: use `>=` since the cursor can be *after* the input (and there is no interesting info on
   -- the first character of the subsequent command if any)
-  findInfoTreeAtPos doc (·.data.parserState.pos ≥ pos) pos
+  findInfoTreeAtPos doc (·.parserState.pos ≥ pos) pos
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do

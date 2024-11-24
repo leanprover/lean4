@@ -116,7 +116,7 @@ variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
 is true.
 
-This does not descend into lazily generated subtress (`.ofLazy`); message tags
+This does not descend into lazily generated subtrees (`.ofLazy`); message tags
 of interest (like those added by `logLinter`) are expected to be near the root
 of the `MessageData`, and not hidden inside `.ofLazy`.
 -/
@@ -129,6 +129,19 @@ partial def hasTag : MessageData → Bool
   | tagged n msg            => p n || hasTag msg
   | trace data msg msgs     => p data.cls || hasTag msg || msgs.any hasTag
   | _                       => false
+
+/--
+Returns the top-level tag of the message.
+If none, returns `Name.anonymous`.
+
+This does not descend into message subtrees (e.g., `.compose`, `.ofLazy`).
+The message kind is expected to describe the whole message.
+-/
+def kind : MessageData → Name
+  | withContext _ msg       => kind msg
+  | withNamingContext _ msg => kind msg
+  | tagged n _              => n
+  | _                       => .anonymous
 
 /-- An empty message. -/
 def nil : MessageData :=
@@ -168,7 +181,30 @@ def ofLevel (l : Level) : MessageData :=
       return Dynamic.mk msg)
     (fun _ => false)
 
+/--
+Simply formats the name.
+See `MessageData.ofConstName` for richer messages.
+-/
 def ofName (n : Name) : MessageData := ofFormat (format n)
+
+/--
+Represents a constant name such that hovering and "go to definition" works.
+If there is no such constant in the environment, the name is simply formatted, but sanitized if it is a hygienic name.
+Use `MessageData.ofName` if hovers are undesired.
+
+If `fullNames` is true, then pretty prints as if `pp.fullNames` is true.
+Otherwise, pretty prints using the current user setting for `pp.fullNames`.
+-/
+def ofConstName (constName : Name) (fullNames : Bool := false) : MessageData :=
+  .ofLazy
+    (fun ctx? => do
+      let msg ← ofFormatWithInfos <$> match ctx? with
+        | .none => pure (format constName)
+        | .some ctx =>
+          let ctx := if fullNames then { ctx with opts := ctx.opts.insert `pp.fullNames fullNames } else ctx
+          ppConstNameWithInfos ctx constName
+      return Dynamic.mk msg)
+    (fun _ => false)
 
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=
   visit none msg
@@ -208,8 +244,8 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
     formatAux nCtx ctx? msg
 
-protected def format (msgData : MessageData) : IO Format :=
-  formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
+protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : IO Format :=
+  formatAux { currNamespace := Name.anonymous, openDecls := [] } ctx? msgData
 
 protected def toString (msgData : MessageData) : IO String := do
   return toString (← msgData.format)
@@ -227,7 +263,7 @@ instance : Coe (Option Expr) MessageData := ⟨fun o => match o with | none => "
 
 partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageData) : MessageData :=
   if h : i < es.size then
-    let e   := es.get ⟨i, h⟩;
+    let e   := es[i];
     let acc := if i == 0 then acc ++ ofExpr e else acc ++ ", " ++ ofExpr e;
     toMessageData es (i+1) acc
   else
@@ -255,6 +291,14 @@ def ofList : List MessageData → MessageData
 /-- See `MessageData.ofList`. -/
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
+
+/-- Puts `MessageData` into a comma-separated list with `"or"` at the back (no Oxford comma).
+Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
+def orList (xs : List MessageData) : MessageData :=
+  match xs with
+  | [] => "– none –"
+  | [x] => "'" ++ x ++ "'"
+  | _ => joinSep (xs.dropLast.map (fun x => "'" ++ x ++ "'")) ", " ++ " or '" ++ xs.getLast! ++ "'"
 
 /-- Puts `MessageData` into a comma-separated list with `"and"` at the back (no Oxford comma).
 Best used on non-empty lists; returns `"– none –"` for an empty list.  -/
@@ -284,7 +328,7 @@ structure BaseMessage (α : Type u) where
   endPos        : Option Position := none
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
-  severity      : MessageSeverity := MessageSeverity.error
+  severity      : MessageSeverity := .error
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α
@@ -297,7 +341,10 @@ abbrev Message := BaseMessage MessageData
 /-- A `SerialMessage` is a `Message` whose `MessageData` has been eagerly
 serialized and is thus appropriate for use in pure contexts where the effectful
 `MessageData.toString` cannot be used. -/
-abbrev SerialMessage := BaseMessage String
+structure SerialMessage extends BaseMessage String where
+  /-- The message kind (i.e., the top-level tag). -/
+  kind          : Name
+  deriving ToJson, FromJson
 
 namespace SerialMessage
 
@@ -323,8 +370,12 @@ end SerialMessage
 
 namespace Message
 
+@[inherit_doc MessageData.kind] abbrev kind (msg : Message) :=
+  msg.data.kind
+
+/-- Serializes the message, converting its data into a string and saving its kind. -/
 @[inline] def serialize (msg : Message) : IO SerialMessage := do
-  return {msg with data := ← msg.data.toString}
+  return {msg with kind := msg.kind, data := ← msg.data.toString}
 
 protected def toString (msg : Message) (includeEndPos := false) : IO String := do
   -- Remark: The inline here avoids a new message allocation when `msg` is shared
@@ -420,7 +471,7 @@ def indentExpr (e : Expr) : MessageData :=
 
 class AddMessageContext (m : Type → Type) where
   /--
-  Without context, a `MessageData` object may be be missing information
+  Without context, a `MessageData` object may be missing information
   (e.g. hover info) for pretty printing, or may print an error. Hence,
   `addMessageContext` should be called on all constructed `MessageData`
   (e.g. via `m!`) before taking it out of context (e.g. leaving `MetaM` or
@@ -464,6 +515,7 @@ instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
 instance : ToMessageData (TSyntax k)   := ⟨(MessageData.ofSyntax ·)⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
 instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
+@[default_instance]
 instance : ToMessageData MessageData   := ⟨id⟩
 instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
@@ -489,7 +541,7 @@ private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (ms
 def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
-  | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
+  | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{.ofConstName constName true}'"
   | declTypeMismatch env decl givenType =>
     mkCtx env {} opts <|
     let process (n : Name) (expectedType : Expr) : MessageData :=
@@ -498,8 +550,8 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
     | Declaration.defnDecl { name := n, type := type, .. } => process n type
     | Declaration.thmDecl { name := n, type := type, .. }  => process n type
     | _ => "(kernel) declaration type mismatch" -- TODO fix type checker, type mismatch for mutual decls does not have enough information
-  | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{constName}'"
-  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{constName}'"
+  | declHasMVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has metavariables '{.ofConstName constName true}'"
+  | declHasFVars env constName _        => mkCtx env {} opts m!"(kernel) declaration has free variables '{.ofConstName constName true}'"
   | funExpected env lctx e              => mkCtx env lctx opts m!"(kernel) function expected{indentExpr e}"
   | typeExpected env lctx e             => mkCtx env lctx opts m!"(kernel) type expected{indentExpr e}"
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"
@@ -507,7 +559,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | appTypeMismatch  env lctx e fnType argType =>
     mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
-  | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{constName}' is not a proposition{indentExpr type}"
+  | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{.ofConstName constName true}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
   | deterministicTimeout                => "(kernel) deterministic timeout"
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"

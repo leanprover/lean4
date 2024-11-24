@@ -180,6 +180,10 @@ static void display_header(std::ostream & out) {
     out << "Lean (version " << get_version_string() << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
 }
 
+static void display_version(std::ostream & out) {
+    out << get_short_version_string() << "\n";
+}
+
 static void display_features(std::ostream & out) {
     out << "[";
 #if defined(LEAN_LLVM)
@@ -192,9 +196,10 @@ static void display_help(std::ostream & out) {
     display_header(out);
     std::cout << "Miscellaneous:\n";
     std::cout << "  -h, --help             display this message\n";
-    std::cout << "  -f, --features         display features compiler provides (eg. LLVM support)\n";
-    std::cout << "  -v, --version          display version number\n";
-    std::cout << "      --githash          display the git commit hash number used to build this binary\n";
+    std::cout << "      --features         display features compiler provides (eg. LLVM support)\n";
+    std::cout << "  -v, --version          display version information\n";
+    std::cout << "  -V, --short-version    display short version number\n";
+    std::cout << "  -g, --githash          display the git commit hash number used to build this binary\n";
     std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
     std::cout << "  -o, --o=oname          create olean file\n";
     std::cout << "  -i, --i=iname          create ilean file\n";
@@ -239,6 +244,7 @@ static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
     {"githash",      no_argument,       0, 'g'},
+    {"short-version", no_argument,      0, 'V'},
     {"run",          no_argument,       0, 'r'},
     {"o",            optional_argument, 0, 'o'},
     {"i",            optional_argument, 0, 'i'},
@@ -274,7 +280,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:b:c:C:qgvht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -362,7 +368,7 @@ pair_ref<environment, object_ref> run_new_frontend(
     name const & main_module_name,
     uint32_t trust_level,
     optional<std::string> const & ilean_file_name,
-    uint8_t json
+    uint8_t json_output
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {
@@ -516,6 +522,9 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'v':
                 display_header(std::cout);
+                return 0;
+            case 'V':
+                display_version(std::cout);
                 return 0;
             case 'g':
                 std::cout << LEAN_GITHASH << "\n";

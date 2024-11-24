@@ -28,4 +28,59 @@ theorem count_set [BEq α] (a b : α) (l : List α) (i : Nat) (h : i < l.length)
     (l.set i a).count b = l.count b - (if l[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   simp [count_eq_countP, countP_set, h]
 
+/--
+The number of elements satisfying a predicate in a sublist is at least the number of elements satisfying the predicate in the list,
+minus the difference in the lengths.
+-/
+theorem Sublist.le_countP (s : l₁ <+ l₂) (p) : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁ := by
+  match s with
+  | .slnil => simp
+  | .cons a s =>
+    rename_i l
+    simp only [countP_cons, length_cons]
+    have := s.le_countP p
+    have := s.length_le
+    split <;> omega
+  | .cons₂ a s =>
+    rename_i l₁ l₂
+    simp only [countP_cons, length_cons]
+    have := s.le_countP p
+    have := s.length_le
+    split <;> omega
+
+theorem IsPrefix.le_countP (s : l₁ <+: l₂) : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁ :=
+  s.sublist.le_countP _
+
+theorem IsSuffix.le_countP (s : l₁ <:+ l₂) : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁ :=
+  s.sublist.le_countP _
+
+theorem IsInfix.le_countP (s : l₁ <:+: l₂) : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁ :=
+  s.sublist.le_countP _
+
+/--
+The number of elements satisfying a predicate in the tail of a list is
+at least one less than the number of elements satisfying the predicate in the list.
+-/
+theorem le_countP_tail (l) : countP p l - 1 ≤ countP p l.tail := by
+  have := (tail_sublist l).le_countP p
+  simp only [length_tail] at this
+  omega
+
+variable [BEq α]
+
+theorem Sublist.le_count (s : l₁ <+ l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
+  s.le_countP _
+
+theorem IsPrefix.le_count (s : l₁ <+: l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
+  s.sublist.le_count _
+
+theorem IsSuffix.le_count (s : l₁ <:+ l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
+  s.sublist.le_count _
+
+theorem IsInfix.le_count (s : l₁ <:+: l₂) (a : α) : count a l₂ - (l₂.length - l₁.length) ≤ count a l₁ :=
+  s.sublist.le_count _
+
+theorem le_count_tail (a : α) (l) : count a l - 1 ≤ count a l.tail :=
+  le_countP_tail _
+
 end List

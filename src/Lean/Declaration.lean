@@ -239,7 +239,7 @@ structure InductiveVal extends ConstantVal where
   all : List Name
   /-- List of the names of the constructors for this inductive datatype. -/
   ctors : List Name
-  /-- Number of auxillary data types produced from nested occurrences.
+  /-- Number of auxiliary data types produced from nested occurrences.
   An inductive definition `T` is nested when there is a constructor with an argument `x : F T`,
    where `F : Type → Type` is some suitably behaved (ie strictly positive) function (Eg `Array T`, `List T`, `T × T`, ...).  -/
   numNested : Nat
@@ -369,8 +369,13 @@ def RecursorVal.getFirstIndexIdx (v : RecursorVal) : Nat :=
 def RecursorVal.getFirstMinorIdx (v : RecursorVal) : Nat :=
   v.numParams + v.numMotives
 
-def RecursorVal.getInduct (v : RecursorVal) : Name :=
-  v.name.getPrefix
+/-- The inductive type of the major argument of the recursor. -/
+def RecursorVal.getMajorInduct (v : RecursorVal) : Name :=
+  go v.getMajorIdx v.type
+where
+  go
+  | 0, e => e.bindingDomain!.getAppFn.constName!
+  | n+1, e => go n e.bindingBody!
 
 inductive QuotKind where
   | type  -- `Quot`
@@ -466,6 +471,10 @@ def isCtor : ConstantInfo → Bool
 def isInductive : ConstantInfo → Bool
   | inductInfo _ => true
   | _            => false
+
+def isTheorem : ConstantInfo → Bool
+  | thmInfo _ => true
+  | _         => false
 
 def inductiveVal! : ConstantInfo → InductiveVal
   | .inductInfo val => val

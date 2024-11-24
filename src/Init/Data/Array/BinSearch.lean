@@ -52,7 +52,7 @@ namespace Array
     let mid    := (lo + hi)/2
     let midVal := as.get! mid
     if lt midVal k then
-      if mid == lo then do let v ← add (); pure <| as.insertAt! (lo+1) v
+      if mid == lo then do let v ← add (); pure <| as.insertIdx! (lo+1) v
       else binInsertAux lt merge add as k mid hi
     else if lt k midVal then
       binInsertAux lt merge add as k lo mid
@@ -67,10 +67,10 @@ namespace Array
     (k : α) : m (Array α) :=
   let _ := Inhabited.mk k
   if as.isEmpty then do let v ← add (); pure <| as.push v
-  else if lt k (as.get! 0) then do let v ← add (); pure <| as.insertAt! 0 v
+  else if lt k (as.get! 0) then do let v ← add (); pure <| as.insertIdx! 0 v
   else if !lt (as.get! 0) k then as.modifyM 0 <| merge
-  else if lt as.back k then do let v ← add (); pure <| as.push v
-  else if !lt k as.back then as.modifyM (as.size - 1) <| merge
+  else if lt as.back! k then do let v ← add (); pure <| as.push v
+  else if !lt k as.back! then as.modifyM (as.size - 1) <| merge
   else binInsertAux lt merge add as k 0 (as.size - 1)
 
 @[inline] def binInsert {α : Type u} (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=

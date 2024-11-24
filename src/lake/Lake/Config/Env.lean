@@ -31,6 +31,11 @@ structure Env where
   githashOverride : String
   /-- A name-to-URL mapping of URL overrides for the named packages. -/
   pkgUrlMap : NameMap String
+  /--
+  Whether to disable downloading build caches for packages. Set via `LAKE_NO_CACHE`.
+  Can be overridden on a per-command basis with`--try-cache`.
+  -/
+  noCache : Bool
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
@@ -45,13 +50,20 @@ structure Env where
 
 namespace Env
 
-/-- Compute an `Lake.Env` object from the given installs and set environment variables. -/
-def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : EIO String Env := do
+/--
+Compute a `Lake.Env` object from the given installs
+and the set environment variables.
+-/
+def compute
+  (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall)
+  (noCache : Option Bool := none)
+: EIO String Env := do
   let reservoirBaseUrl ← getUrlD "RESERVOIR_API_BASE_URL" "https://reservoir.lean-lang.org/api"
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
+    noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",
@@ -128,14 +140,29 @@ Combines the initial path of the environment with that of the Lean installation.
 def sharedLibPath (env : Env) : SearchPath :=
   env.lean.sharedLibPath ++ env.initSharedLibPath
 
+/-- Unset toolchain-specific environment variables. -/
+def noToolchainVars : Array (String × Option String) :=
+  #[
+    ("ELAN_TOOLCHAIN", none),
+    ("LAKE", none),
+    ("LAKE_OVERRIDE_LEAN", none),
+    ("LAKE_HOME", none),
+    ("LEAN", none),
+    ("LEAN_GITHASH", none),
+    ("LEAN_SYSROOT", none),
+    ("LEAN_AR", none)
+  ]
+
 /-- Environment variable settings that are not augmented by a Lake workspace. -/
 def baseVars (env : Env) : Array (String × Option String)  :=
   #[
+    ("ELAN", env.elan?.map (·.elan.toString)),
     ("ELAN_HOME", env.elan?.map (·.home.toString)),
     ("ELAN_TOOLCHAIN", if env.toolchain.isEmpty then none else env.toolchain),
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
+    ("LEAN", env.lean.lean.toString),
     ("LEAN_GITHASH", env.leanGithash),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),

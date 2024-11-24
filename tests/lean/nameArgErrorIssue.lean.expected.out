@@ -7,7 +7,7 @@ has type
   String : Type
 but is expected to have type
   Nat : Type
-bla (sorryAx Nat true) 5 : Nat
+bla sorry 5 : Nat
 nameArgErrorIssue.lean:6:20-6:24: error: application type mismatch
   bla "hi"
 argument

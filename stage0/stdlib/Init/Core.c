@@ -17,7 +17,6 @@ static lean_object* l___aux__Init__Core______macroRules__term___x5c____1___close
 static lean_object* l_term___u2229_____closed__2;
 LEAN_EXPORT lean_object* l_toBoolUsing(lean_object*);
 static lean_object* l_term___u222a_____closed__6;
-static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6;
 static lean_object* l___aux__Init__Core______unexpand__Iff__1___closed__1;
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__3;
 static lean_object* l_term_x7b_x7d___closed__7;
@@ -38,7 +37,6 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2283____1___clo
 LEAN_EXPORT lean_object* l_And_elim___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__SSuperset__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableIte(lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7;
 LEAN_EXPORT lean_object* l_Thunk_map___rarg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2282____1___closed__2;
 static lean_object* l___aux__Init__Core______macroRules__term___u2287____1___closed__2;
@@ -143,7 +141,6 @@ LEAN_EXPORT lean_object* l_instInhabitedPUnit;
 static lean_object* l_term___u2194_____closed__4;
 LEAN_EXPORT lean_object* l_term_x7b_x7d;
 LEAN_EXPORT lean_object* l_term___u2286__;
-LEAN_EXPORT lean_object* l_instDecidableEqQuotientOfDecidableEquiv___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5;
 static lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1___closed__2;
 LEAN_EXPORT lean_object* l_Eq_mp___rarg(lean_object*);
@@ -159,7 +156,6 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2286____1___clo
 LEAN_EXPORT lean_object* l_Prod_lexLtDec___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__3;
 LEAN_EXPORT uint8_t l_instDecidableForall___rarg(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_instDecidableEqQuotientOfDecidableEquiv___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_flip(lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_lift_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,7 +215,6 @@ static lean_object* l___aux__Init__Core______macroRules__term___x5c____1___close
 LEAN_EXPORT lean_object* l_Eq_ndrecOn___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Union__union__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__1;
-LEAN_EXPORT lean_object* l_instDecidableEqQuotientOfDecidableEquiv(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__3;
 static lean_object* l_term___x21_x3d_____closed__2;
 static lean_object* l___aux__Init__Core______macroRules__term___u2248____1___closed__4;
@@ -259,6 +254,7 @@ lean_object* lean_thunk_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Eq_mp___rarg___boxed(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_Priority_default;
+LEAN_EXPORT lean_object* l_Quotient_decidableEq(lean_object*, lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__3;
 LEAN_EXPORT lean_object* l_Quotient_recOnSubsingleton_u2082___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Iff__2(lean_object*, lean_object*, lean_object*);
@@ -369,6 +365,7 @@ static lean_object* l_term___x3c_x2d_x3e_____closed__10;
 static lean_object* l_term___x3c_x2d_x3e_____closed__4;
 LEAN_EXPORT lean_object* l_Task_Priority_dedicated;
 LEAN_EXPORT lean_object* l_Quotient_mk_x27___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Quotient_decidableEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__bne__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2248_____closed__2;
@@ -400,6 +397,7 @@ lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Superset__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u222a_____closed__4;
 LEAN_EXPORT lean_object* l_Quotient_lift(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Quotient_decidableEq___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__5;
 static lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4;
 LEAN_EXPORT uint8_t l_instDecidableIff___rarg(uint8_t, uint8_t);
@@ -5114,34 +5112,12 @@ return x_3;
 static lean_object* _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__3;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5;
+x_2 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4;
-x_2 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -5184,7 +5160,7 @@ lean_dec(x_2);
 x_17 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__3;
 x_18 = l_Lean_addMacroScope(x_16, x_17, x_15);
 x_19 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__2;
-x_20 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7;
+x_20 = l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5;
 lean_inc(x_14);
 x_21 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_21, 0, x_14);
@@ -7066,7 +7042,7 @@ lean_dec(x_3);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_instDecidableEqQuotientOfDecidableEquiv___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Quotient_decidableEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -7074,19 +7050,19 @@ x_4 = lean_apply_2(x_1, x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_instDecidableEqQuotientOfDecidableEquiv(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Quotient_decidableEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_instDecidableEqQuotientOfDecidableEquiv___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Quotient_decidableEq___rarg), 3, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instDecidableEqQuotientOfDecidableEquiv___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Quotient_decidableEq___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instDecidableEqQuotientOfDecidableEquiv(x_1, x_2);
+x_3 = l_Quotient_decidableEq(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }
@@ -7601,10 +7577,6 @@ l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4 = _init_l__
 lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__4);
 l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5 = _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5();
 lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__5);
-l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6 = _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6();
-lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__6);
-l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7 = _init_l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7();
-lean_mark_persistent(l___aux__Init__Core______macroRules__term___x21_x3d____1___closed__7);
 l_term___u2260_____closed__1 = _init_l_term___u2260_____closed__1();
 lean_mark_persistent(l_term___u2260_____closed__1);
 l_term___u2260_____closed__2 = _init_l_term___u2260_____closed__2();

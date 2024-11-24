@@ -336,21 +336,21 @@ variable (h : n ≤ m) in
 -- unzip
 #check_simp unzip (replicate n (x, y)) ~> (replicate n x, replicate n y)
 
--- minimum?
+-- min?
 
 -- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
-#check_simp (replicate (n+1) 7).minimum? ~> some 7
+#check_simp (replicate (n+1) 7).min? ~> some 7
 
 variable (h : 0 < n) in
-#check_tactic (replicate n 7).minimum? ~> some 7 by simp [h]
+#check_tactic (replicate n 7).min? ~> some 7 by simp [h]
 
--- maximum?
+-- max?
 
 -- Note this relies on the fact that we do not have `replicate_succ` as a `@[simp]` lemma
-#check_simp (replicate (n+1) 7).maximum? ~> some 7
+#check_simp (replicate (n+1) 7).max? ~> some 7
 
 variable (h : 0 < n) in
-#check_tactic (replicate n 7).maximum? ~> some 7 by simp [h]
+#check_tactic (replicate n 7).max? ~> some 7 by simp [h]
 
 end
 
@@ -456,11 +456,35 @@ end Pairwise
 
 /-! ### enumFrom -/
 
-/-! ### minimum? -/
+/-! ### min? -/
 
-/-! ### maximum? -/
+/-! ### max? -/
 
 /-! ## Monadic operations -/
+attribute [local simp] Id.run in
+#check_simp
+  (Id.run do
+    let mut s := 0
+    for i in [1,2,3,4] do
+      s := s + i
+    pure s) ~> 10
+
+attribute [local simp] Id.run in
+#check_simp
+  (Id.run do
+    let mut s := 0
+    for h : i in [1,2,3,4] do
+      s := s + i
+    pure s) ~> 10
+
+attribute [local simp] Id.run in
+variable (l : List α) (k m : Nat) in
+#check_simp
+  (Id.run do
+    let mut x := m
+    for _ in l do
+      x := x + k
+    pure x) ~> m + k * l.length
 
 /-! ### mapM -/
 

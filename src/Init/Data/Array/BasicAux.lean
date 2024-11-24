@@ -34,7 +34,7 @@ private theorem List.of_toArrayAux_eq_toArrayAux {as bs : List α} {cs ds : Arra
 
 @[simp] theorem List.toArray_eq_toArray_eq (as bs : List α) : (as.toArray = bs.toArray) = (as = bs) := by
   apply propext; apply Iff.intro
-  · intro h; simp [toArray] at h; have := of_toArrayAux_eq_toArrayAux h rfl; exact this.1
+  · intro h; simpa [toArray] using h
   · intro h; rw [h]
 
 def Array.mapM' [Monad m] (f : α → m β) (as : Array α) : m { bs : Array β // bs.size = as.size } :=
@@ -60,7 +60,7 @@ where
       if ptrEq a b then
         go (i+1) as
       else
-        go (i+1) (as.set ⟨i, h⟩ b)
+        go (i+1) (as.set i b h)
     else
       return as
 

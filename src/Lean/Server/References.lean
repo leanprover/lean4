@@ -312,8 +312,8 @@ where
 
   findCanonicalRepresentative (idMap : Std.HashMap RefIdent RefIdent) (id : RefIdent) : RefIdent := Id.run do
     let mut canonicalRepresentative := id
-    while idMap.contains canonicalRepresentative do
-      canonicalRepresentative := idMap[canonicalRepresentative]!
+    while h : idMap.contains canonicalRepresentative do
+      canonicalRepresentative := idMap[canonicalRepresentative]
     return canonicalRepresentative
 
   buildIdMap posMap := Id.run <| StateT.run' (s := Std.HashMap.empty) do

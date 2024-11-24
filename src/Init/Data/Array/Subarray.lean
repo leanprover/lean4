@@ -15,15 +15,6 @@ structure Subarray (α : Type u)  where
   start_le_stop : start ≤ stop
   stop_le_array_size : stop ≤ array.size
 
-@[deprecated Subarray.array (since := "2024-04-13")]
-abbrev Subarray.as (s : Subarray α) : Array α := s.array
-
-@[deprecated Subarray.start_le_stop (since := "2024-04-13")]
-theorem Subarray.h₁ (s : Subarray α) : s.start ≤ s.stop := s.start_le_stop
-
-@[deprecated Subarray.stop_le_array_size (since := "2024-04-13")]
-theorem Subarray.h₂ (s : Subarray α) : s.stop ≤ s.array.size := s.stop_le_array_size
-
 namespace Subarray
 
 def size (s : Subarray α) : Nat :=
@@ -48,7 +39,7 @@ instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
 @[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
-  if h : i < s.size then s.get ⟨i, h⟩ else v₀
+  if h : i < s.size then s[i] else v₀
 
 abbrev get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
   getD s i default
@@ -58,6 +49,22 @@ def popFront (s : Subarray α) : Subarray α :=
     { s with start := s.start + 1, start_le_stop := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }
   else
     s
+
+/--
+The empty subarray.
+-/
+protected def empty : Subarray α where
+  array := #[]
+  start := 0
+  stop := 0
+  start_le_stop := Nat.le_refl 0
+  stop_le_array_size := Nat.le_refl 0
+
+instance : EmptyCollection (Subarray α) :=
+  ⟨Subarray.empty⟩
+
+instance : Inhabited (Subarray α) :=
+  ⟨{}⟩
 
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let sz := USize.ofNat s.stop

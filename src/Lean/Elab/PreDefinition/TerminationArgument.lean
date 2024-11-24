@@ -53,10 +53,10 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
     (hint : TerminationBy) : TermElabM TerminationArgument := withDeclName funName do
   assert! extraParams ≤ arity
 
-  if hint.vars.size > extraParams then
+  if h : hint.vars.size > extraParams then
     let mut msg := m!"{parameters hint.vars.size} bound in `termination_by`, but the body of " ++
       m!"{funName} only binds {parameters extraParams}."
-    if let `($ident:ident) := hint.vars[0]! then
+    if let `($ident:ident) := hint.vars[0] then
       if ident.getId.isSuffixOf funName then
           msg := msg ++ m!" (Since Lean v4.6.0, the `termination_by` clause no longer " ++
             "expects the function name here.)"
@@ -112,13 +112,13 @@ def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : Termi
       let stxBody ← Delaborator.delab
       let hole : TSyntax `Lean.Parser.Term.hole ← `(hole|_)
 
-      -- any variable not mentioned syntatically (it may appear in the `Expr`, so do not just use
+      -- any variable not mentioned syntactically (it may appear in the `Expr`, so do not just use
       -- `e.bindingBody!.hasLooseBVar`) should be delaborated as a hole.
       let vars  : TSyntaxArray [`ident, `Lean.Parser.Term.hole] :=
         Array.map (fun (i : Ident) => if stxBody.raw.hasIdent i.getId then i else hole) vars
       -- drop trailing underscores
       let mut vars := vars
-      while ! vars.isEmpty && vars.back.raw.isOfKind ``hole do vars := vars.pop
+      while ! vars.isEmpty && vars.back!.raw.isOfKind ``hole do vars := vars.pop
       if termArg.structural then
         if vars.isEmpty then
           `(terminationBy|termination_by structural $stxBody)

@@ -210,7 +210,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         omega
       · rw [hleft]
         simp only [BitVec.shiftLeft_eq', BitVec.toNat_twoPow, hmod, BitVec.getLsbD_shiftLeft, hidx,
-          decide_True, Bool.true_and, Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not,
+          decide_true, Bool.true_and, Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not,
           Nat.not_lt]
         omega
     · next hif1 =>
@@ -240,19 +240,20 @@ theorem go_denote_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
     (hright : ∀ (idx : Nat) (hidx : idx < n), ⟦aig, distance.get idx hidx, assign⟧ = rhs.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig distance curr hcurr acc).aig,
-          (go aig distance curr hcurr acc).vec.get idx hidx,
+          (go aig distance curr acc).aig,
+          (go aig distance curr acc).vec.get idx hidx,
           assign
         ⟧
           =
         (BitVec.shiftLeftRec lhs rhs (n - 1)).getLsbD idx := by
   intro idx hidx
-  generalize hgo : go aig distance curr hcurr acc = res
+  generalize hgo : go aig distance curr acc = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
   · rw [← hgo]
     rw [go_denote_eq]
+    · omega
     · intro idx hidx
       simp only [BitVec.shiftLeftRec_succ]
       rw [twoPowShift_eq (lhs := BitVec.shiftLeftRec lhs rhs curr)]
@@ -299,6 +300,7 @@ theorem denote_blastShiftLeft (aig : AIG α) (target : ArbitraryShiftTarget aig 
     apply BitVec.lt_of_getLsbD
   · rw [← hg]
     rw [blastShiftLeft.go_denote_eq]
+    · omega
     · intro idx hidx
       simp only [BitVec.shiftLeftRec_zero]
       rw [blastShiftLeft.twoPowShift_eq]

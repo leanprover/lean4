@@ -129,9 +129,9 @@ where
           let typeNew := b.instantiate1 y
           if let some (_, lhs, rhs) ← matchEq? d then
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some j  := ys.getIdx? lhs | unreachable!
+               let some j  := ys.indexOf? lhs | unreachable!
                let ys      := ys.eraseIdx j
-               let some k  := args.getIdx? lhs | unreachable!
+               let some k  := args.indexOf? lhs | unreachable!
                let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let arg     ← mkEqRefl rhs
@@ -366,7 +366,7 @@ private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr →
   let rec go (i : Nat) (xs : Array Expr) : MetaM α := do
     if h : i < altTypes.size then
       let hName := (`h).appendIndexAfter (i+1)
-      withLocalDeclD hName (altTypes.get ⟨i, h⟩) fun x =>
+      withLocalDeclD hName altTypes[i] fun x =>
         go (i+1) (xs.push x)
     else
       f xs
@@ -431,7 +431,7 @@ where
   trimFalseTrail (argMask : Array Bool) : Array Bool :=
     if argMask.isEmpty then
       argMask
-    else if !argMask.back then
+    else if !argMask.back! then
       trimFalseTrail argMask.pop
     else
       argMask
@@ -525,7 +525,7 @@ where
           let rec go (i : Nat) (motiveTypeArgsNew : Array Expr) : ConvertM Expr := do
             assert! motiveTypeArgsNew.size == i
             if h : i < motiveTypeArgs.size then
-              let motiveTypeArg := motiveTypeArgs.get ⟨i, h⟩
+              let motiveTypeArg := motiveTypeArgs[i]
               if i < isAlt.size && isAlt[i]! then
                 let altNew := argsNew[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
                 let altTypeNew ← inferType altNew
@@ -557,8 +557,8 @@ where
         let mut minorBodyNew := minor
         -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
         let mut m ← read
-        for i in [:isAlt.size] do
-          if isAlt[i]! then
+        for h : i in [:isAlt.size] do
+          if isAlt[i] then
             -- `convertTemplate` will correct occurrences of the alternative
             let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
             let some (_, numParams, argMask) := m.find? alt.fvarId! | unreachable!
@@ -636,8 +636,7 @@ private partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patte
 where
   go (i : Nat) (altsNew : Array Expr) : MetaM α := do
    if h : i < alts.size then
-     let alt := alts.get ⟨i, h⟩
-     let altLocalDecl ← getFVarLocalDecl alt
+     let altLocalDecl ← getFVarLocalDecl alts[i]
      let typeNew := altLocalDecl.type.replaceFVars discrs patterns
      withLocalDecl altLocalDecl.userName altLocalDecl.binderInfo typeNew fun altNew =>
        go (i+1) (altsNew.push altNew)

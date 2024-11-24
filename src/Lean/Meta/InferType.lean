@@ -95,17 +95,16 @@ private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
     throwIncorrectNumberOfLevels c us
 
 private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
-  let failed {α} : Unit → MetaM α := fun _ =>
-    throwError "invalid projection{indentExpr (mkProj structName idx e)}"
   let structType ← inferType e
   let structType ← whnf structType
-  matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
-    let n := structVal.numParams
-    let structParams := structType.getAppArgs
-    if n != structParams.size then
+  let failed {α} : Unit → MetaM α := fun _ => do
+    throwError "invalid projection{indentExpr (mkProj structName idx e)}\nfrom type{indentExpr structType}"
+  matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal =>
+    let structTypeArgs := structType.getAppArgs
+    if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
     else do
-      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structParams
+      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams]
       for i in [:idx] do
         ctorType ← whnf ctorType
         match ctorType with
@@ -166,13 +165,27 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
   | none   => fvarId.throwUnknown
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
-  match (← get).cache.inferType.find? e with
-  | some type => return type
-  | none =>
-    let type ← inferType
-    unless e.hasMVar || type.hasMVar do
-      modifyInferTypeCache fun c => c.insert e type
-    return type
+  if e.hasMVar then
+    inferType
+  else
+    let key ← mkExprConfigCacheKey e
+    match (← get).cache.inferType.find? key with
+    | some type => return type
+    | none =>
+      let type ← inferType
+      unless type.hasMVar do
+        modifyInferTypeCache fun c => c.insert key type
+      return type
+
+private def defaultConfig : ConfigWithKey :=
+  { : Config }.toConfigWithKey
+
+private def allConfig : ConfigWithKey :=
+  { transparency := .all : Config }.toConfigWithKey
+
+@[inline] def withInferTypeConfig (x : MetaM α) : MetaM α := do
+  let cfg := if (← getTransparency) == .all then allConfig else defaultConfig
+  withConfigWithKey cfg x
 
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=
@@ -191,7 +204,7 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
     | .forallE ..    => checkInferTypeCache e (inferForallType e)
     | .lam ..        => checkInferTypeCache e (inferLambdaType e)
     | .letE ..       => checkInferTypeCache e (inferLambdaType e)
-  withIncRecDepth <| withTransparency TransparencyMode.default (infer e)
+  withIncRecDepth <| withInferTypeConfig (infer e)
 
 /--
   Return `LBool.true` if given level is always equivalent to universe level zero.
@@ -372,11 +385,6 @@ def isType (e : Expr) : MetaM Bool := do
     | .sort .. => return true
     | _        => return false
 
-@[inline] private def withLocalDecl' {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α := do
-  let fvarId ← mkFreshFVarId
-  withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
-    x (mkFVar fvarId)
-
 def typeFormerTypeLevelQuick : Expr → Option Level
   | .forallE _ _ b _ => typeFormerTypeLevelQuick b
   | .sort l => some l
@@ -393,7 +401,7 @@ where
   go (type : Expr) (xs : Array Expr) : MetaM (Option Level) := do
     match type with
     | .sort l => return some l
-    | .forallE n d b c => withLocalDecl' n c (d.instantiateRev xs) fun x => go b (xs.push x)
+    | .forallE n d b c => withLocalDeclNoLocalInstanceUpdate n c (d.instantiateRev xs) fun x => go b (xs.push x)
     | _ =>
       let type ← whnfD (type.instantiateRev xs)
       match type with
@@ -430,6 +438,8 @@ This can be used to infer the expected type of the alternatives when constructin
 -/
 def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
   forallBoundedTelescope type n fun xs _ => do
+    unless xs.size = n do
+      throwError "type {type} does not have {n} parameters"
     let types ← xs.mapM (inferType ·)
     for t in types do
       if t.hasAnyFVar (fun fvar => xs.contains (.fvar fvar)) then

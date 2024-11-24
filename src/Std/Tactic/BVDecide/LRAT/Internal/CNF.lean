@@ -21,12 +21,11 @@ theorem sat_negate_iff_not_sat {p : α → Bool} {l : Literal α} : p ⊨ Litera
   simp only [Literal.negate, sat_iff]
   constructor
   · intro h pl
-    rw [sat_iff, h, not.eq_def] at pl
-    split at pl <;> simp_all
+    rw [sat_iff, h] at pl
+    simp at pl
   · intro h
     rw [sat_iff] at h
-    rw [not.eq_def]
-    split <;> simp_all
+    cases h : p l.fst <;> simp_all
 
 theorem unsat_of_limplies_complement [Entails α t] (x : t) (l : Literal α) :
     Limplies α x l → Limplies α x (Literal.negate l) → Unsatisfiable α x := by

@@ -46,7 +46,7 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
   if h' : u.toNat < sz then
     ⟨u, h'⟩
   else
-    ⟨0, by simp [USize.toNat, OfNat.ofNat, USize.ofNat]; apply Nat.pos_of_isPowerOfTwo h⟩
+    ⟨0, by simp; apply Nat.pos_of_isPowerOfTwo h⟩
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
   let ⟨i, h⟩ := mkIdx (hashFn a) data.property
@@ -90,10 +90,9 @@ def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
 
 def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
   if h : i < source.size then
-     let idx : Fin source.size := ⟨i, h⟩
-     let es  : AssocList α β   := source.get idx
+     let es  : AssocList α β   := source[i]
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
-     let source                := source.set idx AssocList.nil
+     let source                := source.set i AssocList.nil
      let target                := es.foldl (reinsertAux hash) target
      moveEntries (i+1) source target
   else target
@@ -195,7 +194,7 @@ def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
 
 /--
 Similar to `insert`, but returns `some old` if the map already had an entry `α → old`.
-If the result is `some old`, the the resulting map is equal to `m`. -/
+If the result is `some old`, the resulting map is equal to `m`. -/
 def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option β :=
   match m with
   | ⟨ m, hw ⟩ =>
@@ -271,11 +270,11 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
 
-attribute [deprecated Std.HashMap] HashMap
-attribute [deprecated Std.HashMap.Raw] HashMapImp
-attribute [deprecated Std.HashMap.Raw.empty] mkHashMapImp
-attribute [deprecated Std.HashMap.empty] mkHashMap
-attribute [deprecated Std.HashMap.empty] HashMap.empty
-attribute [deprecated Std.HashMap.ofList] HashMap.ofList
+attribute [deprecated Std.HashMap (since := "2024-08-08")] HashMap
+attribute [deprecated Std.HashMap.Raw (since := "2024-08-08")] HashMapImp
+attribute [deprecated Std.HashMap.Raw.empty (since := "2024-08-08")] mkHashMapImp
+attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] mkHashMap
+attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] HashMap.empty
+attribute [deprecated Std.HashMap.ofList (since := "2024-08-08")] HashMap.ofList
 
 end Lean.HashMap

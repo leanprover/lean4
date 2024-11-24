@@ -153,6 +153,12 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     m.isEmpty = true ↔ ∀ a, ¬a ∈ m := by
   simpa [mem_iff_contains] using isEmpty_iff_forall_contains h
 
+@[simp] theorem insert_eq_insert {p : (a : α) × β a} : Insert.insert p m = m.insert p.1 p.2 := rfl
+
+@[simp] theorem singleton_eq_insert {p : (a : α) × β a} :
+    Singleton.singleton p = (∅ : Raw α β).insert p.1 p.2 :=
+  rfl
+
 @[simp]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a k : α} {v : β k} :
     (m.insert k v).contains a = (k == a || m.contains a) := by
@@ -1015,6 +1021,31 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
   simp_to_raw using congrArg Subtype.val (Raw₀.Const.getThenInsertIfNew?_snd _)
 
 end Const
+
+@[simp]
+theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.length = m.size := by
+  simp_to_raw using Raw₀.length_keys ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h : m.WF):
+    m.keys.isEmpty = m.isEmpty := by
+  simp_to_raw using Raw₀.isEmpty_keys ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    m.keys.contains k = m.contains k := by
+  simp_to_raw using Raw₀.contains_keys ⟨m, _⟩ h
+
+@[simp]
+theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    k ∈ m.keys ↔ k ∈ m := by 
+  rw [mem_iff_contains]
+  simp_to_raw using Raw₀.mem_keys ⟨m, _⟩ h
+
+theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.Pairwise (fun a b => (a == b) = false) := by
+  simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
 
 end Raw
 

@@ -27,9 +27,9 @@ r'[p] = match p with | inl (x,y) => r1[x,y] | inr (x,y) => r2[x,y]
 The `ArgsPacker` data structure (defined in `Lean.Meta.ArgsPacker.Basic` for fewer module
 dependencies) contains necessary information to pack and unpack reliably. Care is taken that the
 code is not confused even if the user intentionally uses a `PSigma` or `PSum` type, e.g. as the
-ast parameter. Additionaly, “good” variable names are stored here.
+ast parameter. Additionally, “good” variable names are stored here.
 
-It is used in the transation of a possibly mutual, possibly n-ary recursive function to a single
+It is used in the translation of a possibly mutual, possibly n-ary recursive function to a single
 unary function, which can then be made non-recursive using `WellFounded.fix`.  Additional users are
 the `GuessLex` and `FunInd` modules, which also have to deal with this encoding.
 
@@ -56,7 +56,7 @@ Given a telescope of FVars of type `tᵢ`, iterates `PSigma` to produce the type
 `t₁ ⊗' t₂ …`.
 -/
 def packType (xs : Array Expr) : MetaM Expr := do
-  let mut d ← inferType xs.back
+  let mut d ← inferType xs.back!
   for x in xs.pop.reverse do
     d ← mkAppOptM ``PSigma #[some (← inferType x), some (← mkLambdaFVars #[x] d)]
   return d
@@ -64,13 +64,13 @@ def packType (xs : Array Expr) : MetaM Expr := do
 
 /--
 Create a unary application by packing the given arguments using `PSigma.mk`.
-The `type` should be the the expected type of the packed argument, as created with `packType`.
+The `type` should be the expected type of the packed argument, as created with `packType`.
 -/
 partial def pack (type : Expr) (args : Array Expr) : Expr := go 0 type
 where
   go (i : Nat) (type : Expr) : Expr :=
-    if i < args.size - 1 then
-      let arg := args[i]!
+    if h : i < args.size - 1 then
+      let arg := args[i]
       assert! type.isAppOfArity ``PSigma 2
       let us := type.getAppFn.constLevels!
       let α := type.appFn!.appArg!
@@ -196,13 +196,13 @@ where
       let packedArg := Unary.pack packedDomain args
       return e.beta #[packedArg]
   | [n] => do
-    withLocalDecl n .default domain fun x => do
+    withLocalDeclD n domain fun x => do
       let dummy := Expr.const ``Unit []
       mkLambdaFVars #[x] (← go packedDomain dummy (args.push x) [])
   | n :: ns =>
     match_expr domain with
     | PSigma a b =>
-      withLocalDecl n .default a fun x => do
+      withLocalDeclD n a fun x => do
         mkLambdaFVars #[x] (← go packedDomain (b.beta #[x]) (args.push x) ns)
     | _ => throwError "curryPSigma: Expected PSigma type, got {domain}"
 
@@ -217,7 +217,7 @@ Helpers for iterated `PSum`.
 
 /-- Given types `#[t₁, t₂,…]`, returns the type `t₁ ⊕' t₂ …`. -/
 def packType (ds : Array Expr) : MetaM Expr := do
-  let mut r := ds.back
+  let mut r := ds.back!
   for d in ds.pop.reverse do
     r ← mkAppM ``PSum #[d, r]
   return r
@@ -319,7 +319,7 @@ def uncurryType (types : Array Expr) : MetaM Expr := do
     unless type.isForall do
       throwError "Mutual.uncurryType: Expected forall type, got {type}"
   let domain ← packType (types.map (·.bindingDomain!))
-  withLocalDeclD `x domain fun x => do
+  withLocalDeclD (← mkFreshUserName `x) domain fun x => do
     let codomain ← Mutual.mkCodomain types x
     mkForallFVars #[x] codomain
 
@@ -335,7 +335,7 @@ def uncurryTypeND (types : Array Expr) : MetaM Expr := do
     unless type.isArrow do
       throwError "Mutual.uncurryTypeND: Expected non-dependent types, got {type}"
   let codomains := types.map (·.bindingBody!)
-  let t' := codomains.back
+  let t' := codomains.back!
   codomains.pop.forM fun t =>
     unless ← isDefEq t t' do
       throwError "Mutual.uncurryTypeND: Expected equal codomains, but got {t} and {t'}"
@@ -485,13 +485,14 @@ projects to the `i`th function of type,
 -/
 def curryProj (argsPacker : ArgsPacker) (e : Expr) (i : Nat) : MetaM Expr := do
   let n := argsPacker.numFuncs
-  let packedDomain := (← inferType e).bindingDomain!
+  let t ← inferType e
+  let packedDomain := t.bindingDomain!
   let unaryTypes ← Mutual.unpackType n packedDomain
   unless i < unaryTypes.length do
     throwError "curryProj: index out of range"
   let unaryType := unaryTypes[i]!
   -- unary : (x : a ⊗ b) → e[inl x]
-  let unary ← withLocalDecl `x .default unaryType fun x => do
+  let unary ← withLocalDeclD t.bindingName! unaryType fun x => do
       let packedArg ← Mutual.pack unaryTypes.length packedDomain i x
       mkLambdaFVars #[x] (e.beta #[packedArg])
   -- nary : (x : a) → (y : b) → e[inl (x,y)]
@@ -550,7 +551,7 @@ brings `m1 : a → b → s` and `m2 : c → d → s` into scope. The continuatio
 
 where `m : a ⊗' b ⊕' c ⊗' d → s` is the uncurried form of `m1` and `m2`.
 
-The variable names `m1` and `m2` are taken from the paramter name in `t`, with numbers added
+The variable names `m1` and `m2` are taken from the parameter name in `t`, with numbers added
 unless `numFuns = 1`
 -/
 def curryParam {α} (argsPacker : ArgsPacker) (value : Expr) (type : Expr)

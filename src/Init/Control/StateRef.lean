@@ -6,8 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 The State monad transformer using IO references.
 -/
 prelude
-import Init.System.IO
-import Init.Control.State
+import Init.System.ST
 
 def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type := ReaderT (ST.Ref ω σ) m α
 

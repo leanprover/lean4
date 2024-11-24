@@ -49,6 +49,10 @@ instance : Monad TacticM :=
   let i := inferInstanceAs (Monad TacticM);
   { pure := i.pure, bind := i.bind }
 
+instance : Inhabited (TacticM α) where
+  default := fun _ _ => default
+
+/-- Returns the list of goals. Goals may or may not already be assigned. -/
 def getGoals : TacticM (List MVarId) :=
   return (← get).goals
 
@@ -214,7 +218,7 @@ where
                     let old ← snap.old?
                     -- If the kind is equal, we can assume the old version was a macro as well
                     guard <| old.stx.isOfKind stx.getKind
-                    let state ← old.val.get.data.finished.get.state?
+                    let state ← old.val.get.finished.get.state?
                     guard <| state.term.meta.core.nextMacroScope == nextMacroScope
                     -- check absence of traces; see Note [Incremental Macros]
                     guard <| state.term.meta.core.traceState.traces.size == 0
@@ -222,9 +226,10 @@ where
                     return old.val.get
                   Language.withAlwaysResolvedPromise fun promise => do
                     -- Store new unfolding in the snapshot tree
-                    snap.new.resolve <| .mk {
+                    snap.new.resolve {
                       stx := stx'
                       diagnostics := .empty
+                      inner? := none
                       finished := .pure {
                         diagnostics := .empty
                         state? := (← Tactic.saveState)
@@ -236,7 +241,7 @@ where
                       new := promise
                       old? := do
                         let old ← old?
-                        return ⟨old.data.stx, (← old.data.next.get? 0)⟩
+                        return ⟨old.stx, (← old.next.get? 0)⟩
                     } }) do
                       evalTactic stx'
                   return
@@ -297,13 +302,22 @@ instance : MonadBacktrack SavedState TacticM where
   saveState := Tactic.saveState
   restoreState b := b.restore
 
+/--
+Non-backtracking `try`/`catch`.
+-/
 @[inline] protected def tryCatch {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
+  try x catch ex => h ex
+
+/--
+Backtracking `try`/`catch`. This is used for the `MonadExcept` instance for `TacticM`.
+-/
+@[inline] protected def tryCatchRestore {α} (x : TacticM α) (h : Exception → TacticM α) : TacticM α := do
   let b ← saveState
   try x catch ex => b.restore; h ex
 
 instance : MonadExcept Exception TacticM where
   throw    := throw
-  tryCatch := Tactic.tryCatch
+  tryCatch := Tactic.tryCatchRestore
 
 /-- Execute `x` with error recovery disabled -/
 def withoutRecover (x : TacticM α) : TacticM α :=
@@ -339,12 +353,26 @@ def adaptExpander (exp : Syntax → TacticM Syntax) : Tactic := fun stx => do
   let stx' ← exp stx
   withMacroExpansion stx stx' $ evalTactic stx'
 
-/-- Add the given goals at the end of the current goals collection. -/
+/-- Add the given goal to the front of the current list of goals. -/
+def pushGoal (mvarId : MVarId) : TacticM Unit :=
+  modify fun s => { s with goals := mvarId :: s.goals }
+
+/-- Add the given goals to the front of the current list of goals. -/
+def pushGoals (mvarIds : List MVarId) : TacticM Unit :=
+  modify fun s => { s with goals := mvarIds ++ s.goals }
+
+/-- Add the given goals at the end of the current list of goals. -/
 def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
 
-/-- Discard the first goal and replace it by the given list of goals,
-keeping the other goals. -/
+/--
+Discard the first goal and replace it by the given list of goals,
+keeping the other goals. This is used in conjunction with `getMainGoal`.
+
+Contract: between `getMainGoal` and `replaceMainGoal`, nothing manipulates the goal list.
+
+See also `Lean.Elab.Tactic.popMainGoal` and `Lean.Elab.Tactic.pushGoal`/`Lean.Elab.Tactic.pushGoal` for another interface.
+-/
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
   let (_ :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
   modify fun _ => { goals := mvarIds ++ mvarIds' }
@@ -361,6 +389,16 @@ where
       else
         setGoals (mvarId :: mvarIds)
         return mvarId
+
+/--
+Return the first goal, and remove it from the goal list.
+
+See also: `Lean.Elab.Tactic.pushGoal` and `Lean.Elab.Tactic.pushGoals`.
+-/
+def popMainGoal : TacticM MVarId := do
+  let mvarId ← getMainGoal
+  replaceMainGoal []
+  return mvarId
 
 /-- Return the main goal metavariable declaration. -/
 def getMainDecl : TacticM MetavarDecl := do

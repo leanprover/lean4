@@ -39,14 +39,26 @@ structure PreDefinition where
 def PreDefinition.filterAttrs (preDef : PreDefinition) (p : Attribute → Bool) : PreDefinition :=
   { preDef with modifiers := preDef.modifiers.filterAttrs p }
 
+/--
+Applies `Lean.instantiateMVars` to the types of values of each predefinition.
+-/
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }
 
-def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
+/--
+Applies `Lean.Elab.Term.levelMVarToParam` to the types of each predefinition.
+-/
+def levelMVarToParamTypesPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
   preDefs.mapM fun preDef => do
-    pure { preDef with type := (← levelMVarToParam preDef.type), value := (← levelMVarToParam preDef.value) }
+    pure { preDef with type := (← levelMVarToParam preDef.type) }
 
+/--
+Collects all the level parameters in sorted order from the types and values of each predefinition.
+Throws an "unused universe parameter" error if there is an unused `.{...}` parameter.
+
+See `Lean.collectLevelParams`.
+-/
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) := do
   let mut s : CollectLevelParams.State := {}
   for preDef in preDefs do
@@ -113,21 +125,28 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
     if proofSize > diagnostics.threshold.proofSize.get (← getOptions) then
       let sizeMsg := MessageData.trace { cls := `size } m!"{proofSize}" #[]
       let constOccs ← d.value.numApps (threshold := diagnostics.threshold.get (← getOptions))
-      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {numOccs}" #[]
+      let constOccsMsg ← constOccs.mapM fun (declName, numOccs) => return MessageData.trace { cls := `occs } m!"{.ofConstName declName} ↦ {numOccs}" #[]
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
+    let mkDefDecl : TermElabM Declaration :=
+      return Declaration.defnDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+          all }
+    let mkThmDecl : TermElabM Declaration := do
+      let d := {
+        name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
+      }
+      reportTheoremDiag d
+      return Declaration.thmDecl d
     let decl ←
       match preDef.kind with
-      | DefKind.«theorem» =>
-        let d := {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
-        }
-        reportTheoremDiag d
-        pure <| Declaration.thmDecl d
+      | DefKind.«theorem» => mkThmDecl
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -139,12 +158,8 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
           hints := ReducibilityHints.«abbrev»
           safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
           all }
-      | _ => -- definitions and examples
-        pure <| Declaration.defnDecl {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
-          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
-          all }
+      | DefKind.def | DefKind.example => mkDefDecl
+      | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
@@ -209,7 +224,7 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
               else
                 none
             | _ => none
-          modifiers := {} }
+          modifiers := default }
 
 private def containsRecFn (recFnNames : Array Name) (e : Expr) : Bool :=
   (e.find? fun e => e.isConst && recFnNames.contains e.constName!).isSome
@@ -229,8 +244,8 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
     lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
     let u₀ ← getLevel type₀
-    for i in [1:preDefs.size] do
-      forallBoundedTelescope preDefs[i]!.type arities[i]! fun _ typeᵢ =>
+    for h : i in [1:preDefs.size] do
+      forallBoundedTelescope preDefs[i].type arities[i]! fun _ typeᵢ =>
       unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
         withOptions (fun o => pp.sanitizeNames.set o false) do
           throwError m!"invalid mutual definition, result types must be in the same universe " ++

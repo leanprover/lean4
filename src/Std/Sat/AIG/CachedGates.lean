@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.Cached
 import Std.Sat.AIG.CachedLemmas
 
@@ -71,7 +72,7 @@ def mkOrCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
       rhs := {
         ref := auxRef.cast <| by
           intros
-          simp (config := { zetaDelta := true }) only
+          simp +zetaDelta only
           apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
           omega
         inv := true
@@ -99,7 +100,7 @@ def mkXorCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   aig.mkGateCached {
     lhs := {
       ref := aux1Ref.cast <| by
-        simp (config := { zetaDelta := true }) only
+        simp +zetaDelta only
         apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
         omega
       inv := true
@@ -131,7 +132,7 @@ def mkBEqCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   aig.mkGateCached {
     lhs := {
       ref := aux1Ref.cast <| by
-        simp (config := { zetaDelta := true }) only
+        simp +zetaDelta only
         apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
         omega
       inv := true
@@ -162,7 +163,7 @@ def mkImpCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
     rhs := {
       ref := auxRef.cast <| by
         intros
-        simp (config := { zetaDelta := true }) only
+        simp +zetaDelta only
         apply LawfulOperator.le_size_of_le_aig_size (f := mkConstCached)
         omega
       inv := true

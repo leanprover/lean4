@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ToString.Basic
-// Imports: Init.Data.String.Basic Init.Data.UInt.Basic Init.Data.Nat.Div Init.Data.Repr Init.Data.Int.Basic Init.Data.Format.Basic Init.Control.Id Init.Control.Option
+// Imports: Init.Data.Repr Init.Data.Option.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1527,41 +1527,17 @@ lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Div(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Repr(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Format_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Option_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Div(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Repr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Format_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Id(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Option_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instToStringBool___closed__1 = _init_l_instToStringBool___closed__1();

@@ -1305,7 +1305,7 @@ namespace ParserState
 
 def keepTop (s : SyntaxStack) (startStackSize : Nat) : SyntaxStack :=
   let node  := s.back
-  s.shrink startStackSize |>.push node
+  s.take startStackSize |>.push node
 
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
@@ -1314,13 +1314,13 @@ def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) (oldLhsPrec : Nat) : ParserState :=
   match s with
   | ⟨stack, _, _, cache, _, errs⟩ =>
-    ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
+    ⟨stack.take oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, some err, errs⟩ =>
     let newError := if oldError == err then err else oldError.merge err
-    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
+    ⟨stack.take oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
   | other                         => other
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
@@ -1363,7 +1363,7 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
     s -- success or error with the expected number of nodes
   else if s.hasError then
     -- error with an unexpected number of nodes.
-    s.shrinkStack startSize |>.pushSyntax Syntax.missing
+    s.takeStack startSize |>.pushSyntax Syntax.missing
   else
     -- parser succeeded with incorrect number of nodes
     invalidLongestMatchParser s

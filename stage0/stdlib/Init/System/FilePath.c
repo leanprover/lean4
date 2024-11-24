@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.FilePath
-// Imports: Init.System.Platform Init.Data.String.Basic Init.Data.Repr Init.Data.ToString.Basic
+// Imports: Init.System.Platform Init.Data.ToString.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -53,7 +53,6 @@ LEAN_EXPORT uint8_t l___private_Init_System_FilePath_0__System_decEqFilePath____
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at_System_FilePath_normalize___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_System_instReprFilePath___closed__1;
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath(lean_object*);
@@ -1977,8 +1976,6 @@ return x_5;
 }
 }
 lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Repr(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object* w) {
@@ -1986,12 +1983,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_System_Platform(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Repr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());

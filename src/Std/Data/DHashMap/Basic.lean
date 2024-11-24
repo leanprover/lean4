@@ -75,6 +75,13 @@ instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
     (b : β a) : DHashMap α β :=
   ⟨Raw₀.insert ⟨m.1, m.2.size_buckets_pos⟩ a b, .insert₀ m.2⟩
 
+instance : Singleton ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ => DHashMap.empty.insert a b⟩
+
+instance : Insert ((a : α) × β a) (DHashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
+
+instance : LawfulSingleton ((a : α) × β a) (DHashMap α β) :=
+  ⟨fun _ => rfl⟩
+
 @[inline, inherit_doc Raw.insertIfNew] def insertIfNew (m : DHashMap α β)
     (a : α) (b : β a) : DHashMap α β :=
   ⟨Raw₀.insertIfNew ⟨m.1, m.2.size_buckets_pos⟩ a b, .insertIfNew₀ m.2⟩
@@ -170,6 +177,9 @@ end
 @[inline, inherit_doc Raw.isEmpty] def isEmpty (m : DHashMap α β) : Bool :=
   m.1.isEmpty
 
+@[inline, inherit_doc Raw.keys] def keys (m : DHashMap α β) : List α :=
+  m.1.keys
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -185,6 +195,15 @@ section Unverified
 @[inline, inherit_doc Raw.fold] def fold (f : δ → (a : α) → β a → δ)
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
+
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : (a : α) → β a → Bool)
+    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
+  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
 
 @[inline, inherit_doc Raw.forM] def forM (f : (a : α) → β a → m PUnit)
     (b : DHashMap α β) : m PUnit :=
@@ -216,9 +235,6 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
     (m : DHashMap α (fun _ => β)) : Array (α × β) :=
   Raw.Const.toArray m.1
 
-@[inline, inherit_doc Raw.keys] def keys (m : DHashMap α β) : List α :=
-  m.1.keys
-
 @[inline, inherit_doc Raw.keysArray] def keysArray (m : DHashMap α β) :
     Array α :=
   m.1.keysArray
@@ -230,6 +246,39 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
 @[inline, inherit_doc Raw.valuesArray] def valuesArray {β : Type v}
     (m : DHashMap α (fun _ => β)) : Array β :=
   m.1.valuesArray
+
+/--
+Modifies in place the value associated with a given key.
+
+This function ensures that the value is used linearly.
+It is currently implemented in terms of `get?`, `erase`, and `insert`,
+but will later become a primitive operation.
+(It is provided already to help avoid non-linear code.)
+-/
+@[inline] def modify [LawfulBEq α] (m : DHashMap α β) (a : α) (f : β a → β a) : DHashMap α β :=
+  match m.get? a with
+  | none => m
+  | some b => m.erase a |>.insert a (f b)
+
+/--
+Modifies in place the value associated with a given key,
+allowing creating new values and deleting values via an `Option` valued replacement function.
+
+This function ensures that the value is used linearly.
+It is currently implemented in terms of `get?`, `erase`, and `insert`,
+but will later become a primitive operation.
+(It is provided already to help avoid non-linear code.)
+-/
+@[inline] def alter [LawfulBEq α] (m : DHashMap α β) (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
+  match m.get? a with
+  | none =>
+    match f none with
+    | none => m
+    | some b => m.insert a b
+  | some b =>
+    match f (some b) with
+    | none => m.erase a
+    | some b => m.erase a |>.insert a b
 
 @[inline, inherit_doc Raw.insertMany] def insertMany {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=
@@ -252,11 +301,21 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
     DHashMap α β :=
   insertMany ∅ l
 
+/-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
+@[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=
+  m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
+
 @[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : DHashMap α (fun _ => β) :=
   Const.insertMany ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    DHashMap α (fun _ => Unit) :=
+  Const.insertManyUnit ∅ l
+
+@[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=
   Const.insertManyUnit ∅ l
 

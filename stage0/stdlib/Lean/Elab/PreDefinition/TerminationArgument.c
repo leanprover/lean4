@@ -69,6 +69,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_lambdaTelescopeImp___rarg(
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_Lean_Elab_TerminationArgument_delab___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_TerminationArgument_elab_parameters___closed__7;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Term_withoutErrToSorryImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -139,11 +140,12 @@ lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Elab_TerminationArgument_elab___spec__1___closed__1;
 lean_object* l_Array_indexOfAux___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTerminationArgument___closed__1;
 static lean_object* l_Lean_Elab_TerminationArgument_elab___closed__5;
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_delab_go___closed__6;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_Lean_Elab_TerminationArgument_delab___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_structuralArg___closed__4;
 size_t lean_usize_add(size_t, size_t);
@@ -160,7 +162,7 @@ static lean_object* l_Lean_Elab_TerminationArgument_structuralArg___lambda__1___
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_structuralArg___closed__2;
-lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Elab_TerminationArgument_elab_parameters___closed__3;
 static lean_object* l_Lean_Elab_TerminationArgument_elab___lambda__2___closed__3;
@@ -421,6 +423,7 @@ x_15 = 0;
 x_16 = 1;
 x_17 = 1;
 x_18 = l_Lean_Meta_mkLambdaFVars(x_14, x_3, x_15, x_16, x_15, x_17, x_8, x_9, x_10, x_11, x_12);
+lean_dec(x_14);
 return x_18;
 }
 }
@@ -1566,7 +1569,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_11 = lean_box(0);
-x_12 = l_Array_back___rarg(x_11, x_2);
+x_12 = l_Array_back_x21___rarg(x_11, x_2);
 x_13 = l_Lean_Syntax_isOfKind(x_12, x_1);
 if (x_13 == 0)
 {
@@ -1606,13 +1609,14 @@ return x_13;
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab_go___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-lean_object* x_12; lean_object* x_13; 
+lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_alloc_closure((void*)(l_Lean_Elab_TerminationArgument_delab_go___lambda__1___boxed), 11, 3);
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
 lean_closure_set(x_12, 2, x_3);
-x_13 = l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(x_12, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-return x_13;
+x_13 = 0;
+x_14 = l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(x_12, x_13, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+return x_14;
 }
 }
 static lean_object* _init_l_Lean_Elab_TerminationArgument_delab_go___closed__1() {
@@ -2310,12 +2314,21 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_lambdaBoundedTelescope___at_Lean_El
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationArgument_delab___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = lean_box(0);
-x_11 = l_Lean_Elab_TerminationArgument_delab_go___closed__13;
+x_11 = l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1;
 x_12 = lean_alloc_closure((void*)(l_Lean_Elab_TerminationArgument_delab_go___boxed), 10, 3);
 lean_closure_set(x_12, 0, x_1);
 lean_closure_set(x_12, 1, x_2);
@@ -2586,6 +2599,8 @@ l_Lean_Elab_TerminationArgument_delab_go___closed__14 = _init_l_Lean_Elab_Termin
 lean_mark_persistent(l_Lean_Elab_TerminationArgument_delab_go___closed__14);
 l_Lean_Elab_TerminationArgument_delab_go___closed__15 = _init_l_Lean_Elab_TerminationArgument_delab_go___closed__15();
 lean_mark_persistent(l_Lean_Elab_TerminationArgument_delab_go___closed__15);
+l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1 = _init_l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Elab_TerminationArgument_delab___lambda__1___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

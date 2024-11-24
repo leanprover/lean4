@@ -157,9 +157,11 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   let eType ← instantiateMVars (← inferType e)
   let some (n, β) ← isTypeApp? expectedType | return none
   let some (m, α) ← isTypeApp? eType | return none
+  -- Need to save and restore the state in case `m` and `n` are defeq but not monads to prevent this procedure from having side effects.
+  let saved ← saveState
   if (← isDefEq m n) then
-    let some monadInst ← isMonad? n | return none
-    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => return none
+    let some monadInst ← isMonad? n | restoreState saved; return none
+    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => restoreState saved; return none
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`

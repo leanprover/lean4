@@ -13,25 +13,25 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
   if alts.any Alt.isDefault then alts
   else if alts.size < 2 then alts
   else
-    let last := alts.back;
-    let alts := alts.pop;
+    let last := alts.back!
+    let alts := alts.pop
     alts.push (Alt.default last.body)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
   let aBody := (alts.get! i).body
   let mut n := 1
-  for j in [i+1:alts.size] do
-    if alts[j]!.body == aBody then
+  for h : j in [i+1:alts.size] do
+    if alts[j].body == aBody then
       n := n+1
   return n
 
 private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run do
   let mut maxAlt := alts[0]!
   let mut max    := getOccsOf alts 0
-  for i in [1:alts.size] do
+  for h : i in [1:alts.size] do
     let curr := getOccsOf alts i
     if curr > max then
-       maxAlt := alts[i]!
+       maxAlt := alts[i]
        max    := curr
   return (maxAlt, max)
 

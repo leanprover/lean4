@@ -512,8 +512,8 @@ theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toN
 
 @[simp] theorem pred_toNat : ∀ i : Int, (i - 1).toNat = i.toNat - 1
   | 0 => rfl
-  | (n+1:Nat) => by simp [ofNat_add]
-  | -[n+1] => rfl
+  | (_+1:Nat) => by simp [ofNat_add]
+  | -[_+1] => rfl
 
 theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
   | 0 => rfl
@@ -1007,9 +1007,9 @@ theorem sign_eq_neg_one_iff_neg {a : Int} : sign a = -1 ↔ a < 0 :=
   match x with
   | 0 => rfl
   | .ofNat (_ + 1) =>
-    simp (config := { decide := true }) only [sign, true_iff]
+    simp +decide only [sign, true_iff]
     exact Int.le_add_one (ofNat_nonneg _)
-  | .negSucc _ => simp (config := { decide := true }) [sign]
+  | .negSucc _ => simp +decide [sign]
 
 theorem mul_sign : ∀ i : Int, i * sign i = natAbs i
   | succ _ => Int.mul_one _

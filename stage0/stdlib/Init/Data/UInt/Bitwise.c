@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Bitwise
-// Imports: Init.Data.UInt.Basic Init.Data.Fin.Bitwise
+// Imports: Init.Data.UInt.Basic Init.Data.Fin.Bitwise Init.Data.BitVec.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -926,7 +926,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Bitwise______macroRules__co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Fin.and_val", 11, 11);
+x_1 = lean_mk_string_unchecked("BitVec.toNat_and", 16, 16);
 return x_1;
 }
 }
@@ -943,7 +943,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Bitwise______macroRules__co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Fin", 3, 3);
+x_1 = lean_mk_string_unchecked("BitVec", 6, 6);
 return x_1;
 }
 }
@@ -951,7 +951,7 @@ static lean_object* _init_l___aux__Init__Data__UInt__Bitwise______macroRules__co
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("and_val", 7, 7);
+x_1 = lean_mk_string_unchecked("toNat_and", 9, 9);
 return x_1;
 }
 }
@@ -1098,9 +1098,9 @@ x_25 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_25, 0, x_12);
 lean_ctor_set(x_25, 1, x_24);
 x_26 = l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems____1___closed__23;
-lean_inc_n(x_19, 2);
+lean_inc_n(x_19, 3);
 lean_inc(x_12);
-x_27 = l_Lean_Syntax_node3(x_12, x_26, x_25, x_19, x_19);
+x_27 = l_Lean_Syntax_node4(x_12, x_26, x_25, x_19, x_19, x_19);
 x_28 = l___aux__Init__Data__UInt__Bitwise______macroRules__commandDeclare__bitwise__uint__theorems____1___closed__18;
 lean_inc(x_12);
 x_29 = l_Lean_Syntax_node2(x_12, x_28, x_23, x_27);
@@ -1323,6 +1323,7 @@ return x_4;
 }
 lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Bitwise(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1332,6 +1333,9 @@ res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Fin_Bitwise(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_commandDeclare__bitwise__uint__theorems_____closed__1 = _init_l_commandDeclare__bitwise__uint__theorems_____closed__1();

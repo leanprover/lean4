@@ -97,7 +97,6 @@ static lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__3;
 static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___closed__6;
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instInhabitedNotification___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___closed__14;
 static lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__13;
 lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lean_object*);
@@ -221,7 +220,6 @@ static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___closed__5;
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_ErrorCode_noConfusion(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_JsonRpc_ResponseError_data_x3f___default(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeNotification(lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
@@ -2282,14 +2280,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_JsonRpc_instCoeOutResponseMessageOfToJson___rarg), 2, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_JsonRpc_ResponseError_data_x3f___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
 return x_2;
 }
 }
@@ -4985,7 +4975,7 @@ static lean_object* _init_l_Lean_JsonRpc_instFromJsonNotification___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("not a notfication", 17, 17);
+x_1 = lean_mk_string_unchecked("not a notification", 18, 18);
 return x_1;
 }
 }

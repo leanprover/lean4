@@ -6,9 +6,10 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Ord
 import Init.Data.Array.DecidableEq
-import Lean.Data.Rat
+import Std.Internal.Rat
 
 namespace Lean.Meta.Linear
+open Std.Internal
 
 structure Var where
   id : Nat
@@ -29,15 +30,15 @@ abbrev Assignment.size (a : Assignment) : Nat :=
 
 abbrev Assignment.get? (a : Assignment) (x : Var) : Option Rat :=
   if h : x.id < a.size then
-    some (a.val.get ⟨x.id, h⟩)
+    some (a.val[x.id])
   else
     none
 
 abbrev Assignment.push (a : Assignment) (v : Rat) : Assignment :=
   { a with val := a.val.push v }
 
-abbrev Assignment.shrink (a : Assignment) (newSize : Nat) : Assignment :=
-  { a with val := a.val.shrink newSize }
+abbrev Assignment.take (a : Assignment) (newSize : Nat) : Assignment :=
+  { a with val := a.val.take newSize }
 
 structure Poly where
   val : Array (Int × Var)
@@ -47,13 +48,13 @@ abbrev Poly.size (e : Poly) : Nat :=
   e.val.size
 
 abbrev Poly.getMaxVarCoeff (e : Poly) : Int :=
-  e.val.back.1
+  e.val.back!.1
 
 abbrev Poly.getMaxVar (e : Poly) : Var :=
-  e.val.back.2
+  e.val.back!.2
 
 abbrev Poly.get (e : Poly) (i : Fin e.size) : Int × Var :=
-  e.val.get i
+  e.val[i]
 
 def Poly.scale (d : Int) (e : Poly) : Poly :=
   { e with val := e.val.map fun (c, x) => (c*d, x) }
@@ -152,7 +153,7 @@ def Cnstr.getBound (c : Cnstr) (a : Assignment) : Rat := Id.run do
       r := r - c*v
     else
       unreachable!
-  let k := c.lhs.val.back.1
+  let k := c.lhs.val.back!.1
   return r / k
 
 def Cnstr.isUnsat (c : Cnstr) (a : Assignment) : Bool :=
@@ -169,7 +170,7 @@ def getBestBound? (cs : Array Cnstr) (a : Assignment) (isLower isInt : Bool) : O
   let adjust (v : Rat) :=
     if isInt then if isLower then (v.ceil : Rat) else v.floor else v
   if h : 0 < cs.size then
-    let c0 := cs.get ⟨0, h⟩
+    let c0 := cs[0]
     let b  := adjust <| c0.getBound a
     some <| cs[1:].foldl (init := (b, c0)) fun r c =>
       let b' := adjust <| c.getBound a
@@ -242,7 +243,7 @@ def resolve (s : State) (cl : Cnstr) (cu : Cnstr) : Sum Result State :=
     let maxVarIdx := c.lhs.getMaxVar.id
     match s with -- Hack: we avoid { s with ... } to make sure we get a destructive update
     | { lowers, uppers, int, assignment, } =>
-      let assignment := assignment.shrink maxVarIdx
+      let assignment := assignment.take maxVarIdx
       if c.lhs.getMaxVarCoeff < 0 then
         let lowers := lowers.modify maxVarIdx (·.push c)
         Sum.inr { lowers, uppers, int, assignment }

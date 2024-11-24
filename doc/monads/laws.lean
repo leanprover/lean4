@@ -128,8 +128,8 @@ Applying the identity function through an applicative structure should not chang
 values or structure.  For example:
 -/
 instance : Applicative List where
-  pure := List.pure
-  seq f x := List.bind f fun y => Functor.map y (x ())
+  pure := List.singleton
+  seq f x := List.flatMap f fun y => Functor.map y (x ())
 
 #eval pure id <*> [1, 2, 3]  -- [1, 2, 3]
 /-!
@@ -171,7 +171,7 @@ of data contained in the container resulting in a new container that has the sam
 
 `u <*> pure y = pure (. y) <*> u`.
 
-This law is is a little more complicated, so don't sweat it too much. It states that the order that
+This law is a little more complicated, so don't sweat it too much. It states that the order that
 you wrap things shouldn't matter. One the left, you apply any applicative `u` over a pure wrapped
 object. On the right, you first wrap a function applying the object as an argument. Note that `(·
 y)` is short hand for: `fun f => f y`. Then you apply this to the first applicative `u`. These
@@ -235,8 +235,8 @@ structure or its values.
 Left identity is `x >>= pure = x` and is demonstrated by the following examples on a monadic `List`:
 -/
 instance : Monad List  where
-  pure := List.pure
-  bind := List.bind
+  pure := List.singleton
+  bind := List.flatMap
 
 def a := ["apple", "orange"]
 

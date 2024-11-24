@@ -1,12 +1,11 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.Elab.Tactic.Omega.Core
 import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Meta.Tactic.Cases
 import Lean.Elab.Tactic.Config
 
 /-!
@@ -277,6 +276,7 @@ where
       | _ => mkAtomLinearCombo e
     | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
     | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
+    | (``Int.toNat, #[n]) => rewrite e (mkApp (.const ``Int.toNat_eq_max []) n)
     | (``HShiftLeft.hShiftLeft, #[_, _, _, _, a, b]) =>
       rewrite e (mkApp2 (.const ``Int.ofNat_shiftLeft_eq []) a b)
     | (``HShiftRight.hShiftRight, #[_, _, _, _, a, b]) =>
@@ -322,7 +322,7 @@ where
 end
 namespace MetaProblem
 
-/-- The trivial `MetaProblem`, with no facts to processs and a trivial `Problem`. -/
+/-- The trivial `MetaProblem`, with no facts to process and a trivial `Problem`. -/
 def trivial : MetaProblem where
   problem := {}
 
@@ -422,10 +422,11 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
     trace[omega] "adding fact: {t}"
     match t with
     | .forallE _ x y _ =>
-      if (← isProp x) && (← isProp y) then
+      if ← pure t.isArrow <&&> isProp x <&&> isProp y then
         p.addFact (mkApp4 (.const ``Decidable.not_or_of_imp []) x y
           (.app (.const ``Classical.propDecidable []) x) h)
       else
+        trace[omega] "rejecting forall: it's not an arrow, or not propositional"
         return (p, 0)
     | .app _ _ =>
       match_expr t with
@@ -519,23 +520,6 @@ partial def processFacts (p : MetaProblem) : OmegaM (MetaProblem × Nat) := do
 end MetaProblem
 
 /--
-Given `p : P ∨ Q` (or any inductive type with two one-argument constructors),
-split the goal into two subgoals:
-one containing the hypothesis `h : P` and another containing `h : Q`.
--/
-def cases₂ (mvarId : MVarId) (p : Expr) (hName : Name := `h) :
-    MetaM ((MVarId × FVarId) × (MVarId × FVarId)) := do
-  let mvarId ← mvarId.assert `hByCases (← inferType p) p
-  let (fvarId, mvarId) ← mvarId.intro1
-  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "'cases' tactic failed, unexpected number of subgoals"
-  let #[Expr.fvar f₁ ..] ← pure s₁.fields
-    | throwError "'cases' tactic failed, unexpected new hypothesis"
-  let #[Expr.fvar f₂ ..] ← pure s₂.fields
-    | throwError "'cases' tactic failed, unexpected new hypothesis"
-  return ((s₁.mvarId, f₁), (s₂.mvarId, f₂))
-
-/--
 Helpful error message when omega cannot find a solution
 -/
 def formatErrorMessage (p : Problem) : OmegaM MessageData := do
@@ -626,33 +610,36 @@ mutual
 Split a disjunction in a `MetaProblem`, and if we find a new usable fact
 call `omegaImpl` in both branches.
 -/
-partial def splitDisjunction (m : MetaProblem) (g : MVarId) : OmegaM Unit := g.withContext do
+partial def splitDisjunction (m : MetaProblem) : OmegaM Expr := do
   match m.disjunctions with
     | [] => throwError "omega could not prove the goal:\n{← formatErrorMessage m.problem}"
-    | h :: t =>
-      trace[omega] "Case splitting on {← inferType h}"
-      let ctx ← getMCtx
-      let (⟨g₁, h₁⟩, ⟨g₂, h₂⟩) ← cases₂ g h
-      trace[omega] "Adding facts:\n{← g₁.withContext <| inferType (.fvar h₁)}"
-      let m₁ := { m with facts := [.fvar h₁], disjunctions := t }
-      let r ← withoutModifyingState do
-        let (m₁, n) ← g₁.withContext m₁.processFacts
+    | h :: t => do
+      let hType ← whnfD (← inferType h)
+      trace[omega] "Case splitting on {hType}"
+      let_expr Or hType₁ hType₂ := hType | throwError "Unexpected disjunction {hType}"
+      let p?₁ ← withoutModifyingState do withLocalDeclD `h₁ hType₁ fun h₁ => do
+        withTraceNode `omega (msg := fun _ => do pure m!"Assuming fact:{indentExpr hType₁}") do
+        let m₁ := { m with facts := [h₁], disjunctions := t }
+        let (m₁, n) ← m₁.processFacts
         if 0 < n then
-          omegaImpl m₁ g₁
-          pure true
+          let p₁ ← omegaImpl m₁
+          let p₁ ← mkLambdaFVars #[h₁] p₁
+          return some p₁
         else
-          pure false
-      if r then
-        trace[omega] "Adding facts:\n{← g₂.withContext <| inferType (.fvar h₂)}"
-        let m₂ := { m with facts := [.fvar h₂], disjunctions := t }
-        omegaImpl m₂ g₂
+          return none
+      if let some p₁ := p?₁ then
+         withLocalDeclD `h₂ hType₂ fun h₂ => do
+          withTraceNode `omega (msg := fun _ => do pure m!"Assuming fact:{indentExpr hType₂}") do
+          let m₂ := { m with facts := [h₂], disjunctions := t }
+          let p₂ ← omegaImpl m₂
+          let p₂ ← mkLambdaFVars #[h₂] p₂
+          return mkApp6 (mkConst ``Or.elim) hType₁ hType₂ (mkConst ``False) h p₁ p₂
       else
         trace[omega] "No new facts found."
-        setMCtx ctx
-        splitDisjunction { m with disjunctions := t } g
+        splitDisjunction { m with disjunctions := t }
 
 /-- Implementation of the `omega` algorithm, and handling disjunctions. -/
-partial def omegaImpl (m : MetaProblem) (g : MVarId) : OmegaM Unit := g.withContext do
+partial def omegaImpl (m : MetaProblem) : OmegaM Expr := do
   let (m, _) ← m.processFacts
   guard m.facts.isEmpty
   let p := m.problem
@@ -661,12 +648,12 @@ partial def omegaImpl (m : MetaProblem) (g : MVarId) : OmegaM Unit := g.withCont
   trace[omega] "After elimination:\nAtoms: {← atomsList}\n{p'}"
   match p'.possible, p'.proveFalse?, p'.proveFalse?_spec with
   | true, _, _ =>
-    splitDisjunction m g
+    splitDisjunction m
   | false, .some prf, _ =>
     trace[omega] "Justification:\n{p'.explanation?.get}"
     let prf ← instantiateMVars (← prf)
     trace[omega] "omega found a contradiction, proving {← inferType prf}"
-    g.assign prf
+    return prf
 
 end
 
@@ -675,7 +662,9 @@ Given a collection of facts, try prove `False` using the omega algorithm,
 and close the goal using that.
 -/
 def omega (facts : List Expr) (g : MVarId) (cfg : OmegaConfig := {}) : MetaM Unit :=
-  OmegaM.run (omegaImpl { facts } g) cfg
+  g.withContext do
+    let prf ← OmegaM.run (omegaImpl { facts }) cfg
+    g.assign prf
 
 open Lean Elab Tactic Parser.Tactic
 
@@ -694,9 +683,9 @@ the tactic call `aesop (add 50% tactic Lean.Omega.omegaDefault)`. -/
 def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
-def evalOmega : Tactic := fun
-  | `(tactic| omega $[$cfg]?) => do
-    let cfg ← elabOmegaConfig (mkOptionalNode cfg)
+def evalOmega : Tactic
+  | `(tactic| omega $cfg:optConfig) => do
+    let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax
 

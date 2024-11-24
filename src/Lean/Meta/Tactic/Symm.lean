@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Siddhartha Gadgil. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Siddhartha Gadgil, Mario Carneiro, Scott Morrison
+Authors: Siddhartha Gadgil, Mario Carneiro, Kim Morrison
 -/
 prelude
 import Lean.Meta.Reduce
@@ -17,9 +17,6 @@ hypothesis.
 open Lean Meta
 
 namespace Lean.Meta.Symm
-
-/-- Discrimation tree settings for the `symm` extension. -/
-def symmExt.config : WhnfCoreConfig := {}
 
 /-- Environment extensions for symm lemmas -/
 builtin_initialize symmExt :
@@ -40,7 +37,7 @@ builtin_initialize registerBuiltinAttribute {
     let some _ := xs.back? | fail
     let targetTy ← reduce targetTy
     let .app (.app rel _) _ := targetTy | fail
-    let key ← withReducible <| DiscrTree.mkPath rel symmExt.config
+    let key ← withReducible <| DiscrTree.mkPath rel
     symmExt.add (decl, key) kind
 }
 
@@ -54,7 +51,7 @@ namespace Lean.Expr
 def getSymmLems (tgt : Expr) : MetaM (Array Name) := do
   let .app (.app rel _) _ := tgt
     | throwError "symmetry lemmas only apply to binary relations, not{indentExpr tgt}"
-  (symmExt.getState (← getEnv)).getMatch rel symmExt.config
+  (symmExt.getState (← getEnv)).getMatch rel
 
 /-- Given a term `e : a ~ b`, construct a term in `b ~ a` using `@[symm]` lemmas. -/
 def applySymm (e : Expr) : MetaM Expr := do
@@ -65,7 +62,7 @@ def applySymm (e : Expr) : MetaM Expr := do
         restoreState s
         let lem ← mkConstWithFreshMVarLevels lem
         let (args, _, body) ← withReducible <| forallMetaTelescopeReducing (← inferType lem)
-        let .true ← isDefEq args.back e | failure
+        let .true ← isDefEq args.back! e | failure
         mkExpectedTypeHint (mkAppN lem args) (← instantiateMVars body)
   lems.toList.firstM act
     <|> throwError m!"no applicable symmetry lemma found for {indentExpr tgt}"
@@ -87,7 +84,7 @@ def applySymm (g : MVarId) : MetaM MVarId := do
         let (args, _, body) ← withReducible <| forallMetaTelescopeReducing (← inferType lem)
         let .true ← isDefEq (← g.getType) body | failure
         g.assign (mkAppN lem args)
-        let g' := args.back.mvarId!
+        let g' := args.back!.mvarId!
         g'.setTag (← g.getTag)
         pure g'
   lems.toList.firstM act

@@ -19,7 +19,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
   if args.isEmpty then
     return none
   else
-    let mut result := args.back
+    let mut result := args.back!
     for arg in args.reverse[1:] do
       result := mkApp2 (mkConst ``And) arg result
     return result
@@ -41,7 +41,7 @@ def elimOptParam (type : Expr) : CoreM Expr := do
   inductive Tmₛ.{u} :  Tyₛ.{u} -> Type (u+1)
   | app : Tmₛ (.SPi T A) -> (arg : T) -> Tmₛ (A arg)```
   ```
-  When looking for fixed arguments in `Tmₛ.app`, if we only consider occurences in the term `Tmₛ (A arg)`,
+  When looking for fixed arguments in `Tmₛ.app`, if we only consider occurrences in the term `Tmₛ (A arg)`,
   `T` is considered non-fixed despite the fact that `A : T -> Tyₛ`.
   This leads to an ill-typed injectivity theorem signature:
   ```lean
@@ -86,7 +86,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
       if h : i < args1.size then
         match (← whnf type) with
         | Expr.forallE n d b _ =>
-          let arg1 := args1.get ⟨i, h⟩
+          let arg1 := args1[i]
           if occursOrInType (← getLCtx) arg1 resultType then
             mkArgs2 (i + 1) (b.instantiate1 arg1) (args2.push arg1) args2New
           else
@@ -122,7 +122,7 @@ private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : M
 private def mkInjectiveTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr :=
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    solveEqOfCtorEq ctorName mvar.mvarId! xs.back.fvarId!
+    solveEqOfCtorEq ctorName mvar.mvarId! xs.back!.fvarId!
     mkLambdaFVars xs mvar
 
 def mkInjectiveTheoremNameFor (ctorName : Name) : Name :=

@@ -8,6 +8,42 @@ import Init.Core
 
 universe u v w
 
+/--
+A `ForIn'` instance, which handles `for h : x in c do`,
+can also handle `for x in x do` by ignoring `h`, and so provides a `ForIn` instance.
+
+Note that this instance will cause a potentially non-defeq duplication if both `ForIn` and `ForIn'`
+instances are provided for the same type.
+-/
+-- We set the priority to 500 so it is below the default,
+-- but still above the low priority instance from `Stream`.
+instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
+  forIn x b f := forIn' x b fun a _ => f a
+
+@[simp] theorem forIn'_eq_forIn [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m] (x : ρ) (b : β)
+    (f : (a : α) → a ∈ x → β → m (ForInStep β)) (g : (a : α) → β → m (ForInStep β))
+    (h : ∀ a m b, f a m b = g a b) :
+    forIn' x b f = forIn x b g := by
+  simp [instForInOfForIn']
+  congr
+  apply funext
+  intro a
+  apply funext
+  intro m
+  apply funext
+  intro b
+  simp [h]
+  rfl
+
+/-- Extract the value from a `ForInStep`, ignoring whether it is `done` or `yield`. -/
+def ForInStep.value (x : ForInStep α) : α :=
+  match x with
+  | ForInStep.done b => b
+  | ForInStep.yield b => b
+
+@[simp] theorem ForInStep.value_done (b : β) : (ForInStep.done b).value = b := rfl
+@[simp] theorem ForInStep.value_yield (b : β) : (ForInStep.yield b).value = b := rfl
+
 @[reducible]
 def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
@@ -28,7 +64,7 @@ Important instances include
 * `Option`, where `failure := none` and `<|>` returns the left-most `some`.
 * Parser combinators typically provide an `Applicative` instance for error-handling and
   backtracking.
-  
+
 Error recovery and state can interact subtly. For example, the implementation of `Alternative` for `OptionT (StateT σ Id)` keeps modifications made to the state while recovering from failure, while `StateT σ (OptionT Id)` discards them.
 -/
 -- NB: List instance is in mathlib. Once upstreamed, add

@@ -41,7 +41,7 @@ def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
     let ctx ← getContext
     if ctx.dischargeDepth >= ctx.maxDischargeDepth then
       return .maxDepth
-    else withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+    else withIncDischargeDepth do
       -- We save the state, so that `UsedTheorems` does not accumulate
       -- `simp` lemmas used during unsuccessful discharging.
       -- We use `withPreservedCache` to ensure the cache is restored after `discharge?`
@@ -203,7 +203,7 @@ def rewrite? (e : Expr) (s : SimpTheoremTree) (erased : PHashSet Origin) (tag : 
 where
   /-- For `(← getConfig).index := true`, use discrimination tree structure when collecting `simp` theorem candidates. -/
   rewriteUsingIndex? : SimpM (Option Result) := do
-    let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+    let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
@@ -221,7 +221,7 @@ where
   Only the root symbol is taken into account. Most of the structure of the discrimination tree is ignored.
   -/
   rewriteNoIndex? : SimpM (Option Result) := do
-    let (candidates, numArgs) ← s.getMatchLiberal e (getDtConfig (← getConfig))
+    let (candidates, numArgs) ← withSimpIndexConfig <| s.getMatchLiberal e
     if candidates.isEmpty then
       trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
       return none
@@ -245,7 +245,7 @@ where
 
   diagnoseWhenNoIndex (thm : SimpTheorem) : SimpM Unit := do
     if (← isDiagnosticsEnabled) then
-      let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+      let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
       for (candidate, _) in candidates do
         if unsafe ptrEq thm candidate then
           return ()
@@ -320,8 +320,8 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       r ← mkCongrFun r argNew
   unless modified do
     return none
-  for i in [info.numDiscrs : args.size] do
-    let arg := args[i]!
+  for h : i in [info.numDiscrs : args.size] do
+    let arg := args[i]
     r ← mkCongrFun r arg
   return some r
 
@@ -446,10 +446,13 @@ def mkSEvalMethods : CoreM Methods := do
     wellBehavedDischarge := true
   }
 
-def mkSEvalContext : CoreM Context := do
+def mkSEvalContext : MetaM Context := do
   let s ← getSEvalTheorems
   let c ← Meta.getSimpCongrTheorems
-  return { simpTheorems := #[s], congrTheorems := c, config := { ground := true } }
+  mkContext
+    (simpTheorems := #[s])
+    (congrTheorems := c)
+    (config := { ground := true })
 
 /--
 Invoke ground/symbolic evaluator from `simp`.
@@ -552,7 +555,7 @@ private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
 partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
   assert! isEqnThmHypothesis e
   let mvar ← mkFreshExprSyntheticOpaqueMVar e
-  withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+  withCanUnfoldPred canUnfoldAtMatcher do
     if let .none ← go? mvar.mvarId! then
       instantiateMVars mvar
     else
@@ -573,15 +576,33 @@ where
     catch _  =>
       return some mvarId
 
+/--
+Discharges assumptions of the form `∀ …, a = b` using `rfl`. This is particularly useful for higher
+order assumptions of the form `∀ …, e = ?g x y` to instaniate  a parameter `g` even if that does not
+appear on the lhs of the rule.
+-/
+def dischargeRfl (e : Expr) : SimpM (Option Expr) := do
+  forallTelescope e fun xs e => do
+    let some (t, a, b) := e.eq? | return .none
+    unless a.getAppFn.isMVar || b.getAppFn.isMVar do return .none
+    if (← withReducible <| isDefEq a b) then
+      trace[Meta.Tactic.simp.discharge] "Discharging with rfl: {e}"
+      let u ← getLevel t
+      let proof := mkApp2 (.const ``rfl [u]) t a
+      let proof ← mkLambdaFVars xs proof
+      return .some proof
+    return .none
+
+
 def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   let e := e.cleanupAnnotations
   if isEqnThmHypothesis e then
-    if let some r ← dischargeUsingAssumption? e then
-      return some r
-    if let some r ← dischargeEqnThmHypothesis? e then
-      return some r
+    if let some r ← dischargeUsingAssumption? e then return some r
+    if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
-  if r.expr.isTrue then
+  if let some p ← dischargeRfl r.expr then
+    return some (← mkEqMPR (← r.getProof) p)
+  else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else
     return none

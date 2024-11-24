@@ -20,18 +20,6 @@ builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
 def throwCongrHypothesisFailed : MetaM α :=
   throw <| Exception.internal congrHypothesisExceptionId
 
-/--
-  Helper method for bootstrapping purposes. It disables `arith` if support theorems have not been defined yet.
--/
-def Config.updateArith (c : Config) : CoreM Config := do
-  if c.arith then
-    if (← getEnv).contains ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq then
-      return c
-    else
-      return { c with arith := false }
-  else
-    return c
-
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
   e.isAppOf ``OfNat.ofNat && e.getAppNumArgs >= 3 && (e.getArg! 1).isRawNatLit
@@ -200,7 +188,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return e.letBody!.instantiate1 e.letValue!
   match (← unfold? e) with
   | some e' =>
-    trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
+    trace[Meta.Tactic.simp.rewrite] "unfold {.ofConst e.getAppFn}, {e} ==> {e'}"
     recordSimpTheorem (.decl e.getAppFn.constName!)
     return e'
   | none => foldRawNatLit e
@@ -251,12 +239,13 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
     withFreshCache do
       let mut s ← getSimpTheorems
       let mut updated := false
+      let ctx ← getContext
       for x in xs do
         if (← isProof x) then
-          s ← s.addTheorem (.fvar x.fvarId!) x
+          s ← s.addTheorem (.fvar x.fvarId!) x (config := ctx.indexConfig)
           updated := true
       if updated then
-        withTheReader Context (fun ctx => { ctx with simpTheorems := s }) f
+        withSimpTheorems s f
       else
         f
   else if (← getMethods).wellBehavedDischarge then
@@ -463,7 +452,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let m ← getMethods
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
-  withTheReader Simp.Context (fun ctx => { ctx with inDSimp := true }) do
+  withInDSimp do
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
@@ -658,11 +647,12 @@ where
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 
+-- TODO: delete
 @[inline] def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
-  let ctx := { ctx with config := (← ctx.config.updateArith), lctxInitIndices := (← getLCtx).numIndices }
+  let ctx ← ctx.setLctxInitIndices
   withSimpContext ctx do
     let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
@@ -810,7 +800,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :=
     for fvarId in fvarIdsToSimp do
       let localDecl ← fvarId.getDecl
       let type ← instantiateMVars localDecl.type
-      let ctx := { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem (.fvar localDecl.fvarId) }
+      let ctx := ctx.setSimpTheorems <| ctx.simpTheorems.eraseTheorem (.fvar localDecl.fvarId)
       let (r, stats') ← simp type ctx simprocs discharge? stats
       stats := stats'
       match r.proof? with
@@ -843,8 +833,8 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsAr
   for h in (← getPropHyps) do
     let localDecl ← h.getDecl
     let proof  := localDecl.toExpr
-    let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof
-    ctx := { ctx with simpTheorems }
+    let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof (config := ctx.indexConfig)
+    ctx := ctx.setSimpTheorems simpTheorems
   match (← simpTarget mvarId ctx simprocs discharge? (stats := stats)) with
   | (none, stats) => return (TacticResultCNM.closed, stats)
   | (some mvarId', stats') =>

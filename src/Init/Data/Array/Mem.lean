@@ -10,25 +10,16 @@ import Init.Data.List.BasicAux
 
 namespace Array
 
-/-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
--- NB: This is defined as a structure rather than a plain def so that a lemma
--- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
-structure Mem (as : Array α) (a : α) : Prop where
-  val : a ∈ as.toList
-
-instance : Membership α (Array α) where
-  mem := Mem
-
 theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   cases as with | _ as =>
   exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp_arith)
 
-theorem sizeOf_get [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
+theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf (as.get i h) < sizeOf as := by
   cases as with | _ as =>
-  exact Nat.lt_trans (List.sizeOf_get ..) (by simp_arith)
+  simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp_arith)
 
 @[simp] theorem sizeOf_getElem [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) :
-  sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _
+  sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _ h
 
 /-- This tactic, added to the `decreasing_trivial` toolbox, proves that
 `sizeOf arr[i] < sizeOf arr`, which is useful for well founded recursions

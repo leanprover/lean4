@@ -149,26 +149,27 @@ syntax (name := assumption) "assumption" : tactic
 
 /--
 `contradiction` closes the main goal if its hypotheses are "trivially contradictory".
+
 - Inductive type/family with no applicable constructors
-```lean
-example (h : False) : p := by contradiction
-```
+  ```lean
+  example (h : False) : p := by contradiction
+  ```
 - Injectivity of constructors
-```lean
-example (h : none = some true) : p := by contradiction  --
-```
+  ```lean
+  example (h : none = some true) : p := by contradiction  --
+  ```
 - Decidable false proposition
-```lean
-example (h : 2 + 2 = 3) : p := by contradiction
-```
+  ```lean
+  example (h : 2 + 2 = 3) : p := by contradiction
+  ```
 - Contradictory hypotheses
-```lean
-example (h : p) (h' : ¬ p) : q := by contradiction
-```
+  ```lean
+  example (h : p) (h' : ¬ p) : q := by contradiction
+  ```
 - Other simple contradictions such as
-```lean
-example (x : Nat) (h : x ≠ x) : p := by contradiction
-```
+  ```lean
+  example (x : Nat) (h : x ≠ x) : p := by contradiction
+  ```
 -/
 syntax (name := contradiction) "contradiction" : tactic
 
@@ -267,16 +268,24 @@ syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
 inaccessible names to the given names.
 -/
-macro "next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
+macro nextTk:"next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
   -- Limit ref variability for incrementality; see Note [Incremental Macros]
-  withRef arrowTk `(tactic| case _ $args* =>%$arrowTk $tac)
+  withRef arrowTk `(tactic| case%$nextTk _ $args* =>%$arrowTk $tac)
 
-/-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
+/--
+`all_goals tac` runs `tac` on each goal, concatenating the resulting goals.
+If the tactic fails on any goal, the entire `all_goals` tactic fails.
+
+See also `any_goals tac`.
+-/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
 
 /--
-`any_goals tac` applies the tactic `tac` to every goal, and succeeds if at
-least one application succeeds.
+`any_goals tac` applies the tactic `tac` to every goal,
+concating the resulting goals for successful tactic applications.
+If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
+
+This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeeds.
 -/
 syntax (name := anyGoals) "any_goals " tacticSeq : tactic
 
@@ -363,31 +372,24 @@ syntax (name := fail) "fail" (ppSpace str)? : tactic
 syntax (name := eqRefl) "eq_refl" : tactic
 
 /--
-`rfl` tries to close the current goal using reflexivity.
-This is supposed to be an extensible tactic and users can add their own support
-for new reflexive relations.
-
-Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
-reflexivity theorems (e.g., `Iff.rfl`).
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is equality, heterogeneous equality or any relation that
+has a reflexivity lemma tagged with the attribute @[refl].
 -/
-macro "rfl" : tactic => `(tactic| case' _ => fail "The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.")
-
-macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
-macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
+syntax "rfl" : tactic
 
 /--
-This tactic applies to a goal whose target has the form `x ~ x`,
-where `~` is a reflexive relation other than `=`,
-that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
+The same as `rfl`, but without trying `eq_refl` at the end.
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
+-- We try `apply_rfl` first, because it produces a nice error message
 macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
 
+-- But, mostly for backward compatibility, we try `eq_refl` too (reduces more aggressively)
+macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
+-- Also for backward compatibility, because `exact` can trigger the implicit lambda feature (see #5366)
+macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).
@@ -423,7 +425,27 @@ It synthesizes a value of any target type by typeclass inference.
 -/
 macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 
-/-- Optional configuration option for tactics -/
+/--
+`+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
+-/
+syntax posConfigItem := "+" noWs ident
+/--
+`-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
+-/
+syntax negConfigItem := "-" noWs ident
+/--
+`(opt := val)` sets the `opt` configuration option to `val`.
+
+As a special case, `(config := ...)` sets the entire configuration.
+-/
+syntax valConfigItem := atomic(" (" notFollowedBy(&"discharger" <|> &"disch") (ident <|> &"config")) " := " withoutPosition(term) ")"
+/-- A configuration item for a tactic configuration. -/
+syntax configItem := posConfigItem <|> negConfigItem <|> valConfigItem
+
+/-- Configuration options for tactics. -/
+syntax optConfig := (colGt configItem)*
+
+/-- Optional configuration option for tactics. (Deprecated. Replace `(config)?` with `optConfig`.) -/
 syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 
 /-- The `*` location refers to all hypotheses and the goal. -/
@@ -444,7 +466,7 @@ hypotheses or the goal. It can have one of the forms:
 * `at h₁ h₂ ⊢`: target the hypotheses `h₁` and `h₂`, and the goal
 * `at *`: target all hypotheses and the goal
 -/
-syntax location := withPosition(" at" (locationWildcard <|> locationHyp))
+syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)))
 
 /--
 * `change tgt'` will change the goal from `tgt` to `tgt'`,
@@ -456,7 +478,7 @@ syntax (name := change) "change " term (location)? : tactic
 
 /--
 * `change a with b` will change occurrences of `a` to `b` in the goal,
-  assuming `a` and `b` are are definitionally equal.
+  assuming `a` and `b` are definitionally equal.
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
@@ -480,28 +502,28 @@ This provides a convenient way to unfold `e`.
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
 
-Using `rw (config := {occs := .pos L}) [e]`,
+Using `rw (occs := .pos L) [e]`,
 where `L : List Nat`, you can control which "occurrences" are rewritten.
 (This option applies to each rule, so usually this will only be used with a single rule.)
 Occurrences count from `1`.
 At each allowed occurrence, arguments of the rewrite rule `e` may be instantiated,
 restricting which later rewrites can be found.
 (Disallowed occurrences do not result in instantiation.)
-`{occs := .neg L}` allows skipping specified occurrences.
+`(occs := .neg L)` allows skipping specified occurrences.
 -/
-syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic
+syntax (name := rewriteSeq) "rewrite" optConfig rwRuleSeq (location)? : tactic
 
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+macro (name := rwSeq) "rw " c:optConfig s:rwRuleSeq l:(location)? : tactic =>
   match s with
   | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
-    `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
+    `(tactic| (rewrite $c [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
-/-- `rwa` calls `rw`, then closes any remaining goals using `assumption`. -/
+/-- `rwa` is short-hand for `rw; assumption`. -/
 macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
   `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
 
@@ -567,14 +589,14 @@ non-dependent hypotheses. It has many variants:
 - `simp [*] at *` simplifies target and all (propositional) hypotheses using the
   other hypotheses.
 -/
-syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
+syntax (name := simp) "simp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? (location)? : tactic
 /--
 `simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target
 are simplified multiple times until no simplification is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
-syntax (name := simpAll) "simp_all" (config)? (discharger)? (&" only")?
+syntax (name := simpAll) "simp_all" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*,?) "]")? : tactic
 
 /--
@@ -582,7 +604,7 @@ The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but o
 applies theorems that hold by reflexivity. Thus, the result is guaranteed to be
 definitionally equal to the input.
 -/
-syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
+syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*,?) "]")? (location)? : tactic
 
 /--
@@ -604,7 +626,7 @@ def dsimpArg := simpErase.binary `orelse simpLemma
 syntax dsimpArgs := " [" dsimpArg,* "]"
 
 /-- The common arguments of `simp?` and `simp?!`. -/
-syntax simpTraceArgsRest := (config)? (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
+syntax simpTraceArgsRest := optConfig (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
 
 /--
 `simp?` takes the same arguments as `simp`, but reports an equivalent call to `simp only`
@@ -623,7 +645,7 @@ syntax (name := simpTrace) "simp?" "!"? simpTraceArgsRest : tactic
 macro tk:"simp?!" rest:simpTraceArgsRest : tactic => `(tactic| simp?%$tk ! $rest)
 
 /-- The common arguments of `simp_all?` and `simp_all?!`. -/
-syntax simpAllTraceArgsRest := (config)? (discharger)? (&" only")? (dsimpArgs)?
+syntax simpAllTraceArgsRest := optConfig (discharger)? (&" only")? (dsimpArgs)?
 
 @[inherit_doc simpTrace]
 syntax (name := simpAllTrace) "simp_all?" "!"? simpAllTraceArgsRest : tactic
@@ -632,7 +654,7 @@ syntax (name := simpAllTrace) "simp_all?" "!"? simpAllTraceArgsRest : tactic
 macro tk:"simp_all?!" rest:simpAllTraceArgsRest : tactic => `(tactic| simp_all?%$tk ! $rest)
 
 /-- The common arguments of `dsimp?` and `dsimp?!`. -/
-syntax dsimpTraceArgsRest := (config)? (&" only")? (dsimpArgs)? (ppSpace location)?
+syntax dsimpTraceArgsRest := optConfig (&" only")? (dsimpArgs)? (ppSpace location)?
 
 @[inherit_doc simpTrace]
 syntax (name := dsimpTrace) "dsimp?" "!"? dsimpTraceArgsRest : tactic
@@ -641,7 +663,7 @@ syntax (name := dsimpTrace) "dsimp?" "!"? dsimpTraceArgsRest : tactic
 macro tk:"dsimp?!" rest:dsimpTraceArgsRest : tactic => `(tactic| dsimp?%$tk ! $rest)
 
 /-- The arguments to the `simpa` family tactics. -/
-syntax simpaArgsRest := (config)? (discharger)? &" only "? (simpArgs)? (" using " term)?
+syntax simpaArgsRest := optConfig (discharger)? &" only "? (simpArgs)? (" using " term)?
 
 /--
 This is a "finishing" tactic modification of `simp`. It has two forms.
@@ -773,8 +795,9 @@ macro_rules
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
-/-- Similar to `have`, but using `refine'` -/
+set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
+attribute [tactic_alt tacticHave'_] «tacticHave'_:=_»
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 
@@ -793,7 +816,7 @@ syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> synth
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
 -/
-syntax inductionAlts := " with" (ppSpace tactic)? withPosition((colGe inductionAlt)+)
+syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)+)
 
 /--
 Assuming `x` is a variable in the local context with an inductive type,
@@ -916,6 +939,15 @@ macro_rules | `(tactic| trivial) => `(tactic| simp)
 syntax "trivial" : tactic
 
 /--
+`classical tacs` runs `tacs` in a scope where `Classical.propDecidable` is a low priority
+local instance.
+
+Note that `classical` is a scoping tactic: it adds the instance only within the
+scope of the tactic.
+-/
+syntax (name := classical) "classical" ppDedent(tacticSeq) : tactic
+
+/--
 The `split` tactic is useful for breaking nested if-then-else and `match` expressions into separate cases.
 For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals.
 
@@ -957,13 +989,6 @@ The tactic adds a new hypothesis with the same name `h := h a₁ ... aₙ`
 and tries to clear the previous one.
 -/
 syntax (name := specialize) "specialize " term : tactic
-
-macro_rules | `(tactic| trivial) => `(tactic| assumption)
-macro_rules | `(tactic| trivial) => `(tactic| rfl)
-macro_rules | `(tactic| trivial) => `(tactic| contradiction)
-macro_rules | `(tactic| trivial) => `(tactic| decide)
-macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
-macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
 /--
 `unhygienic tacs` runs `tacs` with name hygiene disabled.
@@ -1125,6 +1150,123 @@ macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_
 macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
 
 /--
+Configuration for the `decide` tactic family.
+-/
+structure DecideConfig where
+  /-- If true (default: false), then use only kernel reduction when reducing the `Decidable` instance.
+  This is more efficient, since the default mode reduces twice (once in the elaborator and again in the kernel),
+  however kernel reduction ignores transparency settings. -/
+  kernel : Bool := false
+  /-- If true (default: false), then uses the native code compiler to evaluate the `Decidable` instance,
+  admitting the result via the axiom `Lean.ofReduceBool`.  This can be significantly more efficient,
+  but it is at the cost of increasing the trusted code base, namely the Lean compiler
+  and all definitions with an `@[implemented_by]` attribute.
+  The instance is only evaluated once. The `native_decide` tactic is a synonym for `decide +native`. -/
+  native : Bool := false
+  /-- If true (default: true), then when preprocessing the goal, do zeta reduction to attempt to eliminate free variables. -/
+  zetaReduce : Bool := true
+  /-- If true (default: false), then when preprocessing, removes irrelevant variables and reverts the local context.
+  A variable is *relevant* if it appears in the target, if it appears in a relevant variable,
+  or if it is a proposition that refers to a relevant variable. -/
+  revert : Bool := false
+
+/--
+`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`
+and then reducing that instance to evaluate the truth value of `p`.
+If it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.
+
+The target is not allowed to contain local variables or metavariables.
+If there are local variables, you can first try using the `revert` tactic with these local variables to move them into the target,
+or you can use the `+revert` option, described below.
+
+Options:
+- `decide +revert` begins by reverting local variables that the target depends on,
+  after cleaning up the local context of irrelevant variables.
+  A variable is *relevant* if it appears in the target, if it appears in a relevant variable,
+  or if it is a proposition that refers to a relevant variable.
+- `decide +kernel` uses kernel for reduction instead of the elaborator.
+  It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
+  and (2) it reduces the `Decidable` instance only once instead of twice.
+- `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
+  admitting the result via the `Lean.ofReduceBool` axiom.
+  This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
+  of the trusted code base.
+  Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
+  Like with `+kernel`, the `Decidable` instance is evaluated only once.
+
+Limitation: In the default mode or `+kernel` mode, since `decide` uses reduction to evaluate the term,
+`Decidable` instances defined by well-founded recursion might not work because evaluating them requires reducing proofs.
+Reduction can also get stuck on `Decidable` instances with `Eq.rec` terms.
+These can appear in instances defined using tactics (such as `rw` and `simp`).
+To avoid this, create such instances using definitions such as `decidable_of_iff` instead.
+
+## Examples
+
+Proving inequalities:
+```lean
+example : 2 + 2 ≠ 5 := by decide
+```
+
+Trying to prove a false proposition:
+```lean
+example : 1 ≠ 1 := by decide
+/-
+tactic 'decide' proved that the proposition
+  1 ≠ 1
+is false
+-/
+```
+
+Trying to prove a proposition whose `Decidable` instance fails to reduce
+```lean
+opaque unknownProp : Prop
+
+open scoped Classical in
+example : unknownProp := by decide
+/-
+tactic 'decide' failed for proposition
+  unknownProp
+since its 'Decidable' instance reduced to
+  Classical.choice ⋯
+rather than to the 'isTrue' constructor.
+-/
+```
+
+## Properties and relations
+
+For equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.
+```lean
+example : 1 + 1 = 2 := by decide
+example : 1 + 1 = 2 := by rfl
+```
+-/
+syntax (name := decide) "decide" optConfig : tactic
+
+/--
+`native_decide` is a synonym for `decide +native`.
+It will attempt to prove a goal of type `p` by synthesizing an instance
+of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
+uses `#eval` to evaluate the decidability instance.
+
+This should be used with care because it adds the entire lean compiler to the trusted
+part, and the axiom `Lean.ofReduceBool` will show up in `#print axioms` for theorems using
+this method or anything that transitively depends on them. Nevertheless, because it is
+compiled, this can be significantly more efficient than using `decide`, and for very
+large computations this is one way to run external programs and trust the result.
+```lean
+example : (List.range 1000).length = 1000 := by native_decide
+```
+-/
+syntax (name := nativeDecide) "native_decide" optConfig : tactic
+
+macro_rules | `(tactic| trivial) => `(tactic| assumption)
+macro_rules | `(tactic| trivial) => `(tactic| rfl)
+macro_rules | `(tactic| trivial) => `(tactic| contradiction)
+macro_rules | `(tactic| trivial) => `(tactic| decide)
+macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
+macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
+
+/--
 The `omega` tactic, for resolving integer and natural linear arithmetic problems.
 
 It is not yet a full decision procedure (no "dark" or "grey" shadows),
@@ -1144,8 +1286,7 @@ a natural subtraction appearing in a hypothesis, and try again.
 
 The options
 ```
-omega (config :=
-  { splitDisjunctions := true, splitNatSub := true, splitNatAbs := true, splitMinMax := true })
+omega +splitDisjunctions +splitNatSub +splitNatAbs +splitMinMax
 ```
 can be used to:
 * `splitDisjunctions`: split any disjunctions found in the context,
@@ -1155,7 +1296,7 @@ can be used to:
 * `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
 Currently, all of these are on by default.
 -/
-syntax (name := omega) "omega" (config)? : tactic
+syntax (name := omega) "omega" optConfig : tactic
 
 /--
 `bv_omega` is `omega` with an additional preprocessor that turns statements about `BitVec` into statements about `Nat`.
@@ -1163,6 +1304,9 @@ Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
 `bv_toNat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
 -/
 macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
+
+/-- Implementation of `ac_nf` (the full `ac_nf` calls `trivial` afterwards). -/
+syntax (name := acNf0) "ac_nf0" (location)? : tactic
 
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
@@ -1215,6 +1359,24 @@ macro "norm_cast" loc:(location)? : tactic =>
   `(tactic| norm_cast0 $[$loc]? <;> try trivial)
 
 /--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+- `ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+macro "ac_nf" loc:(location)? : tactic =>
+  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
+
+/--
 `push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.
 This uses `norm_cast` lemmas in the forward direction.
 For example, `↑(a + b)` will be written to `↑a + ↑b`.
@@ -1247,7 +1409,7 @@ example (a b : Nat)
 
 See also `norm_cast`.
 -/
-syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
+syntax (name := pushCast) "push_cast" optConfig (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /--
@@ -1323,7 +1485,7 @@ See also the doc-comment for `Lean.Meta.Tactic.Backtrack.BacktrackConfig` for th
 Both `apply_assumption` and `apply_rules` are implemented via these hooks.
 -/
 syntax (name := solveByElim)
-  "solve_by_elim" "*"? (config)? (&" only")? (args)? (using_)? : tactic
+  "solve_by_elim" "*"? optConfig (&" only")? (args)? (using_)? : tactic
 
 /--
 `apply_assumption` looks for an assumption of the form `... → ∀ _, ... → head`
@@ -1346,7 +1508,7 @@ You can pass a further configuration via the syntax `apply_rules (config := {...
 The options supported are the same as for `solve_by_elim` (and include all the options for `apply`).
 -/
 syntax (name := applyAssumption)
-  "apply_assumption" (config)? (&" only")? (args)? (using_)? : tactic
+  "apply_assumption" optConfig (&" only")? (args)? (using_)? : tactic
 
 /--
 `apply_rules [l₁, l₂, ...]` tries to solve the main goal by iteratively
@@ -1371,7 +1533,7 @@ You can bound the iteration depth using the syntax `apply_rules (config := {maxD
 Unlike `solve_by_elim`, `apply_rules` does not perform backtracking, and greedily applies
 a lemma from the list until it gets stuck.
 -/
-syntax (name := applyRules) "apply_rules" (config)? (&" only")? (args)? (using_)? : tactic
+syntax (name := applyRules) "apply_rules" optConfig (&" only")? (args)? (using_)? : tactic
 end SolveByElim
 
 /--
@@ -1465,6 +1627,11 @@ have been simplified by using the modifier `↓`. Here is an example
 @[simp↓] theorem not_and_eq (p q : Prop) : (¬ (p ∧ q)) = (¬p ∨ ¬q) :=
 ```
 
+You can instruct the simplifier to rewrite the lemma from right-to-left:
+```lean
+attribute @[simp ←] and_assoc
+```
+
 When multiple simp theorems are applicable, the simplifier uses the one with highest priority.
 The equational theorems of function are applied at very low priority (100 and below).
 If there are several with the same priority, it is uses the "most recent one". Example:
@@ -1476,7 +1643,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `grind_norm` attribute are used by the `grind` tactic normalizer/pre-processor.
@@ -1565,7 +1732,7 @@ where `i < arr.size` is in the context) and `simp_arith` and `omega`
 syntax "get_elem_tactic_trivial" : tactic
 
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp +arith; done)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 
 /--
@@ -1588,7 +1755,7 @@ macro "get_elem_tactic" : tactic =>
       There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
       If `omega` is used to "fill" this proof, we will have a more complex proof term that
       cannot be inferred by unification.
-      We hardcoded `assumption` here to ensure users cannot accidentaly break this IF
+      We hardcoded `assumption` here to ensure users cannot accidentally break this IF
       they add new `macro_rules` for `get_elem_tactic_trivial`.
 
       TODO: Implement priorities for `macro_rules`.
@@ -1598,7 +1765,7 @@ macro "get_elem_tactic" : tactic =>
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )

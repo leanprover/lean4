@@ -254,10 +254,6 @@ Apply `And.intro` as much as possible to goal `mvarId`.
 abbrev splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   splitAndCore mvarId
 
-@[deprecated splitAnd] -- 2024-03-17
-def _root_.Lean.Meta.splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
-  mvarId.splitAnd
-
 def exfalso (mvarId : MVarId) : MetaM MVarId :=
   mvarId.withContext do
     mvarId.checkNotAssigned `exfalso

@@ -7,6 +7,7 @@ prelude
 import Init.Data.Array.Basic
 import Init.NotationExtra
 import Init.Data.ToString.Macro
+import Init.Data.UInt.Basic
 
 universe u v w
 
@@ -148,8 +149,8 @@ private def emptyArray {α : Type u} : Array (PersistentArrayNode α) :=
 partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (PersistentArrayNode α)
   | node cs =>
     if h : cs.size ≠ 0 then
-      let idx : Fin cs.size := ⟨cs.size - 1, by exact Nat.pred_lt h⟩
-      let last := cs.get idx
+      let idx := cs.size - 1
+      let last := cs[idx]
       let cs'  := cs.set idx default
       match popLeaf last with
       | (none,   _)       => (none, emptyArray)
@@ -158,7 +159,7 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
           let cs' := cs'.pop
           if cs'.isEmpty then (some l, emptyArray) else (some l, cs')
         else
-          (some l, cs'.set (Array.size_set cs idx _ ▸ idx) (node newLast))
+          (some l, cs'.set idx (node newLast) (by simp only [cs', Array.size_set]; omega))
     else
       (none, emptyArray)
   | leaf vs   => (some vs, emptyArray)
@@ -317,8 +318,8 @@ variable {m : Type → Type w} [Monad m]
   anyMAux p t.root <||> t.tail.anyM p
 
 @[inline] def allM (a : PersistentArray α) (p : α → m Bool) : m Bool := do
-  let b ← anyM a (fun v => do let b ← p v; pure (not b))
-  pure (not b)
+  let b ← anyM a (fun v => do let b ← p v; pure (!b))
+  pure (!b)
 
 end
 

@@ -77,7 +77,7 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
 where
   withNewEqs {α} (xs ys : Array Expr) (k : Array Expr → Array CongrArgKind → MetaM α) : MetaM α :=
     let rec loop (i : Nat) (eqs : Array Expr) (kinds : Array CongrArgKind) := do
-      if  i < xs.size then
+      if i < xs.size then
         let x := xs[i]!
         let y := ys[i]!
         let xType := (← inferType x).cleanupAnnotations
@@ -122,8 +122,8 @@ def mkHCongr (f : Expr) : MetaM CongrTheorem := do
 private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind) : Array CongrArgKind := Id.run do
   let mut kinds := kinds
   for i in [:info.paramInfo.size] do
-    for j in [i+1:info.paramInfo.size] do
-      if info.paramInfo[j]!.backDeps.contains i then
+    for hj : j in [i+1:info.paramInfo.size] do
+      if info.paramInfo[j].backDeps.contains i then
         if kinds[j]! matches CongrArgKind.eq || kinds[j]! matches CongrArgKind.fixed then
           -- We must fix `i` because there is a `j` that depends on `i` and `j` is not cast-fixed.
           kinds := kinds.set! i CongrArgKind.fixed
@@ -185,11 +185,11 @@ private def getClassSubobjectMask? (f : Expr) : MetaM (Option (Array Bool)) := d
   forallTelescopeReducing val.type (cleanupAnnotations := true) fun xs _ => do
     let env ← getEnv
     let mut mask := #[]
-    for i in [:xs.size] do
+    for h : i in [:xs.size] do
       if i < val.numParams then
         mask := mask.push false
       else
-        let localDecl ← xs[i]!.fvarId!.getDecl
+        let localDecl ← xs[i].fvarId!.getDecl
         mask := mask.push (isSubobjectField? env val.induct localDecl.userName).isSome
     return some mask
 
@@ -211,14 +211,14 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
   -/
   let mut result := #[]
   let mask? ← getClassSubobjectMask? f
-  for i in [:info.paramInfo.size] do
+  for h : i in [:info.paramInfo.size] do
     if info.resultDeps.contains i then
       result := result.push .fixed
-    else if info.paramInfo[i]!.isProp then
+    else if info.paramInfo[i].isProp then
       result := result.push .cast
-    else if info.paramInfo[i]!.isInstImplicit then
+    else if info.paramInfo[i].isInstImplicit then
       if let some mask := mask? then
-        if h : i < mask.size then
+        if h2 : i < mask.size then
           if mask[i] then
             -- Parameter is a subobect field of a class constructor. See comment above.
             result := result.push .eq
@@ -229,6 +229,29 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
         result := result.push .fixed
     else
       result := result.push .eq
+  return fixKindsForDependencies info result
+
+/--
+Variant of `getCongrSimpKinds` for rewriting just argument 0.
+If it is possible to rewrite, the 0th `CongrArgKind` is `CongrArgKind.eq`,
+and otherwise it is `CongrArgKind.fixed`. This is used for the `arg` conv tactic.
+-/
+def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) := do
+  let mut result := #[]
+  for h : i in [:info.paramInfo.size] do
+    if info.resultDeps.contains i then
+      result := result.push .fixed
+    else if i == 0 then
+      result := result.push .eq
+    else if info.paramInfo[i].isProp then
+      result := result.push .cast
+    else if info.paramInfo[i].isInstImplicit then
+      if shouldUseSubsingletonInst info result i then
+        result := result.push .subsingletonInst
+      else
+        result := result.push .fixed
+    else
+      result := result.push .fixed
   return fixKindsForDependencies info result
 
 /--
@@ -319,7 +342,7 @@ where
 /--
 Create a congruence theorem for `f`. The theorem is used in the simplifier.
 
-If `subsingletonInstImplicitRhs = true`, the the `rhs` corresponding to `[Decidable p]` parameters
+If `subsingletonInstImplicitRhs = true`, the `rhs` corresponding to `[Decidable p]` parameters
 is marked as instance implicit. It forces the simplifier to compute the new instance when applying
 the congruence theorem.
 For the `congr` tactic we set it to `false`.

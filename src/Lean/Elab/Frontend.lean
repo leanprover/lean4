@@ -102,7 +102,7 @@ partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
 where
   go initialSnap t commands :=
     let snap := t.get
-    let commands := commands.push snap.data.stx
+    let commands := commands.push snap
     if let some next := snap.nextCmdSnap? then
       go initialSnap next.task commands
     else
@@ -111,13 +111,15 @@ where
       let messages := toSnapshotTree initialSnap
         |>.getAll.map (·.diagnostics.msgLog)
         |>.foldl (· ++ ·) {}
-      let trees := toSnapshotTree initialSnap
-        |>.getAll.map (·.infoTree?) |>.filterMap id |>.toPArray'
+      -- In contrast to messages, we should collect info trees only from the top-level command
+      -- snapshots as they subsume any info trees reported incrementally by their children.
+      let trees := commands.map (·.finishedSnap.get.infoTree?) |>.filterMap id |>.toPArray'
       return {
-        commandState := { snap.data.finishedSnap.get.cmdState with messages, infoState.trees := trees }
-        parserState := snap.data.parserState
-        cmdPos := snap.data.parserState.pos
-        inputCtx, initialSnap, commands
+        commandState := { snap.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        parserState := snap.parserState
+        cmdPos := snap.parserState.pos
+        commands := commands.map (·.stx)
+        inputCtx, initialSnap
       }
 
 def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState)
@@ -143,7 +145,7 @@ def runFrontend
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
-  let opts := Language.Lean.internal.cmdlineSnapshots.set opts true
+  let opts := Language.Lean.internal.cmdlineSnapshots.setIfNotSet opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
   let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx
@@ -151,7 +153,7 @@ def runFrontend
   snaps.runAndReport opts jsonOutput
 
   if let some ileanFileName := ileanFileName? then
-    let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
+    let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
@@ -162,8 +164,8 @@ def runFrontend
     | return (← mkEmptyEnvironment, false)
 
   if let some out := trace.profiler.output.get? opts then
-    let traceState := cmdState.traceState
-    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+    let traceStates := snaps.getAll.map (·.traces)
+    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
     IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
   let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)

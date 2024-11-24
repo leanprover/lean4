@@ -108,6 +108,12 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) 
     m.isEmpty = true ↔ ∀ a, ¬a ∈ m :=
   DHashMap.Raw.isEmpty_iff_forall_not_mem h.out
 
+@[simp] theorem insert_eq_insert {p : α × β} : Insert.insert p m = m.insert p.1 p.2 := rfl
+
+@[simp] theorem singleton_eq_insert {p : α × β} :
+    Singleton.singleton p = (∅ : Raw α β).insert p.1 p.2 :=
+  rfl
+
 @[simp]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β} :
     (m.insert k v).contains a = (k == a || m.contains a) :=
@@ -675,6 +681,30 @@ theorem getThenInsertIfNew?_fst (h : m.WF) {k : α} {v : β} :
 theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
     (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
   ext (DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out)
+
+@[simp]
+theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.length = m.size :=
+  DHashMap.Raw.length_keys h.out
+
+@[simp]
+theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h : m.WF):
+    m.keys.isEmpty = m.isEmpty :=
+  DHashMap.Raw.isEmpty_keys h.out
+
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    m.keys.contains k = m.contains k :=
+  DHashMap.Raw.contains_keys h.out
+
+@[simp]
+theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    k ∈ m.keys ↔ k ∈ m := 
+  DHashMap.Raw.mem_keys h.out
+
+theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keys.Pairwise (fun a b => (a == b) = false) := 
+  DHashMap.Raw.distinct_keys h.out
 
 end Raw
 

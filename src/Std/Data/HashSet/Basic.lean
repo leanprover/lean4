@@ -77,6 +77,10 @@ equal (with regard to `==`) to the given element, then the hash set is returned 
 @[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
 
+instance : Singleton α (HashSet α) := ⟨fun a => HashSet.empty.insert a⟩
+
+instance : Insert α (HashSet α) := ⟨fun a s => s.insert a⟩
+
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
 If the hash set already contains an element that is equal (with regard to `==`) to the given
@@ -150,6 +154,10 @@ for all `a`.
 @[inline] def isEmpty (m : HashSet α) : Bool :=
   m.inner.isEmpty
 
+/-- Transforms the hash set into a list of elements in some order. -/
+@[inline] def toList (m : HashSet α) : List α :=
+  m.inner.keys
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -157,6 +165,11 @@ section Unverified
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
 @[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
   ⟨m.inner.filter fun a _ => f a⟩
+
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
+  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
@@ -187,9 +200,18 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α
 instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
-/-- Transforms the hash set into a list of elements in some order. -/
-@[inline] def toList (m : HashSet α) : List α :=
-  m.inner.keys
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a then return false
+  return true
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if p a then return true
+  return false
+
 
 /-- Transforms the hash set into an array of elements in some order. -/
 @[inline] def toArray (m : HashSet α) : Array α :=
@@ -212,9 +234,19 @@ in the collection will be present in the returned hash set.
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
   ⟨HashMap.unitOfList l⟩
 
-/-- Computes the union of the given hash sets. -/
+/--
+Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : HashSet α :=
+  ⟨HashMap.unitOfArray l⟩
+
+/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

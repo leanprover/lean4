@@ -81,8 +81,7 @@ attribute [bv_normalize] BitVec.testBit_toNat
 @[bv_normalize]
 theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   rw [BitVec.ult]
-  rw [LT.lt]
-  rw [BitVec.instLT]
+  simp only [(· < ·)]
   simp
 
 attribute [bv_normalize] BitVec.natCast_eq_ofNat
@@ -97,18 +96,8 @@ attribute [bv_normalize] BitVec.add_eq
 attribute [bv_normalize] BitVec.sub_eq
 attribute [bv_normalize] BitVec.neg_eq
 attribute [bv_normalize] BitVec.mul_eq
-
-@[bv_normalize]
-theorem Bool.and_eq_and (x y : Bool) : x.and y = (x && y) := by
-  rfl
-
-@[bv_normalize]
-theorem Bool.or_eq_or (x y : Bool) : x.or y = (x || y) := by
-  rfl
-
-@[bv_normalize]
-theorem Bool.no_eq_not (x : Bool) : x.not = !x := by
-  rfl
+attribute [bv_normalize] BitVec.udiv_eq
+attribute [bv_normalize] BitVec.umod_eq
 
 end Normalize
 end Std.Tactic.BVDecide

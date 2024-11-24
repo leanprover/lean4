@@ -18,7 +18,7 @@ private def getMonadForIn (expectedType? : Option Expr) : TermElabM Expr := do
     | some expectedType =>
       match (← isTypeApp? expectedType) with
       | some (m, _) => return m
-      | none => throwError "invalid 'for_in%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
+      | none => throwError "invalid 'for_in%' notation, expected type is not of the form `M α`{indentExpr expectedType}"
 
 private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   throwError "failed to synthesize instance for 'for_in%' notation{indentExpr forInInstance}"
@@ -327,15 +327,18 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
   | .binop ref kind f lhs rhs =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
+    withRef ref <|
+      withTermInfoContext' .anonymous ref do
+        mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
   | .unop ref f arg =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkUnOp f (← toExprCore arg)
+    withRef ref <|
+      withTermInfoContext' .anonymous ref do
+        mkUnOp f (← toExprCore arg)
   | .macroExpansion macroName stx stx' nested =>
-    withRef stx <| withInfoContext' stx (mkInfo := mkTermInfo macroName stx) do
-      withMacroExpansion stx stx' do
-        toExprCore nested
+    withRef stx <|
+      withTermInfoContext' macroName stx <|
+        withMacroExpansion stx stx' <|
+          toExprCore nested
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
@@ -375,7 +378,7 @@ private def hasHeterogeneousDefaultInstances (f : Expr) (maxType : Expr) (lhs : 
   return false
 
 /--
-  Return `true` if polymorphic function `f` has a homogenous instance of `maxType`.
+  Return `true` if polymorphic function `f` has a homogeneous instance of `maxType`.
   The coercions to `maxType` only makes sense if such instance exists.
 
   For example, suppose `maxType` is `Int`, and `f` is `HPow.hPow`. Then,
@@ -421,9 +424,9 @@ mutual
       | .binop ref kind f lhs rhs =>
         /-
           We only keep applying coercions to `maxType` if `f` is predicate or
-          `f` has a homogenous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
+          `f` has a homogeneous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
 
-          Remark: We assume `binrel%` elaborator is only used with homogenous predicates.
+          Remark: We assume `binrel%` elaborator is only used with homogeneous predicates.
         -/
         if (← pure isPred <||> hasHomogeneousInstance f maxType) then
           return .binop ref kind f (← go lhs f true false) (← go rhs f false false)

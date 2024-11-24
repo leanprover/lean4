@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.Util.Name
 
 namespace Lake
+open Lean (Name)
 
 /-- The type of keys in the Lake build store. -/
 inductive BuildKey

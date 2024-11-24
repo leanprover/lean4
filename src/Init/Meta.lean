@@ -7,7 +7,8 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.MetaTypes
-import Init.Data.Array.Basic
+import Init.Syntax
+import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
 
 namespace Lean
@@ -373,6 +374,9 @@ partial def structEq : Syntax → Syntax → Bool
 instance : BEq Lean.Syntax := ⟨structEq⟩
 instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 
+/--
+Finds the first `SourceInfo` from the back of `stx` or `none` if no `SourceInfo` can be found.
+-/
 partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info
   | ident info .. => info
@@ -381,13 +385,38 @@ partial def getTailInfo? : Syntax → Option SourceInfo
   | node info _ _    => info
   | _             => none
 
+/--
+Finds the first `SourceInfo` from the back of `stx` or `SourceInfo.none`
+if no `SourceInfo` can be found.
+-/
 def getTailInfo (stx : Syntax) : SourceInfo :=
   stx.getTailInfo?.getD SourceInfo.none
 
+/--
+Finds the trailing size of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains no
+trailing whitespace, the result is `0`.
+-/
 def getTrailingSize (stx : Syntax) : Nat :=
   match stx.getTailInfo? with
   | some (SourceInfo.original (trailing := trailing) ..) => trailing.bsize
   | _ => 0
+
+/--
+Finds the trailing whitespace substring of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
+no trailing whitespace, the result is `none`.
+-/
+def getTrailing? (stx : Syntax) : Option Substring :=
+  stx.getTailInfo.getTrailing?
+
+/--
+Finds the tail position of the trailing whitespace of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
+no trailing whitespace and lacks a tail position, the result is `none`.
+-/
+def getTrailingTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  stx.getTailInfo.getTrailingTailPos? canonicalOnly
 
 /--
   Return substring of original input covering `stx`.
@@ -402,21 +431,20 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
     }
   | _, _ => none
 
-@[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
-  if i == 0 then
-    none
-  else
-    let i := i - 1
-    let v := a[i]!
+@[specialize] private partial def updateLast {α} (a : Array α) (f : α → Option α) (i : Fin (a.size + 1)) : Option (Array α) :=
+  match i with
+  | 0 => none
+  | ⟨i + 1, h⟩ =>
+    let v := a[i]'(Nat.succ_lt_succ_iff.mp h)
     match f v with
-    | some v => some <| a.set! i v
-    | none   => updateLast a f i
+    | some v => some <| a.set i v (Nat.succ_lt_succ_iff.mp h)
+    | none   => updateLast a f ⟨i, Nat.lt_of_succ_lt h⟩
 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
   | node info' k args      =>
-    match updateLast args (setTailInfoAux info) args.size with
+    match updateLast args (setTailInfoAux info) ⟨args.size, by simp⟩ with
     | some args => some <| node info' k args
     | none      => none
   | _                      => none
@@ -442,7 +470,7 @@ def unsetTrailing (stx : Syntax) : Syntax :=
   if h : i < a.size then
     let v := a[i]
     match f v with
-    | some v => some <| a.set ⟨i, h⟩ v
+    | some v => some <| a.set i v h
     | none   => updateFirst a f (i+1)
   else
     none
@@ -628,6 +656,9 @@ def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
 
 def mkNumLit (val : String) (info := SourceInfo.none) : NumLit :=
   mkLit numLitKind val info
+
+def mkNatLit (val : Nat) (info := SourceInfo.none) : NumLit :=
+  mkLit numLitKind (toString val) info
 
 def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientificLitKind :=
   mkLit scientificLitKind val info
@@ -862,7 +893,7 @@ partial def decodeRawStrLitAux (s : String) (i : String.Pos) (num : Nat) : Strin
 /--
 Takes the string literal lexical syntax parsed by the parser and interprets it as a string.
 This is where escape sequences are processed for example.
-The string `s` is is either a plain string literal or a raw string literal.
+The string `s` is either a plain string literal or a raw string literal.
 
 If it returns `none` then the string literal is ill-formed, which indicates a bug in the parser.
 The function is not required to return `none` if the string literal is ill-formed.
@@ -1409,64 +1440,87 @@ namespace Parser
 
 namespace Tactic
 
-/-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
+/--
+Extracts the items from a tactic configuration,
+either a `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`, or these wrapped in null nodes.
+-/
+partial def getConfigItems (c : Syntax) : TSyntaxArray ``configItem :=
+  if c.isOfKind nullKind then
+    c.getArgs.flatMap getConfigItems
+  else
+    match c with
+    | `(optConfig| $items:configItem*) => items
+    | `(config| (config := $_)) => #[⟨c⟩] -- handled by mkConfigItemViews
+    | _ => #[]
+
+def mkOptConfig (items : TSyntaxArray ``configItem) : TSyntax ``optConfig :=
+  ⟨Syntax.node1 .none ``optConfig (mkNullNode items)⟩
+
+/--
+Appends two tactic configurations.
+The configurations can be `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`,
+or these wrapped in null nodes (for example because the syntax is `(config)?`).
+-/
+def appendConfig (cfg cfg' : Syntax) : TSyntax ``optConfig :=
+  mkOptConfig <| getConfigItems cfg ++ getConfigItems cfg'
+
+/-- `erw [rules]` is a shorthand for `rw (transparency := .default) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw" s:rwRuleSeq loc:(location)? : tactic =>
-  `(tactic| rw (config := { transparency := .default }) $s $(loc)?)
+macro "erw" c:optConfig s:rwRuleSeq loc:(location)? : tactic => do
+  `(tactic| rw $[$(getConfigItems c)]* (transparency := .default) $s:rwRuleSeq $(loc)?)
 
 syntax simpAllKind := atomic(" (" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic(" (" &"dsimp") " := " &"true" ")"
 
 macro (name := declareSimpLikeTactic) doc?:(docComment)?
     "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?)
-    ppSpace tacName:ident ppSpace tacToken:str ppSpace updateCfg:term : command => do
+    ppSpace tacName:ident ppSpace tacToken:str ppSpace cfg:optConfig : command => do
   let (kind, tkn, stx) ←
     if opt.raw.isNone then
-      pure (← `(``simp), ← `("simp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``simp), ← `("simp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
     else if opt.raw[0].getKind == ``simpAllKind then
-      pure (← `(``simpAll), ← `("simp_all"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic))
+      pure (← `(``simpAll), ← `("simp_all"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic))
     else
-      pure (← `(``dsimp), ← `("dsimp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``dsimp), ← `("dsimp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
     @[macro $tacName] def expandSimp : Macro := fun s => do
-      let c ← match s[1][0] with
-        | `(config| (config := $$c)) => `(config| (config := $updateCfg $$c))
-        | _ => `(config| (config := $updateCfg {}))
+      let cfg ← `(optConfig| $cfg)
       let s := s.setKind $kind
       let s := s.setArg 0 (mkAtomFrom s[0] $tkn (canonical := true))
-      let r := s.setArg 1 (mkNullNode #[c])
-      return r)
+      let s := s.setArg 1 (appendConfig s[1] cfg)
+      let s := s.mkSynthetic
+      return s)
 
 /-- `simp!` is shorthand for `simp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
+declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
 /-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
 This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, decide := true }
+declare_simp_like_tactic simpArith "simp_arith " (arith := true) (decide := true)
 
 /-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true, decide := true }
+declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " (arith := true) (autoUnfold := true) (decide := true)
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
+declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
 /-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, decide := true }
+declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " (arith := true) (decide := true)
 
 /-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true, decide := true }
+declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " (arith := true) (autoUnfold := true) (decide := true)
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
+declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " (autoUnfold := true)
 
 end Tactic
 

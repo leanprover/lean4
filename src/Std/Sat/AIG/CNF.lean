@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.CNF
 import Std.Sat.AIG.Basic
 import Std.Sat.AIG.Lemmas
@@ -67,7 +68,7 @@ theorem atomToCNF_eval :
 theorem gateToCNF_eval :
     (gateToCNF output lhs rhs linv rinv).eval assign
       =
-    (assign output == ((xor (assign lhs) linv) && (xor (assign rhs) rinv))) := by
+    (assign output == (((assign lhs) ^^ linv) && ((assign rhs) ^^ rinv))) := by
   simp only [CNF.eval, gateToCNF, CNF.Clause.eval, List.all_cons, List.any_cons, beq_false,
     List.any_nil, Bool.or_false, beq_true, List.all_nil, Bool.and_true]
   cases assign output
@@ -242,7 +243,7 @@ theorem Cache.IsExtensionBy_rfl (cache : Cache aig cnf) {h} (hmarked : cache.mar
   · exact hmarked
 
 theorem Cache.IsExtensionBy_set (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2) (idx : Nat)
-    (hbound : idx < cache1.marks.size) (h : cache2.marks = cache1.marks.set ⟨idx, hbound⟩ true) :
+    (hbound : idx < cache1.marks.size) (h : cache2.marks = cache1.marks.set idx true) :
     IsExtensionBy cache1 cache2 idx (by have := cache1.hmarks; omega) := by
   apply IsExtensionBy.mk
   · intro idx hidx hmark
@@ -270,7 +271,7 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
   have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
   let out :=
     { cache with
-      marks := cache.marks.set ⟨idx, hmarkbound⟩ true
+      marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
@@ -284,7 +285,6 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             simp only [denote_idx_const htip, projectRightAssign_property, heval]
@@ -308,7 +308,7 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
   have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
   let out :=
     { cache with
-      marks := cache.marks.set ⟨idx, hmarkbound⟩ true
+      marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
@@ -322,7 +322,6 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
             simp [heval, denote_idx_atom htip]
           · next heq =>
@@ -355,7 +354,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
   have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
   let out :=
     { cache with
-      marks := cache.marks.set ⟨idx, hmarkbound⟩ true
+      marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
@@ -363,7 +362,6 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq2 =>
-            simp only at heq2
             simp only [heq2] at htip
             rw [htip] at heq
             cases heq
@@ -374,7 +372,6 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             have hleval := cache.inv.heval assign heval.right lhs (by omega) hl
@@ -598,9 +595,9 @@ where
     else
       let decl := aig.decls[upper]
       match heq : decl with
-      | .const b => state.addConst upper h heq
-      | .atom a => state.addAtom upper h heq
-      | .gate lhs rhs linv rinv =>
+      | .const _ => state.addConst upper h heq
+      | .atom _ => state.addAtom upper h heq
+      | .gate lhs rhs _ _ =>
         have := aig.invariant h heq
         let ⟨lstate, hlstate⟩ := go aig lhs (by omega) state
         let ⟨rstate, hrstate⟩ := go aig rhs (by omega) lstate

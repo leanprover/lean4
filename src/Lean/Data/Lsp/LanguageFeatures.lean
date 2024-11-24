@@ -25,7 +25,7 @@ inductive CompletionItemKind where
   | unit | value | enum | keyword | snippet
   | color | file | reference | folder | enumMember
   | constant | struct | event | operator | typeParameter
-  deriving Inhabited, DecidableEq, Repr
+  deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemKind where
   toJson a := toJson (a.toCtorIdx + 1)
@@ -39,7 +39,19 @@ structure InsertReplaceEdit where
   newText : String
   insert  : Range
   replace : Range
-  deriving FromJson, ToJson
+  deriving FromJson, ToJson, BEq, Hashable
+
+inductive CompletionItemTag where
+  | deprecated
+  deriving Inhabited, DecidableEq, Repr, Hashable
+
+instance : ToJson CompletionItemTag where
+  toJson t := toJson (t.toCtorIdx + 1)
+
+instance : FromJson CompletionItemTag where
+  fromJson? v := do
+    let i : Nat ← fromJson? v
+    return CompletionItemTag.ofNat (i-1)
 
 structure CompletionItem where
   label          : String
@@ -49,8 +61,8 @@ structure CompletionItem where
   textEdit?      : Option InsertReplaceEdit := none
   sortText?      : Option String := none
   data?          : Option Json := none
+  tags?          : Option (Array CompletionItemTag) := none
   /-
-  tags? : CompletionItemTag[]
   deprecated? : boolean
   preselect? : boolean
   filterText? : string
@@ -59,8 +71,9 @@ structure CompletionItem where
   insertTextMode? : InsertTextMode
   additionalTextEdits? : TextEdit[]
   commitCharacters? : string[]
-  command? : Command -/
-  deriving FromJson, ToJson, Inhabited
+  command? : Command
+  -/
+  deriving FromJson, ToJson, Inhabited, BEq, Hashable
 
 structure CompletionList where
   isIncomplete : Bool

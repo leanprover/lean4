@@ -1717,6 +1717,14 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
   cases bs
   simp
 
+@[simp] theorem size_zipWith (as : Array α) (bs : Array β) (f : α → β → γ) :
+    (as.zipWith bs f).size = min as.size bs.size := by
+  rw [size_eq_length_toList, toList_zipWith, List.length_zipWith]
+
+@[simp] theorem size_zip (as : Array α) (bs : Array β) :
+    (as.zip bs).size = min as.size bs.size :=
+  as.size_zipWith bs Prod.mk
+
 /-! ### findSomeM?, findM?, findSome?, find? -/
 
 @[simp] theorem findSomeM?_toList [Monad m] [LawfulMonad m] (p : α → m (Option β)) (as : Array α) :

@@ -6,15 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Nat.Fold
-import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 
-namespace Vector
-
-theorem getElem_push_lt {n} (a : Vector α n) (x : α) (i : Nat) (h : i < n) : (a.push x)[i] = a[i] := by
-  cases a
-  simp
-
-end Vector
 
 namespace Array
 
@@ -40,7 +33,10 @@ theorem insertionSort_swapLoop_push {n} (a : Vector α n) (x : α) (j : Nat) (h 
   | succ j ih =>
     simp [insertionSort.swapLoop]
     split <;> rename_i h
-    · rw [getElem_push_lt] at h
+    · rw [Vector.getElem_push_lt (by omega), Vector.getElem_push_lt (by omega)] at h
+      rw [Vector.swap_push]
+      simp [h]
+
     · sorry
 
 

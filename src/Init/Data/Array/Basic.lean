@@ -896,11 +896,11 @@ def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) 
     cs
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
+@[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
   zipWithAux f as bs 0 #[]
 
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
-  zipWith as bs Prod.mk
+  zipWith Prod.mk as bs
 
 def zipWithAll (f : Option α → Option β → γ) (as : Array α) (bs : Array β) : Array γ :=
   go as bs 0 #[]
@@ -974,13 +974,6 @@ def allDiff [BEq α] (as : Array α) : Bool :=
       (false, r.push a)
     else
       (true, r)
-
-/-- Pad an array to the right with a given element. -/
-def padRight (as : Array α) (n : Nat) (a : α) : Array α :=
-  go (n - as.size) as
-where go : Nat → Array α → Array α
-  | 0, r => r
-  | n+1, r => go n (r.push a)
 
 /-! ### Repr and ToString -/
 

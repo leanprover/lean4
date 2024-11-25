@@ -64,19 +64,12 @@ def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
   return isAuxRecursor env constName || isNoConfusion env constName
 
-@[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) : MetaM α := do
-  let .const name lvls := e
-    | failK ()
-  let (some cinfo) ← getUnfoldableConst? name
-    | failK ()
-  k cinfo lvls
-
 -- ===========================
 /-! # Helper functions for reducing recursors -/
 -- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
-  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getUnfoldableConstNoEx? d |
+  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) := (← getEnv).find? d |
     return none
   return some ctor
 
@@ -230,7 +223,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Un
       let major ← whnf major
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
-        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getUnfoldableConstNoEx? majorFn | failK ()
+        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) := (← getEnv).find? majorFn | failK ()
         let f := recArgs[argPos]!
         let r := mkApp f majorArg
         let recArity := majorPos + 1
@@ -293,7 +286,7 @@ mutual
         | .mvar mvarId => return some mvarId
         | _ => getStuckMVar? e
       | .const fName _ =>
-        match (← getUnfoldableConstNoEx? fName) with
+        match (← getEnv).find? fName with
         | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
@@ -585,17 +578,18 @@ where
           | .partialApp   => pure e
           | .stuck _      => pure e
           | .notMatcher   =>
-            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-              match cinfo with
-              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | c@(.defnInfo _) => do
-                if (← isAuxDef c.name) then
-                  recordUnfold c.name
-                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
-                else
-                  return e
-              | _ => return e
+            let .const cname lvls := f' | return e
+            let some cinfo := (← getEnv).find? cname | return e
+            match cinfo with
+            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | c@(.defnInfo _) => do
+              if (← isAuxDef c.name) then
+                recordUnfold c.name
+                deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+              else
+                return e
+            | _ => return e
       | .proj _ i c =>
         let k (c : Expr) := do
           match (← projectCore? c i) with
@@ -704,17 +698,17 @@ mutual
   /-- Unfold definition using "smart unfolding" if possible. -/
   partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
     match e with
-    | .app f _ =>
-      matchConstAux f.getAppFn (fun _ => unfoldProjInstWhenInstances? e) fun fInfo fLvls => do
+    | .app f _ => do
+      let .const fName fLvls := f.getAppFn | unfoldProjInstWhenInstances? e
+      match (← getUnfoldableConst? fName) with
+      | none => unfoldProjInstWhenInstances? e
+      | some fInfo => do
         if fInfo.levelParams.length != fLvls.length then
           return none
         else
           let unfoldDefault (_ : Unit) : MetaM (Option Expr) := do
-            if fInfo.hasValue then
-              recordUnfold fInfo.name
-              deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
-            else
-              return none
+            recordUnfold fInfo.name
+            deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
@@ -782,7 +776,6 @@ mutual
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
           (fun e => do recordUnfold declName; pure (some e))
@@ -816,7 +809,9 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
     return none
   else match (← reduceMatcher? e) with
     | .reduced e => return e
-    | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls => do
+    | _ =>
+      let .const cname lvls := e.getAppFn | return none
+      let some cinfo := (← getEnv).find? cname | return none
       match cinfo with
       | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))

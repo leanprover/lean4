@@ -7,6 +7,7 @@ Author: Markus Himmel, Sofia Rodrigues
 #include <pthread.h>
 
 #include "runtime/libuv.h"
+#include "runtime/object.h"
 
 #include "runtime/object.h"
 
@@ -102,6 +103,8 @@ extern "C" lean_obj_res lean_uv_initialize() {
 
     return lean_io_result_mk_ok(lean_box(0));
 }
+
+using namespace lean;
 
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_unsigned_to_nat(uv_version());

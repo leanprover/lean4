@@ -249,9 +249,7 @@ Finds the first index of a given value in a vector using `==` for comparison. Re
 no element of the index matches the given value.
 -/
 @[inline] def indexOf? [BEq α] (v : Vector α n) (x : α) : Option (Fin n) :=
-  match v.toArray.indexOf? x with
-  | some res => some (res.cast v.size_toArray)
-  | none => none
+  (v.toArray.indexOf? x).map (Fin.cast v.size_toArray)
 
 /-- Returns `true` when `v` is a prefix of the vector `w`. -/
 @[inline] def isPrefixOf [BEq α] (v : Vector α m) (w : Vector α n) : Bool :=

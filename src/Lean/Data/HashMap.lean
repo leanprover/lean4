@@ -277,4 +277,23 @@ attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] mkHashMap
 attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] HashMap.empty
 attribute [deprecated Std.HashMap.ofList (since := "2024-08-08")] HashMap.ofList
 
+attribute [deprecated Std.HashMap.insert (since := "2024-08-08")] HashMap.insert
+attribute [deprecated Std.HashMap.containsThenInsert (since := "2024-08-08")] HashMap.insert'
+attribute [deprecated Std.HashMap.insertIfNew (since := "2024-08-08")] HashMap.insertIfNew
+attribute [deprecated Std.HashMap.erase (since := "2024-08-08")] HashMap.erase
+attribute [deprecated "Use `m[k]?` instead." (since := "2024-08-08")] HashMap.findEntry?
+attribute [deprecated "Use `m[k]?` instead." (since := "2024-08-08")] HashMap.find?
+attribute [deprecated "Use `m[k]?.getD` instead." (since := "2024-08-08")] HashMap.findD
+attribute [deprecated "Use `m[k]!` instead." (since := "2024-08-08")] HashMap.find!
+attribute [deprecated Std.HashMap.contains (since := "2024-08-08")] HashMap.contains
+attribute [deprecated Std.HashMap.foldM (since := "2024-08-08")] HashMap.foldM
+attribute [deprecated Std.HashMap.fold (since := "2024-08-08")] HashMap.fold
+attribute [deprecated Std.HashMap.forM (since := "2024-08-08")] HashMap.forM
+attribute [deprecated Std.HashMap.size (since := "2024-08-08")] HashMap.size
+attribute [deprecated Std.HashMap.isEmpty (since := "2024-08-08")] HashMap.isEmpty
+attribute [deprecated Std.HashMap.toList (since := "2024-08-08")] HashMap.toList
+attribute [deprecated Std.HashMap.toArray (since := "2024-08-08")] HashMap.toArray
+attribute [deprecated "Deprecateed without a replacement." (since := "2024-08-08")] HashMap.numBuckets
+attribute [deprecated "Deprecateed without a replacement." (since := "2024-08-08")] HashMap.ofListWith
+
 end Lean.HashMap

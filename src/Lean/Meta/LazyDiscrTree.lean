@@ -566,9 +566,9 @@ Append results to array
 partial def appendResultsAux (mr : MatchResult α) (a : Array β) (f : Nat → α → β) : Array β :=
   let aa := mr.elts
   let n := aa.size
-  Nat.fold (n := n) (init := a) fun i r =>
+  Nat.fold (n := n) (init := a) fun i _ r =>
     let j := n-1-i
-    let b := aa[j]!
+    let b := aa[j]
     b.foldl (init := r) (· ++ ·.map (f j))
 
 partial def appendResults (mr : MatchResult α) (a : Array α) : Array α :=

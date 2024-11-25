@@ -346,6 +346,10 @@ theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
   · rfl
   · omega
 
+theorem getElem_sub {i : Nat} {x y : BitVec w} (h : i < w) :
+    (x - y)[i] = (x[i] ^^ ((~~~y + 1#w)[i] ^^ carry i x (~~~y + 1#w) false)) := by
+  simp [← getLsbD_eq_getElem, getLsbD_sub, h]
+
 theorem msb_sub {x y: BitVec w} :
     (x - y).msb
       = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
@@ -409,6 +413,10 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
   · have h_ge : w ≤ i := by omega
     simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+
+theorem getElem_neg {i : Nat} {x : BitVec w} (h : i < w) :
+    (-x)[i] = (x[i] ^^ decide (∃ j < i, x.getLsbD j = true)) := by
+  simp [← getLsbD_eq_getElem, getLsbD_neg, h]
 
 theorem getMsbD_neg {i : Nat} {x : BitVec w} :
     getMsbD (-x) i =

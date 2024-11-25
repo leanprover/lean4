@@ -27,7 +27,7 @@ def _root_.Lean.MVarId.clear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId 
       throwTacticEx `clear mvarId m!"target depends on '{mkFVar fvarId}'"
     let lctx := lctx.erase fvarId
     let localInsts ← getLocalInstances
-    let localInsts := match localInsts.findIdx? fun localInst => localInst.fvar.fvarId! == fvarId with
+    let localInsts := match localInsts.findFinIdx? fun localInst => localInst.fvar.fvarId! == fvarId with
       | none => localInsts
       | some idx => localInsts.eraseIdx idx
     let newMVar ← mkFreshExprMVarAt lctx localInsts mvarDecl.type MetavarKind.syntheticOpaque tag

@@ -255,8 +255,8 @@ private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
-  for i in [:paramInfo.size] do
-    let info := paramInfo[i]!
+  for h : i in [:paramInfo.size] do
+    let info := paramInfo[i]
     let a₁ := args₁[i]!
     let a₂ := args₂[i]!
     if info.dependsOnHigherOrderOutParam || info.higherOrderOutParam then
@@ -939,29 +939,6 @@ def check (hasCtxLocals : Bool) (mctx : MetavarContext) (lctx : LocalContext) (m
 
 end CheckAssignmentQuick
 
-/--
-Auxiliary function used at `typeOccursCheckImp`.
-Given `type`, it tries to eliminate "dependencies". For example, suppose we are trying to
-perform the assignment `?m := f (?n a b)` where
-```
-?n : let k := g ?m; A -> h k ?m -> C
-```
-If we just perform occurs check `?m` at the type of `?n`, we get a failure, but
-we claim these occurrences are ok because the type `?n a b : C`.
-In the example above, `typeOccursCheckImp` invokes this function with `n := 2`.
-Note that we avoid using `whnf` and `inferType` at `typeOccursCheckImp` to minimize the
-performance impact of this extra check.
-
-See test `typeOccursCheckIssue.lean` for an example where this refinement is needed.
-The test is derived from a Mathlib file.
--/
-private partial def skipAtMostNumBinders (type : Expr) (n : Nat) : Expr :=
-  match type, n with
-  | .forallE _ _ b _, n+1 => skipAtMostNumBinders b n
-  | .mdata _ b,       n   => skipAtMostNumBinders b n
-  | .letE _ _ v b _,  n   => skipAtMostNumBinders (b.instantiate1 v) n
-  | type,             _   => type
-
 /-- `typeOccursCheck` implementation using unsafe (i.e., pointer equality) features. -/
 private unsafe def typeOccursCheckImp (mctx : MetavarContext) (mvarId : MVarId) (v : Expr) : Bool :=
   if v.hasExprMVar then
@@ -982,19 +959,11 @@ where
     -- this function assumes all assigned metavariables have already been
     -- instantiated.
     go.run' mctx
-  visitMVar (mvarId' : MVarId) (numArgs : Nat := 0) : Bool :=
+  visitMVar (mvarId' : MVarId) : Bool :=
     if let some mvarDecl := mctx.findDecl? mvarId' then
-      occursCheck (skipAtMostNumBinders mvarDecl.type numArgs)
+      occursCheck mvarDecl.type
     else
       false
-  visitApp (e : Expr) : StateM (PtrSet Expr) Bool :=
-    e.withApp fun f args => do
-      unless (← args.allM visit) do
-        return false
-      if f.isMVar then
-        return visitMVar f.mvarId! args.size
-      else
-        visit f
   visit (e : Expr) : StateM (PtrSet Expr) Bool := do
     if !e.hasExprMVar then
       return true
@@ -1003,7 +972,7 @@ where
     else match e with
       | .mdata _ b       => visit b
       | .proj _ _ s      => visit s
-      | .app ..          => visitApp e
+      | .app f a         => visit f <&&> visit a
       | .lam _ d b _     => visit d <&&> visit b
       | .forallE _ d b _ => visit d <&&> visit b
       | .letE _ t v b _  => visit t <&&> visit v <&&> visit b
@@ -1387,15 +1356,21 @@ private abbrev unfold (e : Expr) (failK : MetaM α) (successK : Expr → MetaM �
 /-- Auxiliary method for isDefEqDelta -/
 private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
   match t, s with
-  | Expr.const _ ls₁, Expr.const _ ls₂ => isListLevelDefEq ls₁ ls₂
-  | Expr.app _ _,     Expr.app _ _     =>
+  | .const _ ls₁, .const _ ls₂ =>
+    match (← isListLevelDefEq ls₁ ls₂) with
+    | .true => return .true
+    | _ =>
+    unfold t (pure .undef) fun t =>
+    unfold s (pure .undef) fun s =>
+      isDefEqLeftRight fn t s
+  | .app _ _,     .app _ _     =>
     if (← tryHeuristic t s) then
-      pure LBool.true
+      return .true
     else
       unfold t
-       (unfold s (pure LBool.undef) (fun s => isDefEqRight fn t s))
+       (unfold s (pure .undef) fun s => isDefEqRight fn t s)
        (fun t => unfold s (isDefEqLeft fn t s) (fun s => isDefEqLeftRight fn t s))
-  | _, _ => pure LBool.false
+  | _, _ => return .false
 
 private def sameHeadSymbol (t s : Expr) : Bool :=
   match t.getAppFn, s.getAppFn with
@@ -1674,11 +1649,12 @@ private partial def isDefEqQuick (t s : Expr) : MetaM LBool :=
   -- | Expr.mdata _ t _,    s                   => isDefEqQuick t s
   -- | t,                   Expr.mdata _ s _    => isDefEqQuick t s
   | .fvar fvarId₁, .fvar fvarId₂ => do
-    if (← fvarId₁.isLetVar <||> fvarId₂.isLetVar) then
-      return LBool.undef
-    else if fvarId₁ == fvarId₂ then
-      return LBool.true
+    if fvarId₁ == fvarId₂ then
+      return .true
+    else if (← fvarId₁.isLetVar <||> fvarId₂.isLetVar) then
+      return .undef
     else
+      -- If `t` and `s` are not proofs or let-variables, we still return `.undef` and let other rules (e.g., unit-like) kick in.
       isDefEqProofIrrel t s
   | t, s =>
     isDefEqQuickOther t s

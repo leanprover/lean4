@@ -1,2 +1,2 @@
-#eval Array.insertAt
-                  --^ textDocument/completion
+#eval Array.insertIdx
+                   --^ textDocument/completion

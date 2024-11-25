@@ -1255,7 +1255,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_4);
 x_19 = !lean_is_exclusive(x_12);
 if (x_19 == 0)
 {
@@ -1311,7 +1310,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_4);
 x_19 = !lean_is_exclusive(x_12);
 if (x_19 == 0)
 {
@@ -3009,6 +3007,7 @@ lean_dec(x_2);
 x_14 = lean_unbox(x_3);
 lean_dec(x_3);
 x_15 = l_Lean_Meta_reduce_visit___lambda__2(x_12, x_13, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_4);
 return x_15;
 }
 }
@@ -3023,6 +3022,7 @@ lean_dec(x_2);
 x_14 = lean_unbox(x_3);
 lean_dec(x_3);
 x_15 = l_Lean_Meta_reduce_visit___lambda__3(x_12, x_13, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_4);
 return x_15;
 }
 }

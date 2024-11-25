@@ -17,7 +17,7 @@ open Lean.Parser.Command
 private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
   | stx => match stx with
   | `($id:ident) =>
-    if (vars.findIdx? (fun var => var.getId == id.getId)).isSome then
+    if vars.any (fun var => var.getId == id.getId) then
       mkAntiquotNode id (kind := `term) (isPseudoKind := true)
     else
       stx

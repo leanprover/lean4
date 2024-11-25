@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forMAux___at_Lean_MVarId_clear__
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
-lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_MVarId_tryClearMany_x27___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_MVarId_clear___spec__21(lean_object*, lean_object*, size_t, size_t);
@@ -91,11 +90,12 @@ lean_object* l_Lean_Meta_saveState___rarg(lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_MVarId_clear___spec__9___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_clear___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
+lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_MVarId_clear___spec__12(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_MVarId_clear___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_forM___at_Lean_MVarId_clear___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_findFinIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_exprDependsOn___at_Lean_MVarId_clear___spec__7___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_MVarId_clear___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_localDeclDependsOn___at_Lean_FVarId_hasForwardDeps___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3028,7 +3028,7 @@ lean_dec(x_13);
 x_16 = lean_alloc_closure((void*)(l_Lean_MVarId_clear___lambda__1___boxed), 2, 1);
 lean_closure_set(x_16, 0, x_2);
 x_17 = lean_unsigned_to_nat(0u);
-x_18 = l_Array_findIdx_x3f_loop___rarg(x_16, x_14, x_17);
+x_18 = l_Array_findFinIdx_x3f_loop___rarg(x_16, x_14, x_17);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
@@ -3072,7 +3072,7 @@ lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_obje
 x_30 = lean_ctor_get(x_18, 0);
 lean_inc(x_30);
 lean_dec(x_18);
-x_31 = l_Array_eraseIdx___rarg(x_14, x_30);
+x_31 = l_Array_eraseIdx___rarg(x_14, x_30, lean_box(0));
 x_32 = 2;
 x_33 = l_Lean_Meta_mkFreshExprMVarAt(x_12, x_31, x_3, x_32, x_4, x_17, x_7, x_8, x_9, x_10, x_15);
 x_34 = lean_ctor_get(x_33, 0);

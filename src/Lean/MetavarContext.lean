@@ -248,9 +248,7 @@ instance : Hashable LocalInstance where
 
 /-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
 def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  match localInsts.findIdx? (fun inst => inst.fvar.fvarId! == fvarId) with
-  | some idx => localInsts.eraseIdx idx
-  | _        => localInsts
+  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
 
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/
@@ -981,10 +979,10 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
   else
     if (← preserveOrder) then
       -- Make sure toRevert[j] does not depend on toRevert[i] for j < i
-      toRevert.size.forM fun i => do
-        let fvar := toRevert[i]!
-        i.forM fun j => do
-          let prevFVar := toRevert[j]!
+      toRevert.size.forM fun i _ => do
+        let fvar := toRevert[i]
+        i.forM fun j _ => do
+          let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar
           if (← localDeclDependsOn prevDecl fvar.fvarId!) then
             throw (Exception.revertFailure (← getMCtx) lctx toRevert prevDecl.userName.toString)
@@ -992,7 +990,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
     let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
     let initSize         := newToRevert.size
     lctx.foldlM (init := newToRevert) (start := firstDeclToVisit.index) fun (newToRevert : Array Expr) decl => do
-      if initSize.any fun i => decl.fvarId == newToRevert[i]!.fvarId! then
+      if initSize.any fun i _ => decl.fvarId == newToRevert[i]!.fvarId! then
         return newToRevert
       else if toRevert.any fun x => decl.fvarId == x.fvarId! then
         return newToRevert.push decl.toExpr
@@ -1061,10 +1059,10 @@ mutual
 
     Note: It is assumed that `xs` is the result of calling `collectForwardDeps` on a subset of variables in `lctx`.
   -/
-  private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
+  private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) (usedLetOnly : Bool) : M Expr := do
     let e ← abstractRangeAux xs xs.size e
-    xs.size.foldRevM (init := e) fun i e => do
-      let x := xs[i]!
+    xs.size.foldRevM (init := e) fun i _ e => do
+      let x := xs[i]
       if x.isFVar then
         match lctx.getFVar! x with
         | LocalDecl.cdecl _ _ n type bi _ =>
@@ -1072,16 +1070,25 @@ mutual
           let type ← abstractRangeAux xs i type
           return Lean.mkForall n bi type e
         | LocalDecl.ldecl _ _ n type value nonDep _ =>
-          let type := type.headBeta
-          let type  ← abstractRangeAux xs i type
-          let value ← abstractRangeAux xs i value
-          let e := mkLet n type value e nonDep
-          match kind with
-          | MetavarKind.syntheticOpaque =>
-            -- See "Gruesome details" section in the beginning of the file
-            let e := e.liftLooseBVars 0 1
-            return mkForall n BinderInfo.default type e
-          | _ => pure e
+          if !usedLetOnly || e.hasLooseBVar 0 then
+            let type := type.headBeta
+            let type  ← abstractRangeAux xs i type
+            let value ← abstractRangeAux xs i value
+            let e := mkLet n type value e nonDep
+            match kind with
+            | MetavarKind.syntheticOpaque =>
+              -- See "Gruesome details" section in the beginning of the file
+              let e := e.liftLooseBVars 0 1
+              return mkForall n BinderInfo.default type e
+            | _ => pure e
+          else
+            match kind with
+            | MetavarKind.syntheticOpaque =>
+              let type := type.headBeta
+              let type  ← abstractRangeAux xs i type
+              return mkForall n BinderInfo.default type e
+            | _ =>
+              return e.lowerLooseBVars 1 1
       else
         -- `xs` may contain metavariables as "may dependencies" (see `findExprDependsOn`)
         let mvarDecl := (← get).mctx.getDecl x.mvarId!
@@ -1101,7 +1108,7 @@ mutual
 
     See details in the comment at the top of the file.
   -/
-  private partial def elimMVar (xs : Array Expr) (mvarId : MVarId) (args : Array Expr) : M (Expr × Array Expr) := do
+  private partial def elimMVar (xs : Array Expr) (mvarId : MVarId) (args : Array Expr) (usedLetOnly : Bool) : M (Expr × Array Expr) := do
     let mvarDecl  := (← getMCtx).getDecl mvarId
     let mvarLCtx  := mvarDecl.lctx
     let toRevert  := getInScope mvarLCtx xs
@@ -1129,7 +1136,7 @@ mutual
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
       -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
-      let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
+      let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type usedLetOnly
       let newMVarId    := { name := (← get).ngen.curr }
       let newMVar      := mkMVar newMVarId
       let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
@@ -1170,7 +1177,8 @@ mutual
         if (← read).mvarIdsToAbstract.contains mvarId then
           return mkAppN f (← args.mapM (visit xs))
         else
-          return (← elimMVar xs mvarId args).1
+          -- We set `usedLetOnly := true` to avoid unnecessary let binders in the new metavariable type.
+          return (← elimMVar xs mvarId args (usedLetOnly := true)).1
     | _ =>
       return mkAppN (← visit xs f) (← args.mapM (visit xs))
 
@@ -1192,7 +1200,9 @@ partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M Expr :=
 -/
 partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) :=
   withFreshCache do
-    elimMVar xs mvarId #[]
+    -- We set `usedLetOnly := false`, because in the `revert` tactic
+    -- we expect that reverting a let variable always results in a let binder.
+    elimMVar xs mvarId #[] (usedLetOnly := false)
 
 /--
   Similar to `Expr.abstractRange`, but handles metavariables correctly.
@@ -1221,8 +1231,8 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
   If `usedLetOnly == true` then `let` expressions are created only for used (let-) variables. -/
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e
-  xs.size.foldRevM (init := e) fun i e => do
-      let x := xs[i]!
+  xs.size.foldRevM (init := e) fun i _ e => do
+      let x := xs[i]
       if x.isFVar then
         match lctx.getFVar! x with
         | LocalDecl.cdecl _ _ n type bi _ =>

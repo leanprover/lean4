@@ -160,10 +160,10 @@ static lean_object* l_Lean_Linter_constructorNameAsVariable___elambda__1___close
 static lean_object* l_Lean_Linter_constructorNameAsVariable___elambda__1___closed__4;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_1342_(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__9___closed__1;
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_1340_(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_constructorNameAsVariable___elambda__1___spec__15___closed__3;
@@ -4108,7 +4108,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_1340_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_1342_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -4225,7 +4225,7 @@ l_Lean_Linter_constructorNameAsVariable___closed__3 = _init_l_Lean_Linter_constr
 lean_mark_persistent(l_Lean_Linter_constructorNameAsVariable___closed__3);
 l_Lean_Linter_constructorNameAsVariable = _init_l_Lean_Linter_constructorNameAsVariable();
 lean_mark_persistent(l_Lean_Linter_constructorNameAsVariable);
-if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_1340_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_1342_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

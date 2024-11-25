@@ -6,50 +6,51 @@ Author: Leonardo de Moura
 prelude
 import Init.Control.Basic
 import Init.Data.Nat.Basic
+import Init.Omega
 
 namespace Nat
 universe u v
 
-@[inline] def forM {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
-  let rec @[specialize] loop
-    | 0   => pure ()
-    | i+1 => do f (n-i-1); loop i
-  loop n
+@[inline] def forM {m} [Monad m] (n : Nat) (f : (i : Nat) → i < n → m Unit) : m Unit :=
+  let rec @[specialize] loop : ∀ i, i ≤ n → m Unit
+    | 0,   _ => pure ()
+    | i+1, h => do f (n-i-1) (by omega); loop i (Nat.le_of_succ_le h)
+  loop n (by simp)
 
-@[inline] def forRevM {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
-  let rec @[specialize] loop
-    | 0   => pure ()
-    | i+1 => do f i; loop i
-  loop n
+@[inline] def forRevM {m} [Monad m] (n : Nat) (f : (i : Nat) → i < n → m Unit) : m Unit :=
+  let rec @[specialize] loop : ∀ i, i ≤ n → m Unit
+    | 0,   _ => pure ()
+    | i+1, h => do f i (by omega); loop i (Nat.le_of_succ_le h)
+  loop n (by simp)
 
-@[inline] def foldM {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (init : α) (n : Nat) : m α :=
-  let rec @[specialize] loop
-    | 0,   a => pure a
-    | i+1, a => f (n-i-1) a >>= loop i
-  loop n init
+@[inline] def foldM {α : Type u} {m : Type u → Type v} [Monad m] (n : Nat) (f : (i : Nat) → i < n → α → m α) (init : α) : m α :=
+  let rec @[specialize] loop : ∀ i, i ≤ n → α → m α
+    | 0,   h, a => pure a
+    | i+1, h, a => f (n-i-1) (by omega) a >>= loop i (Nat.le_of_succ_le h)
+  loop n (by omega) init
 
-@[inline] def foldRevM {α : Type u} {m : Type u → Type v} [Monad m] (f : Nat → α → m α) (init : α) (n : Nat) : m α :=
-  let rec @[specialize] loop
-    | 0,   a => pure a
-    | i+1, a => f i a >>= loop i
-  loop n init
+@[inline] def foldRevM {α : Type u} {m : Type u → Type v} [Monad m] (n : Nat) (f : (i : Nat) → i < n → α → m α) (init : α) : m α :=
+  let rec @[specialize] loop : ∀ i, i ≤ n → α → m α
+    | 0,   h, a => pure a
+    | i+1, h, a => f i (by omega) a >>= loop i (Nat.le_of_succ_le h)
+  loop n (by omega) init
 
-@[inline] def allM {m} [Monad m] (n : Nat) (p : Nat → m Bool) : m Bool :=
-  let rec @[specialize] loop
-    | 0   => pure true
-    | i+1 => do
-      match (← p (n-i-1)) with
-      | true  => loop i
+@[inline] def allM {m} [Monad m] (n : Nat) (p : (i : Nat) → i < n → m Bool) : m Bool :=
+  let rec @[specialize] loop : ∀ i, i ≤ n → m Bool
+    | 0,   _ => pure true
+    | i+1 , h => do
+      match (← p (n-i-1) (by omega)) with
+      | true  => loop i (by omega)
       | false => pure false
-  loop n
+  loop n (by simp)
 
-@[inline] def anyM {m} [Monad m] (n : Nat) (p : Nat → m Bool) : m Bool :=
-  let rec @[specialize] loop
-    | 0   => pure false
-    | i+1 => do
-      match (← p (n-i-1)) with
+@[inline] def anyM {m} [Monad m] (n : Nat) (p : (i : Nat) → i < n → m Bool) : m Bool :=
+  let rec @[specialize] loop : ∀ i, i ≤ n → m Bool
+    | 0,   _ => pure false
+    | i+1, h => do
+      match (← p (n-i-1) (by omega)) with
       | true  => pure true
-      | false => loop i
-  loop n
+      | false => loop i (Nat.le_of_succ_le h)
+  loop n (by simp)
 
 end Nat

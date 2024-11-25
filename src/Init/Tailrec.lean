@@ -15,11 +15,14 @@ class Order (α : Type u) where
   rel_trans : ∀ {x y z}, rel x y → rel y z → rel x z
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
 
+
 @[inherit_doc] infix:50 " ⊑ "  => Order.rel
 
 section Order
 
 variable {α  : Type u} [Order α]
+
+theorem Order.rel_of_eq {x y : α} (h : x = y) : x ⊑ y := by cases h; apply rel_refl
 
 def monotone (f : α → α) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
@@ -212,6 +215,13 @@ instance [∀ x, Order (β x)] : Order (∀ x, β x) where
   rel_trans hf hg x := rel_trans (hf x) (hg x)
   rel_antisymm hf hg := funext (fun x => rel_antisymm (hf x) (hg x))
 
+theorem cast_rel_cast' [∀ x, Order (β x)] {a b : α} (h : β a = β b) (x y : β a)
+    (hfg : x ⊑ y) : (h ▸ x ⊑ h ▸ y) := sorry
+
+theorem cast_rel_cast [∀ x, Order (β x)] {a b : α} (h : β a = β b) (f g : ∀ x, β x)
+    (hfg : f a ⊑ g a) : (h ▸ f a ⊑ h ▸ g a) := cast_rel_cast' h (f a) (g a) hfg
+
+
 theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
     chain (fun y => ∃ f, c f ∧ f x = y) := by
   intro _ _ ⟨f, hf, hfeq⟩ ⟨g, hg, hgeq⟩
@@ -241,6 +251,38 @@ instance [∀ x, Order (β x)] [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
       apply h z hz
 
 end fun_order
+
+section tailrec
+
+variable {α : Type u}
+variable {β : α → Type v}
+
+def tailrec (F : (∀ x, β x) → (∀ x, β x)) :=
+  ∀ x, (∀ f g, F f x = F g x) ∨ (∃ y, ∃ (h : β x = β y), ∀ f, F f x = h ▸ (f y))
+
+def monotone_of_tailrec (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) (htailrec : tailrec F) :
+    @monotone (∀ x, FlatOrder (w x)) _ F := by
+  intro f g hfg x
+  cases htailrec x
+  next hconst =>
+    apply Order.rel_of_eq
+    apply hconst
+  next hrec =>
+    obtain ⟨x', hbeta, hrec⟩ := hrec
+    rw [hrec f, hrec g]
+    specialize hfg x'
+    apply cast_rel_cast
+    apply hfg
+
+noncomputable
+def tailrec_fix (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) : ∀ x, β x :=
+  @fix (∀ x, FlatOrder (w x)) _ _ F
+
+theorem tailrec_fix_eq (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) (htailrec : tailrec F) :
+    tailrec_fix w F = F (tailrec_fix w F) :=
+  @fix_eq (∀ x, FlatOrder (w x)) _ _ F (monotone_of_tailrec w F htailrec)
+
+end tailrec
 
 
 end Lean.Tailrec

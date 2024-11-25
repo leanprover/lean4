@@ -791,6 +791,24 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
     · intro a
       simp
 
+@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
+    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
+
+theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
+  match l₁, l₂ with
+  | [], [] => rfl
+  | [], _ :: _ => by simp [beq_nil_iff] at h
+  | _ :: _, [] => by simp [nil_beq_iff] at h
+  | a :: l₁, b :: l₂ => by
+    simp at h
+    simpa [Nat.add_one_inj]using length_eq_of_beq h.2
+
 /-! ### Lexicographic ordering -/
 
 protected theorem lt_irrefl [LT α] (lt_irrefl : ∀ x : α, ¬x < x) (l : List α) : ¬l < l := by

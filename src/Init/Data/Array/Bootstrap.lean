@@ -23,7 +23,7 @@ theorem foldlM_toList.aux [Monad m]
   · cases Nat.not_le_of_gt ‹_› (Nat.zero_add _ ▸ H)
   · rename_i i; rw [Nat.succ_add] at H
     simp [foldlM_toList.aux f arr i (j+1) H]
-    rw (occs := .pos [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
+    rw (occs := [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
     rfl
   · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
 

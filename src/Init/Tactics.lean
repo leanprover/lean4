@@ -502,7 +502,7 @@ This provides a convenient way to unfold `e`.
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
 
-Using `rw (occs := .pos L) [e]` or `rw (occs := L) [e]`,
+Using `rw (occs := .pos L) [e]`,
 where `L : List Nat`, you can control which "occurrences" are rewritten.
 (This option applies to each rule, so usually this will only be used with a single rule.)
 Occurrences count from `1`.

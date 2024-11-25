@@ -23,6 +23,10 @@ where
       else
         a
 
+/-- Insert an element into an array, after the last element which is not `lt` the inserted element. -/
+def orderedInsert (a : Array α) (x : α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
+  insertionSort.swapLoop lt ⟨a.push x, rfl⟩ a.size (by simp) |>.toArray
+
 @[simp] theorem size_insertionSort (a : Array α) : (a.insertionSort lt).size = a.size := by
   simp [insertionSort]
 
@@ -34,10 +38,29 @@ theorem insertionSort_swapLoop_push {n} (a : Vector α n) (x : α) (j : Nat) (h 
     simp [insertionSort.swapLoop]
     split <;> rename_i h
     · rw [Vector.getElem_push_lt (by omega), Vector.getElem_push_lt (by omega)] at h
-      rw [Vector.swap_push]
-      simp [h]
+      rw [← Vector.push_swap, ih, if_pos h]
+    · rw [Vector.getElem_push_lt (by omega), Vector.getElem_push_lt (by omega)] at h
+      rw [if_neg h]
 
-    · sorry
+theorem swapLoop_cast {n m} (a : Vector α n) (j : Nat) (h : j < n) (h : n = m) :
+    insertionSort.swapLoop lt (a.cast h) j = (insertionSort.swapLoop lt a j).cast h := by
+  subst h
+  simp
 
+theorem insertionSort_push (a : Array α) (x : α) :
+    (a.push x).insertionSort lt =
+      (insertionSort.swapLoop lt ⟨(a.insertionSort lt).push x, rfl⟩ a.size (by simp)).toArray := by
+  rw [insertionSort]
+  rw [Nat.fold_congr (size_push a x)]
+  rw [Nat.fold]
+  have : (a.size.fold (fun i h acc => insertionSort.swapLoop lt acc i (by simp; omega)) ⟨a.push x, rfl⟩) =
+      ((a.size.fold (fun i h acc => insertionSort.swapLoop lt acc i h) ⟨a, rfl⟩).push x).cast (by simp) := by
+    sorry
+  rw [this]
+  simp [swapLoop_cast]
+  unfold insertionSort
+  simp [Vector.push]
+  congr
+  all_goals simp
 
 end Array

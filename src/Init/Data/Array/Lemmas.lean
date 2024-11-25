@@ -595,6 +595,20 @@ theorem getElem_set (a : Array α) (i : Nat) (h' : i < a.size) (v : α) (j : Nat
     (ne : i ≠ j) : (a.set i v)[j]? = a[j]? := by
   by_cases h : j < a.size <;> simp [getElem?_lt, getElem?_ge, Nat.ge_of_not_lt, ne, h]
 
+theorem push_set (a : Array α) (x y : α) {i : Nat} {hi} :
+    (a.set i x).push y = (a.push y).set i x (by simp; omega):= by
+  ext j h₁ h₂
+  · simp
+  · if h' : j = a.size then
+      rw [getElem_push, getElem_set_ne, dif_neg]
+      all_goals simp_all <;> omega
+    else
+      rw [getElem_push_lt, getElem_set, getElem_set]
+      split
+      · rfl
+      · rw [getElem_push_lt]
+      simp_all; omega
+
 /-! # setIfInBounds -/
 
 @[simp] theorem set!_is_setIfInBounds : @set! = @setIfInBounds := rfl
@@ -1689,6 +1703,11 @@ theorem swap_comm (a : Array α) {i j : Nat} {hi hj} : a.swap i j hi hj = a.swap
     split
     · split <;> simp_all
     · split <;> simp_all
+
+theorem push_swap (a : Array α) (x : α) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj).push x = (a.push x).swap i j (by simp; omega) (by simp; omega) := by
+  rw [swap_def, swap_def]
+  simp [push_set, getElem_push_lt, hi, hj]
 
 /-! ### eraseIdx -/
 

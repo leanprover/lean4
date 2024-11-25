@@ -64,6 +64,9 @@ protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i
 @[simp] theorem pop_mk {data : Array α} {size : data.size = n} :
     (Vector.mk data size).pop = Vector.mk data.pop (by simp [size]) := rfl
 
+@[simp] theorem swap_mk {data : Array α} {size : data.size = n} {i j : Nat} {hi hj} :
+    (Vector.mk data size).swap i j hi hj = Vector.mk (data.swap i j) (by simp_all) := rfl
+
 @[simp] theorem getElem_push_last {v : Vector α n} {x : α} : (v.push x)[n] = x := by
   rcases v with ⟨data, rfl⟩
   simp
@@ -92,6 +95,26 @@ defeq issues in the implicit size argument.
   · replace h : i = v.size - 1 := by rw [size_toArray]; omega
     subst h
     simp [pop, back, back!, ← Array.eq_push_pop_back!_of_size_ne_zero]
+
+theorem push_swap (a : Vector α n) (x : α) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj).push x = (a.push x).swap i j := by
+  cases a
+  simp [Array.push_swap]
+
+/-! ### cast -/
+
+@[simp] theorem cast_mk {n m} (a : Array α) (w : a.size = n) (h : n = m) :
+    (Vector.mk a w).cast h = ⟨a, h ▸ w⟩ := by
+  simp [Vector.cast]
+
+@[simp] theorem cast_refl {n} (a : Vector α n) : a.cast rfl = a := by
+  cases a
+  simp
+
+@[simp] theorem toArray_cast {n m} (a : Vector α n) (h : n = m) :
+    (a.cast h).toArray = a.toArray := by
+  subst h
+  simp
 
 /-! ### Decidable quantifiers. -/
 

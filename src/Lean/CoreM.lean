@@ -32,7 +32,7 @@ register_builtin_option maxHeartbeats : Nat := {
 }
 
 register_builtin_option Elab.async : Bool := {
-  defValue := false
+  defValue := true
   descr := "perform elaboration using multiple threads where possible"
 }
 

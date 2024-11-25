@@ -24,8 +24,6 @@ variable {α  : Type u} [Order α]
 
 theorem Order.rel_of_eq {x y : α} (h : x = y) : x ⊑ y := by cases h; apply rel_refl
 
-def monotone (f : α → α) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
-
 def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
 
 end Order
@@ -35,6 +33,21 @@ class CCPO (α : Type u) [Order α] where
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
 section CCPO
+
+section monotone
+
+variable {α : Type u} [Order α]
+variable {β : Type v} [Order β]
+
+def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
+
+theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
+  fun _ _ _ => Order.rel_refl
+
+theorem monotone_id : monotone (fun (x : α) => x) :=
+  fun _ _ hxy => hxy
+
+end monotone
 
 open Order CCPO
 
@@ -62,6 +75,7 @@ theorem bot_le (x : α) : ⊥ ⊑ x := by
   apply csup_le
   · intro x y hx hy; contradiction
   · intro x hx; contradiction
+
 
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
   intros x y hx hy
@@ -215,12 +229,20 @@ instance [∀ x, Order (β x)] : Order (∀ x, β x) where
   rel_trans hf hg x := rel_trans (hf x) (hg x)
   rel_antisymm hf hg := funext (fun x => rel_antisymm (hf x) (hg x))
 
+theorem monotone_of_monotone_apply [Order γ] [∀ x, Order (β x)] (f : γ → (∀ x, β x))
+  (h : ∀ x, monotone (f · x)) : monotone f :=
+  fun x y hxy z => h z x y hxy
+
+theorem monotone_of_apply_monotone [∀ x, Order (β x)] (x : α) :
+    monotone (fun (f : (∀ x, β x)) => f x) := fun _ _ hfg => hfg x
+
+/-
 theorem cast_rel_cast' [∀ x, Order (β x)] {a b : α} (h : β a = β b) (x y : β a)
     (hfg : x ⊑ y) : (h ▸ x ⊑ h ▸ y) := sorry
 
 theorem cast_rel_cast [∀ x, Order (β x)] {a b : α} (h : β a = β b) (f g : ∀ x, β x)
     (hfg : f a ⊑ g a) : (h ▸ f a ⊑ h ▸ g a) := cast_rel_cast' h (f a) (g a) hfg
-
+-/
 
 theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
     chain (fun y => ∃ f, c f ∧ f x = y) := by
@@ -257,6 +279,7 @@ section tailrec
 variable {α : Type u}
 variable {β : α → Type v}
 
+/-
 def tailrec (F : (∀ x, β x) → (∀ x, β x)) :=
   ∀ x, (∀ f g, F f x = F g x) ∨ (∃ y, ∃ (h : β x = β y), ∀ f, F f x = h ▸ (f y))
 
@@ -281,6 +304,27 @@ def tailrec_fix (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) : ∀ x,
 theorem tailrec_fix_eq (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) (htailrec : tailrec F) :
     tailrec_fix w F = F (tailrec_fix w F) :=
   @fix_eq (∀ x, FlatOrder (w x)) _ _ F (monotone_of_tailrec w F htailrec)
+-/
+
+def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=
+  if P x then
+    some x
+  else
+    rec (x +1)
+
+instance : Order (Option α) := inferInstanceAs (Order (FlatOrder none))
+noncomputable instance : CCPO (Option α) := inferInstanceAs (CCPO (FlatOrder none))
+
+noncomputable def find P := fix (findF P)
+
+theorem find_eq : find P = findF P (find P) := by
+  apply fix_eq
+  unfold findF
+  apply monotone_of_monotone_apply
+  intro n
+  split
+  · apply monotone_const
+  · apply monotone_of_apply_monotone
 
 end tailrec
 

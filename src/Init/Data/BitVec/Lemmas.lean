@@ -2665,11 +2665,9 @@ theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
       by_cases h₁ : n < w + 1
       · simp only [h₁, decide_true, Bool.true_and]
         have h₂ : (r + n) < 2 * (w + 1) := by omega
-        rw [Nat.mod_eq_sub_of_le_of_lt (n := 1)]
+        rw [Nat.mod_eq_sub_of_le_of_lt (n := 1) (by omega) (by omega)]
         congr 1
-        · omega
-        · omega
-        · omega
+        omega
       · simp [h₁]
 
 theorem getMsbD_rotateLeft {r n w : Nat} {x : BitVec w} :

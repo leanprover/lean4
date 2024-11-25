@@ -437,11 +437,6 @@ where
         traceState
       }
       let prom ← IO.Promise.new
-      -- The speedup of these `markPersistent`s is negligible but they help in making unexpected
-      -- `inc_ref_cold`s more visible
-      let parserState := Runtime.markPersistent parserState
-      let cmdState := Runtime.markPersistent cmdState
-      let ctx := Runtime.markPersistent ctx
       parseCmd none parserState cmdState prom (sync := true) ctx
       return {
         diagnostics
@@ -630,16 +625,24 @@ where
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
-    let mut infoTree := cmdState.infoState.trees[0]!
+    let mut infoTree : InfoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx
-    if cmdline then
-      infoTree := Runtime.markPersistent infoTree
+    if cmdline && !Elab.async.get scope.opts then
+      /-
+      Safety: `infoTree` was created by `elabCommandTopLevel`. Thus it
+      should not have any concurrent accesses if we are on the cmdline and
+      async elaboration is disabled.
+      -/
+      -- TODO: we should likely remove this call when `Elab.async` is turned on
+      -- by default
+      infoTree := unsafe Runtime.markPersistent infoTree
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := infoTree
       traces := cmdState.traceState
       cmdState := if cmdline then {
-        env := Runtime.markPersistent cmdState.env
+        /- Safety: as above -/
+        env := unsafe Runtime.markPersistent cmdState.env
         maxRecDepth := 0
       } else cmdState
     }

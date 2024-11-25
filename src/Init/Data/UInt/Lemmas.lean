@@ -10,12 +10,9 @@ import Init.Data.BitVec.Lemmas
 import Init.Data.BitVec.Bitblast
 
 set_option hygiene false in
-macro "declare_uint_theorems" typeName:ident : command =>
+macro "declare_uint_theorems" typeName:ident bits:term:arg : command =>
 `(
 namespace $typeName
-
-instance : Inhabited $typeName where
-  default := 0
 
 theorem zero_def : (0 : $typeName) = ⟨0⟩ := rfl
 theorem one_def : (1 : $typeName) = ⟨1⟩ := rfl
@@ -23,6 +20,14 @@ theorem sub_def (a b : $typeName) : a - b = ⟨a.toBitVec - b.toBitVec⟩ := rfl
 theorem mul_def (a b : $typeName) : a * b = ⟨a.toBitVec * b.toBitVec⟩ := rfl
 theorem mod_def (a b : $typeName) : a % b = ⟨a.toBitVec % b.toBitVec⟩ := rfl
 theorem add_def (a b : $typeName) : a + b = ⟨a.toBitVec + b.toBitVec⟩ := rfl
+
+@[simp] theorem toNat_mk : (mk a).toNat = a.toNat := rfl
+
+@[simp] theorem toNat_ofNat {n : Nat} : (ofNat n).toNat = n % 2 ^ $bits := BitVec.toNat_ofNat ..
+
+@[simp] theorem toNat_ofNatCore {n : Nat} {h : n < size} : (ofNatCore n h).toNat = n := BitVec.toNat_ofNatLt ..
+
+@[simp] theorem val_val_eq_toNat (x : $typeName) : x.val.val = x.toNat := rfl
 
 @[simp] theorem mk_toBitVec_eq : ∀ (a : $typeName), mk a.toBitVec = a
   | ⟨_, _⟩ => rfl
@@ -58,9 +63,17 @@ protected theorem toBitVec_eq_of_eq {a b : $typeName} (h : a = b) : a.toBitVec =
 protected theorem eq_of_toBitVec_eq {a b : $typeName} (h : a.toBitVec = b.toBitVec) : a = b := by
   cases a; cases b; simp_all
 
+open $typeName (eq_of_toBitVec_eq toBitVec_eq_of_eq) in
+protected theorem toBitVec_inj {a b : $typeName} : a.toBitVec = b.toBitVec ↔ a = b :=
+  Iff.intro eq_of_toBitVec_eq toBitVec_eq_of_eq
+
 open $typeName (eq_of_toBitVec_eq) in
 protected theorem eq_of_val_eq {a b : $typeName} (h : a.val = b.val) : a = b := by
   rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [val]
+
+open $typeName (eq_of_val_eq) in
+protected theorem val_inj {a b : $typeName} : a.val = b.val ↔ a = b :=
+  Iff.intro eq_of_val_eq (congrArg val)
 
 open $typeName (toBitVec_eq_of_eq) in
 protected theorem ne_of_toBitVec_ne {a b : $typeName} (h : a.toBitVec ≠ b.toBitVec) : a ≠ b :=
@@ -73,6 +86,12 @@ protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := by
   simpa [lt_def] using h
 
 @[simp] protected theorem toNat_zero : (0 : $typeName).toNat = 0 := Nat.zero_mod _
+
+@[simp] protected theorem toNat_add (a b : $typeName) : (a + b).toNat = (a.toNat + b.toNat) % 2 ^ $bits := BitVec.toNat_add ..
+
+@[simp] protected theorem toNat_sub (a b : $typeName) : (a - b).toNat = (2 ^ $bits - b.toNat + a.toNat) % 2 ^ $bits := BitVec.toNat_sub  ..
+
+@[simp] protected theorem toNat_mul (a b : $typeName) : (a * b).toNat = a.toNat * b.toNat % 2 ^ $bits := BitVec.toNat_mul  ..
 
 @[simp] protected theorem toNat_mod (a b : $typeName) : (a % b).toNat = a.toNat % b.toNat := BitVec.toNat_umod ..
 
@@ -113,6 +132,17 @@ protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b :
 protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
+protected theorem toNat_inj : ∀ {a b : $typeName}, a.toNat = b.toNat ↔ a = b :=
+  Iff.intro toNat.inj (congrArg toNat)
+
+open $typeName (toNat_inj) in
+protected theorem le_antisymm_iff {a b : $typeName} : a = b ↔ a ≤ b ∧ b ≤ a :=
+  toNat_inj.symm.trans Nat.le_antisymm_iff
+
+open $typeName (le_antisymm_iff) in
+protected theorem le_antisymm {a b : $typeName} (h₁ : a ≤ b) (h₂ : b ≤ a) : a = b :=
+  le_antisymm_iff.2 ⟨h₁, h₂⟩
+
 @[simp] protected theorem ofNat_one : ofNat 1 = 1 := rfl
 
 @[simp]
@@ -127,11 +157,13 @@ theorem mk_ofNat (n : Nat) : mk (BitVec.ofNat _ n) = OfNat.ofNat n := rfl
 end $typeName
 )
 
-declare_uint_theorems UInt8
-declare_uint_theorems UInt16
-declare_uint_theorems UInt32
-declare_uint_theorems UInt64
-declare_uint_theorems USize
+declare_uint_theorems UInt8 8
+declare_uint_theorems UInt16 16
+declare_uint_theorems UInt32 32
+declare_uint_theorems UInt64 64
+declare_uint_theorems USize System.Platform.numBits
+
+@[simp] theorem USize.toNat_ofNat32 {n : Nat} {h : n < 4294967296} : (ofNat32 n h).toNat = n := rfl
 
 theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat n) = n :=
   toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h le_usize_size)

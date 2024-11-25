@@ -90,16 +90,6 @@ class A (n : Nat) where
   x : Nat
 
 /-!
-"Top-level" dot notation. As a last resort, field notation looks for a top-level declaration or alias
-and supplies the value as the first explicit argument.
--/
-instance : ToString (A n) where
-  toString a := s!"A.x is {a.x}"
-
-/-- info: fun a => toString a : A 2 → String -/
-#guard_msgs in #check fun (a : A 2) => a.toString
-
-/-!
 Incidental fix: `@` for generalized field notation was failing if there were implicit arguments.
 True projections were ok.
 -/

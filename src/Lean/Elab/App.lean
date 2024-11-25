@@ -1140,9 +1140,8 @@ inductive LValResolution where
   | projIdx  (structName : Name) (idx : Nat)
   /-- When applied to `f`, effectively expands to `constName ... (Struct.toBase f)`, with the argument placed in the correct
   positional argument if possible, or otherwise as a named argument. The `Struct.toBase` is not present if `baseStructName == structName`,
-  in which case these do not need to be structures. Supports generalized field notation.
-  If `useFirstExplicit` is true, then `f` is inserted as the first explicit argument to `constName`. -/
-  | const    (baseStructName : Name) (structName : Name) (constName : Name) (useFirstExplicit : Bool := false)
+  in which case these do not need to be structures. Supports generalized field notation. -/
+  | const    (baseStructName : Name) (structName : Name) (constName : Name)
   /-- Like `const`, but with `fvar` instead of `constName`.
   The `fullName` is the name of the recursive function, and `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
@@ -1178,23 +1177,6 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
         return res
     return none
 
-private def findTopLevelMethod? (fieldName : Name) : MetaM (Option Name) := do
-  let env ← getEnv
-  if env.contains fieldName then
-    return some fieldName
-  let prvName := mkPrivateName env fieldName
-  if env.contains prvName then
-    return some prvName
-  -- There should be no `protected` top-level aliases, but no need to filter.
-  let aliasCandidates := getAliases env fieldName (skipProtected := false)
-  match aliasCandidates with
-  | [] => pure ()
-  | [alias] => return some alias
-  | _ => throwError "\
-    invalid field notation '{fieldName}', the name '{fieldName}' is ambigous, possible interpretations: \
-    {MessageData.joinSep (aliasCandidates.map (m!"'{.ofConstName ·}'")) ", "}"
-  return none
-
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
   throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
 
@@ -1204,7 +1186,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     | LVal.fieldName _ fieldName _ _ =>
       let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
-        return LValResolution.const `Function `Function fullName (useFirstExplicit := true)
+        return LValResolution.const `Function `Function fullName
     | _ => pure ()
   match eType.getAppFn.constName?, lval with
   | some structName, LVal.fieldIdx _ idx =>
@@ -1240,11 +1222,6 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    -- Otherwise search for a top-level declaration named `fieldName`.
-    -- We only do this if `eType` does not unfold so that this is done as a last resort (`resolveLValLoop` loops so long as the type unfolds).
-    if (← unfoldDefinition? eType).isNone then
-      if let some fullName ← findTopLevelMethod? (.mkSimple fieldName) then
-        return LValResolution.const structName structName fullName (useFirstExplicit := true)
     throwLValError e eType
       m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
   | none, LVal.fieldName _ _ (some suffix) _ =>
@@ -1326,8 +1303,7 @@ Otherwise, if there isn't another parameter with the same name, we add `e` to `n
 
 Remark: `fullName` is the name of the resolved "field" access function. It is used for reporting errors
 -/
-private partial def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr)
-    (explicit : Bool) (useFirstExplicit : Bool := false) :
+private partial def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr) (explicit : Bool) :
     MetaM (Array Arg × Array NamedArg) := do
   withoutModifyingState <| go f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
 where
@@ -1352,7 +1328,7 @@ where
         /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
         remainingNamedArgs := remainingNamedArgs.eraseIdx idx
       else
-        if ← (pure <| useFirstExplicit && bInfo.isExplicit) <||> typeMatchesBaseName xDecl.type baseName then
+        if ← typeMatchesBaseName xDecl.type baseName then
           /- We found a type of the form (baseName ...), or we found the first explicit argument in useFirstExplicit mode.
              First, we check if the current argument is one that can be used positionally,
              and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
@@ -1422,12 +1398,12 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       else
         let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f, suppressDeps := true }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
-    | LValResolution.const baseStructName structName constName useFirstExplicit =>
+    | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
-        let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFn explicit useFirstExplicit
+        let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFn explicit
         elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
         let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)

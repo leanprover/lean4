@@ -3196,7 +3196,7 @@ theorem toInt_abs {x : BitVec w} : x.abs.toInt =
 
 /-
 The absolute value of `(x : BitVec w)`, when interpreted as an integer,
-is the absolute value of `x.toInt` when `(x ≠ intMin)`
+is the absolute value of `x.toInt` when `(x ≠ intMin)`.
 -/
 theorem toInt_abs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
     x.abs.toInt = x.toInt.natAbs := by

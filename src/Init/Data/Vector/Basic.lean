@@ -215,7 +215,7 @@ Compares two vectors of the same size using a given boolean relation `r`. `isEqv
 `true` if and only if `r v[i] w[i]` is true for all indices `i`.
 -/
 @[inline] def isEqv (v w : Vector α n) (r : α → α → Bool) : Bool :=
-  Array.isEqvAux v.toArray w.toArray (by simp) r 0 (by simp)
+  Array.isEqvAux v.toArray w.toArray (by simp) r n (by simp)
 
 instance [BEq α] : BEq (Vector α n) where
   beq a b := isEqv a b (· == ·)

@@ -282,8 +282,8 @@ where
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goType tArg dArg)
-      for i in [info.numParams : tArgs.size] do
-        let tArg := tArgs[i]!
+      for h : i in [info.numParams : tArgs.size] do
+        let tArg := tArgs[i]
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goIndex tArg dArg)

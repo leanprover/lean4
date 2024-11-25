@@ -36,7 +36,7 @@ def mkEmpty (capacity : Nat) : RBDict α β cmp :=
 def ofArray (items : Array (α × β)) : RBDict α β cmp := Id.run do
   let mut indices := mkRBMap α Nat cmp
   for h : i in [0:items.size] do
-    indices := indices.insert (items[i]'h.upper).1 i
+    indices := indices.insert items[i].1 i
   return {items, indices}
 
 protected def beq [BEq (α × β)] (self other : RBDict α β cmp) : Bool :=

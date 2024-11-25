@@ -29,13 +29,13 @@ def decodeUri (uri : String) : String := Id.run do
   let len := rawBytes.size
   let mut i := 0
   let percent := '%'.toNat.toUInt8
-  while i < len do
-    let c := rawBytes[i]!
-    (decoded, i) := if c == percent && i + 1 < len then
-      let h1 := rawBytes[i + 1]!
+  while h : i < len do
+    let c := rawBytes[i]
+    (decoded, i) := if h₁ : c == percent ∧ i + 1 < len then
+      let h1 := rawBytes[i + 1]
       if let some hd1 := hexDigitToUInt8? h1 then
-        if i + 2 < len then
-          let h2 := rawBytes[i + 2]!
+        if h₂ : i + 2 < len then
+          let h2 := rawBytes[i + 2]
           if let some hd2 := hexDigitToUInt8? h2 then
             -- decode the hex digits into a byte.
             (decoded.push (hd1 * 16 + hd2), i + 3)

@@ -244,8 +244,8 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
     formatAux nCtx ctx? msg
 
-protected def format (msgData : MessageData) : IO Format :=
-  formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
+protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : IO Format :=
+  formatAux { currNamespace := Name.anonymous, openDecls := [] } ctx? msgData
 
 protected def toString (msgData : MessageData) : IO String := do
   return toString (← msgData.format)

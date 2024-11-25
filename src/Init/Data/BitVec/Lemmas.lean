@@ -1481,6 +1481,12 @@ theorem getLsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
   simp only [BitVec.sshiftRight', BitVec.getLsbD_sshiftRight]
 
 @[simp]
+theorem getElem_sshiftRight' {x y : BitVec w} {i : Nat} (h : i < w) :
+    (x.sshiftRight' y)[i] =
+      (!decide (w ≤ i) && if y.toNat + i < w then x.getLsbD (y.toNat + i) else x.msb) := by
+  simp only [← getLsbD_eq_getElem, BitVec.sshiftRight', BitVec.getLsbD_sshiftRight]
+
+@[simp]
 theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
     (x.sshiftRight y.toNat).getMsbD i = (decide (i < w) && if i < y.toNat then x.msb else x.getMsbD (i - y.toNat)) := by
   simp only [BitVec.sshiftRight', getMsbD, BitVec.getLsbD_sshiftRight]
@@ -2638,7 +2644,6 @@ theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
       if h' : i < r % w then x[(w - (r % w) + i)] else x[i - (r % w)] := by
   simp [← BitVec.getLsbD_eq_getElem, h]
 
-
 theorem getMsbD_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} {i : Nat} (hi : i < w - r) :
     (x.rotateLeftAux r).getMsbD i = x.getMsbD (r + i) := by
   rw [rotateLeftAux, getMsbD_or]
@@ -2660,7 +2665,7 @@ theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
       by_cases h₁ : n < w + 1
       · simp only [h₁, decide_true, Bool.true_and]
         have h₂ : (r + n) < 2 * (w + 1) := by omega
-        rw [mod_eq_sub_of_le_of_lt (by omega) (by omega)]
+        rw [Nat.mod_eq_sub_of_le_of_lt (n := 1) (by omega) (by omega)]
         congr 1
         omega
       · simp [h₁]
@@ -3283,7 +3288,11 @@ theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat els
   · simp [h]
 
 theorem getLsbD_abs {i : Nat} {x : BitVec w} :
-   getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
+    getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
+  by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+theorem getElem_abs {i : Nat} {x : BitVec w} (h : i < w) :
+    x.abs[i] = if x.msb then (-x)[i] else x[i] := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
 
 theorem getMsbD_abs {i : Nat} {x : BitVec w} :

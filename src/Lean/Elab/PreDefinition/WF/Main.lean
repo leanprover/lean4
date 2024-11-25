@@ -21,8 +21,8 @@ open Meta
 private partial def addNonRecPreDefs (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition)  : TermElabM Unit := do
   let us := preDefNonRec.levelParams.map mkLevelParam
   let all := preDefs.toList.map (·.declName)
-  for fidx in [:preDefs.size] do
-    let preDef := preDefs[fidx]!
+  for h : fidx in [:preDefs.size] do
+    let preDef := preDefs[fidx]
     let value ← forallBoundedTelescope preDef.type (some fixedPrefixSize) fun xs _ => do
       let value := mkAppN (mkConst preDefNonRec.declName us) xs
       let value ← argsPacker.curryProj value fidx

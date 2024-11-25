@@ -33,9 +33,9 @@ def findCompletionCmdDataAtPos
     (pos : String.Pos)
     : Task (Option (Syntax × Elab.InfoTree)) :=
   findCmdDataAtPos doc (pos := pos) fun s => Id.run do
-    let some tailPos := s.data.stx.getTailPos?
+    let some tailPos := s.stx.getTailPos?
       | return false
-    return pos.byteIdx <= tailPos.byteIdx + s.data.stx.getTrailingSize
+    return pos.byteIdx <= tailPos.byteIdx + s.stx.getTrailingSize
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do

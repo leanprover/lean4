@@ -140,8 +140,8 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           let matcherApp := { matcherApp with discrs := discrVars }
           foundRef.set true
           let mut altsNew := #[]
-          for i in [:matcherApp.alts.size] do
-            let alt := matcherApp.alts[i]!
+          for h : i in [:matcherApp.alts.size] do
+            let alt := matcherApp.alts[i]
             let altNumParams := matcherApp.altNumParams[i]!
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then

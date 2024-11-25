@@ -332,9 +332,9 @@ where
     else
       let accessible := isNextArgAccessible ctx
       let (d, ctx)   := getNextParam ctx
-      match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
+      match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
-        let arg := ctx.namedArgs[idx]!
+        let arg := ctx.namedArgs[idx]
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx

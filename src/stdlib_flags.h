@@ -7,9 +7,10 @@ options get_default_options() {
 #if LEAN_IS_STAGE0 == 1
     // switch to `true` for ABI-breaking changes affecting meta code
     opts = opts.update({"interpreter", "prefer_native"}, false);
-    // switch to `true` for changing built-in parsers used in quotations
-    opts = opts.update({"internal", "parseQuotWithCurrentStage"}, false);
-    // toggling `parseQuotWithCurrentStage` may also require toggling the following option if macros/syntax
+    // switch to `false` when enabling `prefer_native` should also affect use
+    // of built-in parsers in quotations
+    opts = opts.update({"internal", "parseQuotWithCurrentStage"}, true);
+    // changes to built-in parsers may also require toggling the following option if macros/syntax
     // with custom precheck hooks were affected
     opts = opts.update({"quotPrecheck"}, true);
 

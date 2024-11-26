@@ -3,7 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Markus Himmel, Sofia Rodrigues
-*/
+ */
 #include <pthread.h>
 
 #include "runtime/libuv.h"
@@ -12,15 +12,16 @@ Author: Markus Himmel, Sofia Rodrigues
 
 #include "runtime/object.h"
 
-#ifndef LEAN_EMSCRIPTEN#include <uv.h>
+#ifndef LEAN_EMSCRIPTEN
+#include <uv.h>
 
 using namespace lean;
 
-uv_loop_t * global_uv_loop;
-uv_async_t * global_uv_signal_async;
-uv_mutex_t * global_uv_mutex;
+uv_loop_t* global_uv_loop;
+uv_async_t* global_uv_signal_async;
+uv_mutex_t* global_uv_mutex;
 
-uv_cond_t * global_uv_cond;
+uv_cond_t* global_uv_cond;
 
 _Atomic(uint64_t) global_uv_n_waiters(0);
 
@@ -68,12 +69,14 @@ static void lean_uv_run() {
 
 // Bindings
 
-static void lean_uv_timer_finalizer(void * ptr) {
-    lean_uv_timer_object * timer_obj = (lean_uv_timer_object * ) ptr;
+static void lean_uv_timer_finalizer(void* ptr) {
+    lean_uv_timer_object* timer_obj = (lean_uv_timer_object*) ptr;
 
-    if (timer_obj -> m_promise == NULL) {
-        uv_close((uv_handle_t * ) & timer_obj -> m_uv_timer, [](uv_handle_t * handle) {
-            free(lean_to_uv_timer((lean_object * ) handle -> data));
+    if (timer_obj->m_promise == NULL) {
+        /// The free can run after the lean_object is freed!
+        timer_obj->m_uv_timer.data = ptr;
+        uv_close((uv_handle_t*) & timer_obj->m_uv_timer, [](uv_handle_t* handle) {
+            free((lean_uv_timer_object*)handle->data);
         });
     }
 }
@@ -82,13 +85,13 @@ extern "C" lean_obj_res lean_uv_initialize() {
     g_uv_timer_external_class = lean_register_external_class(lean_uv_timer_finalizer, noop_foreach);
 
     global_uv_loop = uv_default_loop();
-    global_uv_signal_async = (uv_async_t * ) malloc(sizeof(uv_async_t));
-    global_uv_mutex = (uv_mutex_t * ) malloc(sizeof(uv_mutex_t));
-    global_uv_cond = (uv_cond_t * ) malloc(sizeof(uv_cond_t));
+    global_uv_signal_async = (uv_async_t*) malloc(sizeof(uv_async_t));
+    global_uv_mutex = (uv_mutex_t*) malloc(sizeof(uv_mutex_t));
+    global_uv_cond = (uv_cond_t*) malloc(sizeof(uv_cond_t));
 
     if (global_uv_loop == NULL) lean_internal_panic("failed to initialize uv_loop");
 
-    int result = uv_async_init(global_uv_loop, global_uv_signal_async, [](uv_async_t * hdl) {
+    int result = uv_async_init(global_uv_loop, global_uv_signal_async, [](uv_async_t* hdl) {
         uv_stop(global_uv_loop);
     });
 
@@ -242,58 +245,59 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_now(obj_arg /* w */ ) {
 
 /* UV.Timer.mk (timeout : UInt64) : IO Timer */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, obj_arg /* w */ ) {
-    lean_uv_timer_object * timer_obj = (lean_uv_timer_object * ) malloc(sizeof(lean_uv_timer_object));
+    lean_uv_timer_object* timer_obj = (lean_uv_timer_object*) malloc(sizeof(lean_uv_timer_object));
 
     lean_uv_lock();
-    int result = uv_timer_init(global_uv_loop, & timer_obj -> m_uv_timer);
-    lean_uv_unlock();
+    int result = uv_timer_init(global_uv_loop, & timer_obj->m_uv_timer);
 
-    timer_obj -> m_promise = NULL;
-    timer_obj -> m_timeout = timeout;
+    timer_obj->m_promise = NULL;
+    timer_obj->m_timeout = timeout;
 
     if (result != 0) {
         free(timer_obj);
         return io_result_mk_error("failed to initialize uv_timer");
     }
 
-    lean_object * obj = lean_uv_timer_new(timer_obj);
-    timer_obj -> m_uv_timer.data = obj;
+    lean_object* obj = lean_uv_timer_new(timer_obj);
+    timer_obj->m_uv_timer.data = obj;
+
+    lean_uv_unlock();
 
     return lean_io_result_mk_ok(obj);
 }
 
 /* UV.Timer.next (timer : @& Timer) : IO (IO.Promise Unit) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg /* w */ ) {
-    lean_uv_timer_object * timer_obj = lean_to_uv_timer(timer);
+    lean_uv_timer_object* timer_obj = lean_to_uv_timer(timer);
 
-    lean_object * promise_res = lean_io_promise_new(lean_io_mk_world());
-    lean_object * promise = lean_ctor_get(promise_res, 0);
+    lean_object* promise_res = lean_io_promise_new(lean_io_mk_world());
+    lean_object* promise = lean_ctor_get(promise_res, 0);
 
-    if (timer_obj -> m_promise != NULL) {
-        lean_dec(timer_obj -> m_promise);
+    if (timer_obj->m_promise != NULL) {
+        lean_dec(timer_obj->m_promise);
     }
 
-    timer_obj -> m_promise = promise;
+    timer_obj->m_promise = promise;
 
     // Assumes that the event loop has ownership of the promise too!
-    lean_inc(timer_obj -> m_promise);
+    lean_inc(timer_obj->m_promise);
     lean_inc(timer);
 
-    auto on_timer = [](uv_timer_t * handle) {
-        lean_object * obj = (lean_object * ) handle -> data;
-        lean_uv_timer_object * timer_obj = lean_to_uv_timer(obj);
+    auto on_timer = [](uv_timer_t* handle) {
+        lean_object* obj = (lean_object*) handle->data;
+        lean_uv_timer_object* timer_obj = lean_to_uv_timer(obj);
 
-        if (timer_obj -> m_promise != NULL) {
-            lean_io_promise_resolve(lean_box(0), timer_obj -> m_promise, lean_io_mk_world());
-            lean_dec(timer_obj -> m_promise);
-            timer_obj -> m_promise = NULL;
-            uv_timer_stop( & timer_obj -> m_uv_timer);
+        if (timer_obj->m_promise != NULL) {
+            lean_io_promise_resolve(lean_box(0), timer_obj->m_promise, lean_io_mk_world());
+            uv_timer_stop( & timer_obj->m_uv_timer);
+            lean_dec(timer_obj->m_promise);
+            timer_obj->m_promise = NULL;
             lean_dec(obj);
         }
     };
 
     lean_uv_lock();
-    int result = uv_timer_start( & timer_obj -> m_uv_timer, on_timer, timer_obj -> m_timeout, 0);
+    int result = uv_timer_start( & timer_obj->m_uv_timer, on_timer, timer_obj->m_timeout, 0);
     lean_uv_unlock();
 
     if (result != 0) return io_result_mk_error("failed to start uv_timer");
@@ -303,17 +307,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
 
 /* UV.Timer.stop (timer : @& Timer) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg /* w */ ) {
-    lean_uv_timer_object * timer_obj = lean_to_uv_timer(timer);
+    lean_uv_timer_object* timer_obj = lean_to_uv_timer(timer);
 
     lean_uv_lock();
-    int result = uv_timer_stop( & timer_obj -> m_uv_timer);
+    int result = uv_timer_stop( & timer_obj->m_uv_timer);
     lean_uv_unlock();
 
     if (result != 0) return io_result_mk_error("failed to stop uv_timer");
 
-    if (timer_obj -> m_promise != NULL) {
-        lean_dec(timer_obj -> m_promise);
-        timer_obj -> m_promise = NULL;
+    if (timer_obj->m_promise != NULL) {
+        lean_dec(timer_obj->m_promise);
+        timer_obj->m_promise = NULL;
     };
 
     return lean_io_result_mk_ok(lean_box(0));

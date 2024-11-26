@@ -91,6 +91,12 @@ instance : Std.Time.Database TZdb where
   getLocalZoneRules db := localRules db.localPath
 
   getZoneRules db id := do
+    let env ← IO.getEnv "TZDIR"
+
+    if let some path := env then
+      let result ← readRulesFromDisk path id
+      return result
+
     for path in db.zonesPaths do
       if ← System.FilePath.pathExists path then
         let result ← readRulesFromDisk path id

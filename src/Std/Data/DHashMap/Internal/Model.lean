@@ -462,11 +462,11 @@ theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) 
     m.filter f = m.filterₘ f := rfl
 
 theorem insertList_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): insertList m l = insertListₘ m l := by
-  simp [insertList, Id.run]
+  simp only [insertList]
   induction l generalizing m with
   | nil => simp[insertListₘ]
   | cons hd tl ih =>
-    simp [insertListₘ]
+    simp only [List.foldl_cons,insertListₘ]
     rw [ih]
 
 section

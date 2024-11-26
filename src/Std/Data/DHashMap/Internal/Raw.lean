@@ -207,14 +207,6 @@ theorem insertMany_val [BEq α][Hashable α] {m: Raw₀ α β} {ρ : Type w} [Fo
     m.val.insertMany l = m.insertMany l := by
   simp[Raw.insertMany, m.2]
 
-theorem insertList_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {l: List ((a : α) × β a)}:
-    m.insertList l = Raw₀.insertList ⟨m, h.size_buckets_pos⟩ l := by
-  simp[Raw.insertList, h.size_buckets_pos]
-
-theorem insertList_val [BEq α] [Hashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)}:
-    m.val.insertList l = m.insertList l := by
-  simp[Raw.insertList, m.2]
-
 section
 
 variable {β : Type v}

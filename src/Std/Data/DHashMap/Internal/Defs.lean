@@ -354,12 +354,8 @@ where
 
 /-- Internal implementation detail of the hash map -/
 def insertList [BEq α] [Hashable α]
-    (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β := Id.run do
-  let mut r := m
-  for ⟨a,b⟩ in l do
-    r:= r.insert a b
-  return r
-
+    (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
+  List.foldl (fun a b => insert a b.1 b.2) m l
 section
 
 variable {β : Type v}

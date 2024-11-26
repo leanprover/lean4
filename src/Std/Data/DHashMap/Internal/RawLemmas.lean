@@ -830,7 +830,7 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
   simp_to_model using List.containsKey_eq_keys_contains.symm
 
 @[simp]
-theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
+theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
   simp_to_model
   rw [List.containsKey_eq_keys_contains]
@@ -839,13 +839,9 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
 
-theorem insertList_eq_foldl
-    (m : Raw₀ α β) (l : List ((a : α) × β a)) :
-    insertList m l = l.foldl (init := m) fun m' p => m'.insert p.1 p.2 := by
-  simp [insertList, Id.run]
-
-theorem insertMany_val (m : Raw₀ α β) (l : List ((a : α) × β a)) :
-    (insertMany m l).val = l.foldl (init := m) fun m' p => m'.insert p.1 p.2 := by
+@[simp]
+theorem insertMany_eq_insertList (m : Raw₀ α β) (l : List ((a : α) × β a)) :
+    (insertMany m l).val = insertList m l := by
   simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),
@@ -859,50 +855,28 @@ theorem insertMany_val (m : Raw₀ α β) (l : List ((a : α) × β a)) :
     rw [ih]
 
 @[simp]
-theorem insertMany_eq_insertList (m : Raw₀ α β) (l : List ((a : α) × β a)) :
-    (insertMany m l).val = insertList m l := by
-  rw [insertList_eq_foldl, insertMany_val]
-
-@[simp]
 theorem insertList_nil:
     m.insertList [] = m := by
-  simp[insertList, Id.run]
+  simp [insertList, Id.run]
 
 @[simp]
 theorem insertList_singleton [EquivBEq α] [LawfulHashable α] {k: α} {v: β k}:
     m.insertList [⟨k,v⟩] = m.insert k v := by
-  simp[insertList, Id.run]
+  simp [insertList, Id.run]
 
 @[simp]
 theorem insertList_cons {l: List ((a:α) × (β a))} {k: α} {v: β k}:
     m.insertList (⟨k,v⟩::l) = (m.insert k v).insertList l := by
   cases l with
-  | nil => simp[insertList]
-  | cons hd tl => simp[insertList]
+  | nil => simp [insertList]
+  | cons hd tl => simp [insertList]
 
-theorem insertList_insertList {l1 l2: List ((a:α) × (β a))}:
-    (m.insertList l1).insertList l2 = m.insertList (l1++l2) := by
-  simp[insertList_eq_insertListₘ]
-  induction l1 generalizing m with
-  | nil => simp[insertListₘ]
-  | cons hd tl ih =>
-    simp[insertListₘ]
-    apply ih
-
-theorem insertList_insert {l: List ((a:α) × (β a))} {k: α} {v: β k}:
-    (m.insertList l).insert k v = m.insertList (l ++ [⟨k,v⟩]) := by
-  simp [insertList_eq_insertListₘ]
-  induction l generalizing m with
-  | nil => simp[insertListₘ]
-  | cons hd tl ih =>
-    simp[insertListₘ]
-    rw [ih]
 
 theorem contains_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k: α}:
     (m.insertList l).contains k ↔ m.contains k ∨ (l.map Sigma.fst).contains k := by
   simp_to_model using List.containsKey_insertList
 
-theorem contains_insertList_of_mem_list [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k k': α} (k_eq: k == k') {v: β k}:
+theorem contains_insertList_of_mem_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k k': α} (k_eq: k == k') {v: β k}:
     ⟨k,v⟩ ∈ l → (m.insertList l).contains k' := by
   simp_to_model using contains_insertList_of_mem
 
@@ -911,37 +885,37 @@ theorem contains_of_contains_insertList [EquivBEq α] [LawfulHashable α] (h : m
     (m.insertList l).contains k → (l.map Sigma.fst).contains k = false → m.contains k := by
   simp_to_model using List.containsKey_of_containsKey_insertList
 
-theorem contains_insertList_of_contains_map [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k k': α} (k_eq: k == k'):
+theorem contains_insertList_of_contains_map [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l: List ((a:α) × (β a))} {k k': α} (k_eq: k == k'):
     m.contains k = true → (m.insertList l).contains k' := by
   simp_to_model using contains_insertList_of_contains_first
 
-theorem get?_insertList_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
+theorem get?_insertList_mem_list [LawfulBEq α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
     (m.insertList l).get? k' = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
   simp_to_model using getValueCast?_insertList_toInsert_mem
 
 
-theorem get?_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF):
+theorem get?_insertList_not_mem_list [LawfulBEq α] {l: List ((a:α) × (β a))} {k k': α} {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF):
     (m.insertList l).get? k' = m.get? k' := by
   simp_to_model using getValueCast?_insertList_not_toInsert_mem
 
-theorem get!_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k')] {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
+theorem get!_insertList_mem_list [LawfulBEq α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k}[Inhabited (β k')] {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
     (m.insertList l).get! k' = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
   simp_to_model using getValueCast!_insertList_toInsert_mem
 
-theorem get!_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} [Inhabited (β k')] {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF):
+theorem get!_insertList_not_mem_list [LawfulBEq α] {l: List ((a:α) × (β a))} {k k': α} [Inhabited (β k')] {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF):
     (m.insertList l).get! k' = m.get! k' := by
   simp_to_model using getValueCast!_insertList_not_toInsert_mem
 
-theorem getD_insertList_mem_list [LawfulBEq α] [LawfulHashable α]  {l: List ((a:α) × (β a))} {k k': α} {v: β k} {fallback: β k'} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
+theorem getD_insertList_mem_list [LawfulBEq α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {fallback: β k'} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
     (m.insertList l).getD k' fallback = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
   simp_to_model using getValueCastD_insertList_toInsert_mem
 
-theorem getD_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {fallback: β k'} {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF):
+theorem getD_insertList_not_mem_list [LawfulBEq α] {l: List ((a:α) × (β a))} {k k': α} {fallback: β k'} {mem: ¬ k ∈ (l.map (Sigma.fst))} {k_eq: k == k'} (h: m.1.WF):
     (m.insertList l).getD k' fallback = m.getD k' fallback := by
   simp_to_model using getValueCastD_insertList_not_toInsert_mem
 
 
-theorem get_insertList_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
+theorem get_insertList_mem_list [LawfulBEq α] {l: List ((a:α) × (β a))} {k k': α} {v: β k} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} (h: m.1.WF):
     (m.insertList l).get k' (contains_insertList_of_mem_list _ h k_eq mem)= cast (by congr; apply LawfulBEq.eq_of_beq k_eq ) v := by
   simp_to_model using getValueCast_insertList_toInsert_mem
 
@@ -951,7 +925,7 @@ theorem contains_of_beq [EquivBEq α][LawfulHashable α] {k k': α} (k_eq: k == 
   intro h'
   apply containsKey_of_beq h' k_eq
 
-theorem get_insertList_not_mem_list [LawfulBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {k k': α} {k_eq: k == k'} {mem_list: ¬ k ∈ (l.map (Sigma.fst))} (h: m.1.WF):
+theorem get_insertList_not_mem_list [LawfulBEq α] {l: List ((a:α) × (β a))} {k k': α} {k_eq: k == k'} {mem_list: ¬ k ∈ (l.map (Sigma.fst))} (h: m.1.WF):
     (h': m.contains k = true) → (m.insertList l).get k' (contains_insertList_of_contains_map m h k_eq h') = m.get k' (contains_of_beq m k_eq h h') := by
   simp_to_model using getValueCast_insertList_not_toInsert_mem
 
@@ -960,7 +934,7 @@ theorem getKey?_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l : L
       if (l.map Sigma.fst).contains k then (l.map Sigma.fst).reverse.find? (fun a => k == a) else m.getKey? k := by
   simp_to_model using List.getKey?_insertList
 
-theorem getKey?_insertList_lawful [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k : α} :
+theorem getKey?_insertList_lawful [LawfulBEq α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k : α} :
     (m.insertList l).getKey? k =
       if (l.map Sigma.fst).contains k then some k else m.getKey? k := by
   simp_to_model using List.getKey?_insertList_lawful
@@ -972,7 +946,7 @@ theorem getKey_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l : Li
       else m.getKey k (contains_of_contains_insertList _ h h₁ (Bool.eq_false_iff.2 h₂)) := by
   simp_to_model using List.getKey_insertList
 
-theorem getKey_insertList_lawful [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k
+theorem getKey_insertList_lawful [LawfulBEq α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k
 : α} {h₁} :
     (m.insertList l).getKey k h₁ =
       if h₂ : (l.map Sigma.fst).contains k then k
@@ -985,7 +959,7 @@ theorem getKey!_insertList [EquivBEq α] [LawfulHashable α] [Inhabited α] (h :
       else m.getKey! k := by
   simp_to_model using List.getKey!_insertList
 
-theorem getKey!_insertList_lawful [LawfulBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k : α} :
+theorem getKey!_insertList_lawful [LawfulBEq α] [Inhabited α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k : α} :
     (m.insertList l).getKey! k =
       if (l.map Sigma.fst).contains k then k
       else m.getKey! k := by
@@ -997,13 +971,13 @@ theorem getKeyD_insertList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {l : L
       else m.getKeyD k fallback := by
   simp_to_model using List.getKeyD_insertList
 
-theorem getKeyD_insertList_lawful [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k fallback : α} :
+theorem getKeyD_insertList_lawful [LawfulBEq α] (h : m.1.WF) {l : List ((a:α) × (β a))} {k fallback : α} :
     (m.insertList l).getKeyD k fallback =
       if (l.map Sigma.fst).contains k then k
       else m.getKeyD k fallback := by
   simp_to_model using List.getKeyD_insertList_lawful
 
-theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: DistinctKeys l} (h: m.1.WF):
+theorem size_insertList [EquivBEq α] [LawfulHashable α] {l: List ((a:α) × (β a))} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l} (h: m.1.WF):
     (∀ (a:α), ¬ (m.contains a = true ∧ List.containsKey a l = true)) →
     (m.insertList l).1.size = m.1.size + l.length := by
   simp_to_model

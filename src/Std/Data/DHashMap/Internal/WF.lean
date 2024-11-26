@@ -710,10 +710,10 @@ theorem wfImp_filter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
 theorem wfImp_insertListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l: List ((a : α) × β a)} (h : Raw.WFImp m.1): Raw.WFImp (m.insertListₘ l).1 := by
   induction l generalizing m with
   | nil =>
-    simp[insertListₘ]
+    simp only [insertListₘ]
     exact h
   | cons hd tl ih =>
-    simp[insertListₘ]
+    simp only [insertListₘ]
     apply ih
     apply wfImp_insert h
 
@@ -723,7 +723,7 @@ induction l generalizing m with
 | nil =>
   simp[insertListₘ, List.insertList]
 | cons hd tl ih =>
-  simp[insertListₘ, List.insertList]
+  simp only [insertListₘ, List.insertList]
   apply Perm.trans
   apply ih (wfImp_insert h)
   apply List.insertList_perm_of_perm_first
@@ -757,7 +757,6 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   · next h => exact Raw₀.wfImp_getThenInsertIfNew? (by apply h)
   · next h => exact Raw₀.wfImp_filter (by apply h)
   · next h => exact Raw₀.Const.wfImp_getThenInsertIfNew? (by apply h)
-  · next h => exact Raw₀.wfImp_insertList (by apply h)
 
 end Raw
 

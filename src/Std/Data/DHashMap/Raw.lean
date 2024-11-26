@@ -389,15 +389,6 @@ appearance.
     (Raw₀.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-/--
-Inserts multiple mappings into the hash map by iterating over the given list and calling
-`insert`. If the same key appears multiple times, the last occurrence takes precedence. This is equal to `insertMany`, but allows easier proofs.
--/
-@[inline] def insertList [BEq α] [Hashable α]
-    (m: Raw α β)(l: List ((a : α) × β a)): Raw α β :=
-  if h : 0 < m.buckets.size then
-    (Raw₀.insertList ⟨m,h⟩ l).1
-  else m -- will never happen for well-formed inputs
 
 @[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]
     {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
@@ -506,8 +497,6 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   /-- Internal implementation detail of the hash map -/
   | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
       WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
-  /-- Internal implementation detail of the hash map -/
-  | insertList₀ {α β} [BEq α] [Hashable α] {m : Raw α β} {l: List ((a: α) × (β a))} {h}: WF m → WF (Raw₀.insertList ⟨m,h⟩ l).1
 
 /-- Internal implementation detail of the hash map -/
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
@@ -521,7 +510,6 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
   | filter₀ _ => (Raw₀.filter _ ⟨_, _⟩).2
   | constGetThenInsertIfNew?₀ _ => (Raw₀.Const.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
-  | insertList₀ _ => (Raw₀.insertList ⟨_,_⟩ _).2
 
 @[simp] theorem WF.empty [BEq α] [Hashable α] {c : Nat} : (Raw.empty c : Raw α β).WF :=
   .empty₀
@@ -564,11 +552,6 @@ theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α
     {l : ρ} (h : m.WF) : (m.insertMany l).WF := by
   simpa [Raw.insertMany, h.size_buckets_pos] using
     (Raw₀.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
-
-theorem WF.insertList [BEq α] [Hashable α] {m : Raw α β}
-    {l : List ((a : α) × (β a))} (h : m.WF): (m.insertList l).WF := by
-  simpa [Raw.insertList, h.size_buckets_pos] using
-    .insertList₀ h
 
 theorem WF.Const.insertMany {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × β)]
     {m : Raw α (fun _ => β)} {l : ρ} (h : m.WF) : (Const.insertMany m l).WF := by

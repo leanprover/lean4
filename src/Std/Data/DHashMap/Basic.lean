@@ -285,11 +285,6 @@ but will later become a primitive operation.
   ⟨(Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insert₀ m.2⟩
 
-@[inline, inherit_doc Raw.insertList] def insertList (m : DHashMap α β)
-    (l: List ((a:α) × (β a))): DHashMap α β :=
-  ⟨(Raw₀.insertList ⟨m.1, m.2.size_buckets_pos⟩ l).1,
-    .insertList₀ m.2⟩
-
 @[inline, inherit_doc Raw.Const.insertMany] def Const.insertMany {β : Type v}
     {ρ : Type w} [ForIn Id ρ (α × β)] (m : DHashMap α (fun _ => β)) (l : ρ) :
     DHashMap α (fun _ => β) :=

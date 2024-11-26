@@ -39,7 +39,6 @@ private def baseNames : Array Name :=
     ``getThenInsertIfNew?_snd_eq, ``getThenInsertIfNew?_snd_val,
     ``map_eq, ``map_val,
     ``filter_eq, ``filter_val,
-    ``insertList_eq, ``insertList_val,
     ``erase_eq, ``erase_val,
     ``filterMap_eq, ``filterMap_val,
     ``Const.getThenInsertIfNew?_snd_eq, ``Const.getThenInsertIfNew?_snd_val,

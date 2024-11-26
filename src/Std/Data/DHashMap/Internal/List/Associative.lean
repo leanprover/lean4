@@ -23,10 +23,10 @@ theorem List.find?_isSome_of_map_fst_contains {α : Type u} {β : α -> Type v} 
     (l.map Sigma.fst).contains k ->
       ((l.map Sigma.fst).reverse.find? (fun a => k == a)).isSome := by
   intro h
-  simp
+  simp only [find?_isSome, mem_reverse, mem_map]
   rw [List.contains_iff_exists_mem_beq] at h
   rcases h with ⟨a, a_mem, a_eq⟩
-  simp at a_mem
+  simp only [mem_map] at a_mem
   rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
   exists a
   constructor
@@ -180,27 +180,27 @@ theorem getValueCast?_cons_self [BEq α] [LawfulBEq α] {l : List ((a : α) × �
     getValueCast? k (⟨k, v⟩ :: l) = some v := by
   rw [getValueCast?_cons_of_true BEq.refl, cast_eq]
 
-theorem getValueCast?_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k k': α} {v : β k} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l}: getValueCast? k' l = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
+theorem getValueCast?_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k k': α} {v : β k} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l}: getValueCast? k' l = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
   induction l with
   | nil => simp at mem
   | cons hd tl ih =>
-    simp[getValueCast?]
-    simp at mem
+    simp only [getValueCast?, beq_iff_eq]
+    simp only [List.mem_cons] at mem
     cases mem with
     | inl mem =>
       rw [← mem]
       simp [k_eq]
     | inr mem =>
       have hd_k': (hd.fst == k') = false := by
-        simp at distinct
-        simp
+        simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons] at distinct
+        simp only [beq_eq_false_iff_ne, ne_eq]
         rcases distinct with ⟨distinct, _⟩
         specialize distinct ⟨k,v⟩ mem
-        simp at distinct
-        simp at k_eq
+        simp only at distinct
+        simp only [beq_iff_eq] at k_eq
         rw [k_eq] at distinct
         apply distinct
-      simp [hd_k']
+      simp only [hd_k', Bool.false_eq_true, ↓reduceDIte]
       apply ih
       · exact mem
       · exact List.Pairwise.of_cons distinct
@@ -273,7 +273,8 @@ theorem containsKey_eq_false_iff [BEq α][PartialEquivBEq α] {l : List ((a : α
   induction l with
   | nil => simp
   | cons hd tl ih =>
-    simp[containsKey, ih]
+    simp only [containsKey, Bool.or_eq_false_iff, ih, List.mem_cons, forall_eq_or_imp,
+      and_congr_left_iff, Bool.coe_false_iff_false, Bool.not_eq_eq_eq_not, Bool.not_not]
     intro _
     rw [Bool.eq_iff_iff]
     constructor
@@ -315,27 +316,6 @@ theorem containsKey_eq_isSome_getEntry? [BEq α] {l : List ((a : α) × β a)} {
     cases h : k == a
     · simp [getEntry?_cons_of_false h, h, ih]
     · simp [getEntry?_cons_of_true h, h]
-
--- TODO: not needed; containsKey_congr instead
-theorem containsKey_of_eq [BEq α] [PartialEquivBEq α]{l : List ((a : α) × β a)} {a b: α} (eq: a == b): containsKey a l ↔ containsKey b l := by
-  induction l with
-  | nil=> simp
-  | cons hd tl ih =>
-    simp[containsKey]
-    by_cases hd_a: hd.fst == a
-    · have hd_b: hd.fst == b := by
-        apply PartialEquivBEq.trans hd_a eq
-      simp [hd_a, hd_b]
-    · have hd_b: (hd.fst == b) = false := by
-        false_or_by_contra
-        rename_i h
-        simp at h
-        have hd_a': hd.fst == a := by
-          apply PartialEquivBEq.trans h (PartialEquivBEq.symm eq)
-        contradiction
-      simp [hd_a, hd_b]
-      rw [Bool.eq_iff_iff]
-      apply ih
 
 theorem isEmpty_eq_false_of_containsKey [BEq α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = true) : l.isEmpty = false := by
@@ -738,15 +718,15 @@ theorem replaceEntry_of_containsKey_eq_false [BEq α] {l : List ((a : α) × β 
     rw [containsKey_cons_eq_false] at h
     rw [replaceEntry_cons_of_false h.1, ih h.2]
 
-theorem replaceEntry_mem_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k: α} {v : β k} {ele: (a: α) × β a} (mem: containsKey k l) {distinct: List.Pairwise (fun a b => ! a.1 == b.1) l}: ele ∈ replaceEntry k v l ↔ (ele ∈ l ∧ ¬ (ele.fst == k)) ∨ (ele = ⟨k,v⟩) := by
+theorem replaceEntry_mem_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k: α} {v : β k} {ele: (a: α) × β a} (mem: containsKey k l) {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l}: ele ∈ replaceEntry k v l ↔ (ele ∈ l ∧ ¬ (ele.fst == k)) ∨ (ele = ⟨k,v⟩) := by
   induction l with
   | nil => simp at mem
   | cons hd tl ih =>
-    simp [replaceEntry, cond_eq_if]
+    simp only [replaceEntry, cond_eq_if, beq_iff_eq, List.mem_cons]
     split
-    · simp
+    · simp only [List.mem_cons]
       rename_i hd_k
-      simp at hd_k
+      simp only [beq_iff_eq] at hd_k
       constructor
       · intro h
         cases h with
@@ -757,7 +737,7 @@ theorem replaceEntry_mem_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × �
           · right
             exact h
           · rw [← hd_k]
-            simp at distinct
+            simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons] at distinct
             apply Ne.symm
             apply (And.left distinct ele h)
       · intro h
@@ -774,9 +754,9 @@ theorem replaceEntry_mem_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × �
         | inr h =>
           left
           apply h
-    · simp
+    · simp only [List.mem_cons]
       rename_i hd_k
-      simp at hd_k
+      simp only [beq_iff_eq] at hd_k
       rw [ih]
       · constructor
         · intro h
@@ -785,12 +765,12 @@ theorem replaceEntry_mem_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × �
             left
             constructor
             · left
-              simp[h]
-            · simp[h, hd_k]
+              simp only [h]
+            · simp only [h, hd_k, not_false_eq_true]
           | inr h =>
             cases h with
             | inl h =>
-              simp at h
+              simp only [beq_iff_eq] at h
               left
               constructor
               · right
@@ -806,68 +786,28 @@ theorem replaceEntry_mem_of_mem [BEq α] [LawfulBEq α] {l : List ((a : α) × �
             cases h with
             | inl h =>
               left
-              simp[h]
+              simp only [h]
             | inr h =>
               right
               left
-              simp[h, ele_k]
+              simp [h, ele_k]
           | inr h =>
             right
             right
             exact h
       · rw [containsKey_cons] at mem
-        simp[hd_k] at mem
+        simp only [Bool.or_eq_true, beq_iff_eq, hd_k, false_or] at mem
         exact mem
-      · simp at distinct
-        simp
+      · simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons] at distinct
+        simp only [beq_eq_false_iff_ne, ne_eq]
         apply And.right distinct
-
-
-theorem replaceEntry_distinct_keys [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k}: List.Pairwise (fun a b => ! a.1 == b.1) l → List.Pairwise (fun a b => ! a.1 == b.1) (replaceEntry k v l) := by
-  intro h
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp[replaceEntry, cond_eq_if]
-    simp at h
-    rcases h with ⟨hd_pw, tl_pw⟩
-    split
-    · simp
-      constructor
-      · rename_i hd_k
-        intro a a_tl
-        simp at hd_k
-        rw [← hd_k]
-        apply hd_pw a a_tl
-      · exact tl_pw
-    · rename_i hd_k
-      simp at hd_k
-      simp
-      constructor
-      · intro a a_mem
-        by_cases contains_k: containsKey k tl
-        · rw [replaceEntry_mem_of_mem contains_k] at a_mem
-          · cases a_mem with
-            | inl a_tl =>
-              apply hd_pw a (And.left a_tl)
-            | inr a_k =>
-              simp[a_k, hd_k]
-          · simp
-            exact tl_pw
-        · simp at contains_k
-          rw [replaceEntry_of_containsKey_eq_false contains_k] at a_mem
-          apply hd_pw a a_mem
-      · simp at ih
-        apply ih
-        exact tl_pw
-
 
 @[simp]
 theorem isEmpty_replaceEntry [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (replaceEntry k v l).isEmpty = l.isEmpty := by
   induction l using assoc_induction
   · simp
-  · simp [replaceEntry_cons, cond_eq_if]
+  · simp only [replaceEntry_cons, cond_eq_if, List.isEmpty_cons]
     split <;> simp
 
 theorem getEntry?_replaceEntry_of_containsKey_eq_false [BEq α] {l : List ((a : α) × β a)} {a k : α}
@@ -885,7 +825,7 @@ theorem getEntry?_replaceEntry_of_false [BEq α] [PartialEquivBEq α] {l : List 
     · rw [replaceEntry_cons_of_false h', getEntry?_cons, getEntry?_cons, ih]
     · rw [replaceEntry_cons_of_true h']
       have hk : (k' == a) = false := BEq.neq_of_beq_of_neq h' h
-      simp [getEntry?_cons_of_false h, getEntry?_cons_of_false hk]
+      simp only [getEntry?_cons_of_false h, getEntry?_cons_of_false hk]
 
 theorem getEntry?_replaceEntry_of_true [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
     {a k : α} {v : β k} (hl : containsKey k l = true) (h : k == a) :
@@ -1077,8 +1017,8 @@ theorem containsKey_of_mem [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} {
 theorem DistinctKeys.nil [BEq α] : DistinctKeys ([] : List ((a : α) × β a)) :=
   ⟨by simp⟩
 
-theorem DistinctKeys.def [BEq α] {l : List ((a : α) × β a)}: DistinctKeys l ↔ List.Pairwise (fun a b => ! (a.1 == b.1)) l := by
-  have h: ∀ (l' : List ((a : α) × β a)), List.Pairwise (fun a b => (a==b)= false) (keys l') ↔ List.Pairwise (fun a b => !(a.1 == b.1)) l':= by
+theorem DistinctKeys.def [BEq α] {l : List ((a : α) × β a)}: DistinctKeys l ↔ List.Pairwise (fun a b => (a.1 == b.1) = false) l := by
+  have h: ∀ (l' : List ((a : α) × β a)), List.Pairwise (fun a b => (a==b)= false) (keys l') ↔ List.Pairwise (fun a b => (a.1 == b.1) = false) l':= by
     intro l'
     induction l' with
     | nil => simp
@@ -1204,9 +1144,9 @@ theorem insertEntry_of_containsKey_eq_false_perm [BEq α] {l : List ((a : α) ×
     (h : containsKey k l = false) : Perm (insertEntry k v l) (⟨k,v⟩::l) := by
   cases l with
   | nil => simp
-  | cons hd tl => simp[insertEntry, h]
+  | cons hd tl => simp [insertEntry, h]
 
-theorem insertEntry_mem_of_different_keys [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} {a: ((a : α) × β a)} {h: ¬ ⟨k,v⟩ = a} {distinct: List.Pairwise (fun a b => ! (a.1 == b.1) ) l}: ⟨k, v⟩ ∈ insertEntry a.fst a.snd l ↔ ⟨k,v⟩ ∈ l ∧ (k == a.fst) = false := by
+theorem insertEntry_mem_of_different_keys [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} {a: ((a : α) × β a)} {h: ¬ ⟨k,v⟩ = a} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) l}: ⟨k, v⟩ ∈ insertEntry a.fst a.snd l ↔ ⟨k,v⟩ ∈ l ∧ (k == a.fst) = false := by
   induction l with
   | nil =>
     simp
@@ -1217,37 +1157,37 @@ theorem insertEntry_mem_of_different_keys [BEq α] [LawfulBEq α] {l : List ((a 
     split
     · rename_i contains_a
       rw [replaceEntry_mem_of_mem contains_a (distinct:=distinct)]
-      simp
+      simp only [List.mem_cons, beq_iff_eq, beq_eq_false_iff_ne, ne_eq, or_iff_left_iff_imp]
       intro h
       contradiction
-    · simp
+    · simp only [List.mem_cons, beq_eq_false_iff_ne, ne_eq]
       constructor
       · intro h'
         cases h' with
         | inl h' => contradiction
         | inr h' =>
           rename_i contains_a
-          simp at contains_a
+          simp only [Bool.not_eq_true] at contains_a
           rw [containsKey_eq_false_iff] at contains_a
           cases h' with
           | inl h' =>
             constructor
             · left
               exact h'
-            · simp at contains_a
+            · simp only [List.mem_cons, beq_eq_false_iff_ne, ne_eq, forall_eq_or_imp] at contains_a
               apply Ne.symm
               rw [← h'] at contains_a
-              simp at contains_a
+              simp only at contains_a
               apply And.left contains_a
           | inr h' =>
             constructor
             · right
               exact h'
-            · simp at contains_a
+            · simp only [List.mem_cons, beq_eq_false_iff_ne, ne_eq, forall_eq_or_imp] at contains_a
               apply Ne.symm
               rcases contains_a with ⟨_, contains_a⟩
               specialize contains_a ⟨k,v⟩
-              simp at contains_a
+              simp only at contains_a
               apply contains_a h'
       · intro h'
         rcases h' with ⟨h', _⟩
@@ -2120,7 +2060,7 @@ theorem insertList_perm_of_perm_first [BEq α] [EquivBEq α] (l1 l2 toInsert: Li
   induction toInsert generalizing l1 l2 with
   | nil => simp[insertList, h]
   | cons hd tl ih =>
-    simp[insertList]
+    simp only [insertList]
     apply ih
     apply insertEntry_of_perm
     exact distinct
@@ -2133,17 +2073,17 @@ theorem containsKey_eq_contains_map_fst [BEq α] [PartialEquivBEq α] (l : List 
   | nil => simp
   | cons hd tl ih =>
     rw [containsKey_cons, ih]
-    simp
+    simp only [List.map_cons, List.contains_cons]
     rw [BEq.comm]
 
 theorem containsKey_insertList [BEq α] [PartialEquivBEq α] (l toInsert : List ((a : α) × β a)) (k: α): containsKey k (List.insertList l toInsert) ↔ containsKey k l ∨ (toInsert.map Sigma.fst).contains k := by
   induction toInsert generalizing l with
-  | nil => simp[insertList]
+  | nil => simp only [insertList, List.map_nil, List.elem_nil, Bool.false_eq_true, or_false]
   | cons hd tl ih =>
     unfold insertList
     rw [ih]
     rw [containsKey_insertEntry]
-    simp
+    simp only [Bool.or_eq_true, List.map_cons, List.contains_cons]
     rw [BEq.comm]
     conv => left; left; rw [or_comm]
     rw [or_assoc]
@@ -2155,59 +2095,65 @@ theorem containsKey_of_containsKey_insertList [BEq α] [PartialEquivBEq α]
 
 
 
-theorem getValueCast?_insertList_start_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {v: β k} {distinct1: List.Pairwise (fun a b => ! a.1 == b.1) toInsert} {distinct2: List.Pairwise (fun a b => ! a.1 == b.1) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} {mem': containsKey k toInsert = false}: getValueCast? k' (insertList l toInsert) = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
+theorem getValueCast?_insertList_start_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {v: β k} {distinct1: List.Pairwise (fun a b => (a.1 == b.1) = false) toInsert} {distinct2: List.Pairwise (fun a b => (a.1 == b.1) = false) l} {k_eq: k == k'} {mem: ⟨k,v⟩ ∈ l} {mem': containsKey k toInsert = false}: getValueCast? k' (insertList l toInsert) = some (cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v) := by
   induction toInsert generalizing l with
   | nil =>
-    simp[insertList]
+    simp only [insertList]
     apply getValueCast?_mem
     · exact k_eq
     · exact mem
     · exact distinct2
   | cons hd tl ih =>
-    simp [insertList]
+    simp only [insertList]
     apply ih
     · exact List.Pairwise.of_cons distinct1
     · simp only[insertEntry, cond_eq_if]
       split
-      · apply replaceEntry_distinct_keys distinct2
-      · simp
+      · rw [← DistinctKeys.def]
+        apply DistinctKeys.replaceEntry
+        rw [DistinctKeys.def]
+        exact distinct2
+      · simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons]
         constructor
         · rename_i h
-          simp at h
+          simp only [Bool.not_eq_true] at h
           rw [containsKey_eq_false_iff] at h
-          simp at h
+          simp only [beq_eq_false_iff_ne, ne_eq] at h
           apply h
-        · simp at distinct2
+        · simp only [beq_eq_false_iff_ne, ne_eq] at distinct2
           apply distinct2
     · rw[containsKey_cons_eq_false] at mem'
       rw [insertEntry_mem_of_different_keys]
       · constructor
         · apply mem
-        · simp
-          simp at mem'
+        · simp only [beq_eq_false_iff_ne, ne_eq]
+          simp only [beq_eq_false_iff_ne, ne_eq] at mem'
           apply Ne.symm
           apply And.left mem'
       · false_or_by_contra
         rename_i h
         rw [← h] at mem'
-        simp at mem'
+        simp only [beq_self_eq_true, Bool.true_eq_false, false_and] at mem'
       · apply distinct2
-    · simp[containsKey] at mem'
+    · simp only [containsKey, Bool.or_eq_false_iff, beq_eq_false_iff_ne, ne_eq] at mem'
       apply And.right mem'
 
-theorem getValueCast?_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {k_eq: k == k'} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast? k' (insertList l toInsert) = some (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
+theorem getValueCast?_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {k_eq: k == k'} {v: β k} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast? k' (insertList l toInsert) = some (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
   rw [DistinctKeys.def] at distinct2
   induction toInsert generalizing l with
   | nil => simp at mem
   | cons hd tl ih =>
-    simp[insertList, insertEntry, cond_eq_if]
+    simp only [insertList, insertEntry, cond_eq_if]
     split
-    · simp at mem
+    · simp only [List.mem_cons] at mem
       cases mem with
       | inl mem =>
         apply getValueCast?_insertList_start_mem
         · exact List.Pairwise.of_cons distinct
-        · apply replaceEntry_distinct_keys distinct2
+        · rw [← DistinctKeys.def]
+          apply DistinctKeys.replaceEntry
+          rw [DistinctKeys.def]
+          exact distinct2
         · exact k_eq
         · rw[replaceEntry_mem_of_mem]
           · right
@@ -2216,32 +2162,35 @@ theorem getValueCast?_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInser
             exact h
           · exact distinct2
         · have k_hd: k = hd.fst := by
-            simp[← mem]
+            simp only [← mem]
           rw [k_hd, containsKey_eq_false_iff]
-          simp
-          simp at distinct
+          simp only [beq_eq_false_iff_ne, ne_eq]
+          simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons] at distinct
           apply And.left distinct
       | inr mem =>
         apply ih
-        · simp
-          simp at distinct
+        · simp only [beq_eq_false_iff_ne, ne_eq]
+          simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons] at distinct
           apply And.right distinct
-        · apply replaceEntry_distinct_keys distinct2
+        · rw [← DistinctKeys.def]
+          apply DistinctKeys.replaceEntry
+          rw [DistinctKeys.def]
+          exact distinct2
         · exact mem
     · rename_i contains_hd
       by_cases hd_k': (hd.fst ==k') = true
       · apply getValueCast?_insertList_start_mem
         · exact List.Pairwise.of_cons distinct
-        · simp
-          simp at contains_hd
+        · simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons]
+          simp only [Bool.not_eq_true] at contains_hd
           rw [containsKey_eq_false_iff] at contains_hd
-          simp at contains_hd
+          simp only [beq_eq_false_iff_ne, ne_eq] at contains_hd
           constructor
           · apply contains_hd
-          · simp at distinct2
+          · simp only [beq_eq_false_iff_ne, ne_eq] at distinct2
             apply distinct2
         · exact k_eq
-        · simp at mem
+        · simp only [List.mem_cons] at mem
           cases mem with
           | inl mem =>
             simp [mem]
@@ -2249,70 +2198,72 @@ theorem getValueCast?_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInser
             simp at distinct
             exfalso
             apply And.left distinct ⟨k,v⟩ mem
-            simp
-            simp at hd_k'
-            simp at k_eq
-            simp[k_eq, hd_k']
-        · simp at contains_hd
-          simp at hd_k'
-          simp at k_eq
+            simp only
+            simp only [beq_iff_eq] at hd_k'
+            simp only [beq_iff_eq] at k_eq
+            simp only [hd_k', k_eq]
+        · simp only [Bool.not_eq_true] at contains_hd
+          simp only [beq_iff_eq] at hd_k'
+          simp only [beq_iff_eq] at k_eq
           rw [k_eq, ← hd_k']
           rw[containsKey_eq_false_iff]
-          simp at distinct
-          simp
+          simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons] at distinct
+          simp only [beq_eq_false_iff_ne, ne_eq]
           apply And.left distinct
       · apply ih
         · exact List.Pairwise.of_cons distinct
-        · simp at mem
+        · simp only [List.mem_cons] at mem
           cases mem with
           | inl mem =>
-            simp at hd_k'
+            simp only [beq_iff_eq] at hd_k'
             exfalso
             apply hd_k'
             rw [← mem]
-            simp at k_eq
+            simp only [beq_iff_eq] at k_eq
             simp [k_eq]
           | inr mem =>
-            simp
-            simp at contains_hd
+            simp only [beq_eq_false_iff_ne, ne_eq, pairwise_cons]
+            simp only [Bool.not_eq_true] at contains_hd
             rw [containsKey_eq_false_iff] at contains_hd
-            simp at contains_hd
+            simp only [beq_eq_false_iff_ne, ne_eq] at contains_hd
             constructor
             · exact contains_hd
-            · simp at distinct2
+            · simp only [beq_eq_false_iff_ne, ne_eq] at distinct2
               apply distinct2
-        · simp at mem
+        · simp only [List.mem_cons] at mem
           cases mem with
           | inl mem =>
-            simp [← mem] at hd_k'
-            simp at k_eq
+            simp only [← mem, beq_iff_eq] at hd_k'
+            simp only [beq_iff_eq] at k_eq
             contradiction
           | inr mem =>
             exact mem
 
 theorem getValueCast?_insertList_not_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {k_eq: k == k'} {not_mem: ¬ k ∈ List.map Sigma.fst toInsert}  {distinct: DistinctKeys l}: getValueCast? k' (insertList l toInsert) = getValueCast? k' l := by
-  simp at k_eq
+  simp only [beq_iff_eq] at k_eq
   rw [DistinctKeys.def] at distinct
   induction toInsert generalizing l with
-  | nil => simp[insertList]
+  | nil => simp only [insertList]
   | cons hd tl ih =>
-    simp [insertList]
+    simp only [insertList]
     rw [ih]
     · rw [getValueCast?_insertEntry]
       split
       · rename_i h
-        simp at h
-        simp [k_eq, h] at not_mem
+        simp only [beq_iff_eq] at h
+        simp only [List.map_cons, h, k_eq, List.mem_cons, List.mem_map, true_or,
+          not_true_eq_false] at not_mem
       · rfl
-    · simp at not_mem
-      simp
+    · simp only [List.map_cons, List.mem_cons, List.mem_map, not_or, not_exists,
+      not_and] at not_mem
+      simp only [List.mem_map, not_exists, not_and]
       apply And.right not_mem
     · rw [← DistinctKeys.def]
       apply DistinctKeys.insertEntry
       rw [DistinctKeys.def]
       exact distinct
 
-theorem getValueCast!_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} [Inhabited (β k')] {k_eq: k == k'} {v: β k} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast! k' (insertList l toInsert) = (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
+theorem getValueCast!_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} [Inhabited (β k')] {k_eq: k == k'} {v: β k} {distinct:List.Pairwise (fun a b => (a.1 == b.1) = false) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast! k' (insertList l toInsert) = (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
   rw [getValueCast!_eq_getValueCast?, getValueCast?_insertList_toInsert_mem (mem:= mem) (l:=l)  (toInsert:=toInsert)]
   · simp
   · exact k_eq
@@ -2323,7 +2274,7 @@ theorem getValueCast!_insertList_not_toInsert_mem [BEq α] [LawfulBEq α] (l toI
   rw [getValueCast!_eq_getValueCast?,getValueCast!_eq_getValueCast? ,getValueCast?_insertList_not_toInsert_mem (not_mem:=not_mem) (distinct:=distinct)]
   exact k_eq
 
-theorem getValueCastD_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α}  {k_eq: k == k'} {v: β k} {fallback: β k'} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCastD k' (insertList l toInsert) fallback = (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
+theorem getValueCastD_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α}  {k_eq: k == k'} {v: β k} {fallback: β k'} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCastD k' (insertList l toInsert) fallback = (cast (by congr;apply LawfulBEq.eq_of_beq k_eq) v) := by
   rw [getValueCastD_eq_getValueCast?, getValueCast?_insertList_toInsert_mem (mem:= mem) (l:=l)  (toInsert:=toInsert)]
   · simp
   · exact k_eq
@@ -2334,17 +2285,22 @@ theorem getValueCastD_insertList_not_toInsert_mem [BEq α] [LawfulBEq α] (l toI
   rw [getValueCastD_eq_getValueCast?, getValueCastD_eq_getValueCast?, getValueCast?_insertList_not_toInsert_mem (not_mem:=not_mem) (distinct:=distinct)]
   exact k_eq
 
-theorem contains_insertList_of_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) (k k': α) (v: β k) (k_eq: k == k') (mem: ⟨k,v⟩ ∈ toInsert): containsKey k' (insertList l toInsert) = true := by
+theorem contains_insertList_of_mem [BEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (k k': α) (v: β k) (k_eq: k == k') (mem: ⟨k,v⟩ ∈ toInsert): containsKey k' (insertList l toInsert) = true := by
   rw [containsKey_insertList]
   right
-  simp at *
-  exists ⟨k,v⟩
+  simp [List.contains_eq_any_beq]
+  exists k
+  constructor
+  · exists ⟨k,v⟩
+  · apply PartialEquivBEq.symm
+    exact k_eq
 
-theorem contains_insertList_of_contains_first [BEq α] [LawfulBEq α] {l toInsert: List ((a : α) × β a)} {k k': α} (k_eq: k == k'): containsKey k l = true → containsKey k' (insertList l toInsert) = true:= by
+theorem contains_insertList_of_contains_first [BEq α] [PartialEquivBEq α] {l toInsert: List ((a : α) × β a)} {k k': α} (k_eq: k == k'): containsKey k l = true → containsKey k' (insertList l toInsert) = true:= by
   intro h
   rw [containsKey_insertList]
-  simp at *
-  simp [← k_eq, h]
+  left
+  rw [containsKey_congr (PartialEquivBEq.symm k_eq)]
+  exact h
 
 instance Inhabited_of_containsKey [BEq α] [LawfulBEq α] (l: List ((a : α) × β a)) (k k': α) (k_eq: k == k') (mem: containsKey k l = true): Inhabited (β k') :=
   ⟨
@@ -2353,23 +2309,23 @@ instance Inhabited_of_containsKey [BEq α] [LawfulBEq α] (l: List ((a : α) × 
       (by simp at mem)
     | .cons hd tl =>
       if h:hd.fst == k'
-      then cast (by congr; simp at h; apply h) hd.snd
+      then cast (by congr; simp only [beq_iff_eq] at h; apply h) hd.snd
       else
       have mem': containsKey k tl = true := by
-        simp[containsKey] at mem
+        simp only [containsKey, Bool.or_eq_true, beq_iff_eq] at mem
         cases mem with
-        | inl h' => simp at h; simp at k_eq; rw [k_eq] at h'; contradiction
+        | inl h' => simp only [beq_iff_eq] at h; simp only [beq_iff_eq] at k_eq; rw [k_eq] at h'; contradiction
         | inr h' => exact h'
       (Inhabited_of_containsKey tl k k' k_eq mem').default
   ⟩
 
 
-theorem getValueCast_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {v: β k} {k_eq: k == k'} {distinct: List.Pairwise (fun a b => ! a.1 == b.1) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast  k'  (insertList l toInsert) (contains_insertList_of_mem l toInsert k k' v k_eq mem) = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
+theorem getValueCast_insertList_toInsert_mem [BEq α] [LawfulBEq α] (l toInsert: List ((a : α) × β a)) {k k': α} {v: β k} {k_eq: k == k'} {distinct: List.Pairwise (fun a b => (a.1 == b.1) = false) toInsert} {distinct2: DistinctKeys l} {mem: ⟨k,v⟩ ∈ toInsert}: getValueCast  k'  (insertList l toInsert) (contains_insertList_of_mem l toInsert k k' v k_eq mem) = cast (by congr; apply LawfulBEq.eq_of_beq k_eq) v := by
   have inh: Inhabited (β k') := by
     apply Inhabited_of_containsKey toInsert k k' k_eq
     rw [containsKey_eq_true_iff_exists_mem]
     exists ⟨k,v⟩
-    simp[mem]
+    simp only [mem, beq_self_eq_true, and_self]
   rw [getValueCast_eq_getValueCast!, getValueCast!_insertList_toInsert_mem]
   · exact k_eq
   · exact distinct
@@ -2397,29 +2353,34 @@ theorem getKey?_insertList [BEq α] [PartialEquivBEq α] {l toInsert : List ((a 
     rw [ih]
     rw [getKey?_insertEntry]
     rw [containsKey_cons]
-    simp
+    simp only [Bool.or_eq_true, List.map_cons, List.reverse_cons, List.find?_append,
+      List.find?_singleton]
     cases eq : containsKey k tl with
     | true =>
-      simp
+      simp only [↓reduceIte, or_true]
       rw [containsKey_eq_contains_map_fst, List.contains_iff_exists_mem_beq] at eq
       rw [Option.or_of_isSome]
-      simp
+      simp only [List.find?_isSome, List.mem_reverse, List.mem_map]
       rcases eq with ⟨a, a_mem, a_eq⟩
-      simp at a_mem
+      simp only [List.mem_map] at a_mem
       rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
       exists a
       constructor
       . exists pair
       . exact a_eq
     | false =>
-      simp
+      simp only [Bool.false_eq_true, ↓reduceIte, or_false]
       cases eq2 : hd.fst == k with
       | true =>
-        simp
+        simp only [↓reduceIte]
         rw [containsKey_eq_contains_map_fst, ← Bool.not_eq_true, List.contains_iff_exists_mem_beq] at eq
-        simp at eq
-        have : (tl.map Sigma.fst).reverse.find? (fun a => k == a) = none := by simp; exact eq
-        simp [this]
+        simp only [List.mem_map, not_exists, not_and, Bool.not_eq_true, forall_exists_index,
+          and_imp, forall_apply_eq_imp_iff₂] at eq
+        have : (tl.map Sigma.fst).reverse.find? (fun a => k == a) = none := by
+          simp only [List.find?_eq_none, List.mem_reverse, List.mem_map, Bool.not_eq_true,
+            forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
+          exact eq
+        simp only [this, Option.none_or, Option.some_eq_ite_none_right, and_true]
         rw [BEq.comm]
         exact eq2
       | false => simp
@@ -2437,7 +2398,8 @@ theorem getKey?_insertList_lawful [BEq α] [LawfulBEq α] {l toInsert : List ((a
     rw [containsKey_cons]
     cases containsKey k tl with
     | true => simp
-    | false => simp; cases eq : hd.fst == k <;> simp; apply LawfulBEq.eq_of_beq; assumption
+    | false => simp only [Bool.false_eq_true, ↓reduceIte, beq_iff_eq, Bool.or_false]; cases eq : hd.fst == k <;> simp only [Bool.false_eq_true,
+      ↓reduceIte, Bool.or_self]; apply LawfulBEq.eq_of_beq; assumption
 
 theorem getKey_insertList [BEq α] [PartialEquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α}
 {h₁} :
@@ -2504,42 +2466,43 @@ fallback : α} :
   . simp
   . rw [getKeyD_eq_getKey?]
 
-theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: DistinctKeys toInsert) (distinct_both: ∀ (a:α), ¬ (containsKey a l ∧ containsKey a toInsert)):
+theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: List.Pairwise (fun a b => (a.1 == b.1) = false) toInsert) (distinct_both: ∀ (a:α), ¬ (containsKey a l ∧ containsKey a toInsert)):
     Perm (insertList l toInsert) (l++toInsert) := by
+  rw [← DistinctKeys.def] at distinct_toInsert
   induction toInsert generalizing l with
-  | nil => simp[insertList]
+  | nil => simp only [insertList, List.append_nil, Perm.refl]
   | cons hd tl ih =>
-    simp[insertList]
+    simp only [insertList]
     specialize ih (insertEntry hd.fst hd.snd l)
     apply Perm.trans
     · apply ih
-      · simp[insertEntry]
+      · simp only [insertEntry]
         specialize distinct_both hd.1
-        simp[containsKey] at distinct_both
-        simp [distinct_both]
+        simp only [containsKey, BEq.refl, Bool.true_or, and_true, Bool.not_eq_true] at distinct_both
+        simp only [distinct_both, cond_false, distinctKeys_cons_iff, and_true]
         exact distinct_l
       · apply DistinctKeys.tail distinct_toInsert
       · intro a
         specialize distinct_both a
-        simp[containsKey] at distinct_both
-        simp[containsKey]
+        simp only [containsKey, Bool.or_eq_true, not_and, not_or, Bool.not_eq_true] at distinct_both
+        simp only [containsKey_insertEntry, Bool.or_eq_true, not_and, Bool.not_eq_true]
         by_cases hd_a: hd.fst == a
         · rw [distinctKeys_cons_iff] at distinct_toInsert
           have contains_a_tl: containsKey a tl = false := by
             false_or_by_contra
             rename_i h
-            simp at h
-            rw [containsKey_of_eq (PartialEquivBEq.symm hd_a)] at h
-            simp [h] at distinct_toInsert
+            simp only [Bool.not_eq_false] at h
+            rw [containsKey_congr (PartialEquivBEq.symm hd_a)] at h
+            simp only [h, Bool.true_eq_false, and_false] at distinct_toInsert
           simp [contains_a_tl]
-        · simp[hd_a]
-          simp at hd_a
-          simp [hd_a] at distinct_both
+        · simp only [hd_a, Bool.false_eq_true, false_or]
+          simp only [Bool.not_eq_true] at hd_a
+          simp only [hd_a, true_and] at distinct_both
           apply distinct_both
-    · simp[insertEntry]
+    · simp only [insertEntry]
       specialize distinct_both hd.1
-      simp[containsKey] at distinct_both
-      simp [distinct_both]
+      simp only [containsKey, BEq.refl, Bool.true_or, and_true, Bool.not_eq_true] at distinct_both
+      simp only [distinct_both, cond_false, List.cons_append]
       have h_hd: hd = ⟨hd.fst, hd.snd⟩:= rfl
       rw [← h_hd]
       apply Perm.symm
@@ -2548,14 +2511,14 @@ theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: 
 theorem insertList_not_isEmpty_if_start_not_isEmpty [BEq α]{l toInsert: List ((a : α) × β a)} {h:l.isEmpty = false}:
     (List.insertList l toInsert).isEmpty = false := by
   induction toInsert generalizing l with
-  | nil => simp[insertList, h]
+  | nil => simp [insertList, h]
   | cons hd tl ih =>
-    simp[insertList, ih]
+    simp [insertList, ih]
 
 
 theorem insertList_isEmpty [BEq α]{l toInsert: List ((a : α) × β a)}: (List.insertList l toInsert).isEmpty ↔ l.isEmpty ∧ toInsert.isEmpty := by
   induction toInsert with
-  | nil => simp[insertList]
+  | nil => simp [insertList]
   | cons hd tl ih =>
     simp only [insertList, List.isEmpty_cons, Bool.false_eq_true, and_false,
       iff_false]

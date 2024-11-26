@@ -667,11 +667,13 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
           let e'    := mkApp4 f alpha betaFun val' body'
           if valIsNew && bodyIsNew then
             -- Value and body were simplified
-            let proof := mkApp8 (mkConst ``letFun_congr us) alpha beta val val' body body' (← valResult.getProof) (mkLambda body.bindingName! body.bindingInfo! alpha proof)
+            let valProof := (← valResult.getProof).abstract xs
+            let proof := mkApp8 (mkConst ``letFun_congr us) alpha beta val val' body body' valProof (mkLambda body.bindingName! body.bindingInfo! alpha proof)
             return { expr := e', proof, modified := true }
           else if valIsNew then
             -- Only the value was simplified.
-            let proof := mkApp6 (mkConst ``letFun_val_congr us) alpha beta val val' body (← valResult.getProof)
+            let valProof := (← valResult.getProof).abstract xs
+            let proof := mkApp6 (mkConst ``letFun_val_congr us) alpha beta val val' body valProof
             return { expr := e', proof, modified := true }
           else
             -- Only the body was simplified.

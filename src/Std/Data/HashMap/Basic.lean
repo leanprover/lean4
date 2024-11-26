@@ -265,9 +265,9 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
   ⟨DHashMap.Const.insertMany m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Const.insertManyUnit] def insertManyUnit
+@[inline, inherit_doc DHashMap.Const.insertManyIfNewUnit] def insertManyIfNewUnit
     {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
-  ⟨DHashMap.Const.insertManyUnit m.inner l⟩
+  ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] (l : List (α × β)) :
     HashMap α β :=

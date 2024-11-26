@@ -590,6 +590,7 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
   trace[Meta.debug] "found: {e}"
   let rec go (xs : Array Expr) (e : Expr) : SimpM SimpLetFunResult := do
     trace[Meta.debug] "go: {e.instantiateRev xs}"
+    trace[Meta.debug] "type : {← inferType (e.instantiateRev xs)}"
     let stop : SimpM SimpLetFunResult := do
       let e := e.instantiateRev xs
       let r ← simp e
@@ -610,24 +611,24 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
     else
       let beta := betaFun.bindingBody!
       let valResult ← simp (val.instantiateRev xs)
-      withLocalDecl body.bindingName! body.bindingInfo! beta fun x => do
+      withLocalDecl body.bindingName! body.bindingInfo! alpha fun x => do
         let valIsNew := valResult.expr != val
         let { expr, proof, modified := bodyIsNew } ← go (xs.push x) body.bindingBody!
         if !valIsNew && !bodyIsNew then
           let proof := mkApp2 (mkConst ``Eq.refl [v]) beta e
           return { expr := e, proof, modified := false }
         else
-          let body' := mkLambda body.bindingName! body.bindingInfo! beta expr
+          let body' := mkLambda body.bindingName! body.bindingInfo! alpha expr
           let val'  := valResult.expr.abstract xs
           let e'    := mkApp4 f alpha betaFun val' body'
           if valIsNew && bodyIsNew then
-            let proof := mkApp8 (mkConst ``letFun_congr us) alpha beta val val' body body' (← valResult.getProof) (mkLambda body.bindingName! body.bindingInfo! beta proof)
+            let proof := mkApp8 (mkConst ``letFun_congr us) alpha beta val val' body body' (← valResult.getProof) (mkLambda body.bindingName! body.bindingInfo! alpha proof)
             return { expr := e', proof, modified := true }
           else if valIsNew then
             let proof := mkApp6 (mkConst ``letFun_val_congr us) alpha beta val val' body (← valResult.getProof)
             return { expr := e', proof, modified := true }
           else
-            let proof := mkApp6 (mkConst ``letFun_body_congr us) alpha beta val body body' (mkLambda body.bindingName! body.bindingInfo! beta proof)
+            let proof := mkApp6 (mkConst ``letFun_body_congr us) alpha beta val body body' (mkLambda body.bindingName! body.bindingInfo! alpha proof)
             return { expr := e', proof, modified := true }
   let { expr, proof, modified } ← go #[] e
   if !modified then

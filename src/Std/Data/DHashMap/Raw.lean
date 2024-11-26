@@ -380,7 +380,7 @@ Inserts multiple mappings into the hash map by iterating over the given collecti
 `insert`. If the same key appears multiple times, the last occurrence takes precedence.
 
 Note: this precedence behavior is true for `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw`.
-The `insert` function on `HashSet` and `HashSet.Raw` behaves differently: it will prefer the first
+The `insertMany` function on `HashSet` and `HashSet.Raw` behaves differently: it will prefer the first
 appearance.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]

@@ -223,7 +223,7 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
 Inserts multiple mappings into the hash set by iterating over the given collection and calling
 `insert`. If the same key appears multiple times, the first occurrence takes precedence.
 
-Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `insert` function on
+Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `insertMany` function on
 `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
 appearance.
 -/

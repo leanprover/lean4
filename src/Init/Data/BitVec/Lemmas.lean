@@ -3171,11 +3171,11 @@ theorem toInt_abs_eq_ite_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
 /--
 The absolute value of `x : BitVec w`, interpreted as an integer, is a case split:
 - When `x = intMin w`, then `x.abs = intMin w`
-- Otherwise, `x.abs.toInt` equals the absolute, which is `x.toInt.natAbs`.
+- Otherwise, `x.abs.toInt` equals the absolute value (`x.toInt.natAbs`).
 
 This is a simpler version of `BitVec.toInt_abs_eq_ite`, which hides a case split on `x.msb`.
 -/
-theorem toInt_abs_eq_toInt_natAbs {x : BitVec w} : x.abs.toInt =
+theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
     if x = intMin w then (intMin w).toInt else x.toInt.natAbs := by
   rw [toInt_abs_eq_ite]
   by_cases hx : x = intMin w
@@ -3198,9 +3198,9 @@ theorem toInt_abs_eq_toInt_natAbs {x : BitVec w} : x.abs.toInt =
 The absolute value of `(x : BitVec w)`, when interpreted as an integer,
 is the absolute value of `x.toInt` when `(x ≠ intMin)`.
 -/
-theorem toInt_abs_eq_toInt_natAbs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
+theorem toInt_abs_eq_natAbs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
     x.abs.toInt = x.toInt.natAbs := by
-  simp [toInt_abs_eq_toInt_natAbs, hx]
+  simp [toInt_abs_eq_natAbs, hx]
 
 
 /-! ### Decidable quantifiers -/

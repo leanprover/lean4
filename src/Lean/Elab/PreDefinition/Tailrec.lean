@@ -20,42 +20,49 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
 
   let_expr Tailrec.mono α β inst f := type |
     throwError "Unexpected goal:{goal}"
-  if f.isLambda then
-    -- No recursive calls left
-    if !f.bindingBody!.hasLooseBVars then
-      let new_goals ← goal.applyConst ``Tailrec.mono_const
-      unless new_goals.isEmpty do
-        throwError "Left over goals"
-      return
 
-    -- A recursive call here
-    if f.bindingBody!.isApp && f.bindingBody!.appFn! == .bvar 0 then
-      let new_goals ← goal.applyConst ``Tailrec.mono_apply
-      unless new_goals.isEmpty do
-        throwError "Left over goals"
-      return
+  unless f.isLambda do
+    throwError "Unexpected goal:{goal}"
 
-    -- Manually handle PSigma.casesOn, as split doesn't
-    match_expr f.bindingBody! with
-    | PSigma.casesOn γ δ _motive x k =>
-      if f.bindingBody!.appFn!.hasLooseBVars then
-        throwError "Recursive calls in non-tail position:{indentExpr type}"
-      let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
-      let k' := f.updateLambdaE! f.bindingDomain! k
-      let p := mkApp7 (.const ``Tailrec.mono_psigma_casesOn us) α β inst γ δ x k'
-      let new_goals ← goal.apply p
-      new_goals.forM solveMono
-      return
-    | _ => pure
+  let failK :=
+    lambdaBoundedTelescope f 1 fun _ t =>
+      throwError "Recursive calls in non-tail position:{indentExpr t}"
 
-    -- We could be more careful here and only split a match or ite that
-    -- is right under the lambda, and maybe use `apply_ite`-style lemmas to avoid the more
-    -- expesive splitter machinery. For now using `splitTarget` works fine.
-    if let some mvarIds ← splitTarget? goal (splitIte := true) then
-      mvarIds.forM solveMono
-      return
+  -- No recursive calls left
+  if !f.bindingBody!.hasLooseBVars then
+    let new_goals ← goal.applyConst ``Tailrec.mono_const
+    unless new_goals.isEmpty do
+      throwError "Left over goals"
+    return
 
-  throwError "Recursive calls in non-tail position:{indentExpr type}"
+  -- A recursive call here
+  if f.bindingBody!.isApp && f.bindingBody!.appFn! == .bvar 0 then
+    let new_goals ← goal.applyConst ``Tailrec.mono_apply
+    unless new_goals.isEmpty do
+      throwError "Left over goals"
+    return
+
+  -- Manually handle PSigma.casesOn, as split doesn't
+  match_expr f.bindingBody! with
+  | PSigma.casesOn γ δ _motive x k =>
+    if f.bindingBody!.appFn!.hasLooseBVars then
+      failK
+    let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
+    let k' := f.updateLambdaE! f.bindingDomain! k
+    let p := mkApp7 (.const ``Tailrec.mono_psigma_casesOn us) α β inst γ δ x k'
+    let new_goals ← goal.apply p
+    new_goals.forM solveMono
+    return
+  | _ => pure
+
+  -- We could be more careful here and only split a match or ite that
+  -- is right under the lambda, and maybe use `apply_ite`-style lemmas to avoid the more
+  -- expesive splitter machinery. For now using `splitTarget` works fine.
+  if let some mvarIds ← splitTarget? goal (splitIte := true) then
+    mvarIds.forM solveMono
+    return
+
+  failK
 
 private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : Expr :=
   e.replace fun e =>

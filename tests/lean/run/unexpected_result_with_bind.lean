@@ -15,7 +15,7 @@ def unexpectedBehavior : FooM String := do
 let b : Bool := (#[] : Array Nat).isEmpty;
 let trueBranch  ← pure "trueBranch";
 let falseBranch ← pure "falseBranch";
-(1 : Nat).foldM (λ _ (s : String) => do
+(1 : Nat).foldM (λ _ _ (s : String) => do
   let s ← pure $ if b then trueBranch else falseBranch; pure s) ""
 
 /-- info: "trueBranch" -/

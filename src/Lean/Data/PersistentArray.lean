@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Data.Nat.Fold
 import Init.Data.Array.Basic
 import Init.NotationExtra
 import Init.Data.ToString.Macro
@@ -371,7 +372,7 @@ instance : ToString Stats := ⟨Stats.toString⟩
 end PersistentArray
 
 def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
-  n.fold (init := PersistentArray.empty) fun _ p => p.push v
+  n.fold (init := PersistentArray.empty) fun _ _ p => p.push v
 
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v

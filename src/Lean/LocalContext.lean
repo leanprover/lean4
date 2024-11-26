@@ -406,8 +406,8 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
 
 @[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   let b := b.abstract xs
-  xs.size.foldRev (init := b) fun i b =>
-    let x := xs[i]!
+  xs.size.foldRev (init := b) fun i _ b =>
+    let x := xs[i]
     match lctx.findFVar? x with
     | some (.cdecl _ _ n ty bi _)  =>
       let ty := ty.abstractRange i xs;
@@ -457,7 +457,7 @@ def sanitizeNames (lctx : LocalContext) : StateM NameSanitizerState LocalContext
   let st ← get
   if !getSanitizeNames st.options then pure lctx else
     StateT.run' (s := ({} : NameSet)) <|
-      lctx.decls.size.foldRevM (init := lctx) fun i lctx => do
+      lctx.decls.size.foldRevM (init := lctx) fun i _ lctx => do
         match lctx.decls[i]! with
         | none      => pure lctx
         | some decl =>

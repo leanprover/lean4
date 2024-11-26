@@ -282,10 +282,11 @@ where
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
         withAlwaysResolvedPromise fun finished => do
           withAlwaysResolvedPromises altStxs.size fun altPromises => do
-            tacSnap.new.resolve <| .mk {
+            tacSnap.new.resolve {
               -- save all relevant syntax here for comparison with next document version
               stx := mkNullNode altStxs
               diagnostics := .empty
+              inner? := none
               finished := { range? := none, task := finished.result }
               next := altStxs.zipWith altPromises fun stx prom =>
                 { range? := stx.getRange?, task := prom.result }
@@ -298,7 +299,7 @@ where
                 let old := old.val.get
                 -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
                 -- version and picked apart in `applyAltStx`
-                return ⟨old.data.stx, (← old.data.next[i]?)⟩
+                return ⟨old.stx, (← old.next[i]?)⟩
               new := prom
             }
             finished.resolve { diagnostics := .empty, state? := (← saveState) }

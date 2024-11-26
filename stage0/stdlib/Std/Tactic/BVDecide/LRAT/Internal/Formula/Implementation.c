@@ -51,11 +51,13 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
+lean_object* l_Array_range___lambda__1___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_restoreAssignments___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_numClausesInFormula___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_numClausesInFormula___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_ofFn___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ofArray__fold__fn___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insertRatUnits___spec__1(lean_object*, lean_object*, lean_object*);
@@ -76,7 +78,6 @@ LEAN_EXPORT lean_object* l_List_filterMapTR_go___at_Std_Tactic_BVDecide_LRAT_Int
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_delete(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatCheck___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_range(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupAdd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatCheck(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insertRatUnits___boxed(lean_object*, lean_object*, lean_object*);
@@ -128,6 +129,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_inse
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___closed__1;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instEntailsPosFin___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete(lean_object*, lean_object*, lean_object*);
@@ -3911,53 +3913,61 @@ return x_8;
 }
 }
 }
+static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Array_range___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_4 = l_Std_Sat_Literal_negate___rarg(x_3);
 x_5 = lean_array_get_size(x_2);
-lean_inc(x_5);
-x_6 = l_Array_range(x_5);
-x_7 = lean_array_get_size(x_6);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_nat_dec_lt(x_8, x_7);
-if (x_9 == 0)
+x_6 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___closed__1;
+x_7 = l_Array_ofFn___rarg(x_5, x_6);
+x_8 = lean_array_get_size(x_7);
+x_9 = lean_unsigned_to_nat(0u);
+x_10 = lean_nat_dec_lt(x_9, x_8);
+if (x_10 == 0)
 {
-lean_object* x_10; 
+lean_object* x_11; 
+lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-x_10 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__1;
-return x_10;
+x_11 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__1;
+return x_11;
 }
 else
 {
-uint8_t x_11; 
-x_11 = lean_nat_dec_le(x_7, x_7);
-if (x_11 == 0)
+uint8_t x_12; 
+x_12 = lean_nat_dec_le(x_8, x_8);
+if (x_12 == 0)
 {
-lean_object* x_12; 
+lean_object* x_13; 
+lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-x_12 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__1;
-return x_12;
+x_13 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__1;
+return x_13;
 }
 else
 {
-size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; 
-x_13 = 0;
-x_14 = lean_usize_of_nat(x_7);
+size_t x_14; size_t x_15; lean_object* x_16; lean_object* x_17; 
+x_14 = 0;
+x_15 = lean_usize_of_nat(x_8);
+lean_dec(x_8);
+x_16 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__1;
+x_17 = l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___spec__1(x_1, x_2, x_4, x_5, x_7, x_14, x_15, x_16);
 lean_dec(x_7);
-x_15 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__1;
-x_16 = l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___spec__1(x_1, x_2, x_4, x_5, x_6, x_13, x_14, x_15);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-return x_16;
+return x_17;
 }
 }
 }
@@ -5769,6 +5779,8 @@ l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_confirmRupHint___closed__3 = 
 lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_confirmRupHint___closed__3);
 l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupCheck___closed__1 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupCheck___closed__1();
 lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupCheck___closed__1);
+l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___closed__1 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___closed__1();
+lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_getRatClauseIndices___closed__1);
 l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ratHintsExhaustive___closed__1 = _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ratHintsExhaustive___closed__1();
 lean_mark_persistent(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ratHintsExhaustive___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

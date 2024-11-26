@@ -268,6 +268,9 @@ def USize.shiftRight (a b : USize) : USize := ⟨a.toBitVec >>> (mod b (USize.of
 def UInt32.toUSize (a : UInt32) : USize := USize.ofNat32 a.toBitVec.toNat a.toBitVec.isLt
 @[extern "lean_usize_to_uint32"]
 def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
+/-- Converts a `UInt64` to a `USize` by reducing modulo `USize.size`. -/
+@[extern "lean_uint64_to_usize"]
+def UInt64.toUSize (a : UInt64) : USize := a.toNat.toUSize
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩

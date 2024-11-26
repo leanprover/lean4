@@ -230,7 +230,7 @@ instance : ToSnapshotTree TacticFinishedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Language.Snapshot where
+structure TacticParsedSnapshot extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
   /-- Task for nested incrementality, if enabled for tactic. -/
@@ -240,16 +240,9 @@ structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Languag
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 deriving Inhabited
-
-/-- State after execution of a single synchronous tactic step. -/
-inductive TacticParsedSnapshot where
-  | mk (data : TacticParsedSnapshotData TacticParsedSnapshot)
-deriving Inhabited
-abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData TacticParsedSnapshot
-  | .mk data => data
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
-    go := fun ⟨s⟩ => ⟨s.toSnapshot,
+    go := fun s => ⟨s.toSnapshot,
       s.inner?.toArray.map (·.map (sync := true) go) ++
       #[s.finished.map (sync := true) toSnapshotTree] ++
       s.next.map (·.map (sync := true) go)⟩
@@ -479,6 +472,26 @@ def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
         dbg_trace "reuse stopped: guard failed at {old.stx}"
       return !cond }
   }) act
+
+@[inherit_doc Core.wrapAsync]
+def wrapAsync (act : Unit → TermElabM α) : TermElabM (EIO Exception α) := do
+  let ctx ← read
+  let st ← get
+  let metaCtx ← readThe Meta.Context
+  let metaSt ← getThe Meta.State
+  Core.wrapAsync fun _ =>
+    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
+
+@[inherit_doc Core.wrapAsyncAsSnapshot]
+def wrapAsyncAsSnapshot (act : Unit → TermElabM Unit)
+    (desc : String := by exact decl_name%.toString) :
+    TermElabM (BaseIO Language.SnapshotTree) := do
+  let ctx ← read
+  let st ← get
+  let metaCtx ← readThe Meta.Context
+  let metaSt ← getThe Meta.State
+  Core.wrapAsyncAsSnapshot (desc := desc) fun _ =>
+    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 

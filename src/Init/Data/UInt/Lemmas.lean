@@ -133,6 +133,9 @@ declare_uint_theorems UInt32
 declare_uint_theorems UInt64
 declare_uint_theorems USize
 
+theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat n) = n :=
+  toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h le_usize_size)
+
 theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m := by
   simp [lt_def, BitVec.lt_def, UInt32.toNat, toBitVec_eq_of_lt h]
 

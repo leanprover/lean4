@@ -2116,6 +2116,11 @@ theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073
   | _, Or.inl rfl => Or.inl (of_decide_eq_true rfl)
   | _, Or.inr rfl => Or.inr (of_decide_eq_true rfl)
 
+theorem usize_size_pos : LT.lt 0 USize.size :=
+  match USize.size, usize_size_eq with
+  | _, Or.inl rfl => of_decide_eq_true rfl
+  | _, Or.inr rfl => of_decide_eq_true rfl
+
 /--
 A `USize` is an unsigned integer with the size of a word
 for the platform's architecture.
@@ -2155,24 +2160,7 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
-  default := USize.ofNatCore 0 (match USize.size, usize_size_eq with
-    | _, Or.inl rfl => of_decide_eq_true rfl
-    | _, Or.inr rfl => of_decide_eq_true rfl)
-
-/--
-Upcast a `Nat` less than `2^32` to a `USize`.
-This is lossless because `USize.size` is either `2^32` or `2^64`.
-This function is overridden with a native implementation.
--/
-@[extern "lean_usize_of_nat"]
-def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize where
-  toBitVec :=
-    BitVec.ofNatLt n (
-      match System.Platform.numBits, System.Platform.numBits_eq with
-      | _, Or.inl rfl => h
-      | _, Or.inr rfl => Nat.lt_trans h (of_decide_eq_true rfl)
-    )
-
+  default := USize.ofNatCore 0 usize_size_pos
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
 it is also not a "surrogate" character (the range `0xd800` to `0xdfff` inclusive).
@@ -3431,21 +3419,6 @@ class Hashable (α : Sort u) where
   hash : α → UInt64
 
 export Hashable (hash)
-
-/--
-Upcast a `USize` to a `UInt64`.
-This is lossless because `USize.size` is either `2^32` or `2^64`.
-This function is overridden with a native implementation.
--/
-@[extern "lean_usize_to_uint64"]
-def USize.toUInt64 (u : USize) : UInt64 where
-  toBitVec := BitVec.ofNatLt u.toBitVec.toNat (
-        let ⟨⟨n, h⟩⟩ := u
-        show LT.lt n _ from
-        match System.Platform.numBits, System.Platform.numBits_eq, h with
-        | _, Or.inl rfl, h => Nat.lt_trans h (of_decide_eq_true rfl)
-        | _, Or.inr rfl, h => h
-      )
 
 /-- An opaque hash mixing operation, used to implement hashing for tuples. -/
 @[extern "lean_uint64_mix_hash"]

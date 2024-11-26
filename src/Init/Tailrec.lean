@@ -179,11 +179,10 @@ noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   · exact b
 
 noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
-  csup c := flat_csup b c
+  csup := flat_csup b
   csup_spec := by
     intro x c hc
     unfold flat_csup
-    dsimp
     split
     next hex =>
       apply Classical.some_spec₂ (q := (· ⊑ x ↔ (∀ y, c y → y ⊑ x)))
@@ -230,10 +229,10 @@ instance [∀ x, Order (β x)] : Order (∀ x, β x) where
   rel_antisymm hf hg := funext (fun x => rel_antisymm (hf x) (hg x))
 
 theorem monotone_of_monotone_apply [Order γ] [∀ x, Order (β x)] (f : γ → (∀ x, β x))
-  (h : ∀ x, monotone (f · x)) : monotone f :=
+  (h : ∀ y, monotone (fun x => f x y)) : monotone f :=
   fun x y hxy z => h z x y hxy
 
-theorem monotone_of_apply_monotone [∀ x, Order (β x)] (x : α) :
+theorem monotone_apply [∀ x, Order (β x)] (x : α) :
     monotone (fun (f : (∀ x, β x)) => f x) := fun _ _ hfg => hfg x
 
 /-
@@ -277,34 +276,28 @@ end fun_order
 section tailrec
 
 variable {α : Type u}
-variable {β : α → Type v}
+variable {β : Type v}
+variable [Inhabited β]
 
-/-
-def tailrec (F : (∀ x, β x) → (∀ x, β x)) :=
-  ∀ x, (∀ f g, F f x = F g x) ∨ (∃ y, ∃ (h : β x = β y), ∀ f, F f x = h ▸ (f y))
+def mono (F : (α → β) → β) :=
+    monotone (α := ∀ _, FlatOrder default) (β := FlatOrder default) F
 
-def monotone_of_tailrec (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) (htailrec : tailrec F) :
-    @monotone (∀ x, FlatOrder (w x)) _ F := by
-  intro f g hfg x
-  cases htailrec x
-  next hconst =>
-    apply Order.rel_of_eq
-    apply hconst
-  next hrec =>
-    obtain ⟨x', hbeta, hrec⟩ := hrec
-    rw [hrec f, hrec g]
-    specialize hfg x'
-    apply cast_rel_cast
-    apply hfg
+theorem mono_const (c : β) : mono (fun (_ : α → β) => c) :=
+  monotone_const _
+
+theorem mono_apply (x : α) : mono (β := β) (fun f => f x) :=
+  monotone_apply (β := fun _ => FlatOrder _) x
+
 
 noncomputable
-def tailrec_fix (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) : ∀ x, β x :=
-  @fix (∀ x, FlatOrder (w x)) _ _ F
+def tailrec_fix (F : (α → β) → (α → β)) : (α → β) :=
+  @fix (∀ _, FlatOrder default) _ _ F
 
-theorem tailrec_fix_eq (w : ∀ x, β x) (F : (∀ x, β x) → (∀ x, β x)) (htailrec : tailrec F) :
-    tailrec_fix w F = F (tailrec_fix w F) :=
-  @fix_eq (∀ x, FlatOrder (w x)) _ _ F (monotone_of_tailrec w F htailrec)
--/
+theorem tailrec_fix_eq (F : (α → β) → (α → β))
+    (hmono : ∀ (x : α), mono (fun f => F f x)) :
+    tailrec_fix F = F (tailrec_fix F) :=
+  @fix_eq (∀ _, FlatOrder _) _ _ F
+    (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) F hmono)
 
 def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=
   if P x then
@@ -312,19 +305,15 @@ def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :
   else
     rec (x +1)
 
-instance : Order (Option α) := inferInstanceAs (Order (FlatOrder none))
-noncomputable instance : CCPO (Option α) := inferInstanceAs (CCPO (FlatOrder none))
-
-noncomputable def find P := fix (findF P)
+noncomputable def find P := tailrec_fix (findF P)
 
 theorem find_eq : find P = findF P (find P) := by
-  apply fix_eq
+  apply tailrec_fix_eq
   unfold findF
-  apply monotone_of_monotone_apply
   intro n
   split
-  · apply monotone_const
-  · apply monotone_of_apply_monotone
+  · apply mono_const
+  · apply mono_apply
 
 end tailrec
 

@@ -13,7 +13,10 @@ Dynamically loads a shared library so that its symbols can be used by
 the Lean interpreter (e.g., for interpreting `@[extern]` declarations).
 Equivalent to passing `--load-dynlib=path` to `lean`.
 
-Lean never unloads libraries.
+**Lean never unloads libraries.** Attempting to load a library that defines
+symbols shared with a previously loaded library (including itself) will error.
+If multiple libraries share common symbols, those symbols should be linked
+and loaded as separate libraries.
 -/
 @[extern "lean_load_dynlib"]
 opaque loadDynlib (path : @& System.FilePath) : IO Unit
@@ -32,7 +35,10 @@ Lean environment initializers, such as definitions calling
 To enable them, use `loadPlugin` within a `withImporting` block. This will
 set  `Lean.initializing` (but not `IO.initializing`).
 
-Lean never unloads plugins.
+**Lean never unloads plugins.** Attempting to load a plugin that defines
+symbols shared with a previously loaded plugin (including itself) will error.
+If multiple plugins share common symbols (e.g., imports), those symbols
+should be linked and loaded separately.
 -/
 @[extern "lean_load_plugin"]
 opaque loadPlugin (path : @& System.FilePath) : IO Unit

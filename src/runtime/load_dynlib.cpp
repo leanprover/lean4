@@ -91,6 +91,10 @@ extern "C" LEAN_EXPORT obj_res lean_load_plugin(b_obj_arg path, obj_arg) {
     }
     init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
 #else
+    // Like lean_load_dynlib, the library is loaded with RTLD_GLOBAL.
+    // This ensures the interpreter has access to plugin definitions that are also
+    // imported (e.g., an environment extension defined with builtin_initialize).
+    // It also means that loading multiple plugins which define the same symbol will error.
     void *handle = dlopen(rpath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
     if (!handle) {
         return io_result_mk_error((sstream()

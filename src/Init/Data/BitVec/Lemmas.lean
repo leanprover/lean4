@@ -2653,6 +2653,20 @@ theorem getMsbD_rotateLeftAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i �
     (x.rotateLeftAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - (w - r))) := by
   simp [rotateLeftAux, getMsbD_or, show i + r ≥ w by omega, show ¬i < w - r by omega]
 
+/--
+If a number `w * n ≤ i < w * (n + 1)`, then `i - w * n` equals `i % w`.
+This is true by subtracting `w * n` from the inequality, giving
+`0 ≤ i - w * n < w`, which uniquely identifies `i % w`.
+-/
+private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w * (n + 1)) :
+    i - w * n = i % w := by
+  rw [Nat.mod_def]
+  congr
+  symm
+  apply Nat.div_eq_of_lt_le
+    (by rw [Nat.mul_comm]; omega)
+    (by rw [Nat.mul_comm]; omega)
+
 /-- When `r < w`, we give a formula for `(x.rotateLeft r).getMsbD i`. -/
 theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
     (x.rotateLeft r).getMsbD n = (decide (n < w) && x.getMsbD ((r + n) % w)) := by
@@ -2665,8 +2679,8 @@ theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
       by_cases h₁ : n < w + 1
       · simp only [h₁, decide_true, Bool.true_and]
         have h₂ : (r + n) < 2 * (w + 1) := by omega
-        rw [Nat.mod_eq_sub_of_le_of_lt (n := 1) (by omega) (by omega)]
         congr 1
+        rw [← Nat.sub_mul_eq_mod_of_lt_of_le (n := 1) (by omega) (by omega), Nat.mul_one]
         omega
       · simp [h₁]
 
@@ -2982,20 +2996,6 @@ theorem replicate_succ_eq {x : BitVec w} :
     x.replicate (n + 1) =
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
   simp [replicate]
-
-/--
-If a number `w * n ≤ i < w * (n + 1)`, then `i - w * n` equals `i % w`.
-This is true by subtracting `w * n` from the inequality, giving
-`0 ≤ i - w * n < w`, which uniquely identifies `i % w`.
--/
-private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w * (n + 1)) :
-    i - w * n = i % w := by
-  rw [Nat.mod_def]
-  congr
-  symm
-  apply Nat.div_eq_of_lt_le
-    (by rw [Nat.mul_comm]; omega)
-    (by rw [Nat.mul_comm]; omega)
 
 @[simp]
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :

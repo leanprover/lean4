@@ -683,20 +683,6 @@ theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
   conv => rhs; congr; rw [← mod_add_div x w]
   simp
 
-@[simp]
-theorem mod_eq_sub_of_le_of_lt {x w n : Nat} (x_ge : w * n ≤ x) (x_lt : x < w * (n + 1)) :
-    x % w = x - w * n := by
-  rw [Nat.mod_eq_sub]
-  congr
-  by_cases h₀ : 0 < w <;> by_cases h₁ : 0 < x
-  · rw [Nat.div_eq_of_lt_le] <;> (rw [Nat.mul_comm]; omega)
-  · have h_nw : w * n = 0 := by omega
-    rw [Nat.mul_eq_zero] at h_nw
-    simp only [show x = 0 by omega, Nat.zero_div]
-    omega
-  · simp [show w = 0 by omega] at x_ge x_lt
-  · simp [show x = 0 by omega, show w = 0 by omega] at x_ge x_lt
-
 /-! ### pow -/
 
 theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by

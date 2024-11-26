@@ -461,13 +461,18 @@ theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl
 
-theorem insertList_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): insertList m l = insertListₘ m l := by
-  simp only [insertList]
+theorem insertMany_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): insertMany m l = insertListₘ m l := by
+  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
+    (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),
+      (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+    t.val.insertListₘ l from this _
+  intro t
   induction l generalizing m with
   | nil => simp[insertListₘ]
   | cons hd tl ih =>
     simp only [List.foldl_cons,insertListₘ]
-    rw [ih]
+    apply ih
 
 section
 

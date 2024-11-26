@@ -352,10 +352,6 @@ where
     r := ⟨r.1.insert a b, fun _ h hm => h (r.2 _ h hm)⟩
   return r
 
-/-- Internal implementation detail of the hash map -/
-def insertList [BEq α] [Hashable α]
-    (m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
-  List.foldl (fun a b => insert a b.1 b.2) m l
 section
 
 variable {β : Type v}

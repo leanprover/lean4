@@ -185,14 +185,14 @@ def Package.barrelFacetConfig : PackageFacetConfig reservoirBarrelFacet :=
 def Package.optGitHubReleaseFacetConfig : PackageFacetConfig optGitHubReleaseFacet :=
   mkOptBuildArchiveFacetConfig buildArchiveFile getReleaseUrl
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated optGitHubReleaseFacetConfig (since := "2024-09-27")]
 abbrev Package.optReleaseFacetConfig := optGitHubReleaseFacetConfig
 
 /-- The `PackageFacetConfig` for the builtin `gitHubReleaseFacet`. -/
 def Package.gitHubReleaseFacetConfig : PackageFacetConfig gitHubReleaseFacet :=
   mkBuildArchiveFacetConfig optGitHubReleaseFacet "GitHub release"
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated gitHubReleaseFacetConfig (since := "2024-09-27")]
 abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 
 /--

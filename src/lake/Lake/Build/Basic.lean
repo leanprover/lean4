@@ -120,5 +120,6 @@ Logs a build step with `message`.
 As a result, this no longer functions the way it used to. It now just logs the
 `message` via `logVerbose`.
 -/
-@[deprecated (since := "2024-05-25"), inline] def logStep [Monad m] [MonadLog m] (message : String) : m Unit := do
+@[deprecated "See doc-string for deprecation information." (since := "2024-05-25"), inline]
+def logStep [Monad m] [MonadLog m] (message : String) : m Unit := do
   logVerbose message

@@ -224,7 +224,7 @@ theorem take_succ {l : List α} {n : Nat} : l.take (n + 1) = l.take n ++ l[n]?.t
     · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
-@[deprecated (since := "2024-07-25")]
+@[deprecated "Deprecated without replacement." (since := "2024-07-25")]
 theorem drop_sizeOf_le [SizeOf α] (l : List α) (n : Nat) : sizeOf (l.drop n) ≤ sizeOf l := by
   induction l generalizing n with
   | nil => rw [drop_nil]; apply Nat.le_refl

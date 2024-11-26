@@ -4,7 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+prelude
+
+import Init.ByCases
+import Init.RCases
+
 namespace Lean.Tailrec
+
 
 universe u v
 
@@ -299,6 +305,11 @@ theorem tailrec_fix_eq (F : (α → β) → (α → β))
   @fix_eq (∀ _, FlatOrder _) _ _ F
     (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) F hmono)
 
+end tailrec
+
+/-
+section «example»
+
 def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=
   if P x then
     some x
@@ -315,7 +326,7 @@ theorem find_eq : find P = findF P (find P) := by
   · apply mono_const
   · apply mono_apply
 
-end tailrec
-
+end «example»
+-/
 
 end Lean.Tailrec

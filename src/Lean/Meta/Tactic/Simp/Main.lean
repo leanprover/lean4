@@ -573,37 +573,77 @@ def congr (e : Expr) : SimpM Result := do
 
 /--
 Returns `true` if `e` is of the form `@letFun _ (fun _ => β) _ _`
+
+`β` must not contain loose bound variables. Recall that `simp` does not have support for `let_fun`s
+where resulting type depends on the `let`-value. Example:
+```
+let_fun n := 10;
+BitVec.zero n
+```
 -/
 def isNonDepLetFun (e : Expr) : Bool :=
   let_expr letFun _ beta _ body := e | false
-  if beta.isLambda then
-    !beta.bindingBody!.hasLooseBVars && body.isLambda
-  else
-    false
+  beta.isLambda && !beta.bindingBody!.hasLooseBVars && body.isLambda
 
-structure SimpLetFunResult where
+/--
+Auxiliary structure used to represent the return value of `simpNonDepLetFun.go`.
+-/
+private structure SimpLetFunResult where
+  /--
+  The simplified expression. Note that is may contain loose bound variables.
+  `simpNonDepLetFun.go` attempts to minimize the quadratic overhead imposed
+  by the locally nameless discipline in a sequence of `let_fun` declarations.
+  -/
   expr     : Expr
+  /--
+  The proof that the simplified expression is equal to the input one.
+  It may containt loose bound variables. See `expr` field.
+  -/
   proof    : Expr
+  /--
+  `modified := false` iff `expr` is structurally equal to the input expression.
+  -/
   modified : Bool
 
+/--
+Simplifies a sequence of `let_fun` declarations.
+It attempts to minimize the quadratic overhead imposed by
+the locally nameless discipline.
+-/
 partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
-  trace[Meta.debug] "found: {e}"
   let rec go (xs : Array Expr) (e : Expr) : SimpM SimpLetFunResult := do
-    trace[Meta.debug] "go: {e.instantiateRev xs}"
-    trace[Meta.debug] "type : {← inferType (e.instantiateRev xs)}"
+    /-
+    Helper function applied when `e` is not a `let_fun` or
+    is a non supported `let_fun` (e.g., the resulting type depends on the value).
+    -/
     let stop : SimpM SimpLetFunResult := do
       let e := e.instantiateRev xs
       let r ← simp e
-      trace[Meta.debug] "{e} ==> {r.expr}"
       return { expr := r.expr.abstract xs, proof := (← r.getProof).abstract xs, modified :=  r.expr != e }
     let_expr f@letFun alpha betaFun val body := e | stop
-    trace[Meta.debug] "body: {body.instantiateRev xs}"
     let us := f.constLevels!
     let [_, v] := us | stop
+    /-
+    Recall that `let_fun x : α := val; e[x]` is encoded at
+    ```
+    @letFun α (fun x : α => β[x]) val (fun x : α => e[x])
+    ```
+    `betaFun` is `(fun x : α => β[x])`. If `β[x]` does not have loose bound variables then the resulting type
+    does not depend on the value since it does not depend on `x`.
+
+    We also check whether `alpha` does not depend on the previous `let_fun`s in the sequence.
+    This check is just to make the code simpler. It is not common to have a type depending on the value of a previous `let_fun`.
+    -/
     if alpha.hasLooseBVars || !betaFun.isLambda || !body.isLambda || betaFun.bindingBody!.hasLooseBVars then
       stop
     else if !body.bindingBody!.hasLooseBVar 0 then
-      -- redundant let_fun
+      /-
+      Redundant `let_fun`. The simplifier will remove it.
+      Remark: the `hasLooseBVar` check here may introduce a quadratic overhead in the worst case.
+      If observe that in practice, we may use a separate step for removing unused variables.
+
+      Remark: note that we do **not** simplify the value in this case.
+      -/
       let x := mkConst `__no_used_dummy__ -- dummy value
       let { expr, proof, .. } ← go (xs.push x) body.bindingBody!
       let proof := mkApp6 (mkConst ``letFun_unused us) alpha betaFun.bindingBody! val body.bindingBody! expr proof
@@ -615,6 +655,10 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
         let valIsNew := valResult.expr != val
         let { expr, proof, modified := bodyIsNew } ← go (xs.push x) body.bindingBody!
         if !valIsNew && !bodyIsNew then
+          /-
+          Value and body were not simplified. We just return `e` and a new refl proof.
+          We must use the low-level `Expr` APIs because `e` may contain loose bound variables.
+          -/
           let proof := mkApp2 (mkConst ``Eq.refl [v]) beta e
           return { expr := e, proof, modified := false }
         else
@@ -622,19 +666,21 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
           let val'  := valResult.expr.abstract xs
           let e'    := mkApp4 f alpha betaFun val' body'
           if valIsNew && bodyIsNew then
+            -- Value and body were simplified
             let proof := mkApp8 (mkConst ``letFun_congr us) alpha beta val val' body body' (← valResult.getProof) (mkLambda body.bindingName! body.bindingInfo! alpha proof)
             return { expr := e', proof, modified := true }
           else if valIsNew then
+            -- Only the value was simplified.
             let proof := mkApp6 (mkConst ``letFun_val_congr us) alpha beta val val' body (← valResult.getProof)
             return { expr := e', proof, modified := true }
           else
+            -- Only the body was simplified.
             let proof := mkApp6 (mkConst ``letFun_body_congr us) alpha beta val body body' (mkLambda body.bindingName! body.bindingInfo! alpha proof)
             return { expr := e', proof, modified := true }
   let { expr, proof, modified } ← go #[] e
   if !modified then
     return { expr := e }
   else
-    trace[Meta.debug] ">>> {proof}"
     return { expr, proof? := proof }
 
 def simpApp (e : Expr) : SimpM Result := do

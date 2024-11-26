@@ -851,12 +851,12 @@ protected theorem lt_pow_self {n a : Nat} (h : 1 < a) : n < a ^ n := by
   | zero => exact Nat.zero_lt_one
   | succ _ ih => exact Nat.lt_of_lt_of_le (Nat.add_lt_add_right ih 1) (Nat.pow_lt_pow_succ h)
 
-protected theorem lt_two_pow : n < 2 ^ n :=
+protected theorem lt_two_pow_self : n < 2 ^ n :=
   Nat.lt_pow_self Nat.one_lt_two
 
 @[simp]
-protected theorem mod_two_pow : n % 2 ^ n = n :=
-  Nat.mod_eq_of_lt Nat.lt_two_pow
+protected theorem mod_two_pow_self : n % 2 ^ n = n :=
+  Nat.mod_eq_of_lt Nat.lt_two_pow_self
 
 @[simp]
 theorem two_pow_pred_mul_two (h : 0 < w) :

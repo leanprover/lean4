@@ -10,36 +10,11 @@ import Init.System.Promise
 namespace UV
 
 @[extern "lean_uv_initialize"]
-opaque initSocket : IO Unit
+opaque initUV : IO Unit
 
-builtin_initialize initSocket
+builtin_initialize initUV
 
-/--
-Structure representing an event loop with a reference and data of type α.
--/
-opaque EventLoop : Type := Unit
-
-namespace EventLoop
-
-/--
-Runs the event loop in the specified run mode.
--/
-@[extern "lean_uv_event_loop_mk"]
-opaque mk : IO EventLoop
-
-/--
-Run mode options for the event loop, controlling its execution behavior.
--/
-inductive RunMode
-  | Default
-  | Once
-  | NoWait
-
-/--
-Runs the event loop in the specified run mode.
--/
-@[extern "lean_uv_event_loop_run"]
-opaque run (loop : @& EventLoop) (runMode : RunMode) : IO Unit
+namespace Loop
 
 /--
 Options for configuring the event loop behavior.
@@ -52,33 +27,21 @@ structure Loop.Options where
 Configures the event loop with the specified options.
 -/
 @[extern "lean_uv_event_loop_configure"]
-opaque configure (loop : @& EventLoop) (options : Loop.Options) : BaseIO Unit
-
-/--
-Closes the event loop from running further events.
--/
-@[extern "lean_uv_event_loop_close"]
-opaque close (loop : @& EventLoop) : BaseIO Unit
-
-/--
-Stops the event loop from running further events.
--/
-@[extern "lean_uv_event_loop_stop"]
-opaque stop (loop : @& EventLoop) : BaseIO Unit
+opaque configure (options : Loop.Options) : BaseIO Unit
 
 /--
 Gets the current timestamp from the event loop.
 -/
 @[extern "lean_uv_event_loop_now"]
-opaque now (loop : @& EventLoop) : BaseIO UInt64
+opaque now : BaseIO UInt64
 
 /--
 Checks if the event loop is still active and processing events.
 -/
 @[extern "lean_uv_event_loop_alive"]
-opaque alive (loop : @& EventLoop) : BaseIO Bool
+opaque alive : BaseIO Bool
 
-end EventLoop
+end Loop
 
 opaque Timer : Type := Unit
 
@@ -88,7 +51,7 @@ namespace Timer
 Creates a new timer associated with the given event loop and data.
 -/
 @[extern "lean_uv_timer_mk"]
-opaque mk (loop : @& EventLoop) (timeout : UInt64) : IO Timer
+opaque mk (timeout : UInt64) : IO Timer
 
 /--
 Starts a timer with the specified timeout interval (both in milliseconds).

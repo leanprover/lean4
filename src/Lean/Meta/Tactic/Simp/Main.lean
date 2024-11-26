@@ -649,10 +649,11 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
       let proof := mkApp6 (mkConst ``letFun_unused us) alpha betaFun.bindingBody! val body.bindingBody! expr proof
       return { expr, proof, modified := true }
     else
-      let beta := betaFun.bindingBody!
-      let valResult ← simp (val.instantiateRev xs)
+      let beta    := betaFun.bindingBody!
+      let valInst := val.instantiateRev xs
+      let valResult ← simp valInst
       withLocalDecl body.bindingName! body.bindingInfo! alpha fun x => do
-        let valIsNew := valResult.expr != val
+        let valIsNew := valResult.expr != valInst
         let { expr, proof, modified := bodyIsNew } ← go (xs.push x) body.bindingBody!
         if !valIsNew && !bodyIsNew then
           /-

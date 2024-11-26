@@ -229,9 +229,9 @@ m.inner.values
     {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α β) (l : ρ) : Raw α β :=
   ⟨DHashMap.Raw.Const.insertMany m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Raw.Const.insertManyUnit] def insertManyUnit [BEq α] [Hashable α]
-    {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
-  ⟨DHashMap.Raw.Const.insertManyUnit m.inner l⟩
+@[inline, inherit_doc DHashMap.Raw.Const.insertManyIfNewUnit] def insertManyIfNewUnit [BEq α]
+    [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
+  ⟨DHashMap.Raw.Const.insertManyIfNewUnit m.inner l⟩
 
 @[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofList [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α β :=
@@ -306,9 +306,9 @@ theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ (α × �
     (h : m.WF) : (m.insertMany l).WF :=
   ⟨DHashMap.Raw.WF.Const.insertMany h.out⟩
 
-theorem WF.insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {m : Raw α Unit} {l : ρ}
-    (h : m.WF) : (m.insertManyUnit l).WF :=
-  ⟨DHashMap.Raw.WF.Const.insertManyUnit h.out⟩
+theorem WF.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α] {m : Raw α Unit}
+    {l : ρ} (h : m.WF) : (m.insertManyIfNewUnit l).WF :=
+  ⟨DHashMap.Raw.WF.Const.insertManyIfNewUnit h.out⟩
 
 theorem WF.ofList [BEq α] [Hashable α] {l : List (α × β)} : (ofList l).WF :=
   ⟨DHashMap.Raw.WF.Const.ofList⟩

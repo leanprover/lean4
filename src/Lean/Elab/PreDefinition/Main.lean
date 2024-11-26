@@ -179,7 +179,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
         let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
         let doOrDoes := if preDefsWithout.size = 1 then "does" else "do"
         logErrorAt termBy.ref (m!"incomplete set of `termination_by` annotations:\n"++
-          m!"This function is mutually with {m}, which {doOrDoes} not have " ++
+          m!"This function is mutually recursive with {m}, which {doOrDoes} not have " ++
           m!"a `termination_by` clause.\n" ++
           m!"The present clause is ignored.")
 
@@ -187,7 +187,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is marked as `termination_by " ++
           m!"structural` so this one also needs to be marked `structural`.")
-      if ! structural && termBy.structural then
+      if !structural && termBy.structural then
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is not marked as `structural` " ++
           m!"so this one cannot be `structural` either.")
@@ -200,7 +200,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is marked as `termination_by " ++
           m!"tailrecursive` so this one also needs to be marked `tailrecursive`.")
-      if ! tailrec && termBy.tailrec then
+      if !tailrec && termBy.tailrec then
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is not marked as `tailrecursive` " ++
           m!"so this one cannot be `tailrecursive` either.")

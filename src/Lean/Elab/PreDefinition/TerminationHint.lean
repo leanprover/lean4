@@ -118,14 +118,14 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | _ => pure none
       else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
-      | `(terminationBy|termination_by tailrecursion) =>
-        pure (some {ref := t, structural := false, tailrec := true, vars := #[], body := ⟨.missing⟩})
       | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
       | `(terminationBy|termination_by $[structural%$s]? $vars* => $body) =>
         pure (some {ref := t, structural := s.isSome, tailrec := false, vars, body})
       | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
         pure (some {ref := t, structural := s.isSome, tailrec := false, vars := #[], body})
+      | `(terminationBy|termination_by tailrecursion) =>
+        pure (some {ref := t, structural := false, tailrec := true, vars := #[], body := ⟨.missing⟩})
       | `(terminationBy?|termination_by?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none

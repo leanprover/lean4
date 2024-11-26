@@ -294,21 +294,20 @@ theorem mono_const (c : β) : mono (fun (_ : α → β) => c) :=
 theorem mono_apply (x : α) : mono (β := β) (fun f => f x) :=
   monotone_apply (β := fun _ => FlatOrder _) x
 
-
+set_option linter.unusedVariables false in
 noncomputable
-def tailrec_fix (F : (α → β) → (α → β)) : (α → β) :=
+def tailrec_fix (F : (α → β) → (α → β)) (hmono : ∀ (x : α), mono (fun f => F f x)) : (α → β) :=
   @fix (∀ _, FlatOrder default) _ _ F
 
 theorem tailrec_fix_eq (F : (α → β) → (α → β))
     (hmono : ∀ (x : α), mono (fun f => F f x)) :
-    tailrec_fix F = F (tailrec_fix F) :=
+    tailrec_fix F hmono = F (tailrec_fix F hmono) :=
   @fix_eq (∀ _, FlatOrder _) _ _ F
     (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) F hmono)
 
 end tailrec
 
-/-
-section «example»
+namespace Example
 
 def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=
   if P x then
@@ -316,17 +315,15 @@ def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :
   else
     rec (x +1)
 
-noncomputable def find P := tailrec_fix (findF P)
-
-theorem find_eq : find P = findF P (find P) := by
-  apply tailrec_fix_eq
+noncomputable def find P := tailrec_fix (findF P) <| by
   unfold findF
   intro n
   split
   · apply mono_const
   · apply mono_apply
 
-end «example»
--/
+theorem find_eq : find P = findF P (find P) := tailrec_fix_eq ..
+
+end Example
 
 end Lean.Tailrec

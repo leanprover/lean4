@@ -771,6 +771,8 @@ Main entry point of this module:
 
 Try to find a lexicographic ordering of the arguments for which the recursive definition
 terminates. See the module doc string for a high-level overview.
+
+The `preDefs` are used to determine arity and types of arguments; the bodies are ignored.
 -/
 def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) :

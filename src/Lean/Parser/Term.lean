@@ -681,10 +681,11 @@ the inferrred termination argument will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser
-  "termination_by " >>
+  "termination_by " >> (
+  (nonReservedSymbol "tailrecursion") <|>
   optional (nonReservedSymbol "structural ") >>
   optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
-  termParser
+  termParser)
 
 @[inherit_doc terminationBy, builtin_doc]
 def terminationBy? := leading_parser

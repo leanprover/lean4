@@ -136,8 +136,10 @@ affect later stages. This is an issue in two specific cases.
   with the flag set to `false` again since they will expect the new signature.
 
   When enabling `prefer_native`, we usually want to *disable* `parseQuotWithCurrentStage` as it would otherwise make quotations use the interpreter after all.
-  However, there is a specific case where we want to set both options to `true`: when we make changes to a non-builtin parser like `simp` that has a builtin elaborator, we cannot have the new parser be active outside of quotations in stage 1 as the builtin elaborator from stage 0 would not understand them; on the other hand, we need 
-  For an example, see https://github.com/leanprover/lean4/commit/da4c46370d85add64ef7ca5e7cc4638b62823fbb.
+  However, there is a specific case where we want to set both options to `true`: when we make changes to a non-builtin parser like `simp` that has a builtin elaborator, we cannot have the new parser be active outside of quotations in stage 1 as the builtin elaborator from stage 0 would not understand them; on the other hand, we need quotations in e.g. the builtin `simp` elaborator to produce the new syntax in the next stage.
+  As this issue usually affects only tactics, enabling `debug.byAsSorry` instead of `prefer_native` can be a simpler solution.
+
+  For a `prefer_native` example, see https://github.com/leanprover/lean4/commit/da4c46370d85add64ef7ca5e7cc4638b62823fbb.
 
 To modify either of these flags both for building and editing the stdlib, adjust
 the code in `stage0/src/stdlib_flags.h`. The flags will automatically be reset

@@ -157,14 +157,8 @@ private partial def addNonRecPreDefs (fixedPrefixSize : Nat) (argsPacker : ArgsP
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
     addNonRec { preDef with value } (applyAttrAfterCompilation := false) (all := all)
 
-private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Bool := do
-  if preDefs.size == 1 then
-    lambdaTelescope preDefs[0]!.value fun xs _ => return xs.size == fixedPrefixSize + 1
-  else
-    return false
-
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
-    (argsPacker : ArgsPacker) (preDefNonRec : PreDefinition) : TermElabM Unit := do
+    (argsPacker : ArgsPacker) (preDefNonRec : PreDefinition) (hasInduct : Bool) : TermElabM Unit := do
   /-
   We must remove `implemented_by` attributes from the auxiliary application because
   this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
@@ -173,21 +167,22 @@ def addPreDefsFromUnary (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
   -/
   let preDefNonRec := preDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
 
-  let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   -- Do not complain if the user sets @[semireducible], which usually is a noop,
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
-    if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
+    if argsPacker.onlyOneUnary then
       addNonRec preDefNonRec (applyAttrAfterCompilation := false)
     else
       withEnableInfoTree false do
         addNonRec preDefNonRec (applyAttrAfterCompilation := false)
       addNonRecPreDefs fixedPrefixSize argsPacker preDefs preDefNonRec
+
   -- We create the `_unsafe_rec` before we abstract nested proofs.
   -- Reason: the nested proofs may be referring to the _unsafe_rec.
   addAndCompilePartialRec preDefs
+  let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
   let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
+  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker hasInduct
   for preDef in preDefs do
     markAsRecursive preDef.declName
     generateEagerEqns preDef.declName

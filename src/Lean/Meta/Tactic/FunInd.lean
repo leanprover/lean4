@@ -1114,11 +1114,16 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
   match s with
   | "induct" =>
-    if (WF.eqnInfoExt.find? env p).isSome then return true
+    if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      unless eqnInfo.hasInduct do
+        return false
+      return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      unless eqnInfo.hasInduct do
+        return false
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
     if let some eqnInfo := Structural.eqnInfoExt.find? env p then

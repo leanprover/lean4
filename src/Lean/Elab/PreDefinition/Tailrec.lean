@@ -11,23 +11,42 @@ namespace Lean.Elab
 open WF
 open Meta
 
-partial def solveMono (goal : MVarId) : MetaM Unit :=
-  goal.withContext do
-    let type ← goal.getType
-    let_expr Tailrec.mono _α _β _inst f := type |
-      throwError "Unexpected goal:{goal}"
+partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
+  let type ← goal.getType
+  if type.isForall then
+    let (_, goal) ← goal.intro1P
+    solveMono goal
+    return
 
-    if f.isLambda && !f.bindingBody!.hasLooseBVars then
+  let_expr Tailrec.mono α β inst f := type |
+    throwError "Unexpected goal:{goal}"
+  if f.isLambda then
+    -- No recursive calls left
+    if !f.bindingBody!.hasLooseBVars then
       let new_goals ← goal.applyConst ``Tailrec.mono_const
       unless new_goals.isEmpty do
         throwError "Left over goals"
       return
 
-    if f.isLambda && f.bindingBody!.isApp && f.bindingBody!.appFn! == .bvar 0 then
+    -- A recursive call here
+    if f.bindingBody!.isApp && f.bindingBody!.appFn! == .bvar 0 then
       let new_goals ← goal.applyConst ``Tailrec.mono_apply
       unless new_goals.isEmpty do
         throwError "Left over goals"
       return
+
+    -- Manually handle PSigma.casesOn, as split doesn't
+    match_expr f.bindingBody! with
+    | PSigma.casesOn γ δ _motive x k =>
+      if f.bindingBody!.appFn!.hasLooseBVars then
+        throwError "Recursive calls in non-tail position:{indentExpr type}"
+      let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
+      let k' := f.updateLambdaE! f.bindingDomain! k
+      let p := mkApp7 (.const ``Tailrec.mono_psigma_casesOn us) α β inst γ δ x k'
+      let new_goals ← goal.apply p
+      new_goals.forM solveMono
+      return
+    | _ => pure
 
     -- We could be more careful here and only split a match or ite that
     -- is right under the lambda, and maybe use `apply_ite`-style lemmas to avoid the more
@@ -36,7 +55,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit :=
       mvarIds.forM solveMono
       return
 
-    throwError "Recursive calls in non-tail position:{indentExpr type}"
+  throwError "Recursive calls in non-tail position:{indentExpr type}"
 
 private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : Expr :=
   e.replace fun e =>
@@ -51,11 +70,13 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
     let type ← whnfForall type
     unless type.isForall do
       throwError "expected unary function type: {type}"
+    -- TODO: Check these properties on the original function types
     let some (α, β) := type.arrow?
-      | throwError "function has dependent type {type}"
+      | throwError "Termination by tailrecursion cannot handle dependent type:{indentExpr type}"
     let u ← getDecLevel α
     let v ← getDecLevel β
-    let inst ← synthInstance (mkApp (.const ``Inhabited [v.succ]) β)
+    let inst ← mapError (f := (m!"Termination by tailrecursion needs an inhabited codomain:{indentD ·}")) do
+      synthInstance (mkApp (.const ``Inhabited [v.succ]) β)
     let value := mkApp3 (mkConst ``Lean.Tailrec.tailrec_fix [u, v]) α β inst
 
     let F ← withoutModifyingEnv do
@@ -72,10 +93,8 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
     -- Now try to prove the monotonicity
     let monoGoal := (← inferType value).bindingDomain!
     let mono ← mkFreshExprSyntheticOpaqueMVar monoGoal
-    let goal := mono.mvarId!
-    let (_, goal) ← goal.intro1
-    mapError (f := (m!"Could not prove function to be tail-recursive:{indentD ·}")) do
-      solveMono goal
+    mapError (f := (m!"Could not prove function to be tailrecursive:{indentD ·}")) do
+      solveMono mono.mvarId!
     let value := .app value (← instantiateMVars mono)
 
     let value ← mkLambdaFVars prefixArgs value
@@ -83,8 +102,7 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
 
 def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← mkUnaryPreDef preDefs
-
   let preDefNonRec : PreDefinition ← derecursifyTailrec fixedPrefixSize unaryPreDef
-  addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec
+  addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab

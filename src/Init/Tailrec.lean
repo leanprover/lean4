@@ -288,11 +288,17 @@ variable [Inhabited β]
 def mono (F : (α → β) → β) :=
     monotone (α := ∀ _, FlatOrder default) (β := FlatOrder default) F
 
-theorem mono_const (c : β) : mono (fun (_ : α → β) => c) :=
+theorem mono_const (c : β) : mono fun (_ : α → β) => c :=
   monotone_const _
 
-theorem mono_apply (x : α) : mono (β := β) (fun f => f x) :=
+theorem mono_apply (x : α) : mono (β := β) fun f => f x :=
   monotone_apply (β := fun _ => FlatOrder _) x
+
+theorem mono_psigma_casesOn {γ : Sort uu} {δ : γ → Sort vv} (x : PSigma δ)
+    (k : (α → β) → (a : γ) → (b : δ a) → β )
+    (hmono : ∀ a b, mono (β := β) fun f => k f a b) :
+  mono (β := β) fun f => PSigma.casesOn x (k f) := by
+    cases x; apply hmono
 
 set_option linter.unusedVariables false in
 noncomputable
@@ -300,10 +306,12 @@ def tailrec_fix (F : (α → β) → (α → β)) (hmono : ∀ (x : α), mono (f
   @fix (∀ _, FlatOrder default) _ _ F
 
 theorem tailrec_fix_eq (F : (α → β) → (α → β))
-    (hmono : ∀ (x : α), mono (fun f => F f x)) :
-    tailrec_fix F hmono = F (tailrec_fix F hmono) :=
-  @fix_eq (∀ _, FlatOrder _) _ _ F
-    (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) F hmono)
+    (hmono : ∀ (x : α), mono (fun f => F f x)) (x : α) :
+    tailrec_fix F hmono x = F (tailrec_fix F hmono) x :=
+  congrFun
+    (@fix_eq (∀ _, FlatOrder _) _ _ F
+      (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) F hmono)
+    ) x
 
 end tailrec
 
@@ -322,7 +330,7 @@ noncomputable def find P := tailrec_fix (findF P) <| by
   · apply mono_const
   · apply mono_apply
 
-theorem find_eq : find P = findF P (find P) := tailrec_fix_eq ..
+theorem find_eq : find P x = findF P (find P) x := tailrec_fix_eq ..
 
 end Example
 

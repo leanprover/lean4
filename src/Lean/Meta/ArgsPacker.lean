@@ -422,6 +422,10 @@ def numFuncs (argsPacker : ArgsPacker) : Nat := argsPacker.varNamess.size
 /-- The arities of the functions being packed -/
 def arities (argsPacker : ArgsPacker) : Array Nat := argsPacker.varNamess.map (·.size)
 
+def onlyOneUnary (argsPacker : ArgsPacker) :=
+  argsPacker.varNamess.size = 1 &&
+  argsPacker.varNamess[0]!.size = 1
+
 def pack (argsPacker : ArgsPacker) (domain : Expr) (fidx : Nat) (args : Array Expr)
     : MetaM Expr := do
   assert! fidx < argsPacker.numFuncs

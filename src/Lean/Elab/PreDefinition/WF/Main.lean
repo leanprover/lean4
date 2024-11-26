@@ -51,7 +51,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
 
   let preDefNonRec ← derecursifyUnary preDefs fixedPrefixSize argsPacker unaryPreDef wf
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
-  addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec
+  addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := true)
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

@@ -571,10 +571,77 @@ def congr (e : Expr) : SimpM Result := do
   else
     congrDefault e
 
+/--
+Returns `true` if `e` is of the form `@letFun _ (fun _ => β) _ _`
+-/
+def isNonDepLetFun (e : Expr) : Bool :=
+  let_expr letFun _ beta _ body := e | false
+  if beta.isLambda then
+    !beta.bindingBody!.hasLooseBVars && body.isLambda
+  else
+    false
+
+structure SimpLetFunResult where
+  expr     : Expr
+  proof    : Expr
+  modified : Bool
+
+partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
+  trace[Meta.debug] "found: {e}"
+  let rec go (xs : Array Expr) (e : Expr) : SimpM SimpLetFunResult := do
+    trace[Meta.debug] "go: {e.instantiateRev xs}"
+    let stop : SimpM SimpLetFunResult := do
+      let e := e.instantiateRev xs
+      let r ← simp e
+      trace[Meta.debug] "{e} ==> {r.expr}"
+      return { expr := r.expr.abstract xs, proof := (← r.getProof).abstract xs, modified :=  r.expr != e }
+    let_expr f@letFun alpha betaFun val body := e | stop
+    trace[Meta.debug] "body: {body.instantiateRev xs}"
+    let us := f.constLevels!
+    let [_, v] := us | stop
+    if alpha.hasLooseBVars || !betaFun.isLambda || !body.isLambda || betaFun.bindingBody!.hasLooseBVars then
+      stop
+    else if !body.bindingBody!.hasLooseBVar 0 then
+      -- redundant let_fun
+      let x := mkConst `__no_used_dummy__ -- dummy value
+      let { expr, proof, .. } ← go (xs.push x) body.bindingBody!
+      let proof := mkApp6 (mkConst ``letFun_unused us) alpha betaFun.bindingBody! val body.bindingBody! expr proof
+      return { expr, proof, modified := true }
+    else
+      let beta := betaFun.bindingBody!
+      let valResult ← simp (val.instantiateRev xs)
+      withLocalDecl body.bindingName! body.bindingInfo! beta fun x => do
+        let valIsNew := valResult.expr != val
+        let { expr, proof, modified := bodyIsNew } ← go (xs.push x) body.bindingBody!
+        if !valIsNew && !bodyIsNew then
+          let proof := mkApp2 (mkConst ``Eq.refl [v]) beta e
+          return { expr := e, proof, modified := false }
+        else
+          let body' := mkLambda body.bindingName! body.bindingInfo! beta expr
+          let val'  := valResult.expr.abstract xs
+          let e'    := mkApp4 f alpha betaFun val' body'
+          if valIsNew && bodyIsNew then
+            let proof := mkApp8 (mkConst ``letFun_congr us) alpha beta val val' body body' (← valResult.getProof) (mkLambda body.bindingName! body.bindingInfo! beta proof)
+            return { expr := e', proof, modified := true }
+          else if valIsNew then
+            let proof := mkApp6 (mkConst ``letFun_val_congr us) alpha beta val val' body (← valResult.getProof)
+            return { expr := e', proof, modified := true }
+          else
+            let proof := mkApp6 (mkConst ``letFun_body_congr us) alpha beta val body body' (mkLambda body.bindingName! body.bindingInfo! beta proof)
+            return { expr := e', proof, modified := true }
+  let { expr, proof, modified } ← go #[] e
+  if !modified then
+    return { expr := e }
+  else
+    trace[Meta.debug] ">>> {proof}"
+    return { expr, proof? := proof }
+
 def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
+  else if isNonDepLetFun e then
+    simpNonDepLetFun e
   else
     congr e
 

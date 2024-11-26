@@ -27,10 +27,10 @@ structure TZdb where
   localPath : System.FilePath := "/etc/localtime"
 
   /--
-  The path to the directory containing all available time zone files. These files define various
+  All the possible paths to the directories containing all available time zone files. These files define various
   time zones and their rules.
   -/
-  zonesPath : System.FilePath := "/usr/share/zoneinfo/"
+  zonesPaths : Array System.FilePath := #["/usr/share/zoneinfo", "/share/zoneinfo", "/etc/zoneinfo", "/usr/share/lib/zoneinfo"]
 
 namespace TZdb
 open TimeZone
@@ -64,8 +64,8 @@ def idFromPath (path : System.FilePath) : Option String := do
   let last₁ ← res.get? (res.size - 2)
 
   if last₁ = some "zoneinfo"
-    then last
-    else last₁ ++ "/" ++ last
+    then last.trim
+    else last₁.trim ++ "/" ++ last.trim
 
 /--
 Retrieves the timezone rules from the local timezone data file.
@@ -89,4 +89,11 @@ def readRulesFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := d
 
 instance : Std.Time.Database TZdb where
   getLocalZoneRules db := localRules db.localPath
-  getZoneRules db id := readRulesFromDisk db.zonesPath id
+
+  getZoneRules db id := do
+    for path in db.zonesPaths do
+      if ← System.FilePath.pathExists path then
+        let result ← readRulesFromDisk path id
+        return result
+
+    throw <| IO.userError s!"cannot find {id} in the local timezone database"

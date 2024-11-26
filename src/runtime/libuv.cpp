@@ -7,6 +7,7 @@ Author: Markus Himmel, Sofia Rodrigues
 #include <pthread.h>
 
 #include "runtime/libuv.h"
+
 #include "runtime/object.h"
 
 #include "runtime/object.h"
@@ -105,6 +106,95 @@ extern "C" lean_obj_res lean_uv_initialize() {
 }
 
 using namespace lean;
+
+uv_loop_t * global_uv_loop;
+uv_async_t * global_uv_signal_async;
+uv_mutex_t * global_uv_mutex;
+
+uv_cond_t * global_uv_cond;
+
+_Atomic(uint64_t) global_uv_n_waiters(0);
+
+static void lean_uv_wake() {
+    uv_async_send(global_uv_signal_async);
+}
+
+static void lean_uv_lock() {
+    if (uv_mutex_trylock(global_uv_mutex) != 0) {
+        global_uv_n_waiters++;
+        __sync_synchronize();
+        lean_uv_wake();
+
+        uv_mutex_lock(global_uv_mutex);
+
+        global_uv_n_waiters--;
+    }
+}
+
+static void lean_uv_unlock() {
+    if (uv_mutex_trylock(global_uv_mutex) != 0) {
+        uv_mutex_unlock(global_uv_mutex);
+    }
+
+    if (global_uv_n_waiters == 0) {
+        uv_cond_signal(global_uv_cond);
+    }
+}
+
+static void lean_uv_run() {
+    while (1) {
+        uv_mutex_lock(global_uv_mutex);
+
+        if (global_uv_n_waiters != 0) {
+            uv_cond_wait(global_uv_cond, global_uv_mutex);
+        }
+
+        if (global_uv_n_waiters == 0) {
+            uv_run(global_uv_loop, UV_RUN_ONCE);
+        }
+
+        uv_mutex_unlock(global_uv_mutex);
+    }
+}
+
+// Bindings
+
+static void lean_uv_timer_finalizer(void * ptr) {
+    lean_uv_timer_object * timer_obj = (lean_uv_timer_object * ) ptr;
+
+    if (timer_obj -> m_promise == NULL) {
+        uv_close((uv_handle_t * ) & timer_obj -> m_uv_timer, [](uv_handle_t * handle) {
+            free(lean_to_uv_timer((lean_object * ) handle -> data));
+        });
+    }
+}
+
+extern "C" lean_obj_res lean_uv_initialize() {
+    g_uv_timer_external_class = lean_register_external_class(lean_uv_timer_finalizer, noop_foreach);
+
+    global_uv_loop = uv_default_loop();
+    global_uv_signal_async = (uv_async_t * ) malloc(sizeof(uv_async_t));
+    global_uv_mutex = (uv_mutex_t * ) malloc(sizeof(uv_mutex_t));
+    global_uv_cond = (uv_cond_t * ) malloc(sizeof(uv_cond_t));
+
+    if (global_uv_loop == NULL) lean_internal_panic("failed to initialize uv_loop");
+
+    int result = uv_async_init(global_uv_loop, global_uv_signal_async, [](uv_async_t * hdl) {
+        uv_stop(global_uv_loop);
+    });
+
+    result = uv_mutex_init(global_uv_mutex);
+    if (result != 0) lean_internal_panic("failed to initialize uv_mutex");
+
+    result = uv_cond_init(global_uv_cond);
+    if (result != 0) lean_internal_panic("failed to initialize uv_cond");
+
+    lthread([]() {
+        lean_uv_run();
+    });
+
+    return lean_io_result_mk_ok(lean_box(0));
+}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_unsigned_to_nat(uv_version());

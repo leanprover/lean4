@@ -6,8 +6,6 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 prelude
 import Lean.Elab.Exception
 import Lean.Log
-import Lean.Elab.Exception
-import Lean.Log
 
 /-!
 # Trace messages

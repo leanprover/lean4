@@ -101,7 +101,7 @@ theorem tail_eq_of_cons_eq (H : h₁ :: t₁ = h₂ :: t₂) : t₁ = t₂ := (c
 theorem cons_inj_right (a : α) {l l' : List α} : a :: l = a :: l' ↔ l = l' :=
   ⟨tail_eq_of_cons_eq, congrArg _⟩
 
-@[deprecated (since := "2024-06-15")] abbrev cons_inj := @cons_inj_right
+@[deprecated cons_inj_right (since := "2024-06-15")] abbrev cons_inj := @cons_inj_right
 
 theorem cons_eq_cons {a b : α} {l l' : List α} : a :: l = b :: l' ↔ a = b ∧ l = l' :=
   List.cons.injEq .. ▸ .rfl
@@ -171,7 +171,7 @@ theorem get_cons_succ {as : List α} {h : i + 1 < (a :: as).length} :
 theorem get_cons_succ' {as : List α} {i : Fin as.length} :
   (a :: as).get i.succ = as.get i := rfl
 
-@[deprecated (since := "2024-07-09")]
+@[deprecated "Deprecated without replacement." (since := "2024-07-09")]
 theorem get_cons_cons_one : (a₁ :: a₂ :: as).get (1 : Fin (as.length + 2)) = a₂ := rfl
 
 theorem get_mk_zero : ∀ {l : List α} (h : 0 < l.length), l.get ⟨0, h⟩ = l.head (length_pos.mp h)
@@ -790,6 +790,24 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
       simpa using h
     · intro a
       simp
+
+@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
+    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
+
+theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
+  match l₁, l₂ with
+  | [], [] => rfl
+  | [], _ :: _ => by simp [beq_nil_iff] at h
+  | _ :: _, [] => by simp [nil_beq_iff] at h
+  | a :: l₁, b :: l₂ => by
+    simp at h
+    simpa [Nat.add_one_inj]using length_eq_of_beq h.2
 
 /-! ### Lexicographic ordering -/
 
@@ -1800,7 +1818,7 @@ theorem getElem_append_right' (l₁ : List α) {l₂ : List α} {n : Nat} (hn : 
     l₂[n] = (l₁ ++ l₂)[n + l₁.length]'(by simpa [Nat.add_comm] using Nat.add_lt_add_left hn _) := by
   rw [getElem_append_right] <;> simp [*, le_add_left]
 
-@[deprecated (since := "2024-06-12")]
+@[deprecated "Deprecated without replacement." (since := "2024-06-12")]
 theorem get_append_right_aux {l₁ l₂ : List α} {n : Nat}
   (h₁ : l₁.length ≤ n) (h₂ : n < (l₁ ++ l₂).length) : n - l₁.length < l₂.length := by
   rw [length_append] at h₂
@@ -1817,7 +1835,7 @@ theorem getElem_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.l
   rw [← getElem?_eq_getElem, eq, getElem?_append_right (h ▸ Nat.le_refl _), h]
   simp
 
-@[deprecated (since := "2024-06-12")]
+@[deprecated "Deprecated without replacement." (since := "2024-06-12")]
 theorem get_of_append_proof {l : List α}
     (eq : l = l₁ ++ a :: l₂) (h : l₁.length = n) : n < length l := eq ▸ h ▸ by simp_arith
 

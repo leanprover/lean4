@@ -1,6 +1,6 @@
-warningAsError.lean:8:6-8:7: warning: `g` has been deprecated, use `f` instead
+warningAsError.lean:8:6-8:7: warning: `g` has been deprecated: use `f` instead
 1
-warningAsError.lean:12:6-12:7: error: `g` has been deprecated, use `f` instead
+warningAsError.lean:12:6-12:7: error: `g` has been deprecated: use `f` instead
 1
 warningAsError.lean:15:7-15:13: error: unused variable `unused`
 note: this linter can be disabled with `set_option linter.unusedVariables false`

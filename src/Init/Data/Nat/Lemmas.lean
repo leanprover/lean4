@@ -651,8 +651,8 @@ theorem sub_mul_mod {x k n : Nat} (h₁ : n*k ≤ x) : (x - n*k) % n = x % n := 
   | .inr npos => Nat.mod_eq_of_lt (mod_lt _ npos)
 
 theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
-  rw (occs := .pos [1]) [← mod_add_div a n]
-  rw (occs := .pos [1]) [← mod_add_div b n]
+  rw (occs := [1]) [← mod_add_div a n]
+  rw (occs := [1]) [← mod_add_div b n]
   rw [Nat.add_mul, Nat.mul_add, Nat.mul_add,
     Nat.mul_assoc, Nat.mul_assoc, ← Nat.mul_add n, add_mul_mod_self_left,
     Nat.mul_comm _ (n * (b / n)), Nat.mul_assoc, add_mul_mod_self_left]

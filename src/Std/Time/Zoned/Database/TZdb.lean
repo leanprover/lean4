@@ -52,7 +52,7 @@ def parseTZif (bin : ByteArray) (id : String) : Except String ZoneRules := do
 Reads a TZif file from disk and retrieves the zone rules for the specified timezone ID.
 -/
 def parseTZIfFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := do
-  let binary ← try IO.FS.readBinFile path catch _ => throw <| IO.userError s!"cannot find {id} in the local timezone database"
+  let binary ← try IO.FS.readBinFile path catch _ => throw <| IO.userError s!"unable to locate {id} in the local timezone database at '{path}'"
   IO.ofExcept (parseTZif binary id)
 
 /--

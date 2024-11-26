@@ -91,7 +91,7 @@ extern "C" LEAN_EXPORT obj_res lean_load_plugin(b_obj_arg path, obj_arg) {
     }
     init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
 #else
-    void *handle = dlopen(rpath.c_str(), RTLD_LAZY);
+    void *handle = dlopen(rpath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
     if (!handle) {
         return io_result_mk_error((sstream()
             << "error loading plugin, " << dlerror()).str());

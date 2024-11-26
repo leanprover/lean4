@@ -322,7 +322,8 @@ Write trace to a file.
 **Deprecated:** Should not be done manually,
 but as part of `buildUnlessUpToDate`.
 -/
-@[deprecated (since := "2024-06-14")] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+@[deprecated "Should not be done manually, but as part of `buildUnlessUpToDate`." (since := "2024-06-14")]
+def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
   createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 

@@ -231,7 +231,7 @@ theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n)
     injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
 
 /-- Deprecated alias for `ext_get?`. The preferred extensionality theorem is now `ext_getElem?`. -/
-@[deprecated (since := "2024-06-07")] abbrev ext := @ext_get?
+@[deprecated ext_get? (since := "2024-06-07")] abbrev ext := @ext_get?
 
 /-! ### getD -/
 
@@ -682,7 +682,7 @@ theorem elem_cons [BEq α] {a : α} :
     (b::bs).elem a = match a == b with | true => true | false => bs.elem a := rfl
 
 /-- `notElem a l` is `!(elem a l)`. -/
-@[deprecated (since := "2024-06-15")]
+@[deprecated "Use `!(elem a l)` instead."(since := "2024-06-15")]
 def notElem [BEq α] (a : α) (as : List α) : Bool :=
   !(as.elem a)
 

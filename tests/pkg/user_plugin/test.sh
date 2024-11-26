@@ -38,18 +38,19 @@ ENV_PLUGIN=$LIB_DIR/UserEnvPlugin.$SHLIB_EXT
 # Expected test output
 EXPECTED_OUT="Ran builtin initializer"
 ENV_EXPECTED_OUT="Builtin value"
-EXPECTED_ERR="uncaught exception: failed to register environment, extensions can only be registered during initialization"
 
-# Test plugins at elaboration-time via `lean`
-echo | lean --plugin=$PLUGIN --stdin | diff <(echo "$EXPECTED_OUT") -
-lake env lean --plugin=$ENV_PLUGIN testEnvUse.lean | diff <(echo "$ENV_EXPECTED_OUT") -
+# Test plugins at elaboration-time via `lean` CLI
+echo "Testing plugin load with lean CLI ..."
+echo | lean --plugin=$PLUGIN --stdin 2>&1 | diff <(echo "$EXPECTED_OUT") -
+lake env lean --plugin=$ENV_PLUGIN testEnvUse.lean 2>&1 | diff <(echo "$ENV_EXPECTED_OUT") -
 
 # Test plugins at runtime via `Lean.loadPlugin`
-lean --run test.lean $PLUGIN | diff <(echo "$EXPECTED_OUT") -
-lake env lean --run testEnv.lean $ENV_PLUGIN | diff <(echo "$ENV_EXPECTED_OUT") -
+echo "Testing plugin load with Lean.loadPlugin ..."
+lean --run test.lean $PLUGIN 2>&1 | diff <(echo "$EXPECTED_OUT") -
+lake env lean --run testEnv.lean $ENV_PLUGIN 2>&1 | diff <(echo "$ENV_EXPECTED_OUT") -
 
 # Test failure to load environment plugin without `withImporting`
-lean --run test.lean $ENV_PLUGIN 2>&1 && {
+lean --run test.lean $ENV_PLUGIN >/dev/null 2>&1 && {
   echo "Loading environment plugin without importing succeeded unexpectedly."
   exit 1
 } || true

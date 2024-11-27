@@ -2278,9 +2278,9 @@ theorem contains_insertList_of_mem [BEq α] [PartialEquivBEq α] (l toInsert: Li
   rw [containsKey_insertList]
   right
   simp [List.contains_eq_any_beq]
-  exists k
+  exists ⟨k, v⟩
   constructor
-  · exists ⟨k,v⟩
+  · exact mem
   · apply PartialEquivBEq.symm
     exact k_eq
 

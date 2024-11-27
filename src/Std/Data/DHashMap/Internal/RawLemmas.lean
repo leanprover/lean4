@@ -821,7 +821,7 @@ theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 
 @[simp]
 theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h: m.1.WF):
-    m.1.keys.isEmpty = m.1.isEmpty:= by
+    m.1.keys.isEmpty = m.1.isEmpty := by
   simp_to_model using List.isEmpty_keys_eq_isEmpty
 
 @[simp]
@@ -842,8 +842,9 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 @[simp]
 theorem toList_map_fst {α β} (m : Raw₀ α β) :
     m.1.toList.map Sigma.fst = m.1.keys := by
-  simp only [Raw.toList, Raw.fold, Raw.foldM, Array.id_run_foldlM, Raw.keys, AssocList.foldlM_id,
-    AssocList.foldl_eq]
+  -- simp_to_model -- `simp made no progress`, so we brute force it:
+  simp only [Raw.toList, Raw.fold, Raw.foldM, Raw.keys]
+  simp only [Array.id_run_foldlM, AssocList.foldlM_id, AssocList.foldl_eq]
   rw [← Array.foldl_hom (List.map Sigma.fst) _
     (fun x y => (List.foldl (fun d p => p.fst :: d) x y.toList))]
   · simp

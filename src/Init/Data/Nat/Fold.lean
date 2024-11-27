@@ -5,6 +5,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Kim Morrison
 -/
 prelude
 import Init.Omega
+import Init.Data.List.FinRange
 
 set_option linter.missingDocs true -- keep it documented
 universe u
@@ -137,9 +138,53 @@ theorem allTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bo
       omega
   go n 0 f
 
-theorem fold_eq_range_fold {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
-    fold n f init = (List.finRange n).foldr (fun i acc => f i (by simp; omega) acc) init := by
-  sorry
+@[simp] theorem fold_zero {α : Type u} (f : (i : Nat) → i < 0 → α → α) (init : α) :
+    fold 0 f init = init := by simp [fold]
+
+@[simp] theorem fold_succ {α : Type u} (n : Nat) (f : (i : Nat) → i < n + 1 → α → α) (init : α) :
+    fold (n + 1) f init = f n (by omega) (fold n (fun i h => f i (by omega)) init) := by simp [fold]
+
+theorem fold_eq_finRange_foldl {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
+    fold n f init = (List.finRange n).foldl (fun acc ⟨i, h⟩ => f i h acc) init := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    simp [ih, List.finRange_succ_last, List.foldl_map]
+
+@[simp] theorem foldRev_zero {α : Type u} (f : (i : Nat) → i < 0 → α → α) (init : α) :
+    foldRev 0 f init = init := by simp [foldRev]
+
+@[simp] theorem foldRev_succ {α : Type u} (n : Nat) (f : (i : Nat) → i < n + 1 → α → α) (init : α) :
+    foldRev (n + 1) f init = foldRev n (fun i h => f i (by omega)) (f n (by omega) init) := by
+  simp [foldRev]
+
+theorem foldRev_eq_finRange_foldr {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
+    foldRev n f init = (List.finRange n).foldr (fun ⟨i, h⟩ acc => f i h acc) init := by
+  induction n generalizing init with
+  | zero => simp
+  | succ n ih => simp [ih, List.finRange_succ_last, List.foldr_map]
+
+@[simp] theorem any_zero {f : (i : Nat) → i < 0 → Bool} : any 0 f = false := by simp [any]
+
+@[simp] theorem any_succ {n : Nat} (f : (i : Nat) → i < n + 1 → Bool) :
+  any (n + 1) f = (any n (fun i h => f i (by omega)) || f n (by omega)) := by simp [any]
+
+theorem any_eq_finRange_any {n : Nat} (f : (i : Nat) → i < n → Bool) :
+    any n f = (List.finRange n).any (fun ⟨i, h⟩ => f i h) := by
+  induction n with
+  | zero => simp
+  | succ n ih => simp [ih, List.finRange_succ_last, List.any_map, Function.comp_def]
+
+@[simp] theorem all_zero {f : (i : Nat) → i < 0 → Bool} : all 0 f = true := by simp [all]
+
+@[simp] theorem all_succ {n : Nat} (f : (i : Nat) → i < n + 1 → Bool) :
+  all (n + 1) f = (all n (fun i h => f i (by omega)) && f n (by omega)) := by simp [all]
+
+theorem all_eq_finRange_all {n : Nat} (f : (i : Nat) → i < n → Bool) :
+    all n f = (List.finRange n).all (fun ⟨i, h⟩ => f i h) := by
+  induction n with
+  | zero => simp
+  | succ n ih => simp [ih, List.finRange_succ_last, List.all_map, Function.comp_def]
 
 end Nat
 

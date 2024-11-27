@@ -970,7 +970,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
 
 @[simp]
 theorem toList_map_fst :
-    (m.toList.map Sigma.fst) = m.keys :=
+    m.toList.map Sigma.fst = m.keys :=
   Raw₀.toList_map_fst ⟨m.1, m.2.size_buckets_pos⟩
 
 end Std.DHashMap

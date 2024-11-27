@@ -701,6 +701,25 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   DHashMap.distinct_keys
 
+@[simp]
+theorem toList_inner :
+    m.inner.toList = m.toList.map fun ⟨k, v⟩ => ⟨k, v⟩ := by
+  simp only [DHashMap.toList, toList]
+  simp only [DHashMap.Raw.toList, DHashMap.Const.toList, DHashMap.Raw.Const.toList]
+  simp only [DHashMap.Raw.fold, DHashMap.Raw.foldM]
+  simp only [DHashMap.Internal.AssocList.foldlM_id, DHashMap.Internal.AssocList.foldl_eq,
+    List.foldl_flip_cons_eq_append, Array.id_run_foldlM]
+  rw [← Array.foldl_hom (List.map _) _ (fun acc l => l.toList.reverse ++ acc)]
+  · simp
+  · intro x y
+    rw [← List.foldl_hom (List.map _) _ (fun x y => y :: x)] <;>
+      simp
+
+@[simp]
+theorem toList_map_fst :
+    m.toList.map Prod.fst = m.keys := by
+  simpa using DHashMap.toList_map_fst (m := m.1)
+
 end
 
 end Std.HashMap

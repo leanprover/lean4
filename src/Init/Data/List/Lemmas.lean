@@ -874,6 +874,12 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
     l.foldr f b = l.foldrM (m := Id) f b := by
   induction l <;> simp [*, foldr]
 
+@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : List α) :
+    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
+
+@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : List α) :
+    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
+
 /-! ### foldl and foldr -/
 
 @[simp] theorem foldr_cons_eq_append (l : List α) : l.foldr cons l' = l ++ l' := by

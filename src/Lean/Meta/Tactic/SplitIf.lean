@@ -81,6 +81,7 @@ def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Opti
     trace[Meta.Tactic.splitIf] "splitting on {decInst}"
     return some (← mvarId.byCasesDec cond decInst hName)
   else
+    trace[Meta.Tactic.splitIf] "could not find if to split:{indentExpr e}"
     return none
 
 end SplitIf
@@ -106,6 +107,7 @@ def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Opt
     let mvarId₁ ← simpIfTarget s₁.mvarId
     let mvarId₂ ← simpIfTarget s₂.mvarId
     if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
+      trace[Meta.Tactic.splitIf] "goals unchnaged after `simpIfTarget`:{indentD s₁.mvarId}"
       return none
     else
       return some ({ s₁ with mvarId := mvarId₁ }, { s₂ with mvarId := mvarId₂ })

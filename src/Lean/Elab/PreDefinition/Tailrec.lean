@@ -29,22 +29,26 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
       trace[Elab.definition.tailrec] "Failing at goal{goal}"
       throwError "Recursive call in non-tail position:{indentExpr t}"
 
+  let e := f.bindingBody!
+
   -- No recursive calls left
-  if !f.bindingBody!.hasLooseBVars then
+  if !e.hasLooseBVars then
     let new_goals ← goal.applyConst ``Tailrec.mono_const
     unless new_goals.isEmpty do
       throwError "Left over goals"
     return
 
+  -- NB: `e` is now an open term.
+
   -- A recursive call directly here
-  if f.bindingBody!.isApp && f.bindingBody!.appFn! == .bvar 0 then
+  if e.isApp && e.appFn! == .bvar 0 then
     let new_goals ← goal.applyConst ``Tailrec.mono_apply
     unless new_goals.isEmpty do
       throwError "Left over goals"
     return
 
   -- Float letE to the environment
-  if let .letE n t v b _nonDep := f.bindingBody! then
+  if let .letE n t v b _nonDep := e then
     if t.hasLooseBVars || v.hasLooseBVars then
       failK
     withLetDecl n t v fun x => do
@@ -55,21 +59,21 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     return
 
   -- Manually handle PSigma.casesOn, as split doesn't
-  match_expr f.bindingBody! with
+  match_expr e with
   | PSigma.casesOn δ ε _motive p k =>
-    if f.bindingBody!.appFn!.hasLooseBVars then
+    if e.appFn!.hasLooseBVars then
       failK
-    let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
+    let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.tail
     let k' := f.updateLambdaE! f.bindingDomain! k
     let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β γ inst₁ inst₂ δ ε p k'
     let new_goals ← goal.apply p
     new_goals.forM solveMono
     return
   | PSum.casesOn δ ε γ p k₁ k₂ =>
-    if f.bindingBody!.appFn!.appFn!.hasLooseBVars then
+    if e.appFn!.appFn!.hasLooseBVars then
       failK
     -- Careful juggling of universes
-    let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
+    let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.tail
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
     let p := mkAppN (.const ``Tailrec.mono_psum_casesOn us) #[α, β, inst₁, δ, ε, γ, p, inst₂, k₁', k₂']
@@ -77,14 +81,45 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let new_goals ← goal.apply p
     new_goals.forM solveMono
     return
+   | ite _ cond decInst _k₁ _k₂ =>
+    let (s₁, s₂) ← goal.byCasesDec cond decInst
+    let goal₁ ← simpIfTarget s₁.mvarId
+    let goal₂ ← simpIfTarget s₂.mvarId
+    if s₁.mvarId == goal₁ then
+      throwError "Could not reduce if-then-else after splitting:{indentD goal₁}"
+    if s₂.mvarId == goal₂ then
+      throwError "Could not reduce if-then-else after splitting:{indentD goal₂}"
+    solveMono goal₁
+    solveMono goal₂
+    return
+   | dite _ cond decInst _k₁ _k₂ =>
+    let (s₁, s₂) ← goal.byCasesDec cond decInst
+    let goal₁ ← simpIfTarget s₁.mvarId
+    let goal₂ ← simpIfTarget s₂.mvarId
+    if s₁.mvarId == goal₁ then
+      throwError "Could not reduce if-then-else after splitting:{indentD goal₁}"
+    if s₂.mvarId == goal₂ then
+      throwError "Could not reduce if-then-else after splitting:{indentD goal₂}"
+    solveMono goal₁
+    solveMono goal₂
+    return
+
   | _ => pure
 
-  -- We could be more careful here and only split a match or ite that
-  -- is right under the lambda, and maybe use `apply_ite`-style lemmas to avoid the more
-  -- expensive splitter machinery. For now using `splitTarget` works fine.
-  if let some mvarIds ← splitTarget? goal (splitIte := true) then
-    mvarIds.forM solveMono
-    return
+  -- We could be even more deliberate here and use the `lifter` lemmas
+  -- for the match statements instead of the `split` tactic.
+  -- For now using `splitMatch` works fine.
+  if Lean.Meta.Split.findSplit?.isCandidate (← getEnv) (e := e) then
+    if e.isIte || e.isDIte then
+      let some (goal₁, goal₂) ← splitIfTarget? goal
+        | throwError "Could not split if-then-else:{indentD goal}"
+      solveMono goal₁.mvarId
+      solveMono goal₂.mvarId
+      return
+    else
+      let new_goals ← Split.splitMatch goal e
+      new_goals.forM solveMono
+      return
 
   failK
 

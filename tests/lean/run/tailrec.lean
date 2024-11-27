@@ -54,43 +54,66 @@ def dependent1 (b : Bool) (n : Nat) : if b then Nat else Bool
 termination_by tailrecursion
 
 def dependent2 (b : Bool) (n : Nat) : if b then Nat else Bool :=
-  if b then dependent2 b (n + 1) else dependent2 b (n +1)
+  if b then dependent2 b (n + 1) else dependent2 b (n + 1)
 termination_by tailrecursion
 
+-- set_option trace.Meta.Tactic.splitIf true
+-- set_option trace.Meta.Tactic.cases  true
+-- set_option pp.explicit true
 /--
 error: Could not prove function to be tailrecursive:
-  Recursive call in non-tail position:
-    if b = true then f ⟨a + 1, b⟩ else f ⟨a + 1, b⟩
+  tactic 'apply' failed, failed to unify
+    Lean.Tailrec.mono fun f => f ?x
+  with
+    Lean.Tailrec.mono fun f => f ⟨a + 1, b⟩
+  case isTrue
+  x : (_ : Nat) ×' Bool
+  a : Nat
+  b : Bool
+  h : b = true
+  ⊢ Lean.Tailrec.mono fun f => f ⟨a + 1, b⟩
 -/
 #guard_msgs in
 def dependent2' (n : Nat) (b : Bool) : if b then Nat else Bool :=
-  if b then dependent2' (n + 1) b else dependent2' (n +1) b
+  if b then dependent2' (n + 1) b else dependent2' (n + 2) b
 termination_by tailrecursion
 
 local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (cond b α β) := by
   cases b <;> assumption
 
+set_option trace.Elab.definition.tailrec true
+
 /--
 error: Could not prove function to be tailrecursive:
-  Recursive call in non-tail position:
-    match a with
-    | true => f ⟨true, b + 1⟩
-    | false => f ⟨false, b + 1⟩
+  application type mismatch
+    Lean.Tailrec.mono fun f =>
+      match a with
+      | true => f ⟨true, b + 1⟩
+      | false => f ⟨false, b + 2⟩
+  argument
+    fun f =>
+      match a with
+      | true => f ⟨true, b + 1⟩
+      | false => f ⟨false, b + 2⟩
+  has type
+    ((x : (_ : Bool) ×' Nat) → bif x.1 then Nat else Bool) → bif a then Nat else Bool : Type
+  but is expected to have type
+    ((x : (_ : Bool) ×' Nat) → bif x.1 then Nat else Bool) → bif x.1 then Nat else Bool : Type
 -/
 #guard_msgs in
 def dependent3 (b : Bool) (n : Nat) : cond b Nat Bool :=
   match b with
   | true => dependent3 true (n + 1)
-  | false => dependent3 false (n +1)
+  | false => dependent3 false (n + 2)
 termination_by tailrecursion
 
 example
   (a : Bool)
   (b : Nat) :
   Lean.Tailrec.mono fun (f : (x : (_ : Bool) ×' Nat) → cond x.1 Nat Bool) =>
-    match (motive := ∀ a, cond a Nat Bool) a with
-    | true => f ⟨true, b + 1⟩
-    | false => f ⟨false, b + 1⟩ := by
+    if a then f ⟨a, b + 1⟩ else f ⟨a, b + 1⟩
+    -- dependent3.match_1 (fun b => bif b then Nat else Bool) a (fun _ => f ⟨true, b + 1⟩) fun _ => f ⟨false, b + 1⟩
+    := by
   split
   · apply Lean.Tailrec.mono_apply
   · apply Lean.Tailrec.mono_apply

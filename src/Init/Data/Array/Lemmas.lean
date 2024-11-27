@@ -496,6 +496,11 @@ where
   simp only [← length_toList]
   simp
 
+@[simp] theorem mapM_empty [Monad m] (f : α → m β) : mapM f #[] = pure #[] := by
+  rw [mapM, mapM.map]; rfl
+
+@[simp] theorem map_empty (f : α → β) : map f #[] = #[] := mapM_empty f
+
 @[simp] theorem appendList_nil (arr : Array α) : arr ++ ([] : List α) = arr := Array.ext' (by simp)
 
 @[simp] theorem appendList_cons (arr : Array α) (a : α) (l : List α) :

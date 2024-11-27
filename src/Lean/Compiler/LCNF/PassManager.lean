@@ -157,9 +157,7 @@ def installBeforeEachOccurrence (targetName : Name) (p : Pass → Pass) : PassIn
 def replacePass (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0) : PassInstaller where
   install passes := do
     let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) | throwError s!"Tried to replace {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
-    let target := passes[idx]!
-    let replacement := p target
-    return passes.set! idx replacement
+    return passes.modify idx p
 
 def replaceEachOccurrence (targetName : Name) (p : Pass → Pass) : PassInstaller :=
     withEachOccurrence targetName (replacePass targetName p ·)

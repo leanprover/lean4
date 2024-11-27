@@ -152,7 +152,7 @@ where
     let run (x : StateRefT Nat MetaM Expr) : MetaM (Expr × Nat) := StateRefT'.run x 0
     let (_, cnt) ← run <| transform domain fun e => do
       if let some name := e.constName? then
-        if let some _ := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
+        if ctx.typeInfos.any fun indVal => indVal.name == name then
           modify (· + 1)
       return .continue
 

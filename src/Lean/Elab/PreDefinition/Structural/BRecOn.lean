@@ -145,8 +145,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
     | Expr.app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr :=
         e.withApp fun f args => do
-          if let .some fnIdx := recArgInfos.findIdx? (f.isConstOf ·.fnName) then
-            let recArgInfo := recArgInfos[fnIdx]!
+          if let .some fnIdx := recArgInfos.findFinIdx? (f.isConstOf ·.fnName) then
+            let recArgInfo := recArgInfos[fnIdx]
             let some recArg := args[recArgInfo.recArgPos]?
               | throwError "insufficient number of parameters at recursive application {indentExpr e}"
             -- For reflexive type, we may have nested recursive applications in recArg

@@ -10,6 +10,7 @@ Authors: Sebastian Ullrich
 
 prelude
 import Lean.Language.Basic
+import Lean.Language.Util
 import Lean.Language.Lean.Types
 import Lean.Parser.Module
 import Lean.Elab.Import
@@ -165,13 +166,6 @@ set_option linter.missingDocs true
 namespace Lean.Language.Lean
 open Lean.Elab Command
 open Lean.Parser
-
-/-- Option for capturing output to stderr during elaboration. -/
-register_builtin_option stderrAsMessages : Bool := {
-  defValue := true
-  group    := "server"
-  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
-}
 
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
@@ -519,6 +513,7 @@ where
         diagnostics := .empty, stx := .missing, parserState
         elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
         finishedSnap := .pure { diagnostics := .empty, cmdState }
+        reportSnap := default
         tacticCache := (← IO.mkRef {})
         nextCmdSnap? := none
       }
@@ -529,6 +524,7 @@ where
       -- definitely resolved in `doElab` task
       let elabPromise ← IO.Promise.new
       let finishedPromise ← IO.Promise.new
+      let reportPromise ← IO.Promise.new
       -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
       -- retract the progress bar to a previous position in case the command support incremental
       -- reporting but has significant work after resolving its last incremental promise, such as
@@ -547,22 +543,46 @@ where
       let nextCmdSnap? := next?.map
         ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })
       let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
-      if minimalSnapshots && !Parser.isTerminalCommand stx then
-        prom.resolve {
-          diagnostics, finishedSnap, tacticCache, nextCmdSnap?
-          stx := .missing
-          parserState := {}
-          elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-        }
+      let (stx', parserState') := if minimalSnapshots && !Parser.isTerminalCommand stx then
+        (default, default)
       else
-        prom.resolve {
-          diagnostics, stx, parserState, tacticCache, nextCmdSnap?
-          elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-          finishedSnap
-        }
+        (stx, parserState)
+      prom.resolve {
+        diagnostics, finishedSnap, tacticCache, nextCmdSnap?
+        stx := stx', parserState := parserState'
+        elabSnap := { range? := stx.getRange?, task := elabPromise.result }
+        reportSnap := { range? := endRange?, task := reportPromise.result }
+      }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
         finishedPromise tacticCache ctx
+      let traceTask ←
+        if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
+          -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
+          -- create a temporary snapshot tree containing all tasks but it
+          let snaps := #[
+            { range? := none, task := elabPromise.result.map (sync := true) toSnapshotTree },
+            { range? := none, task := finishedPromise.result.map (sync := true) toSnapshotTree }] ++
+            cmdState.snapshotTasks
+          let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+          BaseIO.bindTask (← tree.waitAll) fun _ => do
+            let .ok (_, s) ← EIO.toBaseIO <| tree.trace |>.run
+              { ctx with options := cmdState.scopes.head!.opts } { env := cmdState.env }
+              | pure <| .pure <| .mk { diagnostics := .empty } #[]
+            let mut msgLog := MessageLog.empty
+            for trace in s.traceState.traces do
+              msgLog := msgLog.add {
+                fileName := ctx.fileName
+                severity := MessageSeverity.information
+                pos      := ctx.fileMap.toPosition beginPos
+                data     := trace.msg
+              }
+            return .pure <| .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
+        else
+          pure <| .pure <| .mk { diagnostics := .empty } #[]
+      reportPromise.resolve <|
+        .mk { diagnostics := .empty } <|
+          cmdState.snapshotTasks.push { range? := endRange?, task := traceTask }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
         parseCmd none parserState cmdState next (sync := false) ctx
@@ -573,7 +593,9 @@ where
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
-    let cmdStateRef ← IO.mkRef { cmdState with messages := .empty, traceState := {} }
+    -- reset per-command state
+    let cmdStateRef ← IO.mkRef { cmdState with
+      messages := .empty, traceState := {}, snapshotTasks := #[] }
     /-
     The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
     has exclusive access to the cache, we create a fresh reference here. Before this change, the
@@ -588,8 +610,8 @@ where
       cancelTk?    := some ctx.newCancelTk
     }
     let (output, _) ←
-      IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) do
-        liftM (m := BaseIO) do
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get scope.opts) do
+        EIO.toBaseIO do
           withLoggingExceptions
             (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
             cmdCtx cmdStateRef

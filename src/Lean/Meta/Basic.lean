@@ -825,7 +825,7 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
 def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
-  num.foldM (init := []) fun _ us =>
+  num.foldM (init := []) fun _ _ us =>
     return (← mkFreshLevelMVar)::us
 
 def mkFreshLevelMVarsFor (info : ConstantInfo) : MetaM (List Level) :=

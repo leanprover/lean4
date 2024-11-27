@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Init.Util
+import Init.Data.UInt.Basic
 
 namespace ShareCommon
 /-

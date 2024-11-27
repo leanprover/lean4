@@ -738,9 +738,9 @@ theorem Const.wfImp_insertMany {β : Type v} [BEq α] [Hashable α] [EquivBEq α
     {l : ρ} (h : Raw.WFImp m.1) : Raw.WFImp (Const.insertMany m l).1.1 :=
   Raw.WF.out ((Const.insertMany m l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
-theorem Const.wfImp_insertManyUnit [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
+theorem Const.wfImp_insertManyIfNewUnit [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
     [ForIn Id ρ α] {m : Raw₀ α (fun _ => Unit)} {l : ρ} (h : Raw.WFImp m.1) :
-    Raw.WFImp (Const.insertManyUnit m l).1.1 :=
-  Raw.WF.out ((Const.insertManyUnit m l).2 _ Raw.WF.insert₀ (.wf m.2 h))
+    Raw.WFImp (Const.insertManyIfNewUnit m l).1.1 :=
+  Raw.WF.out ((Const.insertManyIfNewUnit m l).2 _ Raw.WF.insertIfNew₀ (.wf m.2 h))
 
 end Raw₀

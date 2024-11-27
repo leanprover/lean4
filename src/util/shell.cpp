@@ -54,8 +54,6 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#else
-#include <dlfcn.h>
 #endif
 
 #ifdef _MSC_VER
@@ -321,34 +319,6 @@ options set_config_option(options const & opts, char const * in) {
         // This (minor) duplication will be resolved when this file is rewritten in Lean.
         return opts.update(opt, val.c_str());
     }
-}
-
-void load_plugin(std::string path) {
-    void * init;
-    // we never want to look up plugins using the system library search
-    path = lrealpath(path);
-    std::string pkg = stem(path);
-    std::string sym = "initialize_" + pkg;
-#ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
-    if (!h) {
-        throw exception(sstream() << "error loading plugin " << path << ": " << GetLastError());
-    }
-    init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
-#else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY);
-    if (!handle) {
-        throw exception(sstream() << "error loading plugin, " << dlerror());
-    }
-    init = dlsym(handle, sym.c_str());
-#endif
-    if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
-    }
-    auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
-    object *r = init_fn(1 /* builtin */, io_mk_world());
-    consume_io_result(r);
-    // NOTE: we never unload plugins
 }
 
 namespace lean {
@@ -619,7 +589,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #endif
             case 'p':
                 check_optarg("p");
-                load_plugin(optarg);
+                lean::load_plugin(optarg);
                 forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
                 break;
             case 'l':

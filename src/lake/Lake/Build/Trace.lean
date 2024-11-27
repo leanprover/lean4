@@ -305,7 +305,9 @@ If not, check if the info is newer than this trace's modification time.
 **Deprecated:** Should not be done manually,
 but as part of `buildUnlessUpToDate`.
 -/
-@[deprecated (since := "2024-06-14"), specialize] def checkAgainstFile
+@[deprecated "Should not be done manually, but as part of `buildUnlessUpToDate`."
+  (since := "2024-06-14"), specialize]
+def checkAgainstFile
   [CheckExists i] [GetMTime i]
   (info : i) (traceFile : FilePath) (self : BuildTrace)
 : BaseIO Bool := do
@@ -320,7 +322,8 @@ Write trace to a file.
 **Deprecated:** Should not be done manually,
 but as part of `buildUnlessUpToDate`.
 -/
-@[deprecated (since := "2024-06-14")] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+@[deprecated "Should not be done manually, but as part of `buildUnlessUpToDate`." (since := "2024-06-14")]
+def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
   createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 

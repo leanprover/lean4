@@ -95,8 +95,8 @@ variable (w : l ≠ []) in
 #check_simp (concat l x).map f ~> map f l ++ [f x]
 
 variable (L : List (List α)) in
-#check_simp L.join.map f ~> (L.map (map f)).join
-#check_simp [l₁, l₂].join.map f ~> map f l₁ ++ map f l₂
+#check_simp L.flatten.map f ~> (L.map (map f)).flatten
+#check_simp [l₁, l₂].flatten.map f ~> map f l₁ ++ map f l₂
 
 #check_simp l.map (Function.const α "1") ~> replicate l.length "1"
 #check_simp [x, y].map (Function.const α "1") ~> ["1", "1"]
@@ -125,9 +125,9 @@ variable (w : l₁ ≠ []) in
 
 /-! ### concat -/
 
-/-! ### join -/
+/-! ### flatten -/
 
-#check_simp (L₁ ++ L₂).join ~> L₁.join ++ L₂.join
+#check_simp (L₁ ++ L₂).flatten ~> L₁.flatten ++ L₂.flatten
 
 /-! ### bind -/
 
@@ -200,12 +200,12 @@ variable (w : replicate n x ≠ []) in
 
 -- join
 
-#check_simp (replicate n (replicate m x)).join ~> replicate (n * m) x
-#check_simp (replicate 1 (replicate m x)).join ~> replicate m x
-#check_simp (replicate n (replicate 1 x)).join ~> replicate n x
-#check_simp (replicate n (replicate 0 x)).join ~> []
-#check_simp (replicate 0 (replicate m x)).join ~> []
-#check_simp (replicate 0 (replicate 0 x)).join ~> []
+#check_simp (replicate n (replicate m x)).flatten ~> replicate (n * m) x
+#check_simp (replicate 1 (replicate m x)).flatten ~> replicate m x
+#check_simp (replicate n (replicate 1 x)).flatten ~> replicate n x
+#check_simp (replicate n (replicate 0 x)).flatten ~> []
+#check_simp (replicate 0 (replicate m x)).flatten ~> []
+#check_simp (replicate 0 (replicate 0 x)).flatten ~> []
 
 -- isEmpty
 
@@ -459,6 +459,12 @@ end Pairwise
 /-! ### min? -/
 
 /-! ### max? -/
+
+/-! ## ofFn -/
+
+example (f : Fin 3 → Nat) : List.ofFn f = [f 0, f 1, f 2] := rfl
+-- Out of place, but lets check that `Fin.foldl` is semireducible too.
+example (f : Fin 3 → Nat) : Fin.foldl 3 (fun acc i => f i :: acc) [] = [f 2, f 1, f 0] := rfl
 
 /-! ## Monadic operations -/
 attribute [local simp] Id.run in

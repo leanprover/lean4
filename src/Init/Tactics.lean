@@ -428,11 +428,11 @@ macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 /--
 `+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
 -/
-syntax posConfigItem := "+" noWs ident
+syntax posConfigItem := " +" noWs ident
 /--
 `-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
 -/
-syntax negConfigItem := "-" noWs ident
+syntax negConfigItem := " -" noWs ident
 /--
 `(opt := val)` sets the `opt` configuration option to `val`.
 

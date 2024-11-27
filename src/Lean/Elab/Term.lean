@@ -473,6 +473,26 @@ def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
       return !cond }
   }) act
 
+@[inherit_doc Core.wrapAsync]
+def wrapAsync (act : Unit → TermElabM α) : TermElabM (EIO Exception α) := do
+  let ctx ← read
+  let st ← get
+  let metaCtx ← readThe Meta.Context
+  let metaSt ← getThe Meta.State
+  Core.wrapAsync fun _ =>
+    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
+
+@[inherit_doc Core.wrapAsyncAsSnapshot]
+def wrapAsyncAsSnapshot (act : Unit → TermElabM Unit)
+    (desc : String := by exact decl_name%.toString) :
+    TermElabM (BaseIO Language.SnapshotTree) := do
+  let ctx ← read
+  let st ← get
+  let metaCtx ← readThe Meta.Context
+  let metaSt ← getThe Meta.State
+  Core.wrapAsyncAsSnapshot (desc := desc) fun _ =>
+    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
+
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 
 /--
@@ -1059,7 +1079,9 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
+          let (oldValType, valType) ← addPPExplicitToExposeDiff oldValType valType
           throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+        let (oldVal, val) ← addPPExplicitToExposeDiff oldVal val
         throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do

@@ -51,6 +51,8 @@ option(LLVM               "LLVM"               OFF)
 option(USE_GITHASH        "GIT_HASH"           ON)
 # When ON we install LICENSE files to CMAKE_INSTALL_PREFIX
 option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
+# When ON we install a copy of cadical
+option(INSTALL_CADICAL "Install a copy of cadical" ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
@@ -616,7 +618,7 @@ else()
     OUTPUT_NAME leancpp)
 endif()
 
-if((${STAGE} GREATER 0) AND CADICAL)
+if((${STAGE} GREATER 0) AND CADICAL AND INSTALL_CADICAL)
   add_custom_target(copy-cadical
     COMMAND cmake -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}")
   add_dependencies(leancpp copy-cadical)
@@ -738,7 +740,7 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
-if (${STAGE} GREATER 0 AND CADICAL)
+if (${STAGE} GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   install(PROGRAMS "${CADICAL}" DESTINATION bin)
 endif()
 

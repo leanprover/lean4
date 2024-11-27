@@ -62,11 +62,11 @@ static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____spec__1___lambda__2___closed__3;
 static lean_object* l_Lean_logAt___at_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____spec__1___lambda__2___closed__2;
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__2;
 static lean_object* l_Lean_logAt___at_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____spec__1___closed__1;
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____lambda__1___closed__3;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____closed__10;
 static lean_object* _init_l_Lean_logAt___at_Lake_initFn____x40_Lake_DSL_Attributes___hyg_4____spec__1___lambda__1___closed__1() {
@@ -329,7 +329,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_182; uint8_t x_183; 
 x_182 = 2;
-x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_182);
+x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_182);
 if (x_183 == 0)
 {
 lean_object* x_184; 
@@ -370,7 +370,7 @@ lean_dec(x_7);
 x_175 = lean_ctor_get(x_4, 2);
 lean_inc(x_175);
 x_176 = 1;
-x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_176);
+x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_176);
 if (x_177 == 0)
 {
 lean_dec(x_175);

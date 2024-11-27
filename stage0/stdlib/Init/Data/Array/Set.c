@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__10;
+LEAN_EXPORT lean_object* l_Array_setIfInBounds___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__6;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -33,6 +34,7 @@ static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__21;
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__5;
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__1;
 LEAN_EXPORT lean_object* l_Array_setD___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_setIfInBounds___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__18;
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__2;
@@ -40,6 +42,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__13;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__17;
+LEAN_EXPORT lean_object* l_Array_setIfInBounds(lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Set___hyg_15____closed__19;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_set_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -289,6 +292,43 @@ lean_object* x_6;
 x_6 = lean_array_fset(x_2, x_3, x_4);
 lean_dec(x_3);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Array_setIfInBounds___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_array_get_size(x_1);
+x_5 = lean_nat_dec_lt(x_2, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
+{
+lean_dec(x_3);
+return x_1;
+}
+else
+{
+lean_object* x_6; 
+x_6 = lean_array_fset(x_1, x_2, x_3);
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_setIfInBounds(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_setIfInBounds___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Array_setIfInBounds___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Array_setIfInBounds___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Array_setD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -241,6 +241,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lake_CLI_Translat
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instQuoteArrayMkStr1__lake___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkSyntax___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkLeanConfig___closed__9;
+uint8_t l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_197_(lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__97;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instQuoteLeanOptionValueMkStr1__lake___closed__1;
 static lean_object* l_Lake_LeanLibConfig_mkSyntax___closed__10;
@@ -448,7 +449,6 @@ static lean_object* l_Lake_PackageConfig_mkSyntax___closed__77;
 static lean_object* l_Lake_LeanExeConfig_mkSyntax___closed__2;
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__75;
 lean_object* l_Array_mkArray1___rarg(lean_object*);
-uint8_t l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_196_(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instQuoteArrayMkStr1__lake___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkSyntax___spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_RBNode_foldM___at_Lake_Dependency_mkSyntax___spec__1___closed__5;
@@ -7427,7 +7427,7 @@ x_10 = lean_nat_sub(x_5, x_9);
 lean_dec(x_5);
 x_11 = lean_array_fget(x_3, x_10);
 x_12 = lean_array_fget(x_4, x_10);
-x_13 = l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_196_(x_11, x_12);
+x_13 = l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_197_(x_11, x_12);
 lean_dec(x_12);
 lean_dec(x_11);
 if (x_13 == 0)

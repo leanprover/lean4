@@ -213,7 +213,6 @@ uint8_t lean_level_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_mkNextUserName___boxed(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_process(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -237,6 +236,7 @@ lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_objec
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_mkLambda___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 static lean_object* _init_l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1() {
 _start:
 {
@@ -9790,7 +9790,7 @@ return x_897;
 else
 {
 uint8_t x_898; 
-x_898 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_886, x_886);
+x_898 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_886, x_886);
 if (x_898 == 0)
 {
 lean_object* x_899; lean_object* x_900; 
@@ -10707,7 +10707,7 @@ return x_1165;
 else
 {
 uint8_t x_1166; 
-x_1166 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_404_(x_1154, x_1154);
+x_1166 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(x_1154, x_1154);
 if (x_1166 == 0)
 {
 lean_object* x_1167; lean_object* x_1168; 

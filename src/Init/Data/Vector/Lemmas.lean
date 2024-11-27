@@ -30,17 +30,17 @@ theorem getElem_toList {α n} (xs : Vector α n) (i : Nat) (h : i < xs.toList.le
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
   simp [ofFn]
 
-/-- An `empty` vector maps to a `empty` vector. -/
+/-- The empty vector maps to the empty vector. -/
 @[simp]
-theorem map_empty (f : α → β) : map f empty = empty := by
-  rw [map, empty, mk.injEq]
+theorem map_empty (f : α → β) : map f #v[] = #v[] := by
+  rw [map, mk.injEq]
   exact Array.map_empty f
 
 theorem toArray_inj : ∀ {v w : Vector α n}, v.toArray = w.toArray → v = w
   | {..}, {..}, rfl => rfl
 
-/-- A vector of length `0` is an `empty` vector. -/
-protected theorem eq_empty (v : Vector α 0) : v = empty := by
+/-- A vector of length `0` is the empty vector. -/
+protected theorem eq_empty (v : Vector α 0) : v = #v[] := by
   apply Vector.toArray_inj
   apply Array.eq_empty_of_size_eq_zero v.2
 
@@ -119,12 +119,12 @@ theorem push_swap (a : Vector α n) (x : α) {i j : Nat} {hi hj} :
 /-! ### Decidable quantifiers. -/
 
 theorem forall_zero_iff {P : Vector α 0 → Prop} :
-    (∀ v, P v) ↔ P .empty := by
+    (∀ v, P v) ↔ P #v[] := by
   constructor
   · intro h
     apply h
   · intro h v
-    obtain (rfl : v = .empty) := (by ext i h; simp at h)
+    obtain (rfl : v = #v[]) := (by ext i h; simp at h)
     apply h
 
 theorem forall_cons_iff {P : Vector α (n + 1) → Prop} :
@@ -138,7 +138,7 @@ theorem forall_cons_iff {P : Vector α (n + 1) → Prop} :
     apply h
 
 instance instDecidableForallVectorZero (P : Vector α 0 → Prop) :
-    ∀ [Decidable (P .empty)], Decidable (∀ v, P v)
+    ∀ [Decidable (P #v[])], Decidable (∀ v, P v)
   | .isTrue h => .isTrue fun ⟨v, s⟩ => by
     obtain (rfl : v = .empty) := (by ext i h₁ h₂; exact s; cases h₂)
     exact h
@@ -148,7 +148,7 @@ instance instDecidableForallVectorSucc (P : Vector α (n+1) → Prop)
     [Decidable (∀ (x : α) (v : Vector α n), P (v.push x))] : Decidable (∀ v, P v) :=
   decidable_of_iff' (∀ x (v : Vector α n), P (v.push x)) forall_cons_iff
 
-instance instDecidableExistsVectorZero (P : Vector α 0 → Prop) [Decidable (P .empty)] :
+instance instDecidableExistsVectorZero (P : Vector α 0 → Prop) [Decidable (P #v[])] :
     Decidable (∃ v, P v) :=
   decidable_of_iff (¬ ∀ v, ¬ P v) Classical.not_forall_not
 

@@ -1112,6 +1112,34 @@ theorem foldr_congr {as bs : Array α} (h₀ : as = bs) {f g : α → β → β}
     as.foldr f a start stop = bs.foldr g b start' stop' := by
   congr
 
+theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Array α) :
+    l.foldl f b = l.foldlM (m := Id) f b := by
+  cases l
+  simp [List.foldl_eq_foldlM]
+
+theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Array α) :
+    l.foldr f b = l.foldrM (m := Id) f b := by
+  cases l
+  simp [List.foldr_eq_foldrM]
+
+@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Array α) :
+    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
+
+@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Array α) :
+    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
+
+theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : Array β) (init : α₁)
+    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
+  cases l
+  simp
+  rw [List.foldl_hom _ _ _ _ _ H]
+
+theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : Array α) (init : β₁)
+    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
+  cases l
+  simp
+  rw [List.foldr_hom _ _ _ _ _ H]
+
 /-! ### map -/
 
 @[simp] theorem mem_map {f : α → β} {l : Array α} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
@@ -2055,6 +2083,20 @@ theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : Array
   cases l
   simp [List.foldr_filterMap]
   rfl
+
+theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
+  cases l
+  simp
+  rw [List.foldl_map' _ _ _ _ _ h]
+
+theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
+  cases l
+  simp
+  rw [List.foldr_map' _ _ _ _ _ h]
 
 /-! ### flatten -/
 

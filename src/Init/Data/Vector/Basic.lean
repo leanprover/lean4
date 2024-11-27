@@ -44,9 +44,6 @@ def elimAsList {motive : Vector α n → Sort u}
     (v : Vector α n) → motive v
   | ⟨⟨a⟩, ha⟩ => mk a ha
 
-/-- The empty vector. -/
-@[inline] def empty : Vector α 0 := ⟨.empty, rfl⟩
-
 /-- Make an empty vector with pre-allocated capacity. -/
 @[inline] def mkEmpty (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
 
@@ -215,7 +212,7 @@ Compares two vectors of the same size using a given boolean relation `r`. `isEqv
 `true` if and only if `r v[i] w[i]` is true for all indices `i`.
 -/
 @[inline] def isEqv (v w : Vector α n) (r : α → α → Bool) : Bool :=
-  Array.isEqvAux v.toArray w.toArray (by simp) r 0 (by simp)
+  Array.isEqvAux v.toArray w.toArray (by simp) r n (by simp)
 
 instance [BEq α] : BEq (Vector α n) where
   beq a b := isEqv a b (· == ·)
@@ -249,9 +246,7 @@ Finds the first index of a given value in a vector using `==` for comparison. Re
 no element of the index matches the given value.
 -/
 @[inline] def indexOf? [BEq α] (v : Vector α n) (x : α) : Option (Fin n) :=
-  match v.toArray.indexOf? x with
-  | some res => some (res.cast v.size_toArray)
-  | none => none
+  (v.toArray.indexOf? x).map (Fin.cast v.size_toArray)
 
 /-- Returns `true` when `v` is a prefix of the vector `w`. -/
 @[inline] def isPrefixOf [BEq α] (v : Vector α m) (w : Vector α n) : Bool :=

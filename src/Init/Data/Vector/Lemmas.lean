@@ -116,6 +116,21 @@ theorem push_swap (a : Vector α n) (x : α) {i j : Nat} {hi hj} :
   subst h
   simp
 
+theorem cast_inj {n m} (a : Vector α n) (b : Vector α n) (h : n = m) :
+    a.cast h = b.cast h ↔ a = b := by
+  cases h
+  simp
+
+theorem cast_eq_iff {n m} (a : Vector α n) (b : Vector α m) (h : n = m) :
+    a.cast h = b ↔ a = b.cast h.symm := by
+  cases h
+  simp
+
+theorem eq_cast_iff {n m} (a : Vector α n) (b : Vector α m) (h : m = n) :
+    a = b.cast h ↔ a.cast h.symm = b := by
+  cases h
+  simp
+
 /-! ### Decidable quantifiers. -/
 
 theorem forall_zero_iff {P : Vector α 0 → Prop} :

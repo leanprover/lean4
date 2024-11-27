@@ -60,12 +60,14 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
 
   -- Manually handle PSigma.casesOn, as split doesn't
   match_expr e with
-  | PSigma.casesOn δ ε _motive p k =>
+  | PSigma.casesOn δ ε γ p k =>
     if e.appFn!.hasLooseBVars then
       failK
+    -- Careful juggling of universes
     let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.tail
     let k' := f.updateLambdaE! f.bindingDomain! k
-    let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β γ inst₁ inst₂ δ ε p k'
+    let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β inst₁ δ ε γ p inst₂ k'
+    check p
     let new_goals ← goal.apply p
     new_goals.forM solveMono
     return

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Elab.PreDefinition.MkInhabitant
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Init.Tailrec
 
@@ -12,6 +13,7 @@ open WF
 open Meta
 
 partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
+  trace[Elab.definition.tailrec] "solveMono at\n{goal}"
   let type ← goal.getType
   if type.isForall then
     let (_, goal) ← goal.intro1P
@@ -19,21 +21,26 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     return
 
   let_expr Tailrec.mono α β γ inst₁ inst₂ f := type |
-    throwError "Unexpected goal:{goal}"
+    throwError "Unexpected goal:\n{goal}"
 
   unless f.isLambda do
-    throwError "Unexpected goal:{goal}"
+    throwError "Unexpected goal:\n{goal}"
 
   let failK :=
     lambdaBoundedTelescope f 1 fun _ t => do
-      trace[Elab.definition.tailrec] "Failing at goal{goal}"
+      trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
       throwError "Recursive call in non-tail position:{indentExpr t}"
 
   let e := f.bindingBody!
 
   -- No recursive calls left
   if !e.hasLooseBVars then
-    let new_goals ← goal.applyConst ``Tailrec.mono_const
+    -- should not use applyConst here; it may try to re-synth the Nonempty constriant
+    let us := type.getAppFn.constLevels!
+    let p := mkAppN (.const ``Tailrec.mono_const us) #[α, β, γ, inst₁, inst₂, e]
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
     unless new_goals.isEmpty do
       throwError "Left over goals"
     return
@@ -42,7 +49,13 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
 
   -- A recursive call directly here
   if e.isApp && e.appFn! == .bvar 0 then
-    let new_goals ← goal.applyConst ``Tailrec.mono_apply
+    -- should not use applyConst here; it may try to re-synth the Nonempty constriant
+    let x := e.appArg!
+    let us := type.getAppFn.constLevels!.take 2
+    let p := mkAppN (.const ``Tailrec.mono_apply us) #[α, β, inst₁, x]
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
     unless new_goals.isEmpty do
       throwError "Left over goals"
     return
@@ -71,7 +84,9 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let k' := f.updateLambdaE! f.bindingDomain! k
     let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β inst₁ δ ε γ p inst₂ k'
     check p
-    let new_goals ← goal.apply p
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
     new_goals.forM solveMono
     return
   | PSum.casesOn δ ε γ p k₁ k₂ =>
@@ -83,7 +98,9 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
     let p := mkAppN (.const ``Tailrec.mono_psum_casesOn us) #[α, β, inst₁, δ, ε, γ, p, inst₂, k₁', k₂']
     check p
-    let new_goals ← goal.apply p
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
     new_goals.forM solveMono
     return
    | ite _ cond decInst k₁ k₂ =>
@@ -92,7 +109,9 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
     let p := mkAppN (.const ``Tailrec.mono_ite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
     check p
-    let new_goals ← goal.apply p
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
     new_goals.forM solveMono
     return
    | dite _ cond decInst k₁ k₂ =>
@@ -101,7 +120,9 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
     let p := mkAppN (.const ``Tailrec.mono_dite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
     check p
-    let new_goals ← goal.apply p
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
     new_goals.forM solveMono
     return
   | _ => pure
@@ -123,9 +144,11 @@ private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr)
     else
       none
 
-def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
+def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) (w : Expr) :
     TermElabM PreDefinition := do
+  -- TODO: Witness and fixed prefix
   forallBoundedTelescope preDef.type fixedPrefixSize fun prefixArgs type => do
+    let w := mkAppN w prefixArgs
     let type ← whnfForall type
     unless type.isForall do
       throwError "expected unary function type: {type}"
@@ -141,9 +164,9 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
             mkLambdaFVars #[f, x] val
       eraseRecAppSyntaxExpr value
 
-    -- TODO: Check these properties on the original function types
-    let value ← mapError (f := (m!"Termination by tailrecursion needs a nonempty codomain:{indentD ·}")) do
-      mkAppOptM ``Lean.Tailrec.tailrec_fix #[α, .none, .none, F]
+    let inst ← withLocalDeclD `x α fun x => do
+      mkLambdaFVars #[x] (← mkAppM ``Nonempty.intro #[.app w x])
+    let value ← mkAppOptM ``Lean.Tailrec.tailrec_fix #[α, none, inst, F]
 
     -- Now try to prove the monotonicity
     let monoGoal := (← inferType value).bindingDomain!
@@ -156,8 +179,21 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
     return { preDef with value }
 
 def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
+  let witnesses ← preDefs.mapM fun preDef =>
+    mkInhabitantFor preDef.declName #[] preDef.type
+
+  trace[Elab.definition.tailrec] "Found nonempty witnesses: {witnesses}"
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← mkUnaryPreDef preDefs
-  let preDefNonRec : PreDefinition ← derecursifyTailrec fixedPrefixSize unaryPreDef
+
+  -- Apply the same unary/mutual packing to the witnesses.
+  let unaryWitness ←
+    forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs _ => do
+      mkLambdaFVars prefixArgs (← argsPacker.uncurry (witnesses.map (mkAppN · prefixArgs)))
+
+  unless argsPacker.onlyOneUnary do
+    trace[Elab.definition.tailrec] "Packed witness:{indentExpr unaryWitness}"
+
+  let preDefNonRec ← derecursifyTailrec fixedPrefixSize unaryPreDef unaryWitness
   addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab

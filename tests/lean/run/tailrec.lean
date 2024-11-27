@@ -27,15 +27,43 @@ theorem find.eq_1 : ∀ (P : Nat → Bool) (x : Nat), find P x = if P x = true t
 #print equations find
 
 /--
-error: Termination by tailrecursion needs a nonempty codomain:
-  failed to synthesize
-    Nat → Nonempty (Fin n)
-  Additional diagnostic information may be available using the `set_option diagnostics true` command.
+error: failed to compile 'partial' definition 'notinhabited', could not prove that the type
+  (n : Nat) → Nat → Fin n
+is nonempty.
+
+This process uses multiple strategies:
+- It looks for a parameter that matches the return type.
+- It tries synthesizing 'Inhabited' and 'Nonempty' instances for the return type, while making every parameter into a local 'Inhabited' instance.
+- It tries unfolding the return type.
+
+If the return type is defined using the 'structure' or 'inductive' command, you can try adding a 'deriving Nonempty' clause to it.
 -/
 #guard_msgs in
 def notinhabited (n m : Nat) : Fin n :=
   notinhabited n (m+1)
 termination_by tailrecursion
+
+/--
+error: failed to compile 'partial' definition 'notinhabited_mutual1', could not prove that the type
+  (n : Nat) → Nat → Fin n
+is nonempty.
+
+This process uses multiple strategies:
+- It looks for a parameter that matches the return type.
+- It tries synthesizing 'Inhabited' and 'Nonempty' instances for the return type, while making every parameter into a local 'Inhabited' instance.
+- It tries unfolding the return type.
+
+If the return type is defined using the 'structure' or 'inductive' command, you can try adding a 'deriving Nonempty' clause to it.
+-/
+#guard_msgs in
+mutual
+def notinhabited_mutual1 (n m : Nat) : Fin n :=
+  notinhabited_mutual2 n (m+1)
+termination_by tailrecursion
+def notinhabited_mutual2 (n m : Nat) : Fin n :=
+  notinhabited_mutual1 n (m+1)
+termination_by tailrecursion
+end
 
 def fib (n : Nat) := go 0 0 1
 where
@@ -88,10 +116,10 @@ def mutual2 (n m : Nat) : Unit := mutual1 (m + 1) n
 termination_by tailrecursion
 end
 
-def computeLfp {α : Type u} [Nonempty α] [DecidableEq α] (f : α → α) (x : α) : α :=
+def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
   let next := f x
   if x ≠ next then
-    computeLfp f next
+    computeLfp' f next
   else
     x
 termination_by tailrecursion

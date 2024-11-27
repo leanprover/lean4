@@ -138,7 +138,7 @@ theorem allTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bo
   go n 0 f
 
 theorem fold_eq_range_fold {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) :
-    fold n f init = (Fin.list n).foldr (fun i acc => f i (by simp; omega) acc) init := by
+    fold n f init = (List.finRange n).foldr (fun i acc => f i (by simp; omega) acc) init := by
   sorry
 
 end Nat

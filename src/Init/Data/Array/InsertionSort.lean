@@ -10,16 +10,16 @@ import Init.Data.Vector.Lemmas
 
 namespace Vector
 
-/-- Swap the `i`-th element repeatedly to the left, while the element to its left is `lt` it. -/
+/-- Swap the `i`-th element repeatedly to the left, while the element to its left is not `lt` it. -/
 @[specialize, inline] def swapLeftWhileLT {n} (a : Vector α n) (i : Nat) (h : i < n)
     (lt : α → α → Bool := by exact (· < ·)) : Vector α n :=
   match h' : i with
   | 0 => a
   | i'+1 =>
     if lt a[i'] a[i] then
-      swapLeftWhileLT (a.swap i' i) i' (by omega) lt
-    else
       a
+    else
+      swapLeftWhileLT (a.swap i' i) i' (by omega) lt
 
 end Vector
 
@@ -48,9 +48,9 @@ theorem swapLeftWhileLT_push {n} (a : Vector α n) (x : α) (j : Nat) (h : j < n
     simp [swapLeftWhileLT]
     split <;> rename_i h
     · rw [Vector.getElem_push_lt (by omega), Vector.getElem_push_lt (by omega)] at h
-      rw [← Vector.push_swap, ih, if_pos h]
+      rw [if_pos h]
     · rw [Vector.getElem_push_lt (by omega), Vector.getElem_push_lt (by omega)] at h
-      rw [if_neg h]
+      rw [← Vector.push_swap, ih, if_neg h]
 
 theorem swapLeftWhileLT_cast {n m} (a : Vector α n) (j : Nat) (h : j < n) (h' : n = m) :
     swapLeftWhileLT (a.cast h') j (by omega) lt = (swapLeftWhileLT a j h lt).cast h' := by

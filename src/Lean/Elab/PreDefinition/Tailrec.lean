@@ -25,7 +25,8 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     throwError "Unexpected goal:{goal}"
 
   let failK :=
-    lambdaBoundedTelescope f 1 fun _ t =>
+    lambdaBoundedTelescope f 1 fun _ t => do
+      trace[Elab.definition.tailrec] "Failing at goal{goal}"
       throwError "Recursive call in non-tail position:{indentExpr t}"
 
   -- No recursive calls left
@@ -50,6 +51,18 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
     let k' := f.updateLambdaE! f.bindingDomain! k
     let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β γ inst₁ inst₂ δ ε p k'
+    let new_goals ← goal.apply p
+    new_goals.forM solveMono
+    return
+  | PSum.casesOn δ ε γ p k₁ k₂ =>
+    if f.bindingBody!.appFn!.appFn!.hasLooseBVars then
+      failK
+    -- Careful juggling of universes
+    let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
+    let k₁' := f.updateLambdaE! f.bindingDomain! k₁
+    let k₂' := f.updateLambdaE! f.bindingDomain! k₂
+    let p := mkAppN (.const ``Tailrec.mono_psum_casesOn us) #[α, β, inst₁, δ, ε, γ, p, inst₂, k₁', k₂']
+    check p
     let new_goals ← goal.apply p
     new_goals.forM solveMono
     return
@@ -109,3 +122,5 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab
+
+builtin_initialize Lean.registerTraceClass `Elab.definition.tailrec

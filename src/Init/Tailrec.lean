@@ -300,9 +300,24 @@ theorem mono_apply : mono fun (f : (∀ x, β x)) => f x :=
 
 theorem mono_psigma_casesOn {δ : Sort uu} {ε : δ → Sort vv} (p : PSigma ε)
     (k : (∀ x, β x) → (a : δ) → (b : ε a) → γ)
-    (hmono : ∀ a b, mono (β := β) fun (f : (∀ x, β x)) => k f a b) :
+    (hmono : ∀ a b, mono fun (f : (∀ x, β x)) => k f a b) :
   mono fun (f : (∀ x, β x)) => PSigma.casesOn (motive := fun _ => γ) p (k f) := by
     cases p; apply hmono
+
+theorem mono_psum_casesOn.{ww,uu,vv}
+    {δ : Sort uu} {ε : Sort vv}
+    {γ : δ ⊕' ε -> Type ww}
+    (p : δ ⊕' ε)
+    [Nonempty (γ p)]
+    (k₁ : (∀ x, β x) → (a : δ) → γ (.inl a))
+    (k₂ : (∀ x, β x) → (b : ε) → γ (.inr b))
+    (hmono₁ : ∀ a [Nonempty (γ (.inl a))], mono fun (f : (∀ x, β x)) => k₁ f a)
+    (hmono₂ : ∀ b [Nonempty (γ (.inr b))], mono fun (f : (∀ x, β x)) => k₂ f b) :
+    mono (γ := γ p) fun (f : (∀ x, β x)) =>
+      PSum.casesOn (motive := γ) p (k₁ f) (k₂ f) := by
+    cases p
+    · apply hmono₁
+    · apply hmono₂
 
 set_option linter.unusedVariables false in
 noncomputable

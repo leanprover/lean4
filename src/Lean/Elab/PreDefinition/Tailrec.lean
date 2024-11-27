@@ -82,8 +82,8 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
       | throwError "Termination by tailrecursion cannot handle dependent type:{indentExpr type}"
     let u ← getDecLevel α
     let v ← getDecLevel β
-    let inst ← mapError (f := (m!"Termination by tailrecursion needs an inhabited codomain:{indentD ·}")) do
-      synthInstance (mkApp (.const ``Inhabited [v.succ]) β)
+    let inst ← mapError (f := (m!"Termination by tailrecursion needs a nonempty codomain:{indentD ·}")) do
+      synthInstance (mkApp (.const ``Nonempty [v.succ]) β)
     let value := mkApp3 (mkConst ``Lean.Tailrec.tailrec_fix [u, v]) α β inst
 
     let F ← withoutModifyingEnv do

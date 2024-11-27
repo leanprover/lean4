@@ -27,9 +27,9 @@ theorem find.eq_1 : ∀ (P : Nat → Bool) (x : Nat), find P x = if P x = true t
 #print equations find
 
 /--
-error: Termination by tailrecursion needs an inhabited codomain:
+error: Termination by tailrecursion needs a nonempty codomain:
   failed to synthesize
-    Inhabited (Fin n)
+    Nonempty (Fin n)
   Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in

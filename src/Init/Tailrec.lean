@@ -283,10 +283,10 @@ section tailrec
 
 variable {α : Type u}
 variable {β : Type v}
-variable [Inhabited β]
+variable [inst : Nonempty β]
 
 def mono (F : (α → β) → β) :=
-    monotone (α := ∀ _, FlatOrder default) (β := FlatOrder default) F
+    monotone (α := ∀ _, FlatOrder (@Classical.choice β inst)) (β := FlatOrder (@Classical.choice β inst)) F
 
 theorem mono_const (c : β) : mono fun (_ : α → β) => c :=
   monotone_const _
@@ -303,7 +303,7 @@ theorem mono_psigma_casesOn {γ : Sort uu} {δ : γ → Sort vv} (x : PSigma δ)
 set_option linter.unusedVariables false in
 noncomputable
 def tailrec_fix (F : (α → β) → (α → β)) (hmono : ∀ (x : α), mono (fun f => F f x)) : (α → β) :=
-  @fix (∀ _, FlatOrder default) _ _ F
+  @fix (∀ _, FlatOrder (@Classical.choice β inst)) _ _ F
 
 theorem tailrec_fix_eq (F : (α → β) → (α → β))
     (hmono : ∀ (x : α), mono (fun f => F f x)) (x : α) :

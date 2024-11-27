@@ -36,11 +36,22 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
       throwError "Left over goals"
     return
 
-  -- A recursive call here
+  -- A recursive call directly here
   if f.bindingBody!.isApp && f.bindingBody!.appFn! == .bvar 0 then
     let new_goals ← goal.applyConst ``Tailrec.mono_apply
     unless new_goals.isEmpty do
       throwError "Left over goals"
+    return
+
+  -- Float letE to the environment
+  if let .letE n t v b _nonDep := f.bindingBody! then
+    if t.hasLooseBVars || v.hasLooseBVars then
+      failK
+    withLetDecl n t v fun x => do
+      let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
+      let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
+      goal.assign (← mkLetFVars #[x] goal')
+      solveMono goal'.mvarId!
     return
 
   -- Manually handle PSigma.casesOn, as split doesn't

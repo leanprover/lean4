@@ -108,3 +108,12 @@ termination_by tailrecursion
 def mutual2 (n m : Nat) : Unit := mutual1 (m + 1) n
 termination_by tailrecursion
 end
+
+
+def computeLfp {α : Type u} [Nonempty α] [DecidableEq α] (f : α → α) (x : α) : α :=
+  let next := f x
+  if x ≠ next then
+    computeLfp f next
+  else
+    x
+termination_by tailrecursion

@@ -16,10 +16,10 @@ namespace Vector
   match h' : i with
   | 0 => a
   | i'+1 =>
-    if lt a[i'] a[i] then
-      a
-    else
+    if lt a[i] a[i'] then
       swapLeftWhileLT (a.swap i' i) i' (by omega) lt
+    else
+      a
 
 end Vector
 
@@ -28,7 +28,7 @@ namespace Array
 
 /-- Sort an array in place using insertion sort. -/
 @[inline] def insertionSort (a : Array α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
-  a.size.fold (init := ⟨a, rfl⟩) (f := fun i h acc => swapLeftWhileLT acc i h lt) |>.toArray
+  a.size.fold (init := ⟨a, rfl⟩) (fun i h acc => swapLeftWhileLT acc i h lt) |>.toArray
 
 /-- Insert an element into an array, after the last element which is not `lt` the inserted element. -/
 def orderedInsert (a : Array α) (x : α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
@@ -48,9 +48,9 @@ theorem swapLeftWhileLT_push {n} (a : Vector α n) (x : α) (j : Nat) (h : j < n
     simp [swapLeftWhileLT]
     split <;> rename_i h
     · rw [Vector.getElem_push_lt (by omega), Vector.getElem_push_lt (by omega)] at h
-      rw [if_pos h]
+      rw [← Vector.push_swap, ih, if_pos h]
     · rw [Vector.getElem_push_lt (by omega), Vector.getElem_push_lt (by omega)] at h
-      rw [← Vector.push_swap, ih, if_neg h]
+      rw [if_neg h]
 
 theorem swapLeftWhileLT_cast {n m} (a : Vector α n) (j : Nat) (h : j < n) (h' : n = m) :
     swapLeftWhileLT (a.cast h') j (by omega) lt = (swapLeftWhileLT a j h lt).cast h' := by

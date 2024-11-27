@@ -94,7 +94,9 @@ extern "C" LEAN_EXPORT obj_res lean_load_plugin(b_obj_arg path, obj_arg) {
     // Like lean_load_dynlib, the library is loaded with RTLD_GLOBAL.
     // This ensures the interpreter has access to plugin definitions that are also
     // imported (e.g., an environment extension defined with builtin_initialize).
-    // It also means that loading multiple plugins which define the same symbol will error.
+    // In either case, loading the same symbol twice (and thus e.g. running initializers
+    // manipulating global `IO.Ref`s twice) should be avoided; the common module
+    // should instead be factored out into a separate shared library
     void *handle = dlopen(rpath.c_str(), RTLD_LAZY | RTLD_GLOBAL);
     if (!handle) {
         return io_result_mk_error((sstream()

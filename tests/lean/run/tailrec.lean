@@ -61,6 +61,10 @@ def dependent2' (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if b then dependent2' (n + 1) b else dependent2' (n + 2) b
 termination_by tailrecursion
 
+def dependent2'' (n : Nat) (b : Bool) : if b then Nat else Bool :=
+  if _ : b then dependent2'' (n + 1) b else dependent2'' (n + 2) b
+termination_by tailrecursion
+
 local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (cond b α β) := by
   cases b <;> assumption
 

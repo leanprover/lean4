@@ -323,6 +323,28 @@ theorem mono_psum_casesOn.{ww,uu,vv}
     · apply hmono₁
     · apply hmono₂
 
+theorem mono_ite
+  (c : Prop) [Decidable c]
+  (k₁ : (∀ x, β x) → γ)
+  (k₂ : (∀ x, β x) → γ)
+  (hmono₁ : mono (fun f => k₁ f))
+  (hmono₂ : mono (fun f => k₂ f)) :
+  mono fun f => if c then k₁ f else k₂ f := by
+    split
+    · apply hmono₁
+    · apply hmono₂
+
+theorem mono_dite
+  (c : Prop) [Decidable c]
+  (k₁ : (∀ x, β x) → c → γ)
+  (k₂ : (∀ x, β x) → ¬ c → γ)
+  (hmono₁ : (h : c) → mono (fun f => k₁ f h))
+  (hmono₂ : (h : ¬ c) → mono (fun f => k₂ f h)) :
+  mono fun f => dite c (k₁ f) (k₂ f) := by
+    split
+    · apply hmono₁
+    · apply hmono₂
+
 set_option linter.unusedVariables false in
 noncomputable
 def tailrec_fix

@@ -58,7 +58,10 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
       solveMono goal'.mvarId!
     return
 
-  -- Manually handle PSigma.casesOn, as split doesn't
+  -- Manually handle PSigma.casesOn, and PSum.casesOn, as split doesn't
+  -- and we need it due to the way we pack mutual arguments
+  -- and while we are at it, handle ite and dite as well.
+  -- Feels more reliable and predictable than splitting
   match_expr e with
   | PSigma.casesOn δ ε γ p k =>
     if e.appFn!.hasLooseBVars then
@@ -83,45 +86,33 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let new_goals ← goal.apply p
     new_goals.forM solveMono
     return
-   | ite _ cond decInst _k₁ _k₂ =>
-    let (s₁, s₂) ← goal.byCasesDec cond decInst
-    let goal₁ ← simpIfTarget s₁.mvarId
-    let goal₂ ← simpIfTarget s₂.mvarId
-    if s₁.mvarId == goal₁ then
-      throwError "Could not reduce if-then-else after splitting:{indentD goal₁}"
-    if s₂.mvarId == goal₂ then
-      throwError "Could not reduce if-then-else after splitting:{indentD goal₂}"
-    solveMono goal₁
-    solveMono goal₂
+   | ite _ cond decInst k₁ k₂ =>
+    let us := type.getAppFn.constLevels!
+    let k₁' := f.updateLambdaE! f.bindingDomain! k₁
+    let k₂' := f.updateLambdaE! f.bindingDomain! k₂
+    let p := mkAppN (.const ``Tailrec.mono_ite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
+    check p
+    let new_goals ← goal.apply p
+    new_goals.forM solveMono
     return
-   | dite _ cond decInst _k₁ _k₂ =>
-    let (s₁, s₂) ← goal.byCasesDec cond decInst
-    let goal₁ ← simpIfTarget s₁.mvarId
-    let goal₂ ← simpIfTarget s₂.mvarId
-    if s₁.mvarId == goal₁ then
-      throwError "Could not reduce if-then-else after splitting:{indentD goal₁}"
-    if s₂.mvarId == goal₂ then
-      throwError "Could not reduce if-then-else after splitting:{indentD goal₂}"
-    solveMono goal₁
-    solveMono goal₂
+   | dite _ cond decInst k₁ k₂ =>
+    let us := type.getAppFn.constLevels!
+    let k₁' := f.updateLambdaE! f.bindingDomain! k₁
+    let k₂' := f.updateLambdaE! f.bindingDomain! k₂
+    let p := mkAppN (.const ``Tailrec.mono_dite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
+    check p
+    let new_goals ← goal.apply p
+    new_goals.forM solveMono
     return
-
   | _ => pure
 
   -- We could be even more deliberate here and use the `lifter` lemmas
   -- for the match statements instead of the `split` tactic.
   -- For now using `splitMatch` works fine.
-  if Lean.Meta.Split.findSplit?.isCandidate (← getEnv) (e := e) then
-    if e.isIte || e.isDIte then
-      let some (goal₁, goal₂) ← splitIfTarget? goal
-        | throwError "Could not split if-then-else:{indentD goal}"
-      solveMono goal₁.mvarId
-      solveMono goal₂.mvarId
-      return
-    else
-      let new_goals ← Split.splitMatch goal e
-      new_goals.forM solveMono
-      return
+  if Lean.Meta.Split.findSplit?.isCandidate (← getEnv) (e := e) (splitIte := false) then
+    let new_goals ← Split.splitMatch goal e
+    new_goals.forM solveMono
+    return
 
   failK
 

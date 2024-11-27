@@ -29,7 +29,7 @@ theorem find.eq_1 : ∀ (P : Nat → Bool) (x : Nat), find P x = if P x = true t
 /--
 error: Termination by tailrecursion needs a nonempty codomain:
   failed to synthesize
-    Nonempty (Fin n)
+    Nat → Nonempty (Fin n)
   Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
@@ -45,6 +45,32 @@ where
     else
       go (i + 1) fi (fi + fip)
   termination_by tailrecursion
+
+
+local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (if b then α else β) := by
+  split <;> assumption
+
+def dependent1 (b : Bool) (n : Nat) : if b then Nat else Bool
+  := dependent1 b (n + 1)
+termination_by tailrecursion
+
+def dependent2 (b : Bool) (n : Nat) : if b then Nat else Bool :=
+  if b then dependent2 b (n + 1) else dependent2 b (n +1)
+termination_by tailrecursion
+
+/--
+error: Could not prove function to be tailrecursive:
+  Recursive calls in non-tail position:
+    match a with
+    | true => f ⟨true, b + 1⟩
+    | false => f ⟨false, b + 1⟩
+-/
+#guard_msgs in
+def dependent3 (b : Bool) (n : Nat) : if b then Nat else Bool :=
+  match b with
+  | true => dependent3 true (n + 1)
+  | false => dependent3 false (n +1)
+termination_by tailrecursion
 
 /--
 error: fail to show termination for
@@ -69,19 +95,21 @@ Cannot use parameters m of mutual1 and m of mutual2:
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from mutual1 to mutual2 at 88:34-51:
+Call from mutual1 to mutual2 at 90:34-51:
   n m
 n ? ?
 m = ?
-Call from mutual2 to mutual1 at 89:34-51:
+Call from mutual2 to mutual1 at 91:34-51:
   n m
 n _ ?
 m _ _
 
 Please use `termination_by` to specify a decreasing measure.
 
-Termination by tailrecursion cannot handle dependent type:
-  (x : (_ : Nat) ×' Nat ⊕' (_ : Nat) ×' Nat) → PSum.casesOn x (fun _x => Unit) fun _x => Unit
+Termination by tailrecursion needs a nonempty codomain:
+  failed to synthesize
+    ∀ (x : (_ : Nat) ×' Nat ⊕' (_ : Nat) ×' Nat), Nonempty (PSum.casesOn x (fun _x => Unit) fun _x => Unit)
+  Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
 mutual

@@ -18,7 +18,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     solveMono goal
     return
 
-  let_expr Tailrec.mono α β inst f := type |
+  let_expr Tailrec.mono α β γ inst₁ inst₂ f := type |
     throwError "Unexpected goal:{goal}"
 
   unless f.isLambda do
@@ -26,7 +26,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
 
   let failK :=
     lambdaBoundedTelescope f 1 fun _ t =>
-      throwError "Recursive calls in non-tail position:{indentExpr t}"
+      throwError "Recursive call in non-tail position:{indentExpr t}"
 
   -- No recursive calls left
   if !f.bindingBody!.hasLooseBVars then
@@ -44,12 +44,12 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
 
   -- Manually handle PSigma.casesOn, as split doesn't
   match_expr f.bindingBody! with
-  | PSigma.casesOn γ δ _motive x k =>
+  | PSigma.casesOn δ ε _motive p k =>
     if f.bindingBody!.appFn!.hasLooseBVars then
       failK
     let us := type.getAppFn.constLevels! ++ f.bindingBody!.getAppFn.constLevels!.tail
     let k' := f.updateLambdaE! f.bindingDomain! k
-    let p := mkApp7 (.const ``Tailrec.mono_psigma_casesOn us) α β inst γ δ x k'
+    let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β γ inst₁ inst₂ δ ε p k'
     let new_goals ← goal.apply p
     new_goals.forM solveMono
     return
@@ -57,7 +57,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
 
   -- We could be more careful here and only split a match or ite that
   -- is right under the lambda, and maybe use `apply_ite`-style lemmas to avoid the more
-  -- expesive splitter machinery. For now using `splitTarget` works fine.
+  -- expensive splitter machinery. For now using `splitTarget` works fine.
   if let some mvarIds ← splitTarget? goal (splitIte := true) then
     mvarIds.forM solveMono
     return
@@ -77,14 +77,7 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
     let type ← whnfForall type
     unless type.isForall do
       throwError "expected unary function type: {type}"
-    -- TODO: Check these properties on the original function types
-    let some (α, β) := type.arrow?
-      | throwError "Termination by tailrecursion cannot handle dependent type:{indentExpr type}"
-    let u ← getDecLevel α
-    let v ← getDecLevel β
-    let inst ← mapError (f := (m!"Termination by tailrecursion needs a nonempty codomain:{indentD ·}")) do
-      synthInstance (mkApp (.const ``Nonempty [v.succ]) β)
-    let value := mkApp3 (mkConst ``Lean.Tailrec.tailrec_fix [u, v]) α β inst
+    let α := type.bindingDomain!
 
     let F ← withoutModifyingEnv do
       addAsAxiom preDef
@@ -95,7 +88,10 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) :
             let val := replaceRecApps preDef.declName prefixArgs.size f val
             mkLambdaFVars #[f, x] val
       eraseRecAppSyntaxExpr value
-    let value := .app value F
+
+    -- TODO: Check these properties on the original function types
+    let value ← mapError (f := (m!"Termination by tailrecursion needs a nonempty codomain:{indentD ·}")) do
+      mkAppOptM ``Lean.Tailrec.tailrec_fix #[α, .none, .none, F]
 
     -- Now try to prove the monotonicity
     let monoGoal := (← inferType value).bindingDomain!

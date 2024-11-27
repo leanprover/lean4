@@ -63,7 +63,7 @@ def compileLeanModule
     unless txt.isEmpty do
       logInfo s!"stdout:\n{txt}"
   unless out.stderr.isEmpty do
-    logInfo s!"stderr:\n{out.stderr}"
+    logInfo s!"stderr:\n{out.stderr.trim}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
 

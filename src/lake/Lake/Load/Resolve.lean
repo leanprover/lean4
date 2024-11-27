@@ -30,7 +30,6 @@ in their Lake configuration file with
 
   require {newName} from
     git \"https://github.com/leanprover-community/{newName}\"{rev}
-
 "
 
 /--

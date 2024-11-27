@@ -130,9 +130,9 @@ protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
   if useAnsi then
     let {level := lv, message := msg} := self
     let pre := Ansi.chalk lv.ansiColor s!"{lv.toString}:"
-    s!"{pre} {msg.trim}"
+    s!"{pre} {msg}"
   else
-    s!"{self.level}: {self.message.trim}"
+    s!"{self.level}: {self.message}"
 
 instance : ToString LogEntry := ⟨LogEntry.toString⟩
 
@@ -401,7 +401,7 @@ from an `ELogT` (e.g., `LogIO`).
   [Monad m] [MonadLiftT BaseIO m] [MonadLog m] [MonadFinally m] (x : m α)
 : m α := do
   let (out, a) ← IO.FS.withIsolatedStreams x
-  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out}"
+  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out.trim}"
   return a
 
 /-- Throw with the logged error `message`. -/

@@ -1551,7 +1551,6 @@ if (x_9 == 0)
 {
 lean_object* x_10; uint8_t x_11; 
 x_10 = l_Lean_findDeclarationRanges_x3f___rarg___lambda__3___closed__1;
-lean_inc(x_3);
 x_11 = l_Lean_TagDeclarationExtension_isTagged(x_10, x_5, x_3);
 lean_dec(x_5);
 if (x_11 == 0)

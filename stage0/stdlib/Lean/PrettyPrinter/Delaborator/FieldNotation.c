@@ -2654,7 +2654,6 @@ _start:
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__6___closed__1;
-lean_inc(x_3);
 x_13 = l_Lean_TagAttribute_hasTag(x_12, x_5, x_3);
 if (x_13 == 0)
 {

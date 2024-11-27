@@ -5748,7 +5748,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f(lean_object* x_1, lea
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-lean_inc(x_1);
 x_7 = l_Lean_Meta_isRecursiveDefinition(x_1, x_4, x_5, x_6);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);

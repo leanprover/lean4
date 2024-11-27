@@ -1071,7 +1071,6 @@ x_21 = lean_ctor_get(x_17, 0);
 lean_inc(x_21);
 lean_dec(x_17);
 x_50 = l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__5;
-lean_inc(x_2);
 x_51 = l_Lean_TagDeclarationExtension_isTagged(x_50, x_21, x_2);
 lean_dec(x_21);
 lean_inc(x_2);

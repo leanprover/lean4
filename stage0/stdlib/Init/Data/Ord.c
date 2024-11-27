@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Ord_opposite___elambda__1(lean_object*);
 uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l_Ordering_instDecidableEq(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_compareLex(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_leOfOrd(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instOrdUInt32(uint32_t, uint32_t);
@@ -53,7 +52,6 @@ LEAN_EXPORT lean_object* l_Ord_arrayOrd(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_instDecidableEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at_Ord_arrayOrd___elambda__1___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableRelLt(lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Ord_arrayOrd___elambda__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_on___elambda__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdFin___rarg___boxed(lean_object*, lean_object*);
@@ -109,6 +107,7 @@ LEAN_EXPORT uint8_t l_instOrdFin___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_compareOn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___rarg___lambda__1(lean_object*);
+LEAN_EXPORT uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17_(uint8_t, uint8_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT uint8_t l_instOrdInt(lean_object*, lean_object*);
@@ -139,6 +138,7 @@ LEAN_EXPORT uint8_t l_Ordering_isLE(uint8_t);
 LEAN_EXPORT lean_object* l_instOrdUInt8___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_lexOrd(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableRelLe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instOrdString(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -252,7 +252,7 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -264,7 +264,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -272,7 +272,7 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(x_3, x_4);
+x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -281,7 +281,7 @@ static lean_object* _init_l_instBEqOrdering___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17____boxed), 2, 0);
 return x_1;
 }
 }
@@ -1565,7 +1565,7 @@ x_4 = lean_apply_2(x_1, x_2, x_3);
 x_5 = lean_unbox(x_4);
 lean_dec(x_4);
 x_6 = 1;
-x_7 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(x_5, x_6);
+x_7 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17_(x_5, x_6);
 return x_7;
 }
 }

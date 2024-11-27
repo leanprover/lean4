@@ -4970,7 +4970,6 @@ if (x_13 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
 x_14 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___lambda__1___closed__1;
-lean_inc(x_2);
 x_15 = l_Lean_TagAttribute_hasTag(x_14, x_1, x_2);
 lean_dec(x_1);
 if (x_15 == 0)
@@ -8740,6 +8739,7 @@ lean_inc(x_46);
 lean_dec(x_44);
 x_47 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___lambda__1___closed__1;
 x_48 = l_Lean_TagAttribute_hasTag(x_47, x_46, x_25);
+lean_dec(x_25);
 lean_dec(x_46);
 if (x_48 == 0)
 {
@@ -8955,6 +8955,7 @@ lean_inc(x_90);
 lean_dec(x_88);
 x_91 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___lambda__1___closed__1;
 x_92 = l_Lean_TagAttribute_hasTag(x_91, x_90, x_68);
+lean_dec(x_68);
 lean_dec(x_90);
 if (x_92 == 0)
 {
@@ -11911,6 +11912,7 @@ lean_inc(x_24);
 lean_dec(x_22);
 x_25 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___lambda__1___closed__1;
 x_26 = l_Lean_TagAttribute_hasTag(x_25, x_24, x_20);
+lean_dec(x_20);
 lean_dec(x_24);
 if (x_26 == 0)
 {
@@ -14125,6 +14127,7 @@ lean_inc(x_31);
 lean_dec(x_29);
 x_32 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___lambda__1___closed__1;
 x_33 = l_Lean_TagAttribute_hasTag(x_32, x_31, x_19);
+lean_dec(x_19);
 lean_dec(x_31);
 if (x_33 == 0)
 {
@@ -14230,6 +14233,7 @@ lean_inc(x_53);
 lean_dec(x_51);
 x_54 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___lambda__1___closed__1;
 x_55 = l_Lean_TagAttribute_hasTag(x_54, x_53, x_40);
+lean_dec(x_40);
 lean_dec(x_53);
 if (x_55 == 0)
 {

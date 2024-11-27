@@ -2801,7 +2801,6 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = l_List_filterTR_loop___at_Lean_getAliases___spec__1___closed__1;
-lean_inc(x_6);
 x_9 = l_Lean_TagDeclarationExtension_isTagged(x_8, x_1, x_6);
 if (x_9 == 0)
 {
@@ -2831,7 +2830,6 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
 x_14 = l_List_filterTR_loop___at_Lean_getAliases___spec__1___closed__1;
-lean_inc(x_12);
 x_15 = l_Lean_TagDeclarationExtension_isTagged(x_14, x_1, x_12);
 if (x_15 == 0)
 {
@@ -3257,7 +3255,6 @@ else
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = l_List_filterTR_loop___at_Lean_getAliases___spec__1___closed__1;
-lean_inc(x_4);
 x_13 = l_Lean_TagDeclarationExtension_isTagged(x_12, x_1, x_4);
 if (x_13 == 0)
 {

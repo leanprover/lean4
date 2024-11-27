@@ -679,6 +679,10 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
 @[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
   rw [mul_mod, mod_mod, ← mul_mod]
 
+theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
+  conv => rhs; congr; rw [← mod_add_div x w]
+  simp
+
 /-! ### pow -/
 
 theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by

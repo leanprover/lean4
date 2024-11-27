@@ -44,9 +44,6 @@ def elimAsList {motive : Vector α n → Sort u}
     (v : Vector α n) → motive v
   | ⟨⟨a⟩, ha⟩ => mk a ha
 
-/-- The empty vector. -/
-@[inline] def empty : Vector α 0 := ⟨.empty, rfl⟩
-
 /-- Make an empty vector with pre-allocated capacity. -/
 @[inline] def mkEmpty (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
 

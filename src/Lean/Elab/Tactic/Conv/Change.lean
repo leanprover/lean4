@@ -7,6 +7,7 @@ prelude
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Change
 import Lean.Elab.Tactic.Conv.Basic
+import Lean.Elab.Tactic.Change
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -17,6 +18,15 @@ open Meta
     let lhs ← getLhs
     let mvarCounterSaved := (← getMCtx).mvarCounter
     let lhs' ← elabChange lhs e
+    logUnassignedAndAbort (← filterOldMVars (← getMVars lhs') mvarCounterSaved)
+    changeLhs lhs'
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.changeMatching] def evalChangeMatching : Tactic
+  | `(conv| change_matching $p:term with $t:term) => do
+    let lhs ← getLhs
+    let mvarCounterSaved := (← getMCtx).mvarCounter
+    let lhs' ← elabChangeMatching lhs p t
     logUnassignedAndAbort (← filterOldMVars (← getMVars lhs') mvarCounterSaved)
     changeLhs lhs'
   | _ => throwUnsupportedSyntax

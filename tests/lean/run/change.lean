@@ -1,7 +1,9 @@
+/-!
+# Tests for the `change` tactics
+-/
 
 private axiom test_sorry : ∀ {α}, α
 
-set_option linter.missingDocs false
 set_option pp.mvars false
 
 example : n + 2 = m := by

@@ -157,35 +157,37 @@ end CCPO
 section flat_order
 
 variable {α : Type u}
-
-variable (b : α)
+variable [Nonempty α]
 
 set_option linter.unusedVariables false in
-def FlatOrder (b : α) := α
+def FlatOrder (α : Type u) [Nonempty α]:= α
 
-inductive FlatOrder.rel (b : α) : (x y : α) → Prop where
-  | bot : rel b b x
-  | refl : rel b x x
+noncomputable
+def b : FlatOrder α := @Classical.ofNonempty α _
 
-instance FlatOrder.instOrder : Order (FlatOrder b) where
-  rel := rel b
+inductive FlatOrder.rel : (x y : FlatOrder α) → Prop where
+  | bot : rel b x
+  | refl : rel x x
+
+instance FlatOrder.instOrder : Order (FlatOrder α) where
+  rel := rel
   rel_refl := .refl
-  rel_trans {x y z : α} (hxy : rel b x y) (hyz : rel b y z) := by
+  rel_trans {x y z : α} (hxy : rel x y) (hyz : rel y z) := by
     cases hxy <;> cases hyz <;> constructor
-  rel_antisymm {x y : α} (hxy : rel b x y) (hyz : rel b y x) : x = y := by
+  rel_antisymm {x y : α} (hxy : rel x y) (hyz : rel y x) : x = y := by
     cases hxy <;> cases hyz <;> constructor
 
 open Classical in
 private theorem Classical.some_spec₂ {α : Sort _} {p : α → Prop} {h : ∃ a, p a} (q : α → Prop)
     (hpq : ∀ a, p a → q a) : q (choose h) := hpq _ <| choose_spec _
 
-noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
-  by_cases h : ∃ (x : FlatOrder b), c x ∧ x ≠ b
+noncomputable def flat_csup (c : FlatOrder α → Prop) : FlatOrder α := by
+  by_cases h : ∃ (x : FlatOrder α), c x ∧ x ≠ b
   · exact Classical.choose h
   · exact b
 
-noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
-  csup := flat_csup b
+noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder α) where
+  csup := flat_csup
   csup_spec := by
     intro x c hc
     unfold flat_csup
@@ -282,31 +284,35 @@ end fun_order
 section tailrec
 
 variable {α : Type u}
-variable {β : Type v}
-variable [inst : Nonempty β]
+variable {β : α → Type v}
+variable [inst : ∀ x, Nonempty (β x)]
 
-def mono (F : (α → β) → β) :=
-    monotone (α := ∀ _, FlatOrder (@Classical.choice β inst)) (β := FlatOrder (@Classical.choice β inst)) F
+def mono x (F : (∀ x, β x) → β x) :=
+    monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β x)) F
 
-theorem mono_const (c : β) : mono fun (_ : α → β) => c :=
+theorem mono_const x (c : β x) : mono x fun (_ : (∀ x, β x)) => c :=
   monotone_const _
 
-theorem mono_apply (x : α) : mono (β := β) fun f => f x :=
+theorem mono_apply (x : α) : mono x fun (f : (∀ x, β x)) => f x :=
   monotone_apply (β := fun _ => FlatOrder _) x
 
-theorem mono_psigma_casesOn {γ : Sort uu} {δ : γ → Sort vv} (x : PSigma δ)
-    (k : (α → β) → (a : γ) → (b : δ a) → β )
-    (hmono : ∀ a b, mono (β := β) fun f => k f a b) :
-  mono (β := β) fun f => PSigma.casesOn x (k f) := by
-    cases x; apply hmono
+theorem mono_psigma_casesOn (x : α) {γ : Sort uu} {δ : γ → Sort vv} (p : PSigma δ)
+    (k : (∀ x, β x) → (a : γ) → (b : δ a) → β x)
+    (hmono : ∀ a b, mono (β := β) x fun (f : (∀ x, β x)) => k f a b) :
+  mono x fun (f : (∀ x, β x)) => PSigma.casesOn p (k f) := by
+    cases p; apply hmono
 
 set_option linter.unusedVariables false in
 noncomputable
-def tailrec_fix (F : (α → β) → (α → β)) (hmono : ∀ (x : α), mono (fun f => F f x)) : (α → β) :=
-  @fix (∀ _, FlatOrder (@Classical.choice β inst)) _ _ F
+def tailrec_fix
+    (F : (∀ x, β x) → (∀ x, β x))
+    (hmono : ∀ (x : α), mono x (fun f => F f x)) : (∀ x, β x) :=
+  @fix (∀ x, FlatOrder (β x)) _ _ F
 
-theorem tailrec_fix_eq (F : (α → β) → (α → β))
-    (hmono : ∀ (x : α), mono (fun f => F f x)) (x : α) :
+theorem tailrec_fix_eq
+    (F : (∀ x, β x) → (∀ x, β x))
+    (hmono : ∀ (x : α), mono x (fun f => F f x))
+    (x : α) :
     tailrec_fix F hmono x = F (tailrec_fix F hmono) x :=
   congrFun
     (@fix_eq (∀ _, FlatOrder _) _ _ F

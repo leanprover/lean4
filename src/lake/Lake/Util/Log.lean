@@ -161,7 +161,8 @@ export MonadLog (logEntry)
     message := mkErrorStringWithPos msg.fileName msg.pos str none
   }
 
-@[deprecated (since := "2024-05-18")] def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
+@[deprecated "No deprecation message available." (since := "2024-05-18")]
+def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
   match e.level with
   | .trace => if minLv ≥ .trace then
     IO.println e.message.trim |>.catchExceptions fun _ => pure ()
@@ -189,7 +190,8 @@ abbrev lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := methods.lift
 
 set_option linter.deprecated false in
-@[deprecated (since := "2024-05-18")] abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
+@[deprecated "Deprecated without replacement." (since := "2024-05-18")]
+abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
   logEntry e := logToIO e minLv
 
 abbrev stream [MonadLiftT BaseIO m]

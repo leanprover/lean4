@@ -3132,6 +3132,12 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
       simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
 
+@[simp]
+theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
+    (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
+  simp only [← getLsbD_eq_getElem, getLsbD_replicate]
+  by_cases h' : w = 0 <;> simp [h'] <;> omega
+
 theorem append_assoc_left {a b c : Nat} (x : BitVec a) (y : BitVec b) (z : BitVec c) :
     have : a + b + c = a + (b + c) := by rw [Nat.add_assoc]
     (x ++ y) ++ z =  cast (by omega) (x ++ (y ++ z)) := by
@@ -3153,24 +3159,52 @@ theorem append_assoc_left {a b c : Nat} (x : BitVec a) (y : BitVec b) (z : BitVe
     · simp [h₂]
       rw [Nat.sub_sub, Nat.add_comm (n := c)]
 
-theorem append_assoc_right {a b c : Nat} (x : BitVec a) (y : BitVec b) (z : BitVec c) :
-    have : a + (b + c) = a + b + c := by rw [Nat.add_assoc]
-    x ++ (y ++ z) =  cast (by omega) ((x ++ y) ++ z) := by
-  rw [append_assoc_left]
-  norm_cast
+theorem cast_heq {n w : Nat} {eq : w = n} {x : BitVec w} :
+    HEq (cast eq x) x := by
+
+  sorry
+
+theorem heq_cast_right {α β β' : Sort _} (a : α) (b : β) {h : β = β'} :
+    HEq a (cast h b) = HEq a b :=
+  by
+    apply propext;
+    constructor
+    <;> intro premise;
+    . have : HEq (cast h b) b := cast_heq _ _
+      apply HEq.trans _ this;
+      assumption;
+    . apply HEq.trans premise;
+      apply HEq.symm;
+      apply cast_heq;
+
+theorem heq_cast_left {n w : Nat} {eq : w = n} {x : BitVec w} :
+    HEq (cast eq x) x = HEq x x :=
+  by
+    apply propext;
+    constructor
+    <;> intro premise;
+    . have : HEq x (cast eq x) := HEq.symm cast_heq eq x
+      apply HEq.trans this;
+      assumption;
+    . apply HEq.trans _ premise;
+      apply cast_heq;
 
 theorem append_replicate_comm {n w : Nat} {x : BitVec w} :
-    have : w * n + w = w + w * n := by rw [Nat.add_comm]
-    (replicate n x) ++ x = cast (by omega) (x ++ replicate n x) := by
-  induction n generalizing x
-  case zero => simp
-  case succ nn ih =>
-    simp only [replicate_succ_eq, ih, cast_cast, cast_eq]
-    rw [append_assoc_right, ih]
-    norm_cast
-
-
-
+    HEq (replicate n x ++ x) (x ++ replicate n x) := by
+    induction n
+    case zero =>
+      simp; apply cast_heq
+    case succ n ih =>
+      rw [replicate_succ_eq, ← cast_append_left (by simp only [Nat.add_comm, Nat.mul_succ]), ← cast_append_right (by simp only [Nat.mul_succ,
+        Nat.add_comm])]
+      apply HEq.trans (cast_heq ..)
+      symm
+      apply HEq.trans (cast_heq ..)
+      symm
+      rw [append_assoc_left]
+      apply HEq.trans (cast_heq ..)
+      congr 2
+      <;> omega
 
 @[simp]
 theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
@@ -3179,28 +3213,26 @@ theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
   induction n generalizing x
   case zero => simp
   case succ n ih =>
-    rw [replicate_succ_eq, ←append_replicate_comm]
-    simp [getMsbD_append, ih]
-    by_cases h₀ : w * n ≤ i
-    · simp [h₀]
-      by_cases h₁ : i < w * (n + 1)
-      · simp [h₁]
-        congr 1
-        rw [mod_eq_sub_of_le_of_lt']
-        ·
-        sorry
-        · sorry
-        · sorry
-      · simp [h₁]
-        sorry
-    ·
-      sorry
-
-@[simp]
-theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
-    (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
-  simp only [← getLsbD_eq_getElem, getLsbD_replicate]
-  by_cases h' : w = 0 <;> simp [h'] <;> omega
+    rw [replicate_succ_eq, ← append_replicate_comm]
+    simp only [append_def, getMsbD_or, getMsbD_shiftLeftZeroExtend, ih, getMsbD_setWidth',
+      ge_iff_le]
+    have h_w : w * (n + 1) - w = w * n := by
+      rw [Nat.mul_succ, Nat.add_sub_cancel]
+    rw [h_w]
+    by_cases h : i < w * n
+    · simp only [h, decide_true, Bool.true_and, show ¬w * n ≤ i by omega, decide_false,
+      Bool.false_and, Bool.or_false, Bool.iff_and_self, decide_eq_true_eq]
+      intro; omega
+    · by_cases h' : i < w * (n + 1)
+      · simp [h, h', ih, show w * n ≤ i by omega]
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le (n := n) (by omega) (by omega)]
+      · have h_iwn : i - w * n ≥ w := by
+          by_cases h'' : i = w * (n + 1)
+          · simp [h'', Nat.mul_succ, Nat.add_comm]
+          · simp [show i > w * (n + 1) by omega]
+            rw [Nat.mul_succ] at h'
+            omega
+        simp [h, h', h_iwn, show i ≥ w * (n + 1) by omega]
 
 /-! ### intMin -/
 

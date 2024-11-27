@@ -50450,6 +50450,7 @@ lean_inc(x_37);
 lean_dec(x_36);
 x_38 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isPatternVar___closed__2;
 x_39 = l_Lean_TagAttribute_hasTag(x_38, x_37, x_23);
+lean_dec(x_23);
 lean_dec(x_37);
 if (x_39 == 0)
 {
@@ -50480,6 +50481,7 @@ lean_inc(x_45);
 lean_dec(x_43);
 x_46 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isPatternVar___closed__2;
 x_47 = l_Lean_TagAttribute_hasTag(x_46, x_45, x_23);
+lean_dec(x_23);
 lean_dec(x_45);
 if (x_47 == 0)
 {
@@ -50572,6 +50574,7 @@ lean_inc(x_67);
 lean_dec(x_64);
 x_68 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isPatternVar___closed__2;
 x_69 = l_Lean_TagAttribute_hasTag(x_68, x_67, x_23);
+lean_dec(x_23);
 lean_dec(x_67);
 if (x_69 == 0)
 {

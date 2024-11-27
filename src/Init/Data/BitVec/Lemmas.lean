@@ -1622,14 +1622,16 @@ theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
 /-- Sign extending to a larger bitwidth depends on the msb.
 If the msb is false, then the result equals the original value.
 If the msb is true, then we add a value of `(2^v - 2^w)`, which arises from the sign extension. -/
-theorem toNat_signExtend_of_le (x : BitVec w) {v : Nat} (hv : w ≤ v) :
+private theorem toNat_signExtend_of_le (x : BitVec w) {v : Nat} (hv : w ≤ v) :
     (x.signExtend v).toNat = x.toNat + if x.msb then 2^v - 2^w else 0 := by
   apply Nat.eq_of_testBit_eq
   intro i
   have ⟨k, hk⟩ := Nat.exists_eq_add_of_le hv
   rw [hk, testBit_toNat, getLsbD_signExtend, Nat.pow_add, ← Nat.mul_sub_one, Nat.add_comm (x.toNat)]
   by_cases hx : x.msb
-  · simp [hx, Nat.testBit_mul_pow_two_add _ x.isLt, testBit_toNat]
+  · simp only [hx, Bool.if_true_right, ↓reduceIte,
+      Nat.testBit_mul_pow_two_add _ x.isLt,
+      testBit_toNat, Nat.testBit_two_pow_sub_one]
     -- Case analysis on i being in the intervals [0..w), [w..w + k), [w+k..∞)
     have hi : i < w ∨ (w ≤ i ∧ i < w + k) ∨ w + k ≤ i := by omega
     rcases hi with hi | hi | hi
@@ -1637,7 +1639,8 @@ theorem toNat_signExtend_of_le (x : BitVec w) {v : Nat} (hv : w ≤ v) :
     · simp [hi]; omega
     · simp [hi, show ¬ (i < w + k) by omega, show ¬ (i < w) by omega]
       omega
-  · simp [hx, Nat.testBit_mul_pow_two_add _ x.isLt, testBit_toNat]
+  · simp only [hx, Bool.if_false_right,
+      Bool.false_eq_true, ↓reduceIte, Nat.zero_add, testBit_toNat]
     have hi : i < w ∨ (w ≤ i ∧ i < w + k) ∨ w + k ≤ i := by omega
     rcases hi with hi | hi | hi
     · simp [hi]; omega

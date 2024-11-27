@@ -31,6 +31,11 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
+register_builtin_option Elab.async : Bool := {
+  defValue := false
+  descr := "perform elaboration using multiple threads where possible"
+}
+
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
 Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.

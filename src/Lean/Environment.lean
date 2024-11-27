@@ -897,13 +897,18 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
        initialized constant. We have seen significant savings in `open Mathlib`
        timings, where we have both a big environment and interpreted environment
        extensions, from this. There is no significant extra cost to calling
-       `markPersistent` multiple times like this. -/
-    env := Runtime.markPersistent env
+       `markPersistent` multiple times like this.
+
+       Safety: There are no concurrent accesses to `env` at this point. -/
+    env := unsafe Runtime.markPersistent env
   env ← finalizePersistentExtensions env s.moduleData opts
   if leakEnv then
     /- Ensure the final environment including environment extension states is
-       marked persistent as documented. -/
-    env := Runtime.markPersistent env
+       marked persistent as documented.
+
+       Safety: There are no concurrent accesses to `env` at this point, assuming
+       extensions' `addImportFn`s did not spawn any unbound tasks. -/
+    env := unsafe Runtime.markPersistent env
   pure env
 
 @[export lean_import_modules]

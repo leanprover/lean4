@@ -285,33 +285,35 @@ section tailrec
 
 variable {α : Type u}
 variable {β : α → Type v}
-variable [inst : ∀ x, Nonempty (β x)]
+variable {γ : Type w}
+variable [∀ x, Nonempty (β x)]
+variable [Nonempty γ]
 
-def mono x (F : (∀ x, β x) → β x) :=
-    monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β x)) F
+def mono (F : (∀ x, β x) → γ) :=
+    monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder γ) F
 
-theorem mono_const x (c : β x) : mono x fun (_ : (∀ x, β x)) => c :=
+theorem mono_const (c : γ) : mono fun (_ : (∀ x, β x)) => c :=
   monotone_const _
 
-theorem mono_apply (x : α) : mono x fun (f : (∀ x, β x)) => f x :=
+theorem mono_apply : mono fun (f : (∀ x, β x)) => f x :=
   monotone_apply (β := fun _ => FlatOrder _) x
 
-theorem mono_psigma_casesOn (x : α) {γ : Sort uu} {δ : γ → Sort vv} (p : PSigma δ)
-    (k : (∀ x, β x) → (a : γ) → (b : δ a) → β x)
-    (hmono : ∀ a b, mono (β := β) x fun (f : (∀ x, β x)) => k f a b) :
-  mono x fun (f : (∀ x, β x)) => PSigma.casesOn p (k f) := by
+theorem mono_psigma_casesOn {δ : Sort uu} {ε : δ → Sort vv} (p : PSigma ε)
+    (k : (∀ x, β x) → (a : δ) → (b : ε a) → γ)
+    (hmono : ∀ a b, mono (β := β) fun (f : (∀ x, β x)) => k f a b) :
+  mono fun (f : (∀ x, β x)) => PSigma.casesOn (motive := fun _ => γ) p (k f) := by
     cases p; apply hmono
 
 set_option linter.unusedVariables false in
 noncomputable
 def tailrec_fix
     (F : (∀ x, β x) → (∀ x, β x))
-    (hmono : ∀ (x : α), mono x (fun f => F f x)) : (∀ x, β x) :=
+    (hmono : ∀ (x : α), mono (fun f => F f x)) : (∀ x, β x) :=
   @fix (∀ x, FlatOrder (β x)) _ _ F
 
 theorem tailrec_fix_eq
     (F : (∀ x, β x) → (∀ x, β x))
-    (hmono : ∀ (x : α), mono x (fun f => F f x))
+    (hmono : ∀ (x : α), mono (fun f => F f x))
     (x : α) :
     tailrec_fix F hmono x = F (tailrec_fix F hmono) x :=
   congrFun

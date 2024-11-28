@@ -17,22 +17,6 @@ the contents of this file.
 File contents: Verification of associative lists
 -/
 
-
--- TODO: should this go somwhere else?
-theorem List.find?_isSome_of_map_fst_contains {α : Type u} {β : α -> Type v} [BEq α] {l : List ((a : α) × β a)} {k : α} :
-    (l.map Sigma.fst).contains k ->
-      ((l.map Sigma.fst).reverse.find? (fun a => k == a)).isSome := by
-  intro h
-  simp only [find?_isSome, mem_reverse, mem_map]
-  rw [List.contains_iff_exists_mem_beq] at h
-  rcases h with ⟨a, a_mem, a_eq⟩
-  simp only [mem_map] at a_mem
-  rcases a_mem with ⟨pair, pair_mem, pair_fst_a⟩
-  exists a
-  constructor
-  . exists pair
-  . exact a_eq
-
 set_option linter.missingDocs true
 set_option autoImplicit false
 

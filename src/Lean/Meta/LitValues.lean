@@ -68,7 +68,7 @@ def getFinValue? (e : Expr) : MetaM (Option ((n : Nat) × Fin n)) := OptionT.run
   let n ← getNatValue? (← whnfD type.appArg!)
   match n with
   | 0 => failure
-  | m+1 => return ⟨m+1, Fin.ofNat v⟩
+  | m+1 => return ⟨m+1, Fin.ofNat' _ v⟩
 
 /--
 Return `some ⟨n, v⟩` if `e` is:

@@ -106,7 +106,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
       break
     remDays := remDays - monLen
 
-  let mday : Fin 31 := Fin.ofNat (Int.toNat remDays)
+  let mday : Fin 31 := Fin.ofNat' _ (Int.toNat remDays)
 
   let hmon ←
     if h₁ : mon.val > 10

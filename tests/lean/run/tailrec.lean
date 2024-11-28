@@ -151,6 +151,13 @@ local instance {α : Sort u} {β : Sort v} {γ : α → Sort uu} {δ : β → So
   · apply inst2
 
 mutual
+def mutualUnary1 (n : Nat) : Unit := mutualUnary2 (n + 1)
+termination_by tailrecursion
+def mutualUnary2 (n : Nat) : Unit := mutualUnary1 (n + 1)
+termination_by tailrecursion
+end
+
+mutual
 def mutual1 (n m : Nat) : Unit := mutual2 (m + 1) n
 termination_by tailrecursion
 def mutual2 (n m : Nat) : Unit := mutual1 (m + 1) n

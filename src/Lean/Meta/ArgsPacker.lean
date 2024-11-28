@@ -377,13 +377,16 @@ and `(z : C) → R₂[z]`, returns an expression of type
 (x : A ⊕' C) → (match x with | .inl x => R₁[x] | .inr R₂[z])
 ```
 -/
-def uncurry (es : Array Expr) : MetaM Expr := do
-  let types ← es.mapM inferType
-  let resultType ← uncurryType types
+def uncurryWithType (resultType : Expr) (es : Array Expr) : MetaM Expr := do
   forallBoundedTelescope resultType (some 1) fun xs codomain => do
     let #[x] := xs | unreachable!
     let value ← casesOn x codomain es.toList
     mkLambdaFVars #[x] value
+
+def uncurry (es : Array Expr) : MetaM Expr := do
+  let types ← es.mapM inferType
+  let resultType ← uncurryType types
+  uncurryWithType resultType es
 
 /--
 Given unary expressions `e₁`, `e₂` with types `(x : A) → R`
@@ -414,7 +417,7 @@ def curryType (n : Nat) (type : Expr) : MetaM (Array Expr) := do
 
 end Mutual
 
--- Now for the main definitions in this moduleo
+-- Now for the main definitions in this module
 
 /-- The number of functions being packed -/
 def numFuncs (argsPacker : ArgsPacker) : Nat := argsPacker.varNamess.size
@@ -467,6 +470,10 @@ and `(z : C) → R₂[z]`, returns an expression of type
 def uncurry (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
   let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
   Mutual.uncurry unary
+
+def uncurryWithType (argsPacker : ArgsPacker) (resultType : Expr) (es : Array Expr) : MetaM Expr := do
+  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  Mutual.uncurryWithType resultType unary
 
 /--
 Given expressions `e₁`, `e₂` with types `(x : A) → (y : B[x]) → R`

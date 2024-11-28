@@ -236,36 +236,51 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let ur := unReplaceRecApps preDefs argsPacker
     -- let ur _ e k := k e
 
+    -- Adjust the body of each function to take the other functions as a
+    -- (packed) parameter
+    let Fs ← preDefs.mapM fun preDef => do
+      let body ← instantiateLambda preDef.value fixedArgs
+      lambdaTelescope body fun xs body => do
+        withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
+          let body' ← withoutModifyingEnv do
+            -- WF.packCalls needs the constants in the env to typecheck things
+            preDefs.forM (addAsAxiom ·)
+            WF.packCalls fixedPrefixSize argsPacker declNames f body
+          mkLambdaFVars (xs.push f) body'
+
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the users parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
-    let _hmonos ← preDefs.mapIdxM fun i preDef => do
+    let hmonos ← preDefs.mapIdxM fun i preDef => do
       let type ← instantiateForall preDef.type fixedArgs
       let body ← instantiateLambda preDef.value fixedArgs
-      lambdaTelescope body fun xs body => do
+      lambdaTelescope body fun xs _ => do
         let type ← instantiateForall type xs
-        let F ← withLocalDeclD (← mkFreshUserName `f) packedType fun f =>
-          withoutModifyingEnv do
-            preDefs.forM (addAsAxiom ·)
-            -- The following code needs the constants in the environment to typecheck things
-            let body' ← WF.packCalls fixedPrefixSize argsPacker declNames f body
-            mkLambdaFVars #[f] body'
+        let F ← instantiateLambda Fs[i]! xs
         let inst2 ← mkAppM ``Nonempty.intro #[mkAppN witnesses[i]! xs]
         let goal ← mkAppOptM ``Tailrec.mono #[packedDomain, none, type, inst1, inst2, F]
         check goal
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
           solveMono (ur fixedArgs) hmono.mvarId!
-        mkForallFVars xs (← instantiateMVars hmono)
+        mkLambdaFVars xs (← instantiateMVars hmono)
 
-    let (fixedPrefixSize, argsPacker, unaryPreDef) ← mkUnaryPreDef preDefs
+    let FType ← withLocalDeclD `x packedDomain fun x => do
+      mkForallFVars #[x] (← mkArrow packedType (← instantiateForall packedType #[x]))
+    let F ← argsPacker.uncurryWithType FType Fs
+    let value ← mkAppOptM ``Lean.Tailrec.tailrec_fix #[packedDomain, none, inst1, F]
 
-    -- Apply the same unary/mutual packing to the witnesses.
+    let monoGoal := (← inferType value).bindingDomain!
+    let hmono ← argsPacker.uncurryWithType monoGoal hmonos
+    let value := .app value hmono
 
-    unless argsPacker.onlyOneUnary do
-      trace[Elab.definition.tailrec] "Packed witness:{indentExpr unaryWitness}"
-
-    let preDefNonRec ← derecursifyTailrec fixedPrefixSize unaryPreDef (← mkLambdaFVars fixedArgs unaryWitness) ur
+    check value
+    let packedType ← mkForallFVars fixedArgs packedType
+    let value ← mkLambdaFVars fixedArgs value
+    let preDefNonRec := { preDefs[0]! with
+      declName := WF.mutualName argsPacker preDefs
+      type := packedType
+      value }
     addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab

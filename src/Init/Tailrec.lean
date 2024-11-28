@@ -346,27 +346,31 @@ theorem mono_dite
     · apply hmono₂
 
 set_option linter.unusedVariables false in
+/--
+Variant of `fix` that hides the `Order` type classes, and reorders
+the arguments to `F`.
+-/
 noncomputable
 def tailrec_fix
-    (F : (∀ x, β x) → (∀ x, β x))
-    (hmono : ∀ (x : α), mono (fun f => F f x)) : (∀ x, β x) :=
-  @fix (∀ x, FlatOrder (β x)) _ _ F
+    (F : ∀ x, (∀ x, β x) → β x)
+    (hmono : ∀ (x : α), mono (fun f => F x f)) : (∀ x, β x) :=
+  @fix (∀ x, FlatOrder (β x)) _ _ (fun f x => F x f)
 
 theorem tailrec_fix_eq
-    (F : (∀ x, β x) → (∀ x, β x))
-    (hmono : ∀ (x : α), mono (fun f => F f x))
+    (F : ∀ x, (∀ x, β x) → β x)
+    (hmono : ∀ (x : α), mono (fun f => F x f))
     (x : α) :
-    tailrec_fix F hmono x = F (tailrec_fix F hmono) x :=
+    tailrec_fix F hmono x = F x (tailrec_fix F hmono) :=
   congrFun
-    (@fix_eq (∀ _, FlatOrder _) _ _ F
-      (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) F hmono)
+    (@fix_eq (∀ _, FlatOrder _) _ _ (fun f x => F x f)
+      (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) _ hmono)
     ) x
 
 end tailrec
 
 namespace Example
 
-def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=
+def findF (P : Nat → Bool)  (x : Nat) (rec : Nat → Option Nat) : Option Nat :=
   if P x then
     some x
   else
@@ -379,7 +383,7 @@ noncomputable def find P := tailrec_fix (findF P) <| by
   · apply mono_const
   · apply mono_apply
 
-theorem find_eq : find P x = findF P (find P) x := tailrec_fix_eq ..
+theorem find_eq : find P x = findF P x (find P) := tailrec_fix_eq ..
 
 end Example
 

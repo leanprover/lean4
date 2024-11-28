@@ -1366,7 +1366,11 @@ See also `Lean.Expr.instantiateRange`, which instantiates with the "backwards" i
 @[extern "lean_expr_instantiate_rev_range"]
 opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
-/-- Replace free (or meta) variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables,
+with `xs` ordered from outermost to innermost de Bruijn index.
+
+For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 

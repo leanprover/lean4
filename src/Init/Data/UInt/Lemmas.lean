@@ -30,6 +30,8 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   @[simp] theorem val_val_eq_toNat (x : $typeName) : x.val.val = x.toNat := rfl
 
+  theorem toNat_toBitVec_eq_toNat (x : $typeName) : x.toBitVec.toNat = x.toNat := rfl
+
   @[simp] theorem mk_toBitVec_eq : ∀ (a : $typeName), mk a.toBitVec = a
     | ⟨_, _⟩ => rfl
 
@@ -149,6 +151,10 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
     le_antisymm_iff.2 ⟨h₁, h₂⟩
 
   @[simp] protected theorem ofNat_one : ofNat 1 = 1 := rfl
+
+  @[simp] protected theorem ofNat_toNat {x : $typeName} : ofNat x.toNat = x := by
+    apply toNat.inj
+    simp [Nat.mod_eq_of_lt x.toNat_lt_size]
 
   @[simp]
   theorem val_ofNat (n : Nat) : val (no_index (OfNat.ofNat n)) = OfNat.ofNat n := rfl

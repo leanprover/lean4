@@ -2333,7 +2333,8 @@ theorem getValueCast_insertList_not_toInsert_mem [BEq α] [LawfulBEq α] (l toIn
 
 theorem getKey?_insertList_not_mem [BEq α] [PartialEquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
-    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)} {not_mem : (toInsert.map Sigma.fst).contains k = false} :
+    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)}
+    {not_mem : (toInsert.map Sigma.fst).contains k = false} :
     getKey? k (insertList l toInsert) = getKey? k l := by
   rw [← containsKey_eq_contains_map_fst] at not_mem
   induction toInsert generalizing l with
@@ -2380,39 +2381,81 @@ theorem getKey?_insertList_mem [BEq α] [PartialEquivBEq α]
       . exact distinct.right
       . simp [mem]
 
-/- theorem getKey_insertList [BEq α] [PartialEquivBEq α] {l toInsert : List ((a : α) × β a)} {k : α} -/
-/- {h₁} : -/
-/-     getKey k (insertList l toInsert) h₁ = -/
-/-       if h₂ : (toInsert.map Sigma.fst).contains k then ((toInsert.map Sigma.fst).reverse.find? (fun a => -/
-/-         k == a)).get (List.find?_isSome_of_map_fst_contains h₂) else getKey k l -/
-/-         (containsKey_of_containsKey_insertList h₁ (Bool.eq_false_iff.2 h₂)) := by -/
-/-   rw [← Option.some_inj] -/
-/-   rw [← getKey?_eq_some_getKey] -/
-/-   rw [getKey?_insertList] -/
-/-   split -/
-/-   . simp -/
-/-   . rw [getKey?_eq_some_getKey] -/
+theorem getKey_insertList_not_mem [BEq α] [PartialEquivBEq α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)}
+    {not_mem : (toInsert.map Sigma.fst).contains k = false}
+    {h} :
+    getKey k (insertList l toInsert) h =
+      getKey k l (containsKey_of_containsKey_insertList h not_mem) := by
+  rw [← Option.some_inj]
+  rw [← getKey?_eq_some_getKey]
+  rw [getKey?_insertList_not_mem]
+  . rw [getKey?_eq_some_getKey]
+  . exact distinct
+  . exact not_mem
 
-/- theorem getKey!_insertList [BEq α] [PartialEquivBEq α] [Inhabited α] {l toInsert : List ((a : α) × β a)} {k : α} : -/
-/-     getKey! k (insertList l toInsert) = -/
-/-       if h₂ : (toInsert.map Sigma.fst).contains k then ((toInsert.map Sigma.fst).reverse.find? (fun a => -/
-/-         k == a)).get (List.find?_isSome_of_map_fst_contains h₂) else getKey! k l := by -/
-/-   rw [getKey!_eq_getKey?] -/
-/-   rw [getKey?_insertList] -/
-/-   split -/
-/-   . rw [Option.get_eq_get!] -/
-/-   . rw [getKey!_eq_getKey?] -/
+theorem getKey_insertList_mem [BEq α] [PartialEquivBEq α]
+    {l toInsert : List ((a : α) × β a)}
+    {k k' : α} {k_beq : k == k'}
+    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)}
+    {mem : k ∈ (toInsert.map Sigma.fst)}
+    {h} :
+    getKey k' (insertList l toInsert) h = k := by
+  rw [← Option.some_inj]
+  rw [← getKey?_eq_some_getKey]
+  rw [getKey?_insertList_mem]
+  . exact k_beq
+  . exact distinct
+  . exact mem
 
-/- theorem getKeyD_insertList [BEq α] [PartialEquivBEq α] {l toInsert : List ((a : α) × β -/
-/- a)} {k fallback : α} : -/
-/-     getKeyD k (insertList l toInsert) fallback = -/
-/-       if h₂ : (toInsert.map Sigma.fst).contains k then ((toInsert.map Sigma.fst).reverse.find? (fun a => -/
-/-         k == a)).get (List.find?_isSome_of_map_fst_contains h₂) else getKeyD k l fallback := by -/
-/-   rw [getKeyD_eq_getKey?] -/
-/-   rw [getKey?_insertList] -/
-/-   split -/
-/-   . rw [Option.get_eq_getD] -/
-/-   . rw [getKeyD_eq_getKey?] -/
+theorem getKey!_insertList_not_mem [BEq α] [PartialEquivBEq α] [Inhabited α]
+    {l toInsert : List ((a : α) × β a)} {k : α}
+    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)}
+    {not_mem : (toInsert.map Sigma.fst).contains k = false} :
+    getKey! k (insertList l toInsert) = getKey! k l := by
+  rw [getKey!_eq_getKey?]
+  rw [getKey?_insertList_not_mem]
+  . rw [getKey!_eq_getKey?]
+  . exact distinct
+  . exact not_mem
+
+theorem getKey!_insertList_mem [BEq α] [PartialEquivBEq α] [Inhabited α]
+    {l toInsert : List ((a : α) × β a)}
+    {k k' : α} {k_beq : k == k'}
+    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)}
+    {mem : k ∈ (toInsert.map Sigma.fst)} :
+    getKey! k' (insertList l toInsert) = k := by
+  rw [getKey!_eq_getKey?]
+  rw [getKey?_insertList_mem]
+  . rw [Option.get!_some]
+  . exact k_beq
+  . exact distinct
+  . exact mem
+
+theorem getKeyD_insertList_not_mem [BEq α] [PartialEquivBEq α]
+    {l toInsert : List ((a : α) × β a)} {k fallback : α}
+    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)}
+    {not_mem : (toInsert.map Sigma.fst).contains k = false} :
+    getKeyD k (insertList l toInsert) fallback = getKeyD k l fallback := by
+  rw [getKeyD_eq_getKey?]
+  rw [getKey?_insertList_not_mem]
+  . rw [getKeyD_eq_getKey?]
+  . exact distinct
+  . exact not_mem
+
+theorem getKeyD_insertList_mem [BEq α] [PartialEquivBEq α]
+    {l toInsert : List ((a : α) × β a)}
+    {k k' fallback : α} {k_beq : k == k'}
+    {distinct: toInsert.Pairwise (fun a b => (a.1 == b.1) = false)}
+    {mem : k ∈ (toInsert.map Sigma.fst)} :
+    getKeyD k' (insertList l toInsert) fallback = k := by
+  rw [getKeyD_eq_getKey?]
+  rw [getKey?_insertList_mem]
+  . rw [Option.getD_some]
+  . exact k_beq
+  . exact distinct
+  . exact mem
 
 theorem insertList_perm [BEq α] [ReflBEq α] [PartialEquivBEq α] (l toInsert: List ((a : α) × β a)) (distinct_l: DistinctKeys l) (distinct_toInsert: List.Pairwise (fun a b => (a.1 == b.1) = false) toInsert) (distinct_both: ∀ (a:α), ¬ (containsKey a l ∧ containsKey a toInsert)):
     Perm (insertList l toInsert) (l++toInsert) := by

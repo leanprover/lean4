@@ -172,6 +172,12 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
     else if nbits > 32 then
       cmds := cmds.push <| ←
         `(@[simp] theorem toNat_toUInt32 (x : $typeName) : x.toUInt32.toNat = x.toNat % 2 ^ 32 := rfl)
+    if nbits ≤ 32 then
+      cmds := cmds.push <| ←
+        `(@[simp] theorem toNat_toUSize (x : $typeName) : x.toUSize.toNat = x.toNat := rfl)
+    else
+      cmds := cmds.push <| ←
+        `(@[simp] theorem toNat_toUSize (x : $typeName) : x.toUSize.toNat = x.toNat % 2 ^ System.Platform.numBits := rfl)
     if nbits < 64 then
       cmds := cmds.push <| ←
         `(@[simp] theorem toNat_toUInt64 (x : $typeName) : x.toUInt64.toNat = x.toNat := rfl)
@@ -188,11 +194,7 @@ declare_uint_theorems USize System.Platform.numBits
 
 @[simp] theorem USize.toNat_toUInt32 (x : USize) : x.toUInt32.toNat = x.toNat % 2 ^ 32  := rfl
 
-@[simp] theorem UInt32.toNat_toUSize (x : UInt32) : x.toUSize.toNat = x.toNat := rfl
-
 @[simp] theorem USize.toNat_toUInt64 (x : USize) : x.toUInt64.toNat = x.toNat := rfl
-
-@[simp] theorem UInt64.toNat_toUSize (x : UInt64) : x.toUSize.toNat = x.toNat % 2 ^ System.Platform.numBits := rfl
 
 theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat n) = n :=
   toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h le_usize_size)

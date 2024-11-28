@@ -278,6 +278,16 @@ This function is overridden with a native implementation.
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : n < 4294967296) : USize :=
   USize.ofNatCore n (Nat.lt_of_lt_of_le h le_usize_size)
+@[extern "lean_uint8_to_usize"]
+def UInt8.toUSize (a : UInt8) : USize :=
+  USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
+@[extern "lean_usize_to_uint8"]
+def USize.toUInt8 (a : USize) : UInt8 := a.toNat.toUInt8
+@[extern "lean_uint16_to_usize"]
+def UInt16.toUSize (a : UInt16) : USize :=
+  USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
+@[extern "lean_usize_to_uint16"]
+def USize.toUInt16 (a : USize) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint32_to_usize"]
 def UInt32.toUSize (a : UInt32) : USize := USize.ofNat32 a.toBitVec.toNat a.toBitVec.isLt
 @[extern "lean_usize_to_uint32"]

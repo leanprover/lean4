@@ -20,4 +20,4 @@ def List.toArrayAux : List α → Array α → Array α
 -- (the constructor) to implement this functionality.
 @[inline, match_pattern, pp_nodot, export lean_list_to_array]
 def List.toArrayImpl (as : List α) : Array α :=
-  as.toArrayAux (Array.mkEmpty as.length)
+  as.toArrayAux Array.empty

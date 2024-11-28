@@ -298,31 +298,6 @@ theorem mono_const (c : γ) : mono fun (_ : (∀ x, β x)) => c :=
 theorem mono_apply : mono fun (f : (∀ x, β x)) => f x :=
   monotone_apply (β := fun _ => FlatOrder _) x
 
-theorem mono_psigma_casesOn.{ww,uu,vv}
-    {δ : Sort uu} {ε : δ → Sort vv}
-    {γ : PSigma ε → Type ww}
-    (p : PSigma ε)
-    [Nonempty (γ p)]
-    (k : (∀ x, β x) → (a : δ) → (b : ε a) → γ ⟨a, b⟩)
-    (hmono : ∀ a b [Nonempty (γ ⟨a,b⟩)], mono fun (f : (∀ x, β x)) => k f a b) :
-  mono fun (f : (∀ x, β x)) => PSigma.casesOn (motive := γ) p (k f) := by
-    cases p; apply hmono
-
-theorem mono_psum_casesOn.{ww,uu,vv}
-    {δ : Sort uu} {ε : Sort vv}
-    {γ : δ ⊕' ε -> Type ww}
-    (p : δ ⊕' ε)
-    [Nonempty (γ p)]
-    (k₁ : (∀ x, β x) → (a : δ) → γ (.inl a))
-    (k₂ : (∀ x, β x) → (b : ε) → γ (.inr b))
-    (hmono₁ : ∀ a [Nonempty (γ (.inl a))], mono fun (f : (∀ x, β x)) => k₁ f a)
-    (hmono₂ : ∀ b [Nonempty (γ (.inr b))], mono fun (f : (∀ x, β x)) => k₂ f b) :
-    mono (γ := γ p) fun (f : (∀ x, β x)) =>
-      PSum.casesOn (motive := γ) p (k₁ f) (k₂ f) := by
-    cases p
-    · apply hmono₁
-    · apply hmono₂
-
 theorem mono_ite
   (c : Prop) [Decidable c]
   (k₁ : (∀ x, β x) → γ)

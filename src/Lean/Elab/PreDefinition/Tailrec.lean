@@ -86,37 +86,10 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       solveMono ur goal'.mvarId!
     return
 
-  -- Manually handle PSigma.casesOn, and PSum.casesOn, as split doesn't
-  -- and we need it due to the way we pack mutual arguments
-  -- and while we are at it, handle ite and dite as well.
-  -- Feels more reliable and predictable than splitting
+  -- Manually handle ite, dite. Not too hard, and more robust and predictable than
+  -- using the split tactic.
   match_expr e with
-  | PSigma.casesOn δ ε γ p k =>
-    if e.appFn!.hasLooseBVars then
-      failK
-    -- Careful juggling of universes
-    let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.tail
-    let k' := f.updateLambdaE! f.bindingDomain! k
-    let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β inst₁ δ ε γ p inst₂ k'
-    let new_goals ←
-      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
-    new_goals.forM (solveMono ur)
-    return
-  | PSum.casesOn δ ε γ p k₁ k₂ =>
-    if e.appFn!.appFn!.hasLooseBVars then
-      failK
-    -- Careful juggling of universes
-    let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.tail
-    let k₁' := f.updateLambdaE! f.bindingDomain! k₁
-    let k₂' := f.updateLambdaE! f.bindingDomain! k₂
-    let p := mkAppN (.const ``Tailrec.mono_psum_casesOn us) #[α, β, inst₁, δ, ε, γ, p, inst₂, k₁', k₂']
-    let new_goals ←
-      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
-    new_goals.forM (solveMono ur)
-    return
-   | ite _ cond decInst k₁ k₂ =>
+  | ite _ cond decInst k₁ k₂ =>
     let us := type.getAppFn.constLevels!
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
@@ -126,7 +99,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
         goal.apply p
     new_goals.forM (solveMono ur)
     return
-   | dite _ cond decInst k₁ k₂ =>
+  | dite _ cond decInst k₁ k₂ =>
     let us := type.getAppFn.constLevels!
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂

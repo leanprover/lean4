@@ -164,6 +164,15 @@ def mutual2 (n m : Nat) : Unit := mutual1 (m + 1) n
 termination_by tailrecursion
 end
 
+mutual
+def dependent2''a (n : Nat) (b : Bool) : if b then Nat else Bool :=
+  if _ : b then dependent2''a (n + 1) b else dependent2''b (n + 2) b
+termination_by tailrecursion
+def dependent2''b (n : Nat) (b : Bool) : if b then Nat else Bool :=
+  if _ : b then dependent2''a (n + 1) b else dependent2''b (n + 2) b
+termination_by tailrecursion
+end
+
 def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
   let next := f x
   if x ≠ next then

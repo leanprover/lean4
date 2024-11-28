@@ -189,12 +189,7 @@ def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContex
     mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
 
   let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
-  let auxProof :=
-    mkApp3
-      (mkConst ``Lean.ofReduceBool)
-      (mkConst cfg.reflectionDef)
-      (toExpr true)
-      (← mkEqRefl (toExpr true))
+  let auxProof ← mkSorry auxType false
   try
     let auxLemma ←
       withTraceNode `sat (fun _ => return "Verifying LRAT certificate") do

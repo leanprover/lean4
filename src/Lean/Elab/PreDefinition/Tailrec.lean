@@ -98,7 +98,6 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.tail
     let k' := f.updateLambdaE! f.bindingDomain! k
     let p := mkApp9 (.const ``Tailrec.mono_psigma_casesOn us) α β inst₁ δ ε γ p inst₂ k'
-    check p
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
@@ -112,7 +111,6 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
     let p := mkAppN (.const ``Tailrec.mono_psum_casesOn us) #[α, β, inst₁, δ, ε, γ, p, inst₂, k₁', k₂']
-    check p
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
@@ -123,7 +121,6 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
     let p := mkAppN (.const ``Tailrec.mono_ite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
-    check p
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
@@ -134,7 +131,6 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
     let p := mkAppN (.const ``Tailrec.mono_dite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
-    check p
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
@@ -259,7 +255,6 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
         let F ← instantiateLambda Fs[i]! xs
         let inst2 ← mkAppM ``Nonempty.intro #[mkAppN witnesses[i]! xs]
         let goal ← mkAppOptM ``Tailrec.mono #[packedDomain, none, type, inst1, inst2, F]
-        check goal
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
           solveMono (ur fixedArgs) hmono.mvarId!
@@ -274,7 +269,6 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let hmono ← argsPacker.uncurryWithType monoGoal hmonos
     let value := .app value hmono
 
-    check value
     let packedType ← mkForallFVars fixedArgs packedType
     let value ← mkLambdaFVars fixedArgs value
     let preDefNonRec := { preDefs[0]! with

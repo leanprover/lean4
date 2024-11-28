@@ -43,6 +43,10 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   theorem lt_def {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
 
+  theorem le_iff_toNat_le {a b : $typeName} : a ≤ b ↔ a.toNat ≤ b.toNat := .rfl
+
+  theorem lt_iff_toNat_lt {a b : $typeName} : a < b ↔ a.toNat < b.toNat := .rfl
+
   @[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := by simp [le_def, lt_def]
 
   @[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := by simp [le_def, lt_def]

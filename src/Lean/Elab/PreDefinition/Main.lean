@@ -23,7 +23,8 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := fa
       let value ← if useSorry then
         mkLambdaFVars xs (← mkSorry type (synthetic := true))
       else
-        liftM <| mkInhabitantFor preDef.declName xs type
+        let msg := m!"failed to compile 'partial' definition '{preDef.declName}'"
+        liftM <| mkInhabitantFor msg xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
         value

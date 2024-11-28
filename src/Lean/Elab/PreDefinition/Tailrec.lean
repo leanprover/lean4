@@ -180,7 +180,8 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) (w : Exp
 
 def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let witnesses ← preDefs.mapM fun preDef =>
-    mkInhabitantFor preDef.declName #[] preDef.type
+    let msg := m!"failed to compile definition '{preDef.declName}' via tailrecursion"
+    mkInhabitantFor msg #[] preDef.type
 
   trace[Elab.definition.tailrec] "Found nonempty witnesses: {witnesses}"
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← mkUnaryPreDef preDefs

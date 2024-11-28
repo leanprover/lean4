@@ -20,13 +20,11 @@ private def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi :
       (ilo : lo ≤ i := by omega) (jh : j < n := by omega) (w : i ≤ j := by omega) :=
     if h : j < hi then
       if lt as[j] pivot then
-        let as := as.swap i j
-        loop as (i+1) (j+1)
+        loop (as.swap i j) (i+1) (j+1)
       else
         loop as i (j+1)
     else
-      let as := as.swap i hi
-      (⟨i, ilo⟩, as)
+      (⟨i, ilo⟩, as.swap i hi)
   loop as lo lo
 
 @[inline] def qsort (as : Array α) (lt : α → α → Bool := by exact (· < ·))

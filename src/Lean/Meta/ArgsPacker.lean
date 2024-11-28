@@ -87,7 +87,7 @@ Unpacks a unary packed argument created with `Unary.pack`.
 
 Throws an error if the expression is not of that form.
 -/
-def unpack (arity : Nat) (e : Expr) : MetaM (Array Expr) := do
+def unpack (arity : Nat) (e : Expr) : Option (Array Expr) := do
   let mut e := e
   let mut args := #[]
   while args.size + 1 < arity do
@@ -95,7 +95,7 @@ def unpack (arity : Nat) (e : Expr) : MetaM (Array Expr) := do
       args := args.push (e.getArg! 2)
       e := e.getArg! 3
     else
-      throwError "Unexpected expression while unpacking n-ary argument"
+      none
   args := args.push e
   return args
 
@@ -258,7 +258,7 @@ argument and function index.
 
 Throws an error if the expression is not of that form.
 -/
-def unpack (numFuncs : Nat) (expr : Expr) : MetaM (Nat × Expr) := do
+def unpack (numFuncs : Nat) (expr : Expr) : Option (Nat × Expr) := do
   let mut funidx := 0
   let mut e := expr
   while funidx + 1 < numFuncs do
@@ -269,7 +269,7 @@ def unpack (numFuncs : Nat) (expr : Expr) : MetaM (Nat × Expr) := do
       e := e.getArg! 2
       break
     else
-      throwError "Unexpected expression while unpacking mutual argument:{indentExpr expr}"
+      none
   return (funidx, e)
 
 
@@ -440,13 +440,12 @@ return the function index that is called and the arguments individually.
 
 We expect precisely the expressions produced by `pack`, with manifest
 `PSum.inr`, `PSum.inl` and `PSigma.mk` constructors, and thus take them apart
-rather than using projectinos.
+rather than using projections.
 -/
-def unpack (argsPacker : ArgsPacker) (e : Expr) : MetaM (Nat × Array Expr) := do
+def unpack (argsPacker : ArgsPacker) (e : Expr) : Option (Nat × Array Expr) := do
   let (funidx, e) ← Mutual.unpack argsPacker.numFuncs e
   let args ← Unary.unpack argsPacker.varNamess[funidx]!.size e
   return (funidx, args)
-
 
 /--
 Given types `(x : A) → (y : B[x]) → R₁[x,y]` and `(z : C) → R₂[z]`, returns the type uncurried type

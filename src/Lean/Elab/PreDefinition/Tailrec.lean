@@ -12,12 +12,19 @@ namespace Lean.Elab
 open WF
 open Meta
 
-partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
+/--
+For pretty error messages:
+Takes `fun f => e`, where `f` is the packed function, and replaces `f` in `e` with the user-visible
+constants, which are added to the environment temporarily.
+-/
+abbrev Unreplacer := Expr → (Expr → MetaM Unit) → MetaM Unit
+
+partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.withContext do
   trace[Elab.definition.tailrec] "solveMono at\n{goal}"
   let type ← goal.getType
   if type.isForall then
     let (_, goal) ← goal.intro1P
-    solveMono goal
+    solveMono ur goal
     return
 
   let_expr Tailrec.mono α β γ inst₁ inst₂ f := type |
@@ -26,9 +33,9 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
   unless f.isLambda do
     throwError "Unexpected goal:\n{goal}"
 
-  let failK :=
-    lambdaBoundedTelescope f 1 fun _ t => do
-      trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
+  let failK := do
+    trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
+    ur f fun t =>
       throwError "Recursive call in non-tail position:{indentExpr t}"
 
   let e := f.bindingBody!
@@ -68,7 +75,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
       let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
       let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
       goal.assign (← mkLetFVars #[x] goal')
-      solveMono goal'.mvarId!
+      solveMono ur goal'.mvarId!
     return
 
   -- Manually handle PSigma.casesOn, and PSum.casesOn, as split doesn't
@@ -87,7 +94,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
-    new_goals.forM solveMono
+    new_goals.forM (solveMono ur)
     return
   | PSum.casesOn δ ε γ p k₁ k₂ =>
     if e.appFn!.appFn!.hasLooseBVars then
@@ -101,7 +108,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
-    new_goals.forM solveMono
+    new_goals.forM (solveMono ur)
     return
    | ite _ cond decInst k₁ k₂ =>
     let us := type.getAppFn.constLevels!
@@ -112,7 +119,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
-    new_goals.forM solveMono
+    new_goals.forM (solveMono ur)
     return
    | dite _ cond decInst k₁ k₂ =>
     let us := type.getAppFn.constLevels!
@@ -123,7 +130,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
-    new_goals.forM solveMono
+    new_goals.forM (solveMono ur)
     return
   | _ => pure
 
@@ -132,7 +139,7 @@ partial def solveMono (goal : MVarId) : MetaM Unit := goal.withContext do
   -- For now using `splitMatch` works fine.
   if Lean.Meta.Split.findSplit?.isCandidate (← getEnv) (e := e) (splitIte := false) then
     let new_goals ← Split.splitMatch goal e
-    new_goals.forM solveMono
+    new_goals.forM (solveMono ur)
     return
 
   failK
@@ -144,10 +151,28 @@ private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr)
     else
       none
 
-def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) (w : Expr) :
+/-- Used in error messages -/
+private def unReplaceRecApps (preDefs : Array PreDefinition) (argsPacker : ArgsPacker)
+    (fixedArgs : Array Expr) : Unreplacer := fun f k => do
+  unless f.isLambda do throwError "Expected lambda:{indentExpr f}"
+  withoutModifyingEnv do
+    preDefs.forM addAsAxiom
+    let fns := preDefs.map (fun d => .const d.declName (d.levelParams.map mkLevelParam))
+    let e ← lambdaBoundedTelescope f 1 fun f e =>
+      let f := f[0]!
+      return e.replace fun e => do
+        guard e.isApp
+        guard (e.appFn! == f)
+        let (n, xs) ← argsPacker.unpack e.appArg!
+        return mkAppN fns[n]! (fixedArgs ++ xs)
+    k e
+
+def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) (w : Expr)
+    (unreplace : Array Expr → Unreplacer) :
     TermElabM PreDefinition := do
   -- TODO: Witness and fixed prefix
   forallBoundedTelescope preDef.type fixedPrefixSize fun prefixArgs type => do
+    let unreplace := unreplace prefixArgs
     let w := mkAppN w prefixArgs
     let type ← whnfForall type
     unless type.isForall do
@@ -172,7 +197,7 @@ def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) (w : Exp
     let monoGoal := (← inferType value).bindingDomain!
     let mono ← mkFreshExprSyntheticOpaqueMVar monoGoal
     mapError (f := (m!"Could not prove function to be tailrecursive:{indentD ·}")) do
-      solveMono mono.mvarId!
+      solveMono unreplace mono.mvarId!
     let value := .app value (← instantiateMVars mono)
 
     let value ← mkLambdaFVars prefixArgs value
@@ -194,7 +219,9 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   unless argsPacker.onlyOneUnary do
     trace[Elab.definition.tailrec] "Packed witness:{indentExpr unaryWitness}"
 
-  let preDefNonRec ← derecursifyTailrec fixedPrefixSize unaryPreDef unaryWitness
+  let ur := unReplaceRecApps preDefs argsPacker
+
+  let preDefNonRec ← derecursifyTailrec fixedPrefixSize unaryPreDef unaryWitness ur
   addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab

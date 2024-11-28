@@ -69,7 +69,7 @@ end
 /--
 error: Could not prove function to be tailrecursive:
   Recursive call in non-tail position:
-    f (x + 1) - 1
+    notTailRec1 (x + 1) - 1
 -/
 #guard_msgs in
 def notTailRec1 (n : Nat) := notTailRec1 (n + 1) - 1
@@ -78,7 +78,7 @@ termination_by tailrecursion
 /--
 error: Could not prove function to be tailrecursive:
   Recursive call in non-tail position:
-    f (x + 1) - 1
+    notTailRec2 n (x + 1) - 1
 -/
 #guard_msgs in
 def notTailRec2 (n m : Nat) := notTailRec2 n (m + 1) - 1
@@ -87,7 +87,7 @@ termination_by tailrecursion
 /--
 error: Could not prove function to be tailrecursive:
   Recursive call in non-tail position:
-    f ⟨b + 1, a⟩ - 1
+    notTailRec3 (b + 1) a - 1
 -/
 #guard_msgs in
 def notTailRec3 (n m : Nat) := notTailRec3 (m + 1) n - 1
@@ -96,7 +96,7 @@ termination_by tailrecursion
 /--
 error: Could not prove function to be tailrecursive:
   Recursive call in non-tail position:
-    f (PSum.inr ⟨b + 1, a⟩) - 1
+    notTailRec4b (b + 1) a - 1
 -/
 #guard_msgs in
 mutual

@@ -811,33 +811,35 @@ section NotificationHandling
     terminateFileWorker p.textDocument.uri
 
   def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
-    let importData ← (← read).importData.get
-    let references := (← read).references
-    let oleanSearchPath ← Lean.searchPathRef.get
-    let ileans ← oleanSearchPath.findAllWithExt "ilean"
-    for change in p.changes do
-      let some path := fileUriToPath? change.uri
-        | continue
-      match path.extension with
-      | "lean" =>
-        let dependents := importData.importedBy.findD change.uri ∅
+    let changes := p.changes.filterMap fun c => do return (c, ← fileUriToPath? c.uri)
+    let leanChanges := changes.filter fun (_, path) => path.extension == "lean"
+    let ileanChanges := changes.filter fun (_, path) => path.extension == "ilean"
+    if ! leanChanges.isEmpty then
+      let importData ← (← read).importData.get
+      for (c, _) in leanChanges do
+        let dependents := importData.importedBy.findD c.uri ∅
         for dependent in dependents do
-          notifyAboutStaleDependency dependent change.uri
-      | "ilean" =>
-        if let FileChangeType.Deleted := change.type then
+          notifyAboutStaleDependency dependent c.uri
+    if ! ileanChanges.isEmpty then
+      let references := (← read).references
+      let oleanSearchPath ← Lean.searchPathRef.get
+      for (c, path) in ileanChanges do
+        if let FileChangeType.Deleted := c.type then
           references.modify (fun r => r.removeIlean path)
-        else if ileans.contains path then
-          try
-            let ilean ← Ilean.load path
-            if let FileChangeType.Changed := change.type then
-              references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
-            else
-              references.modify (fun r => r.addIlean path ilean)
-          catch
-            -- ilean vanished, ignore error
-            | .noFileOrDirectory .. => references.modify (·.removeIlean path)
-            | e => throw e
-      | _ => continue
+          continue
+        let isIleanInSearchPath := (← searchModuleNameOfFileName path oleanSearchPath).isSome
+        if ! isIleanInSearchPath then
+          continue
+        try
+          let ilean ← Ilean.load path
+          if let FileChangeType.Changed := c.type then
+            references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+          else
+            references.modify (fun r => r.addIlean path ilean)
+        catch
+          -- ilean vanished, ignore error
+          | .noFileOrDirectory .. => references.modify (·.removeIlean path)
+          | e => throw e
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get

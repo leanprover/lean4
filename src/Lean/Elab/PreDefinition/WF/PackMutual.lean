@@ -60,11 +60,10 @@ Creates a single unary function from the given `preDefs`, using the machinery in
 module.
 -/
 def packMutual (fixedPrefix : Nat) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
-  let arities := argsPacker.arities
-  if let #[1] := arities then return preDefs[0]!
+  if argsPacker.onlyOneUnary then return preDefs[0]!
   let newFn := if argsPacker.numFuncs > 1 then preDefs[0]!.declName ++ `_mutual
                                           else preDefs[0]!.declName ++ `_unary
-  -- Bring the fixed Prefix into scope
+  -- Bring the fixed prefix into scope
   forallBoundedTelescope preDefs[0]!.type (some fixedPrefix) fun ys _ => do
     let types ← preDefs.mapM (instantiateForall ·.type ys)
     let vals ← preDefs.mapM (instantiateLambda ·.value ys)

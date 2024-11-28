@@ -85,6 +85,7 @@ private def queryNames : Array Name :=
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
+    ``Raw.keys_eq_keys_toListModel, ``Raw.toList_eq_toListModel,
     ``Raw.length_keys_eq_length_keys, ``Raw.isEmpty_keys_eq_isEmpty_keys,
     ``Raw.contains_keys_eq_contains_keys, ``Raw.mem_keys_iff_contains_keys,
     ``Raw.pairwise_keys_iff_pairwise_keys]
@@ -817,6 +818,7 @@ end Const
 @[simp]
 theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.length = m.1.size := by
+  -- simp_to_model
   simp_to_model using List.length_keys_eq_length
 
 @[simp]

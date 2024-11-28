@@ -83,6 +83,13 @@ theorem fold_cons_key {l : Raw α β} {acc : List α} :
     l.fold (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets).reverse ++ acc := by
   rw [fold_cons_apply, keys_eq_map, map_reverse]
 
+theorem toList_eq_toListModel {m : Raw α β} : m.toList = (toListModel m.buckets).reverse := by
+  simp [Raw.toList, fold_cons]
+
+theorem keys_eq_keys_toListModel {m : Raw α β} :
+    m.keys = List.keys (toListModel m.buckets).reverse := by
+  simp [Raw.keys, fold_cons_key]
+
 theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
   simp [Raw.toList, fold_cons]
 

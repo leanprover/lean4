@@ -36,24 +36,26 @@ def withAppN (n : Nat) (e : Expr) (k : Array Expr → MetaM Expr) : MetaM Expr :
       mkLambdaFVars xs e'
 
 /--
-A `post` for `Meta.transform` to replace recursive calls to the original `preDefs` with calls
-to the new unary function `newfn`.
+Processes the expression and replaces calls to  the `preDefs` with calls to `f`.
 -/
-private partial def post (fixedPrefix : Nat) (argsPacker : ArgsPacker) (funNames : Array Name)
-    (domain : Expr) (newFn : Name) (e : Expr) : MetaM TransformStep := do
-  let f := e.getAppFn
-  if !f.isConst then
+def packCalls (fixedPrefix : Nat) (argsPacker : ArgsPacker) (funNames : Array Name) (newF : Expr)
+  (e : Expr) : MetaM Expr := do
+  let fType ← inferType newF
+  unless fType.isForall do
+    throwError "Not a forall: {newF} : {fType}"
+  let domain := fType.bindingDomain!
+  transform e (skipConstInApp := true) (post := fun e => do
+    let f := e.getAppFn
+    if !f.isConst then
+      return TransformStep.done e
+    if let some fidx := funNames.indexOf? f.constName! then
+      let arity := fixedPrefix + argsPacker.varNamess[fidx]!.size
+      let e' ← withAppN arity e fun args => do
+        let packedArg ← argsPacker.pack domain fidx args[fixedPrefix:]
+        return mkApp newF packedArg
+      return TransformStep.done e'
     return TransformStep.done e
-  let declName := f.constName!
-  let us       := f.constLevels!
-  if let some fidx := funNames.indexOf? declName then
-    let arity := fixedPrefix + argsPacker.varNamess[fidx]!.size
-    let e' ← withAppN arity e fun args => do
-      let fixedArgs := args[:fixedPrefix]
-      let packedArg ← argsPacker.pack domain fidx args[fixedPrefix:]
-      return mkApp (mkAppN (mkConst newFn us) fixedArgs) packedArg
-    return TransformStep.done e'
-  return TransformStep.done e
+    )
 
 /--
 Creates a single unary function from the given `preDefs`, using the machinery in the `ArgPacker`
@@ -69,7 +71,6 @@ def packMutual (fixedPrefix : Nat) (argsPacker : ArgsPacker) (preDefs : Array Pr
     let vals ← preDefs.mapM (instantiateLambda ·.value ys)
 
     let type ← argsPacker.uncurryType types
-    let packedDomain := type.bindingDomain!
 
     -- Temporarily add the unary function as an axiom, so that all expressions
     -- are still type correct
@@ -77,9 +78,11 @@ def packMutual (fixedPrefix : Nat) (argsPacker : ArgsPacker) (preDefs : Array Pr
     let preDefNew := { preDefs[0]! with declName := newFn, type }
     addAsAxiom preDefNew
 
+    let us := preDefs[0]!.levelParams.map mkLevelParam
+    let f := mkAppN (mkConst newFn us) ys
+
     let value ← argsPacker.uncurry vals
-    let value ← transform value (skipConstInApp := true)
-      (post := post fixedPrefix argsPacker (preDefs.map (·.declName)) packedDomain newFn)
+    let value ← packCalls fixedPrefix argsPacker (preDefs.map (·.declName)) f value
     let value ← mkLambdaFVars ys value
     return { preDefNew with value }
 

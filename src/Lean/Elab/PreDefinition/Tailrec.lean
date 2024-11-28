@@ -67,6 +67,14 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       throwError "Left over goals"
     return
 
+  -- Look through mdata
+  if e.isMData then
+    let f' := f.updateLambdaE! f.bindingDomain! e.mdataExpr!
+    let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! f')
+    goal.assign goal'
+    solveMono ur goal'.mvarId!
+    return
+
   -- Float letE to the environment
   if let .letE n t v b _nonDep := e then
     if t.hasLooseBVars || v.hasLooseBVars then
@@ -170,7 +178,6 @@ private def unReplaceRecApps (preDefs : Array PreDefinition) (argsPacker : ArgsP
 def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) (w : Expr)
     (unreplace : Array Expr → Unreplacer) :
     TermElabM PreDefinition := do
-  -- TODO: Witness and fixed prefix
   forallBoundedTelescope preDef.type fixedPrefixSize fun prefixArgs type => do
     let unreplace := unreplace prefixArgs
     let w := mkAppN w prefixArgs
@@ -207,22 +214,59 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let witnesses ← preDefs.mapM fun preDef =>
     let msg := m!"failed to compile definition '{preDef.declName}' via tailrecursion"
     mkInhabitantFor msg #[] preDef.type
-
   trace[Elab.definition.tailrec] "Found nonempty witnesses: {witnesses}"
-  let (fixedPrefixSize, argsPacker, unaryPreDef) ← mkUnaryPreDef preDefs
 
-  -- Apply the same unary/mutual packing to the witnesses.
-  let unaryWitness ←
-    forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs _ => do
-      mkLambdaFVars prefixArgs (← argsPacker.uncurry (witnesses.map (mkAppN · prefixArgs)))
+  let fixedPrefixSize ← getFixedPrefix preDefs
+  trace[Elab.definition.tailrec] "fixed prefix size: {fixedPrefixSize}"
+  let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
+  let argsPacker : ArgsPacker := { varNamess }
 
-  unless argsPacker.onlyOneUnary do
-    trace[Elab.definition.tailrec] "Packed witness:{indentExpr unaryWitness}"
+  let declNames := preDefs.map (·.declName)
 
-  let ur := unReplaceRecApps preDefs argsPacker
+  forallBoundedTelescope preDefs[0]!.type fixedPrefixSize fun fixedArgs _ => do
+    let witnesses := witnesses.map (·.beta fixedArgs)
+    let types ← preDefs.mapM (instantiateForall ·.type fixedArgs)
+    let packedType ← argsPacker.uncurryType types
+    let packedDomain := packedType.bindingDomain!
 
-  let preDefNonRec ← derecursifyTailrec fixedPrefixSize unaryPreDef unaryWitness ur
-  addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
+    let unaryWitness ← argsPacker.uncurry witnesses
+    let inst1 ← withLocalDeclD `x packedDomain fun x => do
+      mkLambdaFVars #[x] (← mkAppM ``Nonempty.intro #[.app unaryWitness x])
+
+    let ur := unReplaceRecApps preDefs argsPacker
+    -- let ur _ e k := k e
+
+    -- Construct and solve monotonicity goals for each function separately
+    -- This way we preserve the users parameter names as much as possible
+    -- and can (later) use the user-specified per-function tactic
+    let _hmonos ← preDefs.mapIdxM fun i preDef => do
+      let type ← instantiateForall preDef.type fixedArgs
+      let body ← instantiateLambda preDef.value fixedArgs
+      lambdaTelescope body fun xs body => do
+        let type ← instantiateForall type xs
+        let F ← withLocalDeclD (← mkFreshUserName `f) packedType fun f =>
+          withoutModifyingEnv do
+            preDefs.forM (addAsAxiom ·)
+            -- The following code needs the constants in the environment to typecheck things
+            let body' ← WF.packCalls fixedPrefixSize argsPacker declNames f body
+            mkLambdaFVars #[f] body'
+        let inst2 ← mkAppM ``Nonempty.intro #[mkAppN witnesses[i]! xs]
+        let goal ← mkAppOptM ``Tailrec.mono #[packedDomain, none, type, inst1, inst2, F]
+        check goal
+        let hmono ← mkFreshExprSyntheticOpaqueMVar goal
+        mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
+          solveMono (ur fixedArgs) hmono.mvarId!
+        mkForallFVars xs (← instantiateMVars hmono)
+
+    let (fixedPrefixSize, argsPacker, unaryPreDef) ← mkUnaryPreDef preDefs
+
+    -- Apply the same unary/mutual packing to the witnesses.
+
+    unless argsPacker.onlyOneUnary do
+      trace[Elab.definition.tailrec] "Packed witness:{indentExpr unaryWitness}"
+
+    let preDefNonRec ← derecursifyTailrec fixedPrefixSize unaryPreDef (← mkLambdaFVars fixedArgs unaryWitness) ur
+    addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab
 

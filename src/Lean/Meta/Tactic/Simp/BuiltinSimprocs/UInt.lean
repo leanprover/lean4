@@ -95,7 +95,7 @@ def fromExpr (e : Expr) : SimpM (Option USize) := do
   let some (n, _) ← getOfNatValue? e ``USize | return none
   return USize.ofNat n
 
-builtin_simproc [simp, seval] USize.reduceToNat (USize.toNat _) := fun e => do
+builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
   let_expr USize.toNat e ← e | return .continue
   let some (n, _) ← getOfNatValue? e ``USize | return .continue
   unless n < UInt32.size do return .continue

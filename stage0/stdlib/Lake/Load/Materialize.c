@@ -2916,7 +2916,7 @@ static lean_object* _init_l_Lake_Dependency_materialize___lambda__3___closed__8(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' (should be \"git#>rev>\")", 25, 25);
+x_1 = lean_mk_string_unchecked("' (should be \"git#<rev>\")", 25, 25);
 return x_1;
 }
 }

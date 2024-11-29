@@ -1948,7 +1948,7 @@ theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
   · simp [h₀, show w = 0 by omega]
 
 @[simp] theorem toInt_concat (x : BitVec w) (b : Bool) :
-    (concat x b).toInt = if w = 0 then b.toInt else x.toInt * 2 + b.toNat := by
+    (concat x b).toInt = if w = 0 then -b.toInt else x.toInt * 2 + b.toNat := by
   simp only [BitVec.toInt, toNat_concat]
   cases w
   · cases b <;> simp [eq_nil x]

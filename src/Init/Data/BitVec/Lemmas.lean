@@ -1955,8 +1955,12 @@ theorem msb_concat {w : Nat} {b : Bool} {x : BitVec w} :
   · cases b <;> simp <;> omega
 
 @[simp] theorem toFin_concat (x : BitVec w) (b : Bool) :
-    (concat x b).toFin = x.toNat * 2 + b.toNat := by
-  simp
+    (concat x b).toFin = Fin.mk (x.toNat * 2 + b.toNat) (by
+      have := Bool.toNat_lt b
+      simp [← Nat.two_pow_pred_add_two_pow_pred, Bool.toNat_lt b]
+      omega
+    ) := by
+  simp [← Fin.val_inj]
 
 @[simp] theorem not_concat (x : BitVec w) (b : Bool) : ~~~(concat x b) = concat (~~~x) !b := by
   ext i; cases i using Fin.succRecOn <;> simp [*, Nat.succ_lt_succ]

@@ -28,19 +28,28 @@ structure Context where
 
 unsafe abbrev FindM := ReaderT Context $ StateT (PtrSet Expr) MetaM
 
-private def isCandidate (env : Environment) (ctx : Context) (e : Expr) : Bool := Id.run do
-  if ctx.exceptionSet.contains e then
-    return false
-  if ctx.kind.considerIte && (e.isIte || e.isDIte) then
-    return !(e.getArg! 1 5).hasLooseBVars
+/--
+Checks whether `e` is a candidate for `split`.
+Returns `some e'` if a prefix is a candidate.
+Example: suppose `e` is `(if b then f else g) x`, then
+the result is `some e'` where `e'` is the subterm `(if b then f else g)`
+-/
+private def isCandidate? (env : Environment) (ctx : Context) (e : Expr) : Option Expr := Id.run do
+  let ret (e : Expr) : Option Expr :=
+    if ctx.exceptionSet.contains e then none else some e
+  if ctx.kind.considerIte then
+    if e.isAppOf ``ite || e.isAppOf ``dite then
+      let numArgs := e.getAppNumArgs
+      if numArgs >= 5 && !(e.getArg! 1 5).hasLooseBVars then
+        return ret (e.getBoundedAppFn (numArgs - 5))
   if ctx.kind.considerMatch then
     if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
       for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
         if args[i]!.hasLooseBVars then
-          return false
-      return true
-  return false
+          return none
+      return ret (e.getBoundedAppFn (args.size - info.arity))
+  return none
 
 @[inline] unsafe def checkVisited (e : Expr) : OptionT FindM Unit := do
   if (← get).contains e then
@@ -49,7 +58,7 @@ private def isCandidate (env : Environment) (ctx : Context) (e : Expr) : Bool :=
 
 unsafe def visit (e : Expr) : OptionT FindM Expr := do
   checkVisited e
-  if isCandidate (← getEnv) (← read) e then
+  if let some e := isCandidate? (← getEnv) (← read) e then
     return e
   else
     -- We do not look for split candidates in proofs.
@@ -61,27 +70,29 @@ unsafe def visit (e : Expr) : OptionT FindM Expr := do
     | .mdata _ b       => visit b
     | .forallE _ d b _ => visit d <|> visit b -- We want to look for candidates at `A → B`
     | .letE _ _ v b _  => visit v <|> visit b
-    | .app f a         => visitApp? f a
+    | .app ..          => visitApp? e
     | _                => failure
 where
-  visitApp? (f a : Expr) : FindM (Option Expr) := do
-    if let some found ← visit f then
-      return found
-    if f.hasLooseBVars then
-      -- `getFunInfo` may fail, so we just visit all arguments.
-      visit a
+  visitApp? (e : Expr) : FindM (Option Expr) :=
+    e.withApp fun f args => do
+    -- See comment at `Canonicalizer.lean` regarding the case where
+    -- `f` has loose bound variables.
+    let info ← if f.hasLooseBVars then
+      pure {}
     else
-      let info ← getFunInfoNArgs f 1
-      if h : 0 < info.paramInfo.size then
-        let info := info.paramInfo[0]
+      getFunInfo f
+    for u : i in [0:args.size] do
+      let arg := args[i]
+      if h : i < info.paramInfo.size then
+        let info := info.paramInfo[i]
         unless info.isProp do
           if info.isExplicit then
-            let some found ← visit a | pure ()
+            let some found ← visit arg | pure ()
             return found
       else
-        let some found ← visit a | pure ()
+        let some found ← visit arg | pure ()
         return found
-      return none
+    visit f
 
 end FindSplitImpl
 

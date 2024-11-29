@@ -1354,7 +1354,7 @@ because it makes the value of the bitvector less than or equal to `2^(w-1)`.
 In the case when `n = 0`, then the shift right value equals the integer interpretation.
 -/
 @[simp]
-theorem toInt_ushiftRight_eq_ite {x : BitVec w} {n : Nat} :
+theorem toInt_ushiftRight {x : BitVec w} {n : Nat} :
     (x >>> n).toInt = if n = 0 then x.toInt else x.toNat >>> n := by
   by_cases hn : n = 0
   · simp [hn]

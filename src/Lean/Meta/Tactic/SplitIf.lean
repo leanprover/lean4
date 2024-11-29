@@ -67,17 +67,21 @@ where
   visitApp? (f a : Expr) : FindM (Option Expr) := do
     if let some found ← visit f then
       return found
-    let info ← getFunInfoNArgs f 1
-    if h : 0 < info.paramInfo.size then
-      let info := info.paramInfo[0]
-      unless info.isProp do
-        if info.isExplicit then
-          let some found ← visit a | pure ()
-          return found
+    if f.hasLooseBVars then
+      -- `getFunInfo` may fail, so we just visit all arguments.
+      visit a
     else
-      let some found ← visit a | pure ()
-      return found
-    return none
+      let info ← getFunInfoNArgs f 1
+      if h : 0 < info.paramInfo.size then
+        let info := info.paramInfo[0]
+        unless info.isProp do
+          if info.isExplicit then
+            let some found ← visit a | pure ()
+            return found
+      else
+        let some found ← visit a | pure ()
+        return found
+      return none
 
 end FindSplitImpl
 

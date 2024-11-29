@@ -401,6 +401,46 @@ namespace Array
 @[simp] theorem empty_eq {xs : Array α} : #[] = xs ↔ xs = #[] := by
   cases xs <;> simp
 
+/-! ### size -/
+
+theorem eq_empty_of_size_eq_zero (h : l.size = 0) : l = #[] := by
+  cases l
+  simp_all
+
+theorem ne_empty_of_size_eq_add_one (h : l.size = n + 1) : l ≠ #[] := by
+  cases l
+  simpa using List.ne_nil_of_length_eq_add_one h
+
+theorem ne_empty_of_size_pos (h : 0 < l.size) : l ≠ #[] := by
+  cases l
+  simpa using List.ne_nil_of_length_pos h
+
+@[simp] theorem size_eq_zero : l.size = 0 ↔ l = #[] :=
+  ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
+
+theorem size_pos_of_mem {a : α} {l : Array α} (h : a ∈ l) : 0 < l.size := by
+  cases l
+  simp only [mem_toArray] at h
+  simpa using List.length_pos_of_mem h
+
+theorem exists_mem_of_size_pos {l : Array α} (h : 0 < l.size) : ∃ a, a ∈ l := by
+  cases l
+  simpa using List.exists_mem_of_length_pos h
+
+theorem size_pos_iff_exists_mem {l : Array α} : 0 < l.size ↔ ∃ a, a ∈ l :=
+  ⟨exists_mem_of_size_pos, fun ⟨_, h⟩ => size_pos_of_mem h⟩
+
+theorem exists_mem_of_size_eq_add_one {l : Array α} (h : l.size = n + 1) : ∃ a, a ∈ l := by
+  cases l
+  simpa using List.exists_mem_of_length_eq_add_one h
+
+theorem size_pos {l : Array α} : 0 < l.size ↔ l ≠ #[] :=
+  Nat.pos_iff_ne_zero.trans (not_congr size_eq_zero)
+
+theorem size_eq_one {l : Array α} : l.size = 1 ↔ ∃ a, l = #[a] := by
+  cases l
+  simpa using List.length_eq_one
+
 /-! ### push -/
 
 theorem push_ne_empty {a : α} {xs : Array α} : xs.push a ≠ #[] := by
@@ -442,49 +482,33 @@ theorem push_eq_push {a b : α} {xs ys : Array α} : xs.push a = ys.push b ↔ a
   · rintro ⟨rfl, rfl⟩
     rfl
 
-/-! ### size -/
+theorem exists_push_of_ne_empty {xs : Array α} (h : xs ≠ #[]) :
+    ∃ (ys : Array α) (a : α), xs = ys.push a := by
+  rcases xs with ⟨xs⟩
+  simp only [ne_eq, mk.injEq] at h
+  exact ⟨(xs.take (xs.length - 1)).toArray, xs.getLast h, by simp⟩
 
-theorem eq_empty_of_size_eq_zero (h : l.size = 0) : l = #[] := by
-  cases l
-  simp_all
+theorem ne_empty_iff_exists_push {xs : Array α} :
+    xs ≠ #[] ↔ ∃ (ys : Array α) (a : α), xs = ys.push a :=
+  ⟨exists_push_of_ne_empty, fun ⟨_, _, eq⟩ => eq.symm ▸ push_ne_empty⟩
 
-theorem ne_empty_of_size_eq_add_one (h : l.size = n + 1) : l ≠ #[] := by
-  cases l
-  simpa using List.ne_nil_of_length_eq_add_one h
+theorem exists_push_of_size_pos {xs : Array α} (h : 0 < xs.size) :
+    ∃ (ys : Array α) (a : α), xs = ys.push a := by
+  replace h : xs ≠ #[] := size_pos.mp h
+  exact exists_push_of_ne_empty h
 
-theorem ne_empty_of_size_pos (h : 0 < l.size) : l ≠ #[] := by
-  cases l
-  simpa using List.ne_nil_of_length_pos h
+theorem size_pos_iff_exists_push {xs : Array α} :
+    0 < xs.size ↔ ∃ (ys : Array α) (a : α), xs = ys.push a :=
+  ⟨exists_push_of_size_pos, fun ⟨_, _, eq⟩ => by simp [eq]⟩
 
-@[simp] theorem size_eq_zero : l.size = 0 ↔ l = #[] :=
-  ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
+theorem exists_push_of_size_eq_add_one {xs : Array α} (h : xs.size = n + 1) :
+    ∃ (ys : Array α) (a : α), xs = ys.push a :=
+  exists_push_of_size_pos (by simp [h])
 
-theorem size_pos_of_mem {a : α} {l : Array α} (h : a ∈ l) : 0 < l.size := by
-  cases l
-  simp only [mem_toArray] at h
-  simpa using List.length_pos_of_mem h
+/-! ## L[i] and L[i]? -/
 
-theorem exists_mem_of_size_pos {l : Array α} (h : 0 < l.size) : ∃ a, a ∈ l := by
-  cases l
-  simpa using List.exists_mem_of_length_pos h
-
-theorem size_pos_iff_exists_mem {l : Array α} : 0 < l.size ↔ ∃ a, a ∈ l :=
-  ⟨exists_mem_of_size_pos, fun ⟨_, h⟩ => size_pos_of_mem h⟩
-
-theorem exists_mem_of_size_eq_add_one {l : Array α} (h : l.size = n + 1) : ∃ a, a ∈ l := by
-  cases l
-  simpa using List.exists_mem_of_length_eq_add_one h
-
-theorem size_pos {l : Array α} : 0 < l.size ↔ l ≠ #[] :=
-  Nat.pos_iff_ne_zero.trans (not_congr size_eq_zero)
-
-theorem size_eq_one {l : Array α} : l.size = 1 ↔ ∃ a, l = #[a] := by
-  cases l
-  simpa using List.length_eq_one
-
-/-! ### mem -/
-
-@[simp] theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
+@[deprecated List.getElem_toArray (since := "2024-11-29")]
+theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
 
 theorem getElem_eq_getElem_toList {a : Array α} (h : i < a.size) : a[i] = a.toList[i] := rfl
 
@@ -1511,6 +1535,18 @@ theorem getElem?_append {as bs : Array α} {n : Nat} :
   split <;> rename_i h
   · exact getElem?_append_left h
   · exact getElem?_append_right (by simpa using h)
+
+@[simp] theorem toArray_eq_append_iff {xs : List α} {as bs : Array α} :
+    xs.toArray = as ++ bs ↔ xs = as.toList ++ bs.toList := by
+  cases as
+  cases bs
+  simp
+
+@[simp] theorem append_eq_toArray_iff {as bs : Array α} {xs : List α} :
+    as ++ bs = xs.toArray ↔ as.toList ++ bs.toList = xs := by
+  cases as
+  cases bs
+  simp
 
 /-! ### flatten -/
 

@@ -26,6 +26,11 @@ register_builtin_option diagnostics.threshold : Nat := {
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
 }
 
+register_builtin_option Elab.async : Bool := {
+  defValue := false
+  descr := "perform elaboration using multiple threads where possible"
+}
+
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
 Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.

@@ -23,5 +23,14 @@ def isEmscripten : Bool := getIsEmscripten ()
 /-- The LLVM target triple of the current platform. Empty if missing at Lean compile time. -/
 def target : String := getTarget ()
 
+theorem numBits_pos : 0 < numBits := by
+  cases numBits_eq <;> next h => simp [h]
+
+theorem le_numBits : 32 ≤ numBits := by
+  cases numBits_eq <;> next h => simp [h]
+
+theorem numBits_le : numBits ≤ 64 := by
+  cases numBits_eq <;> next h => simp [h]
+
 end Platform
 end System

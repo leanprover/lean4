@@ -679,6 +679,10 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
 @[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
   rw [mul_mod, mod_mod, ← mul_mod]
 
+theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
+  conv => rhs; congr; rw [← mod_add_div x w]
+  simp
+
 /-! ### pow -/
 
 theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by
@@ -845,6 +849,18 @@ protected theorem pow_lt_pow_iff_pow_mul_le_pow {a n m : Nat} (h : 1 < a) :
     a ^ n < a ^ m ↔ a ^ n * a ≤ a ^ m := by
   rw [←Nat.pow_add_one, Nat.pow_le_pow_iff_right (by omega), Nat.pow_lt_pow_iff_right (by omega)]
   omega
+
+protected theorem lt_pow_self {n a : Nat} (h : 1 < a) : n < a ^ n := by
+  induction n with
+  | zero => exact Nat.zero_lt_one
+  | succ _ ih => exact Nat.lt_of_lt_of_le (Nat.add_lt_add_right ih 1) (Nat.pow_lt_pow_succ h)
+
+protected theorem lt_two_pow_self : n < 2 ^ n :=
+  Nat.lt_pow_self Nat.one_lt_two
+
+@[simp]
+protected theorem mod_two_pow_self : n % 2 ^ n = n :=
+  Nat.mod_eq_of_lt Nat.lt_two_pow_self
 
 @[simp]
 theorem two_pow_pred_mul_two (h : 0 < w) :

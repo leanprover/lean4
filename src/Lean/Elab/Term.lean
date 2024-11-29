@@ -1080,7 +1080,9 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
+          let (oldValType, valType) ← addPPExplicitToExposeDiff oldValType valType
           throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+        let (oldVal, val) ← addPPExplicitToExposeDiff oldVal val
         throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do

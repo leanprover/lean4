@@ -909,6 +909,7 @@ lean_object* l_Lean_Elab_Term_addAutoBoundImplicits_x27___rarg(lean_object*, lea
 static lean_object* l_Lean_Elab_elabSetOption_setOption___at_Lean_withSetOptionIn___spec__6___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_withoutCommandIncrementality___rarg___lambda__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_647____closed__8;
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabSetOption___at_Lean_withSetOptionIn___spec__1___closed__6;
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lean_Elab_Command_wrapAsyncAsSnapshot___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1011,7 +1012,6 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Command_runLinters_
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_liftCommandElabM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadRecDepthCommandElabM___lambda__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_instMonadLogCommandElabM___lambda__6___closed__1;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_withoutCommandIncrementality___rarg___lambda__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_647____closed__9;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Command_runLinters___spec__9___lambda__2___closed__1;
@@ -6740,7 +6740,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_208; uint8_t x_209; 
 x_208 = 2;
-x_209 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_208);
+x_209 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_208);
 if (x_209 == 0)
 {
 lean_object* x_210; 
@@ -6794,7 +6794,7 @@ x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
 x_202 = 1;
-x_203 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_202);
+x_203 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_202);
 if (x_203 == 0)
 {
 lean_dec(x_14);
@@ -13678,7 +13678,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_208; uint8_t x_209; 
 x_208 = 2;
-x_209 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_208);
+x_209 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_208);
 if (x_209 == 0)
 {
 lean_object* x_210; 
@@ -13732,7 +13732,7 @@ x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
 x_202 = 1;
-x_203 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_202);
+x_203 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_202);
 if (x_203 == 0)
 {
 lean_dec(x_14);
@@ -23568,7 +23568,6 @@ return x_24;
 else
 {
 lean_object* x_25; 
-lean_dec(x_1);
 x_25 = lean_box(x_10);
 lean_ctor_set(x_6, 0, x_25);
 return x_6;
@@ -23619,7 +23618,6 @@ return x_37;
 else
 {
 lean_object* x_38; lean_object* x_39; 
-lean_dec(x_1);
 x_38 = lean_box(x_28);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -23719,7 +23717,6 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
-lean_inc(x_21);
 x_35 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_21, x_4, x_5, x_6);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
@@ -23919,6 +23916,7 @@ lean_object* x_5;
 x_5 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }

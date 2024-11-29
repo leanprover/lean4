@@ -6,10 +6,8 @@ Author: Sofia Rodrigues
 */
 
 #include "runtime/uv_scheduler.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <uv.h>
+
+#ifndef LEAN_EMSCRIPTEN
 
 using namespace std;
 
@@ -29,7 +27,8 @@ void async_callback(uv_async_t *handle) {
 }
 
 void scheduler_wake(scheduler_t *scheduler) {
-    uv_async_send(&scheduler->async);
+    int result = uv_async_send(&scheduler->async);
+    lean_assert(result == 0);
 }
 
 // Initialize scheduler
@@ -77,3 +76,5 @@ void scheduler_run_loop(scheduler_t *scheduler) {
 }
 
 }
+
+#endif

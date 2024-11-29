@@ -5,9 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
 #pragma once
-#include <uv.h>
+#include <lean/lean.h>
+#include "runtime/debug.h"
+
+#ifndef LEAN_EMSCRIPTEN
 
 using namespace std;
+#include <uv.h>
 
 namespace lean {
 
@@ -29,3 +33,5 @@ void scheduler_wake(scheduler_t *scheduler);
 void scheduler_run_loop(scheduler_t *scheduler);
 
 }
+
+#endif

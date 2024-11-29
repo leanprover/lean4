@@ -287,7 +287,9 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
               | Exception.internal _ _ =>
                 logException ex
             finally
-              modify fun s => { savedState with messages := s.messages }
+              -- TODO: it would be good to preserve even more state (#4363) but preserving info
+              -- trees currently breaks from linters adding context-less info nodes
+              modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
 
 /--
 Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
@@ -346,7 +348,8 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : Comma
 
 def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   if !Elab.async.get (← getOptions) then
-    runLinters stx
+    withoutModifyingEnv do
+      runLinters stx
     return
 
   -- We only start one task for all linters for now as most linters are fast and we simply want

@@ -1619,10 +1619,6 @@ theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
 theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
   rw [signExtend_eq_setWidth_of_lt _ (Nat.le_refl _), setWidth_eq]
 
-
-example (a b : Nat) (ha : a + b ≤ c) : b ≤ c-a := by
-  exact Nat.le_sub_of_add_le' ha
-
 /-- Sign extending to a larger bitwidth depends on the msb.
 If the msb is false, then the result equals the original value.
 If the msb is true, then we add a value of `(2^v - 2^w)`, which arises from the sign extension. -/

@@ -71,9 +71,9 @@ def prio : Category := {}
 
 /-- `prec` is a builtin syntax category for precedences. A precedence is a value
 that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
-parsed as `1 + (2 * 3)` because `*` has a higher pr0ecedence than `+`.
+parsed as `1 + (2 * 3)` because `*` has a higher precedence than `+`.
 Higher numbers denote higher precedence.
-In addition to literals like `37`, there are some special named priorities:
+In addition to literals like `37`, there are some special named precedence levels:
 * `arg` for the precedence of function arguments
 * `max` for the highest precedence used in term parsers (not actually the maximum possible value)
 * `lead` for the precedence of terms not supposed to be used as arguments

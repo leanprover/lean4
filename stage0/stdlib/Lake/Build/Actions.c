@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_List_foldlM___at_Lake_compileLeanModule___spec__3___l
 LEAN_EXPORT lean_object* l_Lake_compileLeanModule(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_tar___lambda__1___closed__1;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_download___spec__1___closed__1;
-lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3358_(lean_object*);
 lean_object* l_System_FilePath_pathExists(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -71,6 +70,7 @@ static lean_object* l_Lake_tar___closed__4;
 static lean_object* l_Lake_untar___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_tar___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_compileStaticLib___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3364_(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_download___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_mkCmdLog(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_compileLeanModule___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -427,7 +427,7 @@ lean_object* x_28; lean_object* x_29;
 x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
-x_29 = l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3358_(x_28);
+x_29 = l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3364_(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 
@@ -615,29 +615,35 @@ x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_string_utf8_byte_size(x_5);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_nat_dec_eq(x_6, x_7);
-lean_dec(x_6);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_9 = l_Lake_compileLeanModule___lambda__2___closed__1;
-x_10 = lean_string_append(x_9, x_5);
-x_11 = l_Array_forIn_x27Unsafe_loop___at_Lake_compileLeanModule___spec__1___closed__2;
-x_12 = lean_string_append(x_10, x_11);
-x_13 = 1;
-x_14 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set_uint8(x_14, sizeof(void*)*1, x_13);
-x_15 = lean_array_push(x_3, x_14);
-x_16 = lean_box(0);
-x_17 = l_Lake_compileLeanModule___lambda__1(x_1, x_16, x_15, x_4);
-return x_17;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_9 = l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(x_5, x_6, x_7);
+x_10 = l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(x_5, x_9, x_6);
+x_11 = lean_string_utf8_extract(x_5, x_9, x_10);
+lean_dec(x_10);
+lean_dec(x_9);
+x_12 = l_Lake_compileLeanModule___lambda__2___closed__1;
+x_13 = lean_string_append(x_12, x_11);
+lean_dec(x_11);
+x_14 = l_Array_forIn_x27Unsafe_loop___at_Lake_compileLeanModule___spec__1___closed__2;
+x_15 = lean_string_append(x_13, x_14);
+x_16 = 1;
+x_17 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_16);
+x_18 = lean_array_push(x_3, x_17);
+x_19 = lean_box(0);
+x_20 = l_Lake_compileLeanModule___lambda__1(x_1, x_19, x_18, x_4);
+return x_20;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; 
-x_18 = lean_box(0);
-x_19 = l_Lake_compileLeanModule___lambda__1(x_1, x_18, x_3, x_4);
-return x_19;
+lean_object* x_21; lean_object* x_22; 
+lean_dec(x_6);
+x_21 = lean_box(0);
+x_22 = l_Lake_compileLeanModule___lambda__1(x_1, x_21, x_3, x_4);
+return x_22;
 }
 }
 }

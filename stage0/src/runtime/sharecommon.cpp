@@ -13,8 +13,8 @@ namespace lean {
 extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     lean_assert(!lean_is_scalar(o1));
     lean_assert(!lean_is_scalar(o2));
-    size_t sz1 = lean_object_byte_size(o1);
-    size_t sz2 = lean_object_byte_size(o2);
+    size_t sz1 = lean_object_data_byte_size(o1);
+    size_t sz2 = lean_object_data_byte_size(o2);
     if (sz1 != sz2) return false;
     // compare relevant parts of the header
     if (lean_ptr_tag(o1) != lean_ptr_tag(o2)) return false;
@@ -27,7 +27,7 @@ extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
 
 extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
     lean_assert(!lean_is_scalar(o));
-    size_t sz = lean_object_byte_size(o);
+    size_t sz = lean_object_data_byte_size(o);
     size_t header_sz = sizeof(lean_object);
     // hash relevant parts of the header
     unsigned init = hash(lean_ptr_tag(o), lean_ptr_other(o));

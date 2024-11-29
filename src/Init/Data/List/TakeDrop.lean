@@ -192,6 +192,24 @@ theorem take_concat_get (l : List α) (i : Nat) (h : i < l.length) :
   Eq.symm <| (append_left_inj _).1 <| (take_append_drop (i+1) l).trans <| by
     rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop_succ_eq_drop, take_append_drop]
 
+@[simp] theorem take_append_getElem (l : List α) (i : Nat) (h : i < l.length) :
+    (l.take i) ++ [l[i]] = l.take (i+1) := by
+  simpa using take_concat_get l i h
+
+@[simp] theorem take_append_getLast (l : List α) (h : l ≠ []) :
+    (l.take (l.length - 1)) ++ [l.getLast h] = l := by
+  rw [getLast_eq_getElem]
+  cases l
+  · contradiction
+  · simp
+
+@[simp] theorem take_append_getLast? (l : List α) :
+    (l.take (l.length - 1)) ++ l.getLast?.toList = l := by
+  match l with
+  | [] => simp
+  | x :: xs =>
+    simpa using take_append_getLast (x :: xs) (by simp)
+
 @[deprecated take_succ_cons (since := "2024-07-25")]
 theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
 
@@ -224,7 +242,7 @@ theorem take_succ {l : List α} {n : Nat} : l.take (n + 1) = l.take n ++ l[n]?.t
     · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
-@[deprecated (since := "2024-07-25")]
+@[deprecated "Deprecated without replacement." (since := "2024-07-25")]
 theorem drop_sizeOf_le [SizeOf α] (l : List α) (n : Nat) : sizeOf (l.drop n) ≤ sizeOf l := by
   induction l generalizing n with
   | nil => rw [drop_nil]; apply Nat.le_refl

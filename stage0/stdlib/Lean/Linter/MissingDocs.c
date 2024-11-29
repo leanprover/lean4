@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSyntaxAbbre
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__18;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_checkDecl___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_MissingDocs___hyg_7____closed__9;
-lean_object* l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSyntax__1___closed__3;
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterOption__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkRegisterOption___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -386,7 +385,6 @@ static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingD
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterBuiltinOption__1___closed__1;
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkDecl__1___closed__1;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(uint8_t, uint8_t);
 lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Linter_MissingDocs_checkDecl___spec__10(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
@@ -406,6 +404,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkSyntaxCat___boxed(lean_o
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_addHandler(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterOption__1(lean_object*);
+lean_object* l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_checkNotation___closed__4;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_800____lambda__8___closed__1;
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__1;
@@ -451,6 +450,7 @@ static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkMixfix__1___clos
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_770_(lean_object*);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_declModifiersPubNoDoc___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_SimpleHandler_toHandler___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__5;
@@ -3135,7 +3135,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_4, x_8);
+x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
@@ -3749,7 +3749,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_4, x_8);
+x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
@@ -4275,7 +4275,7 @@ x_20 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_20, 0, x_8);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = 1;
-x_22 = l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(x_2, x_20, x_21, x_4, x_5, x_6);
+x_22 = l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(x_2, x_20, x_21, x_4, x_5, x_6);
 return x_22;
 }
 else
@@ -4312,7 +4312,7 @@ x_35 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_35, 0, x_23);
 lean_ctor_set(x_35, 1, x_34);
 x_36 = 1;
-x_37 = l_Lean_logAt___at_Lean_Elab_Command_elabCommand___spec__4(x_2, x_35, x_36, x_4, x_5, x_6);
+x_37 = l_Lean_logAt___at_Lean_Elab_Command_withLoggingExceptions___spec__3(x_2, x_35, x_36, x_4, x_5, x_6);
 return x_37;
 }
 }

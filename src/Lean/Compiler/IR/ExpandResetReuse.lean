@@ -134,15 +134,15 @@ abbrev M := ReaderT Context (StateM Nat)
   modifyGet fun n => ({ idx := n }, n + 1)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
-  mask.size.foldM (init := b) fun i b =>
-    match mask.get! i with
+  mask.size.foldM (init := b) fun i _ b =>
+    match mask[i] with
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh
       pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
-  zs.size.fold (init := b) fun i b => FnBody.set y i (zs.get! i) b
+  zs.size.fold (init := b) fun i _ b => FnBody.set y i zs[i] b
 
 /-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=

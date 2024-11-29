@@ -269,6 +269,10 @@ theorem ofBool_eq_iff_eq : ∀ {b b' : Bool}, BitVec.ofBool b = BitVec.ofBool b'
   getLsbD (x#'lt) i = x.testBit i := by
   simp [getLsbD, BitVec.ofNatLt]
 
+@[simp] theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
+    getMsbD (x#'h) i = (decide (i < n) && x.testBit (n - 1 - i)) := by
+  simp [getMsbD, getLsbD]
+
 @[simp, bv_toNat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat']
 
@@ -759,6 +763,10 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
 @[simp] theorem getLsbD_allOnes : (allOnes v).getLsbD i = decide (i < v) := by
   simp [allOnes]
 
+@[simp] theorem getMsbD_allOnes : (allOnes v).getMsbD i = decide (i < v) := by
+  simp [allOnes]
+  omega
+
 @[simp] theorem getElem_allOnes (i : Nat) (h : i < v) : (allOnes v)[i] = true := by
   simp [getElem_eq_testBit_toNat, h]
 
@@ -775,6 +783,12 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
 
 @[simp] theorem toNat_or (x y : BitVec v) :
     BitVec.toNat (x ||| y) = BitVec.toNat x ||| BitVec.toNat y := rfl
+
+@[simp] theorem toInt_or (x y : BitVec w) :
+    BitVec.toInt (x ||| y) = Int.bmod (BitVec.toNat x ||| BitVec.toNat y) (2^w) := by
+  rw_mod_cast [Int.bmod_def, BitVec.toInt, toNat_or, Nat.mod_eq_of_lt
+    (Nat.or_lt_two_pow (BitVec.isLt x) (BitVec.isLt y))]
+  omega
 
 @[simp] theorem toFin_or (x y : BitVec v) :
     BitVec.toFin (x ||| y) = BitVec.toFin x ||| BitVec.toFin y := by
@@ -843,6 +857,12 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
 @[simp] theorem toNat_and (x y : BitVec v) :
     BitVec.toNat (x &&& y) = BitVec.toNat x &&& BitVec.toNat y := rfl
 
+@[simp] theorem toInt_and (x y : BitVec w) :
+    BitVec.toInt (x &&& y) = Int.bmod (BitVec.toNat x &&& BitVec.toNat y) (2^w) := by
+  rw_mod_cast [Int.bmod_def, BitVec.toInt, toNat_and, Nat.mod_eq_of_lt
+    (Nat.and_lt_two_pow x.toNat (BitVec.isLt y))]
+  omega
+
 @[simp] theorem toFin_and (x y : BitVec v) :
     BitVec.toFin (x &&& y) = BitVec.toFin x &&& BitVec.toFin y := by
   apply Fin.eq_of_val_eq
@@ -909,6 +929,12 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) wher
 
 @[simp] theorem toNat_xor (x y : BitVec v) :
     BitVec.toNat (x ^^^ y) = BitVec.toNat x ^^^ BitVec.toNat y := rfl
+
+@[simp] theorem toInt_xor (x y : BitVec w) :
+    BitVec.toInt (x ^^^ y) = Int.bmod (BitVec.toNat x ^^^ BitVec.toNat y) (2^w) := by
+  rw_mod_cast [Int.bmod_def, BitVec.toInt, toNat_xor, Nat.mod_eq_of_lt
+    (Nat.xor_lt_two_pow (BitVec.isLt x) (BitVec.isLt y))]
+  omega
 
 @[simp] theorem toFin_xor (x y : BitVec v) :
     BitVec.toFin (x ^^^ y) = BitVec.toFin x ^^^ BitVec.toFin y := by
@@ -987,6 +1013,13 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
           _ ≤ 2 ^ i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two w
       · simp
 
+@[simp] theorem toInt_not {x : BitVec w} :
+    (~~~x).toInt = Int.bmod (2^w - 1 - x.toNat) (2^w) := by
+  rw_mod_cast [BitVec.toInt, BitVec.toNat_not, Int.bmod_def]
+  simp [show ((2^w : Nat) : Int) - 1 - x.toNat = ((2^w - 1 - x.toNat) : Nat) by omega]
+  rw_mod_cast [Nat.mod_eq_of_lt (by omega)]
+  omega
+
 @[simp] theorem ofInt_negSucc_eq_not_ofNat {w n : Nat} :
     BitVec.ofInt w (Int.negSucc n) = ~~~.ofNat w n := by
   simp only [BitVec.ofInt, Int.toNat, Int.ofNat_eq_coe, toNat_eq, toNat_ofNatLt, toNat_not,
@@ -1009,6 +1042,10 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   omega
 
 @[simp] theorem getLsbD_not {x : BitVec v} : (~~~x).getLsbD i = (decide (i < v) && ! x.getLsbD i) := by
+  by_cases h' : i < v <;> simp_all [not_def]
+
+@[simp] theorem getMsbD_not {x : BitVec v} :
+    (~~~x).getMsbD i = (decide (i < v) && ! x.getMsbD i) := by
   by_cases h' : i < v <;> simp_all [not_def]
 
 @[simp] theorem getElem_not {x : BitVec w} {i : Nat} (h : i < w) : (~~~x)[i] = !x[i] := by
@@ -1585,14 +1622,17 @@ theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
 /-- Sign extending to a larger bitwidth depends on the msb.
 If the msb is false, then the result equals the original value.
 If the msb is true, then we add a value of `(2^v - 2^w)`, which arises from the sign extension. -/
-theorem toNat_signExtend_of_le (x : BitVec w) {v : Nat} (hv : w ≤ v) :
+
+private theorem toNat_signExtend_of_le (x : BitVec w) {v : Nat} (hv : w ≤ v) :
     (x.signExtend v).toNat = x.toNat + if x.msb then 2^v - 2^w else 0 := by
   apply Nat.eq_of_testBit_eq
   intro i
   have ⟨k, hk⟩ := Nat.exists_eq_add_of_le hv
   rw [hk, testBit_toNat, getLsbD_signExtend, Nat.pow_add, ← Nat.mul_sub_one, Nat.add_comm (x.toNat)]
   by_cases hx : x.msb
-  · simp [hx, Nat.testBit_mul_pow_two_add _ x.isLt, testBit_toNat]
+  · simp only [hx, Bool.if_true_right, ↓reduceIte,
+      Nat.testBit_mul_pow_two_add _ x.isLt,
+      testBit_toNat, Nat.testBit_two_pow_sub_one]
     -- Case analysis on i being in the intervals [0..w), [w..w + k), [w+k..∞)
     have hi : i < w ∨ (w ≤ i ∧ i < w + k) ∨ w + k ≤ i := by omega
     rcases hi with hi | hi | hi
@@ -1600,7 +1640,8 @@ theorem toNat_signExtend_of_le (x : BitVec w) {v : Nat} (hv : w ≤ v) :
     · simp [hi]; omega
     · simp [hi, show ¬ (i < w + k) by omega, show ¬ (i < w) by omega]
       omega
-  · simp [hx, Nat.testBit_mul_pow_two_add _ x.isLt, testBit_toNat]
+  · simp only [hx, Bool.if_false_right,
+      Bool.false_eq_true, ↓reduceIte, Nat.zero_add, testBit_toNat]
     have hi : i < w ∨ (w ≤ i ∧ i < w + k) ∨ w + k ≤ i := by omega
     rcases hi with hi | hi | hi
     · simp [hi]; omega
@@ -1618,18 +1659,17 @@ theorem toNat_signExtend (x : BitVec w) {v : Nat} :
   · have : 2^w ≤ 2^v := Nat.pow_le_pow_of_le_right Nat.two_pos (by omega)
     rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
 
-
 /-
 If the current width `w` is smaller than the extended width `v`,
 then the value when interpreted as an integer does not change.
 -/
-theorem toInt_signExtend_of_lt (x : BitVec w) (hv : w < v):
+theorem toInt_signExtend_of_lt {x : BitVec w} (hv : w < v):
     (x.signExtend v).toInt = x.toInt := by
   simp only [toInt_eq_msb_cond, toNat_signExtend]
   have : (x.signExtend v).msb = x.msb := by
     rw [msb_eq_getLsbD_last, getLsbD_eq_getElem (Nat.sub_one_lt_of_lt hv)]
     simp [getElem_signExtend, Nat.le_sub_one_of_lt hv]
-  have H := Nat.pow_le_pow_of_le_right Nat.two_pos (Nat.le_of_lt hv)
+  have H : 2^w ≤ 2^v := Nat.pow_le_pow_of_le_right (by omega) (by omega)
   simp only [this, toNat_setWidth, Int.natCast_add, Int.ofNat_emod, Int.natCast_mul]
   by_cases h : x.msb
   <;> norm_cast
@@ -1641,9 +1681,20 @@ If the current width `w` is larger than the extended width `v`,
 then the value when interpreted as an integer is truncated,
 and we compute a modulo by `2^v`.
 -/
-theorem toInt_signExtend_of_le (x : BitVec w) (hv : v ≤ w) :
-    (x.signExtend v).toInt = Int.bmod (x.toNat) (2^v) := by
+theorem toInt_signExtend_of_le {x : BitVec w} (hv : v ≤ w) :
+    (x.signExtend v).toInt = Int.bmod x.toNat (2^v) := by
   simp [signExtend_eq_setWidth_of_lt _ hv]
+
+/-
+Interpreting the sign extension of `(x : BitVec w)` to width `v`
+computes `x % 2^v` (where `%` is the balanced mod).
+-/
+theorem toInt_signExtend (x : BitVec w) :
+    (x.signExtend v).toInt = Int.bmod x.toNat (2^(min v w)) := by
+  by_cases hv : v ≤ w
+  · simp [toInt_signExtend_of_le hv, Nat.min_eq_left hv]
+  · simp only [Nat.not_le] at hv
+    rw [toInt_signExtend_of_lt hv, Nat.min_eq_right (by omega), toInt_eq_toNat_bmod]
 
 /-! ### append -/
 
@@ -2711,12 +2762,6 @@ theorem getElem_rotateLeft {x : BitVec w} {r i : Nat} (h : i < w) :
       if h' : i < r % w then x[(w - (r % w) + i)] else x[i - (r % w)] := by
   simp [← BitVec.getLsbD_eq_getElem, h]
 
-/-- If `w ≤ x < 2 * w`, then `x % w = x - w` -/
-theorem mod_eq_sub_of_le_of_lt {x w : Nat} (x_le : w ≤ x) (x_lt : x < 2 * w) :
-    x % w = x - w := by
-  rw [Nat.mod_eq_sub_mod, Nat.mod_eq_of_lt (by omega)]
-  omega
-
 theorem getMsbD_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} {i : Nat} (hi : i < w - r) :
     (x.rotateLeftAux r).getMsbD i = x.getMsbD (r + i) := by
   rw [rotateLeftAux, getMsbD_or]
@@ -2725,6 +2770,20 @@ theorem getMsbD_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} {i : Nat} (hi : i <
 theorem getMsbD_rotateLeftAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ w - r) :
     (x.rotateLeftAux r).getMsbD i = (decide (i < w) && x.getMsbD (i - (w - r))) := by
   simp [rotateLeftAux, getMsbD_or, show i + r ≥ w by omega, show ¬i < w - r by omega]
+
+/--
+If a number `w * n ≤ i < w * (n + 1)`, then `i - w * n` equals `i % w`.
+This is true by subtracting `w * n` from the inequality, giving
+`0 ≤ i - w * n < w`, which uniquely identifies `i % w`.
+-/
+private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w * (n + 1)) :
+    i - w * n = i % w := by
+  rw [Nat.mod_def]
+  congr
+  symm
+  apply Nat.div_eq_of_lt_le
+    (by rw [Nat.mul_comm]; omega)
+    (by rw [Nat.mul_comm]; omega)
 
 /-- When `r < w`, we give a formula for `(x.rotateLeft r).getMsbD i`. -/
 theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
@@ -2738,8 +2797,8 @@ theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
       by_cases h₁ : n < w + 1
       · simp only [h₁, decide_true, Bool.true_and]
         have h₂ : (r + n) < 2 * (w + 1) := by omega
-        rw [mod_eq_sub_of_le_of_lt (by omega) (by omega)]
         congr 1
+        rw [← Nat.sub_mul_eq_mod_of_lt_of_le (n := 1) (by omega) (by omega), Nat.mul_one]
         omega
       · simp [h₁]
 
@@ -3056,20 +3115,6 @@ theorem replicate_succ_eq {x : BitVec w} :
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
   simp [replicate]
 
-/--
-If a number `w * n ≤ i < w * (n + 1)`, then `i - w * n` equals `i % w`.
-This is true by subtracting `w * n` from the inequality, giving
-`0 ≤ i - w * n < w`, which uniquely identifies `i % w`.
--/
-private theorem Nat.sub_mul_eq_mod_of_lt_of_le (hlo : w * n ≤ i) (hhi : i < w * (n + 1)) :
-    i - w * n = i % w := by
-  rw [Nat.mod_def]
-  congr
-  symm
-  apply Nat.div_eq_of_lt_le
-    (by rw [Nat.mul_comm]; omega)
-    (by rw [Nat.mul_comm]; omega)
-
 @[simp]
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getLsbD i =
@@ -3174,6 +3219,11 @@ theorem toInt_neg_of_ne_intMin {x : BitVec w} (rs : x ≠ intMin w) :
   simp only [BitVec.toInt, BitVec.toNat_neg, BitVec.sub_toNat_mod_cancel x_zero]
   have := @Nat.two_pow_pred_mul_two w (by omega)
   split <;> split <;> omega
+
+theorem toInt_neg_eq_ite {x : BitVec w} :
+    (-x).toInt = if x = intMin w then x.toInt else -(x.toInt) := by
+  by_cases hx : x = intMin w <;>
+    simp [hx, neg_intMin, toInt_neg_of_ne_intMin]
 
 theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
@@ -3307,6 +3357,73 @@ theorem getElem_abs {i : Nat} {x : BitVec w} (h : i < w) :
 theorem getMsbD_abs {i : Nat} {x : BitVec w} :
     getMsbD (x.abs) i = if x.msb then getMsbD (-x) i else getMsbD x i := by
   by_cases h : x.msb <;> simp [BitVec.abs, h]
+
+/-
+The absolute value of `x : BitVec w` is naively a case split on the sign of `x`.
+However, recall that when `x = intMin w`, `-x = x`.
+Thus, the full value of `abs x` is computed by the case split:
+- If `x : BitVec w` is `intMin`, then its absolute value is also `intMin w`, and
+  thus `toInt` will equal `intMin.toInt`.
+- Otherwise, if `x` is negative, then `x.abs.toInt = (-x).toInt`.
+- If `x` is positive, then it is equal to `x.abs.toInt = x.toInt`.
+-/
+theorem toInt_abs_eq_ite {x : BitVec w} :
+  x.abs.toInt =
+    if x = intMin w then (intMin w).toInt
+    else if x.msb then -x.toInt
+    else x.toInt := by
+  by_cases hx : x = intMin w
+  · simp [hx]
+  · simp [hx]
+    by_cases hx₂ : x.msb
+    · simp [hx₂, abs_eq, toInt_neg_of_ne_intMin hx]
+    · simp [hx₂, abs_eq]
+
+
+
+/-
+The absolute value of `x : BitVec w` is a case split on the sign of `x`, when `x ≠ intMin w`.
+This is a variant of `toInt_abs_eq_ite`.
+-/
+theorem toInt_abs_eq_ite_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
+  x.abs.toInt = if x.msb then -x.toInt else x.toInt := by
+  simp [toInt_abs_eq_ite, hx]
+
+
+/--
+The absolute value of `x : BitVec w`, interpreted as an integer, is a case split:
+- When `x = intMin w`, then `x.abs = intMin w`
+- Otherwise, `x.abs.toInt` equals the absolute value (`x.toInt.natAbs`).
+
+This is a simpler version of `BitVec.toInt_abs_eq_ite`, which hides a case split on `x.msb`.
+-/
+theorem toInt_abs_eq_natAbs {x : BitVec w} : x.abs.toInt =
+    if x = intMin w then (intMin w).toInt else x.toInt.natAbs := by
+  rw [toInt_abs_eq_ite]
+  by_cases hx : x = intMin w
+  · simp [hx]
+  · simp [hx]
+    by_cases h : x.msb
+    · simp only [h, ↓reduceIte]
+      have : x.toInt < 0 := by
+        rw [toInt_neg_iff]
+        have := msb_eq_true_iff_two_mul_ge.mp h
+        omega
+      omega
+    · simp only [h, Bool.false_eq_true, ↓reduceIte]
+      have : 0 ≤ x.toInt := by
+        rw [toInt_pos_iff]
+        exact msb_eq_false_iff_two_mul_lt.mp (by simp [h])
+      omega
+
+/-
+The absolute value of `(x : BitVec w)`, when interpreted as an integer,
+is the absolute value of `x.toInt` when `(x ≠ intMin)`.
+-/
+theorem toInt_abs_eq_natAbs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
+    x.abs.toInt = x.toInt.natAbs := by
+  simp [toInt_abs_eq_natAbs, hx]
+
 
 /-! ### Decidable quantifiers -/
 

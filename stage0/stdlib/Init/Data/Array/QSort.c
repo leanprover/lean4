@@ -15,8 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_qpartition_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qpartition_loop(lean_object*);
-lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qpartition___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Array_qsortOrd___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___rarg(lean_object*, lean_object*, lean_object*, lean_object*);

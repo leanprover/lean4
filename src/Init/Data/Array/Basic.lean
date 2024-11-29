@@ -13,6 +13,7 @@ import Init.Data.ToString.Basic
 import Init.GetElem
 import Init.Data.List.ToArray
 import Init.Data.Array.Set
+
 universe u v w
 
 /-! ### Array literal syntax -/
@@ -165,15 +166,15 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_fswap"]
-def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
+def swap (a : Array α) (i j : @& Nat) (hi : i < a.size := by get_elem_tactic) (hj : j < a.size := by get_elem_tactic) : Array α :=
   let v₁ := a[i]
   let v₂ := a[j]
   let a'  := a.set i v₂
-  a'.set j v₁ (Nat.lt_of_lt_of_eq j.isLt (size_set a i v₂ _).symm)
+  a'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set a i v₂ _).symm)
 
-@[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
+@[simp] theorem size_swap (a : Array α) (i j : Nat) {hi hj} : (a.swap i j hi hj).size = a.size := by
   show ((a.set i a[j]).set j a[i]
-    (Nat.lt_of_lt_of_eq j.isLt (size_set a i a[j] _).symm)).size = a.size
+    (Nat.lt_of_lt_of_eq hj (size_set a i a[j] _).symm)).size = a.size
   rw [size_set, size_set]
 
 /--
@@ -183,11 +184,13 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_swap"]
-def swap! (a : Array α) (i j : @& Nat) : Array α :=
+def swapIfInBounds (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
-  if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
+  if h₂ : j < a.size then swap a i j
   else a
   else a
+
+@[deprecated swapIfInBounds (since := "2024-11-24")] abbrev swap! := @swapIfInBounds
 
 /-! ### GetElem instance for `USize`, backed by `uget` -/
 
@@ -233,7 +236,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 
 /-- The array `#[0, 1, ..., n - 1]`. -/
 def range (n : Nat) : Array Nat :=
-  n.fold (flip Array.push) (mkEmpty n)
+  ofFn fun (i : Fin n) => i
 
 def singleton (v : α) : Array α :=
   mkArray 1 v
@@ -249,7 +252,7 @@ def get? (a : Array α) (i : Nat) : Option α :=
 def back? (a : Array α) : Option α :=
   a[a.size - 1]?
 
-@[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
+@[inline] def swapAt (a : Array α) (i : Nat) (v : α) (hi : i < a.size := by get_elem_tactic) : α × Array α :=
   let e := a[i]
   let a := a.set i v
   (e, a)
@@ -257,7 +260,7 @@ def back? (a : Array α) : Option α :=
 @[inline]
 def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
-    swapAt a ⟨i, h⟩ v
+    swapAt a i v
   else
     have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
@@ -746,7 +749,7 @@ where
   loop (as : Array α) (i : Nat) (j : Fin as.size) :=
     if h : i < j then
       have := termination h
-      let as := as.swap ⟨i, Nat.lt_trans h j.2⟩ j
+      let as := as.swap i j (Nat.lt_trans h j.2)
       have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
       loop as (i+1) ⟨j-1, this⟩
     else
@@ -786,7 +789,7 @@ it has to backshift all elements at positions greater than `i`.-/
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def eraseIdx (a : Array α) (i : Nat) (h : i < a.size := by get_elem_tactic) : Array α :=
   if h' : i + 1 < a.size then
-    let a' := a.swap ⟨i + 1, h'⟩ ⟨i, h⟩
+    let a' := a.swap (i + 1) i
     a'.eraseIdx (i + 1) (by simp [a', h'])
   else
     a.pop
@@ -833,7 +836,7 @@ def eraseP (as : Array α) (p : α → Bool) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (as : Array α) (j : Fin as.size) :=
     if i < j then
-      let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
+      let j' : Fin as.size := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
       let as := as.swap j' j
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
     else
@@ -883,12 +886,12 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
     false
 
 @[semireducible, specialize] -- This is otherwise irreducible because it uses well-founded recursion.
-def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) : Array γ :=
+def zipWithAux (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat) (cs : Array γ) : Array γ :=
   if h : i < as.size then
     let a := as[i]
     if h : i < bs.size then
       let b := bs[i]
-      zipWithAux f as bs (i+1) <| cs.push <| f a b
+      zipWithAux as bs f (i+1) <| cs.push <| f a b
     else
       cs
   else
@@ -896,10 +899,22 @@ def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) 
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
-  zipWithAux f as bs 0 #[]
+  zipWithAux as bs f 0 #[]
 
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
   zipWith as bs Prod.mk
+
+def zipWithAll (as : Array α) (bs : Array β) (f : Option α → Option β → γ) : Array γ :=
+  go as bs 0 #[]
+where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
+  if i < max as.size bs.size then
+    let a := as[i]?
+    let b := bs[i]?
+    go as bs (i+1) (cs.push (f a b))
+  else
+    cs
+  termination_by max as.size bs.size - i
+  decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def unzip (as : Array (α × β)) : Array α × Array β :=
   as.foldl (init := (#[], #[])) fun (as, bs) (a, b) => (as.push a, bs.push b)

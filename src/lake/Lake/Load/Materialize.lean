@@ -148,7 +148,7 @@ def Dependency.materialize
       if ver.startsWith "git#" then
         return ver.drop 4
       else
-        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
+        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#<rev>\")"
     let depName := dep.name.toString (escape := false)
     let pkg ←
       match (← Reservoir.fetchPkg? lakeEnv dep.scope depName |>.toLogT) with

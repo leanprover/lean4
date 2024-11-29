@@ -24,10 +24,7 @@ def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Decl
 
 private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  if debug.skipKernelTC.get opts then
-    addDeclWithoutChecking env decl
-  else
-    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
+  env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
 
 @[deprecated "use `Lean.addDecl` instead to ensure new namespaces are registered" (since := "2024-12-03")]
 def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)

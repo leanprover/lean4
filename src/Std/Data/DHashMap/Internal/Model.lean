@@ -188,7 +188,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     omega
   rw [updateAllBuckets, toListModel, Array.toList_map, List.flatMap_eq_foldl, List.foldl_map,
     toListModel, List.flatMap_eq_foldl]
-  suffices ∀ (l : List (AssocList α β)) (l' : List ((a: α) × δ a)) (l'' : List ((a : α) × β a)),
+  suffices ∀ (l : List (AssocList α β)) (l' : List ((a : α) × δ a)) (l'' : List ((a : α) × β a)),
       Perm (g l'') l' →
       Perm (l.foldl (fun acc a => acc ++ (f a).toList) l')
         (g (l.foldl (fun acc a => acc ++ a.toList) l'')) by
@@ -323,7 +323,7 @@ def filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) : Raw₀ α β
   ⟨withComputedSize (updateAllBuckets m.1.buckets fun l => l.filter f), by simpa using m.2⟩
 
 /-- Internal implementation detail of the hash map -/
-def insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): Raw₀ α β :=
+def insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l : List ((a : α) × β a)) : Raw₀ α β :=
   match l with
   | .nil => m
   | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
@@ -461,7 +461,7 @@ theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl
 
-theorem insertMany_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l: List ((a : α) × β a)): insertMany m l = insertListₘ m l := by
+theorem insertMany_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l : List ((a : α) × β a)) : insertMany m l = insertListₘ m l := by
   simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α β → Prop),
     (∀ {m'' : Raw₀ α β} {a : α} {b : β a}, P m'' → P (m''.insert a b)) → P m → P m' }),

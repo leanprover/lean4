@@ -94,7 +94,7 @@ Checks whether a key is present in a map, and unconditionally inserts a value fo
 Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
-    Bool × Raw α β:=
+    Bool × Raw α β :=
   if h : 0 < m.buckets.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
     ⟨replaced, r⟩

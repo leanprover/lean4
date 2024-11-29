@@ -765,7 +765,7 @@ theorem getKey!_eq_default_of_contains_eq_false [EquivBEq α] [LawfulHashable α
     m.contains a = false → m.getKey! a = default := by
   simp_to_raw using Raw₀.getKey!_eq_default
 
-theorem getKey!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α}:
+theorem getKey!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α} :
     ¬a ∈ m → m.getKey! a = default := by
   simpa [mem_iff_contains] using getKey!_eq_default_of_contains_eq_false h
 
@@ -1028,7 +1028,7 @@ theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   simp_to_raw using Raw₀.length_keys ⟨m, h.size_buckets_pos⟩ h
 
 @[simp]
-theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h : m.WF):
+theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.isEmpty = m.isEmpty := by
   simp_to_raw using Raw₀.isEmpty_keys ⟨m, h.size_buckets_pos⟩
 

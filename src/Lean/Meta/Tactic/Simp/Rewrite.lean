@@ -108,13 +108,19 @@ where
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
+private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
+  if thm.rfl then
+    return (← getConfig).implicitDefEqProofs
+  else
+    return false
+
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs thm.origin bis xs) do
         return none
-      let proof? ← if thm.rfl then
+      let proof? ← if (← useImplicitDefEqProof thm) then
         pure none
       else
         let proof ← instantiateMVars (mkAppN val xs)

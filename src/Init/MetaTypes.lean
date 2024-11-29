@@ -224,7 +224,8 @@ structure Config where
   -/
   index             : Bool := true
   /--
-  This option does not have any effect (yet).
+  If `implicitDefEqProofs := true`, `simp` does not create proof terms when the
+  input and output terms are definitionally equal.
   -/
   implicitDefEqProofs : Bool := true
   deriving Inhabited, BEq

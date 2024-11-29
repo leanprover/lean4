@@ -61,24 +61,23 @@ unsafe def visit (e : Expr) : OptionT FindM Expr := do
     | .mdata _ b       => visit b
     | .forallE _ d b _ => visit d <|> visit b -- We want to look for candidates at `A → B`
     | .letE _ _ v b _  => visit v <|> visit b
-    | .app ..          => visitApp? e
+    | .app f a         => visitApp? f a
     | _                => failure
 where
-  visitApp? (e : Expr) : FindM (Option Expr) :=
-    e.withApp fun f args => do
-    let info ← getFunInfo f
-    for u : i in [0:args.size] do
-      let arg := args[i]
-      if h : i < info.paramInfo.size then
-        let info := info.paramInfo[i]
-        unless info.isProp do
-          if info.isExplicit then
-            let some found ← visit arg | pure ()
-            return found
-      else
-        let some found ← visit arg | pure ()
-        return found
-    visit f
+  visitApp? (f a : Expr) : FindM (Option Expr) := do
+    if let some found ← visit f then
+      return found
+    let info ← getFunInfoNArgs f 1
+    if h : 0 < info.paramInfo.size then
+      let info := info.paramInfo[0]
+      unless info.isProp do
+        if info.isExplicit then
+          let some found ← visit a | pure ()
+          return found
+    else
+      let some found ← visit a | pure ()
+      return found
+    return none
 
 end FindSplitImpl
 

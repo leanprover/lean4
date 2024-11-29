@@ -171,6 +171,7 @@ static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level__
 static lean_object* l_Lean_Level_mvarId_x21___closed__2;
 LEAN_EXPORT uint8_t l_Lean_Level_occurs(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_1013____closed__17;
+extern uint64_t l_instInhabitedUInt64;
 static lean_object* l_Lean_Level_mkData___closed__2;
 LEAN_EXPORT lean_object* l_Nat_imax___boxed(lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
@@ -321,7 +322,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Level_normalize___spec__1(lean_object
 LEAN_EXPORT lean_object* l_Lean_Level_getOffset___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_getParamSubst(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_format___closed__1;
-extern uint64_t l_UInt64_instInhabited;
 LEAN_EXPORT lean_object* l_Lean_instBEqLevelMVarId;
 LEAN_EXPORT lean_object* l_Lean_Level_mkNaryMax(lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_1013____closed__22;
@@ -448,7 +448,7 @@ static uint64_t _init_l_Lean_instInhabitedData() {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_UInt64_instInhabited;
+x_1 = l_instInhabitedUInt64;
 return x_1;
 }
 }

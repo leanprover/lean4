@@ -75,6 +75,7 @@ static lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init
 LEAN_EXPORT lean_object* l_IO_println(lean_object*);
 lean_object* lean_io_prim_handle_read(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_readFile___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Runtime_markPersistent___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_reprTaskState____x40_Init_System_IO___hyg_1242____closed__17;
 lean_object* lean_io_check_canceled(lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_reprTaskState____x40_Init_System_IO___hyg_1242____closed__16;
@@ -343,6 +344,7 @@ LEAN_EXPORT uint8_t l___private_Init_System_IO_0__IO_ordTaskState____x40_Init_Sy
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_ofBuffer___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_mk___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_isTty___boxed(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_System_IO___hyg_1713____closed__38;
 LEAN_EXPORT lean_object* l_IO_print(lean_object*);
@@ -384,6 +386,7 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_System_IO___hyg_1713____closed__30;
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_3089____closed__4;
 LEAN_EXPORT lean_object* l_IO_instMaxTaskState___boxed(lean_object*, lean_object*);
+lean_object* lean_runtime_mark_multi_threaded(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -681,6 +684,7 @@ static lean_object* l___private_Init_System_IO_0__IO_reprTaskState____x40_Init_S
 LEAN_EXPORT lean_object* l_IO_sleep___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftBaseIOEIO(lean_object*, lean_object*);
+lean_object* lean_runtime_mark_persistent(lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_2649____closed__7;
 lean_object* lean_io_get_random_bytes(size_t, lean_object*);
 lean_object* lean_io_process_get_pid(lean_object*);
@@ -5821,12 +5825,12 @@ return x_1;
 static lean_object* _init_l_IO_FS_instInhabitedSystemTime___closed__1() {
 _start:
 {
-uint32_t x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = 0;
-x_2 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_2835____closed__6;
+lean_object* x_1; uint32_t x_2; lean_object* x_3; 
+x_1 = l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_2835____closed__6;
+x_2 = l_IO_FS_instInhabitedStream___lambda__1___closed__1;
 x_3 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
@@ -11586,6 +11590,22 @@ lean_ctor_set(x_89, 1, x_3);
 return x_89;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_runtime_mark_multi_threaded(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Runtime_markPersistent___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_runtime_mark_persistent(x_2, x_3);
+return x_4;
 }
 }
 lean_object* initialize_Init_System_IOError(uint8_t builtin, lean_object*);

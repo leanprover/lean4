@@ -1692,6 +1692,7 @@ static inline uint8_t lean_uint8_dec_le(uint8_t a1, uint8_t a2) { return a1 <= a
 static inline uint16_t lean_uint8_to_uint16(uint8_t a) { return ((uint16_t)a); }
 static inline uint32_t lean_uint8_to_uint32(uint8_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_uint8_to_uint64(uint8_t a) { return ((uint64_t)a); }
+static inline size_t lean_uint8_to_usize(uint8_t a) { return ((size_t)a); }
 
 /* UInt16 */
 
@@ -1727,6 +1728,7 @@ static inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <
 static inline uint8_t lean_uint16_to_uint8(uint16_t a) { return ((uint8_t)a); }
 static inline uint32_t lean_uint16_to_uint32(uint16_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_uint16_to_uint64(uint16_t a) { return ((uint64_t)a); }
+static inline size_t lean_uint16_to_usize(uint16_t a) { return ((size_t)a); }
 
 /* UInt32 */
 
@@ -1762,7 +1764,7 @@ static inline uint8_t lean_uint32_dec_le(uint32_t a1, uint32_t a2) { return a1 <
 static inline uint8_t lean_uint32_to_uint8(uint32_t a) { return ((uint8_t)a); }
 static inline uint16_t lean_uint32_to_uint16(uint32_t a) { return ((uint16_t)a); }
 static inline uint64_t lean_uint32_to_uint64(uint32_t a) { return ((uint64_t)a); }
-static inline size_t lean_uint32_to_usize(uint32_t a) { return a; }
+static inline size_t lean_uint32_to_usize(uint32_t a) { return ((size_t)a); }
 
 
 /* UInt64 */
@@ -1834,6 +1836,8 @@ static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2;
 
 
 /* usize -> other */
+static inline uint8_t lean_usize_to_uint8(size_t a) { return ((uint8_t)a); }
+static inline uint16_t lean_usize_to_uint16(size_t a) { return ((uint16_t)a); }
 static inline uint32_t lean_usize_to_uint32(size_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 

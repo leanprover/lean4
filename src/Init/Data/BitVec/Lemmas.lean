@@ -1364,12 +1364,12 @@ theorem toInt_ushiftRight {x : BitVec w} {n : Nat} :
 @[simp]
 theorem toFin_uShiftRight {x : BitVec w} {n : Nat} :
     (x >>> n).toFin = x.toFin / (Fin.ofNat' (2^w) (2^n)) := by
-    apply Fin.eq_of_val_eq
-    by_cases hn : n < w
-    · simp [Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt (Nat.pow_lt_pow_of_lt Nat.one_lt_two hn)]
-    · simp only [Nat.not_lt] at hn
-      rw [ushiftRight_eq_zero (by omega)]
-      simp [Nat.dvd_iff_mod_eq_zero.mp (Nat.pow_dvd_pow 2 hn)]
+  apply Fin.eq_of_val_eq
+  by_cases hn : n < w
+  · simp [Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt (Nat.pow_lt_pow_of_lt Nat.one_lt_two hn)]
+  · simp only [Nat.not_lt] at hn
+    rw [ushiftRight_eq_zero (by omega)]
+    simp [Nat.dvd_iff_mod_eq_zero.mp (Nat.pow_dvd_pow 2 hn)]
 
 @[simp]
 theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :

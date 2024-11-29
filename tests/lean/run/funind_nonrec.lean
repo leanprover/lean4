@@ -13,3 +13,18 @@ example (x : Option Nat) (f : Nat → Nat) : (x.map f).isSome = x.isSome := by
   case case2 =>
     intro hx
     simp [-Option.isSome_map', hx]
+
+/--
+info: List.map.cases.{u, v} (motive : Prop) {α : Type u} {β : Type v} (f : α → β) (x✝ : List α) (case1 : x✝ = [] → motive)
+  (case2 : ∀ (a : α) (as : List α), x✝ = a :: as → motive) : motive
+-/
+#guard_msgs in
+#check List.map.cases
+
+/--
+info: List.find?.cases.{u} (motive : Prop) {α : Type u} (p : α → Bool) (x✝ : List α) (case1 : x✝ = [] → motive)
+  (case2 : ∀ (a : α) (as : List α), x✝ = a :: as → p a = true → motive)
+  (case3 : ∀ (a : α) (as : List α), x✝ = a :: as → p a = false → motive) : motive
+-/
+#guard_msgs in
+#check List.find?.cases

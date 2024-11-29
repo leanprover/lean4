@@ -1096,6 +1096,43 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
   if names.size > 1 then
     projectMutualInduct names inductName
 
+
+/--
+Given a recursive definition `foo` defined via structural recursion, derive `foo.mutual_induct`,
+if needed, and `foo.induct` for all functions in the group.
+See module doc for details.
+ -/
+def deriveInductionNonrec (info : ConstantInfo) : MetaM Unit := do
+  let e' ← withLocalDeclD `motive (.sort 0) fun motive => do
+    let e' ←
+      lambdaTelescope info.value! fun xs body => do
+        let (e',mvars) ← M2.run do
+        -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
+        -- so `buildInductionBody` should just do the right thing
+          withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
+            let isRecCall := fun _ => none
+            buildInductionBody #[fakeIH.fvarId!] motive fakeIH.fvarId! fakeIH.fvarId! isRecCall body
+        let e' ← abstractIndependentMVars mvars (← xs.back!.fvarId!.getDecl).index e'
+        mkLambdaFVars xs e'
+
+    mkLambdaFVars #[motive] e'
+
+  unless (← isTypeCorrect e') do
+    logError m!"constructed induction principle is not type correct:{indentExpr e'}"
+    check e'
+
+  let eTyp ← inferType e'
+  let eTyp ← elimOptParam eTyp
+  -- logInfo m!"eTyp: {eTyp}"
+  let params := (collectLevelParams {} eTyp).params
+  -- Prune unused level parameters, preserving the original order
+  let us := info.levelParams.filter (params.contains ·)
+
+  let inductName := info.name ++ `induct
+
+  addDecl <| Declaration.thmDecl
+    { name := inductName, levelParams := us, type := eTyp, value := e' }
+
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
 -/
@@ -1108,7 +1145,11 @@ def deriveInduction (name : Name) : MetaM Unit := do
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
       deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
     else
-      throwError "{name} is not defined by structural or well-founded recursion"
+      let some ci := (← getEnv).find? name | throwError "unknown constant '{name}'"
+      if ci.hasValue then
+        deriveInductionNonrec ci
+      else
+        throwError "constant '{name}' does not have a value"
 
 def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
@@ -1116,6 +1157,9 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   | "induct" =>
     if (WF.eqnInfoExt.find? env p).isSome then return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
+    if let some ci := env.find? p then
+      if ci.hasValue then
+        return true
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then

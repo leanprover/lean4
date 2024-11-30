@@ -284,7 +284,7 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
 
 private def expandWhereStructInst : Macro := fun whereStx => do
   let whereTk := whereStx[0]
-  let `(structInstWhereBody| $structInstFields;*) := whereStx[1] | Macro.throwUnsupported
+  let structInstFields : TSyntaxArray ``Parser.Term.structInstField := .mk whereStx[1][0].getSepArgs
   let whereDecls? := whereStx[2].getOptional?
 
   let startOfStructureTkInfo : SourceInfo :=

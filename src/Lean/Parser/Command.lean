@@ -135,7 +135,7 @@ def declValSimple    := leading_parser
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
 def whereStructInst  := leading_parser
-  ppIndent ppSpace >> "where" >> Term.structInstWhereBody >>
+  ppIndent ppSpace >> "where" >> Term.structInstFields (sepByIndent Term.structInstField "; " (allowTrailingSep := true)) >>
   optional Term.whereDecls
 /-- `declVal` matches the right-hand side of a declaration, one of:
 * `:= expr` (a "simple declaration")

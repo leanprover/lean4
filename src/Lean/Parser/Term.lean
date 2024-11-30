@@ -477,7 +477,7 @@ def structInstFieldBinder :=
 def optTypeForStructInst : Parser := optional (atomic (typeSpec >> notFollowedBy "}" "}"))
 /- `x` is an abbreviation for `x := x` -/
 def structInstField := ppGroup <| leading_parser
-  structInstLVal >> many (checkColGt >> structInstFieldBinder) >> optTypeForStructInst >> optional (ppDedent structInstFieldDeclParser)
+  structInstLVal >> optional (many (checkColGt >> structInstFieldBinder) >> optTypeForStructInst >> ppDedent structInstFieldDeclParser)
 /-
 Tags the structure instance field syntax with a `Lean.Parser.Term.structInstFields` syntax node.
 This node is used to enable structure instance field completion in the whitespace
@@ -505,11 +505,6 @@ def structInstFieldDef := leading_parser
 @[builtin_structInstFieldDecl_parser]
 def structInstFieldEqns := leading_parser
   matchAlts
-def structInstWhereBody := leading_parser
-  structInstFields (sepByIndent structInstField "; " (allowTrailingSep := true))
-@[builtin_structInstFieldDecl_parser]
-def structInstFieldWhere := leading_parser
-  ppIndent ppSpace >> checkColGt "'where'" >> "where" >> structInstWhereBody
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder

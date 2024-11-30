@@ -269,8 +269,8 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     --   | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
     let fields ← fields.getElems.mapM fun field => do
       let field := field.raw
-      let val ← collect field[3][0][1]
-      pure <| field.setArg 3 <| field[3].setArg 0 <| field[3][0].setArg 1 val
+      let val ← collect field[1][2][1]
+      pure <| field.setArg 1 <| field[1].setArg 2 <| field[1][2].setArg 1 val
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 

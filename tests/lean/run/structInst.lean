@@ -17,6 +17,9 @@ structure C extends B where
 #guard_msgs in #check { y := 1 : B }
 /-- info: { x := 1 + 10, y := 1 + 10 + 2, z := 1 } : C -/
 #guard_msgs in #check { z := 1 : C }
+/-! Make sure `z` is parsed as an abbreviation: -/
+/-- info: fun z => { x := z + 10, y := z + 10 + 2, z := z } : Nat → C -/
+#guard_msgs in #check fun z : Nat => { z : C }
 
 def test1 : B where
   y := 1
@@ -153,33 +156,3 @@ def test1 (z : Int) : A Int Int where
   z
 
 end Ex5
-
-/-!
-Nested `where`
--/
-namespace Ex6
-
-structure A where
-  x : Nat
-structure B where
-  a : A
-  y : Nat
-
-/-- info: { a := { x := 3 }, y := 0 } : B -/
-#guard_msgs in #check {
-  a where
-    x := 3
-  y := 0
-  : B
-}
-
-def test1 : B where
-  a where
-    x := 3
-  y := 0
-
-def test2 : B where
-  a.x := 3
-  y := 0
-
-end Ex6

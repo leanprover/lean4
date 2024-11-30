@@ -282,52 +282,37 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       k fvars
   loop 0 #[]
 
-private def expandWhereStructInst : Macro
-  | whereStx@`(Parser.Command.whereStructInst|where%$whereTk $[$decls:letDecl];* $[$whereDecls?:whereDecls]?) => do
-    let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letDecl|$_decl:letPatDecl) => Macro.throwErrorAt stx "patterns are not allowed here"
-      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl (useExplicit := false)
-      | `(letDecl|$decl:letIdDecl)   => pure decl
-      | _                            => Macro.throwUnsupported
-    let structInstFields ← letIdDecls.mapM fun
-      | stx@`(letIdDecl|$id:ident $binders* $[: $ty?]? := $val) => withRef stx do
-        let mut val := val
-        if let some ty := ty? then
-          val ← `(($val : $ty))
-        -- HACK: this produces invalid syntax, but the fun elaborator supports letIdBinders as well
-        have : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) := ⟨(⟨·⟩)⟩
-        val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
-        `(structInstField|$id:ident := $val)
-      | stx@`(letIdDecl|_ $_* $[: $_]? := $_) => Macro.throwErrorAt stx "'_' is not allowed here"
-      | _ => Macro.throwUnsupported
+private def expandWhereStructInst : Macro := fun whereStx => do
+  let whereTk := whereStx[0]
+  let `(structInstWhereBody| $structInstFields;*) := whereStx[1] | Macro.throwUnsupported
+  let whereDecls? := whereStx[2].getOptional?
 
-    let startOfStructureTkInfo : SourceInfo :=
-      match whereTk.getPos? with
-      | some pos => .synthetic pos ⟨pos.byteIdx + 1⟩ true
-      | none => .none
-    -- Position the closing `}` at the end of the trailing whitespace of `where $[$_:letDecl];*`.
-    -- We need an accurate range of the generated structure instance in the generated `TermInfo`
-    -- so that we can determine the expected type in structure field completion.
-    let structureStxTailInfo :=
-      whereStx[1].getTailInfo?
-      <|> whereStx[0].getTailInfo?
-    let endOfStructureTkInfo : SourceInfo :=
-      match structureStxTailInfo with
-      | some (SourceInfo.original _ _ trailing _) =>
-        let tokenPos := trailing.str.prev trailing.stopPos
-        let tokenEndPos := trailing.stopPos
-        .synthetic tokenPos tokenEndPos true
-      | _ => .none
+  let startOfStructureTkInfo : SourceInfo :=
+    match whereTk.getPos? with
+    | some pos => .synthetic pos ⟨pos.byteIdx + 1⟩ true
+    | none => .none
+  -- Position the closing `}` at the end of the trailing whitespace of `where $[$_:letDecl];*`.
+  -- We need an accurate range of the generated structure instance in the generated `TermInfo`
+  -- so that we can determine the expected type in structure field completion.
+  let structureStxTailInfo :=
+    whereStx[1].getTailInfo?
+    <|> whereStx[0].getTailInfo?
+  let endOfStructureTkInfo : SourceInfo :=
+    match structureStxTailInfo with
+    | some (SourceInfo.original _ _ trailing _) =>
+      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenEndPos := trailing.stopPos
+      .synthetic tokenPos tokenEndPos true
+    | _ => .none
 
-    let body ← `(structInst| { $structInstFields,* })
-    let body := body.raw.setInfo <|
-      match startOfStructureTkInfo.getPos?, endOfStructureTkInfo.getTailPos? with
-      | some startPos, some endPos => .synthetic startPos endPos true
-      | _, _ => .none
-    match whereDecls? with
-    | some whereDecls => expandWhereDecls whereDecls body
-    | none => return body
-  | _ => Macro.throwUnsupported
+  let body ← `(structInst| { $structInstFields,* })
+  let body := body.raw.setInfo <|
+    match startOfStructureTkInfo.getPos?, endOfStructureTkInfo.getTailPos? with
+    | some startPos, some endPos => .synthetic startPos endPos true
+    | _, _ => .none
+  match whereDecls? with
+  | some whereDecls => expandWhereDecls whereDecls body
+  | none => return body
 
 /-
 Recall that

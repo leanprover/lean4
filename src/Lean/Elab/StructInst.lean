@@ -111,7 +111,7 @@ private def expandStructInstField (stx : Syntax) : MacroM (Option Syntax) := wit
         else
           mkStructInstField lval binders ty? val
       | `(Parser.Term.structInstFieldEqns| $alts:matchAlts) =>
-        let val ← expandMatchAltsIntoMatch stx alts (useExplicit := true)
+        let val ← expandMatchAltsIntoMatch stx alts (useExplicit := false)
         mkStructInstField lval binders ty? val
       | `(Parser.Term.structInstFieldWhere| where%$whereTk $[$decls];*) =>
         let startOfStructureTkInfo : SourceInfo :=

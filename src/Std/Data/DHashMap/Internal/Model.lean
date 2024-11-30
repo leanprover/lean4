@@ -348,6 +348,17 @@ def Const.getDₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) 
 def Const.get!ₘ [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ α (fun _ => β)) (a : α) : β :=
   (Const.get?ₘ m a).get!
 
+/-- Internal implementation detail of the hash map -/
+def Const.insertListₘ [BEq α] [Hashable α](m : Raw₀ α (fun _ => β)) (l: List (α × β)): Raw₀ α (fun _ => β) :=
+  match l with
+  | .nil => m
+  | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
+
+/-- Internal implementation detail of the hash map -/
+def Const.insertListIfNewUnitₘ [BEq α] [Hashable α](m : Raw₀ α (fun _ => Unit)) (l: List α): Raw₀ α (fun _ => Unit) :=
+  match l with
+  | .nil => m
+  | .cons hd tl => insertListIfNewUnitₘ (m.insertIfNew hd ()) tl
 end
 
 /-! # Equivalence between model functions and real implementations -/
@@ -504,6 +515,33 @@ theorem Const.getThenInsertIfNew?_eq_get?ₘ [BEq α] [Hashable α] (m : Raw₀ 
   dsimp only [Array.ugetElem_eq_getElem, Array.uset]
   split <;> simp_all [-getValue?_eq_none]
 
+theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (l: List (α × β)):
+    (Const.insertMany m l).1 = Const.insertListₘ m l := by
+  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => β) → Prop),
+    (∀ {m'' : Raw₀ α (fun _ => β)} {a : α} {b : β}, P m'' → P (m''.insert a b)) → P m → P m' }),
+      (List.foldl (fun m' p => ⟨m'.val.insert p.1 p.2, fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+    Const.insertListₘ t.val l from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp[insertListₘ]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons,insertListₘ]
+    apply ih
+
+theorem Const.insertManyIfNewUnit_insertListIfNewUnit [BEq α] [Hashable α] (m : Raw₀ α (fun _ => Unit)) (l: List α):
+    (Const.insertManyIfNewUnit m l).1 = Const.insertListIfNewUnitₘ m l := by
+  simp only [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
+  suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => Unit) → Prop),
+      (∀ {m'' a b}, P m'' → P (m''.insertIfNew a b)) → P m → P m'}),
+      (List.foldl (fun m' p => ⟨m'.val.insertIfNew p (), fun P h₁ h₂ => h₁ (m'.2 _ h₁ h₂)⟩) t l).val =
+    Const.insertListIfNewUnitₘ t.val l from this _
+  intro t
+  induction l generalizing m with
+  | nil => simp[insertListIfNewUnitₘ]
+  | cons hd tl ih =>
+    simp only [List.foldl_cons,insertListIfNewUnitₘ]
+    apply ih
 end
 
 end Raw₀

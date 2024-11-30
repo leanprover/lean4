@@ -261,11 +261,16 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
   | `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? }) =>
     if let some srcs := srcs? then
       throwErrorAt (mkNullNode srcs) "invalid struct instance pattern, 'with' is not allowed in patterns"
-    let fields ← fields.getElems.mapM fun
-      | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
-        let newVal ← collect val
-        `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
-      | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+    -- TODO(kmill) restore this
+    -- let fields ← fields.getElems.mapM fun
+    --   | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
+    --     let newVal ← collect val
+    --     `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
+    --   | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+    let fields ← fields.getElems.mapM fun field => do
+      let field := field.raw
+      let val ← collect field[3][0][1]
+      pure <| field.setArg 3 <| field[3].setArg 0 <| field[3][0].setArg 1 val
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 

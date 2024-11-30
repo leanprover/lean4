@@ -238,7 +238,11 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
     let fieldPos ← nextExtraPos
     let fieldId := annotatePos fieldPos fieldId
     addFieldInfo fieldPos (s.induct ++ fieldName) fieldName fieldId fieldVals[idx]!
-    let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]))
+    -- TODO(kmill) restore this
+--    let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]))
+    let lval ← `(structInstLVal| $fieldId:ident)
+    let field := mkNode ``Parser.Term.structInstField
+      #[lval, mkNullNode, mkNullNode, mkOptionalNode <| mkNode ``Parser.Term.structInstFieldDef #[mkAtom " := ", stx[1][idx]]]
     fields := fields.push field
   let tyStx ← withType do
     if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none

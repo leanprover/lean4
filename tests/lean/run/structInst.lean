@@ -1,81 +1,134 @@
-
+/-!
+# Tests for structure instance notation
+-/
 
 namespace Ex1
 
-structure A :=
+structure A where
 (x : Nat)
 
-structure B extends A :=
+structure B extends A where
 (y : Nat := x + 2) (x := y + 1)
 
-structure C extends B :=
+structure C extends B where
 (z : Nat) (x := z + 10)
 
+/-- info: { x := 1 + 1, y := 1 } : B -/
+#guard_msgs in #check { y := 1 : B }
+/-- info: { x := 1 + 10, y := 1 + 10 + 2, z := 1 } : C -/
+#guard_msgs in #check { z := 1 : C }
+
 end Ex1
 
 namespace Ex2
 
-structure A :=
+structure A where
 (x : Nat) (y : Nat)
 
-structure B extends A :=
+structure B extends A where
 (z : Nat := x + 1) (y := z + x)
 
+/-- info: { x := 1, y := 1 + 1 + 1, z := 1 + 1 } : B -/
+#guard_msgs in #check { x := 1 : B }
+
 end Ex2
 
 namespace Ex3
 
-structure A :=
+structure A where
 (x : Nat)
 
-structure B extends A :=
+structure B extends A where
 (y : Nat := x + 2) (x := y + 1)
 
-structure C extends B :=
+structure C extends B where
 (z : Nat := 2*y) (x := z + 2) (y := z + 3)
 
+/-- info: { x := 1, y := 1 + 2, z := 2 * (1 + 2) } : C -/
+#guard_msgs in #check { x := 1 : C }
+/-- info: { x := 2 * 1 + 2, y := 1, z := 2 * 1 } : C -/
+#guard_msgs in #check { y := 1 : C }
+/-- info: { x := 1 + 2, y := 1 + 3, z := 1 } : C -/
+#guard_msgs in #check { z := 1 : C }
+
 end Ex3
 
 namespace Ex4
 
-structure A :=
+structure A where
 (x : Nat)
 
-structure B extends A :=
+structure B extends A where
 (y : Nat := x + 1) (x := y + 1)
 
-structure C extends B :=
+structure C extends B where
 (z : Nat := 2*y) (x := z + 3)
 
-end Ex4
-
-namespace Ex1
-
-#check { y := 1 : B }
-#check { z := 1 : C }
-
-end Ex1
-
-namespace Ex2
-
-#check { x := 1 : B }
-
-end Ex2
-
-namespace Ex3
-
-#check { x := 1 : C }
-#check { y := 1 : C }
-#check { z := 1 : C }
-
-end Ex3
-
-namespace Ex4
-
-#check { x := 1 : C } -- works
-#check { y := 1 : C } -- works
-#check { z := 1 : C } -- works
-#check { z := 1, x := 2 : C } -- works
-#check { y := 1 : B } -- works
+/-- info: { x := 1, y := 1 + 1, z := 2 * (1 + 1) } : C -/
+#guard_msgs in #check { x := 1 : C } -- works
+/-- info: { x := 2 * 1 + 3, y := 1, z := 2 * 1 } : C -/
+#guard_msgs in #check { y := 1 : C } -- works
+/-- info: { x := 1 + 3, y := 1 + 3 + 1, z := 1 } : C -/
+#guard_msgs in #check { z := 1 : C } -- works
+/-- info: { x := 2, y := 2 + 1, z := 1 } : C -/
+#guard_msgs in #check { z := 1, x := 2 : C } -- works
+/-- info: { x := 1 + 1, y := 1 } : B -/
+#guard_msgs in #check { y := 1 : B } -- works
 
 end Ex4
+
+/-!
+Binders example
+-/
+structure PosFun where
+  f : Nat → Nat
+  pos : ∀ n, 0 < f n
+
+def p : PosFun :=
+  { f n := n + 1
+    pos := by simp }
+
+/-!
+Equations
+-/
+def p' : PosFun :=
+  { f
+      | 0 => 1
+      | n + 1 => n + 1
+    pos := by rintro (_|_) <;> simp }
+
+/-!
+Binders and type ascriptions
+-/
+namespace Ex5
+
+structure A (α : Type) (β : Type) where
+  x : α
+  f : β → β
+  z : α
+
+/-- info: fun z => { x := 1, f := fun n => n + 1, z := z } : Int → A Int Int -/
+#guard_msgs in #check fun z => { x : Int := 1, f n : Int := n + 1, z : A _ _ }
+
+end Ex5
+
+/-!
+Nested `where`
+-/
+namespace Ex6
+
+structure A where
+  x : Nat
+structure B where
+  a : A
+  y : Nat
+
+/-- info: { a := { x := 3 }, y := 0 } : B -/
+#guard_msgs in #check {
+  a where
+    x := 3
+  y := 0
+  : B
+}
+
+end Ex6

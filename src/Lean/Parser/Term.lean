@@ -388,6 +388,13 @@ use `(_)` to inhibit this and have it be solved for by unification instead, like
     implicitBinder requireType <|> instBinder
 
 /-
+Syntax category for structure instance notation fields.
+Does not initialize `registerBuiltinDynamicParserAttribute` since this category is not meant to be user-extensible.
+-/
+builtin_initialize
+  registerBuiltinParserAttribute `builtin_structInstFieldDecl_parser ``Category.structInstFieldDecl
+
+/-
 It is feasible to support dependent arrows such as `{α} → α → α` without sacrificing the quality of the error messages for the longer case.
 `{α} → α → α` would be short for `{α : Type} → α → α`
 Here is the encoding:

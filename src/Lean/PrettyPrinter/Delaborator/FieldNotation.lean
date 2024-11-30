@@ -5,6 +5,7 @@ Authors: Kyle Miller
 -/
 prelude
 import Lean.Meta.InferType
+import Lean.Meta.WHNF
 import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Structure
@@ -47,16 +48,26 @@ returns the field name and the index for the argument to be used as the object o
 Otherwise it fails.
 -/
 private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name × Nat) := do
-  let .str _ field := c | failure
+  let .str baseName field := c | failure
   let field := Name.mkSimple field
-  let baseName := c.getPrefix
   guard <| !baseName.isAnonymous
   -- Disallow `Function` since it is used for pi types.
   guard <| baseName != `Function
   let info ← getConstInfo c
-  -- Search for the first argument that could be used for field notation
-  -- and make sure it is the first explicit argument.
+  -- Search for the first argument that could be used for field notation.
   forallBoundedTelescope info.type args.size fun params _ => do
+    -- First, look for a `dotParam`.
+    for h : i in [0:params.size] do
+      let type ← params[i].fvarId!.getType
+      if type.isDotParam then
+        -- We need to be sure that name resolution would find this function. If it wouldn't, then fail.
+        let .const structName _ := (← whnfCore <| ← inferType args[i]!).consumeMData.getAppFn | failure
+        let candidates := ResolveName.resolveGlobalName (← getEnv) Name.anonymous (← getOpenDecls) (structName ++ field)
+          |>.filter (fun (_, fieldList) => fieldList.isEmpty)
+          |>.map Prod.fst
+        guard <| candidates == [c]
+        return (field, i)
+    -- Second, look for a matching type. Make sure it is the first explicit argument.
     for h : i in [0:params.size] do
       let fvarId := params[i].fvarId!
       -- If there is a motive, we will treat this as a sort of control flow structure and so we won't use field notation.
@@ -68,7 +79,7 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
         -- We require an exact match for the base name.
         -- While `Lean.Elab.Term.resolveLValLoop` is able to unfold the type and iterate, we do not attempt to exploit this feature.
         -- (To get it right, we would need to check that each relevant namespace does not contain a declaration named `field`.)
-        guard <| (← instantiateMVars <| ← inferType args[i]!).consumeMData.isAppOf baseName
+        guard <| (← whnfCore <| ← inferType args[i]!).consumeMData.isAppOf baseName
         return (field, i)
       else
         -- We only use the first explicit argument for field notation.

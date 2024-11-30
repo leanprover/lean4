@@ -600,6 +600,12 @@ A binder like `(x : α := default)` in a declaration is syntax sugar for
 @[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
 
 /--
+Gadget for dot notation support. A binder like `(x : dotParam α)` in a declaration will be used for generalized field notation,
+overriding the normal rule that the first argument with a relevant type will be used.
+-/
+@[reducible] def dotParam (α : Sort u) : Sort u := α
+
+/--
 Gadget for marking output parameters in type classes.
 
 For example, the `Membership` class is defined as:

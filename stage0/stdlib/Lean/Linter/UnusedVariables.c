@@ -5458,7 +5458,7 @@ static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariable
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("whereStructField", 16, 16);
+x_1 = lean_mk_string_unchecked("structInstField", 15, 15);
 return x_1;
 }
 }
@@ -5468,7 +5468,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_8____closed__7;
 x_2 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_987____lambda__1___closed__4;
-x_3 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_987____lambda__1___closed__5;
+x_3 = l_Array_mapMUnsafe_map___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1316____spec__1___closed__1;
 x_4 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_2475____lambda__1___closed__8;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;

@@ -3931,6 +3931,13 @@ def getId : Syntax → Name
   | ident _ _ val _ => val
   | _               => Name.anonymous
 
+/-- Retrieve the immediate info from the Syntax node. -/
+def getInfo? : Syntax → Option SourceInfo
+  | atom info ..  => some info
+  | ident info .. => some info
+  | node info ..  => some info
+  | missing       => none
+
 /-- Retrieve the left-most node or leaf's info in the Syntax tree. -/
 partial def getHeadInfo? : Syntax → Option SourceInfo
   | atom info _   => some info

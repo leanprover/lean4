@@ -236,7 +236,7 @@ to associate the term to the current expression, unless the syntax has a synthet
 and associated `Info` already.
 -/
 def annotateTermInfoUnlessAnnotated (stx : Term) : Delab := do
-  if let .synthetic ⟨pos⟩ ⟨pos'⟩ := stx.raw.getHeadInfo then
+  if let some (.synthetic ⟨pos⟩ ⟨pos'⟩) := stx.raw.getInfo? then
     if pos == pos' && (← get).infos.contains pos then
       return stx
   annotateTermInfo stx
@@ -454,7 +454,7 @@ open SubExpr (Pos PosMap)
 open Delaborator (OptionsPerPos topDownAnalyze DelabM)
 
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM α) :
-  MetaM (α × PosMap Elab.Info) := do
+    MetaM (α × PosMap Elab.Info) := do
   /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
      `Expr.mdata` affects the delaborator. TODO: should we fix that? -/
   let e ← Meta.erasePatternRefAnnotations e
@@ -474,7 +474,8 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM �
         topDownAnalyze e
       else pure optionsPerPos
     let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
-        (delab
+        -- Clear the ref to ensure that quotations in delaborators start with blank source info.
+        (MonadRef.withRef .missing delab
           { optionsPerPos := optionsPerPos
             currNamespace := (← getCurrNamespace)
             openDecls := (← getOpenDecls)

@@ -57,12 +57,11 @@ theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
 
 theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) {ilo : lo ≤ i} {jh : j < n} {w : i ≤ j}
-    (as : Vector α n) (q : ∀ k, (hk₁ : lo ≤ k) → (hk₂ : k < i) → lt as[k] as[hi]) (mid as')
+    (as : Vector α n) (hpivot : pivot = as[hi]) (q : ∀ k, (hk₁ : lo ≤ k) → (hk₂ : k < i) → lt as[k] as[hi]) (mid as')
     (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).1.1)
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
-  have hpivot : pivot = as[hi] := by sorry -- have to make this available
   unfold qpartition.loop at w_mid w_as
   dsimp
   split at w_mid <;> rename_i h₁
@@ -70,6 +69,7 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     split at w_mid <;> rename_i h₂
     · rw [if_pos h₂] at w_as
       apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as)
+      · sorry -- okay
       intro k hk₁ hk₂
       if hk₂' : k < i then
         specialize q k hk₁ hk₂'
@@ -79,13 +79,12 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
         obtain rfl := show k = i by omega
         sorry -- okay
     · rw [if_neg h₂] at w_as
-      apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as) (q := q)
+      apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as) (hpivot := hpivot) (q := q)
   · rw [dif_neg h₁] at w_as
     subst w_as
     simp [w_mid]
     intro i' hi₁ hi₂
     sorry -- okay?
-
 
 theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (as : Vector α n) (mid as')
@@ -94,7 +93,7 @@ theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
   unfold qpartition at w_mid w_as
-  apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as)
+  apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as) (hpivot := rfl)
   intro k hk₁ hk₂
   omega
 

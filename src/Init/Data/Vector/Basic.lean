@@ -21,6 +21,9 @@ deriving Repr, DecidableEq
 
 attribute [simp] Vector.size_toArray
 
+/-- Convert `xs : Array α` to `Vector α xs.size`. -/
+abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
+
 namespace Vector
 
 /-- Syntax for `Vector α n` -/

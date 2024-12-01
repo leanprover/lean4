@@ -589,6 +589,14 @@ theorem getElem?_set' {l : List α} {i j : Nat} {a : α} :
   · simp only [getElem?_set_self', Option.map_eq_map, ↓reduceIte, *]
   · simp only [ne_eq, not_false_eq_true, getElem?_set_ne, ↓reduceIte, *]
 
+@[simp] theorem set_getElem_self {as : List α} {i : Nat} (h : i < as.length) :
+    as.set i as[i] = as := by
+  apply ext_getElem
+  · simp
+  · intro n h₁ h₂
+    rw [getElem_set]
+    split <;> simp_all
+
 theorem set_eq_of_length_le {l : List α} {n : Nat} (h : l.length ≤ n) {a : α} :
     l.set n a = l := by
   induction l generalizing n with

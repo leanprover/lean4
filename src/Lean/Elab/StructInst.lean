@@ -74,62 +74,44 @@ Structure instance notation makes use of the expected type.
     `(($stxNew : $expected))
 
 def mkStructInstField (lval : TSyntax ``Parser.Term.structInstLVal) (binders : TSyntaxArray ``Parser.Term.structInstFieldBinder)
-    (type? : Option Term) (val : Term) : MacroM Term := do
+    (type? : Option Term) (val : Term) : MacroM (TSyntax ``Parser.Term.structInstField) := do
   let mut val := val
   if let some type := type? then
     val ← `(($val : $type))
   if !binders.isEmpty then
     -- HACK: this produces invalid syntax, but the fun elaborator supports structInstFieldBinder as well
     val ← `(fun $binders* => $val)
---  `(Parser.Term.structInstField| $lval := $val)
-  return mkNode ``Parser.Term.structInstField
-    #[lval, mkNullNode #[mkNullNode, mkNullNode, mkNode ``Parser.Term.structInstFieldDef #[mkAtom " := ", val]]]
+  `(Parser.Term.structInstField| $lval := $val)
 
 /--
 Takes an arbitrary `structInstField` and expands it to be a `structInstFieldDef` without any binders or type ascription.
 -/
 private def expandStructInstField (stx : Syntax) : MacroM (Option Syntax) := withRef stx do
-  if stx.isOfKind `Lean.Parser.Term.structInstField && stx.getNumArgs == 3 then
-    -- old syntax
-    let lval : TSyntax ``Parser.Term.structInstLVal := stx[0]
-    let val : Term := stx[2]
-    mkStructInstField lval #[] none val
-  else if stx.isOfKind `Lean.Parser.Term.structInstFieldAbbrev then
-    -- old syntax
-    let id : Ident := stx[0]
-    let lval ← `(Parser.Term.structInstLVal| $id:ident)
-    mkStructInstField lval #[] none id
-  else if stx.isOfKind ``Parser.Term.structInstField then
-    let lval := stx[0]
-    if stx[1].getNumArgs > 0 then
-      let binders := stx[1][0].getArgs
-      let ty? := match stx[1][1] with | `(Parser.Term.optTypeForStructInst| $[: $ty?]?) => ty? | _ => none
-      let decl := stx[1][2]
-      match decl with
-      | `(Parser.Term.structInstFieldDef| := $val) =>
-        if binders.isEmpty && ty?.isNone then
-          return none
-        else
-          mkStructInstField lval binders ty? val
-      | `(Parser.Term.structInstFieldEqns| $alts:matchAlts) =>
-        let val ← expandMatchAltsIntoMatch stx alts (useExplicit := false)
-        mkStructInstField lval binders ty? val
-      | _ => Macro.throwUnsupported
-    else
-      -- Abbreviation
-      match lval with
-      | `(Parser.Term.structInstLVal| $id:ident) =>
-        mkStructInstField lval #[] none id
-      | _ =>
-        Macro.throwErrorAt lval "unsupported structure instance field abbreviation, expecting identifier"
-  else
-    Macro.throwUnsupported
+  match stx with
+  | `(Parser.Term.structInstField| $_:structInstLVal := $_) =>
+    -- Already expanded.
+    return none
+  | `(Parser.Term.structInstField| $lval:structInstLVal $[$binders]* $[: $ty?]? $decl:structInstFieldDecl) =>
+    match decl with
+    | `(Parser.Term.structInstFieldDef| := $val) =>
+      mkStructInstField lval binders ty? val
+    | `(Parser.Term.structInstFieldEqns| $alts:matchAlts) =>
+      let val ← expandMatchAltsIntoMatch stx alts (useExplicit := false)
+      mkStructInstField lval binders ty? val
+    | _ => Macro.throwUnsupported
+  | `(Parser.Term.structInstField| $lval:structInstLVal) =>
+    -- Abbreviation
+    match lval with
+    | `(Parser.Term.structInstLVal| $id:ident) =>
+      mkStructInstField lval #[] none id
+    | _ =>
+      Macro.throwErrorAt lval "unsupported structure instance field abbreviation, expecting identifier"
+  | _ => Macro.throwUnsupported
 
 /--
 Expands fields.
 * Abbrevations. Example: `{ x }` expands to `{ x := x }`.
 * Equations. Example: `{ f | 0 => 0 | n + 1 => n }` expands to `{ f := fun x => match x with | 0 => 0 | n + 1 => n }`.
-* `where`. Example: `{ s where x := 1 }` expands to `{ s := { x := 1 }}`.
 * Binders and types. Example: `{ f n : Nat := n + 1 }` expands to `{ f := fun n => (n + 1 : Nat) }`.
 -/
 @[builtin_macro Lean.Parser.Term.structInst] def expandStructInstFields : Macro | stx => do
@@ -461,7 +443,7 @@ Converts a `FieldLHS` back into syntax. This assumes the `ref` fields have the c
 
 Recall that `structInstField` elements have the form
 ```lean
-def structInstField  := leading_parser structInstLVal >> " := " >> termParser
+def structInstField  := leading_parser structInstLVal >> group (null >> null >> group (" := " >> termParser))
 def structInstLVal   := leading_parser (ident <|> numLit <|> structInstArrayRef) >> many (("." >> (ident <|> numLit)) <|> structInstArrayRef)
 def structInstArrayRef := leading_parser "[" >> termParser >>"]"
 ```
@@ -487,7 +469,7 @@ private def Field.toSyntax : Field → Syntax
     let stx := field.ref
     let stx := stx.setArg 1 <| stx[1].setArg 2 <| stx[1][2].setArg 1 field.val.toSyntax
     match field.lhs with
-    | first::rest => stx.setArg 0 <| mkNullNode #[first.toSyntax true, mkNullNode <| rest.toArray.map (FieldLHS.toSyntax false) ]
+    | first::rest => stx.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[first.toSyntax true, mkNullNode <| rest.toArray.map (FieldLHS.toSyntax false) ]
     | _ => unreachable!
 
 /-- Creates a view of a field left-hand side. -/
@@ -509,25 +491,21 @@ and the computed structure name (from `Lean.Elab.Term.StructInst.getStructName`)
 and structure source view (from `Lean.Elab.Term.StructInst.getStructSources`).
 -/
 private def mkStructView (stx : Syntax) (structName : Name) (sources : SourcesView) : MacroM StructInstView := do
-  /- Recall that `stx` is of the form
-     ```
-     leading_parser "{" >> optional (atomic (sepBy1 termParser ", " >> " with "))
-                 >> structInstFields (sepByIndent structInstField ...)
-                 >> optional ".."
-                 >> optional (" : " >> termParser)
-                 >> " }"
-     ```
-     This method assumes that `structInstField` had already been expanded by the macro `expandStructInstFields`
-     and is of the form
-     ```
-     def structInstFieldDef := leading_parser
-       structInstLVal >> group (null >> null >> group (" := " >> termParser))
-     ```
+  /-
+  Recall that `stx` is of the form
+  ```
+  leading_parser "{" >> optional (atomic (sepBy1 termParser ", " >> " with "))
+              >> structInstFields (sepByIndent structInstField ...)
+              >> optional ".."
+              >> optional (" : " >> termParser)
+              >> " }"
+  ```
+  This method assumes that `structInstField` had already been expanded by the macro `expandStructInstFields`.
   -/
   let fields ← stx[2][0].getSepArgs.toList.mapM fun fieldStx => do
-    let val      := fieldStx[1][2][1]
-    let first    ← toFieldLHS fieldStx[0][0]
-    let rest     ← fieldStx[0][1].getArgs.toList.mapM toFieldLHS
+    let `(Parser.Term.structInstField| $lval:structInstLVal := $val) := fieldStx | Macro.throwUnsupported
+    let first ← toFieldLHS lval.raw[0]
+    let rest  ← lval.raw[1].getArgs.toList.mapM toFieldLHS
     return { ref := fieldStx, lhs := first :: rest, val := FieldVal.term val : Field }
   return { ref := stx, structName, params := #[], fields, sources }
 
@@ -673,7 +651,7 @@ mutual
             let updateSource (structStx : Syntax) : TermElabM Syntax := do
               let sourcesNew ← s.sources.explicit.filterMapM fun source => mkProjStx? source.stx source.structName fieldName
               let explicitSourceStx := if sourcesNew.isEmpty then mkNullNode else mkSourcesWithSyntax sourcesNew
-              let implicitSourceStx := s.sources.implicit.getD mkNullNode
+              let implicitSourceStx := s.sources.implicit.getD (mkNode ``Parser.Term.optEllipsis #[mkNullNode])
               return (structStx.setArg 1 explicitSourceStx).setArg 3 implicitSourceStx
             let valStx := s.ref -- construct substructure syntax using s.ref as template
             let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type

@@ -212,16 +212,16 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     locationLinksDefault
 
   match i with
-  | .ofTermInfo ti      => return ← locationLinksFromTermInfo ti
-  | .ofDelabTermInfo ti =>
-    if let some (module, range) := ti.location? then
-      let targetUri := (← documentUriFromModule rc.srcSearchPath module).getD doc.meta.uri
-      let result : LocationLink := {
-        targetUri, targetRange := range, targetSelectionRange := range,
-        originSelectionRange? := (·.toLspRange text) <$> i.range?
-      }
-      return #[result]
-    return ← locationLinksFromTermInfo ti.toTermInfo
+  | .ofDelabTermInfo { location? := some (module, range), .. } =>
+    let targetUri := (← documentUriFromModule rc.srcSearchPath module).getD doc.meta.uri
+    let result : LocationLink := {
+      targetUri, targetRange := range, targetSelectionRange := range,
+      originSelectionRange? := (·.toLspRange text) <$> i.range?
+    }
+    return #[result]
+  | .ofTermInfo ti
+  | .ofDelabTermInfo { toTermInfo := ti } =>
+    return ← locationLinksFromTermInfo ti
   | .ofFieldInfo fi =>
     if kind == type then
       let expr ← ci.runMetaM i.lctx do

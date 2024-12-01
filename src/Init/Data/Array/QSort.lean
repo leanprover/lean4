@@ -10,7 +10,7 @@ import Init.Data.Ord
 namespace Array
 
 private def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
-    (hlo : lo < n := by omega) (hhi : hi < n := by omega) : {n : Nat // lo ≤ n} × Vector α n :=
+    (hlo : lo < n := by omega) (hhi : hi < n := by omega) : {m : Nat // lo ≤ m ∧ m < n} × Vector α n :=
   let mid := (lo + hi) / 2
   let as  := if lt as[mid] as[lo] then as.swap lo mid else as
   let as  := if lt as[hi]  as[lo] then as.swap lo hi  else as
@@ -24,7 +24,7 @@ private def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi :
       else
         loop as i (j+1)
     else
-      (⟨i, ilo⟩, as.swap i hi)
+      (⟨i, ilo, by omega⟩, as.swap i hi)
   loop as lo lo
 
 @[inline] def qsort (as : Array α) (lt : α → α → Bool := by exact (· < ·))
@@ -51,5 +51,28 @@ Sort an array using `compare` to compare elements.
 -/
 def qsortOrd [ord : Ord α] (xs : Array α) : Array α :=
   xs.qsort fun x y => compare x y |>.isLT
+
+open List
+#print qpartition.loop
+theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+    {hhi} {ilo} {jh} :
+    (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2.toList ~ as.toList := by
+  unfold qpartition.loop
+  split
+  · split
+    · refine Perm.trans (qpartition_loop_perm ..) ?_
+      simp [Vector.toList]
+
+theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+    (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
+    (qpartition as lt lo hi hlo hhi).2.toList ~ as.toList := by
+  simp [qpartition]
+
+theorem qpartition_spec₁ {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
+    (hlo : lo < n := by omega) (hhi : hi < n := by omega) :
+    let ⟨⟨mid, h₁, h₂⟩, as⟩ := qpartition as lt lo hi hlo hhi
+    (∀ i, (h₁ : i ≤ lo) → (h₂ : i < mid) → lt as[i] as[mid]) := by
+  sorry
+  simp [qpartition]
 
 end Array

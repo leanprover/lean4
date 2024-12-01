@@ -143,8 +143,7 @@ theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
       simpa using q i' (by omega) (by omega)
     else
       obtain rfl := show i' = hi by omega
-      simp [hi₂]
-      simpa using q i (by omega) (by omega)
+      simpa [hi₂] using q i (by omega) (by omega)
 
 theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)

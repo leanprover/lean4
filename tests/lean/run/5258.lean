@@ -3,6 +3,8 @@
 https://github.com/leanprover/lean4/issues/5258
 -/
 
+set_option linter.aliasConflict true
+
 theorem Foo.bar : True := .intro
 
 export Foo (bar)

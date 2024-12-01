@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 import Init.Data.Ord
 
 namespace Array
@@ -56,12 +56,13 @@ open List
 #print qpartition.loop
 theorem qpartition_loop_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     {hhi} {ilo} {jh} :
-    (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2.toList ~ as.toList := by
+    (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2.toArray ~ as.toArray := by
   unfold qpartition.loop
   split
   · split
     · refine Perm.trans (qpartition_loop_perm ..) ?_
-      simp [Vector.toList]
+
+      simp only [Vector.toArray_swap, toList_swap, Vector.getElem_toArray]
 
 theorem qpartition_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) :

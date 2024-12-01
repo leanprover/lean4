@@ -70,7 +70,7 @@ variable [BEq α] [Hashable α]
 /-- Internal implementation detail of the hash map -/
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
-    | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_insertMany | apply Raw₀.Const.wfImp_insertMany| apply Raw₀.wfImp_erase
+    | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_insertMany | apply Raw₀.Const.wfImp_insertMany| apply Raw₀.Const.wfImp_insertManyIfNewUnit | apply Raw₀.wfImp_erase
     | apply Raw.WF.out | assumption | apply Raw₀.wfImp_empty | apply Raw.WFImp.distinct
     | apply Raw.WF.empty₀))
 
@@ -91,7 +91,7 @@ private def queryNames : Array Name :=
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew, ``toListModel_insertMany_list,
-  ``Const.toListModel_insertMany_list]
+  ``Const.toListModel_insertMany_list, ``Const.toListModel_insertManyIfNewUnit_list]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -1211,6 +1211,130 @@ theorem getD_insertMany_list_mem_const [EquivBEq α] [LawfulHashable α]
     {distinct : List.Pairwise (fun a b => (a.1 == b.1) = false ) l} (h : m.1.WF):
     getD (insertMany m l).1 k' fallback = v := by
   simp_to_model using getValueD_insertListConst_mem
+
+
+variable (m: Raw₀ α (fun _ => Unit))
+
+@[simp]
+theorem insertManyIfNewUnit_list_nil :
+    insertManyIfNewUnit m [] = m := by
+  simp [insertManyIfNewUnit, Id.run]
+
+@[simp]
+theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+    insertManyIfNewUnit m [k] = m.insertIfNew k () := by
+  simp [insertManyIfNewUnit, Id.run]
+
+theorem contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] {l : List α} {k : α} (h : m.1.WF):
+    (insertManyIfNewUnit m l).1.contains k = (m.contains k || l.contains k) := by
+  simp_to_model using containsKey_insertListIfNewUnit
+
+theorem contains_of_contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] {l : List α} {k : α} (h : m.1.WF)
+    (h₂ : l.contains k = false) : (insertManyIfNewUnit m l).1.contains k = true →  m.contains k := by
+  simp_to_model using containsKey_of_containsKey_insertListIfNewUnit
+
+theorem getKey?_insertManyIfNewUnit_list_not_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α}
+    {not_mem : l.contains k = false} (h : m.1.WF) :
+    getKey? (insertManyIfNewUnit m l).1 k = getKey? m k := by
+  simp_to_model using getKey?_insertListIfNewUnit_not_mem
+
+theorem getKey?_insertManyIfNewUnit_list_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k k' : α} {k_beq : k == k'}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : k ∈ l} (h : m.1.WF) : m.contains k = false →
+    getKey? (insertManyIfNewUnit m l).1 k' = some k := by
+  simp_to_model using getKey?_insertListIfNewUnit_mem
+
+theorem getKey?_insertManyIfNewUnit_list_mem_both [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : l.contains k} (h : m.1.WF):
+    m.contains k = true → getKey? (insertManyIfNewUnit m l).1 k = getKey? m k := by
+  simp_to_model using getKey?_insertListIfNewUnit_mem_both
+
+theorem getKey_insertManyIfNewUnit_list_not_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α}
+    {not_mem : l.contains k = false}
+    {h'} (h: m.1.WF):
+    getKey (insertManyIfNewUnit m l).1 k h' =
+      getKey m k (contains_of_contains_insertManyIfNewUnit_list m h not_mem h') := by
+  simp_to_model using getKey_insertListIfNewUnit_not_mem
+
+theorem getKey_insertManyIfNewUnit_list_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α}
+    {k k' : α} {k_beq : k == k'}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : k ∈ l}{h'} (h: m.1.WF):
+    m.contains k  = false →
+    getKey (insertManyIfNewUnit m l).1 k' h' = k := by
+  simp_to_model using getKey_insertListIfNewUnit_mem
+
+theorem getKey_insertManyIfNewUnit_list_mem_both [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : l.contains k} {mem' : m.contains k = true} {h'} (h : m.1.WF):
+    getKey (insertManyIfNewUnit m l).1 k h' = getKey m k mem' := by
+  simp_to_model using getKey_insertListIfNewUnit_mem_both
+
+theorem getKey!_insertManyIfNewUnit_list_not_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {l : List α} {k : α}
+    {not_mem : l.contains k = false} (h : m.1.WF) :
+    getKey! (insertManyIfNewUnit m l).1 k = getKey! m k := by
+  simp_to_model using getKey!_insertListIfNewUnit_not_mem
+
+
+theorem getKey!_insertManyIfNewUnit_list_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {l : List α} {k k' : α} {k_beq : k == k'}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : k ∈ l} (h : m.1.WF) : contains m k = false →
+    getKey! (insertManyIfNewUnit m l).1 k' = k := by
+  simp_to_model using getKey!_insertListIfNewUnit_mem
+
+theorem getKey!_insertManyIfNewUnit_list_mem_both [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {l : List α} {k : α}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : l.contains k} (h : m.1.WF) : m.contains k = true →
+    getKey! (insertManyIfNewUnit m l).1 k = getKey! m k  := by
+  simp_to_model using getKey!_insertListIfNewUnit_mem_both
+
+theorem getKeyD_insertManyIfNewUnit_list_not_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k fallback : α}
+    {not_mem : l.contains k = false} (h : m.1.WF):
+    getKeyD (insertManyIfNewUnit m l).1 k fallback = getKeyD m k fallback := by
+  simp_to_model using getKeyD_insertListIfNewUnit_not_mem
+
+theorem getKeyD_insertManyIfNewUnit_list_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k k' fallback : α} {k_beq : k == k'}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : k ∈ l } (h : m.1.WF) : m.contains k = false →
+    getKeyD (insertManyIfNewUnit m l).1 k' fallback = k := by
+  simp_to_model using getKeyD_insertListIfNewUnit_mem
+
+theorem getKeyD_insertManyIfNewUnit_list_mem_both [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k fallback : α}
+    {distinct : l.Pairwise (fun a b => (a == b) = false)}
+    {mem : l.contains k} (h : m.1.WF) : m.contains k = true →
+    getKeyD (insertManyIfNewUnit m l).1 k fallback = getKeyD m k fallback := by
+  simp_to_model using getKeyD_insertListIfNewUnit_mem_both
+
+theorem insertManyIfNewUnit_list_length [EquivBEq α] [LawfulHashable α]
+    {l : List α}
+    (distinct : List.Pairwise (fun a b => (a == b) = false) l)
+    (h : m.1.WF) : (∀ (a : α), ¬ (m.contains a = true ∧ l.contains a = true)) →
+    (insertManyIfNewUnit m l).1.1.size = m.1.size + l.length := by
+  simp_to_model using insertListIfNewUnit_length
+
+theorem insertManyIfNewUnit_list_not_isEmpty_if_start_not_isEmpty [EquivBEq α] [LawfulHashable α]
+    {l : List α} (h : m.1.WF) : m.1.isEmpty = false →
+    (insertManyIfNewUnit m l).1.1.isEmpty = false := by
+  simp_to_model using insertListIfNewUnit_not_isEmpty_if_start_not_isEmpty
+
+theorem insertManyIfNewUnit_list_isEmpty [EquivBEq α] [LawfulHashable α]
+    {l : List α} (h : m.1.WF) :
+    (insertManyIfNewUnit m l).1.1.isEmpty ↔ m.1.isEmpty ∧ l.isEmpty := by
+  simp_to_model using insertListIfNewUnit_isEmpty
+
 end Const
 end
 end Raw₀

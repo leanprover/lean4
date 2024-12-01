@@ -168,13 +168,21 @@ void handle_timer_event(uv_timer_t* handle) {
     lean_object* obj_handle = (lean_object*)handle->data;
     lean_uv_timer_object* timer = lean_to_uv_timer(obj_handle);
 
-    timer->m_running = false;
+    // Every time we get a new promise we now that it's running if the LEAN_UV_RUNNING is set true,
+    // otherwise it is a promise that we alerady solved.
+    int was_running = is_flag_set((lean_uv_object*) timer, LEAN_UV_RUNNING);
+
+    clear_flag((lean_uv_object*) timer, LEAN_UV_RUNNING);
+
+    if(!timer->m_repeating) {
+        clear_flag((lean_uv_object*) timer, LEAN_UV_STARTED);
+    }
 
     if (timer->m_promise == NULL) {
         return;
     }
 
-    if (!timer->m_repeating) {
+    if (!timer->m_repeating || !was_running) {
         uv_timer_stop(&timer->m_uv_timer);
         lean_dec(obj_handle);
     }
@@ -182,15 +190,15 @@ void handle_timer_event(uv_timer_t* handle) {
     lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
 }
 
+
 /* UV.Timer.mk (timeout : UInt64) (repeating : Bool) : IO Timer */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating, obj_arg /* w */ ) {
-    lean_uv_timer_object* timer_obj = (lean_uv_timer_object*) malloc(sizeof(lean_uv_timer_object));
+    lean_uv_timer_object* timer_obj = (lean_uv_timer_object*)malloc(sizeof(lean_uv_timer_object));
 
     timer_obj->m_timeout = timeout;
     timer_obj->m_promise = NULL;
     timer_obj->m_repeating = repeating;
-    timer_obj->m_started = false;
-    timer_obj->m_running = false;
+    timer_obj->m_flags = 0;
 
     lean_object* obj = lean_uv_timer_new(timer_obj);
 
@@ -210,9 +218,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
 /* UV.Timer.next (timer : @& Timer) : IO (IO.Promise Unit) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg /* w */ ) {
     lean_uv_timer_object* obj = lean_to_uv_timer(timer);
-    bool running = obj->m_running;
+    bool running = is_flag_set((lean_uv_object*) obj, LEAN_UV_RUNNING);
 
-    // Helper function to create a new promise
     auto create_promise = []() {
         lean_object* prom_res = lean_io_promise_new(lean_io_mk_world());
         lean_object* promise = lean_ctor_get(prom_res, 0);
@@ -221,14 +228,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
         return promise;
     };
 
-    if (!obj->m_started) {
+    if (!is_flag_set((lean_uv_object*) obj, LEAN_UV_STARTED)) {
         lean_object* promise = create_promise();
-        if(obj->m_promise != NULL) lean_dec(obj->m_promise);
+        if (obj->m_promise != NULL) lean_dec(obj->m_promise);
         obj->m_promise = promise;
-        obj->m_started = true;
-        obj->m_running = true;
 
-        // Assume that the event loop has ownership of the promise and the timer.
+        set_flag((lean_uv_object*) obj, LEAN_UV_STARTED);
+        set_flag((lean_uv_object*) obj, LEAN_UV_RUNNING);
+
         lean_inc(promise);
         lean_inc(timer);
 
@@ -251,11 +258,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
             return lean_io_result_mk_ok(obj->m_promise);
         } else {
             lean_object* promise = create_promise();
-            if(obj->m_promise != NULL) lean_dec(obj->m_promise);
+            if (obj->m_promise != NULL) lean_dec(obj->m_promise);
             obj->m_promise = promise;
-            obj->m_running = true;
 
-            // Assume that the event loop has ownership of the promise.
+            set_flag((lean_uv_object*) obj, LEAN_UV_RUNNING);
+
             lean_inc(promise);
 
             return lean_io_result_mk_ok(promise);
@@ -266,7 +273,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg /* w */ ) {
     lean_uv_timer_object* obj = lean_to_uv_timer(timer);
 
-    if (!obj->m_started) {
+    if (!is_flag_set((lean_uv_object*) obj, LEAN_UV_STARTED)) {
         return lean_io_result_mk_ok(lean_box(0));
     }
 
@@ -278,14 +285,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg 
         return io_result_mk_error("failed to stop uv_timer");
     }
 
-    // Assume that the ownership by the event loop ended.
     if (obj->m_repeating) {
         lean_dec(timer);
     }
 
     lean_dec(obj->m_promise);
 
-    obj->m_started = false;
+    clear_flag((lean_uv_object*) obj, LEAN_UV_STARTED);
     obj->m_promise = NULL;
 
     return lean_io_result_mk_ok(lean_box(0));

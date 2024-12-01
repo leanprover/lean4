@@ -1289,26 +1289,28 @@ def delabNameMkNum : Delab := delabNameMkStr
 
 @[builtin_delab app.sorryAx]
 def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit do
-  guard <| (← getExpr).getAppNumArgs ≥ 2
+  let numArgs := (← getExpr).getAppNumArgs
+  guard <| numArgs ≥ 2
+  -- Cache the current position's value, since it might be applied to the entire application.
   let sorrySource ← getPPOption getPPSorrySource
-  -- If this is constructed by `Lean.Meta.mkLabeledSorry`, then don't print the unique tag.
+  -- If this is constructed by `Lean.Meta.mkLabeledSorry`, then normally we don't print the unique tag.
   -- But, if `pp.explicit` is false and `pp.sorrySource` is true, then print a simplified version of the tag.
   if let some view := isLabeledSorry? (← getExpr) then
     withOverApp 3 do
-      if let some (module, range) := view.module? then
-        if ← pure sorrySource <||> getPPOption getPPSorrySource then
-          -- LSP line numbers start at 0, so add one to it.
-          -- Technically using the character as the column is incorrect since this is UTF-16 position, but we have no filemap to work with.
-          let posAsName := Name.mkSimple s!"{module}:{range.start.line + 1}:{range.start.character}"
-          let pos := mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{posAsName}"]
-          let src ← withAppArg <| annotateTermInfo pos
-          `(sorry $src)
-        else
-          -- Hack: use omission info so that the first hover gives the sorry source.
-          let stx ← `(sorry)
-          let stx ← annotateCurPos stx
-          addOmissionInfo (← getPos) stx (← getExpr) .uniqueSorry
-          return stx
+      if let some (module, pos, range) := view.module? then
+        let (stx, explicit) ←
+          if ← pure sorrySource <||> getPPOption getPPSorrySource then
+            let posAsName := Name.mkSimple s!"{module}:{pos.line}:{pos.column}"
+            let pos := mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{posAsName}"]
+            let src ← withAppArg <| annotateTermInfo pos
+            pure (← `(sorry $src), true)
+          else
+            -- Set `explicit` to false so that the first hover sets `pp.sorrySource` to true in `Lean.Widget.ppExprTagged`
+            pure (← `(sorry), false)
+        let stx ← annotateCurPos stx
+        addDelabTermInfo (← getPos) stx (← getExpr) (explicit := explicit) (location? := some (module, range))
+          (docString? := "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there.")
+        return stx
       else
         `(sorry)
   else

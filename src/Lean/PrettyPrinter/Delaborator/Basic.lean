@@ -211,6 +211,16 @@ where
     stx := stx
   }
 
+def addDelabTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false)
+    (location? : Option (Name × Lsp.Range) := none) (docString? : Option String := none) (explicit : Bool := true) : DelabM Unit := do
+  let info := Info.ofDelabTermInfo {
+    toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := isBinder)
+    location?  := location?
+    docString? := docString?
+    explicit   := explicit
+  }
+  modify fun s => { s with infos := s.infos.insert pos info }
+
 /--
 Annotates the term with the current expression position and registers `TermInfo`
 to associate the term to the current expression.
@@ -237,6 +247,13 @@ Modifies the delaborator so that it annotates the resulting term using `annotate
 def withAnnotateTermInfo (d : Delab) : Delab := do
   let stx ← d
   annotateTermInfo stx
+
+/--
+Modifies the delaborator so that it ensures resulting term is annotated using `annotateTermInfoUnlessAnnotated`.
+-/
+def withAnnotateTermInfoUnlessAnnotated (d : Delab) : Delab := do
+  let stx ← d
+  annotateTermInfoUnlessAnnotated stx
 
 /--
 Gets an name based on `suggestion` that is unused in the local context.
@@ -297,22 +314,14 @@ inductive OmissionReason
   | deep
   | proof
   | maxSteps
-  | uniqueSorry
 
 def OmissionReason.toString : OmissionReason → String
   | deep => "Term omitted due to its depth (see option `pp.deepTerms`)."
   | proof => "Proof omitted (see option `pp.proofs`)."
   | maxSteps => "Term omitted due to reaching the maximum number of steps allowed for pretty printing this expression (see option `pp.maxSteps`)."
-  | uniqueSorry => "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there."
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
-  let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e
-  modify fun s => { s with infos := s.infos.insert pos info }
-where
-  mkOmissionInfo stx e := return {
-    toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := false)
-    reason := reason.toString
-  }
+  addDelabTermInfo pos stx e (docString? := reason.toString) (explicit := true)
 
 /--
 Runs the delaborator `act` with increased depth.

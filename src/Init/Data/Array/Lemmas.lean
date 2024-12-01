@@ -1842,8 +1842,6 @@ instance [DecidableEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
 
 /-! ### swap -/
 
-open Fin
-
 @[simp] theorem getElem_swap_right (a : Array α) {i j : Nat} {hi hj} :
     (a.swap i j hi hj)[j]'(by simpa using hj) = a[i] := by
   simp [swap_def, getElem_set]
@@ -1862,7 +1860,7 @@ theorem getElem_swap' (a : Array α) (i j : Nat) {hi hj} (k : Nat) (hk : k < a.s
   · simp_all only [getElem_swap_left]
   · split <;> simp_all
 
-theorem getElem_swap (a : Array α) (i j : Nat) {hi hj}(k : Nat) (hk : k < (a.swap i j).size) :
+theorem getElem_swap (a : Array α) (i j : Nat) {hi hj} (k : Nat) (hk : k < (a.swap i j).size) :
     (a.swap i j hi hj)[k] = if k = i then a[j] else if k = j then a[i] else a[k]'(by simp_all) := by
   apply getElem_swap'
 

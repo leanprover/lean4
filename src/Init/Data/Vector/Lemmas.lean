@@ -239,6 +239,40 @@ theorem length_toList {α n} (xs : Vector α n) : xs.toList.length = n := by sim
 theorem getElem_toList {α n} (xs : Vector α n) (i : Nat) (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by simp
 
+
+/-! ### swap -/
+
+@[simp] theorem getElem_swap_right (a : Vector α n) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj)[j]'(by simpa using hj) = a[i] := by
+  cases a
+  simp
+
+@[simp] theorem getElem_swap_left (a : Vector α n) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj)[i]'(by simpa using hi) = a[j] := by
+  cases a
+  simp
+
+@[simp] theorem getElem_swap_of_ne (a : Vector α n) {i j : Nat} {hi hj} (hp : p < n)
+    (hi' : p ≠ i) (hj' : p ≠ j) : (a.swap i j hi hj)[p] = a[p] := by
+  cases a
+  simp_all
+
+theorem getElem_swap (a : Vector α n) (i j : Nat) {hi hj} (k : Nat) (hk : k < n) :
+    (a.swap i j hi hj)[k] = if k = i then a[j] else if k = j then a[i] else a[k] := by
+  cases a
+  simp_all [Array.getElem_swap]
+
+@[simp] theorem swap_swap (a : Vector α n) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj).swap i j hi hj = a := by
+  cases a
+  simp_all [Array.swap_swap]
+
+theorem swap_comm (a : Vector α n) {i j : Nat} {hi hj} :
+    a.swap i j hi hj = a.swap j i hj hi := by
+  cases a
+  simp only [swap_mk, mk.injEq]
+  rw [Array.swap_comm]
+
 /-! ### Decidable quantifiers. -/
 
 theorem forall_zero_iff {P : Vector α 0 → Prop} :

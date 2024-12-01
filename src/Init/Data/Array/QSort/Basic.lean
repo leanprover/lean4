@@ -63,7 +63,7 @@ In-place quicksort.
   else
     let low := min low (as.size - 1)
     let high := min high (as.size - 1)
-    sort ⟨as, rfl⟩ low high |>.toArray
+    sort as.toVector low high |>.toArray
 
 set_option linter.unusedVariables.funArgs false in
 /--

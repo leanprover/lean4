@@ -74,11 +74,11 @@ example : S := {
 --^ textDocument/completion
 }
 
-example : S := {
-  foo := 1
-    -- All field completions expected
---^ textDocument/completion
-}
+example : S :=
+  { foo := 1
+     } -- All field completions expected
+  --^ textDocument/completion
+
 
 example : S := { foo := 1,  } -- All field completions expected
                          --^ textDocument/completion

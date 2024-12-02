@@ -100,20 +100,6 @@ private def findSyntheticIdentifierCompletion?
       HoverInfo.after
   some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx none }
 
-private partial def getIndentationAmount (fileMap : FileMap) (line : Nat) : Nat := Id.run do
-  let lineStartPos := fileMap.lineStart line
-  let lineEndPos := fileMap.lineStart (line + 1)
-  let mut it : String.Iterator := ⟨fileMap.source, lineStartPos⟩
-  let mut indentationAmount := 0
-  while it.pos < lineEndPos do
-    let c := it.curr
-    if c = ' ' || c = '\t' then
-      indentationAmount := indentationAmount + 1
-    else
-      break
-    it := it.next
-  return indentationAmount
-
 private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.Pos) : Bool :=
   fileMap.source.atEnd hoverPos || (fileMap.source.get hoverPos).isWhitespace
 
@@ -127,15 +113,10 @@ private partial def isSyntheticTacticCompletion
     (cmdStx   : Syntax)
     : Bool := Id.run do
   let hoverFilePos := fileMap.toPosition hoverPos
-  let mut hoverLineIndentation := getIndentationAmount fileMap hoverFilePos.line
-  if hoverFilePos.column < hoverLineIndentation then
-    -- Ignore trailing whitespace after the cursor
-    hoverLineIndentation := hoverFilePos.column
-  go hoverFilePos hoverLineIndentation cmdStx 0
+  go hoverFilePos cmdStx 0
 where
   go
       (hoverFilePos : Position)
-      (hoverLineIndentation : Nat)
       (stx : Syntax)
       (leadingWs : Nat)
       : Bool := Id.run do
@@ -148,7 +129,7 @@ where
         return false
       let mut wsBeforeArg := leadingWs
       for arg in stx.getArgs do
-        if go hoverFilePos hoverLineIndentation arg wsBeforeArg then
+        if go hoverFilePos arg wsBeforeArg then
           return true
         -- We must account for the whitespace before an argument because the syntax nodes we use
         -- to identify tactic blocks only start *after* the whitespace following a `by`, and we
@@ -158,7 +139,7 @@ where
         wsBeforeArg := arg.getTrailingSize
       return isCompletionInEmptyTacticBlock stx
         || isCompletionAfterSemicolon stx
-        || isCompletionOnTacticBlockIndentation hoverFilePos hoverLineIndentation stx
+        || isCompletionOnTacticBlockIndentation hoverFilePos stx
     | _, _ =>
       -- Empty tactic blocks typically lack ranges since they do not contain any tokens.
       -- We do not perform more precise range checking in this case because we assume that empty
@@ -169,24 +150,17 @@ where
 
   isCompletionOnTacticBlockIndentation
       (hoverFilePos : Position)
-      (hoverLineIndentation : Nat)
       (stx : Syntax)
       : Bool := Id.run do
-    let isCursorInIndentation := hoverFilePos.column <= hoverLineIndentation
-    if ! isCursorInIndentation then
-      -- Do not trigger tactic completion at the end of a properly indented tactic block line since
-      -- that line might already have entered term mode by that point.
-      return false
     let some tacticsNode := getTacticsNode? stx
       | return false
     let some firstTacticPos := tacticsNode.getPos?
       | return false
-    let firstTacticLine := fileMap.toPosition firstTacticPos |>.line
-    let firstTacticIndentation := getIndentationAmount fileMap firstTacticLine
+    let firstTacticColumn := fileMap.toPosition firstTacticPos |>.column
     -- This ensures that we do not accidentally provide tactic completions in a term mode proof -
     -- tactic completions are only provided at the same indentation level as the other tactics in
     -- that tactic block.
-    let isCursorInTacticBlock := hoverLineIndentation == firstTacticIndentation
+    let isCursorInTacticBlock := hoverFilePos.column == firstTacticColumn
     return isCursorInProperWhitespace fileMap hoverPos && isCursorInTacticBlock
 
   isCompletionAfterSemicolon (stx : Syntax) : Bool := Id.run do
@@ -315,10 +289,6 @@ private def isSyntheticStructFieldCompletion
     return false
 
   let hoverFilePos := fileMap.toPosition hoverPos
-  let mut hoverLineIndentation := getIndentationAmount fileMap hoverFilePos.line
-  if hoverFilePos.column < hoverLineIndentation then
-    -- Ignore trailing whitespace after the cursor
-    hoverLineIndentation := hoverFilePos.column
 
   return Option.isSome <| findWithLeadingToken? (stx := cmdStx) fun leadingToken? stx => Id.run do
     let some leadingToken := leadingToken?
@@ -355,14 +325,10 @@ private def isSyntheticStructFieldCompletion
     let isCompletionOnIndentation := Id.run do
       if ! isCursorInProperWhitespace then
         return false
-      let isCursorInIndentation := hoverFilePos.column <= hoverLineIndentation
-      if ! isCursorInIndentation then
-        return false
       let some firstFieldPos := stx.getPos?
         | return false
-      let firstFieldLine := fileMap.toPosition firstFieldPos |>.line
-      let firstFieldIndentation := getIndentationAmount fileMap firstFieldLine
-      let isCursorInBlock := hoverLineIndentation == firstFieldIndentation
+      let firstFieldColumn := fileMap.toPosition firstFieldPos |>.column
+      let isCursorInBlock := hoverFilePos.column == firstFieldColumn
       return isCursorInBlock
     return isCompletionOnIndentation
 

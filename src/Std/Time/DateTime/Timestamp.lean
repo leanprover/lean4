@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.Internal
 import Init.Data.Int
+import Init.System.IO
 import Std.Time.Time
 import Std.Time.Date
 import Std.Time.Duration

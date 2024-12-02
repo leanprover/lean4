@@ -29,7 +29,7 @@ private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.
   let some (_, lhs, _) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
   if lhs.isAppOf ``WellFounded.fix then
     return mvarId
-  else if lhs.isAppOf ``Tailrec.tailrec_fix then
+  else if lhs.isAppOf ``Tailrec.fix then
     return mvarId
   else
     deltaLHSUntilFix (← deltaLHS mvarId)
@@ -40,8 +40,10 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let h ←
     if lhs.isAppOf ``WellFounded.fix then
       pure <| mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
-    else if lhs.isAppOf ``Tailrec.tailrec_fix then
-      pure <| mkAppN (mkConst ``Tailrec.tailrec_fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
+    else if lhs.isAppOf ``Tailrec.fix then
+      let x := lhs.getAppArgs.back!
+      let args := lhs.getAppArgs.pop
+      mkAppM ``congrFun #[mkAppN (mkConst ``Tailrec.fix_eq lhs.getAppFn.constLevels!) args, x]
     else
       throwTacticEx `rwFixEq mvarId "expected fixed-point application"
   let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!

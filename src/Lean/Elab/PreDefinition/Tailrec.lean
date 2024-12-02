@@ -166,41 +166,6 @@ private def unReplaceRecApps (preDefs : Array PreDefinition) (argsPacker : ArgsP
         return mkAppN fns[n]! (fixedArgs ++ xs)
     k e
 
-def derecursifyTailrec (fixedPrefixSize : Nat) (preDef : PreDefinition) (w : Expr)
-    (unreplace : Array Expr → Unreplacer) :
-    TermElabM PreDefinition := do
-  forallBoundedTelescope preDef.type fixedPrefixSize fun prefixArgs type => do
-    let unreplace := unreplace prefixArgs
-    let w := mkAppN w prefixArgs
-    let type ← whnfForall type
-    unless type.isForall do
-      throwError "expected unary function type: {type}"
-    let α := type.bindingDomain!
-
-    let F ← withoutModifyingEnv do
-      addAsAxiom preDef
-      let value ←
-        withLocalDeclD `F type fun f =>
-          withLocalDeclD `x α fun x => do
-            let val := preDef.value.beta (prefixArgs.push x)
-            let val := replaceRecApps preDef.declName prefixArgs.size f val
-            mkLambdaFVars #[f, x] val
-      eraseRecAppSyntaxExpr value
-
-    let inst ← withLocalDeclD `x α fun x => do
-      mkLambdaFVars #[x] (← mkAppM ``Nonempty.intro #[.app w x])
-    let value ← mkAppOptM ``Lean.Tailrec.tailrec_fix #[α, none, inst, F]
-
-    -- Now try to prove the monotonicity
-    let monoGoal := (← inferType value).bindingDomain!
-    let mono ← mkFreshExprSyntheticOpaqueMVar monoGoal
-    mapError (f := (m!"Could not prove function to be tailrecursive:{indentD ·}")) do
-      solveMono unreplace mono.mvarId!
-    let value := .app value (← instantiateMVars mono)
-
-    let value ← mkLambdaFVars prefixArgs value
-    return { preDef with value }
-
 def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let witnesses ← preDefs.mapM fun preDef =>
     let msg := m!"failed to compile definition '{preDef.declName}' via tailrecursion"
@@ -273,6 +238,7 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let monoGoal := (← inferType packedValue).bindingDomain!
     let hmono ← argsPacker.uncurryWithType monoGoal hmonos
     let packedValue := .app packedValue hmono
+    let some packedValue ← delta? packedValue | panic! "Could not delta-reduce"
 
     let packedType ← mkForallFVars fixedArgs packedType
     let packedValue ← mkLambdaFVars fixedArgs packedValue

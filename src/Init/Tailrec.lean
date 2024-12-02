@@ -110,7 +110,6 @@ theorem bot_le (x : α) : ⊥ ⊑ x := by
   · intro x y hx hy; contradiction
   · intro x hx; contradiction
 
-
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
   intros x y hx hy
   induction hx generalizing y
@@ -155,8 +154,6 @@ theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) :=
       next => assumption
       next => contradiction
 
-def fix (f : α → α) := csup (iterates f)
-
 theorem rel_f_of_iterates {f : α → α} (hf : monotone f) {x : α} (hx : iterates f x) : x ⊑ f x := by
   induction hx
   case step ih =>
@@ -169,7 +166,12 @@ theorem rel_f_of_iterates {f : α → α} (hf : monotone f) {x : α} (hx : itera
     apply hf
     apply le_csup hchain hy
 
-theorem fix_eq {f : α → α} (hf : monotone f) : fix f = f (fix f) := by
+set_option linter.unusedVariables false in
+-- We include hmono as an assumption already on the definition so that
+-- we always have it available when applying `fix_eq`
+def fix (f : α → α) (hmono : monotone f) := csup (iterates f)
+
+theorem fix_eq {f : α → α} (hf : monotone f) : fix f hf = f (fix f hf) := by
   apply rel_antisymm
   · apply rel_f_of_iterates hf
     apply iterates.sup (chain_iterates hf)
@@ -290,7 +292,7 @@ theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : cha
 def fun_csup  [∀ x, Order (β x)] [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
   CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
 
-instance [∀ x, Order (β x)] [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
+instance instCCPOPi [∀ x, Order (β x)] [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
   csup := fun_csup
   csup_spec := by
     intro f c hc
@@ -315,46 +317,38 @@ variable {α : Type u}
 variable {β : α → Type v}
 variable [∀ x, Nonempty (β x)]
 
-set_option linter.unusedVariables false in
 /--
-Variant of `fix` that hides the `Order` type classes, and reorders
-the arguments to `F`.
+Variant of `fix` that hides the `Order` type classes. This is
+used by the elaborator internally to ease the constrction, but unfolded before finishing
+the construction.
 -/
 noncomputable
-def tailrec_fix
+abbrev tailrec_fix
     (F : ∀ x, (∀ x, β x) → β x)
     (hmono : ∀ (x : α), monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β _)) (fun f => F x f)) :
     (∀ x, β x) :=
   @fix (∀ x, FlatOrder (β x)) _ _ (fun f x => F x f)
-
-theorem tailrec_fix_eq
-    (F : ∀ x, (∀ x, β x) → β x)
-    (hmono : ∀ (x : α), monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β _)) (fun f => F x f))
-    (x : α) :
-    tailrec_fix F hmono x = F x (tailrec_fix F hmono) :=
-  congrFun
-    (@fix_eq (∀ _, FlatOrder _) _ _ (fun f x => F x f)
-      (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) _ hmono)
-    ) x
+    (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) _ hmono)
 
 end tailrec
 
 namespace Example
 
-def findF (P : Nat → Bool)  (x : Nat) (rec : Nat → Option Nat) : Option Nat :=
+def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=
   if P x then
     some x
   else
-    rec (x +1)
+    rec (x + 1)
 
-noncomputable def find P := tailrec_fix (findF P) <| by
+noncomputable def find P := fix (α := _ → FlatOrder _) (findF P) <| by
   unfold findF
+  apply monotone_of_monotone_apply (β := fun _ => FlatOrder _)
   intro n
   split
   · apply monotone_const
   · apply monotone_apply
 
-theorem find_eq : find P x = findF P x (find P) := tailrec_fix_eq ..
+theorem find_eq : find P = findF P (find P) := fix_eq ..
 
 end Example
 

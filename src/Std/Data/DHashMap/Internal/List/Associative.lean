@@ -3051,5 +3051,55 @@ theorem insertListIfNewUnit_isEmpty [BEq α]
     apply ne_true_of_eq_false
     apply insertListIfNewUnit_not_isEmpty_if_start_not_isEmpty
     simp
+
+theorem getValue?_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α}:
+    getValue? k l = if containsKey k l = true then some () else none := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [getValue?, containsKey, Bool.or_eq_true, Bool.cond_eq_ite_iff]
+    by_cases hd_k: (hd.fst == k) = true
+    · simp [hd_k]
+    · simp [hd_k, ih]
+
+theorem getValue_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α} {h}:
+    getValue k l h = ()  := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih => simp
+
+theorem getValue!_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α} :
+    getValue! k l = ()  := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih => simp
+
+theorem getValueD_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α} {fallback : Unit} :
+    getValueD k l fallback = ()  := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih => simp
+
+theorem getValue?_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
+    {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α}:
+    getValue? k (insertListIfNewUnit l toInsert) =
+    if (containsKey k l || toInsert.contains k) then some () else none := by
+  simp [← containsKey_insertListIfNewUnit, getValue?_list_unit]
+
+theorem getValue_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
+    {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α} {h}:
+    getValue k (insertListIfNewUnit l toInsert) h = ()  := by
+  rw [getValue_list_unit]
+
+theorem getValue!_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
+    {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α} :
+    getValue! k (insertListIfNewUnit l toInsert) = ()  := by
+  rw [getValue!_list_unit]
+
+theorem getValueD_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
+    {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α} {fallback : Unit}:
+    getValueD k (insertListIfNewUnit l toInsert) fallback = () := by
+  rw [getValueD_list_unit]
+
 end
 end List

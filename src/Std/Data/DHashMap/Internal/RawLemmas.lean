@@ -1212,7 +1212,6 @@ theorem getD_insertMany_list_mem_const [EquivBEq α] [LawfulHashable α]
     getD (insertMany m l).1 k' fallback = v := by
   simp_to_model using getValueD_insertListConst_mem
 
-
 variable (m: Raw₀ α (fun _ => Unit))
 
 @[simp]
@@ -1283,7 +1282,6 @@ theorem getKey!_insertManyIfNewUnit_list_not_mem [EquivBEq α] [LawfulHashable �
     getKey! (insertManyIfNewUnit m l).1 k = getKey! m k := by
   simp_to_model using getKey!_insertListIfNewUnit_not_mem
 
-
 theorem getKey!_insertManyIfNewUnit_list_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {l : List α} {k k' : α} {k_beq : k == k'}
     {distinct : l.Pairwise (fun a b => (a == b) = false)}
@@ -1334,6 +1332,27 @@ theorem insertManyIfNewUnit_list_isEmpty [EquivBEq α] [LawfulHashable α]
     {l : List α} (h : m.1.WF) :
     (insertManyIfNewUnit m l).1.1.isEmpty ↔ m.1.isEmpty ∧ l.isEmpty := by
   simp_to_model using insertListIfNewUnit_isEmpty
+
+theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} (h : m.1.WF) :
+    get? (insertManyIfNewUnit m l).1 k =
+    if ( m.contains k || l.contains k) then some () else none := by
+  simp_to_model using getValue?_insertListIfNewUnit
+
+theorem getValue_insertManyIfNewUnit_list
+    {l : List α} {k : α} {h} :
+    get (insertManyIfNewUnit m l).1 k h = ()  := by
+  simp
+
+theorem getValue!_insertManyIfNewUnit_list
+    {l : List α} {k : α} :
+    get! (insertManyIfNewUnit m l).1 k = ()  := by
+  simp
+
+theorem getValueD_insertManyIfNewUnit_list
+    {l : List α} {k : α} {fallback : Unit} :
+    getD (insertManyIfNewUnit m l).1 k fallback = () := by
+  simp
 
 end Const
 end

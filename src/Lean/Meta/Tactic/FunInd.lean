@@ -1138,7 +1138,7 @@ def deriveCases (name : Name) : MetaM Unit := do
   let us := info.levelParams.filter (params.contains ·)
 
   addDecl <| Declaration.thmDecl
-    { name := info.name ++ `cases, levelParams := us, type := eTyp, value := e' }
+    { name := info.name ++ `fun_cases, levelParams := us, type := eTyp, value := e' }
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
@@ -1175,7 +1175,7 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
 def isFunCasesName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
   match s with
-  | "cases" =>
+  | "fun_cases" =>
     if (WF.eqnInfoExt.find? env p).isSome then return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     if let some ci := env.find? p then

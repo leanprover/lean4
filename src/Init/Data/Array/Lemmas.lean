@@ -59,6 +59,14 @@ namespace List
 
 open Array
 
+theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
+  cases a with
+  | nil => simpa using h
+  | cons a as =>
+    cases b with
+    | nil => simp at h
+    | cons b bs => simpa using h
+
 @[simp] theorem size_toArrayAux {a : List α} {b : Array α} :
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
@@ -395,6 +403,11 @@ end List
 namespace Array
 
 /-! ## Preliminaries -/
+
+/-! ### toList -/
+
+theorem toList_inj {a b : Array α} (h : a.toList = b.toList) : a = b := by
+  cases a; cases b; simpa using h
 
 /-! ### empty -/
 

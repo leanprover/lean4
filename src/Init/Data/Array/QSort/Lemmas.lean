@@ -169,6 +169,12 @@ theorem qpartition_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
   intro k hk₁ hk₂
   omega
 
+theorem size_one_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (lo hi : Nat)
+    (hlo : lo < n := by omega) (hhi : hi < n := by omega)
+    (as : Vector α n) (w : hi ≤ (qpartition as lt lo hi hlo hhi).1.1) : n = 1 := by
+  unfold qpartition at w
+  sorry
+
 theorem qsort_sort_spec {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as' : Vector α n) (w_as : as' = qsort.sort lt as lo hi hlo hhi) :
@@ -178,7 +184,10 @@ theorem qsort_sort_spec {n} (lt : α → α → Bool) (as : Vector α n) (lo hi 
   · intro i j h₁ h₂ h₃
     split at w_as <;> rename_i mid hmid as'' w₂
     split at w_as <;> rename_i w₃
-    · sorry
+    · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
+      obtain ⟨rfl, rfl⟩ := w₂
+      obtain rfl := size_one_of_hi_le_qpartition_fst _ _ _ _ _ _ w₃
+      omega
     · sorry
   · intros
     omega

@@ -64,6 +64,12 @@ def JobState.merge (a b : JobState) : JobState where
 /-- The result of a Lake job. -/
 abbrev JobResult α := EResult Log.Pos JobState α
 
+/-- Add log entries to the beginning of the job's log. -/
+def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α :=
+  match self with
+  | .ok a s => .ok a <| s.modifyLog (log ++ ·)
+  | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
+
 /-- The `Task` of a Lake job. -/
 abbrev JobTask α := BaseIOTask (JobResult α)
 

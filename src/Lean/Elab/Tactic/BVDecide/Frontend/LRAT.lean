@@ -197,8 +197,10 @@ def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContex
       (← mkEqRefl (toExpr true))
   try
     let auxLemma ←
-      withTraceNode `sat (fun _ => return "Verifying LRAT certificate") do
-        mkAuxLemma [] auxType auxProof
+      -- disable async TC so we can catch its exceptions
+      withOptions (Elab.async.set · false) do
+        withTraceNode `sat (fun _ => return "Verifying LRAT certificate") do
+          mkAuxLemma [] auxType auxProof
     return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr (mkConst auxLemma)
   catch e =>
     throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"

@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Init.Data.Hashable
 import Init.Data.BitVec
+import Init.Data.RArray
 import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 
 /-!
@@ -279,20 +280,20 @@ structure PackedBitVec where
 /--
 The notion of variable assignments for `BVExpr`.
 -/
-abbrev Assignment := List PackedBitVec
+abbrev Assignment := Lean.RArray PackedBitVec
 
 /--
 Get the value of a `BVExpr.var` from an `Assignment`.
 -/
-def Assignment.getD (assign : Assignment) (idx : Nat) : PackedBitVec :=
-  List.getD assign idx ⟨BitVec.zero 0⟩
+def Assignment.get (assign : Assignment) (idx : Nat) : PackedBitVec :=
+  Lean.RArray.get assign idx
 
 /--
 The semantics for `BVExpr`.
 -/
 def eval (assign : Assignment) : BVExpr w → BitVec w
   | .var idx =>
-    let ⟨bv⟩ := assign.getD idx
+    let ⟨bv⟩ := assign.get idx
     bv.truncate w
   | .const val => val
   | .zeroExtend v expr => BitVec.zeroExtend v (eval assign expr)
@@ -307,7 +308,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
   | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
 
 @[simp]
-theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.getD idx).bv.truncate _ := by
+theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate _ := by
   rfl
 
 @[simp]

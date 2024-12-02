@@ -8,6 +8,7 @@ import Std.Data.HashMap
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 import Lean.Meta.AppBuilder
 import Lean.ToExpr
+import Lean.Data.RArray
 
 /-!
 This module contains the implementation of the reflection monad, used by all other components of this
@@ -138,9 +139,11 @@ structure State where
   -/
   atoms : Std.HashMap Expr Atom := {}
   /--
-  A cache for `atomsAssignment`.
+  A cache for `atomsAssignment`. We maintain the invariant that this value is only used if
+  `atoms` is non empty. The reason for not using an `Option` is that it would pollute a lot of code
+  with error handling that is never hit as this invariant is enforced before all of this code.
   -/
-  atomsAssignmentCache : Expr := mkConst ``List.nil [.zero]
+  atomsAssignmentCache : Expr := mkConst `illegal
 
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
@@ -228,9 +231,9 @@ def run (m : M α) : MetaM α :=
 /--
 Retrieve the atoms as pairs of their width and expression.
 -/
-def atoms : M (List (Nat × Expr)) := do
+def atoms : M (Array (Nat × Expr)) := do
   let sortedAtoms := (← getThe State).atoms.toArray.qsort (·.2.atomNumber < ·.2.atomNumber)
-  return sortedAtoms.map (fun (expr, {width, ..}) => (width, expr)) |>.toList
+  return sortedAtoms.map (fun (expr, {width, ..}) => (width, expr))
 
 /--
 Retrieve a `BitVec.Assignment` representing the atoms we found so far.
@@ -257,11 +260,14 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
 where
   updateAtomsAssignment : M Unit := do
     let as ← atoms
-    let packed :=
-      as.map (fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr)
-    let packedType := mkConst ``BVExpr.PackedBitVec
-    let newAtomsAssignment ← mkListLit packedType packed
-    modify fun s => { s with atomsAssignmentCache := newAtomsAssignment }
+    if h : 0 < as.size then
+      let ras := Lean.RArray.ofArray as h
+      let packedType := mkConst ``BVExpr.PackedBitVec
+      let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
+      let newAtomsAssignment := ras.toExpr packedType pack
+      modify fun s => { s with atomsAssignmentCache := newAtomsAssignment }
+    else
+      throwError "updateAtomsAssignment should only be called when there is an atom"
 
 @[specialize]
 def simplifyBinaryProof' (mkFRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr)

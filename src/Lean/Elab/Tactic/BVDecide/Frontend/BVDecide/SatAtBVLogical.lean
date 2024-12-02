@@ -61,13 +61,16 @@ def and (x y : SatAtBVLogical) : SatAtBVLogical where
 
 /-- Given a proof that `x.expr.Unsat`, produce a proof of `False`. -/
 def proveFalse (x : SatAtBVLogical) (h : Expr) : M Expr := do
-  let atomsList ← M.atomsAssignment
-  let evalExpr := mkApp2 (mkConst ``BVLogicalExpr.eval) atomsList x.expr
-  return mkApp3
-    (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.false_of_eq_true_of_eq_false)
-    evalExpr
-    (← x.satAtAtoms)
-    (.app h atomsList)
+  if (← get).atoms.isEmpty then
+    throwError "Unable to identify any relevant atoms."
+  else
+    let atomsList ← M.atomsAssignment
+    let evalExpr := mkApp2 (mkConst ``BVLogicalExpr.eval) atomsList x.expr
+    return mkApp3
+      (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.false_of_eq_true_of_eq_false)
+      evalExpr
+      (← x.satAtAtoms)
+      (.app h atomsList)
 
 
 end SatAtBVLogical

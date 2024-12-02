@@ -8,10 +8,15 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.15.0
+v4.16.0
 ----------
 
 Development in progress.
+
+v4.15.0
+----------
+
+Release candidate, release notes will be copied from the branch `releases/v4.15.0` once completed.
 
 v4.14.0
 ----------
@@ -88,7 +93,7 @@ v4.13.0
   * [#4768](https://github.com/leanprover/lean4/pull/4768) fixes a parse error when `..` appears with a `.` on the next line
 
 * Metaprogramming
-  * [#3090](https://github.com/leanprover/lean4/pull/3090) handles level parameters in `Meta.evalExpr` (@eric-wieser)  
+  * [#3090](https://github.com/leanprover/lean4/pull/3090) handles level parameters in `Meta.evalExpr` (@eric-wieser)
   * [#5401](https://github.com/leanprover/lean4/pull/5401) instance for `Inhabited (TacticM α)` (@alexkeizer)
   * [#5412](https://github.com/leanprover/lean4/pull/5412) expose Kernel.check for debugging purposes
   * [#5556](https://github.com/leanprover/lean4/pull/5556) improves the "invalid projection" type inference error in `inferType`.

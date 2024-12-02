@@ -1,5 +1,5 @@
 def loop (x : Nat) : Unit := loop (x + 1)
-termination_by tailrecursion
+nontermination_tailrecursive
 
 /--
 info: equations:
@@ -17,7 +17,7 @@ def find (P : Nat → Bool) (x : Nat) : Option Nat :=
     some x
   else
     find P (x +1)
-termination_by tailrecursion
+nontermination_tailrecursive
 
 /--
 info: equations:
@@ -41,7 +41,7 @@ If the return type is defined using the 'structure' or 'inductive' command, you 
 #guard_msgs in
 def notinhabited (n m : Nat) : Fin n :=
   notinhabited n (m+1)
-termination_by tailrecursion
+nontermination_tailrecursive
 
 /--
 error: failed to compile definition 'notinhabited_mutual1' via tailrecursion, could not prove that the type
@@ -59,10 +59,10 @@ If the return type is defined using the 'structure' or 'inductive' command, you 
 mutual
 def notinhabited_mutual1 (n m : Nat) : Fin n :=
   notinhabited_mutual2 n (m+1)
-termination_by tailrecursion
+nontermination_tailrecursive
 def notinhabited_mutual2 (n m : Nat) : Fin n :=
   notinhabited_mutual1 n (m+1)
-termination_by tailrecursion
+nontermination_tailrecursive
 end
 
 
@@ -74,7 +74,7 @@ error: Could not prove 'notTailRec1' to be tailrecursive:
 -/
 #guard_msgs in
 def notTailRec1 (n : Nat) := notTailRec1 (n + 1) - 1
-termination_by tailrecursion
+nontermination_tailrecursive
 
 /--
 error: Could not prove 'notTailRec2' to be tailrecursive:
@@ -84,7 +84,7 @@ error: Could not prove 'notTailRec2' to be tailrecursive:
 -/
 #guard_msgs in
 def notTailRec2 (n m : Nat) := notTailRec2 n (m + 1) - 1
-termination_by tailrecursion
+nontermination_tailrecursive
 
 /--
 error: Could not prove 'notTailRec3' to be tailrecursive:
@@ -94,7 +94,7 @@ error: Could not prove 'notTailRec3' to be tailrecursive:
 -/
 #guard_msgs in
 def notTailRec3 (n m : Nat) := notTailRec3 (m + 1) n - 1
-termination_by tailrecursion
+nontermination_tailrecursive
 
 /--
 error: Could not prove 'notTailRec4a' to be tailrecursive:
@@ -105,9 +105,9 @@ error: Could not prove 'notTailRec4a' to be tailrecursive:
 #guard_msgs in
 mutual
 def notTailRec4a (n m : Nat) := notTailRec4b (m + 1) n - 1
-termination_by tailrecursion
+nontermination_tailrecursive
 def notTailRec4b (n m : Nat) := notTailRec4a (m + 1) n - 1
-termination_by tailrecursion
+nontermination_tailrecursive
 end
 
 def fib (n : Nat) := go 0 0 1
@@ -117,26 +117,26 @@ where
       fi
     else
       go (i + 1) fi (fi + fip)
-  termination_by tailrecursion
+  nontermination_tailrecursive
 
 local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (if b then α else β) := by
   split <;> assumption
 
 def dependent1 (b : Bool) (n : Nat) : if b then Nat else Bool
   := dependent1 b (n + 1)
-termination_by tailrecursion
+nontermination_tailrecursive
 
 def dependent2 (b : Bool) (n : Nat) : if b then Nat else Bool :=
   if b then dependent2 b (n + 1) else dependent2 b (n + 1)
-termination_by tailrecursion
+nontermination_tailrecursive
 
 def dependent2' (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if b then dependent2' (n + 1) b else dependent2' (n + 2) b
-termination_by tailrecursion
+nontermination_tailrecursive
 
 def dependent2'' (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if _ : b then dependent2'' (n + 1) b else dependent2'' (n + 2) b
-termination_by tailrecursion
+nontermination_tailrecursive
 
 local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (cond b α β) := by
   cases b <;> assumption
@@ -145,7 +145,7 @@ def dependent3 (b : Bool) (n : Nat) : cond b Nat Bool :=
   match b with
   | true => dependent3 true (n + 1)
   | false => dependent3 false (n + 2)
-termination_by tailrecursion
+nontermination_tailrecursive
 
 
 local instance {α : Sort u} {β : Sort v} {γ : α → Sort uu} {δ : β → Sort uu} (t : α ⊕' β)
@@ -156,25 +156,25 @@ local instance {α : Sort u} {β : Sort v} {γ : α → Sort uu} {δ : β → So
 
 mutual
 def mutualUnary1 (n : Nat) : Unit := mutualUnary2 (n + 1)
-termination_by tailrecursion
+nontermination_tailrecursive
 def mutualUnary2 (n : Nat) : Unit := mutualUnary1 (n + 1)
-termination_by tailrecursion
+nontermination_tailrecursive
 end
 
 mutual
 def mutual1 (n m : Nat) : Unit := mutual2 (m + 1) n
-termination_by tailrecursion
+nontermination_tailrecursive
 def mutual2 (n m : Nat) : Unit := mutual1 (m + 1) n
-termination_by tailrecursion
+nontermination_tailrecursive
 end
 
 mutual
 def dependent2''a (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if _ : b then dependent2''a (n + 1) b else dependent2''b (n + 2) b
-termination_by tailrecursion
+nontermination_tailrecursive
 def dependent2''b (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if _ : b then dependent2''a (n + 1) b else dependent2''b (n + 2) b
-termination_by tailrecursion
+nontermination_tailrecursive
 end
 
 def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
@@ -183,13 +183,13 @@ def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
     computeLfp' f next
   else
     x
-termination_by tailrecursion
+nontermination_tailrecursive
 
 def whileSome (f : α → Option α) (x : α) : α :=
   match f x with
   | none => x
   | some x' => whileSome f x'
-termination_by tailrecursion
+nontermination_tailrecursive
 
 /--
 info: whileSome.eq_1.{u_1} {α : Type u_1} (f : α → Option α) (x : α) :

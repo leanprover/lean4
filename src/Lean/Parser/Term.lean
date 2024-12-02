@@ -692,6 +692,18 @@ def terminationBy? := leading_parser
   "termination_by?"
 
 /--
+Defines a possibly non-terminating function.
+
+Such a function is compiled as if it was marked `partial`, but its equations are provided as
+theorems, so that it can be verified.
+
+Requires the function type to be inhabited a-priori (as with `partial`), and that all recursive
+calls are in tail-call position.
+-/
+@[builtin_doc] def nonterminationTailrec := leading_parser
+  "nontermination_tailrecursive"
+
+/--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)
 decreases at each recursive call.
 
@@ -707,7 +719,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> nonterminationTailrec)) >> optional decreasingBy
 
 end Termination
 namespace Term

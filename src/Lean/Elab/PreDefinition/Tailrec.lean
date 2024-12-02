@@ -241,18 +241,18 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let FType ← withLocalDeclD `x packedDomain fun x => do
       mkForallFVars #[x] (← mkArrow packedType (← instantiateForall packedType #[x]))
     let F ← argsPacker.uncurryWithType FType Fs
-    let value ← mkAppOptM ``Lean.Tailrec.tailrec_fix #[packedDomain, none, inst1, F]
+    let packedValue ← mkAppOptM ``Lean.Tailrec.tailrec_fix #[packedDomain, none, inst1, F]
 
-    let monoGoal := (← inferType value).bindingDomain!
+    let monoGoal := (← inferType packedValue).bindingDomain!
     let hmono ← argsPacker.uncurryWithType monoGoal hmonos
-    let value := .app value hmono
+    let packedValue := .app packedValue hmono
 
     let packedType ← mkForallFVars fixedArgs packedType
-    let value ← mkLambdaFVars fixedArgs value
+    let packedValue ← mkLambdaFVars fixedArgs packedValue
     let preDefNonRec := { preDefs[0]! with
       declName := WF.mutualName argsPacker preDefs
       type := packedType
-      value }
+      value := packedValue}
     addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab

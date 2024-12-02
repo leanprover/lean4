@@ -499,7 +499,7 @@ register_builtin_option compiler.enableNew : Bool := {
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 partial def compileDecls (decls : List Name) : CoreM Unit := do
-  if true then
+  if Elab.async.get (← getOptions) then
     let env ← getEnv
     let (postEnv, prom) ← env.promiseChecked
     let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do

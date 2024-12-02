@@ -35,19 +35,20 @@ where go env
   | _        => env
 
 def addDecl (decl : Declaration) : CoreM Unit := do
-  if true then
-    let preEnv ← getEnv
-    let (name, info, kind) ← match decl with
-      | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
-      | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
-      | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
-      | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
-      | .inductDecl _ _ types _ =>
-        -- used to be triggered by adding `X.recOn` etc. to the environment but that's async now
-        modifyEnv (types.foldl (registerNamePrefixes · <| ·.name ++ `rec));
-        doAdd
-        return
-      | _ => return (← doAdd)
+  let preEnv ← getEnv
+  let (name, info, kind) ← match decl with
+    | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
+    | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
+    | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
+    | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
+    | .inductDecl _ _ types _ =>
+      -- used to be triggered by adding `X.recOn` etc. to the environment but that's async now
+      modifyEnv (types.foldl (registerNamePrefixes · <| ·.name ++ `rec));
+      doAdd
+      return
+    | _ => return (← doAdd)
+
+  if Elab.async.get (← getOptions) then
     let async ← preEnv.addConstAsync (reportExts := false) name kind
     async.commitConst async.asyncEnv (some info)
     setEnv async.mainEnv

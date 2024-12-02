@@ -282,10 +282,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
               withRef (preDefs[0]!.ref) <| mapError
                 (orelseMergeErrors
                   (structuralRecursion preDefs termArg?s)
-                  (orelseMergeErrors
-                    (wfRecursion preDefs termArg?s)
-                    (tailRecursion preDefs)
-                  ))
+                  (wfRecursion preDefs termArg?s))
                 (fun msg =>
                   let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
                   m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")

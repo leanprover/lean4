@@ -35,8 +35,13 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
 
   let failK := do
     trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
-    ur f fun t =>
-      throwError "Recursive call in non-tail position:{indentExpr t}"
+    ur f fun t => do
+      if let some recApp := t.find? hasRecAppSyntax then
+        let some syn := getRecAppSyntax? recApp | panic! "getRecAppSyntax? failed"
+        withRef syn <|
+          throwError "Recursive call `{syn}` is not a tail call.\nEnclosing tail-call position:{indentExpr t}"
+      else
+       throwError "Recursive call in non-tail position:{indentExpr t}"
 
   let e := f.bindingBody!
 

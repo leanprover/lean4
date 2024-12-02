@@ -68,7 +68,8 @@ end
 
 /--
 error: Could not prove 'notTailRec1' to be tailrecursive:
-  Recursive call in non-tail position:
+  Recursive call `notTailRec1 (n + 1)` is not a tail call.
+  Enclosing tail-call position:
     notTailRec1 (n + 1) - 1
 -/
 #guard_msgs in
@@ -77,7 +78,8 @@ termination_by tailrecursion
 
 /--
 error: Could not prove 'notTailRec2' to be tailrecursive:
-  Recursive call in non-tail position:
+  Recursive call `notTailRec2 n (m + 1)` is not a tail call.
+  Enclosing tail-call position:
     notTailRec2 n (m + 1) - 1
 -/
 #guard_msgs in
@@ -86,7 +88,8 @@ termination_by tailrecursion
 
 /--
 error: Could not prove 'notTailRec3' to be tailrecursive:
-  Recursive call in non-tail position:
+  Recursive call `notTailRec3 (m + 1) n` is not a tail call.
+  Enclosing tail-call position:
     notTailRec3 (m + 1) n - 1
 -/
 #guard_msgs in
@@ -95,7 +98,8 @@ termination_by tailrecursion
 
 /--
 error: Could not prove 'notTailRec4a' to be tailrecursive:
-  Recursive call in non-tail position:
+  Recursive call `notTailRec4b (m + 1) n` is not a tail call.
+  Enclosing tail-call position:
     notTailRec4b (m + 1) n - 1
 -/
 #guard_msgs in
@@ -185,6 +189,7 @@ def whileSome (f : α → Option α) (x : α) : α :=
   match f x with
   | none => x
   | some x' => whileSome f x'
+termination_by tailrecursion
 
 /--
 info: whileSome.eq_1.{u_1} {α : Type u_1} (f : α → Option α) (x : α) :

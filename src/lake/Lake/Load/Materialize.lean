@@ -3,6 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
 import Lake.Util.Git
 import Lake.Load.Manifest
 import Lake.Config.Dependency
@@ -148,7 +149,7 @@ def Dependency.materialize
       if ver.startsWith "git#" then
         return ver.drop 4
       else
-        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
+        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#<rev>\")"
     let depName := dep.name.toString (escape := false)
     let pkg ←
       match (← Reservoir.fetchPkg? lakeEnv dep.scope depName |>.toLogT) with

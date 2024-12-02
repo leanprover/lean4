@@ -212,8 +212,8 @@ def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
     preDef.termination.terminationBy? matches some {structural := false, ..} ||
     preDef.termination.decreasingBy?.isSome
 
-private def addPreDefinitionsCore (preDefs : Array PreDefinition) (postponeCheck : Bool) :
-    TermElabM (Option (Environment × Declaration)) := withLCtx {} {} do
+
+def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
   profileitM Exception "process pre-definitions" (← getOptions) do
     withTraceNode `Elab.def.processPreDef (fun _ => return m!"process pre-definitions") do
       for preDef in preDefs do
@@ -221,9 +221,6 @@ private def addPreDefinitionsCore (preDefs : Array PreDefinition) (postponeCheck
       let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
       let preDefs ← betaReduceLetRecApps preDefs
       let cliques := partitionPreDefs preDefs
-      -- start with non-mutual theorems, in which case `addAndCompileNonRec` calls
-      -- `Environment.addDecl` exactly once with the full theorem
-      let postponeCheck := postponeCheck && cliques.size == 1 && preDefs[0]!.kind == .theorem
       for preDefs in cliques do
         trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
         if preDefs.size == 1 && isNonRecursive preDefs[0]! then
@@ -234,16 +231,11 @@ private def addPreDefinitionsCore (preDefs : Array PreDefinition) (postponeCheck
           -/
           let preDef ← eraseRecAppSyntax preDefs[0]!
           ensureEqnReservedNamesAvailable preDef.declName
-          let postponed? := guard postponeCheck *>
-            some (← getEnv, .thmDecl { preDef with name := preDef.declName })
-          withOptions (fun opts => if postponeCheck then debug.skipKernelTC.set opts true else opts) do
             if preDef.modifiers.isNoncomputable then
               addNonRec preDef
             else
               addAndCompileNonRec preDef
           preDef.termination.ensureNone "not recursive"
-          if postponed?.isSome then
-            return postponed?
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
           preDefs.forM (·.termination.ensureNone "unsafe")
@@ -286,21 +278,6 @@ private def addPreDefinitionsCore (preDefs : Array PreDefinition) (postponeCheck
               else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
                 addSorried preDefs
             catch _ => s.restore
-      return none
-
-/-- Checks the given pre-definitions in the kernel and adds them to the environment. -/
-def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit :=
-  addPreDefinitionsCore preDefs (postponeCheck := false) |> discard
-
-/--
-Checks the given pre-definitions in the kernel and adds them to the environment. Depending on the
-involved definitions, the kernel check may be postponed, in which case the environment and
-declaration are returned on which `Environment.addDecl` should be called at some later point to
-perform the check.
--/
-def addPreDefinitionsWithPostpone (preDefs : Array PreDefinition) :
-    TermElabM (Option (Environment × Declaration)) :=
-  addPreDefinitionsCore preDefs (postponeCheck := true)
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

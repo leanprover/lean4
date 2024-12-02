@@ -104,7 +104,7 @@ structure Context where
   Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
   old elaboration are identical.
   -/
-  snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot) := none
+  snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
   /-- Cancellation token forwarded to `Core.cancelTk?`. -/
   cancelTk?      : Option IO.CancelToken
   /--
@@ -535,23 +535,6 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
   descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
 
-open Language in
-/--
-State at the beginning of elaboration of a command, after snapshot tasks for subtasks have been
-allocated.
--/
-structure CommandProcessingSnapshot extends Snapshot where
-  /--
-  Snapshot task for incrementality in the specific command elaborator called, stored in
-  `Context.snap?`.
-  -/
-  elabSnap : SnapshotTask DynamicSnapshot
-
-deriving Inhabited
-open Language in
-instance : ToSnapshotTree CommandProcessingSnapshot where
-  toSnapshotTree s := .mk s.toSnapshot #[s.elabSnap.map (sync := true) toSnapshotTree]
-
 builtin_initialize
   registerTraceClass `Elab.info
   registerTraceClass `Elab.snapshotTree
@@ -560,11 +543,7 @@ builtin_initialize
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
-def elabCommandTopLevel (stx : Syntax)
-    (snap? : Option (Language.SnapshotBundle CommandProcessingSnapshot) := none) :
-    CommandElabM Unit :=
-  withRef stx do
-  profileitM Exception "elaboration" (← getOptions) do
+def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })

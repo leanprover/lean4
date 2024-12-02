@@ -119,7 +119,7 @@ def isTracingEnabledFor (cls : Name) : m Bool := do
 @[inline] def setTraceState (s : TraceState) : m Unit :=
   modifyTraceState fun _ => s
 
-def getResetTraces : m (PersistentArray TraceElem) := do
+private def getResetTraces : m (PersistentArray TraceElem) := do
   let oldTraces ← getTraces
   modifyTraces fun _ => {}
   pure oldTraces
@@ -219,12 +219,11 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
-  let traceProfilerEnabled := trace.profiler.get opts
-  unless clsEnabled || traceProfilerEnabled do
+  unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
   let (res, start, stop) ← withStartStop opts <| observing k
-  let aboveThresh := traceProfilerEnabled &&
+  let aboveThresh := trace.profiler.get opts &&
     stop - start > trace.profiler.threshold.unitAdjusted opts
   unless clsEnabled || aboveThresh do
     modifyTraces (oldTraces ++ ·)

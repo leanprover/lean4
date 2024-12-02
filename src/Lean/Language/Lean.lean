@@ -594,9 +594,8 @@ where
         parseCmd none parserState cmdState next (sync := false) ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
-      (snap : SnapshotBundle CommandProcessingSnapshot)
-      (finishedPromise : IO.Promise CommandFinishedSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
-
+      (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)
+      (tacticCache : IO.Ref Tactic.Cache) :
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
@@ -613,13 +612,14 @@ where
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       tacticCache? := some tacticCacheNew
+      snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap
       cancelTk?    := some ctx.newCancelTk
     }
     let (output, _) ←
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get scope.opts) do
         EIO.toBaseIO do
           withLoggingExceptions
-            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx snap)
+            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
             cmdCtx cmdStateRef
     let postNew := (← tacticCacheNew.get).post
     tacticCache.modify fun _ => { pre := postNew, post := {} }
@@ -635,7 +635,7 @@ where
     let cmdState : Command.State := { cmdState with messages }
     let mut reportedCmdState := cmdState
     -- definitely resolve eventually
-    snap.new.resolve default
+    snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
     let infoTree : InfoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx

@@ -42,9 +42,9 @@ structure CommandParsedSnapshot extends Snapshot where
   /--
   Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
   elaborator.
-  -/
-  elabSnap : SnapshotTask CommandProcessingSnapshot
-  /-- State after final `cmdState` is produced, other tasks may continue in the background. -/
+   -/
+  elabSnap : SnapshotTask DynamicSnapshot
+  /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
   /-- Additional, untyped snapshots used for reporting, not reuse. -/
   reportSnap : SnapshotTask SnapshotTree

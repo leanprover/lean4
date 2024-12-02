@@ -37,7 +37,7 @@ partial def of (h : Expr) : LemmaM (Option SatAtBVLogical) := do
     let proof := do
       let evalLogic ← ReifiedBVLogical.mkEvalExpr bvLogical.expr
       -- this is evalLogic = lhsExpr
-      let evalProof ← bvLogical.evalsAtAtoms
+      let evalProof := (← bvLogical.evalsAtAtoms).getD (ReifiedBVLogical.mkRefl evalLogic)
       -- h is lhsExpr = true
       -- we prove evalLogic = true by evalLogic = lhsExpr = true
       return ReifiedBVLogical.mkTrans evalLogic lhsExpr (mkConst ``Bool.true) evalProof h

@@ -27,7 +27,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     solveMono ur goal
     return
 
-  let_expr Tailrec.mono α β γ inst₁ inst₂ f := type |
+  let_expr Tailrec.monotone α inst_α β inst_β f := type |
     throwError "Unexpected goal:\n{goal}"
 
   unless f.isLambda do
@@ -49,7 +49,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
   if !e.hasLooseBVars then
     -- should not use applyConst here; it may try to re-synth the Nonempty constriant
     let us := type.getAppFn.constLevels!
-    let p := mkAppN (.const ``Tailrec.mono_const us) #[α, β, γ, inst₁, inst₂, e]
+    let p := mkAppN (.const ``Tailrec.monotone_const us) #[α, inst_α, β, inst_β, e]
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
@@ -61,16 +61,20 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
 
   -- A recursive call directly here
   if e.isApp && e.appFn! == .bvar 0 then
-    -- should not use applyConst here; it may try to re-synth the Nonempty constriant
-    let x := e.appArg!
-    let us := type.getAppFn.constLevels!.take 2
-    let p := mkAppN (.const ``Tailrec.mono_apply us) #[α, β, inst₁, x]
-    let new_goals ←
-      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
-    unless new_goals.isEmpty do
-      throwError "Left over goals"
-    return
+    match_expr inst_α with
+    | Tailrec.instOrderPi γ δ inst =>
+      -- should not use applyConst here; it may try to re-synth the Nonempty constriant
+      let x := e.appArg!
+      let us := inst_α.getAppFn.constLevels!
+      let p := mkAppN (.const ``Tailrec.monotone_apply us) #[γ, δ, inst, x]
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      unless new_goals.isEmpty do
+        throwError "Left over goals"
+      return
+    | _ =>
+      failK
 
   -- Look through mdata
   if e.isMData then
@@ -98,7 +102,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     let us := type.getAppFn.constLevels!
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
-    let p := mkAppN (.const ``Tailrec.mono_ite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
+    let p := mkAppN (.const ``Tailrec.monotone_ite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
@@ -108,7 +112,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     let us := type.getAppFn.constLevels!
     let k₁' := f.updateLambdaE! f.bindingDomain! k₁
     let k₂' := f.updateLambdaE! f.bindingDomain! k₂
-    let p := mkAppN (.const ``Tailrec.mono_dite us) #[α, β, γ, inst₁, inst₂, cond, decInst, k₁', k₂']
+    let p := mkAppN (.const ``Tailrec.monotone_dite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
     let new_goals ←
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
@@ -118,7 +122,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     if k.isLambda then
       let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.take 1
       let k' := f.updateLambdaE! f.bindingDomain! k
-      let p := mkAppN (.const ``Tailrec.mono_letFun us) #[α, β, γ, inst₁, inst₂, δ, v, k']
+      let p := mkAppN (.const ``Tailrec.monotone_letFun us) #[α, inst_α, β, inst_β, δ, v, k']
       let new_goals ←
         mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
           goal.apply p
@@ -217,8 +221,14 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let packedDomain := packedType.bindingDomain!
 
     let unaryWitness ← argsPacker.uncurry witnesses
-    let inst1 ← withLocalDeclD `x packedDomain fun x => do
+    let instNonemptyRange ← withLocalDeclD `x packedDomain fun x => do
       mkLambdaFVars #[x] (← mkAppM ``Nonempty.intro #[.app unaryWitness x])
+    let instOrderRange ← withLocalDeclD `x packedDomain fun x => do
+      let instNonempty ← mkAppM ``Nonempty.intro #[.app unaryWitness x]
+      let inst ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, instNonempty]
+      mkLambdaFVars #[x] inst
+    let instOrderPackedType ←
+      mkAppOptM ``Tailrec.instOrderPi #[packedDomain, none, instOrderRange]
 
     let ur := unReplaceRecApps preDefs argsPacker
     -- let ur _ e k := k e
@@ -235,8 +245,9 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
             WF.packCalls fixedPrefixSize argsPacker declNames f body
           mkLambdaFVars (xs.push f) body'
 
+
     -- Construct and solve monotonicity goals for each function separately
-    -- This way we preserve the users parameter names as much as possible
+    -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
     let hmonos ← preDefs.mapIdxM fun i preDef => do
       let type ← instantiateForall preDef.type fixedArgs
@@ -244,8 +255,10 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       lambdaTelescope body fun xs _ => do
         let type ← instantiateForall type xs
         let F ← instantiateLambda Fs[i]! xs
-        let inst2 ← mkAppM ``Nonempty.intro #[mkAppN witnesses[i]! xs]
-        let goal ← mkAppOptM ``Tailrec.mono #[packedDomain, none, type, inst1, inst2, F]
+        let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN witnesses[i]! xs]
+        let instOrder ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, instNonempty]
+        let goal ← mkAppOptM ``Tailrec.monotone
+          #[packedType, instOrderPackedType, type, instOrder, F]
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
           solveMono (ur fixedArgs) hmono.mvarId!
@@ -254,7 +267,8 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let FType ← withLocalDeclD `x packedDomain fun x => do
       mkForallFVars #[x] (← mkArrow packedType (← instantiateForall packedType #[x]))
     let F ← argsPacker.uncurryWithType FType Fs
-    let packedValue ← mkAppOptM ``Lean.Tailrec.tailrec_fix #[packedDomain, none, inst1, F]
+    let packedValue ← mkAppOptM ``Lean.Tailrec.tailrec_fix
+      #[packedDomain, none, instNonemptyRange, F]
 
     let monoGoal := (← inferType packedValue).bindingDomain!
     let hmono ← argsPacker.uncurryWithType monoGoal hmonos

@@ -258,7 +258,7 @@ open Order
 variable {α : Type u}
 variable {β : α → Type v}
 
-instance [∀ x, Order (β x)] : Order (∀ x, β x) where
+instance instOrderPi [∀ x, Order (β x)] : Order (∀ x, β x) where
   rel f g := ∀ x, f x ⊑ g x
   rel_refl _ := rel_refl
   rel_trans hf hg x := rel_trans (hf x) (hg x)
@@ -313,42 +313,7 @@ section tailrec
 
 variable {α : Type u}
 variable {β : α → Type v}
-variable {γ : Type w}
 variable [∀ x, Nonempty (β x)]
-variable [Nonempty γ]
-
-def mono (F : (∀ x, β x) → γ) :=
-    monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder γ) F
-
-theorem mono_const (c : γ) : mono fun (_ : (∀ x, β x)) => c :=
-  monotone_const _
-
-theorem mono_apply : mono fun (f : (∀ x, β x)) => f x :=
-  monotone_apply (β := fun _ => FlatOrder _) x
-
-theorem mono_letFun {δ : Sort uu}
-  (v : δ) (k : (∀ x, β x) → δ → γ)
-  (hmono : ∀ (x : δ), mono (fun f => k f x)) :
-  mono fun f => letFun v (k f) :=
-    monotone_letFun (α := ∀ _, FlatOrder _) (β := FlatOrder _) v k hmono
-
-theorem mono_ite
-  (c : Prop) [Decidable c]
-  (k₁ : (∀ x, β x) → γ)
-  (k₂ : (∀ x, β x) → γ)
-  (hmono₁ : mono (fun f => k₁ f))
-  (hmono₂ : mono (fun f => k₂ f)) :
-  mono fun f => if c then k₁ f else k₂ f :=
-    monotone_ite (α := ∀ _, FlatOrder _) (β := FlatOrder _) c k₁ k₂ hmono₁ hmono₂
-
-theorem mono_dite
-  (c : Prop) [Decidable c]
-  (k₁ : (∀ x, β x) → c → γ)
-  (k₂ : (∀ x, β x) → ¬ c → γ)
-  (hmono₁ : (h : c) → mono (fun f => k₁ f h))
-  (hmono₂ : (h : ¬ c) → mono (fun f => k₂ f h)) :
-  mono fun f => dite c (k₁ f) (k₂ f) :=
-    monotone_dite (α := ∀ _, FlatOrder _) (β := FlatOrder _) c k₁ k₂ hmono₁ hmono₂
 
 set_option linter.unusedVariables false in
 /--

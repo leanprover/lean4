@@ -965,10 +965,6 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVarsProfiling header.type) }
 
--- TODO: task helper that should be moved up or possibly integrated into `BaseIO.asTask`
-@[noinline]
-private def delayBaseIO (f : Unit → BaseIO α) : BaseIO α := f ()
-
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) :
     TermElabM Unit :=
   if isExample views then
@@ -1102,8 +1098,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]
       let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
-      -- term elaboration snapshots are irrelevant for the cmdline driver
-      if let some snap := guard (!Language.internal.cmdlineSnapshots.get (← getOptions)) *> snap? then
+      if let some snap := snap? then
         view := { view with headerSnap? := some {
           old? := do
             -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the

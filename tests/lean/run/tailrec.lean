@@ -193,6 +193,21 @@ def computeLfp'' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
     x
 nontermination_tailrecursive
 
+/--
+error: Could not prove 'computeLfp'''' to be tailrecursive:
+  Recursive call `computeLfp''' f next` is not a tail call.
+  Enclosing tail-call position:
+    id (computeLfp''' f next)
+-/
+#guard_msgs in
+def computeLfp''' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
+  have next := f x
+  if x ≠ next then
+    id $ computeLfp''' f next --NB: Error message should use correct variable name
+  else
+    x
+nontermination_tailrecursive
+
 def whileSome (f : α → Option α) (x : α) : α :=
   match f x with
   | none => x

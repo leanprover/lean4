@@ -122,7 +122,10 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       let new_goals ←
         mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
           goal.apply p
-      new_goals.forM (solveMono ur)
+      let [new_goal] := new_goals | throwError "Unexpected number of goals after applying {p}"
+      -- Intro subgoal with the name found in the letFun expression
+      let (_, new_goal) ← new_goal.intro k.bindingName!
+      solveMono ur new_goal
     return
   | _ => pure
 

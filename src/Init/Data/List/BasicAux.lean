@@ -155,7 +155,8 @@ def mapMono (as : List α) (f : α → α) : List α :=
 
 /-! ## Additional lemmas required for bootstrapping `Array`. -/
 
-theorem getElem_append_left {as bs : List α} (h : i < as.length) {h'} : (as ++ bs)[i] = as[i] := by
+theorem getElem_append_left {as bs : List α} (h : i < as.length) {h' : i < (as ++ bs).length} :
+    (as ++ bs)[i] = as[i] := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>

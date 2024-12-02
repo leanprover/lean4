@@ -39,9 +39,9 @@ protected theorem dvd_add_iff_right {k m n : Nat} (h : k ∣ m) : k ∣ n ↔ k 
 protected theorem dvd_add_iff_left {k m n : Nat} (h : k ∣ n) : k ∣ m ↔ k ∣ m + n := by
   rw [Nat.add_comm]; exact Nat.dvd_add_iff_right h
 
-theorem dvd_mod_iff {k m n : Nat} (h: k ∣ n) : k ∣ m % n ↔ k ∣ m :=
-  have := Nat.dvd_add_iff_left <| Nat.dvd_trans h <| Nat.dvd_mul_right n (m / n)
-  by rwa [mod_add_div] at this
+theorem dvd_mod_iff {k m n : Nat} (h: k ∣ n) : k ∣ m % n ↔ k ∣ m := by
+  have := Nat.dvd_add_iff_left (m := m % n) <| Nat.dvd_trans h <| Nat.dvd_mul_right n (m / n)
+  rwa [mod_add_div] at this
 
 theorem le_of_dvd {m n : Nat} (h : 0 < n) : m ∣ n → m ≤ n
   | ⟨k, e⟩ => by

@@ -841,7 +841,7 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
 theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
     l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ x (hx : x < l₁.length),
       l₁[x] = l₂[x]'(Nat.lt_of_lt_of_le hx h) where
-  mp h := ⟨h.length_le, fun _ _ ↦ h.getElem _⟩
+  mp h := ⟨h.length_le, fun _ h' ↦ h.getElem h'⟩
   mpr h := by
     obtain ⟨hl, h⟩ := h
     induction l₂ generalizing l₁ with

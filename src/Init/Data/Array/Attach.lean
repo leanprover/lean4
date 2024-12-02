@@ -251,7 +251,7 @@ theorem getElem?_attach {xs : Array α} {i : Nat} :
 theorem getElem_attachWith {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, P a}
     {i : Nat} (h : i < (xs.attachWith P H).size) :
     (xs.attachWith P H)[i] = ⟨xs[i]'(by simpa using h), H _ (getElem_mem (by simpa using h))⟩ :=
-  getElem_pmap ..
+  getElem_pmap _ _ h
 
 @[simp]
 theorem getElem_attach {xs : Array α} {i : Nat} (h : i < xs.attach.size) :

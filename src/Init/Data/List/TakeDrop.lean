@@ -65,13 +65,13 @@ theorem lt_length_of_take_ne_self {l : List α} {n} (h : l.take n ≠ l) : n < l
 theorem getElem_cons_drop : ∀ (l : List α) (i : Nat) (h : i < l.length),
     l[i] :: drop (i + 1) l = drop i l
   | _::_, 0, _ => rfl
-  | _::_, i+1, _ => getElem_cons_drop _ i _
+  | _::_, i+1, h => getElem_cons_drop _ i (Nat.add_one_lt_add_one_iff.mp h)
 
 @[deprecated getElem_cons_drop (since := "2024-06-12")]
 theorem get_cons_drop (l : List α) (i) : get l i :: drop (i + 1) l = drop i l := by
   simp
 
-theorem drop_eq_getElem_cons {n} {l : List α} (h) : drop n l = l[n] :: drop (n + 1) l :=
+theorem drop_eq_getElem_cons {n} {l : List α} (h : n < l.length) : drop n l = l[n] :: drop (n + 1) l :=
   (getElem_cons_drop _ n h).symm
 
 @[deprecated drop_eq_getElem_cons (since := "2024-06-12")]

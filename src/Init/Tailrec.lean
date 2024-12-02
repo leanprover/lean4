@@ -311,12 +311,6 @@ instance instCCPOPi [∀ x, Order (β x)] [∀ x, CCPO (β x)] : CCPO (∀ x, β
 
 end fun_order
 
-section tailrec
-
-variable {α : Type u}
-variable {β : α → Type v}
-variable [∀ x, Nonempty (β x)]
-
 /--
 Variant of `fix` that hides the `Order` type classes. This is
 used by the elaborator internally to ease the constrction, but unfolded before finishing
@@ -324,13 +318,14 @@ the construction.
 -/
 noncomputable
 abbrev tailrec_fix
+    {α : Type u}
+    {β : α → Type v}
+    [∀ x, Nonempty (β x)]
     (F : ∀ x, (∀ x, β x) → β x)
     (hmono : ∀ (x : α), monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β _)) (fun f => F x f)) :
     (∀ x, β x) :=
   @fix (∀ x, FlatOrder (β x)) _ _ (fun f x => F x f)
     (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) _ hmono)
-
-end tailrec
 
 namespace Example
 

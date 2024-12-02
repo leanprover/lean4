@@ -51,8 +51,8 @@ def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [M
   if getLinterValue linter.deprecated (← getOptions) then
     let some attr := deprecatedAttr.getParam? (allowAsync := true) (← getEnv) declName | pure ()
     logWarning <| .tagged ``deprecatedAttr <|
-      s!"`{declName}` has been deprecated" ++ match attr.text? with
+      m!"`{.ofConstName declName true}` has been deprecated" ++ match attr.text? with
       | some text => s!": {text}"
       | none => match attr.newName? with
-        | some newName => s!": use `{newName}` instead"
+        | some newName => m!": use `{.ofConstName newName true}` instead"
         | none => ""

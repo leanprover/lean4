@@ -53,6 +53,34 @@ theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
 theorem monotone_id : monotone (fun (x : α) => x) :=
   fun _ _ hxy => hxy
 
+theorem monotone_letFun.{w} {γ : Sort w}
+  (v : γ)
+  (k : α → γ → β)
+  (hmono : ∀ (y : γ), monotone (fun x => k x y)) :
+  monotone fun (x : α) => letFun v (k x) := hmono v
+
+theorem monotone_ite
+  (c : Prop) [Decidable c]
+  (k₁ : α → β)
+  (k₂ : α → β)
+  (hmono₁ : monotone (fun x => k₁ x))
+  (hmono₂ : monotone (fun x => k₂ x)) :
+  monotone fun x => if c then k₁ x else k₂ x := by
+    split
+    · apply hmono₁
+    · apply hmono₂
+
+theorem monotone_dite
+  (c : Prop) [Decidable c]
+  (k₁ : α → c → β)
+  (k₂ : α → ¬ c → β)
+  (hmono₁ : (h : c) → monotone (fun f => k₁ f h))
+  (hmono₂ : (h : ¬ c) → monotone (fun f => k₂ f h)) :
+  monotone fun x => dite c (k₁ x) (k₂ x) := by
+    split
+    · apply hmono₁
+    · apply hmono₂
+
 end monotone
 
 open Order CCPO
@@ -301,7 +329,8 @@ theorem mono_apply : mono fun (f : (∀ x, β x)) => f x :=
 theorem mono_letFun {δ : Sort uu}
   (v : δ) (k : (∀ x, β x) → δ → γ)
   (hmono : ∀ (x : δ), mono (fun f => k f x)) :
-  mono fun f => letFun v (k f) := hmono v
+  mono fun f => letFun v (k f) :=
+    monotone_letFun (α := ∀ _, FlatOrder _) (β := FlatOrder _) v k hmono
 
 theorem mono_ite
   (c : Prop) [Decidable c]
@@ -309,10 +338,8 @@ theorem mono_ite
   (k₂ : (∀ x, β x) → γ)
   (hmono₁ : mono (fun f => k₁ f))
   (hmono₂ : mono (fun f => k₂ f)) :
-  mono fun f => if c then k₁ f else k₂ f := by
-    split
-    · apply hmono₁
-    · apply hmono₂
+  mono fun f => if c then k₁ f else k₂ f :=
+    monotone_ite (α := ∀ _, FlatOrder _) (β := FlatOrder _) c k₁ k₂ hmono₁ hmono₂
 
 theorem mono_dite
   (c : Prop) [Decidable c]
@@ -320,10 +347,8 @@ theorem mono_dite
   (k₂ : (∀ x, β x) → ¬ c → γ)
   (hmono₁ : (h : c) → mono (fun f => k₁ f h))
   (hmono₂ : (h : ¬ c) → mono (fun f => k₂ f h)) :
-  mono fun f => dite c (k₁ f) (k₂ f) := by
-    split
-    · apply hmono₁
-    · apply hmono₂
+  mono fun f => dite c (k₁ f) (k₂ f) :=
+    monotone_dite (α := ∀ _, FlatOrder _) (β := FlatOrder _) c k₁ k₂ hmono₁ hmono₂
 
 set_option linter.unusedVariables false in
 /--
@@ -333,12 +358,13 @@ the arguments to `F`.
 noncomputable
 def tailrec_fix
     (F : ∀ x, (∀ x, β x) → β x)
-    (hmono : ∀ (x : α), mono (fun f => F x f)) : (∀ x, β x) :=
+    (hmono : ∀ (x : α), monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β _)) (fun f => F x f)) :
+    (∀ x, β x) :=
   @fix (∀ x, FlatOrder (β x)) _ _ (fun f x => F x f)
 
 theorem tailrec_fix_eq
     (F : ∀ x, (∀ x, β x) → β x)
-    (hmono : ∀ (x : α), mono (fun f => F x f))
+    (hmono : ∀ (x : α), monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β _)) (fun f => F x f))
     (x : α) :
     tailrec_fix F hmono x = F x (tailrec_fix F hmono) :=
   congrFun
@@ -360,8 +386,8 @@ noncomputable def find P := tailrec_fix (findF P) <| by
   unfold findF
   intro n
   split
-  · apply mono_const
-  · apply mono_apply
+  · apply monotone_const
+  · apply monotone_apply
 
 theorem find_eq : find P x = findF P x (find P) := tailrec_fix_eq ..
 

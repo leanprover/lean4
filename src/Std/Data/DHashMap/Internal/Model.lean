@@ -529,7 +529,7 @@ theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α 
     simp only [List.foldl_cons,insertListₘ]
     apply ih
 
-theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnit [BEq α] [Hashable α] (m : Raw₀ α (fun _ => Unit)) (l: List α):
+theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => Unit)) (l: List α):
     (Const.insertManyIfNewUnit m l).1 = Const.insertListIfNewUnitₘ m l := by
   simp only [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
   suffices ∀ (t : { m' // ∀ (P : Raw₀ α (fun _ => Unit) → Prop),

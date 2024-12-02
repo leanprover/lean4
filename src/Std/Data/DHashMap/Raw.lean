@@ -389,7 +389,6 @@ appearance.
     (Raw₀.insertMany ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-
 @[inline, inherit_doc Raw.insertMany] def Const.insertMany {β : Type v} [BEq α] [Hashable α]
     {ρ : Type w} [ForIn Id ρ (α × β)] (m : Raw α (fun _ => β)) (l : ρ) : Raw α (fun _ => β) :=
   if h : 0 < m.buckets.size then

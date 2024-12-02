@@ -49,7 +49,8 @@ Build a reified version of the constant `val`.
 def mkBoolConst (val : Bool) : M ReifiedBVLogical := do
   let boolExpr := .const val
   let expr := mkApp2 (mkConst ``BoolExpr.const) (mkConst ``BVPred) (toExpr val)
-  let proof := pure <| ReifiedBVLogical.mkRefl (toExpr val)
+  -- This is safe because this proof always holds definitionally.
+  let proof := pure none
   return ⟨boolExpr, proof, expr⟩
 
 /--
@@ -71,8 +72,13 @@ def mkGate (lhs rhs : ReifiedBVLogical) (lhsExpr rhsExpr : Expr) (gate : Gate) :
   let proof := do
     let lhsEvalExpr ← ReifiedBVLogical.mkEvalExpr lhs.expr
     let rhsEvalExpr ← ReifiedBVLogical.mkEvalExpr rhs.expr
-    let lhsProof ← lhs.evalsAtAtoms
-    let rhsProof ← rhs.evalsAtAtoms
+    let lhsProof? ← lhs.evalsAtAtoms
+    let rhsProof? ← rhs.evalsAtAtoms
+    let some (lhsProof, rhsProof) :=
+      M.simplifyBinaryProof
+        ReifiedBVLogical.mkRefl
+        lhsEvalExpr lhsProof?
+        rhsEvalExpr rhsProof? | return none
     return mkApp6
       (mkConst congrThm)
       lhsExpr rhsExpr
@@ -95,8 +101,9 @@ def mkNot (sub : ReifiedBVLogical) (subExpr : Expr) : M ReifiedBVLogical := do
   let boolExpr := .not sub.bvExpr
   let expr := mkApp2 (mkConst ``BoolExpr.not) (mkConst ``BVPred) sub.expr
   let proof := do
+    -- This is safe as `not_congr` holds definitionally if the arguments are defeq.
+    let some subProof ← sub.evalsAtAtoms | return none
     let subEvalExpr ← ReifiedBVLogical.mkEvalExpr sub.expr
-    let subProof ← sub.evalsAtAtoms
     return mkApp3 (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.not_congr) subExpr subEvalExpr subProof
   return ⟨boolExpr, proof, expr⟩
 
@@ -119,9 +126,15 @@ def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) 
     let discrEvalExpr ← ReifiedBVLogical.mkEvalExpr discr.expr
     let lhsEvalExpr ← ReifiedBVLogical.mkEvalExpr lhs.expr
     let rhsEvalExpr ← ReifiedBVLogical.mkEvalExpr rhs.expr
-    let discrProof ← discr.evalsAtAtoms
-    let lhsProof ← lhs.evalsAtAtoms
-    let rhsProof ← rhs.evalsAtAtoms
+    let discrProof? ← discr.evalsAtAtoms
+    let lhsProof? ← lhs.evalsAtAtoms
+    let rhsProof? ← rhs.evalsAtAtoms
+    let some (discrProof, lhsProof, rhsProof) :=
+      M.simplifyTernaryProof
+        ReifiedBVLogical.mkRefl
+        discrEvalExpr discrProof?
+        lhsEvalExpr lhsProof?
+        rhsEvalExpr rhsProof? | return none
     return mkApp9
       (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.ite_congr)
       discrExpr lhsExpr rhsExpr

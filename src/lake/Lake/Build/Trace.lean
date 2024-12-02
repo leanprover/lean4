@@ -126,6 +126,9 @@ instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
 
+@[inline] def ofBool (b : Bool) :=
+  mk (hash b)
+
 @[inline] protected def toJson (self : Hash) : Json :=
   toJson self.val
 
@@ -152,6 +155,7 @@ instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.computeHa
 @[inline] def computeHash [ComputeHash α m] [MonadLiftT m n] (a : α) : n Hash :=
   liftM <| ComputeHash.computeHash a
 
+instance : ComputeHash Bool Id := ⟨Hash.ofBool⟩
 instance : ComputeHash String Id := ⟨Hash.ofString⟩
 
 /--

@@ -157,9 +157,9 @@ structure ReifiedBVExpr where
   -/
   bvExpr : BVExpr width
   /--
-  A proof that `bvExpr.eval atomsAssignment = originalBVExpr`.
+  A proof that `bvExpr.eval atomsAssignment = originalBVExpr`, none if it holds by `rfl`.
   -/
-  evalsAtAtoms : M Expr
+  evalsAtAtoms : M (Option Expr)
   /--
   A cache for `toExpr bvExpr`.
   -/
@@ -174,9 +174,9 @@ structure ReifiedBVPred where
   -/
   bvPred : BVPred
   /--
-  A proof that `bvPred.eval atomsAssignment = originalBVPredExpr`.
+  A proof that `bvPred.eval atomsAssignment = originalBVPredExpr`, none if it holds by `rfl`.
   -/
-  evalsAtAtoms : M Expr
+  evalsAtAtoms : M (Option Expr)
   /--
   A cache for `toExpr bvPred`
   -/
@@ -191,9 +191,9 @@ structure ReifiedBVLogical where
   -/
   bvExpr : BVLogicalExpr
   /--
-  A proof that `bvExpr.eval atomsAssignment = originalBVLogicalExpr`.
+  A proof that `bvExpr.eval atomsAssignment = originalBVLogicalExpr`, none if it holds by `rfl`.
   -/
-  evalsAtAtoms : M Expr
+  evalsAtAtoms : M (Option Expr)
   /--
   A cache for `toExpr bvExpr`
   -/
@@ -262,6 +262,29 @@ where
     let packedType := mkConst ``BVExpr.PackedBitVec
     let newAtomsAssignment ← mkListLit packedType packed
     modify fun s => { s with atomsAssignmentCache := newAtomsAssignment }
+
+@[specialize]
+def simplifyBinaryProof' (mkFRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr)
+    (mkSRefl : Expr → Expr) (snd : Expr) (sproof : Option Expr) : Option (Expr × Expr) := do
+  match fproof, sproof with
+  | some fproof, some sproof => some (fproof, sproof)
+  | some fproof, none => some (fproof, mkSRefl snd)
+  | none, some sproof => some (mkFRefl fst, sproof)
+  | none, none => none
+
+@[specialize]
+def simplifyBinaryProof (mkRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr) (snd : Expr)
+    (sproof : Option Expr) : Option (Expr × Expr) := do
+  simplifyBinaryProof' mkRefl fst fproof mkRefl snd sproof
+
+@[specialize]
+def simplifyTernaryProof (mkRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr) (snd : Expr)
+    (sproof : Option Expr) (thd : Expr) (tproof : Option Expr) : Option (Expr × Expr × Expr) := do
+  match fproof, simplifyBinaryProof mkRefl snd sproof thd tproof with
+  | some fproof, some stproof => some (fproof, stproof)
+  | some fproof, none => some (fproof, mkRefl snd, mkRefl thd)
+  | none, some stproof => some (mkRefl fst, stproof)
+  | none, none => none
 
 end M
 

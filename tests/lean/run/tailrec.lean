@@ -185,6 +185,14 @@ def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
     x
 nontermination_tailrecursive
 
+def computeLfp'' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
+  have next := f x
+  if x ≠ next then
+    computeLfp'' f next
+  else
+    x
+nontermination_tailrecursive
+
 def whileSome (f : α → Option α) (x : α) : α :=
   match f x with
   | none => x

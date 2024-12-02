@@ -298,6 +298,11 @@ theorem mono_const (c : γ) : mono fun (_ : (∀ x, β x)) => c :=
 theorem mono_apply : mono fun (f : (∀ x, β x)) => f x :=
   monotone_apply (β := fun _ => FlatOrder _) x
 
+theorem mono_letFun {δ : Sort uu}
+  (v : δ) (k : (∀ x, β x) → δ → γ)
+  (hmono : ∀ (x : δ), mono (fun f => k f x)) :
+  mono fun f => letFun v (k f) := hmono v
+
 theorem mono_ite
   (c : Prop) [Decidable c]
   (k₁ : (∀ x, β x) → γ)

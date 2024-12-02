@@ -91,7 +91,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       solveMono ur goal'.mvarId!
     return
 
-  -- Manually handle ite, dite. Not too hard, and more robust and predictable than
+  -- Manually handle ite, dite, etc.. Not too hard, and more robust and predictable than
   -- using the split tactic.
   match_expr e with
   | ite _ cond decInst k₁ k₂ =>
@@ -113,6 +113,16 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
         goal.apply p
     new_goals.forM (solveMono ur)
+    return
+  | letFun δ _ v k =>
+    if k.isLambda then
+      let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.take 1
+      let k' := f.updateLambdaE! f.bindingDomain! k
+      let p := mkAppN (.const ``Tailrec.mono_letFun us) #[α, β, γ, inst₁, inst₂, δ, v, k']
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      new_goals.forM (solveMono ur)
     return
   | _ => pure
 

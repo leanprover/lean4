@@ -62,7 +62,7 @@ where
 
     let proof := do
       let evalExpr ← ReifiedBVLogical.mkEvalExpr imp.expr
-      let congrProof ← imp.evalsAtAtoms
+      let congrProof := (← imp.evalsAtAtoms).getD (ReifiedBVLogical.mkRefl evalExpr)
       let lemmaProof := mkApp4 (mkConst lemmaName) (toExpr lhs.width) discrExpr lhsExpr rhsExpr
 
       let trueExpr := mkConst ``Bool.true

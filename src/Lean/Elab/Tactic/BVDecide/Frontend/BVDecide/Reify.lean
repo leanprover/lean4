@@ -112,7 +112,8 @@ where
           inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.zeroExtend_congr)
           newWidthExpr
           (toExpr inner.width)
@@ -132,7 +133,8 @@ where
           inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.signExtend_congr)
           newWidthExpr
           (toExpr inner.width)
@@ -150,9 +152,13 @@ where
         lhs.expr rhs.expr
       let proof := do
         let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
-        let lhsProof ← lhs.evalsAtAtoms
-        let rhsProof ← rhs.evalsAtAtoms
         let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
+        let lhsProof? ← lhs.evalsAtAtoms
+        let rhsProof? ← rhs.evalsAtAtoms
+        let some (lhsProof, rhsProof) :=
+          M.simplifyBinaryProof'
+            (ReifiedBVExpr.mkBVRefl lhs.width) lhsEval lhsProof?
+            (ReifiedBVExpr.mkBVRefl rhs.width) rhsEval rhsProof? | return none
         return mkApp8 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.append_congr)
           (toExpr lhs.width) (toExpr rhs.width)
           lhsExpr lhsEval
@@ -169,7 +175,8 @@ where
         inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.replicate_congr)
           (toExpr n)
           (toExpr inner.width)
@@ -189,7 +196,8 @@ where
         inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp6 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.extract_congr)
           startExpr
           lenExpr
@@ -301,11 +309,16 @@ where
       return none
 
   binaryCongrProof (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (congrThm : Expr) :
-      M Expr := do
+      M (Option Expr) := do
     let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
-    let lhsProof ← lhs.evalsAtAtoms
-    let rhsProof ← rhs.evalsAtAtoms
     let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
+    let lhsProof? ← lhs.evalsAtAtoms
+    let rhsProof? ← rhs.evalsAtAtoms
+    let some (lhsProof, rhsProof) :=
+      M.simplifyBinaryProof
+        (ReifiedBVExpr.mkBVRefl lhs.width)
+        lhsEval lhsProof?
+        rhsEval rhsProof? | return none
     return mkApp6 congrThm lhsExpr rhsExpr lhsEval rhsEval lhsProof rhsProof
 
   unaryReflection (innerExpr : Expr) (op : BVUnOp) (congrThm : Name) :
@@ -316,9 +329,9 @@ where
     let proof := unaryCongrProof inner innerExpr (mkConst congrThm)
     return some ⟨inner.width, bvExpr, proof, expr⟩
 
-  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : M Expr := do
+  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : M (Option Expr) := do
     let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-    let innerProof ← inner.evalsAtAtoms
+    let some innerProof ← inner.evalsAtAtoms | return none
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
   goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do

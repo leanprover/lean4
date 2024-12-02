@@ -515,6 +515,10 @@ register_builtin_option compiler.enableNew : Bool := {
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
+  -- don't compile if kernel errored; should be converted into a task dependency when compilation
+  -- is made async as well
+  if (← get).snapshotTasks.any (·.get.element.diagnostics.msgLog.hasErrors) then
+    return
   let opts ← getOptions
   let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
@@ -530,6 +534,10 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     throwKernelException ex
 
 def compileDecls (decls : List Name) : CoreM Unit := do
+  -- don't compile if kernel errored; should be converted into a task dependency when compilation
+  -- is made async as well
+  if (← get).snapshotTasks.any (·.get.element.diagnostics.msgLog.hasErrors) then
+    return
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls

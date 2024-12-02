@@ -168,20 +168,16 @@ def numeralToCoe (e : Expr) : MetaM Simp.Result := do
   let some pr ← proveEqUsingDown e newE | failure
   return pr
 
+declare_config_elab elabNormCastConfig NormCastConfig
+
 /--
 The core simplification routine of `normCast`.
 -/
-def derive (e : Expr) : MetaM Simp.Result := do
+def derive (e : Expr) (config : NormCastConfig := {}) : MetaM Simp.Result := do
   withTraceNode `Tactic.norm_cast (fun _ => return m!"{e}") do
   let e ← instantiateMVars e
 
-  let config : Simp.Config := {
-    zeta := false
-    beta := false
-    eta  := false
-    proj := false
-    iota := false
-  }
+  let config := config.toConfig
   let congrTheorems ← Meta.getSimpCongrTheorems
 
   let r : Simp.Result := { expr := e }
@@ -193,13 +189,13 @@ def derive (e : Expr) : MetaM Simp.Result := do
   -- step 1: pre-processing of numerals
   let r ← withTrace "pre-processing numerals" do
     let post e := return Simp.Step.done (← try numeralToCoe e catch _ => pure {expr := e})
-    let ctx ← Simp.mkContext (config := config) (congrTheorems := congrTheorems)
+    let ctx ← Simp.mkContext config (congrTheorems := congrTheorems)
     r.mkEqTrans (← Simp.main r.expr ctx (methods := { post })).1
 
   -- step 2: casts are moved upwards and eliminated
   let r ← withTrace "moving upward, splitting and eliminating" do
     let post := upwardAndElim (← normCastExt.up.getTheorems)
-    let ctx ← Simp.mkContext (config := config) (congrTheorems := congrTheorems)
+    let ctx ← Simp.mkContext config (congrTheorems := congrTheorems)
     r.mkEqTrans (← Simp.main r.expr ctx (methods := { post })).1
 
   let simprocs ← ({} : Simp.SimprocsArray).add `reduceCtorEq false
@@ -234,32 +230,33 @@ open Term
   | _ => throwUnsupportedSyntax
 
 /-- Implementation of the `norm_cast` tactic when operating on the main goal. -/
-def normCastTarget : TacticM Unit :=
+def normCastTarget (cfg : NormCastConfig) : TacticM Unit :=
   liftMetaTactic1 fun goal => do
     let tgt ← instantiateMVars (← goal.getType)
-    let prf ← derive tgt
+    let prf ← derive tgt cfg
     applySimpResultToTarget goal tgt prf
 
 /-- Implementation of the `norm_cast` tactic when operating on a hypothesis. -/
-def normCastHyp (fvarId : FVarId) : TacticM Unit :=
+def normCastHyp (cfg : NormCastConfig) (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => do
     let hyp ← instantiateMVars (← fvarId.getDecl).type
-    let prf ← derive hyp
+    let prf ← derive hyp cfg
     return (← applySimpResultToLocalDecl goal fvarId prf false).map (·.snd)
 
 @[builtin_tactic normCast0]
 def evalNormCast0 : Tactic := fun stx => do
   match stx with
-  | `(tactic| norm_cast0 $[$loc?]?) =>
+  | `(tactic| norm_cast0 $cfg $[$loc?]?) =>
     let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
+    let cfg ← elabNormCastConfig cfg
     withMainContext do
       match loc with
       | Location.targets hyps target =>
-        if target then normCastTarget
-        (← getFVarIds hyps).forM normCastHyp
+        if target then (normCastTarget cfg)
+        (← getFVarIds hyps).forM (normCastHyp cfg)
       | Location.wildcard =>
-        normCastTarget
-        (← (← getMainGoal).getNondepPropHyps).forM normCastHyp
+        normCastTarget cfg
+        (← (← getMainGoal).getNondepPropHyps).forM (normCastHyp cfg)
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.normCast]

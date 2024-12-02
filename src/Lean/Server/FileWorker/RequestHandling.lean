@@ -166,8 +166,8 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     let mut expr := ti.expr
     if kind == type then
       expr ← ci.runMetaM i.lctx do
-        return Expr.getAppFn (← instantiateMVars (← Meta.inferType expr)) |>.consumeMData
-    match expr with
+        return Expr.getAppFn (← instantiateMVars (← Meta.inferType expr))
+    match expr.consumeMData with
     | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
     | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder i id
     | _ => pure ()
@@ -212,15 +212,17 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     locationLinksDefault
 
   match i with
-  | .ofDelabTermInfo { location? := some (module, range), .. } =>
-    let targetUri := (← documentUriFromModule rc.srcSearchPath module).getD doc.meta.uri
-    let result : LocationLink := {
-      targetUri, targetRange := range, targetSelectionRange := range,
-      originSelectionRange? := (·.toLspRange text) <$> i.range?
-    }
-    return #[result]
-  | .ofTermInfo ti
-  | .ofDelabTermInfo { toTermInfo := ti } =>
+  | .ofTermInfo ti =>
+    return ← locationLinksFromTermInfo ti
+  | .ofDelabTermInfo { toTermInfo := ti, location?, .. } =>
+    if let some (module, range) := location? then
+      if let some targetUri ← documentUriFromModule rc.srcSearchPath module then
+        let result : LocationLink := {
+          targetUri, targetRange := range, targetSelectionRange := range,
+          originSelectionRange? := (·.toLspRange text) <$> i.range?
+        }
+        return #[result]
+      -- If we fail to find a DocumentUri, fall through and use the default method to at least try to have something to jump to.
     return ← locationLinksFromTermInfo ti
   | .ofFieldInfo fi =>
     if kind == type then

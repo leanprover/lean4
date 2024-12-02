@@ -223,7 +223,7 @@ Lean will give a warning whenever a declaration uses `sorry`, so you aren't like
 but you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output
 of the `#print axioms my_thm` command, the axiom used by the implementation of `sorry`.
 
-"Go to definition" on `sorry` will go to the source position where it was introduced.
+"Go to definition" on `sorry` in the Infoview will go to the source position where it was introduced, if such information is available.
 
 Each `sorry` is guaranteed to be unique, so for example the following fails:
 ```lean

@@ -287,7 +287,9 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
               | Exception.internal _ _ =>
                 logException ex
             finally
-              modify fun s => { savedState with messages := s.messages }
+              -- TODO: it would be good to preserve even more state (#4363) but preserving info
+              -- trees currently breaks from linters adding context-less info nodes
+              modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
 
 /--
 Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
@@ -311,7 +313,7 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
     IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
-      modify ({ · with messages := {}, traceState := { tid } })
+      modify fun st => { st with messages := st.messages.markAllReported, traceState := { tid } }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
@@ -343,6 +345,17 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
 @[inherit_doc Core.logSnapshotTask]
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
+
+def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
+  if !Elab.async.get (← getOptions) then
+    withoutModifyingEnv do
+      runLinters stx
+    return
+
+  -- We only start one task for all linters for now as most linters are fast and we simply want
+  -- to unblock elaboration of the next command
+  let lintAct ← wrapAsyncAsSnapshot fun _ => runLinters stx
+  logSnapshotTask { range? := none, task := (← BaseIO.asTask lintAct) }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -547,7 +560,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     -- rather than engineer a general solution.
     unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
       withLogging do
-        runLinters stx
+        runLintersAsync stx
   finally
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages

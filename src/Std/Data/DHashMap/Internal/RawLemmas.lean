@@ -1247,7 +1247,7 @@ theorem getKey?_insertManyIfNewUnit_list_of_mem_of_contains [EquivBEq α] [Lawfu
     (h : m.1.WF) {l : List α} {k : α}
     (distinct : l.Pairwise (fun a b => (a == b) = false))
     (h': l.contains k) :
-    m.contains k  → getKey? (insertManyIfNewUnit m l).1 k = getKey? m k := by
+    m.contains k → getKey? (insertManyIfNewUnit m l).1 k = getKey? m k := by
   simp_to_model using getKey?_insertListIfNewUnit_of_mem_of_contains
 
 theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]

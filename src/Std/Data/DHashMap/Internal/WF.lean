@@ -742,6 +742,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
 end Raw
 
 namespace Raw₀
+
 /-! # `insertMany` -/
 
 theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}

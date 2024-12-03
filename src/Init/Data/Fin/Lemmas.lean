@@ -301,10 +301,9 @@ theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt one_pos
 theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0
   | ⟨k, _⟩, heq => Nat.succ_ne_zero k <| congrArg Fin.val heq
 
-@[simp] theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
+theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
 
-/-- Version of `succ_one_eq_two` to be used by `dsimp` -/
-@[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl
+theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl
 
 @[simp] theorem succ_mk (n i : Nat) (h : i < n) :
     Fin.succ ⟨i, h⟩ = ⟨i + 1, Nat.succ_lt_succ h⟩ := rfl

@@ -23,6 +23,8 @@ typedef struct {
     _Atomic(int) n_waiters;
 } event_loop_t;
 
+// =======================================
+// Event loop manipulation functions.
 void event_loop_init(event_loop_t *event_loop);
 void event_loop_cleanup(event_loop_t *event_loop);
 void event_loop_lock(event_loop_t *event_loop);

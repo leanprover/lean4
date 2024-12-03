@@ -6,7 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
-import Init.System.Mutex
+import Std.Sync.Mutex
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
@@ -113,7 +113,7 @@ section FileWorker
   structure FileWorker where
     doc                : DocumentMeta
     proc               : Process.Child workerCfg
-    exitCode           : IO.Mutex (Option UInt32)
+    exitCode           : Std.Mutex (Option UInt32)
     commTask           : Task WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker,
@@ -392,7 +392,7 @@ section ServerM
       -- open session for `kill` above
       setsid        := true
     }
-    let exitCode ← IO.Mutex.new none
+    let exitCode ← Std.Mutex.new none
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     let initialDependencyBuildMode := m.dependencyBuildMode
     let updatedDependencyBuildMode :=

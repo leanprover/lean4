@@ -6,7 +6,7 @@ Author: Markus Himmel, Sofia Rodrigues
  */
 #include <pthread.h>
 
-#include "runtime/event_loop.h"
+#include "runtime/uv_event_loop.h"
 #include "runtime/libuv.h"
 #include "runtime/object.h"
 

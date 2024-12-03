@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "runtime/process.h"
 #include "runtime/mutex.h"
 #include "runtime/init_module.h"
-#include "runtime/event_loop.h"
+#include "runtime/uv_event_loop.h"
 #include "runtime/libuv.h"
 
 namespace lean {

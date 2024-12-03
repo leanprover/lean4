@@ -228,6 +228,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     | .app (.app (.app (.app (.const ``Prod.mk [u, v]) _) _) x) y =>
       rewrite e (mkApp4 (.const ``Prod.snd_mk [u, v]) α x β y)
     | _ => mkAtomLinearCombo e
+  | (``Int.negSucc, #[n]) => rewrite e (mkApp (.const ``Int.negSucc_eq []) n)
   | _ => mkAtomLinearCombo e
 where
   /--

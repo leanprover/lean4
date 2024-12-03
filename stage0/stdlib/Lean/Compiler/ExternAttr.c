@@ -83,7 +83,6 @@ static lean_object* l_Lean_getExternConstArityExport___closed__8;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__12;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_755____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isExternC(lean_object*, lean_object*);
-lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__3___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -93,6 +92,7 @@ lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_755____closed__2;
+lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getExternConstArityExport___closed__10;
 LEAN_EXPORT lean_object* l_Lean_mkSimpleFnCall(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_String_join___spec__1(lean_object*, lean_object*);
@@ -877,7 +877,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_9, x_4, x_5, x_10);
+x_11 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(x_9, x_4, x_5, x_10);
 return x_11;
 }
 else

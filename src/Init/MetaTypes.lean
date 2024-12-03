@@ -250,6 +250,13 @@ def neutralConfig : Simp.Config := {
   zetaDelta         := false
 }
 
+structure NormCastConfig extends Simp.Config where
+    zeta := false
+    beta := false
+    eta  := false
+    proj := false
+    iota := false
+
 end Simp
 
 /-- Configuration for which occurrences that match an expression should be rewritten. -/

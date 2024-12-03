@@ -2213,6 +2213,11 @@ theorem flatMap_def (l : List α) (f : α → List β) : l.flatMap f = flatten (
 
 @[simp] theorem flatMap_id (l : List (List α)) : List.flatMap l id = l.flatten := by simp [flatMap_def]
 
+@[simp]
+theorem length_flatMap (l : List α) (f : α → List β) :
+    length (l.flatMap f) = sum (map (length ∘ f) l) := by
+  rw [List.flatMap, length_flatten, map_map]
+
 @[simp] theorem mem_flatMap {f : α → List β} {b} {l : List α} : b ∈ l.flatMap f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
   simp [flatMap_def, mem_flatten]
   exact ⟨fun ⟨_, ⟨a, h₁, rfl⟩, h₂⟩ => ⟨a, h₁, h₂⟩, fun ⟨a, h₁, h₂⟩ => ⟨_, ⟨a, h₁, rfl⟩, h₂⟩⟩

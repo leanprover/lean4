@@ -181,7 +181,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
     }
 }
 
-/* Std.Internal.UV.Timer.reset (timer : Timer) : IO Unit */
+/* Std.Internal.UV.Timer.reset (timer : @& Timer) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg /* w */ ) {
     lean_uv_timer_object* obj = lean_to_uv_timer(timer);
 

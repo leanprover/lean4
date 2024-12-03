@@ -2750,7 +2750,7 @@ theorem getValue_insertListConst_of_mem [BEq α] [PartialEquivBEq α]
   . exact distinct
 
 /-- Internal implementation detail of the hash map -/
-def insertListIfNewUnit [BEq α] (l: List ((_ : α) × Unit))(toInsert: List α) :
+def insertListIfNewUnit [BEq α] (l: List ((_ : α) × Unit)) (toInsert: List α) :
     List ((_ : α) × Unit) :=
   match toInsert with
   | .nil => l

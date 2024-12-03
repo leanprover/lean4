@@ -984,14 +984,14 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
   simp_to_model using getKeyD_insertList_of_mem
 
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
-    {l : List ((a : α) × β a)} {distinct : List.Pairwise (fun a b => (a.1 == b.1) = false) l}:
+    {l : List ((a : α) × β a)} {distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)} :
     (∀ (a : α), ¬ (m.contains a ∧ (l.map Sigma.fst).contains a)) →
     (m.insertMany l).1.1.size = m.1.size + l.length := by
   simp_to_model using length_insertList
 
 theorem isEmpty_insertMany_list_eq_false_of_isEmpty_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {l : List ((a : α) × β a)}:
-    (m.1.isEmpty = false) → (m.insertMany l).1.1.isEmpty  = false := by
+    (m.1.isEmpty = false) → (m.insertMany l).1.1.isEmpty = false := by
   simp_to_model using isEmpty_insertList_eq_false_of_isEmpty_eq_false
 
 theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
@@ -1000,7 +1000,7 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
   simp_to_model using isEmpty_insertList
 
 section
-variable {β: Type v} (m: Raw₀ α (fun _ => β))
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
 theorem get?_insertMany_list_of_contains_eq_false_const [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List ((_ : α) × β)} {k : α} (h : (l.map Sigma.fst).contains k = false) :

@@ -132,18 +132,27 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
-    let mkDefDecl : TermElabM Declaration :=
+    let isProp ← isProp preDef.type
+    -- If we're going to create a theorem, discard the `reducible` attribute.
+    let preDef := if isProp then preDef.filterAttrs (fun attr => attr.name != `reducible && attr.name != `inline) else preDef
+    let constantVal : ConstantVal := { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type }
+    let env ← getEnv
+    let mkDefDecl (hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1)) : TermElabM Declaration :=
       return Declaration.defnDecl {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
-          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
-          all }
+        constantVal with
+        value := preDef.value
+        safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+        hints
+        all }
     let mkThmDecl : TermElabM Declaration := do
-      let d := {
-        name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
-      }
+      let d := { constantVal with value := preDef.value, all }
       reportTheoremDiag d
       return Declaration.thmDecl d
+    let mkAbbrevDecl : TermElabM Declaration := do
+      if isProp then
+        mkThmDecl
+      else
+        mkDefDecl ReducibilityHints.abbrev
     let decl ←
       match preDef.kind with
       | DefKind.«theorem» => mkThmDecl
@@ -152,21 +161,16 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
           isUnsafe := preDef.modifiers.isUnsafe, all
         }
-      | DefKind.«abbrev»  =>
-        pure <| Declaration.defnDecl {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          hints := ReducibilityHints.«abbrev»
-          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
-          all }
+      | DefKind.«abbrev» => mkAbbrevDecl
       | DefKind.def | DefKind.example => mkDefDecl
-      | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
+      | DefKind.«instance» => if isProp then mkThmDecl else mkDefDecl
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     if preDef.modifiers.isNoncomputable then
       modifyEnv fun env => addNoncomputable env preDef.declName
-    if compile && shouldGenCodeFor preDef then
+    if compile && !isProp && shouldGenCodeFor preDef then
       discard <| compileDecl decl
     if applyAttrAfterCompilation then
       generateEagerEqns preDef.declName

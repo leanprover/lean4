@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-rm -rf .lake/build
+rm -rf .lake
 lake build && ./.lake/build/bin/user_attr

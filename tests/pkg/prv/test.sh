@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-rm -rf .lake/build
+rm -rf .lake
 lake build 2>&1 | grep 'error: .*: field.*private'

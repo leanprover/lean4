@@ -1318,7 +1318,7 @@ in more situations.
 
 Concretely, it runs `norm_cast` on the goal. For each local hypothesis `h`, it also
 normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
-macro "assumption_mod_cast" : tactic => `(tactic| norm_cast0 at * <;> assumption)
+macro "assumption_mod_cast" cfg:optConfig : tactic => `(tactic| norm_cast0 $cfg at * <;> assumption)
 
 /--
 The `norm_cast` family of tactics is used to normalize certain coercions (*casts*) in expressions.
@@ -1355,8 +1355,8 @@ their operation, to make them more flexible about the expressions they accept
 
 See also `push_cast`, which moves casts inwards rather than lifting them outwards.
 -/
-macro "norm_cast" loc:(location)? : tactic =>
-  `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+macro "norm_cast" cfg:optConfig loc:(location)? : tactic =>
+  `(tactic| norm_cast0 $cfg $[$loc]? <;> try trivial)
 
 
 /--

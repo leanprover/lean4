@@ -200,6 +200,7 @@ lean_object* lean_st_ref_swap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_logImportFailure___at_Lean_Meta_LazyDiscrTree_createModuleDiscrTree___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_dropKeyAux(lean_object*);
 lean_object* l_Lean_EnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_MatchResult_appendResultsAux___at_Lean_Meta_LazyDiscrTree_MatchResult_appendResults___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_LazyDiscrTree_createImportedDiscrTree___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_initCapacity;
@@ -212,7 +213,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_MatchResult_appendResults(lea
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_findImportMatches___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_reprKey____x40_Lean_Meta_LazyDiscrTree___hyg_355____closed__18;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_addConstImportData___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_Meta_LazyDiscrTree_MatchResult_appendResults___spec__4(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
@@ -1632,7 +1632,7 @@ lean_object* x_9; lean_object* x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 x_11 = 3541;
-x_12 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(x_9);
+x_12 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(x_9);
 x_13 = lean_uint64_of_nat(x_10);
 x_14 = lean_uint64_mix_hash(x_12, x_13);
 x_15 = lean_uint64_mix_hash(x_11, x_14);

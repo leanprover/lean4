@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.OrderedTagAttribute
-// Imports: Init Lean.Attributes
+// Imports: Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____cl
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOrderedTagAttribute___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_registerOrderedTagAttribute___closed__1;
 lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lambda__3___boxed(lean_object*);
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__4;
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__25;
@@ -145,7 +146,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__16;
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__9;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(uint8_t, uint8_t);
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__7;
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__10;
 static lean_object* l_Lake_registerOrderedTagAttribute___closed__4;
@@ -1231,7 +1231,7 @@ x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec(x_10);
 x_12 = 0;
-x_13 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(x_6, x_12);
+x_13 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_6, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
@@ -1761,16 +1761,12 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_OrderedTagAttribute(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

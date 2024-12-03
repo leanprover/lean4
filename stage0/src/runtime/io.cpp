@@ -1460,6 +1460,10 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /
     return io_result_mk_ok(a);
 }
 
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
+    return io_result_mk_ok(box(0));
+}
+
 void initialize_io() {
     g_io_error_nullptr_read = lean_mk_io_user_error(mk_ascii_string_unchecked("null reference read"));
     mark_persistent(g_io_error_nullptr_read);

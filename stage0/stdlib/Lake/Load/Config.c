@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Config
-// Imports: Init Lean.Data.Name Lean.Data.Options Lake.Config.Defaults Lake.Config.Env Lake.Util.Log Lake.Util.Version
+// Imports: Lean.Data.Name Lean.Data.Options Lake.Config.Defaults Lake.Config.Env Lake.Util.Log Lake.Util.Version
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -66,7 +66,6 @@ x_6 = l_System_FilePath_join(x_4, x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object*);
@@ -78,9 +77,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Load_Config(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

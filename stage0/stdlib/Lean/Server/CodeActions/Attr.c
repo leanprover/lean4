@@ -35,6 +35,7 @@ static lean_object* l_Lean_CodeAction_mkHoleCodeAction_unsafe__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_mkHoleCodeAction_unsafe__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1441____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(uint8_t, uint8_t);
 static lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1061____lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_297_(lean_object*);
 static lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_297____closed__4;
@@ -222,7 +223,6 @@ static lean_object* l_Lean_CodeAction_mkHoleCodeAction_unsafe__1___closed__2;
 static lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1441____closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____lambda__4___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_instInhabitedCommandCodeActions;
@@ -1354,7 +1354,7 @@ x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = 0;
-x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(x_3, x_9);
+x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_3, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
@@ -3442,7 +3442,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; 
 x_7 = 0;
-x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(x_3, x_7);
+x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_3, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
@@ -4223,7 +4223,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; 
 x_7 = 0;
-x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(x_3, x_7);
+x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_3, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 

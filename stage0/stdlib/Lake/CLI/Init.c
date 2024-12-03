@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Init
-// Imports: Init Lake.Util.Git Lake.Util.Sugar Lake.Util.Version Lake.Config.Lang Lake.Config.Package Lake.Config.Workspace Lake.Load.Config Lake.Build.Actions
+// Imports: Lake.Util.Git Lake.Util.Sugar Lake.Util.Version Lake.Config.Lang Lake.Config.Package Lake.Config.Workspace Lake.Load.Config Lake.Build.Actions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1878,7 +1878,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(202u);
+x_3 = lean_unsigned_to_nat(203u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1899,7 +1899,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_escapeName_x21___closed__1;
 x_2 = l_Lake_escapeName_x21___closed__2;
-x_3 = lean_unsigned_to_nat(205u);
+x_3 = lean_unsigned_to_nat(206u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lake_escapeName_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6895,7 +6895,6 @@ lean_dec(x_1);
 return x_10;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Git(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Sugar(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Version(uint8_t builtin, lean_object*);
@@ -6909,9 +6908,6 @@ LEAN_EXPORT lean_object* initialize_Lake_CLI_Init(uint8_t builtin, lean_object* 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_Git(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

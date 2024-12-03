@@ -30,6 +30,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed_
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__4___lambda__2___closed__2;
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(uint8_t, uint8_t);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__3___closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__1;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
@@ -138,7 +139,6 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_I
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__4___closed__2;
 LEAN_EXPORT lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__5___lambda__2___boxed(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(uint8_t, uint8_t);
 lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__9;
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__4___lambda__2___closed__1;
@@ -2793,7 +2793,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_164_(x_4, x_8);
+x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 

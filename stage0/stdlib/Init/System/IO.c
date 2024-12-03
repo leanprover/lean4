@@ -512,6 +512,7 @@ LEAN_EXPORT lean_object* l_IO_TaskState_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_System_IO___hyg_1713____closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1(lean_object*, lean_object*, lean_object*);
+lean_object* lean_runtime_forget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_System_IO___hyg_1713_;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 extern lean_object* l_Task_Priority_dedicated;
@@ -717,6 +718,7 @@ static lean_object* l_IO_FS_Stream_ofBuffer___closed__2;
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__18;
 static lean_object* l___auto____x40_Init_System_IO___hyg_1713____closed__36;
+LEAN_EXPORT lean_object* l_Runtime_forget___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_mapTask___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadFinallyEIO(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Child_tryWait___boxed(lean_object*, lean_object*, lean_object*);
@@ -11605,6 +11607,14 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_runtime_mark_persistent(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Runtime_forget___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_runtime_forget(x_2, x_3);
 return x_4;
 }
 }

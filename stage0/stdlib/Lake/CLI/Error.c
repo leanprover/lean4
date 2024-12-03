@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Error
-// Imports: Init
+// Imports: Init.Data.ToString Init.System.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_Lake_CliError_toString___lambda__1___boxed(lean_objec
 static lean_object* l_Lake_CliError_toString___closed__33;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__58;
 static lean_object* l_Lake_CliError_toString___closed__27;
+lean_object* l_List_repr_x27___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2056____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__81;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__94;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__12;
@@ -128,7 +129,6 @@ static lean_object* l_Lake_CliError_toString___closed__2;
 static lean_object* l_Lake_CliError_toString___closed__9;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__15;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__36;
-lean_object* l_List_repr_x27___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2054____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__37;
 static lean_object* l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__87;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -1842,7 +1842,7 @@ lean_inc(x_239);
 lean_dec(x_1);
 x_240 = lean_unsigned_to_nat(1024u);
 x_241 = lean_nat_dec_le(x_240, x_2);
-x_242 = l_List_repr_x27___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2054____spec__1(x_239, x_240);
+x_242 = l_List_repr_x27___at___private_Init_Meta_0__Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_2056____spec__1(x_239, x_240);
 x_243 = l___private_Lake_CLI_Error_0__Lake_reprCliError____x40_Lake_CLI_Error___hyg_323____closed__29;
 x_244 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_244, 0, x_243);
@@ -4539,13 +4539,17 @@ x_1 = l_Lake_CliError_instToString___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_FilePath(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_CLI_Error(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Data_ToString(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_FilePath(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_instInhabitedCliError = _init_l_Lake_instInhabitedCliError();

@@ -58,7 +58,6 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go__
 lean_object* lean_io_remove_file(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_unusedRelevantHypothesesExplainer___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__3;
-lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toArray___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__22;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__6___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -209,6 +208,7 @@ lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__1___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___lambda__3___closed__1;
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___lambda__1___closed__7;
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_M_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__28;
@@ -232,7 +232,6 @@ lean_object* l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(lean_obje
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_Frontend_unusedRelevantHypothesesExplainer___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_processPostponed___spec__2___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_Frontend_explainCounterExampleQuality___spec__2___closed__3;
@@ -560,6 +559,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_El
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__13___boxed(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_SatAtBVLogical_of(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__1;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__1;
@@ -5572,7 +5572,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; uint64_t x_19; uint64_t
 x_16 = lean_ctor_get(x_11, 0);
 x_17 = lean_ctor_get(x_11, 1);
 x_18 = lean_array_get_size(x_17);
-x_19 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(x_1);
+x_19 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(x_1);
 x_20 = 32;
 x_21 = lean_uint64_shift_right(x_19, x_20);
 x_22 = lean_uint64_xor(x_19, x_21);
@@ -5703,7 +5703,7 @@ lean_inc(x_63);
 lean_inc(x_62);
 lean_dec(x_11);
 x_64 = lean_array_get_size(x_63);
-x_65 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(x_1);
+x_65 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(x_1);
 x_66 = 32;
 x_67 = lean_uint64_shift_right(x_65, x_66);
 x_68 = lean_uint64_xor(x_65, x_67);
@@ -5846,7 +5846,7 @@ if (lean_is_exclusive(x_11)) {
  x_110 = lean_box(0);
 }
 x_111 = lean_array_get_size(x_109);
-x_112 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(x_1);
+x_112 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(x_1);
 x_113 = 32;
 x_114 = lean_uint64_shift_right(x_112, x_113);
 x_115 = lean_uint64_xor(x_112, x_114);
@@ -16026,7 +16026,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; uint64_t x_30; uint64_t
 x_27 = lean_ctor_get(x_19, 0);
 x_28 = lean_ctor_get(x_19, 1);
 x_29 = lean_array_get_size(x_28);
-x_30 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(x_16);
+x_30 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(x_16);
 x_31 = 32;
 x_32 = lean_uint64_shift_right(x_30, x_31);
 x_33 = lean_uint64_xor(x_30, x_32);
@@ -16104,7 +16104,7 @@ lean_inc(x_63);
 lean_inc(x_62);
 lean_dec(x_19);
 x_64 = lean_array_get_size(x_63);
-x_65 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(x_16);
+x_65 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(x_16);
 x_66 = 32;
 x_67 = lean_uint64_shift_right(x_65, x_66);
 x_68 = lean_uint64_xor(x_65, x_67);
@@ -16285,7 +16285,7 @@ if (lean_is_exclusive(x_113)) {
  x_122 = lean_box(0);
 }
 x_123 = lean_array_get_size(x_121);
-x_124 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1726_(x_16);
+x_124 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1730_(x_16);
 x_125 = 32;
 x_126 = lean_uint64_shift_right(x_124, x_125);
 x_127 = lean_uint64_xor(x_124, x_126);
@@ -17096,7 +17096,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___closed__2;
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___closed__3;
-x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___spec__1___rarg), 8, 2);
+x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___spec__1___rarg), 8, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -20813,7 +20813,7 @@ lean_inc(x_1);
 x_15 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___lambda__3), 9, 2);
 lean_closure_set(x_15, 0, x_2);
 lean_closure_set(x_15, 1, x_1);
-x_16 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___spec__1___rarg), 8, 2);
+x_16 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___spec__1___rarg), 8, 2);
 lean_closure_set(x_16, 0, x_14);
 lean_closure_set(x_16, 1, x_15);
 x_17 = lean_alloc_closure((void*)(l_Lean_MVarId_withContext___at_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___spec__4___rarg), 8, 2);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Resolve
-// Imports: Init Lake.Config.Monad Lake.Util.StoreInsts Lake.Build.Topological Lake.Load.Materialize Lake.Load.Package
+// Imports: Lake.Config.Monad Lake.Util.StoreInsts Lake.Build.Topological Lake.Load.Materialize Lake.Load.Package
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -295,6 +295,7 @@ lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at_Lake_Workspace_updateAndMaterializeCore___spec__27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__46___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_stdMismatchError___closed__5;
+uint8_t l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1814_(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Lake_restartCode;
 static lean_object* l_Lake_stdMismatchError___closed__2;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_validateManifest___spec__1___closed__1;
@@ -370,7 +371,6 @@ static lean_object* l___private_Lake_Load_Resolve_0__Lake_reuseManifest___closed
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_reuseManifest___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__39(lean_object*, size_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_updateAndMaterializeCore___spec__30(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1810_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_writeManifest___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_instMonadCallStackOfCallStackTOfMonad___rarg(lean_object*);
 static lean_object* l_Lake_Workspace_updateToolchain___lambda__1___closed__11;
@@ -10233,7 +10233,7 @@ lean_dec(x_17);
 x_32 = lean_ctor_get(x_11, 0);
 lean_inc(x_32);
 lean_dec(x_11);
-x_33 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1810_(x_32, x_31);
+x_33 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1814_(x_32, x_31);
 lean_dec(x_32);
 if (x_33 == 0)
 {
@@ -10601,7 +10601,7 @@ lean_dec(x_116);
 x_131 = lean_ctor_get(x_110, 0);
 lean_inc(x_131);
 lean_dec(x_110);
-x_132 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1810_(x_131, x_130);
+x_132 = l___private_Lake_Util_Version_0__Lake_decEqToolchainVer____x40_Lake_Util_Version___hyg_1814_(x_131, x_130);
 lean_dec(x_131);
 if (x_132 == 0)
 {
@@ -26360,7 +26360,6 @@ x_8 = l_Lake_Workspace_materializeDeps(x_1, x_2, x_3, x_7, x_5, x_6);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Monad(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Topological(uint8_t builtin, lean_object*);
@@ -26371,9 +26370,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Load_Resolve(uint8_t builtin, lean_obje
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_Monad(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

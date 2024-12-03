@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.Meta
-// Imports: Init Lean.Elab.Eval Lean.Elab.ElabRules Lake.Util.FilePath
+// Imports: Lean.Elab.Eval Lean.Elab.ElabRules Lake.Util.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3309,7 +3309,6 @@ lean_dec(x_4);
 return x_13;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Eval(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_ElabRules(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_FilePath(uint8_t builtin, lean_object*);
@@ -3318,9 +3317,6 @@ LEAN_EXPORT lean_object* initialize_Lake_DSL_Meta(uint8_t builtin, lean_object* 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Eval(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

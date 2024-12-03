@@ -544,9 +544,10 @@ include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" head
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 string(APPEND LEANC_OPTS " ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
-# Do embed flag for finding system libraries in dev builds
+# Do embed flag for finding system headers and libraries in dev builds
 if(CMAKE_OSX_SYSROOT AND NOT LEAN_STANDALONE)
   string(APPEND LEANC_EXTRA_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
 endif()
 
 add_subdirectory(initialize)

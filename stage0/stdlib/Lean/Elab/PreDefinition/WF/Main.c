@@ -102,9 +102,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_visitLet_visit___at_Lean_Elab_getFixedPrefi
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___at_Lean_Elab_getFixedPrefix___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_iteToDIte___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Elab_getFixedPrefix___spec__13(lean_object*, lean_object*);
-lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 lean_object* l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
-uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 static lean_object* l_Lean_Elab_varyingVarNames___lambda__2___closed__5;
 uint8_t l_Lean_Expr_isLambda(lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___lambda__8___closed__1;
@@ -152,6 +150,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_wfRecursion___lambda__9(lean_object*, size_
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__1;
 static lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs___spec__1___lambda__2___closed__1;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
+uint8_t l_Lean_Kernel_Environment_isDiagnosticsEnabled(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
@@ -326,6 +325,7 @@ static lean_object* l_Lean_Elab_varyingVarNames___closed__6;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spec__10(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Lean_Kernel_Environment_enableDiag(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_getFixedPrefix___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -8912,7 +8912,7 @@ lean_dec(x_59);
 x_62 = lean_ctor_get(x_60, 0);
 lean_inc(x_62);
 lean_dec(x_60);
-x_63 = l_Lean_Kernel_isDiagnosticsEnabled(x_62);
+x_63 = l_Lean_Kernel_Environment_isDiagnosticsEnabled(x_62);
 lean_dec(x_62);
 if (x_63 == 0)
 {
@@ -9154,7 +9154,7 @@ lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean
 x_69 = lean_ctor_get(x_66, 0);
 x_70 = lean_ctor_get(x_66, 4);
 lean_dec(x_70);
-x_71 = l_Lean_Kernel_enableDiag(x_69, x_58);
+x_71 = l_Lean_Kernel_Environment_enableDiag(x_69, x_58);
 x_72 = l_Lean_setReducibilityStatus___at_Lean_Elab_wfRecursion___spec__4___closed__3;
 lean_ctor_set(x_66, 4, x_72);
 lean_ctor_set(x_66, 0, x_71);
@@ -9234,7 +9234,7 @@ lean_inc(x_84);
 lean_inc(x_83);
 lean_inc(x_82);
 lean_dec(x_66);
-x_89 = l_Lean_Kernel_enableDiag(x_82, x_58);
+x_89 = l_Lean_Kernel_Environment_enableDiag(x_82, x_58);
 x_90 = l_Lean_setReducibilityStatus___at_Lean_Elab_wfRecursion___spec__4___closed__3;
 x_91 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_91, 0, x_89);

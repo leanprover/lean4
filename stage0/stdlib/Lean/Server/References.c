@@ -856,7 +856,6 @@ lean_dec(x_5);
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
-lean_inc(x_1);
 x_9 = l_Lean_isRec___at_Lean_Server_RefInfo_toLspRefInfo___spec__4(x_1, x_2, x_3, x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -1703,6 +1702,7 @@ lean_object* x_5;
 x_5 = l_Lean_isRec___at_Lean_Server_RefInfo_toLspRefInfo___spec__4(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -12916,7 +12916,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_getModuleContainingDecl_x3f(lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_1, 1);
+x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
@@ -12933,7 +12933,7 @@ return x_7;
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = lean_ctor_get(x_1, 4);
+x_8 = lean_ctor_get(x_1, 5);
 lean_inc(x_8);
 lean_dec(x_1);
 x_9 = lean_ctor_get(x_8, 0);
@@ -12992,7 +12992,7 @@ lean_dec(x_1);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
-x_9 = lean_ctor_get(x_8, 4);
+x_9 = lean_ctor_get(x_8, 5);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_9, 0);
@@ -13118,7 +13118,7 @@ lean_dec(x_1);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
 lean_dec(x_48);
-x_50 = lean_ctor_get(x_49, 4);
+x_50 = lean_ctor_get(x_49, 5);
 lean_inc(x_50);
 lean_dec(x_49);
 x_51 = lean_ctor_get(x_50, 0);
@@ -17680,7 +17680,7 @@ lean_dec(x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_ctor_get(x_7, 4);
+x_8 = lean_ctor_get(x_7, 5);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = lean_ctor_get(x_8, 0);

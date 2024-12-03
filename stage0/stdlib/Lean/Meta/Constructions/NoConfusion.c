@@ -99,6 +99,7 @@ lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___closed__2;
 extern lean_object* l_Lean_Meta_completionBlackListExt;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lean_Kernel_Exception_toMessageData(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExceptKernelException___at_Lean_mkNoConfusionCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
@@ -129,7 +130,6 @@ lean_object* l_Lean_addAndCompile(lean_object*, lean_object*, lean_object*, lean
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__9;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 static lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionCore___spec__4___closed__4;
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__3;
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at_Lean_mkNoConfusionCore___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -198,7 +198,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
-x_8 = l_Lean_KernelException_toMessageData(x_1, x_7);
+x_8 = l_Lean_Kernel_Exception_toMessageData(x_1, x_7);
 x_9 = l_Lean_throwError___at_Lean_mkNoConfusionCore___spec__3(x_8, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
 return x_9;

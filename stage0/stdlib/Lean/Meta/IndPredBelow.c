@@ -23601,6 +23601,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 x_36 = l_Lean_Meta_isInductivePredicate(x_30, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_30);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; uint8_t x_38; 
@@ -25135,7 +25136,6 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_7 = l_Lean_Meta_isInductivePredicate(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {

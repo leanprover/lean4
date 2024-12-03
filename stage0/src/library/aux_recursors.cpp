@@ -10,11 +10,11 @@ namespace lean {
 extern "C" uint8 lean_is_aux_recursor(object * env, object * n);
 extern "C" uint8 lean_is_no_confusion(object * env, object * n);
 
-bool is_aux_recursor(environment const & env, name const & r) {
+bool is_aux_recursor(elab_environment const & env, name const & r) {
     return lean_is_aux_recursor(env.to_obj_arg(), r.to_obj_arg());
 }
 
-bool is_no_confusion(environment const & env, name const & r) {
+bool is_no_confusion(elab_environment const & env, name const & r) {
     return lean_is_no_confusion(env.to_obj_arg(), r.to_obj_arg());
 }
 }

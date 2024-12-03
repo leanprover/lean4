@@ -129,7 +129,7 @@ static lean_object* l_Lean_Meta_congrArg_x3f___lambda__4___closed__9;
 static lean_object* l_Lean_Meta_mkImpCongr___closed__1;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_AppBuilder___hyg_7390____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_withAppBuilderTrace___at_Lean_Meta_mkAppOptM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkSorry___closed__7;
 static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppOptMAux___closed__4;
 static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_withAppBuilderTrace___rarg___lambda__1___closed__7;
@@ -12930,7 +12930,8 @@ x_36 = lean_ctor_get(x_33, 1);
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec(x_35);
-x_38 = lean_environment_find(x_37, x_31);
+x_38 = l_Lean_Environment_find_x3f(x_37, x_31);
+lean_dec(x_31);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
@@ -13135,7 +13136,8 @@ lean_dec(x_33);
 x_101 = lean_ctor_get(x_99, 0);
 lean_inc(x_101);
 lean_dec(x_99);
-x_102 = lean_environment_find(x_101, x_31);
+x_102 = l_Lean_Environment_find_x3f(x_101, x_31);
+lean_dec(x_31);
 if (lean_obj_tag(x_102) == 0)
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; 

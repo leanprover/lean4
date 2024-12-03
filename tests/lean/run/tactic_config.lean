@@ -235,3 +235,19 @@ but is expected to have type
 info: config is { x := 0, y := false }
 -/
 #guard_msgs in my_command (x := true)
+
+
+/-!
+Pretty printing of configuration, checking whitespace is present.
+-/
+elab "#pp_tac " t:tactic : command => Elab.Command.liftTermElabM do
+  logInfo (← PrettyPrinter.ppTactic t)
+
+/-- info: simp +contextual -/
+#guard_msgs in #pp_tac simp +contextual
+/-- info: simp +contextual -/
+#guard_msgs in #pp_tac simp+contextual
+/-- info: simp (contextual := true) +zeta -/
+#guard_msgs in #pp_tac simp   (contextual := true)   +zeta
+/-- info: simp (contextual := true) +zeta -/
+#guard_msgs in #pp_tac simp(contextual := true)+zeta

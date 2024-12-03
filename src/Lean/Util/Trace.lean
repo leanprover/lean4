@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
-import Lean.Exception
+import Lean.Elab.Exception
+import Lean.Log
 
 /-!
 # Trace messages
@@ -64,6 +65,8 @@ structure TraceElem where
   deriving Inhabited
 
 structure TraceState where
+  /-- Thread ID, used by `trace.profiler.output`. -/
+  tid     : UInt64 := 0
   traces  : PersistentArray TraceElem := {}
   deriving Inhabited
 
@@ -99,9 +102,12 @@ where
     else
       false
 
+def isTracingEnabledForCore (cls : Name) (opts : Options) : BaseIO Bool := do
+  let inherited ← inheritedTraceOptions.get
+  return checkTraceOption inherited opts cls
+
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  let inherited ← (inheritedTraceOptions.get : IO _)
-  pure (checkTraceOption inherited (← getOptions) cls)
+  (isTracingEnabledForCore cls (← getOptions) : IO _)
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -254,7 +260,7 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   let ref ← getRef
   let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
   let mut data := { cls, collapsed, tag }
-  if profiler.get opts || aboveThresh then
+  if trace.profiler.get opts then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res
@@ -350,9 +356,28 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     return (← MonadExcept.ofExcept res)
   let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
   let mut data := { cls, collapsed, tag }
-  if profiler.get opts || aboveThresh then
+  if trace.profiler.get opts then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref msg
   MonadExcept.ofExcept res
+
+def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
+  if trace.profiler.output.get? (← getOptions) |>.isSome then
+    -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
+    -- pretty printing the trace messages is expensive
+    return
+  let traces ← getResetTraces
+  if traces.isEmpty then
+    return
+  let mut pos2traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
+  for traceElem in traces do
+    let ref := replaceRef traceElem.ref (← getRef)
+    let pos := ref.getPos?.getD 0
+    let endPos := ref.getTailPos?.getD pos
+    pos2traces := pos2traces.insert (pos, endPos) <| pos2traces.getD (pos, endPos) #[] |>.push traceElem.msg
+  let traces' := pos2traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
+  for ((pos, endPos), traceMsg) in traces' do
+    let data := .tagged `trace <| .joinSep traceMsg.toList "\n"
+    logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
 
 end Lean

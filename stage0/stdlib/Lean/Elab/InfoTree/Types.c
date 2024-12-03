@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__6;
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+static lean_object* l_Lean_Elab_instInhabitedPartialTermInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTermInfo;
 static lean_object* l_Lean_Elab_instInhabitedFieldInfo___closed__1;
@@ -27,6 +28,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoTree;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__2;
 static lean_object* l_Lean_Elab_instInhabitedInfoTree___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedPartialTermInfo;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoState;
 static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__1;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__8;
@@ -177,6 +179,28 @@ _start:
 {
 lean_object* x_1; 
 x_1 = l_Lean_Elab_instInhabitedTermInfo___closed__9;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_instInhabitedPartialTermInfo___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_instInhabitedElabInfo___closed__1;
+x_3 = l_Lean_Elab_instInhabitedTermInfo___closed__7;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Elab_instInhabitedPartialTermInfo() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Elab_instInhabitedPartialTermInfo___closed__1;
 return x_1;
 }
 }
@@ -468,6 +492,10 @@ l_Lean_Elab_instInhabitedTermInfo___closed__9 = _init_l_Lean_Elab_instInhabitedT
 lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo___closed__9);
 l_Lean_Elab_instInhabitedTermInfo = _init_l_Lean_Elab_instInhabitedTermInfo();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTermInfo);
+l_Lean_Elab_instInhabitedPartialTermInfo___closed__1 = _init_l_Lean_Elab_instInhabitedPartialTermInfo___closed__1();
+lean_mark_persistent(l_Lean_Elab_instInhabitedPartialTermInfo___closed__1);
+l_Lean_Elab_instInhabitedPartialTermInfo = _init_l_Lean_Elab_instInhabitedPartialTermInfo();
+lean_mark_persistent(l_Lean_Elab_instInhabitedPartialTermInfo);
 l_Lean_Elab_instInhabitedCommandInfo = _init_l_Lean_Elab_instInhabitedCommandInfo();
 lean_mark_persistent(l_Lean_Elab_instInhabitedCommandInfo);
 l_Lean_Elab_instInhabitedFieldInfo___closed__1 = _init_l_Lean_Elab_instInhabitedFieldInfo___closed__1();

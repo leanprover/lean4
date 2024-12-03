@@ -140,8 +140,12 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
         |>.trim |> removeTrailingWhitespaceMarker
     let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
+    -- disable async elaboration for `cmd` so `msgs` will contain all messages
+    let async := Elab.async.get (← getOptions)
+    modifyScope fun scope => { scope with opts := Elab.async.set scope.opts false }
     -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
     elabCommandTopLevel cmd
+    modifyScope fun scope => { scope with opts := Elab.async.set scope.opts async }
     let msgs := (← get).messages
     let mut toCheck : MessageLog := .empty
     let mut toPassthrough : MessageLog := .empty

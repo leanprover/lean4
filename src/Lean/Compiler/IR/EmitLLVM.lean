@@ -571,9 +571,9 @@ def emitAllocCtor (builder : LLVM.Builder llvmctx)
 
 def emitCtorSetArgs (builder : LLVM.Builder llvmctx)
     (z : VarId) (ys : Array Arg) : M llvmctx Unit := do
-  ys.size.forM fun i => do
+  ys.size.forM fun i _ => do
     let zv ← emitLhsVal builder z
-    let (_yty, yv) ← emitArgVal builder ys[i]!
+    let (_yty, yv) ← emitArgVal builder ys[i]
     let iv ← constIntUnsigned i
     callLeanCtorSet builder zv iv yv
     emitLhsSlotStore builder z zv
@@ -702,8 +702,8 @@ def emitPartialApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys 
                                     (← constIntUnsigned arity)
                                     (← constIntUnsigned ys.size)
   LLVM.buildStore builder zval zslot
-  ys.size.forM fun i => do
-    let (yty, yslot) ← emitArgSlot_ builder ys[i]!
+  ys.size.forM fun i _ => do
+    let (yty, yslot) ← emitArgSlot_ builder ys[i]
     let yval ← LLVM.buildLoad2 builder yty yslot
     callLeanClosureSetFn builder zval (← constIntUnsigned i) yval
 
@@ -922,7 +922,7 @@ def emitReset (builder : LLVM.Builder llvmctx) (z : VarId) (n : Nat) (x : VarId)
   buildIfThenElse_ builder "isExclusive" isExclusive
    (fun builder => do
      let xv ← emitLhsVal builder x
-     n.forM fun i => do
+     n.forM fun i _ => do
          callLeanCtorRelease builder xv (← constIntUnsigned i)
      emitLhsSlotStore builder z xv
      return ShouldForwardControlFlow.yes
@@ -1172,8 +1172,8 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
     (needsPackedArgs? : Bool)  (llvmfn : LLVM.Value llvmctx) (params : Array Param) : M llvmctx Unit := do
   if needsPackedArgs? then do
       let argsp ← LLVM.getParam llvmfn 0 -- lean_object **args
-      for i in List.range params.size do
-          let param := params[i]!
+      for h : i in [:params.size] do
+          let param := params[i]
           -- argsi := (args + i)
           let argsi ← LLVM.buildGEP2 builder (← LLVM.voidPtrType llvmctx) argsp #[← constIntUnsigned i] s!"packed_arg_{i}_slot"
           let llvmty ← toLLVMType param.ty
@@ -1182,15 +1182,16 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           -- slot for arg[i] which is always void* ?
           let alloca ← buildPrologueAlloca builder llvmty s!"arg_{i}"
           LLVM.buildStore builder pv alloca
-          addVartoState params[i]!.x alloca llvmty
+          addVartoState param.x alloca llvmty
   else
       let n ← LLVM.countParams llvmfn
-      for i in (List.range n.toNat) do
-        let llvmty ← toLLVMType params[i]!.ty
+      for i in [:n.toNat] do
+        let param := params[i]!
+        let llvmty ← toLLVMType param.ty
         let alloca ← buildPrologueAlloca builder  llvmty s!"arg_{i}"
         let arg ← LLVM.getParam llvmfn (UInt64.ofNat i)
         let _ ← LLVM.buildStore builder arg alloca
-        addVartoState params[i]!.x alloca llvmty
+        addVartoState param.x alloca llvmty
 
 def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : Decl) : M llvmctx Unit := do
   let env ← getEnv

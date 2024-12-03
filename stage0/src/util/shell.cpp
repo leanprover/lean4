@@ -28,7 +28,7 @@ Author: Leonardo de Moura
 #include "util/io.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/trace.h"
 #include "library/formatter.h"
@@ -54,8 +54,6 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#else
-#include <dlfcn.h>
 #endif
 
 #ifdef _MSC_VER
@@ -323,34 +321,6 @@ options set_config_option(options const & opts, char const * in) {
     }
 }
 
-void load_plugin(std::string path) {
-    void * init;
-    // we never want to look up plugins using the system library search
-    path = lrealpath(path);
-    std::string pkg = stem(path);
-    std::string sym = "initialize_" + pkg;
-#ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
-    if (!h) {
-        throw exception(sstream() << "error loading plugin " << path << ": " << GetLastError());
-    }
-    init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
-#else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY);
-    if (!handle) {
-        throw exception(sstream() << "error loading plugin, " << dlerror());
-    }
-    init = dlsym(handle, sym.c_str());
-#endif
-    if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
-    }
-    auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
-    object *r = init_fn(1 /* builtin */, io_mk_world());
-    consume_io_result(r);
-    // NOTE: we never unload plugins
-}
-
 namespace lean {
 extern "C" object * lean_run_frontend(
     object * input,
@@ -362,7 +332,7 @@ extern "C" object * lean_run_frontend(
     uint8_t  json_output,
     object * w
 );
-pair_ref<environment, object_ref> run_new_frontend(
+pair_ref<elab_environment, object_ref> run_new_frontend(
     std::string const & input,
     options const & opts, std::string const & file_name,
     name const & main_module_name,
@@ -374,7 +344,7 @@ pair_ref<environment, object_ref> run_new_frontend(
     if (ilean_file_name) {
         oilean_file_name = mk_option_some(mk_string(*ilean_file_name));
     }
-    return get_io_result<pair_ref<environment, object_ref>>(lean_run_frontend(
+    return get_io_result<pair_ref<elab_environment, object_ref>>(lean_run_frontend(
         mk_string(input),
         opts.to_obj_arg(),
         mk_string(file_name),
@@ -431,7 +401,7 @@ void print_imports_json(array_ref<string_ref> const & fnames) {
 }
 
 extern "C" object* lean_environment_free_regions(object * env, object * w);
-void environment_free_regions(environment && env) {
+void environment_free_regions(elab_environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
 }
 }
@@ -619,7 +589,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #endif
             case 'p':
                 check_optarg("p");
-                load_plugin(optarg);
+                lean::load_plugin(optarg);
                 forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
                 break;
             case 'l':
@@ -663,7 +633,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         report_profiling_time("initialization", init_time);
     }
 
-    environment env(trust_lvl);
     scoped_task_manager scope_task_man(num_threads);
     optional<name> main_module_name;
 
@@ -735,8 +704,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
-        env = r.fst();
+        pair_ref<elab_environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
+        elab_environment env = r.fst();
         bool ok = unbox(r.snd().raw());
 
         if (stats) {

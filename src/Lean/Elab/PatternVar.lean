@@ -265,7 +265,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
         let newVal ← collect val
         `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
-      | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+      | _ => throwInvalidPattern  -- `structInstField` should be expanded at this point
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 
@@ -332,9 +332,9 @@ where
     else
       let accessible := isNextArgAccessible ctx
       let (d, ctx)   := getNextParam ctx
-      match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
+      match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
-        let arg := ctx.namedArgs[idx]!
+        let arg := ctx.namedArgs[idx]
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx

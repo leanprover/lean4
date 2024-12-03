@@ -125,7 +125,7 @@ theorem eq_one_of_mul_eq_one_right {a b : Int} (H : 0 ≤ a) (H' : a * b = 1) : 
   eq_one_of_dvd_one H ⟨b, H'.symm⟩
 
 theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b = 1 :=
-  eq_one_of_mul_eq_one_right H <| by rw [Int.mul_comm, H']
+  eq_one_of_mul_eq_one_right (b := a) H <| by rw [Int.mul_comm, H']
 
 /-! ### *div zero  -/
 

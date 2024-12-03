@@ -172,6 +172,16 @@ theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
   simp only [getElem?_def] at h ⊢
   split <;> simp_all
 
+@[simp] theorem isNone_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isNone = ¬dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
+@[simp] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isSome = dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
 namespace Fin
 
 instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
@@ -206,12 +216,12 @@ instance : GetElem (List α) Nat α fun as i => i < as.length where
 @[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
 
-@[deprecated (since := "2024-06-12")] abbrev cons_getElem_zero := @getElem_cons_zero
+@[deprecated getElem_cons_zero (since := "2024-06-12")] abbrev cons_getElem_zero := @getElem_cons_zero
 
 @[simp] theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
   rfl
 
-@[deprecated (since := "2024-06-12")] abbrev cons_getElem_succ := @getElem_cons_succ
+@[deprecated getElem_cons_succ (since := "2024-06-12")] abbrev cons_getElem_succ := @getElem_cons_succ
 
 @[simp] theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
   | _ :: _, 0, _ => .head ..
@@ -221,9 +231,10 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
     as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with
   | _::_, 0   => rfl
-  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) _
+  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) (Nat.add_one_lt_add_one_iff.mp h)
 
-@[deprecated (since := "2024-11-05")] abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
+@[deprecated getElem_cons_drop_succ_eq_drop (since := "2024-11-05")]
+abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
 
 end List
 

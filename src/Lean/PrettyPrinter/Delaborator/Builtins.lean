@@ -91,21 +91,32 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
-
-  let mut c ← unresolveNameGlobal c₀ (fullNames := ← getPPOption getPPFullNames)
-  let stx ← if ls.isEmpty || !(← getPPOption getPPUniverses) then
-    if (← getLCtx).usesUserName c then
-      -- `c` is also a local declaration
-      if c == c₀ && !(← read).inPattern then
-        -- `c` is the fully qualified named. So, we append the `_root_` prefix
-        c := `_root_ ++ c
+  let mut c₀ := c₀
+  let mut c  := c₀
+  if let some n := privateToUserName? c₀ then
+    unless (← getPPOption getPPPrivateNames) do
+      if c₀ == mkPrivateName (← getEnv) n then
+        -- The name is defined in this module, so use `n` as the name and unresolve like any other name.
+        c₀ := n
+        c ← unresolveNameGlobal n (fullNames := ← getPPOption getPPFullNames)
       else
-        c := c₀
-    pure <| mkIdent c
+        -- The name is not defined in this module, so make inaccessible. Unresolving does not make sense to do.
+        c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
   else
-    let mvars ← getPPOption getPPMVarsLevels
-    `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+    c ← unresolveNameGlobal c (fullNames := ← getPPOption getPPFullNames)
+  let stx ←
+    if ls.isEmpty || !(← getPPOption getPPUniverses) then
+      if (← getLCtx).usesUserName c then
+        -- `c` is also a local declaration
+        if c == c₀ && !(← read).inPattern then
+          -- `c` is the fully qualified named. So, we append the `_root_` prefix
+          c := `_root_ ++ c
+        else
+          c := c₀
+      pure <| mkIdent c
+    else
+      let mvars ← getPPOption getPPMVarsLevels
+      `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
 
   let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then
@@ -338,7 +349,7 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
     if idx == 0 then
       -- If it's the first argument, then we can tag `obj.field` with the first app.
       head ← withBoundedAppFn (numArgs - 1) <| annotateTermInfo head
-    return Syntax.mkApp head (argStxs.eraseIdx idx)
+    return Syntax.mkApp head (argStxs.eraseIdxIfInBounds idx)
   else
     return Syntax.mkApp fnStx argStxs
 
@@ -865,7 +876,7 @@ def delabLam : Delab :=
           -- "default" binder group is the only one that expects binder names
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
-            if curNames.size > 1 then
+            if h : curNames.size > 1 then
               `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
             else
               pure $ curNames.get! 0;
@@ -1104,17 +1115,18 @@ def coeDelaborator : Delab := whenPPOption getPPCoercions do
     delabAppCore nargs (delabHead info nargs) (unexpand := false)
 where
   delabHead (info : CoeFnInfo) (nargs : Nat) (insertExplicit : Bool) : Delab := do
-    guard <| !insertExplicit
-    if info.type == .coeFun && nargs > 0 then
-      -- In the CoeFun case, annotate with the coercee itself.
-      -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
-      withNaryArg info.coercee <| withAnnotateTermInfo delab
-    else
-      withAnnotateTermInfo do
-        match info.type with
-        | .coe     => `(↑$(← withNaryArg info.coercee delab))
-        | .coeFun  => `(⇑$(← withNaryArg info.coercee delab))
-        | .coeSort => `(↥$(← withNaryArg info.coercee delab))
+    withTypeAscription (cond := ← getPPOption getPPCoercionsTypes) do
+      guard <| !insertExplicit
+      if info.type == .coeFun && nargs > 0 then
+        -- In the CoeFun case, annotate with the coercee itself.
+        -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
+        withNaryArg info.coercee <| withAnnotateTermInfo delab
+      else
+        withAnnotateTermInfo do
+          match info.type with
+          | .coe     => `(↑$(← withNaryArg info.coercee delab))
+          | .coeFun  => `(⇑$(← withNaryArg info.coercee delab))
+          | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 @[builtin_delab app.dite]
 def delabDIte : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 5 do

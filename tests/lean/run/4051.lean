@@ -2,8 +2,7 @@ def Array.swaps (a : Array α) : List (Fin a.size × Fin a.size) → Array α
   | [] => a
   | (i, j) :: ijs =>
     have : (a.swap i j).size = a.size := a.size_swap _ _
-
-    swaps (a.swap i j) (ijs.map (fun p => ⟨⟨p.1.1, this.symm ▸ p.1.2⟩, ⟨p.2.1, this.symm ▸ p.2.2⟩⟩))
+    swaps (a.swap i j) (ijs.map (fun p => ⟨⟨p.1.1, by simp⟩, ⟨p.2.1, by simp⟩⟩))
 termination_by l => l.length
 
 set_option maxHeartbeats 1000 in

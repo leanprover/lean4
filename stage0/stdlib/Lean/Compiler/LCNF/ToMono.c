@@ -40,7 +40,7 @@ static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__12;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_2080____closed__16;
 lean_object* l_Lean_Compiler_LCNF_Arg_toLetValue(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instInhabitedAltCore___rarg(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDeclCore_toMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__1;
@@ -286,7 +286,7 @@ x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_environment_find(x_13, x_1);
+x_14 = l_Lean_Environment_find_x3f(x_13, x_1);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -551,7 +551,7 @@ lean_dec(x_9);
 x_78 = lean_ctor_get(x_76, 0);
 lean_inc(x_78);
 lean_dec(x_76);
-x_79 = lean_environment_find(x_78, x_1);
+x_79 = l_Lean_Environment_find_x3f(x_78, x_1);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; lean_object* x_81; 
@@ -739,6 +739,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_9;
 }
 }
@@ -1667,7 +1668,6 @@ if (x_75 == 0)
 lean_object* x_76; 
 lean_inc(x_6);
 lean_inc(x_5);
-lean_inc(x_69);
 x_76 = l_Lean_Compiler_LCNF_isTrivialConstructorApp_x3f(x_69, x_70, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_76) == 0)
 {
@@ -1689,8 +1689,7 @@ lean_dec(x_79);
 x_82 = lean_ctor_get(x_80, 0);
 lean_inc(x_82);
 lean_dec(x_80);
-lean_inc(x_69);
-x_83 = lean_environment_find(x_82, x_69);
+x_83 = l_Lean_Environment_find_x3f(x_82, x_69);
 if (lean_obj_tag(x_83) == 0)
 {
 size_t x_84; size_t x_85; lean_object* x_86; uint8_t x_87; 
@@ -1878,7 +1877,6 @@ if (x_123 == 0)
 lean_object* x_124; 
 lean_inc(x_6);
 lean_inc(x_5);
-lean_inc(x_118);
 x_124 = l_Lean_Compiler_LCNF_isTrivialConstructorApp_x3f(x_118, x_119, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_124) == 0)
 {
@@ -1900,8 +1898,7 @@ lean_dec(x_127);
 x_130 = lean_ctor_get(x_128, 0);
 lean_inc(x_130);
 lean_dec(x_128);
-lean_inc(x_118);
-x_131 = lean_environment_find(x_130, x_118);
+x_131 = l_Lean_Environment_find_x3f(x_130, x_118);
 if (lean_obj_tag(x_131) == 0)
 {
 size_t x_132; size_t x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; 

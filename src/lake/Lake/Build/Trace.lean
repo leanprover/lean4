@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.IO
 import Lean.Data.Json
 
@@ -125,6 +126,9 @@ instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
 
+@[inline] def ofBool (b : Bool) :=
+  mk (hash b)
+
 @[inline] protected def toJson (self : Hash) : Json :=
   toJson self.val
 
@@ -151,6 +155,7 @@ instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.computeHa
 @[inline] def computeHash [ComputeHash α m] [MonadLiftT m n] (a : α) : n Hash :=
   liftM <| ComputeHash.computeHash a
 
+instance : ComputeHash Bool Id := ⟨Hash.ofBool⟩
 instance : ComputeHash String Id := ⟨Hash.ofString⟩
 
 /--
@@ -305,7 +310,9 @@ If not, check if the info is newer than this trace's modification time.
 **Deprecated:** Should not be done manually,
 but as part of `buildUnlessUpToDate`.
 -/
-@[deprecated (since := "2024-06-14"), specialize] def checkAgainstFile
+@[deprecated "Should not be done manually, but as part of `buildUnlessUpToDate`."
+  (since := "2024-06-14"), specialize]
+def checkAgainstFile
   [CheckExists i] [GetMTime i]
   (info : i) (traceFile : FilePath) (self : BuildTrace)
 : BaseIO Bool := do
@@ -320,7 +327,8 @@ Write trace to a file.
 **Deprecated:** Should not be done manually,
 but as part of `buildUnlessUpToDate`.
 -/
-@[deprecated (since := "2024-06-14")] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+@[deprecated "Should not be done manually, but as part of `buildUnlessUpToDate`." (since := "2024-06-14")]
+def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
   createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 

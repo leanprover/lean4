@@ -481,7 +481,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         rcases hf with hf | hf
         · apply Or.inl
-          simp only [Array.set!, Array.setD]
+          simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
             simp only [← hidx, Array.toList_set]
@@ -514,7 +514,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         rcases hf with hf | hf
         · apply Or.inl
-          simp only [Array.set!, Array.setD]
+          simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
             simp only [← hidx, Array.toList_set]
@@ -574,7 +574,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         rcases hf with hf | hf
         · apply Or.inl
-          simp only [Array.set!, Array.setD]
+          simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
             simp only [← hidx, Array.toList_set]
@@ -644,7 +644,7 @@ theorem deleteOne_subset (f : DefaultFormula n) (id : Nat) (c : DefaultClause n)
     · apply Or.inl
       simp only [List.mem_filterMap, id_eq, exists_eq_right] at h1
       simp only [List.mem_filterMap, id_eq, exists_eq_right]
-      rw [Array.set!, Array.setD] at h1
+      rw [Array.set!, Array.setIfInBounds] at h1
       split at h1
       · simp only [Array.toList_set] at h1
         rcases List.getElem_of_mem h1 with ⟨i, h, h4⟩

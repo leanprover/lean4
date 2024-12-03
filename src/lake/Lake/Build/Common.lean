@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.Monad
 import Lake.Build.Actions
 import Lake.Util.JsonObject
@@ -306,7 +307,8 @@ which will be computed in the resulting `BuildJob` before building.
   let extraDepTrace :=
     return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDep oFile srcJob (extraDepTrace := extraDepTrace) fun srcFile => do
-     compileO oFile srcFile (weakArgs ++ traceArgs) (← getLeanc)
+    let lean ← getLeanInstall
+    compileO oFile srcFile (lean.ccFlags ++ weakArgs ++ traceArgs) lean.cc
 
 /-- Build a static library from object file jobs using the `ar` packaged with Lean. -/
 def buildStaticLib
@@ -315,7 +317,10 @@ def buildStaticLib
   buildFileAfterDepArray libFile oFileJobs fun oFiles => do
     compileStaticLib libFile oFiles (← getLeanAr)
 
-/-- Build a shared library by linking the results of `linkJobs` using `leanc`. -/
+/--
+Build a shared library by linking the results of `linkJobs`
+using the Lean toolchain's C compiler.
+-/
 def buildLeanSharedLib
   (libFile : FilePath) (linkJobs : Array (BuildJob FilePath))
   (weakArgs traceArgs : Array String := #[])
@@ -323,19 +328,31 @@ def buildLeanSharedLib
   let extraDepTrace :=
     return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDepArray libFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
-    compileSharedLib libFile (links.map toString ++ weakArgs ++ traceArgs) (← getLeanc)
+    let lean ← getLeanInstall
+    let args := links.map toString ++ weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
+    compileSharedLib libFile args lean.cc
 
-/-- Build an executable by linking the results of `linkJobs` using `leanc`. -/
+
+/--
+Build an executable by linking the results of `linkJobs`
+using the Lean toolchain's linker.
+-/
 def buildLeanExe
   (exeFile : FilePath) (linkJobs : Array (BuildJob FilePath))
-  (weakArgs traceArgs : Array String := #[])
+  (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
 : SpawnM (BuildJob FilePath) :=
   let extraDepTrace :=
-    return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
+    return (← getLeanTrace).mix <|
+      (pureHash sharedLean).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDepArray exeFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
-    compileExe exeFile links (weakArgs ++ traceArgs) (← getLeanc)
+    let lean ← getLeanInstall
+    let args := weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
+    compileExe exeFile links args lean.cc
 
-/-- Build a shared library from a static library using `leanc`. -/
+/--
+Build a shared library from a static library using `leanc`
+using the Lean toolchain's linker.
+-/
 def buildLeanSharedLibOfStatic
   (staticLibJob : BuildJob FilePath)
   (weakArgs traceArgs : Array String := #[])
@@ -347,11 +364,12 @@ def buildLeanSharedLibOfStatic
         #[s!"-Wl,-force_load,{staticLib}"]
       else
         #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
+    let lean ← getLeanInstall
     let depTrace := staticTrace.mix <|
       (← getLeanTrace).mix <| (pureHash traceArgs).mix <| platformTrace
-    let args := baseArgs ++ weakArgs ++ traceArgs
+    let args := baseArgs ++ weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
     let trace ← buildFileUnlessUpToDate dynlib depTrace do
-      compileSharedLib dynlib args (← getLeanc)
+      compileSharedLib dynlib args lean.cc
     return (dynlib, trace)
 
 /-- Construct a `Dynlib` object for a shared library target. -/

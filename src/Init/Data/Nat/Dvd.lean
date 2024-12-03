@@ -39,9 +39,9 @@ protected theorem dvd_add_iff_right {k m n : Nat} (h : k ∣ m) : k ∣ n ↔ k 
 protected theorem dvd_add_iff_left {k m n : Nat} (h : k ∣ n) : k ∣ m ↔ k ∣ m + n := by
   rw [Nat.add_comm]; exact Nat.dvd_add_iff_right h
 
-theorem dvd_mod_iff {k m n : Nat} (h: k ∣ n) : k ∣ m % n ↔ k ∣ m :=
-  have := Nat.dvd_add_iff_left <| Nat.dvd_trans h <| Nat.dvd_mul_right n (m / n)
-  by rwa [mod_add_div] at this
+theorem dvd_mod_iff {k m n : Nat} (h: k ∣ n) : k ∣ m % n ↔ k ∣ m := by
+  have := Nat.dvd_add_iff_left (m := m % n) <| Nat.dvd_trans h <| Nat.dvd_mul_right n (m / n)
+  rwa [mod_add_div] at this
 
 theorem le_of_dvd {m n : Nat} (h : 0 < n) : m ∣ n → m ≤ n
   | ⟨k, e⟩ => by
@@ -92,7 +92,7 @@ protected theorem div_mul_cancel {n m : Nat} (H : n ∣ m) : m / n * n = m := by
   rw [Nat.mul_comm, Nat.mul_div_cancel' H]
 
 @[simp] theorem mod_mod_of_dvd (a : Nat) (h : c ∣ b) : a % b % c = a % c := by
-  rw (occs := .pos [2]) [← mod_add_div a b]
+  rw (occs := [2]) [← mod_add_div a b]
   have ⟨x, h⟩ := h
   subst h
   rw [Nat.mul_assoc, add_mul_mod_self_left]

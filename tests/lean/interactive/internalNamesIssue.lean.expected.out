@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
      "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "Foo.bla"}}}},
+    "id": {"const": {"declName": "Foo.bla"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "foo",
    "kind": 3,
@@ -16,5 +17,6 @@
    {"params":
     {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
      "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "Foo.foo"}}}}],
+    "id": {"const": {"declName": "Foo.foo"}},
+    "cPos": 0}}],
  "isIncomplete": true}

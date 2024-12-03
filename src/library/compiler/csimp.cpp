@@ -64,6 +64,7 @@ optional<expr> fold_bin_op(bool before_erasure, expr const & f, expr const & a, 
 
 class csimp_fn {
     typedef expr_pair_struct_map<expr> jp_cache;
+    elab_environment         m_env;
     type_checker::state      m_st;
     local_ctx                m_lctx;
     bool                     m_before_erasure;
@@ -96,7 +97,7 @@ class csimp_fn {
     typedef rb_expr_map<expr> expr2ctor;
     expr2ctor                m_expr2ctor;
 
-    environment const & env() const { return m_st.env(); }
+    elab_environment const & env() const { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -1625,12 +1626,12 @@ class csimp_fn {
     }
 
     struct is_recursive_fn {
-        environment const & m_env;
+        elab_environment const & m_env;
         csimp_cfg const &   m_cfg;
         bool                m_before_erasure;
         name                m_target;
 
-        is_recursive_fn(environment const & env, csimp_cfg const & cfg, bool before_erasure):
+        is_recursive_fn(elab_environment const & env, csimp_cfg const & cfg, bool before_erasure):
             m_env(env), m_cfg(cfg), m_before_erasure(before_erasure) {
         }
 
@@ -1969,8 +1970,8 @@ class csimp_fn {
     }
 
 public:
-    csimp_fn(environment const & env, local_ctx const & lctx, bool before_erasure, csimp_cfg const & cfg):
-        m_st(env), m_lctx(lctx), m_before_erasure(before_erasure), m_cfg(cfg), m_x("_x"), m_j("j") {}
+    csimp_fn(elab_environment const & env, local_ctx const & lctx, bool before_erasure, csimp_cfg const & cfg):
+        m_env(env), m_st(env), m_lctx(lctx), m_before_erasure(before_erasure), m_cfg(cfg), m_x("_x"), m_j("j") {}
 
     expr operator()(expr const & e) {
         if (is_lambda(e)) {
@@ -1992,7 +1993,7 @@ bool at_most_once(expr const & e, name const & x) {
 
 /* Eliminate join-points that are used only once */
 class elim_jp1_fn {
-    environment const & m_env;
+    elab_environment const & m_env;
     local_ctx           m_lctx;
     bool                m_before_erasure;
     name_generator      m_ngen;
@@ -2093,7 +2094,7 @@ class elim_jp1_fn {
     }
 
 public:
-    elim_jp1_fn(environment const & env, local_ctx const & lctx, bool before_erasure):
+    elim_jp1_fn(elab_environment const & env, local_ctx const & lctx, bool before_erasure):
         m_env(env), m_lctx(lctx), m_before_erasure(before_erasure) {}
     expr operator()(expr const & e) {
         m_expanded = false;
@@ -2103,7 +2104,7 @@ public:
     bool expanded() const { return m_expanded; }
 };
 
-expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e0, bool before_erasure, csimp_cfg const & cfg) {
+expr csimp_core(elab_environment const & env, local_ctx const & lctx, expr const & e0, bool before_erasure, csimp_cfg const & cfg) {
     csimp_fn simp(env, lctx, before_erasure, cfg);
     elim_jp1_fn elim_jp1(env, lctx, before_erasure);
     expr e = e0;

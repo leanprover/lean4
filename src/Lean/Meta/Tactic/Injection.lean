@@ -94,31 +94,48 @@ def injection (mvarId : MVarId) (fvarId : FVarId) (newNames : List Name := []) :
   | .subgoal mvarId numEqs => injectionIntro mvarId numEqs newNames
 
 inductive InjectionsResult where
+  /-- `injections` closed the input goal. -/
   | solved
-  | subgoal (mvarId : MVarId) (remainingNames : List Name)
+  /--
+  `injections` produces a new goal `mvarId`. `remainingNames` contains the user-facing names that have not been used.
+  `forbidden` contains all local declarations to which `injection` has been applied.
+  Recall that some of these declarations may not have been eliminated from the local context due to forward dependencies, and
+  we use `forbidden` to avoid non-termination when using `injections` in a loop.
+  -/
+  | subgoal (mvarId : MVarId) (remainingNames : List Name) (forbidden : FVarIdSet)
 
-partial def injections (mvarId : MVarId) (newNames : List Name := []) (maxDepth : Nat := 5) : MetaM InjectionsResult :=
+/--
+Applies `injection` to local declarations in `mvarId`. It uses `newNames` to name the new local declarations.
+`maxDepth` is the maximum recursion depth. Only local declarations that are not in `forbidden` are considered.
+Recall that some of local declarations may not have been eliminated from the local context due to forward dependencies, and
+we use `forbidden` to avoid non-termination when using `injections` in a loop.
+-/
+partial def injections (mvarId : MVarId) (newNames : List Name := []) (maxDepth : Nat := 5) (forbidden : FVarIdSet := {}) : MetaM InjectionsResult :=
   mvarId.withContext do
     let fvarIds := (← getLCtx).getFVarIds
-    go maxDepth fvarIds.toList mvarId newNames
+    go maxDepth fvarIds.toList mvarId newNames forbidden
 where
-  go : Nat → List FVarId → MVarId → List Name → MetaM InjectionsResult
-    | 0,   _,  _,      _        => throwTacticEx `injections mvarId "recursion depth exceeded"
-    | _,   [], mvarId, newNames => return .subgoal mvarId newNames
-    | d+1, fvarId :: fvarIds, mvarId, newNames => do
+  go (depth : Nat) (fvarIds : List FVarId) (mvarId : MVarId) (newNames : List Name) (forbidden : FVarIdSet) : MetaM InjectionsResult := do
+    match depth, fvarIds with
+    | 0,   _                 => throwTacticEx `injections mvarId "recursion depth exceeded"
+    | _,   []                => return .subgoal mvarId newNames forbidden
+    | d+1, fvarId :: fvarIds => do
       let cont := do
-        go (d+1) fvarIds mvarId newNames
-      if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
+        go (d+1) fvarIds mvarId newNames forbidden
+      if forbidden.contains fvarId then
+        cont
+      else if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
-        if lhs.isRawNatLit && rhs.isRawNatLit then cont
+        if lhs.isRawNatLit && rhs.isRawNatLit then
+          cont
         else
           try
             commitIfNoEx do
               match (← injection mvarId fvarId newNames) with
               | .solved  => return .solved
               | .subgoal mvarId newEqs remainingNames =>
-                mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId remainingNames
+                mvarId.withContext <| go d (newEqs.toList ++ fvarIds) mvarId remainingNames (forbidden.insert fvarId)
           catch _ => cont
       else cont
 

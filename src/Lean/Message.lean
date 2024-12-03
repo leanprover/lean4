@@ -244,8 +244,8 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
     formatAux nCtx ctx? msg
 
-protected def format (msgData : MessageData) : IO Format :=
-  formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
+protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : IO Format :=
+  formatAux { currNamespace := Name.anonymous, openDecls := [] } ctx? msgData
 
 protected def toString (msgData : MessageData) : IO String := do
   return toString (← msgData.format)
@@ -441,6 +441,10 @@ instance : Append MessageLog :=
 def hasErrors (log : MessageLog) : Bool :=
   log.hadErrors || log.unreported.any (·.severity matches .error)
 
+/-- Clears unreported messages while preserving `hasErrors`. -/
+def markAllReported (log : MessageLog) : MessageLog :=
+  { log with unreported := {}, hadErrors  := log.hasErrors }
+
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 
@@ -533,12 +537,12 @@ macro_rules
 def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
-namespace KernelException
+namespace Kernel.Exception
 
 private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts } msg
 
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{.ofConstName constName true}'"
@@ -566,5 +570,5 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
 
-end KernelException
+end Kernel.Exception
 end Lean

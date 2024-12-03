@@ -1,7 +1,16 @@
-class Semiring.{u} : Type u → Type u
+class Semiring.{u} (R : Type u) : Type u
 number of parameters: 1
-constructor:
-Semiring.mk : {R : Type u} → [toAddCommMonoid : AddCommMonoid R] → [toMonoid : Monoid R] → Semiring R
+parents:
+  Semiring.toAddCommMonoid : AddCommMonoid R
+  Semiring.toMonoidWithZero : MonoidWithZero R
+  Semiring.toOne : One R
 fields:
-toAddCommMonoid : AddCommMonoid R
-toMonoid : Monoid R
+  Add.add : R → R → R
+  Zero.zero : R
+  Mul.mul : R → R → R
+  One.one : R
+  Monoid.mul_one : ∀ (m : R), m * 1 = m
+constructor:
+  Semiring.mk.{u} {R : Type u} [toAddCommMonoid : AddCommMonoid R] [toMonoid : Monoid R] : Semiring R
+resolution order:
+  Semiring, AddCommMonoid, MonoidWithZero, Add, Monoid, Zero, Mul, One

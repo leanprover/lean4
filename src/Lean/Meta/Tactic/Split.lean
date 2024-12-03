@@ -140,8 +140,8 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           let matcherApp := { matcherApp with discrs := discrVars }
           foundRef.set true
           let mut altsNew := #[]
-          for i in [:matcherApp.alts.size] do
-            let alt := matcherApp.alts[i]!
+          for h : i in [:matcherApp.alts.size] do
+            let alt := matcherApp.alts[i]
             let altNumParams := matcherApp.altNumParams[i]!
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then
@@ -269,7 +269,7 @@ def mkDiscrGenErrorMsg (e : Expr) : MessageData :=
 def throwDiscrGenError (e : Expr) : MetaM α :=
   throwError (mkDiscrGenErrorMsg e)
 
-def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
+def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withContext do
   let some app ← matchMatcherApp? e | throwError "internal error in `split` tactic: match application expected{indentExpr e}\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
   let matchEqns ← Match.getEquationsFor app.matcherName
   let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
@@ -278,43 +278,14 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
     return (i+1, mvarId::mvarIds)
   return mvarIds.reverse
 
-/-- Return an `if-then-else` or `match-expr` to split. -/
-partial def findSplit? (env : Environment) (e : Expr) (splitIte := true) (exceptionSet : ExprSet := {}) : Option Expr :=
-  go e
-where
-  go (e : Expr) : Option Expr :=
-    if let some target := e.find? isCandidate then
-      if e.isIte || e.isDIte then
-        let cond := target.getArg! 1 5
-        -- Try to find a nested `if` in `cond`
-        go cond |>.getD target
-      else
-        some target
-    else
-      none
-
-  isCandidate (e : Expr) : Bool := Id.run do
-    if exceptionSet.contains e then
-      false
-    else if splitIte && (e.isIte || e.isDIte) then
-      !(e.getArg! 1 5).hasLooseBVars
-    else if let some info := isMatcherAppCore? env e then
-      let args := e.getAppArgs
-      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-        if args[i]!.hasLooseBVars then
-          return false
-      return true
-    else
-      false
-
 end Split
 
 open Split
 
-partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (List MVarId)) := commitWhenSome? do
+partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (List MVarId)) := commitWhenSome? do mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
-    if let some e := findSplit? (← getEnv) target splitIte badCases then
+    if let some e ← findSplit? target (if splitIte then .both else .match) badCases then
       if e.isIte || e.isDIte then
         return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
       else
@@ -333,7 +304,7 @@ partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (L
 
 def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
   mvarId.withContext do
-    if let some e := findSplit? (← getEnv) (← instantiateMVars (← inferType (mkFVar fvarId))) then
+    if let some e ← findSplit? (← instantiateMVars (← inferType (mkFVar fvarId))) then
       if e.isIte || e.isDIte then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else

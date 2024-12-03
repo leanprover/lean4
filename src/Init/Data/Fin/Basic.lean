@@ -37,12 +37,6 @@ def succ : Fin n → Fin (n + 1)
 variable {n : Nat}
 
 /--
-Returns `a` modulo `n + 1` as a `Fin n.succ`.
--/
-protected def ofNat {n : Nat} (a : Nat) : Fin (n + 1) :=
-  ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
-
-/--
 Returns `a` modulo `n` as a `Fin n`.
 
 The assumption `NeZero n` ensures that `Fin n` is nonempty.
@@ -50,9 +44,12 @@ The assumption `NeZero n` ensures that `Fin n` is nonempty.
 protected def ofNat' (n : Nat) [NeZero n] (a : Nat) : Fin n :=
   ⟨a % n, Nat.mod_lt _ (pos_of_neZero n)⟩
 
--- We intend to deprecate `Fin.ofNat` in favor of `Fin.ofNat'` (and later rename).
--- This is waiting on https://github.com/leanprover/lean4/pull/5323
--- attribute [deprecated Fin.ofNat' (since := "2024-09-16")] Fin.ofNat
+/--
+Returns `a` modulo `n + 1` as a `Fin n.succ`.
+-/
+@[deprecated Fin.ofNat' (since := "2024-11-27")]
+protected def ofNat {n : Nat} (a : Nat) : Fin (n + 1) :=
+  ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
 
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
   | 0,   h => Nat.mod_lt _ h

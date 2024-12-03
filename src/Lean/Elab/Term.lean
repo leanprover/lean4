@@ -230,7 +230,7 @@ instance : ToSnapshotTree TacticFinishedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- Snapshot just before execution of a tactic. -/
-structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Language.Snapshot where
+structure TacticParsedSnapshot extends Language.Snapshot where
   /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
   stx      : Syntax
   /-- Task for nested incrementality, if enabled for tactic. -/
@@ -240,16 +240,9 @@ structure TacticParsedSnapshotData (TacticParsedSnapshot : Type) extends Languag
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
 deriving Inhabited
-
-/-- State after execution of a single synchronous tactic step. -/
-inductive TacticParsedSnapshot where
-  | mk (data : TacticParsedSnapshotData TacticParsedSnapshot)
-deriving Inhabited
-abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData TacticParsedSnapshot
-  | .mk data => data
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
-    go := fun ⟨s⟩ => ⟨s.toSnapshot,
+    go := fun s => ⟨s.toSnapshot,
       s.inner?.toArray.map (·.map (sync := true) go) ++
       #[s.finished.map (sync := true) toSnapshotTree] ++
       s.next.map (·.map (sync := true) go)⟩
@@ -479,6 +472,26 @@ def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
         dbg_trace "reuse stopped: guard failed at {old.stx}"
       return !cond }
   }) act
+
+@[inherit_doc Core.wrapAsync]
+def wrapAsync (act : Unit → TermElabM α) : TermElabM (EIO Exception α) := do
+  let ctx ← read
+  let st ← get
+  let metaCtx ← readThe Meta.Context
+  let metaSt ← getThe Meta.State
+  Core.wrapAsync fun _ =>
+    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
+
+@[inherit_doc Core.wrapAsyncAsSnapshot]
+def wrapAsyncAsSnapshot (act : Unit → TermElabM Unit)
+    (desc : String := by exact decl_name%.toString) :
+    TermElabM (BaseIO Language.SnapshotTree) := do
+  let ctx ← read
+  let st ← get
+  let metaCtx ← readThe Meta.Context
+  let metaSt ← getThe Meta.State
+  Core.wrapAsyncAsSnapshot (desc := desc) fun _ =>
+    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 
@@ -1066,7 +1079,9 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
+          let (oldValType, valType) ← addPPExplicitToExposeDiff oldValType valType
           throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+        let (oldVal, val) ← addPPExplicitToExposeDiff oldVal val
         throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do
@@ -1298,12 +1313,19 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
     | _                                  => return none
   | _ => pure none
 
-def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (isBinder := false) : TermElabM (Sum Info MVarId) := do
+def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
+    (lctx? : Option LocalContext := none) (isBinder := false) :
+    TermElabM (Sum Info MVarId) := do
   match (← isTacticOrPostponedHole? e) with
   | some mvarId => return Sum.inr mvarId
   | none =>
     let e := removeSaveInfoAnnotation e
     return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
+
+def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
+    (lctx? : Option LocalContext := none) :
+    TermElabM Info := do
+  return Info.ofPartialTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), stx, expectedType? }
 
 /--
 Pushes a new leaf node to the info tree associating the expression `e` to the syntax `stx`.
@@ -1326,33 +1348,46 @@ def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
   if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else
-    withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder) |> discard
+    discard <| withInfoContext'
+      (pure ())
+      (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder)
+      (mkPartialTermInfo elaborator stx expectedType? lctx?)
     return e
 
 def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Unit :=
   discard <| addTermInfo stx e expectedType? lctx? elaborator isBinder
 
-def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → TermElabM (Sum Info MVarId)) : TermElabM Expr := do
+def withInfoContext' (stx : Syntax) (x : TermElabM Expr)
+    (mkInfo : Expr → TermElabM (Sum Info MVarId)) (mkInfoOnError : TermElabM Info) :
+    TermElabM Expr := do
   if (← read).inPattern then
     let e ← x
     return mkPatternWithRef e stx
   else
-    Elab.withInfoContext' x mkInfo
+    Elab.withInfoContext' x mkInfo mkInfoOnError
 
 /-- Info node capturing `def/let rec` bodies, used by the unused variables linter. -/
 structure BodyInfo where
-  /-- The body as a fully elaborated term. -/
-  value : Expr
+  /-- The body as a fully elaborated term. `none` if the body failed to elaborate. -/
+  value? : Option Expr
 deriving TypeName
 
 /-- Creates an `Info.ofCustomInfo` node backed by a `BodyInfo`. -/
-def mkBodyInfo (stx : Syntax) (value : Expr) : Info :=
-  .ofCustomInfo { stx, value := .mk { value : BodyInfo } }
+def mkBodyInfo (stx : Syntax) (value? : Option Expr) : Info :=
+  .ofCustomInfo { stx, value := .mk { value? : BodyInfo } }
 
 /-- Extracts a `BodyInfo` custom info. -/
 def getBodyInfo? : Info → Option BodyInfo
   | .ofCustomInfo { value, .. } => value.get? BodyInfo
   | _ => none
+
+def withTermInfoContext' (elaborator : Name) (stx : Syntax) (x : TermElabM Expr)
+    (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none)
+    (isBinder : Bool := false) :
+    TermElabM Expr :=
+  withInfoContext' stx x
+    (mkTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?) (isBinder := isBinder))
+    (mkPartialTermInfo elaborator stx (expectedType? := expectedType?) (lctx? := lctx?))
 
 /--
 Postpone the elaboration of `stx`, return a metavariable that acts as a placeholder, and
@@ -1360,7 +1395,7 @@ ensures the info tree is updated and a hole id is introduced.
 When `stx` is elaborated, new info nodes are created and attached to the new hole id in the info tree.
 -/
 def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  withInfoContext' stx (mkInfo := mkTermInfo .anonymous (expectedType? := expectedType?) stx) do
+  withTermInfoContext' .anonymous stx (expectedType? := expectedType?) do
     postponeElabTermCore stx expectedType?
 
 /--
@@ -1372,7 +1407,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
   | (elabFn::elabFns) =>
     try
       -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
-      withInfoContext' stx (mkInfo := mkTermInfo elabFn.declName (expectedType? := expectedType?) stx)
+      withTermInfoContext' elabFn.declName stx (expectedType? := expectedType?)
         (try
           elabFn.value stx expectedType?
         catch ex => match ex with
@@ -1755,7 +1790,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
       let stxNew ← liftMacroM <| liftExcept stxNew?
-      withInfoContext' stx (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx) <|
+      withTermInfoContext' decl stx (expectedType? := expectedType?) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|
             elabTermAux expectedType? catchExPostpone implicitLambda stxNew

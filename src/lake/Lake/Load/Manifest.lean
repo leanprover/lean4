@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
+prelude
 import Lake.Util.Log
 import Lake.Util.Name
 import Lake.Util.FilePath

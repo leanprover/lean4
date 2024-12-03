@@ -282,29 +282,36 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       k fvars
   loop 0 #[]
 
-private def expandWhereStructInst : Macro
-  | `(Parser.Command.whereStructInst|where $[$decls:letDecl];* $[$whereDecls?:whereDecls]?) => do
-    let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letDecl|$_decl:letPatDecl) => Macro.throwErrorAt stx "patterns are not allowed here"
-      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl (useExplicit := false)
-      | `(letDecl|$decl:letIdDecl)   => pure decl
-      | _                            => Macro.throwUnsupported
-    let structInstFields ← letIdDecls.mapM fun
-      | stx@`(letIdDecl|$id:ident $binders* $[: $ty?]? := $val) => withRef stx do
-        let mut val := val
-        if let some ty := ty? then
-          val ← `(($val : $ty))
-        -- HACK: this produces invalid syntax, but the fun elaborator supports letIdBinders as well
-        have : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) := ⟨(⟨·⟩)⟩
-        val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
-        `(structInstField|$id:ident := $val)
-      | stx@`(letIdDecl|_ $_* $[: $_]? := $_) => Macro.throwErrorAt stx "'_' is not allowed here"
-      | _ => Macro.throwUnsupported
-    let body ← `(structInst| { $structInstFields,* })
-    match whereDecls? with
-    | some whereDecls => expandWhereDecls whereDecls body
-    | none => return body
-  | _ => Macro.throwUnsupported
+private def expandWhereStructInst : Macro := fun whereStx => do
+  let `(Parser.Command.whereStructInst| where%$whereTk $[$structInstFields];* $[$whereDecls?:whereDecls]?) := whereStx
+    | Macro.throwUnsupported
+
+  let startOfStructureTkInfo : SourceInfo :=
+    match whereTk.getPos? with
+    | some pos => .synthetic pos ⟨pos.byteIdx + 1⟩ true
+    | none => .none
+  -- Position the closing `}` at the end of the trailing whitespace of `where $[$_:letDecl];*`.
+  -- We need an accurate range of the generated structure instance in the generated `TermInfo`
+  -- so that we can determine the expected type in structure field completion.
+  let structureStxTailInfo :=
+    whereStx[1].getTailInfo?
+    <|> whereStx[0].getTailInfo?
+  let endOfStructureTkInfo : SourceInfo :=
+    match structureStxTailInfo with
+    | some (SourceInfo.original _ _ trailing _) =>
+      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenEndPos := trailing.stopPos
+      .synthetic tokenPos tokenEndPos true
+    | _ => .none
+
+  let body ← `(structInst| { $structInstFields,* })
+  let body := body.raw.setInfo <|
+    match startOfStructureTkInfo.getPos?, endOfStructureTkInfo.getTailPos? with
+    | some startPos, some endPos => .synthetic startPos endPos true
+    | _, _ => .none
+  match whereDecls? with
+  | some whereDecls => expandWhereDecls whereDecls body
+  | none => return body
 
 /-
 Recall that
@@ -417,12 +424,15 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
           -- Store instantiated body in info tree for the benefit of the unused variables linter
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again
-          withInfoContext' valStx (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·)) do
-            -- synthesize mvars here to force the top-level tactic block (if any) to run
-            let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
-            -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
-            -- leads to more section variables being included than necessary
-            instantiateMVarsProfiling val
+          withInfoContext' valStx
+            (mkInfo := (pure <| .inl <| mkBodyInfo valStx ·))
+            (mkInfoOnError := (pure <| mkBodyInfo valStx none))
+            do
+              -- synthesize mvars here to force the top-level tactic block (if any) to run
+              let val ← elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
+              -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
+              -- leads to more section variables being included than necessary
+              instantiateMVarsProfiling val
         let val ← mkLambdaFVars xs val
         if linter.unusedSectionVars.get (← getOptions) && !header.type.hasSorry && !val.hasSorry then
           let unusedVars ← vars.filterMapM fun var => do
@@ -814,8 +824,8 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
 abbrev Replacement := FVarIdMap Expr
 
 def insertReplacementForMainFns (r : Replacement) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) : Replacement :=
-  mainFVars.size.fold (init := r) fun i r =>
-    r.insert mainFVars[i]!.fvarId! (mkAppN (Lean.mkConst mainHeaders[i]!.declName) sectionVars)
+  mainFVars.size.fold (init := r) fun i _ r =>
+    r.insert mainFVars[i].fvarId! (mkAppN (Lean.mkConst mainHeaders[i]!.declName) sectionVars)
 
 
 def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecClosure) : Replacement :=
@@ -845,8 +855,8 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
 
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
-  mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
-    let header := mainHeaders[i]!
+  mainHeaders.size.foldM (init := preDefs) fun i _ preDefs => do
+    let header := mainHeaders[i]
     let termination ← declValToTerminationHint header.value
     let termination := termination.rememberExtraParams header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!

@@ -58,15 +58,28 @@ where
     let some eqBVPred ← ReifiedBVPred.mkBinPred atom resValExpr atomExpr resExpr .eq | return none
     let eqBV ← ReifiedBVLogical.ofPred eqBVPred
 
-    let trueExpr := mkConst ``Bool.true
-    let impExpr ← mkArrow (← mkEq eqDiscrExpr trueExpr) (← mkEq eqBVExpr trueExpr)
-    let decideImpExpr ← mkAppOptM ``Decidable.decide #[some impExpr, none]
     let imp ← ReifiedBVLogical.mkGate eqDiscr eqBV eqDiscrExpr eqBVExpr .imp
 
     let proof := do
       let evalExpr ← ReifiedBVLogical.mkEvalExpr imp.expr
-      let congrProof ← imp.evalsAtAtoms
+      let congrProof := (← imp.evalsAtAtoms).getD (ReifiedBVLogical.mkRefl evalExpr)
       let lemmaProof := mkApp4 (mkConst lemmaName) (toExpr lhs.width) discrExpr lhsExpr rhsExpr
+
+      let trueExpr := mkConst ``Bool.true
+      let eqDiscrTrueExpr ← mkEq eqDiscrExpr trueExpr
+      let eqBVExprTrueExpr ← mkEq eqBVExpr trueExpr
+      let impExpr ← mkArrow eqDiscrTrueExpr eqBVExprTrueExpr
+      -- construct a `Decidable` instance for the implication using forall_prop_decidable
+      let decEqDiscrTrue := mkApp2 (mkConst ``instDecidableEqBool) eqDiscrExpr trueExpr
+      let decEqBVExprTrue := mkApp2 (mkConst ``instDecidableEqBool) eqBVExpr trueExpr
+      let impDecidable := mkApp4 (mkConst ``forall_prop_decidable)
+        eqDiscrTrueExpr
+        (.lam .anonymous eqDiscrTrueExpr eqBVExprTrueExpr .default)
+        decEqDiscrTrue
+        (.lam .anonymous eqDiscrTrueExpr decEqBVExprTrue .default)
+
+      let decideImpExpr := mkApp2 (mkConst ``Decidable.decide) impExpr impDecidable
+
       return mkApp4
         (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.lemma_congr)
         decideImpExpr

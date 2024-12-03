@@ -3,7 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Compiler.FFI
+prelude
 import Lake.Config.Module
 
 namespace Lake
@@ -74,21 +74,27 @@ The file name of binary executable
 
 /--
 The arguments to pass to `leanc` when linking the binary executable.
-By default, the package's plus the executable's `moreLinkArgs`.
 
-If `supportInterpreter := true`, Lake links directly to the Lean shared
-libraries on Windows by prepending `-leanshared` and adds `-rdynamic` on
-other systems.
+By default, the package's plus the executable's `moreLinkArgs`.
+If `supportInterpreter := true`, Lake prepends `-rdynamic` on non-Windows
+systems.
 -/
 def linkArgs (self : LeanExe) : Array String :=
-  if self.config.supportInterpreter then
-    if Platform.isWindows then
-      #["-leanshared"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
-    else
-      #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+  if self.config.supportInterpreter && !Platform.isWindows then
+    #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
   else
     self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
 
+/--
+Whether the Lean shared library should be dynamically linked to the executable.
+
+If `supportInterpreter := true`, Lean symbols must be visible to the
+interpreter. On Windows, it is not possible to statically include these
+symbols in the executable due to symbol limits, so Lake dynamically links to
+the Lean shared library. Otherwise, Lean is linked statically.
+-/
+@[inline] def sharedLean (self : LeanExe) : Bool :=
+  strictAnd Platform.isWindows self.config.supportInterpreter
 
 /--
 The arguments to weakly pass to `leanc` when linking the binary executable.

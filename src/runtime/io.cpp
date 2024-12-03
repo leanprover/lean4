@@ -692,7 +692,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
         tm = (int64_t)(nextTransition / 1000.0);
     }
-    
+
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
 
     if (U_FAILURE(status)) {
@@ -1140,6 +1140,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     strcat(path, file_pattern);
 
     uv_fs_t req;
+    // Differences from lean_io_create_tempdir start here
     ret = uv_fs_mkstemp(NULL, &req, path, NULL);
     if (ret < 0) {
         // If mkstemp throws an error we cannot rely on path to contain a proper file name.
@@ -1148,6 +1149,48 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
         FILE* handle = fdopen(req.result, "r+");
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
         return lean_io_result_mk_ok(pair.steal());
+    }
+}
+
+/* createTempDir : IO FilePath */
+extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
+    char path[PATH_MAX];
+    size_t base_len = PATH_MAX;
+    int ret = uv_os_tmpdir(path, &base_len);
+    if (ret < 0) {
+        return io_result_mk_error(decode_uv_error(ret, nullptr));
+    } else if (base_len == 0) {
+        return lean_io_result_mk_error(decode_uv_error(UV_ENOENT, mk_string("")));
+    }
+
+#if defined(LEAN_WINDOWS)
+    // On Windows `GetTempPathW` always returns a path ending in \, but libuv removes it.
+    // https://learn.microsoft.com/en-us/windows/win32/fileio/creating-and-using-a-temporary-file
+    if (path[base_len - 1] != '\\') {
+        lean_always_assert(PATH_MAX >= base_len + 1 + 1);
+        strcat(path, "\\");
+    }
+#else
+    // No guarantee that we have a trailing / in TMPDIR.
+    if (path[base_len - 1] != '/') {
+        lean_always_assert(PATH_MAX >= base_len + 1 + 1);
+        strcat(path, "/");
+    }
+#endif
+
+    const char* file_pattern = "tmp.XXXXXXXX";
+    const size_t file_pattern_size = strlen(file_pattern);
+    lean_always_assert(PATH_MAX >= strlen(path) + file_pattern_size + 1);
+    strcat(path, file_pattern);
+
+    uv_fs_t req;
+    // Differences from lean_io_create_tempfile start here
+    ret = uv_fs_mkdtemp(NULL, &req, path, NULL);
+    if (ret < 0) {
+        // If mkdtemp throws an error we cannot rely on path to contain a proper file name.
+        return io_result_mk_error(decode_uv_error(ret, nullptr));
+    } else {
+        return lean_io_result_mk_ok(mk_string(req.path));
     }
 }
 
@@ -1405,6 +1448,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list, obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
     exit(code);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a, obj_arg /* w */) {
+    lean_mark_mt(a);
+    return io_result_mk_ok(a);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /* w */) {
+    lean_mark_persistent(a);
+    return io_result_mk_ok(a);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
+    return io_result_mk_ok(box(0));
 }
 
 void initialize_io() {

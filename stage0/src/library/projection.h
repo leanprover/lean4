@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 
 namespace lean {
 /** \brief Auxiliary information attached to projections. This information
@@ -37,20 +37,20 @@ public:
     bool is_inst_implicit() const;
 };
 
-/** \brief Mark \c p as a projection in the given environment and store that
+/** \brief Mark \c p as a projection in the given elab_environment and store that
     \c mk is the constructor associated with it, \c nparams is the number of parameters, and
     \c i says that \c p is the i-th projection.
 */
-environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i,
+elab_environment save_projection_info(elab_environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i,
                                  bool inst_implicit);
 
-/** \brief If \c p is a projection in the given environment, then return the information
+/** \brief If \c p is a projection in the given elab_environment, then return the information
     associated with it (constructor, number of parameters, and index).
     If \c p is not a projection, then return nullptr.
 */
-optional<projection_info> get_projection_info(environment const & env, name const & p);
+optional<projection_info> get_projection_info(elab_environment const & env, name const & p);
 
-inline bool is_projection(environment const & env, name const & n) {
+inline bool is_projection(elab_environment const & env, name const & n) {
     return static_cast<bool>(get_projection_info(env, n));
 }
 }

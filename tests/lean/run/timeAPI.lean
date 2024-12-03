@@ -501,8 +501,8 @@ example := Week.Ordinal.ofInt 1 (by decide)
 
 example := Nanosecond.Ordinal.ofFin 1
 example := Millisecond.Ordinal.ofFin 1
-example := Second.Ordinal.ofFin (leap := false) (Fin.ofNat 1)
-example := Second.Ordinal.ofFin (leap := true) (Fin.ofNat 1)
+example := Second.Ordinal.ofFin (leap := false) 37
+example := Second.Ordinal.ofFin (leap := true) 37
 example := Minute.Ordinal.ofFin 1
 example := Hour.Ordinal.ofFin 1
 example := Day.Ordinal.ofFin 1

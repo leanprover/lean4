@@ -162,7 +162,7 @@ void lean_uv_timer_finalizer(void* ptr) {
 
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, obj_arg /* w */ ) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating, obj_arg /* w */) {
     return io_result_mk_error("lean_uv_timer_mk is not supported");
 }
 

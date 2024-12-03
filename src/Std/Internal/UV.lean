@@ -23,7 +23,8 @@ structure Loop.Options where
   accumulateIdleTime : Bool := False
 
   /--
-  Block a signal when polling for new events
+  Block a SIGPROF signal when polling for new events. It's commonly used for unnecessary wakeups
+  when using a sampling profiler.
   -/
   blockSigProfSignal : Bool := False
 

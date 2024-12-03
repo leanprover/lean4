@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Materialize
-// Imports: Init Lake.Util.Git Lake.Load.Manifest Lake.Config.Dependency Lake.Config.Package Lake.Reservoir
+// Imports: Lake.Util.Git Lake.Load.Manifest Lake.Config.Dependency Lake.Config.Package Lake.Reservoir
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4405,7 +4405,6 @@ lean_dec(x_2);
 return x_7;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Git(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Load_Manifest(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Dependency(uint8_t builtin, lean_object*);
@@ -4416,9 +4415,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Load_Materialize(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_Git(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

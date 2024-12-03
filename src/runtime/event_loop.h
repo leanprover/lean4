@@ -15,22 +15,20 @@ using namespace std;
 
 namespace lean {
 
-// Scheduler structure
 typedef struct {
     uv_loop_t *loop;
-    pthread_mutex_t mutex;
+    uv_mutex_t mutex;
     uv_cond_t cond_var;
     uv_async_t async;
     _Atomic(int) n_waiters;
-} scheduler_t;
+} event_loop_t;
 
-// Scheduler API
-void scheduler_init(scheduler_t *scheduler);
-void scheduler_cleanup(scheduler_t *scheduler);
-void scheduler_lock(scheduler_t *scheduler);
-void scheduler_unlock(scheduler_t *scheduler);
-void scheduler_wake(scheduler_t *scheduler);
-void scheduler_run_loop(scheduler_t *scheduler);
+void event_loop_init(event_loop_t *event_loop);
+void event_loop_cleanup(event_loop_t *event_loop);
+void event_loop_lock(event_loop_t *event_loop);
+void event_loop_unlock(event_loop_t *event_loop);
+void event_loop_wake(event_loop_t *event_loop);
+void event_loop_run_loop(event_loop_t *event_loop);
 
 }
 

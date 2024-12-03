@@ -41,7 +41,11 @@ opaque alive : BaseIO Bool
 
 end Loop
 
-opaque Timer : Type := Unit
+private opaque TimerImpl : NonemptyType.{0}
+
+def Timer : Type := TimerImpl.type
+
+instance : Nonempty Timer := TimerImpl.property
 
 namespace Timer
 
@@ -58,10 +62,10 @@ Starts a timer with the specified timeout interval (both in milliseconds).
 opaque next (timer : @& Timer) : IO (IO.Promise Unit)
 
 /--
-Stops the specified timer, preventing further callbacks.
+Resets the specified timer, preventing further callbacks.
 -/
-@[extern "lean_uv_timer_stop"]
-opaque stop (timer : @& Timer) : IO Unit
+@[extern "lean_uv_timer_reset"]
+opaque reset (timer : @& Timer) : IO Unit
 
 end Timer
 end UV

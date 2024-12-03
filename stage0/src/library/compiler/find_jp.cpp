@@ -13,7 +13,7 @@ namespace lean {
 
 /* Find join-points */
 class find_jp_fn {
-    environment const & m_env;
+    elab_environment const & m_env;
     local_ctx           m_lctx;
     name_generator      m_ngen;
     name_map<unsigned>  m_candidates;
@@ -130,7 +130,7 @@ class find_jp_fn {
     }
 
 public:
-    find_jp_fn(environment const & env):
+    find_jp_fn(elab_environment const & env):
         m_env(env) {}
 
     expr operator()(expr const & e) {
@@ -138,7 +138,7 @@ public:
     }
 };
 
-expr find_jp(environment const & env, expr const & e) {
+expr find_jp(elab_environment const & env, expr const & e) {
     return find_jp_fn(env)(e);
 }
 }

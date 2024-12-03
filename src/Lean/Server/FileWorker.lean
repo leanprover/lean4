@@ -6,7 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
-import Init.Data.Channel
+import Std.Sync.Channel
 
 import Lean.Data.RBMap
 import Lean.Environment
@@ -28,7 +28,7 @@ import Lean.Server.FileWorker.WidgetRequests
 import Lean.Server.FileWorker.SetupFile
 import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
-import Lean.Server.ImportCompletion
+import Lean.Server.Completion.ImportCompletion
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -64,7 +64,7 @@ open Widget in
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
-  chanOut              : IO.Channel JsonRpc.Message
+  chanOut              : Std.Channel JsonRpc.Message
   /--
   Latest document version received by the client, used for filtering out notifications from
   previous versions.
@@ -75,7 +75,7 @@ structure WorkerContext where
   Channel that receives a message for every a `$/lean/fileProgress` notification, indicating whether
   the notification suggests that the file is currently being processed.
   -/
-  chanIsProcessing     : IO.Channel Bool
+  chanIsProcessing     : Std.Channel Bool
   /--
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
@@ -271,7 +271,7 @@ open Language Lean in
 Callback from Lean language processor after parsing imports that requests necessary information from
 Lake for processing imports.
 -/
-def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Channel JsonRpc.Message)
+def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Channel JsonRpc.Message)
     (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
     Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
@@ -337,7 +337,7 @@ section Initialization
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let maxDocVersionRef ← IO.mkRef 0
     let freshRequestIdRef ← IO.mkRef (0 : Int)
-    let chanIsProcessing ← IO.Channel.new
+    let chanIsProcessing ← Std.Channel.new
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef chanIsProcessing
     let srcSearchPathPromise ← IO.Promise.new
@@ -380,8 +380,8 @@ section Initialization
         the output FS stream after discarding outdated notifications. This is the only component of
         the worker with access to the output stream, so we can synchronize messages from parallel
         elaboration tasks here. -/
-    mkLspOutputChannel maxDocVersion chanIsProcessing : IO (IO.Channel JsonRpc.Message) := do
-      let chanOut ← IO.Channel.new
+    mkLspOutputChannel maxDocVersion chanIsProcessing : IO (Std.Channel JsonRpc.Message) := do
+      let chanOut ← Std.Channel.new
       let _ ← chanOut.forAsync (prio := .dedicated) fun msg => do
         -- discard outdated notifications; note that in contrast to responses, notifications can
         -- always be silently discarded

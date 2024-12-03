@@ -56,7 +56,6 @@ static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_elabExact_x3fTerm_dec
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Expr_mvar___override(lean_object*);
-static lean_object* l_Lean_Elab_LibrarySearch_evalApply___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_evalExact_declRange__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_exact_x3f___boxed__const__1;
 static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_evalExact_declRange__1___closed__5;
@@ -613,7 +612,7 @@ static lean_object* _init_l_Lean_Elab_LibrarySearch_exact_x3f___lambda__5___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("library_search", 14, 14);
+x_1 = lean_mk_string_unchecked("apply\?", 6, 6);
 return x_1;
 }
 }
@@ -1804,24 +1803,16 @@ return x_14;
 static lean_object* _init_l_Lean_Elab_LibrarySearch_evalApply___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("apply\?", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_LibrarySearch_evalApply___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Elab_LibrarySearch_evalExact___closed__1;
 x_2 = l_Lean_Elab_LibrarySearch_evalExact___closed__2;
 x_3 = l_Lean_Elab_LibrarySearch_evalExact___closed__3;
-x_4 = l_Lean_Elab_LibrarySearch_evalApply___closed__1;
+x_4 = l_Lean_Elab_LibrarySearch_exact_x3f___lambda__5___closed__1;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_LibrarySearch_evalApply___closed__3() {
+static lean_object* _init_l_Lean_Elab_LibrarySearch_evalApply___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1833,7 +1824,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_evalApply(lean_object* x_1, l
 _start:
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = l_Lean_Elab_LibrarySearch_evalApply___closed__2;
+x_11 = l_Lean_Elab_LibrarySearch_evalApply___closed__1;
 lean_inc(x_1);
 x_12 = l_Lean_Syntax_isOfKind(x_1, x_11);
 if (x_12 == 0)
@@ -1857,7 +1848,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17;
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 lean_dec(x_1);
-x_16 = l_Lean_Elab_LibrarySearch_evalApply___closed__3;
+x_16 = l_Lean_Elab_LibrarySearch_evalApply___closed__2;
 x_17 = l_Lean_Syntax_isNone(x_15);
 if (x_17 == 0)
 {
@@ -2010,7 +2001,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = l___regBuiltin_Lean_Elab_LibrarySearch_evalExact__1___closed__5;
-x_3 = l_Lean_Elab_LibrarySearch_evalApply___closed__2;
+x_3 = l_Lean_Elab_LibrarySearch_evalApply___closed__1;
 x_4 = l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed__2;
 x_5 = l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed__3;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
@@ -2790,8 +2781,6 @@ lean_dec_ref(res);
 lean_mark_persistent(l_Lean_Elab_LibrarySearch_evalApply___closed__1);
 l_Lean_Elab_LibrarySearch_evalApply___closed__2 = _init_l_Lean_Elab_LibrarySearch_evalApply___closed__2();
 lean_mark_persistent(l_Lean_Elab_LibrarySearch_evalApply___closed__2);
-l_Lean_Elab_LibrarySearch_evalApply___closed__3 = _init_l_Lean_Elab_LibrarySearch_evalApply___closed__3();
-lean_mark_persistent(l_Lean_Elab_LibrarySearch_evalApply___closed__3);
 l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed__1 = _init_l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed__1();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed__1);
 l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed__2 = _init_l___regBuiltin_Lean_Elab_LibrarySearch_evalApply__1___closed__2();

@@ -58,7 +58,7 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
   | #[e] => return e
   | es   => do
-    let stx ← mkTuple (es.eraseIdx 0)
+    let stx ← mkTuple (es.eraseIdxIfInBounds 0)
     `(Prod.mk $(es[0]!) $stx)
 
 def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=

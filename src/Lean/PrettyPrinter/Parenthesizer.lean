@@ -268,7 +268,7 @@ def visitToken : Parenthesizer := do
   let stx ← getCur
   -- `orelse` may produce `choice` nodes for antiquotations
   if stx.getKind == `choice then
-    visitArgs $ stx.getArgs.size.forM fun _ => do
+    visitArgs $ stx.getArgs.size.forM fun _ _ => do
       orelse.parenthesizer p1 p2
   else
     -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
@@ -332,7 +332,7 @@ partial def parenthesizeCategoryCore (cat : Name) (_prec : Nat) : Parenthesizer 
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur
     if stx.getKind == `choice then
-      visitArgs $ stx.getArgs.size.forM fun _ => do
+      visitArgs $ stx.getArgs.size.forM fun _ _ => do
         parenthesizeCategoryCore cat _prec
     else
       withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString cat (isPseudoKind := true)) (parenthesizerForKind stx.getKind)
@@ -470,7 +470,7 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
 @[combinator_parenthesizer manyNoAntiquot]
 def manyNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
-  visitArgs $ stx.getArgs.size.forM fun _ => p
+  visitArgs $ stx.getArgs.size.forM fun _ _ => p
 
 @[combinator_parenthesizer many1NoAntiquot]
 def many1NoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do

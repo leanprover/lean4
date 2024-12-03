@@ -13,6 +13,7 @@ import Init.Data.ToString.Basic
 import Init.GetElem
 import Init.Data.List.ToArray
 import Init.Data.Array.Set
+
 universe u v w
 
 /-! ### Array literal syntax -/
@@ -165,15 +166,15 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_fswap"]
-def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
+def swap (a : Array α) (i j : @& Nat) (hi : i < a.size := by get_elem_tactic) (hj : j < a.size := by get_elem_tactic) : Array α :=
   let v₁ := a[i]
   let v₂ := a[j]
   let a'  := a.set i v₂
-  a'.set j v₁ (Nat.lt_of_lt_of_eq j.isLt (size_set a i v₂ _).symm)
+  a'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set a i v₂ _).symm)
 
-@[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
+@[simp] theorem size_swap (a : Array α) (i j : Nat) {hi hj} : (a.swap i j hi hj).size = a.size := by
   show ((a.set i a[j]).set j a[i]
-    (Nat.lt_of_lt_of_eq j.isLt (size_set a i a[j] _).symm)).size = a.size
+    (Nat.lt_of_lt_of_eq hj (size_set a i a[j] _).symm)).size = a.size
   rw [size_set, size_set]
 
 /--
@@ -183,11 +184,13 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_swap"]
-def swap! (a : Array α) (i j : @& Nat) : Array α :=
+def swapIfInBounds (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
-  if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
+  if h₂ : j < a.size then swap a i j
   else a
   else a
+
+@[deprecated swapIfInBounds (since := "2024-11-24")] abbrev swap! := @swapIfInBounds
 
 /-! ### GetElem instance for `USize`, backed by `uget` -/
 
@@ -233,7 +236,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 
 /-- The array `#[0, 1, ..., n - 1]`. -/
 def range (n : Nat) : Array Nat :=
-  n.fold (flip Array.push) (mkEmpty n)
+  ofFn fun (i : Fin n) => i
 
 def singleton (v : α) : Array α :=
   mkArray 1 v
@@ -249,7 +252,7 @@ def get? (a : Array α) (i : Nat) : Option α :=
 def back? (a : Array α) : Option α :=
   a[a.size - 1]?
 
-@[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
+@[inline] def swapAt (a : Array α) (i : Nat) (v : α) (hi : i < a.size := by get_elem_tactic) : α × Array α :=
   let e := a[i]
   let a := a.set i v
   (e, a)
@@ -257,7 +260,7 @@ def back? (a : Array α) : Option α :=
 @[inline]
 def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
-    swapAt a ⟨i, h⟩ v
+    swapAt a i v
   else
     have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
@@ -613,8 +616,15 @@ def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
-def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
-  a.findIdx? fun a => a == v
+@[inline]
+def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as.size) :=
+  let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
+  loop (j : Nat) :=
+    if h : j < as.size then
+      if p as[j] then some ⟨j, h⟩ else loop (j + 1)
+    else none
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
+  loop 0
 
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
@@ -626,6 +636,10 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
+
+@[deprecated indexOf? (since := "2024-11-20")]
+def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
+  a.findIdx? fun a => a == v
 
 @[inline]
 def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
@@ -735,7 +749,7 @@ where
   loop (as : Array α) (i : Nat) (j : Fin as.size) :=
     if h : i < j then
       have := termination h
-      let as := as.swap ⟨i, Nat.lt_trans h j.2⟩ j
+      let as := as.swap i j (Nat.lt_trans h j.2)
       have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
       loop as (i+1) ⟨j-1, this⟩
     else
@@ -766,49 +780,63 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   go 0 #[]
 
-/-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
+/--
+Remove the element at a given index from an array without a runtime bounds checks,
+using a `Nat` index and a tactic-provided bound.
 
-  This function takes worst case O(n) time because
-  it has to backshift all elements at positions greater than `i`.-/
+This function takes worst case O(n) time because
+it has to backshift all elements at positions greater than `i`.-/
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
-  if h : i.val + 1 < a.size then
-    let a' := a.swap ⟨i.val + 1, h⟩ i
-    let i' : Fin a'.size := ⟨i.val + 1, by simp [a', h]⟩
-    a'.feraseIdx i'
+def eraseIdx (a : Array α) (i : Nat) (h : i < a.size := by get_elem_tactic) : Array α :=
+  if h' : i + 1 < a.size then
+    let a' := a.swap (i + 1) i
+    a'.eraseIdx (i + 1) (by simp [a', h'])
   else
     a.pop
-termination_by a.size - i.val
-decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
+termination_by a.size - i
+decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-@[simp] theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
-  induction a, i using Array.feraseIdx.induct with
-  | @case1 a i h a' _ ih =>
-    unfold feraseIdx
-    simp [h, a', ih]
-  | case2 a i h =>
-    unfold feraseIdx
-    simp [h]
+@[simp] theorem size_eraseIdx (a : Array α) (i : Nat) (h) : (a.eraseIdx i h).size = a.size - 1 := by
+  induction a, i, h using Array.eraseIdx.induct with
+  | @case1 a i h h' a' ih =>
+    unfold eraseIdx
+    simp [h', a', ih]
+  | case2 a i h h' =>
+    unfold eraseIdx
+    simp [h']
 
 /-- Remove the element at a given index from an array, or do nothing if the index is out of bounds.
 
   This function takes worst case O(n) time because
   it has to backshift all elements at positions greater than `i`.-/
-def eraseIdx (a : Array α) (i : Nat) : Array α :=
-  if h : i < a.size then a.feraseIdx ⟨i, h⟩ else a
+def eraseIdxIfInBounds (a : Array α) (i : Nat) : Array α :=
+  if h : i < a.size then a.eraseIdx i h else a
+
+/-- Remove the element at a given index from an array, or panic if the index is out of bounds.
+
+This function takes worst case O(n) time because
+it has to backshift all elements at positions greater than `i`. -/
+def eraseIdx! (a : Array α) (i : Nat) : Array α :=
+  if h : i < a.size then a.eraseIdx i h else panic! "invalid index"
 
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.indexOf? a with
   | none   => as
-  | some i => as.feraseIdx i
+  | some i => as.eraseIdx i
+
+/-- Erase the first element that satisfies the predicate `p`. -/
+def eraseP (as : Array α) (p : α → Bool) : Array α :=
+  match as.findIdx? p with
+  | none   => as
+  | some i => as.eraseIdxIfInBounds i
 
 /-- Insert element `a` at position `i`. -/
-@[inline] def insertAt (as : Array α) (i : Fin (as.size + 1)) (a : α) : Array α :=
+@[inline] def insertIdx (as : Array α) (i : Nat) (a : α) (_ : i ≤ as.size := by get_elem_tactic) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (as : Array α) (j : Fin as.size) :=
-    if i.1 < j then
-      let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
+    if i < j then
+      let j' : Fin as.size := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
       let as := as.swap j' j
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
     else
@@ -818,11 +846,22 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
 
+@[deprecated insertIdx (since := "2024-11-20")] abbrev insertAt := @insertIdx
+
 /-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
-def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
+def insertIdx! (as : Array α) (i : Nat) (a : α) : Array α :=
   if h : i ≤ as.size then
-    insertAt as ⟨i, Nat.lt_succ_of_le h⟩ a
+    insertIdx as i a
   else panic! "invalid index"
+
+@[deprecated insertIdx! (since := "2024-11-20")] abbrev insertAt! := @insertIdx!
+
+/-- Insert element `a` at position `i`, or do nothing if `as.size < i`. -/
+def insertIdxIfInBounds (as : Array α) (i : Nat) (a : α) : Array α :=
+  if h : i ≤ as.size then
+    insertIdx as i a
+  else
+    as
 
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
@@ -847,12 +886,12 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
     false
 
 @[semireducible, specialize] -- This is otherwise irreducible because it uses well-founded recursion.
-def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) : Array γ :=
+def zipWithAux (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat) (cs : Array γ) : Array γ :=
   if h : i < as.size then
     let a := as[i]
     if h : i < bs.size then
       let b := bs[i]
-      zipWithAux f as bs (i+1) <| cs.push <| f a b
+      zipWithAux as bs f (i+1) <| cs.push <| f a b
     else
       cs
   else
@@ -860,10 +899,22 @@ def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) (i : Nat) 
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
-  zipWithAux f as bs 0 #[]
+  zipWithAux as bs f 0 #[]
 
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
   zipWith as bs Prod.mk
+
+def zipWithAll (as : Array α) (bs : Array β) (f : Option α → Option β → γ) : Array γ :=
+  go as bs 0 #[]
+where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
+  if i < max as.size bs.size then
+    let a := as[i]?
+    let b := bs[i]?
+    go as bs (i+1) (cs.push (f a b))
+  else
+    cs
+  termination_by max as.size bs.size - i
+  decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def unzip (as : Array (α × β)) : Array α × Array β :=
   as.foldl (init := (#[], #[])) fun (as, bs) (a, b) => (as.push a, bs.push b)

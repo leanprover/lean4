@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Error
 import Lake.Util.EStateT
 import Lake.Util.Lift
@@ -130,9 +131,9 @@ protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
   if useAnsi then
     let {level := lv, message := msg} := self
     let pre := Ansi.chalk lv.ansiColor s!"{lv.toString}:"
-    s!"{pre} {msg.trim}"
+    s!"{pre} {msg}"
   else
-    s!"{self.level}: {self.message.trim}"
+    s!"{self.level}: {self.message}"
 
 instance : ToString LogEntry := ⟨LogEntry.toString⟩
 
@@ -161,7 +162,8 @@ export MonadLog (logEntry)
     message := mkErrorStringWithPos msg.fileName msg.pos str none
   }
 
-@[deprecated (since := "2024-05-18")] def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
+@[deprecated "No deprecation message available." (since := "2024-05-18")]
+def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
   match e.level with
   | .trace => if minLv ≥ .trace then
     IO.println e.message.trim |>.catchExceptions fun _ => pure ()
@@ -189,7 +191,8 @@ abbrev lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := methods.lift
 
 set_option linter.deprecated false in
-@[deprecated (since := "2024-05-18")] abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
+@[deprecated "Deprecated without replacement." (since := "2024-05-18")]
+abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
   logEntry e := logToIO e minLv
 
 abbrev stream [MonadLiftT BaseIO m]
@@ -259,9 +262,18 @@ instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
 /-- A position in a `Log` (i.e., an array index). Can be past the log's end. -/
 structure Log.Pos where
   val : Nat
-  deriving Inhabited
+  deriving Inhabited, DecidableEq
 
 instance : OfNat Log.Pos (nat_lit 0) := ⟨⟨0⟩⟩
+instance : Ord Log.Pos := ⟨(compare ·.val ·.val)⟩
+instance : LT Log.Pos := ⟨(·.val < ·.val)⟩
+instance : DecidableRel (LT.lt (α := Log.Pos)) :=
+  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val < ·.val))
+instance : LE Log.Pos := ⟨(·.val ≤ ·.val)⟩
+instance : DecidableRel (LE.le (α := Log.Pos)) :=
+  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val ≤ ·.val))
+instance : Min Log.Pos := minOfLe
+instance : Max Log.Pos := maxOfLe
 
 namespace Log
 
@@ -399,7 +411,7 @@ from an `ELogT` (e.g., `LogIO`).
   [Monad m] [MonadLiftT BaseIO m] [MonadLog m] [MonadFinally m] (x : m α)
 : m α := do
   let (out, a) ← IO.FS.withIsolatedStreams x
-  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out}"
+  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out.trim}"
   return a
 
 /-- Throw with the logged error `message`. -/

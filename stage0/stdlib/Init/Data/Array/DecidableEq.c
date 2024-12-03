@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.DecidableEq
-// Imports: Init.Data.Array.Basic Init.Data.BEq Init.Data.Nat.Lemmas Init.Data.List.Nat.BEq Init.ByCases
+// Imports: Init.Data.Array.Basic Init.Data.BEq Init.Data.List.Nat.BEq Init.ByCases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -187,7 +187,6 @@ return x_5;
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_BEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -199,9 +198,6 @@ res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BEq(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_BEq(builtin, lean_io_mk_world());

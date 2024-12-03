@@ -62,7 +62,7 @@ lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Meta_Match_Example_applyFVarSubst___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_instantiatePatternMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_arrayLit_x3f(lean_object*);
 static lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__2;
@@ -7340,7 +7340,8 @@ x_28 = lean_ctor_get(x_25, 1);
 x_29 = lean_ctor_get(x_27, 0);
 lean_inc(x_29);
 lean_dec(x_27);
-x_30 = lean_environment_find(x_29, x_23);
+x_30 = l_Lean_Environment_find_x3f(x_29, x_23);
+lean_dec(x_23);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
@@ -7478,7 +7479,8 @@ lean_dec(x_25);
 x_68 = lean_ctor_get(x_66, 0);
 lean_inc(x_68);
 lean_dec(x_66);
-x_69 = lean_environment_find(x_68, x_23);
+x_69 = l_Lean_Environment_find_x3f(x_68, x_23);
+lean_dec(x_23);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
@@ -7733,7 +7735,8 @@ if (lean_is_exclusive(x_130)) {
 x_134 = lean_ctor_get(x_131, 0);
 lean_inc(x_134);
 lean_dec(x_131);
-x_135 = lean_environment_find(x_134, x_128);
+x_135 = l_Lean_Environment_find_x3f(x_134, x_128);
+lean_dec(x_128);
 if (lean_obj_tag(x_135) == 0)
 {
 lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; 

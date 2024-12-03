@@ -15,13 +15,13 @@ example (x : Nat) : Nat :=
   match g x with
   | (a, b) => by done
 
-inductive Vector (α : Type u) : Nat → Type u where
-  | nil  : Vector α 0
-  | cons : α → Vector α n → Vector α (n+1)
+inductive Vector' (α : Type u) : Nat → Type u where
+  | nil  : Vector' α 0
+  | cons : α → Vector' α n → Vector' α (n+1)
 
-namespace Vector
-  def insert (a: α): Fin (n+1) → Vector α n → Vector α (n+1)
+namespace Vector'
+  def insert (a: α): Fin (n+1) → Vector' α n → Vector' α (n+1)
     | ⟨0  , _⟩,        xs => cons a xs
     | ⟨i+1, h⟩, cons x xs => by done
 
-end Vector
+end Vector'

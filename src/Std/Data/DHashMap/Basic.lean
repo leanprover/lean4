@@ -291,11 +291,11 @@ but will later become a primitive operation.
   ⟨(Raw₀.Const.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertMany ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insert₀ m.2⟩
 
-@[inline, inherit_doc Raw.Const.insertManyUnit] def Const.insertManyUnit
+@[inline, inherit_doc Raw.Const.insertManyIfNewUnit] def Const.insertManyIfNewUnit
     {ρ : Type w} [ForIn Id ρ α] (m : DHashMap α (fun _ => Unit)) (l : ρ) :
     DHashMap α (fun _ => Unit) :=
-  ⟨(Raw₀.Const.insertManyUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
-   (Raw₀.Const.insertManyUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insert₀ m.2⟩
+  ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
+   (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩
 
 @[inline, inherit_doc Raw.ofList] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) :
     DHashMap α β :=
@@ -313,11 +313,11 @@ instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
 
 @[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
     DHashMap α (fun _ => Unit) :=
-  Const.insertManyUnit ∅ l
+  Const.insertManyIfNewUnit ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=
-  Const.insertManyUnit ∅ l
+  Const.insertManyIfNewUnit ∅ l
 
 @[inherit_doc Raw.Internal.numBuckets] def Internal.numBuckets
     (m : DHashMap α β) : Nat :=

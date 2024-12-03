@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion7.lean"},
      "position": {"line": 6, "character": 10}},
-    "id": {"const": {"declName": "And"}}}}],
+    "id": {"const": {"declName": "And"}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 8, "character": 11}}
@@ -20,7 +21,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion7.lean"},
      "position": {"line": 8, "character": 11}},
-    "id": {"const": {"declName": "And.left"}}}},
+    "id": {"const": {"declName": "And.left"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "mk",
    "kind": 4,
@@ -28,7 +30,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion7.lean"},
      "position": {"line": 8, "character": 11}},
-    "id": {"const": {"declName": "And.mk"}}}},
+    "id": {"const": {"declName": "And.mk"}},
+    "cPos": 0}},
   {"sortText": "2",
    "label": "right",
    "kind": 5,
@@ -36,5 +39,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completion7.lean"},
      "position": {"line": 8, "character": 11}},
-    "id": {"const": {"declName": "And.right"}}}}],
+    "id": {"const": {"declName": "And.right"}},
+    "cPos": 0}}],
  "isIncomplete": true}

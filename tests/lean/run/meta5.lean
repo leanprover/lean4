@@ -9,7 +9,7 @@ withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
   let mvar ← mkFreshExprMVar (mkConst `Nat) MetavarKind.syntheticOpaque;
   trace[Meta.debug] mvar;
   let r ← mkLambdaFVars #[y, x] mvar;
-  trace[Message.debug] r;
+  trace[Meta.debug] r;
   let v := mkApp2 (mkConst `Nat.add) x y;
   mvar.mvarId!.assign v;
   trace[Meta.debug] mvar;
@@ -24,15 +24,15 @@ set_option trace.Meta.debug true
 
 /--
 info: [Meta.debug] ?_
+[Meta.debug] fun y =>
+      let x := 0;
+      ?_
 [Meta.debug] x.add y
 [Meta.debug] fun y =>
       let x := 0;
       x.add y
 [Meta.debug] ?_uniq.3037 : Nat
-[Meta.debug] ?_uniq.3038 : Nat →
-      Nat →
-        let x := 0;
-        Nat
+[Meta.debug] ?_uniq.3038 : Nat → Nat → Nat
 -/
 #guard_msgs in
 #eval tst1

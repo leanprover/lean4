@@ -36,3 +36,7 @@ theorem neZero_iff {n : R} : NeZero n ↔ n ≠ 0 :=
 
 @[simp] theorem neZero_zero_iff_false {α : Type _} [Zero α] : NeZero (0 : α) ↔ False :=
   ⟨fun _ ↦ NeZero.ne (0 : α) rfl, fun h ↦ h.elim⟩
+
+instance {p : Prop} [Decidable p] {n m : Nat} [NeZero n] [NeZero m] :
+    NeZero (if p then n else m) := by
+  split <;> infer_instance

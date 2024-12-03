@@ -27,6 +27,7 @@ lean_object* l_Lean_Meta_RecursorInfo_numIndices(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Meta_Grind_cases_throwInductiveExpected___closed__4;
 lean_object* l_Lean_MVarId_assign___at_Lean_Meta_getLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_cases___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_cases___spec__1___closed__4;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -686,7 +687,6 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
@@ -701,7 +701,6 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_mkAppN(x_13, x_5);
-lean_dec(x_5);
 x_16 = l_Lean_Expr_fvar___override(x_3);
 x_17 = l_Lean_Expr_app___override(x_15, x_16);
 lean_inc(x_10);
@@ -855,7 +854,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -980,7 +978,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-lean_inc(x_33);
 lean_inc(x_26);
 lean_inc(x_2);
 lean_inc(x_1);
@@ -1232,7 +1229,7 @@ x_86 = 0;
 x_87 = l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(x_85, x_86, x_84);
 x_88 = l_Lean_Meta_Grind_cases_throwInductiveExpected___closed__3;
 lean_inc(x_82);
-x_89 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_cases___lambda__1), 11, 6);
+x_89 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_cases___lambda__1___boxed), 11, 6);
 lean_closure_set(x_89, 0, x_82);
 lean_closure_set(x_89, 1, x_88);
 lean_closure_set(x_89, 2, x_83);
@@ -1518,6 +1515,15 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_17;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_cases___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+_start:
+{
+lean_object* x_12; 
+x_12 = l_Lean_Meta_Grind_cases___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_5);
+return x_12;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean_object*);

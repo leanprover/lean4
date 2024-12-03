@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Task
 import Lake.Build.Basic
 
@@ -62,6 +63,12 @@ def JobState.merge (a b : JobState) : JobState where
 
 /-- The result of a Lake job. -/
 abbrev JobResult α := EResult Log.Pos JobState α
+
+/-- Add log entries to the beginning of the job's log. -/
+def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α :=
+  match self with
+  | .ok a s => .ok a <| s.modifyLog (log ++ ·)
+  | .error e s => .error ⟨log.size + e.val⟩ <| s.modifyLog (log ++ ·)
 
 /-- The `Task` of a Lake job. -/
 abbrev JobTask α := BaseIOTask (JobResult α)

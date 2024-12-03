@@ -723,7 +723,7 @@ theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHas
     Perm (toListModel (insertListₘ m l).1.buckets) (List.insertList (toListModel m.1.buckets) l) := by
   induction l generalizing m with
   | nil =>
-    simp[insertListₘ, List.insertList]
+    simp [insertListₘ, List.insertList]
   | cons hd tl ih =>
     simp only [insertListₘ, List.insertList]
     apply Perm.trans

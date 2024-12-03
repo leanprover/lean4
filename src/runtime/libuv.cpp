@@ -182,11 +182,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
 }
 
 /* Std.Internal.UV.Timer.reset (timer : @& Timer) : IO Unit */
+/* Std.Internal.UV.Timer.reset (timer : @& Timer) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg /* w */ ) {
     lean_uv_timer_object * obj = lean_to_uv_timer(timer);
 
     if (!obj->m_started) return lean_io_result_mk_ok(lean_box(0));
-    obj->m_started = false;
+
+    event_loop_lock(&global_ev);
+
+    uv_timer_stop(&obj->m_uv_timer);
+
+    uv_timer_start(
+        &obj->m_uv_timer,
+        handle_timer_event,
+        obj->m_timeout,
+        obj->m_repeating ? obj->m_timeout : 0
+    );
+
+    event_loop_unlock(&global_ev);
 
     return lean_io_result_mk_ok(lean_box(0));
 }

@@ -1113,16 +1113,19 @@ def deriveCases (name : Name) : MetaM Unit := do
       pure value
     else
       throwError "'{name}' does not have an unfold theorem nor a value"
-  let e' ← withLocalDeclD `motive (.sort 0) fun motive => do
+  let motiveType ← lambdaTelescope value fun xs _body => do
+    mkForallFVars xs (.sort 0)
+  let e' ← withLocalDeclD `motive motiveType fun motive => do
     lambdaTelescope value fun xs body => do
       let (e',mvars) ← M2.run do
-      -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
-      -- so `buildInductionBody` should just do the right thing
+        let goal := mkAppN motive xs
+        -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
+        -- so `buildInductionBody` should just do the right thing
         withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
           let isRecCall := fun _ => none
-          buildInductionBody #[fakeIH.fvarId!] motive fakeIH.fvarId! fakeIH.fvarId! isRecCall body
-      let e' ← abstractIndependentMVars mvars (← xs.back!.fvarId!.getDecl).index e'
+          buildInductionBody #[fakeIH.fvarId!] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
       let e' ← mkLambdaFVars xs e'
+      let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
       let e' ← mkLambdaFVars #[motive] e'
       pure e'
 

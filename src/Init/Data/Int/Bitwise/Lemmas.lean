@@ -24,12 +24,11 @@ theorem shiftRight_add (i : Int) (m n : Nat) :
 
 theorem shiftRight_eq_div_pow (m : Int) (n : Nat) :
     m >>> n = m / ((2 ^ n) : Nat) := by
-  sorry -- FIXME #6278
-  -- simp only [shiftRight_eq, Int.shiftRight, Nat.shiftRight_eq_div_pow]
-  -- split
-  -- · simp
-  -- · rw [negSucc_ediv _ (by norm_cast; exact Nat.pow_pos (Nat.zero_lt_two))]
-  --   rfl
+  simp only [shiftRight_eq, Int.shiftRight, Nat.shiftRight_eq_div_pow]
+  split
+  · simp
+  · rw [negSucc_ediv _ (by norm_cast; exact Nat.pow_pos (Nat.zero_lt_two))]
+    rfl
 
 @[simp]
 theorem zero_shiftRight (n : Nat) : (0 : Int) >>> n = 0 := by

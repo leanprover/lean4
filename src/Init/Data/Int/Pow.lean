@@ -52,9 +52,8 @@ protected theorem two_pow_pred_sub_two_pow {w : Nat} (h : 0 < w) :
 @[simp]
 protected theorem two_pow_pred_sub_two_pow' {w : Nat} (h : 0 < w) :
     (2 : Int) ^ (w - 1) - (2 : Int) ^ w = - (2 : Int) ^ (w - 1) := by
-  sorry -- FIXME #6278
-  -- norm_cast
-  -- rw [← Nat.two_pow_pred_add_two_pow_pred h]
-  -- simp [h]
+  norm_cast
+  rw [← Nat.two_pow_pred_add_two_pow_pred h]
+  simp [h]
 
 end Int

@@ -105,7 +105,7 @@ void handle_timer_event(uv_timer_t* handle) {
 }
 
 /* Std.Internal.UV.Timer.mk (timeout : UInt64) (repeating : Bool) : IO Timer */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating, obj_arg /* w */ ) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating, obj_arg /* w */) {
     lean_uv_timer_object* timer_obj = (lean_uv_timer_object*)malloc(sizeof(lean_uv_timer_object));
 
     timer_obj->m_timeout = timeout;

@@ -4,14 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Sofia Rodrigues
 */
-
-#include "runtime/uv_event_loop.h"
-
-#ifndef LEAN_EMSCRIPTEN
-
-using namespace std;
+#include "runtime/uv/event_loop.h"
 
 namespace lean {
+#ifndef LEAN_EMSCRIPTEN
+using namespace std;
+
+event_loop_t global_ev;
 
 // Utility function for error checking. This function is only used inside the
 // initializition of the event loop.
@@ -78,6 +77,53 @@ void event_loop_run_loop(event_loop_t * event_loop) {
     }
 }
 
+/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options, obj_arg /* w */ ) {
+    bool accum = lean_ctor_get_uint8(options, 0);
+    bool block = lean_ctor_get_uint8(options, 1);
+
+    event_loop_lock(&global_ev);
+
+    if (accum && uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME) != 0) {
+        return io_result_mk_error("failed to configure global_ev.loop with UV_METRICS_IDLE_TIME");
+    }
+
+    #if!defined(WIN32) && !defined(_WIN32)
+    if (block && uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF) != 0) {
+        return io_result_mk_error("failed to configure global_ev.loop with UV_LOOP_BLOCK_SIGNAL");
+    }
+    #endif
+
+    event_loop_unlock(&global_ev);
+
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
+/* Std.Internal.UV.Loop.alive : BaseIO UInt64 */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ ) {
+    event_loop_lock(&global_ev);
+    int is_alive = uv_loop_alive(global_ev.loop);
+    event_loop_unlock(&global_ev);
+
+    return lean_io_result_mk_ok(lean_box(is_alive));
+}
+
+void initialize_libuv_loop() {
+    event_loop_init(&global_ev);
+}
+
+#else
+
+/* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options, obj_arg /* w */ ) {
+    return io_result_mk_error("lean_uv_event_loop_configure is not supported");
+}
+
+/* Std.Internal.UV.Loop.alive : BaseIO UInt64 */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ ) {
+    return io_result_mk_error("lean_uv_event_loop_alive is not supported");
 }
 
 #endif
+
+}

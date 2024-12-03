@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Json_compress(lean_object*);
+lean_object* l___private_Lean_Util_FileSetupInfo_0__Lean_toJsonFileSetupInfo____x40_Lean_Util_FileSetupInfo___hyg_132_(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_serve___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_setupFile___lambda__4___boxed__const__1;
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
@@ -24,7 +25,6 @@ lean_object* l_Lake_Log_toString(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lake_setupFile___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_leanSrcPath(lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_FileSetupInfo_0__Lean_toJsonFileSetupInfo____x40_Lean_Util_FileSetupInfo___hyg_134_(lean_object*);
 lean_object* l_Lake_Env_baseVars(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_serve___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_OutStream_get(lean_object*, lean_object*);
@@ -252,7 +252,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
-x_5 = l___private_Lean_Util_FileSetupInfo_0__Lean_toJsonFileSetupInfo____x40_Lean_Util_FileSetupInfo___hyg_134_(x_4);
+x_5 = l___private_Lean_Util_FileSetupInfo_0__Lean_toJsonFileSetupInfo____x40_Lean_Util_FileSetupInfo___hyg_132_(x_4);
 x_6 = l_Lean_Json_compress(x_5);
 x_7 = l_IO_println___at_Lean_Environment_displayStats___spec__3(x_6, x_3);
 if (lean_obj_tag(x_7) == 0)

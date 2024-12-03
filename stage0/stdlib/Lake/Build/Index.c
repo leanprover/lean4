@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Index
-// Imports: Init Lake.Build.Executable Lake.Build.Topological
+// Imports: Lake.Build.Executable Lake.Build.Topological
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4466,7 +4466,6 @@ lean_dec(x_3);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Executable(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Topological(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -4474,9 +4473,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Index(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Build_Executable(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

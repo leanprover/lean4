@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Lake_untar___lambda__1___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_compileLeanModule___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_download(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_compileLeanModule___lambda__3___closed__2;
-lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3366_(lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 static lean_object* l_Lake_download___lambda__1___closed__5;
 static lean_object* l_Lake_compileLeanModule___lambda__6___closed__1;
@@ -74,6 +73,7 @@ static lean_object* l_Lake_tar___closed__4;
 static lean_object* l_Lake_untar___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_tar___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_compileStaticLib___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3364_(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_download___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_mkCmdLog(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_compileLeanModule___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -434,7 +434,7 @@ lean_object* x_28; lean_object* x_29;
 x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
-x_29 = l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3366_(x_28);
+x_29 = l___private_Lean_Message_0__Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_3364_(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 

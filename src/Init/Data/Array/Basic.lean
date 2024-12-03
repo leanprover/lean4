@@ -919,6 +919,13 @@ where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
 def unzip (as : Array (α × β)) : Array α × Array β :=
   as.foldl (init := (#[], #[])) fun (as, bs) (a, b) => (as.push a, bs.push b)
 
+/-- Sum of an array.
+
+`Array.sum #[a, b, c] = a + (b + (c + 0))` -/
+def sum {α} [Add α] [Zero α] : (as: Array α) : α :=
+  as.foldr (· + ·) 0
+
+
 @[deprecated partition (since := "2024-11-06")]
 def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>

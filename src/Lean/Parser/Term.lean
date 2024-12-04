@@ -700,8 +700,8 @@ theorems, so that it can be verified.
 Requires the function type to be inhabited a-priori (as with `partial`), and that all recursive
 calls are in tail-call position.
 -/
-@[builtin_doc] def nontermination := leading_parser
-  "nontermination" >> (nonReservedSymbol "tailrecursive" <|> nonReservedSymbol "monadic")
+@[builtin_doc] def nonterminationTailrec := leading_parser
+  "nontermination_tailrecursive"
 
 /--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)
@@ -719,7 +719,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> nontermination)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> nonterminationTailrec)) >> optional decreasingBy
 
 end Termination
 namespace Term

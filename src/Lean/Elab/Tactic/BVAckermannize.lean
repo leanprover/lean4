@@ -31,11 +31,11 @@ initialize Lean.registerTraceClass `Meta.Tactic.bv_ack
 
 namespace Ack
 
- /-- Types that can be bitblasted by bv_decide -/
+ /-- Types that can be bitblasted by bv_decide. -/
  inductive BVTy
-   /-- Booleans -/
+   /-- Booleans. -/
    | Bool
-   /-- Bitvectors of a fixed width `w` -/
+   /-- Bitvectors of a fixed width `w`. -/
    | BitVec (w : Nat)
    deriving Hashable, DecidableEq, Inhabited
 
@@ -58,8 +58,7 @@ def ofExpr? (e : Expr) : MetaM (Option BVTy) := ofExpr?Aux e |>.run where
        return .BitVec w
     | _ => OptionT.fail
 
-
-/-- Convert a `BVTy` back into an `Expr` -/
+/-- Convert a `BVTy` back into an `Expr`. -/
 def toExpr : BVTy → Expr
 | .Bool => mkConst ``_root_.Bool
 | .BitVec w => mkApp (mkConst ``_root_.BitVec) (mkNatLit w)
@@ -68,7 +67,7 @@ end BVTy
 
 /-- An argument to an uninterpreted function, which we track for ackermannization. -/
 structure Argument where
-  /-- The expression corresponding to the argument -/
+  /-- The expression corresponding to the argument. -/
   value : Expr
   /-- The type of the argument. -/
   type : BVTy
@@ -81,7 +80,7 @@ instance : ToMessageData Argument where
 end Argument
 
 /--
-A function, which packs the expression and the type of the codomain of the function.
+A function, which packs the expression and the type of the codomain.
 We use the type of the codomain to build an abstracted value for every call of this function.
 -/
 structure Function where
@@ -122,7 +121,7 @@ end CallInfo
 structure State where
   /--
   A mapping from a function `f`, to a map of arguments `x₁ ... xₙ`, to the information stored about the call.
-  This is used to generate equations of the form `x₁ = y₁ → x₂ = y₂ → ... → xₙ = yₙ → ack_fx₁...xₙ = ack_fy₁...yₙ on-demand.
+  This is used to generate equations of the form `x₁ = y₁ → x₂ = y₂ → ... → xₙ = yₙ → ack_fx₁...xₙ = ack_fy₁...yₙ.
   -/
   fn2args2call : Std.HashMap Function (Std.HashMap ArgumentArray CallInfo) := {}
   /-- A counter for generating fresh names. -/
@@ -143,13 +142,13 @@ def gensym : AckM Name := do
 
 def withContext (g : MVarId) (ma : AckM α) : AckM α := g.withContext ma
 
-/-- Get the calls to a function `fn`. -/
-def getCallMap (fn : Function) : AckM (Std.HashMap ArgumentArray CallInfo) := do
+/-- Get the map from an argument list to a call of a function `fn`. -/
+def _getCallMap (fn : Function) : AckM (Std.HashMap ArgumentArray CallInfo) := do
   return (← get).fn2args2call.getD fn {}
 
 /-- Get the calls to a function `fn`. -/
 def getCallVal? (fn : Function) (args : Array Argument) : AckM (Option CallInfo) := do
-  return (← getCallMap fn).get? args
+  return (← _getCallMap fn).get? args
 
 structure IntroDefResult where
   -- the new name/fvar of the defn.
@@ -170,13 +169,13 @@ def introDefExt (g : MVarId) (name : Name) (hdefTy : Expr) (hdefVal : Expr) : Ac
 
 /-- Insert the CallInfo `cv` at `(fn, args)` into the state. -/
 private def _insertCallVal (fn : Function) (args : ArgumentArray) (cv : CallInfo) : AckM Unit := do
-  let calls ← getCallMap fn
+  let calls ← _getCallMap fn
   modify fun s => { s with fn2args2call := s.fn2args2call.insert fn (calls.insert args cv) }
 
 /--
-Replace a call `f x₁ ... xₙ` with a new free variable `fv` where `fv := f x₁ ... xₙ.
+Replace a call `f x₁ ... xₙ` with a new free variable `fv` where `fv := f x₁ ... xₙ`.
 This free variable `fv` is cached, and represented by a `CallVal`.
-Moreover, Since the `fv` is defeq to `f x₁ ... xₙ, we can substitute `fv` in the location of the call.
+Moreover, Since the `fv` is defeq to `f x₁ ... xₙ, we can substitute `fv` for `f x₁ ... xₙ`.
 -/
 def insertOrLookupCall (g : MVarId) (fn : Function) (args : ArgumentArray) : AckM (CallInfo × MVarId) := do
   g.withContext do
@@ -197,17 +196,10 @@ def withTraceNode (g : MVarId) (header : MessageData) (k : AckM α)
     (traceClass : Name := `Meta.Tactic.bv_ack) : AckM α :=
   withContext g do Lean.withTraceNode traceClass (fun _ => return header) k (collapsed := collapsed)
 
-/-- Returns `True` if the type is a function type that is understood by the bitblaster. -/
-def isBitblastTy (e : Expr) : Bool :=
-  match_expr e with
-  | BitVec _ => true
-  | Bool => true
-  | _ => false
-
-
 /--
 The result of running ackermannization on an expression. Returns the ackermannized expression,
-as well as informing whether this expression can be used as a subexpression for further ackermannization.
+as well as informing whether this expression can be used as a subexpression for further ackermannization,
+by tracking whether the expression has loose bound variables.
 -/
 structure AckResult where
   /-- The resulting expression from ackermannization. -/
@@ -235,35 +227,34 @@ private def _root_.Array.zipWithM [Monad m] (as : Array α) (bs : Array β) (f :
 mutual
 
 /--
-Try to ackermannize an application, by visiting all of its subexpressions,
-and then building the ackermannization equation for the application if:
+Try to ackermannize an application. Recursively ackermannize all of its subexpressions,
+and try to ackermannize the application if:
 - Neither the function `f` nor the arguments `x₁` ... `xₙ` have bound variables in them.
 - `f` has a type that is ackermannizable: all arguments and output are either `BitVec w` or `Bool`.
 -/
-partial def ackApp (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) := do
+partial def ackApp (g : MVarId) (app : Expr) : AckM (AckResult × MVarId) := do
   g.withContext do
-    let f := e.getAppFn
+    let f := app.getAppFn
     let (f, g) ← introAckForExpr g f
     let mut hasLooseBvar := f.hasLooseBvar
     let mut args : Array Expr := #[]
     let mut g := g
 
-    for arg in e.getAppArgs do
+    for arg in app.getAppArgs do
       let (out, g') ← g.withContext do introAckForExpr g arg
       g := g'
       args := args.push out.val
       hasLooseBvar := hasLooseBvar || out.hasLooseBvar
-      -- If we have loose bvars, then we give up on ackermannizing,
-      -- and stop keeping track of argTys.
+      -- If we have loose bvars, then we give up on ackermannizing.
       if hasLooseBvar then continue
-
     -- `nonAckRet` is the return value in case we fail to ackermannize the call.
     let nonAckRet := ({ val := mkAppN f.val args, hasLooseBvar }, g)
+    -- We have loose bvars, so bail out.
     if hasLooseBvar then return nonAckRet
     
     -- We know that we have no loose bvars, so it's legal to call inferType.
-    let tResult ← inferType e
-    let some codomain ← g.withContext do BVTy.ofExpr? tResult | return nonAckRet
+    let resultType ← inferType app
+    let some codomain ← g.withContext do BVTy.ofExpr? resultType | return nonAckRet
     -- The function is ackermanizable.
     let ackFn := { f := f.val, codomain : Function }
     -- If all our arguments were legal ackermannization arguments, then
@@ -277,7 +268,7 @@ partial def ackApp (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) := do
     -- ackermannize our call.
     let (call, g') ← g.withContext do insertOrLookupCall g ackFn ackArgs
     g := g'
-    withContext g do trace[Meta.Tactic.bv_ack] "{checkEmoji} {e} → {call}."
+    withContext g do trace[Meta.Tactic.bv_ack] "{checkEmoji} {app} → {call}."
     let val := Expr.fvar call.fvar
     return ({ val, hasLooseBvar := false }, g)
 

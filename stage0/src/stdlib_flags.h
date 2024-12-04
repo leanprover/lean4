@@ -5,9 +5,8 @@ options get_default_options() {
     options opts;
     // see https://lean-lang.org/lean4/doc/dev/bootstrap.html#further-bootstrapping-complications
 #if LEAN_IS_STAGE0 == 1
-    // set to true to generally avoid bootstrapping issues limited to tactic
-    // blocks in stage 1
-    opts = opts.update({"debug", "byAsSorry"}, false);
+    // set to true to generally avoid bootstrapping issues limited to proofs
+    opts = opts.update({"debug", "proofAsSorry"}, false);
     // switch to `true` for ABI-breaking changes affecting meta code;
     // see also next option!
     opts = opts.update({"interpreter", "prefer_native"}, false);

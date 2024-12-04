@@ -1080,7 +1080,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_114____closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("perform elaboration using multiple threads where possible", 57, 57);
+x_1 = lean_mk_string_unchecked("perform elaboration using multiple threads where possible\n\nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in `Lean.Language.Lean.process` as used by the cmdline driver and language server. Metaprogramming users driving elaboration directly via e.g. `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting this option but then are responsible for processing messages and other data not only in the resulting command state but also from async tasks in `Lean.Command.Context.snap\?` and `Lean.Command.State.snapshotTasks`.", 590, 590);
 return x_1;
 }
 }
@@ -1088,7 +1088,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_114____closed__5
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = 1;
+x_1 = 0;
 x_2 = l_Lean_initFn____x40_Lean_CoreM___hyg_80____closed__3;
 x_3 = l_Lean_initFn____x40_Lean_CoreM___hyg_114____closed__4;
 x_4 = lean_box(x_1);

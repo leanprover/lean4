@@ -13,8 +13,6 @@ This module defines `Lean.ToLevel`, which is the `Lean.Level` analogue to `Lean.
 
 namespace Lean
 
-universe w
-
 /-- A class to create `Level` expressions that denote particular universe levels in Lean.
 `Lean.ToLevel.toLevel.{u}` evaluates to a `Lean.Level` term representing `u` -/
 class ToLevel.{u} : Type where
@@ -27,8 +25,6 @@ export ToLevel (toLevel)
 
 instance : ToLevel.{0} where
   toLevel := .zero
-
-universe u v
 
 instance [ToLevel.{u}] : ToLevel.{u+1} where
   toLevel := .succ toLevel.{u}

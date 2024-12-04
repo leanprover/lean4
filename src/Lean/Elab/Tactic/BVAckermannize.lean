@@ -210,7 +210,7 @@ The result of running ackermannization on an expression. Returns the ackermanniz
 as well as informing whether this expression can be used as a subexpression for further ackermannization.
 -/
 structure AckResult where
-  /-- The resulting expression from ackermannization -/
+  /-- The resulting expression from ackermannization. -/
   val : Expr
   /--
   Whether an expression has bound variables in it.

@@ -384,6 +384,15 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 @[simp] theorem toNat_eq_one  {b : Bool} : b.toNat = 1 ↔ b = true := by
   cases b <;> simp
 
+/-! ## toInt -/
+
+/-- convert a `Bool` to an `Int`, `false -> 0`, `true -> 1` -/
+def toInt (b : Bool) : Int := cond b 1 0
+
+@[simp] theorem toInt_false : false.toInt = 0 := rfl
+
+@[simp] theorem toInt_true : true.toInt = 1 := rfl
+
 /-! ### ite -/
 
 @[simp] theorem if_true_left  (p : Prop) [h : Decidable p] (f : Bool) :

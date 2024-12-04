@@ -225,3 +225,40 @@ info: whileSome.eq_1.{u_1} {α : Type u_1} (f : α → Option α) (x : α) :
     | some x' => whileSome f x'
 -/
 #guard_msgs in #check whileSome.eq_1
+
+def ack : (n m : Nat) → Option Nat
+  | 0,   y   => some (y+1)
+  | x+1, 0   => ack x 1
+  | x+1, y+1 => do ack x (← ack (x+1) y)
+nontermination_tailrecursive
+
+/--
+error: Could not prove 'WrongMonad.ack' to be tailrecursive:
+  Could not prove `Id` to be a monotone Monad:
+    failed to synthesize
+      (α : Type) → Lean.Tailrec.Order (Id α)
+    Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+def WrongMonad.ack : (n m : Nat) → Id Nat
+  | 0,   y   => pure (y+1)
+  | x+1, 0   => ack x 1
+  | x+1, y+1 => do ack x (← ack (x+1) y)
+nontermination_tailrecursive
+
+-- Check that the user's variable names in a bind a visible
+
+/--
+error: Could not prove 'VarName.computeLfp' to be tailrecursive:
+  Recursive call `computeLfp f next` is not a tail call.
+  Enclosing tail-call position:
+    id (computeLfp f next)
+-/
+#guard_msgs in
+def VarName.computeLfp {α : Type u} [DecidableEq α] (f : α → Option α) (x : α) : Option α := do
+  let next ← f x
+  if x ≠ next then
+    id $ computeLfp f next --NB: Error message should use correct variable name
+  else
+    x
+nontermination_tailrecursive

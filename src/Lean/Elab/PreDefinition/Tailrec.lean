@@ -133,6 +133,23 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       let (_, new_goal) ← new_goal.intro k.bindingName!
       solveMono ur new_goal
     return
+  | Bind.bind m instBind γ δ g h =>
+    let g' := f.updateLambdaE! f.bindingDomain! g
+    let h' := f.updateLambdaE! f.bindingDomain! h
+    let p ←
+      try
+        mkAppOptM ``Tailrec.monotone_bind #[m, instBind, none, none, γ, δ, α, inst_α, g', h']
+      catch e =>
+        throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
+    let [new_goal₁, new_goal₂] := new_goals | throwError "Unexpected number of goals after applying {p}"
+    solveMono ur new_goal₁
+    -- Intro subgoal with the name found in the original expression, if present
+    let new_goal₂ ← if h.isLambda then pure (← new_goal₂.intro h.bindingName!).2 else pure new_goal₂
+    solveMono ur new_goal₂
+    return
   | _ => pure
 
   -- We could be even more deliberate here and use the `lifter` lemmas

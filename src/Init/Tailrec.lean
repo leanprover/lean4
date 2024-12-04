@@ -34,7 +34,7 @@ def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y �
 
 end Order
 
-class CCPO (α : Type u) [Order α] where
+class CCPO (α : Type u) extends Order α where
   csup : (α → Prop) → α
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
@@ -85,7 +85,7 @@ end monotone
 
 open Order CCPO
 
-variable {α  : Type u} [Order α] [CCPO α]
+variable {α  : Type u} [CCPO α]
 
 variable {c : α → Prop} (hchain : chain c)
 
@@ -338,10 +338,10 @@ theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : cha
   next h => left; apply h x
   next h => right; apply h x
 
-def fun_csup  [∀ x, Order (β x)] [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
+def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
   CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
 
-instance instCCPOPi [∀ x, Order (β x)] [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
+instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
   csup := fun_csup
   csup_spec := by
     intro f c hc
@@ -373,7 +373,7 @@ abbrev tailrec_fix
     (F : ∀ x, (∀ x, β x) → β x)
     (hmono : ∀ (x : α), monotone (α := ∀ x, TailrecOrder (β x)) (β := TailrecOrder (β _)) (fun f => F x f)) :
     (∀ x, β x) :=
-  @fix (∀ x, TailrecOrder (β x)) _ _ (fun f x => F x f)
+  @fix (∀ x, TailrecOrder (β x)) _ (fun f x => F x f)
     (monotone_of_monotone_apply (β := fun _ => TailrecOrder _) (γ := ∀ _, TailrecOrder _) _ hmono)
 
 namespace Example

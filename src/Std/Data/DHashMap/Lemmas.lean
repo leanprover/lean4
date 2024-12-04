@@ -977,6 +977,7 @@ open List in
 theorem toList_insert_perm_of_not_mem [EquivBEq α] [LawfulHashable α]
     (k : α) (v : β k) (h' : ¬k ∈ m) :
     (m.insert k v).toList ~ (⟨k, v⟩ :: m.toList) :=
-  Raw₀.toList_insert_perm_of_not_contains ⟨m.1, m.2.size_buckets_pos⟩ m.2 k v sorry
+  Raw₀.toList_insert_perm_of_not_contains ⟨m.1, m.2.size_buckets_pos⟩ m.2 k v
+    (eq_false_of_ne_true h')
 
 end Std.DHashMap

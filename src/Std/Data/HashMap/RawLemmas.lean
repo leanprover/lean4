@@ -718,6 +718,15 @@ theorem toList_map_fst (h : m.WF) :
     m.toList.map Prod.fst = m.keys := by
   simpa using DHashMap.Raw.toList_map_fst (m := m.inner) h.out
 
+open List in
+theorem toList_insert_perm_of_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
+    {v : β} (h' : ¬k ∈ m) :
+    (m.insert k v).toList ~ ((k, v) :: m.toList) := by
+  have := DHashMap.Raw.toList_insert_perm_of_not_mem h.out (k := k) (v := v) h'
+  simp at this
+  -- The usual Sigma vs Prod issue.
+  sorry
+
 end Raw
 
 end Std.HashMap

@@ -22,7 +22,7 @@ class ToLevel.{u} : Type where
   toLevel : Level
   /-- A hack to avoid the "unused universe parameter" error.
     We can remove this field pending issue https://github.com/leanprover/lean4/issues/2116 -/
-  univ : ∃ x, x = PUnit.unit.{u} := ⟨_, rfl⟩
+  univ : ∀ (_ : Sort u), True := fun _ => trivial
 export ToLevel (toLevel)
 
 instance : ToLevel.{0} where

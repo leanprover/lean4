@@ -21,6 +21,9 @@ deriving Repr, DecidableEq
 
 attribute [simp] Vector.size_toArray
 
+/-- Convert `xs : Array α` to `Vector α xs.size`. -/
+abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
+
 namespace Vector
 
 /-- Syntax for `Vector α n` -/
@@ -43,9 +46,6 @@ def elimAsList {motive : Vector α n → Sort u}
     (mk : ∀ (a : List α) (ha : a.length = n), motive ⟨⟨a⟩, ha⟩) :
     (v : Vector α n) → motive v
   | ⟨⟨a⟩, ha⟩ => mk a ha
-
-/-- The empty vector. -/
-@[inline] def empty : Vector α 0 := ⟨.empty, rfl⟩
 
 /-- Make an empty vector with pre-allocated capacity. -/
 @[inline] def mkEmpty (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩

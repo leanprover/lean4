@@ -172,6 +172,16 @@ theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
   simp only [getElem?_def] at h ⊢
   split <;> simp_all
 
+@[simp] theorem isNone_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isNone = ¬dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
+@[simp] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isSome = dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
 namespace Fin
 
 instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
@@ -221,7 +231,7 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
     as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with
   | _::_, 0   => rfl
-  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) _
+  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) (Nat.add_one_lt_add_one_iff.mp h)
 
 @[deprecated getElem_cons_drop_succ_eq_drop (since := "2024-11-05")]
 abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop

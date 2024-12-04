@@ -22,7 +22,7 @@ def Ordinal := Bounded.LE 0 999999999
   deriving Repr, BEq, LE, LT
 
 instance : OfNat Ordinal n where
-  ofNat := Bounded.LE.ofFin (Fin.ofNat n)
+  ofNat := Bounded.LE.ofFin (Fin.ofNat' _ n)
 
 instance : Inhabited Ordinal where
   default := 0

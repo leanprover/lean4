@@ -850,8 +850,10 @@ open _root_.List in
 theorem toList_insert_perm_of_not_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     (k : α) (v : β k) (h' : m.contains k = false) :
     (m.insert k v).1.toList ~ (⟨k, v⟩ :: m.1.toList) := by
+  revert h'
   simp_to_model
-  sorry
+  intro h'
+  exact Perm.trans (toListModel_insert (Raw.WF.out h)) (by simp [insertEntry, h'])
 
 end Raw₀
 

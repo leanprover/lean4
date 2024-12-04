@@ -217,17 +217,18 @@ def isBitblastTy (e : Expr) : Bool :=
 
 
 /--
-The result of running ackermannization on an expression.
-Returns the ackermannized exprssion, as well as informing
-whether this expression can be used as a subexpression for further ackermannization -/
+The result of running ackermannization on an expression. Returns the ackermannized exprssion,
+as well as informing whether this expression can be used as a subexpression for further ackermannization.
+-/
 structure AckResult where
   /-- The resulting expression from ackermannization -/
   val : Expr
   /--
   Whether an expression has bound variables in it.
-  If it does, then it cannot be used as the subexpression of an ackermanized call
+  If it does, then it cannot be used as the subexpression of an ackermanized call,
+  since the expression is not zeroth-order.
   -/
-  hasBoundVars : Bool
+  hasLooseBvar : Bool
 deriving Inhabited
 
 
@@ -244,12 +245,17 @@ private def _root_.Array.zipWithM [Monad m] (as : Array α) (bs : Array β) (f :
 
 mutual
 
-/-- Try to ackermannize an application, by visting all of its subexpressions -/
+/--
+Try to ackermannize an application, by visting all of its subexpressions,
+and then building the ackermannization equation for the application if:
+- Neither the function `f` nor the arguments `x₁` ... `xₙ` have bound variables in them.
+- `f` has a type that is ackermannizable: all arguments and output are either `BitVec w` or `Bool`.
+-/
 partial def ackApp (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) := do
   g.withContext do
     let f := e.getAppFn
     let (f, g) ← introAckForExpr g f
-    let mut hasBoundVars := f.hasBoundVars
+    let mut hasLooseBvar := f.hasLooseBvar
 
     let mut args : Array Expr := #[]
     let mut argTys : Array (Option BVTy) := #[]
@@ -260,11 +266,11 @@ partial def ackApp (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) := do
       g := g'
       args := args.push out.val
       argTys := argTys.push (← g.withContext do BVTy.ofExpr? (← inferType arg))
-      hasBoundVars := hasBoundVars || out.hasBoundVars
+      hasLooseBvar := hasLooseBvar || out.hasLooseBvar
 
     -- `nonAckRet` is the reuturn value in case we fail to ackermannize the call
-    let nonAckRet := ({ val := mkAppN f.val args, hasBoundVars }, g)
-    if hasBoundVars then return nonAckRet
+    let nonAckRet := ({ val := mkAppN f.val args, hasLooseBvar }, g)
+    if hasLooseBvar then return nonAckRet
 
     -- We have no bvars, so we can continue to ackermannize.
     let tResult ← inferType e
@@ -279,16 +285,23 @@ partial def ackApp (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) := do
     g := g'
     withContext g do trace[Meta.Tactic.bv_ack] "{checkEmoji} {e} → {call}."
     let val := Expr.fvar call.fvar
-    return ({ val, hasBoundVars := false }, g)
+    return ({ val, hasLooseBvar := false }, g)
 
 /--
 Traverse the expression 'e', and ackermannize potential subexpressions.
-Since we are locally nameless, we will never actually see `bvars`.
-However, we must make sure to not ackermannize inside contexts where either the function
-or the argument are bound / higher order, so we collect a set of fvars that represent bvars, called `bvars`.
-We only perform ackermannization if we have no in the expression.
+We explicitly do not want to use `forallTelescoping` and family,
+because we want to only work with the zeroth order fragment (predicate logic),
+and ignore anything that is first (and higher) order.
 
-The expression walk is modeled after `Lean.Meta.ExprTraverse`.
+Hence, we use an `AckResult`, which keeps track of whether the resulting
+expression has a loose bvar.
+
+If the expression `e` is an application `f x₁ ... xₙ`, and none of `f`, `x₁`, ..., `xₙ`
+have loose bvars, we try to ackermannize at `ackApp`.
+If the application does have a bvar, we do not ackermannize.
+
+This invariant is maintained by `ackApp`, and `introAckForExpr` visits
+expressions and ackermannizes them in turn.
 -/
 
 partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) :=
@@ -296,31 +309,31 @@ partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (AckResult × MVarId)
     withTraceNode g (m!"🎯 {e}") (collapsed := false) do
     match e with
     | .mdata _ e => introAckForExpr g e
-    | .bvar _ => return ({ val := e, hasBoundVars := true }, g)
+    | .bvar _ => return ({ val := e, hasLooseBvar := true }, g)
     | .proj tyName struct e =>
       let (out, g) ← introAckForExpr g e
-      return ({ val := .proj tyName struct out.val, hasBoundVars := out.hasBoundVars}, g)
+      return ({ val := .proj tyName struct out.val, hasLooseBvar := out.hasLooseBvar}, g)
     | .fvar .. | .mvar .. | .sort .. | .const .. |  .lit .. => do
-      return ({ val := e, hasBoundVars := false }, g)
+      return ({ val := e, hasLooseBvar := false }, g)
     | .lam _binderName binderTy body _binderInfo =>
         let (binderTy, g) ← introAckForExpr g binderTy
         let (body, g) ← introAckForExpr g body
         let val := e.updateLambdaE! binderTy.val body.val
-        let hasBoundVars := binderTy.hasBoundVars || body.hasBoundVars
-        return ({ val, hasBoundVars}, g)
+        let hasLooseBvar := binderTy.hasLooseBvar || body.hasLooseBvar
+        return ({ val, hasLooseBvar}, g)
     | .letE _declName type value body _nonDep =>
         let (type, g) ← introAckForExpr g type
         let (value, g) ← introAckForExpr g value
         let (body, g) ← introAckForExpr g body
         let val := e.updateLet! type.val value.val body.val
-        let hasBoundVars := type.hasBoundVars || value.hasBoundVars || body.hasBoundVars
-        return ({ val, hasBoundVars}, g)
+        let hasLooseBvar := type.hasLooseBvar || value.hasLooseBvar || body.hasLooseBvar
+        return ({ val, hasLooseBvar}, g)
     | .forallE _binderName binderTy body _binderInfo =>
         let (binderTy, g) ← introAckForExpr g binderTy
         let (body, g) ← introAckForExpr g body
         let val := e.updateForallE! binderTy.val body.val
-        let hasBoundVars := binderTy.hasBoundVars || body.hasBoundVars
-        return ({ val, hasBoundVars}, g)
+        let hasLooseBvar := binderTy.hasLooseBvar || body.hasLooseBvar
+        return ({ val, hasLooseBvar}, g)
     | .app .. => do
       withTraceNode g m!"🎯 Expr.app '{e}'" (collapsed := false) do ackApp g e
 end

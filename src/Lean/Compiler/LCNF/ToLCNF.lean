@@ -593,6 +593,14 @@ where
       let minor ← visit minor
       mkOverApplication minor args arity
 
+  visitHEqRec (e : Expr) : M Arg :=
+    let arity := 7
+    etaIfUnderApplied e arity do
+      let args := e.getAppArgs
+      let minor := if e.isAppOf ``HEq.rec || e.isAppOf ``HEq.ndrec then args[3]! else args[6]!
+      let minor ← visit minor
+      mkOverApplication minor args arity
+
   visitFalseRec (e : Expr) : M Arg :=
     let arity := 2
     etaIfUnderApplied e arity do
@@ -669,6 +677,8 @@ where
         visitCtor 3 e
       else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.ndrec then
         visitEqRec e
+      else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
+        visitHEqRec e
       else if declName == ``And.rec || declName == ``Iff.rec then
         visitAndIffRecCore e (minorPos := 3)
       else if declName == ``And.casesOn || declName == ``Iff.casesOn then

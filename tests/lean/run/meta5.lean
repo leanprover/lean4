@@ -31,8 +31,8 @@ info: [Meta.debug] ?_
 [Meta.debug] fun y =>
       let x := 0;
       x.add y
-[Meta.debug] ?_uniq.3037 : Nat
-[Meta.debug] ?_uniq.3038 : Nat → Nat → Nat
+[Meta.debug] ?_uniq.8045 : Nat
+[Meta.debug] ?_uniq.8046 : Nat → Nat → Nat
 -/
 #guard_msgs in
 #eval tst1

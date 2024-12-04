@@ -2,13 +2,6 @@
 Copyright (c) 2024 Siddharth Bhat. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddharth Bhat
-
-This file implements strict ackermannization [1, 2]
-
-[1] https://lara.epfl.ch/w/_media/model-based.pdf
-[2] https://leodemoura.github.io/files/oregon08.pdf
-[3] https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr.cpp#L206
-[4] https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr_model_constructor.cpp#L344
 -/
 prelude
 import Lean.Expr
@@ -25,6 +18,14 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Congr
 import Lean.Meta.Tactic.Replace
 
+/!-
+This file implements strict ackermannization [1, 2]
+
+[1] https://lara.epfl.ch/w/_media/model-based.pdf
+[2] https://leodemoura.github.io/files/oregon08.pdf
+[3] https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr.cpp#L206
+[4] https://github.com/Z3Prover/z3/blob/d047b86439ec209446d211f0f6b251ebfba070d8/src/ackermannization/lackr_model_constructor.cpp#L344
+-/
 open Lean Elab Meta Tactic
 
 initialize Lean.registerTraceClass `Meta.Tactic.bv_ack

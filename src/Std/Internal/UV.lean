@@ -92,8 +92,14 @@ Note that repeating timers can currently never finish.
 opaque next (timer : @& Timer) : IO (IO.Promise Unit)
 
 /--
-Resets the specified timer, preventing further callbacks.
+This function has different behavior depending on the state and configuration of the `Timer`:
+- If it is initial or finished this is a no-op.
+- If it is running and `repeating` is `false` this will delay the resolution of the timer until
+  `durationMs` milliseconds after the call of this function.
+- delay the resolution of the next tick of the  timer until `durationMs` milliseconds after the
+  call of this function, then continue normal ticking behavior from there.
 -/
+
 @[extern "lean_uv_timer_reset"]
 opaque reset (timer : @& Timer) : IO Unit
 

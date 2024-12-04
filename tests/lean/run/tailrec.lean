@@ -1,3 +1,6 @@
+def monadic (x : Nat) : Option Unit := monadic (x + 1)
+nontermination_tailrecursive
+
 def loop (x : Nat) : Unit := loop (x + 1)
 nontermination_tailrecursive
 

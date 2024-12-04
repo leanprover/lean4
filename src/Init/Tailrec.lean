@@ -360,22 +360,6 @@ instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
 
 end fun_order
 
-/--
-Variant of `fix` that determines a few class instances to hide the `Order` type class.
-It is used by the elaborator internally to ease the constrction, but unfolded before finishing the
-construction.
--/
-noncomputable
-abbrev tailrec_fix
-    {α : Type u}
-    {β : α → Type v}
-    [∀ x, Nonempty (β x)]
-    (F : ∀ x, (∀ x, β x) → β x)
-    (hmono : ∀ (x : α), monotone (α := ∀ x, TailrecOrder (β x)) (β := TailrecOrder (β _)) (fun f => F x f)) :
-    (∀ x, β x) :=
-  @fix (∀ x, TailrecOrder (β x)) _ (fun f x => F x f)
-    (monotone_of_monotone_apply (β := fun _ => TailrecOrder _) (γ := ∀ _, TailrecOrder _) _ hmono)
-
 namespace Example
 
 def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=

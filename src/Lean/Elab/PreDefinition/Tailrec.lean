@@ -61,8 +61,9 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
 
   -- A recursive call directly here
   if e.isApp && e.appFn! == .bvar 0 then
-    match_expr inst_α with
-    | Tailrec.instOrderPi γ δ inst =>
+
+    if let some inst_α ← whnfUntil inst_α ``Tailrec.instOrderPi then
+      let_expr Tailrec.instOrderPi γ δ inst := inst_α | pure ()
       -- should not use applyConst here; it may try to re-synth the Nonempty constriant
       let x := e.appArg!
       let us := inst_α.getAppFn.constLevels!
@@ -73,8 +74,9 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       unless new_goals.isEmpty do
         throwError "Left over goals"
       return
-    | _ =>
-      failK
+
+    trace[Elab.definition.tailrec] "Unexpected pi instance:{indentExpr inst_α}"
+    failK
 
   -- Look through mdata
   if e.isMData then
@@ -167,10 +169,22 @@ private def unReplaceRecApps (preDefs : Array PreDefinition) (argsPacker : ArgsP
     k e
 
 def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
-  let witnesses ← preDefs.mapM fun preDef =>
-    let msg := m!"failed to compile definition '{preDef.declName}' via tailrecursion"
-    mkInhabitantFor msg #[] preDef.type
-  trace[Elab.definition.tailrec] "Found nonempty witnesses: {witnesses}"
+  -- For every function, an CCPO instance on its range
+  -- ∀ x1 x2, CCPO (t1 x1 x2)
+  let ccpoInsts ← preDefs.mapM fun preDef =>
+    lambdaTelescope preDef.value fun xs _body => do
+      let type ← instantiateForall preDef.type xs
+      let inst ←
+        try
+          synthInstance (← mkAppM ``Tailrec.CCPO #[type])
+        catch _ =>
+          trace[Elab.definition.tailrec] "No CCPO instance found for {preDef.declName}, trying inhabitation"
+          let msg := m!"failed to compile definition '{preDef.declName}' via tailrecursion"
+          let w ← mkInhabitantFor msg #[] preDef.type
+          let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN w xs]
+          let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
+          mkAppOptM ``Tailrec.FlatOrder.instCCPO #[none, classicalWitness]
+      mkLambdaFVars xs inst
 
   let fixedPrefixSize ← getFixedPrefix preDefs
   trace[Elab.definition.tailrec] "fixed prefix size: {fixedPrefixSize}"
@@ -180,22 +194,26 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let declNames := preDefs.map (·.declName)
 
   forallBoundedTelescope preDefs[0]!.type fixedPrefixSize fun fixedArgs _ => do
-    let witnesses := witnesses.map (·.beta fixedArgs)
+    let ccpoInsts := ccpoInsts.map (·.beta fixedArgs)
     let types ← preDefs.mapM (instantiateForall ·.type fixedArgs)
     let packedType ← argsPacker.uncurryType types
     let packedDomain := packedType.bindingDomain!
+    let packedRange ← withLocalDeclD `x packedDomain fun x => do
+      mkLambdaFVars #[x] (← instantiateForall packedType #[x])
 
-    let unaryWitness ← argsPacker.uncurry witnesses
-    let instNonemptyRange ← withLocalDeclD `x packedDomain fun x => do
-      mkLambdaFVars #[x] (← mkAppM ``Nonempty.intro #[.app unaryWitness x])
-    let instOrderRange ← withLocalDeclD `x packedDomain fun x => do
-      -- TODO: Refactor into helper definition
-      let instNonempty ← mkAppM ``Nonempty.intro #[.app unaryWitness x]
-      let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
-      let inst ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, classicalWitness]
-      mkLambdaFVars #[x] inst
-    let instOrderPackedType ←
-      mkAppOptM ``Tailrec.instOrderPi #[packedDomain, none, instOrderRange]
+    -- ∀ (x : packedDomain): CCPO (t x)
+    let unaryCCPOInstType ←
+      withLocalDeclD `x packedDomain fun x => do
+         mkForallFVars #[x] (← mkAppM ``Tailrec.CCPO #[← instantiateForall packedType #[x]])
+    let unaryCCPOInst ← argsPacker.uncurryWithType unaryCCPOInstType ccpoInsts
+    -- ∀ (x : packedDomain): Order (t x). Derived from unaryCCPOInst to avoid diamond later on
+    let unaryOrderInst ←
+      withLocalDeclD `x packedDomain fun x => do
+        mkLambdaFVars #[x] (← mkAppOptM ``Tailrec.CCPO.toOrder #[none, unaryCCPOInst.beta #[x]])
+    -- CCPO (∀ (x : packedDomain): t x)
+    let instCCPOPackedType ← mkAppOptM ``Tailrec.instCCPOPi #[packedDomain, packedRange, unaryCCPOInst]
+    -- Order (∀ (x : packedDomain): t x)
+    let instOrderPackedType ← mkAppOptM ``Tailrec.CCPO.toOrder #[packedType, instCCPOPackedType]
 
     let ur := unReplaceRecApps preDefs argsPacker
     -- let ur _ e k := k e
@@ -212,7 +230,6 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
             WF.packCalls fixedPrefixSize argsPacker declNames f body
           mkLambdaFVars (xs.push f) body'
 
-
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
@@ -222,10 +239,7 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       lambdaTelescope body fun xs _ => do
         let type ← instantiateForall type xs
         let F ← instantiateLambda Fs[i]! xs
-        -- TODO: Refactor into helper definition
-        let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN witnesses[i]! xs]
-        let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
-        let instOrder ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, classicalWitness]
+        let instOrder ← mkAppOptM ``Tailrec.CCPO.toOrder #[none, ccpoInsts[i]!.beta xs]
         let goal ← mkAppOptM ``Tailrec.monotone
           #[packedType, instOrderPackedType, type, instOrder, F]
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
@@ -236,13 +250,24 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let FType ← withLocalDeclD `x packedDomain fun x => do
       mkForallFVars #[x] (← mkArrow packedType (← instantiateForall packedType #[x]))
     let F ← argsPacker.uncurryWithType FType Fs
-    let packedValue ← mkAppOptM ``Lean.Tailrec.tailrec_fix
-      #[packedDomain, none, instNonemptyRange, F]
+    -- We still have to swap the arguments to F
+    let F ←
+      withLocalDeclD `f packedType fun f =>
+        withLocalDeclD `x packedDomain fun x =>
+          mkLambdaFVars #[f, x] (F.beta #[x, f])
 
-    let monoGoal := (← inferType packedValue).bindingDomain!
-    let hmono ← argsPacker.uncurryWithType monoGoal hmonos
-    let packedValue := .app packedValue hmono
-    let some packedValue ← delta? packedValue | panic! "Could not delta-reduce"
+    let hmono ← mkAppOptM ``Tailrec.monotone_of_monotone_apply
+      #[packedDomain, packedRange, packedType, instOrderPackedType, unaryOrderInst, F]
+
+    let monoGoal := (← inferType hmono).bindingDomain!
+    trace[Elab.definition.tailrec] "monoGoal: {monoGoal}"
+    let hmono' ← argsPacker.uncurryWithType monoGoal hmonos
+    let hmono := mkApp hmono hmono'
+
+    let packedValue ← mkAppOptM ``Lean.Tailrec.fix #[packedType, instCCPOPackedType, F, hmono]
+    trace[Elab.definition.tailrec] "finalValue: {packedValue}"
+
+    check packedValue
 
     let packedType ← mkForallFVars fixedArgs packedType
     let packedValue ← mkLambdaFVars fixedArgs packedValue

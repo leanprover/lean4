@@ -6,7 +6,8 @@ Authors: Kyle Miller, Alex Keizer
 prelude
 import Lean.Expr
 
-/-! # `ToLevel` class
+/-!
+# `ToLevel` class
 This module defines `Lean.ToLevel`, which is the `Lean.Level` analogue to `Lean.ToExpr`.
 -/
 
@@ -19,9 +20,8 @@ universe w
 class ToLevel.{u} : Type where
   /-- A `Level` that represents the universe level `u`. -/
   toLevel : Level
-  /-- The universe itself. This is only here to avoid the "unused universe parameter" error.
-    We'll remove this field once https://github.com/leanprover/lean4/issues/2116 gets fixed.
-  -/
+  /-- A hack to avoid the "unused universe parameter" error.
+    We can remove this field pending issue https://github.com/leanprover/lean4/issues/2116 -/
   univ : ∃ x, x = PUnit.unit.{u} := ⟨_, rfl⟩
 export ToLevel (toLevel)
 

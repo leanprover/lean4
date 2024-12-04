@@ -44,6 +44,17 @@ end Loop
 
 private opaque TimerImpl : NonemptyType.{0}
 
+/--
+`Timer`s are used to generate `IO.Promise`s that resolve after some time.
+
+A `Timer` can be in one of 3 states:
+- Right after construction it's initial.
+- While it is ticking it's running.
+- If it has stopped for some reason it's finished.
+
+This together with whether it was set up as `repeating` with `Timer.new` determines the behavior
+of all functions on `Timer`s.
+-/
 def Timer : Type := TimerImpl.type
 
 instance : Nonempty Timer := TimerImpl.property

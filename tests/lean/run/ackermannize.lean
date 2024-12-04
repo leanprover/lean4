@@ -4,7 +4,8 @@ import Lean.Elab.Tactic.BVAckermannize
 
 set_option trace.Meta.Tactic.bv_ack true
 
-/- Test that we correctly handle arrow / forall -/
+/- Test that we correctly handle a free variable `x` that is available in the toplevel context,
+while the goal state contains a 'non-dependent forall via (_ → _)'. -/
 theorem foo (f : BitVec 1 → BitVec 1) (x : BitVec 1) :
     ((1#1 ^^^ f x ^^^ (f (x + 1))) = 0#1) →
     ((f 0#1 = 1#1) ∨ (f 1#1 = 1#1)) := by
@@ -18,7 +19,7 @@ theorem foo (f : BitVec 1 → BitVec 1) (x : BitVec 1) :
 /- Test that we correctly ackermannize hyps and goal -/
 theorem bar (f : BitVec 1 -> BitVec 1) (x y : BitVec 1)
    (hfxy : f x = 1#1 ∨ f y = 1#1)
-   (hxy : x ^^^ y = 0#1) : 
+   (hxy : x ^^^ y = 0#1) :
    (f 0#1 = 1#1 ∨ f 1#1 = 1#1) := by
   try bv_decide
   bv_ack_eager
@@ -39,7 +40,7 @@ theorem ignore_arg_under_binders (f : BitVec 1 -> BitVec 1) (h₁ : ∀  (x y : 
 theorem correct_under_binders (f : BitVec 1 -> BitVec 1) (h₁ : ∀  (x y : BitVec 1), f 0#1 = 1#1 ∨ f 1#1 = 0#1) : False := by
   bv_ack_eager
   sorry
- 
+
 /-- info: 'bar' depends on axioms: [propext, Classical.choice, Lean.ofReduceBool, Quot.sound] -/
 #guard_msgs in  #print axioms bar
 
@@ -62,7 +63,7 @@ theorem less_6E (m : BitVec 64) (P : BitVec 64 → Bool)
 #guard_msgs in  #print axioms less_6E
 
 /- Test that nested applications work -/
-theorem true_on_one_input_of_neg_comm (g : BitVec 1 → BitVec 1) (x : BitVec 1) (h : g (~~~ x) = ~~~ (g x)) : 
+theorem true_on_one_input_of_neg_comm (g : BitVec 1 → BitVec 1) (x : BitVec 1) (h : g (~~~ x) = ~~~ (g x)) :
     (g 0#1) ||| (g 1#1) = 1#1 := by
   try bv_decide
   bv_ack_eager

@@ -49,13 +49,15 @@ namespace BVTy
 /-- Reify a raw expression of type `Type` into the types of bitvectors we can bitblast,
 returning `none` if `e` was not recognized as either `Bool` or `BitVec ?w`,
 with `?w` a literal `Nat`  -/
-def ofExpr? (e : Expr) : OptionT MetaM BVTy :=
-  match_expr e.consumeMData with
-  | _root_.Bool => return Bool
-  | _root_.BitVec w => do
-     let w ← getNatValue? w
-     return .BitVec w
-  | _ => OptionT.fail
+def ofExpr? (e : Expr) : MetaM (Option BVTy) := ofExpr?Aux e |>.run where
+  ofExpr?Aux (e : Expr) : OptionT MetaM BVTy :=
+    match_expr e.consumeMData with
+    | _root_.Bool => return Bool
+    | _root_.BitVec w => do
+       let w ← getNatValue? w
+       return .BitVec w
+    | _ => OptionT.fail
+
 
 /-- Convert a `BVTy` back into an `Expr` -/
 def toExpr : BVTy → Expr
@@ -78,9 +80,10 @@ instance : ToMessageData Argument where
   toMessageData arg := m!"{arg.value} : {arg.type}"
 
 /-- Build an `Argument` from a raw expression of type `Bool` or `BitVec _`. -/
-def ofExpr? (e : Expr) : OptionT MetaM Argument := do
-  let t ← BVTy.ofExpr? (← inferType e)
-  return { value := e, type := t}
+def ofExpr? (e : Expr) : MetaM (Option Argument) := ofExpr?Aux e |>.run where
+  ofExpr?Aux (e : Expr) : OptionT MetaM Argument := do
+    let t ← BVTy.ofExpr? (← inferType e)
+    return { value := e, type := t}
 
 end Argument
 
@@ -108,28 +111,27 @@ We may want to use something like a trie to index these.
 Consider swiching to something like `Trie`.
 -/
 abbrev ArgumentArray := Array Argument
-/--
-The data stored for an ackermannized call to allow us to build proofs.
--/
-structure CallVal where
+
+/-- The data stored for an ackermannized call to allow us to build proofs. -/
+structure CallInfo where
   /-- The free variable `ack_fx₁...xₙ := (f x₁ x₂ ... xₙ)`. -/
   fvar : FVarId
   /-- heqProof : The proof that `ack_fx₁...fxₙ = f x₁ x₂ ... xₙ` (name/fvar = value/expr). -/
   heqProof : Expr
 deriving Hashable, BEq, Inhabited
 
-namespace CallVal
+namespace CallInfo
 
-instance : ToMessageData CallVal where
+instance : ToMessageData CallInfo where
   toMessageData cv := m!"{Expr.fvar cv.fvar} ({cv.heqProof})"
 
-end CallVal
+end CallInfo
 structure State where
   /--
   A mapping from a function `f`, to a map of arguments `x₁ ... xₙ`, to the information stored about the call.
   This is used to generate equations of the form `x₁ = y₁ → x₂ = y₂ → ... → xₙ = yₙ → ack_fx₁...xₙ = ack_fy₁...yₙ on-demand.
   -/
-  fn2args2call : Std.HashMap Function (Std.HashMap ArgumentArray CallVal) := {}
+  fn2args2call : Std.HashMap Function (Std.HashMap ArgumentArray CallInfo) := {}
   /-- A counter for generating fresh names. -/
   gensymCounter : Nat := 0
 
@@ -149,11 +151,11 @@ def gensym : AckM Name := do
 def withContext (g : MVarId) (ma : AckM α) : AckM α := g.withContext ma
 
 /-- Get the calls to a function `fn`. -/
-def getCallMap (fn : Function) : AckM (Std.HashMap ArgumentArray CallVal) := do
+def getCallMap (fn : Function) : AckM (Std.HashMap ArgumentArray CallInfo) := do
   return (← get).fn2args2call.getD fn {}
 
 /-- Get the calls to a function `fn`. -/
-def getCallVal? (fn : Function) (args : Array Argument) : AckM (Option CallVal) := do
+def getCallVal? (fn : Function) (args : Array Argument) : AckM (Option CallInfo) := do
   let calls ← getCallMap fn
   if let .some val := calls.get? args then
     return some val
@@ -176,8 +178,8 @@ def introDefExt (g : MVarId) (name : Name) (hdefTy : Expr) (hdefVal : Expr) : Ac
     let (eqProof, g) ← g.intro1P
     return ({ defn, eqProof}, g)
 
-/-- Insert the CallVal `cv` at `(fn, args)` into the state. -/
-private def _insertCallVal (fn : Function) (args : ArgumentArray) (cv : CallVal) : AckM Unit := do
+/-- Insert the CallInfo `cv` at `(fn, args)` into the state. -/
+private def _insertCallVal (fn : Function) (args : ArgumentArray) (cv : CallInfo) : AckM Unit := do
   let calls ← getCallMap fn
   modify fun s => { s with fn2args2call := s.fn2args2call.insert fn (calls.insert args cv) }
 
@@ -187,24 +189,24 @@ we can just replace occurrences of the call with the fvar `f`.
 
 We will later add another hypothesis with the equality that `fvar = f x₁ ... xₙ`
 -/
-def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentArray) : AckM (CallVal × MVarId) := do
+def replaceCallWithFVar (g : MVarId) (fn : Function) (args : ArgumentArray) : AckM (CallInfo × MVarId) := do
   g.withContext do
     if let some val ← getCallVal? fn args then
-      trace[bv_ack] "using cached call {val} for {fn} {args}"
+      trace[Meta.Tactic.bv_ack] "using cached call {val} for {fn} {args}"
       return (val, g)
     let e := mkAppN fn.f (args.map Argument.value)
     let name ← gensym
     let (introDef, g) ← introDefExt g name fn.codomain.toExpr e
-    let cv := { fvar := introDef.defn, heqProof := Expr.fvar introDef.eqProof : CallVal }
+    let cv := { fvar := introDef.defn, heqProof := Expr.fvar introDef.eqProof : CallInfo }
     _insertCallVal fn args cv
     return (cv, g)
 
 /-- Create a trace node in trace class (i.e. `set_option traceClass true`),
 with header `header`, whose default collapsed state is `collapsed`. -/
-def withTraceNode (header : MessageData) (k : AckM α)
+def withTraceNode (g : MVarId) (header : MessageData) (k : AckM α)
     (collapsed : Bool := true)
-    (traceClass : Name := `bv_ack) : AckM α :=
-  Lean.withTraceNode traceClass (fun _ => return header) k (collapsed := collapsed)
+    (traceClass : Name := `Meta.Tactic.bv_ack) : AckM α :=
+  withContext g do Lean.withTraceNode traceClass (fun _ => return header) k (collapsed := collapsed)
 
 /-- Returns `True` if the type is a function type that is understood by the bitblaster. -/
 def isBitblastTy (e : Expr) : Bool :=
@@ -213,72 +215,100 @@ def isBitblastTy (e : Expr) : Bool :=
   | Bool => true
   | _ => false
 
+
+/--
+The result of running ackermannization on an expression.
+Returns the ackermannized exprssion, as well as informing
+whether this expression can be used as a subexpression for further ackermannization -/
+structure AckResult where
+  /-- The resulting expression from ackermannization -/
+  val : Expr
+  /--
+  Whether an expression has bound variables in it.
+  If it does, then it cannot be used as the subexpression of an ackermanized call
+  -/
+  hasBoundVars : Bool
+deriving Inhabited
+
 mutual
-partial def ackAppChildren (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
+
+/-- Try to ackermannize an application, by visting all of its subexpressions -/
+partial def ackApp (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) := do
   g.withContext do
-    trace[bv_ack] "{crossEmoji} bailing out on illegal application {e}"
     let f := e.getAppFn
     let (f, g) ← introAckForExpr g f
-    -- NOTE: Rewrite as a fold? It's not too much cleaner, sadly.
-    let mut args := #[]
+    let mut hasBoundVars := f.hasBoundVars
+
+    let mut args : Array Expr := #[]
+    let mut argTys : Array (Option BVTy) := #[]
     let mut g := g
+
     for arg in e.getAppArgs do
-      let gArg ← introAckForExpr g arg
-      g := gArg.2
-      args := args.push gArg.1
-    return (mkAppN f args, g) -- NOTE: is there some way to use update to update this?
+      let (out, g') ← g.withContext do introAckForExpr g arg
+      g := g'
+      args := args.push out.val
+      argTys := argTys.push (← g.withContext do BVTy.ofExpr? (← inferType arg))
+      hasBoundVars := hasBoundVars || out.hasBoundVars
 
+    -- `nonAckRet` is the reuturn value in case we fail to ackermannize the call
+    let nonAckRet := ({ val := mkAppN f.val args, hasBoundVars }, g)
+    if hasBoundVars then return nonAckRet
 
-partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (Expr × MVarId) := do
-  Lean.withTraceNode `bv_ack (fun _ => g.withContext do pure m!"🎯 {e}") (collapsed := false) do
+    -- We have no bvars, so we can continue to ackermannize
+    let tResult ← inferType e
+    let some codomain ← g.withContext do BVTy.ofExpr? tResult | return nonAckRet
+    let ackArgs? : Option (Array Argument) := args.zip argTys |>.mapM fun (arg, ty?) => do
+      return Argument.mk arg (← ty?)
+    let some ackArgs := ackArgs? | return nonAckRet
+    let ackFn := { f := f.val, codomain : Function }
+    let (call, g') ← g.withContext do replaceCallWithFVar g ackFn ackArgs
+    g := g'
+    withContext g do trace[Meta.Tactic.bv_ack] "{checkEmoji} {e} → {call}."
+    let val := Expr.fvar call.fvar
+    return ({ val, hasBoundVars := false }, g)
+
+/--
+Traverse the expression 'e', and ackermannize potential subexpressions.
+Since we are locally nameless, we will never actually see `bvars`.
+However, we must make sure to not ackermannize inside contexts where either the function
+or the argument are bound / higher order, so we collect a set of fvars that represent bvars, called `bvars`.
+We only perform ackermannization if we have no in the expression.
+
+The expression walk is modeled after `Lean.Meta.ExprTraverse`.
+-/
+
+partial def introAckForExpr (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) :=
+  withContext g do
+    withTraceNode g (m!"🎯 {e}") (collapsed := false) do
     match e with
     | .mdata _ e => introAckForExpr g e
-    | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .proj .. | .lit .. => return (e, g)
+    | .bvar _ => return ({ val := e, hasBoundVars := true }, g)
+    | .proj tyName struct e =>
+      let (out, g) ← introAckForExpr g e
+      return ({ val := .proj tyName struct out.val, hasBoundVars := out.hasBoundVars}, g)
+    | .fvar .. | .mvar .. | .sort .. | .const .. |  .lit .. => do
+      return ({ val := e, hasBoundVars := false }, g)
     | .lam _binderName binderTy body _binderInfo =>
         let (binderTy, g) ← introAckForExpr g binderTy
         let (body, g) ← introAckForExpr g body
-        return (e.updateLambdaE! binderTy body, g)
+        let val := e.updateLambdaE! binderTy.val body.val
+        let hasBoundVars := binderTy.hasBoundVars || body.hasBoundVars
+        return ({ val, hasBoundVars}, g)
     | .letE _declName type value body _nonDep =>
         let (type, g) ← introAckForExpr g type
         let (value, g) ← introAckForExpr g value
         let (body, g) ← introAckForExpr g body
-        return (e.updateLet! type value body, g)
+        let val := e.updateLet! type.val value.val body.val
+        let hasBoundVars := type.hasBoundVars || value.hasBoundVars || body.hasBoundVars
+        return ({ val, hasBoundVars}, g)
     | .forallE _binderName binderTy body _binderInfo =>
         let (binderTy, g) ← introAckForExpr g binderTy
         let (body, g) ← introAckForExpr g body
-        return (e.updateForallE! binderTy body, g)
+        let val := e.updateForallE! binderTy.val body.val
+        let hasBoundVars := binderTy.hasBoundVars || body.hasBoundVars
+        return ({ val, hasBoundVars}, g)
     | .app .. => do
-      withTraceNode m!"🎯 Expr.app '{e}'" (collapsed := false) do
-        let f := e.getAppFn
-        let te ← inferType e
-        let .some codomain ← BVTy.ofExpr? te |>.run
-          | do
-            trace[bv_ack] "{crossEmoji} '{te}' not BitVec/Bool."
-            return (← ackAppChildren g e)
-        trace[bv_ack] "{checkEmoji} {e}'s codomain '{te}'"
-
-        let fn := { f, codomain : Function }
-
-        let args := e.getAppArgs
-        assert! args.size > 0 -- since we are an application, we must have at least one argument.
-        -- run ackermannization on all the arguments.
-        -- This ensures that we process bottom-up, and at this stage, our argument
-        -- has been ackermannized, if such an opportunity exists.
-        let mut ackArgs := #[]
-        for arg in args do
-          trace[bv_ack] "🎯 arg {arg}"
-          let (arg, g) ← introAckForExpr g arg
-          if let .some ackArg ← Argument.ofExpr? arg |>.run then
-            trace[bv_ack] "{checkEmoji} arg {arg}"
-            ackArgs := ackArgs.push ackArg
-          else
-            -- bail out, and recurse into the `app` since we can't ackermannize it.
-            trace[bv_ack] "{crossEmoji} {arg}"
-            return (← ackAppChildren g e)
-
-        let (call, g) ← replaceCallWithFVar g fn ackArgs
-        trace[bv_ack] "{checkEmoji} {e} → {call}."
-        return (Expr.fvar call.fvar, g)
+      withTraceNode g m!"🎯 Expr.app '{e}'" (collapsed := false) do ackApp g e
 end
 
 /--
@@ -316,38 +346,39 @@ Make the ackermannization theorem, which states that: `(∀ i, arg₁[i] = arg�
 Formally, we build an expr such as `arg₁ = arg'₁ -> arg₂ = arg'₂ -> ... argₙ = arg'ₙ -> call₁ = call₂`,
 where the proof is by congruence over the equalities.
 -/
-def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call call' : CallVal) : AckM MVarId := do
-  trace[bv_ack] "making ack congr thm for '{fn}' '{args}' ~ '{args'}',  calls '{call}', '{call'}'"
-  if args.size = 0 then
-    throwTacticEx `bv_ack g
-      m!"expected {args} to have more than zero arguments when building congr theorem for {fn}."
-  if args'.size = 0 then
-    throwTacticEx `bv_ack g
-      m!"expected {args'} to have more than zero arguments when building congr theorem for {fn}."
+def mkAckThm (g : MVarId) (fn : Function) (args args' : Array Argument) (call call' : CallInfo) : AckM MVarId := do
+  withContext g do
+    trace[Meta.Tactic.bv_ack] "making ack congr thm for '{fn}' '{args}' ~ '{args'}',  calls '{call}', '{call'}'"
+    if args.size = 0 then
+      throwTacticEx `bv_ack g
+        m!"expected {args} to have more than zero arguments when building congr theorem for {fn}."
+    if args'.size = 0 then
+      throwTacticEx `bv_ack g
+        m!"expected {args'} to have more than zero arguments when building congr theorem for {fn}."
 
-  if args.size ≠ args'.size then
-    throwTacticEx `bv_ack g
-      m!"internal error: expected {args} to have the same size as {args'} when building congr thm for {fn}."
+    if args.size ≠ args'.size then
+      throwTacticEx `bv_ack g
+        m!"internal error: expected {args} to have the same size as {args'} when building congr thm for {fn}."
 
-  let mut eqHyps := #[]
-  for (arg, arg') in args.zip args' do
-    eqHyps := eqHyps.push (← mkEq arg.value arg'.value)
-  -- we build the equality according to the example above.
-  let mut localDecls : Array (Name × BinderInfo × (Array Expr → AckM Expr)) := #[]
-  let mut i := 0
-  for (arg, arg') in args.zip args' do
-    let name := Name.num (Name.mkSimple "ack_arg") i
-    localDecls := localDecls.push (name, BinderInfo.default, fun _ => mkEq arg.value arg'.value)
-  let ackEqn ← g.withContext <| withLocalDecls localDecls fun argsEq => do
-    let mut fEq ← mkEqRefl fn.f
-    for argEq in argsEq do
-      fEq ← mkCongr fEq argEq
+    let mut eqHyps := #[]
+    for (arg, arg') in args.zip args' do
+      eqHyps := eqHyps.push (← mkEq arg.value arg'.value)
+    -- we build the equality according to the example above.
+    let mut localDecls : Array (Name × BinderInfo × (Array Expr → AckM Expr)) := #[]
+    let mut i := 0
+    for (arg, arg') in args.zip args' do
+      let name := Name.num (Name.mkSimple "ack_arg") i
+      localDecls := localDecls.push (name, BinderInfo.default, fun _ => mkEq arg.value arg'.value)
+    let ackEqn ← g.withContext <| withLocalDecls localDecls fun argsEq => do
+      let mut fEq ← mkEqRefl fn.f
+      for argEq in argsEq do
+        fEq ← mkCongr fEq argEq
 
-    let finalEq ← mkEqTrans (← mkEqTrans call.heqProof fEq) (← mkEqSymm call'.heqProof)
-    mkLambdaFVars argsEq  finalEq
-  trace[bv_ack] "made ackermann equation: {ackEqn}"
-  let (_ackEqn, g) ← g.note (Name.mkSimple s!"ackEqn{fn.f}") ackEqn
-  return g
+      let finalEq ← mkEqTrans (← mkEqTrans call.heqProof fEq) (← mkEqSymm call'.heqProof)
+      mkLambdaFVars argsEq  finalEq
+    withContext g do trace[Meta.Tactic.bv_ack] "made ackermann equation: {ackEqn}"
+    let (_ackEqn, g) ← g.note (Name.mkSimple s!"ackEqn{fn.f}") ackEqn
+    return g
 
 /--
 For every bitvector (x : BitVec w), for every function `(f : BitVec w → BitVec w')`,
@@ -362,16 +393,17 @@ being correctly handled. That is, we can add the equation `x = y → f 0 x = f 0
 -/
 def ack (g : MVarId) : AckM MVarId := do
   g.withContext do
+    let target ← g.getType
     let (target', g) ← introAckForExpr g (← g.getType)
-    let g ← g.replaceTargetDefEq target'
-
+    let g ← g.replaceTargetDefEq target'.val
     let hyps ← g.getNondepPropHyps
+
     let mut g := g
     for hyp in hyps do
       g ← g.withContext do
-        withTraceNode m!"🎯 hyp '{← hyp.getType}'" (collapsed := false) do
-          let hypG ← introAckForExpr g (← hyp.getType)
-          pure hypG.2
+        withTraceNode g m!"🎯 hyp '{← hyp.getType}'" (collapsed := false) do
+          let (_hyp, g) ← introAckForExpr g (← hyp.getType)
+          pure g
 
     for (fn, arg2call) in (← get).fn2args2call do
       let argCallsArr := arg2call.toArray
@@ -379,10 +411,9 @@ def ack (g : MVarId) : AckM MVarId := do
         let (arg₁, call₁) := argCallsArr[i]
         for hj : j in [i+1:argCallsArr.size] do
           let (arg₂, call₂) := argCallsArr[j]
-          if ← areArgListsTriviallyDifferent arg₁ arg₂ then
-            continue
+          if ← areArgListsTriviallyDifferent arg₁ arg₂ then continue
           g ← mkAckThm g fn arg₁ arg₂ call₁ call₂
-    trace[bv_ack] "{checkEmoji} ack.{indentD g}"
+    withContext g do trace[Meta.Tactic.bv_ack] "{checkEmoji} ack.{indentD g}"
     return g
 
 end AckM

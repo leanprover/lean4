@@ -68,8 +68,21 @@ Creates a new timer associated with the given event loop and data.
 opaque mk (timeout : UInt64) (repeating : Bool) : IO Timer
 
 /--
-Starts a timer with the specified timeout interval (both in milliseconds).
+This function has different behavior depending on the state and configuration of the `Timer`:
+- if `repeating` is `false` and:
+  - it is initial, run it and return a new `IO.Promise` that is set to resolve once `durationMs`
+    milliseconds have elapsed. After this `IO.Promise` is resolved the `Timer` is finished.
+  - it is running or finished, return the same `IO.Promise` that the first call to `next` returned.
+- if `repeating` is `true` and:
+  - it is initial, run it and return a new `IO.Promise` that resolves right away
+    (as it is the 0th multiple of `durationMs`).
+  - it is running, check whether the last returned `IO.Promise` is already resolved:
+     - If it is, return a new `IO.Promise` that resolves upon finishing the next cycle
+     - If it is not, return the last `IO.Promise`
+     This ensures that the returned `IO.Promise` resolves at the next repetition of the timer.
+Note that repeating timers can currently never finish.
 -/
+
 @[extern "lean_uv_timer_next"]
 opaque next (timer : @& Timer) : IO (IO.Promise Unit)
 

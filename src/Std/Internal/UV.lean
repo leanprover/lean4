@@ -62,7 +62,12 @@ instance : Nonempty Timer := TimerImpl.property
 namespace Timer
 
 /--
-Creates a new timer associated with the given event loop and data.
+This creates a `Timer` in the initial state and doesn't run it yet.
+- If `repeating` is `false` this constructs a timer that resolves once after `durationMs`
+  milliseconds, counting from when it's run.
+- If `repeating` is `true` this constructs a timer that resolves after multiples of `durationMs`
+  milliseconds, counting from when it's run. Note that this includes the 0th multiple right after
+  starting the timer.
 -/
 @[extern "lean_uv_timer_mk"]
 opaque mk (timeout : UInt64) (repeating : Bool) : IO Timer

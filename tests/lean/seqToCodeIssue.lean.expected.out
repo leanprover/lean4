@@ -1,8 +1,8 @@
 [Compiler.saveMono] size: 12
     def f b a.1 : EStateM.Result IO.Error PUnit PUnit :=
-      jp _jp.2 a _y.3 : EStateM.Result IO.Error PUnit PUnit :=
+      jp _jp.2 a _y.3 : EStateM.Result IO.Error lcAny PUnit :=
         let _x.4 := print a _y.3;
-        cases _x.4 : EStateM.Result IO.Error PUnit PUnit
+        cases _x.4 : EStateM.Result IO.Error lcAny PUnit
         | EStateM.Result.ok a.5 a.6 =>
           let _x.7 := print a a.6;
           return _x.7

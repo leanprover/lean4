@@ -713,6 +713,18 @@ theorem toList_map_fst :
     m.toList.map Prod.fst = m.keys := by
   simpa using DHashMap.toList_map_fst (m := m.1)
 
+@[simp] theorem insert_inner [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    m.inner.insert k v = (m.insert k v).inner := rfl
+
+open List in
+theorem toList_insert_perm_of_not_mem [EquivBEq α] [LawfulHashable α]
+    (k : α) (v : β) (h' : ¬k ∈ m) :
+    (m.insert k v).toList ~ (k, v) :: m.toList := by
+  have t := DHashMap.toList_insert_perm_of_not_mem (β := fun _ => β) k v h'
+  simp at t
+  replace t := Perm.map (fun x : (_ : α) × β => (x.fst, x.snd)) t
+  simpa [Function.comp_def] using t
+
 end
 
 end Std.HashMap

@@ -230,6 +230,18 @@ structure AckResult where
   hasBoundVars : Bool
 deriving Inhabited
 
+
+/--
+Given a binary effectful computation `f : α → β → m γ`, and two arrays `as : Array α` and `bs : Array β`,
+build an array whose elements are created by invoking `f as[i] bs[i]` in sequence.
+This obeys the equation `zipWithM as bs f = as.zip bs |>.mapM f
+-/
+private def _root_.Array.zipWithM [Monad m] (as : Array α) (bs : Array β) (f : α → β → m γ) : m (Array γ) := do
+  let mut out := #[]
+  for (a, b) in as.zip bs do
+    out := out.push (← f a b)
+  return out
+
 mutual
 
 /-- Try to ackermannize an application, by visting all of its subexpressions -/
@@ -254,11 +266,13 @@ partial def ackApp (g : MVarId) (e : Expr) : AckM (AckResult × MVarId) := do
     let nonAckRet := ({ val := mkAppN f.val args, hasBoundVars }, g)
     if hasBoundVars then return nonAckRet
 
-    -- We have no bvars, so we can continue to ackermannize
+    -- We have no bvars, so we can continue to ackermannize.
     let tResult ← inferType e
     let some codomain ← g.withContext do BVTy.ofExpr? tResult | return nonAckRet
-    let ackArgs? : Option (Array Argument) := args.zip argTys |>.mapM fun (arg, ty?) => do
-      return Argument.mk arg (← ty?)
+    -- If all our arguments were legal ackermannization arguments, then
+    -- we can ackermannize. If not, we bail out.
+    let ackArgs? : Option (Array Argument) :=
+      args.zipWithM argTys fun arg ty? => do return Argument.mk arg (← ty?)
     let some ackArgs := ackArgs? | return nonAckRet
     let ackFn := { f := f.val, codomain : Function }
     let (call, g') ← g.withContext do replaceCallWithFVar g ackFn ackArgs

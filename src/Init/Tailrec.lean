@@ -257,25 +257,48 @@ end flat_order
 
 section mono_bind
 
-class MonoBind (m : Type u → Type v) where
-  bind : Bind m
-  order : ∀ α, Order (m α)
-  ccpo : ∀ α, CCPO (m α)
-  bind_mono₁ (a₁ a₂ : m α) (f : α → m b) (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
-  bind_mono₂ (a : m α) (f₁ f₂ : α → m b) (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
+class MonoBind (m : Type u → Type v) [Bind m] [∀ α, Order (m α)] where
+  bind_mono_left (a₁ a₂ : m α) (f : α → m b) (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
+  bind_mono_right (a : m α) (f₁ f₂ : α → m b) (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
 
+theorem monotone_bind
+    (m : Type u → Type v) [Bind m] [∀ α, Order (m α)] [MonoBind m]
+    {α β : Type u}
+    {γ : Type w} [Order γ]
+    (f : γ → m α) (g : γ → α → m β)
+    (hmono₁ : monotone (fun (x : γ) => f x))
+    (hmono₂ : ∀ y, monotone (fun (x : γ) => g x y)) :
+    monotone (fun (x : γ) => f x >>= g x) := by
+  intro x₁ x₂ hx₁₂
+  apply Order.rel_trans
+  · apply MonoBind.bind_mono_left _ _ _ (hmono₁ _ _ hx₁₂)
+  · apply MonoBind.bind_mono_right _ _ _ (fun y => hmono₂ y _ _ hx₁₂)
+
+instance : Order (Option α) := inferInstanceAs (Order (FlatOrder none))
+noncomputable instance : CCPO (Option α) := inferInstanceAs (CCPO (FlatOrder none))
 noncomputable instance : MonoBind Option where
-  bind := inferInstance
-  order α := inferInstanceAs (Order (FlatOrder none))
-  ccpo α := inferInstanceAs (CCPO (FlatOrder none))
-  bind_mono₁ _ _ _ h := by
+  bind_mono_left _ _ _ h := by
     cases h
     · exact FlatOrder.rel.bot
     · exact FlatOrder.rel.refl
-  bind_mono₂ a _ _ h := by
+  bind_mono_right a _ _ h := by
     cases a
     · exact FlatOrder.rel.refl
     · exact h _
+
+instance [Monad m] [inst : ∀ α, Order (m α)] : Order (ExceptT ε m α) := inst _
+instance [Monad m] [∀ α, Order (m α)] [inst : ∀ α, CCPO (m α)] : CCPO (ExceptT ε m α) := inst _
+instance [Monad m] [∀ α, Order (m α)] [∀ α, CCPO (m α)] [MonoBind m] : MonoBind (ExceptT ε m) where
+  bind_mono_left a₁ a₂ f h₁₂ := by
+    apply MonoBind.bind_mono_left (m := m)
+    exact h₁₂
+  bind_mono_right a₁ a₂ f h₁₂ := by
+    apply MonoBind.bind_mono_right (m := m)
+    intro x
+    cases x
+    · apply Order.rel_refl
+    · apply h₁₂
+
 
 end mono_bind
 

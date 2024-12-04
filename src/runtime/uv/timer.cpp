@@ -38,7 +38,7 @@ void handle_timer_event(uv_timer_t* handle) {
 
     // If the last promise is already solved then we can just set it as closed.
     // and free the object.
-    if(!timer->m_repeating || (timer->m_promise != NULL && lean_io_get_task_state_core(timer->m_promise) == 2)) {
+    if(!timer->m_repeating) {
         timer->m_started = false;
     }
 
@@ -138,7 +138,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg /* w */ ) {
     lean_uv_timer_object * obj = lean_to_uv_timer(timer);
 
-    if (!obj->m_started) return lean_io_result_mk_ok(lean_box(0));
+    if (!obj->m_started ||(obj->m_promise != NULL && lean_io_get_task_state_core(obj->m_promise) == 2)) {
+        return lean_io_result_mk_ok(lean_box(0));
+    }
 
     event_loop_lock(&global_ev);
 

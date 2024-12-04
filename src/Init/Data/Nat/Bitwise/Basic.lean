@@ -71,6 +71,9 @@ theorem shiftRight_eq_div_pow (m : Nat) : ∀ n, m >>> n = m / 2 ^ n
     rw [shiftRight_add, shiftRight_eq_div_pow m k]
     simp [Nat.div_div_eq_div_mul, ← Nat.pow_succ, shiftRight_succ]
 
+theorem shiftRight_eq_zero (m n : Nat) (hn : m < 2^n) : m >>> n = 0 := by
+  simp [Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt hn]
+
 /-!
 ### testBit
 We define an operation for testing individual bits in the binary representation

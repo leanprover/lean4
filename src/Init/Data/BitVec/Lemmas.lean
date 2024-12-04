@@ -1316,6 +1316,61 @@ theorem toNat_ushiftRight_lt (x : BitVec w) (n : Nat) (hn : n ≤ w) :
     · apply hn
   · apply Nat.pow_pos (by decide)
 
+
+/-- Shifting right by `n`, which is larger than the bitwidth `w` produces `0. -/
+theorem ushiftRight_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) :
+    x >>> n = 0#w := by
+  simp only [toNat_eq, toNat_ushiftRight, toNat_ofNat, Nat.zero_mod]
+  have : 2^w ≤ 2^n := Nat.pow_le_pow_of_le Nat.one_lt_two hn
+  rw [Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt (by omega)]
+
+
+/--
+Unsigned shift right by at least one bit makes the interpretations of the bitvector as an `Int` or `Nat` agree,
+because it makes the value of the bitvector less than or equal to `2^(w-1)`.
+-/
+theorem toInt_ushiftRight_of_lt {x : BitVec w} {n : Nat} (hn : 0 < n) :
+    (x >>> n).toInt = x.toNat >>> n := by
+  rw [toInt_eq_toNat_cond]
+  simp only [toNat_ushiftRight, ite_eq_left_iff, Nat.not_lt]
+  intros h
+  by_cases hn : n ≤ w
+  · have h1 := Nat.mul_lt_mul_of_pos_left (toNat_ushiftRight_lt x n hn) Nat.two_pos
+    simp only [toNat_ushiftRight, Nat.zero_lt_succ, Nat.mul_lt_mul_left] at h1
+    have : 2 ^ (w - n).succ ≤ 2^ w := Nat.pow_le_pow_of_le (by decide) (by omega)
+    have := show 2 * x.toNat >>> n < 2 ^ w by
+      omega
+    omega
+  · have : x.toNat >>> n = 0 := by
+      apply Nat.shiftRight_eq_zero
+      have : 2^w ≤ 2^n := Nat.pow_le_pow_of_le (by decide) (by omega)
+      omega
+    simp [this] at h
+    omega
+
+/--
+Unsigned shift right by at least one bit makes the interpretations of the bitvector as an `Int` or `Nat` agree,
+because it makes the value of the bitvector less than or equal to `2^(w-1)`.
+In the case when `n = 0`, then the shift right value equals the integer interpretation.
+-/
+@[simp]
+theorem toInt_ushiftRight {x : BitVec w} {n : Nat} :
+    (x >>> n).toInt = if n = 0 then x.toInt else x.toNat >>> n := by
+  by_cases hn : n = 0
+  · simp [hn]
+  · rw [toInt_ushiftRight_of_lt (by omega), toInt_eq_toNat_cond]
+    simp [hn]
+
+@[simp]
+theorem toFin_uShiftRight {x : BitVec w} {n : Nat} :
+    (x >>> n).toFin = x.toFin / (Fin.ofNat' (2^w) (2^n)) := by
+  apply Fin.eq_of_val_eq
+  by_cases hn : n < w
+  · simp [Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt (Nat.pow_lt_pow_of_lt Nat.one_lt_two hn)]
+  · simp only [Nat.not_lt] at hn
+    rw [ushiftRight_eq_zero (by omega)]
+    simp [Nat.dvd_iff_mod_eq_zero.mp (Nat.pow_dvd_pow 2 hn)]
+
 @[simp]
 theorem getMsbD_ushiftRight {x : BitVec w} {i n : Nat} :
     (x >>> n).getMsbD i = (decide (i < w) && (!decide (i < n) && x.getMsbD (i - n))) := by

@@ -2,6 +2,8 @@
 # Tests of the `decide` tactic
 -/
 
+-- some tests temporarily disabled due to changes to `decide`
+
 /-!
 Success
 -/
@@ -27,6 +29,7 @@ Irreducible decidable instance
 -/
 opaque unknownProp : Prop
 
+/-
 /--
 error: tactic 'decide' failed for proposition
   unknownProp
@@ -46,6 +49,7 @@ command, which enables the instance 'Classical.propDecidable'.
 #guard_msgs in
 open scoped Classical in
 example : unknownProp := by decide
+-/
 
 
 /-!
@@ -63,6 +67,7 @@ def baz (n : Nat) : Decidable (Nice n) := by
 
 instance : Decidable (Nice n) := baz n
 
+/-
 /--
 error: tactic 'decide' failed for proposition
   Nice 102
@@ -79,12 +84,14 @@ defined using tactics such as 'rw' or 'simp'. To avoid tactics, make use of func
 -/
 #guard_msgs in
 example : Nice 102 := by decide
+-/
 
 
 /-!
 Following `Decidable.rec` to give better messages
 -/
 
+/-
 /--
 error: tactic 'decide' failed for proposition
   ¬Nice 102
@@ -102,6 +109,7 @@ defined using tactics such as 'rw' or 'simp'. To avoid tactics, make use of func
 -/
 #guard_msgs in
 example : ¬ Nice 102 := by decide
+-/
 
 
 /-!

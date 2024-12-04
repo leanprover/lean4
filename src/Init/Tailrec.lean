@@ -190,16 +190,15 @@ variable {α : Type u}
 variable [Nonempty α]
 
 set_option linter.unusedVariables false in
-def FlatOrder (α : Type u) [Nonempty α]:= α
+def FlatOrder {α : Type u} (b : α) := α
 
-noncomputable
-def b : FlatOrder α := @Classical.ofNonempty α _
+variable {b : α}
 
-inductive FlatOrder.rel : (x y : FlatOrder α) → Prop where
+inductive FlatOrder.rel : (x y : FlatOrder b) → Prop where
   | bot : rel b x
   | refl : rel x x
 
-instance FlatOrder.instOrder : Order (FlatOrder α) where
+instance FlatOrder.instOrder : Order (FlatOrder b) where
   rel := rel
   rel_refl := .refl
   rel_trans {x y z : α} (hxy : rel x y) (hyz : rel y z) := by
@@ -211,12 +210,12 @@ open Classical in
 private theorem Classical.some_spec₂ {α : Sort _} {p : α → Prop} {h : ∃ a, p a} (q : α → Prop)
     (hpq : ∀ a, p a → q a) : q (choose h) := hpq _ <| choose_spec _
 
-noncomputable def flat_csup (c : FlatOrder α → Prop) : FlatOrder α := by
-  by_cases h : ∃ (x : FlatOrder α), c x ∧ x ≠ b
+noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
+  by_cases h : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · exact Classical.choose h
   · exact b
 
-noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder α) where
+noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
   csup := flat_csup
   csup_spec := by
     intro x c hc
@@ -251,7 +250,34 @@ noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder α) where
         assumption
       · intro; exact rel.bot
 
+noncomputable
+abbrev TailrecOrder α [Nonempty α] := FlatOrder (@Classical.ofNonempty α _)
+
 end flat_order
+
+section mono_bind
+
+class MonoBind (m : Type u → Type v) where
+  bind : Bind m
+  order : ∀ α, Order (m α)
+  ccpo : ∀ α, CCPO (m α)
+  bind_mono₁ (a₁ a₂ : m α) (f : α → m b) (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
+  bind_mono₂ (a : m α) (f₁ f₂ : α → m b) (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
+
+noncomputable instance : MonoBind Option where
+  bind := inferInstance
+  order α := inferInstanceAs (Order (FlatOrder none))
+  ccpo α := inferInstanceAs (CCPO (FlatOrder none))
+  bind_mono₁ _ _ _ h := by
+    cases h
+    · exact FlatOrder.rel.bot
+    · exact FlatOrder.rel.refl
+  bind_mono₂ a _ _ h := by
+    cases a
+    · exact FlatOrder.rel.refl
+    · exact h _
+
+end mono_bind
 
 section fun_order
 
@@ -312,9 +338,9 @@ instance instCCPOPi [∀ x, Order (β x)] [∀ x, CCPO (β x)] : CCPO (∀ x, β
 end fun_order
 
 /--
-Variant of `fix` that hides the `Order` type classes. This is
-used by the elaborator internally to ease the constrction, but unfolded before finishing
-the construction.
+Variant of `fix` that determines a few class instances to hide the `Order` type class.
+It is used by the elaborator internally to ease the constrction, but unfolded before finishing the
+construction.
 -/
 noncomputable
 abbrev tailrec_fix
@@ -322,10 +348,10 @@ abbrev tailrec_fix
     {β : α → Type v}
     [∀ x, Nonempty (β x)]
     (F : ∀ x, (∀ x, β x) → β x)
-    (hmono : ∀ (x : α), monotone (α := ∀ x, FlatOrder (β x)) (β := FlatOrder (β _)) (fun f => F x f)) :
+    (hmono : ∀ (x : α), monotone (α := ∀ x, TailrecOrder (β x)) (β := TailrecOrder (β _)) (fun f => F x f)) :
     (∀ x, β x) :=
-  @fix (∀ x, FlatOrder (β x)) _ _ (fun f x => F x f)
-    (monotone_of_monotone_apply (β := fun _ => FlatOrder _) (γ := ∀ _, FlatOrder _) _ hmono)
+  @fix (∀ x, TailrecOrder (β x)) _ _ (fun f x => F x f)
+    (monotone_of_monotone_apply (β := fun _ => TailrecOrder _) (γ := ∀ _, TailrecOrder _) _ hmono)
 
 namespace Example
 
@@ -335,9 +361,9 @@ def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :
   else
     rec (x + 1)
 
-noncomputable def find P := fix (α := _ → FlatOrder _) (findF P) <| by
+noncomputable def find P := fix (α := _ → TailrecOrder _) (findF P) <| by
   unfold findF
-  apply monotone_of_monotone_apply (β := fun _ => FlatOrder _)
+  apply monotone_of_monotone_apply (β := fun _ => TailrecOrder _)
   intro n
   split
   · apply monotone_const

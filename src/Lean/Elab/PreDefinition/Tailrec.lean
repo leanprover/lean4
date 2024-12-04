@@ -189,8 +189,10 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let instNonemptyRange ← withLocalDeclD `x packedDomain fun x => do
       mkLambdaFVars #[x] (← mkAppM ``Nonempty.intro #[.app unaryWitness x])
     let instOrderRange ← withLocalDeclD `x packedDomain fun x => do
+      -- TODO: Refactor into helper definition
       let instNonempty ← mkAppM ``Nonempty.intro #[.app unaryWitness x]
-      let inst ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, instNonempty]
+      let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
+      let inst ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, classicalWitness]
       mkLambdaFVars #[x] inst
     let instOrderPackedType ←
       mkAppOptM ``Tailrec.instOrderPi #[packedDomain, none, instOrderRange]
@@ -220,8 +222,10 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       lambdaTelescope body fun xs _ => do
         let type ← instantiateForall type xs
         let F ← instantiateLambda Fs[i]! xs
+        -- TODO: Refactor into helper definition
         let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN witnesses[i]! xs]
-        let instOrder ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, instNonempty]
+        let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
+        let instOrder ← mkAppOptM ``Tailrec.FlatOrder.instOrder #[none, classicalWitness]
         let goal ← mkAppOptM ``Tailrec.monotone
           #[packedType, instOrderPackedType, type, instOrder, F]
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal

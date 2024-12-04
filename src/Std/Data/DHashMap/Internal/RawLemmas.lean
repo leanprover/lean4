@@ -835,7 +835,7 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
   simp_to_model
-  rw [List.containsKey_eq_keys_contains]
+  rw [List.containsKey_eq_keys_contains, List.elem_iff]
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
@@ -844,15 +844,8 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 @[simp]
 theorem toList_map_fst {α β} (m : Raw₀ α β) :
     m.1.toList.map Sigma.fst = m.1.keys := by
-  -- simp_to_model -- `simp made no progress`, so we brute force it:
-  simp only [Raw.toList, Raw.fold, Raw.foldM, Raw.keys]
-  simp only [Array.id_run_foldlM, AssocList.foldlM_id, AssocList.foldl_eq]
-  rw [← Array.foldl_hom (List.map Sigma.fst) _
-    (fun x y => (List.foldl (fun d p => p.fst :: d) x y.toList))]
-  · simp
-  · intro x y
-    rw [← List.foldl_hom (List.map Sigma.fst)]
-    simp
+  simp_to_model
+  simp [List.keys_eq_map_fst]
 
 end Raw₀
 

@@ -709,16 +709,9 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
 @[simp]
 theorem toList_inner {α β} (m : Raw α β) :
     m.inner.toList = m.toList.map fun ⟨k, v⟩ => ⟨k, v⟩ := by
-  simp only [DHashMap.toList, DHashMap.Raw.toList, toList, DHashMap.Const.toList,
-    DHashMap.Raw.Const.toList]
-  simp only [DHashMap.Raw.fold, DHashMap.Raw.foldM]
-  simp only [DHashMap.Internal.AssocList.foldlM_id, DHashMap.Internal.AssocList.foldl_eq,
-    List.foldl_flip_cons_eq_append, Array.id_run_foldlM]
-  rw [← Array.foldl_hom (List.map _) _ (fun acc l => l.toList.reverse ++ acc)]
-  · simp
-  · intro x y
-    rw [← List.foldl_hom (List.map _) _ (fun x y => y :: x)] <;>
-      simp
+  simp [toList,
+    DHashMap.Internal.Raw.toList_eq_toListModel, DHashMap.Internal.Raw.Const.toList_eq_toListModel,
+    DHashMap.Internal.Const.toListModel, Function.comp_def]
 
 @[simp]
 theorem toList_map_fst (h : m.WF) :

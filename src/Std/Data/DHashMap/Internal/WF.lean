@@ -83,14 +83,6 @@ theorem fold_cons_key {l : Raw α β} {acc : List α} :
     l.fold (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets).reverse ++ acc := by
   rw [fold_cons_apply, keys_eq_map, map_reverse]
 
-<<<<<<< HEAD
-theorem toList_eq_toListModel {m : Raw α β} : m.toList = (toListModel m.buckets).reverse := by
-  simp [Raw.toList, fold_cons]
-
-theorem keys_eq_keys_toListModel {m : Raw α β} :
-    m.keys = List.keys (toListModel m.buckets).reverse := by
-  simp [Raw.keys, fold_cons_key]
-=======
 theorem foldRev_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
     l.foldRev f init = l.buckets.foldr (fun l acc => l.foldr (fun a b g => f g a b) acc) init := by
   simp only [Raw.foldRev, Raw.foldRevM, ← Array.foldrM_toList, Array.foldr_toList,
@@ -114,14 +106,20 @@ theorem foldRev_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
 theorem foldRev_cons_key {l : Raw α β} {acc : List α} :
     l.foldRev (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets) ++ acc := by
   rw [foldRev_cons_apply, keys_eq_map]
->>>>>>> origin/master
 
-theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
+theorem toList_eq_toListModel {m : Raw α β} : m.toList = toListModel m.buckets := by
   simp [Raw.toList, foldRev_cons]
 
+theorem keys_eq_keys_toListModel {m : Raw α β} :
+    m.keys = List.keys (toListModel m.buckets) := by
+  simp [Raw.keys, foldRev_cons_key]
+
+theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) :=
+  Perm.of_eq toList_eq_toListModel
+
 theorem keys_perm_keys_toListModel {m : Raw α β} :
-    Perm m.keys (List.keys (toListModel m.buckets)) := by
-  simp [Raw.keys, foldRev_cons_key, keys_eq_map]
+    Perm m.keys (List.keys (toListModel m.buckets)) :=
+  Perm.of_eq keys_eq_keys_toListModel
 
 theorem length_keys_eq_length_keys {m : Raw α β} :
     m.keys.length = (List.keys (toListModel m.buckets)).length :=
@@ -143,6 +141,15 @@ theorem pairwise_keys_iff_pairwise_keys [BEq α] [PartialEquivBEq α] {m : Raw �
     m.keys.Pairwise (fun a b => (a == b) = false) ↔
       (List.keys (toListModel m.buckets)).Pairwise (fun a b => (a == b) = false) :=
   keys_perm_keys_toListModel.pairwise_iff BEq.symm_false
+
+theorem Const.toList_eq_toListModel {β} {m : Raw α (fun _ => β)} :
+    Raw.Const.toList m = Const.toListModel m.buckets := by
+  simp only [Raw.Const.toList, Const.toListModel, ← Raw.toList_eq_toListModel, Raw.toList,
+    Raw.foldRev, Raw.foldRevM, Array.id_run_foldrM, AssocList.foldrM_id]
+  rw [← Array.foldr_hom (List.map _) _ (g₂ := fun l acc => foldr (fun p d => (p.fst, p.snd) :: d) acc l.toList)]
+  · simp
+  · intro l acc
+    induction l <;> simp_all
 
 end Raw
 

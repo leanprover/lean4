@@ -35,15 +35,15 @@ namespace Ack
  /-- Types that can be bitblasted by bv_decide. -/
  inductive BVTy
    /-- Booleans. -/
-   | Bool
+   | bool
    /-- Bitvectors of a fixed width `w`. -/
-   | BitVec (w : Nat)
+   | bitVec (w : Nat)
    deriving Hashable, DecidableEq, Inhabited
 
 instance : ToMessageData BVTy where
   toMessageData
-  | .Bool => m!"bool"
-  | .BitVec w => m!"BitVec {w}"
+  | .bool => m!"bool"
+  | .bitVec w => m!"BitVec {w}"
 
 namespace BVTy
 
@@ -53,16 +53,16 @@ with `?w` a literal `Nat`.  -/
 def ofExpr? (e : Expr) : MetaM (Option BVTy) := ofExpr?Aux e |>.run where
   ofExpr?Aux (e : Expr) : OptionT MetaM BVTy :=
     match_expr e.consumeMData with
-    | _root_.Bool => return Bool
-    | _root_.BitVec w => do
+    | bool => return bool
+    | bitVec w => do
        let w ← getNatValue? w
-       return .BitVec w
+       return bitVec w
     | _ => OptionT.fail
 
 /-- Convert a `BVTy` back into an `Expr`. -/
 def toExpr : BVTy → Expr
-| .Bool => mkConst ``_root_.Bool
-| .BitVec w => mkApp (mkConst ``_root_.BitVec) (mkNatLit w)
+| bool => mkConst ``Bool
+| bitVec w => mkApp (mkConst ``BitVec) (mkNatLit w)
 
 end BVTy
 

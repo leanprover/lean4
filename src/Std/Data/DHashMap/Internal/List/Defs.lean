@@ -39,4 +39,7 @@ def values {β : Type v} : List ((_ : α) × β) → List β
   | [] => []
   | ⟨_, v⟩ :: l => v :: values l
 
+theorem map_fst_eq_keys {l : List ((a : α) × β a)} : l.map Sigma.fst = keys l := by
+    induction l <;> simp_all [keys]
+
 end Std.DHashMap.Internal.List

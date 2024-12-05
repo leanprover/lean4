@@ -37,6 +37,17 @@ theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocLis
     l.foldl f init = l.toList.foldl (fun d p => f d p.1 p.2) init := by
   induction l generalizing init <;> simp_all [foldl, Id.run, foldlM]
 
+theorem foldlM_id {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
+    l.foldlM (m := Id) f init = l.foldl f init := rfl
+
+@[simp]
+theorem foldr_eq {f : (a : α) → β a → δ → δ} {init : δ} {l : AssocList α β} :
+    l.foldr f init = l.toList.foldr (fun p d => f p.1 p.2 d) init := by
+  induction l generalizing init <;> simp_all [foldr, Id.run, foldrM]
+
+theorem foldrM_id {f : (a : α) → β a → δ → δ} {init : δ} {l : AssocList α β} :
+    l.foldrM (m := Id) f init = l.foldr f init := rfl
+
 @[simp]
 theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
   rw [length, foldl_eq]

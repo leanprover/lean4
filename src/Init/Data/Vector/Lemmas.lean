@@ -11,6 +11,15 @@ import Init.Data.Vector.Basic
 Lemmas about `Vector α n`
 -/
 
+namespace Array
+
+theorem toVector_inj {a b : Array α} (h₁ : a.size = b.size) (h₂ : a.toVector.cast h₁ = b.toVector) : a = b := by
+  ext i ih₁ ih₂
+  · exact h₁
+  · simpa using congrArg (fun a => a[i]) h₂
+
+end Array
+
 namespace Vector
 
 @[simp] theorem getElem_mk {data : Array α} {size : data.size = n} {i : Nat} (h : i < n) :
@@ -239,6 +248,10 @@ theorem length_toList {α n} (xs : Vector α n) : xs.toList.length = n := by sim
 theorem getElem_toList {α n} (xs : Vector α n) (i : Nat) (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by simp
 
+theorem toList_inj {a b : Vector α n} (h : a.toList = b.toList) : a = b := by
+  rcases a with ⟨⟨a⟩, ha⟩
+  rcases b with ⟨⟨b⟩, hb⟩
+  simpa using h
 
 /-! ### swap -/
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Workspace
-// Imports: Init Lake.Load.Resolve Lake.Build.Module Lake.Build.Package Lake.Build.Library
+// Imports: Lake.Load.Resolve Lake.Build.Module Lake.Build.Package Lake.Build.Library
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1162,7 +1162,6 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Load_Resolve(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Module(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Package(uint8_t builtin, lean_object*);
@@ -1172,9 +1171,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Load_Workspace(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Load_Resolve(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

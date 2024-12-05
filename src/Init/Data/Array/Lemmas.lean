@@ -59,6 +59,14 @@ namespace List
 
 open Array
 
+theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
+  cases a with
+  | nil => simpa using h
+  | cons a as =>
+    cases b with
+    | nil => simp at h
+    | cons b bs => simpa using h
+
 @[simp] theorem size_toArrayAux {a : List α} {b : Array α} :
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
@@ -222,7 +230,13 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 
 @[simp] theorem find?_toArray (f : α → Bool) (l : List α) :
     l.toArray.find? f = l.find? f := by
-  rw [Array.find?, ← findM?_id, findM?_toArray, Id.run]
+  rw [Array.find?]
+  simp only [Id.run, Id, Id.pure_eq, Id.bind_eq, forIn_toArray]
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [forIn_cons, Id.pure_eq, Id.bind_eq, find?]
+    by_cases f a <;> simp_all
 
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
     Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
@@ -395,6 +409,11 @@ end List
 namespace Array
 
 /-! ## Preliminaries -/
+
+/-! ### toList -/
+
+theorem toList_inj {a b : Array α} (h : a.toList = b.toList) : a = b := by
+  cases a; cases b; simpa using h
 
 /-! ### empty -/
 

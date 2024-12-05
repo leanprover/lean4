@@ -53,8 +53,8 @@ with `?w` a literal `Nat`.  -/
 def ofExpr? (e : Expr) : MetaM (Option BVTy) := ofExpr?Aux e |>.run where
   ofExpr?Aux (e : Expr) : OptionT MetaM BVTy :=
     match_expr e.consumeMData with
-    | bool => return bool
-    | bitVec w => do
+    | Bool => return bool
+    | BitVec w => do
        let w ← getNatValue? w
        return bitVec w
     | _ => OptionT.fail

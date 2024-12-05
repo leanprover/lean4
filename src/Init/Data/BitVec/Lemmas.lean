@@ -2253,11 +2253,11 @@ theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v = true then allOnes w els
   by_cases h : v <;> (simp only [h] ; ext ; simp)
 
 @[simp]
-theorem fill_eq_allOnes {w : Nat} : fill w true = allOnes w := by
+theorem fill_true {w : Nat} : fill w true = allOnes w := by
   simp [fill_eq]
 
 @[simp]
-theorem fill_eq_zero {w : Nat} : fill w false = 0#w := by
+theorem fill_false {w : Nat} : fill w false = 0#w := by
   simp [fill_eq]
 
 @[simp] theorem fill_toNat {w : Nat} {v : Bool} :

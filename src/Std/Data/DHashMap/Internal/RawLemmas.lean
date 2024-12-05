@@ -843,8 +843,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 @[simp]
 theorem toList_map_fst {α β} (m : Raw₀ α β) :
     m.1.toList.map Sigma.fst = m.1.keys := by
-  simp_to_model
-  simp [List.keys_eq_map_fst]
+  simp_to_model using List.keys_eq_map_fst
 
 end Raw₀
 

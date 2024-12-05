@@ -26,7 +26,7 @@ namespace BitVec
 
 -- This would be resolved by simply using `setWidth` instead of `cast`!
 -- TODO: discuss with Tobias et al.
-example (h : v = w) (x : BitVec v) : cast h x = setWidth w x := by
+example (h : v = w) (x : BitVec v) : x.cast h = x.setWidth w := by
   ext
   simp
 simp_lc allow BitVec.setWidth_eq BitVec.setWidth_cast

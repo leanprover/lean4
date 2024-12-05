@@ -59,6 +59,26 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
 
   -- NB: `e` is now an open term.
 
+  if e == .bvar 0 then
+    let p ← mkAppOptM ``Tailrec.monotone_id #[α, inst_α]
+    let new_goals ←
+      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        goal.apply p
+    unless new_goals.isEmpty do
+      throwError "Left over goals"
+    return
+
+  if let .app fn arg := e then
+    if !arg.hasLooseBVars then
+      let fn' := f.updateLambdaE! f.bindingDomain! fn
+      let p ← mkAppOptM ``Tailrec.monotone_apply_of_monotone_fun
+        #[none, none, α, none, inst_α, fn', arg]
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      new_goals.forM (solveMono ur)
+      return
+
   -- A recursive call directly here
   if e.isApp && e.appFn! == .bvar 0 then
 

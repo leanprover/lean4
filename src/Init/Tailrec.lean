@@ -184,6 +184,57 @@ theorem fix_eq {f : α → α} (hf : monotone f) : fix f hf = f (fix f hf) := by
 
 end CCPO
 
+section fun_order
+
+open Order
+
+variable {α : Type u}
+variable {β : α → Type v}
+
+instance instOrderPi [∀ x, Order (β x)] : Order (∀ x, β x) where
+  rel f g := ∀ x, f x ⊑ g x
+  rel_refl _ := rel_refl
+  rel_trans hf hg x := rel_trans (hf x) (hg x)
+  rel_antisymm hf hg := funext (fun x => rel_antisymm (hf x) (hg x))
+
+theorem monotone_of_monotone_apply [Order γ] [∀ x, Order (β x)] (f : γ → (∀ x, β x))
+  (h : ∀ y, monotone (fun x => f x y)) : monotone f :=
+  fun x y hxy z => h z x y hxy
+
+theorem monotone_apply [∀ x, Order (β x)] (x : α) :
+    monotone (fun (f : (∀ x, β x)) => f x) := fun _ _ hfg => hfg x
+
+theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
+    chain (fun y => ∃ f, c f ∧ f x = y) := by
+  intro _ _ ⟨f, hf, hfeq⟩ ⟨g, hg, hgeq⟩
+  subst hfeq; subst hgeq
+  cases hc f g hf hg
+  next h => left; apply h x
+  next h => right; apply h x
+
+def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
+  CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
+
+instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
+  csup := fun_csup
+  csup_spec := by
+    intro f c hc
+    constructor
+    next =>
+      intro hf g hg x
+      apply rel_trans _ (hf x); clear hf
+      apply le_csup (chain_apply hc x)
+      exact ⟨g, hg, rfl⟩
+    next =>
+      intro h x
+      apply csup_le (chain_apply hc x)
+      intro y ⟨z, hz, hyz⟩
+      subst y
+      apply h z hz
+
+end fun_order
+
+
 section flat_order
 
 variable {α : Type u}
@@ -301,64 +352,6 @@ instance [Monad m] [∀ α, Order (m α)] [∀ α, CCPO (m α)] [MonoBind m] : M
 
 
 end mono_bind
-
-section fun_order
-
-open Order
-
-variable {α : Type u}
-variable {β : α → Type v}
-
-instance instOrderPi [∀ x, Order (β x)] : Order (∀ x, β x) where
-  rel f g := ∀ x, f x ⊑ g x
-  rel_refl _ := rel_refl
-  rel_trans hf hg x := rel_trans (hf x) (hg x)
-  rel_antisymm hf hg := funext (fun x => rel_antisymm (hf x) (hg x))
-
-theorem monotone_of_monotone_apply [Order γ] [∀ x, Order (β x)] (f : γ → (∀ x, β x))
-  (h : ∀ y, monotone (fun x => f x y)) : monotone f :=
-  fun x y hxy z => h z x y hxy
-
-theorem monotone_apply [∀ x, Order (β x)] (x : α) :
-    monotone (fun (f : (∀ x, β x)) => f x) := fun _ _ hfg => hfg x
-
-/-
-theorem cast_rel_cast' [∀ x, Order (β x)] {a b : α} (h : β a = β b) (x y : β a)
-    (hfg : x ⊑ y) : (h ▸ x ⊑ h ▸ y) := sorry
-
-theorem cast_rel_cast [∀ x, Order (β x)] {a b : α} (h : β a = β b) (f g : ∀ x, β x)
-    (hfg : f a ⊑ g a) : (h ▸ f a ⊑ h ▸ g a) := cast_rel_cast' h (f a) (g a) hfg
--/
-
-theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
-    chain (fun y => ∃ f, c f ∧ f x = y) := by
-  intro _ _ ⟨f, hf, hfeq⟩ ⟨g, hg, hgeq⟩
-  subst hfeq; subst hgeq
-  cases hc f g hf hg
-  next h => left; apply h x
-  next h => right; apply h x
-
-def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
-  CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
-
-instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
-  csup := fun_csup
-  csup_spec := by
-    intro f c hc
-    constructor
-    next =>
-      intro hf g hg x
-      apply rel_trans _ (hf x); clear hf
-      apply le_csup (chain_apply hc x)
-      exact ⟨g, hg, rfl⟩
-    next =>
-      intro h x
-      apply csup_le (chain_apply hc x)
-      intro y ⟨z, hz, hyz⟩
-      subst y
-      apply h z hz
-
-end fun_order
 
 namespace Example
 

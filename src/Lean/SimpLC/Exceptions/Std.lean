@@ -7,13 +7,6 @@ prelude
 import Std
 import Lean.SimpLC.Exceptions.Root
 
--- I don't understand this next set: `simp` seems to close the goal.
-example {α : Type _} [BEq α] [EquivBEq α] (a : α) : (a == a) = true := by simp
-example {α : Type _} {β : Type _} [BEq α] [Hashable α] {m : Std.HashMap α β}
-    [LawfulHashable α] {a : α} {_ : β} [EquivBEq α] [LawfulHashable α] :
-    (a == a) = true ∨ a ∈ m :=
-  by simp
-
 
 -- Internal implementation details of `DHashMap`.
 simp_lc ignore Std.DHashMap.Internal.Raw₀.contains_keys
@@ -27,6 +20,14 @@ simp_lc allow Std.HashSet.Raw.contains_toList List.elem_eq_mem
 simp_lc allow Std.DHashMap.contains_keys List.elem_eq_mem
 simp_lc allow Std.HashMap.contains_keys List.elem_eq_mem
 simp_lc allow Std.DHashMap.Raw.contains_keys List.elem_eq_mem
+
+
+-- I don't understand this next set: `simp` seems to close the goal.
+example {α : Type _} [BEq α] [EquivBEq α] (a : α) : (a == a) = true := by simp
+example {α : Type _} {β : Type _} [BEq α] [Hashable α] {m : Std.HashMap α β}
+    [LawfulHashable α] {a : α} {_ : β} [EquivBEq α] [LawfulHashable α] :
+    (a == a) = true ∨ a ∈ m :=
+  by simp
 
 simp_lc allow Std.HashSet.contains_insert_self Std.HashSet.contains_insert
 simp_lc allow Std.HashSet.mem_insert Std.HashSet.mem_insert_self

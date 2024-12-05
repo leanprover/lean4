@@ -47,6 +47,36 @@ variable {β : Type v} [Order β]
 
 def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
+/--
+Auxillary definition for monotonicity of a function taking an extra argument.
+
+The goal is that when solving a goal of, say
+```
+monotone (fun x => a >>= (fun y => k x y))
+```
+we end up with the goal
+```
+y ⊢ monotone (fun x => k x y)
+```
+where the name `y` matches the name that the user used in the lambda.
+
+If the lemma for `monotone_bind` would have an assumption
+```
+(h : ∃ z, monotone (fun x => k x y))
+```
+then the code that applies `monotone_bind` would have to be careful to `intro` with the name found
+in the lambda, if present. And the same logic would have to repeated whenever applying a lemma
+of this form.
+
+So instead we write the assumption as
+```
+(h : monotone_fun k)
+```
+and only once, when handling this predicate, we have to the implement the logic of “if there
+is a lambda, use the name found there”.
+-/
+def monotone_fun (f : α → γ → β) : Prop := ∀ y, monotone (fun x => f x y)
+
 theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
   fun _ _ _ => Order.rel_refl
 
@@ -62,15 +92,15 @@ theorem monotone_compose
 theorem monotone_letFun.{w} {γ : Sort w}
   (v : γ)
   (k : α → γ → β)
-  (hmono : ∀ (y : γ), monotone (fun x => k x y)) :
+  (hmono : monotone_fun k) :
   monotone fun (x : α) => letFun v (k x) := hmono v
 
 theorem monotone_ite
   (c : Prop) [Decidable c]
   (k₁ : α → β)
   (k₂ : α → β)
-  (hmono₁ : monotone (fun x => k₁ x))
-  (hmono₂ : monotone (fun x => k₂ x)) :
+  (hmono₁ : monotone k₁)
+  (hmono₂ : monotone k₂) :
   monotone fun x => if c then k₁ x else k₂ x := by
     split
     · apply hmono₁
@@ -80,8 +110,8 @@ theorem monotone_dite
   (c : Prop) [Decidable c]
   (k₁ : α → c → β)
   (k₂ : α → ¬ c → β)
-  (hmono₁ : (h : c) → monotone (fun f => k₁ f h))
-  (hmono₂ : (h : ¬ c) → monotone (fun f => k₂ f h)) :
+  (hmono₁ : monotone_fun k₁)
+  (hmono₂ : monotone_fun k₂) :
   monotone fun x => dite c (k₁ x) (k₂ x) := by
     split
     · apply hmono₁
@@ -359,8 +389,8 @@ theorem monotone_bind
     {α β : Type u}
     {γ : Type w} [Order γ]
     (f : γ → m α) (g : γ → α → m β)
-    (hmono₁ : monotone (fun (x : γ) => f x))
-    (hmono₂ : ∀ y, monotone (fun (x : γ) => g x y)) :
+    (hmono₁ : monotone f)
+    (hmono₂ : monotone_fun g) :
     monotone (fun (x : γ) => f x >>= g x) := by
   intro x₁ x₂ hx₁₂
   apply Order.rel_trans

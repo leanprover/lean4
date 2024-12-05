@@ -262,3 +262,17 @@ def VarName.computeLfp {α : Type u} [DecidableEq α] (f : α → Option α) (x 
   else
     x
 nontermination_tailrecursive
+
+
+opaque mentionsH : ¬ b → α → α := fun _ x => x
+
+/--
+error: Could not prove 'VarName.dite' to be tailrecursive:
+  Recursive call `dite (n + 2) b` is not a tail call.
+  Enclosing tail-call position:
+    mentionsH this_is_my_h (dite (n + 2) b)
+-/
+#guard_msgs in
+def VarName.dite (n : Nat) (b : Bool) : if b then Nat else Bool :=
+  if this_is_my_h : b then dite (n + 1) b else mentionsH this_is_my_h (dite (n + 2) b)
+nontermination_tailrecursive

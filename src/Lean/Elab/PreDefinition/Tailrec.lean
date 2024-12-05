@@ -27,47 +27,41 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     solveMono ur goal
     return
 
-  let_expr Tailrec.monotone α inst_α β inst_β f := type |
-    throwError "Unexpected goal:\n{goal}"
+  match_expr type with
+  | Tailrec.monotone_fun _α _inst_α _β _inst_β _γ f =>
+    if f.isLambda && f.bindingBody!.isLambda then
+      let (_, new_goal) ← goal.intro f.bindingBody!.bindingName!
+      solveMono ur new_goal
+    else
+      let (_, goal) ← goal.intro1
+      solveMono ur goal
 
-  unless f.isLambda do
-    throwError "Unexpected goal:\n{goal}"
+  | Tailrec.monotone α inst_α β inst_β f =>
+    -- Ensure f is headed not a redex and headed by at least one lambda, and clean some
+    -- redexes left by some of the lemmas we tend to apply
+    let f := f.headBeta
+    let f ← if f.isLambda then pure f else etaExpand f
+    unless f.isLambda do
+      throwError "Eta-expansion failed:{indentExpr f}"
+    let f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
 
-  let failK := do
-    trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
-    ur f fun t => do
-      if let some recApp := t.find? hasRecAppSyntax then
-        let some syn := getRecAppSyntax? recApp | panic! "getRecAppSyntax? failed"
-        withRef syn <|
-          throwError "Recursive call `{syn}` is not a tail call.\nEnclosing tail-call position:{indentExpr t}"
-      else
-       throwError "Recursive call in non-tail position:{indentExpr t}"
+    let failK := do
+      trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
+      ur f fun t => do
+        if let some recApp := t.find? hasRecAppSyntax then
+          let some syn := getRecAppSyntax? recApp | panic! "getRecAppSyntax? failed"
+          withRef syn <|
+            throwError "Recursive call `{syn}` is not a tail call.\nEnclosing tail-call position:{indentExpr t}"
+        else
+          throwError "Recursive call in non-tail position:{indentExpr t}"
 
-  let e := f.bindingBody!
+    let e := f.bindingBody!
 
-  -- No recursive calls left
-  if !e.hasLooseBVars then
-    -- should not use applyConst here; it may try to re-synth the Nonempty constriant
-    let us := type.getAppFn.constLevels!
-    let p := mkAppN (.const ``Tailrec.monotone_const us) #[α, inst_α, β, inst_β, e]
-    let new_goals ←
-      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
-    unless new_goals.isEmpty do
-      throwError "Left over goals"
-    return
-
-  -- NB: `e` is now an open term.
-
-  -- A recursive call directly here
-  if e.isApp && e.appFn! == .bvar 0 then
-
-    if let some inst_α ← whnfUntil inst_α ``Tailrec.instOrderPi then
-      let_expr Tailrec.instOrderPi γ δ inst := inst_α | pure ()
+    -- No recursive calls left
+    if !e.hasLooseBVars then
       -- should not use applyConst here; it may try to re-synth the Nonempty constriant
-      let x := e.appArg!
-      let us := inst_α.getAppFn.constLevels!
-      let p := mkAppN (.const ``Tailrec.monotone_apply us) #[γ, δ, inst, x]
+      let us := type.getAppFn.constLevels!
+      let p := mkAppN (.const ``Tailrec.monotone_const us) #[α, inst_α, β, inst_β, e]
       let new_goals ←
         mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
           goal.apply p
@@ -75,92 +69,104 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
         throwError "Left over goals"
       return
 
-    trace[Elab.definition.tailrec] "Unexpected pi instance:{indentExpr inst_α}"
-    failK
+    -- NB: `e` is now an open term.
 
-  -- Look through mdata
-  if e.isMData then
-    let f' := f.updateLambdaE! f.bindingDomain! e.mdataExpr!
-    let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! f')
-    goal.assign goal'
-    solveMono ur goal'.mvarId!
-    return
+    -- A recursive call directly here
+    if e.isApp && e.appFn! == .bvar 0 then
 
-  -- Float letE to the environment
-  if let .letE n t v b _nonDep := e then
-    if t.hasLooseBVars || v.hasLooseBVars then
+      if let some inst_α ← whnfUntil inst_α ``Tailrec.instOrderPi then
+        let_expr Tailrec.instOrderPi γ δ inst := inst_α | pure ()
+        -- should not use applyConst here; it may try to re-synth the Nonempty constriant
+        let x := e.appArg!
+        let us := inst_α.getAppFn.constLevels!
+        let p := mkAppN (.const ``Tailrec.monotone_apply us) #[γ, δ, inst, x]
+        let new_goals ←
+          mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+            goal.apply p
+        unless new_goals.isEmpty do
+          throwError "Left over goals"
+        return
+
+      trace[Elab.definition.tailrec] "Unexpected pi instance:{indentExpr inst_α}"
       failK
-    withLetDecl n t v fun x => do
-      let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
-      let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
-      goal.assign (← mkLetFVars #[x] goal')
-      solveMono ur goal'.mvarId!
-    return
 
-  -- Manually handle ite, dite, etc.. Not too hard, and more robust and predictable than
-  -- using the split tactic.
-  match_expr e with
-  | ite _ cond decInst k₁ k₂ =>
-    let us := type.getAppFn.constLevels!
-    let k₁' := f.updateLambdaE! f.bindingDomain! k₁
-    let k₂' := f.updateLambdaE! f.bindingDomain! k₂
-    let p := mkAppN (.const ``Tailrec.monotone_ite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
-    let new_goals ←
-      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
-    new_goals.forM (solveMono ur)
-    return
-  | dite _ cond decInst k₁ k₂ =>
-    let us := type.getAppFn.constLevels!
-    let k₁' := f.updateLambdaE! f.bindingDomain! k₁
-    let k₂' := f.updateLambdaE! f.bindingDomain! k₂
-    let p := mkAppN (.const ``Tailrec.monotone_dite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
-    let new_goals ←
-      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
-    new_goals.forM (solveMono ur)
-    return
-  | letFun δ _ v k =>
-    if k.isLambda then
+    -- Look through mdata
+    if e.isMData then
+      let f' := f.updateLambdaE! f.bindingDomain! e.mdataExpr!
+      let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! f')
+      goal.assign goal'
+      solveMono ur goal'.mvarId!
+      return
+
+    -- Float letE to the environment
+    if let .letE n t v b _nonDep := e then
+      if t.hasLooseBVars || v.hasLooseBVars then
+        failK
+      withLetDecl n t v fun x => do
+        let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
+        let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
+        goal.assign (← mkLetFVars #[x] goal')
+        solveMono ur goal'.mvarId!
+      return
+
+    -- Manually handle ite, dite, etc.. Not too hard, and more robust and predictable than
+    -- using the split tactic.
+    match_expr e with
+    | ite _ cond decInst k₁ k₂ =>
+      let us := type.getAppFn.constLevels!
+      let k₁' := f.updateLambdaE! f.bindingDomain! k₁
+      let k₂' := f.updateLambdaE! f.bindingDomain! k₂
+      let p := mkAppN (.const ``Tailrec.monotone_ite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      new_goals.forM (solveMono ur)
+      return
+    | dite _ cond decInst k₁ k₂ =>
+      let us := type.getAppFn.constLevels!
+      let k₁' := f.updateLambdaE! f.bindingDomain! k₁
+      let k₂' := f.updateLambdaE! f.bindingDomain! k₂
+      let p := mkAppN (.const ``Tailrec.monotone_dite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      new_goals.forM (solveMono ur)
+      return
+    | letFun δ _ v k =>
       let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.take 1
       let k' := f.updateLambdaE! f.bindingDomain! k
       let p := mkAppN (.const ``Tailrec.monotone_letFun us) #[α, inst_α, β, inst_β, δ, v, k']
       let new_goals ←
         mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
           goal.apply p
-      let [new_goal] := new_goals | throwError "Unexpected number of goals after applying {p}"
-      -- Intro subgoal with the name found in the letFun expression
-      let (_, new_goal) ← new_goal.intro k.bindingName!
-      solveMono ur new_goal
-    return
-  | Bind.bind m instBind γ δ g h =>
-    let g' := f.updateLambdaE! f.bindingDomain! g
-    let h' := f.updateLambdaE! f.bindingDomain! h
-    let p ←
-      try
-        mkAppOptM ``Tailrec.monotone_bind #[m, instBind, none, none, γ, δ, α, inst_α, g', h']
-      catch e =>
-        throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
-    let new_goals ←
-      mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
-    let [new_goal₁, new_goal₂] := new_goals | throwError "Unexpected number of goals after applying {p}"
-    solveMono ur new_goal₁
-    -- Intro subgoal with the name found in the original expression, if present
-    let new_goal₂ ← if h.isLambda then pure (← new_goal₂.intro h.bindingName!).2 else pure new_goal₂
-    solveMono ur new_goal₂
-    return
-  | _ => pure
+      new_goals.forM (solveMono ur)
+      return
+    | Bind.bind m instBind γ δ g h =>
+      let g' := f.updateLambdaE! f.bindingDomain! g
+      let h' := f.updateLambdaE! f.bindingDomain! h
+      let p ←
+        try
+          mkAppOptM ``Tailrec.monotone_bind #[m, instBind, none, none, γ, δ, α, inst_α, g', h']
+        catch e =>
+          throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      new_goals.forM (solveMono ur)
+      return
+    | _ => pure
 
-  -- We could be even more deliberate here and use the `lifter` lemmas
-  -- for the match statements instead of the `split` tactic.
-  -- For now using `splitMatch` works fine.
-  if Lean.Meta.Split.findSplit?.isCandidate (← getEnv) (e := e) (splitIte := false) then
-    let new_goals ← Split.splitMatch goal e
-    new_goals.forM (solveMono ur)
-    return
+    -- We could be even more deliberate here and use the `lifter` lemmas
+    -- for the match statements instead of the `split` tactic.
+    -- For now using `splitMatch` works fine.
+    if Lean.Meta.Split.findSplit?.isCandidate (← getEnv) (e := e) (splitIte := false) then
+      let new_goals ← Split.splitMatch goal e
+      new_goals.forM (solveMono ur)
+      return
 
-  failK
+    failK
+  | _ =>
+    throwError "Unexpected goal:{goal}"
 
 private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : Expr :=
   e.replace fun e =>

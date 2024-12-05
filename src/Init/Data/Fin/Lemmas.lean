@@ -388,7 +388,7 @@ theorem castLE_of_eq {m n : Nat} (h : m = n) {h' : m ≤ n} : castLE h' = Fin.ca
 
 @[simp] theorem coe_castAdd (m : Nat) (i : Fin n) : (castAdd m i : Nat) = i := rfl
 
-@[simp] theorem castAdd_zero : (castAdd 0 : Fin n → Fin (n + 0)) = cast rfl := rfl
+@[simp] theorem castAdd_zero : (castAdd 0 : Fin n → Fin (n + 0)) = Fin.cast rfl := rfl
 
 theorem castAdd_lt {m : Nat} (n : Nat) (i : Fin m) : (castAdd n i : Nat) < m := by simp
 

@@ -763,7 +763,7 @@ theorem Const.toListModel_insertListₘ {β : Type v} [BEq α] [Hashable α] [Eq
     [LawfulHashable α] {m : Raw₀ α (fun _ => β)}{l : List (α × β)} (h : Raw.WFImp m.1):
     Perm (toListModel (Const.insertListₘ m l).1.buckets) (insertListConst (toListModel m.1.buckets) l) := by
   induction l generalizing m with
-  | nil => simp [Const.insertListₘ, insertListConst, insertList, List.toSigma]
+  | nil => simp [Const.insertListₘ, insertListConst, insertList]
   | cons hd tl ih =>
     simp only [Const.insertListₘ, insertListConst]
     apply Perm.trans

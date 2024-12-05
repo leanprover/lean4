@@ -159,6 +159,10 @@ def toListModel (buckets : Array (AssocList α β)) : List ((a : α) × β a) :=
   buckets.toList.flatMap AssocList.toList
 
 /-- Internal implementation detail of the hash map -/
+def Const.toListModel {β} (buckets : Array (AssocList α (fun _ => β))) : List (α × β) :=
+  (Internal.toListModel buckets).map fun ⟨a, b⟩ => (a, b)
+
+/-- Internal implementation detail of the hash map -/
 @[inline] def computeSize (buckets : Array (AssocList α β)) : Nat :=
   buckets.foldl (fun d b => d + b.length) 0
 

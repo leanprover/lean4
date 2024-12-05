@@ -67,7 +67,7 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     {ilo : lo ≤ i} {jh : j < n} {w : i ≤ j} (jhi : j ≤ hi := by omega)
     (as : Vector α n) (hpivot : pivot = as[hi])
     (q : ∀ k, (hk₁ : lo ≤ k) → (hk₂ : k < i) → lt as[k] as[hi]) (mid as')
-    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).1.1)
+    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).fst.1)
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
@@ -103,7 +103,7 @@ theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     {ilo : lo ≤ i} {jh : j < n} {w : i ≤ j} (jhi : j ≤ hi := by omega)
     (as : Vector α n) (hpivot : pivot = as[hi])
     (q : ∀ k, (hk₁ : i ≤ k) → (hk₂ : k < j) → !lt as[k] as[hi]) (mid as')
-    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).1.1)
+    (w_mid : mid = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).fst.1)
     (hmid : mid < n)
     (w_as : as' = (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → !lt as'[i] as'[mid] := by
@@ -148,7 +148,7 @@ theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
 theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as : Vector α n) (mid as')
-    (w_mid : mid = (qpartition as lt lo hi hlo hhi).1.1)
+    (w_mid : mid = (qpartition as lt lo hi hlo hhi).fst.1)
     (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
@@ -160,7 +160,7 @@ theorem qpartition_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
 theorem qpartition_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
     (as : Vector α n) (mid as')
-    (w_mid : mid = (qpartition as lt lo hi hlo hhi).1.1)
+    (w_mid : mid = (qpartition as lt lo hi hlo hhi).fst.1)
     (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi hlo hhi).2) :
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → !lt as'[i] as'[mid] := by
@@ -169,11 +169,70 @@ theorem qpartition_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
   intro k hk₁ hk₂
   omega
 
-theorem size_one_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (lo hi : Nat)
+/--
+This is an annoying corner case:
+we need to show that `qpartition` only returns a value `≥ hi` when `hi ≤ lo`
+(and hence the slice of the array between `lo` and `hi` (inclusive) is trivially already sorted).
+-/
+private theorem hi_le_lo_of_hi_le_qpartition_fst {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
-    (as : Vector α n) (w : hi ≤ (qpartition as lt lo hi hlo hhi).1.1) : n = 1 := by
+    (as : Vector α n) (w : hi ≤ (qpartition as lt lo hi hlo hhi).fst.1) : hi ≤ lo := by
   unfold qpartition at w
+  apply Decidable.byContradiction
+  intro h
+  rw [Nat.not_le] at h
+  rw [← Nat.not_lt] at w
+  apply w; clear w
+  -- We really want `lift_lets` here.
   sorry
+
+theorem getElem_qpartition_loop_snd_of_lt_lo {n} (lt : α → α → Bool) (lo hi : Nat)
+    (hhi : hi < n) (pivot) (as : Vector α n) (i j) (ilo) (jh) (w : i ≤ j) (w' : lo ≤ hi)
+    (k : Nat) (h : k < lo) : (qpartition.loop lt lo hi hhi pivot as i j ilo jh w).2[k] = as[k] := by
+  unfold qpartition.loop
+  split
+  · split
+    · have : hi - (j + 1) < hi - j := by omega
+      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h),
+        Vector.getElem_swap_of_ne]
+      all_goals omega
+    · have : hi - (j + 1) < hi - j := by omega
+      rw [getElem_qpartition_loop_snd_of_lt_lo (hi := hi) (j := j + 1) (h := h)]
+      omega
+  · rw [Vector.getElem_swap_of_ne]
+    all_goals omega
+termination_by hi - j
+
+theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+    (k : Nat) (h : k < lo) : (qpartition as lt lo hi hlo hhi).2[k] = as[k] := by
+  unfold qpartition
+  rw [getElem_qpartition_loop_snd_of_lt_lo (h := h)]
+  · (repeat' split) <;>
+    { repeat rw [Vector.getElem_swap_of_ne]
+      all_goals first | rfl | omega }
+  · omega
+
+theorem getElem_qsort_sort_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
+    (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
+    (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi hlo hhi)[i] = as[i] := by
+  unfold qsort.sort
+  split
+  · simp only []
+    split <;> rename_i w₁
+    · rw [getElem_qpartition_snd_of_lt_lo] <;> omega
+    · change ¬ (?q : { m // lo ≤ m ∧ m < n } × Vector α n).fst.1 ≥ hi at w₁
+      have := ?q.1.2.1
+      rw [getElem_qsort_sort_of_lt_lo, getElem_qsort_sort_of_lt_lo, getElem_qpartition_snd_of_lt_lo]
+      any_goals omega
+      exact this -- oof, but `omega` can't use it because of the `.fst` vs `.1` difference!
+      sorry
+      sorry
+  · rfl
+termination_by hi - lo
+decreasing_by
+  · sorry -- same problem
+  · omega
 
 theorem qsort_sort_spec {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega) (w : lo ≤ hi := by omega)
@@ -186,15 +245,16 @@ theorem qsort_sort_spec {n} (lt : α → α → Bool) (as : Vector α n) (lo hi 
     split at w_as <;> rename_i w₃
     · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
       obtain ⟨rfl, rfl⟩ := w₂
-      obtain rfl := size_one_of_hi_le_qpartition_fst _ _ _ _ _ _ w₃
+      obtain h := hi_le_lo_of_hi_le_qpartition_fst _ _ _ _ _ _ w₃
       omega
     · sorry
   · intros
     omega
 
+/-- The slice of `as.qsort lt lo hi` from `lo` to `hi` (inclusive) is sorted. -/
 theorem qsort_sorted' (lt : α → α → Bool) (as : Array α) (lo hi : Nat) :
     ∀ i j, (h₁ : lo ≤ i) → (h₂ : i < j) → (h₃ : j ≤ hi) → (h₄ : j < as.size) →
-      lt ((qsort as lt lo hi)[i]'(by simp; omega)) ((qsort as lt lo hi)[j]'(by simp; omega)) := by
+      lt ((as.qsort lt lo hi)[i]'(by simp; omega)) ((as.qsort lt lo hi)[j]'(by simp; omega)) := by
   unfold qsort
   intros i j h₁ h₂ h₃ h₄
   split <;> rename_i w
@@ -204,7 +264,7 @@ theorem qsort_sorted' (lt : α → α → Bool) (as : Array α) (lo hi : Nat) :
 
 theorem qsort_sorted (lt : α → α → Bool) (as : Array α) :
     ∀ i j, (h₁ : i < j) → (h₂ : i < (qsort as lt).size) → (h₃ : j < (qsort as lt).size) →
-      lt (qsort as lt)[i] (qsort as lt)[j] := by
+      lt (as.qsort lt)[i] (as.qsort lt)[j] := by
   intros i j h₁ h₂ h₃
   simp only [size_qsort] at h₂ h₃
   apply qsort_sorted' _ _ _ _ i j i.zero_le h₁ (by omega) (by omega)

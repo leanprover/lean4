@@ -246,7 +246,13 @@ def WrongMonad.ack : (n m : Nat) → Id Nat
   | x+1, y+1 => do ack x (← ack (x+1) y)
 nontermination_tailrecursive
 
--- Check that the user's variable names in a bind a visible
+structure Tree where cs : List Tree
+def Tree.rev (t : Tree) : Option Tree := do
+  Tree.mk (← t.cs.reverse.mapM (Tree.rev ·))
+nontermination_tailrecursive
+
+
+-- These tests check that the user's variable names are preserved in the goals
 
 /--
 error: Could not prove 'VarName.computeLfp' to be tailrecursive:
@@ -275,4 +281,16 @@ error: Could not prove 'VarName.dite' to be tailrecursive:
 #guard_msgs in
 def VarName.dite (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if this_is_my_h : b then dite (n + 1) b else mentionsH this_is_my_h (dite (n + 2) b)
+nontermination_tailrecursive
+
+
+/--
+error: Could not prove 'Tree.rev'' to be tailrecursive:
+  Recursive call `Tree.rev' my_name` is not a tail call.
+  Enclosing tail-call position:
+    id my_name.rev'
+-/
+#guard_msgs in
+def Tree.rev' (t : Tree) : Option Tree := do
+  Tree.mk (← t.cs.reverse.mapM (fun my_name => id (Tree.rev' my_name)))
 nontermination_tailrecursive

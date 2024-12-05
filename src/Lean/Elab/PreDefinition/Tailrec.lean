@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Elab.PreDefinition.MkInhabitant
 import Lean.Elab.PreDefinition.WF.PackMutual
-import Init.Tailrec
 
 namespace Lean.Elab
 open WF
@@ -147,6 +146,18 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       let p ←
         try
           mkAppOptM ``Tailrec.monotone_bind #[m, instBind, none, none, γ, δ, α, inst_α, g', h']
+        catch e =>
+          throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      new_goals.forM (solveMono ur)
+      return
+    | List.mapM m instBind γ δ g xs =>
+      let g' := f.updateLambdaE! f.bindingDomain! g
+      let p ←
+        try
+          mkAppOptM ``Tailrec.monotone_mapM #[m, instBind, none, none, γ, δ, α, inst_α, g', xs]
         catch e =>
           throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
       let new_goals ←

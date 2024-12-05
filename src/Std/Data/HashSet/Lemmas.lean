@@ -354,7 +354,7 @@ theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.insert 
   ext HashMap.containsThenInsertIfNew_snd
 
 @[simp]
-theorem length_toList [EquivBEq α] [LawfulHashable α] : 
+theorem length_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.length = m.size :=
   HashMap.length_keys
 
@@ -369,7 +369,7 @@ theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α}:
   HashMap.contains_keys
 
 @[simp]
-theorem mem_toList [LawfulBEq α] [LawfulHashable α]  {k : α}:
+theorem mem_toList [LawfulBEq α] [LawfulHashable α] {k : α} :
     k ∈ m.toList ↔ k ∈ m :=
   HashMap.mem_keys
 

@@ -739,7 +739,7 @@ theorem size_assignemnts_confirmRupHint {n : Nat} (clauses : Array (Option (Defa
 theorem size_assignments_performRupCheck {n : Nat} (f : DefaultFormula n) (rupHints : Array Nat) :
     (performRupCheck f rupHints).1.assignments.size = f.assignments.size := by
   simp only [performRupCheck]
-  rw [Array.foldl_eq_foldl_toList]
+  rw [← Array.foldl_toList]
   have hb : (f.assignments, ([] : CNF.Clause (PosFin n)), false, false).1.size = f.assignments.size := rfl
   have hl (acc : Array Assignment × CNF.Clause (PosFin n) × Bool × Bool) (hsize : acc.1.size = f.assignments.size)
     (id : Nat) (_ : id ∈ rupHints.toList) : (confirmRupHint f.clauses acc id).1.size = f.assignments.size := by
@@ -815,7 +815,7 @@ theorem confirmRupHint_preserves_invariant_helper {n : Nat} (f : DefaultFormula 
             have k'_in_bounds : k' < acc.2.1.length := by
               simp only [List.length_cons, Nat.succ_eq_add_one] at k'_succ_in_bounds
               exact Nat.lt_of_succ_lt_succ k'_succ_in_bounds
-            exact h2 (acc.2.1.get ⟨k', k'_in_bounds⟩) <| List.get_mem acc.snd.fst k' k'_in_bounds
+            exact h2 (acc.2.1.get ⟨k', k'_in_bounds⟩) <| List.get_mem acc.snd.fst ⟨k', k'_in_bounds⟩
     · next l_ne_i =>
       apply Or.inl
       constructor
@@ -1288,7 +1288,7 @@ theorem restoreAssignments_performRupCheck {n : Nat} (f : DefaultFormula n) (f_a
   have derivedLits_satisfies_invariant := derivedLitsInvariant_performRupCheck f f_assignments_size rupHints f'_assignments_size
   simp only at derivedLits_satisfies_invariant
   generalize (performRupCheck f rupHints).2.1 = derivedLits at *
-  rw [← f'_def, ← Array.foldl_eq_foldl_toList]
+  rw [← f'_def, Array.foldl_toList]
   let derivedLits_arr : Array (Literal (PosFin n)) := {toList := derivedLits}
   have derivedLits_arr_def : derivedLits_arr = {toList := derivedLits} := rfl
   have derivedLits_arr_nodup := nodup_derivedLits f f_assignments_size rupHints f'_assignments_size derivedLits
@@ -1301,7 +1301,7 @@ theorem restoreAssignments_performRupCheck {n : Nat} (f : DefaultFormula n) (f_a
     clear_insert_inductive_case f f_assignments_size derivedLits_arr derivedLits_arr_nodup idx assignments ih
   rcases Array.foldl_induction motive h_base h_inductive with ⟨h_size, h⟩
   apply Array.ext
-  · rw [Array.foldl_eq_foldl_toList, size_clearUnit_foldl f'.assignments clearUnit size_clearUnit derivedLits,
+  · rw [← Array.foldl_toList, size_clearUnit_foldl f'.assignments clearUnit size_clearUnit derivedLits,
       f'_assignments_size, f_assignments_size]
   · intro i hi1 hi2
     rw [f_assignments_size] at hi2

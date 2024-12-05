@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Git
 import Lake.Util.Sugar
 import Lake.Build.Common
@@ -47,10 +48,10 @@ def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
 def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
+    !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
     (self.preferReleaseBuild || -- GitHub release
       ((self.scope == "leanprover" || self.scope == "leanprover-community")
-        && !(← getElanToolchain).isEmpty
-        && !(← self.buildDir.pathExists))) -- Reservoir
+        && !(← getElanToolchain).isEmpty)) -- Reservoir
   if shouldFetch then
     self.optBuildCache.fetch
   else
@@ -185,14 +186,14 @@ def Package.barrelFacetConfig : PackageFacetConfig reservoirBarrelFacet :=
 def Package.optGitHubReleaseFacetConfig : PackageFacetConfig optGitHubReleaseFacet :=
   mkOptBuildArchiveFacetConfig buildArchiveFile getReleaseUrl
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated optGitHubReleaseFacetConfig (since := "2024-09-27")]
 abbrev Package.optReleaseFacetConfig := optGitHubReleaseFacetConfig
 
 /-- The `PackageFacetConfig` for the builtin `gitHubReleaseFacet`. -/
 def Package.gitHubReleaseFacetConfig : PackageFacetConfig gitHubReleaseFacet :=
   mkBuildArchiveFacetConfig optGitHubReleaseFacet "GitHub release"
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated gitHubReleaseFacetConfig (since := "2024-09-27")]
 abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 
 /--

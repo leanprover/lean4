@@ -89,8 +89,7 @@ private def checkMotive (declName : Name) (motive : Expr) (motiveArgs : Array Ex
    We assume a parameter is anything that occurs before the motive -/
 private partial def getNumParams (xs : Array Expr) (motive : Expr) (i : Nat) : Nat :=
   if h : i < xs.size then
-    let x := xs.get ⟨i, h⟩
-    if motive == x then i
+    if motive == xs[i] then i
     else getNumParams xs motive (i+1)
   else
     i
@@ -100,7 +99,7 @@ private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : 
   match majorPos? with
   | some majorPos =>
     if h : majorPos < xs.size then
-      let major   := xs.get ⟨majorPos, h⟩
+      let major   := xs[majorPos]
       let depElim := motiveArgs.contains major
       pure (major, majorPos, depElim)
     else throwError "invalid major premise position for user defined recursor, recursor has only {xs.size} arguments"
@@ -108,7 +107,7 @@ private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : 
     if motiveArgs.isEmpty then
       throwError "invalid user defined recursor, '{declName}' does not support dependent elimination, and position of the major premise was not specified (solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)"
     let major := motiveArgs.back!
-    match xs.getIdx? major with
+    match xs.indexOf? major with
     | some majorPos => pure (major, majorPos, true)
     | none          => throwError "ill-formed recursor '{declName}'"
 

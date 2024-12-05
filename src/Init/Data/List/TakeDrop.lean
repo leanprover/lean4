@@ -65,13 +65,13 @@ theorem lt_length_of_take_ne_self {l : List α} {n} (h : l.take n ≠ l) : n < l
 theorem getElem_cons_drop : ∀ (l : List α) (i : Nat) (h : i < l.length),
     l[i] :: drop (i + 1) l = drop i l
   | _::_, 0, _ => rfl
-  | _::_, i+1, _ => getElem_cons_drop _ i _
+  | _::_, i+1, h => getElem_cons_drop _ i (Nat.add_one_lt_add_one_iff.mp h)
 
 @[deprecated getElem_cons_drop (since := "2024-06-12")]
 theorem get_cons_drop (l : List α) (i) : get l i :: drop (i + 1) l = drop i l := by
   simp
 
-theorem drop_eq_getElem_cons {n} {l : List α} (h) : drop n l = l[n] :: drop (n + 1) l :=
+theorem drop_eq_getElem_cons {n} {l : List α} (h : n < l.length) : drop n l = l[n] :: drop (n + 1) l :=
   (getElem_cons_drop _ n h).symm
 
 @[deprecated drop_eq_getElem_cons (since := "2024-06-12")]
@@ -192,6 +192,24 @@ theorem take_concat_get (l : List α) (i : Nat) (h : i < l.length) :
   Eq.symm <| (append_left_inj _).1 <| (take_append_drop (i+1) l).trans <| by
     rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop_succ_eq_drop, take_append_drop]
 
+@[simp] theorem take_append_getElem (l : List α) (i : Nat) (h : i < l.length) :
+    (l.take i) ++ [l[i]] = l.take (i+1) := by
+  simpa using take_concat_get l i h
+
+@[simp] theorem take_append_getLast (l : List α) (h : l ≠ []) :
+    (l.take (l.length - 1)) ++ [l.getLast h] = l := by
+  rw [getLast_eq_getElem]
+  cases l
+  · contradiction
+  · simp
+
+@[simp] theorem take_append_getLast? (l : List α) :
+    (l.take (l.length - 1)) ++ l.getLast?.toList = l := by
+  match l with
+  | [] => simp
+  | x :: xs =>
+    simpa using take_append_getLast (x :: xs) (by simp)
+
 @[deprecated take_succ_cons (since := "2024-07-25")]
 theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
 
@@ -224,7 +242,7 @@ theorem take_succ {l : List α} {n : Nat} : l.take (n + 1) = l.take n ++ l[n]?.t
     · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
-@[deprecated (since := "2024-07-25")]
+@[deprecated "Deprecated without replacement." (since := "2024-07-25")]
 theorem drop_sizeOf_le [SizeOf α] (l : List α) (n : Nat) : sizeOf (l.drop n) ≤ sizeOf l := by
   induction l generalizing n with
   | nil => rw [drop_nil]; apply Nat.le_refl

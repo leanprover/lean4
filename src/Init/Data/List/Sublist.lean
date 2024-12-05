@@ -417,7 +417,7 @@ theorem Sublist.of_sublist_append_left (w : ∀ a, a ∈ l → a ∉ l₂) (h : 
   obtain ⟨l₁', l₂', rfl, h₁, h₂⟩ := h
   have : l₂' = [] := by
     rw [eq_nil_iff_forall_not_mem]
-    exact fun x m => w x (mem_append_of_mem_right l₁' m) (h₂.mem m)
+    exact fun x m => w x (mem_append_right l₁' m) (h₂.mem m)
   simp_all
 
 theorem Sublist.of_sublist_append_right (w : ∀ a, a ∈ l → a ∉ l₁) (h : l <+ l₁ ++ l₂) : l <+ l₂ := by
@@ -425,7 +425,7 @@ theorem Sublist.of_sublist_append_right (w : ∀ a, a ∈ l → a ∉ l₁) (h :
   obtain ⟨l₁', l₂', rfl, h₁, h₂⟩ := h
   have : l₁' = [] := by
     rw [eq_nil_iff_forall_not_mem]
-    exact fun x m => w x (mem_append_of_mem_left l₂' m) (h₁.mem m)
+    exact fun x m => w x (mem_append_left l₂' m) (h₁.mem m)
   simp_all
 
 theorem Sublist.middle {l : List α} (h : l <+ l₁ ++ l₂) (a : α) : l <+ l₁ ++ a :: l₂ := by
@@ -835,13 +835,13 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
       simpa using ⟨0, by simp⟩
     | cons b l₂ =>
       simp only [cons_append, cons_prefix_cons, ih]
-      rw (occs := .pos [2]) [← Nat.and_forall_add_one]
+      rw (occs := [2]) [← Nat.and_forall_add_one]
       simp [Nat.succ_lt_succ_iff, eq_comm]
 
 theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
     l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ x (hx : x < l₁.length),
       l₁[x] = l₂[x]'(Nat.lt_of_lt_of_le hx h) where
-  mp h := ⟨h.length_le, fun _ _ ↦ h.getElem _⟩
+  mp h := ⟨h.length_le, fun _ h' ↦ h.getElem h'⟩
   mpr h := by
     obtain ⟨hl, h⟩ := h
     induction l₂ generalizing l₁ with

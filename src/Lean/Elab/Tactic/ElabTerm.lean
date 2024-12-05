@@ -542,11 +542,6 @@ declare_config_elab elabDecideConfig Parser.Tactic.DecideConfig
   let cfg ← elabDecideConfig stx[1]
   evalDecideCore `decide cfg
 
-@[builtin_tactic Lean.Parser.Tactic.decideBang] def evalDecideBang : Tactic := fun stx => do
-  let cfg ← elabDecideConfig stx[1]
-  let cfg := { cfg with kernel := true }
-  evalDecideCore `decide! cfg
-
 @[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx => do
   let cfg ← elabDecideConfig stx[1]
   let cfg := { cfg with native := true }

@@ -38,6 +38,17 @@ example (v : Vec Nat 1) : Nat :=
 
 #check @Vec.hd
 
--- works
+-- Does not work: Aliases find that `v` could be the `TypeVec` argument since `TypeVec` is an abbrev for `Vec`.
+/--
+error: application type mismatch
+  @Vec.hd ?_ v
+argument
+  v
+has type
+  Vec Nat 1 : Type
+but is expected to have type
+  TypeVec (?_ + 1) : Type (_ + 1)
+-/
+#guard_msgs in set_option pp.mvars false in
 example (v : Vec Nat 1) : Nat :=
   v.hd

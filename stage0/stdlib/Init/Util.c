@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Runtime_markPersistent___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessage___closed__3;
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -37,12 +36,10 @@ uint8_t lean_is_exclusive_obj(lean_object*);
 lean_object* l_panic___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ptrEq(lean_object*);
-LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_isExclusiveUnsafe___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___closed__1;
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ptrEqList(lean_object*);
-lean_object* lean_runtime_mark_multi_threaded(lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceVal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Util_0__mkPanicMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
@@ -59,7 +56,6 @@ LEAN_EXPORT lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_withPtrEqDecEq___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrAddrUnsafe(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* lean_runtime_mark_persistent(lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceVal___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ptrAddrUnsafe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqDecEq(lean_object*);
@@ -519,22 +515,6 @@ x_4 = l_withPtrEqDecEq___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_runtime_mark_multi_threaded(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Runtime_markPersistent___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_runtime_mark_persistent(x_2);
-return x_3;
 }
 }
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);

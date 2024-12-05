@@ -66,7 +66,7 @@ namespace FileMap
 
 private def lineStartPos (text : FileMap) (line : Nat) : String.Pos :=
   if h : line < text.positions.size then
-    text.positions.get ⟨line, h⟩
+    text.positions[line]
   else if text.positions.isEmpty then
     0
   else

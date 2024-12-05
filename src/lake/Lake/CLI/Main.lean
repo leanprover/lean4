@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load
 import Lake.Build.Imports
 import Lake.Util.Error
@@ -515,7 +516,7 @@ protected def translateConfig : CliM PUnit := do
   if outFile?.isNone then
     IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
-def ReservoirConfig.currentSchemaVersion : StdVer := v!"1.0.0"
+def ReservoirConfig.currentSchemaVersion : StdVer := {major := 1}
 
 structure ReservoirConfig where
   name : String

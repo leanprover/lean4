@@ -11,7 +11,7 @@ Authors: Kim Morrison
     exact n
     exact 37
 
-/-- info: Try this: refine (?fst, ?snd) -/
+/-- info: Try this: refine (?_, ?_) -/
 #guard_msgs in example : Nat × Nat := by
   show_term constructor
   repeat exact 42

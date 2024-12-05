@@ -8,5 +8,6 @@
    {"params":
     {"textDocument": {"uri": "file:///editCompletion.lean"},
      "position": {"line": 3, "character": 22}},
-    "id": {"const": {"declName": "Foo.foo"}}}}],
+    "id": {"const": {"declName": "Foo.foo"}},
+    "cPos": 1}}],
  "isIncomplete": true}

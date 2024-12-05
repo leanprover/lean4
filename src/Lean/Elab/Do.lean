@@ -796,10 +796,10 @@ Note that we are not restricting the macro power since the
 actions to be in the same universe.
 -/
 private def mkTuple (elems : Array Syntax) : MacroM Syntax := do
-  if elems.size == 0 then
+  if elems.size = 0 then
     mkUnit
-  else if elems.size == 1 then
-    return elems[0]!
+  else if h : elems.size = 1 then
+    return elems[0]
   else
     elems.extract 0 (elems.size - 1) |>.foldrM (init := elems.back!) fun elem tuple =>
       ``(MProd.mk $elem $tuple)
@@ -831,10 +831,10 @@ def isDoExpr? (doElem : Syntax) : Option Syntax :=
   We use this method when expanding the `for-in` notation.
 -/
 private def destructTuple (uvars : Array Var) (x : Syntax) (body : Syntax) : MacroM Syntax := do
-  if uvars.size == 0 then
+  if uvars.size = 0 then
     return body
-  else if uvars.size == 1 then
-    `(let $(uvars[0]!):ident := $x; $body)
+  else if h : uvars.size = 1 then
+    `(let $(uvars[0]):ident := $x; $body)
   else
     destruct uvars.toList x body
 where
@@ -1314,9 +1314,9 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
     else if liftMethodDelimiter k then
       return stx
     -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
-    else if args.size >= 2 && (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
+    else if h : args.size >= 2 ∧ (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
-      let arg1 ← expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]!
+      let arg1 ← expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]
       let args := args.set! 1 arg1
       return Syntax.node i k args
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
@@ -1518,7 +1518,7 @@ mutual
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
     let doForDecls := doFor[1].getSepArgs
-    if doForDecls.size > 1 then
+    if h : doForDecls.size > 1 then
       /-
         Expand
         ```

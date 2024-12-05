@@ -19,12 +19,12 @@ def expandOptPrecedence (stx : Syntax) : MacroM (Option Nat) :=
     return some (← evalPrec stx[0][1])
 
 private def mkParserSeq (ds : Array (Term × Nat)) : TermElabM (Term × Nat) := do
-  if ds.size == 0 then
+  if h₀ : ds.size = 0 then
     throwUnsupportedSyntax
-  else if ds.size == 1 then
-    pure ds[0]!
+  else if h₁ : ds.size = 1 then
+    pure ds[0]
   else
-    let mut (r, stackSum) := ds[0]!
+    let mut (r, stackSum) := ds[0]
     for (d, stackSz) in ds[1:ds.size] do
       r ← `(ParserDescr.binary `andthen $r $d)
       stackSum := stackSum + stackSz
@@ -142,7 +142,7 @@ where
     let args := stx.getArgs
     if (← checkLeftRec stx[0]) then
       if args.size == 1 then throwErrorAt stx "invalid atomic left recursive syntax"
-      let args := args.eraseIdx 0
+      let args := args.eraseIdxIfInBounds 0
       let args ← args.mapM fun arg => withNestedParser do process arg
       mkParserSeq args
     else
@@ -233,11 +233,15 @@ where
     return (← `((with_annotate_term $(stx[0]) @ParserDescr.sepBy1) $p $sep $psep $(quote allowTrailingSep)), 1)
 
   isValidAtom (s : String) : Bool :=
+    -- Pretty-printing instructions shouldn't affect validity
+    let s := s.trim
     !s.isEmpty &&
-    s.front != '\'' &&
+    (s.front != '\'' || "''".isPrefixOf s) &&
     s.front != '\"' &&
+    !(isIdBeginEscape s.front) &&
     !(s.front == '`' && (s.endPos == ⟨1⟩ || isIdFirst (s.get ⟨1⟩) || isIdBeginEscape (s.get ⟨1⟩))) &&
-    !s.front.isDigit
+    !s.front.isDigit &&
+    !(s.any Char.isWhitespace)
 
   processAtom (stx : Syntax) := do
     match stx[0].isStrLit? with

@@ -1922,12 +1922,12 @@ represents an element of `Squash α` the same as `α` itself
 `Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
 while `Nonempty.rec` can only do the same when `β` is a proposition.
 -/
-def Squash (α : Type u) := Quot (fun (_ _ : α) => True)
+def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
 
 /-- The canonical quotient map into `Squash α`. -/
-def Squash.mk {α : Type u} (x : α) : Squash α := Quot.mk _ x
+def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
 
-theorem Squash.ind {α : Type u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
+theorem Squash.ind {α : Sort u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
   Quot.ind h
 
 /-- If `β` is a subsingleton, then a function `α → β` lifts to `Squash α → β`. -/

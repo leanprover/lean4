@@ -27,6 +27,51 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
+def TransparencyMode.toUInt64 : TransparencyMode → UInt64
+  | .all       => 0
+  | .default   => 1
+  | .reducible => 2
+  | .instances => 3
+
+def EtaStructMode.toUInt64 : EtaStructMode → UInt64
+  | .all        => 0
+  | .notClasses => 1
+  | .none       => 2
+
+/--
+Configuration for projection reduction. See `whnfCore`.
+-/
+inductive ProjReductionKind where
+  /-- Projections `s.i` are not reduced at `whnfCore`. -/
+  | no
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnfCore` is used at `s` during the process.
+  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations).
+  -/
+  | yes
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnf` is used at `s` during the process.
+  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations), but `whnf` does.
+  -/
+  | yesWithDelta
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnfAtMostI` is used at `s` during the process.
+  Recall that `whnfAtMostI` is like `whnf` but uses transparency at most `instances`.
+  This option is stronger than `yes`, but weaker than `yesWithDelta`.
+  We use this option to ensure we reduce projections to prevent expensive defeq checks when unifying TC operations.
+  When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
+  we only want to unify negation (and not all other field operations as well).
+  Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
+  -/
+  | yesWithDeltaI
+  deriving DecidableEq, Inhabited, Repr
+
+def ProjReductionKind.toUInt64 : ProjReductionKind → UInt64
+  | .no  => 0
+  | .yes => 1
+  | .yesWithDelta => 2
+  | .yesWithDeltaI => 3
+
 /--
 Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
@@ -118,9 +163,64 @@ structure Config where
   - `max u w =?= mav u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
   -/
   univApprox : Bool := true
+  /-- If `true`, reduce recursor/matcher applications, e.g., `Nat.rec true (fun _ _ => false) Nat.zero` reduces to `true` -/
+  iota : Bool := true
+  /-- If `true`, reduce terms such as `(fun x => t[x]) a` into `t[a]` -/
+  beta : Bool := true
+  /-- Control projection reduction at `whnfCore`. -/
+  proj : ProjReductionKind := .yesWithDelta
+  /--
+  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
+  We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
+  Recall that
+  ```
+  fun x : BitVec 5 => let n := 5; fun y : BitVec n => x = y
+  ```
+  is type correct, but
+  ```
+  fun x : BitVec 5 => (fun n => fun y : BitVec n => x = y) 5
+  ```
+  is not.
+  -/
+  zeta : Bool := true
+  /--
+  Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
+  -/
+  zetaDelta : Bool := true
+  deriving Inhabited
+
+/-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
+private def Config.toKey (c : Config) : UInt64 :=
+  c.transparency.toUInt64 |||
+  (c.foApprox.toUInt64 <<< 2) |||
+  (c.ctxApprox.toUInt64 <<< 3) |||
+  (c.quasiPatternApprox.toUInt64 <<< 4) |||
+  (c.constApprox.toUInt64 <<< 5) |||
+  (c.isDefEqStuckEx.toUInt64 <<< 6) |||
+  (c.unificationHints.toUInt64 <<< 7) |||
+  (c.proofIrrelevance.toUInt64 <<< 8) |||
+  (c.assignSyntheticOpaque.toUInt64 <<< 9) |||
+  (c.offsetCnstrs.toUInt64 <<< 10) |||
+  (c.iota.toUInt64 <<< 11) |||
+  (c.beta.toUInt64 <<< 12) |||
+  (c.zeta.toUInt64 <<< 13) |||
+  (c.zetaDelta.toUInt64 <<< 14) |||
+  (c.univApprox.toUInt64 <<< 15) |||
+  (c.etaStruct.toUInt64 <<< 16) |||
+  (c.proj.toUInt64 <<< 18)
+
+/-- Configuration with key produced by `Config.toKey`. -/
+structure ConfigWithKey where
+  private mk ::
+  config : Config
+  key    : UInt64
+  deriving Inhabited
+
+def Config.toConfigWithKey (c : Config) : ConfigWithKey :=
+  { config := c, key := c.toKey }
 
 /--
-  Function parameter information cache.
+Function parameter information cache.
 -/
 structure ParamInfo where
   /-- The binder annotation for the parameter. -/
@@ -129,7 +229,7 @@ structure ParamInfo where
   hasFwdDeps     : Bool       := false
   /-- `backDeps` contains the backwards dependencies. That is, the (0-indexed) position of previous parameters that this one depends on. -/
   backDeps       : Array Nat  := #[]
-  /-- `isProp` is true if the parameter is always a proposition. -/
+  /-- `isProp` is true if the parameter type is always a proposition. -/
   isProp         : Bool       := false
   /--
     `isDecInst` is true if the parameter's type is of the form `Decidable ...`.
@@ -178,7 +278,6 @@ def ParamInfo.isStrictImplicit (p : ParamInfo) : Bool :=
 def ParamInfo.isExplicit (p : ParamInfo) : Bool :=
   p.binderInfo == BinderInfo.default
 
-
 /--
   Function information cache. See `ParamInfo`.
 -/
@@ -192,11 +291,12 @@ structure FunInfo where
   resultDeps : Array Nat       := #[]
 
 /--
-  Key for the function information cache.
+Key for the function information cache.
 -/
 structure InfoCacheKey where
-  /-- The transparency mode used to compute the `FunInfo`. -/
-  transparency : TransparencyMode
+  private mk ::
+  /-- key produced using `Config.toKey`. -/
+  configKey : UInt64
   /-- The function being cached information about. It is quite often an `Expr.const`. -/
   expr         : Expr
   /--
@@ -207,11 +307,10 @@ structure InfoCacheKey where
   nargs?       : Option Nat
   deriving Inhabited, BEq
 
-namespace InfoCacheKey
-instance : Hashable InfoCacheKey :=
-  ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
-end InfoCacheKey
+instance : Hashable InfoCacheKey where
+  hash := fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
+-- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
   localInsts        : LocalInstances
   type              : Expr
@@ -231,38 +330,50 @@ structure AbstractMVarsResult where
 
 abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option AbstractMVarsResult)
 
-abbrev InferTypeCache := PersistentExprStructMap Expr
+-- Key for `InferType` and `WHNF` caches
+structure ExprConfigCacheKey where
+  private mk ::
+  expr      : Expr
+  configKey : UInt64
+  deriving Inhabited
+
+instance : BEq ExprConfigCacheKey where
+  beq a b :=
+    Expr.equal a.expr b.expr &&
+    a.configKey == b.configKey
+
+instance : Hashable ExprConfigCacheKey where
+  hash := fun { expr, configKey } => mixHash (hash expr) (hash configKey)
+
+abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
-abbrev WhnfCache      := PersistentExprStructMap Expr
+abbrev WhnfCache      := PersistentHashMap ExprConfigCacheKey Expr
+
+structure DefEqCacheKey where
+  private mk ::
+  lhs       : Expr
+  rhs       : Expr
+  configKey : UInt64
+  deriving Inhabited, BEq
+
+instance : Hashable DefEqCacheKey where
+  hash := fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
 
 /--
-  A mapping `(s, t) ↦ isDefEq s t` per transparency level.
-  TODO: consider more efficient representations (e.g., a proper set) and caching policies (e.g., imperfect cache).
-  We should also investigate the impact on memory consumption. -/
-structure DefEqCache where
-  reducible : PersistentHashMap (Expr × Expr) Bool := {}
-  instances : PersistentHashMap (Expr × Expr) Bool := {}
-  default   : PersistentHashMap (Expr × Expr) Bool := {}
-  all       : PersistentHashMap (Expr × Expr) Bool := {}
-  deriving Inhabited
-
-/--
-  A cache for `inferType` at transparency levels `.default` an `.all`.
+A mapping `(s, t) ↦ isDefEq s t`.
+TODO: consider more efficient representations (e.g., a proper set) and caching policies (e.g., imperfect cache).
+We should also investigate the impact on memory consumption.
 -/
-structure InferTypeCaches where
-  default   : InferTypeCache
-  all       : InferTypeCache
-  deriving Inhabited
+abbrev DefEqCache := PersistentHashMap DefEqCacheKey Bool
 
 /--
-  Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
+Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
 -/
 structure Cache where
-  inferType      : InferTypeCaches := ⟨{}, {}⟩
+  inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache := {}
   synthInstance  : SynthInstanceCache := {}
-  whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
-  whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
+  whnf           : WhnfCache := {}
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
   defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   deriving Inhabited
@@ -332,7 +443,8 @@ register_builtin_option maxSynthPendingDepth : Nat := {
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
-  config            : Config               := {}
+  private config    : Config               := {}
+  private configKey : UInt64               := config.toKey
   /-- Local context -/
   lctx              : LocalContext         := {}
   /-- Local instances in `lctx`. -/
@@ -483,17 +595,27 @@ variable [MonadControlT MetaM n] [Monad n]
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
   modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
-@[inline] def modifyInferTypeCacheDefault (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨⟨icd, ica⟩, c1, c2, c3, c4, c5, c6⟩ => ⟨⟨f icd, ica⟩, c1, c2, c3, c4, c5, c6⟩
-
-@[inline] def modifyInferTypeCacheAll (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨⟨icd, ica⟩, c1, c2, c3, c4, c5, c6⟩ => ⟨⟨icd, f ica⟩, c1, c2, c3, c4, c5, c6⟩
+@[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
 
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6⟩
+  modifyCache fun ⟨c1, c2, c3, c4, defeqTrans, c5⟩ => ⟨c1, c2, c3, c4, f defeqTrans, c5⟩
 
 @[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm⟩
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, f defeqPerm⟩
+
+def mkExprConfigCacheKey (expr : Expr) : MetaM ExprConfigCacheKey :=
+  return { expr, configKey := (← read).configKey }
+
+def mkDefEqCacheKey (lhs rhs : Expr) : MetaM DefEqCacheKey := do
+  let configKey := (← read).configKey
+  if Expr.quickLt lhs rhs then
+    return { lhs, rhs, configKey }
+  else
+    return { lhs := rhs, rhs := lhs, configKey }
+
+def mkInfoCacheKey (expr : Expr) (nargs? : Option Nat) : MetaM InfoCacheKey :=
+  return { expr, nargs?, configKey := (← read).configKey }
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
@@ -537,6 +659,9 @@ def getLocalInstances : MetaM LocalInstances :=
 
 def getConfig : MetaM Config :=
   return (← read).config
+
+def getConfigWithKey : MetaM ConfigWithKey :=
+  return (← getConfig).toConfigWithKey
 
 def resetZetaDeltaFVarIds : MetaM Unit :=
   modify fun s => { s with zetaDeltaFVarIds := {} }
@@ -700,7 +825,7 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
 def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
-  num.foldM (init := []) fun _ us =>
+  num.foldM (init := []) fun _ _ us =>
     return (← mkFreshLevelMVar)::us
 
 def mkFreshLevelMVarsFor (info : ConstantInfo) : MetaM (List Level) :=
@@ -941,7 +1066,25 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 
 /-- `withConfig f x` executes `x` using the updated configuration object obtained by applying `f`. -/
 @[inline] def withConfig (f : Config → Config) : n α → n α :=
-  mapMetaM <| withReader (fun ctx => { ctx with config := f ctx.config })
+  mapMetaM <| withReader fun ctx =>
+    let config := f ctx.config
+    let configKey := config.toKey
+    { ctx with config, configKey }
+
+@[inline] def withConfigWithKey (c : ConfigWithKey) : n α → n α :=
+  mapMetaM <| withReader fun ctx =>
+    let config := c.config
+    let configKey := c.key
+    { ctx with config, configKey }
+
+@[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
+
+@[inline] def withIncSynthPending : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 })
+
+@[inline] def withInTypeClassResolution : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })
 
 /--
 Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
@@ -952,8 +1095,15 @@ Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
 
+@[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
+  let config := { ctx.config with transparency }
+  -- Recall that `transparency` is stored in the first 2 bits
+  let configKey : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
+  { ctx with config, configKey }
+
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
-  withConfig (fun config => { config with transparency := mode })
+  -- We avoid `withConfig` for performance reasons.
+  mapMetaM <| withReader (·.setTransparency mode)
 
 /-- `withDefault x` executes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=
@@ -974,13 +1124,10 @@ or type class instances are unfolded.
 Execute `x` ensuring the transparency setting is at least `mode`.
 Recall that `.all > .default > .instances > .reducible`.
 -/
-@[inline] def withAtLeastTransparency (mode : TransparencyMode) (x : n α) : n α :=
-  withConfig
-    (fun config =>
-      let oldMode := config.transparency
-      let mode    := if oldMode.lt mode then mode else oldMode
-      { config with transparency := mode })
-    x
+@[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
+  mapMetaM <| withReader fun ctx =>
+    let modeOld := ctx.config.transparency
+    ctx.setTransparency <| if modeOld.lt mode then mode else modeOld
 
 /-- Execute `x` allowing `isDefEq` to assign synthetic opaque metavariables. -/
 @[inline] def withAssignableSyntheticOpaque (x : n α) : n α :=
@@ -1002,8 +1149,8 @@ def getTheoremInfo (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
 
 private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
   match (← getTransparency) with
-  | TransparencyMode.all => return some info
-  | TransparencyMode.default => return some info
+  | .all => return some info
+  | .default => return some info
   | _ =>
     if (← isReducible info.name) then
       return some info
@@ -1081,7 +1228,7 @@ mutual
   private partial def withNewLocalInstancesImp
       (fvars : Array Expr) (i : Nat) (k : MetaM α) : MetaM α := do
     if h : i < fvars.size then
-      let fvar := fvars.get ⟨i, h⟩
+      let fvar := fvars[i]
       let decl ← getFVarLocalDecl fvar
       match (← isClassQuick? decl.type) with
       | .none   => withNewLocalInstancesImp fvars (i+1) k
@@ -1422,6 +1569,14 @@ def withLocalDecl (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n 
 def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
+/--
+Similar to `withLocalDecl`, but it does **not** check whether the new variable is a local instance or not.
+-/
+def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α := do
+  let fvarId ← mkFreshFVarId
+  withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
+    x (mkFVar fvarId)
+
 /-- Append an array of free variables `xs` to the local context and execute `k xs`.
 `declInfos` takes the form of an array consisting of:
 - the name of the variable
@@ -1538,11 +1693,11 @@ def withReplaceFVarId {α} (fvarId : FVarId) (e : Expr) : MetaM α → MetaM α 
     localInstances := ctx.localInstances.erase fvarId }
 
 /--
-  `withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
-  where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
-  If `allowLevelAssignments` is set to true, then the level metavariable depth
-  is not increased, and level metavariables from the outer scope can be
-  assigned.  (This is used by TC synthesis.)
+`withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
+where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
+If `allowLevelAssignments` is set to true, then the level metavariable depth
+is not increased, and level metavariables from the outer scope can be
+assigned.  (This is used by TC synthesis.)
 -/
 def withNewMCtxDepth (k : n α) (allowLevelAssignments := false) : n α :=
   mapMetaM (withNewMCtxDepthImp allowLevelAssignments) k
@@ -1552,12 +1707,19 @@ private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstanc
     x
 
 /--
-  `withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
-  The local context and instances are restored after executing `k`.
-  This method assumes that the local instances in `localInsts` are in the local context `lctx`.
+`withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
+The local context and instances are restored after executing `k`.
+This method assumes that the local instances in `localInsts` are in the local context `lctx`.
 -/
 def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α :=
   mapMetaM <| withLocalContextImp lctx localInsts
+
+/--
+Simpler version of `withLCtx` which just updates the local context. It is the resposability of the
+caller ensure the local instances are also properly updated.
+-/
+def withLCtx' (lctx : LocalContext) : n α → n α :=
+  mapMetaM <| withReader (fun ctx => { ctx with lctx })
 
 /--
 Runs `k` in a local environment with the `fvarIds` erased.
@@ -1650,7 +1812,7 @@ def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.i
 
 private partial def instantiateForallAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
+    let p := ps[i]
     match (← whnf e) with
     | .forallE _ _ b _ => instantiateForallAux ps (i+1) (b.instantiate1 p)
     | _                => throwError "invalid instantiateForall, too many parameters"
@@ -1663,7 +1825,7 @@ def instantiateForall (e : Expr) (ps : Array Expr) : MetaM Expr :=
 
 private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) : MetaM Expr := do
   if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
+    let p := ps[i]
     match (← whnf e) with
     | .lam _ _ b _ => instantiateLambdaAux ps (i+1) (b.instantiate1 p)
     | _            => throwError "invalid instantiateLambda, too many parameters"

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.ByCases
 import Init.Data.Prod
+import Init.Data.RArray
 
 namespace Nat.Linear
 
@@ -15,7 +16,7 @@ namespace Nat.Linear
 
 abbrev Var := Nat
 
-abbrev Context := List Nat
+abbrev Context := Lean.RArray Nat
 
 /--
   When encoding polynomials. We use `fixedVar` for encoding numerals.
@@ -23,12 +24,7 @@ abbrev Context := List Nat
 def fixedVar := 100000000 -- Any big number should work here
 
 def Var.denote (ctx : Context) (v : Var) : Nat :=
-  bif v == fixedVar then 1 else go ctx v
-where
-  go : List Nat → Nat → Nat
-   | [],    _   => 0
-   | a::_,  0   => a
-   | _::as, i+1 => go as i
+  bif v == fixedVar then 1 else ctx.get v
 
 inductive Expr where
   | num  (v : Nat)
@@ -52,25 +48,23 @@ def Poly.denote (ctx : Context) (p : Poly) : Nat :=
   | [] => 0
   | (k, v) :: p => Nat.add (Nat.mul k (v.denote ctx)) (denote ctx p)
 
-def Poly.insertSorted (k : Nat) (v : Var) (p : Poly) : Poly :=
+def Poly.insert (k : Nat) (v : Var) (p : Poly) : Poly :=
   match p with
   | [] => [(k, v)]
-  | (k', v') :: p => bif Nat.blt v v' then (k, v) :: (k', v') :: p else (k', v') :: insertSorted k v p
+  | (k', v') :: p =>
+    bif Nat.blt v v' then
+      (k, v) :: (k', v') :: p
+    else bif Nat.beq v v' then
+      (k + k', v') :: p
+    else
+      (k', v') :: insert k v p
 
-def Poly.sort (p : Poly) : Poly :=
-  let rec go (p : Poly) (r : Poly) : Poly :=
+def Poly.norm (p : Poly) : Poly := go p []
+where
+  go (p : Poly) (r : Poly) : Poly :=
     match p with
     | [] => r
-    | (k, v) :: p => go p (r.insertSorted k v)
-  go p []
-
-def Poly.fuse (p : Poly) : Poly :=
-  match p with
-  | []  => []
-  | (k, v) :: p =>
-    match fuse p with
-    | [] => [(k, v)]
-    | (k', v') :: p' => bif v == v' then (Nat.add k k', v)::p' else (k, v) :: (k', v') :: p'
+    | (k, v) :: p => go p (r.insert k v)
 
 def Poly.mul (k : Nat) (p : Poly) : Poly :=
   bif k == 0 then
@@ -146,15 +140,17 @@ def Poly.combineAux (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
   combineAux hugeFuel p₁ p₂
 
-def Expr.toPoly : Expr → Poly
-  | Expr.num k    => bif k == 0 then [] else [ (k, fixedVar) ]
-  | Expr.var i    => [(1, i)]
-  | Expr.add a b  => a.toPoly ++ b.toPoly
-  | Expr.mulL k a => a.toPoly.mul k
-  | Expr.mulR a k => a.toPoly.mul k
-
-def Poly.norm (p : Poly) : Poly :=
-  p.sort.fuse
+def Expr.toPoly (e : Expr) :=
+  go 1 e []
+where
+  -- Implementation note: This assembles the result using difference lists
+  -- to avoid `++` on lists.
+  go (coeff : Nat) : Expr → (Poly → Poly)
+    | Expr.num k    => bif k == 0 then id else ((coeff * k, fixedVar) :: ·)
+    | Expr.var i    => ((coeff, i) :: ·)
+    | Expr.add a b  => go coeff a ∘ go coeff b
+    | Expr.mulL k a
+    | Expr.mulR a k => bif k == 0 then id else go (coeff * k) a
 
 def Expr.toNormPoly (e : Expr) : Poly :=
   e.toPoly.norm
@@ -201,7 +197,7 @@ def PolyCnstr.denote (ctx : Context) (c : PolyCnstr) : Prop :=
     Poly.denote_le ctx (c.lhs, c.rhs)
 
 def PolyCnstr.norm (c : PolyCnstr) : PolyCnstr :=
-  let (lhs, rhs) := Poly.cancel c.lhs.sort.fuse c.rhs.sort.fuse
+  let (lhs, rhs) := Poly.cancel c.lhs.norm c.rhs.norm
   { eq := c.eq, lhs, rhs }
 
 def PolyCnstr.isUnsat (c : PolyCnstr) : Bool :=
@@ -268,24 +264,32 @@ def PolyCnstr.toExpr (c : PolyCnstr) : ExprCnstr :=
   { c with lhs := c.lhs.toExpr, rhs := c.rhs.toExpr }
 
 attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
-attribute [local simp] Poly.denote Expr.denote Poly.insertSorted Poly.sort Poly.sort.go Poly.fuse Poly.cancelAux
+attribute [local simp] Poly.denote Expr.denote Poly.insert Poly.norm Poly.norm.go Poly.cancelAux
 attribute [local simp] Poly.mul Poly.mul.go
 
-theorem Poly.denote_insertSorted (ctx : Context) (k : Nat) (v : Var) (p : Poly) : (p.insertSorted k v).denote ctx = p.denote ctx + k * v.denote ctx := by
+theorem Poly.denote_insert (ctx : Context) (k : Nat) (v : Var) (p : Poly) :
+    (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
   match p with
   | [] => simp
-  | (k', v') :: p => by_cases h : Nat.blt v v' <;> simp [h, denote_insertSorted]
+  | (k', v') :: p =>
+    by_cases h₁ : Nat.blt v v'
+    · simp [h₁]
+    · by_cases h₂ : Nat.beq v v'
+      · simp only [insert, h₁, h₂, cond_false, cond_true]
+        simp [Nat.eq_of_beq_eq_true h₂]
+      · simp only [insert, h₁, h₂, cond_false, cond_true]
+        simp [denote_insert]
 
-attribute [local simp] Poly.denote_insertSorted
+attribute [local simp] Poly.denote_insert
 
-theorem Poly.denote_sort_go (ctx : Context) (p : Poly) (r : Poly) : (sort.go p r).denote ctx = p.denote ctx + r.denote ctx := by
+theorem Poly.denote_norm_go (ctx : Context) (p : Poly) (r : Poly) : (norm.go p r).denote ctx = p.denote ctx + r.denote ctx := by
   match p with
   | [] => simp
-  | (k, v):: p => simp [denote_sort_go]
+  | (k, v):: p => simp [denote_norm_go]
 
-attribute [local simp] Poly.denote_sort_go
+attribute [local simp] Poly.denote_norm_go
 
-theorem Poly.denote_sort (ctx : Context) (m : Poly) : m.sort.denote ctx = m.denote ctx := by
+theorem Poly.denote_sort (ctx : Context) (m : Poly) : m.norm.denote ctx = m.denote ctx := by
   simp
 
 attribute [local simp] Poly.denote_sort
@@ -315,18 +319,6 @@ theorem Poly.denote_reverse (ctx : Context) (p : Poly) : denote ctx (List.revers
   simp [List.reverse]
 
 attribute [local simp] Poly.denote_reverse
-
-theorem Poly.denote_fuse (ctx : Context) (p : Poly) : p.fuse.denote ctx = p.denote ctx := by
-  match p with
-  | [] => rfl
-  | (k, v) :: p =>
-    have ih := denote_fuse ctx p
-    simp
-    split
-    case _ h => simp [← ih, h]
-    case _ k' v' p' h => by_cases he : v == v' <;> simp [he, ← ih, h]; rw [eq_of_beq he]
-
-attribute [local simp] Poly.denote_fuse
 
 theorem Poly.denote_mul (ctx : Context) (k : Nat) (p : Poly) : (p.mul k).denote ctx = k * p.denote ctx := by
   simp
@@ -516,13 +508,25 @@ theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p
 
 attribute [local simp] Poly.denote_combine
 
+theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
+  (toPoly.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
+  induction k, e using Expr.toPoly.go.induct generalizing p with
+  | case1 k k' =>
+    simp only [toPoly.go]
+    by_cases h : k' == 0
+    · simp [h, eq_of_beq h]
+    · simp [h, Var.denote]
+  | case2 k i => simp [toPoly.go]
+  | case3 k a b iha ihb => simp [toPoly.go, iha, ihb]
+  | case4 k k' a ih
+  | case5 k a k' ih =>
+    simp only [toPoly.go, denote, mul_eq]
+    by_cases h : k' == 0
+    · simp [h, eq_of_beq h]
+    · simp [h, cond_false, ih, Nat.mul_assoc]
+
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
-  induction e with
-  | num k => by_cases h : k == 0 <;> simp [toPoly, h, Var.denote]; simp [eq_of_beq h]
-  | var i => simp [toPoly]
-  | add a b iha ihb => simp [toPoly, iha, ihb]
-  | mulL k a ih => simp [toPoly, ih, -Poly.mul]
-  | mulR k a ih => simp [toPoly, ih, -Poly.mul]
+  simp [toPoly, Expr.denote_toPoly_go]
 
 attribute [local simp] Expr.denote_toPoly
 
@@ -554,8 +558,8 @@ theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denot
   cases c; rename_i eq lhs rhs
   simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toPoly];
   by_cases h : eq = true <;> simp [h]
-  · simp [Poly.denote_eq, Expr.toPoly]
-  · simp [Poly.denote_le, Expr.toPoly]
+  · simp [Poly.denote_eq]
+  · simp [Poly.denote_le]
 
 attribute [local simp] ExprCnstr.denote_toPoly
 

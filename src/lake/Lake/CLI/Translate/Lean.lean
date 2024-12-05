@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.DSL
 import Lake.Config.Package
 import Lean.Parser.Module
@@ -119,7 +120,7 @@ def PackageConfig.mkSyntax (cfg : PackageConfig)
     |> addDeclFieldD `testDriverArgs cfg.testDriverArgs #[]
     |> addDeclFieldD `lintDriver lintDriver ""
     |> addDeclFieldD `lintDriverArgs cfg.lintDriverArgs #[]
-    |> addDeclFieldD `version cfg.version v!"0.0.0"
+    |> addDeclFieldD `version cfg.version {}
     |> addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
     |> addDeclFieldD `description cfg.description ""
     |> addDeclFieldD `keywords cfg.keywords #[]

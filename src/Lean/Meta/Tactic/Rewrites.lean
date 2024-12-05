@@ -60,9 +60,6 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
         pure a
       | _ => return #[]
 
-/-- Configuration for `DiscrTree`. -/
-def discrTreeConfig : WhnfCoreConfig := {}
-
 /-- Select `=` and `↔` local hypotheses. -/
 def localHypotheses (except : List FVarId := []) : MetaM (Array (Expr × Bool × Nat)) := do
   let r ← getLocalHyps

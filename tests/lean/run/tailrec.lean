@@ -294,3 +294,15 @@ error: Could not prove 'Tree.rev'' to be tailrecursive:
 def Tree.rev' (t : Tree) : Option Tree := do
   Tree.mk (← t.cs.reverse.mapM (fun my_name => id (Tree.rev' my_name)))
 nontermination_tailrecursive
+
+/--
+error: Could not prove 'Tree.rev''' to be tailrecursive:
+  Recursive call `Tree.rev'' my_name` is not a tail call.
+  Enclosing tail-call position:
+    id (if ↑my_idx < 0 then some my_name else my_name.rev'')
+-/
+#guard_msgs in
+def Tree.rev'' (t : Tree) : Option Tree := do
+  Tree.mk (← t.cs.reverse.toArray.mapFinIdxM
+    (fun my_idx my_name => id (if my_idx.val < 0 then my_name else Tree.rev'' my_name))).toList
+nontermination_tailrecursive

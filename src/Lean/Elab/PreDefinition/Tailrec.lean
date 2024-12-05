@@ -18,6 +18,15 @@ constants, which are added to the environment temporarily.
 -/
 abbrev Unreplacer := Expr → (Expr → MetaM Unit) → MetaM Unit
 
+partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
+  let mut f := f.headBeta
+  if f.isLambda then
+    while f.bindingBody!.isHeadBetaTarget do
+      f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
+    return f
+  else
+    return f
+
 partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.withContext do
   trace[Elab.definition.tailrec] "solveMono at\n{goal}"
   let type ← goal.getType
@@ -27,7 +36,8 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     return
 
   match_expr type with
-  | Tailrec.monotone_fun _α _inst_α _β _inst_β _γ f =>
+  | Tailrec.forall_arg _α _β _γ _P f =>
+    let f := headBetaUnderLambda f
     if f.isLambda && f.bindingBody!.isLambda then
       let (_, new_goal) ← goal.intro f.bindingBody!.bindingName!
       solveMono ur new_goal
@@ -40,9 +50,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     -- redexes left by some of the lemmas we tend to apply
     let f := f.headBeta
     let f ← if f.isLambda then pure f else etaExpand f
-    unless f.isLambda do
-      throwError "Eta-expansion failed:{indentExpr f}"
-    let f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
+    let f := headBetaUnderLambda f
 
     let failK := do
       trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
@@ -153,11 +161,23 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
           goal.apply p
       new_goals.forM (solveMono ur)
       return
-    | List.mapM m instBind γ δ g xs =>
+    | List.mapM m instMonad γ δ g xs =>
       let g' := f.updateLambdaE! f.bindingDomain! g
       let p ←
         try
-          mkAppOptM ``Tailrec.monotone_mapM #[m, instBind, none, none, γ, δ, α, inst_α, g', xs]
+          mkAppOptM ``Tailrec.monotone_mapM #[m, instMonad, none, none, γ, δ, α, inst_α, g', xs]
+        catch e =>
+          throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
+      let new_goals ←
+        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+          goal.apply p
+      new_goals.forM (solveMono ur)
+      return
+    | Array.mapFinIdxM γ δ m instMonad xs g =>
+      let g' := f.updateLambdaE! f.bindingDomain! g
+      let p ←
+        try
+          mkAppOptM ``Tailrec.monotone_mapFinIdxM #[m, instMonad, none, none, γ, δ, α, inst_α, xs, g']
         catch e =>
           throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
       let new_goals ←

@@ -36,17 +36,13 @@ void handle_timer_event(uv_timer_t* handle) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
 
-    // If the last promise is already solved then we can just set it as closed.
-    // and free the object.
-    if(!timer->m_repeating) {
-        timer->m_started = false;
-    }
+    uint8_t promise_state = lean_io_get_task_state_core(timer->m_promise);
 
     if (timer->m_promise != NULL) {
         lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
     }
 
-    if (!timer->m_started || !timer->m_repeating) {
+    if (!timer->m_started) {
         uv_timer_stop(&timer->m_uv_timer);
 
         // The event loop losts ownership over them.
@@ -55,6 +51,12 @@ void handle_timer_event(uv_timer_t* handle) {
 
         timer->m_promise = NULL;
     }
+
+    if (!timer->m_repeating && promise_state != 2) {
+        uv_timer_stop(&timer->m_uv_timer);
+        lean_dec(obj);
+    }
+
 }
 
 /* Std.Internal.UV.Timer.mk (timeout : UInt64) (repeating : Bool) : IO Timer */

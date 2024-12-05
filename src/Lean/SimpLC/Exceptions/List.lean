@@ -24,6 +24,12 @@ simp_lc allow List.getElem?_eq_getElem List.getElem?_modifyHead_zero
 
 simp_lc allow List.drop_one List.drop_left' -- `h : l₁.length = 1 ⊢ (l₁ ++ l₂).tail = l₂`
 
+-- These would be resolved by a `ring` tactic, but are beyond `simp +arith`.
+simp_lc allow List.foldl_cons List.foldl_add_const
+simp_lc allow List.foldr_cons List.foldr_add_const
+simp_lc allow List.foldr_append List.foldr_add_const
+simp_lc allow List.foldl_append List.foldl_add_const
+
 /-- This would require an infinite chain of lemmas. -/
 example {a : α} {l₁ l₂ : List α} : ¬ a :: (l₁ ++ l₂) <+ l₁ := by
   intro h
@@ -68,7 +74,7 @@ example {as : List α} {a b : α} [BEq α] [LawfulBEq α] [Decidable (a = b ∨ 
 example {p : α → Prop} {f : (a : α) → p a → β} {l : List α} {h₁ : ∀ (a : α), a ∈ l → p a}
     {n : Nat} {h₂ : n < (List.pmap f l h₁).length} :
     some (f (l[n]'(by simpa using h₂)) (h₁ _ (getElem_mem _))) =
-      Option.pmap f l[n]? (fun a h => h₁ a (getElem?_mem h)) := by
+      Option.pmap f l[n]? (fun a h => h₁ a (mem_of_getElem? h)) := by
   simp at h₂
   simp [h₂]
 

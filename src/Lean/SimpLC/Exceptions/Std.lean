@@ -14,6 +14,20 @@ example {α : Type _} {β : Type _} [BEq α] [Hashable α] {m : Std.HashMap α �
     (a == a) = true ∨ a ∈ m :=
   by simp
 
+
+-- Internal implementation details of `DHashMap`.
+simp_lc ignore Std.DHashMap.Internal.Raw₀.contains_keys
+simp_lc ignore Std.DHashMap.Internal.Raw₀.mem_keys
+
+-- These all become confluent with the stronger hypothesis `[LawfulBEq α]`.
+simp_lc allow List.elem_eq_mem Std.DHashMap.Internal.Raw₀.contains_keys
+simp_lc allow List.elem_eq_mem Std.HashMap.Raw.contains_keys
+simp_lc allow Std.HashSet.contains_toList List.elem_eq_mem
+simp_lc allow Std.HashSet.Raw.contains_toList List.elem_eq_mem
+simp_lc allow Std.DHashMap.contains_keys List.elem_eq_mem
+simp_lc allow Std.HashMap.contains_keys List.elem_eq_mem
+simp_lc allow Std.DHashMap.Raw.contains_keys List.elem_eq_mem
+
 simp_lc allow Std.HashSet.contains_insert_self Std.HashSet.contains_insert
 simp_lc allow Std.HashSet.mem_insert Std.HashSet.mem_insert_self
 simp_lc allow Std.HashMap.mem_insert_self Std.HashMap.mem_insert

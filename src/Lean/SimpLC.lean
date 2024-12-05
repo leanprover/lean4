@@ -137,7 +137,7 @@ partial def checkSimpLC (root_only : Bool) (tac? : Option (TSyntax `Lean.Parser.
       -- logInfo m!"Ignoring metavariable {t} (kind: {repr (← t.mvarId!.getKind)})"
       return
 
-    let matchs := (← thms.pre.getUnify t simpDtConfig) ++ (← thms.post.getUnify t simpDtConfig)
+    let matchs := (← thms.pre.getUnify t) ++ (← thms.post.getUnify t)
     for thm2 in matchs do
       let critPair : CriticalPair := ⟨thm1, thm2, path⟩
       if thms.erased.contains thm2.origin then continue

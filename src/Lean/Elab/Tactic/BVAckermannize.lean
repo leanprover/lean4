@@ -18,7 +18,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Congr
 import Lean.Meta.Tactic.Replace
 
-/!-
+/-!
 This file implements strict ackermannization [1, 2]
 
 [1] https://lara.epfl.ch/w/_media/model-based.pdf

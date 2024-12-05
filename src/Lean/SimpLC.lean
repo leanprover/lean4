@@ -70,7 +70,7 @@ With `simp_lc inspect thm1 thm2 by …` one can interactively try to equate the 
 syntax "simp_lc " &"inspect " ident ident (Parser.Term.byTactic)? : command
 
 /--
-The `simp_lc allow thm1 thm2` causes the `simp_lc` commands to ignore all critical pairs formed
+The `simp_lc allow thm1 thm2` command causes the `simp_lc` commands to ignore all critical pairs formed
 by these two lemmas.
 -/
 syntax "simp_lc " &"allow " ident ident : command

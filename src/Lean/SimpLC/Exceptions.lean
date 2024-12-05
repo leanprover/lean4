@@ -92,8 +92,6 @@ end Array
 simp_lc allow List.forIn'_yield_eq_foldlM List.forIn'_cons
 simp_lc allow List.forIn'_cons List.forIn'_yield_eq_foldl
 
-simp_lc inspect List.findSome?_guard Array.findSome?_toList
-
 /-
 Check *everything*.
 -/

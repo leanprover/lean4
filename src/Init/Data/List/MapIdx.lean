@@ -87,8 +87,8 @@ theorem mapFinIdx_eq_ofFn {as : List α} {f : Fin as.length → α → β} :
   apply ext_getElem <;> simp
 
 @[simp] theorem getElem?_mapFinIdx {l : List α} {f : Fin l.length → α → β} {i : Nat} :
-    (l.mapFinIdx f)[i]? = l[i]?.pbind fun x m => f ⟨i, by simp [getElem?_eq_some] at m; exact m.1⟩ x := by
-  simp only [getElem?_eq, length_mapFinIdx, getElem_mapFinIdx]
+    (l.mapFinIdx f)[i]? = l[i]?.pbind fun x m => f ⟨i, by simp [getElem?_eq_some_iff] at m; exact m.1⟩ x := by
+  simp only [getElem?_def, length_mapFinIdx, getElem_mapFinIdx]
   split <;> simp
 
 @[simp]
@@ -126,7 +126,8 @@ theorem mapFinIdx_singleton {a : α} {f : Fin 1 → α → β} :
 
 theorem mapFinIdx_eq_enum_map {l : List α} {f : Fin l.length → α → β} :
     l.mapFinIdx f = l.enum.attach.map
-      fun ⟨⟨i, x⟩, m⟩ => f ⟨i, by rw [mk_mem_enum_iff_getElem?, getElem?_eq_some] at m; exact m.1⟩ x := by
+      fun ⟨⟨i, x⟩, m⟩ =>
+        f ⟨i, by rw [mk_mem_enum_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1⟩ x := by
   apply ext_getElem <;> simp
 
 @[simp]
@@ -235,7 +236,7 @@ theorem getElem?_mapIdx_go : ∀ {l : List α} {arr : Array β} {i : Nat},
     (mapIdx.go f l arr)[i]? =
       if h : i < arr.size then some arr[i] else Option.map (f i) l[i - arr.size]?
   | [], arr, i => by
-    simp only [mapIdx.go, Array.toListImpl_eq, getElem?_eq, Array.length_toList,
+    simp only [mapIdx.go, Array.toListImpl_eq, getElem?_def, Array.length_toList,
       Array.getElem_eq_getElem_toList, length_nil, Nat.not_lt_zero, ↓reduceDIte, Option.map_none']
   | a :: l, arr, i => by
     rw [mapIdx.go, getElem?_mapIdx_go]

@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Linter_omit___elambda__1___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_6_(lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_omit___elambda__1___spec__1___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_169_(lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_omit___elambda__1___spec__1___closed__2;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_6____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Linter_omit;
@@ -53,6 +52,7 @@ LEAN_EXPORT uint8_t l_Lean_Linter_omit___elambda__1___lambda__1(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_6____closed__5;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_omit___elambda__1___lambda__2___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_171_(lean_object*);
 lean_object* l_Lean_Syntax_findAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_omit___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_instInhabitedScope;
@@ -561,7 +561,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_169_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_171_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -642,7 +642,7 @@ l_Lean_Linter_omit___closed__3 = _init_l_Lean_Linter_omit___closed__3();
 lean_mark_persistent(l_Lean_Linter_omit___closed__3);
 l_Lean_Linter_omit = _init_l_Lean_Linter_omit();
 lean_mark_persistent(l_Lean_Linter_omit);
-if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_169_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_171_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

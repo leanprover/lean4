@@ -3,6 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
 import Lake.Util.Git
 import Lake.Load.Manifest
 import Lake.Config.Dependency
@@ -104,6 +105,25 @@ structure MaterializedDep where
 @[inline] def MaterializedDep.configFile (self : MaterializedDep) :=
   self.manifestEntry.configFile
 
+def pkgNotIndexed (scope name : String) (rev? : Option String := none) : String :=
+  let (leanRev, tomlRev) :=
+    if let some rev := rev? then
+      (s!" @ {repr rev}", s! "\n    rev = {repr rev}")
+    else ("", "")
+s!"{scope}/{name}: package not found on Reservoir.
+
+  If the package is on GitHub, you can add a Git source. For example:
+
+    require ...
+      from git \"https://github.com/{scope}/{name}\"{leanRev}
+
+  or, if using TOML:
+
+    [[require]]
+    git = \"https://github.com/{scope}/{name}\"{tomlRev}
+    ...
+"
+
 /--
 Materializes a configuration dependency.
 For Git dependencies, updates it to the latest input revision.
@@ -129,11 +149,16 @@ def Dependency.materialize
       if ver.startsWith "git#" then
         return ver.drop 4
       else
-        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#>rev>\")"
+        error s!"{dep.name}: unsupported dependency version format '{ver}' (should be \"git#<rev>\")"
     let depName := dep.name.toString (escape := false)
-    let some pkg ← Reservoir.fetchPkg? lakeEnv dep.scope depName
-      | error s!"{dep.scope}/{depName}: could not materialize package: \
-        dependency has no explicit source and was not found on Reservoir"
+    let pkg ←
+      match (← Reservoir.fetchPkg? lakeEnv dep.scope depName |>.toLogT) with
+      | .ok (some pkg) => pure pkg
+      | .ok none => error <| pkgNotIndexed dep.scope depName verRev?
+      | .error e =>
+          logError s!"{dep.scope}/{depName}: could not materialize package: \
+            this may be a transient error or a bug in Lake or Reservoir"
+          throw e
     let relPkgDir := relPkgsDir / pkg.name
     match pkg.gitSrc? with
     | some (.git _ url githubUrl? defaultBranch? subDir?) =>

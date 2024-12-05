@@ -19,3 +19,5 @@ import Init.Data.Array.GetLit
 import Init.Data.Array.MapIdx
 import Init.Data.Array.Set
 import Init.Data.Array.Monadic
+import Init.Data.Array.FinRange
+import Init.Data.Array.Perm

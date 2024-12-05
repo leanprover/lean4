@@ -692,7 +692,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
         tm = (int64_t)(nextTransition / 1000.0);
     }
-    
+
     int32_t dst_offset = ucal_get(cal, UCAL_DST_OFFSET, &status);
 
     if (U_FAILURE(status)) {
@@ -1448,6 +1448,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_wait_any(b_obj_arg task_list, obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
     exit(code);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_mark_multi_threaded(obj_arg a, obj_arg /* w */) {
+    lean_mark_mt(a);
+    return io_result_mk_ok(a);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /* w */) {
+    lean_mark_persistent(a);
+    return io_result_mk_ok(a);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
+    return io_result_mk_ok(box(0));
 }
 
 void initialize_io() {

@@ -53,6 +53,12 @@ theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
 theorem monotone_id : monotone (fun (x : α) => x) :=
   fun _ _ hxy => hxy
 
+theorem monotone_compose
+    {γ : Type w} [Order γ]
+    {f : α → β} {g : β → γ}
+    (hf : monotone f) (hg : monotone g) :
+   monotone (fun x => g (f x)) := fun _ _ hxy => hg _ _ (hf _ _ hxy)
+
 theorem monotone_letFun.{w} {γ : Sort w}
   (v : γ)
   (k : α → γ → β)
@@ -203,6 +209,42 @@ theorem monotone_of_monotone_apply [Order γ] [∀ x, Order (β x)] (f : γ → 
 
 theorem monotone_apply [∀ x, Order (β x)] (x : α) :
     monotone (fun (f : (∀ x, β x)) => f x) := fun _ _ hfg => hfg x
+
+-- It seems this lemma can be used to decompose all kind of applications,
+-- but the `[Order β]` constraint comes out of no where, so not generally applicable.
+theorem monotone_apply_of_monotone -- can `f` be made dependent here?
+    {α : Type u} {β : Type v} {γ : Type w}
+    [Order α] [Order β] [Order γ]
+    {f: γ → α → β}
+    {g: γ → α}
+    (hf1 : monotone f)
+    (hf2 : ∀ x, monotone (f x))
+    (hg : monotone g) :
+    monotone (fun (x : γ) => f x (g x)) := by
+  intro x y hxy
+  apply rel_trans
+  apply hf1 _ _ hxy
+  apply hf2 y _ _ (hg _ _ hxy)
+
+theorem monotone_apply_of_monotone_arg
+    {α : Type u} {β : Type v} {γ : Type w}
+    [Order α] [Order β] [Order γ]
+    {f: α → β}
+    {g: γ → α}
+    (hf : monotone f)
+    (hg : monotone g) :
+    monotone  (fun (x : γ) => f (g x)) := monotone_compose (hf := hg) (hg := hf)
+
+-- This does not work well, because the instance requirements for the hypotheses
+-- are stronger than what we need for the goal, where we just need `[Order (β z)]`
+theorem monotone_apply_of_monotone_fun
+    {α : Type u} {β : α → Type v} {γ : Type w}
+    [∀ x, Order (β x)] [Order γ]
+    (f : γ → (∀ x, β x)) (z : α)
+    (h : monotone f) :
+    monotone (fun x => f x z) :=
+  fun x y hxy => h x y hxy z
+
 
 theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
     chain (fun y => ∃ f, c f ∧ f x = y) := by

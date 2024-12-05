@@ -29,6 +29,8 @@ At that time, we did not rename `div` and `mod` to `tdiv` and `tmod` (along with
 In September 2024, we decided to do this rename (with deprecations in place),
 and later we intend to rename `ediv` and `emod` to `div` and `mod`, as nearly all users will only
 ever need to use these functions and their associated lemmas.
+
+In December 2024, we removed `tdiv` and `tmod`, but have not yet renamed `ediv` and `emod`.
 -/
 
 /-! ### T-rounding division -/

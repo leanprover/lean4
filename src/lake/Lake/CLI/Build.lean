@@ -4,42 +4,73 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Build.Index
+import Lake.Config.Monad
 import Lake.CLI.Error
 
+open System Lean
+
 namespace Lake
-open Lean (Name)
 
 /-! ## Build Target Specifiers -/
 
 structure BuildSpec where
   info : BuildInfo
   getBuildJob : BuildData info.key → BuildJob Unit
+  getFetchJob : OutFormat → BuildData info.key → BuildJob String
 
-@[inline] def BuildData.toBuildJob
+def BuildData.toBuildJob
   [FamilyOut BuildData k (BuildJob α)] (data : BuildData k)
 : BuildJob Unit :=
   discard <| ofFamily data
 
 @[inline] def mkBuildSpec
-  (info : BuildInfo) [FamilyOut BuildData info.key (BuildJob α)]
-: BuildSpec :=
-  {info, getBuildJob := BuildData.toBuildJob}
+  (info : BuildInfo) [h : FamilyOut BuildData info.key (BuildJob α)]
+: BuildSpec where
+  info := info
+  getBuildJob := BuildData.toBuildJob
+  getFetchJob := h.family_key_eq_type ▸ nullFetchJob
 
-@[inline] def mkConfigBuildSpec
+@[inline] def mkFileBuildSpec
+  (info : BuildInfo) [FamilyOut BuildData info.key (BuildJob FilePath)]
+: BuildSpec where
+  info := info
+  getBuildJob := BuildData.toBuildJob
+  getFetchJob := getStringJob
+where
+  getStringJob fmt data :=
+    match fmt with
+    | .string => (ofFamily data).map (·.toString)
+    | .json => (ofFamily data).map (toJson ·.toString |>.compress)
+
+def mkConfigBuildSpec
   (facetType : String) (info : BuildInfo)
   (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
 : Except CliError BuildSpec := do
-  let some getJob := config.getJob?
+  let some getBuildJob := config.getBuildJob?
     | throw <| CliError.nonCliFacet facetType facet
-  return {info, getBuildJob := h ▸ getJob}
+  let getBuildJob := h ▸ getBuildJob
+  let getFetchJob :=
+    match config.getFetchJob? with
+    | some get => h ▸ get
+    | none => fun fmt data =>
+      match fmt with
+      | .string => (getBuildJob data).map fun _ => ""
+      | .json => (getBuildJob data).map fun _ => Json.null.compress
+  return {info, getBuildJob, getFetchJob}
 
-@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (BuildJob Unit) := do
-  maybeRegisterJob (self.info.key.toSimpleString) <| ← do
+@[inline] protected def BuildSpec.build (self : BuildSpec) : FetchM (BuildJob Unit) := do
+  maybeRegisterJob (self.info.key.toSimpleString) =<< do
     self.getBuildJob <$> self.info.fetch
 
+@[inline] protected def BuildSpec.fetch (self : BuildSpec) (fmt : OutFormat) : FetchM (BuildJob String) := do
+  maybeRegisterJob (self.info.key.toSimpleString) =<< do
+    self.getFetchJob fmt <$> self.info.fetch
+
 def buildSpecs (specs : Array BuildSpec) : FetchM (BuildJob Unit) := do
-  BuildJob.mixArray (← specs.mapM (·.fetch))
+  BuildJob.mixArray (← specs.mapM (·.build))
+
+def fetchSpecs (specs : Array BuildSpec) (fmt : OutFormat) : FetchM (BuildJob (Array String)) := do
+  BuildJob.collectArray (← specs.mapM (·.fetch fmt))
 
 /-! ## Parsing CLI Build Target Specifiers -/
 
@@ -53,10 +84,10 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
 
 open Module in
 def resolveModuleTarget
-  (ws : Workspace) (mod : Module) (facet : Name := .anonymous)
+  (ws : Workspace) (mod : Module) (facet : Name)
 : Except CliError BuildSpec :=
   if facet.isAnonymous then
-    return mkBuildSpec <| mod.facet leanArtsFacet
+    return mkBuildSpec (mod.facet leanArtsFacet)
   else if let some config := ws.findModuleFacetConfig? facet then do
     mkConfigBuildSpec "module" (mod.facet facet) config rfl
   else
@@ -76,31 +107,40 @@ where
     else
       throw <| CliError.unknownFacet "library" facet
 
-def resolveExeTarget (exe : LeanExe) (facet : Name) : Except CliError BuildSpec :=
+def resolveExeTarget
+  (exe : LeanExe) (facet : Name)
+: Except CliError BuildSpec :=
   if facet.isAnonymous || facet == `exe then
-    return mkBuildSpec exe.exe
+    return mkFileBuildSpec exe.exe
   else
     throw <| CliError.unknownFacet "executable" facet
 
-def resolveExternLibTarget (lib : ExternLib) (facet : Name) : Except CliError BuildSpec :=
+def resolveExternLibTarget
+  (lib : ExternLib) (facet : Name)
+: Except CliError BuildSpec :=
   if facet.isAnonymous || facet = `static then
-    return mkBuildSpec lib.static
+    return mkFileBuildSpec lib.static
   else if facet = `shared then
-    return mkBuildSpec lib.shared
+    return mkFileBuildSpec lib.shared
   else
     throw <| CliError.unknownFacet "external library" facet
 
-def resolveCustomTarget (pkg : Package)
-(name facet : Name) (config : TargetConfig pkg.name name) : Except CliError BuildSpec :=
+def resolveCustomTarget
+  (pkg : Package) (name facet : Name)
+  (config : TargetConfig pkg.name name)
+: Except CliError BuildSpec :=
   if !facet.isAnonymous then
     throw <| CliError.invalidFacet name facet
-  else do
-    let info := pkg.target name
-    have h : BuildData info.key = CustomData (pkg.name, name) := rfl
-    return {info, getBuildJob := h ▸ config.getJob}
+  else
+    return {
+      info := pkg.target name
+      getBuildJob := config.getBuildJob
+      getFetchJob := config.getFetchJob
+    }
 
-def resolveTargetInPackage (ws : Workspace)
-(pkg : Package) (target facet : Name) : Except CliError (Array BuildSpec) :=
+def resolveTargetInPackage
+  (ws : Workspace) (pkg : Package) (target facet : Name)
+: Except CliError (Array BuildSpec) :=
   if let some config := pkg.findTargetConfig? target then
     Array.singleton <$> resolveCustomTarget pkg target facet config
   else if let some exe := pkg.findLeanExe? target then
@@ -114,10 +154,14 @@ def resolveTargetInPackage (ws : Workspace)
   else
     throw <| CliError.missingTarget pkg.name (target.toString false)
 
-def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError (Array BuildSpec) :=
+def resolveDefaultPackageTarget
+  (ws : Workspace) (pkg : Package)
+: Except CliError (Array BuildSpec) :=
   pkg.defaultTargets.flatMapM (resolveTargetInPackage ws pkg · .anonymous)
 
-def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError (Array BuildSpec) :=
+def resolvePackageTarget
+  (ws : Workspace) (pkg : Package) (facet : Name)
+: Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
   else if let some config := ws.findPackageFacetConfig? facet then do
@@ -125,8 +169,9 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Excep
   else
     throw <| CliError.unknownFacet "package" facet
 
-def resolveTargetInWorkspace (ws : Workspace)
-(target : Name) (facet : Name) : Except CliError (Array BuildSpec) :=
+def resolveTargetInWorkspace
+  (ws : Workspace) (target : Name) (facet : Name)
+: Except CliError (Array BuildSpec) :=
   if let some ⟨pkg, config⟩ := ws.findTargetConfig? target then
     Array.singleton <$> resolveCustomTarget pkg target facet config
   else if let some exe := ws.findLeanExe? target then
@@ -143,7 +188,8 @@ def resolveTargetInWorkspace (ws : Workspace)
     throw <| CliError.unknownTarget target
 
 def resolveTargetBaseSpec
-(ws : Workspace) (spec : String) (facet : Name) : Except CliError (Array BuildSpec) := do
+  (ws : Workspace) (spec : String) (facet : Name)
+: Except CliError (Array BuildSpec) := do
   match spec.splitOn "/" with
   | [spec] =>
     if spec.isEmpty then
@@ -175,7 +221,9 @@ def resolveTargetBaseSpec
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
-def parseExeTargetSpec (ws : Workspace) (spec : String) : Except CliError LeanExe := do
+def parseExeTargetSpec
+  (ws : Workspace) (spec : String)
+: Except CliError LeanExe := do
   match spec.splitOn "/" with
   | [targetSpec] =>
     let targetName := stringToLegalOrSimpleName targetSpec
@@ -192,7 +240,9 @@ def parseExeTargetSpec (ws : Workspace) (spec : String) : Except CliError LeanEx
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
-def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError (Array BuildSpec) := do
+def parseTargetSpec
+  (ws : Workspace) (spec : String)
+: Except CliError (Array BuildSpec) := do
   match spec.splitOn ":" with
   | [spec] =>
     resolveTargetBaseSpec ws spec .anonymous
@@ -201,7 +251,9 @@ def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError (Array Bu
   | _ =>
     throw <| CliError.invalidTargetSpec spec ':'
 
-def parseTargetSpecs (ws : Workspace) (specs : List String) : Except CliError (Array BuildSpec) := do
+def parseTargetSpecs
+  (ws : Workspace) (specs : List String)
+: Except CliError (Array BuildSpec) := do
   let mut results := #[]
   for spec in specs do
     results := results ++ (← parseTargetSpec ws spec)

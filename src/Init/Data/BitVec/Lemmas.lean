@@ -498,6 +498,9 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 @[simp] theorem ofInt_ofNat (w n : Nat) :
   BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w (OfNat.ofNat n) := rfl
 
+@[simp] theorem ofInt_toInt {x : BitVec w} : BitVec.ofInt w (x.toInt) = x := by
+  by_cases h : 2 * x.toNat < 2^w <;> ext <;> simp [getLsbD, h, BitVec.toInt]
+
 theorem toInt_neg_iff {w : Nat} {x : BitVec w} :
     BitVec.toInt x < 0 ↔ 2 ^ w ≤ 2 * x.toNat := by
   simp [toInt_eq_toNat_cond]; omega
@@ -568,6 +571,10 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
 @[simp] theorem toInt_setWidth (x : BitVec w) :
     (x.setWidth v).toInt = Int.bmod x.toNat (2^v) := by
   simp [toInt_eq_toNat_bmod, toNat_setWidth, Int.emod_bmod]
+
+@[simp] theorem toFin_setWidth {x : BitVec w} :
+    (x.setWidth v).toFin = Fin.ofNat' (2^v) x.toNat := by
+  ext; simp
 
 theorem setWidth'_eq {x : BitVec w} (h : w ≤ v) : x.setWidth' h = x.setWidth v := by
   apply eq_of_toNat_eq
@@ -644,6 +651,20 @@ theorem getElem?_setWidth (m : Nat) (x : BitVec n) (i : Nat) :
 @[simp] theorem getLsbD_setWidth (m : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (setWidth m x) i = (decide (i < m) && getLsbD x i) := by
   simp [getLsbD, toNat_setWidth, Nat.testBit_mod_two_pow]
+
+theorem getMsbD_setWidth {m : Nat} {x : BitVec n} {i : Nat} :
+    getMsbD (setWidth m x) i = (decide (m - n ≤ i) && getMsbD x (i + n - m)) := by
+  unfold setWidth
+  by_cases h : n ≤ m <;> simp only [h]
+  · by_cases h' : (m - n ≤ i)
+    <;> simp [h', show (i - (m - n)) = i + n - m by omega]
+  · simp only [show m-n = 0 by omega, getMsbD, getLsbD_setWidth]
+    by_cases h' : i < m
+    · simp [show m - 1 - i < m by omega, show i + n - m < n by omega,
+        show (n - 1 - (i + n - m)) = m - 1 - i by omega]
+      omega
+    · simp [h']
+      omega
 
 @[simp] theorem getMsbD_setWidth_add {x : BitVec w} (h : k ≤ i) :
     (x.setWidth (w + k)).getMsbD i = x.getMsbD (i - k) := by
@@ -1616,7 +1637,7 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
     -(m + 1) % n = Int.subNatNat (Int.natAbs n) ((m % Int.natAbs n) + 1) := rfl
 
 /-- The sign extension is the same as zero extending when `msb = false`. -/
-theorem signExtend_eq_not_setWidth_not_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
+theorem signExtend_eq_setWidth_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
     x.signExtend v = x.setWidth v := by
   ext i
   by_cases hv : i < v
@@ -1652,15 +1673,31 @@ theorem signExtend_eq_not_setWidth_not_of_msb_true {x : BitVec w} {v : Nat} (hms
 theorem getLsbD_signExtend (x  : BitVec w) {v i : Nat} :
     (x.signExtend v).getLsbD i = (decide (i < v) && if i < w then x.getLsbD i else x.msb) := by
   rcases hmsb : x.msb with rfl | rfl
-  · rw [signExtend_eq_not_setWidth_not_of_msb_false hmsb]
+  · rw [signExtend_eq_setWidth_of_msb_false hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
   · rw [signExtend_eq_not_setWidth_not_of_msb_true hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
+
+theorem getMsbD_signExtend {x : BitVec w} {v i : Nat} :
+    (x.signExtend v).getMsbD i =
+      (decide (i < v) && if v - w ≤ i then x.getMsbD (i + w - v) else x.msb) := by
+  rcases hmsb : x.msb with rfl | rfl
+  · simp [signExtend_eq_setWidth_of_msb_false hmsb, getMsbD_setWidth]
+    by_cases h : (v - w ≤ i) <;> simp [h, getMsbD] <;> omega
+  · simp only [signExtend_eq_not_setWidth_not_of_msb_true hmsb, getMsbD_not, getMsbD_setWidth]
+    by_cases h : i < v <;> by_cases h' : v - w ≤ i <;> simp [h, h'] <;> omega
 
 theorem getElem_signExtend {x  : BitVec w} {v i : Nat} (h : i < v) :
     (x.signExtend v)[i] = if i < w then x.getLsbD i else x.msb := by
   rw [←getLsbD_eq_getElem, getLsbD_signExtend]
   simp [h]
+
+theorem msb_SignExtend {x : BitVec w} :
+    (x.signExtend v).msb = (decide (0 < v) && if w ≥ v then x.getMsbD (w - v) else x.msb) := by
+  simp [BitVec.msb, getMsbD_signExtend]
+  by_cases h : w ≥ v
+  · simp [h, show v - w = 0 by omega]
+  · simp [h, show ¬ (v - w = 0) by omega]
 
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
@@ -3665,8 +3702,8 @@ abbrev truncate_xor := @setWidth_xor
 @[deprecated setWidth_not (since := "2024-09-18")]
 abbrev truncate_not := @setWidth_not
 
-@[deprecated signExtend_eq_not_setWidth_not_of_msb_false  (since := "2024-09-18")]
-abbrev signExtend_eq_not_zeroExtend_not_of_msb_false  := @signExtend_eq_not_setWidth_not_of_msb_false
+@[deprecated signExtend_eq_setWidth_of_msb_false  (since := "2024-09-18")]
+abbrev signExtend_eq_not_zeroExtend_not_of_msb_false  := @signExtend_eq_setWidth_of_msb_false
 
 @[deprecated signExtend_eq_not_setWidth_not_of_msb_true (since := "2024-09-18")]
 abbrev signExtend_eq_not_zeroExtend_not_of_msb_true := @signExtend_eq_not_setWidth_not_of_msb_true

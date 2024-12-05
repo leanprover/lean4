@@ -234,7 +234,7 @@ nontermination_tailrecursive
 
 /--
 error: Could not prove 'WrongMonad.ack' to be tailrecursive:
-  Could not prove `Id` to be a monotone Monad:
+  Could not prove `Id` to be a monotone monad:
     failed to synthesize
       (α : Type) → Lean.Tailrec.Order (Id α)
     Additional diagnostic information may be available using the `set_option diagnostics true` command.

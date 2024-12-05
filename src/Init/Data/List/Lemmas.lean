@@ -416,8 +416,9 @@ theorem getElem_of_mem : ∀ {a} {l : List α}, a ∈ l → ∃ (n : Nat) (h : n
   | _, _ :: _, .head .. => ⟨0, Nat.succ_pos _, rfl⟩
   | _, _ :: _, .tail _ m => let ⟨n, h, e⟩ := getElem_of_mem m; ⟨n+1, Nat.succ_lt_succ h, e⟩
 
-theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n : Nat, l[n]? = some a :=
-  let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
+theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n : Nat, l[n]? = some a := by
+  let ⟨n, _, e⟩ := getElem_of_mem h
+  exact ⟨n, e ▸ getElem?_eq_getElem _⟩
 
 theorem mem_of_getElem? {l : List α} {n : Nat} {a : α} (e : l[n]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
@@ -949,7 +950,7 @@ theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),
   | _ :: _ :: _, _ => by
     simp [getLast, get, Nat.succ_sub_succ, getLast_eq_getElem]
 
-theorem getElem_length_sub_one_eq_getLast (l : List α) (h) :
+theorem getElem_length_sub_one_eq_getLast (l : List α) (h : l.length - 1 < l.length) :
     l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by
   rw [← getLast_eq_getElem]
 
@@ -1077,7 +1078,8 @@ theorem head_eq_getElem (l : List α) (h : l ≠ []) : head l h = l[0]'(length_p
   | nil => simp at h
   | cons _ _ => simp
 
-theorem getElem_zero_eq_head (l : List α) (h) : l[0] = head l (by simpa [length_pos] using h) := by
+theorem getElem_zero_eq_head (l : List α) (h : 0 < l.length) :
+    l[0] = head l (by simpa [length_pos] using h) := by
   cases l with
   | nil => simp at h
   | cons _ _ => simp
@@ -1669,7 +1671,7 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 @[simp] theorem cons_append_fun (a : α) (as : List α) :
     (fun bs => ((a :: as) ++ bs)) = fun bs => a :: (as ++ bs) := rfl
 
-theorem getElem_append {l₁ l₂ : List α} (n : Nat) (h) :
+theorem getElem_append {l₁ l₂ : List α} (n : Nat) (h : n < (l₁ ++ l₂).length) :
     (l₁ ++ l₂)[n] = if h' : n < l₁.length then l₁[n] else l₂[n - l₁.length]'(by simp at h h'; exact Nat.sub_lt_left_of_lt_add h' h) := by
   split <;> rename_i h'
   · rw [getElem_append_left h']
@@ -2210,6 +2212,11 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
 theorem flatMap_def (l : List α) (f : α → List β) : l.flatMap f = flatten (map f l) := by rfl
 
 @[simp] theorem flatMap_id (l : List (List α)) : List.flatMap l id = l.flatten := by simp [flatMap_def]
+
+@[simp]
+theorem length_flatMap (l : List α) (f : α → List β) :
+    length (l.flatMap f) = sum (map (length ∘ f) l) := by
+  rw [List.flatMap, length_flatten, map_map]
 
 @[simp] theorem mem_flatMap {f : α → List β} {b} {l : List α} : b ∈ l.flatMap f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
   simp [flatMap_def, mem_flatten]
@@ -2867,7 +2874,7 @@ are often used for theorems about `Array.pop`.
 @[simp] theorem getElem_dropLast : ∀ (xs : List α) (i : Nat) (h : i < xs.dropLast.length),
     xs.dropLast[i] = xs[i]'(Nat.lt_of_lt_of_le h (length_dropLast .. ▸ Nat.pred_le _))
   | _::_::_, 0, _ => rfl
-  | _::_::_, i+1, _ => getElem_dropLast _ i _
+  | _::_::_, i+1, h => getElem_dropLast _ i (Nat.add_one_lt_add_one_iff.mp h)
 
 @[deprecated getElem_dropLast (since := "2024-06-12")]
 theorem get_dropLast (xs : List α) (i : Fin xs.dropLast.length) :

@@ -399,6 +399,20 @@ register_builtin_option linter.unusedSectionVars : Bool := {
   descr := "enable the 'unused section variables in theorem body' linter"
 }
 
+register_builtin_option debug.proofAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace the bodies (proofs) of theorems with `sorry`"
+}
+
+/-- Returns true if `k` is a theorem, option `debug.proofAsSorry` is set to true, and the environment contains the axiom `sorryAx`. -/
+private def useProofAsSorry (k : DefKind) : CoreM Bool := do
+  if k.isTheorem then
+    if debug.proofAsSorry.get (← getOptions) then
+      if (← getEnv).contains ``sorryAx then
+        return true
+  return false
+
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -420,7 +434,9 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         for h : i in [0:header.binderIds.size] do
           -- skip auto-bound prefix in `xs`
           addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]!
-        let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
+        let val ← if (← useProofAsSorry header.kind) then
+          mkSorry type false
+        else withReader ({ · with tacSnap? := header.tacSnap? }) do
           -- Store instantiated body in info tree for the benefit of the unused variables linter
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again

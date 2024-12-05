@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Data
 import Lake.Build.Job.Basic
+import Lake.Config.OutFormat
 
 /-!
 # Simple Builtin Facet Declarations
@@ -16,9 +17,10 @@ definitions (e.g., `Module`), and some of the facets here are used in said
 definitions.
 -/
 
+open System
+open Lean hiding SearchPath
+
 namespace Lake
-open Lean (Name)
-open System (SearchPath FilePath)
 
 /-- A dynamic/shared library for linking. -/
 structure Dynlib where
@@ -30,6 +32,9 @@ structure Dynlib where
 /-- Optional library directory (for `-L`). -/
 def Dynlib.dir? (self : Dynlib) : Option FilePath :=
   self.path.parent
+
+instance : ToText Dynlib := ⟨(·.path.toString)⟩
+instance : ToJson Dynlib := ⟨(·.path.toString)⟩
 
 /-! ## Module Facets -/
 

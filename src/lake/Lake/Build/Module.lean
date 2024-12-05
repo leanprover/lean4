@@ -40,7 +40,7 @@ def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := Job.a
 
 /-- The `ModuleFacetConfig` for the builtin `importsFacet`. -/
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
-  mkFacetJobConfig recParseImports
+  mkFacetJobConfig recParseImports (buildable := false)
 
 structure ModuleImportData where
   module : Module
@@ -80,7 +80,7 @@ def Module.recComputeTransImports (mod : Module) : FetchM (Job (Array Module)) :
 
 /-- The `ModuleFacetConfig` for the builtin `transImportsFacet`. -/
 def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
-  mkFacetJobConfig recComputeTransImports
+  mkFacetJobConfig recComputeTransImports (buildable := false)
 
 def computePrecompileImportsAux
   (leanFile : FilePath) (imports : Array Module)
@@ -97,7 +97,7 @@ def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Modul
 
 /-- The `ModuleFacetConfig` for the builtin `precompileImportsFacet`. -/
 def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
-  mkFacetJobConfig recComputePrecompileImports
+  mkFacetJobConfig recComputePrecompileImports (buildable := false)
 
 /--
 Recursively build a module's dependencies, including:

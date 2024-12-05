@@ -19,18 +19,30 @@ open System
 namespace Lake
 open Lean (Name)
 
+/-- Fetch the package's direct dependencies. -/
+def Package.recFetchDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
+  (pure ·) <$> self.depConfigs.mapM fun cfg => do
+    let some dep ← findPackage? cfg.name
+      | error s!"{self.name}: package not found for dependency '{cfg.name}' \
+        (this is likely a bug in Lake)"
+    return dep
+
+/-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
+def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
+  mkFacetJobConfig recFetchDeps (buildable := false)
+
 /-- Compute a topological ordering of the package's transitive dependencies. -/
-def Package.recComputeDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
+def Package.recComputeTransDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
   (pure ·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
     let some dep ← findPackage? cfg.name
       | error s!"{self.name}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
-    let depDeps ← (← fetch <| dep.facet `deps).await
+    let depDeps ← (← fetch <| dep.facet `transDeps).await
     return depDeps.foldl (·.insert ·) deps |>.insert dep
 
-/-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
-def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
-  mkFacetJobConfig recComputeDeps
+/-- The `PackageFacetConfig` for the builtin `transDepsFacet`. -/
+def Package.transDepsFacetConfig : PackageFacetConfig transDepsFacet :=
+  mkFacetJobConfig recComputeTransDeps (buildable := false)
 
 /--
 Tries to download and unpack the package's cached build archive
@@ -234,6 +246,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
 def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
+  |>.insert transDepsFacet transDepsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
   |>.insert optBuildCacheFacet optBuildCacheFacetConfig
   |>.insert buildCacheFacet buildCacheFacetConfig

@@ -71,7 +71,7 @@ satisfy `p`, using the proof to apply `f`.
   | some a, H => f a (H a rfl)
 
 /-- Partial elimination. If `o : Option α` and `f : (a : α) → a ∈ o → β`, then `o.pelim b f` is
-the same as `o.elem b f` but `f` is passed the proof that `a ∈ o`. -/
+the same as `o.elim b f` but `f` is passed the proof that `a ∈ o`. -/
 @[inline] def pelim (o : Option α) (b : β) (f : (a : α) → a ∈ o → β) : β :=
   match o with
   | none => b

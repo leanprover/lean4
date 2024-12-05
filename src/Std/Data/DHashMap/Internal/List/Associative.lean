@@ -2719,7 +2719,7 @@ theorem getKey?_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivB
           apply (And.left distinct) k mem
         · exact mem'
 
-theorem getKey?_insertListIfNewUnit_of_mem_of_contains [BEq α] [EquivBEq α]
+theorem getKey?_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k : α}
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false))
@@ -2787,7 +2787,7 @@ theorem getKey_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivBE
   . exact mem
   . exact mem'
 
-theorem getKey_insertListIfNewUnit_of_mem_of_contains [BEq α] [EquivBEq α]
+theorem getKey_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k : α}
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false))
@@ -2796,7 +2796,7 @@ theorem getKey_insertListIfNewUnit_of_mem_of_contains [BEq α] [EquivBEq α]
   rw [← Option.some_inj]
   rw [← getKey?_eq_some_getKey]
   rw [← getKey?_eq_some_getKey]
-  rw [getKey?_insertListIfNewUnit_of_mem_of_contains]
+  rw [getKey?_insertListIfNewUnit_of_contains_of_contains]
   · exact distinct
   · exact mem
   · exact mem'
@@ -2824,14 +2824,14 @@ theorem getKey!_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivB
   . exact mem
   . exact h'
 
-theorem getKey!_insertListIfNewUnit_of_mem_of_contains [BEq α] [EquivBEq α] [Inhabited α]
+theorem getKey!_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k : α}
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false))
     (mem : toInsert.contains k) (h' : containsKey k l = true) :
     getKey! k (insertListIfNewUnit l toInsert) = getKey! k l  := by
   rw [getKey!_eq_getKey?]
-  rw [getKey?_insertListIfNewUnit_of_mem_of_contains]
+  rw [getKey?_insertListIfNewUnit_of_contains_of_contains]
   . rw [getKey!_eq_getKey?]
   · exact distinct
   · exact mem
@@ -2860,14 +2860,14 @@ theorem getKeyD_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivB
   . exact mem
   . exact h'
 
-theorem getKeyD_insertListIfNewUnit_of_mem_of_contains [BEq α] [EquivBEq α]
+theorem getKeyD_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k fallback : α}
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false))
     (mem : toInsert.contains k) (mem' : containsKey k l = true) :
     getKeyD k (insertListIfNewUnit l toInsert) fallback = getKeyD k l fallback := by
   rw [getKeyD_eq_getKey?]
-  rw [getKey?_insertListIfNewUnit_of_mem_of_contains]
+  rw [getKey?_insertListIfNewUnit_of_contains_of_contains]
   . rw [getKeyD_eq_getKey?]
   · exact distinct
   · exact mem

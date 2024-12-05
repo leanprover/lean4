@@ -985,7 +985,7 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
 
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List ((a : α) × β a)} {distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)} :
-    (∀ (a : α), ¬ (m.contains a ∧ (l.map Sigma.fst).contains a)) →
+    (∀ (a : α), m.contains a -> (l.map Sigma.fst).contains a = false) →
     (m.insertMany l).1.1.size = m.1.size + l.length := by
   simp_to_model using length_insertList
 
@@ -1141,7 +1141,7 @@ theorem getKeyD_constInsertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h
 theorem size_constInsertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)}
     {distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)} :
-    (∀ (a : α), ¬ (m.contains a ∧ (l.map Prod.fst).contains a)) →
+    (∀ (a : α), m.contains a -> (l.map Prod.fst).contains a = false) →
     (insertMany m l).1.1.size = m.1.size + l.length := by
   simp_to_model using length_insertListConst
 
@@ -1316,7 +1316,7 @@ theorem getKeyD_insertManyIfNewUnit_list_of_contains_of_contains [EquivBEq α] [
 theorem size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List α}
     (distinct : l.Pairwise (fun a b => (a == b) = false)):
-    (∀ (a : α), ¬ (m.contains a ∧ l.contains a)) →
+    (∀ (a : α), m.contains a -> l.contains a = false) →
     (insertManyIfNewUnit m l).1.1.size = m.1.size + l.length := by
   simp_to_model using length_insertListIfNewUnit
 

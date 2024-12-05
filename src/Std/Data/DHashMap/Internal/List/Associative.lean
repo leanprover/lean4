@@ -2175,10 +2175,9 @@ theorem perm_insertList [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (distinct_both : ∀ (a : α), ¬ (containsKey a l ∧ (toInsert.map Sigma.fst).contains a)) :
+    (distinct_both : ∀ (a : α), containsKey a l -> (toInsert.map Sigma.fst).contains a = false) :
     Perm (insertList l toInsert) (l ++ toInsert) := by
   rw [← DistinctKeys.def] at distinct_toInsert
-  simp only [not_and, Bool.not_eq_true] at distinct_both
   induction toInsert generalizing l with
   | nil => simp only [insertList, List.append_nil, Perm.refl]
   | cons hd tl ih =>
@@ -2195,7 +2194,7 @@ theorem length_insertList [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (distinct_both : ∀ (a : α), ¬ (containsKey a l ∧ (toInsert.map Sigma.fst).contains a)) :
+    (distinct_both : ∀ (a : α), containsKey a l -> (toInsert.map Sigma.fst).contains a = false) :
     (insertList l toInsert).length = l.length + toInsert.length := by
   simpa using (perm_insertList distinct_l distinct_toInsert distinct_both).length_eq
 
@@ -2471,7 +2470,7 @@ theorem length_insertListConst [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (distinct_both : ∀ (a : α), ¬ (containsKey a l ∧ (toInsert.map Prod.fst).contains a)) :
+    (distinct_both : ∀ (a : α), containsKey a l -> (toInsert.map Prod.fst).contains a = false) :
     (insertListConst l toInsert).length = l.length + toInsert.length := by
   unfold insertListConst
   rw [length_insertList]
@@ -2877,7 +2876,7 @@ theorem length_insertListIfNewUnit [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a == b) = false))
-    (distinct_both : ∀ (a : α), ¬ (containsKey a l ∧ toInsert.contains a)) :
+    (distinct_both : ∀ (a : α), containsKey a l -> toInsert.contains a = false) :
     (insertListIfNewUnit l toInsert).length = l.length + toInsert.length := by
   induction toInsert generalizing l with
   | nil => simp [insertListIfNewUnit]
@@ -2888,13 +2887,15 @@ theorem length_insertListIfNewUnit [BEq α] [EquivBEq α]
       specialize distinct_both hd
       simp only [List.contains_cons, BEq.refl, Bool.true_or, and_true,
         Bool.not_eq_true] at distinct_both
-      simp only [distinct_both, Bool.false_eq_true, ↓reduceIte]
-      rw [Nat.add_assoc, Nat.add_comm 1 _]
+      cases eq : containsKey hd l with
+      | true => simp [eq] at distinct_both
+      | false =>
+        simp only [Bool.false_eq_true, ↓reduceIte]
+        rw [Nat.add_assoc, Nat.add_comm 1 _]
     · apply DistinctKeys.insertEntryIfNew distinct_l
     · simp only [pairwise_cons] at distinct_toInsert
       apply And.right distinct_toInsert
     · intro a
-      simp only [not_and, Bool.not_eq_true]
       simp only [List.contains_cons, Bool.or_eq_true, not_and, not_or,
         Bool.not_eq_true] at distinct_both
       rw [containsKey_insertEntryIfNew]
@@ -2913,6 +2914,7 @@ theorem length_insertListIfNewUnit [BEq α] [EquivBEq α]
         exact left
       | inr h =>
         specialize distinct_both a h
+        rw [Bool.or_eq_false_iff] at distinct_both
         apply And.right distinct_both
 
 theorem isEmpty_insertListIfNewUnit_eq_false_of_isEmpty_eq_false [BEq α]

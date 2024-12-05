@@ -38,11 +38,8 @@ if they do not intentionally occupy the root namespace.
 
 
 simp_lc ignore forIn'_eq_forIn
-
 simp_lc ignore forIn'_eq_forIn
 
--- Nope, not a good idea, but why?
--- attribute [simp] List.foldlM_map List.foldrM_map
 
 namespace Option
 
@@ -55,11 +52,45 @@ attribute [simp] Option.map_attach
 
 end Option
 
-simp_lc inspect List.forIn'_yield_eq_foldlM List.forIn'_cons
-simp_lc inspect List.forIn'_cons List.forIn'_yield_eq_foldl
+namespace Array
 
-simp_lc inspect List.forIn'_yield_eq_foldlM Array.forIn'_toList
-simp_lc inspect Array.forIn'_toList List.forIn'_yield_eq_foldl
+@[simp] theorem foldlM_attach_toList [Monad m] {xs : Array α}
+    (f : β → { x // x ∈ xs.toList } → m β) (init : β) :
+    List.foldlM f init xs.toList.attach =
+      Array.foldlM (fun b ⟨x, m⟩ => f b ⟨x, by simpa using m⟩) init xs.attach := by
+  cases xs
+  simp only [toList_toArray]
+  rw [List.attach_toArray]
+  simp only [List.attachWith_mem_toArray, size_toArray, List.length_map, List.length_attach,
+    List.foldlM_toArray', List.foldlM_map]
+
+@[simp] theorem foldrM_attach_toList [Monad m] [LawfulMonad m]{xs : Array α}
+    (f : { x // x ∈ xs.toList } → β → m β) (init : β) :
+    List.foldrM f init xs.toList.attach =
+      Array.foldrM (fun ⟨x, m⟩ b => f ⟨x, by simpa using m⟩ b) init xs.attach := by
+  cases xs
+  simp only [toList_toArray]
+  rw [List.attach_toArray]
+  simp [List.foldrM_map]
+
+@[simp] theorem foldl_attach_toList {xs : Array α} (f : β → { x // x ∈ xs.toList } → β) (init : β) :
+    List.foldl f init xs.toList.attach =
+      Array.foldl (fun b ⟨x, m⟩ => f b ⟨x, by simpa using m⟩) init xs.attach := by
+  cases xs
+  simp [List.foldl_map]
+
+@[simp] theorem foldr_attach_toList {xs : Array α} (f : { x // x ∈ xs.toList } → β → β) (init : β) :
+    List.foldr f init xs.toList.attach =
+      Array.foldr (fun ⟨x, m⟩ b => f ⟨x, by simpa using m⟩ b) init xs.attach := by
+  cases xs
+  simp [List.foldr_map]
+
+end Array
+
+-- These would become confluent with `List.foldlM_map` as a simp lemma,
+-- but that causes other problems (which we should document).
+simp_lc allow List.forIn'_yield_eq_foldlM List.forIn'_cons
+simp_lc allow List.forIn'_cons List.forIn'_yield_eq_foldl
 
 simp_lc inspect List.findSome?_guard Array.findSome?_toList
 

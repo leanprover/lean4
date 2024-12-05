@@ -410,21 +410,21 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
 
 /-! ### cast -/
 
-@[simp, bv_toNat] theorem toNat_cast (h : w = v) (x : BitVec w) : (cast h x).toNat = x.toNat := rfl
+@[simp, bv_toNat] theorem toNat_cast (h : w = v) (x : BitVec w) : (x.cast h).toNat = x.toNat := rfl
 @[simp] theorem toFin_cast (h : w = v) (x : BitVec w) :
-    (cast h x).toFin = x.toFin.cast (by rw [h]) :=
+    (x.cast h).toFin = x.toFin.cast (by rw [h]) :=
   rfl
 
-@[simp] theorem getLsbD_cast (h : w = v) (x : BitVec w) : (cast h x).getLsbD i = x.getLsbD i := by
+@[simp] theorem getLsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getLsbD i = x.getLsbD i := by
   subst h; simp
 
-@[simp] theorem getMsbD_cast (h : w = v) (x : BitVec w) : (cast h x).getMsbD i = x.getMsbD i := by
+@[simp] theorem getMsbD_cast (h : w = v) (x : BitVec w) : (x.cast h).getMsbD i = x.getMsbD i := by
   subst h; simp
 
-@[simp] theorem getElem_cast (h : w = v) (x : BitVec w) (p : i < v) : (cast h x)[i] = x[i] := by
+@[simp] theorem getElem_cast (h : w = v) (x : BitVec w) (p : i < v) : (x.cast h)[i] = x[i] := by
   subst h; simp
 
-@[simp] theorem msb_cast (h : w = v) (x : BitVec w) : (cast h x).msb = x.msb := by
+@[simp] theorem msb_cast (h : w = v) (x : BitVec w) : (x.cast h).msb = x.msb := by
   simp [BitVec.msb]
 
 /-! ### toInt/ofInt -/
@@ -658,7 +658,7 @@ theorem getElem?_setWidth (m : Nat) (x : BitVec n) (i : Nat) :
     <;> omega
 
 @[simp] theorem cast_setWidth (h : v = v') (x : BitVec w) :
-    cast h (setWidth v x) = setWidth v' x := by
+    (x.setWidth v).cast h = x.setWidth v' := by
   subst h
   ext
   simp
@@ -671,7 +671,7 @@ theorem getElem?_setWidth (m : Nat) (x : BitVec n) (i : Nat) :
   revert p
   cases getLsbD x i <;> simp; omega
 
-@[simp] theorem setWidth_cast {h : w = v} : (cast h x).setWidth k = x.setWidth k := by
+@[simp] theorem setWidth_cast {x : BitVec w} {h : w = v} : (x.cast h).setWidth k = x.setWidth k := by
   apply eq_of_getLsbD_eq
   simp
 
@@ -1102,19 +1102,19 @@ theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
 
 /-! ### cast -/
 
-@[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(cast h x) = cast h (~~~x) := by
+@[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(x.cast h) = (~~~x).cast h := by
   ext
   simp_all [lt_of_getLsbD]
 
-@[simp] theorem and_cast {x y : BitVec w} (h : w = w') : cast h x &&& cast h y = cast h (x &&& y) := by
+@[simp] theorem and_cast {x y : BitVec w} (h : w = w') : x.cast h &&& y.cast h = (x &&& y).cast h := by
   ext
   simp_all [lt_of_getLsbD]
 
-@[simp] theorem or_cast {x y : BitVec w} (h : w = w') : cast h x ||| cast h y = cast h (x ||| y) := by
+@[simp] theorem or_cast {x y : BitVec w} (h : w = w') : x.cast h ||| y.cast h = (x ||| y).cast h := by
   ext
   simp_all [lt_of_getLsbD]
 
-@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : cast h x ^^^ cast h y = cast h (x ^^^ y) := by
+@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : x.cast h ^^^ y.cast h = (x ^^^ y).cast h := by
   ext
   simp_all [lt_of_getLsbD]
 
@@ -1797,7 +1797,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getLsbD_append] -- Why does this not work with `simp [getLsbD_append]`?
   simp
 
-@[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = cast (by omega) y := by
+@[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
   ext
   rw [getLsbD_append]
   simpa using lt_of_getLsbD
@@ -1807,7 +1807,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   simp only [getLsbD_append, getLsbD_zero, Bool.cond_self]
 
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
-    cast h (x ++ y) = x ++ cast (by omega) y := by
+    (x ++ y).cast h = x ++ y.cast (by omega) := by
   ext
   simp only [getLsbD_cast, getLsbD_append, cond_eq_if, decide_eq_true_eq]
   split <;> split
@@ -1818,7 +1818,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
     omega
 
 @[simp] theorem cast_append_left (h : w + v = w' + v) (x : BitVec w) (y : BitVec v) :
-    cast h (x ++ y) = cast (by omega) x ++ y := by
+    (x ++ y).cast h = x.cast (by omega) ++ y := by
   ext
   simp [getLsbD_append]
 

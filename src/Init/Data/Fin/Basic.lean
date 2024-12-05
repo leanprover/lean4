@@ -176,7 +176,7 @@ protected theorem pos (i : Fin n) : 0 < n :=
 @[inline] def castLE (h : n ≤ m) (i : Fin n) : Fin m := ⟨i, Nat.lt_of_lt_of_le i.2 h⟩
 
 /-- `cast eq i` embeds `i` into an equal `Fin` type. -/
-@[inline] def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
+@[inline] protected def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
 
 /-- `castAdd m i` embeds `i : Fin n` in `Fin (n+m)`. See also `Fin.natAdd` and `Fin.addNat`. -/
 @[inline] def castAdd (m) : Fin n → Fin (n + m) :=

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Targets
-// Imports: Init Lake.Config.Monad
+// Imports: Lake.Config.Monad
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -488,7 +488,7 @@ lean_inc(x_10);
 lean_dec(x_1);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_11, 3);
+x_12 = lean_ctor_get(x_11, 4);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = l_Lake_RBNode_dFind___at_Lake_Workspace_findPackage_x3f___spec__1(x_12, x_9);
@@ -565,7 +565,7 @@ lean_inc(x_10);
 lean_dec(x_1);
 x_11 = lean_ctor_get(x_4, 1);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_11, 3);
+x_12 = lean_ctor_get(x_11, 4);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = l_Lake_RBNode_dFind___at_Lake_Workspace_findPackage_x3f___spec__1(x_12, x_8);
@@ -1275,7 +1275,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_9);
-x_10 = lean_ctor_get(x_9, 5);
+x_10 = lean_ctor_get(x_9, 6);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = l_Lake_RBNode_dFind___at_Lake_Workspace_findPackageFacetConfig_x3f___spec__1(x_10, x_1);
@@ -2009,7 +2009,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_9);
-x_10 = lean_ctor_get(x_9, 4);
+x_10 = lean_ctor_get(x_9, 5);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = l_Lake_RBNode_dFind___at_Lake_Workspace_findModuleFacetConfig_x3f___spec__1(x_10, x_1);
@@ -2841,7 +2841,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_9);
-x_10 = lean_ctor_get(x_9, 6);
+x_10 = lean_ctor_get(x_9, 7);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = l_Lake_RBNode_dFind___at_Lake_Workspace_findLibraryFacetConfig_x3f___spec__1(x_10, x_1);
@@ -3362,16 +3362,12 @@ x_9 = lean_apply_6(x_2, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Monad(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Targets(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_Monad(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -12,27 +12,6 @@ import Lean.Linter.MissingDocs
 namespace Lean.Elab.Tactic
 open Meta Parser.Tactic Command
 
-/--
-Extracts the items from a tactic configuration,
-either a `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`, or these wrapped in null nodes.
--/
-private partial def getConfigItems (c : Syntax) : TSyntaxArray ``configItem :=
-  if c.isOfKind nullKind then
-    c.getArgs.flatMap getConfigItems
-  else
-    match c with
-    | `(optConfig| $items:configItem*) => items
-    | `(config| (config := $val)) => #[Unhygienic.run <| withRef c `(configItem| (config := $val))]
-    | _ => #[]
-
-/--
-Appends two tactic configurations.
-The configurations can be `Lean.Parser.Tactic.optConfig`, `Lean.Parser.Tactic.config`,
-or these wrapped in null nodes (for example because the syntax is `(config)?`).
--/
-def appendConfig (cfg cfg' : Syntax) : TSyntax ``optConfig :=
-  Unhygienic.run `(optConfig| $(getConfigItems cfg)* $(getConfigItems cfg')*)
-
 private structure ConfigItemView where
   ref : Syntax
   option : Ident
@@ -47,6 +26,7 @@ private def mkConfigItemViews (c : TSyntaxArray ``configItem) : Array ConfigItem
     | `(configItem| ($option:ident := $value)) => { ref := item, option, value }
     | `(configItem| +$option) => { ref := item, option, bool := true, value := mkCIdentFrom item ``true }
     | `(configItem| -$option) => { ref := item, option, bool := true, value := mkCIdentFrom item ``false }
+    | `(config| (config%$tk := $value)) => { ref := item, option := mkCIdentFrom tk `config, value := value }
     | _ => { ref := item, option := ⟨Syntax.missing⟩, value := ⟨Syntax.missing⟩ }
 
 /--
@@ -83,14 +63,27 @@ private partial def expandField (structName : Name) (field : Name) : MetaM (Name
 /-- Elaborates a tactic configuration. -/
 private def elabConfig (recover : Bool) (structName : Name) (items : Array ConfigItemView) : TermElabM Expr :=
   withoutModifyingStateWithInfoAndMessages <| withLCtx {} {} <| withSaveInfoContext do
-    let mut base? : Option Term := none
+    let mkStructInst (source? : Option Term) (fields : TSyntaxArray ``Parser.Term.structInstField) : TermElabM Term :=
+      match source? with
+      | some source => `({$source with $fields* : $(mkCIdent structName)})
+      | none        => `({$fields* : $(mkCIdent structName)})
+    let mut source? : Option Term := none
+    let mut seenFields : NameSet := {}
     let mut fields : TSyntaxArray ``Parser.Term.structInstField := #[]
     for item in items do
       try
         let option := item.option.getId.eraseMacroScopes
         if option == `config then
-          base? ← withRef item.value `(($item.value : $(mkCIdent structName)))
-          fields := #[]
+          unless fields.isEmpty do
+            -- Flush fields. Even though these values will not be used, we still want to elaborate them.
+            source? ← mkStructInst source? fields
+            seenFields := {}
+            fields := #[]
+          let valSrc ← withRef item.value `(($item.value : $(mkCIdent structName)))
+          if let some source := source? then
+            source? ← withRef item.value `({$valSrc, $source with : $(mkCIdent structName)})
+          else
+            source? := valSrc
         else
           addCompletionInfo <| CompletionInfo.fieldId item.option option {} structName
           let (path, projFn) ← withRef item.option <| expandField structName option
@@ -104,16 +97,29 @@ private def elabConfig (recover : Bool) (structName : Name) (items : Array Confi
               -- Special case: `(opt := by tacs)` uses the `tacs` syntax itself
               withRef item.value <| `(Unhygienic.run `(tacticSeq| $seq))
             | value => pure value
+          if seenFields.contains path then
+            -- Flush fields. There is a duplicate, but we still want to elaborate both.
+            source? ← mkStructInst source? fields
+            seenFields := {}
+            fields := #[]
           fields := fields.push <| ← `(Parser.Term.structInstField|
             $(mkCIdentFrom item.option path (canonical := true)):ident := $value)
+          seenFields := seenFields.insert path
       catch ex =>
         if recover then
           logException ex
         else
           throw ex
-    let stx : Term ← `({$[$base? with]? $fields*})
+    let stx : Term ← mkStructInst source? fields
     let e ← Term.withSynthesize <| Term.elabTermEnsuringType stx (mkConst structName)
     instantiateMVars e
+
+section
+-- We automatically disable the following option for `macro`s but the subsequent `def` both contains
+-- a quotation and is called only by `macro`s, so we disable the option for it manually. Note that
+-- we can't use `in` as it is parsed as a single command and so the option would not influence the
+-- parser.
+set_option internal.parseQuotWithCurrentStage false
 
 private def mkConfigElaborator
     (doc? : Option (TSyntax ``Parser.Command.docComment)) (elabName type monadName : Ident)
@@ -148,6 +154,8 @@ private def mkConfigElaborator
           else
             throwError msg
       go)
+
+end
 
 /-!
 `declare_config_elab elabName TypeName` declares a function `elabName : Syntax → TacticM TypeName`

@@ -177,7 +177,7 @@ theorem unassigned_of_has_neither (assignment : Assignment) (lacks_pos : ¬(hasP
   (lacks_neg : ¬(hasNegAssignment assignment)) :
   assignment = unassigned := by
   simp only [hasPosAssignment, Bool.not_eq_true] at lacks_pos
-  split at lacks_pos <;> simp_all (config := { decide := true })
+  split at lacks_pos <;> simp_all +decide
 
 theorem hasPos_addNeg (assignment : Assignment) :
     hasPosAssignment (addNegAssignment assignment) = hasPosAssignment assignment := by

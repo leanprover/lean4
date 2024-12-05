@@ -172,6 +172,28 @@ extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
     }
 }
 
+extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
+    if (o->m_cs_sz == 0) {
+        /* Recall that multi-threaded, single-threaded and persistent objects are stored in the heap.
+           Persistent objects are multi-threaded and/or single-threaded that have been "promoted" to
+           a persistent status. */
+        switch (lean_ptr_tag(o)) {
+        case LeanArray:       return lean_array_data_byte_size(o);
+        case LeanScalarArray: return lean_sarray_data_byte_size(o);
+        case LeanString:      return lean_string_data_byte_size(o);
+        default:              return lean_small_object_size(o);
+        }
+    } else {
+        /* See comment at `lean_set_non_heap_header`, for small objects we store the object size in the RC field. */
+        switch (lean_ptr_tag(o)) {
+        case LeanArray:       return lean_array_data_byte_size(o);
+        case LeanScalarArray: return lean_sarray_data_byte_size(o);
+        case LeanString:      return lean_string_data_byte_size(o);
+        default:              return o->m_cs_sz;
+        }
+    }
+}
+
 static inline void lean_dealloc(lean_object * o, size_t sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     dealloc(o, sz);
@@ -1547,18 +1569,8 @@ extern "C" LEAN_EXPORT uint32 lean_uint32_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod32();
 }
 
-extern "C" LEAN_EXPORT uint32 lean_uint32_big_modn(uint32 a1, b_lean_obj_arg a2) {
-    mpz const & m = mpz_value(a2);
-    return m.is_unsigned_int() ? a1 % m.get_unsigned_int() : a1;
-}
-
 extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
     return mpz_value(a).mod64();
-}
-
-extern "C" LEAN_EXPORT uint64 lean_uint64_big_modn(uint64 a1, b_lean_obj_arg) {
-    // TODO(Leo)
-    return a1;
 }
 
 extern "C" LEAN_EXPORT uint64 lean_uint64_mix_hash(uint64 a1, uint64 a2) {
@@ -1569,16 +1581,32 @@ extern "C" LEAN_EXPORT usize lean_usize_of_big_nat(b_obj_arg a) {
     return mpz_value(a).get_size_t();
 }
 
-extern "C" LEAN_EXPORT usize lean_usize_big_modn(usize a1, b_lean_obj_arg) {
-    // TODO(Leo)
-    return a1;
-}
-
 // =======================================
 // IntX
 
 extern "C" LEAN_EXPORT int8 lean_int8_of_big_int(b_obj_arg a) {
     return mpz_value(a).smod8();
+}
+
+extern "C" LEAN_EXPORT int16 lean_int16_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod16();
+}
+
+extern "C" LEAN_EXPORT int32 lean_int32_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod32();
+}
+
+extern "C" LEAN_EXPORT int64 lean_int64_of_big_int(b_obj_arg a) {
+    return mpz_value(a).smod64();
+}
+
+extern "C" LEAN_EXPORT isize lean_isize_of_big_int(b_obj_arg a) {
+    if (sizeof(ptrdiff_t) == 8) {
+        return static_cast<isize>(mpz_value(a).smod64());
+    } else {
+        // We assert in int.h that the size of ptrdiff_t is 8 or 4.
+        return static_cast<isize>(mpz_value(a).smod32());
+    }
 }
 
 // =======================================
@@ -1612,6 +1640,25 @@ extern "C" LEAN_EXPORT obj_res lean_float_frexp(double a) {
     lean_ctor_set(r, 0, lean_box_float(frexp(a, &exp)));
     lean_ctor_set(r, 1, isfinite(a) ? lean_int_to_int(exp) : lean_box(0));
     return r;
+}
+
+extern "C" LEAN_EXPORT double lean_float_of_bits(uint64_t u)
+{
+    static_assert(sizeof(double) == sizeof(u), "`double` unexpected size.");
+    double ret;
+    std::memcpy(&ret, &u, sizeof(double));
+    if (isnan(ret))
+        ret = std::numeric_limits<double>::quiet_NaN();
+    return ret;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_float_to_bits(double d)
+{
+    uint64_t ret;
+    if (isnan(d))
+        d = std::numeric_limits<double>::quiet_NaN();
+    std::memcpy(&ret, &d, sizeof(double));
+    return ret;
 }
 
 // =======================================

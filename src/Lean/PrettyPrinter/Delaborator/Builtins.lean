@@ -91,21 +91,32 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
-
-  let mut c ← unresolveNameGlobal c₀ (fullNames := ← getPPOption getPPFullNames)
-  let stx ← if ls.isEmpty || !(← getPPOption getPPUniverses) then
-    if (← getLCtx).usesUserName c then
-      -- `c` is also a local declaration
-      if c == c₀ && !(← read).inPattern then
-        -- `c` is the fully qualified named. So, we append the `_root_` prefix
-        c := `_root_ ++ c
+  let mut c₀ := c₀
+  let mut c  := c₀
+  if let some n := privateToUserName? c₀ then
+    unless (← getPPOption getPPPrivateNames) do
+      if c₀ == mkPrivateName (← getEnv) n then
+        -- The name is defined in this module, so use `n` as the name and unresolve like any other name.
+        c₀ := n
+        c ← unresolveNameGlobal n (fullNames := ← getPPOption getPPFullNames)
       else
-        c := c₀
-    pure <| mkIdent c
+        -- The name is not defined in this module, so make inaccessible. Unresolving does not make sense to do.
+        c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
   else
-    let mvars ← getPPOption getPPMVarsLevels
-    `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+    c ← unresolveNameGlobal c (fullNames := ← getPPOption getPPFullNames)
+  let stx ←
+    if ls.isEmpty || !(← getPPOption getPPUniverses) then
+      if (← getLCtx).usesUserName c then
+        -- `c` is also a local declaration
+        if c == c₀ && !(← read).inPattern then
+          -- `c` is the fully qualified named. So, we append the `_root_` prefix
+          c := `_root_ ++ c
+        else
+          c := c₀
+      pure <| mkIdent c
+    else
+      let mvars ← getPPOption getPPMVarsLevels
+      `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
 
   let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then
@@ -245,12 +256,15 @@ def appFieldNotationCandidate? : DelabM (Option (Nat × Name)) := do
     | return none
   unless idx < e.getAppNumArgs do return none
   /-
-  There are some kinds of expressions that cause issues with field notation,
-  so we prevent using it in these cases.
-  For example, `2.succ` is not parseable.
+  There are some kinds of expressions that cause issues with field notation, so we prevent using it in these cases.
   -/
   let obj := e.getArg! idx
+  --  `(2).fn` is unlikely to elaborate.
   if obj.isRawNatLit || obj.isAppOfArity ``OfNat.ofNat 3 || obj.isAppOfArity ``OfScientific.ofScientific 5 then
+    return none
+  -- `(?m).fn` is unlikely to elaborate. https://github.com/leanprover/lean4/issues/5993
+  -- We also exclude metavariable applications (these are delayed assignments for example)
+  if obj.getAppFn.isMVar then
     return none
   return (idx, field)
 
@@ -335,7 +349,7 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
     if idx == 0 then
       -- If it's the first argument, then we can tag `obj.field` with the first app.
       head ← withBoundedAppFn (numArgs - 1) <| annotateTermInfo head
-    return Syntax.mkApp head (argStxs.eraseIdx idx)
+    return Syntax.mkApp head (argStxs.eraseIdxIfInBounds idx)
   else
     return Syntax.mkApp fnStx argStxs
 
@@ -862,7 +876,7 @@ def delabLam : Delab :=
           -- "default" binder group is the only one that expects binder names
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
-            if curNames.size > 1 then
+            if h : curNames.size > 1 then
               `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
             else
               pure $ curNames.get! 0;
@@ -1021,8 +1035,10 @@ Delaborates an `OfNat.ofNat` literal.
 `@OfNat.ofNat _ n _` ~> `n`.
 -/
 @[builtin_delab app.OfNat.ofNat]
-def delabOfNat : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
-  delabOfNatCore (showType := (← getPPOption getPPNumericTypes))
+def delabOfNat : Delab := do
+  let showType ← getPPOption getPPNumericTypes
+  whenNotPPOption getPPExplicit <| whenPPOption getPPCoercions <| withOverApp 3 do
+    delabOfNatCore (showType := ← pure showType <||> getPPOption getPPNumericTypes)
 
 /--
 Delaborates the negative of an `OfNat.ofNat` literal.
@@ -1087,19 +1103,30 @@ def coeDelaborator : Delab := whenPPOption getPPCoercions do
   let e ← getExpr
   let .const declName _ := e.getAppFn | failure
   let some info ← Meta.getCoeFnInfo? declName | failure
+  let n := e.getAppNumArgs
+  guard <| n ≥ info.numArgs
   if (← getPPOption getPPExplicit) && info.coercee != 0 then
     -- Approximation: the only implicit arguments come before the coercee
     failure
-  let n := e.getAppNumArgs
-  withOverApp info.numArgs do
-    match info.type with
-    | .coe => `(↑$(← withNaryArg info.coercee delab))
-    | .coeFun =>
-      if n = info.numArgs then
-        `(⇑$(← withNaryArg info.coercee delab))
+  if n == info.numArgs then
+    delabHead info 0 false
+  else
+    let nargs := n - info.numArgs
+    delabAppCore nargs (delabHead info nargs) (unexpand := false)
+where
+  delabHead (info : CoeFnInfo) (nargs : Nat) (insertExplicit : Bool) : Delab := do
+    withTypeAscription (cond := ← getPPOption getPPCoercionsTypes) do
+      guard <| !insertExplicit
+      if info.type == .coeFun && nargs > 0 then
+        -- In the CoeFun case, annotate with the coercee itself.
+        -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
+        withNaryArg info.coercee <| withAnnotateTermInfo delab
       else
-        withNaryArg info.coercee delab
-    | .coeSort => `(↥$(← withNaryArg info.coercee delab))
+        withAnnotateTermInfo do
+          match info.type with
+          | .coe     => `(↑$(← withNaryArg info.coercee delab))
+          | .coeFun  => `(⇑$(← withNaryArg info.coercee delab))
+          | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 @[builtin_delab app.dite]
 def delabDIte : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 5 do

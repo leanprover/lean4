@@ -140,9 +140,15 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
         |>.trim |> removeTrailingWhitespaceMarker
     let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
-    -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
-    elabCommandTopLevel cmd
-    let msgs := (← get).messages
+    -- do not forward snapshot as we don't want messages assigned to it to leak outside
+    withReader ({ · with snap? := none }) do
+      -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
+      elabCommandTopLevel cmd
+    -- collect sync and async messages
+    let msgs := (← get).messages ++
+      (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) {}) {}
+    -- clear async messages as we don't want them to leak outside
+    modify ({ · with snapshotTasks := #[] })
     let mut toCheck : MessageLog := .empty
     let mut toPassthrough : MessageLog := .empty
     for msg in msgs.toList do

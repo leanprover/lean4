@@ -81,15 +81,24 @@ example {x : BitVec 16} : 2 + (10 + x) = 12 + x := by bv_normalize
 example {x : BitVec 16} {b : Bool} : (if b then x else x) = x := by bv_normalize
 example {b : Bool} {x : Bool} : (bif b then x else x) = x := by bv_normalize
 example {x : BitVec 16} : x.abs = if x.msb then -x else x := by bv_normalize
+example : (BitVec.twoPow 16 2) = 4#16 := by bv_normalize
+example {x : BitVec 16} : x / (BitVec.twoPow 16 2) = x >>> 2 := by bv_normalize
+example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
+example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
 
 section
 
-set_option bv.ac_nf true
-
 example (x y : BitVec 256) : x * y = y * x := by
-  bv_decide
+  bv_decide (config := { acNf := true })
 
 example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
-  bv_decide
+  bv_decide (config := { acNf := true })
 
 end
+
+def foo (x : Bool) : Prop := x = true
+
+example (x : Bool) (h1 h2 : x = true) : foo x := by
+  bv_normalize
+  have : x = true := by assumption
+  sorry

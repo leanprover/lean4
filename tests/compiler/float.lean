@@ -15,6 +15,7 @@ def tst1 : IO Unit := do
   IO.println (Float.ofInt 0)
   IO.println (Float.ofInt 42)
   IO.println (Float.ofInt (-42))
+  IO.println (default : Float)
   IO.println (0 / 0 : Float).toUInt8
   IO.println (0 / 0 : Float).toUInt16
   IO.println (0 / 0 : Float).toUInt32

@@ -3,8 +3,10 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Error
 import Lake.Util.EStateT
+import Lake.Util.Lift
 import Lean.Data.Json
 import Lean.Message
 
@@ -129,9 +131,9 @@ protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
   if useAnsi then
     let {level := lv, message := msg} := self
     let pre := Ansi.chalk lv.ansiColor s!"{lv.toString}:"
-    s!"{pre} {msg.trim}"
+    s!"{pre} {msg}"
   else
-    s!"{self.level}: {self.message.trim}"
+    s!"{self.level}: {self.message}"
 
 instance : ToString LogEntry := ⟨LogEntry.toString⟩
 
@@ -160,7 +162,8 @@ export MonadLog (logEntry)
     message := mkErrorStringWithPos msg.fileName msg.pos str none
   }
 
-@[deprecated (since := "2024-05-18")] def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
+@[deprecated "No deprecation message available." (since := "2024-05-18")]
+def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
   match e.level with
   | .trace => if minLv ≥ .trace then
     IO.println e.message.trim |>.catchExceptions fun _ => pure ()
@@ -188,12 +191,16 @@ abbrev lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := methods.lift
 
 set_option linter.deprecated false in
-@[deprecated (since := "2024-05-18")] abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
+@[deprecated "Deprecated without replacement." (since := "2024-05-18")]
+abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
   logEntry e := logToIO e minLv
 
 abbrev stream [MonadLiftT BaseIO m]
   (out : IO.FS.Stream) (minLv := LogLevel.info) (useAnsi := false)
 : MonadLog m where logEntry e := logToStream e out minLv useAnsi
+
+@[inline] def error [Alternative m] [MonadLog m] (msg : String) : m α :=
+  logError msg *> failure
 
 end MonadLog
 
@@ -255,9 +262,18 @@ instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
 /-- A position in a `Log` (i.e., an array index). Can be past the log's end. -/
 structure Log.Pos where
   val : Nat
-  deriving Inhabited
+  deriving Inhabited, DecidableEq
 
 instance : OfNat Log.Pos (nat_lit 0) := ⟨⟨0⟩⟩
+instance : Ord Log.Pos := ⟨(compare ·.val ·.val)⟩
+instance : LT Log.Pos := ⟨(·.val < ·.val)⟩
+instance : DecidableRel (LT.lt (α := Log.Pos)) :=
+  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val < ·.val))
+instance : LE Log.Pos := ⟨(·.val ≤ ·.val)⟩
+instance : DecidableRel (LE.le (α := Log.Pos)) :=
+  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val ≤ ·.val))
+instance : Min Log.Pos := minOfLe
+instance : Max Log.Pos := maxOfLe
 
 namespace Log
 
@@ -395,7 +411,7 @@ from an `ELogT` (e.g., `LogIO`).
   [Monad m] [MonadLiftT BaseIO m] [MonadLog m] [MonadFinally m] (x : m α)
 : m α := do
   let (out, a) ← IO.FS.withIsolatedStreams x
-  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out}"
+  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out.trim}"
   return a
 
 /-- Throw with the logged error `message`. -/
@@ -404,7 +420,7 @@ from an `ELogT` (e.g., `LogIO`).
   (msg : String)
 : m α := errorWithLog (logError msg)
 
-/-- `Alternative` instance for monads with `Log` state and `Log.Pos` errors. -/
+/-- `MonadError` instance for monads with `Log` state and `Log.Pos` errors. -/
 abbrev ELog.monadError
   [Monad m] [MonadLog m] [MonadStateOf Log m] [MonadExceptOf Log.Pos m]
 : MonadError m := ⟨ELog.error⟩
@@ -505,7 +521,7 @@ abbrev run?' [Functor m] (self : ELogT m α) (log : Log := {}) : m (Option α) :
 Run `self` with the log taken from the state of the monad `n`,
 
 **Warning:** If lifting `self` from `m` to `n` fails, the log will be lost.
-Thus, this is best used when the lift cannot fail. Note  excludes the
+Thus, this is best used when the lift cannot fail. This excludes the
 native log position failure of `ELogT`, which are lifted safely.
 -/
 @[inline] def takeAndRun
@@ -545,8 +561,6 @@ instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
 
 namespace LogIO
 
-@[deprecated ELogT.run? (since := "2024-05-18")] abbrev captureLog := @ELogT.run?
-
 /--
 Runs a `LogIO` action in `BaseIO`.
 Prints log entries of at least `minLv` to `out`.
@@ -563,4 +577,46 @@ where
   replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=
     log.replay (logger := logger)
 
+-- deprecated 2024-05-18, reversed 2024-10-18
+abbrev captureLog := @ELogT.run?
+
 end LogIO
+
+/--
+A monad equipped with a log function and the ability to perform I/O.
+Unlike `LogIO`, log entries are not retained by the monad but instead eagerly
+passed to the log function.
+-/
+abbrev LoggerIO := MonadLogT BaseIO (EIO PUnit)
+
+instance : MonadError LoggerIO := ⟨MonadLog.error⟩
+instance : MonadLift IO LoggerIO := ⟨MonadError.runIO⟩
+instance : MonadLift LogIO LoggerIO := ⟨ELogT.replayLog⟩
+
+namespace LoggerIO
+
+/--
+Runs a `LoggerIO` action in `BaseIO`.
+Prints log entries of at least `minLv` to `out`.
+-/
+@[inline] def toBaseIO
+  (self : LoggerIO α)
+  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
+: BaseIO (Option α) := do
+  (·.toOption) <$> (self.run (← out.getLogger minLv ansiMode)).toBaseIO
+
+def captureLog (self : LoggerIO α) : BaseIO (Option α × Log) := do
+  let ref ← IO.mkRef ({} : Log)
+  let e ← self.run ⟨fun e => ref.modify (·.push e)⟩ |>.toBaseIO
+  return (e.toOption, ← ref.get)
+
+-- For parity with `LogIO.run?`
+abbrev run? := @captureLog
+
+-- For parity with `LogIO.run?'`
+@[inline] def run?'
+  (self : LoggerIO α) (logger : LogEntry → BaseIO PUnit := fun _ => pure ())
+: BaseIO (Option α) := do
+  (·.toOption) <$> (self.run ⟨logger⟩).toBaseIO
+
+end LoggerIO

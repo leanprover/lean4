@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Toml.Load
 import Lake.Toml.Decode
 import Lake.Config.Package
@@ -207,7 +208,7 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
   let lintDriver ← t.tryDecodeD `lintDriver ""
   let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
-  let version : StdVer ← t.tryDecodeD `version v!"0.0.0"
+  let version : StdVer ← t.tryDecodeD `version {}
   let versionTags ← optDecodeD defaultVersionTags (t.find? `versionTags)
     <| StrPat.decodeToml (presets := versionTagPresets)
   let description ← t.tryDecodeD `description ""

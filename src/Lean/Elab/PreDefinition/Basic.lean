@@ -132,14 +132,21 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
+    let mkDefDecl : TermElabM Declaration :=
+      return Declaration.defnDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+          all }
+    let mkThmDecl : TermElabM Declaration := do
+      let d := {
+        name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
+      }
+      reportTheoremDiag d
+      return Declaration.thmDecl d
     let decl ←
       match preDef.kind with
-      | DefKind.«theorem» =>
-        let d := {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
-        }
-        reportTheoremDiag d
-        pure <| Declaration.thmDecl d
+      | DefKind.«theorem» => mkThmDecl
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -151,12 +158,8 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
           hints := ReducibilityHints.«abbrev»
           safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
           all }
-      | _ => -- definitions and examples
-        pure <| Declaration.defnDecl {
-          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
-          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
-          all }
+      | DefKind.def | DefKind.example => mkDefDecl
+      | DefKind.«instance» => if ← Meta.isProp preDef.type then mkThmDecl else mkDefDecl
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
@@ -241,8 +244,8 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
     lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
     let u₀ ← getLevel type₀
-    for i in [1:preDefs.size] do
-      forallBoundedTelescope preDefs[i]!.type arities[i]! fun _ typeᵢ =>
+    for h : i in [1:preDefs.size] do
+      forallBoundedTelescope preDefs[i].type arities[i]! fun _ typeᵢ =>
       unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
         withOptions (fun o => pp.sanitizeNames.set o false) do
           throwError m!"invalid mutual definition, result types must be in the same universe " ++

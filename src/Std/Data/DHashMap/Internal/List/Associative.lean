@@ -849,6 +849,12 @@ theorem isEmpty_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
 theorem keys_eq_map (l : List ((a : α) × β a)) : keys l = l.map (·.1) := by
   induction l using assoc_induction <;> simp_all
 
+theorem length_keys_eq_length (l : List ((a : α) × β a)) : (keys l).length = l.length := by 
+  induction l using assoc_induction <;> simp_all
+
+theorem isEmpty_keys_eq_isEmpty (l : List ((a : α) × β a)) : (keys l).isEmpty = l.isEmpty := by 
+  induction l using assoc_induction <;> simp_all
+
 theorem containsKey_eq_keys_contains [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
     {a : α} : containsKey a l = (keys l).contains a := by
   induction l using assoc_induction

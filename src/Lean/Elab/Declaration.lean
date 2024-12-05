@@ -7,9 +7,8 @@ prelude
 import Lean.Util.CollectLevelParams
 import Lean.Elab.DeclUtil
 import Lean.Elab.DefView
-import Lean.Elab.Inductive
-import Lean.Elab.Structure
 import Lean.Elab.MutualDef
+import Lean.Elab.MutualInductive
 import Lean.Elab.DeclarationRange
 namespace Lean.Elab.Command
 
@@ -163,15 +162,11 @@ def elabDeclaration : CommandElab := fun stx => do
     if declKind == ``Lean.Parser.Command.«axiom» then
       let modifiers ← elabModifiers modifiers
       elabAxiom modifiers decl
-    else if declKind == ``Lean.Parser.Command.«inductive» then
+    else if declKind == ``Lean.Parser.Command.«inductive»
+        || declKind == ``Lean.Parser.Command.classInductive
+        || declKind == ``Lean.Parser.Command.«structure» then
       let modifiers ← elabModifiers modifiers
       elabInductive modifiers decl
-    else if declKind == ``Lean.Parser.Command.classInductive then
-      let modifiers ← elabModifiers modifiers
-      elabClassInductive modifiers decl
-    else if declKind == ``Lean.Parser.Command.«structure» then
-      let modifiers ← elabModifiers modifiers
-      elabStructure modifiers decl
     else
       throwError "unexpected declaration"
 
@@ -192,8 +187,7 @@ private def isMutualPreambleCommand (stx : Syntax) : Bool :=
 private partial def splitMutualPreamble (elems : Array Syntax) : Option (Array Syntax × Array Syntax) :=
   let rec loop (i : Nat) : Option (Array Syntax × Array Syntax) :=
     if h : i < elems.size then
-      let elem := elems.get ⟨i, h⟩
-      if isMutualPreambleCommand elem then
+      if isMutualPreambleCommand elems[i] then
         loop (i+1)
       else if i == 0 then
         none -- `mutual` block does not contain any preamble commands
@@ -279,10 +273,10 @@ def elabMutual : CommandElab := fun stx => do
     -- only case implementing incrementality currently
     elabMutualDef stx[1].getArgs
   else withoutCommandIncrementality true do
-    if isMutualInductive stx then
+    if ← isMutualInductive stx then
       elabMutualInductive stx[1].getArgs
     else
-      throwError "invalid mutual block: either all elements of the block must be inductive declarations, or they must all be definitions/theorems/abbrevs"
+      throwError "invalid mutual block: either all elements of the block must be inductive/structure declarations, or they must all be definitions/theorems/abbrevs"
 
 /- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
 @[builtin_command_elab «attribute»] def elabAttr : CommandElab := fun stx => do

@@ -43,6 +43,7 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
       finally
         mvarId.setKind .syntheticOpaque
     let mvar := e.getAppFn
+    mvar.mvarId!.setKind .syntheticOpaque
     mvar.mvarId!.setTag tag
     return (toRevert.map Expr.fvarId!, mvar.mvarId!)
 

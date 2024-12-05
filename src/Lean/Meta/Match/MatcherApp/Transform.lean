@@ -15,7 +15,7 @@ namespace Lean.Meta.MatcherApp
 /-- Auxiliary function for MatcherApp.addArg -/
 private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (refined : Bool) (i : Nat) : MetaM (Array Nat × Array Expr) := do
   if h : i < alts.size then
-    let alt       := alts.get ⟨i, h⟩
+    let alt       := alts[i]
     let numParams := altNumParams[i]!
     let typeNew ← whnfD typeNew
     match typeNew with
@@ -29,7 +29,7 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
           else
             pure <| !(← isDefEq unrefinedArgType (← inferType x[0]!))
           return (← mkLambdaFVars xs alt, refined)
-      updateAlts unrefinedArgType (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) refined (i+1)
+      updateAlts unrefinedArgType (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set i alt) refined (i+1)
     | _ => throwError "unexpected type at MatcherApp.addArg"
   else
     if refined then
@@ -59,9 +59,9 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let eType ← inferType e
-    let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
+    let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i _ eTypeAbst => do
       let motiveArg := motiveArgs[i]!
-      let discr     := matcherApp.discrs[i]!
+      let discr     := matcherApp.discrs[i]
       let eTypeAbst ← kabstract eTypeAbst discr
       return eTypeAbst.instantiate1 motiveArg
     let motiveBody ← mkArrow eTypeAbst motiveBody
@@ -118,9 +118,9 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "failed to transfer argument through matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
 
-    let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i eAbst => do
+    let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i _ eAbst => do
       let motiveArg := motiveArgs[i]!
-      let discr     := matcherApp.discrs[i]!
+      let discr     := matcherApp.discrs[i]
       let eTypeAbst ← kabstract eAbst discr
       return eTypeAbst.instantiate1 motiveArg
     -- Let's create something that’s a `Sort` and mentions `e`
@@ -162,7 +162,7 @@ def refineThrough? (matcherApp : MatcherApp) (e : Expr) :
 private def withUserNamesImpl {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α) : MetaM α := do
   let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
     lctx.setUserName fvar.fvarId! name
-  withTheReader Meta.Context (fun ctx => { ctx with lctx }) k
+  withLCtx' lctx k
 
 /--
 Sets the user name of the FVars in the local context according to the given array of names.

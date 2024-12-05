@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.ExternLib
-// Imports: Init Lake.Config.Package
+// Imports: Lake.Config.Package
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -72,7 +72,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_externLibs(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 11);
+x_2 = lean_ctor_get(x_1, 10);
 lean_inc(x_2);
 x_3 = l_Lake_Package_externLibs___closed__1;
 x_4 = l_Lean_RBNode_fold___at_Lake_Package_externLibs___spec__1(x_1, x_3, x_2);
@@ -133,7 +133,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findExternLib_x3f(lean_object* x_1, lean
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 11);
+x_3 = lean_ctor_get(x_2, 10);
 lean_inc(x_3);
 x_4 = l_Lake_RBNode_dFind___at_Lake_Package_findExternLib_x3f___spec__1(x_2, x_3, x_1);
 lean_dec(x_3);
@@ -229,16 +229,12 @@ x_4 = l_Lean_Name_str___override(x_2, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Package(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_ExternLib(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_Package(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

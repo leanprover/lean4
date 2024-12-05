@@ -91,7 +91,7 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Co
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
   | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
 
-private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
+private def addDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstInfo declName
@@ -108,7 +108,7 @@ private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Ex
     let fvarId := e.fvarId!
     let decl ← fvarId.getDecl
     if (← isProp decl.type) then
-      thms.add id #[] e (post := post) (inv := inv)
+      thms.add id #[] e (post := post) (inv := inv) (config := config)
     else if !decl.isLet then
       throwError "invalid argument, variable is not a proposition or let-declaration"
     else if inv then
@@ -116,9 +116,9 @@ private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Ex
     else
       return thms.addLetDeclToUnfold fvarId
   else
-    thms.add id #[] e (post := post) (inv := inv)
+    thms.add id #[] e (post := post) (inv := inv) (config := config)
 
-private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM SimpTheorems := do
+private def addSimpTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM SimpTheorems := do
   let thm? ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
@@ -132,7 +132,7 @@ private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (p
     else
       return some (#[], e)
   if let some (levelParams, proof) := thm? then
-    thms.add id levelParams proof (post := post) (inv := inv)
+    thms.add id levelParams proof (post := post) (inv := inv) (config := config)
   else
     return thms
 
@@ -212,7 +212,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             match (← resolveSimpIdTheorem? term) with
             | .expr e  =>
               let name ← mkFreshId
-              thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind
+              thms ← addDeclToUnfoldOrTheorem ctx.indexConfig thms (.stx name arg) e post inv kind
             | .simproc declName =>
               simprocs ← simprocs.add declName post
             | .ext (some ext₁) (some ext₂) _ =>
@@ -224,7 +224,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               simprocs  := simprocs.push (← ext₂.getSimprocs)
             | .none    =>
               let name ← mkFreshId
-              thms ← addSimpTheorem thms (.stx name arg) term post inv
+              thms ← addSimpTheorem ctx.indexConfig thms (.stx name arg) term post inv
           else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
             starArg := true
           else
@@ -234,7 +234,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             logException ex
           else
             throw ex
-      return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, simprocs, starArg }
+      return { ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms), simprocs, starArg }
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
     -- This affects `addSimpTheorem`.
     if (← read).recover then
@@ -311,10 +311,11 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
-  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) {
-    config      := (← elabSimpConfig stx[1] (kind := kind))
-    simpTheorems := #[simpTheorems], congrTheorems
-  }
+  let ctx ← Simp.mkContext
+     (config := (← elabSimpConfig stx[1] (kind := kind)))
+     (simpTheorems := #[simpTheorems])
+     congrTheorems
+  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) ctx
   if !r.starArg || ignoreStarArg then
     return { r with dischargeWrapper }
   else
@@ -328,8 +329,8 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     let hs ← getPropHyps
     for h in hs do
       unless simpTheorems.isErased (.fvar h) do
-        simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr
-    let ctx := { ctx with simpTheorems }
+        simpTheorems ← simpTheorems.addTheorem (.fvar h) (← h.getDecl).toExpr (config := ctx.indexConfig)
+    let ctx := ctx.setSimpTheorems simpTheorems
     return { ctx, simprocs, dischargeWrapper }
 
 register_builtin_option tactic.simp.trace : Bool := {
@@ -437,7 +438,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   Simp.reportDiag stats
 
 /-
-  "simp" (config)? (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  "simp" optConfig (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do

@@ -111,9 +111,8 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   if h : i < cmds.size then
-    let cmd := cmds.get ⟨i, h⟩;
     catchInternalId unsupportedSyntaxExceptionId
-      (elabCommand cmd)
+      (elabCommand cmds[i])
       (fun _ => elabChoiceAux cmds (i+1))
   else
     throwUnsupportedSyntax
@@ -212,7 +211,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         else
           `(bracketedBinderF| {$id $[: $ty?]?})
       for id in ids.reverse do
-        if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
+        if let some idx := binderIds.findFinIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
           varDeclsNew := varDeclsNew.push (← mkBinder id explicit)
@@ -489,6 +488,9 @@ where
     let mut lines : Array MessageData := #[]
     let decls ← getOptionDecls
     for (name, val) in opts do
+      -- `#guard_msgs` sets this option internally, we don't want it to end up in its output
+      if name == `Elab.async then
+        continue
       let (isSet, isUnknown) :=
         match decls.find? name with
         | some decl => (decl.defValue != val, false)

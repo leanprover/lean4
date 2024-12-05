@@ -597,8 +597,8 @@ withLocalDeclD `x nat $ fun x => do
 
 /--
 info: [Meta.debug] ----- tst30 -----
-[Meta.debug] (?_ x).succ
-[Meta.debug] ?_.succ
+[Meta.debug] Nat.succ (?_ x)
+[Meta.debug] Nat.succ ?_
 [Meta.debug] fun x => ?_
 -/
 #guard_msgs in

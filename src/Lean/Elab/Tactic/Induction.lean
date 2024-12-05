@@ -208,15 +208,28 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
 private def isWildcard (altStx : Syntax) : Bool :=
   getAltName altStx == `_
 
-private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit :=
+private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit := do
+  let mut seenNames : Array Name := #[]
   for h : i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]
     if getAltName altStx == `_ && i != altsSyntax.size - 1 then
       withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
+      if seenNames.contains altName then
+        throwErrorAt altStx s!"duplicate alternative name '{altName}'"
+      seenNames := seenNames.push altName
       unless alts.any (·.name == altName) do
-        throwErrorAt altStx "invalid alternative name '{altName}'"
+        let unhandledAlts := alts.filter fun alt => !seenNames.contains alt.name
+        let msg :=
+          if unhandledAlts.isEmpty then
+            m!"invalid alternative name '{altName}', no unhandled alternatives"
+          else
+            let unhandledAltsMessages := unhandledAlts.map (m!"{·.name}")
+            let unhandledAlts := MessageData.orList unhandledAltsMessages.toList
+            m!"invalid alternative name '{altName}', expected {unhandledAlts}"
+        throwErrorAt altStx msg
+
 
 /-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
     return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can
@@ -269,10 +282,11 @@ where
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
         withAlwaysResolvedPromise fun finished => do
           withAlwaysResolvedPromises altStxs.size fun altPromises => do
-            tacSnap.new.resolve <| .mk {
+            tacSnap.new.resolve {
               -- save all relevant syntax here for comparison with next document version
               stx := mkNullNode altStxs
               diagnostics := .empty
+              inner? := none
               finished := { range? := none, task := finished.result }
               next := altStxs.zipWith altPromises fun stx prom =>
                 { range? := stx.getRange?, task := prom.result }
@@ -285,7 +299,7 @@ where
                 let old := old.val.get
                 -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
                 -- version and picked apart in `applyAltStx`
-                return ⟨old.data.stx, (← old.data.next[i]?)⟩
+                return ⟨old.stx, (← old.next[i]?)⟩
               new := prom
             }
             finished.resolve { diagnostics := .empty, state? := (← saveState) }
@@ -327,9 +341,9 @@ where
     for h : altStxIdx in [0:altStxs.size] do
       let altStx := altStxs[altStxIdx]
       let altName := getAltName altStx
-      if let some i := alts.findIdx? (·.1 == altName) then
+      if let some i := alts.findFinIdx? (·.1 == altName) then
         -- cover named alternative
-        applyAltStx tacSnaps altStxIdx altStx alts[i]!
+        applyAltStx tacSnaps altStxIdx altStx alts[i]
         alts := alts.eraseIdx i
       else if !alts.isEmpty && isWildcard altStx then
         -- cover all alternatives

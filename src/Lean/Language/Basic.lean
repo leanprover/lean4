@@ -10,9 +10,8 @@ Authors: Sebastian Ullrich
 
 prelude
 import Init.System.Promise
-import Lean.Message
 import Lean.Parser.Types
-import Lean.Elab.InfoTree
+import Lean.Util.Trace
 
 set_option linter.missingDocs true
 
@@ -55,6 +54,11 @@ structure Snapshot where
   diagnostics : Snapshot.Diagnostics
   /-- General elaboration metadata produced by this step. -/
   infoTree? : Option Elab.InfoTree := none
+  /--
+  Trace data produced by this step. Currently used only by `trace.profiler.output`, otherwise we
+  depend on the elaborator adding traces to `diagnostics` eventually.
+  -/
+  traces : TraceState := {}
   /--
   Whether it should be indicated to the user that a fatal error (which should be part of
   `diagnostics`) occurred that prevents processing of the remainder of the file.
@@ -193,31 +197,12 @@ def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] 
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this
   data structure. -/
-inductive SnapshotTree where
-  /-- Creates a snapshot tree node. -/
-  | mk (element : Snapshot) (children : Array (SnapshotTask SnapshotTree))
+structure SnapshotTree where
+  /-- The immediately available element of the snapshot tree node. -/
+  element : Snapshot
+  /-- The asynchronously available children of the snapshot tree node. -/
+  children : Array (SnapshotTask SnapshotTree)
 deriving Inhabited
-
-/-- The immediately available element of the snapshot tree node. -/
-abbrev SnapshotTree.element : SnapshotTree → Snapshot
-  | mk s _ => s
-/-- The asynchronously available children of the snapshot tree node. -/
-abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
-  | mk _ children => children
-
-/-- Produces trace of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.trace (s : SnapshotTree) : CoreM Unit :=
-  go none s
-where go range? s := do
-  let file ← getFileMap
-  let mut desc := f!"{s.element.desc}"
-  if let some range := range? then
-    desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
-  desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
-  if let some t := s.element.infoTree? then
-    trace[Elab.info] (← t.format)
-  withTraceNode `Elab.snapshotTree (fun _ => pure desc) do
-    s.children.toList.forM fun c => go c.range? c.get
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
@@ -302,6 +287,14 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
   s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
+
+/-- Returns a task that waits on all snapshots in the tree. -/
+def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+  | mk _ children => go children.toList
+where
+  go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
+    | [] => return .pure ()
+    | t::ts => BaseIO.bindTask t.task fun _ => go ts
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

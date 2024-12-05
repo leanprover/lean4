@@ -238,8 +238,8 @@ theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by simp
 @[simp] theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
 instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
-@[simp] theorem bne_left_inj  : ∀ {x y z : Bool}, (x != y) = (x != z) ↔ y = z := by decide
-@[simp] theorem bne_right_inj : ∀ {x y z : Bool}, (x != z) = (y != z) ↔ x = y := by decide
+@[simp] theorem bne_right_inj  : ∀ {x y z : Bool}, (x != y) = (x != z) ↔ y = z := by decide
+@[simp] theorem bne_left_inj : ∀ {x y z : Bool}, (x != z) = (y != z) ↔ x = y := by decide
 
 theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
 
@@ -295,9 +295,9 @@ theorem xor_right_comm : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = ((x ^^ z) ^^ y) :
 
 theorem xor_assoc : ∀ (x y z : Bool), ((x ^^ y) ^^ z) = (x ^^ (y ^^ z)) := bne_assoc
 
-theorem xor_left_inj : ∀ {x y z : Bool}, (x ^^ y) = (x ^^ z) ↔ y = z := bne_left_inj
+theorem xor_right_inj : ∀ {x y z : Bool}, (x ^^ y) = (x ^^ z) ↔ y = z := bne_right_inj
 
-theorem xor_right_inj : ∀ {x y z : Bool}, (x ^^ z) = (y ^^ z) ↔ x = y := bne_right_inj
+theorem xor_left_inj : ∀ {x y z : Bool}, (x ^^ z) = (y ^^ z) ↔ x = y := bne_left_inj
 
 /-! ### le/lt -/
 
@@ -383,6 +383,15 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
   cases b <;> simp
 @[simp] theorem toNat_eq_one  {b : Bool} : b.toNat = 1 ↔ b = true := by
   cases b <;> simp
+
+/-! ## toInt -/
+
+/-- convert a `Bool` to an `Int`, `false -> 0`, `true -> 1` -/
+def toInt (b : Bool) : Int := cond b 1 0
+
+@[simp] theorem toInt_false : false.toInt = 0 := rfl
+
+@[simp] theorem toInt_true : true.toInt = 1 := rfl
 
 /-! ### ite -/
 

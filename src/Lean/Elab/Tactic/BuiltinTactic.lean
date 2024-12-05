@@ -60,7 +60,7 @@ where
     if let some snap := (← readThe Term.Context).tacSnap? then
       if let some old := snap.old? then
         let oldParsed := old.val.get
-        oldInner? := oldParsed.data.inner? |>.map (⟨oldParsed.data.stx, ·⟩)
+        oldInner? := oldParsed.inner? |>.map (⟨oldParsed.stx, ·⟩)
     -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
     Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
@@ -70,10 +70,10 @@ where
       if let some old := snap.old? then
         -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
         let oldParsed := old.val.get
-        if let some state := oldParsed.data.finished.get.state? then
+        if let some state := oldParsed.finished.get.state? then
           reusableResult? := some ((), state)
           -- only allow `next` reuse in this case
-          oldNext? := oldParsed.data.next.get? 0 |>.map (⟨old.stx, ·⟩)
+          oldNext? := oldParsed.next.get? 0 |>.map (⟨old.stx, ·⟩)
 
       -- For `tac`'s snapshot task range, disregard synthetic info as otherwise
       -- `SnapshotTree.findInfoTreeAtPos` might choose the wrong snapshot: for example, when
@@ -89,7 +89,7 @@ where
       withAlwaysResolvedPromise fun next => do
         withAlwaysResolvedPromise fun finished => do
           withAlwaysResolvedPromise fun inner => do
-            snap.new.resolve <| .mk {
+            snap.new.resolve {
               desc := tac.getKind.toString
               diagnostics := .empty
               stx := tac
@@ -263,19 +263,26 @@ private def getOptRotation (stx : Syntax) : Nat :=
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
+  let mut abort := false
+  let mut mctxSaved ← getMCtx
   for mvarId in mvarIds do
     unless (← mvarId.isAssigned) do
       setGoals [mvarId]
-      mvarIdsNew ← Tactic.tryCatch
+      abort ← Tactic.tryCatch
         (do
           evalTactic stx[1]
-          return mvarIdsNew ++ (← getUnsolvedGoals))
+          pure abort)
         (fun ex => do
           if (← read).recover then
             logException ex
-            return mvarIdsNew.push mvarId
+            pure true
           else
             throw ex)
+      mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
+  if abort then
+    setMCtx mctxSaved
+    mvarIds.forM fun mvarId => unless (← mvarId.isAssigned) do admitGoal mvarId
+    throwAbortTactic
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
@@ -301,7 +308,7 @@ def evalTacticSeq : Tactic :=
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
-    let tactic := tactics.get ⟨i, h⟩
+    let tactic := tactics[i]
     catchInternalId unsupportedSyntaxExceptionId
       (evalTactic tactic)
       (fun _ => evalChoiceAux tactics (i+1))

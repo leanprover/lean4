@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Log
 import Lake.Util.Exit
 import Lake.Util.Error
@@ -88,3 +89,12 @@ where
     log.replay (logger := logger)
 
 instance (priority := low) : MonadLift LogIO MainM := ⟨runLogIO⟩
+
+@[inline] def runLoggerIO (x : LoggerIO α)
+  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
+: MainM α := do
+  let some a ← x.run (← out.getLogger minLv ansiMode) |>.toBaseIO
+    | exit 1
+  return a
+
+instance (priority := low) : MonadLift LoggerIO MainM := ⟨runLoggerIO⟩

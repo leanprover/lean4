@@ -283,9 +283,9 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun xs _body => do
             -- Remove the old IH that was added in mkFix
             let eType ← newIH.getType
-            let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
+            let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i _ eTypeAbst => do
               let motiveArg := xs[i]!
-              let discr     := matcherApp.discrs[i]!
+              let discr     := matcherApp.discrs[i]
               let eTypeAbst ← kabstract eTypeAbst discr
               return eTypeAbst.instantiate1 motiveArg
 
@@ -776,7 +776,8 @@ In the type of `value`, reduces
 and then wraps `value` in an appropriate type hint.
 -/
 def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
-  let t ← Meta.transform (← inferType value) (skipConstInApp := true) (pre := fun e => do
+  let type ← inferType value
+  let cleanType ← Meta.transform type (skipConstInApp := true) (pre := fun e => do
     -- Need to beta-reduce first
     let e' := e.headBeta
     if e' != e then
@@ -819,7 +820,7 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
           return .continue e'
 
     return .continue e)
-  mkExpectedTypeHint value t
+  mkExpectedTypeHint value cleanType
 
 /--
 Takes `foo._unary.induct`, where the motive is a `PSigma`/`PSum` type and

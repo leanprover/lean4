@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Data.Json
 import Lean.Data.NameMap
 import Lake.Util.DRBMap
@@ -52,7 +53,7 @@ namespace Name
 open Lean.Name
 
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
-  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp (config := { decide := true })
+  rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp +decide
 
 @[simp] theorem isPrefixOf_self {n : Name} : n.isPrefixOf n := by
   cases n <;> simp [isPrefixOf]

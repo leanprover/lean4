@@ -29,9 +29,6 @@ section Nat
 
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
 
-@[deprecated isLt (since := "2024-03-12")]
-theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
-
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
 @[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
@@ -354,17 +351,17 @@ end relations
 section cast
 
 /-- `cast eq x` embeds `x` into an equal `BitVec` type. -/
-@[inline] def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLt x.toNat (eq ▸ x.isLt)
+@[inline] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLt x.toNat (eq ▸ x.isLt)
 
 @[simp] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
-    cast h (BitVec.ofNat n x) = BitVec.ofNat m x := by
+    (BitVec.ofNat n x).cast h = BitVec.ofNat m x := by
   subst h; rfl
 
 @[simp] theorem cast_cast {n m k : Nat} (h₁ : n = m) (h₂ : m = k) (x : BitVec n) :
-    cast h₂ (cast h₁ x) = cast (h₁ ▸ h₂) x :=
+    (x.cast h₁).cast h₂ = x.cast (h₁ ▸ h₂) :=
   rfl
 
-@[simp] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : cast h x = x := rfl
+@[simp] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : x.cast h = x := rfl
 
 /--
 Extraction of bits `start` to `start + len - 1` from a bit vector of size `n` to yield a

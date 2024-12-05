@@ -861,15 +861,20 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /-! # Decidable -/
 
-theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
+@[simp] theorem decide_true (h : Decidable True) : @decide True h = true :=
   match h with
   | isTrue _  => rfl
   | isFalse h => False.elim <| h ⟨⟩
 
-theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
+@[simp] theorem decide_false (h : Decidable False) : @decide False h = false :=
   match h with
   | isFalse _ => rfl
   | isTrue h  => False.elim h
+
+set_option linter.missingDocs false in
+@[deprecated decide_true (since := "2024-11-05")] abbrev decide_true_eq_true := decide_true
+set_option linter.missingDocs false in
+@[deprecated decide_false (since := "2024-11-05")] abbrev decide_false_eq_false := decide_false
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
@@ -1917,12 +1922,12 @@ represents an element of `Squash α` the same as `α` itself
 `Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
 while `Nonempty.rec` can only do the same when `β` is a proposition.
 -/
-def Squash (α : Type u) := Quot (fun (_ _ : α) => True)
+def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
 
 /-- The canonical quotient map into `Squash α`. -/
-def Squash.mk {α : Type u} (x : α) : Squash α := Quot.mk _ x
+def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
 
-theorem Squash.ind {α : Type u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
+theorem Squash.ind {α : Sort u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
   Quot.ind h
 
 /-- If `β` is a subsingleton, then a function `α → β` lifts to `Squash α → β`. -/

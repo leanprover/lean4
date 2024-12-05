@@ -122,8 +122,8 @@ def mkHCongr (f : Expr) : MetaM CongrTheorem := do
 private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind) : Array CongrArgKind := Id.run do
   let mut kinds := kinds
   for i in [:info.paramInfo.size] do
-    for j in [i+1:info.paramInfo.size] do
-      if info.paramInfo[j]!.backDeps.contains i then
+    for hj : j in [i+1:info.paramInfo.size] do
+      if info.paramInfo[j].backDeps.contains i then
         if kinds[j]! matches CongrArgKind.eq || kinds[j]! matches CongrArgKind.fixed then
           -- We must fix `i` because there is a `j` that depends on `i` and `j` is not cast-fixed.
           kinds := kinds.set! i CongrArgKind.fixed
@@ -229,6 +229,29 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
         result := result.push .fixed
     else
       result := result.push .eq
+  return fixKindsForDependencies info result
+
+/--
+Variant of `getCongrSimpKinds` for rewriting just argument 0.
+If it is possible to rewrite, the 0th `CongrArgKind` is `CongrArgKind.eq`,
+and otherwise it is `CongrArgKind.fixed`. This is used for the `arg` conv tactic.
+-/
+def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) := do
+  let mut result := #[]
+  for h : i in [:info.paramInfo.size] do
+    if info.resultDeps.contains i then
+      result := result.push .fixed
+    else if i == 0 then
+      result := result.push .eq
+    else if info.paramInfo[i].isProp then
+      result := result.push .cast
+    else if info.paramInfo[i].isInstImplicit then
+      if shouldUseSubsingletonInst info result i then
+        result := result.push .subsingletonInst
+      else
+        result := result.push .fixed
+    else
+      result := result.push .fixed
   return fixKindsForDependencies info result
 
 /--

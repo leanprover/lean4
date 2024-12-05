@@ -2647,7 +2647,8 @@ theorem containsKey_insertListIfNewUnit_iff [BEq α] [PartialEquivBEq α] {l : L
     simp only [Bool.or_eq_true]
     rw [or_comm (a:= (hd == k)= true), or_assoc, BEq.comm]
 
-theorem containsKey_of_containsKey_insertListIfNewUnit [BEq α] [PartialEquivBEq α] {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α}
+theorem containsKey_of_containsKey_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
+    {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α}
     (h₂ : toInsert.contains k = false) : containsKey k (insertListIfNewUnit l toInsert) →
     containsKey k l := by
   intro h₁

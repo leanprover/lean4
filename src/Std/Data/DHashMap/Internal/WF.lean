@@ -708,7 +708,8 @@ theorem wfImp_filter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
 
 /-! # `insertListₘ` -/
 
-theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α] {m : Raw₀ α β} {l : List ((a : α) × β a)} (h : Raw.WFImp m.1) :
+theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α]
+    {m : Raw₀ α β} {l : List ((a : α) × β a)} (h : Raw.WFImp m.1) :
     Perm (toListModel (insertListₘ m l).1.buckets) (List.insertList (toListModel m.1.buckets) l) := by
   induction l generalizing m with
   | nil =>

@@ -101,6 +101,8 @@ structure Context where
   (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
   `HeadersParsedSnapshot`.
 
+  Definitely resolved in `Lean.Elab.Command.elabCommandTopLevel`.
+
   Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
   old elaboration are identical.
   -/
@@ -560,6 +562,11 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       withLogging do
         runLintersAsync stx
   finally
+    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+    -- be the caller of this function and add new messages and info trees
+    if let some snap := (← read).snap? then
+      snap.new.resolve default
+
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages
     let mut msgs := (← get).messages

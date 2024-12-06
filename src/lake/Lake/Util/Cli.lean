@@ -3,6 +3,8 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
+import Init.Data.Array.Basic
 
 namespace Lake
 
@@ -75,8 +77,18 @@ variable [Monad m] [MonadStateOf ArgList m]
 
 /-- Process a multiple short options grouped together (ex. `-xyz` as `x`, `y`, `z`). -/
 @[inline] def multiShortOption (handle : Char → m PUnit) (opt : String) : m PUnit := do
-  -- TODO: this code is assuming all characters are ASCII.
-  for i in [1:opt.length] do handle (opt.get ⟨i⟩)
+  let rec loop (p : String.Pos) := do
+    if h : opt.atEnd p then
+      return
+    else
+      handle (opt.get' p h)
+      loop (opt.next' p h)
+  termination_by opt.utf8ByteSize - p.byteIdx
+  decreasing_by
+    simp [String.atEnd] at h
+    apply Nat.sub_lt_sub_left h
+    simp [String.lt_next opt p]
+  loop ⟨1⟩
 
 /-- Splits a long option of the form `"--long foo bar"` into `--long` and `"foo bar"`. -/
 @[inline] def longOptionOrSpace (handle : String → m α) (opt : String) : m α :=
@@ -102,8 +114,9 @@ variable [Monad m] [MonadStateOf ArgList m]
 
 /-- Process a short option of the form `-x`, `-x=arg`, `-x arg`, or `-long`. -/
 @[inline] def shortOption
-(shortHandle : Char → m α) (longHandle : String → m α)
-(opt : String) : m α :=
+  (shortHandle : Char → m α) (longHandle : String → m α)
+  (opt : String)
+: m α :=
   if opt.length == 2 then -- `-x`
     shortHandle (opt.get ⟨1⟩)
   else -- `-c(.+)`
@@ -151,7 +164,9 @@ partial def processLeadingOptions (handle : String → m PUnit) : m PUnit := do
       processLeadingOptions handle
 
 /-- Process every option and collect the remaining arguments into an `Array`. -/
-partial def collectArgs (option : String → m PUnit) (args : Array String := #[]) : m (Array String) := do
+partial def collectArgs
+  (option : String → m PUnit) (args : Array String := #[])
+: m (Array String) := do
   if let some arg ← takeArg? then
     let len := arg.length
     if len > 1 && arg.get 0 == '-' then -- `-(.+)`

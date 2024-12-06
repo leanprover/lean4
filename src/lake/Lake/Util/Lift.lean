@@ -3,6 +3,10 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
+import Init.System.IO
+import Init.Control.Option
+
 namespace Lake
 
 instance (priority := low) [Monad m] [MonadExceptOf PUnit m] : Alternative m where

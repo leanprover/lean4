@@ -10,11 +10,10 @@ import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Meta
 
-private def getSimpUnfoldContext : MetaM Simp.Context :=
-   return {
-      congrTheorems := (← getSimpCongrTheorems)
-      config        := Simp.neutralConfig
-   }
+private def getSimpUnfoldContext : MetaM Simp.Context := do
+   Simp.mkContext
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := Simp.neutralConfig)
 
 def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
   if let some unfoldThm ← getUnfoldEqnFor? declName  then

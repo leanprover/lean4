@@ -18,21 +18,22 @@ private def mkKey (e : Expr) (simp : Bool) : MetaM (Array Key) := do
   let (_, _, type) ← withReducible <| forallMetaTelescopeReducing e
   let type ← whnfR type
   if simp then
-    if let some (_, lhs, _) := type.eq? then
-      mkPath lhs simpDtConfig
-    else if let some (lhs, _) := type.iff? then
-      mkPath lhs simpDtConfig
-    else if let some (_, lhs, _) := type.ne? then
-      mkPath lhs simpDtConfig
-    else if let some p := type.not? then
-      match p.eq? with
-      | some (_, lhs, _) =>
-        mkPath lhs simpDtConfig
-      | _ => mkPath p simpDtConfig
-    else
-      mkPath type simpDtConfig
+    withSimpGlobalConfig do
+      if let some (_, lhs, _) := type.eq? then
+        mkPath lhs
+      else if let some (lhs, _) := type.iff? then
+        mkPath lhs
+      else if let some (_, lhs, _) := type.ne? then
+        mkPath lhs
+      else if let some p := type.not? then
+        match p.eq? with
+        | some (_, lhs, _) =>
+          mkPath lhs
+        | _ => mkPath p
+      else
+        mkPath type
   else
-    mkPath type {}
+    mkPath type
 
 private def getType (t : TSyntax `term) : TermElabM Expr := do
   if let `($id:ident) := t then

@@ -213,7 +213,7 @@ def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → Cor
       | throwErrorAt kv "ill-formed key-value pair syntax"
     let `(key|$[$ks].*) := k
       | throwErrorAt k "ill-formed key syntax"
-    let tailKey := ks.back
+    let tailKey := ks.back!
     let (k, t) ← StateT.run (s := t) <| ks.pop.foldlM (init := Name.anonymous) fun k p => do
       let k ← k.str <$> elabSimpleKey p
       if let some v := t.find? k then

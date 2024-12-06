@@ -11,7 +11,7 @@ let rec loop : (i : Nat) → i ≤ as.size → β → m β
     have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
     have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
     have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-    let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
+    let b ← f as[as.size - 1 - i] b
     loop i (Nat.le_of_lt h') b
 loop as.size (Nat.le_refl _) b
 
@@ -28,7 +28,7 @@ let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
     have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
     have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-    let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
+    let b ← f as[as.size - 1 - i] b
     loop i (Nat.le_of_lt h') b
 loop as.size (Nat.le_refl _) b
 

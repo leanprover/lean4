@@ -336,6 +336,34 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m ∪ {(4, 5), (37, 37)}
 
+/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 3)] -/
+#guard_msgs in
+#eval m.modify 1 (fun v => v + 1)
+
+/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m.modify 4 (fun v => v + 1)
+
+/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m.alter 4 (fun v? => v?.map (· + 2))
+
+/-- info: Std.HashMap.ofList [(4, 7), (3, 6), (2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m.alter 4 (fun _ => some 7)
+
+/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m.alter 4 (fun _ => none)
+
+/-- info: Std.HashMap.ofList [(2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m.alter 3 (fun _ => none)
+
+/-- info: Std.HashMap.ofList [(3, 37), (2, 4), (1, 2)] -/
+#guard_msgs in
+#eval m.alter 3 (fun _ => some 37)
+
 end HashMap
 
 namespace HashSet.Raw

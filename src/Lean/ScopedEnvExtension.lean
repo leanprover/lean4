@@ -121,16 +121,16 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
 opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
-  let s := ext.ext.getState env
-  match s.stateStack with
-  | [] => env
-  | state :: stack => ext.ext.setState env { s with stateStack := state :: state :: stack }
+  ext.ext.modifyState env fun s =>
+    match s.stateStack with
+    | [] => s
+    | state :: stack => { s with stateStack := state :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
-  let s := ext.ext.getState env
-  match s.stateStack with
-  | _      :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
-  | _ => env
+  ext.ext.modifyState env fun s =>
+    match s.stateStack with
+    | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
+    | _ => s
 
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.global b)
@@ -161,31 +161,36 @@ def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β �
   | top :: _ => top.state
   | _        => unreachable!
 
+def ScopedEnvExtension.getStateNoAsync [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : σ :=
+  match ext.ext.getStateNoAsync env |>.stateStack with
+  | top :: _ => top.state
+  | _        => unreachable!
+
 def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
-  let s := ext.ext.getState env
-  match s.stateStack with
-  | top :: stack =>
-    if top.activeScopes.contains namespaceName then
-      env
-    else
-      let activeScopes := top.activeScopes.insert namespaceName
-      let top :=
-        match s.scopedEntries.map.find? namespaceName with
-        | none =>
-          { top with activeScopes := activeScopes }
-        | some bs => Id.run do
-          let mut state := top.state
-          for b in bs do
-            state := ext.descr.addEntry state b
-          { state := state, activeScopes := activeScopes }
-      ext.ext.setState env { s with stateStack := top :: stack }
-  | _ => env
+  ext.ext.modifyState env fun s =>
+    match s.stateStack with
+    | top :: stack =>
+      if top.activeScopes.contains namespaceName then
+        s
+      else
+        let activeScopes := top.activeScopes.insert namespaceName
+        let top :=
+          match s.scopedEntries.map.find? namespaceName with
+          | none =>
+            { top with activeScopes := activeScopes }
+          | some bs => Id.run do
+            let mut state := top.state
+            for b in bs do
+              state := ext.descr.addEntry state b
+            { state := state, activeScopes := activeScopes }
+        { s with stateStack := top :: stack }
+    | _ => s
 
 def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
-  let s := ext.ext.getState env
-  match s.stateStack with
-  | top :: stack => ext.ext.setState env { s with stateStack := { top with state := f top.state } :: stack }
-  | _ => env
+  ext.ext.modifyState env fun s =>
+    match s.stateStack with
+    | top :: stack => { s with stateStack := { top with state := f top.state } :: stack }
+    | _ => s
 
 def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

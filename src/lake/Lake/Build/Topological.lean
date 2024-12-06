@@ -36,6 +36,10 @@ fetch functions, but not all fetch functions need build something.
 abbrev DFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
   (a : α) → m (β a)
 
+/-- A `DFetchFn` that is not dependently typed. -/
+abbrev FetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
+  α → m β
+
 /-!
 In order to nest builds / fetches within one another,
 we equip the monad `m` with a fetch function of its own.

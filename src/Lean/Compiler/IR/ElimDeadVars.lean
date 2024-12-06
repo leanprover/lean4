@@ -13,7 +13,7 @@ partial def reshapeWithoutDead (bs : Array FnBody) (term : FnBody) : FnBody :=
   let rec reshape (bs : Array FnBody) (b : FnBody) (used : IndexSet) :=
     if bs.isEmpty then b
     else
-      let curr := bs.back
+      let curr := bs.back!
       let bs   := bs.pop
       let keep (_ : Unit) :=
         let used := curr.collectFreeIndices used

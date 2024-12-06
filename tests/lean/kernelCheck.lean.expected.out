@@ -1,0 +1,4 @@
+kernelCheck.lean:15:8-15:10: error: (kernel) declaration type mismatch, 'no' has type
+  Prop
+but it is expected to have type
+  False

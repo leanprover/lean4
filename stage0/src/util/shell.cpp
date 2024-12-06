@@ -54,8 +54,6 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#else
-#include <dlfcn.h>
 #endif
 
 #ifdef _MSC_VER
@@ -180,6 +178,10 @@ static void display_header(std::ostream & out) {
     out << "Lean (version " << get_version_string() << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
 }
 
+static void display_version(std::ostream & out) {
+    out << get_short_version_string() << "\n";
+}
+
 static void display_features(std::ostream & out) {
     out << "[";
 #if defined(LEAN_LLVM)
@@ -193,7 +195,8 @@ static void display_help(std::ostream & out) {
     std::cout << "Miscellaneous:\n";
     std::cout << "  -h, --help             display this message\n";
     std::cout << "      --features         display features compiler provides (eg. LLVM support)\n";
-    std::cout << "  -v, --version          display version number\n";
+    std::cout << "  -v, --version          display version information\n";
+    std::cout << "  -V, --short-version    display short version number\n";
     std::cout << "  -g, --githash          display the git commit hash number used to build this binary\n";
     std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
     std::cout << "  -o, --o=oname          create olean file\n";
@@ -239,6 +242,7 @@ static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
     {"help",         no_argument,       0, 'h'},
     {"githash",      no_argument,       0, 'g'},
+    {"short-version", no_argument,      0, 'V'},
     {"run",          no_argument,       0, 'r'},
     {"o",            optional_argument, 0, 'o'},
     {"i",            optional_argument, 0, 'i'},
@@ -274,7 +278,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:b:c:C:qgvht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -315,34 +319,6 @@ options set_config_option(options const & opts, char const * in) {
         // This (minor) duplication will be resolved when this file is rewritten in Lean.
         return opts.update(opt, val.c_str());
     }
-}
-
-void load_plugin(std::string path) {
-    void * init;
-    // we never want to look up plugins using the system library search
-    path = lrealpath(path);
-    std::string pkg = stem(path);
-    std::string sym = "initialize_" + pkg;
-#ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
-    if (!h) {
-        throw exception(sstream() << "error loading plugin " << path << ": " << GetLastError());
-    }
-    init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
-#else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY);
-    if (!handle) {
-        throw exception(sstream() << "error loading plugin, " << dlerror());
-    }
-    init = dlsym(handle, sym.c_str());
-#endif
-    if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
-    }
-    auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
-    object *r = init_fn(1 /* builtin */, io_mk_world());
-    consume_io_result(r);
-    // NOTE: we never unload plugins
 }
 
 namespace lean {
@@ -517,6 +493,9 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             case 'v':
                 display_header(std::cout);
                 return 0;
+            case 'V':
+                display_version(std::cout);
+                return 0;
             case 'g':
                 std::cout << LEAN_GITHASH << "\n";
                 return 0;
@@ -610,7 +589,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #endif
             case 'p':
                 check_optarg("p");
-                load_plugin(optarg);
+                lean::load_plugin(optarg);
                 forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
                 break;
             case 'l':

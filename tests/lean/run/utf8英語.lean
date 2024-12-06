@@ -15,7 +15,7 @@ def checkGet (s : String) (arr : Array UInt8) :=
     let c := if h : _ then s.getUtf8Byte i h else unreachable!
     c == arr.get! i
 
-macro "validate" arr:term " => ↯" : command =>
+macro "validate" arr:term " => " "↯" : command =>
   `(test_extern' String.validateUTF8 $arr => false)
 macro "validate" arr:term " => " str:term : command =>
   `(test_extern' String.validateUTF8 $arr => true

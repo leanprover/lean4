@@ -123,7 +123,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_leanLibs(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_2 = lean_ctor_get(x_1, 9);
+x_2 = lean_ctor_get(x_1, 8);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
@@ -224,7 +224,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findLeanLib_x3f(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 9);
+x_3 = lean_ctor_get(x_2, 8);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);

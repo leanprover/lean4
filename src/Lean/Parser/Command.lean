@@ -134,10 +134,8 @@ def declValSimple    := leading_parser
   " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
-def whereStructField := leading_parser
-  Term.letDecl
 def whereStructInst  := leading_parser
-  ppIndent ppSpace >> "where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >>
+  ppIndent ppSpace >> "where" >> Term.structInstFields (sepByIndent Term.structInstField "; " (allowTrailingSep := true)) >>
   optional Term.whereDecls
 /-- `declVal` matches the right-hand side of a declaration, one of:
 * `:= expr` (a "simple declaration")
@@ -173,7 +171,7 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> ppIndent Term.structInst))) ", "
+def derivingClasses  := sepBy1 ident ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -505,6 +503,13 @@ Displays all available tactic tags, with documentation.
 -/
 @[builtin_command_parser] def printTacTags   := leading_parser
   "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
+/--
+`#where` gives a description of the state of the current scope scope.
+This includes the current namespace, `open` namespaces, `universe` and `variable` commands,
+and options set with `set_option`.
+-/
+@[builtin_command_parser] def «where»        := leading_parser
+  "#where"
 /-- Shows the current Lean version. Prints `Lean.versionString`. -/
 @[builtin_command_parser] def version        := leading_parser
   "#version"

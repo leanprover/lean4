@@ -466,6 +466,12 @@ example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
 example (z : Int) (a : Fin z.toNat) (h : 0 ≤ z) : ↑↑a ≤ z := by
   omega
 
+/-! ### Int.negSucc
+Make sure we aren't stopped by stray `Int.negSucc` terms.
+-/
+
+example (x : Int) (h : Int.negSucc 0 < x ∧ x < 1) : x = 0 := by omega
+
 /-! ### BitVec -/
 open BitVec
 

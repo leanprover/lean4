@@ -1,4 +1,5 @@
-import Lean.Data.Rat
+import Std.Internal.Rat
+open Std.Internal
 
 /-!
 Tests for `pp.numericTypes` and `pp.natLit`
@@ -6,7 +7,7 @@ Tests for `pp.numericTypes` and `pp.natLit`
 RFC #3021
 -/
 
-open Lean (Rat)
+open Lean
 
 section
 

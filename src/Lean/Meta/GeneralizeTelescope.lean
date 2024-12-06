@@ -17,13 +17,13 @@ structure Entry where
 
 partial def updateTypes (e eNew : Expr) (entries : Array Entry) (i : Nat) : MetaM (Array Entry) :=
   if h : i < entries.size then
-    let entry := entries.get ⟨i, h⟩
+    let entry := entries[i]
     match entry with
     | ⟨_, type, _⟩ => do
       let typeAbst ← kabstract type e
       if typeAbst.hasLooseBVars then do
         let typeNew := typeAbst.instantiate1 eNew
-        let entries := entries.set ⟨i, h⟩ { entry with type := typeNew, modified := true }
+        let entries := entries.set i { entry with type := typeNew, modified := true }
         updateTypes e eNew entries (i+1)
       else
         updateTypes e eNew entries (i+1)
@@ -38,7 +38,7 @@ partial def generalizeTelescopeAux {α} (k : Array Expr → MetaM α)
       withLocalDeclD userName type fun x => do
         let entries ← updateTypes e x entries (i+1)
         generalizeTelescopeAux k entries (i+1) (fvars.push x)
-    match entries.get ⟨i, h⟩ with
+    match entries[i] with
     | ⟨e@(.fvar fvarId), type, false⟩ =>
       let localDecl ← fvarId.getDecl
       match localDecl with

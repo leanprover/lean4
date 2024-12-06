@@ -5,7 +5,7 @@ inductive Node (Data : Type) : Type where
 
 def Node.FixedBranching (n : Nat) : Node Data → Prop
   | empty => True
-  | node children => children.size = n ∧ ∀ i, (children.get i).FixedBranching n
+  | node children => children.size = n ∧ ∀ (i : Nat) h, (children[i]'h).FixedBranching n
   | leaf _ => True
 
 structure MNode (Data : Type) (m : Nat) where

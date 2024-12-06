@@ -1007,9 +1007,9 @@ theorem sign_eq_neg_one_iff_neg {a : Int} : sign a = -1 ↔ a < 0 :=
   match x with
   | 0 => rfl
   | .ofNat (_ + 1) =>
-    simp (config := { decide := true }) only [sign, true_iff]
+    simp +decide only [sign, true_iff]
     exact Int.le_add_one (ofNat_nonneg _)
-  | .negSucc _ => simp (config := { decide := true }) [sign]
+  | .negSucc _ => simp +decide [sign]
 
 theorem mul_sign : ∀ i : Int, i * sign i = natAbs i
   | succ _ => Int.mul_one _

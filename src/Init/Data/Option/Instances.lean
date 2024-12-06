@@ -86,4 +86,6 @@ instance : ForIn' m (Option α) α inferInstance where
       match ← f a rfl init with
       | .done r | .yield r => return r
 
+-- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
+
 end Option

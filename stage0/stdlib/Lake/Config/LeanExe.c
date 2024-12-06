@@ -124,7 +124,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_leanExes(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_2 = lean_ctor_get(x_1, 10);
+x_2 = lean_ctor_get(x_1, 9);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
@@ -225,7 +225,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findLeanExe_x3f(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 10);
+x_3 = lean_ctor_get(x_2, 9);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -1040,7 +1040,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetModule_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_3 = lean_ctor_get(x_2, 10);
+x_3 = lean_ctor_get(x_2, 9);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);

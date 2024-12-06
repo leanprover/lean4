@@ -20,7 +20,7 @@ For example, give a definition `foo`, we flag `foo.def` as reserved symbol.
 -/
 
 def throwReservedNameNotAvailable [Monad m] [MonadError m] (declName : Name) (reservedName : Name) : m Unit := do
-  throwError "failed to declare `{declName}` because `{reservedName}` has already been declared"
+  throwError "failed to declare `{declName}` because `{.ofConstName reservedName true}` has already been declared"
 
 def ensureReservedNameAvailable [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (suffix : String) : m Unit := do
   let reservedName := .str declName suffix
@@ -45,7 +45,7 @@ builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment 
 Returns `true` if `name` is a reserved name.
 -/
 def isReservedName (env : Environment) (name : Name) : Bool :=
-  reservedNamePredicatesExt.getState env |>.any (· env name)
+  reservedNamePredicatesExt.getStateNoAsync env |>.any (· env name)
 
 /-!
   We use aliases to implement the `export <id> (<id>+)` command.
@@ -78,7 +78,7 @@ def getAliasState (env : Environment) : AliasState :=
   declarations that are not marked as `protected`.
 -/
 def getAliases (env : Environment) (a : Name) (skipProtected : Bool) : List Name :=
-  match aliasExtension.getState env |>.find? a with
+  match aliasExtension.getStateNoAsync env |>.find? a with
   | none    => []
   | some es =>
     if skipProtected then

@@ -60,7 +60,7 @@ where
       if ptrEq a b then
         go (i+1) as
       else
-        go (i+1) (as.set ⟨i, h⟩ b)
+        go (i+1) (as.set i b h)
     else
       return as
 

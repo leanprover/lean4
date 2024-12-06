@@ -546,7 +546,7 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
     if h : i < values.size then
-      let value := values.get ⟨i, h⟩
+      let value := values[i]
       -- (x = value) branch
       let subst := subgoal.subst
       trace[Meta.Match.match] "processValue subst: {subst.map.toList.map fun p => mkFVar p.1}, {subst.map.toList.map fun p => p.2}"
@@ -773,7 +773,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-  match (matcherExt.getState env).find? (result.value, compile) with
+  match (matcherExt.getStateNoAsync env).find? (result.value, compile) with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
@@ -882,7 +882,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
       | none => pure ()
 
     trace[Meta.Match.debug] "matcher: {matcher}"
-    let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
+    let unusedAltIdxs := lhss.length.fold (init := []) fun i _ r =>
       if s.used.contains i then r else i::r
     return {
       matcher,

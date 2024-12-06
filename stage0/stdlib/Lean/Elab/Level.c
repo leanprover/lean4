@@ -90,7 +90,6 @@ static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed_
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__20;
-lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__5;
 LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1(lean_object*, lean_object*);
@@ -117,9 +116,9 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__2;
 extern lean_object* l_Lean_Elab_relaxedAutoImplicit;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__2___rarg(lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__8;
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290_(lean_object*);
@@ -146,6 +145,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__4;
 LEAN_EXPORT lean_object* l_Lean_mkFreshLMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__14;
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__1;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__8;
@@ -861,7 +861,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__2;
 x_3 = l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__5;
 x_4 = l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_290____closed__9;
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_5____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_5____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -1857,7 +1857,7 @@ lean_dec(x_1);
 x_111 = l_Lean_Syntax_getArgs(x_110);
 lean_dec(x_110);
 x_112 = l_Lean_instInhabitedSyntax;
-x_113 = l_Array_back___rarg(x_112, x_111);
+x_113 = l_Array_back_x21___rarg(x_112, x_111);
 lean_inc(x_2);
 x_114 = l_Lean_Elab_Level_elabLevel(x_113, x_2, x_3);
 if (lean_obj_tag(x_114) == 0)
@@ -2055,7 +2055,7 @@ lean_dec(x_1);
 x_162 = l_Lean_Syntax_getArgs(x_161);
 lean_dec(x_161);
 x_163 = l_Lean_instInhabitedSyntax;
-x_164 = l_Array_back___rarg(x_163, x_162);
+x_164 = l_Array_back_x21___rarg(x_163, x_162);
 lean_inc(x_2);
 x_165 = l_Lean_Elab_Level_elabLevel(x_164, x_2, x_3);
 if (lean_obj_tag(x_165) == 0)
@@ -2669,7 +2669,7 @@ lean_dec(x_1);
 x_308 = l_Lean_Syntax_getArgs(x_307);
 lean_dec(x_307);
 x_309 = l_Lean_instInhabitedSyntax;
-x_310 = l_Array_back___rarg(x_309, x_308);
+x_310 = l_Array_back_x21___rarg(x_309, x_308);
 lean_inc(x_218);
 x_311 = l_Lean_Elab_Level_elabLevel(x_310, x_218, x_3);
 if (lean_obj_tag(x_311) == 0)
@@ -2809,7 +2809,7 @@ lean_dec(x_1);
 x_340 = l_Lean_Syntax_getArgs(x_339);
 lean_dec(x_339);
 x_341 = l_Lean_instInhabitedSyntax;
-x_342 = l_Array_back___rarg(x_341, x_340);
+x_342 = l_Array_back_x21___rarg(x_341, x_340);
 lean_inc(x_218);
 x_343 = l_Lean_Elab_Level_elabLevel(x_342, x_218, x_3);
 if (lean_obj_tag(x_343) == 0)

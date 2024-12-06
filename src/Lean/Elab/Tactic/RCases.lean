@@ -27,6 +27,8 @@ instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
 instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
   coe stx := Unhygienic.run `(rintroPat| $stx:rcasesPat)
 
+set_option interpreter.prefer_native false
+
 /-- A list, with a disjunctive meaning (like a list of inductive constructors, or subgoals) -/
 local notation "ListΣ" => List
 
@@ -526,7 +528,7 @@ where
   /-- Runs `rintroContinue` on `pats[i:]` -/
   loop i g fs clears a := do
     if h : i < pats.size then
-      rintroCore g fs clears a ref (pats.get ⟨i, h⟩) ty? (loop (i+1))
+      rintroCore g fs clears a ref pats[i] ty? (loop (i+1))
     else cont g fs clears a
 
 end

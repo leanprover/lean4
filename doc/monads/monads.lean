@@ -192,8 +192,8 @@ implementation of `pure` and `bind`.
 
 -/
 instance : Monad List  where
-  pure := List.pure
-  bind := List.bind
+  pure := List.singleton
+  bind := List.flatMap
 /-!
 
 Like you saw with the applicative `seq` operator, the `bind` operator applies the given function

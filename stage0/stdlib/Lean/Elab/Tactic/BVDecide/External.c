@@ -3773,7 +3773,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Consider increasing the timeout with `set_option sat.timeout <sec>`.\n", 69, 69);
+x_1 = lean_mk_string_unchecked("Consider increasing the timeout with the `timeout` config option.\n", 66, 66);
 return x_1;
 }
 }
@@ -3791,7 +3791,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("If solving your problem relies inherently on using associativity or commutativity, consider enabling the `bv.ac_nf` option.", 123, 123);
+x_1 = lean_mk_string_unchecked("If solving your problem relies inherently on using associativity or commutativity, consider enabling the `acNf` config option.", 126, 126);
 return x_1;
 }
 }

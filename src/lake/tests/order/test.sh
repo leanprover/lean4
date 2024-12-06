@@ -10,13 +10,13 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # Later packages and libraries in the dependency tree shadow earlier ones.
 # https://github.com/leanprover/lean4/issues/2548
 
-$LAKE update
+$LAKE update -v
 $LAKE build +A -v | grep --color 222000
 $LAKE build +A.B -v | grep --color 333000
 $LAKE build +A.B.C -v | grep --color 333000
-$LAKE build +X -v | grep --color 888000
-$LAKE build +Y -v | grep --color 666000
-$LAKE build +Z -v | grep --color 666000
+$LAKE build +X -v | grep --color 888000 # bar
+$LAKE build +Y -v | grep --color 666000 # order
+$LAKE build +Z -v | grep --color 666000 # leaf from order
 $LAKE exe Y | grep --color root
 
 # Tests that `lake update` does not reorder packages in the manifest

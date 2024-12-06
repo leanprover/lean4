@@ -153,7 +153,7 @@ theorem countP_filterMap (p : β → Bool) (f : α → Option β) (l : List α) 
   simp only [length_filterMap_eq_countP]
   congr
   ext a
-  simp (config := { contextual := true }) [Option.getD_eq_iff, Option.isSome_eq_isSome]
+  simp +contextual [Option.getD_eq_iff, Option.isSome_eq_isSome]
 
 @[simp] theorem countP_flatten (l : List (List α)) :
     countP p l.flatten = (l.map (countP p)).sum := by
@@ -315,7 +315,7 @@ theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = len
 theorem count_le_count_map [DecidableEq β] (l : List α) (f : α → β) (x : α) :
     count x l ≤ count (f x) (map f l) := by
   rw [count, count, countP_map]
-  apply countP_mono_left; simp (config := { contextual := true })
+  apply countP_mono_left; simp +contextual
 
 theorem count_filterMap {α} [BEq β] (b : β) (f : α → Option β) (l : List α) :
     count b (filterMap f l) = countP (fun a => f a == some b) l := by

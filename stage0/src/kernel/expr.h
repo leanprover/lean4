@@ -123,11 +123,37 @@ inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
     return static_cast<bool>(a) == static_cast<bool>(b) && (!a || is_eqp(*a, *b));
 }
 
-unsigned hash(expr const & e);
-bool has_expr_mvar(expr const & e);
-bool has_univ_mvar(expr const & e);
+inline uint64_t get_data(expr const & e) {
+    return lean_ctor_get_uint64(e.raw(), lean_ctor_num_objs(e.raw())*sizeof(object*));
+}
+/* This is the implementation in Lean */
+unsigned hash_core(expr const & e);
+inline unsigned hash(expr const & e) {
+    unsigned r = static_cast<unsigned>(get_data(e));
+    lean_assert(r == hash_core(e));
+    return r;
+}
+/* This is the implementation in Lean */
+bool has_expr_mvar_core(expr const & e);
+inline bool has_expr_mvar(expr const & e) {
+    bool r = ((get_data(e) >> 41) & 1) == 1;
+    lean_assert(r == has_expr_mvar_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
+bool has_univ_mvar_core(expr const & e);
+inline bool has_univ_mvar(expr const & e) {
+    bool r = ((get_data(e) >> 42) & 1) == 1;
+    lean_assert(r == has_univ_mvar_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 inline bool has_mvar(expr const & e) { return has_expr_mvar(e) || has_univ_mvar(e); }
-bool has_fvar(expr const & e);
+/* This is the implementation in Lean */
+bool has_fvar_core(expr const & e);
+inline bool has_fvar(expr const & e) {
+    bool r = ((get_data(e) >> 40) & 1) == 1;
+    lean_assert(r == has_fvar_core(e)); // ensure the C++ implementation matches the Lean one.
+    return r;
+}
 bool has_univ_param(expr const & e);
 unsigned get_loose_bvar_range(expr const & e);
 

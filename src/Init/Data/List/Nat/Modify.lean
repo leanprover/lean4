@@ -110,6 +110,25 @@ theorem exists_of_modifyTailIdx (f : List α → List α) {n} {l : List α} (h :
     ⟨_, _, (take_append_drop n l).symm, length_take_of_le h⟩
   ⟨_, _, eq, hl, hl ▸ eq ▸ modifyTailIdx_add (n := 0) ..⟩
 
+theorem modifyTailIdx_modifyTailIdx {f g : List α → List α} (m : Nat) :
+    ∀ (n) (l : List α),
+      (l.modifyTailIdx f n).modifyTailIdx g (m + n) =
+        l.modifyTailIdx (fun l => (f l).modifyTailIdx g m) n
+  | 0, _ => rfl
+  | _ + 1, [] => rfl
+  | n + 1, a :: l => congrArg (List.cons a) (modifyTailIdx_modifyTailIdx m n l)
+
+theorem modifyTailIdx_modifyTailIdx_le {f g : List α → List α} (m n : Nat) (l : List α)
+    (h : n ≤ m) :
+    (l.modifyTailIdx f n).modifyTailIdx g m =
+      l.modifyTailIdx (fun l => (f l).modifyTailIdx g (m - n)) n := by
+  rcases Nat.exists_eq_add_of_le h with ⟨m, rfl⟩
+  rw [Nat.add_comm, modifyTailIdx_modifyTailIdx, Nat.add_sub_cancel]
+
+theorem modifyTailIdx_modifyTailIdx_self {f g : List α → List α} (n : Nat) (l : List α) :
+    (l.modifyTailIdx f n).modifyTailIdx g n = l.modifyTailIdx (g ∘ f) n := by
+  rw [modifyTailIdx_modifyTailIdx_le n n l (Nat.le_refl n), Nat.sub_self]; rfl
+
 /-! ### modify -/
 
 @[simp] theorem modify_nil (f : α → α) (n) : [].modify f n = [] := by cases n <;> rfl

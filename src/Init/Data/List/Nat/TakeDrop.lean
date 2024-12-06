@@ -345,7 +345,7 @@ theorem drop_append {l₁ l₂ : List α} (i : Nat) : drop (l₁.length + i) (l�
   rw [drop_append_eq_append_drop, drop_eq_nil_of_le] <;>
     simp [Nat.add_sub_cancel_left, Nat.le_add_right]
 
-theorem set_eq_take_append_cons_drop {l : List α} {n : Nat} {a : α} :
+theorem set_eq_take_append_cons_drop (l : List α) (n : Nat) (a : α) :
     l.set n a = if n < l.length then l.take n ++ a :: l.drop (n + 1) else l := by
   split <;> rename_i h
   · ext1 m

@@ -25,6 +25,7 @@ static lean_object* l_Std_Tactic_BVDecide_BVUnOp_toString___closed__4;
 lean_object* l_BitVec_setWidth(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BoolExpr_eval___rarg(lean_object*, lean_object*);
 lean_object* l_BitVec_replicate(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Tactic_BVDecide_BVExpr_toString___closed__15;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinPred_toCtorIdx___boxed(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVUnOp_eval(lean_object*, lean_object*, lean_object*);
@@ -1282,6 +1283,14 @@ x_1 = lean_mk_string_unchecked(" >> ", 4, 4);
 return x_1;
 }
 }
+static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_toString___closed__15() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked(" >>a ", 5, 5);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_toString(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1553,7 +1562,7 @@ x_135 = l_Std_Tactic_BVDecide_BVExpr_toString___closed__7;
 x_136 = lean_string_append(x_134, x_135);
 return x_136;
 }
-default: 
+case 10:
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; 
 x_137 = lean_ctor_get(x_2, 1);
@@ -1575,6 +1584,29 @@ lean_dec(x_145);
 x_147 = l_Std_Tactic_BVDecide_BVExpr_toString___closed__7;
 x_148 = lean_string_append(x_146, x_147);
 return x_148;
+}
+default: 
+{
+lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; 
+x_149 = lean_ctor_get(x_2, 1);
+lean_inc(x_149);
+x_150 = lean_ctor_get(x_2, 2);
+lean_inc(x_150);
+x_151 = lean_ctor_get(x_2, 3);
+lean_inc(x_151);
+lean_dec(x_2);
+x_152 = l_Std_Tactic_BVDecide_BVExpr_toString(x_1, x_150);
+x_153 = l_Std_Tactic_BVDecide_BVExpr_toString___closed__9;
+x_154 = lean_string_append(x_153, x_152);
+lean_dec(x_152);
+x_155 = l_Std_Tactic_BVDecide_BVExpr_toString___closed__15;
+x_156 = lean_string_append(x_154, x_155);
+x_157 = l_Std_Tactic_BVDecide_BVExpr_toString(x_149, x_151);
+x_158 = lean_string_append(x_156, x_157);
+lean_dec(x_157);
+x_159 = l_Std_Tactic_BVDecide_BVExpr_toString___closed__7;
+x_160 = lean_string_append(x_158, x_159);
+return x_160;
 }
 }
 }
@@ -1775,7 +1807,7 @@ lean_dec(x_49);
 lean_dec(x_48);
 return x_50;
 }
-default: 
+case 10:
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 x_51 = lean_ctor_get(x_3, 1);
@@ -1792,6 +1824,23 @@ x_56 = lean_nat_shiftr(x_54, x_55);
 lean_dec(x_55);
 lean_dec(x_54);
 return x_56;
+}
+default: 
+{
+lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_57 = lean_ctor_get(x_3, 1);
+lean_inc(x_57);
+x_58 = lean_ctor_get(x_3, 2);
+lean_inc(x_58);
+x_59 = lean_ctor_get(x_3, 3);
+lean_inc(x_59);
+lean_dec(x_3);
+x_60 = l_Std_Tactic_BVDecide_BVExpr_eval(x_1, x_2, x_58);
+x_61 = l_Std_Tactic_BVDecide_BVExpr_eval(x_57, x_2, x_59);
+lean_dec(x_57);
+x_62 = l_BitVec_sshiftRight(x_1, x_60, x_61);
+lean_dec(x_61);
+return x_62;
 }
 }
 }
@@ -2242,6 +2291,8 @@ l_Std_Tactic_BVDecide_BVExpr_toString___closed__13 = _init_l_Std_Tactic_BVDecide
 lean_mark_persistent(l_Std_Tactic_BVDecide_BVExpr_toString___closed__13);
 l_Std_Tactic_BVDecide_BVExpr_toString___closed__14 = _init_l_Std_Tactic_BVDecide_BVExpr_toString___closed__14();
 lean_mark_persistent(l_Std_Tactic_BVDecide_BVExpr_toString___closed__14);
+l_Std_Tactic_BVDecide_BVExpr_toString___closed__15 = _init_l_Std_Tactic_BVDecide_BVExpr_toString___closed__15();
+lean_mark_persistent(l_Std_Tactic_BVDecide_BVExpr_toString___closed__15);
 l_Std_Tactic_BVDecide_BVExpr_Assignment_getD___closed__1 = _init_l_Std_Tactic_BVDecide_BVExpr_Assignment_getD___closed__1();
 lean_mark_persistent(l_Std_Tactic_BVDecide_BVExpr_Assignment_getD___closed__1);
 l_Std_Tactic_BVDecide_BVBinPred_toString___closed__1 = _init_l_Std_Tactic_BVDecide_BVBinPred_toString___closed__1();

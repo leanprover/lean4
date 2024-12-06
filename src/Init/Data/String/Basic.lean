@@ -514,9 +514,6 @@ instance : Inhabited String := ⟨""⟩
 
 instance : Append String := ⟨String.append⟩
 
-@[deprecated push (since := "2024-04-06")]
-def str : String → Char → String := push
-
 @[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
   n.repeat (fun s => s.push c) s
 

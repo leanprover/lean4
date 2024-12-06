@@ -11,14 +11,14 @@ def f3 (xs : List (Nat × Nat)) : List (Nat × Nat) := Id.run <| do
 for p in xs do
   p := (p.2, p.1) -- works. `forInMap` requires a variable
 
-inductive Vector (α : Type) : Nat → Type
-| nil  : Vector α 0
-| cons : α → {n : Nat} → Vector α n → Vector α (n+1)
-def f4 (b : Bool) (n : Nat) (v : Vector Nat n) : Vector Nat (n+1) := Id.run <| do
+inductive Vector' (α : Type) : Nat → Type
+| nil  : Vector' α 0
+| cons : α → {n : Nat} → Vector' α n → Vector' α (n+1)
+def f4 (b : Bool) (n : Nat) (v : Vector' Nat n) : Vector' Nat (n+1) := Id.run <| do
 let mut v := v
 if b then
-  v := Vector.cons 1 v
-Vector.cons 1 v
+  v := Vector'.cons 1 v
+Vector'.cons 1 v
 def f5 (y : Nat) (xs : List Nat) : List Bool := Id.run <| do
 let mut y := y
 for x in xs do

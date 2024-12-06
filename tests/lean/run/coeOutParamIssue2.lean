@@ -5,7 +5,7 @@ class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
 export GetElem (getElem)
 
 instance : GetElem (Array α) Nat α where
-  getElem xs i := xs.get ⟨i, sorry⟩
+  getElem xs i := xs.get i sorry
 
 opaque f : Option Bool → Bool
 opaque g : Bool → Bool

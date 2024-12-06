@@ -71,7 +71,7 @@ def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNam
       let mvarId := subgoal.mvarId
       let hEqSz  := (subst.get hEq).fvarId!
       if h : i < sizes.size then
-         let n := sizes.get ⟨i, h⟩
+         let n := sizes[i]
          let mvarId ← mvarId.clear subgoal.newHs[0]!
          let mvarId ← mvarId.clear (subst.get aSizeFVarId).fvarId!
          mvarId.withContext do

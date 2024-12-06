@@ -7,4 +7,6 @@
 // Additional version description like "nightly-2018-03-11"
 #define LEAN_SPECIAL_VERSION_DESC "@LEAN_SPECIAL_VERSION_DESC@"
 
+#define LEAN_VERSION_STRING "@LEAN_VERSION_STRING@"
+
 #define LEAN_PLATFORM_TARGET "@LEAN_PLATFORM_TARGET@"

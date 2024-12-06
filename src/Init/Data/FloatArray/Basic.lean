@@ -46,8 +46,8 @@ def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
   | ⟨ds⟩, i, h => ds[i]
 
 @[extern "lean_float_array_fget"]
-def get : (ds : @& FloatArray) → (@& Fin ds.size) → Float
-  | ⟨ds⟩, i => ds.get i
+def get : (ds : @& FloatArray) → (i : @& Nat) → (h : i < ds.size := by get_elem_tactic) → Float
+  | ⟨ds⟩, i, h => ds.get i h
 
 @[extern "lean_float_array_get"]
 def get! : (@& FloatArray) → (@& Nat) → Float
@@ -55,23 +55,23 @@ def get! : (@& FloatArray) → (@& Nat) → Float
 
 def get? (ds : FloatArray) (i : Nat) : Option Float :=
   if h : i < ds.size then
-    ds.get ⟨i, h⟩
+    some (ds.get i h)
   else
     none
 
 instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
-  getElem xs i h := xs.get ⟨i, h⟩
+  getElem xs i h := xs.get i h
 
 instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
 
 @[extern "lean_float_array_uset"]
-def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray
+def uset : (a : FloatArray) → (i : USize) → Float → (h : i.toNat < a.size := by get_elem_tactic) → FloatArray
   | ⟨ds⟩, i, v, h => ⟨ds.uset i v h⟩
 
 @[extern "lean_float_array_fset"]
-def set : (ds : FloatArray) → (@& Fin ds.size) → Float → FloatArray
-  | ⟨ds⟩, i, d => ⟨ds.set i d⟩
+def set : (ds : FloatArray) → (i : @& Nat) → Float → (h : i < ds.size := by get_elem_tactic) → FloatArray
+  | ⟨ds⟩, i, d, h => ⟨ds.set i d h⟩
 
 @[extern "lean_float_array_set"]
 def set! : FloatArray → (@& Nat) → Float → FloatArray
@@ -83,7 +83,7 @@ def isEmpty (s : FloatArray) : Bool :=
 partial def toList (ds : FloatArray) : List Float :=
   let rec loop (i r) :=
     if h : i < ds.size then
-      loop (i+1) (ds.get ⟨i, h⟩ :: r)
+      loop (i+1) (ds[i] :: r)
     else
       r.reverse
   loop 0 []
@@ -115,7 +115,7 @@ protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatA
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
       have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
-      match (← f (as.get ⟨as.size - 1 - i, this⟩) b) with
+      match (← f as[as.size - 1 - i] b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b => loop i (Nat.le_of_lt h') b
   loop as.size (Nat.le_refl _) b
@@ -149,7 +149,7 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float →
         match i with
         | 0    => pure b
         | i'+1 =>
-          loop i' (j+1) (← f b (as.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩))
+          loop i' (j+1) (← f b (as[j]'(Nat.lt_of_lt_of_le hlt h)))
       else
         pure b
     loop (stop - start) start init

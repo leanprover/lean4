@@ -36,7 +36,7 @@ def mkEmpty (capacity : Nat) : RBDict α β cmp :=
 def ofArray (items : Array (α × β)) : RBDict α β cmp := Id.run do
   let mut indices := mkRBMap α Nat cmp
   for h : i in [0:items.size] do
-    indices := indices.insert (items[i]'h.upper).1 i
+    indices := indices.insert items[i].1 i
   return {items, indices}
 
 protected def beq [BEq (α × β)] (self other : RBDict α β cmp) : Bool :=
@@ -80,7 +80,7 @@ def push (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
 def insert (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
   if let some i := t.findIdx? k then
     if h : i < t.items.size then
-      {t with items := t.items.set ⟨i,h⟩ (k,v)}
+      {t with items := t.items.set i (k,v)}
     else
       t.push k v
   else

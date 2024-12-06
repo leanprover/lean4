@@ -25,15 +25,16 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_c
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___at___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_canUnfold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(uint8_t, uint8_t);
 lean_object* l_Lean_throwUnknownConstant___at___private_Lean_Meta_Basic_0__Lean_Meta_getConstTemp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getUnfoldableConstNoEx_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_getConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getUnfoldableConstNoEx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getUnfoldableConst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isReducible___at___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getUnfoldableConst_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isIrreducible___at___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getTheoremInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_72_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___at___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___at___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -315,7 +316,7 @@ x_39 = lean_ctor_get(x_38, 0);
 lean_inc(x_39);
 lean_dec(x_38);
 x_40 = 3;
-x_41 = l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_72_(x_6, x_40);
+x_41 = l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_6, x_40);
 if (x_41 == 0)
 {
 uint8_t x_42; lean_object* x_43; 
@@ -360,7 +361,7 @@ x_51 = lean_ctor_get(x_49, 0);
 lean_inc(x_51);
 lean_dec(x_49);
 x_52 = 3;
-x_53 = l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_72_(x_6, x_52);
+x_53 = l___private_Init_MetaTypes_0__Lean_Meta_beqTransparencyMode____x40_Init_MetaTypes___hyg_73_(x_6, x_52);
 if (x_53 == 0)
 {
 uint8_t x_54; lean_object* x_55; lean_object* x_56; 
@@ -478,33 +479,39 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Meta_canUnfold(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_2, 5);
-lean_inc(x_7);
-if (lean_obj_tag(x_7) == 0)
-{
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_ctor_get(x_2, 0);
+lean_object* x_7; lean_object* x_8; 
+x_7 = l_Lean_Meta_getConfig(x_2, x_3, x_4, x_5, x_6);
+x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
-x_9 = l___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault(x_8, x_1, x_4, x_5, x_6);
+if (lean_obj_tag(x_8) == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_7, 1);
+lean_inc(x_10);
+lean_dec(x_7);
+x_11 = l___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_canUnfoldDefault(x_9, x_1, x_4, x_5, x_10);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
-lean_dec(x_8);
-return x_9;
+lean_dec(x_9);
+return x_11;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_10);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_ctor_get(x_7, 0);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_7, 1);
+lean_inc(x_13);
 lean_dec(x_7);
-x_11 = lean_ctor_get(x_2, 0);
-lean_inc(x_11);
-lean_dec(x_2);
-x_12 = lean_apply_5(x_10, x_11, x_1, x_4, x_5, x_6);
-return x_12;
+x_14 = lean_ctor_get(x_8, 0);
+lean_inc(x_14);
+lean_dec(x_8);
+x_15 = lean_apply_5(x_14, x_12, x_1, x_4, x_5, x_13);
+return x_15;
 }
 }
 }

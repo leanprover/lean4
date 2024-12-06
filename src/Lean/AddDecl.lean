@@ -5,34 +5,71 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.CoreM
+import Lean.Language.Basic
+import Lean.Elab.Exception
 
 namespace Lean
 
-register_builtin_option debug.skipKernelTC : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
-}
-
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment :=
-  if debug.skipKernelTC.get opts then
-    addDeclWithoutChecking env decl
-  else
-    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
-
+@[deprecated "use `Lean.addAndCompile` instead"]
 def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment := do
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
   let env ← addDecl env opts decl cancelTk?
   compileDecl env opts decl
 
+private def isNamespaceName : Name → Bool
+  | .str .anonymous _ => true
+  | .str p _          => isNamespaceName p
+  | _                 => false
+
+private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
+  match name with
+    | .str _ s =>
+      if s.get 0 == '_' then
+        -- Do not register namespaces that only contain internal declarations.
+        env
+      else
+        go env name
+    | _ => env
+where go env
+  | .str p _ => if isNamespaceName p then go (Environment.registerNamespace env p) p else env
+  | _        => env
+
 def addDecl (decl : Declaration) : CoreM Unit := do
+  let preEnv ← getEnv
+  let (name, info, kind) ← match decl with
+    | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
+    | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
+    | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
+    | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
+    | .inductDecl _ _ types _ =>
+      -- used to be triggered by adding `X.recOn` etc. to the environment but that's async now
+      modifyEnv (types.foldl (registerNamePrefixes · <| ·.name ++ `rec));
+      doAdd
+      return
+    | _ => return (← doAdd)
+
+  if Elab.async.get (← getOptions) then
+    let async ← preEnv.addConstAsync (reportExts := false) name kind
+    async.commitConst async.asyncEnv (some info)
+    setEnv async.mainEnv
+    let ctx ← read
+    let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
+      try
+        setEnv async.asyncEnv
+        doAdd
+        async.checkAndCommitEnv (← getEnv) ctx.options ctx.cancelTk?
+      finally
+        async.commitFailure
+    let _ ← BaseIO.mapTask (fun _ => checkAct) preEnv.checked
+    return
+  doAdd
+where doAdd := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
       if !(← MonadLog.hasErrors) && decl.hasSorry then
         logWarning "declaration uses 'sorry'"
       match (← getEnv).addDecl (← getOptions) decl (← read).cancelTk? with
-      | .ok    env => setEnv env
+      | .ok    env => setEnv (← decl.getNames.foldlM (m := BaseIO) (·.enableRealizationsForConst) env)
       | .error ex  => throwKernelException ex
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do

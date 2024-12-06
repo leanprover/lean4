@@ -63,6 +63,9 @@ def cwd : GitRepo := ⟨"."⟩
 @[inline] def quietInit (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["init", "-q"]
 
+@[inline] def insideWorkTree (repo : GitRepo) : BaseIO Bool := do
+  repo.testGit #["rev-parse", "--is-inside-work-tree"]
+
 @[inline] def fetch (repo : GitRepo) (remote := Git.defaultRemote) : LogIO PUnit  :=
   repo.execGit #["fetch", "--tags", "--force", remote]
 

@@ -62,10 +62,10 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Basic_0__List_merge_mat
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__53;
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_758_;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__50;
 LEAN_EXPORT lean_object* l_List_enumLE(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__5;
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_814_;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__52;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__15;
 LEAN_EXPORT lean_object* l_List_splitInTwo___rarg___boxed(lean_object*, lean_object*);
@@ -995,7 +995,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_758_() {
+static lean_object* _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_814_() {
 _start:
 {
 lean_object* x_1; 
@@ -1365,8 +1365,8 @@ l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__59 = _init_l___aut
 lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__59);
 l___auto____x40_Init_Data_List_Sort_Basic___hyg_12_ = _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_12_();
 lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_12_);
-l___auto____x40_Init_Data_List_Sort_Basic___hyg_758_ = _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_758_();
-lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_758_);
+l___auto____x40_Init_Data_List_Sort_Basic___hyg_814_ = _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_814_();
+lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_814_);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

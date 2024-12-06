@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Util.Sugar
+import Lake.Util.Version
 import Lake.Config.Lang
 import Lake.Config.Package
 import Lake.Config.Workspace
@@ -18,20 +19,19 @@ open Lean (Name)
 /-- The default module of an executable in `std` package. -/
 def defaultExeRoot : Name := `Main
 
-/-- `elan` toolchain file name -/
-def toolchainFileName : FilePath := "lean-toolchain"
-
 def gitignoreContents :=
 s!"/{defaultLakeDir}
 "
 
 def basicFileContents :=
-  s!"def hello := \"world\""
+s!"def hello := \"world\"
+"
 
 def libRootFileContents (libName : String) (libRoot : Name) :=
 s!"-- This module serves as the root of the `{libName}` library.
 -- Import modules here that should be built as part of the library.
-import {libRoot}.Basic"
+import {libRoot}.Basic
+"
 
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"
@@ -278,8 +278,8 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     IO.FS.writeFile readmeFile (readmeFileContents <| dotlessName name)
 
   -- initialize a `.git` repository if none already
-  unless (← FilePath.isDir <| dir / ".git") do
-    let repo := GitRepo.mk dir
+  let repo := GitRepo.mk dir
+  unless (← repo.insideWorkTree) do
     try
       repo.quietInit
       unless upstreamBranch = "master" do

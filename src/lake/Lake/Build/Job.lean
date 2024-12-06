@@ -298,11 +298,11 @@ instance : Functor BuildJob where
 @[inline] protected def wait? (self : BuildJob α) : BaseIO (Option α) :=
   (·.map (·.1)) <$> self.toJob.wait?
 
-def add (t1 : BuildJob α) (t2 : BuildJob β) : BuildJob α :=
-  mk <| t1.toJob.zipWith (fun a _ => a) t2.toJob
+def add (self : BuildJob α) (other : BuildJob β) : BuildJob α :=
+  mk <| self.toJob.zipWith (fun a _ => a) other.toJob
 
-def mix (t1 : BuildJob α) (t2 : BuildJob β) : BuildJob Unit :=
-  mk <| t1.toJob.zipWith (fun (_,t) (_,t') => ((), mixTrace t t')) t2.toJob
+def mix (self : BuildJob α) (other : BuildJob β) : BuildJob Unit :=
+  mk <| self.toJob.zipWith (fun (_,t) (_,t') => ((), mixTrace t t')) other.toJob
 
 def mixList (jobs : List (BuildJob α)) : Id (BuildJob Unit) := ofJob $
   jobs.foldr (·.toJob.zipWith (fun (_,t') t => mixTrace t t') ·) (pure nilTrace)
@@ -311,12 +311,12 @@ def mixArray (jobs : Array (BuildJob α)) : Id (BuildJob Unit) := ofJob $
   jobs.foldl (·.zipWith (fun t (_,t') => mixTrace t t') ·.toJob) (pure nilTrace)
 
 def zipWith
-  (f : α → β → γ) (t1 : BuildJob α) (t2 : BuildJob β)
+  (f : α → β → γ) (self : BuildJob α) (other : BuildJob β)
 : BuildJob γ :=
-  mk <| t1.toJob.zipWith (fun (a,t) (b,t') => (f a b, mixTrace t t')) t2.toJob
+  mk <| self.toJob.zipWith (fun (a,t) (b,t') => (f a b, mixTrace t t')) other.toJob
 
 def collectList (jobs : List (BuildJob α)) : Id (BuildJob (List α)) :=
   return jobs.foldr (zipWith List.cons) (pure [])
 
 def collectArray (jobs : Array (BuildJob α)) : Id (BuildJob (Array α)) :=
-  return jobs.foldl (zipWith Array.push) (pure #[])
+  return jobs.foldl (zipWith Array.push) (pure (Array.mkEmpty jobs.size))

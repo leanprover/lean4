@@ -61,7 +61,7 @@ theorem CNF.Clause.mem_lrat_of_mem (clause : CNF.Clause (PosFin n)) (h1 : l ∈ 
   | nil => cases h1
   | cons hd tl ih =>
     unfold DefaultClause.ofArray at h2
-    rw [Array.foldr_eq_foldr_toList, List.toArray_toList] at h2
+    rw [← Array.foldr_toList, List.toArray_toList] at h2
     dsimp only [List.foldr] at h2
     split at h2
     · cases h2
@@ -77,7 +77,7 @@ theorem CNF.Clause.mem_lrat_of_mem (clause : CNF.Clause (PosFin n)) (h1 : l ∈ 
             · assumption
             · next heq _ _ =>
               unfold DefaultClause.ofArray
-              rw [Array.foldr_eq_foldr_toList, List.toArray_toList]
+              rw [← Array.foldr_toList, List.toArray_toList]
               exact heq
         · cases h1
           · simp only [← Option.some.inj h2]
@@ -89,7 +89,7 @@ theorem CNF.Clause.mem_lrat_of_mem (clause : CNF.Clause (PosFin n)) (h1 : l ∈ 
             apply ih
             assumption
             unfold DefaultClause.ofArray
-            rw [Array.foldr_eq_foldr_toList, List.toArray_toList]
+            rw [← Array.foldr_toList, List.toArray_toList]
             exact heq
 
 theorem CNF.Clause.convertLRAT_sat_of_sat (clause : CNF.Clause (PosFin n))

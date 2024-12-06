@@ -15,6 +15,8 @@
 -- 1. update the comment using the code action on `#guard_msgs`
 -- 2. (optional) add `(drop info)` after `#guard_msgs` and change the doc-comment to a comment
 
+set_option linter.unusedVariables false
+
 noncomputable section
 
 /-- info: Try this: exact Nat.lt_add_one x -/
@@ -25,7 +27,7 @@ example (x : Nat) : x ≠ x.succ := Nat.ne_of_lt (by apply?)
 #guard_msgs in
 example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by apply?)
 
-example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by exact Fin.size_pos')
+example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by exact Fin.pos')
 
 /-- info: Try this: exact Nat.add_comm x y -/
 #guard_msgs in
@@ -253,7 +255,7 @@ theorem Bool_eq_iff2 {A B : Bool} : (A = B) = (A ↔ B) := by
 --   | exact? says exact ge_antisymm hyx hxy
 
 /--
-info: Try this: refine Int.mul_ne_zero ?a0 h
+info: Try this: refine Int.mul_ne_zero ?_ h
 ---
 warning: declaration uses 'sorry'
 -/

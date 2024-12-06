@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo1"}}}},
+    "id": {"const": {"declName": "SomeStructure.foo1"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "foo2",
    "kind": 3,
@@ -17,7 +18,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo2"}}}},
+    "id": {"const": {"declName": "SomeStructure.foo2"}},
+    "cPos": 0}},
   {"tags": [1],
    "sortText": "2",
    "label": "foo3",
@@ -28,7 +30,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo3"}}}},
+    "id": {"const": {"declName": "SomeStructure.foo3"}},
+    "cPos": 0}},
   {"tags": [1],
    "sortText": "3",
    "label": "foo4",
@@ -40,7 +43,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo4"}}}},
+    "id": {"const": {"declName": "SomeStructure.foo4"}},
+    "cPos": 0}},
   {"tags": [1],
    "sortText": "4",
    "label": "foo5",
@@ -53,7 +57,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo5"}}}},
+    "id": {"const": {"declName": "SomeStructure.foo5"}},
+    "cPos": 0}},
   {"tags": [1],
    "sortText": "5",
    "label": "foo6",
@@ -66,7 +71,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo6"}}}},
+    "id": {"const": {"declName": "SomeStructure.foo6"}},
+    "cPos": 0}},
   {"tags": [1],
    "sortText": "6",
    "label": "foo7",
@@ -79,7 +85,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo7"}}}},
+    "id": {"const": {"declName": "SomeStructure.foo7"}},
+    "cPos": 0}},
   {"tags": [1],
    "sortText": "7",
    "label": "foo8",
@@ -92,5 +99,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
      "position": {"line": 25, "character": 28}},
-    "id": {"const": {"declName": "SomeStructure.foo8"}}}}],
+    "id": {"const": {"declName": "SomeStructure.foo8"}},
+    "cPos": 0}}],
  "isIncomplete": true}

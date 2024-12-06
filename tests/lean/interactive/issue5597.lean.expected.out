@@ -1,0 +1,8 @@
+{"textDocument": {"uri": "file:///issue5597.lean"},
+ "position": {"line": 1, "character": 3}}
+{"range":
+ {"start": {"line": 1, "character": 2}, "end": {"line": 1, "character": 7}},
+ "contents":
+ {"value":
+  "`simp!` is shorthand for `simp` with `autoUnfold := true`.\nThis will rewrite with all equation lemmas, which can be used to\npartially evaluate many definitions. ",
+  "kind": "markdown"}}

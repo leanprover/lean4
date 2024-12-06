@@ -114,6 +114,13 @@ def union (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
 def diff (t₁ t₂ : RBTree α cmp) : RBTree α cmp :=
   t₂.fold .erase t₁
 
+/--
+`filter f m` returns the `RBTree` consisting of all
+`x` in `m` where `f x` returns `true`.
+-/
+def filter (f : α → Bool) (m : RBTree α cmp) : RBTree α cmp :=
+  RBMap.filter (fun a _ => f a) m
+
 end RBTree
 
 def rbtreeOf {α : Type u} (l : List α) (cmp : α → α → Ordering) : RBTree α cmp :=

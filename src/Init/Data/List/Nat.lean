@@ -14,3 +14,5 @@ import Init.Data.List.Nat.Erase
 import Init.Data.List.Nat.Find
 import Init.Data.List.Nat.BEq
 import Init.Data.List.Nat.Modify
+import Init.Data.List.Nat.InsertIdx
+import Init.Data.List.Nat.Perm

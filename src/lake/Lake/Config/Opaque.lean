@@ -8,9 +8,6 @@ import Lake.Util.Opaque
 
 namespace Lake
 
-/-- Opaque reference to a `Package` used for forward declaration. -/
-declare_opaque_type OpaquePackage
-
 /-- Opaque reference to a `Workspace` used for forward declaration. -/
 declare_opaque_type OpaqueWorkspace
 

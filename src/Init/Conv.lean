@@ -7,6 +7,7 @@ Notation for operators defined at Prelude.lean
 -/
 prelude
 import Init.Tactics
+import Init.Meta
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -46,12 +47,20 @@ scoped syntax (name := withAnnotateState)
 /-- `skip` does nothing. -/
 syntax (name := skip) "skip" : conv
 
-/-- Traverses into the left subterm of a binary operator.
-(In general, for an `n`-ary operator, it traverses into the second to last argument.) -/
+/--
+Traverses into the left subterm of a binary operator.
+
+In general, for an `n`-ary operator, it traverses into the second to last argument.
+It is a synonym for `arg -2`.
+-/
 syntax (name := lhs) "lhs" : conv
 
-/-- Traverses into the right subterm of a binary operator.
-(In general, for an `n`-ary operator, it traverses into the last argument.) -/
+/--
+Traverses into the right subterm of a binary operator.
+
+In general, for an `n`-ary operator, it traverses into the last argument.
+It is a synonym for `arg -1`.
+-/
 syntax (name := rhs) "rhs" : conv
 
 /-- Traverses into the function of a (unary) function application.
@@ -74,13 +83,17 @@ subgoals for all the function arguments. For example, if the target is `f x y` t
 `congr` produces two subgoals, one for `x` and one for `y`. -/
 syntax (name := congr) "congr" : conv
 
+syntax argArg := "@"? "-"? num
+
 /--
 * `arg i` traverses into the `i`'th argument of the target. For example if the
   target is `f a b c d` then `arg 1` traverses to `a` and `arg 3` traverses to `c`.
+  The index may be negative; `arg -1` traverses into the last argument,
+  `arg -2` into the second-to-last argument, and so on.
 * `arg @i` is the same as `arg i` but it counts all arguments instead of just the
   explicit arguments.
 * `arg 0` traverses into the function. If the target is `f a b c d`, `arg 0` traverses into `f`. -/
-syntax (name := arg) "arg " "@"? num : conv
+syntax (name := arg) "arg " argArg : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
 to target `e`, introducing name `x` in the process. -/
@@ -130,11 +143,11 @@ For example, if we are searching for `f _` in `f (f a) = f b`:
 syntax (name := pattern) "pattern " (occs)? term : conv
 
 /-- `rw [thm]` rewrites the target using `thm`. See the `rw` tactic for more information. -/
-syntax (name := rewrite) "rewrite" (config)? rwRuleSeq : conv
+syntax (name := rewrite) "rewrite" optConfig rwRuleSeq : conv
 
 /-- `simp [thm]` performs simplification using `thm` and marked `@[simp]` lemmas.
 See the `simp` tactic for more information. -/
-syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
+syntax (name := simp) "simp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? : conv
 
 /--
@@ -151,7 +164,7 @@ example (a : Nat): (0 + 0) = a - a := by
     rw [← Nat.sub_self a]
 ```
 -/
-syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
+syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
@@ -247,12 +260,12 @@ macro (name := failIfSuccess) tk:"fail_if_success " s:convSeq : conv =>
 
 /-- `rw [rules]` applies the given list of rewrite rules to the target.
 See the `rw` tactic for more information. -/
-macro "rw" c:(config)? s:rwRuleSeq : conv => `(conv| rewrite $[$c]? $s)
+macro "rw" c:optConfig s:rwRuleSeq : conv => `(conv| rewrite $c:optConfig $s)
 
-/-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
+/-- `erw [rules]` is a shorthand for `rw (transparency := .default) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw" s:rwRuleSeq : conv => `(conv| rw (config := { transparency := .default }) $s)
+macro "erw" c:optConfig s:rwRuleSeq : conv => `(conv| rw $[$(getConfigItems c)]* (transparency := .default) $s:rwRuleSeq)
 
 /-- `args` traverses into all arguments. Synonym for `congr`. -/
 macro "args" : conv => `(conv| congr)
@@ -263,7 +276,7 @@ macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
 macro "intro" xs:(ppSpace colGt ident)* : conv => `(conv| ext $xs*)
 
-syntax enterArg := ident <|> ("@"? num)
+syntax enterArg := ident <|> argArg
 
 /-- `enter [arg, ...]` is a compact way to describe a path to a subterm.
 It is a shorthand for other conv tactics as follows:
@@ -272,12 +285,7 @@ It is a shorthand for other conv tactics as follows:
 * `enter [x]` (where `x` is an identifier) is equivalent to `ext x`.
 For example, given the target `f (g a (fun x => x b))`, `enter [1, 2, x, 1]`
 will traverse to the subterm `b`. -/
-syntax "enter" " [" withoutPosition(enterArg,+) "]" : conv
-macro_rules
-  | `(conv| enter [$i:num]) => `(conv| arg $i)
-  | `(conv| enter [@$i]) => `(conv| arg @$i)
-  | `(conv| enter [$id:ident]) => `(conv| ext $id)
-  | `(conv| enter [$arg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
+syntax (name := enter) "enter" " [" withoutPosition(enterArg,+) "]" : conv
 
 /-- The `apply thm` conv tactic is the same as `apply thm` the tactic.
 There are no restrictions on `thm`, but strange results may occur if `thm`

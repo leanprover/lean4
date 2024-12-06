@@ -1267,7 +1267,7 @@ theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
     _ = ((m + 1 - 2) + 2)/2 := by simp
     _ = (m - 1) / 2 + 1     := by
       rw [add_ediv_of_dvd_right]
-      · simp (config := {decide := true}) only [Int.ediv_self]
+      · simp +decide only [Int.ediv_self]
         congr 2
         rw [Int.add_sub_assoc, ← Int.sub_neg]
         congr
@@ -1285,7 +1285,7 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
     simp only [bmod, ofNat_eq_coe, natAbs_ofNat, natCast_add, ofNat_one,
       emod_self_add_one (ofNat_nonneg x)]
     match x with
-    | 0 => rw [if_pos] <;> simp (config := {decide := true})
+    | 0 => rw [if_pos] <;> simp +decide
     | (x+1) =>
       rw [if_neg]
       · simp [← Int.sub_sub]

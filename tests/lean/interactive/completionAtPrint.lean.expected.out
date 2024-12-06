@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionAtPrint.lean"},
      "position": {"line": 2, "character": 25}},
-    "id": {"const": {"declName": "Lean.Environment.find?"}}}},
+    "id": {"const": {"declName": "Lean.Environment.find?"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "freeRegions",
    "kind": 3,
@@ -20,5 +21,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionAtPrint.lean"},
      "position": {"line": 2, "character": 25}},
-    "id": {"const": {"declName": "Lean.Environment.freeRegions"}}}}],
+    "id": {"const": {"declName": "Lean.Environment.freeRegions"}},
+    "cPos": 0}}],
  "isIncomplete": true}

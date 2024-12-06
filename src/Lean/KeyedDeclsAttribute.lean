@@ -161,7 +161,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
 
 /-- Retrieve entries tagged with `[attr key]` or `[builtinAttr key]`. -/
 def getEntries {γ} (attr : KeyedDeclsAttribute γ) (env : Environment) (key : Name) : List (AttributeEntry γ) :=
-  let s := attr.ext.getState env
+  let s := attr.ext.getStateNoAsync env
   let attrs := s.table.findD key []
   if s.erased.isEmpty then
     attrs

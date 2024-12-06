@@ -29,9 +29,6 @@ section Nat
 
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
 
-@[deprecated isLt (since := "2024-03-12")]
-theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
-
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
 @[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
@@ -633,6 +630,16 @@ For the bitwise point of view, it has the `i`th bit as `1` and all other bits as
 def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
+
+/-- Compute a hash of a bitvector, combining 64-bit words using `mixHash`. -/
+def hash (bv : BitVec n) : UInt64 :=
+  if n ≤ 64 then
+    bv.toFin.val.toUInt64
+  else
+    mixHash (bv.toFin.val.toUInt64) (hash ((bv >>> 64).setWidth (n - 64)))
+
+instance : Hashable (BitVec n) where
+  hash := hash
 
 section normalization_eqs
 /-! We add simp-lemmas that rewrite bitvector operations into the equivalent notation -/

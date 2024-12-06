@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Control.Lawful.Instances
-// Imports: Init.Control.Lawful.Basic Init.Control.Except Init.Control.StateRef
+// Imports: Init.Control.Lawful.Basic Init.Control.Except Init.Control.StateRef Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -86,6 +86,7 @@ return x_4;
 lean_object* initialize_Init_Control_Lawful_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control_StateRef(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Control_Lawful_Instances(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -98,6 +99,9 @@ res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Control_StateRef(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -170,7 +170,7 @@ lib.warn "The Nix-based build is deprecated" rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)|leanlaketest_reverse-ffi' -j$NIX_BUILD_CORES
+         ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)|leanlaketest_reverse-ffi|leanruntest_timeIO' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
           mkdir $out

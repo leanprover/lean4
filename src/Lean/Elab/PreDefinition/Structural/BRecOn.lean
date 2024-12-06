@@ -114,8 +114,9 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
   The dictionary is built using the `PProd` (`And` for inductive predicates).
   We keep searching it until we find `C recArg`, where `C` is the auxiliary fresh variable created at `withBelowDict`.  -/
 private partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) (fnIndex : Nat) (recArg : Expr) : MetaM Expr := do
-  withBelowDict below numIndParams positions fun Cs belowDict =>
-    toBelowAux Cs[fnIndex]! belowDict recArg below
+  withTraceNode `Elab.definition.structural (return m!"{exceptEmoji ·} searching IH for {recArg} in {←inferType below}") do
+    withBelowDict below numIndParams positions fun Cs belowDict =>
+      toBelowAux Cs[fnIndex]! belowDict recArg below
 
 private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
     (below : Expr) (e : Expr) : M Expr :=
@@ -144,8 +145,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
     | Expr.app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr :=
         e.withApp fun f args => do
-          if let .some fnIdx := recArgInfos.findIdx? (f.isConstOf ·.fnName) then
-            let recArgInfo := recArgInfos[fnIdx]!
+          if let .some fnIdx := recArgInfos.findFinIdx? (f.isConstOf ·.fnName) then
+            let recArgInfo := recArgInfos[fnIdx]
             let some recArg := args[recArgInfo.recArgPos]?
               | throwError "insufficient number of parameters at recursive application {indentExpr e}"
             -- For reflexive type, we may have nested recursive applications in recArg
@@ -291,9 +292,9 @@ def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Exp
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
     let packedFArgs ← positions.mapMwith PProdN.mkLambdas packedFTypes FArgs
     let brecOn := mkAppN brecOn packedFArgs
-    let some poss := positions.find? (·.contains fnIdx)
+    let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.indexOf? fnIdx
       | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
-    let brecOn ← PProdN.proj poss.size (poss.getIdx? fnIdx).get! brecOn
+    let brecOn ← PProdN.proj size idx brecOn
     mkLambdaFVars ys (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

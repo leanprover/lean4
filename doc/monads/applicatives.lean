@@ -138,8 +138,8 @@ definition:
 
 -/
 instance : Applicative List where
-  pure := List.pure
-  seq f x := List.bind f fun y => Functor.map y (x ())
+  pure := List.singleton
+  seq f x := List.flatMap f fun y => Functor.map y (x ())
 /-!
 
 Notice you can now sequence a _list_ of functions and a _list_ of items.

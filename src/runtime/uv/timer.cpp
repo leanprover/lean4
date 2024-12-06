@@ -160,6 +160,30 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+/* Std.Internal.UV.Timer.stop (timer : @& Timer) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg /* w */) {
+    lean_uv_timer_object * obj = lean_to_uv_timer(timer);
+
+    if (!obj->m_started) {
+        return lean_io_result_mk_ok(lean_box(0));
+    }
+
+    event_loop_lock(&global_ev);
+    uv_timer_stop(&obj->m_uv_timer);
+    event_loop_unlock(&global_ev);
+
+    obj->m_started = false;
+
+    // If the promise is in progress it means that it's owned by the event loop, so we need
+    // remove the ownership by reducing the reference count of the object.
+    if (obj->m_promise != NULL && lean_io_get_task_state_core(obj->m_promise) != 2) {
+        lean_dec(obj->m_promise);
+        lean_dec(timer);
+    }
+
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
 #else
 
 void lean_uv_timer_finalizer(void* ptr) {
@@ -176,6 +200,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg /* w */ ) {
     return io_result_mk_error("lean_uv_timer_reset is not supported");
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg /* w */ ) {
+    return io_result_mk_error("lean_uv_timer_stop is not supported");
 }
 
 #endif

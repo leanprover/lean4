@@ -785,10 +785,25 @@ theorem getElem_set (a : Array α) (i : Nat) (h' : i < a.size) (v : α) (j : Nat
   else
     simp [setIfInBounds, h]
 
+theorem getElem_setIfInBounds (a : Array α) (i : Nat) (v : α) (j : Nat)
+    (hj : j < (setIfInBounds a i v).size) :
+  (setIfInBounds a i v)[j]'hj = if i = j then v else a[j]'(by simpa using hj) := by
+  simp only [setIfInBounds]
+  split
+  · simp [getElem_set]
+  · simp only [size_setIfInBounds] at hj
+    rw [if_neg]
+    omega
+
 @[simp] theorem getElem_setIfInBounds_eq (a : Array α) {i : Nat} (v : α) (h : _) :
     (setIfInBounds a i v)[i]'h = v := by
   simp at h
   simp only [setIfInBounds, h, ↓reduceDIte, getElem_set_eq]
+
+@[simp] theorem getElem_setIfInBounds_ne (a : Array α) {i : Nat} (v : α) {j : Nat}
+    (hj : j < (setIfInBounds a i v).size) (h : i ≠ j) :
+    (setIfInBounds a i v)[j]'hj = a[j]'(by simpa using hj) := by
+  simp [getElem_setIfInBounds, h]
 
 @[simp]
 theorem getElem?_setIfInBounds_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) :
@@ -990,11 +1005,6 @@ theorem get_set (a : Array α) (i : Nat) (hi : i < a.size) (j : Nat) (hj : j < a
 @[simp] theorem get_set_ne (a : Array α) (i : Nat) (hi : i < a.size) {j : Nat} (v : α) (hj : j < a.size)
     (h : i ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
   simp only [set, getElem_eq_getElem_toList, List.getElem_set_ne h]
-
-theorem getElem_setIfInBounds (a : Array α) (i : Nat) (v : α) (h : i < (setIfInBounds a i v).size) :
-    (setIfInBounds a i v)[i] = v := by
-  simp at h
-  simp only [setIfInBounds, h, ↓reduceDIte, getElem_set_eq]
 
 theorem set_set (a : Array α) (i : Nat) (h) (v v' : α) :
     (a.set i v h).set i v' (by simp [h]) = a.set i v' := by simp [set, List.set_set]
@@ -1861,8 +1871,6 @@ instance [DecidableEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
 
 /-! ### swap -/
 
-open Fin
-
 @[simp] theorem getElem_swap_right (a : Array α) {i j : Nat} {hi hj} :
     (a.swap i j hi hj)[j]'(by simpa using hj) = a[i] := by
   simp [swap_def, getElem_set]
@@ -1881,7 +1889,7 @@ theorem getElem_swap' (a : Array α) (i j : Nat) {hi hj} (k : Nat) (hk : k < a.s
   · simp_all only [getElem_swap_left]
   · split <;> simp_all
 
-theorem getElem_swap (a : Array α) (i j : Nat) {hi hj}(k : Nat) (hk : k < (a.swap i j).size) :
+theorem getElem_swap (a : Array α) (i j : Nat) {hi hj} (k : Nat) (hk : k < (a.swap i j).size) :
     (a.swap i j hi hj)[k] = if k = i then a[j] else if k = j then a[i] else a[k]'(by simp_all) := by
   apply getElem_swap'
 
@@ -1943,6 +1951,13 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
 @[simp] theorem size_zip (as : Array α) (bs : Array β) :
     (as.zip bs).size = min as.size bs.size :=
   as.size_zipWith bs Prod.mk
+
+@[simp] theorem getElem_zipWith (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat)
+    (hi : i < (as.zipWith bs f).size) :
+    (as.zipWith bs f)[i] = f (as[i]'(by simp at hi; omega)) (bs[i]'(by simp at hi; omega)) := by
+  cases as
+  cases bs
+  simp
 
 /-! ### findSomeM?, findM?, findSome?, find? -/
 
@@ -2243,6 +2258,11 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
 @[simp] theorem mem_reverse {x : α} {as : Array α} : x ∈ as.reverse ↔ x ∈ as := by
   cases as
   simp
+
+@[simp] theorem getElem_reverse (as : Array α) (i : Nat) (hi : i < as.reverse.size) :
+    (as.reverse)[i] = as[as.size - 1 - i]'(by simp at hi; omega) := by
+  cases as
+  simp [Array.getElem_reverse]
 
 /-! ### findSomeRevM?, findRevM?, findSomeRev?, findRev? -/
 

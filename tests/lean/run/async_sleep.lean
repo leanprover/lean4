@@ -16,7 +16,7 @@ def assertDuration (x : IO (AsyncTask α)) (should : Nat) (eps : Nat) : IO Unit 
 -- generous tolerance for slow CI systems
 def EPS : Nat := 3
 
-section Sleep
+namespace SleepTest
 
 def timerSleep : IO Unit := do
   assertDuration go 20 EPS
@@ -51,9 +51,7 @@ def promiseBehavior3 : IO Unit := do
   assert! (← prom1.getState) != .finished
   IO.sleep (20 + EPS).toUInt32
   assert! (← prom1.getState) == .finished
-
   let prom2 ← timer.wait
-  -- currently fails
   assert! (← prom2.getState) == .finished
 
 def resetBehavior : IO Unit := do
@@ -109,4 +107,122 @@ where
 #eval sequentialSleep1
 #eval sequentialSleep2
 
-end Sleep
+end SleepTest
+
+namespace IntervalTest
+
+def sleepFirst : IO Unit := do
+  assertDuration go 0 EPS
+where
+  go : IO (AsyncTask Unit) := do
+    let timer ← Interval.mk 20
+    timer.tick
+
+def sleepSecond : IO Unit := do
+  assertDuration go 20 EPS
+where
+  go : IO (AsyncTask Unit) := do
+    let timer ← Interval.mk 20
+    (← timer.tick).bindIO fun _ => timer.tick
+
+def promiseBehavior1 : IO Unit := do
+  let timer ← Interval.mk 20
+  let p1 ← timer.tick
+  IO.sleep EPS.toUInt32
+  assert! (← p1.getState) == .finished
+  let p2 ← timer.tick
+  assert! (← p2.getState) != .finished
+  IO.sleep (20 + EPS).toUInt32
+  assert! (← p2.getState) == .finished
+
+def promiseBehavior2 : IO Unit := do
+  let timer ← Interval.mk 20
+  let p1 ← timer.tick
+  IO.sleep EPS.toUInt32
+  assert! (← p1.getState) == .finished
+
+  let prom1 ← timer.tick
+  let prom2 ← timer.tick
+  assert! (← prom1.getState) != .finished
+  assert! (← prom2.getState) != .finished
+  IO.sleep (20 + EPS).toUInt32
+  assert! (← prom1.getState) == .finished
+  assert! (← prom2.getState) == .finished
+
+def promiseBehavior3 : IO Unit := do
+  let timer ← Interval.mk 20
+  let p1 ← timer.tick
+  IO.sleep EPS.toUInt32
+  assert! (← p1.getState) == .finished
+
+  let prom1 ← timer.tick
+  assert! (← prom1.getState) != .finished
+  IO.sleep (20 + EPS).toUInt32
+  assert! (← prom1.getState) == .finished
+  let prom2 ← timer.tick
+  assert! (← prom2.getState) != .finished
+  IO.sleep (20 + EPS).toUInt32
+  assert! (← prom2.getState) == .finished
+
+def delayedTickBehavior : IO Unit := do
+  let timer ← Interval.mk 20
+  let p1 ← timer.tick
+  IO.sleep EPS.toUInt32
+  assert! (← p1.getState) == .finished
+
+  IO.sleep 10
+  let p2 ← timer.tick
+  assert! (← p2.getState) != .finished
+  IO.sleep (10 + EPS).toUInt32
+  assert! (← p2.getState) == .finished
+
+def skippedTickBehavior : IO Unit := do
+  let timer ← Interval.mk 20
+  let p1 ← timer.tick
+  IO.sleep EPS.toUInt32
+  assert! (← p1.getState) == .finished
+
+  IO.sleep 30
+  let p2 ← timer.tick
+  assert! (← p2.getState) != .finished
+  IO.sleep (10 + EPS).toUInt32
+  assert! (← p2.getState) == .finished
+
+def resetBehavior : IO Unit := do
+  let timer ← Interval.mk 20
+  let p1 ← timer.tick
+  IO.sleep EPS.toUInt32
+  assert! (← p1.getState) == .finished
+
+  let prom ← timer.tick
+  assert! (← prom.getState) != .finished
+
+  IO.sleep 10
+  assert! (← prom.getState) != .finished
+  timer.reset
+
+  IO.sleep 10
+  assert! (← prom.getState) != .finished
+
+  IO.sleep (10 + EPS).toUInt32
+  assert! (← prom.getState) == .finished
+
+def sequentialSleep : IO Unit := do
+  assertDuration go 20 EPS
+where
+  go : IO (AsyncTask Unit) := do
+    let t ← Interval.mk 10
+    (← t.tick).bindIO fun _ => do
+    (← t.tick).mapIO fun _ => ()
+
+#eval sleepFirst
+#eval sleepSecond
+#eval promiseBehavior1
+#eval promiseBehavior2
+#eval promiseBehavior3
+#eval delayedTickBehavior
+#eval skippedTickBehavior
+#eval resetBehavior
+#eval sequentialSleep
+
+end IntervalTest

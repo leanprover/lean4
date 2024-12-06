@@ -21,7 +21,8 @@ def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
     (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) (leakEnv := false)
     : IO (Environment × MessageLog) := do
   try
-    let env ← importModules (leakEnv := leakEnv) (headerToImports header) opts trustLevel
+    let env ←
+      importModules (leakEnv := leakEnv) (loadExts := true) (headerToImports header) opts trustLevel
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

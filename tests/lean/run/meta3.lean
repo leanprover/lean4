@@ -21,12 +21,6 @@ do let v? ← getExprMVarAssignment? m.mvarId!;
    | some v => pure v
    | none   => throwError "metavariable is not assigned")
 
-unsafe def run (mods : Array Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
- withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
-   let x : MetaM Unit := do { x; printTraces };
-   discard $ x.toIO { options := opts, fileName := "", fileMap := default } { env := env };
-   pure ()
-
 def nat  := mkConst `Nat
 def succ := mkConst `Nat.succ
 def add  := mkAppN (mkConst `Add.add [levelZero]) #[nat, mkConst `Nat.add]

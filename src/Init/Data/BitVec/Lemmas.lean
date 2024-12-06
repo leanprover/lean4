@@ -3183,6 +3183,36 @@ theorem replicate_append_replicate_eq {w n : Nat} {x : BitVec w} (h : w * (n + m
     omega
 
 
+theorem potato {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) :
+    (w * n - 1 - i) % w = w - 1 - i % w := by
+  induction n
+  case zero => omega
+  case succ n ih =>
+    simp_all [Nat.mul_add]
+    by_cases h : i < w * n
+    · simp [show w * n + w - 1 -i = w + (w * n - 1 - i) by omega]
+      rw [ih (by omega)]
+      suffices ¬ n = 0 by omega
+      intros hcontra
+      subst hcontra
+      simp at h
+    · rw [Nat.mod_eq_of_lt]
+      · have := Nat.mod_add_div i w
+        have hiw : i / w = n := by
+          apply Nat.div_eq_of_lt_le
+          · rw [Nat.mul_comm]
+            omega
+          · rw [Nat.add_mul]
+            simp
+            rw [Nat.mul_comm]
+            omega
+        rw [hiw] at this
+        conv =>
+          lhs
+          rw [← this]
+        omega
+      · omega
+
 
 @[simp]
 theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
@@ -3194,32 +3224,7 @@ theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
     · simp [h₁, h₂]
     · simp [h₁, h₂, show w * n - 1 - i < w * n by omega, Nat.mod_lt i h₀]
       congr 1
-      induction n
-      case neg.e_i.zero => omega
-      case neg.e_i.succ n ih =>
-        simp_all [Nat.mul_add]
-        by_cases h₃ : i < w * n
-        · simp [show w * n + w - 1 -i = w + (w * n - 1 - i) by omega]
-          rw [ih (by omega)]
-          intros hcontra
-          subst hcontra
-          simp at h₃
-        · rw [Nat.mod_eq_of_lt]
-          · have := Nat.mod_add_div i w
-            have hiw : i / w = n := by
-              apply Nat.div_eq_of_lt_le
-              · rw [Nat.mul_comm]
-                omega
-              · rw [Nat.add_mul]
-                simp
-                rw [Nat.mul_comm]
-                omega
-            rw [hiw] at this
-            conv =>
-              lhs
-              rw [← this]
-            omega
-          · omega
+      apply potato (by omega) (by omega)
     · simp [h₁, h₂]
     · simp [h₁, h₂]
   · simp [show w = 0 by omega]

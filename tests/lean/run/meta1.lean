@@ -4,17 +4,17 @@ open Lean
 open Lean.Meta
 
 unsafe def tstInferType (mods : Array Name) (e : Expr) : IO Unit :=
-withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
+withImportModules (loadExts := true) (mods.map $ fun m => {module := m}) {} fun env => do
    let (type, _, _) ← (inferType e : MetaM _).toIO { fileName := "", fileMap := default } { env := env } {} {};
    IO.println (toString e ++ " : " ++ toString type)
 
 unsafe def tstWHNF (mods : Array Name) (e : Expr) (t := TransparencyMode.default) : IO Unit :=
-withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
+withImportModules (loadExts := true) (mods.map $ fun m => {module := m}) {} fun env => do
    let (s, _, _) ← (whnf e : MetaM _).toIO { fileName := "", fileMap := default } { env := env };
    IO.println (toString e ++ " ==> " ++ toString s)
 
 unsafe def tstIsProp (mods : Array Name) (e : Expr) : IO Unit :=
-withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
+withImportModules (loadExts := true) (mods.map $ fun m => {module := m}) {} fun env => do
   let (b, _, _) ← (isProp e : MetaM _).toIO { fileName := "", fileMap := default } { env := env };
   IO.println (toString e ++ ", isProp: " ++ toString b)
 

@@ -3182,8 +3182,8 @@ theorem replicate_append_replicate_eq {w n : Nat} {x : BitVec w} (h : w * (n + m
     decide_eq_true_eq]
     omega
 
-
-theorem potato {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) :
+@[simp]
+private theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) :
     (w * n - 1 - i) % w = w - 1 - i % w := by
   induction n
   case zero => omega
@@ -3224,7 +3224,7 @@ theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
     · simp [h₁, h₂]
     · simp [h₁, h₂, show w * n - 1 - i < w * n by omega, Nat.mod_lt i h₀]
       congr 1
-      apply potato (by omega) (by omega)
+      apply mod_sub_eq_sub_mod (by omega) (by omega)
     · simp [h₁, h₂]
     · simp [h₁, h₂]
   · simp [show w = 0 by omega]

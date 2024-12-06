@@ -248,7 +248,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stack.matches [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
   (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
-  (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Command.whereStructField))
+  (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Term.structInstField))
 
 /--
 Function argument in declaration signature (when `linter.unusedVariables.funArgs` is false)

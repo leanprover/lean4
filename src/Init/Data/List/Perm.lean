@@ -39,6 +39,9 @@ protected theorem Perm.symm {l₁ l₂ : List α} (h : l₁ ~ l₂) : l₂ ~ l�
   | swap => exact swap ..
   | trans _ _ ih₁ ih₂ => exact trans ih₂ ih₁
 
+instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
+  trans h₁ h₂ := Perm.trans h₁ h₂
+
 theorem perm_comm {l₁ l₂ : List α} : l₁ ~ l₂ ↔ l₂ ~ l₁ := ⟨Perm.symm, Perm.symm⟩
 
 theorem Perm.swap' (x y : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : y :: x :: l₁ ~ x :: y :: l₂ :=
@@ -102,7 +105,7 @@ theorem perm_append_comm : ∀ {l₁ l₂ : List α}, l₁ ++ l₂ ~ l₂ ++ l�
   | _ :: _, _ => (perm_append_comm.cons _).trans perm_middle.symm
 
 theorem perm_append_comm_assoc (l₁ l₂ l₃ : List α) :
-    Perm (l₁ ++ (l₂ ++ l₃)) (l₂ ++ (l₁ ++ l₃)) := by
+    (l₁ ++ (l₂ ++ l₃)) ~ (l₂ ++ (l₁ ++ l₃)) := by
   simpa only [List.append_assoc] using perm_append_comm.append_right _
 
 theorem concat_perm (l : List α) (a : α) : concat l a ~ a :: l := by simp
@@ -133,7 +136,7 @@ theorem Perm.nil_eq {l : List α} (p : [] ~ l) : [] = l := p.symm.eq_nil.symm
 
 theorem not_perm_nil_cons (x : α) (l : List α) : ¬[] ~ x :: l := (nomatch ·.symm.eq_nil)
 
-theorem not_perm_cons_nil {l : List α} {a : α} : ¬(Perm (a::l) []) :=
+theorem not_perm_cons_nil {l : List α} {a : α} : ¬((a::l) ~ []) :=
   fun h => by simpa using h.length_eq
 
 theorem Perm.isEmpty_eq {l l' : List α} (h : Perm l l') : l.isEmpty = l'.isEmpty := by
@@ -477,6 +480,15 @@ theorem Perm.flatten {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.flatt
   | trans _ _ ih₁ ih₂ => exact trans ih₁ ih₂
 
 @[deprecated Perm.flatten (since := "2024-10-14")] abbrev Perm.join := @Perm.flatten
+
+theorem cons_append_cons_perm {a b : α} {as bs : List α} :
+    a :: as ++ b :: bs ~ b :: as ++ a :: bs := by
+  suffices [[a], as, [b], bs].flatten ~ [[b], as, [a], bs].flatten by simpa
+  apply Perm.flatten
+  calc
+    [[a], as, [b], bs] ~ [as, [a], [b], bs] := Perm.swap as [a] _
+    _ ~ [as, [b], [a], bs] := Perm.cons _ (Perm.swap [b] [a] _)
+    _ ~ [[b], as, [a], bs] := Perm.swap [b] as _
 
 theorem Perm.flatMap_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.flatMap f ~ l₂.flatMap f :=
   (p.map _).flatten

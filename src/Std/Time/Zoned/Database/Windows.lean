@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
+import Init.Data.SInt.Basic
 import Std.Time.DateTime
 import Std.Time.Zoned.TimeZone
 import Std.Time.Zoned.ZoneRules

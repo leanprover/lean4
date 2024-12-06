@@ -3,10 +3,15 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+
+prelude
+import Init.Control.Option
+import Lean.Compiler.FFI
 import Lake.Util.NativeLib
 import Lake.Config.Defaults
 
-open System
+open System Lean.Compiler.FFI
+
 namespace Lake
 
 /-- Convert the string value of an environment variable to a boolean. -/
@@ -71,7 +76,13 @@ structure LeanInstall where
   initSharedLib := leanSharedLibDir sysroot / initSharedLib
   ar : FilePath := "ar"
   cc : FilePath := "cc"
-  customCc : Bool := false
+  customCc : Bool := true
+  cFlags := getCFlags sysroot |>.push "-Wno-unused-command-line-argument"
+  linkStaticFlags := getLinkerFlags sysroot (linkStatic := true)
+  linkSharedFlags := getLinkerFlags sysroot (linkStatic := false)
+  ccFlags := cFlags
+  ccLinkStaticFlags := linkStaticFlags
+  ccLinkSharedFlags := linkSharedFlags
   deriving Inhabited, Repr
 
 /--
@@ -87,6 +98,10 @@ def LeanInstall.sharedLibPath (self : LeanInstall) : SearchPath :=
 /-- The `LEAN_CC` of the Lean installation. -/
 def LeanInstall.leanCc? (self : LeanInstall) : Option String :=
   if self.customCc then self.cc.toString else none
+
+/-- The link-time flags for the C compiler of the Lean installation. -/
+def LeanInstall.ccLinkFlags (shared : Bool) (self : LeanInstall) : Array String :=
+  if shared then self.ccLinkSharedFlags else self.ccLinkStaticFlags
 
 /-- Lake executable file name. -/
 def lakeExe : FilePath :=
@@ -178,8 +193,7 @@ def LeanInstall.get (sysroot : FilePath) (collocated : Bool := false) : BaseIO L
       -- Remark: This is expensive (at least on Windows), so try to avoid it.
       getGithash
   let ar ← findAr
-  let (cc, customCc) ← findCc
-  return {sysroot, githash, ar, cc, customCc}
+  setCc {sysroot, githash, ar}
 where
   getGithash := do
     EIO.catchExceptions (h := fun _ => pure "") do
@@ -187,7 +201,7 @@ where
         cmd := leanExe sysroot |>.toString,
         args := #["--githash"]
       }
-      pure <| out.stdout.trim
+      return out.stdout.trim
   findAr := do
     if let some ar ← IO.getEnv "LEAN_AR" then
       return FilePath.mk ar
@@ -199,19 +213,27 @@ where
         return ar
       else
         return "ar"
-  findCc := do
+  setCc i := do
     if let some cc ← IO.getEnv "LEAN_CC" then
-      return (FilePath.mk cc, true)
+      return withCustomCc i cc
     else
       let cc := leanCcExe sysroot
-      let cc ←
-        if (← cc.pathExists) then
-          pure cc
-        else if let some cc ← IO.getEnv "CC" then
-          pure cc
-        else
-          pure "cc"
-      return (cc, false)
+      if (← cc.pathExists) then
+        return withInternalCc i cc
+      else if let some cc ← IO.getEnv "CC" then
+        return withCustomCc i cc
+      else
+        return withCustomCc i "cc"
+  @[inline] withCustomCc (i : LeanInstall) cc :=
+    {i with cc}
+  withInternalCc (i : LeanInstall) cc :=
+    let ccLinkFlags := getInternalLinkerFlags sysroot
+    {i with
+      cc, customCc := false
+      ccFlags := i.cFlags ++ getInternalCFlags sysroot
+      ccLinkStaticFlags := ccLinkFlags ++ i.linkStaticFlags
+      ccLinkSharedFlags := ccLinkFlags ++ i.linkSharedFlags
+    }
 
 /--
 Attempt to detect the installation of the given `lean` command

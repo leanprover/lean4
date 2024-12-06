@@ -474,6 +474,10 @@ def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f 
     | _      => pure ⟨⟩
   return none
 
+/--
+Note that the universe level is contrained to `Type` here,
+to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
+-/
 @[inline]
 def findM? {α : Type} {m : Type → Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
@@ -585,8 +589,12 @@ def zipWithIndex (arr : Array α) : Array (α × Nat) :=
   arr.mapIdx fun i a => (a, i)
 
 @[inline]
-def find? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
-  Id.run <| as.findM? p
+def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
+  Id.run do
+    for a in as do
+      if p a then
+        return a
+    return none
 
 @[inline]
 def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=

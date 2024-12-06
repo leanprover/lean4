@@ -741,6 +741,7 @@ lean_object* x_5;
 x_5 = l_Lean_Meta_isRecursiveDefinition(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }

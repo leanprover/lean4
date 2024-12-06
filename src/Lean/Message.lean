@@ -441,6 +441,10 @@ instance : Append MessageLog :=
 def hasErrors (log : MessageLog) : Bool :=
   log.hadErrors || log.unreported.any (·.severity matches .error)
 
+/-- Clears unreported messages while preserving `hasErrors`. -/
+def markAllReported (log : MessageLog) : MessageLog :=
+  { log with unreported := {}, hadErrors  := log.hasErrors }
+
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 

@@ -416,7 +416,7 @@
     "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
- "position": {"line": 78, "character": 2}}
+ "position": {"line": 78, "character": 4}}
 {"items":
  [{"sortText": "0",
    "label": "bar",
@@ -425,7 +425,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
-     "position": {"line": 78, "character": 2}},
+     "position": {"line": 78, "character": 4}},
     "cPos": 0}},
   {"sortText": "1",
    "label": "barfoo",
@@ -434,7 +434,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
-     "position": {"line": 78, "character": 2}},
+     "position": {"line": 78, "character": 4}},
     "cPos": 0}},
   {"sortText": "2",
    "label": "foo",
@@ -443,7 +443,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
-     "position": {"line": 78, "character": 2}},
+     "position": {"line": 78, "character": 4}},
     "cPos": 0}},
   {"sortText": "3",
    "label": "foobar",
@@ -452,7 +452,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionStructureInstance.lean"},
-     "position": {"line": 78, "character": 2}},
+     "position": {"line": 78, "character": 4}},
     "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionStructureInstance.lean"},

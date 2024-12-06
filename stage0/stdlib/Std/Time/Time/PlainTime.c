@@ -50,16 +50,13 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainTime_addHours___boxed(lean_object*, lea
 static lean_object* l_Std_Time_instReprPlainTime___closed__1;
 lean_object* lean_int_emod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_instHAddOffset__1;
-static lean_object* l_Std_Time_PlainTime_midnight___closed__4;
 static lean_object* l_Std_Time_PlainTime_instHAddOffset__1___closed__1;
 static lean_object* l_Std_Time_instInhabitedPlainTime___closed__3;
-static lean_object* l_Std_Time_PlainTime_midnight___closed__3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_subMilliseconds(lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_Time_PlainTime_0__Std_Time_reprPlainTime____x40_Std_Time_Time_PlainTime___hyg_43____closed__3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_addSeconds___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_Time_PlainTime_0__Std_Time_reprPlainTime____x40_Std_Time_Time_PlainTime___hyg_43____closed__33;
 static lean_object* l___private_Std_Time_Time_PlainTime_0__Std_Time_reprPlainTime____x40_Std_Time_Time_PlainTime___hyg_43____closed__8;
-lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instBEqPlainTime___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_instHSubOffset__1;
 static lean_object* l___private_Std_Time_Time_PlainTime_0__Std_Time_reprPlainTime____x40_Std_Time_Time_PlainTime___hyg_43____closed__27;
@@ -1341,30 +1338,11 @@ return x_4;
 static lean_object* _init_l_Std_Time_PlainTime_midnight___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(999999999u);
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Fin_ofNat(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_PlainTime_midnight___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Time_PlainTime_midnight___closed__2;
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Time_PlainTime_midnight___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Std_Time_instInhabitedPlainTime___closed__10;
 x_2 = l_Std_Time_instInhabitedPlainTime___closed__18;
 x_3 = l_Std_Time_PlainTime_midnight___closed__1;
-x_4 = l_Std_Time_PlainTime_midnight___closed__3;
+x_4 = l___private_Std_Time_Time_PlainTime_0__Std_Time_reprPlainTime____x40_Std_Time_Time_PlainTime___hyg_43____closed__8;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -1377,7 +1355,7 @@ static lean_object* _init_l_Std_Time_PlainTime_midnight() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Time_PlainTime_midnight___closed__4;
+x_1 = l_Std_Time_PlainTime_midnight___closed__2;
 return x_1;
 }
 }
@@ -1415,7 +1393,7 @@ x_5 = lean_box(x_1);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
-x_7 = l_Std_Time_PlainTime_midnight___closed__3;
+x_7 = l___private_Std_Time_Time_PlainTime_0__Std_Time_reprPlainTime____x40_Std_Time_Time_PlainTime___hyg_43____closed__8;
 x_8 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_8, 0, x_2);
 lean_ctor_set(x_8, 1, x_3);
@@ -2535,10 +2513,6 @@ l_Std_Time_PlainTime_midnight___closed__1 = _init_l_Std_Time_PlainTime_midnight_
 lean_mark_persistent(l_Std_Time_PlainTime_midnight___closed__1);
 l_Std_Time_PlainTime_midnight___closed__2 = _init_l_Std_Time_PlainTime_midnight___closed__2();
 lean_mark_persistent(l_Std_Time_PlainTime_midnight___closed__2);
-l_Std_Time_PlainTime_midnight___closed__3 = _init_l_Std_Time_PlainTime_midnight___closed__3();
-lean_mark_persistent(l_Std_Time_PlainTime_midnight___closed__3);
-l_Std_Time_PlainTime_midnight___closed__4 = _init_l_Std_Time_PlainTime_midnight___closed__4();
-lean_mark_persistent(l_Std_Time_PlainTime_midnight___closed__4);
 l_Std_Time_PlainTime_midnight = _init_l_Std_Time_PlainTime_midnight();
 lean_mark_persistent(l_Std_Time_PlainTime_midnight);
 l_Std_Time_PlainTime_toMilliseconds___closed__1 = _init_l_Std_Time_PlainTime_toMilliseconds___closed__1();

@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Error
 import Lake.Util.EStateT
 import Lake.Util.Lift
@@ -261,9 +262,18 @@ instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
 /-- A position in a `Log` (i.e., an array index). Can be past the log's end. -/
 structure Log.Pos where
   val : Nat
-  deriving Inhabited
+  deriving Inhabited, DecidableEq
 
 instance : OfNat Log.Pos (nat_lit 0) := ⟨⟨0⟩⟩
+instance : Ord Log.Pos := ⟨(compare ·.val ·.val)⟩
+instance : LT Log.Pos := ⟨(·.val < ·.val)⟩
+instance : DecidableRel (LT.lt (α := Log.Pos)) :=
+  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val < ·.val))
+instance : LE Log.Pos := ⟨(·.val ≤ ·.val)⟩
+instance : DecidableRel (LE.le (α := Log.Pos)) :=
+  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val ≤ ·.val))
+instance : Min Log.Pos := minOfLe
+instance : Max Log.Pos := maxOfLe
 
 namespace Log
 

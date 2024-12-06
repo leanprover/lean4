@@ -282,52 +282,36 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       k fvars
   loop 0 #[]
 
-private def expandWhereStructInst : Macro
-  | whereStx@`(Parser.Command.whereStructInst|where%$whereTk $[$decls:letDecl];* $[$whereDecls?:whereDecls]?) => do
-    let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letDecl|$_decl:letPatDecl) => Macro.throwErrorAt stx "patterns are not allowed here"
-      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl (useExplicit := false)
-      | `(letDecl|$decl:letIdDecl)   => pure decl
-      | _                            => Macro.throwUnsupported
-    let structInstFields ← letIdDecls.mapM fun
-      | stx@`(letIdDecl|$id:ident $binders* $[: $ty?]? := $val) => withRef stx do
-        let mut val := val
-        if let some ty := ty? then
-          val ← `(($val : $ty))
-        -- HACK: this produces invalid syntax, but the fun elaborator supports letIdBinders as well
-        have : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) := ⟨(⟨·⟩)⟩
-        val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
-        `(structInstField|$id:ident := $val)
-      | stx@`(letIdDecl|_ $_* $[: $_]? := $_) => Macro.throwErrorAt stx "'_' is not allowed here"
-      | _ => Macro.throwUnsupported
+private def expandWhereStructInst : Macro := fun whereStx => do
+  let `(Parser.Command.whereStructInst| where%$whereTk $[$structInstFields];* $[$whereDecls?:whereDecls]?) := whereStx
+    | Macro.throwUnsupported
 
-    let startOfStructureTkInfo : SourceInfo :=
-      match whereTk.getPos? with
-      | some pos => .synthetic pos ⟨pos.byteIdx + 1⟩ true
-      | none => .none
-    -- Position the closing `}` at the end of the trailing whitespace of `where $[$_:letDecl];*`.
-    -- We need an accurate range of the generated structure instance in the generated `TermInfo`
-    -- so that we can determine the expected type in structure field completion.
-    let structureStxTailInfo :=
-      whereStx[1].getTailInfo?
-      <|> whereStx[0].getTailInfo?
-    let endOfStructureTkInfo : SourceInfo :=
-      match structureStxTailInfo with
-      | some (SourceInfo.original _ _ trailing _) =>
-        let tokenPos := trailing.str.prev trailing.stopPos
-        let tokenEndPos := trailing.stopPos
-        .synthetic tokenPos tokenEndPos true
-      | _ => .none
+  let startOfStructureTkInfo : SourceInfo :=
+    match whereTk.getPos? with
+    | some pos => .synthetic pos ⟨pos.byteIdx + 1⟩ true
+    | none => .none
+  -- Position the closing `}` at the end of the trailing whitespace of `where $[$_:letDecl];*`.
+  -- We need an accurate range of the generated structure instance in the generated `TermInfo`
+  -- so that we can determine the expected type in structure field completion.
+  let structureStxTailInfo :=
+    whereStx[1].getTailInfo?
+    <|> whereStx[0].getTailInfo?
+  let endOfStructureTkInfo : SourceInfo :=
+    match structureStxTailInfo with
+    | some (SourceInfo.original _ _ trailing _) =>
+      let tokenPos := trailing.str.prev trailing.stopPos
+      let tokenEndPos := trailing.stopPos
+      .synthetic tokenPos tokenEndPos true
+    | _ => .none
 
-    let body ← `(structInst| { $structInstFields,* })
-    let body := body.raw.setInfo <|
-      match startOfStructureTkInfo.getPos?, endOfStructureTkInfo.getTailPos? with
-      | some startPos, some endPos => .synthetic startPos endPos true
-      | _, _ => .none
-    match whereDecls? with
-    | some whereDecls => expandWhereDecls whereDecls body
-    | none => return body
-  | _ => Macro.throwUnsupported
+  let body ← `(structInst| { $structInstFields,* })
+  let body := body.raw.setInfo <|
+    match startOfStructureTkInfo.getPos?, endOfStructureTkInfo.getTailPos? with
+    | some startPos, some endPos => .synthetic startPos endPos true
+    | _, _ => .none
+  match whereDecls? with
+  | some whereDecls => expandWhereDecls whereDecls body
+  | none => return body
 
 /-
 Recall that
@@ -415,6 +399,20 @@ register_builtin_option linter.unusedSectionVars : Bool := {
   descr := "enable the 'unused section variables in theorem body' linter"
 }
 
+register_builtin_option debug.proofAsSorry : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "replace the bodies (proofs) of theorems with `sorry`"
+}
+
+/-- Returns true if `k` is a theorem, option `debug.proofAsSorry` is set to true, and the environment contains the axiom `sorryAx`. -/
+private def useProofAsSorry (k : DefKind) : CoreM Bool := do
+  if k.isTheorem then
+    if debug.proofAsSorry.get (← getOptions) then
+      if (← getEnv).contains ``sorryAx then
+        return true
+  return false
+
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -436,7 +434,9 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         for h : i in [0:header.binderIds.size] do
           -- skip auto-bound prefix in `xs`
           addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]!
-        let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
+        let val ← if (← useProofAsSorry header.kind) then
+          mkSorry type false
+        else withReader ({ · with tacSnap? := header.tacSnap? }) do
           -- Store instantiated body in info tree for the benefit of the unused variables linter
           -- and other metaprograms that may want to inspect it without paying for the instantiation
           -- again

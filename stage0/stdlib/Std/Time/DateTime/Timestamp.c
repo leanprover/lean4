@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.DateTime.Timestamp
-// Imports: Std.Time.Internal Init.Data.Int Std.Time.Time Std.Time.Date Std.Time.Duration
+// Imports: Std.Time.Internal Init.Data.Int Init.System.IO Std.Time.Time Std.Time.Date Std.Time.Duration
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2102,6 +2102,7 @@ return x_3;
 }
 lean_object* initialize_Std_Time_Internal(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Time(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Date(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Duration(uint8_t builtin, lean_object*);
@@ -2114,6 +2115,9 @@ res = initialize_Std_Time_Internal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Time(builtin, lean_io_mk_world());

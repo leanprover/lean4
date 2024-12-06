@@ -21,14 +21,13 @@ import Init.TacticsExtra
 ## Theorems about `Array`.
 -/
 
+
+/-! ### Preliminaries about `Array` needed for `List.toArray` lemmas.
+
+This section contains only the bare minimum lemmas about `Array`
+that we need to write lemmas about `List.toArray`.
+-/
 namespace Array
-
-@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
-  simp [mem_def]
-
-@[simp] theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
-
-theorem getElem_eq_getElem_toList {a : Array α} (h : i < a.size) : a[i] = a.toList[i] := rfl
 
 theorem getElem?_eq_getElem {a : Array α} {i : Nat} (h : i < a.size) : a[i]? = some a[i] :=
   getElem?_pos ..
@@ -39,96 +38,34 @@ theorem getElem?_eq_getElem {a : Array α} {i : Nat} (h : i < a.size) : a[i]? = 
   · rw [getElem?_neg a i h]
     simp_all
 
-@[simp] theorem none_eq_getElem?_iff {a : Array α} {i : Nat} : none = a[i]? ↔ a.size ≤ i := by
-  simp [eq_comm (a := none)]
-
-theorem getElem?_eq {a : Array α} {i : Nat} :
-    a[i]? = if h : i < a.size then some a[i] else none := by
-  split
-  · simp_all [getElem?_eq_getElem]
-  · simp_all
-
-theorem getElem?_eq_some_iff {a : Array α} : a[i]? = some b ↔ ∃ h : i < a.size, a[i] = b := by
-  simp [getElem?_eq]
-
-theorem some_eq_getElem?_iff {a : Array α} : some b = a[i]? ↔ ∃ h : i < a.size, a[i] = b := by
-  rw [eq_comm, getElem?_eq_some_iff]
-
-theorem getElem?_eq_getElem?_toList (a : Array α) (i : Nat) : a[i]? = a.toList[i]? := by
-  rw [getElem?_eq]
-  split <;> simp_all
-
-theorem getElem_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
-    have : i < (a.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
-    (a.push x)[i] = a[i] := by
-  simp only [push, getElem_eq_getElem_toList, List.concat_eq_append, List.getElem_append_left, h]
-
-@[simp] theorem getElem_push_eq (a : Array α) (x : α) : (a.push x)[a.size] = x := by
-  simp only [push, getElem_eq_getElem_toList, List.concat_eq_append]
-  rw [List.getElem_append_right] <;> simp [getElem_eq_getElem_toList, Nat.zero_lt_one]
-
-theorem getElem_push (a : Array α) (x : α) (i : Nat) (h : i < (a.push x).size) :
-    (a.push x)[i] = if h : i < a.size then a[i] else x := by
-  by_cases h' : i < a.size
-  · simp [getElem_push_lt, h']
-  · simp at h
-    simp [getElem_push_lt, Nat.le_antisymm (Nat.le_of_lt_succ h) (Nat.ge_of_not_lt h')]
-
-@[deprecated getElem_push (since := "2024-10-21")] abbrev get_push := @getElem_push
-@[deprecated getElem_push_lt (since := "2024-10-21")] abbrev get_push_lt := @getElem_push_lt
-@[deprecated getElem_push_eq (since := "2024-10-21")] abbrev get_push_eq := @getElem_push_eq
-
-@[simp] theorem mem_push {a : Array α} {x y : α} : x ∈ a.push y ↔ x ∈ a ∨ x = y := by
-  simp [mem_def]
-
-theorem mem_push_self {a : Array α} {x : α} : x ∈ a.push x :=
-  mem_push.2 (Or.inr rfl)
-
-theorem mem_push_of_mem {a : Array α} {x : α} (y : α) (h : x ∈ a) : x ∈ a.push y :=
-  mem_push.2 (Or.inl h)
-
-theorem getElem_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ (n : Nat) (h : n < l.size), l[n]'h = a := by
-  cases l
-  simp [List.getElem_of_mem (by simpa using h)]
-
-theorem getElem?_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ n : Nat, l[n]? = some a :=
-  let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
-
-theorem mem_of_getElem? {l : Array α} {n : Nat} {a : α} (e : l[n]? = some a) : a ∈ l :=
-  let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
-
-theorem mem_iff_getElem {a} {l : Array α} : a ∈ l ↔ ∃ (n : Nat) (h : n < l.size), l[n]'h = a :=
-  ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
-
-theorem mem_iff_getElem? {a} {l : Array α} : a ∈ l ↔ ∃ n : Nat, l[n]? = some a := by
-  simp [getElem?_eq_some_iff, mem_iff_getElem]
-
-theorem forall_getElem {l : Array α} {p : α → Prop} :
-    (∀ (n : Nat) h, p (l[n]'h)) ↔ ∀ a, a ∈ l → p a := by
-  cases l; simp [List.forall_getElem]
+@[simp] theorem get_eq_getElem (a : Array α) (i : Nat) (h) : a.get i h = a[i] := rfl
 
 @[simp] theorem get!_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) : a.get! i = a[i]! := by
   simp [getElem!_def, get!, getD]
   split <;> rename_i h
   · simp [getElem?_eq_getElem h]
-    rfl
   · simp [getElem?_eq_none_iff.2 (by simpa using h)]
 
-theorem singleton_inj : #[a] = #[b] ↔ a = b := by
-  simp
-
-theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
+@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+  simp [mem_def]
 
 end Array
-
-namespace List
-
-open Array
 
 /-! ### Lemmas about `List.toArray`.
 
 We prefer to pull `List.toArray` outwards.
 -/
+namespace List
+
+open Array
+
+theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
+  cases a with
+  | nil => simpa using h
+  | cons a as =>
+    cases b with
+    | nil => simp at h
+    | cons b bs => simpa using h
 
 @[simp] theorem size_toArrayAux {a : List α} {b : Array α} :
     (a.toArrayAux b).size = b.size + a.length := by
@@ -293,7 +230,13 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
 
 @[simp] theorem find?_toArray (f : α → Bool) (l : List α) :
     l.toArray.find? f = l.find? f := by
-  rw [Array.find?, ← findM?_id, findM?_toArray, Id.run]
+  rw [Array.find?]
+  simp only [Id.run, Id, Id.pure_eq, Id.bind_eq, forIn_toArray]
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [forIn_cons, Id.pure_eq, Id.bind_eq, find?]
+    by_cases f a <;> simp_all
 
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
     Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
@@ -419,9 +362,247 @@ theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → O
     Array.zipWithAll as.toArray bs.toArray f = (List.zipWithAll f as bs).toArray := by
   simp [Array.zipWithAll, zipWithAll_go_toArray]
 
+@[simp] theorem toArray_appendList (l₁ l₂ : List α) :
+    l₁.toArray ++ l₂ = (l₁ ++ l₂).toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem pop_toArray (l : List α) : l.toArray.pop = l.dropLast.toArray := by
+  apply ext'
+  simp
+
+theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
+    takeWhile.go p (a :: l).toArray (i+1) r = takeWhile.go p l.toArray i r := by
+  rw [takeWhile.go, takeWhile.go]
+  simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+    getElem_toArray, getElem_cons_succ]
+  split
+  rw [takeWhile_go_succ]
+  rfl
+
+theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
+    Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by
+  induction l generalizing i r with
+  | nil => simp [takeWhile.go]
+  | cons a l ih =>
+    rw [takeWhile.go]
+    cases i with
+    | zero =>
+      simp [takeWhile_go_succ, ih, takeWhile_cons]
+      split <;> simp
+    | succ i =>
+      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+        getElem_toArray, getElem_cons_succ, drop_succ_cons]
+      split <;> rename_i h₁
+      · rw [takeWhile_go_succ, ih]
+        rw [← getElem_cons_drop_succ_eq_drop h₁, takeWhile_cons]
+        split <;> simp_all
+      · simp_all [drop_eq_nil_of_le]
+
+@[simp] theorem takeWhile_toArray (p : α → Bool) (l : List α) :
+    l.toArray.takeWhile p = (l.takeWhile p).toArray := by
+  simp [Array.takeWhile, takeWhile_go_toArray]
+
 end List
 
+
 namespace Array
+
+/-! ## Preliminaries -/
+
+/-! ### toList -/
+
+theorem toList_inj {a b : Array α} (h : a.toList = b.toList) : a = b := by
+  cases a; cases b; simpa using h
+
+/-! ### empty -/
+
+@[simp] theorem empty_eq {xs : Array α} : #[] = xs ↔ xs = #[] := by
+  cases xs <;> simp
+
+/-! ### size -/
+
+theorem eq_empty_of_size_eq_zero (h : l.size = 0) : l = #[] := by
+  cases l
+  simp_all
+
+theorem ne_empty_of_size_eq_add_one (h : l.size = n + 1) : l ≠ #[] := by
+  cases l
+  simpa using List.ne_nil_of_length_eq_add_one h
+
+theorem ne_empty_of_size_pos (h : 0 < l.size) : l ≠ #[] := by
+  cases l
+  simpa using List.ne_nil_of_length_pos h
+
+@[simp] theorem size_eq_zero : l.size = 0 ↔ l = #[] :=
+  ⟨eq_empty_of_size_eq_zero, fun h => h ▸ rfl⟩
+
+theorem size_pos_of_mem {a : α} {l : Array α} (h : a ∈ l) : 0 < l.size := by
+  cases l
+  simp only [mem_toArray] at h
+  simpa using List.length_pos_of_mem h
+
+theorem exists_mem_of_size_pos {l : Array α} (h : 0 < l.size) : ∃ a, a ∈ l := by
+  cases l
+  simpa using List.exists_mem_of_length_pos h
+
+theorem size_pos_iff_exists_mem {l : Array α} : 0 < l.size ↔ ∃ a, a ∈ l :=
+  ⟨exists_mem_of_size_pos, fun ⟨_, h⟩ => size_pos_of_mem h⟩
+
+theorem exists_mem_of_size_eq_add_one {l : Array α} (h : l.size = n + 1) : ∃ a, a ∈ l := by
+  cases l
+  simpa using List.exists_mem_of_length_eq_add_one h
+
+theorem size_pos {l : Array α} : 0 < l.size ↔ l ≠ #[] :=
+  Nat.pos_iff_ne_zero.trans (not_congr size_eq_zero)
+
+theorem size_eq_one {l : Array α} : l.size = 1 ↔ ∃ a, l = #[a] := by
+  cases l
+  simpa using List.length_eq_one
+
+/-! ### push -/
+
+theorem push_ne_empty {a : α} {xs : Array α} : xs.push a ≠ #[] := by
+  cases xs
+  simp
+
+@[simp] theorem push_ne_self {a : α} {xs : Array α} : xs.push a ≠ xs := by
+  cases xs
+  simp
+
+@[simp] theorem ne_push_self {a : α} {xs : Array α} : xs ≠ xs.push a := by
+  rw [ne_eq, eq_comm]
+  simp
+
+theorem back_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.push b) : a = b := by
+  cases xs
+  cases ys
+  simp only [List.push_toArray, mk.injEq] at h
+  replace h := List.append_inj_right' h (by simp)
+  simpa using h
+
+theorem pop_eq_of_push_eq {a b : α} {xs ys : Array α} (h : xs.push a = ys.push b) : xs = ys := by
+  cases xs
+  cases ys
+  simp at h
+  replace h := List.append_inj_left' h (by simp)
+  simp [h]
+
+theorem push_inj_left {a : α} {xs ys : Array α} : xs.push a = ys.push a ↔ xs = ys :=
+  ⟨pop_eq_of_push_eq, fun h => by simp [h]⟩
+
+theorem push_inj_right {a b : α} {xs : Array α} : xs.push a = xs.push b ↔ a = b :=
+  ⟨back_eq_of_push_eq, fun h => by simp [h]⟩
+
+theorem push_eq_push {a b : α} {xs ys : Array α} : xs.push a = ys.push b ↔ a = b ∧ xs = ys := by
+  constructor
+  · intro h
+    exact ⟨back_eq_of_push_eq h, pop_eq_of_push_eq h⟩
+  · rintro ⟨rfl, rfl⟩
+    rfl
+
+theorem exists_push_of_ne_empty {xs : Array α} (h : xs ≠ #[]) :
+    ∃ (ys : Array α) (a : α), xs = ys.push a := by
+  rcases xs with ⟨xs⟩
+  simp only [ne_eq, mk.injEq] at h
+  exact ⟨(xs.take (xs.length - 1)).toArray, xs.getLast h, by simp⟩
+
+theorem ne_empty_iff_exists_push {xs : Array α} :
+    xs ≠ #[] ↔ ∃ (ys : Array α) (a : α), xs = ys.push a :=
+  ⟨exists_push_of_ne_empty, fun ⟨_, _, eq⟩ => eq.symm ▸ push_ne_empty⟩
+
+theorem exists_push_of_size_pos {xs : Array α} (h : 0 < xs.size) :
+    ∃ (ys : Array α) (a : α), xs = ys.push a := by
+  replace h : xs ≠ #[] := size_pos.mp h
+  exact exists_push_of_ne_empty h
+
+theorem size_pos_iff_exists_push {xs : Array α} :
+    0 < xs.size ↔ ∃ (ys : Array α) (a : α), xs = ys.push a :=
+  ⟨exists_push_of_size_pos, fun ⟨_, _, eq⟩ => by simp [eq]⟩
+
+theorem exists_push_of_size_eq_add_one {xs : Array α} (h : xs.size = n + 1) :
+    ∃ (ys : Array α) (a : α), xs = ys.push a :=
+  exists_push_of_size_pos (by simp [h])
+
+/-! ## L[i] and L[i]? -/
+
+@[deprecated List.getElem_toArray (since := "2024-11-29")]
+theorem getElem_mk {xs : List α} {i : Nat} (h : i < xs.length) : (Array.mk xs)[i] = xs[i] := rfl
+
+theorem getElem_eq_getElem_toList {a : Array α} (h : i < a.size) : a[i] = a.toList[i] := rfl
+
+@[simp] theorem none_eq_getElem?_iff {a : Array α} {i : Nat} : none = a[i]? ↔ a.size ≤ i := by
+  simp [eq_comm (a := none)]
+
+theorem getElem?_eq {a : Array α} {i : Nat} :
+    a[i]? = if h : i < a.size then some a[i] else none := by
+  split
+  · simp_all [getElem?_eq_getElem]
+  · simp_all
+
+theorem getElem?_eq_some_iff {a : Array α} : a[i]? = some b ↔ ∃ h : i < a.size, a[i] = b := by
+  simp [getElem?_eq]
+
+theorem some_eq_getElem?_iff {a : Array α} : some b = a[i]? ↔ ∃ h : i < a.size, a[i] = b := by
+  rw [eq_comm, getElem?_eq_some_iff]
+
+theorem getElem?_eq_getElem?_toList (a : Array α) (i : Nat) : a[i]? = a.toList[i]? := by
+  rw [getElem?_eq]
+  split <;> simp_all
+
+theorem getElem_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
+    have : i < (a.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
+    (a.push x)[i] = a[i] := by
+  simp only [push, getElem_eq_getElem_toList, List.concat_eq_append, List.getElem_append_left, h]
+
+@[simp] theorem getElem_push_eq (a : Array α) (x : α) : (a.push x)[a.size] = x := by
+  simp only [push, getElem_eq_getElem_toList, List.concat_eq_append]
+  rw [List.getElem_append_right] <;> simp [getElem_eq_getElem_toList, Nat.zero_lt_one]
+
+theorem getElem_push (a : Array α) (x : α) (i : Nat) (h : i < (a.push x).size) :
+    (a.push x)[i] = if h : i < a.size then a[i] else x := by
+  by_cases h' : i < a.size
+  · simp [getElem_push_lt, h']
+  · simp at h
+    simp [getElem_push_lt, Nat.le_antisymm (Nat.le_of_lt_succ h) (Nat.ge_of_not_lt h')]
+
+@[deprecated getElem_push (since := "2024-10-21")] abbrev get_push := @getElem_push
+@[deprecated getElem_push_lt (since := "2024-10-21")] abbrev get_push_lt := @getElem_push_lt
+@[deprecated getElem_push_eq (since := "2024-10-21")] abbrev get_push_eq := @getElem_push_eq
+
+@[simp] theorem mem_push {a : Array α} {x y : α} : x ∈ a.push y ↔ x ∈ a ∨ x = y := by
+  simp [mem_def]
+
+theorem mem_push_self {a : Array α} {x : α} : x ∈ a.push x :=
+  mem_push.2 (Or.inr rfl)
+
+theorem mem_push_of_mem {a : Array α} {x : α} (y : α) (h : x ∈ a) : x ∈ a.push y :=
+  mem_push.2 (Or.inl h)
+
+theorem getElem_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ (n : Nat) (h : n < l.size), l[n]'h = a := by
+  cases l
+  simp [List.getElem_of_mem (by simpa using h)]
+
+theorem getElem?_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ n : Nat, l[n]? = some a :=
+  let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
+
+theorem mem_of_getElem? {l : Array α} {n : Nat} {a : α} (e : l[n]? = some a) : a ∈ l :=
+  let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
+
+theorem mem_iff_getElem {a} {l : Array α} : a ∈ l ↔ ∃ (n : Nat) (h : n < l.size), l[n]'h = a :=
+  ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
+
+theorem mem_iff_getElem? {a} {l : Array α} : a ∈ l ↔ ∃ n : Nat, l[n]? = some a := by
+  simp [getElem?_eq_some_iff, mem_iff_getElem]
+
+theorem forall_getElem {l : Array α} {p : α → Prop} :
+    (∀ (n : Nat) h, p (l[n]'h)) ↔ ∀ a, a ∈ l → p a := by
+  cases l; simp [List.forall_getElem]
+
+theorem singleton_inj : #[a] = #[b] ↔ a = b := by
+  simp
+
+theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
 
@@ -540,8 +721,6 @@ theorem size_uset (a : Array α) (v i h) : (uset a i v h).size = a.size := by si
 
 /-! # get -/
 
-@[simp] theorem get_eq_getElem (a : Array α) (i : Nat) (h) : a.get i h = a[i] := rfl
-
 theorem getElem?_lt
     (a : Array α) {i : Nat} (h : i < a.size) : a[i]? = some a[i] := dif_pos h
 
@@ -606,10 +785,25 @@ theorem getElem_set (a : Array α) (i : Nat) (h' : i < a.size) (v : α) (j : Nat
   else
     simp [setIfInBounds, h]
 
+theorem getElem_setIfInBounds (a : Array α) (i : Nat) (v : α) (j : Nat)
+    (hj : j < (setIfInBounds a i v).size) :
+  (setIfInBounds a i v)[j]'hj = if i = j then v else a[j]'(by simpa using hj) := by
+  simp only [setIfInBounds]
+  split
+  · simp [getElem_set]
+  · simp only [size_setIfInBounds] at hj
+    rw [if_neg]
+    omega
+
 @[simp] theorem getElem_setIfInBounds_eq (a : Array α) {i : Nat} (v : α) (h : _) :
     (setIfInBounds a i v)[i]'h = v := by
   simp at h
   simp only [setIfInBounds, h, ↓reduceDIte, getElem_set_eq]
+
+@[simp] theorem getElem_setIfInBounds_ne (a : Array α) {i : Nat} (v : α) {j : Nat}
+    (hj : j < (setIfInBounds a i v).size) (h : i ≠ j) :
+    (setIfInBounds a i v)[j]'hj = a[j]'(by simpa using hj) := by
+  simp [getElem_setIfInBounds, h]
 
 @[simp]
 theorem getElem?_setIfInBounds_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) :
@@ -812,11 +1006,6 @@ theorem get_set (a : Array α) (i : Nat) (hi : i < a.size) (j : Nat) (hj : j < a
     (h : i ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
   simp only [set, getElem_eq_getElem_toList, List.getElem_set_ne h]
 
-theorem getElem_setIfInBounds (a : Array α) (i : Nat) (v : α) (h : i < (setIfInBounds a i v).size) :
-    (setIfInBounds a i v)[i] = v := by
-  simp at h
-  simp only [setIfInBounds, h, ↓reduceDIte, getElem_set_eq]
-
 theorem set_set (a : Array α) (i : Nat) (h) (v v' : α) :
     (a.set i v h).set i v' (by simp [h]) = a.set i v' := by simp [set, List.set_set]
 
@@ -859,11 +1048,6 @@ theorem swapAt!_def (a : Array α) (i : Nat) (v : α) (h : i < a.size) :
 @[simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
     a.pop[i] = a[i]'(Nat.lt_of_lt_of_le (a.size_pop ▸ hi) (Nat.sub_le _ _)) :=
   List.getElem_dropLast ..
-
-theorem eq_empty_of_size_eq_zero {as : Array α} (h : as.size = 0) : as = #[] := by
-  apply ext
-  · simp [h]
-  · intros; contradiction
 
 theorem eq_push_pop_back!_of_size_ne_zero [Inhabited α] {as : Array α} (h : as.size ≠ 0) :
     as = as.pop.push as.back! := by
@@ -1381,6 +1565,18 @@ theorem getElem?_append {as bs : Array α} {n : Nat} :
   · exact getElem?_append_left h
   · exact getElem?_append_right (by simpa using h)
 
+@[simp] theorem toArray_eq_append_iff {xs : List α} {as bs : Array α} :
+    xs.toArray = as ++ bs ↔ xs = as.toList ++ bs.toList := by
+  cases as
+  cases bs
+  simp
+
+@[simp] theorem append_eq_toArray_iff {as bs : Array α} {xs : List α} :
+    as ++ bs = xs.toArray ↔ as.toList ++ bs.toList = xs := by
+  cases as
+  cases bs
+  simp
+
 /-! ### flatten -/
 
 @[simp] theorem toList_flatten {l : Array (Array α)} :
@@ -1675,8 +1871,6 @@ instance [DecidableEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
 
 /-! ### swap -/
 
-open Fin
-
 @[simp] theorem getElem_swap_right (a : Array α) {i j : Nat} {hi hj} :
     (a.swap i j hi hj)[j]'(by simpa using hj) = a[i] := by
   simp [swap_def, getElem_set]
@@ -1695,7 +1889,7 @@ theorem getElem_swap' (a : Array α) (i j : Nat) {hi hj} (k : Nat) (hk : k < a.s
   · simp_all only [getElem_swap_left]
   · split <;> simp_all
 
-theorem getElem_swap (a : Array α) (i j : Nat) {hi hj}(k : Nat) (hk : k < (a.swap i j).size) :
+theorem getElem_swap (a : Array α) (i j : Nat) {hi hj} (k : Nat) (hk : k < (a.swap i j).size) :
     (a.swap i j hi hj)[k] = if k = i then a[j] else if k = j then a[i] else a[k]'(by simp_all) := by
   apply getElem_swap'
 
@@ -1758,6 +1952,13 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
     (as.zip bs).size = min as.size bs.size :=
   as.size_zipWith bs Prod.mk
 
+@[simp] theorem getElem_zipWith (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat)
+    (hi : i < (as.zipWith bs f).size) :
+    (as.zipWith bs f)[i] = f (as[i]'(by simp at hi; omega)) (bs[i]'(by simp at hi; omega)) := by
+  cases as
+  cases bs
+  simp
+
 /-! ### findSomeM?, findM?, findSome?, find? -/
 
 @[simp] theorem findSomeM?_toList [Monad m] [LawfulMonad m] (p : α → m (Option β)) (as : Array α) :
@@ -1814,11 +2015,6 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
     simp [ih]
 
 @[simp] theorem map_toArray (f : α → β) (l : List α) : l.toArray.map f = (l.map f).toArray := by
-  apply ext'
-  simp
-
-@[simp] theorem toArray_appendList (l₁ l₂ : List α) :
-    l₁.toArray ++ l₂ = (l₁ ++ l₂).toArray := by
   apply ext'
   simp
 
@@ -1885,10 +2081,6 @@ theorem all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p 
   apply ext'
   simp
 
-@[simp] theorem pop_toArray (l : List α) : l.toArray.pop = l.dropLast.toArray := by
-  apply ext'
-  simp
-
 @[simp] theorem reverse_toArray (l : List α) : l.toArray.reverse = l.reverse.toArray := by
   apply ext'
   simp
@@ -1933,38 +2125,6 @@ theorem filterMap_toArray (f : α → Option β) (l : List α) :
 
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (ofFn f).toArray = Array.ofFn f := by
   ext <;> simp
-
-theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
-    takeWhile.go p (a :: l).toArray (i+1) r = takeWhile.go p l.toArray i r := by
-  rw [takeWhile.go, takeWhile.go]
-  simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
-    getElem_toArray, getElem_cons_succ]
-  split
-  rw [takeWhile_go_succ]
-  rfl
-
-theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
-    Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by
-  induction l generalizing i r with
-  | nil => simp [takeWhile.go]
-  | cons a l ih =>
-    rw [takeWhile.go]
-    cases i with
-    | zero =>
-      simp [takeWhile_go_succ, ih, takeWhile_cons]
-      split <;> simp
-    | succ i =>
-      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
-        getElem_toArray, getElem_cons_succ, drop_succ_cons]
-      split <;> rename_i h₁
-      · rw [takeWhile_go_succ, ih]
-        rw [← getElem_cons_drop_succ_eq_drop h₁, takeWhile_cons]
-        split <;> simp_all
-      · simp_all [drop_eq_nil_of_le]
-
-@[simp] theorem takeWhile_toArray (p : α → Bool) (l : List α) :
-    l.toArray.takeWhile p = (l.takeWhile p).toArray := by
-  simp [Array.takeWhile, takeWhile_go_toArray]
 
 @[simp] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
     l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
@@ -2098,6 +2258,11 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
 @[simp] theorem mem_reverse {x : α} {as : Array α} : x ∈ as.reverse ↔ x ∈ as := by
   cases as
   simp
+
+@[simp] theorem getElem_reverse (as : Array α) (i : Nat) (hi : i < as.reverse.size) :
+    (as.reverse)[i] = as[as.size - 1 - i]'(by simp at hi; omega) := by
+  cases as
+  simp [Array.getElem_reverse]
 
 /-! ### findSomeRevM?, findRevM?, findSomeRev?, findRev? -/
 

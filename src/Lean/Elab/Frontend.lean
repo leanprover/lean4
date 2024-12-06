@@ -169,6 +169,8 @@ def runFrontend
     IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
   let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
+  -- no point in freeing the snapshot graph and all referenced data this close to process exit
+  Runtime.forget snaps
   pure (cmdState.env, !hasErrors)
 
 

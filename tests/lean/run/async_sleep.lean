@@ -212,6 +212,8 @@ def sequentialSleep : IO Unit := do
 where
   go : IO (AsyncTask Unit) := do
     let t ← Interval.mk 10
+    -- 0th interval ticks instantly
+    (← t.tick).bindIO fun _ => do
     (← t.tick).bindIO fun _ => do
     (← t.tick).mapIO fun _ => ()
 

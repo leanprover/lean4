@@ -21,7 +21,7 @@ def Package.fetchTargetJob (self : Package)
 (target : Name) : FetchM (BuildJob Unit) :=  do
   let some config := self.findTargetConfig? target
     | error s!"package '{self.name}' has no target '{target}'"
-  return config.getJob (← fetch <| self.target target)
+  return config.getBuildJob (← fetch <| self.target target)
 
 /-- Fetch the build result of a target. -/
 protected def TargetDecl.fetch (self : TargetDecl)
@@ -34,7 +34,7 @@ protected def TargetDecl.fetch (self : TargetDecl)
 def TargetDecl.fetchJob (self : TargetDecl) : FetchM (BuildJob Unit) :=  do
   let some pkg ← findPackage? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
-  return self.config.getJob (← fetch <| pkg.target self.name)
+  return self.config.getBuildJob (← fetch <| pkg.target self.name)
 
 /-- Fetch the build result of a package facet. -/
 @[inline] protected def PackageFacetDecl.fetch (pkg : Package)
@@ -44,7 +44,7 @@ def TargetDecl.fetchJob (self : TargetDecl) : FetchM (BuildJob Unit) :=  do
 /-- Fetch the build job of a package facet. -/
 def PackageFacetConfig.fetchJob (pkg : Package)
 (self : PackageFacetConfig name) : FetchM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
+  let some getJob := self.getBuildJob?
     | error s!"package facet '{name}' has no associated build job"
   return getJob <| ← fetch <| pkg.facet self.name
 
@@ -65,7 +65,7 @@ def Package.fetchFacetJob (name : Name)
 /-- Fetch the build job of a module facet. -/
 def ModuleFacetConfig.fetchJob (mod : Module)
 (self : ModuleFacetConfig name) : FetchM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
+  let some getJob := self.getBuildJob?
     | error s!"module facet '{self.name}' has no associated build job"
   return getJob <| ← fetch <| mod.facet self.name
 
@@ -93,7 +93,7 @@ def Module.fetchFacetJob
 /-- Fetch the build job of a library facet. -/
 def LibraryFacetConfig.fetchJob (lib : LeanLib)
 (self : LibraryFacetConfig name) : FetchM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
+  let some getJob := self.getBuildJob?
     | error s!"library facet '{self.name}' has no associated build job"
   return getJob <| ← fetch <| lib.facet self.name
 

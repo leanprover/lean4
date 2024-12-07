@@ -121,7 +121,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_CodeAction_CommandCodeActi
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_addBuiltin___closed__3;
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_addBuiltin___closed__21;
-extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_CodeAction_CommandCodeActions_insert___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__3;
 lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3710,7 +3709,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_levelZero;
+x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

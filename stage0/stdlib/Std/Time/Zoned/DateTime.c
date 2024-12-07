@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Zoned.DateTime
-// Imports: Std.Time.DateTime Std.Time.Zoned.TimeZone Std.Internal
+// Imports: Std.Time.DateTime Std.Time.Zoned.TimeZone
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7768,7 +7768,6 @@ return x_4;
 }
 lean_object* initialize_Std_Time_DateTime(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_Zoned_TimeZone(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Internal(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Zoned_DateTime(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -7778,9 +7777,6 @@ res = initialize_Std_Time_DateTime(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_Zoned_TimeZone(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Internal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_instInhabitedDateTime___lambda__1___closed__1 = _init_l_Std_Time_instInhabitedDateTime___lambda__1___closed__1();

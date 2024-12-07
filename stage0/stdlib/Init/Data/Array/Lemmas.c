@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_take_loop_m
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Array_toListRev___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_foldlM_loop_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_toListRev___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -50,6 +51,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_toListRev___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findM_x3f_match__1_splitter(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter___rarg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_isEqvAux_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_forIn_x27__cons_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_findSomeM_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
@@ -58,6 +60,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeM_x
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_take_loop_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_findSomeRevM_x3f_find_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_toListRev___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_foldl__filterMap_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_foldlM_loop_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -444,6 +447,41 @@ uint8_t x_4; lean_object* x_5;
 x_4 = lean_unbox(x_1);
 lean_dec(x_1);
 x_5 = l___private_Init_Data_Array_Lemmas_0__List_anyM_match__1_splitter___rarg(x_4, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_inc(x_3);
+return x_3;
+}
+else
+{
+lean_inc(x_2);
+return x_2;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l___private_Init_Data_Array_Lemmas_0__List_filter_match__1_splitter___rarg(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;

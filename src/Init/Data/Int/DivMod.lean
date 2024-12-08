@@ -29,6 +29,8 @@ At that time, we did not rename `div` and `mod` to `tdiv` and `tmod` (along with
 In September 2024, we decided to do this rename (with deprecations in place),
 and later we intend to rename `ediv` and `emod` to `div` and `mod`, as nearly all users will only
 ever need to use these functions and their associated lemmas.
+
+In December 2024, we removed `tdiv` and `tmod`, but have not yet renamed `ediv` and `emod`.
 -/
 
 /-! ### T-rounding division -/
@@ -71,8 +73,6 @@ def tdiv : (@& Int) → (@& Int) → Int
   | -[m +1], ofNat n => -ofNat (succ m / n)
   | -[m +1], -[n +1] =>  ofNat (succ m / succ n)
 
-@[deprecated tdiv (since := "2024-09-11")] abbrev div := tdiv
-
 /-- Integer modulo. This function uses the
   [*"T-rounding"*][t-rounding] (**T**runcation-rounding) convention
   to pair with `Int.tdiv`, meaning that `tmod a b + b * (tdiv a b) = a`
@@ -106,8 +106,6 @@ def tmod : (@& Int) → (@& Int) → Int
   | ofNat m, -[n +1] =>  ofNat (m % succ n)
   | -[m +1], ofNat n => -ofNat (succ m % n)
   | -[m +1], -[n +1] => -ofNat (succ m % succ n)
-
-@[deprecated tmod (since := "2024-09-11")] abbrev mod := tmod
 
 /-! ### F-rounding division
 This pair satisfies `fdiv x y = floor (x / y)`.
@@ -250,8 +248,6 @@ instance : Mod Int where
 @[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
 
 theorem ofNat_tdiv (m n : Nat) : ↑(m / n) = tdiv ↑m ↑n := rfl
-
-@[deprecated ofNat_tdiv (since := "2024-09-11")] abbrev ofNat_div := ofNat_tdiv
 
 theorem ofNat_fdiv : ∀ m n : Nat, ↑(m / n) = fdiv ↑m ↑n
   | 0, _ => by simp [fdiv]

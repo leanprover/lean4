@@ -1683,7 +1683,7 @@ theorem getMsbD_signExtend {x : BitVec w} {v i : Nat} :
       (decide (i < v) && if v - w ≤ i then x.getMsbD (i + w - v) else x.msb) := by
   rcases hmsb : x.msb with rfl | rfl
   · simp [signExtend_eq_setWidth_of_msb_false hmsb, getMsbD_setWidth]
-    by_cases h : (v - w ≤ i) <;> simp [h, getMsbD] <;> omega
+    by_cases h : v - w ≤ i <;> simp [h, getMsbD] <;> omega
   · simp only [signExtend_eq_not_setWidth_not_of_msb_true hmsb, getMsbD_not, getMsbD_setWidth]
     by_cases h : i < v <;> by_cases h' : v - w ≤ i <;> simp [h, h'] <;> omega
 

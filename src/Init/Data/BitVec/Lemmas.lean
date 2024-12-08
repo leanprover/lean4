@@ -657,7 +657,7 @@ theorem getMsbD_setWidth {m : Nat} {x : BitVec n} {i : Nat} :
   unfold setWidth
   by_cases h : n ≤ m <;> simp only [h]
   · by_cases h' : m - n ≤ i
-    <;> simp [h', show (i - (m - n)) = i + n - m by omega]
+    <;> simp [h', show i - (m - n) = i + n - m by omega]
   · simp only [show m - n = 0 by omega, getMsbD, getLsbD_setWidth]
     by_cases h' : i < m
     · simp [show m - 1 - i < m by omega, show i + n - m < n by omega,

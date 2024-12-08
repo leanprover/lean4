@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Structure
-import Lean.Util.Recognizers
 import Lean.Meta.SynthInstance
 import Lean.Meta.Check
 import Lean.Meta.DecLevel
@@ -513,10 +512,6 @@ def mkSome (type value : Expr) : MetaM Expr := do
   let u ← getDecLevel type
   return mkApp2 (mkConst ``Option.some [u]) type value
 
-def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
-  let u ← getLevel type
-  return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
-
 /-- Return `Decidable.decide p` -/
 def mkDecide (p : Expr) : MetaM Expr :=
   mkAppOptM ``Decidable.decide #[p, none]
@@ -544,10 +539,6 @@ def mkDefault (α : Expr) : MetaM Expr :=
 /-- Return `@Classical.ofNonempty α _` -/
 def mkOfNonempty (α : Expr) : MetaM Expr := do
   mkAppOptM ``Classical.ofNonempty #[α, none]
-
-/-- Return `sorryAx type` -/
-def mkSyntheticSorry (type : Expr) : MetaM Expr :=
-  return mkApp2 (mkConst ``sorryAx [← getLevel type]) type (mkConst ``Bool.true)
 
 /-- Return `funext h` -/
 def mkFunExt (h : Expr) : MetaM Expr :=

@@ -1364,7 +1364,7 @@ private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
     unfold s (pure .undef) fun s =>
       isDefEqLeftRight fn t s
   | .app _ _,     .app _ _     =>
-    if (← tryHeuristic t s) then
+    if (← getProjectionFnInfo? fn).isNone && (← tryHeuristic t s) then
       return .true
     else
       unfold t

@@ -1124,6 +1124,11 @@ theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
     BitVec.toNat (x <<< n) = BitVec.toNat x <<< n % 2^v :=
   BitVec.toNat_ofNat _ _
 
+@[simp] theorem toInt_shiftLeft {x : BitVec w} :
+    BitVec.toInt (x <<< n) = Int.bmod (x.toNat <<< n) (2^w) := by
+    rw [toInt_eq_toNat_bmod, toNat_shiftLeft, Nat.shiftLeft_eq]
+    simp
+
 @[simp] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
     BitVec.toFin (x <<< n) = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
 

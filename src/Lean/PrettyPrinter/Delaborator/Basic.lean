@@ -212,7 +212,7 @@ where
   }
 
 def addDelabTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false)
-    (location? : Option (Name × Lsp.Range) := none) (docString? : Option String := none) (explicit : Bool := true) : DelabM Unit := do
+    (location? : Option DeclarationLocation := none) (docString? : Option String := none) (explicit : Bool := true) : DelabM Unit := do
   let info := Info.ofDelabTermInfo {
     toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := isBinder)
     location?  := location?

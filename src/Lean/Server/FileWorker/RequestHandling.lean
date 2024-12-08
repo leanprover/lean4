@@ -215,8 +215,9 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
   | .ofTermInfo ti =>
     return ← locationLinksFromTermInfo ti
   | .ofDelabTermInfo { toTermInfo := ti, location?, .. } =>
-    if let some (module, range) := location? then
-      if let some targetUri ← documentUriFromModule rc.srcSearchPath module then
+    if let some location := location? then
+      if let some targetUri ← documentUriFromModule rc.srcSearchPath location.module then
+        let range := location.range.toLspRange
         let result : LocationLink := {
           targetUri, targetRange := range, targetSelectionRange := range,
           originSelectionRange? := (·.toLspRange text) <$> i.range?

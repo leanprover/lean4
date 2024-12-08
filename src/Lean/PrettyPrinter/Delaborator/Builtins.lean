@@ -1297,10 +1297,10 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
   -- But, if `pp.explicit` is false and `pp.sorrySource` is true, then print a simplified version of the tag.
   if let some view := isLabeledSorry? (← getExpr) then
     withOverApp 3 do
-      if let some (module, pos, range) := view.module? then
+      if let some loc := view.module? then
         let (stx, explicit) ←
           if ← pure sorrySource <||> getPPOption getPPSorrySource then
-            let posAsName := Name.mkSimple s!"{module}:{pos.line}:{pos.column}"
+            let posAsName := Name.mkSimple s!"{loc.module}:{loc.range.pos.line}:{loc.range.pos.column}"
             let pos := mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{posAsName}"]
             let src ← withAppArg <| annotateTermInfo pos
             pure (← `(sorry $src), true)
@@ -1308,7 +1308,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
             -- Set `explicit` to false so that the first hover sets `pp.sorrySource` to true in `Lean.Widget.ppExprTagged`
             pure (← `(sorry), false)
         let stx ← annotateCurPos stx
-        addDelabTermInfo (← getPos) stx (← getExpr) (explicit := explicit) (location? := some (module, range))
+        addDelabTermInfo (← getPos) stx (← getExpr) (explicit := explicit) (location? := loc)
           (docString? := "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there.")
         return stx
       else

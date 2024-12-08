@@ -43,12 +43,15 @@ structure SorryLabelView where
   The logical source position is used when displaying the sorry when the `pp.sorrySource` option is true,
   and the LSP range is used for "go to definition" in the Infoview.
   -/
-  module? : Option (Name × Position × Lsp.Range) := none
+  module? : Option DeclarationLocation := none
 
 def SorryLabelView.encode (view : SorryLabelView) : CoreM Name :=
   let name :=
-    if let some (mod, pos, range) := view.module? then
-      mod |>.num pos.line |>.num pos.column |>.num range.start.line |>.num range.start.character |>.num range.end.line |>.num range.end.character
+    if let some { module, range := { pos, endPos, charUtf16, endCharUtf16 } } := view.module? then
+      module
+        |>.num pos.line |>.num pos.column
+        |>.num endPos.line |>.num endPos.column
+        |>.num charUtf16 |>.num endCharUtf16
     else
       .anonymous
   mkFreshUserName (name.str "_sorry")
@@ -56,8 +59,8 @@ def SorryLabelView.encode (view : SorryLabelView) : CoreM Name :=
 def SorryLabelView.decode? (name : Name) : Option SorryLabelView := do
   guard <| name.hasMacroScopes
   let .str name "_sorry" := name.eraseMacroScopes | failure
-  if let .num (.num (.num (.num (.num (.num name posLine) posCol) startLine) startChar) endLine) endChar := name then
-    return { module? := some (name, ⟨posLine, posCol⟩, ⟨⟨startLine, startChar⟩, ⟨endLine, endChar⟩⟩) }
+  if let .num (.num (.num (.num (.num (.num module posLine) posCol) endLine) endCol) charUtf16) endCharUtf16 := name then
+    return { module? := some { module, range := { pos := ⟨posLine, posCol⟩, endPos := ⟨endLine, endCol⟩, charUtf16, endCharUtf16 } } }
   else
     failure
 
@@ -71,11 +74,19 @@ Constructs a `sorryAx`.
 -/
 def mkLabeledSorry (type : Expr) (synthetic : Bool) (unique : Bool) : MetaM Expr := do
   let tag ←
-    if let (some startPos, some endPos) := ((← getRef).getPos?, (← getRef).getTailPos?) then
+    if let (some startSPos, some endSPos) := ((← getRef).getPos?, (← getRef).getTailPos?) then
       let fileMap ← getFileMap
-      let pos := fileMap.toPosition startPos
-      let range := fileMap.utf8RangeToLspRange ⟨startPos, endPos⟩
-      SorryLabelView.encode { module? := (← getMainModule, pos, range) }
+      SorryLabelView.encode {
+        module? := some {
+          module := (← getMainModule)
+          range := {
+            pos := fileMap.toPosition startSPos
+            endPos := fileMap.toPosition endSPos
+            charUtf16 := (fileMap.utf8PosToLspPos startSPos).character
+            endCharUtf16 := (fileMap.utf8PosToLspPos endSPos).character
+          }
+        }
+      }
     else
       SorryLabelView.encode {}
   if unique then

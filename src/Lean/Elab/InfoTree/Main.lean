@@ -193,7 +193,7 @@ def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format
   f!"FieldRedecl @ {formatStxRange ctx info.stx}"
 
 def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format := do
-  let loc := if let some (module, rng) := info.location? then f!"{module} {rng.start}-{rng.end}" else "none"
+  let loc := if let some loc := info.location? then f!"{loc.module} {loc.range.pos}-{loc.range.endPos}" else "none"
   return f!"DelabTermInfo @ {← TermInfo.format ctx info.toTermInfo}\n\
     Location: {loc}\n\
     Docstring: {repr info.docString?}\n\

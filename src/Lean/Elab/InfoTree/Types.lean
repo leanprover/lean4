@@ -5,12 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Lean.Data.Position
+import Lean.Data.DeclarationRange
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Data.Json
-import Lean.Data.Lsp.Basic
 import Lean.Server.Rpc.Basic
 import Lean.Widget.Types
 
@@ -179,8 +178,8 @@ Regular terms are delaborated explicitly, whereas omitted terms are simply to be
 regular delaboration settings. Additionally, omissions come with a reason for omission.
 -/
 structure DelabTermInfo extends TermInfo where
-  /-- A module and source range to use for "go to definition", to override the default. -/
-  location? : Option (Name × Lsp.Range) := none
+  /-- A source position to use for "go to definition", to override the default. -/
+  location? : Option DeclarationLocation := none
   /-- Text to use to override the docstring. -/
   docString? : Option String := none
   /-- Whether to use explicit mode when pretty printing the term on hover. -/

@@ -3600,6 +3600,9 @@ instance instDecidableExistsBitVec :
 
 set_option linter.missingDocs false
 
+@[deprecated signExtend_eq_setWidth_of_msb_false (since := "2024-12-08")]
+abbrev signExtend_eq_not_setWidth_not_of_msb_false := @signExtend_eq_setWidth_of_msb_false
+
 @[deprecated truncate_eq_setWidth (since := "2024-09-18")]
 abbrev truncate_eq_zeroExtend := @truncate_eq_setWidth
 

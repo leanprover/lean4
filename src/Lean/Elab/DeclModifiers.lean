@@ -6,15 +6,21 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Lean.Structure
 import Lean.Elab.Attributes
+import Lean.Linter.Basic
 
 namespace Lean.Elab
+
+register_builtin_option linter.aliasConflict : Bool := {
+  defValue := true
+  descr := "enables warnings when declarations and aliases are in conflict"
+}
 
 /--
 Ensure the environment does not contain a declaration with name `declName`.
 Recall that a private declaration cannot shadow a non-private one and vice-versa, although
 they internally have different names.
 -/
-def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (declName : Name) : m Unit := do
+def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (declName : Name) : m Unit := do
   let env ← getEnv
   let addInfo declName := do
     pushInfoLeaf <| .ofTermInfo {
@@ -38,6 +44,12 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
     if env.contains declName then
       addInfo declName
       throwError "a non-private declaration '{.ofConstName declName true}' has already been declared"
+  -- Check for aliases that could conflict with this declaration.
+  let aliases := getAliases env declName (skipProtected := false)
+  unless aliases.isEmpty do
+    let aliases' := aliases.map fun alias => m!"'{.ofConstName alias (fullNames := true)}'"
+    Linter.logLintIf linter.aliasConflict (← getRef) m!"\
+      '{declName}' exists as an alias for the following declaration(s) and may lead to ambiguities: {MessageData.joinSep aliases' ", "}"
 
 /-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/
 inductive Visibility where

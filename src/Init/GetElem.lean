@@ -243,6 +243,12 @@ namespace Array
 instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get i h
 
+@[simp] theorem get_eq_getElem (a : Array α) (i : Nat) (h) : a.get i h = a[i] := rfl
+
+@[simp] theorem get!_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) : a.get! i = a[i]! := by
+  simp only [get!, getD, get_eq_getElem, getElem!_def]
+  split <;> simp_all [getElem?_pos, getElem?_neg]
+
 end Array
 
 namespace Lean.Syntax

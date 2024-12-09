@@ -253,12 +253,6 @@ theorem getElem_eq_getElem?_get (l : List α) (i : Nat) (h : i < l.length) :
     l[i] = l[i]?.get (by simp [getElem?_eq_getElem, h]) := by
   simp [getElem_eq_iff]
 
-theorem isSome_getElem? {l : List α} {n : Nat} : l[n]?.isSome ↔ n < l.length := by
-  simp
-
-theorem isNone_getElem? {l : List α} {n : Nat} : l[n]?.isNone ↔ l.length ≤ n := by
-  simp
-
 @[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
 
 theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
@@ -268,6 +262,11 @@ theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
   rfl
 
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
+  cases i <;> simp
+
+theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
+    (a :: l)[i] =
+      if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
   cases i <;> simp
 
 @[simp] theorem getElem_singleton (a : α) (h : i < 1) : [a][i] = a :=
@@ -3532,7 +3531,12 @@ theorem getElem?_eq (l : List α) (i : Nat) :
   getElem?_def _ _
 @[deprecated getElem?_eq_none (since := "2024-11-29")] abbrev getElem?_len_le := @getElem?_eq_none
 
+@[deprecated _root_.isSome_getElem? (since := "2024-12-09")]
+theorem isSome_getElem? {l : List α} {n : Nat} : l[n]?.isSome ↔ n < l.length := by
+  simp
 
-
+@[deprecated _root_.isNone_getElem? (since := "2024-12-09")]
+theorem isNone_getElem? {l : List α} {n : Nat} : l[n]?.isNone ↔ l.length ≤ n := by
+  simp
 
 end List

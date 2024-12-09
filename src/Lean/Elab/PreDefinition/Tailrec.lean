@@ -37,17 +37,20 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
 
   match_expr type with
   | Tailrec.forall_arg _α _β _γ _P f =>
+    let f ← instantiateMVars f
     let f := headBetaUnderLambda f
     if f.isLambda && f.bindingBody!.isLambda then
-      let (_, new_goal) ← goal.intro f.bindingBody!.bindingName!
+      let name := f.bindingBody!.bindingName!
+      let (_, new_goal) ← goal.intro name
       solveMono ur new_goal
     else
-      let (_, goal) ← goal.intro1
-      solveMono ur goal
+      let (_, new_goal) ← goal.intro1
+      solveMono ur new_goal
 
   | Tailrec.monotone α inst_α β inst_β f =>
     -- Ensure f is headed not a redex and headed by at least one lambda, and clean some
     -- redexes left by some of the lemmas we tend to apply
+    let f ← instantiateMVars f
     let f := f.headBeta
     let f ← if f.isLambda then pure f else etaExpand f
     let f := headBetaUnderLambda f
@@ -187,13 +190,21 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       return
     | _ => pure
 
-    -- We could be even more deliberate here and use the `lifter` lemmas
-    -- for the match statements instead of the `split` tactic.
-    -- For now using `splitMatch` works fine.
-    if Lean.Meta.Split.findSplit?.isCandidate (← getEnv) (e := e) (splitIte := false) then
-      let new_goals ← Split.splitMatch goal e
-      new_goals.forM (solveMono ur)
-      return
+    -- Split match-expressions
+    if let some info := isMatcherAppCore? (← getEnv) e then
+      let candidate ← id do
+        let args := e.getAppArgs
+        for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+          if args[i]!.hasLooseBVars then
+            return false
+        return true
+      if candidate then
+        -- We could be even more deliberate here and use the `lifter` lemmas
+        -- for the match statements instead of the `split` tactic.
+        -- For now using `splitMatch` works fine.
+        let new_goals ← Split.splitMatch goal e
+        new_goals.forM (solveMono ur)
+        return
 
     failK
   | _ =>

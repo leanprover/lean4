@@ -43,9 +43,9 @@ theorem monotone_mapFinIdxM
     (xs : Array α)
     (f : γ → Fin xs.size → α → m β)
     (hmono : forall_arg (forall_arg monotone) f) :
-    monotone (fun x => xs.mapFinIdxM (fun i y => f x i y)) := by
+    monotone (fun x => xs.mapFinIdxM (f x)) := by
   suffices
-    ∀ i j (h : i + j = xs.size) r, monotone (fun x => Array.mapFinIdxM.map xs (fun i y => f x i y) i j h r) by
+    ∀ i j (h : i + j = xs.size) r, monotone (fun x => Array.mapFinIdxM.map xs (f x) i j h r) by
     apply this
   intros i j h r
   induction i, j, h, r using Array.mapFinIdxM.map.induct xs

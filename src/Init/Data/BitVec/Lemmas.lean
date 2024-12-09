@@ -3260,8 +3260,8 @@ theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) :
 
 @[simp]
 theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
-    (x.replicate n).getMsbD i =
-    (decide (i < w * n) && x.getMsbD (i % w)) := by
+    (x.replicate n).getMsbD i
+    = (decide (i < w * n) && x.getMsbD (i % w)) := by
   simp only [getMsbD_eq_getLsbD, getLsbD_replicate]
   cases w
   case zero => simp

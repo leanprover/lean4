@@ -1694,10 +1694,9 @@ theorem getElem_signExtend {x  : BitVec w} {v i : Nat} (h : i < v) :
 
 theorem msb_signExtend {x : BitVec w} :
     (x.signExtend v).msb = (decide (0 < v) && if w ≥ v then x.getMsbD (w - v) else x.msb) := by
-  simp [BitVec.msb, getMsbD_signExtend]
   by_cases h : w ≥ v
-  · simp [h, show v - w = 0 by omega]
-  · simp [h, show ¬ (v - w = 0) by omega]
+  · simp [h, BitVec.msb, getMsbD_signExtend, show v - w = 0 by omega]
+  · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
 theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):

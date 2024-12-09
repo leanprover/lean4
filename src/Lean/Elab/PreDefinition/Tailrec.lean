@@ -122,27 +122,19 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     -- Manually handle ite, dite, etc.. Not too hard, and more robust and predictable than
     -- using the split tactic.
     match_expr e with
-    | ite _ cond decInst k₁ k₂ =>
-      let us := type.getAppFn.constLevels!
-      let k₁' := f.updateLambdaE! f.bindingDomain! k₁
-      let k₂' := f.updateLambdaE! f.bindingDomain! k₂
-      let p := mkAppN (.const ``Tailrec.monotone_ite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
+    | ite _ _ _ _ _ =>
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
-          goal.apply p
+        mapError (f := (m!"Could not apply {``Tailrec.monotone_ite}:{indentD ·}")) do
+          goal.applyConst ``Tailrec.monotone_ite (cfg := { synthAssignedInstances := false})
       new_goals.forM (solveMono ur)
       return
-    | dite _ cond decInst k₁ k₂ =>
-      let us := type.getAppFn.constLevels!
-      let k₁' := f.updateLambdaE! f.bindingDomain! k₁
-      let k₂' := f.updateLambdaE! f.bindingDomain! k₂
-      let p := mkAppN (.const ``Tailrec.monotone_dite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
+    | dite _ _ _ _ _ =>
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
-          goal.apply p
+        mapError (f := (m!"Could not apply {``Tailrec.monotone_dite}:{indentD ·}")) do
+          goal.applyConst ``Tailrec.monotone_dite (cfg := { synthAssignedInstances := false})
       new_goals.forM (solveMono ur)
       return
-    | letFun δ _ v k =>
+    | letFun _ _ _ _ =>
       let new_goals ←
         mapError (f := (m!"Could not apply {``Tailrec.monotone_letFun}:{indentD ·}")) do
           goal.applyConst ``Tailrec.monotone_letFun (cfg := { synthAssignedInstances := false})

@@ -30,37 +30,28 @@ structure TacticContext where
   reflectionDef : Name
   solver : System.FilePath
   lratPath : System.FilePath
-  graphviz : Bool
-  timeout : Nat
-  trimProofs : Bool
-  binaryProofs : Bool
+  config : BVDecideConfig
 
-def TacticContext.new (lratPath : System.FilePath) : Lean.Elab.TermElabM TacticContext := do
+def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
+    Lean.Elab.TermElabM TacticContext := do
+  -- Account for: https://github.com/arminbiere/cadical/issues/112
+  let config :=
+    if System.Platform.isWindows then
+      { config with binaryProofs := false }
+    else
+      config
   let exprDef ← Lean.Elab.Term.mkAuxName `_expr_def
   let certDef ← Lean.Elab.Term.mkAuxName `_cert_def
   let reflectionDef ← Lean.Elab.Term.mkAuxName `_reflection_def
-  let opts ← getOptions
   let solver ← determineSolver
   trace[Meta.Tactic.sat] m!"Using SAT solver at '{solver}'"
-  let timeout := sat.timeout.get opts
-  let graphviz := debug.bv.graphviz.get opts
-  let trimProofs := sat.trimProofs.get opts
-  let binaryProofs :=
-    -- Account for: https://github.com/arminbiere/cadical/issues/112
-    if System.Platform.isWindows then
-      false
-    else
-      sat.binaryProofs.get opts
   return {
     exprDef,
     certDef,
     reflectionDef,
     solver,
     lratPath,
-    graphviz,
-    timeout,
-    trimProofs,
-    binaryProofs
+    config
   }
 where
   determineSolver : Lean.Elab.TermElabM System.FilePath := do

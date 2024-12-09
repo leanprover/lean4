@@ -14,7 +14,7 @@ private def deriveTypeNameInstance (declNames : Array Name) : CommandElabM Bool 
   for declName in declNames do
     let cinfo ← getConstInfo declName
     unless cinfo.levelParams.isEmpty do
-      throwError m!"{mkConst declName} has universe level parameters"
+      throwError m!"{.ofConstName declName} has universe level parameters"
     elabCommand <| ← withFreshMacroScope `(
       unsafe def instImpl : TypeName @$(mkCIdent declName) := .mk _ $(quote declName)
       @[implemented_by instImpl] opaque inst : TypeName @$(mkCIdent declName)

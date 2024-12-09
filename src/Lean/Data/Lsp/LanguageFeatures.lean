@@ -25,7 +25,7 @@ inductive CompletionItemKind where
   | unit | value | enum | keyword | snippet
   | color | file | reference | folder | enumMember
   | constant | struct | event | operator | typeParameter
-  deriving Inhabited, DecidableEq, Repr
+  deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemKind where
   toJson a := toJson (a.toCtorIdx + 1)
@@ -39,11 +39,11 @@ structure InsertReplaceEdit where
   newText : String
   insert  : Range
   replace : Range
-  deriving FromJson, ToJson
+  deriving FromJson, ToJson, BEq, Hashable
 
 inductive CompletionItemTag where
   | deprecated
-  deriving Inhabited, DecidableEq, Repr
+  deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemTag where
   toJson t := toJson (t.toCtorIdx + 1)
@@ -73,7 +73,7 @@ structure CompletionItem where
   commitCharacters? : string[]
   command? : Command
   -/
-  deriving FromJson, ToJson, Inhabited
+  deriving FromJson, ToJson, Inhabited, BEq, Hashable
 
 structure CompletionList where
   isIncomplete : Bool

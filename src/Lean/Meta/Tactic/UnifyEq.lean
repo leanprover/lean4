@@ -116,7 +116,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
             else
               match caseName? with
               | none => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
-              | some caseName => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}\nat case {mkConst caseName}"
+              | some caseName => throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}\nat case {.ofConstName caseName}"
         let a ← instantiateMVars a
         let b ← instantiateMVars b
         match a, b with

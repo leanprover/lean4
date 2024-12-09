@@ -32,7 +32,7 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson
+  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson, Repr
 
 instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
@@ -43,7 +43,7 @@ instance : LE Position := leOfOrd
 structure Range where
   start : Position
   «end» : Position
-  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord
+  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord, Repr
 
 instance : LT Range := ltOfOrd
 instance : LE Range := leOfOrd
@@ -365,6 +365,7 @@ structure TextDocumentRegistrationOptions where
 
 inductive MarkupKind where
   | plaintext | markdown
+  deriving DecidableEq, Hashable
 
 instance : FromJson MarkupKind := ⟨fun
   | str "plaintext" => Except.ok MarkupKind.plaintext
@@ -378,7 +379,7 @@ instance : ToJson MarkupKind := ⟨fun
 structure MarkupContent where
   kind  : MarkupKind
   value : String
-  deriving ToJson, FromJson
+  deriving ToJson, FromJson, DecidableEq, Hashable
 
 /-- Reference to the progress of some in-flight piece of work.
 

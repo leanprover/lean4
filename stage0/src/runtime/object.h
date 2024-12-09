@@ -10,11 +10,6 @@ Author: Leonardo de Moura
 #include "runtime/mpz.h"
 
 namespace lean {
-typedef uint8_t  uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
-typedef size_t   usize;
 
 typedef lean_object object;
 typedef object * obj_arg;
@@ -389,7 +384,6 @@ inline uint8 uint8_sub(uint8 a1, uint8 a2) { return lean_uint8_sub(a1, a2); }
 inline uint8 uint8_mul(uint8 a1, uint8 a2) { return lean_uint8_mul(a1, a2); }
 inline uint8 uint8_div(uint8 a1, uint8 a2) { return lean_uint8_div(a1, a2); }
 inline uint8 uint8_mod(uint8 a1, uint8 a2) { return lean_uint8_mod(a1, a2); }
-inline uint8 uint8_modn(uint8 a1, b_obj_arg a2) { return lean_uint8_modn(a1, a2); }
 inline uint8 uint8_dec_eq(uint8 a1, uint8 a2) { return lean_uint8_dec_eq(a1, a2); }
 inline uint8 uint8_dec_lt(uint8 a1, uint8 a2) { return lean_uint8_dec_lt(a1, a2); }
 inline uint8 uint8_dec_le(uint8 a1, uint8 a2) { return lean_uint8_dec_le(a1, a2); }
@@ -403,7 +397,6 @@ inline uint16 uint16_sub(uint16 a1, uint16 a2) { return lean_uint16_sub(a1, a2);
 inline uint16 uint16_mul(uint16 a1, uint16 a2) { return lean_uint16_mul(a1, a2); }
 inline uint16 uint16_div(uint16 a1, uint16 a2) { return lean_uint16_div(a1, a2); }
 inline uint16 uint16_mod(uint16 a1, uint16 a2) { return lean_uint16_mod(a1, a2); }
-inline uint16 uint16_modn(uint16 a1, b_obj_arg a2) { return lean_uint16_modn(a1, a2); }
 inline uint16 uint16_dec_eq(uint16 a1, uint16 a2) { return lean_uint16_dec_eq(a1, a2); }
 inline uint16 uint16_dec_lt(uint16 a1, uint16 a2) { return lean_uint16_dec_lt(a1, a2); }
 inline uint16 uint16_dec_le(uint16 a1, uint16 a2) { return lean_uint16_dec_le(a1, a2); }
@@ -417,7 +410,6 @@ inline uint32 uint32_sub(uint32 a1, uint32 a2) { return lean_uint32_sub(a1, a2);
 inline uint32 uint32_mul(uint32 a1, uint32 a2) { return lean_uint32_mul(a1, a2); }
 inline uint32 uint32_div(uint32 a1, uint32 a2) { return lean_uint32_div(a1, a2); }
 inline uint32 uint32_mod(uint32 a1, uint32 a2) { return lean_uint32_mod(a1, a2); }
-inline uint32 uint32_modn(uint32 a1, b_obj_arg a2) { return lean_uint32_modn(a1, a2); }
 inline uint32 uint32_dec_eq(uint32 a1, uint32 a2) { return lean_uint32_dec_eq(a1, a2); }
 inline uint32 uint32_dec_lt(uint32 a1, uint32 a2) { return lean_uint32_dec_lt(a1, a2); }
 inline uint32 uint32_dec_le(uint32 a1, uint32 a2) { return lean_uint32_dec_le(a1, a2); }
@@ -430,7 +422,6 @@ inline uint64 uint64_sub(uint64 a1, uint64 a2) { return lean_uint64_sub(a1, a2);
 inline uint64 uint64_mul(uint64 a1, uint64 a2) { return lean_uint64_mul(a1, a2); }
 inline uint64 uint64_div(uint64 a1, uint64 a2) { return lean_uint64_div(a1, a2); }
 inline uint64 uint64_mod(uint64 a1, uint64 a2) { return lean_uint64_mod(a1, a2); }
-inline uint64 uint64_modn(uint64 a1, b_obj_arg a2) { return lean_uint64_modn(a1, a2); }
 inline uint64 uint64_dec_eq(uint64 a1, uint64 a2) { return lean_uint64_dec_eq(a1, a2); }
 inline uint64 uint64_dec_lt(uint64 a1, uint64 a2) { return lean_uint64_dec_lt(a1, a2); }
 inline uint64 uint64_dec_le(uint64 a1, uint64 a2) { return lean_uint64_dec_le(a1, a2); }
@@ -443,7 +434,6 @@ inline usize usize_sub(usize a1, usize a2) { return lean_usize_sub(a1, a2); }
 inline usize usize_mul(usize a1, usize a2) { return lean_usize_mul(a1, a2); }
 inline usize usize_div(usize a1, usize a2) { return lean_usize_div(a1, a2); }
 inline usize usize_mod(usize a1, usize a2) { return lean_usize_mod(a1, a2); }
-inline usize usize_modn(usize a1, b_obj_arg a2) { return lean_usize_modn(a1, a2); }
 inline usize usize_dec_eq(usize a1, usize a2) { return lean_usize_dec_eq(a1, a2); }
 inline usize usize_dec_lt(usize a1, usize a2) { return lean_usize_dec_lt(a1, a2); }
 inline usize usize_dec_le(usize a1, usize a2) { return lean_usize_dec_le(a1, a2); }

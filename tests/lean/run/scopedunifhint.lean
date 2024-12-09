@@ -35,7 +35,7 @@ argument
 has type
   Nat : Type
 but is expected to have type
-  ?_.α : Type _
+  Magma.α ?_ : Type _
 -/
 #guard_msgs in
 #check mul x x           -- Error: unification hint is not active
@@ -48,7 +48,7 @@ argument
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?_.α : Type _
+  Magma.α ?_ : Type _
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- Error: no unification hint
@@ -63,7 +63,7 @@ argument
 has type
   Nat : Type
 but is expected to have type
-  ?_.α : Type _
+  Magma.α ?_ : Type _
 -/
 #guard_msgs in
 #check x*x -- Error: unification hint is not active
@@ -81,7 +81,7 @@ argument
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?_.α : Type _
+  Magma.α ?_ : Type _
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- still error
@@ -109,7 +109,7 @@ argument
 has type
   Nat × Nat : Type
 but is expected to have type
-  ?_.α : Type _
+  Magma.α ?_ : Type _
 -/
 #guard_msgs in
 #check (x, x) * (x, x) -- error, local hint is not active after end of section anymore

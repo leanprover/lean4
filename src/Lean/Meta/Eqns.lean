@@ -128,9 +128,8 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
-  if let some (.defnInfo info) := (← getEnv).find? declName then
-    if (← isProp info.type) then return false
-    return true
+  if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    return !(← isProp sig.get.type)
   else
     return false
 
@@ -153,10 +152,11 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
       let name := declName ++ suffix
-      addDecl <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
+      realizeConst declName name .thm do
+        return .thmInfo {
+          name, type, value
+          levelParams := info.levelParams
+        }
       return some name
   else
     return none
@@ -165,7 +165,7 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
 Returns `some declName` if `thmName` is an equational theorem for `declName`.
 -/
 def isEqnThm? (thmName : Name) : CoreM (Option Name) := do
-  return eqnsExt.getState (← getEnv) |>.mapInv.find? thmName
+  return eqnsExt.getStateNoAsync (← getEnv) |>.mapInv.find? thmName
 
 /--
 Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`
@@ -196,11 +196,17 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
     return none
 
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
-  if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
+  -- Test this first as it blocks on the least data
+  if !(← shouldGenerateEqnThms declName) then
+    return none
+  -- must use `NoAsync` as otherwise we may be able to see the extension state
+  -- from a different thread without the constant being realized on this thread
+  -- yet, and also it would be a hard block
+  else if let some eqs := eqnsExt.getStateNoAsync (← getEnv) |>.map.find? declName then
     return some eqs
   else if let some eqs ← alreadyGenerated? declName then
     return some eqs
-  else if (← shouldGenerateEqnThms declName) then
+  else
     for f in (← getEqnsFnsRef.get) do
       if let some r ← f declName then
         registerEqnThms declName r

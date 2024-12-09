@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///match.lean"},
      "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "S.fn1"}}}},
+    "id": {"const": {"declName": "S.fn1"}},
+    "cPos": 1}},
   {"sortText": "1",
    "label": "name",
    "kind": 5,
@@ -16,7 +17,8 @@
    {"params":
     {"textDocument": {"uri": "file:///match.lean"},
      "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "S.name"}}}},
+    "id": {"const": {"declName": "S.name"}},
+    "cPos": 1}},
   {"sortText": "2",
    "label": "value",
    "kind": 5,
@@ -24,7 +26,8 @@
    {"params":
     {"textDocument": {"uri": "file:///match.lean"},
      "position": {"line": 6, "character": 11}},
-    "id": {"const": {"declName": "S.value"}}}}],
+    "id": {"const": {"declName": "S.value"}},
+    "cPos": 1}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 10, "character": 10}}
@@ -36,7 +39,8 @@
    {"params":
     {"textDocument": {"uri": "file:///match.lean"},
      "position": {"line": 10, "character": 10}},
-    "id": {"const": {"declName": "S.fn1"}}}},
+    "id": {"const": {"declName": "S.fn1"}},
+    "cPos": 1}},
   {"sortText": "1",
    "label": "name",
    "kind": 5,
@@ -44,7 +48,8 @@
    {"params":
     {"textDocument": {"uri": "file:///match.lean"},
      "position": {"line": 10, "character": 10}},
-    "id": {"const": {"declName": "S.name"}}}},
+    "id": {"const": {"declName": "S.name"}},
+    "cPos": 1}},
   {"sortText": "2",
    "label": "value",
    "kind": 5,
@@ -52,7 +57,8 @@
    {"params":
     {"textDocument": {"uri": "file:///match.lean"},
      "position": {"line": 10, "character": 10}},
-    "id": {"const": {"declName": "S.value"}}}}],
+    "id": {"const": {"declName": "S.value"}},
+    "cPos": 1}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 14, "character": 2}}

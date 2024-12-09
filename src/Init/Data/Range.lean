@@ -20,21 +20,6 @@ instance : Membership Nat Range where
 namespace Range
 universe u v
 
-@[inline] protected def forIn {β : Type u} {m : Type u → Type v} [Monad m] (range : Range) (init : β) (f : Nat → β → m (ForInStep β)) : m β :=
-  -- pass `stop` and `step` separately so the `range` object can be eliminated through inlining
-  let rec @[specialize] loop (fuel i stop step : Nat) (b : β) : m β := do
-    if i ≥ stop then
-      return b
-    else match fuel with
-     | 0   => pure b
-     | fuel+1 => match (← f i b) with
-        | ForInStep.done b  => pure b
-        | ForInStep.yield b => loop fuel (i + step) stop step b
-  loop range.stop range.start range.stop range.step init
-
-instance : ForIn m Range Nat where
-  forIn := Range.forIn
-
 @[inline] protected def forIn' {β : Type u} {m : Type u → Type v} [Monad m] (range : Range) (init : β) (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (start stop step : Nat) (f : (i : Nat) → start ≤ i ∧ i < stop → β → m (ForInStep β)) (fuel i : Nat) (hl : start ≤ i) (b : β) : m β := do
     if hu : i < stop then
@@ -49,6 +34,8 @@ instance : ForIn m Range Nat where
 
 instance : ForIn' m Range Nat inferInstance where
   forIn' := Range.forIn'
+
+-- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
 @[inline] protected def forM {m : Type u → Type v} [Monad m] (range : Range) (f : Nat → m PUnit) : m PUnit :=
   let rec @[specialize] loop (fuel i stop step : Nat) : m PUnit := do

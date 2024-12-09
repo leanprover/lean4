@@ -1,3 +1,4 @@
+import Lean
 /-!
 # Long runs of identifiers should include line breaks
 -/
@@ -19,3 +20,12 @@ info: foo
   Nat
 -/
 #guard_msgs(whitespace := exact) in #check foo
+
+/-!
+Issue pointed out by Mario: need spaces between `x✝` and `y✝`.
+-/
+/--
+info: def foo✝ (x✝ y✝ : Nat✝) :=
+  x✝
+-/
+#guard_msgs in #eval do Lean.PrettyPrinter.ppCommand (← `(command| def foo (x y : Nat) := x))

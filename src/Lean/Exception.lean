@@ -71,7 +71,7 @@ protected def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := 
 
 /-- Throw an unknown constant error message. -/
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
-  Lean.throwError m!"unknown constant '{mkConst constName}'"
+  Lean.throwError m!"unknown constant '{.ofConstName constName}'"
 
 /-- Throw an error exception using the given message data and reference syntax. -/
 protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do
@@ -81,19 +81,19 @@ protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : Messag
 Convert an `Except` into a `m` monadic action, where `m` is any monad that
 implements `MonadError`.
 -/
-def ofExcept [Monad m] [MonadError m] [ToString ε] (x : Except ε α) : m α :=
+def ofExcept [Monad m] [MonadError m] [ToMessageData ε] (x : Except ε α) : m α :=
   match x with
   | .ok a    => return a
-  | .error e => Lean.throwError <| toString e
+  | .error e => Lean.throwError <| toMessageData e
 
 /--
 Throw an error exception for the given kernel exception.
 -/
-def throwKernelException [Monad m] [MonadError m] [MonadOptions m] (ex : KernelException) : m α := do
-  Lean.throwError <| ex.toMessageData (← getOptions)
+def throwKernelException [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] (ex : Kernel.Exception) : m α := do
+  Lean.throwError <| ex.toMessageData (← getEnv) (← getOptions)
 
-/-- Lift from `Except KernelException` to `m` when `m` can throw kernel exceptions. -/
-def ofExceptKernelException [Monad m] [MonadError m] [MonadOptions m] (x : Except KernelException α) : m α :=
+/-- Lift from `Except Kernel.Exception` to `m` when `m` can throw kernel exceptions. -/
+def ofExceptKernelException [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] (x : Except Kernel.Exception α) : m α :=
   match x with
   | .ok a    => return a
   | .error e => throwKernelException e
@@ -167,5 +167,34 @@ macro_rules
 macro_rules
   | `(throwErrorAt $ref $msg:interpolatedStr) => `(Lean.throwErrorAt $ref (m! $msg))
   | `(throwErrorAt $ref $msg:term)            => `(Lean.throwErrorAt $ref $msg)
+
+/--
+`MonadExcept` variant that is expected to catch all exceptions of the given type in case the
+standard instance doesn't.
+
+In most circumstances, we want to let runtime exceptions during term elaboration bubble up to the
+command elaborator (see `Core.tryCatch`). However, in a few cases like building the trace tree, we
+really need to handle (and then re-throw) every exception lest we end up with a broken tree.
+-/
+class MonadAlwaysExcept (ε : outParam (Type u)) (m : Type u → Type v) where
+  except : MonadExceptOf ε m
+
+-- instances sufficient for inferring `MonadAlwaysExcept` for the elaboration monads
+
+instance : MonadAlwaysExcept ε (EIO ε) where
+  except := inferInstance
+
+instance [always : MonadAlwaysExcept ε m] [Monad m] : MonadAlwaysExcept ε (StateT σ m) where
+  except := let _ := always.except; inferInstance
+
+instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateRefT' ω σ m) where
+  except := let _ := always.except; inferInstance
+
+instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (ReaderT ρ m) where
+  except := let _ := always.except; inferInstance
+
+instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α] :
+    MonadAlwaysExcept ε (MonadCacheT α β m) where
+  except := let _ := always.except; inferInstance
 
 end Lean

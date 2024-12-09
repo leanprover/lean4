@@ -53,6 +53,7 @@ end ClassState
 Type class environment extension
 -/
 -- TODO: add support for scoped instances
+-- asynchrony: set only by command-level `@[class]`
 builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry ClassState ←
   registerSimplePersistentEnvExtension {
     addEntryFn    := ClassState.addEntry
@@ -62,11 +63,11 @@ builtin_initialize classExtension : SimplePersistentEnvExtension ClassEntry Clas
 /-- Return `true` if `n` is the name of type class in the given environment. -/
 @[export lean_is_class]
 def isClass (env : Environment) (n : Name) : Bool :=
-  (classExtension.getState env).outParamMap.contains n
+  (classExtension.getStateNoAsync env).outParamMap.contains n
 
 /-- If `declName` is a class, return the position of its `outParams`. -/
 def getOutParamPositions? (env : Environment) (declName : Name) : Option (Array Nat) :=
-  (classExtension.getState env).outParamMap.find? declName
+  (classExtension.getStateNoAsync env).outParamMap.find? declName
 
 /-- Return `true` if the given `declName` is a type class with output parameters. -/
 @[export lean_has_out_params]
@@ -87,7 +88,7 @@ def hasOutParams (env : Environment) (declName : Name) : Bool :=
   incorrect. This transformation would be counterintuitive to users since
   we would implicitly treat these regular parameters as `outParam`s.
 -/
-private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (outParams : Array Nat) (type : Expr) : Except String (Array Nat) :=
+private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (outParams : Array Nat) (type : Expr) : Except MessageData (Array Nat) :=
   match type with
   | .forallE _ d b bi =>
     let addOutParam (_ : Unit) :=
@@ -102,7 +103,7 @@ private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (ou
         /- See issue #1852 for a motivation for `bi.isInstImplicit` -/
         addOutParam ()
       else
-        Except.error s!"invalid class, parameter #{i+1} depends on `outParam`, but it is not an `outParam`"
+        Except.error m!"invalid class, parameter #{i+1} depends on `outParam`, but it is not an `outParam`"
     else
       checkOutParam (i+1) outParamFVarIds outParams b
   | _ => return outParams
@@ -149,13 +150,13 @@ and it must be the name of constant in `env`.
 `declName` must be a inductive datatype or axiom.
 Recall that all structures are inductive datatypes.
 -/
-def addClass (env : Environment) (clsName : Name) : Except String Environment := do
+def addClass (env : Environment) (clsName : Name) : Except MessageData Environment := do
   if isClass env clsName then
-    throw s!"class has already been declared '{clsName}'"
+    throw m!"class has already been declared '{.ofConstName clsName true}'"
   let some decl := env.find? clsName
-    | throw s!"unknown declaration '{clsName}'"
+    | throw m!"unknown declaration '{clsName}'"
   unless decl matches .inductInfo .. | .axiomInfo .. do
-    throw s!"invalid 'class', declaration '{clsName}' must be inductive datatype, structure, or constant"
+    throw m!"invalid 'class', declaration '{.ofConstName clsName}' must be inductive datatype, structure, or constant"
   let outParams ← checkOutParam 0 #[] #[] decl.type
   return classExtension.addEntry env { name := clsName, outParams }
 

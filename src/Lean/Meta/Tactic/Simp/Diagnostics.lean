@@ -13,7 +13,7 @@ private def originToKey (thmId : Origin) : MetaM MessageData := do
   match thmId with
   | .decl declName _ _ =>
     if (← getEnv).contains declName then
-      pure m!"{MessageData.ofConst (← mkConstWithLevelParams declName)}"
+      pure m!"{.ofConstName declName}"
     else
       pure m!"{declName} (builtin simproc)"
   | .fvar fvarId => pure m!"{mkFVar fvarId}"

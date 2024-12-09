@@ -3,13 +3,11 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Name
 import Lake.Util.Opaque
 
 namespace Lake
-
-/-- Opaque reference to a `Package` used for forward declaration. -/
-declare_opaque_type OpaquePackage
 
 /-- Opaque reference to a `Workspace` used for forward declaration. -/
 declare_opaque_type OpaqueWorkspace

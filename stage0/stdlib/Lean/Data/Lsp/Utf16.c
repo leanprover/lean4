@@ -49,8 +49,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosT
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_utf8PosToLspPos___boxed(lean_object*, lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_DeclarationRange_toLspRange___boxed(lean_object*);
@@ -372,7 +372,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_instInhabitedPos;
-x_8 = l_Array_back___rarg(x_7, x_3);
+x_8 = l_Array_back_x21___rarg(x_7, x_3);
 return x_8;
 }
 else

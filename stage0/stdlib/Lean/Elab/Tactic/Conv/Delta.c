@@ -25,7 +25,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange__1_
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta___boxed__const__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange__1___closed__7;
-lean_object* l_Array_contains___at_Lean_findField_x3f___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange__1___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__2;
 lean_object* l_Lean_Elab_Tactic_Conv_changeLhs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,6 +46,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta(lean_object*, lean_ob
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__5;
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta___lambda__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_contains___at_Lean_registerInternalExceptionId___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_deltaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta__1___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange__1___closed__2;
@@ -86,7 +86,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
-x_22 = lean_alloc_closure((void*)(l_Array_contains___at_Lean_findField_x3f___spec__1___boxed), 2, 1);
+x_22 = lean_alloc_closure((void*)(l_Array_contains___at_Lean_registerInternalExceptionId___spec__1___boxed), 2, 1);
 lean_closure_set(x_22, 0, x_14);
 lean_inc(x_11);
 lean_inc(x_10);

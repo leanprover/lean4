@@ -643,11 +643,11 @@ theorem decide_ite (u : Prop) [du : Decidable u] (p q : Prop)
     (@ite _ p h q (decide p)) = (decide p && q) := by
   split <;> simp_all
 
-@[deprecated ite_then_decide_self]
+@[deprecated ite_then_decide_self (since := "2024-08-29")]
 theorem ite_true_decide_same (p : Prop) [Decidable p] (b : Bool) :
   (if p then decide p else b) = (decide p || b) := ite_then_decide_self p b
 
-@[deprecated ite_false_decide_same]
+@[deprecated ite_false_decide_same (since := "2024-08-29")]
 theorem ite_false_decide_same (p : Prop) [Decidable p] (b : Bool) :
   (if p then b else decide p) = (decide p && b) := ite_else_decide_self p b
 

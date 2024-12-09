@@ -6,11 +6,11 @@ has type
 takeWhile.foo.induct.{u_1} {α : Type u_1} (p : α → Bool) (as : Array α) (motive : Nat → Array α → Prop)
   (case1 :
     ∀ (i : Nat) (r : Array α) (h : i < as.size),
-      let a := as.get ⟨i, h⟩;
+      let a := as.get i h;
       p a = true → motive (i + 1) (r.push a) → motive i r)
   (case2 :
     ∀ (i : Nat) (r : Array α) (h : i < as.size),
-      let a := as.get ⟨i, h⟩;
+      let a := as.get i h;
       ¬p a = true → motive i r)
   (case3 : ∀ (i : Nat) (r : Array α), ¬i < as.size → motive i r) (i : Nat) (r : Array α) : motive i r
 funind_errors.lean:38:7-38:20: error: invalid field notation, type is not of the form (C ...) where C is a constant

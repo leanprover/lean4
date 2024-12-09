@@ -53,8 +53,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_addNamedArg___boxed(lean_object*, lean
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArgs___spec__3___closed__4;
 static lean_object* l_Lean_Elab_Term_addNamedArg___closed__2;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArgs___spec__3___closed__9;
@@ -793,7 +793,7 @@ if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
 x_54 = l_Lean_instInhabitedSyntax;
-x_55 = l_Array_back___rarg(x_54, x_1);
+x_55 = l_Array_back_x21___rarg(x_54, x_1);
 x_56 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArgs___spec__3___closed__7;
 x_57 = l_Lean_Syntax_isOfKind(x_55, x_56);
 if (x_57 == 0)

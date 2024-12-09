@@ -134,7 +134,7 @@ def toUTF8 (a : @& String) : ByteArray :=
 /-- Accesses a byte in the UTF-8 encoding of the `String`. O(1) -/
 @[extern "lean_string_get_byte_fast"]
 def getUtf8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8 :=
-  (toUTF8 s).get ⟨n, size_toUTF8 _ ▸ h⟩
+  (toUTF8 s)[n]'(size_toUTF8 _ ▸ h)
 
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h

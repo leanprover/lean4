@@ -269,32 +269,6 @@ an optional `x :`, then a term `ty`, then `from val` or `by tac`. -/
 @[builtin_term_parser] def «suffices» := leading_parser:leadPrec
   withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtin_term_parser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> showRhs
-def structInstArrayRef := leading_parser
-  "[" >> withoutPosition termParser >> "]"
-def structInstLVal   := leading_parser
-  (ident <|> fieldIdx <|> structInstArrayRef) >>
-  many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
-def structInstField  := ppGroup $ leading_parser
-  structInstLVal >> " := " >> termParser
-def structInstFieldAbbrev := leading_parser
-  -- `x` is an abbreviation for `x := x`
-  atomic (ident >> notFollowedBy ("." <|> ":=" <|> symbol "[") "invalid field abbreviation")
-def optEllipsis      := leading_parser
-  optional " .."
-/--
-Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
-inherited. If `e` is itself a variable called `x`, it can be elided:
-`fun y => { x := 1, y }`.
-A *structure update* of an existing value can be given via `with`:
-`{ point with x := 1 }`.
-The structure type can be specified if not inferable:
-`{ x := 1, y := 2 : Point }`.
--/
-@[builtin_term_parser] def structInst := leading_parser
-  "{ " >> withoutPosition (optional (atomic (sepBy1 termParser ", " >> " with "))
-    >> sepByIndent (structInstFieldAbbrev <|> structInstField) ", " (allowTrailingSep := true)
-    >> optEllipsis
-    >> optional (" : " >> termParser)) >> " }"
 def typeSpec := leading_parser " : " >> termParser
 def optType : Parser := optional typeSpec
 /--
@@ -481,6 +455,56 @@ e.g. because it has no constructors.
 @[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
 
 @[builtin_term_parser] def «nofun» := leading_parser "nofun"
+
+/-
+Syntax category for structure instance notation fields.
+Does not initialize `registerBuiltinDynamicParserAttribute` since this category is not meant to be user-extensible.
+-/
+builtin_initialize
+  registerBuiltinParserAttribute `builtin_structInstFieldDecl_parser ``Category.structInstFieldDecl
+@[inline] def structInstFieldDeclParser (rbp : Nat := 0) : Parser :=
+  categoryParser `structInstFieldDecl rbp
+def optEllipsis := leading_parser
+  optional " .."
+def structInstArrayRef := leading_parser
+  "[" >> withoutPosition termParser >> "]"
+def structInstLVal := leading_parser
+  (ident <|> fieldIdx <|> structInstArrayRef) >>
+  many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
+def structInstFieldBinder :=
+  withAntiquot (mkAntiquot "structInstFieldBinder" decl_name% (isPseudoKind := true)) <|
+    binderIdent <|> bracketedBinder
+def optTypeForStructInst : Parser := optional (atomic (typeSpec >> notFollowedBy "}" "}"))
+/- `x` is an abbreviation for `x := x` -/
+def structInstField := ppGroup <| leading_parser
+  structInstLVal >> optional (many (checkColGt >> structInstFieldBinder) >> optTypeForStructInst >> ppDedent structInstFieldDeclParser)
+/-
+Tags the structure instance field syntax with a `Lean.Parser.Term.structInstFields` syntax node.
+This node is used to enable structure instance field completion in the whitespace
+of a structure instance notation.
+-/
+def structInstFields (p : Parser) : Parser := node `Lean.Parser.Term.structInstFields p
+/--
+Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
+inherited. If `e` is itself a variable called `x`, it can be elided:
+`fun y => { x := 1, y }`.
+A *structure update* of an existing value can be given via `with`:
+`{ point with x := 1 }`.
+The structure type can be specified if not inferable:
+`{ x := 1, y := 2 : Point }`.
+-/
+@[builtin_term_parser] def structInst := leading_parser
+  "{ " >> withoutPosition (optional (atomic (sepBy1 termParser ", " >> " with "))
+    >> structInstFields (sepByIndent structInstField ", " (allowTrailingSep := true))
+    >> optEllipsis
+    >> optional (" : " >> termParser)) >> " }"
+
+@[builtin_structInstFieldDecl_parser]
+def structInstFieldDef := leading_parser
+  " := " >> termParser
+@[builtin_structInstFieldDecl_parser]
+def structInstFieldEqns := leading_parser
+  matchAlts
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -984,6 +1008,7 @@ builtin_initialize
   register_parser_alias bracketedBinder
   register_parser_alias attrKind
   register_parser_alias optSemicolon
+  register_parser_alias structInstFields
 
 end Parser
 end Lean

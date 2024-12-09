@@ -463,7 +463,7 @@ mutual
     let mut res := #[]
     for x in xs do
       if res.size > 0 then
-        match res.back, x with
+        match res.back!, x with
         | Content.Character x, Content.Character y => res := res.set! (res.size - 1) (Content.Character $ x ++ y)
         | _, x => res := res.push x
       else res := res.push x

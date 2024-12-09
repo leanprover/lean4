@@ -137,13 +137,13 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
     else
       return preDef
 
-private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
+private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    let decl := Declaration.axiomDecl {
+    let decl := Declaration.thmDecl {
       name        := preDef.declName,
       levelParams := preDef.levelParams,
       type        := preDef.type,
-      isUnsafe    := preDef.modifiers.isUnsafe
+      value       := (← mkSyntheticSorry preDef.type)
     }
     addDecl decl
     withSaveInfoContext do  -- save new env
@@ -231,10 +231,10 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           -/
           let preDef ← eraseRecAppSyntax preDefs[0]!
           ensureEqnReservedNamesAvailable preDef.declName
-          if preDef.modifiers.isNoncomputable then
-            addNonRec preDef
-          else
-            addAndCompileNonRec preDef
+            if preDef.modifiers.isNoncomputable then
+              addNonRec preDef
+            else
+              addAndCompileNonRec preDef
           preDef.termination.ensureNone "not recursive"
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
@@ -267,16 +267,16 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             logException ex
             let s ← saveState
             try
-              if preDefs.all fun preDef => preDef.kind == DefKind.def || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
+              if preDefs.all fun preDef => (preDef.kind matches DefKind.def | DefKind.instance) || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
                 -- try to add as partial definition
                 try
                   addAndCompilePartial preDefs (useSorry := true)
                 catch _ =>
                   -- Compilation failed try again just as axiom
                   s.restore
-                  addAsAxioms preDefs
+                  addSorried preDefs
               else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
-                addAsAxioms preDefs
+                addSorried preDefs
             catch _ => s.restore
 
 builtin_initialize

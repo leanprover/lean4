@@ -39,7 +39,7 @@ theorem denote_blastNeg (aig : AIG α) (value : BitVec w) (target : RefVec aig w
   rw [denote_blastAdd]
   · intro idx hidx
     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-    · simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsbD_not, hidx, decide_True,
+    · simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsbD_not, hidx, decide_true,
         Bool.true_and]
       rw [denote_blastNot, htarget]
     · simp [Ref.hgate]

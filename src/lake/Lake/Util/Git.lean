@@ -3,6 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
 import Lake.Util.Proc
 import Lake.Util.Lift
 
@@ -62,6 +63,9 @@ def cwd : GitRepo := ⟨"."⟩
 
 @[inline] def quietInit (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["init", "-q"]
+
+@[inline] def insideWorkTree (repo : GitRepo) : BaseIO Bool := do
+  repo.testGit #["rev-parse", "--is-inside-work-tree"]
 
 @[inline] def fetch (repo : GitRepo) (remote := Git.defaultRemote) : LogIO PUnit  :=
   repo.execGit #["fetch", "--tags", "--force", remote]

@@ -13,6 +13,31 @@ open Meta
 # Implementation of the `change` tactic
 -/
 
+/--
+Elaborates the pattern `p` and ensures that it is defeq to `e`.
+Emulates `(show p from ?m : e)`, returning the type of `?m`, but `e` and `p` do not need to be types.
+Unlike `(show p from ?m : e)`, this can assign synthetic opaque metavariables appearing in `p`.
+-/
+def elabChange (e : Expr) (p : Term) : TacticM Expr := do
+  let p ← runTermElab do
+    let p ← Term.elabTermEnsuringType p (← inferType e)
+    unless ← isDefEq p e do
+      /-
+      Sometimes isDefEq can fail due to postponed elaboration problems.
+      We synthesize pending synthetic mvars while allowing typeclass instances to be postponed,
+      which might enable solving for them with an additional `isDefEq`.
+      -/
+      Term.synthesizeSyntheticMVars (postpone := .partial)
+      discard <| isDefEq p e
+    pure p
+  withAssignableSyntheticOpaque do
+    unless ← isDefEq p e do
+      let (p, tgt) ← addPPExplicitToExposeDiff p e
+      throwError "\
+        'change' tactic failed, pattern{indentExpr p}\n\
+        is not definitionally equal to target{indentExpr tgt}"
+    instantiateMVars p
+
 /-- `change` can be used to replace the main goal or its hypotheses with
 different, yet definitionally equal, goal or hypotheses.
 
@@ -38,15 +63,13 @@ the main goal. -/
   | `(tactic| change $newType:term $[$loc:location]?) => do
     withLocation (expandOptLocation (Lean.mkOptionalNode loc))
       (atLocal := fun h => do
-        let hTy ← h.getType
-        -- This is a hack to get the new type to elaborate in the same sort of way that
-        -- it would for a `show` expression for the goal.
-        let mvar ← mkFreshExprMVar none
-        let (_, mvars) ← elabTermWithHoles
-                          (← `(term | show $newType from $(← Term.exprToSyntax mvar))) hTy `change
+        let (hTy', mvars) ← withCollectingNewGoalsFrom (elabChange (← h.getType) newType) (← getMainTag) `change
         liftMetaTactic fun mvarId => do
-          return (← mvarId.changeLocalDecl h (← inferType mvar)) :: mvars)
-      (atTarget := evalTactic <| ← `(tactic| refine_lift show $newType from ?_))
-      (failed := fun _ => throwError "change tactic failed")
+          return (← mvarId.changeLocalDecl h hTy') :: mvars)
+      (atTarget := do
+        let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange (← getMainTarget) newType) (← getMainTag) `change
+        liftMetaTactic fun mvarId => do
+          return (← mvarId.replaceTargetDefEq tgt') :: mvars)
+      (failed := fun _ => throwError "'change' tactic failed")
 
 end Lean.Elab.Tactic

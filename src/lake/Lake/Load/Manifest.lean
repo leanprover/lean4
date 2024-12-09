@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
+prelude
 import Lake.Util.Log
 import Lake.Util.Name
 import Lake.Util.FilePath
@@ -49,7 +50,7 @@ That is, Lake ignores the `-` suffix.
 - `"1.0.0"`: Switches to a semantic versioning scheme
 - `"1.1.0"`: Add optional `scope` package entry field
 -/
-@[inline] def Manifest.version : StdVer := v!"1.1.0"
+@[inline] def Manifest.version : StdVer := {major := 1, minor := 1}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 inductive PackageEntryV6
@@ -201,14 +202,14 @@ protected def fromJson? (json : Json) : Except String Manifest := do
   if ver.major > 1 then
     throw s!"manifest version '{ver}' is of a higher major version than this \
       Lake's '{Manifest.version}'; you may need to update your 'lean-toolchain'"
-  else if ver < v!"0.5.0" then
+  else if ver < {minor := 5} then
     throw s!"incompatible manifest version '{ver}'"
   else
     let name ← obj.getD "name" Name.anonymous
     let lakeDir ← obj.getD "lakeDir" defaultLakeDir
     let packagesDir? ← obj.get? "packagesDir"
     let packages ←
-      if ver < v!"0.7.0" then
+      if ver < {minor := 7} then
         (·.map PackageEntry.ofV6) <$> obj.getD "packages" #[]
       else
         obj.getD "packages" #[]

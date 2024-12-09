@@ -2,6 +2,8 @@
 Tests that definitions by well-founded recursion are irreducible.
 -/
 
+set_option pp.mvars false
+
 def foo : Nat → Nat
   | 0 => 0
   | n+1 => foo n
@@ -11,7 +13,7 @@ termination_by n => n
 error: type mismatch
   rfl
 has type
-  foo 0 = foo 0 : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   foo 0 = 0 : Prop
 -/
@@ -22,7 +24,7 @@ example : foo 0 = 0 := rfl
 error: type mismatch
   rfl
 has type
-  foo (n + 1) = foo (n + 1) : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   foo (n + 1) = foo n : Prop
 -/
@@ -70,7 +72,7 @@ end Unsealed
 error: type mismatch
   rfl
 has type
-  foo 0 = foo 0 : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   foo 0 = 0 : Prop
 -/
@@ -89,7 +91,7 @@ termination_by n => n
 error: type mismatch
   rfl
 has type
-  foo = foo : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   foo = bar : Prop
 -/
@@ -114,7 +116,7 @@ seal baz in
 error: type mismatch
   rfl
 has type
-  baz 0 = baz 0 : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   baz 0 = 0 : Prop
 -/
@@ -136,7 +138,7 @@ seal quux in
 error: type mismatch
   rfl
 has type
-  quux 0 = quux 0 : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   quux 0 = 0 : Prop
 -/

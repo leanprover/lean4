@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Cycle
 import Lake.Util.Store
 import Lake.Util.EquipT
@@ -35,6 +36,10 @@ fetch functions, but not all fetch functions need build something.
 -/
 abbrev DFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
   (a : α) → m (β a)
+
+/-- A `DFetchFn` that is not dependently typed. -/
+abbrev FetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
+  α → m β
 
 /-!
 In order to nest builds / fetches within one another,

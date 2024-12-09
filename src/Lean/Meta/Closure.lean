@@ -224,9 +224,9 @@ def collectExpr (e : Expr) : ClosureM Expr := do
 partial def pickNextToProcessAux (lctx : LocalContext) (i : Nat) (toProcess : Array ToProcessElement) (elem : ToProcessElement)
     : ToProcessElement × Array ToProcessElement :=
   if h : i < toProcess.size then
-    let elem' := toProcess.get ⟨i, h⟩
+    let elem' := toProcess[i]
     if (lctx.get! elem.fvarId).index < (lctx.get! elem'.fvarId).index then
-      pickNextToProcessAux lctx (i+1) (toProcess.set ⟨i, h⟩ elem) elem'
+      pickNextToProcessAux lctx (i+1) (toProcess.set i elem) elem'
     else
       pickNextToProcessAux lctx (i+1) toProcess elem
   else
@@ -239,7 +239,7 @@ def pickNextToProcess? : ClosureM (Option ToProcessElement) := do
     pure none
   else
     modifyGet fun s =>
-      let elem      := s.toProcess.back
+      let elem      := s.toProcess.back!
       let toProcess := s.toProcess.pop
       let (elem, toProcess) := pickNextToProcessAux lctx 0 toProcess elem
       (some elem, { s with toProcess := toProcess })
@@ -286,8 +286,8 @@ partial def process : ClosureM Unit := do
 @[inline] def mkBinding (isLambda : Bool) (decls : Array LocalDecl) (b : Expr) : Expr :=
   let xs := decls.map LocalDecl.toExpr
   let b  := b.abstract xs
-  decls.size.foldRev (init := b) fun i b =>
-    let decl := decls[i]!
+  decls.size.foldRev (init := b) fun i _ b =>
+    let decl := decls[i]
     match decl with
     | .cdecl _ _ n ty bi _ =>
       let ty := ty.abstractRange i xs

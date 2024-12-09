@@ -54,3 +54,11 @@ example (x : Option Nat) : Nat :=
   | some x => 1
        --^ textDocument/documentHighlight
   | none   => 0
+
+/-!
+A helper term info node accidentally led to this highlight including `by` (and "go to definition"
+jumping to `rfl` in full projects).
+-/
+example : True := by
+  simp
+--^ textDocument/documentHighlight

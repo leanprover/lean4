@@ -48,6 +48,10 @@ def tactic : Category := {}
 For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
 def doElem : Category := {}
 
+/-- `structInstFieldDecl` is the syntax category for value declarations for fields in structure instance notation.
+For example, the `:= 1` and `| 0 => 0 | n + 1 => n` in `{ x := 1, f | 0 => 0 | n + 1 => n }` are in the `structInstFieldDecl` class. -/
+def structInstFieldDecl : Category := {}
+
 /-- `level` is a builtin syntax category for universe levels.
 This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
 constants, and variables. -/
@@ -71,9 +75,9 @@ def prio : Category := {}
 
 /-- `prec` is a builtin syntax category for precedences. A precedence is a value
 that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
-parsed as `1 + (2 * 3)` because `*` has a higher pr0ecedence than `+`.
+parsed as `1 + (2 * 3)` because `*` has a higher precedence than `+`.
 Higher numbers denote higher precedence.
-In addition to literals like `37`, there are some special named priorities:
+In addition to literals like `37`, there are some special named precedence levels:
 * `arg` for the precedence of function arguments
 * `max` for the highest precedence used in term parsers (not actually the maximum possible value)
 * `lead` for the precedence of terms not supposed to be used as arguments
@@ -341,16 +345,19 @@ macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
 @[inherit_doc] infixr:67 " :: " => List.cons
-@[inherit_doc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
-@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
-@[inherit_doc] infixl:55  " >>= " => Bind.bind
-@[inherit_doc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
 @[inherit_doc] infixr:100 " <$> " => Functor.map
+@[inherit_doc] infixl:55  " >>= " => Bind.bind
+@[inherit_doc HOrElse.hOrElse]   syntax:20 term:21 " <|> " term:20 : term
+@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
+@[inherit_doc Seq.seq]           syntax:60 term:60 " <*> " term:61 : term
+@[inherit_doc SeqLeft.seqLeft]   syntax:60 term:60 " <* " term:61 : term
+@[inherit_doc SeqRight.seqRight] syntax:60 term:60 " *> " term:61 : term
 
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
+macro_rules | `($x <*> $y) => `(Seq.seq $x fun _ : Unit => $y)
+macro_rules | `($x <* $y)  => `(SeqLeft.seqLeft $x fun _ : Unit => $y)
+macro_rules | `($x *> $y)  => `(SeqRight.seqRight $x fun _ : Unit => $y)
 
 namespace Lean
 

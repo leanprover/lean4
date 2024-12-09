@@ -62,8 +62,8 @@ example {x : BitVec 16} : x >>> 0 = x := by bv_normalize
 example {x : BitVec 16} : 0 < x ↔ (x != 0) := by bv_normalize
 example {x : BitVec 16} : ¬(-1#16 < x) := by bv_normalize
 example {x : BitVec 16} : BitVec.replicate 0 x = 0 := by bv_normalize
-example {x : BitVec 16} : BitVec.ofBool (x.getLsbD i) = x.extractLsb' i 1 := by bv_normalize
-example {x : BitVec 16} {i} {h} : BitVec.ofBool (x[i]'h) = x.extractLsb' i 1 := by bv_normalize
+example : BitVec.ofBool true = 1 := by bv_normalize
+example : BitVec.ofBool false = 0 := by bv_normalize
 example {x : BitVec 16} {i} {h} : x[i] = x.getLsbD i := by bv_normalize
 example {x y : BitVec 1} : x + y = x ^^^ y := by bv_normalize
 example {x y : BitVec 1} : x * y = x &&& y := by bv_normalize
@@ -78,16 +78,27 @@ example {x : BitVec 16} : (10 + x) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : (x + 10) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : 2 + (x + 10) = 12 + x := by bv_normalize
 example {x : BitVec 16} : 2 + (10 + x) = 12 + x := by bv_normalize
-example {x y : BitVec 1} : x.sdiv y = x &&& y := by bv_normalize
+example {x : BitVec 16} {b : Bool} : (if b then x else x) = x := by bv_normalize
+example {b : Bool} {x : Bool} : (bif b then x else x) = x := by bv_normalize
+example {x : BitVec 16} : x.abs = if x.msb then -x else x := by bv_normalize
+example : (BitVec.twoPow 16 2) = 4#16 := by bv_normalize
+example {x : BitVec 16} : x / (BitVec.twoPow 16 2) = x >>> 2 := by bv_normalize
+example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
+example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
 
 section
 
-set_option bv.ac_nf true
-
 example (x y : BitVec 256) : x * y = y * x := by
-  bv_decide
+  bv_decide (config := { acNf := true })
 
 example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
-  bv_decide
+  bv_decide (config := { acNf := true })
 
 end
+
+def foo (x : Bool) : Prop := x = true
+
+example (x : Bool) (h1 h2 : x = true) : foo x := by
+  bv_normalize
+  have : x = true := by assumption
+  sorry

@@ -508,7 +508,10 @@ with
         (t.data.hasLevelMVar || v.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || v.data.hasLevelParam || b.data.hasLevelParam)
     | .lit l => mkData (mixHash 3 (hash l))
-deriving Inhabited, Repr
+deriving Repr
+
+instance : Inhabited Expr where
+  default := .const `_inhabitedExprDummy []
 
 namespace Expr
 
@@ -1366,7 +1369,11 @@ See also `Lean.Expr.instantiateRange`, which instantiates with the "backwards" i
 @[extern "lean_expr_instantiate_rev_range"]
 opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
-/-- Replace free (or meta) variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables,
+with `xs` ordered from outermost to innermost de Bruijn index.
+
+For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -1835,6 +1842,27 @@ The delaborator uses `pp` options.
 -/
 def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
+
+/--
+Annotate `e` with `pp.piBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPPiBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.piBinderTypes flag
+
+/--
+Annotate `e` with `pp.funBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.funBinderTypes flag
+
+/--
+Annotate `e` with `pp.explicit := flag`
+The delaborator uses `pp` options.
+-/
+def setPPNumericTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.numericTypes flag
 
 /--
 If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,

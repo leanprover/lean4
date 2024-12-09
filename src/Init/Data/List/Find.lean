@@ -10,7 +10,8 @@ import Init.Data.List.Sublist
 import Init.Data.List.Range
 
 /-!
-# Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, and `List.indexOf`.
+Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, `List.indexOf`,
+and `List.lookup`.
 -/
 
 namespace List
@@ -95,22 +96,22 @@ theorem findSome?_eq_some_iff {f : α → Option β} {l : List α} {b : β} :
     · simp only [Option.guard_eq_none] at h
       simp [ih, h]
 
-@[simp] theorem filterMap_head? (f : α → Option β) (l : List α) : (l.filterMap f).head? = l.findSome? f := by
+@[simp] theorem head?_filterMap (f : α → Option β) (l : List α) : (l.filterMap f).head? = l.findSome? f := by
   induction l with
   | nil => simp
   | cons x xs ih =>
     simp only [filterMap_cons, findSome?_cons]
     split <;> simp [*]
 
-@[simp] theorem filterMap_head (f : α → Option β) (l : List α) (h) :
-    (l.filterMap f).head h = (l.findSome? f).get (by simp_all [Option.isSome_iff_ne_none])  := by
+@[simp] theorem head_filterMap (f : α → Option β) (l : List α) (h) :
+    (l.filterMap f).head h = (l.findSome? f).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [head_eq_iff_head?_eq_some]
 
-@[simp] theorem filterMap_getLast? (f : α → Option β) (l : List α) : (l.filterMap f).getLast? = l.reverse.findSome? f := by
+@[simp] theorem getLast?_filterMap (f : α → Option β) (l : List α) : (l.filterMap f).getLast? = l.reverse.findSome? f := by
   rw [getLast?_eq_head?_reverse]
   simp [← filterMap_reverse]
 
-@[simp] theorem filterMap_getLast (f : α → Option β) (l : List α) (h) :
+@[simp] theorem getLast_filterMap (f : α → Option β) (l : List α) (h) :
     (l.filterMap f).getLast h = (l.reverse.findSome? f).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [getLast_eq_iff_getLast_eq_some]
 
@@ -179,7 +180,7 @@ theorem IsPrefix.findSome?_eq_some {l₁ l₂ : List α} {f : α → Option β} 
     List.findSome? f l₁ = some b → List.findSome? f l₂ = some b := by
   rw [IsPrefix] at h
   obtain ⟨t, rfl⟩ := h
-  simp (config := {contextual := true}) [findSome?_append]
+  simp +contextual [findSome?_append]
 
 theorem IsPrefix.findSome?_eq_none {l₁ l₂ : List α} {f : α → Option β} (h : l₁ <+: l₂) :
     List.findSome? f l₂ = none → List.findSome? f l₁ = none :=
@@ -206,7 +207,8 @@ theorem IsInfix.findSome?_eq_none {l₁ l₂ : List α} {f : α → Option β} (
 @[simp] theorem find?_eq_none : find? p l = none ↔ ∀ x ∈ l, ¬ p x := by
   induction l <;> simp [find?_cons]; split <;> simp [*]
 
-theorem find?_eq_some : xs.find? p = some b ↔ p b ∧ ∃ as bs, xs = as ++ b :: bs ∧ ∀ a ∈ as, !p a := by
+theorem find?_eq_some_iff_append :
+    xs.find? p = some b ↔ p b ∧ ∃ as bs, xs = as ++ b :: bs ∧ ∀ a ∈ as, !p a := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
@@ -241,6 +243,9 @@ theorem find?_eq_some : xs.find? p = some b ↔ p b ∧ ∃ as bs, xs = as ++ b 
           refine ⟨as, ⟨⟨bs, ?_⟩, fun a m => h₂ a (mem_cons_of_mem _ m)⟩⟩
           cases h₁
           simp
+
+@[deprecated find?_eq_some_iff_append (since := "2024-11-06")]
+abbrev find?_eq_some := @find?_eq_some_iff_append
 
 @[simp]
 theorem find?_cons_eq_some : (a :: xs).find? p = some b ↔ (p a ∧ a = b) ∨ (!p a ∧ xs.find? p = some b) := by
@@ -287,18 +292,18 @@ theorem get_find?_mem (xs : List α) (p : α → Bool) (h) : (xs.find? p).get h 
     · simp only [find?_cons]
       split <;> simp_all
 
-@[simp] theorem filter_head? (p : α → Bool) (l : List α) : (l.filter p).head? = l.find? p := by
-  rw [← filterMap_eq_filter, filterMap_head?, findSome?_guard]
+@[simp] theorem head?_filter (p : α → Bool) (l : List α) : (l.filter p).head? = l.find? p := by
+  rw [← filterMap_eq_filter, head?_filterMap, findSome?_guard]
 
-@[simp] theorem filter_head (p : α → Bool) (l : List α) (h) :
+@[simp] theorem head_filter (p : α → Bool) (l : List α) (h) :
     (l.filter p).head h = (l.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [head_eq_iff_head?_eq_some]
 
-@[simp] theorem filter_getLast? (p : α → Bool) (l : List α) : (l.filter p).getLast? = l.reverse.find? p := by
+@[simp] theorem getLast?_filter (p : α → Bool) (l : List α) : (l.filter p).getLast? = l.reverse.find? p := by
   rw [getLast?_eq_head?_reverse]
   simp [← filter_reverse]
 
-@[simp] theorem filter_getLast (p : α → Bool) (l : List α) (h) :
+@[simp] theorem getLast_filter (p : α → Bool) (l : List α) (h) :
     (l.filter p).getLast h = (l.reverse.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
   simp [getLast_eq_iff_getLast_eq_some]
 
@@ -347,7 +352,7 @@ theorem find?_flatten_eq_some {xs : List (List α)} {p : α → Bool} {a : α} :
     xs.flatten.find? p = some a ↔
       p a ∧ ∃ as ys zs bs, xs = as ++ (ys ++ a :: zs) :: bs ∧
         (∀ a ∈ as, ∀ x ∈ a, !p x) ∧ (∀ x ∈ ys, !p x) := by
-  rw [find?_eq_some]
+  rw [find?_eq_some_iff_append]
   constructor
   · rintro ⟨h, ⟨ys, zs, h₁, h₂⟩⟩
     refine ⟨h, ?_⟩
@@ -436,7 +441,7 @@ theorem IsPrefix.find?_eq_some {l₁ l₂ : List α} {p : α → Bool} (h : l₁
     List.find? p l₁ = some b → List.find? p l₂ = some b := by
   rw [IsPrefix] at h
   obtain ⟨t, rfl⟩ := h
-  simp (config := {contextual := true}) [find?_append]
+  simp +contextual [find?_append]
 
 theorem IsPrefix.find?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l₁ <+: l₂) :
     List.find? p l₂ = none → List.find? p l₁ = none :=
@@ -562,7 +567,7 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
     | inr e =>
       have ipm := Nat.succ_pred_eq_of_pos e
       have ilt := Nat.le_trans ho (findIdx_le_length p)
-      simp (config := { singlePass := true }) only [← ipm, getElem_cons_succ]
+      simp +singlePass only [← ipm, getElem_cons_succ]
       rw [← ipm, Nat.succ_lt_succ_iff] at h
       simpa using ih h
 

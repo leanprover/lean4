@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 source ../../common.sh
 
-exec_check lean -Dlinter.all=false "$f"
+exec_check_raw lean -Dlinter.all=false "$f"

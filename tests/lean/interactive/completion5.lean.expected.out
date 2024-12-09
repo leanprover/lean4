@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion5.lean"},
      "position": {"line": 9, "character": 15}},
-    "id": {"const": {"declName": "C.b1"}}}},
+    "id": {"const": {"declName": "C.b1"}},
+    "cPos": 1}},
   {"sortText": "1",
    "label": "f1",
    "kind": 5,
@@ -16,7 +17,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion5.lean"},
      "position": {"line": 9, "character": 15}},
-    "id": {"const": {"declName": "C.f1"}}}},
+    "id": {"const": {"declName": "C.f1"}},
+    "cPos": 1}},
   {"sortText": "2",
    "label": "f2",
    "kind": 5,
@@ -24,5 +26,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completion5.lean"},
      "position": {"line": 9, "character": 15}},
-    "id": {"const": {"declName": "C.f2"}}}}],
+    "id": {"const": {"declName": "C.f2"}},
+    "cPos": 1}}],
  "isIncomplete": true}

@@ -55,7 +55,7 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   if let .anonymous := name then throwError message
   let env ← getEnv
   let mut candidates : Array Name := #[]
-  for (c, _) in env.constants do
+  for (c, _) in env.toKernelEnvUnchecked.constants do
     if isPrivateName c then continue
     if !(name.isSuffixOf c) then continue
     if env.isConstructor c || hasMatchPatternAttribute env c then
@@ -79,8 +79,7 @@ where
   -- makes infoview hovers and the like work. This technique only works because the names are known
   -- to be global constants, so we don't need the local context.
   showName (env : Environment) (n : Name) : MessageData :=
-      let params :=
-        env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
+      let params := env.find? n |>.map (·.levelParams.map Level.param) |>.getD []
       .ofFormatWithInfos {
         fmt := "'" ++ .tag 0 (format n) ++ "'",
         infos :=
@@ -135,7 +134,7 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
   | none =>
     if h : i < ctx.paramDecls.size then
       -- For `[match_pattern]` applications, only explicit parameters are accessible.
-      let d := ctx.paramDecls.get ⟨i, h⟩
+      let d := ctx.paramDecls[i]
       d.2.isExplicit
     else
       false
@@ -265,7 +264,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
         let newVal ← collect val
         `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
-      | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+      | _ => throwInvalidPattern  -- `structInstField` should be expanded at this point
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 
@@ -332,9 +331,9 @@ where
     else
       let accessible := isNextArgAccessible ctx
       let (d, ctx)   := getNextParam ctx
-      match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
+      match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
-        let arg := ctx.namedArgs[idx]!
+        let arg := ctx.namedArgs[idx]
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx

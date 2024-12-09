@@ -34,12 +34,13 @@ open Lean.Meta.Tactic in
 open Lean.Elab.Tactic.BVDecide.LRAT in
 @[builtin_tactic Lean.Parser.Tactic.bvTrace]
 def evalBvTrace : Tactic := fun
-  | `(tactic| bv_decide?%$tk) => do
+  | `(tactic| bv_decide?%$tk $cfgStx:optConfig) => do
+    let cfg := { (← elabBVDecideConfig cfgStx) with trimProofs := false }
     let lratFile : System.FilePath ← BVTrace.getLratFileName
-    let cfg := { (← BVCheck.mkContext lratFile) with trimProofs := false }
+    let ctx ← BVCheck.mkContext lratFile cfg
     let g ← getMainGoal
     let trace ← g.withContext do
-      bvDecide g cfg
+      bvDecide g ctx
     /-
     Ideally trace.lratCert would be the `ByteArray` version of the proof already and we just write
     it. This isn't yet possible so instead we do the following:
@@ -57,12 +58,12 @@ def evalBvTrace : Tactic := fun
       let normalizeStx ← `(tactic| bv_normalize)
       TryThis.addSuggestion tk normalizeStx (origSpan? := ← getRef)
     | some .. =>
-      if sat.trimProofs.get (← getOptions) then
+      if ctx.config.trimProofs then
         let lratPath := (← BVCheck.getSrcDir) / lratFile
         let proof ← loadLRATProof lratPath
         let trimmed ← IO.ofExcept <| trim proof
         dumpLRATProof lratPath trimmed cfg.binaryProofs
-      let bvCheckStx ← `(tactic| bv_check $(quote lratFile.toString))
+      let bvCheckStx ← `(tactic| bv_check $cfgStx:optConfig $(quote lratFile.toString))
       TryThis.addSuggestion tk bvCheckStx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 

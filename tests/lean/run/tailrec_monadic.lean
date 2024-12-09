@@ -99,4 +99,14 @@ noncomputable def geom : D Nat := do
     return (n + 1)
 nontermination_tailrecursive
 
+/--
+info: geom.eq_1 :
+  geom = do
+    let head ← coin
+    if head = true then pure 0
+      else do
+        let n ← geom
+        pure (n + 1)
+-/
+#guard_msgs in
 #check geom.eq_1

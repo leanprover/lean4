@@ -699,12 +699,36 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
 
 @[simp]
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
-    k ∈ m.keys ↔ k ∈ m := 
+    k ∈ m.keys ↔ k ∈ m :=
   DHashMap.Raw.mem_keys h.out
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
-    m.keys.Pairwise (fun a b => (a == b) = false) := 
+    m.keys.Pairwise (fun a b => (a == b) = false) :=
   DHashMap.Raw.distinct_keys h.out
+
+@[simp]
+theorem toList_inner {α β} (m : Raw α β) :
+    m.inner.toList = m.toList.map fun ⟨k, v⟩ => ⟨k, v⟩ := by
+  simp [toList,
+    DHashMap.Internal.Raw.toList_eq_toListModel, DHashMap.Internal.Raw.Const.toList_eq_toListModel,
+    DHashMap.Internal.Const.toListModel, Function.comp_def]
+
+@[simp]
+theorem toList_map_fst (h : m.WF) :
+    m.toList.map Prod.fst = m.keys := by
+  simpa using DHashMap.Raw.toList_map_fst (m := m.inner) h.out
+
+@[simp] theorem insert_inner [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+    m.inner.insert k v = (m.insert k v).inner := rfl
+
+open List in
+theorem toList_insert_perm_of_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    (k : α) (v : β) (h' : ¬k ∈ m) :
+    (m.insert k v).toList ~ ((k, v) :: m.toList) := by
+  have t := DHashMap.Raw.toList_insert_perm_of_not_mem h.out k v h'
+  simp only [insert_inner, toList_inner] at t
+  replace t := Perm.map (fun x : (_ : α) × β => (x.fst, x.snd)) t
+  simpa [Function.comp_def] using t
 
 end Raw
 

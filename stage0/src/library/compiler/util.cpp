@@ -386,6 +386,7 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_uint64_name() ||
         n == get_usize_name()  ||
         n == get_float_name()  ||
+        n == get_float32_name() ||
         n == get_thunk_name()  ||
         n == get_task_name()   ||
         n == get_array_name()  ||
@@ -403,7 +404,8 @@ bool is_runtime_scalar_type(name const & n) {
         n == get_uint32_name() ||
         n == get_uint64_name() ||
         n == get_usize_name()  ||
-        n == get_float_name();
+        n == get_float_name()  ||
+        n == get_float32_name();
 }
 
 bool is_llnf_unboxed_type(expr const & type) {
@@ -492,6 +494,8 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
             } else if (c == get_usize_name()) {
                 return e;
             } else if (c == get_float_name()) {
+                return e;
+            } else if (c == get_float32_name()) {
                 return e;
             } else if (optional<unsigned> nbytes = is_enum_type(st.env(), c)) {
                 return *to_uint_type(*nbytes);
@@ -807,6 +811,7 @@ void initialize_compiler_util() {
     g_builtin_scalar_size->emplace_back(get_uint32_name(), 4);
     g_builtin_scalar_size->emplace_back(get_uint64_name(), 8);
     g_builtin_scalar_size->emplace_back(get_float_name(),  8);
+    g_builtin_scalar_size->emplace_back(get_float32_name(), 4);
 }
 
 void finalize_compiler_util() {

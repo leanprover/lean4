@@ -586,7 +586,7 @@ class to_lambda_pure_fn {
                         fields.push_back(mk_let_decl(info.get_type(), mk_uproj(major, info.m_idx)));
                         break;
                     case field_info::Scalar:
-                        if (info.is_float()) {
+                        if (info.is_float() || info.is_float32()) {
                             fields.push_back(mk_let_decl(info.get_type(), mk_fproj(major, info.m_idx, info.m_offset)));
                         } else {
                             fields.push_back(mk_let_decl(info.get_type(), mk_sproj(major, info.m_size, info.m_idx, info.m_offset)));
@@ -684,7 +684,7 @@ class to_lambda_pure_fn {
                 if (first) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
-                if (info.is_float()) {
+                if (info.is_float() || info.is_float32()) {
                     r = mk_let_decl(mk_enf_object_type(), mk_fset(r, info.m_idx, info.m_offset, args[j]));
                 } else {
                     r = mk_let_decl(mk_enf_object_type(), mk_sset(r, info.m_size, info.m_idx, info.m_offset, args[j]));
@@ -731,7 +731,7 @@ class to_lambda_pure_fn {
                 break;
             case field_info::Scalar:
                 if (proj_idx(e) == i) {
-                    if (info.is_float()) {
+                    if (info.is_float() || info.is_float32()) {
                         return mk_fproj(visit(proj_expr(e)), info.m_idx, info.m_offset);
                     } else {
                         return mk_sproj(visit(proj_expr(e)), info.m_size, info.m_idx, info.m_offset);

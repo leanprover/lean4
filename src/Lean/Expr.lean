@@ -1251,7 +1251,7 @@ def isArrow (e : Expr) : Bool :=
   | _ => false
 
 /--
-Return `true` if `e` contains the specified loose bound variable `bvarIdx`.
+Return `true` if `e` contains the specified loose bound variable with index `bvarIdx`.
 
 This operation traverses the expression tree.
 -/

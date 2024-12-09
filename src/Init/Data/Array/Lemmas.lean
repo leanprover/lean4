@@ -357,6 +357,150 @@ theorem forall_getElem {l : Array α} {p : α → Prop} :
     (∀ (n : Nat) h, p (l[n]'h)) ↔ ∀ a, a ∈ l → p a := by
   cases l; simp [List.forall_getElem]
 
+/-! ### isEmpty-/
+
+@[simp] theorem isEmpty_toList {l : Array α} : l.toList.isEmpty = l.isEmpty := by
+  rcases l with ⟨_ | _⟩ <;> simp
+
+theorem isEmpty_iff {l : Array α} : l.isEmpty ↔ l = #[] := by
+  cases l <;> simp
+
+theorem isEmpty_eq_false_iff_exists_mem {xs : Array α} :
+    xs.isEmpty = false ↔ ∃ x, x ∈ xs := by
+  cases xs
+  simpa using List.isEmpty_eq_false_iff_exists_mem
+
+theorem isEmpty_iff_size_eq_zero {l : Array α} : l.isEmpty ↔ l.size = 0 := by
+  rw [isEmpty_iff, size_eq_zero]
+
+@[simp] theorem isEmpty_eq_true {l : Array α} : l.isEmpty ↔ l = #[] := by
+  cases l <;> simp
+
+@[simp] theorem isEmpty_eq_false {l : Array α} : l.isEmpty = false ↔ l ≠ #[] := by
+  cases l <;> simp
+
+/-! ### any / all -/
+
+theorem anyM_eq_anyM_loop [Monad m] (p : α → m Bool) (as : Array α) (start stop) :
+    anyM p as start stop = anyM.loop p as (min stop as.size) (Nat.min_le_right ..) start := by
+  simp only [anyM, Nat.min_def]; split <;> rfl
+
+theorem anyM_stop_le_start [Monad m] (p : α → m Bool) (as : Array α) (start stop)
+    (h : min stop as.size ≤ start) : anyM p as start stop = pure false := by
+  rw [anyM_eq_anyM_loop, anyM.loop, dif_neg (Nat.not_lt.2 h)]
+
+theorem anyM_loop_cons [Monad m] (p : α → m Bool) (a : α) (as : List α) (stop start : Nat) (h : stop + 1 ≤ (a :: as).length) :
+    anyM.loop p ⟨a :: as⟩ (stop + 1) h (start + 1) = anyM.loop p ⟨as⟩ stop (by simpa using h) start := by
+  rw [anyM.loop]
+  conv => rhs; rw [anyM.loop]
+  split <;> rename_i h'
+  · simp only [Nat.add_lt_add_iff_right] at h'
+    rw [dif_pos h']
+    rw [anyM_loop_cons]
+    simp
+  · rw [dif_neg]
+    omega
+
+@[simp] theorem anyM_toList [Monad m] (p : α → m Bool) (as : Array α) :
+    as.toList.anyM p = as.anyM p :=
+  match as with
+  | ⟨[]⟩  => rfl
+  | ⟨a :: as⟩ => by
+    simp only [List.anyM, anyM, size_toArray, List.length_cons, Nat.le_refl, ↓reduceDIte]
+    rw [anyM.loop, dif_pos (by omega)]
+    congr 1
+    funext b
+    split
+    · simp
+    · simp only [Bool.false_eq_true, ↓reduceIte]
+      rw [anyM_loop_cons]
+      simpa [anyM] using anyM_toList p ⟨as⟩
+
+-- Auxiliary for `any_iff_exists`.
+theorem anyM_loop_iff_exists {p : α → Bool} {as : Array α} {start stop} (h : stop ≤ as.size) :
+    anyM.loop (m := Id) p as stop h start = true ↔
+      ∃ (i : Nat) (_ : i < as.size), start ≤ i ∧ i < stop ∧ p as[i] = true := by
+  unfold anyM.loop
+  split <;> rename_i h₁
+  · dsimp
+    split <;> rename_i h₂
+    · simp only [true_iff]
+      refine ⟨start, by omega, by omega, by omega, h₂⟩
+    · rw [anyM_loop_iff_exists]
+      constructor
+      · rintro ⟨i, hi, ge, lt, h⟩
+        have : start ≠ i := by rintro rfl; omega
+        exact ⟨i, by omega, by omega, lt, h⟩
+      · rintro ⟨i, hi, ge, lt, h⟩
+        have : start ≠ i := by rintro rfl; erw [h] at h₂; simp_all
+        exact ⟨i, by omega, by omega, lt, h⟩
+  · simp
+    omega
+termination_by stop - start
+
+-- This could also be proved from `SatisfiesM_anyM_iff_exists` in `Batteries.Data.Array.Init.Monadic`
+theorem any_iff_exists {p : α → Bool} {as : Array α} {start stop} :
+    as.any p start stop ↔ ∃ (i : Nat) (_ : i < as.size), start ≤ i ∧ i < stop ∧ p as[i] := by
+  dsimp [any, anyM, Id.run]
+  split
+  · rw [anyM_loop_iff_exists]
+  · rw [anyM_loop_iff_exists]
+    constructor
+    · rintro ⟨i, hi, ge, _, h⟩
+      exact ⟨i, by omega, by omega, by omega, h⟩
+    · rintro ⟨i, hi, ge, _, h⟩
+      exact ⟨i, by omega, by omega, by omega, h⟩
+
+theorem any_eq_true {p : α → Bool} {as : Array α} :
+    as.any p ↔ ∃ (i : Nat) (_ : i < as.size), p as[i] := by
+  simp [any_iff_exists]
+
+theorem any_toList {p : α → Bool} (as : Array α) : as.toList.any p = as.any p := by
+  rw [Bool.eq_iff_iff, any_eq_true, List.any_eq_true]
+  simp only [List.mem_iff_getElem, getElem_toList]
+  exact ⟨fun ⟨_, ⟨i, w, rfl⟩, h⟩ => ⟨i, w, h⟩, fun ⟨i, w, h⟩ => ⟨_, ⟨i, w, rfl⟩, h⟩⟩
+
+theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : Array α) :
+    allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
+  dsimp [allM, anyM]
+  simp
+
+@[simp] theorem allM_toList [Monad m] [LawfulMonad m] (p : α → m Bool) (as : Array α) :
+    as.toList.allM p = as.allM p := by
+  rw [allM_eq_not_anyM_not]
+  rw [← anyM_toList]
+  rw [List.allM_eq_not_anyM_not]
+
+theorem all_eq_not_any_not (p : α → Bool) (as : Array α) (start stop) :
+    as.all p start stop = !(as.any (!p ·) start stop) := by
+  dsimp [all, allM]
+  rfl
+
+theorem all_iff_forall {p : α → Bool} {as : Array α} {start stop} :
+    as.all p start stop ↔ ∀ (i : Nat) (_ : i < as.size), start ≤ i ∧ i < stop → p as[i] := by
+  rw [all_eq_not_any_not]
+  suffices ¬(as.any (!p ·) start stop = true) ↔
+      ∀ (i : Nat) (_ : i < as.size), start ≤ i ∧ i < stop → p as[i] by
+    simp_all
+  simp only [any_iff_exists, Bool.not_eq_eq_eq_not, Bool.not_true, not_exists, not_and,
+    Bool.not_eq_false, and_imp]
+
+theorem all_eq_true {p : α → Bool} {as : Array α} :
+    as.all p ↔ ∀ (i : Nat) (_ : i < as.size), p as[i] := by
+  simp [all_iff_forall]
+
+theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all p := by
+  rw [Bool.eq_iff_iff, all_eq_true, List.all_eq_true]
+  simp only [List.mem_iff_getElem, getElem_toList]
+  constructor
+  · intro w i h
+    exact w as[i] ⟨i, h, getElem_toList h⟩
+  · rintro w x ⟨i, h, rfl⟩
+    exact w i h
+
+theorem all_eq_true_iff_forall_mem {l : Array α} : l.all p ↔ ∀ x, x ∈ l → p x := by
+  simp only [← all_toList, List.all_eq_true, mem_def]
+
 theorem singleton_inj : #[a] = #[b] ↔ a = b := by
   simp
 
@@ -375,8 +519,6 @@ theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
 
 @[simp] theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp [size]
 
-@[simp] theorem isEmpty_toList {l : Array α} : l.toList.isEmpty = l.isEmpty := by
-  rcases l with ⟨_ | _⟩ <;> simp
 
 theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
     (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
@@ -460,13 +602,6 @@ theorem foldl_toList_eq_map (l : List α) (acc : Array β) (G : α → β) :
     (l.foldl (fun acc a => acc.push (G a)) acc).toList = acc.toList ++ l.map G := by
   induction l generalizing acc <;> simp [*]
 
-theorem anyM_eq_anyM_loop [Monad m] (p : α → m Bool) (as : Array α) (start stop) :
-    anyM p as start stop = anyM.loop p as (min stop as.size) (Nat.min_le_right ..) start := by
-  simp only [anyM, Nat.min_def]; split <;> rfl
-
-theorem anyM_stop_le_start [Monad m] (p : α → m Bool) (as : Array α) (start stop)
-    (h : min stop as.size ≤ start) : anyM p as start stop = pure false := by
-  rw [anyM_eq_anyM_loop, anyM.loop, dif_neg (Nat.not_lt.2 h)]
 
 /-! # uset -/
 
@@ -1491,119 +1626,6 @@ theorem extract_empty_of_size_le_start (as : Array α) {start stop : Nat} (h : a
 
 @[simp] theorem extract_empty (start stop : Nat) : (#[] : Array α).extract start stop = #[] :=
   extract_empty_of_size_le_start _ (Nat.zero_le _)
-
-/-! ### any -/
-
-theorem anyM_loop_cons [Monad m] (p : α → m Bool) (a : α) (as : List α) (stop start : Nat) (h : stop + 1 ≤ (a :: as).length) :
-    anyM.loop p ⟨a :: as⟩ (stop + 1) h (start + 1) = anyM.loop p ⟨as⟩ stop (by simpa using h) start := by
-  rw [anyM.loop]
-  conv => rhs; rw [anyM.loop]
-  split <;> rename_i h'
-  · simp only [Nat.add_lt_add_iff_right] at h'
-    rw [dif_pos h']
-    rw [anyM_loop_cons]
-    simp
-  · rw [dif_neg]
-    omega
-
-@[simp] theorem anyM_toList [Monad m] (p : α → m Bool) (as : Array α) :
-    as.toList.anyM p = as.anyM p :=
-  match as with
-  | ⟨[]⟩  => rfl
-  | ⟨a :: as⟩ => by
-    simp only [List.anyM, anyM, size_toArray, List.length_cons, Nat.le_refl, ↓reduceDIte]
-    rw [anyM.loop, dif_pos (by omega)]
-    congr 1
-    funext b
-    split
-    · simp
-    · simp only [Bool.false_eq_true, ↓reduceIte]
-      rw [anyM_loop_cons]
-      simpa [anyM] using anyM_toList p ⟨as⟩
-
--- Auxiliary for `any_iff_exists`.
-theorem anyM_loop_iff_exists {p : α → Bool} {as : Array α} {start stop} (h : stop ≤ as.size) :
-    anyM.loop (m := Id) p as stop h start = true ↔
-      ∃ i : Fin as.size, start ≤ ↑i ∧ ↑i < stop ∧ p as[i] = true := by
-  unfold anyM.loop
-  split <;> rename_i h₁
-  · dsimp
-    split <;> rename_i h₂
-    · simp only [true_iff]
-      refine ⟨⟨start, by omega⟩, by dsimp; omega, by dsimp; omega, h₂⟩
-    · rw [anyM_loop_iff_exists]
-      constructor
-      · rintro ⟨i, ge, lt, h⟩
-        have : start ≠ i := by rintro rfl; omega
-        exact ⟨i, by omega, lt, h⟩
-      · rintro ⟨i, ge, lt, h⟩
-        have : start ≠ i := by rintro rfl; erw [h] at h₂; simp_all
-        exact ⟨i, by omega, lt, h⟩
-  · simp
-    omega
-termination_by stop - start
-
--- This could also be proved from `SatisfiesM_anyM_iff_exists` in `Batteries.Data.Array.Init.Monadic`
-theorem any_iff_exists {p : α → Bool} {as : Array α} {start stop} :
-    as.any p start stop ↔ ∃ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop ∧ p as[i] := by
-  dsimp [any, anyM, Id.run]
-  split
-  · rw [anyM_loop_iff_exists]; rfl
-  · rw [anyM_loop_iff_exists]
-    constructor
-    · rintro ⟨i, ge, _, h⟩
-      exact ⟨i, by omega, by omega, h⟩
-    · rintro ⟨i, ge, _, h⟩
-      exact ⟨i, by omega, by omega, h⟩
-
-theorem any_eq_true {p : α → Bool} {as : Array α} :
-    as.any p ↔ ∃ i : Fin as.size, p as[i] := by simp [any_iff_exists, Fin.isLt]
-
-theorem any_toList {p : α → Bool} (as : Array α) : as.toList.any p = as.any p := by
-  rw [Bool.eq_iff_iff, any_eq_true, List.any_eq_true]; simp only [List.mem_iff_get]
-  exact ⟨fun ⟨_, ⟨i, rfl⟩, h⟩ => ⟨i, h⟩, fun ⟨i, h⟩ => ⟨_, ⟨i, rfl⟩, h⟩⟩
-
-/-! ### all -/
-
-theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : Array α) :
-    allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
-  dsimp [allM, anyM]
-  simp
-
-@[simp] theorem allM_toList [Monad m] [LawfulMonad m] (p : α → m Bool) (as : Array α) :
-    as.toList.allM p = as.allM p := by
-  rw [allM_eq_not_anyM_not]
-  rw [← anyM_toList]
-  rw [List.allM_eq_not_anyM_not]
-
-theorem all_eq_not_any_not (p : α → Bool) (as : Array α) (start stop) :
-    as.all p start stop = !(as.any (!p ·) start stop) := by
-  dsimp [all, allM]
-  rfl
-
-theorem all_iff_forall {p : α → Bool} {as : Array α} {start stop} :
-    as.all p start stop ↔ ∀ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop → p as[i] := by
-  rw [all_eq_not_any_not]
-  suffices ¬(as.any (!p ·) start stop = true) ↔
-      ∀ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop → p as[i] by
-    simp_all
-  rw [any_iff_exists]
-  simp
-
-theorem all_eq_true {p : α → Bool} {as : Array α} : as.all p ↔ ∀ i : Fin as.size, p as[i] := by
-  simp [all_iff_forall, Fin.isLt]
-
-theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all p := by
-  rw [Bool.eq_iff_iff, all_eq_true, List.all_eq_true]; simp only [List.mem_iff_getElem]
-  constructor
-  · intro w i
-    exact w as[i] ⟨i, i.2, getElem_toList i.2⟩
-  · rintro w x ⟨r, h, rfl⟩
-    rw [getElem_toList]
-    exact w ⟨r, h⟩
-
-theorem all_eq_true_iff_forall_mem {l : Array α} : l.all p ↔ ∀ x, x ∈ l → p x := by
-  simp only [← all_toList, List.all_eq_true, mem_def]
 
 /-! ### contains -/
 

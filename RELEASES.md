@@ -27,7 +27,7 @@ v4.14.0
 
 * `structure` and `inductive` commands
   * [#5517](https://github.com/leanprover/lean4/pull/5517) improves universe level inference for the resulting type of an `inductive` or `structure.` Recall that a `Prop`-valued inductive type is a syntactic subsingleton if it has at most one constructor and all the arguments to the constructor are in `Prop`. Such types have large elimination, so they could be defined in `Type` or `Prop` without any trouble. The way inference has changed is that if a type is a syntactic subsingleton with exactly one constructor, and the constructor has at least one parameter/field, then the `inductive`/`structure` command will prefer creating a `Prop` instead of a `Type`. The upshot is that the `: Prop` in `structure S : Prop` is often no longer needed. (With @arthur-adjedj).
-  * [#5842](https://github.com/leanprover/lean4/pull/5842) and [#5783](https://github.com/leanprover/lean4/pull/5783) implements a feature where the `structure` command can define recursive inductive types:
+  * [#5842](https://github.com/leanprover/lean4/pull/5842) and [#5783](https://github.com/leanprover/lean4/pull/5783) implement a feature where the `structure` command can now define recursive inductive types:
     ```lean
     structure Tree where
       n : Nat

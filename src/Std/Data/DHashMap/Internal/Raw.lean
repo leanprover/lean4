@@ -199,6 +199,14 @@ theorem filter_val [BEq α] [Hashable α] {m : Raw₀ α β} {f : (a : α) → �
     m.val.filter f = m.filter f := by
   simp [Raw.filter, m.2]
 
+theorem insertMany_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} :
+    m.insertMany l = Raw₀.insertMany ⟨m, h.size_buckets_pos⟩ l := by
+  simp [Raw.insertMany, h.size_buckets_pos]
+
+theorem insertMany_val [BEq α][Hashable α] {m : Raw₀ α β} {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} :
+    m.val.insertMany l = m.insertMany l := by
+  simp [Raw.insertMany, m.2]
+
 section
 
 variable {β : Type v}

@@ -236,10 +236,19 @@ nontermination_tailrecursive
 
 /--
 error: Could not prove 'WrongMonad.ack' to be tailrecursive:
-  Could not prove `Id` to be a monotone monad:
-    failed to synthesize
-      (α : Type) → Lean.Tailrec.Order (Id α)
-    Additional diagnostic information may be available using the `set_option diagnostics true` command.
+  Could not apply Lean.Tailrec.monotone_bind:
+    tactic 'apply' failed, failed to unify
+      @Lean.Tailrec.monotone ?γ ?inst✝ (?m ?β) (?inst✝¹ ?β) fun x => ?f x >>= ?g x
+    with
+      @Lean.Tailrec.monotone ((_ : Nat) ×' Nat → Id Nat) Lean.Tailrec.CCPO.toOrder (Id Nat) Lean.Tailrec.CCPO.toOrder
+        fun f => do
+        let __do_lift ← f ⟨x✝ + 1, y✝⟩
+        f ⟨x✝, __do_lift⟩
+    case h_3
+    x✝² x✝¹ x✝ y✝ : Nat
+    ⊢ Lean.Tailrec.monotone fun f => do
+        let __do_lift ← f ⟨x✝ + 1, y✝⟩
+        f ⟨x✝, __do_lift⟩
 -/
 #guard_msgs in
 def WrongMonad.ack : (n m : Nat) → Id Nat

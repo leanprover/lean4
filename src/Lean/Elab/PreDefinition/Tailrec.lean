@@ -140,29 +140,22 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
           goal.applyConst ``Tailrec.monotone_letFun (cfg := { synthAssignedInstances := false})
       new_goals.forM (solveMono ur)
       return
-    | Bind.bind m instBind γ δ g h =>
-      let g' := f.updateLambdaE! f.bindingDomain! g
-      let h' := f.updateLambdaE! f.bindingDomain! h
-      let p ←
-        try
-          mkAppOptM ``Tailrec.monotone_bind #[m, instBind, none, none, γ, δ, α, inst_α, g', h']
-        catch e =>
-          throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
+    | Bind.bind _ _ _ _ _ _ =>
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
-          goal.apply p
+        mapError (f := (m!"Could not apply {``Tailrec.monotone_bind}:{indentD ·}")) do
+          goal.applyConst ``Tailrec.monotone_bind (cfg := { synthAssignedInstances := false})
       new_goals.forM (solveMono ur)
       return
     | List.mapM _ _ _ _ _ _ =>
       let new_goals ←
         mapError (f := (m!"Could not apply {``Tailrec.monotone_mapM }:{indentD ·}}")) do
-          goal.applyConst ``Tailrec.monotone_mapM
+          goal.applyConst ``Tailrec.monotone_mapM (cfg := { synthAssignedInstances := false})
       new_goals.forM (solveMono ur)
       return
     | Array.mapFinIdxM _ _ _ _ _ _ =>
       let new_goals ←
         mapError (f := (m!"Could not apply {``Tailrec.monotone_mapFinIdxM}:{indentD ·}}")) do
-          goal.applyConst ``Tailrec.monotone_mapFinIdxM
+          goal.applyConst ``Tailrec.monotone_mapFinIdxM (cfg := { synthAssignedInstances := false})
       new_goals.forM (solveMono ur)
       return
     | _ => pure

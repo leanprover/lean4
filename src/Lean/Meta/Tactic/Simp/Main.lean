@@ -57,7 +57,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         match e? with
         | none   => pure none
         | some e =>
-          match (← reduceProj? e.getAppFn) with
+          match (← withSimpMetaConfig <| reduceProj? e.getAppFn) with
           | some f => return some (mkAppN f e.getAppArgs)
           | none   => return none
       if projInfo.fromClass then
@@ -152,7 +152,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
       withDefault <| unfoldDefinition? e
     else if (← isMatchDef fName) then
       let some value ← withDefault <| unfoldDefinition? e | return none
-      let .reduced value ← reduceMatcher? value | return none
+      let .reduced value ← withSimpMetaConfig <| reduceMatcher? value | return none
       return some value
     else
       return none
@@ -166,6 +166,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
   let f := e.getAppFn
   if f.isMVar then
     return (← instantiateMVars e)
+  withSimpMetaConfig do
   if cfg.beta then
     if f.isHeadBetaTargetFn false then
       return f.betaRev e.getAppRevArgs
@@ -256,7 +257,7 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
     withFreshCache do f
 
 def simpProj (e : Expr) : SimpM Result := do
-  match (← reduceProj? e) with
+  match (← withSimpMetaConfig <| reduceProj? e) with
   | some e => return { expr := e }
   | none =>
     let s := e.projExpr!
@@ -484,7 +485,7 @@ def processCongrHypothesis (h : Expr) : SimpM Bool := do
     let rhs := hType.appArg!
     rhs.withApp fun m zs => do
       let val ← mkLambdaFVars zs r.expr
-      unless (← isDefEq m val) do
+      unless (← withSimpMetaConfig <| isDefEq m val) do
         throwCongrHypothesisFailed
       let mut proof ← r.getProof
       if hType.isAppOf ``Iff then
@@ -528,7 +529,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
     let args := e.getAppArgs
     e := mkAppN e.getAppFn args[:numArgs]
     extraArgs := args[numArgs:].toArray
-  if (← isDefEq lhs e) then
+  if (← withSimpMetaConfig <| isDefEq lhs e) then
     let mut modified := false
     for i in c.hypothesesPos do
       let x := xs[i]!

@@ -128,7 +128,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       let k₂' := f.updateLambdaE! f.bindingDomain! k₂
       let p := mkAppN (.const ``Tailrec.monotone_ite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
           goal.apply p
       new_goals.forM (solveMono ur)
       return
@@ -138,17 +138,14 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
       let k₂' := f.updateLambdaE! f.bindingDomain! k₂
       let p := mkAppN (.const ``Tailrec.monotone_dite us) #[α, inst_α, β, inst_β, cond, decInst, k₁', k₂']
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
           goal.apply p
       new_goals.forM (solveMono ur)
       return
     | letFun δ _ v k =>
-      let us := type.getAppFn.constLevels! ++ e.getAppFn.constLevels!.take 1
-      let k' := f.updateLambdaE! f.bindingDomain! k
-      let p := mkAppN (.const ``Tailrec.monotone_letFun us) #[α, inst_α, β, inst_β, δ, v, k']
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-          goal.apply p
+        mapError (f := (m!"Could not apply {``Tailrec.monotone_letFun}:{indentD ·}")) do
+          goal.applyConst ``Tailrec.monotone_letFun (cfg := { synthAssignedInstances := false})
       new_goals.forM (solveMono ur)
       return
     | Bind.bind m instBind γ δ g h =>
@@ -160,7 +157,7 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
         catch e =>
           throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
+        mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
           goal.apply p
       new_goals.forM (solveMono ur)
       return

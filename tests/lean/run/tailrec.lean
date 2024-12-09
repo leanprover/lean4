@@ -196,17 +196,19 @@ def computeLfp'' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
     x
 nontermination_tailrecursive
 
+
+-- TODO: Switching to `(cfg := { synthAssignedInstances := false})` inlines `next`?
 /--
 error: Could not prove 'computeLfp'''' to be tailrecursive:
   Recursive call `computeLfp''' f next` is not a tail call.
   Enclosing tail-call position:
-    id (computeLfp''' f next)
+    id (computeLfp''' f (f x))
 -/
 #guard_msgs in
 def computeLfp''' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
   have next := f x
   if x ≠ next then
-    id $ computeLfp''' f next --NB: Error message should use correct variable name
+    id $ computeLfp''' f next -- NB: Error message should use correct variable name
   else
     x
 nontermination_tailrecursive
@@ -305,4 +307,33 @@ error: Could not prove 'Tree.rev''' to be tailrecursive:
 def Tree.rev'' (t : Tree) : Option Tree := do
   Tree.mk (← t.cs.reverse.toArray.mapFinIdxM
     (fun my_idx my_name => id (if my_idx.val < 0 then my_name else Tree.rev'' my_name))).toList
+nontermination_tailrecursive
+
+/--
+error: Could not prove 'Tree.rev'''' to be tailrecursive:
+  Could not apply Lean.Tailrec.monotone_mapFinIdxM:
+    tactic 'apply' failed, failed to unify
+      @Lean.Tailrec.monotone ?γ ?inst✝ (?m (Array ?β)) (?inst✝¹ (Array ?β)) fun x => Array.mapFinIdxM ?xs (?f x)
+    with
+      @Lean.Tailrec.monotone (Array Tree → Id (Array Tree)) Lean.Tailrec.CCPO.toOrder (Id (Array Tree))
+        Lean.Tailrec.CCPO.toOrder fun f =>
+        ts.reverse.mapFinIdxM fun my_idx my_tree =>
+          id
+            (if ↑my_idx < 0 then my_tree
+            else do
+              let ts ← f my_tree.cs.toArray
+              { cs := ts.toList })
+    ts : Array Tree
+    ⊢ Lean.Tailrec.monotone fun f =>
+        ts.reverse.mapFinIdxM fun my_idx my_tree =>
+          id
+            (if ↑my_idx < 0 then my_tree
+            else do
+              let ts ← f my_tree.cs.toArray
+              { cs := ts.toList })}
+-/
+#guard_msgs in
+def Tree.rev''' (ts : Array Tree) : Id (Array Tree) := do
+  ts.reverse.mapFinIdxM
+    (fun my_idx my_tree => id (if my_idx.val < 0 then my_tree else (Tree.rev''' my_tree.cs.toArray) >>= (fun ts => ⟨ts.toList⟩)))
 nontermination_tailrecursive

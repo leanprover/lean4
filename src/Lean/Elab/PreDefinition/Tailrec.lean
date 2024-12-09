@@ -23,9 +23,7 @@ partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
   if f.isLambda then
     while f.bindingBody!.isHeadBetaTarget do
       f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
-    return f
-  else
-    return f
+  return f
 
 partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.withContext do
   trace[Elab.definition.tailrec] "solveMono at\n{goal}"

@@ -1692,7 +1692,7 @@ theorem getElem_signExtend {x  : BitVec w} {v i : Nat} (h : i < v) :
   rw [←getLsbD_eq_getElem, getLsbD_signExtend]
   simp [h]
 
-theorem msb_SignExtend {x : BitVec w} :
+theorem msb_signExtend {x : BitVec w} :
     (x.signExtend v).msb = (decide (0 < v) && if w ≥ v then x.getMsbD (w - v) else x.msb) := by
   simp [BitVec.msb, getMsbD_signExtend]
   by_cases h : w ≥ v

@@ -138,7 +138,7 @@ v4.14.0
   * [#5899](https://github.com/leanprover/lean4/pull/5899) adds declaration ranges for delta-derived instances.
   * [#5265](https://github.com/leanprover/lean4/pull/5265) removes unused syntax in `deriving` clauses for providing arguments to deriving handlers (see breaking changes).
 
-* [#5065](https://github.com/leanprover/lean4/pull/5065) upstreams and updates `#where`, which is a command that reports the current scope information.
+* [#5065](https://github.com/leanprover/lean4/pull/5065) upstreams and updates `#where`, a command that reports the current scope information.
 
 * **Linters**
   * [#5338](https://github.com/leanprover/lean4/pull/5338) makes the unused variables linter ignore variables defined in tactics by default now, avoiding performance bottlenecks.
@@ -261,14 +261,14 @@ v4.14.0
   * [#5880](https://github.com/leanprover/lean4/pull/5880) adds interim implementation of `HashMap.modify`/`alter`
 
 * **Other**
-* [#5704](https://github.com/leanprover/lean4/pull/5704) removes `@[simp]` from `Option.isSome_eq_isSome`.
-* [#5739](https://github.com/leanprover/lean4/pull/5739) upstreams material on `Prod`.
-* [#5740](https://github.com/leanprover/lean4/pull/5740) moves `Antisymm` to `Std.Antisymm`.
-* [#5741](https://github.com/leanprover/lean4/pull/5741) upstreams basic material on `Sum`.
-* [#5756](https://github.com/leanprover/lean4/pull/5756) adds `Nat.log2_two_pow` (@spinylobster).
-* [#5892](https://github.com/leanprover/lean4/pull/5892) removes duplicated `ForIn` instances.
-* [#5900](https://github.com/leanprover/lean4/pull/5900) removes `@[simp]` from `Sum.forall` and `Sum.exists`.
-* [#5812](https://github.com/leanprover/lean4/pull/5812) removes redundant `Decidable` assumptions (@FR-vdash-bot).
+  * [#5704](https://github.com/leanprover/lean4/pull/5704) removes `@[simp]` from `Option.isSome_eq_isSome`.
+  * [#5739](https://github.com/leanprover/lean4/pull/5739) upstreams material on `Prod`.
+  * [#5740](https://github.com/leanprover/lean4/pull/5740) moves `Antisymm` to `Std.Antisymm`.
+  * [#5741](https://github.com/leanprover/lean4/pull/5741) upstreams basic material on `Sum`.
+  * [#5756](https://github.com/leanprover/lean4/pull/5756) adds `Nat.log2_two_pow` (@spinylobster).
+  * [#5892](https://github.com/leanprover/lean4/pull/5892) removes duplicated `ForIn` instances.
+  * [#5900](https://github.com/leanprover/lean4/pull/5900) removes `@[simp]` from `Sum.forall` and `Sum.exists`.
+  * [#5812](https://github.com/leanprover/lean4/pull/5812) removes redundant `Decidable` assumptions (@FR-vdash-bot).
 
 ### Compiler, runtime, and FFI
 

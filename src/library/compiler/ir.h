@@ -16,10 +16,11 @@ inductive IRType
 | irrelevant | object | tobject
 | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
 | union (leanTypeName : Name) (types : Array IRType) : IRType
+| float32
 
 Remark: we don't create struct/union types from C++.
 */
-enum class type { Float, UInt8, UInt16, UInt32, UInt64, USize, Irrelevant, Object, TObject };
+enum class type { Float, UInt8, UInt16, UInt32, UInt64, USize, Irrelevant, Object, TObject, Float32 };
 
 typedef nat        var_id;
 typedef nat        jp_id;

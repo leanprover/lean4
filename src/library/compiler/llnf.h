@@ -66,6 +66,7 @@ struct field_info {
         m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type) {}
     expr get_type() const { return m_type; }
     bool is_float() const { return is_constant(m_type, get_float_name()); }
+    bool is_float32() const { return is_constant(m_type, get_float32_name()); }
     static field_info mk_irrelevant() { return field_info(); }
     static field_info mk_object(unsigned idx) { return field_info(idx); }
     static field_info mk_usize() { return field_info(0, true); }

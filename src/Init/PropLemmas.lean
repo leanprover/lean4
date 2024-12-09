@@ -386,6 +386,15 @@ theorem exists_comm {p : α → β → Prop} : (∃ a b, p a b) ↔ (∃ b a, p 
 theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : p, q h') ↔ True :=
   iff_true_intro fun h => hn.elim h
 
+@[simp] theorem and_exists_self (P : Prop) (Q : P → Prop) : (P ∧ ∃ p, Q p) ↔ ∃ p, Q p :=
+  ⟨fun ⟨_, h⟩ => h, fun ⟨p, q⟩ => ⟨p, ⟨p, q⟩⟩⟩
+
+@[simp] theorem exists_and_self (P : Prop) (Q : P → Prop) : ((∃ p, Q p) ∧ P) ↔ ∃ p, Q p :=
+  ⟨fun ⟨h, _⟩ => h, fun ⟨p, q⟩ => ⟨⟨p, q⟩, p⟩⟩
+
+@[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
+  ⟨fun h p => h p p, fun h _ p => h p⟩
+
 end quantifiers
 
 /-! ## membership -/

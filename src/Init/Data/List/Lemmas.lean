@@ -255,6 +255,11 @@ theorem getElem_eq_getElem?_get (l : List α) (i : Nat) (h : i < l.length) :
 
 @[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
 
+theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
+    (a :: l)[i] =
+      if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
+  cases i <;> simp
+
 theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
 
 @[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[n+1]? = l[n]? := by
@@ -262,11 +267,6 @@ theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
   rfl
 
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
-  cases i <;> simp
-
-theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
-    (a :: l)[i] =
-      if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
   cases i <;> simp
 
 @[simp] theorem getElem_singleton (a : α) (h : i < 1) : [a][i] = a :=
@@ -467,7 +467,7 @@ theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
   cases l <;> simp
 
 theorem isEmpty_eq_false_iff_exists_mem {xs : List α} :
-    (List.isEmpty xs = false) ↔ ∃ x, x ∈ xs := by
+    xs.isEmpty = false ↔ ∃ x, x ∈ xs := by
   cases xs <;> simp
 
 theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by

@@ -107,8 +107,6 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
   -- We take the arity from the term, but the names from the types
   let arity ← lambdaTelescope preDef.value fun xs _ => return xs.size
   assert! fixedPrefixSize ≤ arity
-  if arity = fixedPrefixSize then
-    throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
   forallBoundedTelescope preDef.type arity fun xs _ => do
     assert! xs.size = arity
     let xs : Array Expr := xs[fixedPrefixSize:]
@@ -152,6 +150,9 @@ def mkUnaryPreDef (preDefs : Array PreDefinition) : MetaM (Nat × ArgsPacker × 
     let fixedPrefixSize ← getFixedPrefix preDefs
     trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
     let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
+    for varNames in varNamess, preDef in preDefs do
+      if varNames.isEmpty then
+        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
     return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefs)
 

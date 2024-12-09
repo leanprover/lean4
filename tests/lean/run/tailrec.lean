@@ -4,6 +4,12 @@ nontermination_tailrecursive
 def loop (x : Nat) : Unit := loop (x + 1)
 nontermination_tailrecursive
 
+def monadic0 : Option Unit := monadic0
+nontermination_tailrecursive
+
+def loop0 : Unit := loop0
+nontermination_tailrecursive
+
 /--
 info: equations:
 theorem loop.eq_1 : ∀ (x : Nat), loop x = loop (x + 1)

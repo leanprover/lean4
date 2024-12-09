@@ -56,6 +56,8 @@ Given a telescope of FVars of type `tᵢ`, iterates `PSigma` to produce the type
 `t₁ ⊗' t₂ …`.
 -/
 def packType (xs : Array Expr) : MetaM Expr := do
+  if xs.isEmpty then
+    return mkConst ``Unit
   let mut d ← inferType xs.back!
   for x in xs.pop.reverse do
     d ← mkAppOptM ``PSigma #[some (← inferType x), some (← mkLambdaFVars #[x] d)]
@@ -66,7 +68,11 @@ def packType (xs : Array Expr) : MetaM Expr := do
 Create a unary application by packing the given arguments using `PSigma.mk`.
 The `type` should be the expected type of the packed argument, as created with `packType`.
 -/
-partial def pack (type : Expr) (args : Array Expr) : Expr := go 0 type
+partial def pack (type : Expr) (args : Array Expr) : Expr :=
+  if args.isEmpty then
+    mkConst ``Unit.unit
+  else
+    go 0 type
 where
   go (i : Nat) (type : Expr) : Expr :=
     if h : i < args.size - 1 then
@@ -88,6 +94,7 @@ Unpacks a unary packed argument created with `Unary.pack`.
 Throws an error if the expression is not of that form.
 -/
 def unpack (arity : Nat) (e : Expr) : Option (Array Expr) := do
+  if arity = 0 then return #[]
   let mut e := e
   let mut args := #[]
   while args.size + 1 < arity do
@@ -99,13 +106,13 @@ def unpack (arity : Nat) (e : Expr) : Option (Array Expr) := do
   args := args.push e
   return args
 
-
 /--
   Given a (dependent) tuple `t` (using `PSigma`) of the given arity.
   Return an array containing its "elements".
   Example: `mkTupleElems a 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
   -/
 private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
+  if arity = 0 then return #[]
   let mut result := #[]
   let mut t := t
   for _ in [:arity - 1] do
@@ -118,14 +125,17 @@ Given a type `t` of the form `(x : A) → (y : B[x]) → … → (z : D[x,y]) �
 returns the curried type `(x : A ⊗' B ⊗' … ⊗' D) → R[x.1, x.2.1, x.2.2]`.
 -/
 def uncurryType (varNames : Array Name) (type : Expr) : MetaM Expr := do
-  forallBoundedTelescope type varNames.size fun xs _ => do
-    assert! xs.size = varNames.size
-    let d ← packType xs
-    let name := if xs.size == 1 then varNames[0]! else `_x
-    withLocalDeclD name d fun tuple => do
-      let elems := mkTupleElems tuple xs.size
-      let codomain ← instantiateForall type elems
-      mkForallFVars #[tuple] codomain
+  if varNames.isEmpty then
+    mkArrow (mkConst ``Unit) type
+  else
+    forallBoundedTelescope type varNames.size fun xs _ => do
+      assert! xs.size = varNames.size
+      let d ← packType xs
+      let name := if xs.size == 1 then varNames[0]! else `_x
+      withLocalDeclD name d fun tuple => do
+        let elems := mkTupleElems tuple xs.size
+        let codomain ← instantiateForall type elems
+        mkForallFVars #[tuple] codomain
 
 /--
 Iterated `PSigma.casesOn`:

@@ -79,7 +79,7 @@ def setIndex : LocalDecl → Nat → LocalDecl
   | cdecl _  id n t bi k,   idx => cdecl idx id n t bi k
   | ldecl _  id n t v nd k, idx => ldecl idx id n t v nd k
 
-/-- The unique id of the free variables. -/
+/-- The unique id of the free variable. -/
 def fvarId : LocalDecl → FVarId
   | cdecl (fvarId := id) .. => id
   | ldecl (fvarId := id) .. => id
@@ -89,7 +89,7 @@ def userName : LocalDecl → Name
   | cdecl (userName := n) .. => n
   | ldecl (userName := n) .. => n
 
-/-- The type of the varialble. -/
+/-- The type of the variable. -/
 def type : LocalDecl → Expr
   | cdecl (type := t) .. => t
   | ldecl (type := t) .. => t

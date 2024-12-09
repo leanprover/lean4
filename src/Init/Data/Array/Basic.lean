@@ -166,15 +166,15 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_fswap"]
-def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
+def swap (a : Array α) (i j : @& Nat) (hi : i < a.size := by get_elem_tactic) (hj : j < a.size := by get_elem_tactic) : Array α :=
   let v₁ := a[i]
   let v₂ := a[j]
   let a'  := a.set i v₂
-  a'.set j v₁ (Nat.lt_of_lt_of_eq j.isLt (size_set a i v₂ _).symm)
+  a'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set a i v₂ _).symm)
 
-@[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
+@[simp] theorem size_swap (a : Array α) (i j : Nat) {hi hj} : (a.swap i j hi hj).size = a.size := by
   show ((a.set i a[j]).set j a[i]
-    (Nat.lt_of_lt_of_eq j.isLt (size_set a i a[j] _).symm)).size = a.size
+    (Nat.lt_of_lt_of_eq hj (size_set a i a[j] _).symm)).size = a.size
   rw [size_set, size_set]
 
 /--
@@ -184,11 +184,13 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_swap"]
-def swap! (a : Array α) (i j : @& Nat) : Array α :=
+def swapIfInBounds (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
-  if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
+  if h₂ : j < a.size then swap a i j
   else a
   else a
+
+@[deprecated swapIfInBounds (since := "2024-11-24")] abbrev swap! := @swapIfInBounds
 
 /-! ### GetElem instance for `USize`, backed by `uget` -/
 
@@ -250,7 +252,7 @@ def get? (a : Array α) (i : Nat) : Option α :=
 def back? (a : Array α) : Option α :=
   a[a.size - 1]?
 
-@[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
+@[inline] def swapAt (a : Array α) (i : Nat) (v : α) (hi : i < a.size := by get_elem_tactic) : α × Array α :=
   let e := a[i]
   let a := a.set i v
   (e, a)
@@ -258,7 +260,7 @@ def back? (a : Array α) : Option α :=
 @[inline]
 def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
-    swapAt a ⟨i, h⟩ v
+    swapAt a i v
   else
     have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
@@ -472,6 +474,10 @@ def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f 
     | _      => pure ⟨⟩
   return none
 
+/--
+Note that the universe level is contrained to `Type` here,
+to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
+-/
 @[inline]
 def findM? {α : Type} {m : Type → Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
@@ -583,8 +589,12 @@ def zipWithIndex (arr : Array α) : Array (α × Nat) :=
   arr.mapIdx fun i a => (a, i)
 
 @[inline]
-def find? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
-  Id.run <| as.findM? p
+def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
+  Id.run do
+    for a in as do
+      if p a then
+        return a
+    return none
 
 @[inline]
 def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
@@ -747,7 +757,7 @@ where
   loop (as : Array α) (i : Nat) (j : Fin as.size) :=
     if h : i < j then
       have := termination h
-      let as := as.swap ⟨i, Nat.lt_trans h j.2⟩ j
+      let as := as.swap i j (Nat.lt_trans h j.2)
       have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
       loop as (i+1) ⟨j-1, this⟩
     else
@@ -787,7 +797,7 @@ it has to backshift all elements at positions greater than `i`.-/
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def eraseIdx (a : Array α) (i : Nat) (h : i < a.size := by get_elem_tactic) : Array α :=
   if h' : i + 1 < a.size then
-    let a' := a.swap ⟨i + 1, h'⟩ ⟨i, h⟩
+    let a' := a.swap (i + 1) i
     a'.eraseIdx (i + 1) (by simp [a', h'])
   else
     a.pop
@@ -834,7 +844,7 @@ def eraseP (as : Array α) (p : α → Bool) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (as : Array α) (j : Fin as.size) :=
     if i < j then
-      let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
+      let j' : Fin as.size := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
       let as := as.swap j' j
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
     else

@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Build.Job
 import Lake.Build.Data
 
@@ -152,7 +153,7 @@ Will NOT cause the whole build to fail if the release cannot be fetched.
 abbrev Package.optGitHubReleaseFacet := `optRelease
 package_data optRelease : BuildJob Bool
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated optGitHubReleaseFacet (since := "2024-09-27")]
 abbrev Package.optReleaseFacet := optGitHubReleaseFacet
 
 /--
@@ -162,7 +163,7 @@ Will cause the whole build to fail if the release cannot be fetched.
 abbrev Package.gitHubReleaseFacet := `release
 package_data release : BuildJob Unit
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated gitHubReleaseFacet (since := "2024-09-27")]
 abbrev Package.releaseFacet := gitHubReleaseFacet
 
 /-- A package's `extraDepTargets` mixed with its transitive dependencies'. -/

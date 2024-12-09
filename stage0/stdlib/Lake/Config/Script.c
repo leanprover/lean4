@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Script
-// Imports: Init Lake.Util.Exit Lake.Config.Context
+// Imports: Lake.Util.Exit Lake.Config.Context
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -116,7 +116,6 @@ x_6 = lean_apply_3(x_5, x_1, x_3, x_4);
 return x_6;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Exit(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Context(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -124,9 +123,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_Script(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_Exit(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

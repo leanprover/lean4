@@ -46,17 +46,33 @@ delete the space after private, it becomes a syntactically correct structure wit
 privateaxiom! So clearly, because of uses of atomic in the grammar, an edit can affect a command
 syntax tree even across multiple tokens.
 
-Now, what we do today, and have done since Lean 3, is to always reparse the last command completely
-preceding the edit location. If its syntax tree is unchanged, we preserve its data and reprocess all
-following commands only, otherwise we reprocess it fully as well. This seems to have worked well so
-far but it does seem a bit arbitrary given that even if it works for our current grammar, it can
-certainly be extended in ways that break the assumption.
+What we did in Lean 3 was to always reparse the last command completely preceding the edit location.
+If its syntax tree is unchanged, we preserve its data and reprocess all following commands only,
+otherwise we reprocess it fully as well. This worked well but did seem a bit arbitrary given that
+even if it works for a grammar at some point, it can certainly be extended in ways that break the
+assumption.
+
+With grammar changes in Lean 4, we found that the following example indeed breaks this assumption:
+```
+structure Signature where
+  /-- a docstring -/
+  Sort : Type
+    --^ insert: "s"
+```
+As the keyword `Sort` is not a valid start of a structure field and the parser backtracks across the
+docstring in that case, this is parsed as the complete command `structure Signature where` followed
+by the partial command `/-- a docstring -/ <missing>`. If we insert an `s` after the `t`, the last
+command completely preceding the edit location is the partial command containing the docstring. Thus
+we need to go up two commands to ensure we reparse the `structure` command as well. This kind of
+nested docstring is the only part of the grammar to our knowledge that requires going up at least
+two commands; as we never backtrack across more than one docstring, going up two commands should
+also be sufficient.
 
 Finally, a more actually principled and generic solution would be to invalidate a syntax tree when
 the parser has reached the edit location during parsing. If it did not, surely the edit cannot have
 an effect on the syntax tree in question. Sadly such a "high-water mark" parser position does not
 exist currently and likely it could at best be approximated by e.g. "furthest `tokenFn` parse". Thus
-we remain at "go two commands up" at this point.
+we remain at "go up two commands" at this point.
 -/
 
 /-!
@@ -231,7 +247,7 @@ structure SetupImportsResult where
 /-- Performance option used by cmdline driver. -/
 register_builtin_option internal.cmdlineSnapshots : Bool := {
   defValue := false
-  descr    := "mark persistent and reduce information stored in snapshots to the minimum necessary \
+  descr    := "reduce information stored in snapshots to the minimum necessary \
     for the cmdline driver: diagnostics per command and final full snapshot"
 }
 
@@ -340,11 +356,12 @@ where
     if let some old := old? then
       if let some oldSuccess := old.result? then
         if let some (some processed) ← old.processedResult.get? then
-          -- ...and the edit location is after the next command (see note [Incremental Parsing])...
+          -- ...and the edit is after the second-next command (see note [Incremental Parsing])...
           if let some nextCom ← processed.firstCmdSnap.get? then
-            if (← isBeforeEditPos nextCom.parserState.pos) then
-              -- ...go immediately to next snapshot
-              return (← unchanged old old.stx oldSuccess.parserState)
+            if let some nextNextCom ← processed.firstCmdSnap.get? then
+              if (← isBeforeEditPos nextNextCom.parserState.pos) then
+                -- ...go immediately to next snapshot
+                return (← unchanged old old.stx oldSuccess.parserState)
 
     withHeaderExceptions ({ · with
         ictx, stx := .missing, result? := none, cancelTk? := none }) do
@@ -416,6 +433,8 @@ where
         }
       -- now that imports have been loaded, check options again
       let opts ← reparseOptions setup.opts
+      -- default to async elaboration; see also `Elab.async` docs
+      let opts := Elab.async.setIfNotSet opts true
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with
         infoState := {
@@ -437,11 +456,6 @@ where
         traceState
       }
       let prom ← IO.Promise.new
-      -- The speedup of these `markPersistent`s is negligible but they help in making unexpected
-      -- `inc_ref_cold`s more visible
-      let parserState := Runtime.markPersistent parserState
-      let cmdState := Runtime.markPersistent cmdState
-      let ctx := Runtime.markPersistent ctx
       parseCmd none parserState cmdState prom (sync := true) ctx
       return {
         diagnostics
@@ -473,11 +487,12 @@ where
         prom.resolve <| { old with nextCmdSnap? := some { range? := none, task := newProm.result } }
       else prom.resolve old  -- terminal command, we're done!
 
-    -- fast path, do not even start new task for this snapshot
+    -- fast path, do not even start new task for this snapshot (see [Incremental Parsing])
     if let some old := old? then
       if let some nextCom ← old.nextCmdSnap?.bindM (·.get?) then
-        if (← isBeforeEditPos nextCom.parserState.pos) then
-          return (← unchanged old old.parserState)
+        if let some nextNextCom ← nextCom.nextCmdSnap?.bindM (·.get?) then
+          if (← isBeforeEditPos nextNextCom.parserState.pos) then
+            return (← unchanged old old.parserState)
 
     let beginPos := parserState.pos
     let scope := cmdState.scopes.head!
@@ -626,22 +641,21 @@ where
         pos      := ctx.fileMap.toPosition beginPos
         data     := output
       }
-    let cmdState := { cmdState with messages }
+    let cmdState : Command.State := { cmdState with messages }
+    let mut reportedCmdState := cmdState
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
-    let mut infoTree := cmdState.infoState.trees[0]!
+    let infoTree : InfoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx
     if cmdline then
-      infoTree := Runtime.markPersistent infoTree
+      -- discard all metadata apart from the environment; see `internal.cmdlineSnapshots`
+      reportedCmdState := { env := reportedCmdState.env, maxRecDepth := 0 }
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := infoTree
       traces := cmdState.traceState
-      cmdState := if cmdline then {
-        env := Runtime.markPersistent cmdState.env
-        maxRecDepth := 0
-      } else cmdState
+      cmdState := reportedCmdState
     }
     -- The reported `cmdState` in the snapshot may be minimized as seen above, so we return the full
     -- state here for further processing on the same thread

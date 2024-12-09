@@ -64,8 +64,7 @@ v4.14.0
   * [#5276](https://github.com/leanprover/lean4/pull/5276) fixes a bug in "type mismatch" errors that would structurally assign metavariables during the algorithm to expose differences.
   * [#5919](https://github.com/leanprover/lean4/pull/5919) makes "type mismatch" errors add type ascriptions to expose differences for numeric literals.
   * [#5922](https://github.com/leanprover/lean4/pull/5922) makes "type mismatch" errors expose differences in the bodies of functions and pi types.
-  * [#5566](https://github.com/leanprover/lean4/pull/5566) adds `MessageData.tagged` marking for `maxHeartbeat` exceptions (@eric-wieser).
-  * [#5888](https://github.com/leanprover/lean4/pull/5888) improves error message for invalid induction alternative name in `match` expressions (@josojo).
+  * [#5888](https://github.com/leanprover/lean4/pull/5888) improves the error message for invalid induction alternative names in `match` expressions (@josojo).
   * [#5719](https://github.com/leanprover/lean4/pull/5719) improves `calc` error messages.
 
 * [#5627](https://github.com/leanprover/lean4/pull/5627) and [#5663](https://github.com/leanprover/lean4/pull/5663) improve the **`#eval` command** and introduce some new features.
@@ -157,6 +156,7 @@ v4.14.0
   * [#5841](https://github.com/leanprover/lean4/pull/5841) and [#5853](https://github.com/leanprover/lean4/pull/5853) record the complete list of `structure` parents in the `StructureInfo` environment extension.
 
 * **Other fixes or improvements**
+  * [#5566](https://github.com/leanprover/lean4/pull/5566) fixes a bug introduced in [#4781](https://github.com/leanprover/lean4/pull/4781) where heartbeat exceptions were no longer being handled properly. Now such exceptions are tagged with `runtime.maxHeartbeats` (@eric-wieser).
   * [#5708](https://github.com/leanprover/lean4/pull/5708) modifies the proof objects produced by the proof-by-reflection tactics `ac_nf0` and `simp_arith` so that the kernel is less prone to reducing expensive atoms.
   * [#5768](https://github.com/leanprover/lean4/pull/5768) adds a `#version` command that prints Lean's version information.
   * [#5822](https://github.com/leanprover/lean4/pull/5822) fixes elaborator algorithms to match kernel algorithms for primitive projections (`Expr.proj`).

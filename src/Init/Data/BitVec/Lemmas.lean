@@ -498,7 +498,7 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
 @[simp] theorem ofInt_ofNat (w n : Nat) :
   BitVec.ofInt w (no_index (OfNat.ofNat n)) = BitVec.ofNat w (OfNat.ofNat n) := rfl
 
-@[simp] theorem ofInt_toInt {x : BitVec w} : BitVec.ofInt w (x.toInt) = x := by
+@[simp] theorem ofInt_toInt {x : BitVec w} : BitVec.ofInt w x.toInt = x := by
   by_cases h : 2 * x.toNat < 2^w <;> ext <;> simp [getLsbD, h, BitVec.toInt]
 
 theorem toInt_neg_iff {w : Nat} {x : BitVec w} :

@@ -11,7 +11,7 @@ import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
-import Init.Data.List.ToArray
+import Init.Data.List.ToArrayImpl
 import Init.Data.Array.Set
 
 universe u v w
@@ -98,6 +98,9 @@ instance : Membership α (Array α) where
 
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
+
+@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+  simp [mem_def]
 
 @[simp] theorem getElem_mem {l : Array α} {i : Nat} (h : i < l.size) : l[i] ∈ l := by
   rw [Array.mem_def, ← getElem_toList]
@@ -244,7 +247,7 @@ def singleton (v : α) : Array α :=
   mkArray 1 v
 
 def back! [Inhabited α] (a : Array α) : α :=
-  a.get! (a.size - 1)
+  a[a.size - 1]!
 
 @[deprecated back! (since := "2024-10-31")] abbrev back := @back!
 

@@ -3228,15 +3228,14 @@ theorem replicate_append_replicate_eq {w n : Nat} {x : BitVec w} (h : w * (n + m
     decide_eq_true_eq]
     omega
 
-@[simp]
-private theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) :
+theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) :
     (w * n - 1 - i) % w = w - 1 - i % w := by
   induction n
   case zero => omega
   case succ n ih =>
-    simp_all [Nat.mul_add]
+    simp_all only [Nat.mul_add, Nat.mul_one, Nat.zero_lt_succ]
     by_cases h : i < w * n
-    · simp [show w * n + w - 1 -i = w + (w * n - 1 - i) by omega]
+    · simp only [show w * n + w - 1 - i = w + (w * n - 1 - i) by omega, Nat.add_mod_left]
       rw [ih (by omega)]
       suffices ¬ n = 0 by omega
       intros hcontra
@@ -3249,7 +3248,7 @@ private theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) 
           · rw [Nat.mul_comm]
             omega
           · rw [Nat.add_mul]
-            simp
+            simp only [Nat.one_mul]
             rw [Nat.mul_comm]
             omega
         rw [hiw] at this
@@ -3259,21 +3258,26 @@ private theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) 
         omega
       · omega
 
-
 @[simp]
 theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getMsbD i =
     (decide (i < w * n) && x.getMsbD (i % w)) := by
-  simp [getMsbD_eq_getLsbD]
-  by_cases h₀ : 0 < w
-  · by_cases h₁ : i < w * n <;> by_cases h₂ : n = 0
-    · simp [h₁, h₂]
-    · simp [h₁, h₂, show w * n - 1 - i < w * n by omega, Nat.mod_lt i h₀]
-      congr 1
-      apply mod_sub_eq_sub_mod (by omega) (by omega)
-    · simp [h₁, h₂]
-    · simp [h₁, h₂]
-  · simp [show w = 0 by omega]
+  simp only [getMsbD_eq_getLsbD, getLsbD_replicate]
+  cases w
+  case zero => simp
+  case succ w =>
+  cases n
+  case zero => simp
+  case succ n =>
+  simp only [gt_iff_lt, show 0 < w + 1 by omega, Nat.mod_lt (x := i), decide_true,
+    Nat.add_one_sub_one, Bool.true_and]
+  by_cases hwn : i < (w + 1) * (n + 1)
+  · simp only [hwn, decide_true, show (w + 1) * (n + 1) - 1 - i < (w + 1) * (n + 1) by omega,
+    Bool.true_and]
+    congr 1
+    rw [mod_sub_eq_sub_mod (w := w + 1) (by omega) (by omega)]
+    simp [Nat.mod_eq_of_lt]
+  · simp [hwn]
 
 @[simp]
 theorem msb_replicate {n w : Nat} (x : BitVec w) :

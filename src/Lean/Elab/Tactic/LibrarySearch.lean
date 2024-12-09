@@ -70,7 +70,7 @@ def elabExact?Term : TermElab := fun stx expectedType? => do
       if let some suggestions ← librarySearch introdGoal then
         if suggestions.isEmpty then logError "`exact?%` didn't find any relevant lemmas"
         else logError "`exact?%` could not close the goal. Try `by apply` to see partial suggestions."
-        mkSorry expectedType (synthetic := true)
+        mkLabeledSorry expectedType (synthetic := true) (unique := true)
       else
         addTermSuggestion stx (← instantiateMVars goal).headBeta
         instantiateMVars goal

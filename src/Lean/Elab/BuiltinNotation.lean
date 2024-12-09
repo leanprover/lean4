@@ -212,9 +212,9 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
   | `(dbg_trace $arg:term; $body)            => `(dbgTrace (toString $arg) fun _ => $body)
   | _                                        => Macro.throwUnsupported
 
-@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  let stxNew ← `(@sorryAx _ false) -- Remark: we use `@` to ensure `sorryAx` will not consume auto params
-  withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun _ expectedType? => do
+  let type ← expectedType?.getDM mkFreshTypeMVar
+  mkLabeledSorry type (synthetic := false) (unique := true)
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 partial def mkPairs (elems : Array Term) : MacroM Term :=

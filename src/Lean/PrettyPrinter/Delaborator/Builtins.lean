@@ -587,7 +587,7 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   else
     let delabHead (insertExplicit : Bool) : Delab := do
       guard <| !insertExplicit
-      withAnnotateTermInfo x
+      withAnnotateTermInfoUnlessAnnotated x
     delabAppCore (n - arity) delabHead (unexpand := false)
 
 @[builtin_delab app]
@@ -1286,6 +1286,35 @@ def delabNameMkStr : Delab := whenPPOption getPPNotation do
 
 @[builtin_delab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
+
+@[builtin_delab app.sorryAx]
+def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit do
+  let numArgs := (← getExpr).getAppNumArgs
+  guard <| numArgs ≥ 2
+  -- Cache the current position's value, since it might be applied to the entire application.
+  let sorrySource ← getPPOption getPPSorrySource
+  -- If this is constructed by `Lean.Meta.mkLabeledSorry`, then normally we don't print the unique tag.
+  -- But, if `pp.explicit` is false and `pp.sorrySource` is true, then print a simplified version of the tag.
+  if let some view := isLabeledSorry? (← getExpr) then
+    withOverApp 3 do
+      if let some loc := view.module? then
+        let (stx, explicit) ←
+          if ← pure sorrySource <||> getPPOption getPPSorrySource then
+            let posAsName := Name.mkSimple s!"{loc.module}:{loc.range.pos.line}:{loc.range.pos.column}"
+            let pos := mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{posAsName}"]
+            let src ← withAppArg <| annotateTermInfo pos
+            pure (← `(sorry $src), true)
+          else
+            -- Set `explicit` to false so that the first hover sets `pp.sorrySource` to true in `Lean.Widget.ppExprTagged`
+            pure (← `(sorry), false)
+        let stx ← annotateCurPos stx
+        addDelabTermInfo (← getPos) stx (← getExpr) (explicit := explicit) (location? := loc)
+          (docString? := "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there.")
+        return stx
+      else
+        `(sorry)
+  else
+    withOverApp 2 `(sorry)
 
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]

@@ -85,6 +85,7 @@ private def queryNames : Array Name :=
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
+    ``Raw.keys_eq_keys_toListModel, ``Raw.toList_eq_toListModel,
     ``Raw.length_keys_eq_length_keys, ``Raw.isEmpty_keys_eq_isEmpty_keys,
     ``Raw.contains_keys_eq_contains_keys, ``Raw.mem_keys_iff_contains_keys,
     ``Raw.pairwise_keys_iff_pairwise_keys]
@@ -821,7 +822,7 @@ theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 
 @[simp]
 theorem isEmpty_keys [EquivBEq α] [LawfulHashable α] (h: m.1.WF):
-    m.1.keys.isEmpty = m.1.isEmpty:= by
+    m.1.keys.isEmpty = m.1.isEmpty := by
   simp_to_model using List.isEmpty_keys_eq_isEmpty
 
 @[simp]
@@ -832,12 +833,17 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
 @[simp]
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
-  simp_to_model 
-  rw [List.containsKey_eq_keys_contains]
+  simp_to_model
+  rw [List.containsKey_eq_keys_contains, List.elem_iff]
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
+
+@[simp]
+theorem toList_map_fst {α β} (m : Raw₀ α β) :
+    m.1.toList.map Sigma.fst = m.1.keys := by
+  simp_to_model using List.map_fst_eq_keys
 
 end Raw₀
 

@@ -1039,13 +1039,18 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
 
 @[simp]
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
-    k ∈ m.keys ↔ k ∈ m := by 
+    k ∈ m.keys ↔ k ∈ m := by
   rw [mem_iff_contains]
   simp_to_raw using Raw₀.mem_keys ⟨m, _⟩ h
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem toList_map_fst (h : m.WF) :
+    m.toList.map Sigma.fst = m.keys := by
+  simp_to_raw using Raw₀.toList_map_fst ⟨m, h.size_buckets_pos⟩
 
 end Raw
 

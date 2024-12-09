@@ -42,7 +42,7 @@ v4.14.0
     ```
   * [#5814](https://github.com/leanprover/lean4/pull/5814) fixes a bug where Mathlib's `Type*` elaborator could lead to incorrect universe parameters with the `inductive` command.
   * [#3152](https://github.com/leanprover/lean4/pull/3152) and [#5844](https://github.com/leanprover/lean4/pull/5844) fix bugs in default value processing for structure instance notation (with @arthur-adjedj).
-  * [#5399](https://github.com/leanprover/lean4/pull/5399) promotes instance synthesis order issues from to hard errors.
+  * [#5399](https://github.com/leanprover/lean4/pull/5399) promotes instance synthesis order calculation failure from a soft error to a hard error.
   * [#5542](https://github.com/leanprover/lean4/pull/5542) deprecates `:=` variants of `inductive` and `structure` (see breaking changes).
 
 * **Application elaboration improvements**

@@ -184,7 +184,7 @@ v4.14.0
 
 * [#5759](https://github.com/leanprover/lean4/pull/5759) fixes the app unexpander for `sorryAx`.
 * [#5827](https://github.com/leanprover/lean4/pull/5827) improves accuracy of binder names in the signature pretty printer (like in output of `#check`). Also fixes the issue where consecutive hygienic names pretty print without a space separating them, so we now have `(x✝ y✝ : Nat)` rather than `(x✝y✝ : Nat)`.
-* [#5830](https://github.com/leanprover/lean4/pull/5830) makes sure all th ecore delaborators respond to `pp.explicit` when appropriate.
+* [#5830](https://github.com/leanprover/lean4/pull/5830) makes sure all the core delaborators respond to `pp.explicit` when appropriate.
 * [#5639](https://github.com/leanprover/lean4/pull/5639) makes sure name literals use escaping when pretty printing.
 * [#5854](https://github.com/leanprover/lean4/pull/5854) adds delaborators for `<|>`, `<*>`, `>>`, `<*`, and `*>`.
 

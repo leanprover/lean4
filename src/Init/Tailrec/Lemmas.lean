@@ -19,7 +19,7 @@ theorem monotone_mapM
     (f : γ → α → m β)
     (xs : List α)
     (hmono : forall_arg monotone f) :
-    monotone (fun x => xs.mapM (fun y => f x y)) := by
+    monotone (fun x => xs.mapM (f x)) := by
   cases xs with
   | nil => apply monotone_const
   | cons _ xs =>

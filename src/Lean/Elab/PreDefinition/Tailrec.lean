@@ -164,28 +164,16 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
           goal.apply p
       new_goals.forM (solveMono ur)
       return
-    | List.mapM m instMonad γ δ g xs =>
-      let g' := f.updateLambdaE! f.bindingDomain! g
-      let p ←
-        try
-          mkAppOptM ``Tailrec.monotone_mapM #[m, instMonad, none, none, γ, δ, α, inst_α, g', xs]
-        catch e =>
-          throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
+    | List.mapM _ _ _ _ _ _ =>
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-          goal.apply p
+        mapError (f := (m!"Could not apply {``Tailrec.monotone_mapM }:{indentD ·}}")) do
+          goal.applyConst ``Tailrec.monotone_mapM
       new_goals.forM (solveMono ur)
       return
-    | Array.mapFinIdxM γ δ m instMonad xs g =>
-      let g' := f.updateLambdaE! f.bindingDomain! g
-      let p ←
-        try
-          mkAppOptM ``Tailrec.monotone_mapFinIdxM #[m, instMonad, none, none, γ, δ, α, inst_α, xs, g']
-        catch e =>
-          throwError "Could not prove `{m}` to be a monotone monad:{indentD e.toMessageData}"
+    | Array.mapFinIdxM _ _ _ _ _ _ =>
       let new_goals ←
-        mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-          goal.apply p
+        mapError (f := (m!"Could not apply {``Tailrec.monotone_mapFinIdxM}:{indentD ·}}")) do
+          goal.applyConst ``Tailrec.monotone_mapFinIdxM
       new_goals.forM (solveMono ur)
       return
     | _ => pure

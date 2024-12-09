@@ -166,90 +166,86 @@
 * [#5854](https://github.com/leanprover/lean4/pull/5854) adds delaborators for `<|>`, `<*>`, `>>`, `<*`, and `*>`.
 
 ### Library
-Array
 
-* [#5687](https://github.com/leanprover/lean4/pull/5687) chore: deprecation for Array.data
-* [#5705](https://github.com/leanprover/lean4/pull/5705) chore: better default value for Array.swapAt!
-* [#5748](https://github.com/leanprover/lean4/pull/5748) chore: move Array.mapIdx lemmas to new file
-* [#5749](https://github.com/leanprover/lean4/pull/5749) chore: simplify signature of Array.mapIdx
-* [#5758](https://github.com/leanprover/lean4/pull/5758) chore: upstream Array.reduceOption
-* [#5786](https://github.com/leanprover/lean4/pull/5786) feat: simp lemmas for Array.isEqv and beq
-* [#5796](https://github.com/leanprover/lean4/pull/5796) feat: rename Array.shrink to take, and relate to List.take
-* [#5798](https://github.com/leanprover/lean4/pull/5798) chore: upstream List.modify, add lemmas, relate to Array.modify
-* [#5799](https://github.com/leanprover/lean4/pull/5799) feat: relate Array.forIn and List.forIn
-* [#5833](https://github.com/leanprover/lean4/pull/5833) feat: Array.forIn', and relate to List
-* [#5848](https://github.com/leanprover/lean4/pull/5848) fixes deprecations in Init.Data.Array.Basic to not recommend the deprecated constant
-* [#5895](https://github.com/leanprover/lean4/pull/5895) feat: LawfulBEq (Array α) ↔ LawfulBEq α
-* [#5896](https://github.com/leanprover/lean4/pull/5896) chore: move @[simp] from back_eq_back? to back_push
-* [#5897](https://github.com/leanprover/lean4/pull/5897) chore: rename Array.back to back!
+* `Array`
+  * [#5687](https://github.com/leanprover/lean4/pull/5687) deprecates `Array.data`.
+  * [#5705](https://github.com/leanprover/lean4/pull/5705) uses a better default value for `Array.swapAt!`.
+  * [#5748](https://github.com/leanprover/lean4/pull/5748) moves `Array.mapIdx` lemmas to a new file.
+  * [#5749](https://github.com/leanprover/lean4/pull/5749) simplifies signature of `Array.mapIdx`.
+  * [#5758](https://github.com/leanprover/lean4/pull/5758) upstreams `Array.reduceOption`.
+  * [#5786](https://github.com/leanprover/lean4/pull/5786) adds simp lemmas for `Array.isEqv` and `BEq`.
+  * [#5796](https://github.com/leanprover/lean4/pull/5796) renames `Array.shrink` to `Array.take`, and relates it to `List.take`.
+  * [#5798](https://github.com/leanprover/lean4/pull/5798) upstreams `List.modify`, adds lemmas, relates to `Array.modify`.
+  * [#5799](https://github.com/leanprover/lean4/pull/5799) relates `Array.forIn` and `List.forIn`.
+  * [#5833](https://github.com/leanprover/lean4/pull/5833) adds `Array.forIn'`, and relates to `List`.
+  * [#5848](https://github.com/leanprover/lean4/pull/5848) fixes deprecations in `Init.Data.Array.Basic` to not recommend the deprecated constant.
+  * [#5895](https://github.com/leanprover/lean4/pull/5895) adds `LawfulBEq (Array α) ↔ LawfulBEq α`.
+  * [#5896](https://github.com/leanprover/lean4/pull/5896) moves `@[simp]` from `back_eq_back?` to `back_push`.
+  * [#5897](https://github.com/leanprover/lean4/pull/5897) renames `Array.back` to `back!`.
 
-List
-* [#5605](https://github.com/leanprover/lean4/pull/5605) perf: remove List.redLength
-* [#5696](https://github.com/leanprover/lean4/pull/5696) feat: upstream List.mapIdx, and add lemmas
-* [#5697](https://github.com/leanprover/lean4/pull/5697) chore: upstream List.foldxM_map
-* [#5701](https://github.com/leanprover/lean4/pull/5701) chore: rename `List.join` to `List.flatten`
-* [#5703](https://github.com/leanprover/lean4/pull/5703) chore: upstream List.sum, planning to later deprecate Nat.sum
-* [#5706](https://github.com/leanprover/lean4/pull/5706) chore: mark prefix_append_right_inj as simp lemma (@jcommelin)
-* [#5716](https://github.com/leanprover/lean4/pull/5716) fix: List.drop_drop addition order
-* [#5731](https://github.com/leanprover/lean4/pull/5731) chore: rename List.bind and Array.concatMap to flatMap
-* [#5732](https://github.com/leanprover/lean4/pull/5732) chore: rename List.pure to List.singleton
-* [#5742](https://github.com/leanprover/lean4/pull/5742) chore: upstream ne_of_mem_of_not_mem
-* [#5743](https://github.com/leanprover/lean4/pull/5743) chore: upstream ne_of_apply_ne
-* [#5816](https://github.com/leanprover/lean4/pull/5816) feat: more lemmas for List.modify
-* [#5879](https://github.com/leanprover/lean4/pull/5879) chore: rename List.groupBy to splitBy
-* [#5913](https://github.com/leanprover/lean4/pull/5913) feat: relate `for` loops over `List` with `foldlM`
+* `List`
+  * [#5605](https://github.com/leanprover/lean4/pull/5605) removes `List.redLength`.
+  * [#5696](https://github.com/leanprover/lean4/pull/5696) upstreams `List.mapIdx` and adds lemmas.
+  * [#5697](https://github.com/leanprover/lean4/pull/5697) upstreams `List.foldxM_map`.
+  * [#5701](https://github.com/leanprover/lean4/pull/5701) renames `List.join` to `List.flatten`.
+  * [#5703](https://github.com/leanprover/lean4/pull/5703) upstreams `List.sum`.
+  * [#5706](https://github.com/leanprover/lean4/pull/5706) marks `prefix_append_right_inj` as a simp lemma.
+  * [#5716](https://github.com/leanprover/lean4/pull/5716) fixes `List.drop_drop` addition order.
+  * [#5731](https://github.com/leanprover/lean4/pull/5731) renames `List.bind` and `Array.concatMap` to `flatMap`.
+  * [#5732](https://github.com/leanprover/lean4/pull/5732) renames `List.pure` to `List.singleton`.
+  * [#5742](https://github.com/leanprover/lean4/pull/5742) upstreams `ne_of_mem_of_not_mem`.
+  * [#5743](https://github.com/leanprover/lean4/pull/5743) upstreams `ne_of_apply_ne`.
+  * [#5816](https://github.com/leanprover/lean4/pull/5816) adds more `List.modify` lemmas.
+  * [#5879](https://github.com/leanprover/lean4/pull/5879) renames `List.groupBy` to `splitBy`.
+  * [#5913](https://github.com/leanprover/lean4/pull/5913) relates `for` loops over `List` with `foldlM`.
 
-Nat
+* `Nat`
+  * [#5694](https://github.com/leanprover/lean4/pull/5694) removes `instBEqNat`, which is redundant with `instBEqOfDecidableEq` but not defeq.
+  * [#5746](https://github.com/leanprover/lean4/pull/5746) deprecates `Nat.sum`.
+  * [#5785](https://github.com/leanprover/lean4/pull/5785) adds `Nat.forall_lt_succ` and variants.
 
-* [#5694](https://github.com/leanprover/lean4/pull/5694) chore: remove instBEqNat, which is redundant with instBEqOfDecidableEq but not defeq
-* [#5746](https://github.com/leanprover/lean4/pull/5746) chore: deprecate Nat.sum
-* [#5785](https://github.com/leanprover/lean4/pull/5785) feat: Nat.forall_lt_succ and variants
+* Fixed width integers
+  * [#5323](https://github.com/leanprover/lean4/pull/5323) redefine unsigned fixed width integers in terms of `BitVec`.
+  * [#5735](https://github.com/leanprover/lean4/pull/5735) adds `UIntX.[val_ofNat, toBitVec_ofNat]`.
+  * [#5790](https://github.com/leanprover/lean4/pull/5790) defines `Int8`.
+  * [#5901](https://github.com/leanprover/lean4/pull/5901) removes native code for `UInt8.modn`.
 
-Fixed width integers
+* `BitVec`
+  * [#5604](https://github.com/leanprover/lean4/pull/5604) completes `BitVec.[getMsbD|getLsbD|msb]` for shifts (@luisacicolini).
+  * [#5609](https://github.com/leanprover/lean4/pull/5609) adds lemmas for division when denominator is zero (@bollu).
+  * [#5620](https://github.com/leanprover/lean4/pull/5620) documents Bitblasting (@bollu)
+  * [#5623](https://github.com/leanprover/lean4/pull/5623) moves `BitVec.udiv/umod/sdiv/smod` after `add/sub/mul/lt` (@tobiasgrosser).
+  * [#5645](https://github.com/leanprover/lean4/pull/5645) defines `udiv` normal form to be `/`, resp. `umod` and `%` (@bollu).
+  * [#5646](https://github.com/leanprover/lean4/pull/5646) adds lemmas about arithmetic inequalities (@bollu).
+  * [#5680](https://github.com/leanprover/lean4/pull/5680) expands relationship with `toFin` (@tobiasgrosser).
+  * [#5691](https://github.com/leanprover/lean4/pull/5691) adds `BitVec.(getMSbD, msb)_(add, sub)` and `BitVec.getLsbD_sub` (@luisacicolini).
+  * [#5712](https://github.com/leanprover/lean4/pull/5712) adds `BitVec.[udiv|umod]_[zero|one|self]` (@tobiasgrosser).
+  * [#5718](https://github.com/leanprover/lean4/pull/5718) adds `BitVec.sdiv_[zero|one|self]` (@tobiasgrosser).
+  * [#5721](https://github.com/leanprover/lean4/pull/5721) adds `BitVec.(msb, getMsbD, getLsbD)_(neg, abs)` (@luisacicolini).
+  * [#5772](https://github.com/leanprover/lean4/pull/5772) adds `BitVec.toInt_sub`, simplifies `BitVec.toInt_neg` (@tobiasgrosser).
+  * [#5778](https://github.com/leanprover/lean4/pull/5778) prove that `intMin` the smallest signed bitvector (@alexkeizer).
+  * [#5851](https://github.com/leanprover/lean4/pull/5851) adds `(msb, getMsbD)_twoPow` (@luisacicolini).
+  * [#5858](https://github.com/leanprover/lean4/pull/5858) adds `BitVec.[zero_ushiftRight|zero_sshiftRight|zero_mul]` and cleans up BVDecide (@tobiasgrosser).
+  * [#5865](https://github.com/leanprover/lean4/pull/5865) adds `BitVec.(msb, getMsbD)_concat` (@luisacicolini).
+  * [#5881](https://github.com/leanprover/lean4/pull/5881) adds `Hashable (BitVec n)`
 
-* [#5323](https://github.com/leanprover/lean4/pull/5323) refactor: redefine unsigned fixed width integers in terms of BitVec
-* [#5735](https://github.com/leanprover/lean4/pull/5735) feat: UIntX.[val_ofNat, toBitVec_ofNat]
-* [#5790](https://github.com/leanprover/lean4/pull/5790) feat: define Int8
-* [#5901](https://github.com/leanprover/lean4/pull/5901) chore: remove native code for UInt8.modn
+* `String`/`Char`
+  * [#5728](https://github.com/leanprover/lean4/pull/5728) upstreams `String.dropPrefix?`.
+  * [#5745](https://github.com/leanprover/lean4/pull/5745) changes `String.dropPrefix?` signature.
+  * [#5747](https://github.com/leanprover/lean4/pull/5747) adds `Hashable Char` instance
 
-BitVec
-* [#5604](https://github.com/leanprover/lean4/pull/5604) feat: complete `BitVec.[getMsbD|getLsbD|msb]` for shifts (@luisacicolini)
-* [#5609](https://github.com/leanprover/lean4/pull/5609) feat: lemmas for Bitvector division when denominator is zero (@bollu)
-* [#5620](https://github.com/leanprover/lean4/pull/5620) feat: Document Bitblasting in a documentation comment (@bollu)
-* [#5623](https://github.com/leanprover/lean4/pull/5623) chore: move BitVec.udiv/umod/sdiv/smod after add/sub/mul/lt (@tobiasgrosser)
-* [#5645](https://github.com/leanprover/lean4/pull/5645) chore: define udiv normal form to be /, resp. umod and % (@bollu)
-* [#5646](https://github.com/leanprover/lean4/pull/5646) feat: lemmas about BitVector arithmetic inequalities (@bollu)
-* [#5647](https://github.com/leanprover/lean4/pull/5647) chore: add Siddharth to authors list of BitVec (@bollu)
-* [#5680](https://github.com/leanprover/lean4/pull/5680) feat: expand relationship with BitVec and toFin (@tobiasgrosser)
-* [#5691](https://github.com/leanprover/lean4/pull/5691) feat: add `BitVec.(getMSbD, msb)_(add, sub)` and `BitVec.getLsbD_sub` (@luisacicolini)
-* [#5712](https://github.com/leanprover/lean4/pull/5712) feat: add BitVec.[udiv|umod]_[zero|one|self] theorems (@tobiasgrosser)
-* [#5718](https://github.com/leanprover/lean4/pull/5718) feat: add BitVec.sdiv_[zero|one|self] theorems (@tobiasgrosser)
-* [#5721](https://github.com/leanprover/lean4/pull/5721) feat: add `BitVec.(msb, getMsbD, getLsbD)_(neg, abs)` (@luisacicolini)
-* [#5772](https://github.com/leanprover/lean4/pull/5772) feat: add BitVec.toInt_sub, simplify BitVec.toInt_neg (@tobiasgrosser)
-* [#5778](https://github.com/leanprover/lean4/pull/5778) feat: prove that `intMin` is indeed the smallest signed bitvector (@alexkeizer)
-* [#5851](https://github.com/leanprover/lean4/pull/5851) feat: add `(msb, getMsbD)_twoPow` (@luisacicolini)
-* [#5858](https://github.com/leanprover/lean4/pull/5858) feat: add BitVec.[zero_ushiftRight|zero_sshiftRight|zero_mul] and cle… (@tobiasgrosser)
-* [#5865](https://github.com/leanprover/lean4/pull/5865) feat: add `BitVec.(msb, getMsbD)_concat` (@luisacicolini)
-* [#5881](https://github.com/leanprover/lean4/pull/5881) feat: Hashable (BitVec n)
+* `HashMap`
+  * [#5880](https://github.com/leanprover/lean4/pull/5880) adds interim implementation of `HashMap.modify`/`alter`
 
-String/Char
-* [#5728](https://github.com/leanprover/lean4/pull/5728) chore: upstream String.dropPrefix?
-* [#5745](https://github.com/leanprover/lean4/pull/5745) fix: change String.dropPrefix? signature
-* [#5747](https://github.com/leanprover/lean4/pull/5747) feat: add Hashable instance for Char (@david-christiansen)
-
-HashMap
-
-* [#5880](https://github.com/leanprover/lean4/pull/5880) feat: interim implementation of `HashMap.modify`/`alter`
-Other
-
-* [#5704](https://github.com/leanprover/lean4/pull/5704) chore: remove @[simp] from Option.isSome_eq_isSome
-* [#5739](https://github.com/leanprover/lean4/pull/5739) chore: upstream material on Prod
-* [#5740](https://github.com/leanprover/lean4/pull/5740) chore: move Antisymm to Std.Antisymm
-* [#5741](https://github.com/leanprover/lean4/pull/5741) chore: upstream basic material on Sum
-* [#5756](https://github.com/leanprover/lean4/pull/5756) feat: add Nat.log2_two_pow (@spinylobster)
-* [#5892](https://github.com/leanprover/lean4/pull/5892) chore: remove duplicated ForIn instances
-* [#5900](https://github.com/leanprover/lean4/pull/5900) chore: remove @[simp] from Sum.forall and Sum.exists
-* [#5812](https://github.com/leanprover/lean4/pull/5812) chore: remove redundant `Decidable` assumptions (@FR-vdash-bot)
+* **Other**
+* [#5704](https://github.com/leanprover/lean4/pull/5704) removes `@[simp]` from `Option.isSome_eq_isSome`.
+* [#5739](https://github.com/leanprover/lean4/pull/5739) upstreams material on `Prod`.
+* [#5740](https://github.com/leanprover/lean4/pull/5740) moves `Antisymm` to `Std.Antisymm`.
+* [#5741](https://github.com/leanprover/lean4/pull/5741) upstreams basic material on `Sum`.
+* [#5756](https://github.com/leanprover/lean4/pull/5756) adds `Nat.log2_two_pow` (@spinylobster).
+* [#5892](https://github.com/leanprover/lean4/pull/5892) removes duplicated `ForIn` instances.
+* [#5900](https://github.com/leanprover/lean4/pull/5900) removes `@[simp]` from `Sum.forall` and `Sum.exists`.
+* [#5812](https://github.com/leanprover/lean4/pull/5812) removes redundant `Decidable` assumptions (@FR-vdash-bot).
 
 ### Compiler, runtime, and FFI
 

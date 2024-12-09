@@ -44,13 +44,11 @@ theorem monotone_mapFinIdxM
     (f : γ → Fin xs.size → α → m β)
     (hmono : forall_arg (forall_arg monotone) f) :
     monotone (fun x => xs.mapFinIdxM (fun i y => f x i y)) := by
-  -- This shows a limitation of the induction principles:
-  -- the parameter `f` isn't strictly needed, and cannot actually be instantiated here
   suffices
     ∀ i j (h : i + j = xs.size) r, monotone (fun x => Array.mapFinIdxM.map xs (fun i y => f x i y) i j h r) by
     apply this
   intros i j h r
-  induction i, j, h, r using Array.mapFinIdxM.map.induct (m := m) xs
+  induction i, j, h, r using Array.mapFinIdxM.map.induct xs
   case case1 =>
     apply monotone_const
   case case2 ih =>
@@ -59,7 +57,5 @@ theorem monotone_mapFinIdxM
       apply hmono
     · intro y
       apply ih
-  case f i y => exact f sorry i y
-
 
 end Lean.Tailrec

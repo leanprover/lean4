@@ -236,19 +236,14 @@ nontermination_tailrecursive
 
 /--
 error: Could not prove 'WrongMonad.ack' to be tailrecursive:
-  Could not apply Lean.Tailrec.monotone_bind:
-    tactic 'apply' failed, failed to unify
-      @Lean.Tailrec.monotone ?γ ?inst✝ (?m ?β) (?inst✝¹ ?β) fun x => ?f x >>= ?g x
-    with
-      @Lean.Tailrec.monotone ((_ : Nat) ×' Nat → Id Nat) Lean.Tailrec.CCPO.toOrder (Id Nat) Lean.Tailrec.CCPO.toOrder
-        fun f => do
-        let __do_lift ← f ⟨x✝ + 1, y✝⟩
-        f ⟨x✝, __do_lift⟩
-    case h_3
-    x✝² x✝¹ x✝ y✝ : Nat
-    ⊢ Lean.Tailrec.monotone fun f => do
-        let __do_lift ← f ⟨x✝ + 1, y✝⟩
-        f ⟨x✝, __do_lift⟩
+  Recursive call `ack (x + 1) y` is not a tail call.
+  Enclosing tail-call position:
+    do
+      let __do_lift ← ack (x✝ + 1) y✝
+      ack x✝ __do_lift
+  Tried to apply 'Lean.Tailrec.monotone_bind', but failed.
+  Possible cause: A missing `Lean.Tailrec.MonoBind` instance.
+  Use `set_option trace.Elab.definition.tailrec true` to debug.
 -/
 #guard_msgs in
 def WrongMonad.ack : (n m : Nat) → Id Nat
@@ -320,26 +315,17 @@ nontermination_tailrecursive
 
 /--
 error: Could not prove 'Tree.rev'''' to be tailrecursive:
-  Could not apply Lean.Tailrec.monotone_mapFinIdxM:
-    tactic 'apply' failed, failed to unify
-      @Lean.Tailrec.monotone ?γ ?inst✝ (?m (Array ?β)) (?inst✝¹ (Array ?β)) fun x => Array.mapFinIdxM ?xs (?f x)
-    with
-      @Lean.Tailrec.monotone (Array Tree → Id (Array Tree)) Lean.Tailrec.CCPO.toOrder (Id (Array Tree))
-        Lean.Tailrec.CCPO.toOrder fun f =>
-        ts.reverse.mapFinIdxM fun my_idx my_tree =>
-          id
-            (if ↑my_idx < 0 then my_tree
-            else do
-              let ts ← f my_tree.cs.toArray
-              { cs := ts.toList })
-    ts : Array Tree
-    ⊢ Lean.Tailrec.monotone fun f =>
-        ts.reverse.mapFinIdxM fun my_idx my_tree =>
-          id
-            (if ↑my_idx < 0 then my_tree
-            else do
-              let ts ← f my_tree.cs.toArray
-              { cs := ts.toList })}
+  Recursive call `Tree.rev''' my_tree.cs.toArray` is not a tail call.
+  Enclosing tail-call position:
+    ts.reverse.mapFinIdxM fun my_idx my_tree =>
+      id
+        (if ↑my_idx < 0 then my_tree
+        else do
+          let ts ← rev''' my_tree.cs.toArray
+          { cs := ts.toList })
+  Tried to apply 'Lean.Tailrec.monotone_mapFinIdxM', but failed.
+  Possible cause: A missing `Lean.Tailrec.MonoBind` instance.
+  Use `set_option trace.Elab.definition.tailrec true` to debug.
 -/
 #guard_msgs in
 def Tree.rev''' (ts : Array Tree) : Id (Array Tree) := do

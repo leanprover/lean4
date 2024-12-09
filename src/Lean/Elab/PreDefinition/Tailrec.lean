@@ -25,6 +25,21 @@ partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
       f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
   return f
 
+/--
+Given expression `e` of the form `f xs`, possibly open, try to find monotonicity theorems.
+for f.
+-/
+-- TODO: Replace with extensible attribute
+def findMonoThms (e : Expr) : MetaM (Array Name) :=
+  match_expr e with
+  | ite _ _ _ _ _ =>                pure #[``Tailrec.monotone_ite]
+  | dite _ _ _ _ _ =>               pure #[``Tailrec.monotone_dite]
+  | letFun _ _ _ _ =>               pure #[``Tailrec.monotone_letFun]
+  | Bind.bind _ _ _ _ _ _ =>        pure #[``Tailrec.monotone_bind]
+  | List.mapM _ _ _ _ _ _ =>        pure #[``Tailrec.monotone_mapM]
+  | Array.mapFinIdxM _ _ _ _ _ _ => pure #[``Tailrec.monotone_mapFinIdxM]
+  | _ => pure #[]
+
 partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.withContext do
   trace[Elab.definition.tailrec] "solveMono at\n{goal}"
   let type ← goal.getType
@@ -53,15 +68,15 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
     let f ← if f.isLambda then pure f else etaExpand f
     let f := headBetaUnderLambda f
 
-    let failK := do
+    let failK (extraMsg := m!"") := do
       trace[Elab.definition.tailrec] "Failing at goal\n{goal}"
       ur f fun t => do
         if let some recApp := t.find? hasRecAppSyntax then
           let some syn := getRecAppSyntax? recApp | panic! "getRecAppSyntax? failed"
           withRef syn <|
-            throwError "Recursive call `{syn}` is not a tail call.\nEnclosing tail-call position:{indentExpr t}"
+            throwError "Recursive call `{syn}` is not a tail call.\nEnclosing tail-call position:{indentExpr t}\n{extraMsg}"
         else
-          throwError "Recursive call in non-tail position:{indentExpr t}"
+          throwError "Recursive call in non-tail position:{indentExpr t}\n{extraMsg}"
 
     let e := f.bindingBody!
 
@@ -117,46 +132,15 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
         solveMono ur goal'.mvarId!
       return
 
-    -- Manually handle ite, dite, etc.. Not too hard, and more robust and predictable than
-    -- using the split tactic.
-    match_expr e with
-    | ite _ _ _ _ _ =>
-      let new_goals ←
-        mapError (f := (m!"Could not apply {``Tailrec.monotone_ite}:{indentD ·}")) do
-          goal.applyConst ``Tailrec.monotone_ite (cfg := { synthAssignedInstances := false})
-      new_goals.forM (solveMono ur)
-      return
-    | dite _ _ _ _ _ =>
-      let new_goals ←
-        mapError (f := (m!"Could not apply {``Tailrec.monotone_dite}:{indentD ·}")) do
-          goal.applyConst ``Tailrec.monotone_dite (cfg := { synthAssignedInstances := false})
-      new_goals.forM (solveMono ur)
-      return
-    | letFun _ _ _ _ =>
-      let new_goals ←
-        mapError (f := (m!"Could not apply {``Tailrec.monotone_letFun}:{indentD ·}")) do
-          goal.applyConst ``Tailrec.monotone_letFun (cfg := { synthAssignedInstances := false})
-      new_goals.forM (solveMono ur)
-      return
-    | Bind.bind _ _ _ _ _ _ =>
-      let new_goals ←
-        mapError (f := (m!"Could not apply {``Tailrec.monotone_bind}:{indentD ·}")) do
-          goal.applyConst ``Tailrec.monotone_bind (cfg := { synthAssignedInstances := false})
-      new_goals.forM (solveMono ur)
-      return
-    | List.mapM _ _ _ _ _ _ =>
-      let new_goals ←
-        mapError (f := (m!"Could not apply {``Tailrec.monotone_mapM }:{indentD ·}}")) do
-          goal.applyConst ``Tailrec.monotone_mapM (cfg := { synthAssignedInstances := false})
-      new_goals.forM (solveMono ur)
-      return
-    | Array.mapFinIdxM _ _ _ _ _ _ =>
-      let new_goals ←
-        mapError (f := (m!"Could not apply {``Tailrec.monotone_mapFinIdxM}:{indentD ·}}")) do
-          goal.applyConst ``Tailrec.monotone_mapFinIdxM (cfg := { synthAssignedInstances := false})
-      new_goals.forM (solveMono ur)
-      return
-    | _ => pure
+    let monoThms ← findMonoThms e
+    for monoThm in monoThms do
+      let new_goals? ← try
+        some <$> goal.applyConst monoThm (cfg := { synthAssignedInstances := false})
+      catch _ =>
+        pure none
+      if let some new_goals := new_goals? then
+        new_goals.forM (solveMono ur)
+        return
 
     -- Split match-expressions
     if let some info := isMatcherAppCore? (← getEnv) e then
@@ -174,7 +158,11 @@ partial def solveMono (ur : Unreplacer) (goal : MVarId) : MetaM Unit := goal.wit
         new_goals.forM (solveMono ur)
         return
 
-    failK
+    let extraMsg := if monoThms.isEmpty then m!"" else
+      m!"Tried to apply {.andList (monoThms.toList.map (m!"'{·}'"))}, but failed.\n\
+         Possible cause: A missing `{.ofConstName ``Tailrec.MonoBind}` instance.\n\
+         Use `set_option trace.Elab.definition.tailrec true` to debug."
+    failK (extraMsg := extraMsg)
   | _ =>
     throwError "Unexpected goal:{goal}"
 

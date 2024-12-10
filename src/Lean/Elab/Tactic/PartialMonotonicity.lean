@@ -11,7 +11,7 @@ import Init.Tailrec
 
 namespace Lean.Elab.Monotonicity
 
-open Lean Meta Elab Tactic
+open Lean Meta
 
 partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
   let mut f := f.headBeta
@@ -143,6 +143,8 @@ partial def solveMono (failK : ∀ {α}, Expr → Array Name → MetaM α := def
   let new_goals ← solveMonoStep failK goal
   new_goals.forM (solveMono failK)
 
+open Elab Tactic
+
 @[builtin_tactic Lean.Parser.Tactic.partialMonotonicity]
 def evalApplyRules : Tactic := fun _stx =>
-    liftMetaFinishingTactic solveMono
+    liftMetaTactic solveMonoStep

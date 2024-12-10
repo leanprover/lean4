@@ -666,10 +666,14 @@ def isEmpty : List α → Bool
 /-! ### elem -/
 
 /--
-`O(|l|)`. `elem a l` or `l.contains a` is true if there is an element in `l` equal to `a`.
+`O(|l|)`.
+`l.contains a` or `elem a l` is true if there is an element in `l` equal (according to `==`) to `a`.
 
-* `elem 3 [1, 4, 2, 3, 3, 7] = true`
-* `elem 5 [1, 4, 2, 3, 3, 7] = false`
+* `[1, 4, 2, 3, 3, 7].contains 3 = true`
+* `[1, 4, 2, 3, 3, 7].contains 5 = false`
+
+The preferred simp normal form is `l.contains a`, and when `LawfulBEq α` is available,
+`l.contains a = true ↔ a ∈ l` and `l.contains a = false ↔ a ∉ l`.
 -/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false

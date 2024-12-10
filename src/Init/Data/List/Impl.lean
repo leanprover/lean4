@@ -332,7 +332,7 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
       rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
       simp [enumFrom, f]
   rw [← Array.foldr_toList]
-  simp [go]
+  simp +zetaDelta [go]
 
 /-! ## Other list operations -/
 

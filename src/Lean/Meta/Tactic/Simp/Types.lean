@@ -122,8 +122,18 @@ private def updateArith (c : Config) : CoreM Config := do
 /--
 Converts `Simp.Config` into `Meta.ConfigWithKey` used for indexing.
 -/
-private def mkIndexConfig (c : Config) : ConfigWithKey :=
-  { c with
+private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
+  let curr ← Meta.getConfig
+  return { curr with
+    beta         := c.beta
+    iota         := c.iota
+    zeta         := c.zeta
+    zetaDelta    := c.zetaDelta
+    etaStruct    := c.etaStruct
+    /-
+    When indexing terms we disable projection to ensure a term such as `f ((a, b).1)`
+    is an instance of the pattern `f (?x.1)`
+    -/
     proj         := .no
     transparency := .reducible
   : Meta.Config }.toConfigWithKey
@@ -131,9 +141,39 @@ private def mkIndexConfig (c : Config) : ConfigWithKey :=
 /--
 Converts `Simp.Config` into `Meta.ConfigWithKey` used for `isDefEq`.
 -/
--- TODO: use `metaConfig` at `isDefEq`. It is not being used yet because it will break Mathlib.
-private def mkMetaConfig (c : Config) : ConfigWithKey :=
-  { c with
+private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
+  let curr ← Meta.getConfig
+  return { curr with
+    /-
+    We have decided **not** to propagate `beta` and `zeta` from `Simp.Config` to `Meta.Config`.
+    The reason is that the `norm_cast` tactic uses `simp` but disables `beta` and `zeta` because
+    users may not want, for example, their let-expressions to be expanded when using `norm_cast`.
+    Recall that setting `zeta := true` (and `beta := true`) can dramatically increase term size.
+
+    However, if `beta` and `zeta` are propagated, several occurrences of `norm_cast` fail in Mathlib
+    because `simp` theorems fail to be applied. This happens when trying to match a theorem's LHS
+    with the actual term while `beta` and `zeta` are disabled and propagated to `Meta.Config`.
+    Matching requires `beta` and `zeta` enabled to check for definitional equality.
+
+    That said, not propagating `beta` and `zeta` to `Meta.Config` also has downsides.
+    For example, it can lead to issues similar to #5455, where the problem is caused by
+    not propagating `zetaDelta` instead of `beta`. See the following example:
+    ```
+    opaque f : Nat → Nat
+    @[simp] axiom f_ax : f (no_index 0) = 1
+    example : f ((fun x => x) 0) = 1 := by
+      -- some users may expect the following `simp -beta` to fail, but it succeeds if `beta` is not propagated.
+      fail_if_success simp -beta
+      simp
+    ```
+    However, no similar issue has been
+    reported for `beta` or `zeta` so far, suggesting this may be a minor drawback.
+    -/
+    -- beta         := c.beta
+    -- zeta         := c.zeta
+    iota         := c.iota
+    zetaDelta    := c.zetaDelta
+    etaStruct    := c.etaStruct
     proj         := if c.proj then .yesWithDelta else .no
     transparency := .reducible
   : Meta.Config }.toConfigWithKey
@@ -142,12 +182,16 @@ def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (
   let config ← updateArith config
   return {
     config, simpTheorems, congrTheorems
-    metaConfig := mkMetaConfig config
-    indexConfig := mkIndexConfig config
+    metaConfig := (← mkMetaConfig config)
+    indexConfig := (← mkIndexConfig config)
   }
 
-def Context.setConfig (context : Context) (config : Config) : Context :=
-  { context with config }
+def Context.setConfig (context : Context) (config : Config) : MetaM Context := do
+  return { context with
+    config
+    metaConfig := (← mkMetaConfig config)
+    indexConfig := (← mkIndexConfig config)
+  }
 
 def Context.setSimpTheorems (c : Context) (simpTheorems : SimpTheoremsArray) : Context :=
   { c with simpTheorems }
@@ -236,6 +280,12 @@ For example, if the user has set `simp (config := { zeta := false })`,
 -/
 @[inline] def withSimpIndexConfig (x : SimpM α) : SimpM α := do
   withConfigWithKey (← readThe Simp.Context).indexConfig x
+
+/--
+Executes `x` using a `MetaM` configuration for inferred from `Simp.Config`.
+-/
+@[inline] def withSimpMetaConfig (x : SimpM α) : SimpM α := do
+  withConfigWithKey (← readThe Simp.Context).metaConfig x
 
 @[extern "lean_simp"]
 opaque simp (e : Expr) : SimpM Result

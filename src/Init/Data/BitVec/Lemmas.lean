@@ -2691,6 +2691,13 @@ theorem sdiv_self {x : BitVec w} :
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
 
+theorem msb_sdiv (x y : BitVec w) :
+    (x.sdiv y).msb = (x.msb ^^ y.msb) /- || (x == intMin && y == -1#w) -/ := by
+  /- TODO: think about the exact edge case for sdiv -/
+  /- TODO: we likely want to yoink up the definition of `intMin`,
+           so that we can actually talk about it here -/
+  sorry
+
 theorem toInt_sdiv (x y : BitVec w) :
     (x.sdiv y).toInt = x.toInt / y.toInt := by
   -- TODO: figure out precises side-conditions, e.g.,

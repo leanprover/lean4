@@ -2515,13 +2515,13 @@ theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) :
   rw [← udiv_eq]
   simp [udiv, bv_toNat, h, Nat.mod_eq_of_lt]
 
+@[simp]
+theorem toFin_udiv {x y : BitVec n} : (x / y).toFin = x.toFin / y.toFin := by
+  rfl
+
 @[simp, bv_toNat]
 theorem toNat_udiv {x y : BitVec n} : (x / y).toNat = x.toNat / y.toNat := by
-  rw [udiv_def]
-  by_cases h : y = 0
-  · simp [h]
-  · rw [toNat_ofNat, Nat.mod_eq_of_lt]
-    exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+  rfl
 
 @[simp]
 theorem zero_udiv {x : BitVec w} : (0#w) / x = 0#w := by

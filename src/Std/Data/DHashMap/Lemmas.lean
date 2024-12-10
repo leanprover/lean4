@@ -959,13 +959,13 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] {k : α} :
   Raw₀.contains_keys ⟨m.1, _⟩ m.2
 
 @[simp]
-theorem mem_keys [LawfulBEq α] [LawfulHashable α] {k : α} :
-    k ∈ m.keys ↔ k ∈ m := by 
+theorem mem_keys [LawfulBEq α] {k : α} :
+    k ∈ m.keys ↔ k ∈ m := by
   rw [mem_iff_contains]
   exact Raw₀.mem_keys ⟨m.1, _⟩ m.2
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
-    m.keys.Pairwise (fun a b => (a == b) = false) := 
+    m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 end Std.DHashMap

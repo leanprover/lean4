@@ -136,12 +136,11 @@ theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : 
     m.1.isEmpty = true → m.contains a = false := by
   simp_to_model; empty
 
-theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashable α]
-    {m : Raw₀ α β} (h : m.1.WF) :
+theorem isEmpty_eq_false_iff_exists_contains_eq_true [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.isEmpty = false ↔ ∃ a, m.contains a = true := by
   simp_to_model using List.isEmpty_eq_false_iff_exists_containsKey
 
-theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (h : m.1.WF) :
+theorem isEmpty_iff_forall_contains [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.isEmpty ↔ ∀ a, m.contains a = false := by
   simp_to_model using List.isEmpty_iff_forall_containsKey
 
@@ -831,7 +830,7 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
   simp_to_model using List.containsKey_eq_keys_contains.symm
 
 @[simp]
-theorem mem_keys [LawfulBEq α] [LawfulHashable α] {m : Raw₀ α β} (h : m.1.WF) {k : α} :
+theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
   simp_to_model
   rw [List.containsKey_eq_keys_contains]

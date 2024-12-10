@@ -2918,6 +2918,11 @@ theorem msb_rotateLeft {m w : Nat} {x : BitVec w} :
   · simp
     omega
 
+@[simp]
+theorem toNat_rotateLeft {x : BitVec w} {r : Nat} :
+    (x.rotateLeft r).toNat = (x.toNat <<< (r % w)) % (2^w) ||| x.toNat >>> (w - r % w) := by
+  simp only [rotateLeft, rotateLeftAux, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
+
 /-! ## Rotate Right -/
 
 /--
@@ -3054,6 +3059,11 @@ theorem msb_rotateRight {r w : Nat} {x : BitVec w} :
     intro h₁
     simp [h₁]
   · simp [show w = 0 by omega]
+
+@[simp]
+theorem toNat_rotateRight {x : BitVec w} {r : Nat} :
+    (x.rotateRight r).toNat = (x.toNat >>> (r % w)) ||| x.toNat <<< (w - r % w) % (2^w) := by
+  simp only [rotateRight, rotateRightAux, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
 
 /- ## twoPow -/
 

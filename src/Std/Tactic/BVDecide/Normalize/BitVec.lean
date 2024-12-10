@@ -168,13 +168,13 @@ attribute [bv_normalize] BitVec.and_self
 
 @[bv_normalize]
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
-  ext
-  simp
+  ext i h
+  simp [h]
 
 @[bv_normalize]
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
-  ext
-  simp
+  ext i h
+  simp [h]
 
 @[bv_normalize]
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by

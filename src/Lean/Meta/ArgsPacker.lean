@@ -268,7 +268,7 @@ def unpack (numFuncs : Nat) (expr : Expr) : Option (Nat × Expr) := do
       e := e.getArg! 2
       break
     else
-      throwError "Unexpected expression while unpacking mutual argument:{indentExpr expr}"
+      none
   return (funidx, e)
 
 

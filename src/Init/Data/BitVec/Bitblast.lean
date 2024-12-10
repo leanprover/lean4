@@ -462,7 +462,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
       case true =>
         apply hmin
         apply eq_of_getMsbD_eq
-        rintro ⟨i, hi⟩
+        intro i hi
         simp only [getMsbD_intMin, w_pos, decide_true, Bool.true_and]
         cases i
         case zero => exact hmsb
@@ -470,7 +470,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
       case false =>
         apply hzero
         apply eq_of_getMsbD_eq
-        rintro ⟨i, hi⟩
+        intro i hi
         simp only [getMsbD_zero]
         cases i
         case zero => exact hmsb
@@ -573,11 +573,11 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) + (x &&& twoPow w i) := by
   rw [add_eq_or_of_and_eq_zero]
-  · ext k
-    simp only [getLsbD_setWidth, Fin.is_lt, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
+  · ext k h
+    simp only [getLsbD_setWidth, h, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
     by_cases hik : i = k
     · subst hik
-      simp
+      simp [h]
     · simp only [getLsbD_twoPow, hik, decide_false, Bool.and_false, Bool.or_false]
       by_cases hik' : k < (i + 1)
       · have hik'' : k < i := by omega

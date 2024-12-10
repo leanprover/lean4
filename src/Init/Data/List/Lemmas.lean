@@ -220,15 +220,6 @@ We simplify `l[n]!` to `(l[n]?).getD default`.
 
 /-! ### getElem? and getElem -/
 
-@[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] := by
-  simp only [getElem?_def, h, ↓reduceDIte]
-
-theorem getElem?_eq_some_iff {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length, l[n] = a := by
-  simp only [← get?_eq_getElem?, get?_eq_some_iff, get_eq_getElem]
-
-theorem some_eq_getElem?_iff {l : List α} : some a = l[n]? ↔ ∃ h : n < l.length, l[n] = a := by
-  rw [eq_comm, getElem?_eq_some_iff]
-
 @[simp] theorem getElem?_eq_none_iff : l[n]? = none ↔ length l ≤ n := by
   simp only [← get?_eq_getElem?, get?_eq_none_iff]
 
@@ -237,11 +228,20 @@ theorem some_eq_getElem?_iff {l : List α} : some a = l[n]? ↔ ∃ h : n < l.le
 
 theorem getElem?_eq_none (h : length l ≤ n) : l[n]? = none := getElem?_eq_none_iff.mpr h
 
-@[simp] theorem some_getElem_eq_getElem?_iff {α} (xs : List α) (i : Nat) (h : i < xs.length) :
+@[simp] theorem getElem?_eq_getElem {l : List α} {n} (h : n < l.length) : l[n]? = some l[n] :=
+  getElem?_pos ..
+
+theorem getElem?_eq_some_iff {l : List α} : l[n]? = some a ↔ ∃ h : n < l.length, l[n] = a := by
+  simp only [← get?_eq_getElem?, get?_eq_some_iff, get_eq_getElem]
+
+theorem some_eq_getElem?_iff {l : List α} : some a = l[n]? ↔ ∃ h : n < l.length, l[n] = a := by
+  rw [eq_comm, getElem?_eq_some_iff]
+
+@[simp] theorem some_getElem_eq_getElem?_iff (xs : List α) (i : Nat) (h : i < xs.length) :
     (some xs[i] = xs[i]?) ↔ True := by
   simp [h]
 
-@[simp] theorem getElem?_eq_some_getElem_iff {α} (xs : List α) (i : Nat) (h : i < xs.length) :
+@[simp] theorem getElem?_eq_some_getElem_iff (xs : List α) (i : Nat) (h : i < xs.length) :
     (xs[i]? = some xs[i]) ↔ True := by
   simp [h]
 
@@ -255,6 +255,11 @@ theorem getElem_eq_getElem?_get (l : List α) (i : Nat) (h : i < l.length) :
 
 @[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
 
+theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
+    (a :: l)[i] =
+      if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
+  cases i <;> simp
+
 theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
 
 @[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[n+1]? = l[n]? := by
@@ -264,6 +269,13 @@ theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by simp
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
   cases i <;> simp
 
+@[simp] theorem getElem_singleton (a : α) (h : i < 1) : [a][i] = a :=
+  match i, h with
+  | 0, _ => rfl
+
+theorem getElem?_singleton (a : α) (i : Nat) : [a][i]? = if i = 0 then some a else none := by
+  simp [getElem?_cons]
+
 /--
 If one has `l[i]` in an expression and `h : l = l'`,
 `rw [h]` will give a "motive it not type correct" error, as it cannot rewrite the
@@ -272,10 +284,6 @@ such a rewrite, with `rw [getElem_of_eq h]`.
 -/
 theorem getElem_of_eq {l l' : List α} (h : l = l') {i : Nat} (w : i < l.length) :
     l[i] = l'[i]'(h ▸ w) := by cases h; rfl
-
-@[simp] theorem getElem_singleton (a : α) (h : i < 1) : [a][i] = a :=
-  match i, h with
-  | 0, _ => rfl
 
 theorem getElem_zero {l : List α} (h : 0 < l.length) : l[0] = l.head (length_pos.mp h) :=
   match l, h with
@@ -298,12 +306,6 @@ theorem ext_getElem {l₁ l₂ : List α} (hl : length l₁ = length l₂)
   | _ :: l, a, _, h, _ => by simp [getElem_concat_length, h]
 
 theorem getElem?_concat_length (l : List α) (a : α) : (l ++ [a])[l.length]? = some a := by
-  simp
-
-theorem isSome_getElem? {l : List α} {n : Nat} : l[n]?.isSome ↔ n < l.length := by
-  simp
-
-theorem isNone_getElem? {l : List α} {n : Nat} : l[n]?.isNone ↔ l.length ≤ n := by
   simp
 
 /-! ### mem -/
@@ -465,7 +467,7 @@ theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
   cases l <;> simp
 
 theorem isEmpty_eq_false_iff_exists_mem {xs : List α} :
-    (List.isEmpty xs = false) ↔ ∃ x, x ∈ xs := by
+    xs.isEmpty = false ↔ ∃ x, x ∈ xs := by
   cases xs <;> simp
 
 theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
@@ -3529,7 +3531,12 @@ theorem getElem?_eq (l : List α) (i : Nat) :
   getElem?_def _ _
 @[deprecated getElem?_eq_none (since := "2024-11-29")] abbrev getElem?_len_le := @getElem?_eq_none
 
+@[deprecated _root_.isSome_getElem? (since := "2024-12-09")]
+theorem isSome_getElem? {l : List α} {n : Nat} : l[n]?.isSome ↔ n < l.length := by
+  simp
 
-
+@[deprecated _root_.isNone_getElem? (since := "2024-12-09")]
+theorem isNone_getElem? {l : List α} {n : Nat} : l[n]?.isNone ↔ l.length ≤ n := by
+  simp
 
 end List

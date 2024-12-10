@@ -55,6 +55,7 @@ def emitArg (x : Arg) : M Unit :=
 
 def toCType : IRType → String
   | IRType.float      => "double"
+  | IRType.float32    => "float"
   | IRType.uint8      => "uint8_t"
   | IRType.uint16     => "uint16_t"
   | IRType.uint32     => "uint32_t"
@@ -311,12 +312,13 @@ def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit := do
 
 def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M Unit := do
   match t with
-  | IRType.float  => emit "lean_ctor_set_float"
-  | IRType.uint8  => emit "lean_ctor_set_uint8"
-  | IRType.uint16 => emit "lean_ctor_set_uint16"
-  | IRType.uint32 => emit "lean_ctor_set_uint32"
-  | IRType.uint64 => emit "lean_ctor_set_uint64"
-  | _             => throw "invalid instruction";
+  | IRType.float   => emit "lean_ctor_set_float"
+  | IRType.float32 => emit "lean_ctor_set_float32"
+  | IRType.uint8   => emit "lean_ctor_set_uint8"
+  | IRType.uint16  => emit "lean_ctor_set_uint16"
+  | IRType.uint32  => emit "lean_ctor_set_uint32"
+  | IRType.uint64  => emit "lean_ctor_set_uint64"
+  | _              => throw "invalid instruction";
   emit "("; emit x; emit ", "; emitOffset n offset; emit ", "; emit y; emitLn ");"
 
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit := do
@@ -386,12 +388,13 @@ def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit := do
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit := do
   emitLhs z;
   match t with
-  | IRType.float  => emit "lean_ctor_get_float"
-  | IRType.uint8  => emit "lean_ctor_get_uint8"
-  | IRType.uint16 => emit "lean_ctor_get_uint16"
-  | IRType.uint32 => emit "lean_ctor_get_uint32"
-  | IRType.uint64 => emit "lean_ctor_get_uint64"
-  | _             => throw "invalid instruction"
+  | IRType.float    => emit "lean_ctor_get_float"
+  | IRType.float32  => emit "lean_ctor_get_float32"
+  | IRType.uint8    => emit "lean_ctor_get_uint8"
+  | IRType.uint16   => emit "lean_ctor_get_uint16"
+  | IRType.uint32   => emit "lean_ctor_get_uint32"
+  | IRType.uint64   => emit "lean_ctor_get_uint64"
+  | _               => throw "invalid instruction"
   emit "("; emit x; emit ", "; emitOffset n offset; emitLn ");"
 
 def toStringArgs (ys : Array Arg) : List String :=
@@ -446,11 +449,12 @@ def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
 
 def emitBoxFn (xType : IRType) : M Unit :=
   match xType with
-  | IRType.usize  => emit "lean_box_usize"
-  | IRType.uint32 => emit "lean_box_uint32"
-  | IRType.uint64 => emit "lean_box_uint64"
-  | IRType.float  => emit "lean_box_float"
-  | _             => emit "lean_box"
+  | IRType.usize   => emit "lean_box_usize"
+  | IRType.uint32  => emit "lean_box_uint32"
+  | IRType.uint64  => emit "lean_box_uint64"
+  | IRType.float   => emit "lean_box_float"
+  | IRType.float32 => emit "lean_box_float32"
+  | _              => emit "lean_box"
 
 def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit := do
   emitLhs z; emitBoxFn xType; emit "("; emit x; emitLn ");"

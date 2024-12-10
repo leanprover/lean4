@@ -142,7 +142,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
   -- Reason: the nested proofs may be referring to the _unsafe_rec.
   addAndCompilePartialRec preDefs
   let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
+  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker (hasInduct := true)
   for preDef in preDefs do
     markAsRecursive preDef.declName
     generateEagerEqns preDef.declName

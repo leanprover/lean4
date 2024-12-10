@@ -2681,6 +2681,37 @@ theorem sdiv_self {x : BitVec w} :
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
 
+theorem toInt_sdiv (x y : BitVec w) :
+    (x.sdiv y).toInt = x.toInt / y.toInt := by
+  -- TODO: figure out precises side-conditions, e.g.,
+  --       what happens if either operand is intMin?
+  by_cases hy : y = 0#w
+  · subst hy; simp
+  · replace hy : 0#w < y := by
+      show 0 < y.toNat
+      have : y.toNat ≠ 0 := fun h => hy <| eq_of_toNat_eq h
+      omega
+    unfold sdiv
+    simp
+    split
+    next msb_x msb_y =>
+      rw [toInt_udiv_of_msb msb_x, toInt_eq_toNat_of_msb msb_x,
+        toInt_eq_toNat_of_msb msb_y]
+    next msb_x msb_y =>
+      rw [toInt_neg, toInt_udiv_of_msb msb_x, toInt_eq_toNat_of_msb msb_x]
+      rw [toNat_neg_of_pos hy]
+      rw [← Int.ediv_neg, Int.ofNat_sub (by bv_omega), Int.neg_sub]
+      simp only [toInt_eq_msb_cond, msb_y, ↓reduceIte]
+      /-
+      TODO: prove an `Int.bmod_eq_of_` theorem that shows `z.bmod m = z`
+            under some bounds (probably `0 ≤ z` and `z < m / 2`)
+      -/
+      sorry
+    next msb_x msb_y =>
+      sorry
+    next msb_x msb_y =>
+    sorry
+
 /-! ### smtSDiv -/
 
 theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =

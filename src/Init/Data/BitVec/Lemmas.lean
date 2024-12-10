@@ -2563,6 +2563,16 @@ theorem udiv_self {x : BitVec w} :
       ↓reduceIte, toNat_udiv]
     rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
 
+theorem msb_udiv (x y : BitVec w) :
+    (x / y).msb = (x.msb && y ≤ 1#w) := by
+  cases msb_x : x.msb
+  · simp [msb_eq_decide] at *
+    have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
+    omega
+  . rcases w with _|w
+    · contradiction
+    sorry
+
 /- TODO: generalize to a proper msb_udiv -/
 theorem msb_udiv_eq_false_of {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
     (x / y).msb = false := by

@@ -143,18 +143,6 @@ def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
           return true
     resultRef.get
 
-def mkUnaryPreDef (preDefs : Array PreDefinition) : MetaM (Nat × ArgsPacker × PreDefinition) :=
-  withoutModifyingEnv do
-    for preDef in preDefs do
-      addAsAxiom preDef
-    let fixedPrefixSize ← getFixedPrefix preDefs
-    trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
-    let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
-    for varNames in varNamess, preDef in preDefs do
-      if varNames.isEmpty then
-        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
-    let argsPacker := { varNamess }
-    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefs)
 
 private partial def addNonRecPreDefs (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition)  : TermElabM Unit := do
   let us := preDefNonRec.levelParams.map mkLevelParam

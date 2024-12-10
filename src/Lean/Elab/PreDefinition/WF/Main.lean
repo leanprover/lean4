@@ -18,11 +18,29 @@ namespace Lean.Elab
 open WF
 open Meta
 
+def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
+  let termArgs? := termArg?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
+  let preDefs ← preDefs.mapM fun preDef =>
+    return { preDef with value := (← preprocess preDef.value) }
+  let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
+    for preDef in preDefs do
+      addAsAxiom preDef
+    let fixedPrefixSize ← getFixedPrefix preDefs
+    trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
+    let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
+    for varNames in varNamess, preDef in preDefs do
+      if varNames.isEmpty then
+        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
+    let argsPacker := { varNamess }
+    let preDefsDIte ← preDefs.mapM fun preDef => return { preDef with value := (← iteToDIte preDef.value) }
+    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
 
-def derecursifyUnary (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
-    (argsPacker : ArgsPacker) (unaryPreDef : PreDefinition) (wf : TerminationArguments) :
-    TermElabM PreDefinition := do
-  forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
+  let wf : TerminationArguments ← do
+    if let some tas := termArgs? then pure tas else
+    -- No termination_by here, so use GuessLex to infer one
+    guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
+
+  let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
@@ -37,19 +55,6 @@ def derecursifyUnary (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
       let value ← unfoldDeclsFrom envNew value
       return { unaryPreDef with value }
 
-def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
-  let termArgs? := termArg?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
-  let preDefs ← preDefs.mapM fun preDef =>
-    return { preDef with value := (← preprocess preDef.value) }
-  let (fixedPrefixSize, argsPacker, unaryPreDef) ← mkUnaryPreDef preDefs
-  let unaryPreDef := { unaryPreDef with value := (← iteToDIte unaryPreDef.value) }
-
-  let wf : TerminationArguments ← do
-    if let some tas := termArgs? then pure tas else
-    -- No termination_by here, so use GuessLex to infer one
-    guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
-
-  let preDefNonRec ← derecursifyUnary preDefs fixedPrefixSize argsPacker unaryPreDef wf
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := true)
 

@@ -3080,7 +3080,7 @@ lean_dec(x_83);
 x_100 = l_Lean_IR_Checker_checkObjType(x_1, x_3, x_99);
 return x_100;
 }
-case 9:
+case 10:
 {
 uint8_t x_101; 
 lean_free_object(x_84);
@@ -3186,7 +3186,7 @@ return x_122;
 }
 }
 }
-case 10:
+case 11:
 {
 uint8_t x_123; 
 lean_free_object(x_84);
@@ -3369,7 +3369,7 @@ lean_dec(x_83);
 x_169 = l_Lean_IR_Checker_checkObjType(x_1, x_3, x_168);
 return x_169;
 }
-case 9:
+case 10:
 {
 lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; uint8_t x_174; 
 lean_dec(x_3);
@@ -3442,7 +3442,7 @@ return x_182;
 }
 }
 }
-case 10:
+case 11:
 {
 lean_object* x_183; lean_object* x_184; lean_object* x_185; lean_object* x_186; uint8_t x_187; 
 lean_dec(x_3);

@@ -2277,6 +2277,12 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 @[simp, bv_toNat] theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 
+theorem toNat_neg_of_pos {x : BitVec n} (h : 0#n < x) :
+    (- x).toNat = 2^n - x.toNat:= by
+  change 0 < x.toNat at h
+  rw [toNat_neg, Nat.mod_eq_of_lt]
+  omega
+
 theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
   rw [← BitVec.zero_sub, toInt_sub]

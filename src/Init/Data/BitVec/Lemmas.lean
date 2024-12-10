@@ -241,7 +241,7 @@ theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
 @[simp] theorem toNat_ofBool (b : Bool) : (ofBool b).toNat = b.toNat := by
   cases b <;> rfl
 
-@[simp] theorem toInt_ofBool (b : Bool) : (ofBool b).toInt = Int.bmod b.toInt 2 := by
+@[simp] theorem toInt_ofBool (b : Bool) : (ofBool b).toInt = -b.toInt := by
   cases b <;> rfl
 
 @[simp] theorem toFin_ofBool (b : Bool) : (ofBool b).toFin = Fin.ofNat' 2 (b.toNat) := by

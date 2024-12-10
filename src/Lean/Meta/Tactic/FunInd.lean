@@ -810,7 +810,8 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
       let args := e.getAppArgs
       if eqnInfo.fixedPrefixSize + 1 ≤ args.size then
         let packedArg := args.back!
-          let (i, unpackedArgs) ← eqnInfo.argsPacker.unpack packedArg
+          let some (i, unpackedArgs) := eqnInfo.argsPacker.unpack packedArg
+            | throwError "Unexpected packedArg:{indentExpr packedArg}"
           let e' := .const eqnInfo.declNames[i]! e.getAppFn.constLevels!
           let e' := mkAppN e' args.pop
           let e' := mkAppN e' unpackedArgs
@@ -1110,11 +1111,16 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
   match s with
   | "induct" =>
-    if (WF.eqnInfoExt.find? env p).isSome then return true
+    if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      unless eqnInfo.hasInduct do
+        return false
+      return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      unless eqnInfo.hasInduct do
+        return false
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
     if let some eqnInfo := Structural.eqnInfoExt.find? env p then

@@ -9,6 +9,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF.Main
 import Lean.Elab.PreDefinition.MkInhabitant
+import Lean.Elab.PreDefinition.Tailrec
 
 namespace Lean.Elab
 open Meta
@@ -22,7 +23,8 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := fa
       let value ← if useSorry then
         mkLambdaFVars xs (← mkSorry type (synthetic := true))
       else
-        liftM <| mkInhabitantFor preDef.declName xs type
+        let msg := m!"failed to compile 'partial' definition '{preDef.declName}'"
+        liftM <| mkInhabitantFor msg xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
         value
@@ -161,7 +163,8 @@ def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM U
 Checks consistency of a clique of TerminationHints:
 
 * If not all have a hint, the hints are ignored (log error)
-* If one has `structural`, check that all have it, (else throw error)
+* None have both `termination_by` and `nontermination` (throw error)
+* If one has `structural` or `tailrec`, check that all have it (else throw error)
 * A `structural` should not have a `decreasing_by` (else log error)
 
 -/
@@ -170,21 +173,26 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
   let preDefsWithout := preDefs.filter (·.termination.terminationBy?.isNone)
   let structural :=
     preDefWith.termination.terminationBy? matches some {structural := true, ..}
+  let tailrec := preDefWith.termination.tailrec?.isSome
   for preDef in preDefs do
     if let .some termBy := preDef.termination.terminationBy? then
-      if !structural && !preDefsWithout.isEmpty then
+      if let .some tailrecStx := preDef.termination.tailrec? then
+        throwErrorAt tailrecStx (m!"conflicting annotations: this function cannot be both " ++
+          m!"terminating and non-terminating")
+
+      if !structural && !tailrec && !preDefsWithout.isEmpty then
         let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
         let doOrDoes := if preDefsWithout.size = 1 then "does" else "do"
         logErrorAt termBy.ref (m!"incomplete set of `termination_by` annotations:\n"++
-          m!"This function is mutually with {m}, which {doOrDoes} not have " ++
+          m!"This function is mutually recursive with {m}, which {doOrDoes} not have " ++
           m!"a `termination_by` clause.\n" ++
           m!"The present clause is ignored.")
 
-      if structural && ! termBy.structural then
+      if structural && !termBy.structural then
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is marked as `termination_by " ++
           m!"structural` so this one also needs to be marked `structural`.")
-      if ! structural && termBy.structural then
+      if !structural && termBy.structural then
         throwErrorAt termBy.ref (m!"Invalid `termination_by`; this function is mutually " ++
           m!"recursive with {preDefWith.declName}, which is not marked as `structural` " ++
           m!"so this one cannot be `structural` either.")
@@ -192,6 +200,23 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
         if let .some decr := preDef.termination.decreasingBy? then
           logErrorAt decr.ref (m!"Invalid `decreasing_by`; this function is marked as " ++
             m!"structurally recursive, so no explicit termination proof is needed.")
+
+    if tailrec && preDef.termination.tailrec?.isNone then
+      throwErrorAt preDef.ref (m!"Invalid `termination_by`; this function is mutually " ++
+        m!"recursive with {preDefWith.declName}, which is marked as " ++
+        m!"`nontermination_tailrecursive` so this one also needs to be marked " ++
+        m!"`nontermination_tailrecursive`.")
+
+    if preDef.termination.tailrec?.isSome then
+        if let .some decr := preDef.termination.decreasingBy? then
+          logErrorAt decr.ref (m!"Invalid `decreasing_by`; this function is marked as " ++
+            m!"nonterminating, so no explicit termination proof is needed.")
+
+    if !tailrec then
+      if let some stx := preDef.termination.tailrec? then
+      throwErrorAt stx (m!"Invalid `termination_by`; this function is mutually " ++
+       m!"recursive with {preDefWith.declName}, which is not also marked as " ++
+        m!"`nontermination_tailrecursive`, so this one cannot be either.")
 
 /--
 Elaborates the `TerminationHint` in the clique to `TerminationArguments`
@@ -206,6 +231,10 @@ def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Array (O
 def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
     preDef.termination.terminationBy? matches some {structural := true, ..}
+
+def shouldUseTailrec (preDefs : Array PreDefinition) : Bool :=
+  preDefs.any fun preDef =>
+    preDef.termination.tailrec?.isSome
 
 def shouldUseWF (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
@@ -253,6 +282,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             let termArg?s ← elabTerminationByHints preDefs
             if shouldUseStructural preDefs then
               structuralRecursion preDefs termArg?s
+            else if shouldUseTailrec preDefs then
+              tailRecursion preDefs
             else if shouldUseWF preDefs then
               wfRecursion preDefs termArg?s
             else

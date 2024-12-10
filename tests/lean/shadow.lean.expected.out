@@ -19,7 +19,7 @@ inst✝ inst : α
 shadow.lean:17:0-17:1: error: don't know how to synthesize placeholder
 context:
 α : Type u_1
-inst.75 : Inhabited α
+inst.78 : Inhabited α
 inst inst : α
 ⊢ {β δ : Type} → α → β → δ → α × β × δ
 shadow.lean:20:0-20:1: error: don't know how to synthesize placeholder

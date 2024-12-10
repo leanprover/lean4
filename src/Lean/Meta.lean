@@ -17,6 +17,7 @@ import Lean.Meta.Instances
 import Lean.Meta.AbstractMVars
 import Lean.Meta.SynthInstance
 import Lean.Meta.AppBuilder
+import Lean.Meta.Sorry
 import Lean.Meta.Tactic
 import Lean.Meta.KAbstract
 import Lean.Meta.RecursorInfo

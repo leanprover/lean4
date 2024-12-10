@@ -84,6 +84,7 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
         delabApp
     else
       withOptionAtCurrPos pp.proofs.name true do
+      withOptionAtCurrPos pp.sorrySource.name true do
         delab
   let mut e := e
   -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.

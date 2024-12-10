@@ -59,6 +59,10 @@ private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
     m!"Tried to apply {.andList (monoThms.toList.map (m!"'{·}'"))}, but failed."
   throwError "Failed to prove monotonicity of:{indentExpr f}\n{extraMsg}"
 
+private def applyConst (goal : MVarId) (name : Name) : MetaM (List MVarId) := do
+  mapError (f := (m!"Could not apply {.ofConstName name}:{indentD ·}")) do
+    goal.applyConst name (cfg := { synthAssignedInstances := false})
+
 def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaultFailK) (goal : MVarId) : MetaM (List MVarId) :=
   goal.withContext do
   trace[Elab.Tactic.partial_monotonicity] "partial_monotonicity at\n{goal}"
@@ -79,7 +83,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       let (_, new_goal) ← goal.intro1
       return [new_goal]
 
-  | Tailrec.monotone α inst_α β inst_β f =>
+  | Tailrec.monotone _α _inst_α _β _inst_β f =>
     -- Ensure f is headed not a redex and headed by at least one lambda, and clean some
     -- redexes left by some of the lemmas we tend to apply
     let f ← instantiateMVars f
@@ -90,28 +94,13 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
 
     -- No recursive calls left
     if !e.hasLooseBVars then
-      -- should not use applyConst here; it may try to re-synth the Nonempty constriant
-      let us := type.getAppFn.constLevels!
-      let p := mkAppN (.const ``Tailrec.monotone_const us) #[α, inst_α, β, inst_β, e]
-      return ← mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-        goal.apply p
+      return ← applyConst goal ``Tailrec.monotone_const
 
     -- NB: `e` is now an open term.
 
     -- A recursive call directly here
     if e.isApp && e.appFn! == .bvar 0 then
-
-      if let some inst_α ← whnfUntil inst_α ``Tailrec.instOrderPi then
-        let_expr Tailrec.instOrderPi γ δ inst := inst_α | pure ()
-        -- should not use applyConst here; it may try to re-synth the Nonempty constriant
-        let x := e.appArg!
-        let us := inst_α.getAppFn.constLevels!
-        let p := mkAppN (.const ``Tailrec.monotone_apply us) #[γ, δ, inst, x]
-        return ← mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
-            goal.apply p
-
-      trace[Elab.Tactic.partial_monotonicity] "Unexpected pi instance:{indentExpr inst_α}"
-      failK f #[]
+      return ← applyConst goal ``Tailrec.monotone_apply
 
     -- Look through mdata
     if e.isMData then
@@ -137,10 +126,11 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     trace[Elab.Tactic.partial_monotonicity] "Found monoThms: {monoThms}"
     for monoThm in monoThms do
       let new_goals? ← try
-        let new_goals ← goal.applyConst monoThm (cfg := { synthAssignedInstances := false})
+        let new_goals ← applyConst goal monoThm
         trace[Elab.Tactic.partial_monotonicity] "Succeeded with {monoThm}"
         pure (some new_goals)
-      catch _ =>
+      catch e =>
+        trace[Elab.Tactic.partial_monotonicity] "{e.toMessageData}"
         pure none
       if let some new_goals := new_goals? then
         return new_goals

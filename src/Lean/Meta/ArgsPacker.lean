@@ -87,7 +87,7 @@ Unpacks a unary packed argument created with `Unary.pack`.
 
 Throws an error if the expression is not of that form.
 -/
-def unpack (arity : Nat) (e : Expr) : MetaM (Array Expr) := do
+def unpack (arity : Nat) (e : Expr) : Option (Array Expr) := do
   let mut e := e
   let mut args := #[]
   while args.size + 1 < arity do
@@ -95,10 +95,9 @@ def unpack (arity : Nat) (e : Expr) : MetaM (Array Expr) := do
       args := args.push (e.getArg! 2)
       e := e.getArg! 3
     else
-      throwError "Unexpected expression while unpacking n-ary argument"
+      none
   args := args.push e
   return args
-
 
 /--
   Given a (dependent) tuple `t` (using `PSigma`) of the given arity.
@@ -258,7 +257,7 @@ argument and function index.
 
 Throws an error if the expression is not of that form.
 -/
-def unpack (numFuncs : Nat) (expr : Expr) : MetaM (Nat × Expr) := do
+def unpack (numFuncs : Nat) (expr : Expr) : Option (Nat × Expr) := do
   let mut funidx := 0
   let mut e := expr
   while funidx + 1 < numFuncs do
@@ -269,7 +268,7 @@ def unpack (numFuncs : Nat) (expr : Expr) : MetaM (Nat × Expr) := do
       e := e.getArg! 2
       break
     else
-      throwError "Unexpected expression while unpacking mutual argument:{indentExpr expr}"
+      none
   return (funidx, e)
 
 
@@ -377,13 +376,16 @@ and `(z : C) → R₂[z]`, returns an expression of type
 (x : A ⊕' C) → (match x with | .inl x => R₁[x] | .inr R₂[z])
 ```
 -/
-def uncurry (es : Array Expr) : MetaM Expr := do
-  let types ← es.mapM inferType
-  let resultType ← uncurryType types
+def uncurryWithType (resultType : Expr) (es : Array Expr) : MetaM Expr := do
   forallBoundedTelescope resultType (some 1) fun xs codomain => do
     let #[x] := xs | unreachable!
     let value ← casesOn x codomain es.toList
     mkLambdaFVars #[x] value
+
+def uncurry (es : Array Expr) : MetaM Expr := do
+  let types ← es.mapM inferType
+  let resultType ← uncurryType types
+  uncurryWithType resultType es
 
 /--
 Given unary expressions `e₁`, `e₂` with types `(x : A) → R`
@@ -414,13 +416,17 @@ def curryType (n : Nat) (type : Expr) : MetaM (Array Expr) := do
 
 end Mutual
 
--- Now for the main definitions in this moduleo
+-- Now for the main definitions in this module
 
 /-- The number of functions being packed -/
 def numFuncs (argsPacker : ArgsPacker) : Nat := argsPacker.varNamess.size
 
 /-- The arities of the functions being packed -/
 def arities (argsPacker : ArgsPacker) : Array Nat := argsPacker.varNamess.map (·.size)
+
+def onlyOneUnary (argsPacker : ArgsPacker) :=
+  argsPacker.varNamess.size = 1 &&
+  argsPacker.varNamess[0]!.size = 1
 
 def pack (argsPacker : ArgsPacker) (domain : Expr) (fidx : Nat) (args : Array Expr)
     : MetaM Expr := do
@@ -436,13 +442,12 @@ return the function index that is called and the arguments individually.
 
 We expect precisely the expressions produced by `pack`, with manifest
 `PSum.inr`, `PSum.inl` and `PSigma.mk` constructors, and thus take them apart
-rather than using projectinos.
+rather than using projections.
 -/
-def unpack (argsPacker : ArgsPacker) (e : Expr) : MetaM (Nat × Array Expr) := do
+def unpack (argsPacker : ArgsPacker) (e : Expr) : Option (Nat × Array Expr) := do
   let (funidx, e) ← Mutual.unpack argsPacker.numFuncs e
   let args ← Unary.unpack argsPacker.varNamess[funidx]!.size e
   return (funidx, args)
-
 
 /--
 Given types `(x : A) → (y : B[x]) → R₁[x,y]` and `(z : C) → R₂[z]`, returns the type uncurried type
@@ -464,6 +469,10 @@ and `(z : C) → R₂[z]`, returns an expression of type
 def uncurry (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
   let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
   Mutual.uncurry unary
+
+def uncurryWithType (argsPacker : ArgsPacker) (resultType : Expr) (es : Array Expr) : MetaM Expr := do
+  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  Mutual.uncurryWithType resultType unary
 
 /--
 Given expressions `e₁`, `e₂` with types `(x : A) → (y : B[x]) → R`

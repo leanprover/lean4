@@ -538,7 +538,7 @@ theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
 A bitvector, when interpreted as an integer, is less than zero iff
 its most significant bit is true.
 -/
-theorem slt_zero_iff_msb_cond (x : BitVec w) : x.slt 0#w ↔ x.msb = true := by
+theorem slt_zero_iff_msb_cond {x : BitVec w} : x.slt 0#w ↔ x.msb = true := by
   have := toInt_eq_msb_cond x
   constructor
   · intros h
@@ -1243,7 +1243,6 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
 
 @[simp] theorem getMsbD_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :
     getMsbD (shiftLeftZeroExtend x n) i = getMsbD x i := by
-  have : n ≤ i + n := by omega
   simp_all [shiftLeftZeroExtend_eq]
 
 @[simp] theorem msb_shiftLeftZeroExtend (x : BitVec w) (i : Nat) :
@@ -1883,7 +1882,6 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   · simp_all
   · simp_all only [Bool.iff_and_self, decide_eq_true_eq]
     intro h
-    have := BitVec.lt_of_getLsbD h
     omega
 
 @[simp] theorem setWidth_cons {x : BitVec w} : (cons a x).setWidth w = x := by
@@ -2195,7 +2193,6 @@ theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
     (hk : k < w) (hx : x.toNat < 2 ^ k) :
     (x.shiftConcat b).toNat < 2 ^ (k + 1) := by
   rw [toNat_shiftConcat_eq_of_lt hk hx]
-  have : 2 ^ (k + 1) ≤ 2 ^ w := Nat.pow_le_pow_of_le_right (by decide) (by assumption)
   have := Bool.toNat_lt b
   omega
 
@@ -2704,7 +2701,7 @@ theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
 
 @[simp]
 theorem smtSDiv_zero {x : BitVec n} : x.smtSDiv 0#n = if x.slt 0#n then 1#n else (allOnes n) := by
-  rcases hx : x.msb <;> simp [smtSDiv, slt_zero_iff_msb_cond x, hx, ← negOne_eq_allOnes]
+  rcases hx : x.msb <;> simp [smtSDiv, slt_zero_iff_msb_cond, hx, ← negOne_eq_allOnes]
 
 /-! ### srem -/
 
@@ -3590,9 +3587,7 @@ Note, however, that for large numerals the decision procedure may be very slow.
 instance instDecidableExistsBitVec :
     ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∃ v, P v)
   | 0, _, _ => inferInstance
-  | n + 1, _, _ =>
-    have := instDecidableExistsBitVec n
-    inferInstance
+  | _ + 1, _, _ => inferInstance
 
 /-! ### Deprecations -/
 

@@ -79,7 +79,8 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
+-- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
+theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
 
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 

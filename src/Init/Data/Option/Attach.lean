@@ -92,14 +92,14 @@ theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a 
     (o.attachWith p H).isSome = o.isSome := by
   cases o <;> simp
 
-@[simp] theorem attach_eq_none_iff (o : Option α) : o.attach = none ↔ o = none := by
+@[simp] theorem attach_eq_none_iff {o : Option α} : o.attach = none ↔ o = none := by
   cases o <;> simp
 
 @[simp] theorem attach_eq_some_iff {o : Option α} {x : {x // x ∈ o}} :
     o.attach = some x ↔ o = some x.val := by
   cases o <;> cases x <;> simp
 
-@[simp] theorem attachWith_eq_none_iff {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
+@[simp] theorem attachWith_eq_none_iff {p : α → Prop} {o : Option α} (H : ∀ a ∈ o, p a) :
     o.attachWith p H = none ↔ o = none := by
   cases o <;> simp
 

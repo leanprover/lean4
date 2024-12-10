@@ -204,8 +204,8 @@ theorem pmap_ne_empty_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : 
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ #[] ↔ xs ≠ #[] := by
   cases xs; simp
 
-theorem pmap_eq_self {l : Array α} {p : α → Prop} (hp : ∀ (a : α), a ∈ l → p a)
-    (f : (a : α) → p a → α) : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
+theorem pmap_eq_self {l : Array α} {p : α → Prop} {hp : ∀ (a : α), a ∈ l → p a}
+    {f : (a : α) → p a → α} : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
   cases l; simp [List.pmap_eq_self]
 
 @[simp]

@@ -25,8 +25,8 @@ For pretty error messages:
 Takes `F : (fun f => e)`, where `f` is the packed function, and replaces `f` in `e` with the user-visible
 constants, which are added to the environment temporarily.
 -/
-private def unReplaceRecApps (preDefs : Array PreDefinition) (argsPacker : ArgsPacker)
-    (fixedArgs : Array Expr) (F : Expr) (k : Expr → MetaM Unit) : MetaM Unit := do
+private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (argsPacker : ArgsPacker)
+    (fixedArgs : Array Expr) (F : Expr) (k : Expr → MetaM α) : MetaM α := do
   unless F.isLambda do throwError "Expected lambda:{indentExpr F}"
   withoutModifyingEnv do
     preDefs.forM addAsAxiom
@@ -88,7 +88,7 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let instOrderPackedType ← mkAppOptM ``Tailrec.CCPO.toOrder #[packedType, instCCPOPackedType]
 
     -- Error reporting hook, preseting monotonicity errors in terms of recursive functions
-    let failK f (monoThms : Array Name) : MetaM Unit := do
+    let failK {α} f (monoThms : Array Name) : MetaM α := do
       unReplaceRecApps preDefs argsPacker fixedArgs f fun t => do
         let extraMsg := if monoThms.isEmpty then m!"" else
           m!"Tried to apply {.andList (monoThms.toList.map (m!"'{·}'"))}, but failed.\n\
@@ -127,7 +127,7 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
           #[packedType, instOrderPackedType, type, instOrder, F]
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
-          solveMono hmono.mvarId! failK
+          solveMono failK hmono.mvarId!
         mkLambdaFVars xs (← instantiateMVars hmono)
 
     let FType ← withLocalDeclD `x packedDomain fun x => do

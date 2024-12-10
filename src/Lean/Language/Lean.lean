@@ -247,7 +247,7 @@ structure SetupImportsResult where
 /-- Performance option used by cmdline driver. -/
 register_builtin_option internal.cmdlineSnapshots : Bool := {
   defValue := false
-  descr    := "mark persistent and reduce information stored in snapshots to the minimum necessary \
+  descr    := "reduce information stored in snapshots to the minimum necessary \
     for the cmdline driver: diagnostics per command and final full snapshot"
 }
 
@@ -433,6 +433,8 @@ where
         }
       -- now that imports have been loaded, check options again
       let opts ← reparseOptions setup.opts
+      -- default to async elaboration; see also `Elab.async` docs
+      let opts := Elab.async.setIfNotSet opts true
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with
         infoState := {
@@ -639,30 +641,21 @@ where
         pos      := ctx.fileMap.toPosition beginPos
         data     := output
       }
-    let cmdState := { cmdState with messages }
+    let cmdState : Command.State := { cmdState with messages }
+    let mut reportedCmdState := cmdState
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
-    let mut infoTree : InfoTree := cmdState.infoState.trees[0]!
+    let infoTree : InfoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx
-    if cmdline && !Elab.async.get scope.opts then
-      /-
-      Safety: `infoTree` was created by `elabCommandTopLevel`. Thus it
-      should not have any concurrent accesses if we are on the cmdline and
-      async elaboration is disabled.
-      -/
-      -- TODO: we should likely remove this call when `Elab.async` is turned on
-      -- by default
-      infoTree := unsafe Runtime.markPersistent infoTree
+    if cmdline then
+      -- discard all metadata apart from the environment; see `internal.cmdlineSnapshots`
+      reportedCmdState := { env := reportedCmdState.env, maxRecDepth := 0 }
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := infoTree
       traces := cmdState.traceState
-      cmdState := if cmdline then {
-        /- Safety: as above -/
-        env := unsafe Runtime.markPersistent cmdState.env
-        maxRecDepth := 0
-      } else cmdState
+      cmdState := reportedCmdState
     }
     -- The reported `cmdState` in the snapshot may be minimized as seen above, so we return the full
     -- state here for further processing on the same thread

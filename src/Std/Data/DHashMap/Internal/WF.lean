@@ -83,12 +83,36 @@ theorem fold_cons_key {l : Raw α β} {acc : List α} :
     l.fold (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets).reverse ++ acc := by
   rw [fold_cons_apply, keys_eq_map, map_reverse]
 
+theorem foldRev_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
+    l.foldRev f init = l.buckets.foldr (fun l acc => l.foldr (fun a b g => f g a b) acc) init := by
+  simp only [Raw.foldRev, Raw.foldRevM, ← Array.foldrM_toList, Array.foldr_toList,
+    ← List.foldr_eq_foldrM, Id.run, AssocList.foldr]
+
+theorem foldRev_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
+    l.foldRev (fun acc k v => f k v :: acc) acc =
+      ((toListModel l.buckets).map (fun p => f p.1 p.2)) ++ acc := by
+  rw [foldRev_eq, ← Array.foldr_toList, toListModel]
+  generalize l.buckets.toList = l
+  induction l generalizing acc with
+  | nil => simp
+  | cons x xs ih =>
+      rw [foldr_cons, ih, AssocList.foldr_apply]
+      simp
+
+theorem foldRev_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
+    l.foldRev (fun acc k v => ⟨k, v⟩ :: acc) acc = toListModel l.buckets ++ acc := by
+  simp [foldRev_cons_apply]
+
+theorem foldRev_cons_key {l : Raw α β} {acc : List α} :
+    l.foldRev (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets) ++ acc := by
+  rw [foldRev_cons_apply, keys_eq_map]
+
 theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
-  simp [Raw.toList, fold_cons]
+  simp [Raw.toList, foldRev_cons]
 
 theorem keys_perm_keys_toListModel {m : Raw α β} :
     Perm m.keys (List.keys (toListModel m.buckets)) := by
-  simp [Raw.keys, fold_cons_key, keys_eq_map]
+  simp [Raw.keys, foldRev_cons_key, keys_eq_map]
 
 theorem length_keys_eq_length_keys {m : Raw α β} :
     m.keys.length = (List.keys (toListModel m.buckets)).length :=
@@ -192,7 +216,7 @@ theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array
     refine ih.trans ?_
     simp only [Array.get_eq_getElem, AssocList.foldl_eq, Array.toList_set]
     rw [List.drop_eq_getElem_cons hi, List.flatMap_cons, List.foldl_append,
-      List.drop_set_of_lt _ _ (by omega), Array.getElem_eq_getElem_toList]
+      List.drop_set_of_lt _ _ (by omega), Array.getElem_toList]
   · next i source target hi =>
     rw [expand.go_neg hi, List.drop_eq_nil_of_le, flatMap_nil, foldl_nil]
     rwa [Array.size_eq_length_toList, Nat.not_lt] at hi

@@ -11,9 +11,16 @@ import Init.Data.Vector.Basic
 Lemmas about `Vector α n`
 -/
 
-namespace Vector
+namespace Array
 
-theorem length_toList {α n} (xs : Vector α n) : xs.toList.length = n := by simp
+theorem toVector_inj {a b : Array α} (h₁ : a.size = b.size) (h₂ : a.toVector.cast h₁ = b.toVector) : a = b := by
+  ext i ih₁ ih₂
+  · exact h₁
+  · simpa using congrArg (fun a => a[i]) h₂
+
+end Array
+
+namespace Vector
 
 @[simp] theorem getElem_mk {data : Array α} {size : data.size = n} {i : Nat} (h : i < n) :
     (Vector.mk data size)[i] = data[i] := rfl
@@ -22,9 +29,6 @@ theorem length_toList {α n} (xs : Vector α n) : xs.toList.length = n := by sim
     xs.toArray[i] = xs[i]'(by simpa using h) := by
   cases xs
   simp
-
-theorem getElem_toList {α n} (xs : Vector α n) (i : Nat) (h : i < xs.toList.length) :
-    xs.toList[i] = xs[i]'(by simpa using h) := by simp
 
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
@@ -92,6 +96,294 @@ defeq issues in the implicit size argument.
   · replace h : i = v.size - 1 := by rw [size_toArray]; omega
     subst h
     simp [pop, back, back!, ← Array.eq_push_pop_back!_of_size_ne_zero]
+
+
+/-! ### mk lemmas -/
+
+theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a := rfl
+
+@[simp] theorem allDiff_mk [BEq α] (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).allDiff = a.allDiff := rfl
+
+@[simp] theorem mk_append_mk (a b : Array α) (ha : a.size = n) (hb : b.size = m) :
+    Vector.mk a ha ++ Vector.mk b hb = Vector.mk (a ++ b) (by simp [ha, hb]) := rfl
+
+@[simp] theorem back!_mk [Inhabited α] (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).back! = a.back! := rfl
+
+@[simp] theorem back?_mk (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).back? = a.back? := rfl
+
+@[simp] theorem drop_mk (a : Array α) (h : a.size = n) (m) :
+    (Vector.mk a h).drop m = Vector.mk (a.extract m a.size) (by simp [h]) := rfl
+
+@[simp] theorem eraseIdx_mk (a : Array α) (h : a.size = n) (i) (h') :
+    (Vector.mk a h).eraseIdx i h' = Vector.mk (a.eraseIdx i) (by simp [h]) := rfl
+
+@[simp] theorem eraseIdx!_mk (a : Array α) (h : a.size = n) (i) (hi : i < n) :
+    (Vector.mk a h).eraseIdx! i = Vector.mk (a.eraseIdx i) (by simp [h, hi]) := by
+  simp [Vector.eraseIdx!, hi]
+
+@[simp] theorem cast_mk (a : Array α) (h : a.size = n) (h' : n = m) :
+    (Vector.mk a h).cast h' = Vector.mk a (by simp [h, h']) := rfl
+
+@[simp] theorem extract_mk (a : Array α) (h : a.size = n) (start stop) :
+    (Vector.mk a h).extract start stop = Vector.mk (a.extract start stop) (by simp [h]) := rfl
+
+@[simp] theorem indexOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
+    (Vector.mk a h).indexOf? x = (a.indexOf? x).map (Fin.cast h) := rfl
+
+@[simp] theorem mk_isEqv_mk (r : α → α → Bool) (a b : Array α) (ha : a.size = n) (hb : b.size = n) :
+    Vector.isEqv (Vector.mk a ha) (Vector.mk b hb) r = Array.isEqv a b r := by
+  simp [Vector.isEqv, Array.isEqv, ha, hb]
+
+@[simp] theorem mk_isPrefixOf_mk [BEq α] (a b : Array α) (ha : a.size = n) (hb : b.size = m) :
+    (Vector.mk a ha).isPrefixOf (Vector.mk b hb) = a.isPrefixOf b := rfl
+
+@[simp] theorem map_mk (a : Array α) (h : a.size = n) (f : α → β) :
+    (Vector.mk a h).map f = Vector.mk (a.map f) (by simp [h]) := rfl
+
+@[simp] theorem reverse_mk (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).reverse = Vector.mk a.reverse (by simp [h]) := rfl
+
+@[simp] theorem set_mk (a : Array α) (h : a.size = n) (i x w) :
+    (Vector.mk a h).set i x = Vector.mk (a.set i x) (by simp [h]) := rfl
+
+@[simp] theorem set!_mk (a : Array α) (h : a.size = n) (i x) :
+    (Vector.mk a h).set! i x = Vector.mk (a.set! i x) (by simp [h]) := rfl
+
+@[simp] theorem setIfInBounds_mk (a : Array α) (h : a.size = n) (i x) :
+    (Vector.mk a h).setIfInBounds i x = Vector.mk (a.setIfInBounds i x) (by simp [h]) := rfl
+
+@[simp] theorem swap_mk (a : Array α) (h : a.size = n) (i j) (hi hj) :
+    (Vector.mk a h).swap i j = Vector.mk (a.swap i j) (by simp [h]) :=
+  rfl
+
+@[simp] theorem swapIfInBounds_mk (a : Array α) (h : a.size = n) (i j) :
+    (Vector.mk a h).swapIfInBounds i j = Vector.mk (a.swapIfInBounds i j) (by simp [h]) := rfl
+
+@[simp] theorem swapAt_mk (a : Array α) (h : a.size = n) (i x) (hi) :
+    (Vector.mk a h).swapAt i x =
+      ((a.swapAt i x).fst, Vector.mk (a.swapAt i x).snd (by simp [h])) :=
+  rfl
+
+@[simp] theorem swapAt!_mk (a : Array α) (h : a.size = n) (i x) : (Vector.mk a h).swapAt! i x =
+    ((a.swapAt! i x).fst, Vector.mk (a.swapAt! i x).snd (by simp [h])) := rfl
+
+@[simp] theorem take_mk (a : Array α) (h : a.size = n) (m) :
+    (Vector.mk a h).take m = Vector.mk (a.take m) (by simp [h]) := rfl
+
+@[simp] theorem mk_zipWith_mk (f : α → β → γ) (a : Array α) (b : Array β)
+      (ha : a.size = n) (hb : b.size = n) : zipWith (Vector.mk a ha) (Vector.mk b hb) f =
+        Vector.mk (Array.zipWith a b f) (by simp [ha, hb]) := rfl
+
+/-! ### toArray lemmas -/
+
+@[simp] theorem toArray_append (a : Vector α m) (b : Vector α n) :
+    (a ++ b).toArray = a.toArray ++ b.toArray := rfl
+
+@[simp] theorem toArray_drop (a : Vector α n) (m) :
+    (a.drop m).toArray = a.toArray.extract m a.size := rfl
+
+@[simp] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
+
+@[simp] theorem toArray_mkEmpty (cap) :
+    (Vector.mkEmpty (α := α) cap).toArray = Array.mkEmpty cap := rfl
+
+@[simp] theorem toArray_eraseIdx (a : Vector α n) (i) (h) :
+    (a.eraseIdx i h).toArray = a.toArray.eraseIdx i (by simp [h]) := rfl
+
+@[simp] theorem toArray_eraseIdx! (a : Vector α n) (i) (hi : i < n) :
+    (a.eraseIdx! i).toArray = a.toArray.eraseIdx! i := by
+  cases a; simp_all [Array.eraseIdx!]
+
+@[simp] theorem toArray_cast (a : Vector α n) (h : n = m) :
+    (a.cast h).toArray = a.toArray := rfl
+
+@[simp] theorem toArray_extract (a : Vector α n) (start stop) :
+    (a.extract start stop).toArray = a.toArray.extract start stop := rfl
+
+@[simp] theorem toArray_map (f : α → β) (a : Vector α n) :
+    (a.map f).toArray = a.toArray.map f := rfl
+
+@[simp] theorem toArray_ofFn (f : Fin n → α) : (Vector.ofFn f).toArray = Array.ofFn f := rfl
+
+@[simp] theorem toArray_pop (a : Vector α n) : a.pop.toArray = a.toArray.pop := rfl
+
+@[simp] theorem toArray_push (a : Vector α n) (x) : (a.push x).toArray = a.toArray.push x := rfl
+
+@[simp] theorem toArray_range : (Vector.range n).toArray = Array.range n := rfl
+
+@[simp] theorem toArray_reverse (a : Vector α n) : a.reverse.toArray = a.toArray.reverse := rfl
+
+@[simp] theorem toArray_set (a : Vector α n) (i x h) :
+    (a.set i x).toArray = a.toArray.set i x (by simpa using h):= rfl
+
+@[simp] theorem toArray_set! (a : Vector α n) (i x) :
+    (a.set! i x).toArray = a.toArray.set! i x := rfl
+
+@[simp] theorem toArray_setIfInBounds (a : Vector α n) (i x) :
+    (a.setIfInBounds i x).toArray = a.toArray.setIfInBounds i x := rfl
+
+@[simp] theorem toArray_singleton (x : α) : (Vector.singleton x).toArray = #[x] := rfl
+
+@[simp] theorem toArray_swap (a : Vector α n) (i j) (hi hj) : (a.swap i j).toArray =
+    a.toArray.swap i j (by simp [hi, hj]) (by simp [hi, hj]) := rfl
+
+@[simp] theorem toArray_swapIfInBounds (a : Vector α n) (i j) :
+    (a.swapIfInBounds i j).toArray = a.toArray.swapIfInBounds i j := rfl
+
+@[simp] theorem toArray_swapAt (a : Vector α n) (i x h) :
+    ((a.swapAt i x).fst, (a.swapAt i x).snd.toArray) =
+      ((a.toArray.swapAt i x (by simpa using h)).fst,
+        (a.toArray.swapAt i x (by simpa using h)).snd) := rfl
+
+@[simp] theorem toArray_swapAt! (a : Vector α n) (i x) :
+    ((a.swapAt! i x).fst, (a.swapAt! i x).snd.toArray) =
+      ((a.toArray.swapAt! i x).fst, (a.toArray.swapAt! i x).snd) := rfl
+
+@[simp] theorem toArray_take (a : Vector α n) (m) : (a.take m).toArray = a.toArray.take m := rfl
+
+@[simp] theorem toArray_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
+    (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
+
+/-! ### toList lemmas -/
+
+theorem length_toList {α n} (xs : Vector α n) : xs.toList.length = n := by simp
+
+theorem getElem_toList {α n} (xs : Vector α n) (i : Nat) (h : i < xs.toList.length) :
+    xs.toList[i] = xs[i]'(by simpa using h) := by simp
+
+theorem toList_inj {a b : Vector α n} (h : a.toList = b.toList) : a = b := by
+  rcases a with ⟨⟨a⟩, ha⟩
+  rcases b with ⟨⟨b⟩, hb⟩
+  simpa using h
+
+/-! ### set -/
+
+theorem getElem_set (a : Vector α n) (i : Nat) (x : α) (hi : i < n) (j : Nat) (hj : j < n) :
+    (a.set i x hi)[j] = if i = j then x else a[j] := by
+  cases a
+  split <;> simp_all [Array.getElem_set]
+
+@[simp] theorem getElem_set_eq (a : Vector α n) (i : Nat) (x : α) (hi : i < n) :
+    (a.set i x hi)[i] = x := by simp [getElem_set]
+
+@[simp] theorem getElem_set_ne (a : Vector α n) (i : Nat) (x : α) (hi : i < n) (j : Nat)
+    (hj : j < n) (h : i ≠ j) : (a.set i x hi)[j] = a[j] := by simp [getElem_set, h]
+
+/-! ### setIfInBounds -/
+
+theorem getElem_setIfInBounds (a : Vector α n) (i : Nat) (x : α) (j : Nat)
+    (hj : j < n) : (a.setIfInBounds i x)[j] = if i = j then x else a[j] := by
+  cases a
+  split <;> simp_all [Array.getElem_setIfInBounds]
+
+@[simp] theorem getElem_setIfInBounds_eq (a : Vector α n) (i : Nat) (x : α) (hj : i < n) :
+    (a.setIfInBounds i x)[i] = x := by simp [getElem_setIfInBounds]
+
+@[simp] theorem getElem_setIfInBounds_ne (a : Vector α n) (i : Nat) (x : α) (j : Nat)
+    (hj : j < n) (h : i ≠ j) : (a.setIfInBounds i x)[j] = a[j] := by simp [getElem_setIfInBounds, h]
+
+/-! ### append -/
+
+theorem getElem_append (a : Vector α n) (b : Vector α m) (i : Nat) (hi : i < n + m) :
+    (a ++ b)[i] = if h : i < n then a[i] else b[i - n] := by
+  rcases a with ⟨a, rfl⟩
+  rcases b with ⟨b, rfl⟩
+  simp [Array.getElem_append, hi]
+
+theorem getElem_append_left {a : Vector α n} {b : Vector α m} {i : Nat} (hi : i < n) :
+    (a ++ b)[i] = a[i] := by simp [getElem_append, hi]
+
+theorem getElem_append_right {a : Vector α n} {b : Vector α m} {i : Nat} (h : i < n + m) (hi : n ≤ i) :
+    (a ++ b)[i] = b[i - n] := by
+  rw [getElem_append, dif_neg (by omega)]
+
+/-! ### cast -/
+
+@[simp] theorem getElem_cast (a : Vector α n) (h : n = m) (i : Nat) (hi : i < m) :
+    (a.cast h)[i] = a[i] := by
+  cases a
+  simp
+
+/-! ### extract -/
+
+@[simp] theorem getElem_extract (a : Vector α n) (start stop) (i : Nat) (hi : i < min stop n - start) :
+    (a.extract start stop)[i] = a[start + i] := by
+  cases a
+  simp
+
+/-! ### map -/
+
+@[simp] theorem getElem_map (f : α → β) (a : Vector α n) (i : Nat) (hi : i < n) :
+    (a.map f)[i] = f a[i] := by
+  cases a
+  simp
+
+/-! ### zipWith -/
+
+@[simp] theorem getElem_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) (i : Nat)
+    (hi : i < n) : (zipWith a b f)[i] = f a[i] b[i] := by
+  cases a
+  cases b
+  simp
+
+/-! ### swap -/
+
+theorem getElem_swap (a : Vector α n) (i j : Nat) {hi hj} (k : Nat) (hk : k < n) :
+    (a.swap i j hi hj)[k] = if k = i then a[j] else if k = j then a[i] else a[k] := by
+  cases a
+  simp_all [Array.getElem_swap]
+
+@[simp] theorem getElem_swap_right (a : Vector α n) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj)[j]'(by simpa using hj) = a[i] := by
+  simp +contextual [getElem_swap]
+
+@[simp] theorem getElem_swap_left (a : Vector α n) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj)[i]'(by simpa using hi) = a[j] := by
+  simp [getElem_swap]
+
+@[simp] theorem getElem_swap_of_ne (a : Vector α n) {i j : Nat} {hi hj} (hp : p < n)
+    (hi' : p ≠ i) (hj' : p ≠ j) : (a.swap i j hi hj)[p] = a[p] := by
+  simp_all [getElem_swap]
+
+@[simp] theorem swap_swap (a : Vector α n) {i j : Nat} {hi hj} :
+    (a.swap i j hi hj).swap i j hi hj = a := by
+  cases a
+  simp_all [Array.swap_swap]
+
+theorem swap_comm (a : Vector α n) {i j : Nat} {hi hj} :
+    a.swap i j hi hj = a.swap j i hj hi := by
+  cases a
+  simp only [swap_mk, mk.injEq]
+  rw [Array.swap_comm]
+
+/-! ### range -/
+
+@[simp] theorem getElem_range (i : Nat) (hi : i < n) : (Vector.range n)[i] = i := by
+  simp [Vector.range]
+
+/-! ### take -/
+
+@[simp] theorem getElem_take (a : Vector α n) (m : Nat) (hi : i < min n m) :
+    (a.take m)[i] = a[i] := by
+  cases a
+  simp
+
+/-! ### drop -/
+
+@[simp] theorem getElem_drop (a : Vector α n) (m : Nat) (hi : i < n - m) :
+    (a.drop m)[i] = a[m + i] := by
+  cases a
+  simp
+
+/-! ### reverse -/
+
+@[simp] theorem getElem_reverse (a : Vector α n) (i : Nat) (hi : i < n) :
+    (a.reverse)[i] = a[n - 1 - i] := by
+  rcases a with ⟨a, rfl⟩
+  simp
 
 /-! ### Decidable quantifiers. -/
 

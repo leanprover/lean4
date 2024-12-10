@@ -260,7 +260,7 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   let ref ← getRef
   let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
   let mut data := { cls, collapsed, tag }
-  if profiler.get opts || aboveThresh then
+  if trace.profiler.get opts then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res
@@ -356,7 +356,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     return (← MonadExcept.ofExcept res)
   let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
   let mut data := { cls, collapsed, tag }
-  if profiler.get opts || aboveThresh then
+  if trace.profiler.get opts then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref msg
   MonadExcept.ofExcept res

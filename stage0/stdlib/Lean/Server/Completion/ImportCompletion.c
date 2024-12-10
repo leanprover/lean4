@@ -41,7 +41,6 @@ lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_ImportCompletion_computeCompletions___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2489____spec__1(lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_computePartialImportCompletions___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_ImportCompletion_find___spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_ImportCompletion_determinePartialHeaderCompletions(lean_object*, lean_object*);
@@ -60,7 +59,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_collectAv
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_collectAvailableImportsFromSrcSearchPath___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
-static lean_object* l_ImportCompletion_computePartialImportCompletions___closed__6;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_collectAvailableImportsFromSrcSearchPath___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at_ImportCompletion_isImportNameCompletionRequest___spec__1___closed__1;
 lean_object* l_System_FilePath_isDir(lean_object*, lean_object*);
@@ -82,7 +80,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_ImportCompletion_find___spe
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_computePartialImportCompletions___spec__4___closed__1;
 LEAN_EXPORT uint8_t l_ImportCompletion_isImportCmdCompletionRequest(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_ImportCompletion_collectAvailableImportsFromSrcSearchPath___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_ImportCompletion_computePartialImportCompletions___closed__7;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_ImportCompletion_collectAvailableImportsFromLake___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -98,7 +95,6 @@ static lean_object* l_List_forIn_x27_loop___at_ImportCompletion_collectAvailable
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ImportCompletion_determinePartialHeaderCompletions___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_computePartialImportCompletions___closed__4;
-static lean_object* l_ImportCompletion_computePartialImportCompletions___closed__5;
 static lean_object* l_Array_mapMUnsafe_map___at_ImportCompletion_collectAvailableImportsFromLake___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_ImportCompletion_computePartialImportCompletions(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_ImportCompletion_computePartialImportCompletions___spec__3___lambda__1(lean_object*);
@@ -110,6 +106,7 @@ lean_object* l_Std_Internal_Parsec_String_Parser_run___rarg(lean_object*, lean_o
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_ImportCompletion_isImportNameCompletionRequest___spec__1(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_ImportCompletion_computeCompletions(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2497____spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ImportCompletion_computePartialImportCompletions___boxed(lean_object*, lean_object*, lean_object*);
@@ -161,7 +158,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_NameTrie_insert___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_ImportCompletion_isImportNameCompletionRequest___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_computePartialImportCompletions___closed__2;
-lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_ImportCompletion_addCompletionItemData___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_ImportCompletion_collectAvailableImportsFromLake___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_AvailableImports_toImportTrie___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
@@ -1044,36 +1041,6 @@ return x_2;
 static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-x_2 = lean_array_get_size(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_ImportCompletion_computePartialImportCompletions___closed__2;
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_nat_sub(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_ImportCompletion_computePartialImportCompletions___closed__3;
-x_4 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(x_1, x_2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = lean_box(0);
@@ -1083,7 +1050,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__6() {
+static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1091,11 +1058,11 @@ x_1 = lean_alloc_closure((void*)(l_ImportCompletion_computePartialImportCompleti
 return x_1;
 }
 }
-static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__7() {
+static lean_object* _init_l_ImportCompletion_computePartialImportCompletions___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_ImportCompletion_computePartialImportCompletions___closed__6;
+x_1 = l_ImportCompletion_computePartialImportCompletions___closed__3;
 x_2 = lean_box(0);
 x_3 = lean_apply_1(x_1, x_2);
 return x_3;
@@ -1104,155 +1071,189 @@ return x_3;
 LEAN_EXPORT lean_object* l_ImportCompletion_computePartialImportCompletions(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; size_t x_39; size_t x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_35 = lean_unsigned_to_nat(1u);
-x_36 = l_Lean_Syntax_getArg(x_1, x_35);
-x_37 = l_Lean_Syntax_getArgs(x_36);
-lean_dec(x_36);
-x_38 = lean_box(0);
-x_39 = lean_array_size(x_37);
-x_40 = 0;
-x_41 = l_ImportCompletion_computePartialImportCompletions___closed__5;
-x_42 = l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_computePartialImportCompletions___spec__4(x_2, x_37, x_38, x_41, x_37, x_39, x_40, x_41);
-lean_dec(x_37);
-x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
+lean_object* x_4; lean_object* x_14; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; size_t x_45; size_t x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
+x_41 = lean_unsigned_to_nat(1u);
+x_42 = l_Lean_Syntax_getArg(x_1, x_41);
+x_43 = l_Lean_Syntax_getArgs(x_42);
 lean_dec(x_42);
-if (lean_obj_tag(x_43) == 0)
-{
-lean_object* x_44; 
-x_44 = l_ImportCompletion_computePartialImportCompletions___closed__7;
-if (lean_obj_tag(x_44) == 0)
-{
-lean_object* x_45; 
-lean_dec(x_3);
-x_45 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-return x_45;
-}
-else
-{
-lean_object* x_46; 
-x_46 = lean_ctor_get(x_44, 0);
-lean_inc(x_46);
-x_4 = x_46;
-goto block_34;
-}
-}
-else
-{
-lean_object* x_47; 
-x_47 = lean_ctor_get(x_43, 0);
-lean_inc(x_47);
+x_44 = lean_box(0);
+x_45 = lean_array_size(x_43);
+x_46 = 0;
+x_47 = l_ImportCompletion_computePartialImportCompletions___closed__2;
+x_48 = l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_computePartialImportCompletions___spec__4(x_2, x_43, x_44, x_47, x_43, x_45, x_46, x_47);
 lean_dec(x_43);
-if (lean_obj_tag(x_47) == 0)
-{
-lean_object* x_48; 
-lean_dec(x_3);
-x_48 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-return x_48;
-}
-else
-{
-lean_object* x_49; 
-x_49 = lean_ctor_get(x_47, 0);
+x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
-lean_dec(x_47);
-x_4 = x_49;
-goto block_34;
-}
-}
-block_34:
+lean_dec(x_48);
+if (lean_obj_tag(x_49) == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
-lean_dec(x_4);
-x_7 = l_Lean_NameTrie_matchingToArray___rarg(x_3, x_5);
-x_8 = lean_array_size(x_7);
-x_9 = 0;
-x_10 = l_Array_mapMUnsafe_map___at_ImportCompletion_computePartialImportCompletions___spec__1(x_5, x_8, x_9, x_7);
+lean_object* x_50; 
+x_50 = l_ImportCompletion_computePartialImportCompletions___closed__4;
+if (lean_obj_tag(x_50) == 0)
+{
+lean_object* x_51; 
+lean_dec(x_3);
+x_51 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+return x_51;
+}
+else
+{
+lean_object* x_52; 
+x_52 = lean_ctor_get(x_50, 0);
+lean_inc(x_52);
+x_14 = x_52;
+goto block_40;
+}
+}
+else
+{
+lean_object* x_53; 
+x_53 = lean_ctor_get(x_49, 0);
+lean_inc(x_53);
+lean_dec(x_49);
+if (lean_obj_tag(x_53) == 0)
+{
+lean_object* x_54; 
+lean_dec(x_3);
+x_54 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+return x_54;
+}
+else
+{
+lean_object* x_55; 
+x_55 = lean_ctor_get(x_53, 0);
+lean_inc(x_55);
+lean_dec(x_53);
+x_14 = x_55;
+goto block_40;
+}
+}
+block_13:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = lean_nat_sub(x_5, x_6);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_nat_dec_eq(x_5, x_8);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+x_10 = lean_nat_dec_le(x_8, x_7);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_inc(x_7);
+x_11 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(x_5, x_4, x_7, x_7, lean_box(0), lean_box(0));
+lean_dec(x_7);
 lean_dec(x_5);
-x_11 = lean_array_get_size(x_10);
-x_12 = lean_unsigned_to_nat(0u);
-x_13 = lean_nat_dec_lt(x_12, x_11);
-if (x_13 == 0)
-{
-lean_object* x_28; 
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_6);
-x_28 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-x_14 = x_28;
-goto block_27;
+return x_11;
 }
 else
 {
-uint8_t x_29; 
-x_29 = lean_nat_dec_le(x_11, x_11);
-if (x_29 == 0)
-{
-lean_object* x_30; 
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_6);
-x_30 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-x_14 = x_30;
-goto block_27;
+lean_object* x_12; 
+x_12 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(x_5, x_4, x_8, x_7, lean_box(0), lean_box(0));
+lean_dec(x_7);
+lean_dec(x_5);
+return x_12;
+}
 }
 else
 {
-size_t x_31; lean_object* x_32; lean_object* x_33; 
-x_31 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
-x_32 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-x_33 = l_Array_foldlMUnsafe_fold___at_ImportCompletion_computePartialImportCompletions___spec__3(x_6, x_10, x_9, x_31, x_32);
-lean_dec(x_10);
-x_14 = x_33;
-goto block_27;
+lean_dec(x_7);
+lean_dec(x_5);
+return x_4;
 }
 }
-block_27:
+block_40:
 {
-lean_object* x_15; uint8_t x_16; 
-x_15 = lean_array_get_size(x_14);
-x_16 = lean_nat_dec_lt(x_12, x_15);
-if (x_16 == 0)
-{
-lean_object* x_17; 
-lean_dec(x_15);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; 
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
 lean_dec(x_14);
-x_17 = l_ImportCompletion_computePartialImportCompletions___closed__4;
-return x_17;
+x_17 = l_Lean_NameTrie_matchingToArray___rarg(x_3, x_15);
+x_18 = lean_array_size(x_17);
+x_19 = 0;
+x_20 = l_Array_mapMUnsafe_map___at_ImportCompletion_computePartialImportCompletions___spec__1(x_15, x_18, x_19, x_17);
+lean_dec(x_15);
+x_21 = lean_array_get_size(x_20);
+x_22 = lean_unsigned_to_nat(0u);
+x_23 = lean_nat_dec_lt(x_22, x_21);
+if (x_23 == 0)
+{
+lean_object* x_34; 
+lean_dec(x_21);
+lean_dec(x_20);
+lean_dec(x_16);
+x_34 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+x_24 = x_34;
+goto block_33;
 }
 else
 {
-uint8_t x_18; 
-x_18 = lean_nat_dec_le(x_15, x_15);
-if (x_18 == 0)
+uint8_t x_35; 
+x_35 = lean_nat_dec_le(x_21, x_21);
+if (x_35 == 0)
 {
-lean_object* x_19; 
-lean_dec(x_15);
-lean_dec(x_14);
-x_19 = l_ImportCompletion_computePartialImportCompletions___closed__4;
-return x_19;
+lean_object* x_36; 
+lean_dec(x_21);
+lean_dec(x_20);
+lean_dec(x_16);
+x_36 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+x_24 = x_36;
+goto block_33;
 }
 else
 {
-size_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_20 = lean_usize_of_nat(x_15);
-lean_dec(x_15);
-x_21 = l_ImportCompletion_computePartialImportCompletions___closed__1;
-x_22 = l_Array_foldlMUnsafe_fold___at_ImportCompletion_computePartialImportCompletions___spec__2(x_14, x_9, x_20, x_21);
-lean_dec(x_14);
-x_23 = lean_array_get_size(x_22);
-x_24 = lean_unsigned_to_nat(1u);
-x_25 = lean_nat_sub(x_23, x_24);
-lean_dec(x_23);
-x_26 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(x_22, x_12, x_25);
+size_t x_37; lean_object* x_38; lean_object* x_39; 
+x_37 = lean_usize_of_nat(x_21);
+lean_dec(x_21);
+x_38 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+x_39 = l_Array_foldlMUnsafe_fold___at_ImportCompletion_computePartialImportCompletions___spec__3(x_16, x_20, x_19, x_37, x_38);
+lean_dec(x_20);
+x_24 = x_39;
+goto block_33;
+}
+}
+block_33:
+{
+lean_object* x_25; uint8_t x_26; 
+x_25 = lean_array_get_size(x_24);
+x_26 = lean_nat_dec_lt(x_22, x_25);
+if (x_26 == 0)
+{
+lean_object* x_27; 
 lean_dec(x_25);
-return x_26;
+lean_dec(x_24);
+x_27 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+x_4 = x_27;
+goto block_13;
+}
+else
+{
+uint8_t x_28; 
+x_28 = lean_nat_dec_le(x_25, x_25);
+if (x_28 == 0)
+{
+lean_object* x_29; 
+lean_dec(x_25);
+lean_dec(x_24);
+x_29 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+x_4 = x_29;
+goto block_13;
+}
+else
+{
+size_t x_30; lean_object* x_31; lean_object* x_32; 
+x_30 = lean_usize_of_nat(x_25);
+lean_dec(x_25);
+x_31 = l_ImportCompletion_computePartialImportCompletions___closed__1;
+x_32 = l_Array_foldlMUnsafe_fold___at_ImportCompletion_computePartialImportCompletions___spec__2(x_24, x_19, x_30, x_31);
+lean_dec(x_24);
+x_4 = x_32;
+goto block_13;
 }
 }
 }
@@ -2248,7 +2249,7 @@ x_29 = lean_ctor_get(x_24, 0);
 lean_dec(x_29);
 x_30 = l_System_FilePath_extension(x_23);
 x_31 = l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_collectAvailableImportsFromSrcSearchPath___spec__2___closed__2;
-x_32 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2489____spec__1(x_30, x_31);
+x_32 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2497____spec__1(x_30, x_31);
 lean_dec(x_30);
 if (x_32 == 0)
 {
@@ -2342,7 +2343,7 @@ lean_inc(x_52);
 lean_dec(x_24);
 x_53 = l_System_FilePath_extension(x_23);
 x_54 = l_Array_forIn_x27Unsafe_loop___at_ImportCompletion_collectAvailableImportsFromSrcSearchPath___spec__2___closed__2;
-x_55 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2489____spec__1(x_53, x_54);
+x_55 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_beqCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2497____spec__1(x_53, x_54);
 lean_dec(x_53);
 if (x_55 == 0)
 {
@@ -3567,12 +3568,6 @@ l_ImportCompletion_computePartialImportCompletions___closed__3 = _init_l_ImportC
 lean_mark_persistent(l_ImportCompletion_computePartialImportCompletions___closed__3);
 l_ImportCompletion_computePartialImportCompletions___closed__4 = _init_l_ImportCompletion_computePartialImportCompletions___closed__4();
 lean_mark_persistent(l_ImportCompletion_computePartialImportCompletions___closed__4);
-l_ImportCompletion_computePartialImportCompletions___closed__5 = _init_l_ImportCompletion_computePartialImportCompletions___closed__5();
-lean_mark_persistent(l_ImportCompletion_computePartialImportCompletions___closed__5);
-l_ImportCompletion_computePartialImportCompletions___closed__6 = _init_l_ImportCompletion_computePartialImportCompletions___closed__6();
-lean_mark_persistent(l_ImportCompletion_computePartialImportCompletions___closed__6);
-l_ImportCompletion_computePartialImportCompletions___closed__7 = _init_l_ImportCompletion_computePartialImportCompletions___closed__7();
-lean_mark_persistent(l_ImportCompletion_computePartialImportCompletions___closed__7);
 l_ImportCompletion_isImportCompletionRequest___closed__1 = _init_l_ImportCompletion_isImportCompletionRequest___closed__1();
 lean_mark_persistent(l_ImportCompletion_isImportCompletionRequest___closed__1);
 l_ImportCompletion_isImportCompletionRequest___closed__2 = _init_l_ImportCompletion_isImportCompletionRequest___closed__2();

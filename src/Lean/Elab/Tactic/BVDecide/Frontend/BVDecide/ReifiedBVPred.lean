@@ -35,8 +35,10 @@ def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
   let bvExpr : BVPred := .getLsbD atom.bvExpr 0
   let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
   let proof := do
+    -- ofBool_congr does not hold definitionally, if this ever becomes an issue we need to find
+    -- a more clever encoding for boolean atoms
     let atomEval ← ReifiedBVExpr.mkEvalExpr atom.width atom.expr
-    let atomProof ← atom.evalsAtAtoms
+    let atomProof := (← atom.evalsAtAtoms).getD (ReifiedBVExpr.mkBVRefl atom.width atomEval)
     return mkApp3
       (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.ofBool_congr)
       t
@@ -63,9 +65,14 @@ def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPr
         rhs.expr
     let proof := do
       let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
-      let lhsProof ← lhs.evalsAtAtoms
       let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
-      let rhsProof ← rhs.evalsAtAtoms
+      let lhsProof? ← lhs.evalsAtAtoms
+      let rhsProof? ← rhs.evalsAtAtoms
+      let some (lhsProof, rhsProof) :=
+        M.simplifyBinaryProof
+          (ReifiedBVExpr.mkBVRefl lhs.width)
+          lhsEval lhsProof?
+          rhsEval rhsProof? | return none
       return mkApp7
         (mkConst congrThm)
         (toExpr lhs.width)
@@ -90,8 +97,9 @@ def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) : M ReifiedBVPr
   let idxExpr := toExpr idx
   let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr sub.width) sub.expr idxExpr
   let proof := do
+    -- This is safe as `getLsbD_congr` holds definitionally if the arguments are defeq.
+    let some subProof ← sub.evalsAtAtoms | return none
     let subEval ← ReifiedBVExpr.mkEvalExpr sub.width sub.expr
-    let subProof ← sub.evalsAtAtoms
     return mkApp5
       (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.getLsbD_congr)
       idxExpr

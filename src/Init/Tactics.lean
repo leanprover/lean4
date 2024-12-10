@@ -1309,7 +1309,7 @@ macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega
 syntax (name := acNf0) "ac_nf0" (location)? : tactic
 
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
-syntax (name := normCast0) "norm_cast0" (location)? : tactic
+syntax (name := normCast0) "norm_cast0" optConfig (location)? : tactic
 
 /-- `assumption_mod_cast` is a variant of `assumption` that solves the goal
 using a hypothesis. Unlike `assumption`, it first pre-processes the goal and
@@ -1318,7 +1318,7 @@ in more situations.
 
 Concretely, it runs `norm_cast` on the goal. For each local hypothesis `h`, it also
 normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
-macro "assumption_mod_cast" : tactic => `(tactic| norm_cast0 at * <;> assumption)
+macro "assumption_mod_cast" cfg:optConfig : tactic => `(tactic| norm_cast0 $cfg at * <;> assumption)
 
 /--
 The `norm_cast` family of tactics is used to normalize certain coercions (*casts*) in expressions.
@@ -1355,26 +1355,9 @@ their operation, to make them more flexible about the expressions they accept
 
 See also `push_cast`, which moves casts inwards rather than lifting them outwards.
 -/
-macro "norm_cast" loc:(location)? : tactic =>
-  `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+macro "norm_cast" cfg:optConfig loc:(location)? : tactic =>
+  `(tactic| norm_cast0 $cfg $[$loc]? <;> try trivial)
 
-/--
-`ac_nf` normalizes equalities up to application of an associative and commutative operator.
-- `ac_nf` normalizes all hypotheses and the goal target of the goal.
-- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
-  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
-  can also be used, to signify the target of the goal.
-```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
-
-example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
- ac_nf
- -- goal: a + (b + (c + d)) = a + (b + (c + d))
-```
--/
-macro "ac_nf" loc:(location)? : tactic =>
-  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
 
 /--
 `push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.
@@ -1416,6 +1399,24 @@ syntax (name := pushCast) "push_cast" optConfig (discharger)? (&" only")?
 `norm_cast_add_elim foo` registers `foo` as an elim-lemma in `norm_cast`.
 -/
 syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
+
+/--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+- `ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+macro "ac_nf" loc:(location)? : tactic =>
+  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
 
 /--
 * `symm` applies to a goal whose target has the form `t ~ u` where `~` is a symmetric relation,

@@ -959,3 +959,36 @@ syntax "println! " (interpolatedStr(term) <|> term) : term
 macro_rules
   | `(println! $msg:interpolatedStr) => `((IO.println (s! $msg) : IO Unit))
   | `(println! $msg:term)            => `((IO.println $msg : IO Unit))
+
+/--
+  Marks given value and its object graph closure as multi-threaded if currently
+  marked single-threaded. This will make reference counter updates atomic and
+  thus more costly. It can still be useful to do eagerly when the value will be
+  shared between threads later anyway and there is available time budget to mark
+  it now. -/
+@[extern "lean_runtime_mark_multi_threaded"]
+def Runtime.markMultiThreaded (a : α) : BaseIO α := return a
+
+/--
+Marks given value and its object graph closure as persistent. This will remove
+reference counter updates but prevent the closure from being deallocated until
+the end of the process! It can still be useful to do eagerly when the value
+will be marked persistent later anyway and there is available time budget to
+mark it now or it would be unnecessarily marked multi-threaded in between.
+
+This function is only safe to use on objects (in the full closure) which are
+not used concurrently or which are already persistent.
+-/
+@[extern "lean_runtime_mark_persistent"]
+unsafe def Runtime.markPersistent (a : α) : BaseIO α := return a
+
+set_option linter.unusedVariables false in
+/--
+Discards the passed owned reference. This leads to `a` any any object reachable from it never being
+freed. This can be a useful optimization for eliding deallocation time of big object graphs that are
+kept alive close to the end of the process anyway (in which case calling `Runtime.markPersistent`
+would be similarly costly to deallocation). It is still considered a safe operation as it cannot
+lead to undefined behavior.
+-/
+@[extern "lean_runtime_forget"]
+def Runtime.forget (a : α) : BaseIO Unit := return

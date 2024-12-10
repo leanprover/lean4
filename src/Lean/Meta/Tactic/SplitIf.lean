@@ -8,6 +8,124 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Meta
+
+inductive SplitKind where
+  | ite | match | both
+
+def SplitKind.considerIte : SplitKind → Bool
+  | .ite | .both => true
+  | _ => false
+
+def SplitKind.considerMatch : SplitKind → Bool
+  | .match | .both => true
+  | _ => false
+
+namespace FindSplitImpl
+
+structure Context where
+  exceptionSet : ExprSet := {}
+  kind : SplitKind := .both
+
+unsafe abbrev FindM := ReaderT Context $ StateT (PtrSet Expr) MetaM
+
+/--
+Checks whether `e` is a candidate for `split`.
+Returns `some e'` if a prefix is a candidate.
+Example: suppose `e` is `(if b then f else g) x`, then
+the result is `some e'` where `e'` is the subterm `(if b then f else g)`
+-/
+private def isCandidate? (env : Environment) (ctx : Context) (e : Expr) : Option Expr := Id.run do
+  let ret (e : Expr) : Option Expr :=
+    if ctx.exceptionSet.contains e then none else some e
+  if ctx.kind.considerIte then
+    if e.isAppOf ``ite || e.isAppOf ``dite then
+      let numArgs := e.getAppNumArgs
+      if numArgs >= 5 && !(e.getArg! 1 5).hasLooseBVars then
+        return ret (e.getBoundedAppFn (numArgs - 5))
+  if ctx.kind.considerMatch then
+    if let some info := isMatcherAppCore? env e then
+      let args := e.getAppArgs
+      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        if args[i]!.hasLooseBVars then
+          return none
+      return ret (e.getBoundedAppFn (args.size - info.arity))
+  return none
+
+@[inline] unsafe def checkVisited (e : Expr) : OptionT FindM Unit := do
+  if (← get).contains e then
+    failure
+  modify fun s => s.insert e
+
+unsafe def visit (e : Expr) : OptionT FindM Expr := do
+  checkVisited e
+  if let some e := isCandidate? (← getEnv) (← read) e then
+    return e
+  else
+    -- We do not look for split candidates in proofs.
+    unless e.hasLooseBVars do
+      if (← isProof e) then
+        failure
+    match e with
+    | .lam _ _ b _ | .proj _ _ b -- We do not look for split candidates in the binder of lambdas.
+    | .mdata _ b       => visit b
+    | .forallE _ d b _ => visit d <|> visit b -- We want to look for candidates at `A → B`
+    | .letE _ _ v b _  => visit v <|> visit b
+    | .app ..          => visitApp? e
+    | _                => failure
+where
+  visitApp? (e : Expr) : FindM (Option Expr) :=
+    e.withApp fun f args => do
+    -- See comment at `Canonicalizer.lean` regarding the case where
+    -- `f` has loose bound variables.
+    let info ← if f.hasLooseBVars then
+      pure {}
+    else
+      getFunInfo f
+    for u : i in [0:args.size] do
+      let arg := args[i]
+      if h : i < info.paramInfo.size then
+        let info := info.paramInfo[i]
+        unless info.isProp do
+          if info.isExplicit then
+            let some found ← visit arg | pure ()
+            return found
+      else
+        let some found ← visit arg | pure ()
+        return found
+    visit f
+
+end FindSplitImpl
+
+/-- Return an `if-then-else` or `match-expr` to split. -/
+partial def findSplit? (e : Expr) (kind : SplitKind := .both) (exceptionSet : ExprSet := {}) : MetaM (Option Expr) := do
+  go (← instantiateMVars e)
+where
+  go (e : Expr) : MetaM (Option Expr) := do
+    if let some target ← find? e then
+      if target.isIte || target.isDIte then
+        let cond := target.getArg! 1 5
+        -- Try to find a nested `if` in `cond`
+        return (← go cond).getD target
+      else
+        return some target
+    else
+      return none
+
+  find? (e : Expr) : MetaM (Option Expr) := do
+    let some candidate ← unsafe FindSplitImpl.visit e { kind, exceptionSet } |>.run' mkPtrSet
+      | return none
+    trace[split.debug] "candidate:{indentExpr candidate}"
+    return some candidate
+
+/-- Return the condition and decidable instance of an `if` expression to case split. -/
+private partial def findIfToSplit? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  if let some iteApp ← findSplit? e .ite then
+    let cond := iteApp.getArg! 1 5
+    let dec := iteApp.getArg! 2 5
+    return (cond, dec)
+  else
+    return none
+
 namespace SplitIf
 
 /--
@@ -62,19 +180,9 @@ private def discharge? (numIndices : Nat) (useDecide : Bool) : Simp.Discharge :=
 def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=
   return discharge? (← getLCtx).numIndices useDecide
 
-/-- Return the condition and decidable instance of an `if` expression to case split. -/
-private partial def findIfToSplit? (e : Expr) : Option (Expr × Expr) :=
-  if let some iteApp := e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars then
-    let cond := iteApp.getArg! 1 5
-    let dec := iteApp.getArg! 2 5
-    -- Try to find a nested `if` in `cond`
-    findIfToSplit? cond |>.getD (cond, dec)
-  else
-    none
-
-def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := do
+def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := mvarId.withContext do
   let e ← instantiateMVars e
-  if let some (cond, decInst) := findIfToSplit? e then
+  if let some (cond, decInst) ← findIfToSplit? e then
     let hName ← match hName? with
       | none       => mkFreshUserName `h
       | some hName => pure hName
@@ -106,6 +214,7 @@ def splitIfTarget? (mvarId : MVarId) (hName? : Option Name := none) : MetaM (Opt
     let mvarId₁ ← simpIfTarget s₁.mvarId
     let mvarId₂ ← simpIfTarget s₂.mvarId
     if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
+      trace[split.failure] "`split` tactic failed to simplify target using new hypotheses Goals:\n{mvarId₁}\n{mvarId₂}"
       return none
     else
       return some ({ s₁ with mvarId := mvarId₁ }, { s₂ with mvarId := mvarId₂ })
@@ -118,6 +227,7 @@ def splitIfLocalDecl? (mvarId : MVarId) (fvarId : FVarId) (hName? : Option Name 
       let mvarId₁ ← simpIfLocalDecl s₁.mvarId fvarId
       let mvarId₂ ← simpIfLocalDecl s₂.mvarId fvarId
       if s₁.mvarId == mvarId₁ && s₂.mvarId == mvarId₂ then
+        trace[split.failure] "`split` tactic failed to simplify target using new hypotheses Goals:\n{mvarId₁}\n{mvarId₂}"
         return none
       else
         return some (mvarId₁, mvarId₂)

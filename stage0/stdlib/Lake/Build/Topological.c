@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Topological
-// Imports: Init Lake.Util.Cycle Lake.Util.Store Lake.Util.EquipT
+// Imports: Lake.Util.Cycle Lake.Util.Store Lake.Util.EquipT
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -385,7 +385,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Cycle(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Store(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_EquipT(uint8_t builtin, lean_object*);
@@ -394,9 +393,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Topological(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_Cycle(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

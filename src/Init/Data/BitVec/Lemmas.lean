@@ -247,12 +247,6 @@ theorem toFin_one  : toFin (1 : BitVec w) = 1 := by
 @[simp] theorem toFin_ofBool (b : Bool) : (ofBool b).toFin = Fin.ofNat' 2 (b.toNat) := by
   cases b <;> rfl
 
-@[simp] theorem getMsbD_ofBool (b : Bool) : (ofBool b).getMsbD i = (decide (i = 0) && b) := by
-  cases b <;> simp [getMsbD]
-
-@[simp] theorem msb_ofBool (b : Bool) : (ofBool b).msb = b := by
-  cases b <;> simp [BitVec.msb]
-
 theorem ofNat_one (n : Nat) : BitVec.ofNat 1 n = BitVec.ofBool (n % 2 = 1) :=  by
   rcases (Nat.mod_two_eq_zero_or_one n) with h | h <;> simp [h, BitVec.ofNat, Fin.ofNat']
 
@@ -374,6 +368,12 @@ theorem getElem_ofBool {b : Bool} {i : Nat} : (ofBool b)[0] = b := by
   · simp [ofBool]
   · simp only [ofBool]
     by_cases hi : i = 0 <;> simp [hi] <;> omega
+
+@[simp] theorem getMsbD_ofBool (b : Bool) : (ofBool b).getMsbD i = (decide (i = 0) && b) := by
+  cases b <;> simp [getMsbD]
+
+@[simp] theorem msb_ofBool (b : Bool) : (ofBool b).msb = b := by
+  cases b <;> simp [BitVec.msb]
 
 /-! ### msb -/
 

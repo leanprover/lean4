@@ -56,9 +56,9 @@ deriving FromJson, ToJson
 
 structure StackTable where
   frame : Array Nat
-  «prefix» : Array (Option Nat)
   category : Array Nat
   subcategory : Array Nat
+  «prefix» : Array (Option Nat)
   length : Nat
 deriving FromJson, ToJson
 
@@ -83,11 +83,16 @@ structure FuncTable where
 deriving FromJson, ToJson
 
 structure FrameTable where
+  address : Array Json := #[]
+  inlineDepth : Array Json := #[]
   category : Array Nat
   subcategory : Array Nat
   func : Array Nat
-  inlineDepth : Array Json := #[]
+  nativeSymbol : Array Json := []
   innerWindowID : Array Json := #[]
+  implementation : Array Json := #[]
+  line : Array (Option Nat) := #[]
+  column : Array (Option Nat) := #[]
   length : Nat
 deriving FromJson, ToJson
 
@@ -186,6 +191,8 @@ where
               func := thread.frameTable.func.push thread.funcMap.size
               category := thread.frameTable.category.push category
               subcategory := thread.frameTable.subcategory.push 0
+              line := thread.frameTable.line.push none
+              column := thread.frameTable.column.push none
               length := thread.frameTable.length + 1
             }
             funcMap := thread.funcMap.insert strIdx thread.funcMap.size })

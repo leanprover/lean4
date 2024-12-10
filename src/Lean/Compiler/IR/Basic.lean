@@ -81,9 +81,9 @@ then one of the following must hold in each (execution) branch.
 inductive IRType where
   | float | uint8 | uint16 | uint32 | uint64 | usize
   | irrelevant | object | tobject
+  | float32
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
-  | float32
   deriving Inhabited, Repr
 
 namespace IRType

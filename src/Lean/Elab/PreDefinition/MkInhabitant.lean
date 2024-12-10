@@ -50,13 +50,13 @@ private partial def mkInhabitantForAux? (xs insts : Array Expr) (type : Expr) (u
       return none
 
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
-def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr :=
+def mkInhabitantFor (failedToMessage : MessageData) (xs : Array Expr) (type : Expr) : MetaM Expr :=
   withInhabitedInstances xs fun insts => do
     if let some val ← mkInhabitantForAux? xs insts type false <||> mkInhabitantForAux? xs insts type true then
       return val
     else
       throwError "\
-        failed to compile 'partial' definition '{declName}', could not prove that the type\
+        {failedToMessage}, could not prove that the type\
         {indentExpr (← mkForallFVars xs type)}\n\
         is nonempty.\n\
         \n\

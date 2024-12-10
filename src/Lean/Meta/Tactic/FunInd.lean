@@ -810,7 +810,8 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
       let args := e.getAppArgs
       if eqnInfo.fixedPrefixSize + 1 ≤ args.size then
         let packedArg := args.back!
-          let (i, unpackedArgs) ← eqnInfo.argsPacker.unpack packedArg
+          let some (i, unpackedArgs) := eqnInfo.argsPacker.unpack packedArg
+            | throwError "Unexpected packedArg:{indentExpr packedArg}"
           let e' := .const eqnInfo.declNames[i]! e.getAppFn.constLevels!
           let e' := mkAppN e' args.pop
           let e' := mkAppN e' unpackedArgs

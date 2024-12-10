@@ -1046,6 +1046,25 @@ instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Na
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
 
+/-- Dependent version of `decidableExistsLT`. -/
+instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
+    Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
+  match k, p, I with
+  | 0, _, _ => isFalse (by simp)
+  | (k + 1), p, I => @decidable_of_iff _ ((∃ m, ∃ h : m < k, p m (by omega)) ∨ p k (by omega))
+      ⟨by rintro (⟨m, h, w⟩ | w); exact ⟨m, by omega, w⟩; exact ⟨k, by omega, w⟩,
+        fun ⟨m, h, w⟩ => if h' : m < k then .inl ⟨m, h', w⟩ else
+          by obtain rfl := (by omega : m = k); exact .inr w⟩
+      (@instDecidableOr _ _
+        (decidableExistsLT' (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
+        inferInstance)
+
+/-- Dependent version of `decidableExistsLE`. -/
+instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, Decidable (p m h)] :
+    Decidable (∃ m : Nat, ∃ h : m ≤ k, p m h) :=
+  decidable_of_iff (∃ m, ∃ h : m < k + 1, p m (by omega)) (exists_congr fun _ =>
+    ⟨fun ⟨h, w⟩ => ⟨le_of_lt_succ h, w⟩, fun ⟨h, w⟩ => ⟨lt_add_one_of_le h, w⟩⟩)
+
 /-! ### Results about `List.sum` specialized to `Nat` -/
 
 protected theorem sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by

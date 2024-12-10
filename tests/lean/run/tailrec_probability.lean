@@ -6,6 +6,10 @@ attribute [partial_monotone]
   Lean.Tailrec.monotone_mapM
   Lean.Tailrec.monotone_mapFinIdxM
 
+
+-- Since we do not have ENNReal in core, we just axiomatize it all for this test
+
+
 opaque ENNReal : Type
 
 axiom ENNReal.sup : ∀ {α}, (α → ENNReal) → ENNReal
@@ -49,6 +53,7 @@ axiom ENNReal.sup_le : ∀ {α} (a : ENNReal) (s : α → ENNReal) (h : ∀ (i :
 end
 
 
+/-- Distribtions (not normalized, which is curcial, else we don't have ⊥.) -/
 def D (α : Type) : Type := α → ENNReal
 
 noncomputable def D.join : D (D α) → D α := fun dd x =>

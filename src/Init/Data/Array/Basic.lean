@@ -209,7 +209,7 @@ instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
   default := Array.empty
 
-@[simp] def isEmpty (a : Array α) : Bool :=
+def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
 @[specialize]

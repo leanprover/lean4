@@ -150,7 +150,6 @@ theorem attach_map_coe (l : Array α) (f : α → β) :
 theorem attach_map_val (l : Array α) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
   attach_map_coe _ _
 
-@[simp]
 theorem attach_map_subtype_val (l : Array α) : l.attach.map Subtype.val = l := by
   cases l; simp
 
@@ -162,7 +161,6 @@ theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Array α) (H :
     ((l.attachWith p H).map fun i => f i.val) = l.map f :=
   attachWith_map_coe _ _ _
 
-@[simp]
 theorem attachWith_map_subtype_val {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l := by
   cases l; simp

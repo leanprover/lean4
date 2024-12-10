@@ -38,7 +38,7 @@ theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
   simp
 
 @[simp] theorem isEmpty_toArray (l : List α) : l.toArray.isEmpty = l.isEmpty := by
-  cases l <;> simp
+  cases l <;> simp [Array.isEmpty]
 
 @[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = singleton a := rfl
 

@@ -56,7 +56,6 @@ theorem attach_map_val (o : Option α) (f : α → β) :
     (o.attach.map fun i => f i.val) = o.map f :=
   attach_map_coe _ _
 
-@[simp]
 theorem attach_map_subtype_val (o : Option α) :
     o.attach.map Subtype.val = o :=
   (attach_map_coe _ _).trans (congrFun Option.map_id _)
@@ -69,12 +68,11 @@ theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H 
     ((o.attachWith p H).map fun i => f i.val) = o.map f :=
   attachWith_map_coe _ _ _
 
-@[simp]
 theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     (o.attachWith p H).map Subtype.val = o :=
   (attachWith_map_coe _ _ _).trans (congrFun Option.map_id _)
 
-@[simp] theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
+theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   | none, ⟨x, h⟩ => by simp at h
   | some a, ⟨x, h⟩ => by simpa using h
 

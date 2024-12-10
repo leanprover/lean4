@@ -68,8 +68,8 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {n} :
     (l.modifyHead f).drop n = l.drop n := by
   cases l <;> cases n <;> simp_all
 
-@[simp] theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
-    (l.modifyHead f).eraseIdx 0 = l.eraseIdx 0 := by cases l <;> simp
+theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
+    (l.modifyHead f).eraseIdx 0 = l.eraseIdx 0 := by simp
 
 @[simp] theorem eraseIdx_modifyHead_of_pos {f : α → α} {l : List α} {n} (h : 0 < n) :
     (l.modifyHead f).eraseIdx n = (l.eraseIdx n).modifyHead f := by cases l <;> cases n <;> simp_all

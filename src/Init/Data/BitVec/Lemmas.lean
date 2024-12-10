@@ -2557,29 +2557,21 @@ theorem udiv_self {x : BitVec w} :
       ↓reduceIte, toNat_udiv]
     rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
 
-/--
-If `x` is nonnegative, then (x / y).toInt = (x / y).toNat.
-- Either `y.toInt` is nonnegative, in which case, `y.toInt = y.toNat`.
-- In the other case, if `y.toInt` is negative, then `2 * y.toNat ≥ 2^w`,
-  which makes `x / y = 0#w`, and hence, the `toInt` and `toNat` interpretations agree.
--/
-theorem toInt_udiv_eq_toNat_udiv {x y : BitVec w} (hx : 2 * x.toNat < 2^w) :
-    (x / y).toInt = (x / y).toNat := by
-  have : 2 * (x.toNat / y.toNat) < 2^w := by
-    have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
-    omega
-  rw [toInt_eq_toNat_of_lt this, toNat_udiv, Int.ofNat_ediv]
+/- TODO: generalize to a proper msb_udiv -/
+theorem msb_udiv_eq_false_of {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
+    (x / y).msb = false := by
+  simp [msb_eq_decide] at *
+  have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
+  omega
 
 /--
-If `x, y` are both nonnegative, then `(x / y).toInt` equals `(x / y).toNat`.
+If `x` is nonnegative (i.e., does not have its msb set),
+then `(x / y)` is nonnegative, thus `toInt` and `toNat` coincide.
 -/
-theorem toInt_udiv_of_lt {x y : BitVec w} (hx : 2 * x.toNat < 2^w) (hy : 2 * y.toNat < 2^w) :
-    (x / y).toInt = x.toInt / y.toInt := by
-  rw [toInt_udiv_eq_toNat_udiv hx]
-  have : 2 * (x.toNat / y.toNat) < 2^w := by
-    have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
-    omega
-  simp [toInt_eq_toNat_of_lt hx, toInt_eq_toNat_of_lt hy, toNat_udiv, Int.ofNat_ediv]
+theorem toInt_udiv_eq_toNat_udiv {x : BitVec w} (h : x.msb = false)
+    (y : BitVec w) :
+    (x / y).toInt = x.toNat / y.toNat := by
+  simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
 
 /-! ### umod -/
 

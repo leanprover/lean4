@@ -83,6 +83,8 @@ structure FuncTable where
 deriving FromJson, ToJson
 
 structure FrameTable where
+  category : Array Nat
+  subcategory : Array Nat
   func : Array Nat
   inlineDepth : Array Json := #[]
   innerWindowID : Array Json := #[]
@@ -182,6 +184,8 @@ where
             }
             frameTable := {
               func := thread.frameTable.func.push thread.funcMap.size
+              category := thread.frameTable.category.push category
+              subcategory := thread.frameTable.subcategory.push 0
               length := thread.frameTable.length + 1
             }
             funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
@@ -230,7 +234,7 @@ def Thread.new (name : String) : Thread := {
   name
   samples := { stack := #[], time := #[], weight := #[], threadCPUDelta := #[], length := 0 }
   stackTable := { frame := #[], «prefix» := #[], category := #[], subcategory := #[], length := 0 }
-  frameTable := { func := #[], length := 0 }
+  frameTable := { func := #[], category := #[], subcategory := #[], length := 0 }
   stringArray := #[]
   funcTable := {
     name := #[], resource := #[], fileName := #[], lineNumber := #[], columnNumber := #[],

@@ -454,6 +454,9 @@ theorem toInt_eq_msb_cond (x : BitVec w) :
   simp only [BitVec.toInt, ← msb_eq_false_iff_two_mul_lt]
   cases x.msb <;> rfl
 
+theorem toInt_eq_toNat_of_msb {x : BitVec w} (h : x.msb = false) :
+    x.toInt = x.toNat := by
+  simp [toInt_eq_msb_cond, h]
 
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]

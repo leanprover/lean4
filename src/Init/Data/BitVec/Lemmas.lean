@@ -447,6 +447,10 @@ theorem toInt_eq_toNat_cond (x : BitVec n) :
         (x.toNat : Int) - (2^n : Nat) :=
   rfl
 
+theorem toInt_eq_toNat_of_lt {x : BitVec n} (h : 2 * x.toNat < 2^n) :
+    x.toInt = x.toNat := by
+  simp [toInt_eq_toNat_cond, h]
+
 theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toNat < 2^w := by
   cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide, toNat_of_zero_length]
 
@@ -459,6 +463,9 @@ theorem toInt_eq_msb_cond (x : BitVec w) :
   simp only [BitVec.toInt, ← msb_eq_false_iff_two_mul_lt]
   cases x.msb <;> rfl
 
+theorem toInt_eq_toNat_of_msb {x : BitVec w} (h : x.msb = false) :
+    x.toInt = x.toNat := by
+  simp [toInt_eq_msb_cond, h]
 
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]
@@ -2308,6 +2315,12 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 @[simp, bv_toNat] theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 
+theorem toNat_neg_of_pos {x : BitVec n} (h : 0#n < x) :
+    (- x).toNat = 2^n - x.toNat := by
+  change 0 < x.toNat at h
+  rw [toNat_neg, Nat.mod_eq_of_lt]
+  omega
+
 theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
   rw [← BitVec.zero_sub, toInt_sub]
@@ -2546,13 +2559,13 @@ theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) :
   rw [← udiv_eq]
   simp [udiv, bv_toNat, h, Nat.mod_eq_of_lt]
 
+@[simp]
+theorem toFin_udiv {x y : BitVec n} : (x / y).toFin = x.toFin / y.toFin := by
+  rfl
+
 @[simp, bv_toNat]
 theorem toNat_udiv {x y : BitVec n} : (x / y).toNat = x.toNat / y.toNat := by
-  rw [udiv_def]
-  by_cases h : y = 0
-  · simp [h]
-  · rw [toNat_ofNat, Nat.mod_eq_of_lt]
-    exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+  rfl
 
 @[simp]
 theorem zero_udiv {x : BitVec w} : (0#w) / x = 0#w := by
@@ -2587,6 +2600,31 @@ theorem udiv_self {x : BitVec w} :
     simp only [udiv_eq, beq_iff_eq, toNat_eq, toNat_ofNat, Nat.zero_mod, h,
       ↓reduceIte, toNat_udiv]
     rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
+
+theorem msb_udiv (x y : BitVec w) :
+    (x / y).msb = (x.msb && y ≤ 1#w) := by
+  cases msb_x : x.msb
+  · simp [msb_eq_decide] at *
+    have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
+    omega
+  . rcases w with _|w
+    · contradiction
+    sorry
+
+/- TODO: generalize to a proper msb_udiv -/
+theorem msb_udiv_eq_false_of {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
+    (x / y).msb = false := by
+  simp [msb_eq_decide] at *
+  have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
+  omega
+
+/--
+If `x` is nonnegative (i.e., does not have its msb set),
+then `(x / y)` is nonnegative, thus `toInt` and `toNat` coincide.
+-/
+theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
+    (x / y).toInt = x.toNat / y.toNat := by
+  simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
 
 /-! ### umod -/
 
@@ -2690,6 +2728,44 @@ theorem sdiv_self {x : BitVec w} :
     · subst h
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
+
+theorem msb_sdiv (x y : BitVec w) :
+    (x.sdiv y).msb = (x.msb ^^ y.msb) /- || (x == intMin && y == -1#w) -/ := by
+  /- TODO: think about the exact edge case for sdiv -/
+  /- TODO: we likely want to yoink up the definition of `intMin`,
+           so that we can actually talk about it here -/
+  sorry
+
+theorem toInt_sdiv (x y : BitVec w) :
+    (x.sdiv y).toInt = x.toInt / y.toInt := by
+  -- TODO: figure out precises side-conditions, e.g.,
+  --       what happens if either operand is intMin?
+  by_cases hy : y = 0#w
+  · subst hy; simp
+  · replace hy : 0#w < y := by
+      show 0 < y.toNat
+      have : y.toNat ≠ 0 := fun h => hy <| eq_of_toNat_eq h
+      omega
+    unfold sdiv
+    simp
+    split
+    next msb_x msb_y =>
+      rw [toInt_udiv_of_msb msb_x, toInt_eq_toNat_of_msb msb_x,
+        toInt_eq_toNat_of_msb msb_y]
+    next msb_x msb_y =>
+      rw [toInt_neg, toInt_udiv_of_msb msb_x, toInt_eq_toNat_of_msb msb_x]
+      rw [toNat_neg_of_pos hy]
+      rw [← Int.ediv_neg, Int.ofNat_sub (by bv_omega), Int.neg_sub]
+      simp only [toInt_eq_msb_cond, msb_y, ↓reduceIte]
+      /-
+      TODO: prove an `Int.bmod_eq_of_` theorem that shows `z.bmod m = z`
+            under some bounds (probably `0 ≤ z` and `z < m / 2`)
+      -/
+      sorry
+    next msb_x msb_y =>
+      sorry
+    next msb_x msb_y =>
+    sorry
 
 /-! ### smtSDiv -/
 

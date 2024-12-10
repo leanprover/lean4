@@ -719,13 +719,11 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
         let e' ← mkLambdaFVars #[motive] e'
 
-        -- We could pass (usedOnly := true) below, and get nicer induction principles that
-        -- do not mention odd unused parameters.
-        -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
-        -- that derives them from an function application in the goal) is harder, as
-        -- one would have to infer or keep track of which parameters to pass.
-        -- So for now lets just keep them around.
-        let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
+        -- We used to pass (usedOnly := false) below in the hope that the types of the
+        -- induction principle match the type of the function better.
+        -- But this leads to avoidable parameters that make functional induction strictly less
+        -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
+        let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) fixedParams e'
         instantiateMVars e'
     | _ =>
       if funBody.isAppOf ``WellFounded.fix then
@@ -1062,13 +1060,11 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           let e' ← abstractIndependentMVars mvars (← motives.back!.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars motives e'
 
-          -- We could pass (usedOnly := true) below, and get nicer induction principles that
-          -- do not mention odd unused parameters.
-          -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
-          -- that derives them from an function application in the goal) is harder, as
-          -- one would have to infer or keep track of which parameters to pass.
-          -- So for now lets just keep them around.
-          let e' ← mkLambdaFVars (binderInfoForMVars := .default) xs e'
+          -- We used to pass (usedOnly := false) below in the hope that the types of the
+          -- induction principle match the type of the function better.
+          -- But this leads to avoidable parameters that make functional induction strictly less
+          -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
+          let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
           let e' ← instantiateMVars e'
           trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
           pure e'

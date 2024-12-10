@@ -123,6 +123,8 @@ static ir::type to_ir_type(expr const & e) {
             return ir::type::USize;
         } else if (const_name(e) == get_float_name()) {
             return ir::type::Float;
+        } else if (const_name(e) == get_float32_name()) {
+            return ir::type::Float32;
         }
      } else if (is_pi(e)) {
         return ir::type::Object;

@@ -679,6 +679,7 @@ private partial def decodeBinLitAux (s : String) (i : String.Pos) (val : Nat) : 
     let c := s.get i
     if c == '0' then decodeBinLitAux s (s.next i) (2*val)
     else if c == '1' then decodeBinLitAux s (s.next i) (2*val + 1)
+    else if c == '_' then decodeBinLitAux s (s.next i) val
     else none
 
 private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
@@ -686,6 +687,7 @@ private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) 
   else
     let c := s.get i
     if '0' ≤ c && c ≤ '7' then decodeOctalLitAux s (s.next i) (8*val + c.toNat - '0'.toNat)
+    else if c == '_' then decodeOctalLitAux s (s.next i) val
     else none
 
 private def decodeHexDigit (s : String) (i : String.Pos) : Option (Nat × String.Pos) :=
@@ -700,13 +702,16 @@ private partial def decodeHexLitAux (s : String) (i : String.Pos) (val : Nat) : 
   if s.atEnd i then some val
   else match decodeHexDigit s i with
     | some (d, i) => decodeHexLitAux s i (16*val + d)
-    | none        => none
+    | none        =>
+      if s.get i == '_' then decodeHexLitAux s (s.next i) val
+      else none
 
 private partial def decodeDecimalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
   if s.atEnd i then some val
   else
     let c := s.get i
     if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux s (s.next i) (10*val + c.toNat - '0'.toNat)
+    else if c == '_' then decodeDecimalLitAux s (s.next i) val
     else none
 
 def decodeNatLitVal? (s : String) : Option Nat :=
@@ -773,6 +778,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decodeAfterExp (s.next i) val e sign (10*exp + c.toNat - '0'.toNat)
+      else if c == '_' then
+        decodeAfterExp (s.next i) val e sign exp
       else
         none
 
@@ -793,6 +800,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decodeAfterDot (s.next i) (10*val + c.toNat - '0'.toNat) (e+1)
+      else if c == '_' then
+        decodeAfterDot (s.next i) val e
       else if c == 'e' || c == 'E' then
         decodeExp (s.next i) val e
       else
@@ -805,6 +814,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decode (s.next i) (10*val + c.toNat - '0'.toNat)
+      else if c == '_' then
+        decode (s.next i) val
       else if c == '.' then
         decodeAfterDot (s.next i) val 0
       else if c == 'e' || c == 'E' then

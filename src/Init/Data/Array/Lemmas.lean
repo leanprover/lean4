@@ -379,6 +379,22 @@ theorem isEmpty_iff_size_eq_zero {l : Array α} : l.isEmpty ↔ l.size = 0 := by
 @[simp] theorem isEmpty_eq_false {l : Array α} : l.isEmpty = false ↔ l ≠ #[] := by
   cases l <;> simp
 
+/-! ### Decidability of bounded quantifiers -/
+
+instance {xs : Array α} {p : α → Prop} [DecidablePred p] :
+    Decidable (∀ x, x ∈ xs → p x) :=
+  decidable_of_iff (∀ (i : Nat) h, p (xs[i]'h)) (by
+    simp only [mem_iff_getElem, forall_exists_index]
+    exact
+      ⟨by rintro w _ i h rfl; exact w i h, fun w i h => w _ i h rfl⟩)
+
+instance {xs : Array α} {p : α → Prop} [DecidablePred p] :
+    Decidable (∃ x, x ∈ xs ∧ p x) :=
+  decidable_of_iff (∃ (i : Nat), ∃ (h : i < xs.size), p (xs[i]'h)) (by
+    simp [mem_iff_getElem]
+    exact
+      ⟨by rintro ⟨i, h, w⟩; exact ⟨_, ⟨i, h, rfl⟩, w⟩, fun ⟨_, ⟨i, h, rfl⟩, w⟩ => ⟨i, h, w⟩⟩)
+
 /-! ### any / all -/
 
 theorem anyM_eq_anyM_loop [Monad m] (p : α → m Bool) (as : Array α) (start stop) :
@@ -389,14 +405,15 @@ theorem anyM_stop_le_start [Monad m] (p : α → m Bool) (as : Array α) (start 
     (h : min stop as.size ≤ start) : anyM p as start stop = pure false := by
   rw [anyM_eq_anyM_loop, anyM.loop, dif_neg (Nat.not_lt.2 h)]
 
-theorem anyM_loop_cons [Monad m] (p : α → m Bool) (a : α) (as : List α) (stop start : Nat) (h : stop + 1 ≤ (a :: as).length) :
-    anyM.loop p ⟨a :: as⟩ (stop + 1) h (start + 1) = anyM.loop p ⟨as⟩ stop (by simpa using h) start := by
+theorem anyM_loop_cons [Monad m] (p : α → m Bool) (a : α) (as : List α) (stop start : Nat)
+    (h : stop + 1 ≤ (a :: as).length) :
+    anyM.loop p ⟨a :: as⟩ (stop + 1) h (start + 1) =
+      anyM.loop p ⟨as⟩ stop (by simpa using h) start := by
   rw [anyM.loop]
   conv => rhs; rw [anyM.loop]
   split <;> rename_i h'
   · simp only [Nat.add_lt_add_iff_right] at h'
-    rw [dif_pos h']
-    rw [anyM_loop_cons]
+    rw [dif_pos h', anyM_loop_cons]
     simp
   · rw [dif_neg]
     omega
@@ -451,9 +468,14 @@ theorem any_iff_exists {p : α → Bool} {as : Array α} {start stop} :
     · rintro ⟨i, hi, ge, _, h⟩
       exact ⟨i, by omega, by omega, by omega, h⟩
 
-theorem any_eq_true {p : α → Bool} {as : Array α} :
-    as.any p ↔ ∃ (i : Nat) (_ : i < as.size), p as[i] := by
+@[simp] theorem any_eq_true {p : α → Bool} {as : Array α} :
+    as.any p = true ↔ ∃ (i : Nat) (_ : i < as.size), p as[i] := by
   simp [any_iff_exists]
+
+@[simp] theorem any_eq_false {p : α → Bool} {as : Array α} :
+    as.any p = false ↔ ∀ (i : Nat) (_ : i < as.size), ¬p as[i] := by
+  rw [Bool.eq_false_iff, Ne, any_eq_true]
+  simp
 
 theorem any_toList {p : α → Bool} (as : Array α) : as.toList.any p = as.any p := by
   rw [Bool.eq_iff_iff, any_eq_true, List.any_eq_true]
@@ -485,9 +507,14 @@ theorem all_iff_forall {p : α → Bool} {as : Array α} {start stop} :
   simp only [any_iff_exists, Bool.not_eq_eq_eq_not, Bool.not_true, not_exists, not_and,
     Bool.not_eq_false, and_imp]
 
-theorem all_eq_true {p : α → Bool} {as : Array α} :
-    as.all p ↔ ∀ (i : Nat) (_ : i < as.size), p as[i] := by
+@[simp] theorem all_eq_true {p : α → Bool} {as : Array α} :
+    as.all p = true ↔ ∀ (i : Nat) (_ : i < as.size), p as[i] := by
   simp [all_iff_forall]
+
+@[simp] theorem all_eq_false {p : α → Bool} {as : Array α} :
+    as.all p = false ↔ ∃ (i : Nat) (_ : i < as.size), ¬p as[i] := by
+  rw [Bool.eq_false_iff, Ne, all_eq_true]
+  simp
 
 theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all p := by
   rw [Bool.eq_iff_iff, all_eq_true, List.all_eq_true]
@@ -500,6 +527,188 @@ theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all 
 
 theorem all_eq_true_iff_forall_mem {l : Array α} : l.all p ↔ ∀ x, x ∈ l → p x := by
   simp only [← all_toList, List.all_eq_true, mem_def]
+
+theorem _root_.List.anyM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+    l.toArray.anyM p = l.anyM p := by
+  rw [← anyM_toList]
+
+theorem _root_.List.any_toArray (p : α → Bool) (l : List α) : l.toArray.any p = l.any p := by
+  rw [any_toList]
+
+theorem _root_.List.allM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+    l.toArray.allM p = l.allM p := by
+  rw [← allM_toList]
+
+theorem _root_.List.all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p := by
+  rw [all_toList]
+
+/-- Variant of `anyM_toArray` with a side condition on `stop`. -/
+@[simp] theorem _root_.List.anyM_toArray' [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α)
+    (h : stop = l.toArray.size) :
+    l.toArray.anyM p 0 stop = l.anyM p := by
+  subst h
+  rw [← anyM_toList]
+
+/-- Variant of `any_toArray` with a side condition on `stop`. -/
+@[simp] theorem _root_.List.any_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
+    l.toArray.any p 0 stop = l.any p := by
+  subst h
+  rw [any_toList]
+
+/-- Variant of `allM_toArray` with a side condition on `stop`. -/
+@[simp] theorem _root_.List.allM_toArray' [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α)
+    (h : stop = l.toArray.size) :
+    l.toArray.allM p 0 stop = l.allM p := by
+  subst h
+  rw [← allM_toList]
+
+/-- Variant of `all_toArray` with a side condition on `stop`. -/
+@[simp] theorem _root_.List.all_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
+    l.toArray.all p 0 stop = l.all p := by
+  subst h
+  rw [all_toList]
+
+/-- Variant of `any_eq_true` in terms of membership rather than an array index. -/
+theorem any_eq_true' {p : α → Bool} {as : Array α} :
+    as.any p = true ↔ (∃ x, x ∈ as ∧ p x) := by
+  cases as
+  simp
+
+/-- Variant of `any_eq_false` in terms of membership rather than an array index. -/
+theorem any_eq_false' {p : α → Bool} {as : Array α} :
+    as.any p = false ↔ ∀ x, x ∈ as → ¬p x := by
+  rw [Bool.eq_false_iff, Ne, any_eq_true']
+  simp
+
+/-- Variant of `all_eq_true` in terms of membership rather than an array index. -/
+theorem all_eq_true' {p : α → Bool} {as : Array α} :
+    as.all p = true ↔ (∀ x, x ∈ as → p x) := by
+  cases as
+  simp
+
+/-- Variant of `all_eq_false` in terms of membership rather than an array index. -/
+theorem all_eq_false' {p : α → Bool} {as : Array α} :
+    as.all p = false ↔ ∃ x, x ∈ as ∧ ¬p x := by
+  rw [Bool.eq_false_iff, Ne, all_eq_true']
+  simp
+
+theorem any_eq {xs : Array α} {p : α → Bool} : xs.any p = decide (∃ i : Nat, ∃ h, p (xs[i]'h)) := by
+  by_cases h : xs.any p
+  · simp_all [any_eq_true]
+  · simp_all [any_eq_false]
+
+/-- Variant of `any_eq` in terms of membership rather than an array index. -/
+theorem any_eq' {xs : Array α} {p : α → Bool} : xs.any p = decide (∃ x, x ∈ xs ∧ p x) := by
+  by_cases h : xs.any p
+  · simp_all [any_eq_true', -any_eq_true]
+  · simp only [Bool.not_eq_true] at h
+    simp only [h]
+    simp only [any_eq_false'] at h
+    simpa using h
+
+theorem all_eq {xs : Array α} {p : α → Bool} : xs.all p = decide (∀ i, (_ : i < xs.size) → p xs[i]) := by
+  by_cases h : xs.all p
+  · simp_all [all_eq_true]
+  · simp only [Bool.not_eq_true] at h
+    simp only [h]
+    simp only [all_eq_false] at h
+    simpa using h
+
+/-- Variant of `all_eq` in terms of membership rather than an array index. -/
+theorem all_eq' {xs : Array α} {p : α → Bool} : xs.all p = decide (∀ x, x ∈ xs → p x) := by
+  by_cases h : xs.all p
+  · simp_all [all_eq_true', -all_eq_true]
+  · simp only [Bool.not_eq_true] at h
+    simp only [h]
+    simp only [all_eq_false'] at h
+    simpa using h
+
+theorem decide_exists_mem {xs : Array α} {p : α → Prop} [DecidablePred p] :
+    decide (∃ x, x ∈ xs ∧ p x) = xs.any p := by
+  simp [any_eq']
+
+theorem decide_forall_mem {xs : Array α} {p : α → Prop} [DecidablePred p] :
+    decide (∀ x, x ∈ xs → p x) = xs.all p := by
+  simp [all_eq']
+
+@[simp] theorem _root_.List.contains_toArray [BEq α] {l : List α} {a : α} :
+    l.toArray.contains a = l.contains a := by
+  simp [Array.contains, List.any_beq]
+
+@[simp] theorem _root_.List.elem_toArray [BEq α] {l : List α} {a : α} :
+    Array.elem a l.toArray = List.elem a l := by
+  simp [Array.elem]
+
+theorem any_beq [BEq α] {xs : Array α} {a : α} : (xs.any fun x => a == x) = xs.contains a := by
+  cases xs
+  simp [List.any_beq]
+
+/-- Variant of `any_beq` with `==` reversed. -/
+theorem any_beq' [BEq α] [PartialEquivBEq α] {xs : Array α} :
+    (xs.any fun x => x == a) = xs.contains a := by
+  simp only [BEq.comm, any_beq]
+
+theorem all_bne [BEq α] {xs : Array α} : (xs.all fun x => a != x) = !xs.contains a := by
+  cases xs
+  simp [List.all_bne]
+
+/-- Variant of `all_bne` with `!=` reversed. -/
+theorem all_bne' [BEq α] [PartialEquivBEq α] {xs : Array α} :
+    (xs.all fun x => x != a) = !xs.contains a := by
+  simp only [bne_comm, all_bne]
+
+theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Array α} : elem a as = true → a ∈ as := by
+  cases as
+  simp
+
+theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Array α} (h : a ∈ as) : elem a as = true := by
+  cases as
+  simpa using h
+
+instance [BEq α] [LawfulBEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
+  decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
+
+@[simp] theorem elem_eq_contains [BEq α] {a : α} {l : Array α} :
+    elem a l = l.contains a := by
+  simp [elem]
+
+theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {as : Array α} :
+    elem a as = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
+
+theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Array α} :
+    as.contains a = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
+
+theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : Array α) :
+    elem a as = decide (a ∈ as) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
+
+@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : Array α) :
+    as.contains a = decide (a ∈ as) := by rw [← elem_eq_contains, elem_eq_mem]
+
+/-- Variant of `any_push` with a side condition on `stop`. -/
+@[simp] theorem any_push' [BEq α] {as : Array α} {a : α} {p : α → Bool} (h : stop = as.size + 1) :
+    (as.push a).any p 0 stop = (as.any p || p a) := by
+  cases as
+  rw [List.push_toArray]
+  simp [h]
+
+theorem any_push [BEq α] {as : Array α} {a : α} {p : α → Bool} :
+    (as.push a).any p = (as.any p || p a) :=
+  any_push' (by simp)
+
+/-- Variant of `all_push` with a side condition on `stop`. -/
+@[simp] theorem all_push' [BEq α] {as : Array α} {a : α} {p : α → Bool} (h : stop = as.size + 1) :
+    (as.push a).all p 0 stop = (as.all p && p a) := by
+  cases as
+  rw [List.push_toArray]
+  simp [h]
+
+theorem all_push [BEq α] {as : Array α} {a : α} {p : α → Bool} :
+    (as.push a).all p = (as.all p && p a) :=
+  all_push' (by simp)
+
+@[simp] theorem contains_push [BEq α] {l : Array α} {a : α} {b : α} :
+    (l.push a).contains b = (l.contains b || b == a) := by
+  simp [contains]
 
 theorem singleton_inj : #[a] = #[b] ↔ a = b := by
   simp
@@ -1796,46 +2005,6 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
   split
   · simp
   · simp_all [List.set_eq_of_length_le]
-
-theorem anyM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
-    l.toArray.anyM p = l.anyM p := by
-  rw [← anyM_toList]
-
-theorem any_toArray (p : α → Bool) (l : List α) : l.toArray.any p = l.any p := by
-  rw [any_toList]
-
-theorem allM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
-    l.toArray.allM p = l.allM p := by
-  rw [← allM_toList]
-
-theorem all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p := by
-  rw [all_toList]
-
-/-- Variant of `anyM_toArray` with a side condition on `stop`. -/
-@[simp] theorem anyM_toArray' [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α)
-    (h : stop = l.toArray.size) :
-    l.toArray.anyM p 0 stop = l.anyM p := by
-  subst h
-  rw [← anyM_toList]
-
-/-- Variant of `any_toArray` with a side condition on `stop`. -/
-@[simp] theorem any_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
-    l.toArray.any p 0 stop = l.any p := by
-  subst h
-  rw [any_toList]
-
-/-- Variant of `allM_toArray` with a side condition on `stop`. -/
-@[simp] theorem allM_toArray' [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α)
-    (h : stop = l.toArray.size) :
-    l.toArray.allM p 0 stop = l.allM p := by
-  subst h
-  rw [← allM_toList]
-
-/-- Variant of `all_toArray` with a side condition on `stop`. -/
-@[simp] theorem all_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
-    l.toArray.all p 0 stop = l.all p := by
-  subst h
-  rw [all_toList]
 
 @[simp] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
     l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by

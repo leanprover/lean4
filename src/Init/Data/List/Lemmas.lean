@@ -451,6 +451,10 @@ theorem forall_getElem {l : List α} {p : α → Prop} :
         simp only [getElem_cons_succ]
         exact getElem_mem (lt_of_succ_lt_succ h)
 
+@[simp] theorem elem_eq_contains [BEq α] {a : α} {l : List α} :
+    elem a l = l.contains a := by
+  simp [contains]
+
 @[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
   cases h : y == a <;> simp_all
@@ -458,8 +462,19 @@ theorem forall_getElem {l : List α} {p : α → Prop} :
 theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {as : List α} :
     elem a as = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
 
-@[simp] theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
+theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : List α} :
+    as.contains a = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
+
+theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
     elem a as = decide (a ∈ as) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
+
+@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
+    as.contains a = decide (a ∈ as) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
+
+@[simp] theorem contains_cons [BEq α] {a : α} {b : α} {l : List α} :
+    (a :: l).contains b = (b == a || l.contains b) := by
+  simp only [contains, elem_cons]
+  split <;> simp_all
 
 /-! ### `isEmpty` -/
 
@@ -505,17 +520,21 @@ theorem decide_forall_mem {l : List α} {p : α → Prop} [DecidablePred p] :
 @[simp] theorem all_eq_false {l : List α} : l.all p = false ↔ ∃ x, x ∈ l ∧ ¬p x := by
   simp [all_eq]
 
-theorem any_beq [BEq α] [LawfulBEq α] {l : List α} : (l.any fun x => a == x) ↔ a ∈ l := by
-  simp
+theorem any_beq [BEq α] {l : List α} {a : α} : (l.any fun x => a == x) = l.contains a := by
+  induction l <;> simp_all [contains_cons]
 
-theorem any_beq' [BEq α] [LawfulBEq α] {l : List α} : (l.any fun x => x == a) ↔ a ∈ l := by
-  simp
+/-- Variant of `any_beq` with `==` reversed. -/
+theorem any_beq' [BEq α] [PartialEquivBEq α] {l : List α} :
+    (l.any fun x => x == a) = l.contains a := by
+  simp only [BEq.comm, any_beq]
 
-theorem all_bne [BEq α] [LawfulBEq α] {l : List α} : (l.all fun x => a != x) ↔ a ∉ l := by
-  induction l <;> simp_all
+theorem all_bne [BEq α] {l : List α} : (l.all fun x => a != x) = !l.contains a := by
+  induction l <;> simp_all [bne]
 
-theorem all_bne' [BEq α] [LawfulBEq α] {l : List α} : (l.all fun x => x != a) ↔ a ∉ l := by
-  induction l <;> simp_all [eq_comm (a := a)]
+/-- Variant of `all_bne` with `!=` reversed. -/
+theorem all_bne' [BEq α] [PartialEquivBEq α] {l : List α} :
+    (l.all fun x => x != a) = !l.contains a := by
+  simp only [bne_comm, all_bne]
 
 /-! ### set -/
 
@@ -2827,11 +2846,6 @@ theorem leftpad_suffix (n : Nat) (a : α) (l : List α) : l <:+ (leftpad n a l) 
 /-! ### elem / contains -/
 
 theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by simp
-
-@[simp] theorem contains_cons [BEq α] :
-    (a :: as : List α).contains x = (x == a || as.contains x) := by
-  simp only [contains, elem]
-  split <;> simp_all
 
 theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (a == ·) := by
   induction l with simp | cons b l => cases b == a <;> simp [*]

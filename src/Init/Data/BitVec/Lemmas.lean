@@ -2572,10 +2572,6 @@ theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
     (x / y).toInt = x.toNat / y.toNat := by
   simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
 
-theorem toInt_udiv_eq_bmod (x y : BitVec w) :
-    (x / y).toInt = Int.bmod (x.toNat / y.toNat) (2 ^ w) := by
-  simp [toInt_eq_toNat_bmod]
-
 /-! ### umod -/
 
 theorem umod_def {x y : BitVec n} :

@@ -1,3 +1,11 @@
+-- These can move to Init after a stage0 update
+attribute [partial_monotone]
+  Lean.Tailrec.monotone_ite
+  Lean.Tailrec.monotone_dite
+  Lean.Tailrec.monotone_bind
+  Lean.Tailrec.monotone_mapM
+  Lean.Tailrec.monotone_mapFinIdxM
+
 def monadic (x : Nat) : Option Unit := monadic (x + 1)
 nontermination_tailrecursive
 

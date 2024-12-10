@@ -1539,10 +1539,10 @@ end SolveByElim
 
 /--
 `partial_monotonicity` performs one compositional step solving `Lean.Tailrec.monotone` goals,
-using lemma tagged with `@[parital_monotone]`.
+using lemma tagged with `@[partial_monotone]`.
 
 This tactic is mostly used internally by lean in `nonterminating_tailrecursive` definitions, but
-can be useful on its own for debugging or when proving new `@[parital_monotone]` lemmas.
+can be useful on its own for debugging or when proving new `@[partial_monotone]` lemmas.
 -/
 syntax (name := partialMonotonicity) "partial_monotonicity" : tactic
 

@@ -9,7 +9,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.Tactic.Basic
 import Init.Tailrec
 
-namespace Lean.Elab.Monotonicity
+namespace Lean.Meta.Monotonicity
 
 open Lean Meta
 
@@ -20,20 +20,39 @@ partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
       f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
   return f
 
+
+/-- Environment extensions for monotonicity lemmas -/
+builtin_initialize monotoneExt :
+    SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun dt (n, ks) => dt.insertCore ks n
+    initial := {}
+  }
+
+builtin_initialize registerBuiltinAttribute {
+  name := `partial_monotone
+  descr := "monotonicity theorem"
+  add := fun decl _ kind => MetaM.run' do
+    let declTy := (← getConstInfo decl).type
+    let (xs, _, targetTy) ← withReducible <| forallMetaTelescopeReducing declTy
+    let_expr Tailrec.monotone α inst_α β inst_β f := targetTy |
+      throwError "@[partial_monotone] attribute only applies to lemmas proving {.ofConstName ``Tailrec.monotone}"
+    let f := f.headBeta
+    let f ← if f.isLambda then pure f else etaExpand f
+    let f := headBetaUnderLambda f
+    lambdaBoundedTelescope f 1 fun _ e => do
+      let key ← withReducible <| DiscrTree.mkPath e
+      monotoneExt.add (decl, key) kind
+}
+
 /--
 Given expression `e` of the form `f xs`, possibly open, try to find monotonicity theorems.
 for f.
 -/
--- TODO: Replace with extensible attribute
-def findMonoThms (e : Expr) : MetaM (Array Name) :=
-  match_expr e with
-  | ite _ _ _ _ _ =>                pure #[``Tailrec.monotone_ite]
-  | dite _ _ _ _ _ =>               pure #[``Tailrec.monotone_dite]
-  | letFun _ _ _ _ =>               pure #[``Tailrec.monotone_letFun]
-  | Bind.bind _ _ _ _ _ _ =>        pure #[``Tailrec.monotone_bind]
-  | List.mapM _ _ _ _ _ _ =>        pure #[``Tailrec.monotone_mapM]
-  | Array.mapFinIdxM _ _ _ _ _ _ => pure #[``Tailrec.monotone_mapFinIdxM]
-  | _ => pure #[]
+def findMonoThms (e : Expr) : MetaM (Array Name) := do
+  -- The `letFun` theorem does not play well with the discrimination tree
+  if e.isLetFun then return #[``Tailrec.monotone_letFun]
+  (monotoneExt.getState (← getEnv)).getMatch e
 
 private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
   let extraMsg := if monoThms.isEmpty then m!"" else
@@ -42,7 +61,7 @@ private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
 
 def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaultFailK) (goal : MVarId) : MetaM (List MVarId) :=
   goal.withContext do
-  trace[Elab.definition.tailrec] "solveMono at\n{goal}"
+  trace[Elab.Tactic.partial_monotonicity] "partial_monotonicity at\n{goal}"
   let type ← goal.getType
   if type.isForall then
     let (_, goal) ← goal.intro1P
@@ -91,7 +110,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         return ← mapError (f := (m!"Could not apply {p}:{indentD ·}}")) do
             goal.apply p
 
-      trace[Elab.definition.tailrec] "Unexpected pi instance:{indentExpr inst_α}"
+      trace[Elab.Tactic.partial_monotonicity] "Unexpected pi instance:{indentExpr inst_α}"
       failK f #[]
 
     -- Look through mdata
@@ -112,10 +131,15 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         pure goal'
       return [goal'.mvarId!]
 
-    let monoThms ← findMonoThms e
+    let monoThms ← withLocalDeclD `f f.bindingDomain! fun f =>
+      -- The discrimination tree does not like open terms
+      findMonoThms (e.instantiate1 f)
+    trace[Elab.Tactic.partial_monotonicity] "Found monoThms: {monoThms}"
     for monoThm in monoThms do
       let new_goals? ← try
-        some <$> goal.applyConst monoThm (cfg := { synthAssignedInstances := false})
+        let new_goals ← goal.applyConst monoThm (cfg := { synthAssignedInstances := false})
+        trace[Elab.Tactic.partial_monotonicity] "Succeeded with {monoThm}"
+        pure (some new_goals)
       catch _ =>
         pure none
       if let some new_goals := new_goals? then
@@ -148,3 +172,5 @@ open Elab Tactic
 @[builtin_tactic Lean.Parser.Tactic.partialMonotonicity]
 def evalApplyRules : Tactic := fun _stx =>
     liftMetaTactic solveMonoStep
+
+builtin_initialize Lean.registerTraceClass `Elab.Tactic.partial_monotonicity

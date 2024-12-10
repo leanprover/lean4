@@ -9,6 +9,7 @@ import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.Tactic.PartialMonotonicity
 
 namespace Lean.Elab
+
 open WF
 open Meta
 open Monotonicity

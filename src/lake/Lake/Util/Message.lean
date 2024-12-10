@@ -55,11 +55,8 @@ def mkMessageStringCore
 
 def mkMessageString (msg : Message) (includeEndPos := false) (infoWithPos := false) : BaseIO String := do
   let endPos? := if includeEndPos then msg.endPos else none
-  match (← msg.data.toString.toBaseIO) with
-  | .ok s =>
-    return mkMessageStringCore msg.severity msg.fileName msg.caption s msg.pos endPos? infoWithPos
-  | .error e =>
-    return mkMessageStringCore .error msg.fileName msg.caption (toString e) msg.pos endPos? infoWithPos
+  let s ← msg.data.toString
+  return mkMessageStringCore msg.severity msg.fileName msg.caption s msg.pos endPos? infoWithPos
 
 def mkMessageLogString (log : MessageLog) : BaseIO String :=
   log.toList.foldlM (init := "") fun s m => do

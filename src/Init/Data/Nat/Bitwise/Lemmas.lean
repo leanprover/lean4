@@ -377,7 +377,7 @@ theorem testBit_two_pow_of_ne {n m : Nat} (hm : n ≠ m) : testBit (2 ^ n) m = f
 
 /-! ### bitwise -/
 
-theorem testBit_bitwise (false_false_axiom : f false false = false) (x y i : Nat) :
+theorem testBit_bitwise (of_false_false : f false false = false) (x y i : Nat) :
     (bitwise f x y).testBit i = f (x.testBit i) (y.testBit i) := by
   induction i using Nat.strongRecOn generalizing x y with
   | ind i hyp =>
@@ -385,12 +385,12 @@ theorem testBit_bitwise (false_false_axiom : f false false = false) (x y i : Nat
     if x_zero : x = 0 then
       cases p : f false true <;>
         cases yi : testBit y i <;>
-          simp [x_zero, p, yi, false_false_axiom]
+          simp [x_zero, p, yi, of_false_false]
     else if y_zero : y = 0 then
       simp [x_zero, y_zero]
       cases p : f true false <;>
         cases xi : testBit x i <;>
-          simp [p, xi, false_false_axiom]
+          simp [p, xi, of_false_false]
     else
       simp only [x_zero, y_zero, ←Nat.two_mul]
       cases i with
@@ -452,10 +452,10 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
       case neg =>
         apply Nat.add_lt_add <;> exact hyp1
 
-theorem bitwise_div_two_pow (false_false_axiom : f false false = false := by rfl) :
+theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   (bitwise f x y) / 2 ^ n = bitwise f (x / 2 ^ n) (y / 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
-  simp [testBit_bitwise false_false_axiom, testBit_div_two_pow]
+  simp [testBit_bitwise of_false_false, testBit_div_two_pow]
 
 /-! ### and -/
 
@@ -716,9 +716,9 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]
   exact (Bool.beq_eq_decide_eq _ _).symm
 
-theorem shiftRight_bitwise_distrib {a b : Nat} (false_false_axiom : f false false = false := by rfl) :
+theorem shiftRight_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) >>> i = bitwise f (a >>> i) (b >>> i) := by
-  simp [shiftRight_eq_div_pow, bitwise_div_two_pow false_false_axiom]
+  simp [shiftRight_eq_div_pow, bitwise_div_two_pow of_false_false]
 
 theorem shiftRight_and_distrib {a b : Nat} : (a &&& b) >>> i = a >>> i &&& b >>> i :=
   shiftRight_bitwise_distrib

@@ -2,10 +2,23 @@ opaque ENNReal : Type
 
 axiom ENNReal.sup : ∀ {α}, (α → ENNReal) → ENNReal
 axiom ENNReal.sum : ∀ {α}, (α → ENNReal) → ENNReal
+axiom ENNReal.add : ENNReal → ENNReal → ENNReal
 axiom ENNReal.mul : ENNReal → ENNReal → ENNReal
 
+noncomputable instance : Add ENNReal where add := .add
 noncomputable instance : Mul ENNReal where mul := .mul
 @[instance] axiom ENNReal.zero : Zero ENNReal
+axiom ENNReal.one : ENNReal
+axiom ENNReal.one_half : ENNReal
+
+@[simp] axiom ENNReal.mul_one : ∀ x, x * ENNReal.one = x
+@[simp] axiom ENNReal.mul_zero : ∀ (x : ENNReal), x * 0 = 0
+@[simp] axiom ENNReal.add_zero : ∀ (x : ENNReal), x + 0 = x
+@[simp] axiom ENNReal.zero_add : ∀ (x : ENNReal), 0 + x = x
+@[simp] axiom ENNReal.sum_bool : ∀ f, sum f = f true + f false
+@[simp] axiom ENNReal.sum_const_zero : ∀ α, ENNReal.sum (fun (_ : α) => 0) = 0
+@[simp] axiom ENNReal.sum_dirac : ∀ α [DecidableEq α] (f : α → ENNReal) y,
+  ENNReal.sum (fun x => if x = y then f x else 0) = f y
 
 @[instance] axiom ENNReal.le : LE ENNReal
 axiom ENNReal.le_refl : ∀ (x : ENNReal), x ≤ x
@@ -27,8 +40,6 @@ axiom ENNReal.sup_le : ∀ {α} (a : ENNReal) (s : α → ENNReal) (h : ∀ (i :
   ENNReal.sup s ≤ a
 end
 
-axiom ENNReal.one : ENNReal
-axiom ENNReal.one_half : ENNReal
 
 def D (α : Type) : Type := α → ENNReal
 
@@ -110,3 +121,12 @@ info: geom.eq_1 :
 -/
 #guard_msgs in
 #check geom.eq_1
+
+-- And we can can do proofs about this
+
+theorem geom_0 : geom 0 = .one_half := by
+  rw [geom]; simp [bind, coin, pure]
+
+theorem geom_succ : geom (n+1) = .one_half * geom n := by
+  conv => lhs; rw [geom]
+  simp [bind, coin, pure, apply_ite]

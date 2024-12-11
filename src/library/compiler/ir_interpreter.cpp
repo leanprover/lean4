@@ -187,11 +187,7 @@ option_ref<decl> find_ir_decl(environment const & env, name const & n) {
 }
 
 extern "C" double lean_float_of_nat(lean_obj_arg a);
-
-// TODO: define in Lean like `lean_float_of_nat`
-float lean_float32_of_nat(lean_obj_arg a) {
-    return lean_float_of_nat(a);
-}
+extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;

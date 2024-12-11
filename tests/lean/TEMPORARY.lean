@@ -119,12 +119,8 @@ theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a 
   · simp at h
   · simp [get_some]
 
-theorem toList_attach (o : Option α) :
+@[simp] theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
-  cases o <;> simp
-
-@[simp] theorem attach_toList (o : Option α) :
-    o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
   cases o <;> simp
 
 theorem attach_map {o : Option α} (f : α → β) :

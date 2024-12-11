@@ -52,6 +52,24 @@ inductive List' (α : Type u)
   | nil
   deriving ToExpr
 
+inductive WithUniverse.{u} (α : Type u)
+  | foo (a : α)
+  deriving ToExpr
+
+universe u in
+inductive WithAmbientUniverse (α : Type u)
+  | foo (a : α)
+  deriving ToExpr
+
+-- A test with: an ambient universe `u`, a directly specified universe `v`, and
+-- an implicit universe `w`
+universe u
+structure WithAmbientUniverseTriple.{v} (α : Type u) (β : Type v) (y : Type w) where
+  a : α
+  b : β
+  c : γ
+  deriving ToExpr
+
 -- Tests without (universe) auto implicits
 section NoAutoImplicit
 set_option autoImplicit false

@@ -165,21 +165,23 @@ Given expression `e` of type `(x : A) → (y : B[x]) → … → (z : D[x,y]) �
 returns an expression of type `(x : A ⊗' B ⊗' … ⊗' D) → R[x.1, x.2.1, x.2.2]`.
 -/
 def uncurry (varNames : Array Name) (e : Expr) : MetaM Expr := do
-  let type ← inferType e
-  let resultType ← uncurryType varNames type
-  forallBoundedTelescope resultType (some 1) fun xs codomain => do
-    let #[x] := xs | unreachable!
-    let u ← getLevel codomain
-    let value ← casesOn varNames.toList x u codomain e
-    mkLambdaFVars #[x] value
+  if varNames.isEmpty then
+    return mkLambda `x .default (mkConst ``Unit) e
+  else
+    let type ← inferType e
+    let resultType ← uncurryType varNames type
+    forallBoundedTelescope resultType (some 1) fun xs codomain => do
+      let #[x] := xs | unreachable!
+      let u ← getLevel codomain
+      let value ← casesOn varNames.toList x u codomain e
+      mkLambdaFVars #[x] value
 
 /-- Given `(A ⊗' B ⊗' … ⊗' D) → R` (non-dependent) `R`, return `A → B → … → D → R` -/
-private def curryType (varNames : Array Name) (type : Expr) :
-    MetaM Expr := do
-    let some (domain, codomain) := type.arrow? |
-      throwError "curryType: Expected arrow type, got {type}"
-    go codomain varNames.toList domain
-  where
+private def curryType (varNames : Array Name) (type : Expr) : MetaM Expr := do
+  let some (domain, codomain) := type.arrow? |
+    throwError "curryType: Expected arrow type, got {type}"
+  go codomain varNames.toList domain
+where
   go  (codomain : Expr) : List Name → Expr → MetaM Expr
   | [], _ => pure codomain
   | [_], domain => mkArrow domain codomain
@@ -195,6 +197,8 @@ Given expression `e` of type `(x : A ⊗' B ⊗' … ⊗' D) → R[x]`
 return expression of type `(x : A) → (y : B) → … → (z : D) → R[(x,y,z)]`
 -/
 private partial def curry (varNames : Array Name) (e : Expr) : MetaM Expr := do
+  if varNames.isEmpty then
+    return .app e (mkConst ``Unit.unit)
   let type ← whnfForall (← inferType e)
   unless type.isForall do
     throwError "curryPSigma: expected forall type, got {type}"

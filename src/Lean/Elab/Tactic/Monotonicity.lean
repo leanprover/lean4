@@ -31,13 +31,13 @@ builtin_initialize monotoneExt :
   }
 
 builtin_initialize registerBuiltinAttribute {
-  name := `internal_monotone
+  name := `partial_monotone
   descr := "monotonicity theorem"
   add := fun decl _ kind => MetaM.run' do
     let declTy := (← getConstInfo decl).type
     let (xs, _, targetTy) ← withReducible <| forallMetaTelescopeReducing declTy
     let_expr monotone α inst_α β inst_β f := targetTy |
-      throwError "@[monotone] attribute only applies to lemmas proving {.ofConstName ``monotone}"
+      throwError "@[partial_monotone] attribute only applies to lemmas proving {.ofConstName ``monotone}"
     let f := f.headBeta
     let f ← if f.isLambda then pure f else etaExpand f
     let f := headBetaUnderLambda f

@@ -43,8 +43,8 @@ axiom ENNReal.sum_mono : ∀ {α} (s₁ s₂ : α → ENNReal) (h : ∀ x, s₁ 
   ENNReal.sum s₁ ≤ ENNReal.sum s₂
 axiom ENNReal.sup_mono : ∀ {α} (s₁ s₂ : α → ENNReal) (h : ∀ x, s₁ x ≤ s₂ x),
   ENNReal.sup s₁ ≤ ENNReal.sup s₂
-axiom ENNReal.mul_mono : ∀ (a b c d : ENNReal) (h₁ : a ≤ c) (h₂ : b ≤ d),
-  a * b ≤ c * d
+axiom ENNReal.mul_mono : ∀ (a b c Distr : ENNReal) (h₁ : a ≤ c) (h₂ : b ≤ Distr),
+  a * b ≤ c * Distr
 
 axiom ENNReal.le_sup : ∀ {α} (a : ENNReal) (s : α → ENNReal) (i : α) (h : a ≤ s i),
   a ≤ ENNReal.sup s
@@ -54,30 +54,30 @@ end
 
 
 /-- Distribtions (not normalized, which is curcial, else we don't have ⊥.) -/
-def D (α : Type) : Type := α → ENNReal
+def Distr (α : Type) : Type := α → ENNReal
 
-noncomputable def D.join : D (D α) → D α := fun dd x =>
-  ENNReal.sum (fun d => d x * dd d )
+noncomputable def Distr.join : Distr (Distr α) → Distr α := fun dd x =>
+  ENNReal.sum (fun Distr => Distr x * dd Distr )
 
-noncomputable instance : Functor D where
-  map f d := fun x => ENNReal.sum (fun y => open Classical in if f y = x then d y else 0)
+noncomputable instance : Functor Distr where
+  map f Distr := fun x => ENNReal.sum (fun y => open Classical in if f y = x then Distr y else 0)
 
-noncomputable instance : Pure D where
+noncomputable instance : Pure Distr where
   pure x := fun y => open Classical in if x = y then .one else 0
 
-noncomputable instance : Bind D where
-  bind d f := fun x => ENNReal.sum (fun y => d y * f y x)
+noncomputable instance : Bind Distr where
+  bind Distr f := fun x => ENNReal.sum (fun y => Distr y * f y x)
 
 open Lean.Tailrec
 
-noncomputable instance : Order (D α) where
+noncomputable instance : Order (Distr α) where
   rel d1 d2 := ∀ x, d1 x ≤ d2 x
   rel_refl _ := ENNReal.le_refl _
   rel_trans h1 h2 _ := ENNReal.le_trans (h1 _) (h2 _)
   rel_antisymm h1 h2 := funext (fun _ => ENNReal.le_antisymm (h1 _) (h2 _))
 
-noncomputable instance : CCPO (D α) where
-  csup c x := ENNReal.sup fun (d : Subtype c) => d.val x
+noncomputable instance : CCPO (Distr α) where
+  csup c x := ENNReal.sup fun (Distr : Subtype c) => Distr.val x
   csup_spec := by
     intros d₁ c hchain
     constructor
@@ -89,13 +89,13 @@ noncomputable instance : CCPO (D α) where
     next =>
       intro h x
       apply ENNReal.sup_le
-      intros d
-      apply h d.1 d.2 x
+      intros Distr
+      apply h Distr.1 Distr.2 x
 
-noncomputable instance : MonoBind D where
+noncomputable instance : MonoBind Distr where
   bind_mono_left := by
     intro α β d₁ d₂ f h₁₂ y
-    unfold bind instBindD
+    unfold bind instBindDistr
     dsimp
     apply ENNReal.sum_mono
     intro x
@@ -104,7 +104,7 @@ noncomputable instance : MonoBind D where
     · apply ENNReal.le_refl
 
   bind_mono_right := by
-    intro α β d f₁ f₂ h₁₂ y
+    intro α β Distr f₁ f₂ h₁₂ y
     apply ENNReal.sum_mono
     intro x
     apply ENNReal.mul_mono
@@ -112,9 +112,9 @@ noncomputable instance : MonoBind D where
     · apply h₁₂
 
 
-noncomputable def coin : D Bool := fun _ => .one_half
+noncomputable def coin : Distr Bool := fun _ => .one_half
 
-noncomputable def geom : D Nat := do
+noncomputable def geom : Distr Nat := do
   let head ← coin
   if head then
     return 0

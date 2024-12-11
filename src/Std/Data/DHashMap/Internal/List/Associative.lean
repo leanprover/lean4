@@ -2169,12 +2169,12 @@ theorem getKey!_insertList_of_mem [BEq α] [EquivBEq α] [Inhabited α]
 
 theorem getKeyD_insertList_of_contains_eq_false [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k fallback : α}
-    (h : (toInsert.map Sigma.fst).contains k = false) :
+    (not_contains : (toInsert.map Sigma.fst).contains k = false) :
     getKeyD k (insertList l toInsert) fallback = getKeyD k l fallback := by
   rw [getKeyD_eq_getKey?]
   rw [getKey?_insertList_of_contains_eq_false]
   . rw [getKeyD_eq_getKey?]
-  . exact h
+  . exact not_contains
 
 theorem getKeyD_insertList_of_mem [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
@@ -2230,103 +2230,6 @@ theorem isEmpty_insertList [BEq α]
 section
 variable {β : Type v}
 
-theorem getValue?_insertList_of_contains_eq_false [BEq α] [PartialEquivBEq α]
-    {l toInsert : List ((_ : α) × β)} {k : α}
-    (not_contains : (toInsert.map Sigma.fst).contains k = false) :
-    getValue? k (insertList l toInsert) = getValue? k l := by
-  rw [← containsKey_eq_contains_map_fst] at not_contains
-  rw [getValue?_eq_getEntry?, getValue?_eq_getEntry?]
-  rw [getEntry?_insertList_of_contains_eq_false not_contains]
-
-theorem getValue?_insertList_of_mem [BEq α] [EquivBEq α]
-    {l toInsert : List ((_ : α) × β )}
-    {k k' : α} (k_beq : k == k') {v : β}
-    (distinct_l : DistinctKeys l)
-    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : ⟨k, v⟩ ∈ toInsert) :
-    getValue? k' (insertList l toInsert) = v := by
-  rw [getValue?_eq_getEntry?]
-  have : getEntry? k' (insertList l toInsert) = getEntry? k' toInsert := by
-    apply getEntry?_insertList_of_contains_eq_true distinct_l distinct_toInsert
-    apply containsKey_of_beq _ k_beq
-    exact containsKey_of_mem mem
-  rw [← DistinctKeys.def] at distinct_toInsert
-  rw [getEntry?_of_mem distinct_toInsert k_beq mem] at this
-  rw [this]
-  simp
-
-theorem getValue_insertList_of_contains_eq_false [BEq α] [PartialEquivBEq α]
-    {l toInsert : List ((_ : α) × β)} {k : α}
-    (h' : (toInsert.map Sigma.fst).contains k = false)
-    {h} :
-    getValue k (insertList l toInsert) h =
-    getValue k l (containsKey_of_containsKey_insertList h h') := by
-  rw [← Option.some_inj]
-  rw [← getValue?_eq_some_getValue]
-  rw [← getValue?_eq_some_getValue]
-  rw [getValue?_insertList_of_contains_eq_false]
-  exact h'
-
-theorem getValue_insertList_of_mem [BEq α] [EquivBEq α]
-    {l toInsert : List ((_ : α) × β)}
-    {k k' : α} (k_beq : k == k') {v : β}
-    (distinct_l : DistinctKeys l)
-    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : ⟨k, v⟩ ∈ toInsert)
-    {h} :
-    getValue k' (insertList l toInsert) h = v := by
-  rw [← Option.some_inj]
-  rw [← getValue?_eq_some_getValue]
-  rw [getValue?_insertList_of_mem]
-  . exact k_beq
-  . exact distinct_l
-  . exact distinct_toInsert
-  . exact mem
-
-theorem getValue!_insertList_of_contains_eq_false [BEq α] [PartialEquivBEq α] [Inhabited β]
-    {l toInsert : List ((_ : α) × β)} {k : α}
-    (h : (toInsert.map Sigma.fst).contains k = false) :
-    getValue! k (insertList l toInsert) = getValue! k l := by
-  simp only [getValue!_eq_getValue?]
-  rw [getValue?_insertList_of_contains_eq_false]
-  exact h
-
-theorem getValue!_insertList_of_mem [BEq α] [EquivBEq α] [Inhabited β]
-    {l toInsert : List ((_ : α) × β)} {k k' : α} {v: β} (k_beq : k == k')
-    (distinct_l : DistinctKeys l)
-    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : ⟨k, v⟩ ∈ toInsert):
-    getValue! k' (insertList l toInsert) = v := by
-  simp only [getValue!_eq_getValue?]
-  rw [getValue?_insertList_of_mem]
-  · rw [Option.get!_some]
-  · exact k_beq
-  · exact distinct_l
-  . exact distinct_toInsert
-  . exact mem
-
-theorem getValueD_insertList_of_contains_eq_false [BEq α] [PartialEquivBEq α]
-    {l toInsert : List ((_ : α) × β)} {k : α} {fallback : β}
-    (h : (toInsert.map Sigma.fst).contains k = false) :
-    getValueD k (insertList l toInsert) fallback = getValueD k l fallback := by
-  simp only [getValueD_eq_getValue?]
-  rw [getValue?_insertList_of_contains_eq_false]
-  exact h
-
-theorem getValueD_insertList_of_mem [BEq α] [EquivBEq α]
-    {l toInsert : List ((_ : α) × β)} {k k' : α} {v fallback: β} (k_beq : k == k')
-    (distinct_l : DistinctKeys l)
-    (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : ⟨k, v⟩ ∈ toInsert):
-    getValueD k' (insertList l toInsert) fallback= v := by
-  simp only [getValueD_eq_getValue?]
-  rw [getValue?_insertList_of_mem]
-  · rw [Option.getD_some]
-  · exact k_beq
-  · exact distinct_l
-  . exact distinct_toInsert
-  . exact mem
-
 -- TODO: this should be unified with Mathlib...
 /-- Internal implementation detail of the hash map -/
 def Prod.toSigma_HashMapInternal (p : α × β) : ((_ : α) × β) := ⟨p.fst, p.snd⟩
@@ -2360,7 +2263,7 @@ theorem containsKey_of_containsKey_insertListConst [BEq α] [PartialEquivBEq α]
 
 theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
-    (h : (toInsert.map Prod.fst).contains k = false) :
+    (not_contains : (toInsert.map Prod.fst).contains k = false) :
     getKey? k (insertListConst l toInsert) = getKey? k l := by
   unfold insertListConst
   apply getKey?_insertList_of_contains_eq_false
@@ -2383,15 +2286,15 @@ theorem getKey?_insertListConst_of_mem [BEq α] [EquivBEq α]
 
 theorem getKey_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
-    (h' : (toInsert.map Prod.fst).contains k = false)
+    (not_contains : (toInsert.map Prod.fst).contains k = false)
     {h} :
     getKey k (insertListConst l toInsert) h =
-      getKey k l (containsKey_of_containsKey_insertListConst h h') := by
+      getKey k l (containsKey_of_containsKey_insertListConst h not_contains) := by
     rw [← Option.some_inj]
     rw [← getKey?_eq_some_getKey]
     rw [getKey?_insertListConst_of_contains_eq_false]
     . rw [getKey?_eq_some_getKey]
-    . exact h'
+    . exact not_contains
 
 theorem getKey_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -2411,12 +2314,12 @@ theorem getKey_insertListConst_of_mem [BEq α] [EquivBEq α]
 
 theorem getKey!_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
-    (h : (toInsert.map Prod.fst).contains k = false) :
+    (not_contains : (toInsert.map Prod.fst).contains k = false) :
     getKey! k (insertListConst l toInsert) = getKey! k l := by
   rw [getKey!_eq_getKey?]
   rw [getKey?_insertListConst_of_contains_eq_false]
   . rw [getKey!_eq_getKey?]
-  . exact h
+  . exact not_contains
 
 theorem getKey!_insertListConst_of_mem [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -2435,12 +2338,12 @@ theorem getKey!_insertListConst_of_mem [BEq α] [EquivBEq α] [Inhabited α]
 
 theorem getKeyD_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k fallback : α}
-    (h : (toInsert.map Prod.fst).contains k = false) :
+    (not_contains : (toInsert.map Prod.fst).contains k = false) :
     getKeyD k (insertListConst l toInsert) fallback = getKeyD k l fallback := by
   rw [getKeyD_eq_getKey?]
   rw [getKey?_insertListConst_of_contains_eq_false]
   . rw [getKeyD_eq_getKey?]
-  . exact h
+  . exact not_contains
 
 theorem getKeyD_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -2480,10 +2383,12 @@ theorem isEmpty_insertListConst [BEq α]
 
 theorem getValue?_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
-    (h : (toInsert.map Prod.fst).contains k = false) :
+    (not_contains : (toInsert.map Prod.fst).contains k = false) :
     getValue? k (insertListConst l toInsert) = getValue? k l := by
   unfold insertListConst
-  rw [getValue?_insertList_of_contains_eq_false]
+  rw [getValue?_eq_getEntry?, getValue?_eq_getEntry?]
+  rw [getEntry?_insertList_of_contains_eq_false]
+  rw [containsKey_eq_contains_map_fst]
   simpa
 
 theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
@@ -2494,23 +2399,34 @@ theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
     (mem : ⟨k, v⟩ ∈ toInsert) :
     getValue? k' (insertListConst l toInsert) = v := by
   unfold insertListConst
-  apply getValue?_insertList_of_mem (k_beq:=k_beq)
-  · exact distinct_l
-  · simpa [List.pairwise_map]
+  rw [getValue?_eq_getEntry?]
+  have : getEntry? k' (insertList l (toInsert.map Prod.toSigma_HashMapInternal)) = getEntry? k' (toInsert.map Prod.toSigma_HashMapInternal) := by
+    apply getEntry?_insertList_of_contains_eq_true distinct_l (by simpa [List.pairwise_map])
+    apply containsKey_of_beq _ k_beq
+    rw [containsKey_eq_contains_map_fst, List.map_map, Prod.fst_comp_toSigma_HashMapInternal, List.contains_iff_exists_mem_beq]
+    exists k
+    rw [List.mem_map]
+    constructor
+    . exists ⟨k, v⟩
+    . simp
+  rw [this]
+  rw [getEntry?_of_mem _ k_beq _]
+  . rfl
+  · simpa [DistinctKeys.def, List.pairwise_map]
   . simp only [List.mem_map]
     exists (k, v)
 
 theorem getValue_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
-    {h : (toInsert.map Prod.fst).contains k = false}
-    {h'} :
-    getValue k (insertListConst l toInsert) h' =
-    getValue k l (containsKey_of_containsKey_insertListConst h' h) := by
+    {not_contains : (toInsert.map Prod.fst).contains k = false}
+    {h} :
+    getValue k (insertListConst l toInsert) h =
+    getValue k l (containsKey_of_containsKey_insertListConst h not_contains) := by
   rw [← Option.some_inj]
   rw [← getValue?_eq_some_getValue]
   rw [← getValue?_eq_some_getValue]
   rw [getValue?_insertListConst_of_contains_eq_false]
-  exact h
+  exact not_contains
 
 theorem getValue_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
@@ -2529,11 +2445,11 @@ theorem getValue_insertListConst_of_mem [BEq α] [EquivBEq α]
 
 theorem getValue!_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq α] [Inhabited β]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
-    (h : (toInsert.map Prod.fst).contains k = false) :
+    (not_contains : (toInsert.map Prod.fst).contains k = false) :
     getValue! k (insertListConst l toInsert) = getValue! k l := by
   simp only [getValue!_eq_getValue?]
   rw [getValue?_insertListConst_of_contains_eq_false]
-  exact h
+  exact not_contains
 
 theorem getValue!_insertListConst_of_mem [BEq α] [EquivBEq α] [Inhabited β]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k k' : α} {v: β} (k_beq : k == k')
@@ -2551,11 +2467,11 @@ theorem getValue!_insertListConst_of_mem [BEq α] [EquivBEq α] [Inhabited β]
 
 theorem getValueD_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α} {fallback : β}
-    (not_mem : (toInsert.map Prod.fst).contains k = false) :
+    (not_contains : (toInsert.map Prod.fst).contains k = false) :
     getValueD k (insertListConst l toInsert) fallback = getValueD k l fallback := by
   simp only [getValueD_eq_getValue?]
   rw [getValue?_insertListConst_of_contains_eq_false]
-  exact not_mem
+  exact not_contains
 
 theorem getValueD_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k k' : α} {v fallback: β} (k_beq : k == k')
@@ -2642,7 +2558,7 @@ theorem containsKey_of_containsKey_insertListIfNewUnit [BEq α] [PartialEquivBEq
 
 theorem getKey?_insertListIfNewUnit_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α}
-    (not_mem : toInsert.contains k = false) :
+    (not_contains : toInsert.contains k = false) :
     getKey? k (insertListIfNewUnit l toInsert) = getKey? k l := by
   induction toInsert generalizing l with
   | nil => simp [insertListIfNewUnit]
@@ -2652,15 +2568,15 @@ theorem getKey?_insertListIfNewUnit_of_contains_eq_false [BEq α] [EquivBEq α]
     · rw [getKey?_insertEntryIfNew]
       split
       · rename_i hd_k
-        simp at not_mem
+        simp at not_contains
         exfalso
         rcases hd_k with ⟨h,_⟩
-        rcases not_mem with ⟨h',_⟩
+        rcases not_contains with ⟨h',_⟩
         rw [BEq.symm h] at h'
         simp at h'
       · rfl
-    · simp only [List.contains_cons, Bool.or_eq_false_iff] at not_mem
-      apply And.right not_mem
+    · simp only [List.contains_cons, Bool.or_eq_false_iff] at not_contains
+      apply And.right not_contains
 
 theorem getKey?_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
@@ -2742,15 +2658,15 @@ theorem getKey?_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq �
 
 theorem getKey_insertListIfNewUnit_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α}
-    {not_mem : toInsert.contains k = false}
+    {not_contains : toInsert.contains k = false}
     {h} :
     getKey k (insertListIfNewUnit l toInsert) h =
-      getKey k l (containsKey_of_containsKey_insertListIfNewUnit not_mem h) := by
+      getKey k l (containsKey_of_containsKey_insertListIfNewUnit not_contains h) := by
   rw [← Option.some_inj]
   rw [← getKey?_eq_some_getKey]
   rw [getKey?_insertListIfNewUnit_of_contains_eq_false]
   . rw [getKey?_eq_some_getKey]
-  . exact not_mem
+  . exact not_contains
 
 theorem getKey_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
@@ -2784,18 +2700,18 @@ theorem getKey_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq α
 
 theorem getKey!_insertListIfNewUnit_of_contains_eq_false [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α}
-    (h : toInsert.contains k = false) :
+    (not_contains : toInsert.contains k = false) :
     getKey! k (insertListIfNewUnit l toInsert) = getKey! k l := by
   rw [getKey!_eq_getKey?]
   rw [getKey?_insertListIfNewUnit_of_contains_eq_false]
   . rw [getKey!_eq_getKey?]
-  . exact h
+  . exact not_contains
 
 theorem getKey!_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k k' : α} (k_beq : k == k')
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false))
-    (mem : k ∈ toInsert) (h': containsKey k l = false) :
+    (mem : k ∈ toInsert) (h : containsKey k l = false) :
     getKey! k' (insertListIfNewUnit l toInsert) = k := by
   rw [getKey!_eq_getKey?]
   rw [getKey?_insertListIfNewUnit_of_mem_of_contains_eq_false]
@@ -2803,35 +2719,35 @@ theorem getKey!_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivB
   . exact k_beq
   . exact distinct
   . exact mem
-  . exact h'
+  . exact h
 
 theorem getKey!_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k : α}
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false))
-    (mem : toInsert.contains k) (h' : containsKey k l = true) :
+    (mem : toInsert.contains k) (h : containsKey k l = true) :
     getKey! k (insertListIfNewUnit l toInsert) = getKey! k l  := by
   rw [getKey!_eq_getKey?]
   rw [getKey?_insertListIfNewUnit_of_contains_of_contains]
   . rw [getKey!_eq_getKey?]
   · exact distinct
   · exact mem
-  · exact h'
+  · exact h
 
 theorem getKeyD_insertListIfNewUnit_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α} {k fallback : α}
-    (h : toInsert.contains k = false) :
+    (not_contains : toInsert.contains k = false) :
     getKeyD k (insertListIfNewUnit l toInsert) fallback = getKeyD k l fallback := by
   rw [getKeyD_eq_getKey?]
   rw [getKey?_insertListIfNewUnit_of_contains_eq_false]
   . rw [getKeyD_eq_getKey?]
-  . exact h
+  . exact not_contains
 
 theorem getKeyD_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k k' fallback : α} (k_beq : k == k')
     (distinct : toInsert.Pairwise (fun a b => (a == b) = false))
-    {mem : k ∈ toInsert } {h': containsKey k l = false} :
+    {mem : k ∈ toInsert } {h : containsKey k l = false} :
     getKeyD k' (insertListIfNewUnit l toInsert) fallback = k := by
   rw [getKeyD_eq_getKey?]
   rw [getKey?_insertListIfNewUnit_of_mem_of_contains_eq_false]
@@ -2839,7 +2755,7 @@ theorem getKeyD_insertListIfNewUnit_of_mem_of_contains_eq_false [BEq α] [EquivB
   . exact k_beq
   . exact distinct
   . exact mem
-  . exact h'
+  . exact h
 
 theorem getKeyD_insertListIfNewUnit_of_contains_of_contains [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}

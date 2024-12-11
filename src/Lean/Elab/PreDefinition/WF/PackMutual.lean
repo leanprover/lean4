@@ -9,8 +9,8 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.Eqns
 
 /-!
-This module contains roughtl everything need to turn mutual n-ary functions into a single unary
-function, and is shared between well-founded recursion and tailrecursion
+This module contains roughly everything neede to turn mutual n-ary functions into a single unary
+function, and is shared between well-founded recursion and partial fixpoints.
 -/
 
 namespace Lean.Elab.WF

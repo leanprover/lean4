@@ -253,6 +253,14 @@ theorem getElem_eq_getElem?_get (l : List α) (i : Nat) (h : i < l.length) :
     l[i] = l[i]?.get (by simp [getElem?_eq_getElem, h]) := by
   simp [getElem_eq_iff]
 
+theorem getD_getElem? (l : List α) (i : Nat) (d : α) :
+    l[i]?.getD d = if p : i < l.length then l[i]'p else d := by
+  if h : i < l.length then
+    simp [h, getElem?_def]
+  else
+    have p : i ≥ l.length := Nat.le_of_not_gt h
+    simp [getElem?_eq_none p, h]
+
 @[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
 
 theorem getElem_cons {l : List α} (w : i < (a :: l).length) :

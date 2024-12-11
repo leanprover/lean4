@@ -363,4 +363,12 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
     l.toArray.takeWhile p = (l.takeWhile p).toArray := by
   simp [Array.takeWhile, takeWhile_go_toArray]
 
+@[simp] theorem setIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
+    l.toArray.setIfInBounds i a  = (l.set i a).toArray := by
+  apply ext'
+  simp only [setIfInBounds]
+  split
+  · simp
+  · simp_all [List.set_eq_of_length_le]
+
 end List

@@ -169,7 +169,7 @@ def mkAuxFunction (ctx : Deriving.Context) (i : Nat) : TermElabM Command := do
     | _ => throwError "(internal error) expecting inst binder"
   let binders := header.binders.pop
     ++ (← mkToLevelBinders indVal)
-    ++ #[← addLevels header.binders.back]
+    ++ #[← addLevels header.binders.back!]
   let levels := indVal.levelParams.toArray.map mkIdent
   if ctx.usePartial then
     `(private partial def $(mkIdent auxFunName):ident.{$levels,*} $binders:bracketedBinder* :

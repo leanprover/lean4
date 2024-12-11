@@ -1,6 +1,6 @@
 -- These can move to Init after a stage0 update
 open Lean.Order in
-attribute [partial_monotone]
+attribute [monotone]
   monotone_ite
   monotone_dite
   monotone_bind

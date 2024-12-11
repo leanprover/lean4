@@ -174,7 +174,7 @@ theorem some_eq_getElem?_iff {a : Array α} : some b = a[i]? ↔ ∃ h : i < a.s
     (a[i]? = some a[i]) ↔ True := by
   simp [h]
 
-theorem getElem_eq_iff {a : Array α} {n : Nat} {h : n < a.size} : a[n] = x ↔ a[n]? = some x := by
+theorem getElem_eq_iff {a : Array α} {i : Nat} {h : i < a.size} : a[i] = x ↔ a[i]? = some x := by
   simp only [getElem?_eq_some_iff]
   exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
 
@@ -190,7 +190,7 @@ theorem getD_getElem? (a : Array α) (i : Nat) (d : α) :
     have p : i ≥ a.size := Nat.le_of_not_gt h
     simp [getElem?_eq_none p, h]
 
-@[simp] theorem getElem?_empty {n : Nat} : (#[] : Array α)[n]? = none := rfl
+@[simp] theorem getElem?_empty {i : Nat} : (#[] : Array α)[i]? = none := rfl
 
 theorem getElem_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
     have : i < (a.push x).size := by simp [*, Nat.lt_succ_of_le, Nat.le_of_lt]
@@ -251,19 +251,19 @@ theorem eq_empty_iff_forall_not_mem {l : Array α} : l = #[] ↔ ∀ a, a ∉ l 
   cases l
   simp [List.eq_nil_iff_forall_not_mem]
 
-@[simp] theorem mem_dite_nil_left {x : α} [Decidable p] {l : ¬ p → Array α} :
+@[simp] theorem mem_dite_empty_left {x : α} [Decidable p] {l : ¬ p → Array α} :
     (x ∈ if h : p then #[] else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
   split <;> simp_all
 
-@[simp] theorem mem_dite_nil_right {x : α} [Decidable p] {l : p → Array α} :
+@[simp] theorem mem_dite_empty_right {x : α} [Decidable p] {l : p → Array α} :
     (x ∈ if h : p then l h else #[]) ↔ ∃ h : p, x ∈ l h := by
   split <;> simp_all
 
-@[simp] theorem mem_ite_nil_left {x : α} [Decidable p] {l : Array α} :
+@[simp] theorem mem_ite_empty_left {x : α} [Decidable p] {l : Array α} :
     (x ∈ if p then #[] else l) ↔ ¬ p ∧ x ∈ l := by
   split <;> simp_all
 
-@[simp] theorem mem_ite_nil_right {x : α} [Decidable p] {l : Array α} :
+@[simp] theorem mem_ite_empty_right {x : α} [Decidable p] {l : Array α} :
     (x ∈ if p then l else #[]) ↔ p ∧ x ∈ l := by
   split <;> simp_all
 
@@ -290,7 +290,7 @@ theorem forall_mem_empty (p : α → Prop) : ∀ (x) (_ : x ∈ #[]), p x := nof
 
 theorem exists_mem_push {p : α → Prop} {a : α} {xs : Array α} :
     (∃ x, ∃ _ : x ∈ xs.push a, p x) ↔ p a ∨ ∃ x, ∃ _ : x ∈ xs, p x := by
-  simp
+  simp only [mem_push, exists_prop]
   constructor
   · rintro ⟨x, (h | rfl), h'⟩
     · exact .inr ⟨x, h, h'⟩
@@ -319,7 +319,7 @@ theorem eq_or_ne_mem_of_mem {a b : α} {l : Array α} (h' : a ∈ l.push b) :
   if h : a = b then
     exact .inl h
   else
-    simp [h] at h'
+    simp only [mem_push, h, or_false] at h'
     exact .inr ⟨h, h'⟩
 
 theorem ne_empty_of_mem {a : α} {l : Array α} (h : a ∈ l) : l ≠ #[] := by
@@ -343,27 +343,27 @@ theorem not_mem_push_of_ne_of_not_mem {a y : α} {l : Array α} : a ≠ y → a 
 theorem ne_and_not_mem_of_not_mem_push {a y : α} {l : Array α} : a ∉ l.push y → a ≠ y ∧ a ∉ l := by
   simp +contextual
 
-theorem getElem_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ (n : Nat) (h : n < l.size), l[n]'h = a := by
+theorem getElem_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ (i : Nat) (h : i < l.size), l[i]'h = a := by
   cases l
   simp [List.getElem_of_mem (by simpa using h)]
 
-theorem getElem?_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ n : Nat, l[n]? = some a :=
+theorem getElem?_of_mem {a} {l : Array α} (h : a ∈ l) : ∃ i : Nat, l[i]? = some a :=
   let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
 
-theorem mem_of_getElem? {l : Array α} {n : Nat} {a : α} (e : l[n]? = some a) : a ∈ l :=
+theorem mem_of_getElem? {l : Array α} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
 
-theorem mem_iff_getElem {a} {l : Array α} : a ∈ l ↔ ∃ (n : Nat) (h : n < l.size), l[n]'h = a :=
+theorem mem_iff_getElem {a} {l : Array α} : a ∈ l ↔ ∃ (i : Nat) (h : i < l.size), l[i]'h = a :=
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
 
-theorem mem_iff_getElem? {a} {l : Array α} : a ∈ l ↔ ∃ n : Nat, l[n]? = some a := by
+theorem mem_iff_getElem? {a} {l : Array α} : a ∈ l ↔ ∃ i : Nat, l[i]? = some a := by
   simp [getElem?_eq_some_iff, mem_iff_getElem]
 
 theorem forall_getElem {l : Array α} {p : α → Prop} :
-    (∀ (n : Nat) h, p (l[n]'h)) ↔ ∀ a, a ∈ l → p a := by
+    (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a := by
   cases l; simp [List.forall_getElem]
 
-/-! ### isEmpty-/
+/-! ### isEmpty -/
 
 @[simp] theorem isEmpty_toList {l : Array α} : l.toList.isEmpty = l.isEmpty := by
   rcases l with ⟨_ | _⟩ <;> simp
@@ -718,9 +718,6 @@ theorem all_push [BEq α] {as : Array α} {a : α} {p : α → Bool} :
 
 /-! ### set -/
 
-
-/-! # set -/
-
 @[simp] theorem getElem_set_self (a : Array α) (i : Nat) (h : i < a.size) (v : α) {j : Nat}
       (eq : i = j) (p : j < (a.set i v).size) :
     (a.set i v)[j]'p = v := by
@@ -786,7 +783,10 @@ theorem mem_or_eq_of_mem_set
   cases as
   simpa using List.mem_or_eq_of_mem_set (by simpa using h)
 
-/-! # setIfInBounds -/
+@[simp] theorem toList_set (a : Array α) (i x h) :
+    (a.set i x).toList = a.toList.set i x := rfl
+
+/-! ### setIfInBounds -/
 
 @[simp] theorem set!_is_setIfInBounds : @set! = @setIfInBounds := rfl
 
@@ -873,6 +873,15 @@ theorem mem_or_eq_of_mem_setIfInBounds
     (setIfInBounds a i v)[i]?.getD d = if i < a.size then v else d := by
   by_cases h : i < a.size <;>
     simp [setIfInBounds, Nat.not_lt_of_le, h,  getD_getElem?]
+
+@[simp] theorem toList_setIfInBounds (a : Array α) (i x) :
+    (a.setIfInBounds i x).toList = a.toList.set i x := by
+  simp only [setIfInBounds]
+  split <;> rename_i h
+  · simp
+  · simp [List.set_eq_of_length_le (by simpa using h)]
+
+/-! Content below this point has not yet been aligned with `List`. -/
 
 theorem singleton_inj : #[a] = #[b] ↔ a = b := by
   simp
@@ -1000,7 +1009,7 @@ theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = no
 
 @[deprecated getD_getElem? (since := "2024-12-11")] abbrev getD_get? := @getD_getElem?
 
-@[simp] theorem getD_eq_get? (a : Array α) (n d) : a.getD n d = (a[n]?).getD d := by
+@[simp] theorem getD_eq_get? (a : Array α) (i d) : a.getD i d = (a[i]?).getD d := by
   simp only [getD, get_eq_getElem, get?_eq_getElem?]; split <;> simp [getD_getElem?, *]
 
 theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default := rfl
@@ -1088,22 +1097,6 @@ theorem getElem?_mkArray (n : Nat) (v : α) (i : Nat) :
 
 theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
 
-@[simp] theorem mem_dite_empty_left {x : α} [Decidable p] {l : ¬ p → Array α} :
-    (x ∈ if h : p then #[] else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
-  split <;> simp_all
-
-@[simp] theorem mem_dite_empty_right {x : α} [Decidable p] {l : p → Array α} :
-    (x ∈ if h : p then l h else #[]) ↔ ∃ h : p, x ∈ l h := by
-  split <;> simp_all
-
-@[simp] theorem mem_ite_empty_left {x : α} [Decidable p] {l : Array α} :
-    (x ∈ if p then #[] else l) ↔ ¬ p ∧ x ∈ l := by
-  split <;> simp_all
-
-@[simp] theorem mem_ite_empty_right {x : α} [Decidable p] {l : Array α} :
-    (x ∈ if p then l else #[]) ↔ p ∧ x ∈ l := by
-  split <;> simp_all
-
 /-! # get lemmas -/
 
 theorem lt_of_getElem {x : α} {a : Array α} {idx : Nat} {hidx : idx < a.size} (_ : a[idx] = x) :
@@ -1159,8 +1152,6 @@ theorem getElem?_push_eq (a : Array α) (x : α) : (a.push x)[a.size]? = some x 
   simp only [getElem?_def, Nat.lt_irrefl, dite_false]
 
 @[deprecated getElem?_size (since := "2024-10-21")] abbrev get?_size := @getElem?_size
-
-@[simp] theorem toList_set (a : Array α) (i v h) : (a.set i v).toList = a.toList.set i v := rfl
 
 theorem get_set_eq (a : Array α) (i : Nat) (v : α) (h : i < a.size) :
     (a.set i v h)[i]'(by simp [h]) = v := by
@@ -1724,21 +1715,21 @@ theorem getElem_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle :
   conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
   apply List.get_of_eq; rw [toList_append]
 
-theorem getElem?_append_left {as bs : Array α} {n : Nat} (hn : n < as.size) :
-    (as ++ bs)[n]? = as[n]? := by
-  have hn' : n < (as ++ bs).size := Nat.lt_of_lt_of_le hn <|
+theorem getElem?_append_left {as bs : Array α} {i : Nat} (hn : i < as.size) :
+    (as ++ bs)[i]? = as[i]? := by
+  have hn' : i < (as ++ bs).size := Nat.lt_of_lt_of_le hn <|
     size_append .. ▸ Nat.le_add_right ..
   simp_all [getElem?_eq_getElem, getElem_append]
 
-theorem getElem?_append_right {as bs : Array α} {n : Nat} (h : as.size ≤ n) :
-    (as ++ bs)[n]? = bs[n - as.size]? := by
+theorem getElem?_append_right {as bs : Array α} {i : Nat} (h : as.size ≤ i) :
+    (as ++ bs)[i]? = bs[i - as.size]? := by
   cases as
   cases bs
   simp at h
   simp [List.getElem?_append_right, h]
 
-theorem getElem?_append {as bs : Array α} {n : Nat} :
-    (as ++ bs)[n]? = if n < as.size then as[n]? else bs[n - as.size]? := by
+theorem getElem?_append {as bs : Array α} {i : Nat} :
+    (as ++ bs)[i]? = if i < as.size then as[i]? else bs[i - as.size]? := by
   split <;> rename_i h
   · exact getElem?_append_left h
   · exact getElem?_append_right (by simpa using h)

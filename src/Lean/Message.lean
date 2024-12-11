@@ -237,7 +237,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
     let children ← children.mapM (formatAux nCtx ctx)
-    return .nest 2 (.joinSep (msg::children.toList) "\n")
+    return .nest 2 (.group <| .joinSep (msg::children.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))
     let some msg := dyn.get? MessageData

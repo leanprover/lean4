@@ -304,14 +304,14 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+    unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
       return false
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
     if info.isInstImplicit then
-      unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+      unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
        return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do
@@ -1583,7 +1583,7 @@ private def etaEq (t s : Expr) : Bool :=
   Then, we can enable the flag only when applying `simp` and `rw` theorems.
 -/
 private def withProofIrrelTransparency (k : MetaM α) : MetaM α :=
-  withAtLeastTransparency .default k
+  withInferTypeConfig k
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
   if (← getConfig).proofIrrelevance then

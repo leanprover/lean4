@@ -119,14 +119,11 @@ theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} 
     a ∈ m.insert k v → (k == a) = false → a ∈ m :=
   DHashMap.mem_of_mem_insert
 
-@[simp]
 theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
-    (m.insert k v).contains k :=
-  DHashMap.contains_insert_self
+    (m.insert k v).contains k := by simp
 
-@[simp]
-theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} : k ∈ m.insert k v :=
-  DHashMap.mem_insert_self
+theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} : k ∈ m.insert k v := by
+  simp
 
 @[simp]
 theorem size_empty {c} : (empty c : HashMap α β).size = 0 :=

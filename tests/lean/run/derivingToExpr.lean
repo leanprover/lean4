@@ -63,7 +63,7 @@ inductive WithAmbientUniverse (α : Type u)
 
 -- A test with: an ambient universe `u`, a directly specified universe `v`, and
 -- an implicit universe `w`
-universe u
+universe u in
 structure WithAmbientUniverseTriple.{v} (α : Type u) (β : Type v) (y : Type w) where
   a : α
   b : β

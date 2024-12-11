@@ -187,6 +187,7 @@ option_ref<decl> find_ir_decl(environment const & env, name const & n) {
 }
 
 extern "C" double lean_float_of_nat(lean_obj_arg a);
+extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;
@@ -227,6 +228,7 @@ union value {
     uint64   m_num; // big enough for any unboxed integral type
     static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
     double   m_float;
+    float    m_float32;
     object * m_obj;
 
     value() {}
@@ -240,36 +242,50 @@ union value {
         v.m_float = f;
         return v;
     }
+
+    static value from_float32(float f) {
+        value v;
+        v.m_float32 = f;
+        return v;
+    }
 };
 
 object * box_t(value v, type t) {
     switch (t) {
-        case type::Float: return box_float(v.m_float);
-        case type::UInt8: return box(v.m_num);
-        case type::UInt16: return box(v.m_num);
-        case type::UInt32: return box_uint32(v.m_num);
-        case type::UInt64: return box_uint64(v.m_num);
-        case type::USize: return box_size_t(v.m_num);
-        case type::Object:
-        case type::TObject:
-        case type::Irrelevant:
-            return v.m_obj;
+    case type::Float:   return box_float(v.m_float);
+    case type::Float32: return box_float32(v.m_float32);
+    case type::UInt8:   return box(v.m_num);
+    case type::UInt16:  return box(v.m_num);
+    case type::UInt32:  return box_uint32(v.m_num);
+    case type::UInt64:  return box_uint64(v.m_num);
+    case type::USize:   return box_size_t(v.m_num);
+    case type::Object:
+    case type::TObject:
+    case type::Irrelevant:
+        return v.m_obj;
+    case type::Struct:
+    case type::Union:
+        throw exception("not implemented yet");
     }
     lean_unreachable();
 }
 
 value unbox_t(object * o, type t) {
     switch (t) {
-        case type::Float: return value::from_float(unbox_float(o));
-        case type::UInt8: return unbox(o);
-        case type::UInt16: return unbox(o);
-        case type::UInt32: return unbox_uint32(o);
-        case type::UInt64: return unbox_uint64(o);
-        case type::USize: return unbox_size_t(o);
-        case type::Irrelevant:
-        case type::Object:
-        case type::TObject:
-            break;
+    case type::Float:   return value::from_float(unbox_float(o));
+    case type::Float32: return value::from_float32(unbox_float32(o));
+    case type::UInt8:   return unbox(o);
+    case type::UInt16:  return unbox(o);
+    case type::UInt32:  return unbox_uint32(o);
+    case type::UInt64:  return unbox_uint64(o);
+    case type::USize:   return unbox_size_t(o);
+    case type::Irrelevant:
+    case type::Object:
+    case type::TObject:
+        break;
+    case type::Struct:
+    case type::Union:
+        throw exception("not implemented yet");
     }
     lean_unreachable();
 }
@@ -278,6 +294,8 @@ value unbox_t(object * o, type t) {
 void print_value(tout & ios, value const & v, type t) {
     if (t == type::Float) {
         ios << v.m_float;
+    } else if (t == type::Float32) {
+        ios << v.m_float32;
     } else if (type_is_scalar(t)) {
         ios << v.m_num;
     } else {
@@ -472,6 +490,7 @@ private:
                 object * o = var(expr_sproj_obj(e)).m_obj;
                 switch (t) {
                     case type::Float: return value::from_float(cnstr_get_float(o, offset));
+                    case type::Float32: return value::from_float32(cnstr_get_float32(o, offset));
                     case type::UInt8: return cnstr_get_uint8(o, offset);
                     case type::UInt16: return cnstr_get_uint16(o, offset);
                     case type::UInt32: return cnstr_get_uint32(o, offset);
@@ -480,6 +499,8 @@ private:
                     case type::Irrelevant:
                     case type::Object:
                     case type::TObject:
+                    case type::Struct:
+                    case type::Union:
                         break;
                 }
                 throw exception("invalid instruction");
@@ -530,6 +551,9 @@ private:
                             case type::Float:
                                 lean_inc(n.raw());
                                 return value::from_float(lean_float_of_nat(n.raw()));
+                            case type::Float32:
+                                lean_inc(n.raw());
+                                return value::from_float32(lean_float32_of_nat(n.raw()));
                             case type::UInt8:
                             case type::UInt16:
                             case type::UInt32:
@@ -542,6 +566,9 @@ private:
                             case type::TObject:
                                 return n.to_obj_arg();
                             case type::Irrelevant:
+                                break;
+                            case type::Union:
+                            case type::Struct:
                                 break;
                         }
                         throw exception("invalid instruction");
@@ -654,6 +681,7 @@ private:
                     lean_assert(is_exclusive(o));
                     switch (fn_body_sset_type(b)) {
                         case type::Float: cnstr_set_float(o, offset, v.m_float); break;
+                        case type::Float32: cnstr_set_float32(o, offset, v.m_float32); break;
                         case type::UInt8: cnstr_set_uint8(o, offset, v.m_num); break;
                         case type::UInt16: cnstr_set_uint16(o, offset, v.m_num); break;
                         case type::UInt32: cnstr_set_uint32(o, offset, v.m_num); break;
@@ -662,6 +690,8 @@ private:
                         case type::Irrelevant:
                         case type::Object:
                         case type::TObject:
+                        case type::Struct:
+                        case type::Union:
                             throw exception(sstream() << "invalid instruction");
                     }
                     b = fn_body_sset_cont(b);
@@ -807,6 +837,7 @@ private:
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: return value::from_float(*static_cast<double *>(e.m_addr));
+                case type::Float32: return value::from_float32(*static_cast<float *>(e.m_addr));
                 case type::UInt8: return *static_cast<uint8 *>(e.m_addr);
                 case type::UInt16: return *static_cast<uint16 *>(e.m_addr);
                 case type::UInt32: return *static_cast<uint32 *>(e.m_addr);
@@ -816,6 +847,9 @@ private:
                 case type::TObject:
                 case type::Irrelevant:
                     return *static_cast<object **>(e.m_addr);
+                case type::Struct:
+                case type::Union:
+                    throw exception("not implemented yet");
             }
         }
 

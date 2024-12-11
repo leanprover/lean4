@@ -352,8 +352,10 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat)
         throwError "Insufficient arguments in recursive call"
       let arg := args[fixedPrefixSize]!
       trace[Elab.definition.wf] "collectRecCalls: {unaryPreDef.declName} ({param}) → {unaryPreDef.declName} ({arg})"
-      let (caller, params) ← argsPacker.unpack param
-      let (callee, args) ← argsPacker.unpack arg
+      let some (caller, params) := argsPacker.unpack param
+        | throwError "Cannot unpack param, unexpected expression:{indentExpr param}"
+      let some (callee, args) := argsPacker.unpack arg
+        | throwError "Cannot unpack arg, unexpected expression:{indentExpr arg}"
       RecCallWithContext.create (← getRef) caller (ys ++ params) callee (ys ++ args)
 
 /-- Is the expression a `<`-like comparison of `Nat` expressions -/
@@ -771,6 +773,8 @@ Main entry point of this module:
 
 Try to find a lexicographic ordering of the arguments for which the recursive definition
 terminates. See the module doc string for a high-level overview.
+
+The `preDefs` are used to determine arity and types of arguments; the bodies are ignored.
 -/
 def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) :

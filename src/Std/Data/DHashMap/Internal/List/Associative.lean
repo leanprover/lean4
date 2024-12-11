@@ -2195,7 +2195,7 @@ theorem perm_insertList [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (distinct_both : ∀ (a : α), containsKey a l -> (toInsert.map Sigma.fst).contains a = false) :
+    (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Sigma.fst).contains a = false) :
     Perm (insertList l toInsert) (l ++ toInsert) := by
   rw [← DistinctKeys.def] at distinct_toInsert
   induction toInsert generalizing l with
@@ -2214,29 +2214,17 @@ theorem length_insertList [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (distinct_both : ∀ (a : α), containsKey a l -> (toInsert.map Sigma.fst).contains a = false) :
+    (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Sigma.fst).contains a = false) :
     (insertList l toInsert).length = l.length + toInsert.length := by
   simpa using (perm_insertList distinct_l distinct_toInsert distinct_both).length_eq
 
-theorem isEmpty_insertList_eq_false_of_isEmpty_eq_false [BEq α]
-    {l toInsert : List ((a : α) × β a)}
-    (h : l.isEmpty = false) :
-    (List.insertList l toInsert).isEmpty = false := by
-  induction toInsert generalizing l with
-  | nil => simp [insertList, h]
-  | cons hd tl ih =>
-    simp [insertList, ih]
-
 theorem isEmpty_insertList [BEq α]
     {l toInsert : List ((a : α) × β a)} :
-    (List.insertList l toInsert).isEmpty ↔ l.isEmpty ∧ toInsert.isEmpty := by
-  induction toInsert with
+    (List.insertList l toInsert).isEmpty = (l.isEmpty && toInsert.isEmpty) := by
+  induction toInsert generalizing l with
   | nil => simp [insertList]
   | cons hd tl ih =>
-    simp only [insertList, List.isEmpty_cons, Bool.false_eq_true, and_false,
-      iff_false]
-    apply ne_true_of_eq_false
-    apply isEmpty_insertList_eq_false_of_isEmpty_eq_false
+    rw [insertList, List.isEmpty_cons, ih, isEmpty_insertEntry]
     simp
 
 section
@@ -2473,7 +2461,7 @@ theorem length_insertListConst [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (distinct_both : ∀ (a : α), containsKey a l -> (toInsert.map Prod.fst).contains a = false) :
+    (distinct_both : ∀ (a : α), containsKey a l → (toInsert.map Prod.fst).contains a = false) :
     (insertListConst l toInsert).length = l.length + toInsert.length := by
   unfold insertListConst
   rw [length_insertList]
@@ -2482,22 +2470,13 @@ theorem length_insertListConst [BEq α] [EquivBEq α]
   · simpa [List.pairwise_map]
   · simpa using distinct_both
 
-theorem isEmpty_insertListConst_eq_false_of_isEmpty_eq_false [BEq α]
-    {l : List ((_ : α) × β)} {toInsert : List (α × β)}
-    (h : l.isEmpty = false) :
-    (List.insertListConst l toInsert).isEmpty = false := by
-  induction toInsert generalizing l with
-  | nil => simp [insertListConst, insertList, h]
-  | cons hd tl ih =>
-    unfold insertListConst at ih
-    simp [insertListConst, insertList, ih]
-
 theorem isEmpty_insertListConst [BEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} :
-    (List.insertListConst l toInsert).isEmpty ↔ l.isEmpty ∧ toInsert.isEmpty := by
+    (List.insertListConst l toInsert).isEmpty = (l.isEmpty && toInsert.isEmpty) := by
   unfold insertListConst
   rw [isEmpty_insertList]
-  simp only [List.isEmpty_eq_true, List.map_eq_nil_iff]
+  rw [Bool.eq_iff_iff]
+  simp
 
 theorem getValue?_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
@@ -2879,7 +2858,7 @@ theorem length_insertListIfNewUnit [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a == b) = false))
-    (distinct_both : ∀ (a : α), containsKey a l -> toInsert.contains a = false) :
+    (distinct_both : ∀ (a : α), containsKey a l → toInsert.contains a = false) :
     (insertListIfNewUnit l toInsert).length = l.length + toInsert.length := by
   induction toInsert generalizing l with
   | nil => simp [insertListIfNewUnit]
@@ -2920,25 +2899,13 @@ theorem length_insertListIfNewUnit [BEq α] [EquivBEq α]
         rw [Bool.or_eq_false_iff] at distinct_both
         apply And.right distinct_both
 
-theorem isEmpty_insertListIfNewUnit_eq_false_of_isEmpty_eq_false [BEq α]
-    {l : List ((_ : α) × Unit)} {toInsert : List α}
-    (h : l.isEmpty = false) :
-    (List.insertListIfNewUnit l toInsert).isEmpty = false := by
-  induction toInsert generalizing l with
-  | nil => simp [insertListIfNewUnit, h]
-  | cons hd tl ih =>
-    simp [insertListIfNewUnit, ih]
-
 theorem isEmpty_insertListIfNewUnit [BEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α} :
-    (List.insertListIfNewUnit l toInsert).isEmpty ↔ l.isEmpty ∧ toInsert.isEmpty := by
-  induction toInsert with
+    (List.insertListIfNewUnit l toInsert).isEmpty = (l.isEmpty && toInsert.isEmpty) := by
+  induction toInsert generalizing l with
   | nil => simp [insertListIfNewUnit]
   | cons hd tl ih =>
-    simp only [insertListIfNewUnit, List.isEmpty_cons, Bool.false_eq_true, and_false,
-      iff_false]
-    apply ne_true_of_eq_false
-    apply isEmpty_insertListIfNewUnit_eq_false_of_isEmpty_eq_false
+    rw [insertListIfNewUnit, List.isEmpty_cons, ih, isEmpty_insertEntryIfNew]
     simp
 
 theorem getValue?_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α}:

@@ -24,7 +24,7 @@ to have a `[ToLevel.{u}]` instance available.
 Implementation note: this derive handler was originally modeled after the `Repr` derive handler.
 -/
 
-namespace Lean.Deriving.ToExpr
+namespace Lean.Elab.Deriving.ToExpr
 
 open Lean Elab Lean.Parser.Term
 open Meta Command Deriving
@@ -229,4 +229,4 @@ builtin_initialize
   registerDerivingHandler ``Lean.ToExpr mkToExprInstanceHandler
   registerTraceClass `Elab.Deriving.toExpr
 
-end Lean.Deriving.ToExpr
+end Lean.Elab.Deriving.ToExpr

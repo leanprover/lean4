@@ -91,7 +91,7 @@ inductive MessageData where
   If the thunked message is produced for a term that contains a synthetic sorry,
   `hasSyntheticSorry` should return `true`.
   This is used to filter out certain messages. -/
-  | ofLazy (f : Option PPContext → IO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
+  | ofLazy (f : Option PPContext → BaseIO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
   deriving Inhabited, TypeName
 
 namespace MessageData
@@ -103,7 +103,7 @@ def ofFormat (fmt : Format) : MessageData := .ofFormatWithInfos ⟨fmt, .empty�
 Lazy message data production, with access to the context as given by
 a surrounding `MessageData.withContext` (which is expected to exist).
 -/
-def lazy (f : PPContext → IO MessageData)
+def lazy (f : PPContext → BaseIO MessageData)
     (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
   .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
     let msg ← match ctx? with
@@ -220,9 +220,9 @@ where
   | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
-partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
-  | _, _,            ofFormatWithInfos fmt    => return fmt.1
-  | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
+partial def formatAux : NamingContext → Option MessageDataContext → MessageData → BaseIO Format
+  | _,    _,         ofFormatWithInfos fmt    => return fmt.1
+  | _,    none,      ofGoal mvarId            => return formatRawGoal mvarId
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, ctx,       ofWidget _ d             => formatAux nCtx ctx d
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
@@ -244,10 +244,10 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
     formatAux nCtx ctx? msg
 
-protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : IO Format :=
+protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : BaseIO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } ctx? msgData
 
-protected def toString (msgData : MessageData) : IO String := do
+protected def toString (msgData : MessageData) : BaseIO String := do
   return toString (← msgData.format)
 
 instance : Append MessageData := ⟨compose⟩
@@ -374,14 +374,14 @@ namespace Message
   msg.data.kind
 
 /-- Serializes the message, converting its data into a string and saving its kind. -/
-@[inline] def serialize (msg : Message) : IO SerialMessage := do
+@[inline] def serialize (msg : Message) : BaseIO SerialMessage := do
   return {msg with kind := msg.kind, data := ← msg.data.toString}
 
-protected def toString (msg : Message) (includeEndPos := false) : IO String := do
+protected def toString (msg : Message) (includeEndPos := false) : BaseIO String := do
   -- Remark: The inline here avoids a new message allocation when `msg` is shared
   return inline <| (← msg.serialize).toString includeEndPos
 
-protected def toJson (msg : Message) : IO Json := do
+protected def toJson (msg : Message) : BaseIO Json := do
   -- Remark: The inline here avoids a new message allocation when `msg` is shared
   return inline <| toJson (← msg.serialize)
 

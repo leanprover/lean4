@@ -198,7 +198,7 @@ return expression of type `(x : A) → (y : B) → … → (z : D) → R[(x,y,z)
 -/
 private partial def curry (varNames : Array Name) (e : Expr) : MetaM Expr := do
   if varNames.isEmpty then
-    return .app e (mkConst ``Unit.unit)
+    return e.beta #[mkConst ``Unit.unit]
   let type ← whnfForall (← inferType e)
   unless type.isForall do
     throwError "curryPSigma: expected forall type, got {type}"

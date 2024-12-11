@@ -24,3 +24,15 @@ info: 0.909297
 -/
 #guard_msgs in
 #eval test1
+
+/-- info: 0.909297 -/
+#guard_msgs in
+#eval (2 : Float32).sin.toFloat
+
+/-- info: 0.909297 -/
+#guard_msgs in
+#eval (2 : Float).sin.toFloat32
+
+/-- info: 1606938044258990275541962092341162602522202993782792835301376.000000 -/
+#guard_msgs in
+#eval (2 : Float32).toFloat ^ (200 : Float32).toFloat

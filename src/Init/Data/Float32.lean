@@ -174,3 +174,6 @@ Efficiently computes `x * 2^i`.
 -/
 @[extern "lean_float32_scaleb"]
 opaque Float32.scaleB (x : Float32) (i : @& Int) : Float32
+
+@[extern "lean_float32_to_float"] opaque Float32.toFloat : Float32 → Float
+@[extern "lean_float_to_float32"] opaque Float.toFloat32 : Float → Float32

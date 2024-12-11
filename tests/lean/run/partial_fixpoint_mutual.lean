@@ -17,9 +17,9 @@ instance : CCPO B where
   csup := sorry
   csup_spec := sorry
 
-@[partial_monotone] axiom monotone_toA :
+@[partial_fixpoint_monotone] axiom monotone_toA :
   ∀ {α} [Order α] (f : α → B), monotone f → monotone (fun x => B.toA (f x))
-@[partial_monotone] axiom monotone_toB :
+@[partial_fixpoint_monotone] axiom monotone_toB :
   ∀ {α} [Order α] (f : α → A), monotone f → monotone (fun x => A.toB (f x))
 
 mutual

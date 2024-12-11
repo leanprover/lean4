@@ -25,13 +25,8 @@ instance : Order Prop where
 
 instance : CCPO Prop where
   csup c := ∀ p, c p → p
-  csup_spec := by
-    intro x c hchain
-    constructor
-    · intro h y hcy hx
-      apply h hx _ hcy
-    · intro h hx y hcy
-      apply h _ hcy hx
+  csup_spec := fun _ =>
+    ⟨fun h y hcy hx => h hx y hcy, fun h hx y hcy => h y hcy hx ⟩
 
 def univ (n : Nat) : Prop :=
   univ (n + 1)

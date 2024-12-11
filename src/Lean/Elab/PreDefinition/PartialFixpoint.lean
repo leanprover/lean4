@@ -94,7 +94,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let failK {α} f (monoThms : Array Name) : MetaM α := do
       unReplaceRecApps preDefs argsPacker fixedArgs f fun t => do
         let extraMsg := if monoThms.isEmpty then m!"" else
-          m!"Tried to apply {.andList (monoThms.toList.map (m!"'{·}'"))}, but failed.\n\
+          m!"Tried to apply {.andList (monoThms.toList.map (m!"'{.ofConstName ·}'"))}, but failed.\n\
              Possible cause: A missing `{.ofConstName ``MonoBind}` instance.\n\
              Use `set_option trace.Elab.definition.partialFixpoint true` to debug."
         if let some recApp := t.find? hasRecAppSyntax then

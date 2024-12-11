@@ -170,7 +170,8 @@ def mkAuxFunction (ctx : Deriving.Context) (i : Nat) : TermElabM Command := do
   let binders := header.binders.pop
     ++ (← mkToLevelBinders indVal)
     ++ #[← addLevels header.binders.back!]
-  let levels := indVal.levelParams.toArray.map mkIdent
+  let ambient ← Term.getLevelNames
+  let levels := indVal.levelParams.filter (· ∉ ambient) |>.toArray.map mkIdent
   if ctx.usePartial then
     `(private partial def $(mkIdent auxFunName):ident.{$levels,*} $binders:bracketedBinder* :
         Expr := $body:term)
@@ -203,7 +204,15 @@ def mkInstanceCmds (ctx : Deriving.Context) (typeNames : Array Name) :
       let indType      ← fixIndType indVal (← mkInductiveApp indVal argNames)
       let toTypeExpr   ← mkToTypeExpr argNames indVal
       let levels       := indVal.levelParams.toArray.map mkIdent
-      let instCmd ← `(instance $binders:implicitBinder* : ToExpr $indType where
+      let ambientLevels ← Term.getLevelNames
+      /- `defLevels` are the universes which are *not* globally specified (via a `universe` command)
+          and need to be declared for the instance -/
+      let defLevels    := levels.filter (·.getId ∉ ambientLevels)
+      trace[Elab.Deriving.toExpr] "ambient levels: {← Term.getLevelNames}"
+      trace[Elab.Deriving.toExpr] "levels: {levels}"
+      trace[Elab.Deriving.toExpr] "defLevels: {defLevels}"
+      let instCmd ← `(universe $defLevels:ident* in
+                      instance $binders:implicitBinder* : ToExpr $indType where
                         toExpr := $(mkIdent auxFunName).{$levels,*}
                         toTypeExpr := $toTypeExpr)
       instances := instances.push instCmd

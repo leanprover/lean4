@@ -56,9 +56,9 @@ deriving FromJson, ToJson
 
 structure StackTable where
   frame : Array Nat
-  «prefix» : Array (Option Nat)
   category : Array Nat
   subcategory : Array Nat
+  «prefix» : Array (Option Nat)
   length : Nat
 deriving FromJson, ToJson
 
@@ -82,12 +82,48 @@ structure FuncTable where
   length : Nat
 deriving FromJson, ToJson
 
+structure FrameTable.Entry where
+  address : Int := -1
+  inlineDepth : Nat := 0
+  category : Option Nat := none
+  subcategory : Option Nat := none
+  func : Nat
+  nativeSymbol : Option Json := none
+  innerWindowID : Option Json := none
+  implementation : Option Json := none
+  line : Option Nat := none
+  column : Option Nat := none
+
+/-
+Ideally could generate this from the above, but we don't have `Lean.getStructureInfo` yet.
+-/
 structure FrameTable where
+  address : Array Int
+  inlineDepth : Array Nat
+  category : Array (Option Nat)
+  subcategory : Array (Option Nat)
   func : Array Nat
-  inlineDepth : Array Json := #[]
-  innerWindowID : Array Json := #[]
+  nativeSymbol : Array (Option Json)
+  innerWindowID : Array (Option Json)
+  implementation : Array (Option Json)
+  line : Array (Option Nat)
+  column : Array (Option Nat)
   length : Nat
-deriving FromJson, ToJson
+deriving FromJson, ToJson, Inhabited
+
+/-- Push an entry into a frame table. -/
+def FrameTable.push (t : FrameTable) (e : FrameTable.Entry) : FrameTable where
+  address := t.address.push e.address
+  inlineDepth := t.inlineDepth.push e.inlineDepth
+  category := t.category.push e.category
+  subcategory := t.subcategory.push e.subcategory
+  func := t.func.push e.func
+  nativeSymbol := t.nativeSymbol.push e.nativeSymbol
+  innerWindowID := t.innerWindowID.push e.innerWindowID
+  implementation := t.implementation.push e.implementation
+  line := t.line.push e.line
+  column := t.column.push e.column
+  length := t.length + 1
 
 structure RawMarkerTable where
   data : Array Json := #[]
@@ -180,9 +216,9 @@ where
               columnNumber := thread.funcTable.columnNumber.push none
               length := thread.funcTable.length + 1
             }
-            frameTable := {
-              func := thread.frameTable.func.push thread.funcMap.size
-              length := thread.frameTable.length + 1
+            frameTable := thread.frameTable.push {
+              func := thread.funcMap.size
+              category := category
             }
             funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
       let frameIdx := funcIdx
@@ -230,7 +266,7 @@ def Thread.new (name : String) : Thread := {
   name
   samples := { stack := #[], time := #[], weight := #[], threadCPUDelta := #[], length := 0 }
   stackTable := { frame := #[], «prefix» := #[], category := #[], subcategory := #[], length := 0 }
-  frameTable := { func := #[], length := 0 }
+  frameTable := default
   stringArray := #[]
   funcTable := {
     name := #[], resource := #[], fileName := #[], lineNumber := #[], columnNumber := #[],
@@ -330,9 +366,8 @@ where
             columnNumber := thread.funcTable.columnNumber.push none
             length := thread.funcTable.length + 1
           }
-          frameTable := {
-            func := thread.frameTable.func.push thread.funcMap.size
-            length := thread.frameTable.length + 1
+          frameTable := thread.frameTable.push {
+            func := thread.funcMap.size
           }
           funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
     let frameIdx := funcIdx

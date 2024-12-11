@@ -4,6 +4,16 @@ open Lean
 
 deriving instance ToExpr for ULift
 
+-- Test with empty type
+inductive Empty'
+  deriving ToExpr
+
+-- Test without universes
+inductive MonoOption' (α : Type) : Type
+  | some (a : α)
+  | none
+  deriving ToExpr
+
 -- Test with a universe polymporphic type parameter
 inductive Option' (α : Type u)
   | some (a : α)
@@ -42,9 +52,28 @@ inductive List' (α : Type u)
   | nil
   deriving ToExpr
 
--- Test without (universe) auto implicit
-set_option autoImplicit false in
+-- Tests without (universe) auto implicits
+section NoAutoImplicit
+set_option autoImplicit false
+
+-- Test with universe specified directly on the type
 inductive ExplicitList'.{u} (α : Type u)
   | cons (a : α) (as : List' α)
   | nil
   deriving ToExpr
+
+-- Test with ambient (explicit) universe
+universe u in
+inductive AmbientList' (α : Type u)
+  | cons (a : α) (as : List' α)
+  | nil
+  deriving ToExpr
+
+-- Now, test both ambient and directly specified universes
+universe u in
+structure ExplicitAmbientPair.{v} (α : Type u) (β : Type v) where
+  a : α
+  b : β
+  deriving ToExpr
+
+end NoAutoImplicit

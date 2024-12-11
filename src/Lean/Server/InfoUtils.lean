@@ -146,13 +146,13 @@ def Info.stx : Info → Syntax
   | ofUserWidgetInfo i     => i.stx
   | ofFVarAliasInfo _      => .missing
   | ofFieldRedeclInfo i    => i.stx
-  | ofOmissionInfo i       => i.stx
+  | ofDelabTermInfo i      => i.stx
   | ofChoiceInfo i         => i.stx
 
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx
   | .ofFieldInfo i          => i.lctx
-  | .ofOmissionInfo i       => i.lctx
+  | .ofDelabTermInfo i      => i.lctx
   | .ofMacroExpansionInfo i => i.lctx
   | .ofCompletionInfo i     => i.lctx
   | _                       => LocalContext.empty
@@ -251,15 +251,17 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with
-  | Info.ofTermInfo ti     => Meta.inferType ti.expr
-  | Info.ofFieldInfo fi    => Meta.inferType fi.val
-  | Info.ofOmissionInfo oi => Meta.inferType oi.expr
+  | Info.ofTermInfo ti      => Meta.inferType ti.expr
+  | Info.ofFieldInfo fi     => Meta.inferType fi.val
+  | Info.ofDelabTermInfo ti => Meta.inferType ti.expr
   | _ => return none
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
   match i with
-  | .ofTermInfo ti =>
+  | .ofDelabTermInfo { docString? := some s, .. } => return s
+  | .ofTermInfo ti
+  | .ofDelabTermInfo ti =>
     if let some n := ti.expr.constName? then
       return (← findDocString? env n)
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
@@ -269,7 +271,6 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
-  | .ofOmissionInfo { reason := s, .. } => return s -- Show the omission reason for the docstring.
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
@@ -418,7 +419,7 @@ where go ci?
   | .node i cs =>
     match ci?, i with
     | some ci, .ofTermInfo ti
-    | some ci, .ofOmissionInfo { toTermInfo := ti, .. } => do
+    | some ci, .ofDelabTermInfo ti => do
       -- NOTE: `instantiateMVars` can potentially be expensive but we rely on the elaborator
       -- creating a fully instantiated `MutualDef.body` term info node which has the implicit effect
       -- of making the `instantiateMVars` here a no-op and avoids further recursing into the body

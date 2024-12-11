@@ -9,9 +9,6 @@ import Init.Data.Int.Basic
 import Init.Data.ToString.Basic
 import Init.Data.Float
 
-/-
-#exit -- TODO: Remove after update stage0
-
 -- Just show FloatSpec is inhabited.
 opaque float32Spec : FloatSpec := {
   float := Unit,
@@ -130,7 +127,7 @@ Returns an undefined value if `x` is not finite.
 instance : ToString Float32 where
   toString := Float32.toString
 
-@[extern "lean_uint64_to_float"] opaque UInt64.toFloat32 (n : UInt64) : Float32
+@[extern "lean_uint64_to_float32"] opaque UInt64.toFloat32 (n : UInt64) : Float32
 
 instance : Inhabited Float32 where
   default := UInt64.toFloat32 0
@@ -177,4 +174,3 @@ Efficiently computes `x * 2^i`.
 -/
 @[extern "lean_float32_scaleb"]
 opaque Float32.scaleB (x : Float32) (i : @& Int) : Float32
--/

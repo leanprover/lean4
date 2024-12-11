@@ -268,10 +268,10 @@ instance : OfNat Log.Pos (nat_lit 0) := ⟨⟨0⟩⟩
 instance : Ord Log.Pos := ⟨(compare ·.val ·.val)⟩
 instance : LT Log.Pos := ⟨(·.val < ·.val)⟩
 instance : DecidableRel (LT.lt (α := Log.Pos)) :=
-  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val < ·.val))
+  inferInstanceAs (DecidableRel (α := Log.Pos) (β := Log.Pos) (·.val < ·.val))
 instance : LE Log.Pos := ⟨(·.val ≤ ·.val)⟩
 instance : DecidableRel (LE.le (α := Log.Pos)) :=
-  inferInstanceAs (DecidableRel (α := Log.Pos) (·.val ≤ ·.val))
+  inferInstanceAs (DecidableRel (α := Log.Pos) (β := Log.Pos) (·.val ≤ ·.val))
 instance : Min Log.Pos := minOfLe
 instance : Max Log.Pos := maxOfLe
 

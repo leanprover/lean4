@@ -61,10 +61,11 @@ inductive WithAmbientUniverse (α : Type u)
   | foo (a : α)
   deriving ToExpr
 
+set_option trace.Elab.Deriving.toExpr true in
 -- A test with: an ambient universe `u`, a directly specified universe `v`, and
 -- an implicit universe `w`
 universe u in
-structure WithAmbientUniverseTriple.{v} (α : Type u) (β : Type v) (y : Type w) where
+structure WithAmbientUniverseTriple.{v} (α : Type u) (β : Type v) (γ : Type w) where
   a : α
   b : β
   c : γ
@@ -95,3 +96,14 @@ structure ExplicitAmbientPair.{v} (α : Type u) (β : Type v) where
   deriving ToExpr
 
 end NoAutoImplicit
+
+-- Test with an implicit parameter to the inductive type
+inductive ImplicitParameter
+  | foo (a : α)
+  deriving ToExpr
+
+-- Test where the type parameter is a variable, with an implicit universe
+variable {α : Type u} in
+inductive VariableParameter : Type
+  | foo (a : α)
+  deriving ToExpr

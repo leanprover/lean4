@@ -28,6 +28,28 @@ instance : CCPO Prop where
   csup_spec := fun _ =>
     ⟨fun h y hcy hx => h hx y hcy, fun h hx y hcy => h y hcy hx ⟩
 
+@[partial_fixpoint_monotone] theorem monotone_exists
+    {α} [Order α] {β} (f : α → β → Prop)
+    (h : forall_arg monotone f) :
+    monotone (fun x => Exists (f x)) :=
+  fun x y hxy ⟨w, hw⟩ => ⟨w, h w x y hxy hw⟩
+
+@[partial_fixpoint_monotone] theorem monotone_and
+    {α} [Order α] (f₁ : α → Prop) (f₂ : α → Prop)
+    (h₁ : monotone f₁) (h₂ : monotone f₂) :
+    monotone (fun x => f₁ x ∧ f₂ x) :=
+  fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩
+
 def univ (n : Nat) : Prop :=
   univ (n + 1)
 partial_fixpoint
+
+def infinite_chain {α} (step : α → Option α) (x : α) : Prop :=
+  ∃ y, step x = some y ∧ infinite_chain step y
+partial_fixpoint
+
+theorem infinite_chain.intro {α} (step : α → Option α) (y x : α) :
+    step x = some y → infinite_chain step y → infinite_chain step x := by
+  intros; unfold infinite_chain; simp [*]
+
+-- For a (co)-induction principle we'd need an induction from `partial_fixpoint`

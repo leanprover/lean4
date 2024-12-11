@@ -42,16 +42,15 @@ inductive LocalDeclKind
   | auxDecl
   deriving Inhabited, Repr, DecidableEq, Hashable
 
-/-- A declaration for a LocalContext. This is used to register which free variables are in scope.
-Each declaration comes with
-- `index` the position of the decl in the local context
-- `fvarId` the unique id of the free variables
-- `userName` the pretty-printable name of the variable
-- `type` the type.
-A `cdecl` is a local variable, a `ldecl` is a let-bound free variable with a `value : Expr`.
+/-- A declaration for a `LocalContext`. This is used to register which free variables are in scope.
+
+See `LocalDecl.index`, `LocalDecl.fvarId`, `LocalDecl.userName`, `LocalDecl.type` for accessors for
+arguments common to both constructors.
 -/
 inductive LocalDecl where
+  /-- A local variable. -/
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
+  /-- A let-bound free variable, with a `value : Expr`. -/
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) (kind : LocalDeclKind)
   deriving Inhabited
 
@@ -71,6 +70,7 @@ def isLet : LocalDecl → Bool
   | cdecl .. => false
   | ldecl .. => true
 
+/-- The position of the decl in the local context. -/
 def index : LocalDecl → Nat
   | cdecl (index := i) .. => i
   | ldecl (index := i) .. => i
@@ -79,14 +79,17 @@ def setIndex : LocalDecl → Nat → LocalDecl
   | cdecl _  id n t bi k,   idx => cdecl idx id n t bi k
   | ldecl _  id n t v nd k, idx => ldecl idx id n t v nd k
 
+/-- The unique id of the free variable. -/
 def fvarId : LocalDecl → FVarId
   | cdecl (fvarId := id) .. => id
   | ldecl (fvarId := id) .. => id
 
+/-- The pretty-printable name of the variable. -/
 def userName : LocalDecl → Name
   | cdecl (userName := n) .. => n
   | ldecl (userName := n) .. => n
 
+/-- The type of the variable. -/
 def type : LocalDecl → Expr
   | cdecl (type := t) .. => t
   | ldecl (type := t) .. => t

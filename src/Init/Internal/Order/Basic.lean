@@ -54,7 +54,7 @@ class Order (α : Type u) where
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
 
 
-@[inherit_doc] infix:50 " ⊑ "  => Order.rel
+@[inherit_doc] scoped infix:50 " ⊑ " => Order.rel
 
 section Order
 
@@ -141,7 +141,7 @@ inductive iterates (f : α → α) : α → Prop where
 
 def bot : α := csup (fun _ => False)
 
-notation "⊥" => bot
+scoped notation "⊥" => bot
 
 theorem bot_le (x : α) : ⊥ ⊑ x := by
   apply csup_le

@@ -7,7 +7,7 @@ Authors: Joachim Breitner
 prelude
 import Init.Notation
 
-namespace Lean.Internal.Order
+namespace Lean.Order
 /--
 `monotonicity` performs one compositional step solving `monotone` goals,
 using lemma tagged with `@[partial_monotone]`.
@@ -17,4 +17,4 @@ can be useful on its own for debugging or when proving new `@[partial_monotone]`
 -/
 scoped syntax (name := monotonicity) "monotonicity" : tactic
 
-end Lean.Internal.Order
+end Lean.Order

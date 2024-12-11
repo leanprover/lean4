@@ -1,5 +1,5 @@
 -- These can move to Init after a stage0 update
-open Lean.Internal.Order in
+open Lean.Order in
 attribute [partial_monotone]
   monotone_ite
   monotone_dite
@@ -67,7 +67,7 @@ noncomputable instance : Pure Distr where
 noncomputable instance : Bind Distr where
   bind Distr f := fun x => ENNReal.sum (fun y => Distr y * f y x)
 
-open Lean.Internal.Order
+open Lean.Order
 
 noncomputable instance : Order (Distr α) where
   rel d1 d2 := ∀ x, d1 x ≤ d2 x

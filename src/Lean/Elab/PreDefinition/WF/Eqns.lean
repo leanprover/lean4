@@ -15,7 +15,6 @@ import Init.Internal.Order.Basic
 namespace Lean.Elab.WF
 open Meta
 open Eqns
-open Lean.Internal
 
 structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name

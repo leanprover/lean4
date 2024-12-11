@@ -12,7 +12,7 @@ import Init.Internal.Order
 namespace Lean.Meta.Monotonicity
 
 open Lean Meta
-open Lean.Internal.Order
+open Lean.Order
 
 partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
   let mut f := f.headBeta
@@ -162,7 +162,7 @@ end Lean.Meta.Monotonicity
 
 
 open Lean Elab Tactic in
-@[builtin_tactic Lean.Internal.Order.monotonicity]
+@[builtin_tactic Lean.Order.monotonicity]
 def evalApplyRules : Tactic := fun _stx =>
     liftMetaTactic Lean.Meta.Monotonicity.solveMonoStep
 

@@ -1,5 +1,5 @@
 -- These can move to Init after a stage0 update
-open Lean.Internal.Order in
+open Lean.Order in
 attribute [partial_monotone]
   monotone_ite
   monotone_dite
@@ -256,8 +256,8 @@ error: Could not prove 'WrongMonad.ack' to be tailrecursive:
     do
       let __do_lift ← ack (x✝ + 1) y✝
       ack x✝ __do_lift
-  Tried to apply 'Lean.Internal.Order.monotone_bind', but failed.
-  Possible cause: A missing `Lean.Internal.Order.MonoBind` instance.
+  Tried to apply 'Lean.Order.monotone_bind', but failed.
+  Possible cause: A missing `Lean.Order.MonoBind` instance.
   Use `set_option trace.Elab.definition.partialFixpoint true` to debug.
 -/
 #guard_msgs in
@@ -338,8 +338,8 @@ error: Could not prove 'Tree.rev'''' to be tailrecursive:
         else do
           let ts ← rev''' my_tree.cs.toArray
           { cs := ts.toList })
-  Tried to apply 'Lean.Internal.Order.monotone_mapFinIdxM', but failed.
-  Possible cause: A missing `Lean.Internal.Order.MonoBind` instance.
+  Tried to apply 'Lean.Order.monotone_mapFinIdxM', but failed.
+  Possible cause: A missing `Lean.Order.MonoBind` instance.
   Use `set_option trace.Elab.definition.partialFixpoint true` to debug.
 -/
 #guard_msgs in

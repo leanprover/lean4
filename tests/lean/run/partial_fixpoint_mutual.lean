@@ -4,7 +4,7 @@ axiom B : Type
 axiom A.toB : A → B
 axiom B.toA : B → A
 
-open Lean.Internal.Order
+open Lean.Order
 
 instance : Order A := sorry
 -- It’s important that the CCPO instance isn't completely axiomatic, so that

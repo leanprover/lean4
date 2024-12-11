@@ -14,7 +14,7 @@ namespace Lean.Elab
 open Meta
 open Monotonicity
 
-open Lean.Internal.Order
+open Lean.Order
 
 private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : Expr :=
   e.replace fun e =>

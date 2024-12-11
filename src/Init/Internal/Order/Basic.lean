@@ -9,7 +9,7 @@ prelude
 import Init.ByCases
 import Init.RCases
 
-namespace Lean.Internal.Order
+namespace Lean.Order
 
 /--
 Auxillary definition to help with preserving user-visible names.
@@ -447,4 +447,4 @@ theorem find_eq : find P = findF P (find P) := fix_eq (α := _ → TailrecOrder 
 
 end Example
 
-end Lean.Internal.Order
+end Lean.Order

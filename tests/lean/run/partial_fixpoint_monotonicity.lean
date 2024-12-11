@@ -1,7 +1,7 @@
 -- Tests the `monotonicity` tactic
 
 -- These can move to Init after a stage0 update
-open Lean.Internal.Order in
+open Lean.Order in
 attribute [partial_monotone]
   monotone_ite
   monotone_dite
@@ -23,7 +23,7 @@ example : True := by monotonicity
 
 -/
 
-open Lean.Internal.Order
+open Lean.Order
 
 
 example : monotone (fun (f : Nat → Option Unit) => do {do f 1; f 2; f 3}) := by

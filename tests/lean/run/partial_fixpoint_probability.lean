@@ -1,14 +1,13 @@
 -- These can move to Init after a stage0 update
+open Lean.Internal.Order in
 attribute [partial_monotone]
-  Lean.Tailrec.monotone_ite
-  Lean.Tailrec.monotone_dite
-  Lean.Tailrec.monotone_bind
-  Lean.Tailrec.monotone_mapM
-  Lean.Tailrec.monotone_mapFinIdxM
-
+  monotone_ite
+  monotone_dite
+  monotone_bind
+  monotone_mapM
+  monotone_mapFinIdxM
 
 -- Since we do not have ENNReal in core, we just axiomatize it all for this test
-
 
 opaque ENNReal : Type
 
@@ -68,7 +67,7 @@ noncomputable instance : Pure Distr where
 noncomputable instance : Bind Distr where
   bind Distr f := fun x => ENNReal.sum (fun y => Distr y * f y x)
 
-open Lean.Tailrec
+open Lean.Internal.Order
 
 noncomputable instance : Order (Distr α) where
   rel d1 d2 := ∀ x, d1 x ≤ d2 x
@@ -121,7 +120,7 @@ noncomputable def geom : Distr Nat := do
   else
     let n ← geom
     return (n + 1)
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 info: geom.eq_1 :

@@ -4,7 +4,7 @@ axiom B : Type
 axiom A.toB : A → B
 axiom B.toA : B → A
 
-open Lean.Tailrec
+open Lean.Internal.Order
 
 instance : Order A := sorry
 -- It’s important that the CCPO instance isn't completely axiomatic, so that
@@ -24,9 +24,9 @@ instance : CCPO B where
 
 mutual
 noncomputable def f : A := g.toA
-nontermination_tailrecursive
+partial_fixpoint
 noncomputable def g : B := f.toB
-nontermination_tailrecursive
+partial_fixpoint
 end
 
 /--

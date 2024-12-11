@@ -7,11 +7,12 @@ prelude
 import Lean.Meta.Tactic.Split
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.Tactic.Basic
-import Init.Tailrec
+import Init.Internal.Order
 
 namespace Lean.Meta.Monotonicity
 
 open Lean Meta
+open Lean.Internal.Order
 
 partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
   let mut f := f.headBeta
@@ -35,8 +36,8 @@ builtin_initialize registerBuiltinAttribute {
   add := fun decl _ kind => MetaM.run' do
     let declTy := (← getConstInfo decl).type
     let (xs, _, targetTy) ← withReducible <| forallMetaTelescopeReducing declTy
-    let_expr Tailrec.monotone α inst_α β inst_β f := targetTy |
-      throwError "@[partial_monotone] attribute only applies to lemmas proving {.ofConstName ``Tailrec.monotone}"
+    let_expr monotone α inst_α β inst_β f := targetTy |
+      throwError "@[partial_monotone] attribute only applies to lemmas proving {.ofConstName ``monotone}"
     let f := f.headBeta
     let f ← if f.isLambda then pure f else etaExpand f
     let f := headBetaUnderLambda f
@@ -51,7 +52,7 @@ for f.
 -/
 def findMonoThms (e : Expr) : MetaM (Array Name) := do
   -- The `letFun` theorem does not play well with the discrimination tree
-  if e.isLetFun then return #[``Tailrec.monotone_letFun]
+  if e.isLetFun then return #[``monotone_letFun]
   (monotoneExt.getState (← getEnv)).getMatch e
 
 private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
@@ -72,7 +73,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     return [goal]
 
   match_expr type with
-  | Tailrec.forall_arg _α _β _γ _P f =>
+  | forall_arg _α _β _γ _P f =>
     let f ← instantiateMVars f
     let f := headBetaUnderLambda f
     if f.isLambda && f.bindingBody!.isLambda then
@@ -83,7 +84,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       let (_, new_goal) ← goal.intro1
       return [new_goal]
 
-  | Tailrec.monotone _α _inst_α _β _inst_β f =>
+  | monotone _α _inst_α _β _inst_β f =>
     -- Ensure f is headed not a redex and headed by at least one lambda, and clean some
     -- redexes left by some of the lemmas we tend to apply
     let f ← instantiateMVars f
@@ -94,13 +95,13 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
 
     -- No recursive calls left
     if !e.hasLooseBVars then
-      return ← applyConst goal ``Tailrec.monotone_const
+      return ← applyConst goal ``monotone_const
 
     -- NB: `e` is now an open term.
 
     -- A recursive call directly here
     if e.isApp && e.appFn! == .bvar 0 then
-      return ← applyConst goal ``Tailrec.monotone_apply
+      return ← applyConst goal ``monotone_apply
 
     -- Look through mdata
     if e.isMData then
@@ -157,10 +158,12 @@ partial def solveMono (failK : ∀ {α}, Expr → Array Name → MetaM α := def
   let new_goals ← solveMonoStep failK goal
   new_goals.forM (solveMono failK)
 
-open Elab Tactic
+end Lean.Meta.Monotonicity
 
-@[builtin_tactic Lean.Parser.Tactic.partialMonotonicity]
+
+open Lean Elab Tactic in
+@[builtin_tactic Lean.Internal.Order.monotonicity]
 def evalApplyRules : Tactic := fun _stx =>
-    liftMetaTactic solveMonoStep
+    liftMetaTactic Lean.Meta.Monotonicity.solveMonoStep
 
 builtin_initialize Lean.registerTraceClass `Elab.Tactic.partial_monotonicity

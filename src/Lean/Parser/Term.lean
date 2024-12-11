@@ -710,16 +710,19 @@ def terminationBy? := leading_parser
   "termination_by?"
 
 /--
-Defines a possibly non-terminating function.
+Defines a possibly non-terminating function as a fixed-point in a suitable partial order.
 
 Such a function is compiled as if it was marked `partial`, but its equations are provided as
 theorems, so that it can be verified.
 
-Requires the function type to be inhabited a-priori (as with `partial`), and that all recursive
-calls are in tail-call position.
+This handles two classes of functions:
+* Functions whose type is inhabited a-priori (as with `partial`), and where all recursive
+  calls are in tail-call position.
+* Monadic functions using certain “monotone chain-complete monads” (in particular, `Option`), where
+  recursive calls are combined using the monad bind (and other supported monadic combinators).
 -/
-@[builtin_doc] def nonterminationTailrec := leading_parser
-  "nontermination_tailrecursive"
+@[builtin_doc] def partialFixpoint := leading_parser
+  "partial_fixpoint"
 
 /--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)
@@ -737,7 +740,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> nonterminationTailrec)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint)) >> optional decreasingBy
 
 end Termination
 namespace Term

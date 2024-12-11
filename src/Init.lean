@@ -37,4 +37,4 @@ import Init.MacroTrace
 import Init.Grind
 import Init.While
 import Init.Syntax
-import Init.Tailrec
+import Init.Internal

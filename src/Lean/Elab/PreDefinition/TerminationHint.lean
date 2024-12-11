@@ -42,7 +42,7 @@ structure TerminationHints where
   ref : Syntax
   terminationBy?? : Option Syntax
   terminationBy? : Option TerminationBy
-  tailrec? : Option Syntax
+  partialFixpoint? : Option Syntax
   decreasingBy?  : Option DecreasingBy
   /--
   Here we record the number of parameters past the `:`. It is set by
@@ -60,7 +60,7 @@ def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none
 
 /-- Logs warnings when the `TerminationHints` are unexpectedly present.  -/
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : CoreM Unit := do
-  match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy?, hints.tailrec? with
+  match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy?, hints.partialFixpoint? with
   | .none, .none, .none, .none => pure ()
   | .none, .none, .some dec_by, .none =>
     logWarningAt dec_by.ref m!"unused `decreasing_by`, function is {reason}"
@@ -68,8 +68,8 @@ def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : C
     logWarningAt term_by? m!"unused `termination_by?`, function is {reason}"
   | .none, .some term_by, .none, .none =>
     logWarningAt term_by.ref m!"unused `termination_by`, function is {reason}"
-  | .none, .none, .none, .some tailrec =>
-    logWarningAt tailrec m!"unused `nontermination_tailrecursive`, function is {reason}"
+  | .none, .none, .none, .some partialFixpoint =>
+    logWarningAt partialFixpoint m!"unused `partial_fixpoint`, function is {reason}"
   | _, _, _, _=>
     logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 
@@ -78,7 +78,7 @@ def TerminationHints.isNotNone (hints : TerminationHints) : Bool :=
   hints.terminationBy??.isSome ||
   hints.terminationBy?.isSome ||
   hints.decreasingBy?.isSome ||
-  hints.tailrec?.isSome
+  hints.partialFixpoint?.isSome
 
 /--
 Remembers `extraParams` for later use. Needs to happen early enough where we still know
@@ -120,12 +120,12 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | `(terminationBy?|termination_by?) => pure (some t)
       | _ => pure none
       else pure none
-    let tailrec? : Option Syntax ← if let some t := t? then match t with
-      | `(nonterminationTailrec|nontermination_tailrecursive) => pure (some t)
+    let partialFixpoint? : Option Syntax ← if let some t := t? then match t with
+      | `(partialFixpoint|partial_fixpoint) => pure (some t)
       | _ => pure none
       else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
-      | `(terminationBy|termination_by tailrecursion) =>
+      | `(terminationBy|termination_by partialFixpointursion) =>
         pure (some {ref := t, structural := false, vars := #[], body := ⟨.missing⟩})
       | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
@@ -134,13 +134,13 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
-      | `(nonterminationTailrec|nontermination_tailrecursive) => pure none
+      | `(partialFixpoint|partial_fixpoint) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with
       | `(decreasingBy|decreasing_by $tactic) => pure {ref := d, tactic}
       | _ => throwErrorAt d "unexpected `decreasing_by` syntax"
-    return { ref := stx, terminationBy??, terminationBy?, tailrec?, decreasingBy?, extraParams := 0 }
+    return { ref := stx, terminationBy??, terminationBy?, partialFixpoint?, decreasingBy?, extraParams := 0 }
   | _ => throwErrorAt stx s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab

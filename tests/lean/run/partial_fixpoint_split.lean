@@ -20,4 +20,4 @@ def whileSome (f : α → Option α) (x : α) : α :=
     match f x with
     | none => id $ whileSome some x'
     | some x' => whileSome f x'
-nontermination_tailrecursive
+partial_fixpoint

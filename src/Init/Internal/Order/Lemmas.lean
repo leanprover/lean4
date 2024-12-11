@@ -6,11 +6,11 @@ Authors: Joachim Breitner
 
 prelude
 
-import Init.Tailrec.Basic
 import Init.Data.List.Control
 import Init.Data.Array.Basic
+import Init.Internal.Order.Basic
 
-namespace Lean.Tailrec
+namespace Lean.Internal.Order
 
 theorem monotone_mapM
     (m : Type u → Type v) [Monad m] [∀ α, Order (m α)] [MonoBind m]
@@ -58,4 +58,4 @@ theorem monotone_mapFinIdxM
     · intro y
       apply ih
 
-end Lean.Tailrec
+end Lean.Internal.Order

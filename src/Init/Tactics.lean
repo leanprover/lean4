@@ -1538,15 +1538,6 @@ syntax (name := applyRules) "apply_rules" optConfig (&" only")? (args)? (using_)
 end SolveByElim
 
 /--
-`partial_monotonicity` performs one compositional step solving `Lean.Tailrec.monotone` goals,
-using lemma tagged with `@[partial_monotone]`.
-
-This tactic is mostly used internally by lean in `nonterminating_tailrecursive` definitions, but
-can be useful on its own for debugging or when proving new `@[partial_monotone]` lemmas.
--/
-syntax (name := partialMonotonicity) "partial_monotonicity" : tactic
-
-/--
 Searches environment for definitions or theorems that can solve the goal using `exact`
 with conditions resolved by `solve_by_elim`.
 

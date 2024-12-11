@@ -9,7 +9,7 @@ prelude
 import Init.ByCases
 import Init.RCases
 
-namespace Lean.Tailrec
+namespace Lean.Internal.Order
 
 /--
 Auxillary definition to help with preserving user-visible names.
@@ -425,7 +425,6 @@ instance [Monad m] [∀ α, Order (m α)] [∀ α, CCPO (m α)] [MonoBind m] : M
     · apply Order.rel_refl
     · apply h₁₂
 
-
 end mono_bind
 
 namespace Example
@@ -436,7 +435,7 @@ def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :
   else
     rec (x + 1)
 
-noncomputable def find P := fix (α := _ → TailrecOrder _) (findF P) <| by
+noncomputable def find (P : Nat → Bool) : Nat → Option Nat := fix (α := _ → TailrecOrder _) (findF P) <| by
   unfold findF
   apply monotone_of_monotone_apply (β := fun _ => TailrecOrder _)
   intro n
@@ -444,8 +443,8 @@ noncomputable def find P := fix (α := _ → TailrecOrder _) (findF P) <| by
   · apply monotone_const
   · apply monotone_apply
 
-theorem find_eq : find P = findF P (find P) := fix_eq ..
+theorem find_eq : find P = findF P (find P) := fix_eq (α := _ → TailrecOrder _) ..
 
 end Example
 
-end Lean.Tailrec
+end Lean.Internal.Order

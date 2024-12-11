@@ -1,22 +1,23 @@
 -- These can move to Init after a stage0 update
+open Lean.Internal.Order in
 attribute [partial_monotone]
-  Lean.Tailrec.monotone_ite
-  Lean.Tailrec.monotone_dite
-  Lean.Tailrec.monotone_bind
-  Lean.Tailrec.monotone_mapM
-  Lean.Tailrec.monotone_mapFinIdxM
+  monotone_ite
+  monotone_dite
+  monotone_bind
+  monotone_mapM
+  monotone_mapFinIdxM
 
 def monadic (x : Nat) : Option Unit := monadic (x + 1)
-nontermination_tailrecursive
+partial_fixpoint
 
 def loop (x : Nat) : Unit := loop (x + 1)
-nontermination_tailrecursive
+partial_fixpoint
 
 def monadic0 : Option Unit := monadic0
-nontermination_tailrecursive
+partial_fixpoint
 
 def loop0 : Unit := loop0
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 info: equations:
@@ -34,7 +35,7 @@ def find (P : Nat → Bool) (x : Nat) : Option Nat :=
     some x
   else
     find P (x +1)
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 info: equations:
@@ -44,7 +45,7 @@ theorem find.eq_1 : ∀ (P : Nat → Bool) (x : Nat), find P x = if P x = true t
 #print equations find
 
 /--
-error: failed to compile definition 'notinhabited' via tailrecursion, could not prove that the type
+error: failed to compile definition 'notinhabited' using `partial_fixpoint`, could not prove that the type
   (n : Nat) → Nat → Fin n
 is nonempty.
 
@@ -58,10 +59,10 @@ If the return type is defined using the 'structure' or 'inductive' command, you 
 #guard_msgs in
 def notinhabited (n m : Nat) : Fin n :=
   notinhabited n (m+1)
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
-error: failed to compile definition 'notinhabited_mutual1' via tailrecursion, could not prove that the type
+error: failed to compile definition 'notinhabited_mutual1' using `partial_fixpoint`, could not prove that the type
   (n : Nat) → Nat → Fin n
 is nonempty.
 
@@ -76,10 +77,10 @@ If the return type is defined using the 'structure' or 'inductive' command, you 
 mutual
 def notinhabited_mutual1 (n m : Nat) : Fin n :=
   notinhabited_mutual2 n (m+1)
-nontermination_tailrecursive
+partial_fixpoint
 def notinhabited_mutual2 (n m : Nat) : Fin n :=
   notinhabited_mutual1 n (m+1)
-nontermination_tailrecursive
+partial_fixpoint
 end
 
 
@@ -91,7 +92,7 @@ error: Could not prove 'notTailRec1' to be tailrecursive:
 -/
 #guard_msgs in
 def notTailRec1 (n : Nat) := notTailRec1 (n + 1) - 1
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 error: Could not prove 'notTailRec2' to be tailrecursive:
@@ -101,7 +102,7 @@ error: Could not prove 'notTailRec2' to be tailrecursive:
 -/
 #guard_msgs in
 def notTailRec2 (n m : Nat) := notTailRec2 n (m + 1) - 1
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 error: Could not prove 'notTailRec3' to be tailrecursive:
@@ -111,7 +112,7 @@ error: Could not prove 'notTailRec3' to be tailrecursive:
 -/
 #guard_msgs in
 def notTailRec3 (n m : Nat) := notTailRec3 (m + 1) n - 1
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 error: Could not prove 'notTailRec4a' to be tailrecursive:
@@ -122,9 +123,9 @@ error: Could not prove 'notTailRec4a' to be tailrecursive:
 #guard_msgs in
 mutual
 def notTailRec4a (n m : Nat) := notTailRec4b (m + 1) n - 1
-nontermination_tailrecursive
+partial_fixpoint
 def notTailRec4b (n m : Nat) := notTailRec4a (m + 1) n - 1
-nontermination_tailrecursive
+partial_fixpoint
 end
 
 def fib (n : Nat) := go 0 0 1
@@ -134,26 +135,26 @@ where
       fi
     else
       go (i + 1) fi (fi + fip)
-  nontermination_tailrecursive
+  partial_fixpoint
 
 local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (if b then α else β) := by
   split <;> assumption
 
 def dependent1 (b : Bool) (n : Nat) : if b then Nat else Bool
   := dependent1 b (n + 1)
-nontermination_tailrecursive
+partial_fixpoint
 
 def dependent2 (b : Bool) (n : Nat) : if b then Nat else Bool :=
   if b then dependent2 b (n + 1) else dependent2 b (n + 1)
-nontermination_tailrecursive
+partial_fixpoint
 
 def dependent2' (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if b then dependent2' (n + 1) b else dependent2' (n + 2) b
-nontermination_tailrecursive
+partial_fixpoint
 
 def dependent2'' (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if _ : b then dependent2'' (n + 1) b else dependent2'' (n + 2) b
-nontermination_tailrecursive
+partial_fixpoint
 
 local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (cond b α β) := by
   cases b <;> assumption
@@ -162,7 +163,7 @@ def dependent3 (b : Bool) (n : Nat) : cond b Nat Bool :=
   match b with
   | true => dependent3 true (n + 1)
   | false => dependent3 false (n + 2)
-nontermination_tailrecursive
+partial_fixpoint
 
 
 local instance {α : Sort u} {β : Sort v} {γ : α → Sort uu} {δ : β → Sort uu} (t : α ⊕' β)
@@ -173,25 +174,25 @@ local instance {α : Sort u} {β : Sort v} {γ : α → Sort uu} {δ : β → So
 
 mutual
 def mutualUnary1 (n : Nat) : Unit := mutualUnary2 (n + 1)
-nontermination_tailrecursive
+partial_fixpoint
 def mutualUnary2 (n : Nat) : Unit := mutualUnary1 (n + 1)
-nontermination_tailrecursive
+partial_fixpoint
 end
 
 mutual
 def mutual1 (n m : Nat) : Unit := mutual2 (m + 1) n
-nontermination_tailrecursive
+partial_fixpoint
 def mutual2 (n m : Nat) : Unit := mutual1 (m + 1) n
-nontermination_tailrecursive
+partial_fixpoint
 end
 
 mutual
 def dependent2''a (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if _ : b then dependent2''a (n + 1) b else dependent2''b (n + 2) b
-nontermination_tailrecursive
+partial_fixpoint
 def dependent2''b (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if _ : b then dependent2''a (n + 1) b else dependent2''b (n + 2) b
-nontermination_tailrecursive
+partial_fixpoint
 end
 
 def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
@@ -200,7 +201,7 @@ def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
     computeLfp' f next
   else
     x
-nontermination_tailrecursive
+partial_fixpoint
 
 def computeLfp'' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
   have next := f x
@@ -208,7 +209,7 @@ def computeLfp'' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
     computeLfp'' f next
   else
     x
-nontermination_tailrecursive
+partial_fixpoint
 
 
 -- TODO: Switching to `(cfg := { synthAssignedInstances := false})` inlines `next`?
@@ -225,13 +226,13 @@ def computeLfp''' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :
     id $ computeLfp''' f next -- NB: Error message should use correct variable name
   else
     x
-nontermination_tailrecursive
+partial_fixpoint
 
 def whileSome (f : α → Option α) (x : α) : α :=
   match f x with
   | none => x
   | some x' => whileSome f x'
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 info: whileSome.eq_1.{u_1} {α : Type u_1} (f : α → Option α) (x : α) :
@@ -246,7 +247,7 @@ def ack : (n m : Nat) → Option Nat
   | 0,   y   => some (y+1)
   | x+1, 0   => ack x 1
   | x+1, y+1 => do ack x (← ack (x+1) y)
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 error: Could not prove 'WrongMonad.ack' to be tailrecursive:
@@ -255,21 +256,21 @@ error: Could not prove 'WrongMonad.ack' to be tailrecursive:
     do
       let __do_lift ← ack (x✝ + 1) y✝
       ack x✝ __do_lift
-  Tried to apply 'Lean.Tailrec.monotone_bind', but failed.
-  Possible cause: A missing `Lean.Tailrec.MonoBind` instance.
-  Use `set_option trace.Elab.definition.tailrec true` to debug.
+  Tried to apply 'Lean.Internal.Order.monotone_bind', but failed.
+  Possible cause: A missing `Lean.Internal.Order.MonoBind` instance.
+  Use `set_option trace.Elab.definition.partialFixpoint true` to debug.
 -/
 #guard_msgs in
 def WrongMonad.ack : (n m : Nat) → Id Nat
   | 0,   y   => pure (y+1)
   | x+1, 0   => ack x 1
   | x+1, y+1 => do ack x (← ack (x+1) y)
-nontermination_tailrecursive
+partial_fixpoint
 
 structure Tree where cs : List Tree
 def Tree.rev (t : Tree) : Option Tree := do
   Tree.mk (← t.cs.reverse.mapM (Tree.rev ·))
-nontermination_tailrecursive
+partial_fixpoint
 
 
 -- These tests check that the user's variable names are preserved in the goals
@@ -287,7 +288,7 @@ def VarName.computeLfp {α : Type u} [DecidableEq α] (f : α → Option α) (x 
     id $ computeLfp f next --NB: Error message should use correct variable name
   else
     x
-nontermination_tailrecursive
+partial_fixpoint
 
 
 opaque mentionsH : ¬ b → α → α := fun _ x => x
@@ -301,7 +302,7 @@ error: Could not prove 'VarName.dite' to be tailrecursive:
 #guard_msgs in
 def VarName.dite (n : Nat) (b : Bool) : if b then Nat else Bool :=
   if this_is_my_h : b then dite (n + 1) b else mentionsH this_is_my_h (dite (n + 2) b)
-nontermination_tailrecursive
+partial_fixpoint
 
 
 /--
@@ -313,7 +314,7 @@ error: Could not prove 'Tree.rev'' to be tailrecursive:
 #guard_msgs in
 def Tree.rev' (t : Tree) : Option Tree := do
   Tree.mk (← t.cs.reverse.mapM (fun my_name => id (Tree.rev' my_name)))
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 error: Could not prove 'Tree.rev''' to be tailrecursive:
@@ -325,7 +326,7 @@ error: Could not prove 'Tree.rev''' to be tailrecursive:
 def Tree.rev'' (t : Tree) : Option Tree := do
   Tree.mk (← t.cs.reverse.toArray.mapFinIdxM
     (fun my_idx my_name => id (if my_idx.val < 0 then my_name else Tree.rev'' my_name))).toList
-nontermination_tailrecursive
+partial_fixpoint
 
 /--
 error: Could not prove 'Tree.rev'''' to be tailrecursive:
@@ -337,12 +338,12 @@ error: Could not prove 'Tree.rev'''' to be tailrecursive:
         else do
           let ts ← rev''' my_tree.cs.toArray
           { cs := ts.toList })
-  Tried to apply 'Lean.Tailrec.monotone_mapFinIdxM', but failed.
-  Possible cause: A missing `Lean.Tailrec.MonoBind` instance.
-  Use `set_option trace.Elab.definition.tailrec true` to debug.
+  Tried to apply 'Lean.Internal.Order.monotone_mapFinIdxM', but failed.
+  Possible cause: A missing `Lean.Internal.Order.MonoBind` instance.
+  Use `set_option trace.Elab.definition.partialFixpoint true` to debug.
 -/
 #guard_msgs in
 def Tree.rev''' (ts : Array Tree) : Id (Array Tree) := do
   ts.reverse.mapFinIdxM
     (fun my_idx my_tree => id (if my_idx.val < 0 then my_tree else (Tree.rev''' my_tree.cs.toArray) >>= (fun ts => ⟨ts.toList⟩)))
-nontermination_tailrecursive
+partial_fixpoint

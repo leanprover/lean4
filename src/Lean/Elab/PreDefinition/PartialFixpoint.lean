@@ -6,13 +6,15 @@ Authors: Joachim Breitner
 prelude
 import Lean.Elab.PreDefinition.MkInhabitant
 import Lean.Elab.PreDefinition.WF.PackMutual
-import Lean.Elab.Tactic.PartialMonotonicity
+import Lean.Elab.Tactic.Monotonicity
+import Init.Internal.Order.Basic
 
 namespace Lean.Elab
 
-open WF
 open Meta
 open Monotonicity
+
+open Lean.Internal.Order
 
 private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : Expr :=
   e.replace fun e =>
@@ -41,7 +43,7 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (argsPacker : 
         return mkAppN fns[n]! (fixedArgs ++ xs)
     k e
 
-def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
+def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- For every function, an CCPO instance on its range
   -- ∀ x1 x2, CCPO (t1 x1 x2)
   let ccpoInsts ← preDefs.mapM fun preDef =>
@@ -49,19 +51,19 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       let type ← instantiateForall preDef.type xs
       let inst ←
         try
-          synthInstance (← mkAppM ``Tailrec.CCPO #[type])
+          synthInstance (← mkAppM ``CCPO #[type])
         catch _ =>
-          trace[Elab.definition.tailrec] "No CCPO instance found for {preDef.declName}, trying inhabitation"
-          let msg := m!"failed to compile definition '{preDef.declName}' via tailrecursion"
+          trace[Elab.definition.partialFixpoint] "No CCPO instance found for {preDef.declName}, trying inhabitation"
+          let msg := m!"failed to compile definition '{preDef.declName}' using `partial_fixpoint`"
           let w ← mkInhabitantFor msg #[] preDef.type
           let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN w xs]
           let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
-          mkAppOptM ``Tailrec.FlatOrder.instCCPO #[none, classicalWitness]
+          mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
       mkLambdaFVars xs inst
 
-  let fixedPrefixSize ← getFixedPrefix preDefs
-  trace[Elab.definition.tailrec] "fixed prefix size: {fixedPrefixSize}"
-  let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
+  let fixedPrefixSize ← WF.getFixedPrefix preDefs
+  trace[Elab.definition.partialFixpoint] "fixed prefix size: {fixedPrefixSize}"
+  let varNamess ← preDefs.mapM (WF.varyingVarNames fixedPrefixSize ·)
   let argsPacker : ArgsPacker := { varNamess }
 
   let declNames := preDefs.map (·.declName)
@@ -77,24 +79,24 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- ∀ (x : packedDomain): CCPO (t x)
     let unaryCCPOInstType ←
       withLocalDeclD `x packedDomain fun x => do
-         mkForallFVars #[x] (← mkAppM ``Tailrec.CCPO #[← instantiateForall packedType #[x]])
+         mkForallFVars #[x] (← mkAppM ``CCPO #[← instantiateForall packedType #[x]])
     let unaryCCPOInst ← argsPacker.uncurryWithType unaryCCPOInstType ccpoInsts
     -- ∀ (x : packedDomain): Order (t x). Derived from unaryCCPOInst to avoid diamond later on
     let unaryOrderInst ←
       withLocalDeclD `x packedDomain fun x => do
-        mkLambdaFVars #[x] (← mkAppOptM ``Tailrec.CCPO.toOrder #[none, unaryCCPOInst.beta #[x]])
+        mkLambdaFVars #[x] (← mkAppOptM ``CCPO.toOrder #[none, unaryCCPOInst.beta #[x]])
     -- CCPO (∀ (x : packedDomain): t x)
-    let instCCPOPackedType ← mkAppOptM ``Tailrec.instCCPOPi #[packedDomain, packedRange, unaryCCPOInst]
+    let instCCPOPackedType ← mkAppOptM ``instCCPOPi #[packedDomain, packedRange, unaryCCPOInst]
     -- Order (∀ (x : packedDomain): t x)
-    let instOrderPackedType ← mkAppOptM ``Tailrec.CCPO.toOrder #[packedType, instCCPOPackedType]
+    let instOrderPackedType ← mkAppOptM ``CCPO.toOrder #[packedType, instCCPOPackedType]
 
     -- Error reporting hook, preseting monotonicity errors in terms of recursive functions
     let failK {α} f (monoThms : Array Name) : MetaM α := do
       unReplaceRecApps preDefs argsPacker fixedArgs f fun t => do
         let extraMsg := if monoThms.isEmpty then m!"" else
           m!"Tried to apply {.andList (monoThms.toList.map (m!"'{·}'"))}, but failed.\n\
-             Possible cause: A missing `{.ofConstName ``Tailrec.MonoBind}` instance.\n\
-             Use `set_option trace.Elab.definition.tailrec true` to debug."
+             Possible cause: A missing `{.ofConstName ``MonoBind}` instance.\n\
+             Use `set_option trace.Elab.definition.partialFixpoint true` to debug."
         if let some recApp := t.find? hasRecAppSyntax then
           let some syn := getRecAppSyntax? recApp | panic! "getRecAppSyntax? failed"
           withRef syn <|
@@ -123,8 +125,8 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       lambdaTelescope body fun xs _ => do
         let type ← instantiateForall type xs
         let F ← instantiateLambda Fs[i]! xs
-        let instOrder ← mkAppOptM ``Tailrec.CCPO.toOrder #[none, ccpoInsts[i]!.beta xs]
-        let goal ← mkAppOptM ``Tailrec.monotone
+        let instOrder ← mkAppOptM ``CCPO.toOrder #[none, ccpoInsts[i]!.beta xs]
+        let goal ← mkAppOptM ``monotone
           #[packedType, instOrderPackedType, type, instOrder, F]
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
@@ -140,16 +142,16 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
         withLocalDeclD `x packedDomain fun x =>
           mkLambdaFVars #[f, x] (F.beta #[x, f])
 
-    let hmono ← mkAppOptM ``Tailrec.monotone_of_monotone_apply
+    let hmono ← mkAppOptM ``monotone_of_monotone_apply
       #[packedDomain, packedRange, packedType, instOrderPackedType, unaryOrderInst, F]
 
     let monoGoal := (← inferType hmono).bindingDomain!
-    trace[Elab.definition.tailrec] "monoGoal: {monoGoal}"
+    trace[Elab.definition.partialFixpoint] "monoGoal: {monoGoal}"
     let hmono' ← argsPacker.uncurryWithType monoGoal hmonos
     let hmono := mkApp hmono hmono'
 
-    let packedValue ← mkAppOptM ``Lean.Tailrec.fix #[packedType, instCCPOPackedType, F, hmono]
-    trace[Elab.definition.tailrec] "finalValue: {packedValue}"
+    let packedValue ← mkAppOptM ``fix #[packedType, instCCPOPackedType, F, hmono]
+    trace[Elab.definition.partialFixpoint] "finalValue: {packedValue}"
 
     check packedValue
 
@@ -159,8 +161,8 @@ def tailRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       declName := WF.mutualName argsPacker preDefs
       type := packedType
       value := packedValue}
-    addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
+    WF.addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
 
 end Lean.Elab
 
-builtin_initialize Lean.registerTraceClass `Elab.definition.tailrec
+builtin_initialize Lean.registerTraceClass `Elab.definition.partialFixpoint

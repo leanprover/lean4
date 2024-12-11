@@ -107,7 +107,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
   · simp only [ofArray]
   · have hsize : (ofArray arr).assignments.size = n := by
       simp only [ofArray, ← Array.foldl_toList]
-      have hb : (mkArray n unassigned).size = n := by simp only [Array.size_mkArray]
+      have hb : (mkArray n unassigned).size = n := by simp only [Array.size_toArrayArray]
       have hl (acc : Array Assignment) (ih : acc.size = n) (cOpt : Option (DefaultClause n)) (_cOpt_in_arr : cOpt ∈ arr.toList) :
         (ofArray_fold_fn acc cOpt).size = n := by rw [size_ofArray_fold_fn acc cOpt, ih]
       exact List.foldlRecOn arr.toList ofArray_fold_fn (mkArray n unassigned) hb hl
@@ -117,7 +117,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
         ∀ i : PosFin n, ∀ b : Bool, hasAssignment b (assignments[i.1]'(by rw [hsize]; exact i.2.2)) →
         (unit (i, b)) ∈ toList (ofArray arr)
     have hb : ModifiedAssignmentsInvariant (mkArray n unassigned) := by
-      have hsize : (mkArray n unassigned).size = n := by simp only [Array.size_mkArray]
+      have hsize : (mkArray n unassigned).size = n := by simp only [Array.size_toArrayArray]
       apply Exists.intro hsize
       intro i b h
       by_cases hb : b <;> simp [hasAssignment, hb, hasPosAssignment, hasNegAssignment] at h

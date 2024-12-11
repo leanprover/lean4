@@ -257,7 +257,7 @@ union value {
 object * box_t(value v, type t) {
     switch (t) {
     case type::Float:   return box_float(v.m_float);
-    case type::Float32: return box_float(v.m_float32);
+    case type::Float32: return box_float32(v.m_float32);
     case type::UInt8:   return box(v.m_num);
     case type::UInt16:  return box(v.m_num);
     case type::UInt32:  return box_uint32(v.m_num);

@@ -3,7 +3,7 @@
 #reduce Char.ofNat (nat_lit 0)
 
 /--
-info: { val := { toBitVec := { toFin := ⟨0, isValidChar_UInt32 (Or.inl (Nat.le_of_ble_eq_true rfl))⟩ } },
+info: { val := { toBitVec := { toFin := ⟨0, isValidChar_UInt32✝ (Or.inl (Nat.le_of_ble_eq_true rfl))⟩ } },
   valid := Or.inl (Nat.le_of_ble_eq_true rfl) }
 -/
 #guard_msgs in

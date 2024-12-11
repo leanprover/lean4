@@ -55,6 +55,7 @@ instance : ToString Expr := ⟨fun e => Format.pretty (format e)⟩
 
 private partial def formatIRType : IRType → Format
   | IRType.float        => "float"
+  | IRType.float32      => "float32"
   | IRType.uint8        => "u8"
   | IRType.uint16       => "u16"
   | IRType.uint32       => "u32"

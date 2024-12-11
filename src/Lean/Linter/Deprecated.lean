@@ -31,6 +31,10 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
       let newName? ← id?.mapM Elab.realizeGlobalConstNoOverloadWithInfo
       let text? := text?.map TSyntax.getString
       let since? := since?.map TSyntax.getString
+      if id?.isNone && text?.isNone then
+        logWarning "`[deprecated]` attribute should specify either a new name or a deprecation message"
+      if since?.isNone then
+        logWarning "`[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := \"...\")`"
       return { newName?, text?, since? }
   }
 
@@ -46,7 +50,9 @@ def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name := 
 def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (declName : Name) : m Unit := do
   if getLinterValue linter.deprecated (← getOptions) then
     let some attr := deprecatedAttr.getParam? (← getEnv) declName | pure ()
-    logWarning <| .tagged ``deprecatedAttr <| attr.text?.getD <|
-      match attr.newName? with
-      | none => s!"`{declName}` has been deprecated"
-      | some newName => s!"`{declName}` has been deprecated, use `{newName}` instead"
+    logWarning <| .tagged ``deprecatedAttr <|
+      m!"`{.ofConstName declName true}` has been deprecated" ++ match attr.text? with
+      | some text => s!": {text}"
+      | none => match attr.newName? with
+        | some newName => m!": use `{.ofConstName newName true}` instead"
+        | none => ""

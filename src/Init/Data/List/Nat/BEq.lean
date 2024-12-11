@@ -9,7 +9,7 @@ import Init.Data.List.Basic
 
 namespace List
 
-/-! ### isEqv-/
+/-! ### isEqv -/
 
 theorem isEqv_eq_decide (a b : List α) (r) :
     isEqv a b r = if h : a.length = b.length then

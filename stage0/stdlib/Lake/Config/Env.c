@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Env
-// Imports: Init Lake.Util.Name Lake.Util.NativeLib Lake.Config.InstallPath
+// Imports: Lake.Util.Name Lake.Util.NativeLib Lake.Config.InstallPath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__10;
 lean_object* l_Lean_Json_compress(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__23;
 static lean_object* l_Lake_Env_baseVars___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Env_leanPath___boxed(lean_object*);
@@ -58,6 +59,7 @@ static lean_object* l_Lake_Env_noToolchainVars___closed__17;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__13;
 static lean_object* l_Lake_instInhabitedEnv___closed__4;
+static lean_object* l_Lake_instInhabitedEnv___closed__5;
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Env_noToolchainVars;
 static lean_object* l_Lake_Env_noToolchainVars___closed__9;
@@ -144,28 +146,44 @@ return x_2;
 static lean_object* _init_l_Lake_instInhabitedEnv___closed__3() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lake_instInhabitedEnv___closed__1;
-x_2 = 0;
-x_3 = lean_alloc_ctor(0, 13, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_1);
-lean_ctor_set(x_3, 3, x_1);
-lean_ctor_set(x_3, 4, x_1);
-lean_ctor_set(x_3, 5, x_1);
-lean_ctor_set(x_3, 6, x_1);
-lean_ctor_set(x_3, 7, x_1);
-lean_ctor_set(x_3, 8, x_1);
-lean_ctor_set(x_3, 9, x_1);
-lean_ctor_set(x_3, 10, x_1);
-lean_ctor_set(x_3, 11, x_1);
-lean_ctor_set(x_3, 12, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*13, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_instInhabitedEnv___closed__4() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lake_instInhabitedEnv___closed__1;
+x_2 = 0;
+x_3 = l_Lake_instInhabitedEnv___closed__3;
+x_4 = lean_alloc_ctor(0, 19, 1);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_1);
+lean_ctor_set(x_4, 2, x_1);
+lean_ctor_set(x_4, 3, x_1);
+lean_ctor_set(x_4, 4, x_1);
+lean_ctor_set(x_4, 5, x_1);
+lean_ctor_set(x_4, 6, x_1);
+lean_ctor_set(x_4, 7, x_1);
+lean_ctor_set(x_4, 8, x_1);
+lean_ctor_set(x_4, 9, x_1);
+lean_ctor_set(x_4, 10, x_1);
+lean_ctor_set(x_4, 11, x_1);
+lean_ctor_set(x_4, 12, x_1);
+lean_ctor_set(x_4, 13, x_3);
+lean_ctor_set(x_4, 14, x_3);
+lean_ctor_set(x_4, 15, x_3);
+lean_ctor_set(x_4, 16, x_3);
+lean_ctor_set(x_4, 17, x_3);
+lean_ctor_set(x_4, 18, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*19, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l_Lake_instInhabitedEnv___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
@@ -173,7 +191,7 @@ x_1 = lean_box(0);
 x_2 = lean_box(0);
 x_3 = lean_box(0);
 x_4 = l_Lake_instInhabitedEnv___closed__2;
-x_5 = l_Lake_instInhabitedEnv___closed__3;
+x_5 = l_Lake_instInhabitedEnv___closed__4;
 x_6 = l_Lake_instInhabitedEnv___closed__1;
 x_7 = 0;
 x_8 = lean_alloc_ctor(0, 11, 1);
@@ -196,7 +214,7 @@ static lean_object* _init_l_Lake_instInhabitedEnv() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_instInhabitedEnv___closed__4;
+x_1 = l_Lake_instInhabitedEnv___closed__5;
 return x_1;
 }
 }
@@ -2864,7 +2882,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_InstallPath(uint8_t builtin, lean_object*);
@@ -2873,9 +2890,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_Env(uint8_t builtin, lean_object
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -2893,6 +2907,8 @@ l_Lake_instInhabitedEnv___closed__3 = _init_l_Lake_instInhabitedEnv___closed__3(
 lean_mark_persistent(l_Lake_instInhabitedEnv___closed__3);
 l_Lake_instInhabitedEnv___closed__4 = _init_l_Lake_instInhabitedEnv___closed__4();
 lean_mark_persistent(l_Lake_instInhabitedEnv___closed__4);
+l_Lake_instInhabitedEnv___closed__5 = _init_l_Lake_instInhabitedEnv___closed__5();
+lean_mark_persistent(l_Lake_instInhabitedEnv___closed__5);
 l_Lake_instInhabitedEnv = _init_l_Lake_instInhabitedEnv();
 lean_mark_persistent(l_Lake_instInhabitedEnv);
 l_Lean_RBNode_foldM___at_Lake_Env_compute_computePkgUrlMap___spec__1___closed__1 = _init_l_Lean_RBNode_foldM___at_Lake_Env_compute_computePkgUrlMap___spec__1___closed__1();

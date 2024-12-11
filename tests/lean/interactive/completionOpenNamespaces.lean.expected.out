@@ -10,6 +10,6 @@
      "position": {"line": 4, "character": 68}},
     "id":
     {"const":
-     {"declName":
-      "A.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"}}}}],
+     {"declName": "A.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"}},
+    "cPos": 0}}],
  "isIncomplete": true}

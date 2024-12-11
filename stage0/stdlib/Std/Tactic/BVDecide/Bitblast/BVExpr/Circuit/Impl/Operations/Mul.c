@@ -13,10 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst_go___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_FullAdderInput_cast___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__23___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdderCarry___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__24___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -40,6 +38,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Std_Tact
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__4(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__26(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_go___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___spec__2___closed__1;
 static lean_object* l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__4___closed__1;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___spec__1___rarg___boxed(lean_object*, lean_object*);
@@ -63,8 +62,8 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_insert___at_Std_Tactic_BVDecide_BVE
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_get_x3f___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__5___rarg(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_RefVec_empty___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__2___closed__1;
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
-static uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1;
 lean_object* l_outOfBounds___rarg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__13(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdderCarry___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__24(lean_object*, lean_object*);
@@ -72,11 +71,11 @@ lean_object* l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed(lean_object*, le
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast___boxed(lean_object*, lean_object*, lean_object*);
-static uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__12(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_0__Std_Tactic_BVDecide_decEqBVBit____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_85_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Cache_insert___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__9(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8___boxed(lean_object*, lean_object*);
+static uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2;
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__10(lean_object*, lean_object*);
 uint8_t l_Nat_testBit(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -85,6 +84,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Std_Tact
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__10___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__21(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGateCached_go___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__22(lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -105,9 +105,9 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_ite___at_Std_Tactic_BVDecide_BVExp
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__16___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__11(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_go___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeftConst_go___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,7 +134,7 @@ x_2 = l_Std_Sat_AIG_RefVec_empty___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastM
 return x_2;
 }
 }
-static uint64_t _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1() {
+static uint64_t _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1() {
 _start:
 {
 uint64_t x_1; uint64_t x_2; uint64_t x_3; 
@@ -144,7 +144,7 @@ x_3 = lean_uint64_mix_hash(x_1, x_2);
 return x_3;
 }
 }
-static uint64_t _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2() {
+static uint64_t _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2() {
 _start:
 {
 uint64_t x_1; uint64_t x_2; uint64_t x_3; 
@@ -154,7 +154,7 @@ x_3 = lean_uint64_mix_hash(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(lean_object* x_1) {
+LEAN_EXPORT uint64_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -165,13 +165,13 @@ x_2 = lean_ctor_get_uint8(x_1, 0);
 if (x_2 == 0)
 {
 uint64_t x_3; 
-x_3 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1;
+x_3 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1;
 return x_3;
 }
 else
 {
 uint64_t x_4; 
-x_4 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2;
+x_4 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2;
 return x_4;
 }
 }
@@ -238,7 +238,7 @@ return x_27;
 }
 }
 }
-LEAN_EXPORT uint8_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -411,7 +411,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_2, 2);
-x_7 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_4, x_1);
+x_7 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_4, x_1);
 if (x_7 == 0)
 {
 x_2 = x_6;
@@ -434,7 +434,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint64_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; size_t x_12; size_t x_13; size_t x_14; size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_2);
+x_5 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_2);
 x_6 = 32;
 x_7 = lean_uint64_shift_right(x_5, x_6);
 x_8 = lean_uint64_xor(x_5, x_7);
@@ -499,7 +499,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_4, x_1);
+x_6 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -614,7 +614,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; uint64_t x_8
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-x_7 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_4);
+x_7 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_4);
 x_8 = 32;
 x_9 = lean_uint64_shift_right(x_7, x_8);
 x_10 = lean_uint64_xor(x_7, x_9);
@@ -645,7 +645,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_2);
 x_25 = lean_array_get_size(x_1);
-x_26 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_22);
+x_26 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_22);
 x_27 = 32;
 x_28 = lean_uint64_shift_right(x_26, x_27);
 x_29 = lean_uint64_xor(x_26, x_28);
@@ -737,7 +737,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_3, 0);
 x_7 = lean_ctor_get(x_3, 1);
 x_8 = lean_ctor_get(x_3, 2);
-x_9 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_6, x_1);
+x_9 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_6, x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -764,7 +764,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_3);
-x_14 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_11, x_1);
+x_14 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_11, x_1);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -802,7 +802,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint64_t x_9; uint64_t x_1
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = lean_array_get_size(x_7);
-x_9 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_3);
+x_9 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_3);
 x_10 = 32;
 x_11 = lean_uint64_shift_right(x_9, x_10);
 x_12 = lean_uint64_xor(x_9, x_11);
@@ -872,7 +872,7 @@ lean_inc(x_39);
 lean_inc(x_38);
 lean_dec(x_2);
 x_40 = lean_array_get_size(x_39);
-x_41 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_3);
+x_41 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_3);
 x_42 = 32;
 x_43 = lean_uint64_shift_right(x_41, x_42);
 x_44 = lean_uint64_xor(x_41, x_43);
@@ -2955,21 +2955,21 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_1);
+x_2 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_399____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_1, x_2);
+x_3 = l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_decEqDecl____x40_Std_Sat_AIG_Basic___hyg_400____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__8(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -3520,8 +3520,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Sat_AIG_RefVec_empty___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__2___closed__1 = _init_l_Std_Sat_AIG_RefVec_empty___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__2___closed__1();
 lean_mark_persistent(l_Std_Sat_AIG_RefVec_empty___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__2___closed__1);
-l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1 = _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1();
-l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2 = _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_83____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2();
+l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1 = _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__1();
+l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2 = _init_l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__6___closed__2();
 l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__4___closed__1 = _init_l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__4___closed__1();
 lean_mark_persistent(l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___spec__4___closed__1);
 l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___spec__2___closed__1 = _init_l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___spec__2___closed__1();

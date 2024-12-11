@@ -15,7 +15,7 @@ def m : DHashMap.Raw Nat (fun _ => Nat) :=
 #guard_msgs in
 #eval (m.filterMap fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
-/-- info: [⟨3, none⟩, ⟨2, some 8⟩, ⟨1, none⟩] -/
+/-- info: [⟨1, none⟩, ⟨2, some 8⟩, ⟨3, none⟩] -/
 #guard_msgs in
 #eval (m.map fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
@@ -50,7 +50,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
     ans := (k, v) :: ans
   return ans
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩] -/
+/-- info: [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval m.toList
 
@@ -58,7 +58,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
-/-- info: [(3, 6), (2, 4), (1, 2)] -/
+/-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval DHashMap.Raw.Const.toList m
 
@@ -66,7 +66,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval DHashMap.Raw.Const.toArray m
 
-/-- info: [3, 2, 1] -/
+/-- info: [1, 2, 3] -/
 #guard_msgs in
 #eval m.keys
 
@@ -74,19 +74,19 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
-/-- info: [6, 4, 2] -/
+/-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩, ⟨16, 9⟩] -/
+/-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval (m.insertMany [⟨16, 8⟩, ⟨16, 9⟩]).toList
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩, ⟨16, 9⟩] -/
+/-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval (DHashMap.Raw.Const.insertMany m [(16, 8), (16, 9)]).toList
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩] -/
+/-- info: [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval (DHashMap.Raw.Const.ofList [(1, 2), (2, 4), (3, 6)]).toList
 
@@ -105,7 +105,7 @@ def m : DHashMap Nat (fun _ => Nat) :=
 #guard_msgs in
 #eval (m.filterMap fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
-/-- info: [⟨3, none⟩, ⟨2, some 8⟩, ⟨1, none⟩] -/
+/-- info: [⟨1, none⟩, ⟨2, some 8⟩, ⟨3, none⟩] -/
 #guard_msgs in
 #eval (m.map fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
@@ -140,7 +140,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
     ans := (k, v) :: ans
   return ans
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩] -/
+/-- info: [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval m.toList
 
@@ -148,7 +148,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
-/-- info: [(3, 6), (2, 4), (1, 2)] -/
+/-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval DHashMap.Const.toList m
 
@@ -156,7 +156,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval DHashMap.Const.toArray m
 
-/-- info: [3, 2, 1] -/
+/-- info: [1, 2, 3] -/
 #guard_msgs in
 #eval m.keys
 
@@ -164,19 +164,19 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
-/-- info: [6, 4, 2] -/
+/-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩, ⟨16, 9⟩] -/
+/-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval (m.insertMany [⟨16, 8⟩, ⟨16, 9⟩]).toList
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩, ⟨16, 9⟩] -/
+/-- info: [⟨16, 9⟩, ⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval (DHashMap.Const.insertMany m [(16, 8), (16, 9)]).toList
 
-/-- info: [⟨3, 6⟩, ⟨2, 4⟩, ⟨1, 2⟩] -/
+/-- info: [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
 #eval (DHashMap.Const.ofList [(1, 2), (2, 4), (3, 6)]).toList
 
@@ -195,7 +195,7 @@ def m : HashMap.Raw Nat Nat :=
 #guard_msgs in
 #eval (m.filterMap fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
-/-- info: [(3, none), (2, some 8), (1, none)] -/
+/-- info: [(1, none), (2, some 8), (3, none)] -/
 #guard_msgs in
 #eval (m.map fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
@@ -230,7 +230,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
     ans := (k, v) :: ans
   return ans
 
-/-- info: [(3, 6), (2, 4), (1, 2)] -/
+/-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval m.toList
 
@@ -238,7 +238,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
-/-- info: [3, 2, 1] -/
+/-- info: [1, 2, 3] -/
 #guard_msgs in
 #eval m.keys
 
@@ -246,11 +246,11 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
-/-- info: [6, 4, 2] -/
+/-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
 
-/-- info: [(3, 6), (2, 4), (1, 2), (16, 9)] -/
+/-- info: [(16, 9), (1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval (m.insertMany [(16, 8), (16, 9)]).toList
 
@@ -269,7 +269,7 @@ def m : HashMap Nat Nat :=
 #guard_msgs in
 #eval (m.filterMap fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
-/-- info: [(3, none), (2, some 8), (1, none)] -/
+/-- info: [(1, none), (2, some 8), (3, none)] -/
 #guard_msgs in
 #eval (m.map fun k v => if k % 2 == 0 then some (2 * v) else none).toList
 
@@ -304,7 +304,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
     ans := (k, v) :: ans
   return ans
 
-/-- info: [(3, 6), (2, 4), (1, 2)] -/
+/-- info: [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval m.toList
 
@@ -312,7 +312,7 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
-/-- info: [3, 2, 1] -/
+/-- info: [1, 2, 3] -/
 #guard_msgs in
 #eval m.keys
 
@@ -320,11 +320,11 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.keysArray
 
-/-- info: [6, 4, 2] -/
+/-- info: [2, 4, 6] -/
 #guard_msgs in
 #eval m.values
 
-/-- info: [(3, 6), (2, 4), (1, 2), (16, 9)] -/
+/-- info: [(16, 9), (1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval (m.insertMany [(16, 8), (16, 9)]).toList
 
@@ -332,35 +332,35 @@ def addValueToState (_ : Nat) (v : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval HashMap.ofList [(1, 2), (1, 4)]
 
-/-- info: Std.HashMap.ofList [(37, 37), (4, 5), (3, 6), (2, 4), (1, 2)] -/
+/-- info: Std.HashMap.ofList [(1, 2), (2, 4), (3, 6), (4, 5), (37, 37)] -/
 #guard_msgs in
 #eval m ∪ {(4, 5), (37, 37)}
 
-/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 3)] -/
+/-- info: Std.HashMap.ofList [(1, 3), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval m.modify 1 (fun v => v + 1)
 
-/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 2)] -/
+/-- info: Std.HashMap.ofList [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval m.modify 4 (fun v => v + 1)
 
-/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 2)] -/
+/-- info: Std.HashMap.ofList [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval m.alter 4 (fun v? => v?.map (· + 2))
 
-/-- info: Std.HashMap.ofList [(4, 7), (3, 6), (2, 4), (1, 2)] -/
+/-- info: Std.HashMap.ofList [(1, 2), (2, 4), (3, 6), (4, 7)] -/
 #guard_msgs in
 #eval m.alter 4 (fun _ => some 7)
 
-/-- info: Std.HashMap.ofList [(3, 6), (2, 4), (1, 2)] -/
+/-- info: Std.HashMap.ofList [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
 #eval m.alter 4 (fun _ => none)
 
-/-- info: Std.HashMap.ofList [(2, 4), (1, 2)] -/
+/-- info: Std.HashMap.ofList [(1, 2), (2, 4)] -/
 #guard_msgs in
 #eval m.alter 3 (fun _ => none)
 
-/-- info: Std.HashMap.ofList [(3, 37), (2, 4), (1, 2)] -/
+/-- info: Std.HashMap.ofList [(1, 2), (2, 4), (3, 37)] -/
 #guard_msgs in
 #eval m.alter 3 (fun _ => some 37)
 
@@ -418,7 +418,7 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.all fun x => x > 4
 
-/-- info: [1000000000, 2, 1] -/
+/-- info: [1, 2, 1000000000] -/
 #guard_msgs in
 #eval m.toList
 
@@ -426,15 +426,15 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
-/-- info: Std.HashSet.Raw.ofList [1000000000, 2, 1, 16] -/
+/-- info: Std.HashSet.Raw.ofList [16, 1, 2, 1000000000] -/
 #guard_msgs in
 #eval m ∪ {16, 16}
 
-/-- info: [1000000000, 2, 1, 16] -/
+/-- info: [16, 1, 2, 1000000000] -/
 #guard_msgs in
 #eval (m.insertMany [16, 16]).toList
 
-/-- info: Std.HashSet.Raw.ofList [100, 1] -/
+/-- info: Std.HashSet.Raw.ofList [1, 100] -/
 #guard_msgs in
 #eval HashSet.Raw.ofList [1, 100]
 
@@ -492,7 +492,7 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.all fun x => x > 4
 
-/-- info: [1000000000, 2, 1] -/
+/-- info: [1, 2, 1000000000] -/
 #guard_msgs in
 #eval m.toList
 
@@ -500,15 +500,15 @@ def addKeyToState (k : Nat) : StateM Nat PUnit := do
 #guard_msgs in
 #eval m.toArray
 
-/-- info: Std.HashSet.ofList [1000000000, 2, 1, 16] -/
+/-- info: Std.HashSet.ofList [16, 1, 2, 1000000000] -/
 #guard_msgs in
 #eval m ∪ {16, 16}
 
-/-- info: [1000000000, 2, 1, 16] -/
+/-- info: [16, 1, 2, 1000000000] -/
 #guard_msgs in
 #eval (m.insertMany [16, 16]).toList
 
-/-- info: Std.HashSet.ofList [100, 1] -/
+/-- info: Std.HashSet.ofList [1, 100] -/
 #guard_msgs in
 #eval HashSet.ofList [1, 100]
 

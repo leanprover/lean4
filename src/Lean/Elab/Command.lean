@@ -84,6 +84,7 @@ structure State where
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
+  snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
 structure Context where
@@ -100,7 +101,7 @@ structure Context where
   (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
   `HeadersParsedSnapshot`.
 
-  Definitely resolved in `Language.Lean.process.doElab`.
+  Definitely resolved in `Lean.Elab.Command.elabCommandTopLevel`.
 
   Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
   old elaboration are identical.
@@ -114,8 +115,7 @@ structure Context where
   -/
   suppressElabErrors : Bool := false
 
-abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
-abbrev CommandElabM := CommandElabCoreM Exception
+abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 structure Linter where
   run : Syntax → CommandElabM Unit
@@ -198,36 +198,6 @@ instance : AddErrorMessageContext CommandElabM where
     let msg ← addMacroStack msg ctx.macroStack
     return (ref, msg)
 
-def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-  let pos := ref.getPos?.getD ctx.cmdPos
-  let endPos := ref.getTailPos?.getD pos
-  mkMessageCore ctx.fileName ctx.fileMap msgData severity pos endPos
-
-private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
-  if traceState.traces.isEmpty then return log
-  let mut traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
-  for traceElem in traceState.traces do
-    let ref := replaceRef traceElem.ref ctx.ref
-    let pos := ref.getPos?.getD 0
-    let endPos := ref.getTailPos?.getD pos
-    traces := traces.insert (pos, endPos) <| traces.getD (pos, endPos) #[] |>.push traceElem.msg
-  let mut log := log
-  let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
-  for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `trace <| .joinSep traceMsg.toList "\n"
-    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap data .information pos endPos
-  return log
-
-private def addTraceAsMessages : CommandElabM Unit := do
-  let ctx ← read
-  -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
-  -- pretty printing the trace messages is expensive
-  if trace.profiler.output.get? (← getOptions) |>.isNone then
-    modify fun s => { s with
-      messages          := addTraceAsMessagesCore ctx s.messages s.traceState
-      traceState.traces := {}
-    }
-
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -253,6 +223,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
     traceState := s.traceState
+    snapshotTasks := s.snapshotTasks
   }
   let (ea, coreS) ← liftM x
   modify fun s => { s with
@@ -261,16 +232,13 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     ngen              := coreS.ngen
     infoState.trees   := s.infoState.trees.append coreS.infoState.trees
     traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
+    snapshotTasks     := coreS.snapshotTasks
     messages          := s.messages ++ coreS.messages
   }
   return ea
 
 def liftCoreM (x : CoreM α) : CommandElabM α := do
   MonadExcept.ofExcept (← runCore (observing x))
-
-private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
-  let ref := getBetterRef ref ctx.macroStack
-  mkMessageAux ctx ref (toString err) MessageSeverity.error
 
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
   let ctx ← read
@@ -294,9 +262,8 @@ instance : MonadLog CommandElabM where
   logMessage msg := do
     if (← read).suppressElabErrors then
       -- discard elaboration errors on parse error
-      -- NOTE: unlike `CoreM`'s `logMessage`, we do not currently have any command-level errors that
-      -- we want to allowlist
-      return
+      unless msg.data.hasTag (· matches `trace) do
+        return
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
@@ -320,7 +287,75 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
               | Exception.internal _ _ =>
                 logException ex
             finally
-              modify fun s => { savedState with messages := s.messages }
+              -- TODO: it would be good to preserve even more state (#4363) but preserving info
+              -- trees currently breaks from linters adding context-less info nodes
+              modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+
+/--
+Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
+catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
+Interrupt and abort exceptions are caught but not logged.
+-/
+@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabM Unit := fun ctx ref =>
+  EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
+
+@[inherit_doc Core.wrapAsync]
+def wrapAsync (act : Unit → CommandElabM α) : CommandElabM (EIO Exception α) := do
+  return act () |>.run (← read) |>.run' (← get)
+
+open Language in
+@[inherit_doc Core.wrapAsyncAsSnapshot]
+-- `CoreM` and `CommandElabM` are too different to meaningfully share this code
+def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
+    (desc : String := by exact decl_name%.toString) :
+    CommandElabM (BaseIO SnapshotTree) := do
+  let t ← wrapAsync fun _ => do
+    IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
+      let tid ← IO.getTID
+      -- reset trace state and message log so as not to report them twice
+      modify fun st => { st with messages := st.messages.markAllReported, traceState := { tid } }
+      try
+        withTraceNode `Elab.async (fun _ => return desc) do
+          act ()
+      catch e =>
+        logError e.toMessageData
+      finally
+        addTraceAsMessages
+      get
+  let ctx ← read
+  return do
+    match (← t.toBaseIO) with
+    | .ok (output, st) =>
+      let mut msgs := st.messages
+      if !output.isEmpty then
+        msgs := msgs.add {
+          fileName := ctx.fileName
+          severity := MessageSeverity.information
+          pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+          data     := output
+        }
+      return .mk {
+        desc
+        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
+        traces := st.traceState
+      } st.snapshotTasks
+    -- interrupt or abort exception as `try catch` above should have caught any others
+    | .error _ => default
+
+@[inherit_doc Core.logSnapshotTask]
+def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
+  modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
+
+def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
+  if !Elab.async.get (← getOptions) then
+    withoutModifyingEnv do
+      runLinters stx
+    return
+
+  -- We only start one task for all linters for now as most linters are fast and we simply want
+  -- to unblock elaboration of the next command
+  let lintAct ← wrapAsyncAsSnapshot fun _ => runLinters stx
+  logSnapshotTask { range? := none, task := (← BaseIO.asTask lintAct) }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -525,19 +560,18 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     -- rather than engineer a general solution.
     unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
       withLogging do
-        runLinters stx
+        runLintersAsync stx
   finally
+    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+    -- be the caller of this function and add new messages and info trees
+    if let some snap := (← read).snap? then
+      snap.new.resolve default
+
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages
     let mut msgs := (← get).messages
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
-    if (← isTracingEnabledFor `Elab.snapshotTree) then
-      if let some snap := (← read).snap? then
-        -- We can assume that the root command snapshot is not involved in parallelism yet, so this
-        -- should be true iff the command supports incrementality
-        if (← IO.hasFinished snap.new.result) then
-          liftCoreM <| Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.trace
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
@@ -667,14 +701,6 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           let someType := mkSort levelZero
           Term.addAutoBoundImplicits' xs someType fun xs _ =>
             Term.withoutAutoBoundImplicit <| elabFn xs
-
-/--
-Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
-catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
-Interrupt and abort exceptions are caught but not logged.
--/
-@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
-  EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x

@@ -31,7 +31,7 @@ LEAN_EXPORT lean_object* l_Lean_ConstantInfo_getUsedConstantsAsSet(lean_object*)
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_getUsedConstants___closed__2;
@@ -1096,7 +1096,7 @@ LEAN_EXPORT uint32_t l_Lean_getMaxHeight___lambda__1(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_environment_find(x_1, x_2);
+x_4 = l_Lean_Environment_find_x3f(x_1, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
 return x_3;
@@ -1176,6 +1176,7 @@ uint32_t x_4; uint32_t x_5; lean_object* x_6;
 x_4 = lean_unbox_uint32(x_3);
 lean_dec(x_3);
 x_5 = l_Lean_getMaxHeight___lambda__1(x_1, x_2, x_4);
+lean_dec(x_2);
 x_6 = lean_box_uint32(x_5);
 return x_6;
 }

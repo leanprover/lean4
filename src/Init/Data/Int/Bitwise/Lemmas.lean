@@ -34,4 +34,8 @@ theorem shiftRight_eq_div_pow (m : Int) (n : Nat) :
 theorem zero_shiftRight (n : Nat) : (0 : Int) >>> n = 0 := by
   simp [Int.shiftRight_eq_div_pow]
 
+@[simp]
+theorem shiftRight_zero (n : Int) : n >>> 0 = n := by
+  simp [Int.shiftRight_eq_div_pow]
+
 end Int

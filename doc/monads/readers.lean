@@ -139,7 +139,7 @@ You might be wondering, how does the context actually move through the `ReaderM`
 add an input argument to a function by modifying its return type?  There is a special command in
 Lean that will show you the reduced types:
 -/
-#reduce ReaderM Environment String   -- Environment → String
+#reduce (types := true) ReaderM Environment String   -- Environment → String
 /-!
 And you can see here that this type is actually a function!  It's a function that takes an
 `Environment` as input and returns a `String`.

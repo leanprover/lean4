@@ -339,7 +339,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 
-    if let some mvarIds ← splitTarget? mvarId (splitIte := true) then
+    if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
       return (← mvarIds.forM go)
 
     if (← tryContradiction mvarId) then

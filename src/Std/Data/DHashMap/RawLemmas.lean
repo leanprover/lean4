@@ -1039,13 +1039,27 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
 
 @[simp]
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
-    k ∈ m.keys ↔ k ∈ m := by 
+    k ∈ m.keys ↔ k ∈ m := by
   rw [mem_iff_contains]
   simp_to_raw using Raw₀.mem_keys ⟨m, _⟩ h
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem toList_map_fst (h : m.WF) :
+    m.toList.map Sigma.fst = m.keys := by
+  simp_to_raw using Raw₀.toList_map_fst ⟨m, h.size_buckets_pos⟩
+
+open List in
+theorem toList_insert_perm_of_not_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    (k : α) (v : β k) (h' : ¬k ∈ m) :
+    (m.insert k v).toList ~ (⟨k, v⟩ :: m.toList) := by
+  rw [mem_iff_contains, Bool.not_eq_true] at h'
+  revert h'
+  simp_to_raw
+  apply Raw₀.toList_insert_perm_of_not_contains _ h
 
 end Raw
 

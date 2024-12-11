@@ -52,7 +52,6 @@ static lean_object* l_Lean_Elab_Term_toParserDescr_processAtom___lambda__1___clo
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_toParserDescr_processAlias___spec__6___closed__2;
 static lean_object* l_panic___at_Lean_Elab_Term_toParserDescr_processAlias___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_toParserDescr_processAlias(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_8819_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkNameFromParserSyntax___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_withNotFirst(lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__39;
@@ -688,6 +687,7 @@ static lean_object* l_Lean_Elab_Term_ensureUnaryOutput___closed__5;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__3;
 lean_object* l_Lean_isTracingEnabledForCore(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+uint8_t l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_8964_(uint8_t, uint8_t);
 static lean_object* l_Lean_Elab_Term_toParserDescr_processAtom___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_toParserDescr_isValidAtom___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandOptPrecedence___boxed(lean_object*, lean_object*, lean_object*);
@@ -6360,7 +6360,7 @@ _start:
 lean_object* x_12; uint8_t x_54; uint8_t x_55; uint8_t x_56; 
 x_54 = lean_ctor_get_uint8(x_3, sizeof(void*)*1 + 2);
 x_55 = 0;
-x_56 = l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_8819_(x_54, x_55);
+x_56 = l___private_Lean_Parser_Basic_0__Lean_Parser_beqLeadingIdentBehavior____x40_Lean_Parser_Basic___hyg_8964_(x_54, x_55);
 if (x_56 == 0)
 {
 uint8_t x_57; 

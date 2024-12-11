@@ -2099,7 +2099,7 @@ theorem getKey?_insertList_of_mem [BEq α] [EquivBEq α]
     {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Sigma.fst)) :
+    (mem : k ∈ toInsert.map Sigma.fst) :
     getKey? k' (insertList l toInsert) = some k := by
   rw [List.mem_map] at mem
   rcases mem with ⟨pair, pair_mem, pair_eq⟩
@@ -2132,7 +2132,7 @@ theorem getKey_insertList_of_mem [BEq α] [EquivBEq α]
     {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Sigma.fst))
+    (mem : k ∈ toInsert.map Sigma.fst)
     {h} :
     getKey k' (insertList l toInsert) h = k := by
   rw [← Option.some_inj]
@@ -2157,7 +2157,7 @@ theorem getKey!_insertList_of_mem [BEq α] [EquivBEq α] [Inhabited α]
     {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Sigma.fst)) :
+    (mem : k ∈ toInsert.map Sigma.fst) :
     getKey! k' (insertList l toInsert) = k := by
   rw [getKey!_eq_getKey?]
   rw [getKey?_insertList_of_mem]
@@ -2181,7 +2181,7 @@ theorem getKeyD_insertList_of_mem [BEq α] [EquivBEq α]
     {k k' fallback : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Sigma.fst)) :
+    (mem : k ∈ toInsert.map Sigma.fst) :
     getKeyD k' (insertList l toInsert) fallback = k := by
   rw [getKeyD_eq_getKey?]
   rw [getKey?_insertList_of_mem]
@@ -2371,7 +2371,7 @@ theorem getKey?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Prod.fst)) :
+    (mem : k ∈ toInsert.map Prod.fst) :
     getKey? k' (insertListConst l toInsert) = some k := by
   unfold insertListConst
   apply getKey?_insertList_of_mem
@@ -2398,7 +2398,7 @@ theorem getKey_insertListConst_of_mem [BEq α] [EquivBEq α]
     {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Prod.fst))
+    (mem : k ∈ toInsert.map Prod.fst)
     {h} :
     getKey k' (insertListConst l toInsert) h = k := by
   rw [← Option.some_inj]
@@ -2423,7 +2423,7 @@ theorem getKey!_insertListConst_of_mem [BEq α] [EquivBEq α] [Inhabited α]
     {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Prod.fst)) :
+    (mem : k ∈ toInsert.map Prod.fst) :
     getKey! k' (insertListConst l toInsert) = k := by
   rw [getKey!_eq_getKey?]
   rw [getKey?_insertListConst_of_mem]
@@ -2447,7 +2447,7 @@ theorem getKeyD_insertListConst_of_mem [BEq α] [EquivBEq α]
     {k k' fallback : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : k ∈ (toInsert.map Prod.fst)) :
+    (mem : k ∈ toInsert.map Prod.fst) :
     getKeyD k' (insertListConst l toInsert) fallback = k := by
   rw [getKeyD_eq_getKey?]
   rw [getKey?_insertListConst_of_mem]

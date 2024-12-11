@@ -128,19 +128,52 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
-@[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
-  let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
-  let nss ← resolveNamespace ns
+def elabExportDecl (stx : TSyntax ``Parser.Command.exportDecl) : CommandElabM Unit := do
   let currNamespace ← getCurrNamespace
-  if nss == [currNamespace] then throwError "invalid 'export', self export"
-  let mut aliases := #[]
-  for idStx in ids do
-    let id := idStx.getId
-    let declName ← resolveNameUsingNamespaces nss idStx
-    if (← getInfoState).enabled then
-      addConstInfo idStx declName
-    aliases := aliases.push (currNamespace ++ id, declName)
-  modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
+  match stx with
+  | `(Parser.Command.exportDecl| $nss*) =>
+    for ns in nss do
+      let ns ← resolveUniqueNamespace ns
+      modifyEnv fun env => addNamespaceAlias env currNamespace ns []
+  | `(Parser.Command.exportDecl| $ns ($ids*)) =>
+    let nss ← resolveNamespace ns
+    let mut aliases := #[]
+    for idStx in ids do
+      let declName ← resolveNameUsingNamespaces nss idStx
+      if (← getInfoState).enabled then
+        addConstInfo idStx declName
+      let aDeclName := currNamespace ++ idStx.getId
+      if aDeclName == declName then
+        throwErrorAt idStx "invalid 'export', self export"
+      aliases := aliases.push (aDeclName, declName)
+    addAliases aliases
+  | `(Parser.Command.exportDecl| $ns hiding $ids*) =>
+    let ns ← resolveUniqueNamespace ns
+    for id in ids do
+      let declName ← resolveNameUsingNamespaces [ns] id
+      if (← getInfoState).enabled then
+        addConstInfo id declName
+    let except := ids.map (·.getId) |>.toList
+    modifyEnv fun env => addNamespaceAlias env currNamespace ns except
+  | `(Parser.Command.exportDecl| $ns renaming $[$froms -> $tos],*) =>
+    let ns ← resolveUniqueNamespace ns
+    let mut aliases := #[]
+    for «from» in froms, to in tos do
+      let declName ← resolveNameUsingNamespaces [ns] «from»
+      if (← getInfoState).enabled then
+        addConstInfo «from» declName
+        addConstInfo to declName
+      let aDeclName := currNamespace ++ to.getId
+      aliases := aliases.push (aDeclName, declName)
+    addAliases aliases
+  | _ => throwUnsupportedSyntax
+where
+  addAliases (aliases : Array (Name × Name)) : CommandElabM Unit :=
+    modifyEnv fun env => aliases.foldl (init := env) fun env p => addAlias env p.1 p.2
+
+@[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
+  let decl : TSyntax ``Parser.Command.exportDecl := ⟨stx[1]⟩
+  elabExportDecl decl
 
 @[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do

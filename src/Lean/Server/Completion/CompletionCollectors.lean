@@ -369,6 +369,7 @@ private def idCompletionCore
         addUnresolvedCompletionItem localDecl.userName (.fvar localDecl.fvarId) (kind := CompletionItemKind.variable) score
   -- search for matches in the environment
   let env ← getEnv
+  let eligibleHeaderDecls ← getEligibleHeaderDecls env
   forEligibleDeclsM fun declName c => do
     let bestMatch? ← (·.2) <$> StateT.run (s := none) do
       let matchUsingNamespace (ns : Name) : StateT (Option (Name × Float)) M Unit := do
@@ -400,19 +401,35 @@ private def idCompletionCore
       matchUsingNamespace Name.anonymous
     if let some (bestLabel, bestScore) := bestMatch? then
       addUnresolvedCompletionItem bestLabel (.const declName) (← getCompletionKindForDecl c) bestScore
-  let matchAlias (ns : Name) (alias : Name) : Option Float :=
-    -- Recall that aliases may not be atomic and include the namespace where they were created.
-    if ns.isPrefixOf alias then
-      let alias := alias.replacePrefix ns Name.anonymous
-      matchAtomic id alias danglingDot
-    else
-      none
-  let eligibleHeaderDecls ← getEligibleHeaderDecls env
-  -- Auxiliary function for `alias`
-  let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
-    declNames.forM fun declName => do
-      if allowCompletion eligibleHeaderDecls env declName then
-        addUnresolvedCompletionItemForDecl (.mkSimple alias.getString!) declName score
+    -- Aliases for declName. Name resolution only allows atomic aliases if the declaration isn't protected.
+    unresolveAliases env declName (skipAtomic := isProtected env declName) |>.forM fun alias => do
+      let matchAlias (ns : Name) (alias : Name) : Option Float :=
+        -- Recall that aliases might not be atomic, and they can include the namespace where they were created.
+        if ns.isPrefixOf alias then
+          let alias := alias.replacePrefix ns Name.anonymous
+          matchAtomic id alias danglingDot
+        else
+          none
+      -- Auxiliary function for `alias`
+      let addAlias (alias : Name) (declName : Name) (score : Float) : M Unit := do
+        if allowCompletion eligibleHeaderDecls env declName then
+          addUnresolvedCompletionItemForDecl (.mkSimple alias.getString!) declName score
+      -- Use current namespace
+      let rec searchAlias (ns : Name) : M Unit := do
+        if let some score := matchAlias ns alias then
+          addAlias alias declName score
+        else
+          match ns with
+          | Name.str p .. => searchAlias p
+          | _ => return ()
+      searchAlias ctx.currNamespace
+      -- Use open namespaces for aliases
+      for openDecl in ctx.openDecls do
+        match openDecl with
+        | OpenDecl.explicit .. => pure ()
+        | OpenDecl.simple ns _ =>
+          if let some score := matchAlias ns alias then
+            addAlias alias declName score
   -- search explicitly open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
@@ -420,21 +437,7 @@ private def idCompletionCore
       if allowCompletion eligibleHeaderDecls env resolvedId then
         if let some score := matchAtomic id openedId danglingDot then
           addUnresolvedCompletionItemForDecl (.mkSimple openedId.getString!) resolvedId score
-    | OpenDecl.simple ns _      =>
-      getAliasState env |>.forM fun alias declNames => do
-        if let some score := matchAlias ns alias then
-          addAlias alias declNames score
-  -- search for aliases
-  getAliasState env |>.forM fun alias declNames => do
-    -- use current namespace
-    let rec searchAlias (ns : Name) : M Unit := do
-      if let some score := matchAlias ns alias then
-        addAlias alias declNames score
-      else
-        match ns with
-        | Name.str p ..  => searchAlias p
-        | _ => return ()
-    searchAlias ctx.currNamespace
+    | OpenDecl.simple .. => pure () -- Used by aliases (see above)
   -- Search keywords
   if !danglingDot then
     if let .str .anonymous s := id then

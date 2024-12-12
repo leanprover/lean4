@@ -277,7 +277,6 @@ theorem monotone_apply_of_monotone_fun
     monotone (fun x => f x z) :=
   fun x y hxy => h x y hxy z
 
-
 theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
     chain (fun y => ∃ f, c f ∧ f x = y) := by
   intro _ _ ⟨f, hf, hfeq⟩ ⟨g, hg, hgeq⟩
@@ -308,6 +307,81 @@ instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
 
 end fun_order
 
+section prod_order
+
+open Order
+
+variable {α : Type u}
+variable {β : Type v}
+
+instance [Order α] [Order β] : Order (α ×' β) where
+  rel a b := a.1 ⊑ b.1 ∧ a.2 ⊑ b.2
+  rel_refl := ⟨rel_refl, rel_refl⟩
+  rel_trans ha hb := ⟨rel_trans ha.1 hb.1, rel_trans ha.2 hb.2⟩
+  rel_antisymm := fun {a} {b} ha hb => by
+    cases a; cases b;
+    dsimp at *
+    rw [rel_antisymm ha.1 hb.1, rel_antisymm ha.2 hb.2]
+
+theorem monotone_prod [Order α] [Order β] {γ : Type w} [Order γ]
+    {f : γ → α} {g : γ → β} (hf : monotone f) (hg : monotone g) :
+    monotone (fun x => PProd.mk (f x) (g x)) :=
+  fun _ _ h12 => ⟨hf _ _ h12, hg _ _ h12⟩
+
+theorem monotone_fst [Order α] [Order β] {γ : Type w} [Order γ]
+    {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).1) :=
+  fun _ _ h12 => (hf _ _ h12).1
+
+theorem monotone_snd [Order α] [Order β] {γ : Type w} [Order γ]
+    {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).2) :=
+  fun _ _ h12 => (hf _ _ h12).2
+
+def chain_fst [CCPO α] [CCPO β] (c : α ×' β → Prop) : α → Prop := (fun a => ∃ b, c ⟨a, b⟩)
+def chain_snd [CCPO α] [CCPO β] (c : α ×' β → Prop) : β → Prop := (fun b => ∃ a, c ⟨a, b⟩)
+
+theorem chain.fst [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
+    chain (chain_fst c) := by
+  intro a₁ a₂ ⟨b₁, h₁⟩ ⟨b₂, h₂⟩
+  cases hchain ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ h₁ h₂
+  case inl h => left; exact h.1
+  case inr h => right; exact h.1
+
+theorem chain.snd [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
+    chain (chain_snd c) := by
+  intro b₁ b₂ ⟨a₁, h₁⟩ ⟨a₂, h₂⟩
+  cases hchain ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ h₁ h₂
+  case inl h => left; exact h.2
+  case inr h => right; exact h.2
+
+instance [CCPO α] [CCPO β] : CCPO (α ×' β) where
+  csup c := ⟨CCPO.csup (chain_fst c), CCPO.csup (chain_snd c)⟩
+  csup_spec := by
+    intro ⟨a, b⟩ c hchain
+    dsimp
+    constructor
+    next =>
+      intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
+      dsimp at *
+      constructor <;> dsimp
+      · apply rel_trans ?_ h₁
+        apply le_csup hchain.fst
+        exact ⟨b', cab⟩
+      · apply rel_trans ?_ h₂
+        apply le_csup hchain.snd
+        exact ⟨a', cab⟩
+    next =>
+      intro h
+      constructor <;> dsimp
+      · apply csup_le hchain.fst
+        intro a' ⟨b', hcab⟩
+        apply (h _ hcab).1
+      · apply csup_le hchain.snd
+        intro b' ⟨a', hcab⟩
+        apply (h _ hcab).2
+
+
+
+end prod_order
 
 section flat_order
 

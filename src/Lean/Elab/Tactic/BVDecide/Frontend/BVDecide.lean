@@ -308,7 +308,7 @@ def bvDecide (g : MVarId) (ctx : TacticContext) : MetaM Result := do
       throwError (← addMessageContextFull errorMessage)
 
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
-def evalBvTrace : Tactic := fun
+def evalBvDecide : Tactic := fun
   | `(tactic| bv_decide $cfg:optConfig) => do
     let cfg ← elabBVDecideConfig cfg
     IO.FS.withTempFile fun _ lratFile => do
@@ -319,4 +319,3 @@ def evalBvTrace : Tactic := fun
 
 end Frontend
 end Lean.Elab.Tactic.BVDecide
-

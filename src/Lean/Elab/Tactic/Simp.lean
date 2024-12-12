@@ -283,15 +283,16 @@ where
   /-- If `zetaDelta := false`, create a `FVarId` set with all local let declarations in the `simp` argument list. -/
   toZetaDeltaSet (stx : Syntax) (ctx : Simp.Context) : TacticM FVarIdSet := do
     if ctx.config.zetaDelta then return {}
-    let mut s : FVarIdSet := {}
-    for arg in stx[1].getSepArgs do
-      if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
-        if arg[0].isNone && arg[1].isNone then
-          let term := arg[2]
-          let .expr (.fvar fvarId) ← resolveSimpIdTheorem? term | pure ()
-          if (← fvarId.getDecl).isLet then
-            s := s.insert fvarId
-    return s
+    Term.withoutCheckDeprecated do -- We do not want to report deprecated constants in the first pass
+      let mut s : FVarIdSet := {}
+      for arg in stx[1].getSepArgs do
+        if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
+          if arg[0].isNone && arg[1].isNone then
+            let term := arg[2]
+            let .expr (.fvar fvarId) ← resolveSimpIdTheorem? term | pure ()
+            if (← fvarId.getDecl).isLet then
+              s := s.insert fvarId
+      return s
 
 @[inline] def simpOnlyBuiltins : List Name := [``eq_self, ``iff_self]
 

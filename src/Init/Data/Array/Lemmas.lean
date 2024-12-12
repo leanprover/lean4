@@ -483,7 +483,7 @@ theorem any_iff_exists {p : α → Bool} {as : Array α} {start stop} :
   rw [Bool.eq_false_iff, Ne, any_eq_true]
   simp
 
-theorem any_toList {p : α → Bool} (as : Array α) : as.toList.any p = as.any p := by
+@[simp] theorem any_toList {p : α → Bool} (as : Array α) : as.toList.any p = as.any p := by
   rw [Bool.eq_iff_iff, any_eq_true, List.any_eq_true]
   simp only [List.mem_iff_getElem, getElem_toList]
   exact ⟨fun ⟨_, ⟨i, w, rfl⟩, h⟩ => ⟨i, w, h⟩, fun ⟨i, w, h⟩ => ⟨_, ⟨i, w, rfl⟩, h⟩⟩
@@ -522,7 +522,7 @@ theorem all_iff_forall {p : α → Bool} {as : Array α} {start stop} :
   rw [Bool.eq_false_iff, Ne, all_eq_true]
   simp
 
-theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all p := by
+@[simp] theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all p := by
   rw [Bool.eq_iff_iff, all_eq_true, List.all_eq_true]
   simp only [List.mem_iff_getElem, getElem_toList]
   constructor
@@ -533,20 +533,6 @@ theorem all_toList {p : α → Bool} (as : Array α) : as.toList.all p = as.all 
 
 theorem all_eq_true_iff_forall_mem {l : Array α} : l.all p ↔ ∀ x, x ∈ l → p x := by
   simp only [← all_toList, List.all_eq_true, mem_def]
-
-theorem _root_.List.anyM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
-    l.toArray.anyM p = l.anyM p := by
-  rw [← anyM_toList]
-
-theorem _root_.List.any_toArray (p : α → Bool) (l : List α) : l.toArray.any p = l.any p := by
-  rw [any_toList]
-
-theorem _root_.List.allM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
-    l.toArray.allM p = l.allM p := by
-  rw [← allM_toList]
-
-theorem _root_.List.all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p := by
-  rw [all_toList]
 
 /-- Variant of `anyM_toArray` with a side condition on `stop`. -/
 @[simp] theorem _root_.List.anyM_toArray' [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α)
@@ -572,6 +558,20 @@ theorem _root_.List.all_toArray (p : α → Bool) (l : List α) : l.toArray.all 
 @[simp] theorem _root_.List.all_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
     l.toArray.all p 0 stop = l.all p := by
   subst h
+  rw [all_toList]
+
+theorem _root_.List.anyM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+    l.toArray.anyM p = l.anyM p := by
+  rw [← anyM_toList]
+
+theorem _root_.List.any_toArray (p : α → Bool) (l : List α) : l.toArray.any p = l.any p := by
+  rw [any_toList]
+
+theorem _root_.List.allM_toArray [Monad m] [LawfulMonad m] (p : α → m Bool) (l : List α) :
+    l.toArray.allM p = l.allM p := by
+  rw [← allM_toList]
+
+theorem _root_.List.all_toArray (p : α → Bool) (l : List α) : l.toArray.all p = l.all p := by
   rw [all_toList]
 
 /-- Variant of `any_eq_true` in terms of membership rather than an array index. -/
@@ -641,7 +641,7 @@ theorem decide_forall_mem {xs : Array α} {p : α → Prop} [DecidablePred p] :
     l.toArray.contains a = l.contains a := by
   simp [Array.contains, List.any_beq]
 
-@[simp] theorem _root_.List.elem_toArray [BEq α] {l : List α} {a : α} :
+theorem _root_.List.elem_toArray [BEq α] {l : List α} {a : α} :
     Array.elem a l.toArray = List.elem a l := by
   simp [Array.elem]
 
@@ -663,26 +663,32 @@ theorem all_bne' [BEq α] [PartialEquivBEq α] {xs : Array α} :
     (xs.all fun x => x != a) = !xs.contains a := by
   simp only [bne_comm, all_bne]
 
-theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Array α} : elem a as = true → a ∈ as := by
+theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Array α} : as.contains a = true → a ∈ as := by
   cases as
   simp
 
-theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Array α} (h : a ∈ as) : elem a as = true := by
+@[deprecated mem_of_contains_eq_true (since := "2024-12-12")]
+abbrev mem_of_elem_eq_true := @mem_of_contains_eq_true
+
+theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Array α} (h : a ∈ as) : as.contains a = true := by
   cases as
   simpa using h
 
+@[deprecated contains_eq_true_of_mem (since := "2024-12-12")]
+abbrev elem_eq_true_of_mem := @contains_eq_true_of_mem
+
 instance [BEq α] [LawfulBEq α] (a : α) (as : Array α) : Decidable (a ∈ as) :=
-  decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
+  decidable_of_decidable_of_iff (Iff.intro mem_of_contains_eq_true contains_eq_true_of_mem)
 
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {l : Array α} :
     elem a l = l.contains a := by
   simp [elem]
 
 theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {as : Array α} :
-    elem a as = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
+    elem a as = true ↔ a ∈ as := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
 
 theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Array α} :
-    as.contains a = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
+    as.contains a = true ↔ a ∈ as := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
 
 theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : Array α) :
     elem a as = decide (a ∈ as) := by rw [Bool.eq_iff_iff, elem_iff, decide_eq_true_iff]
@@ -762,24 +768,24 @@ theorem getElem?_set (a : Array α) (i : Nat) (h : i < a.size) (v : α) (j : Nat
   cases as <;> cases n <;> simp [set]
 
 theorem set_comm (a b : α)
-    {n m : Nat} (as : Array α) {hn : n < as.size} {hm : m < (as.set n a).size} (h : n ≠ m) :
-    (as.set n a).set m b = (as.set m b (by simpa using hm)).set n a (by simpa using hn) := by
+    {i j : Nat} (as : Array α) {hi : i < as.size} {hj : j < (as.set i a).size} (h : i ≠ j) :
+    (as.set i a).set j b = (as.set j b (by simpa using hj)).set i a (by simpa using hi) := by
   cases as
   simp [List.set_comm _ _ _ h]
 
 @[simp]
-theorem set_set (a b : α) (as : Array α) (n : Nat) (h : n < as.size) :
-    (as.set n a).set n b (by simpa using h) = as.set n b := by
+theorem set_set (a b : α) (as : Array α) (i : Nat) (h : i < as.size) :
+    (as.set i a).set i b (by simpa using h) = as.set i b := by
   cases as
   simp
 
-theorem mem_set (as : Array α) (n : Nat) (h : n < as.size) (a : α) :
-    a ∈ as.set n a := by
+theorem mem_set (as : Array α) (i : Nat) (h : i < as.size) (a : α) :
+    a ∈ as.set i a := by
   simp [mem_iff_getElem]
-  exact ⟨n, (by simpa using h), by simp⟩
+  exact ⟨i, (by simpa using h), by simp⟩
 
 theorem mem_or_eq_of_mem_set
-    {as : Array α} {n : Nat} {a b : α} {w : n < as.size} (h : a ∈ as.set n b) : a ∈ as ∨ a = b := by
+    {as : Array α} {i : Nat} {a b : α} {w : i < as.size} (h : a ∈ as.set i b) : a ∈ as ∨ a = b := by
   cases as
   simpa using List.mem_or_eq_of_mem_set (by simpa using h)
 
@@ -788,7 +794,10 @@ theorem mem_or_eq_of_mem_set
 
 /-! ### setIfInBounds -/
 
-@[simp] theorem set!_is_setIfInBounds : @set! = @setIfInBounds := rfl
+@[simp] theorem set!_eq_setIfInBounds : @set! = @setIfInBounds := rfl
+
+@[deprecated set!_eq_setIfInBounds (since := "2024-12-12")]
+abbrev set!_is_setIfInBounds := @set!_eq_setIfInBounds
 
 @[simp] theorem size_setIfInBounds (as : Array α) (index : Nat) (val : α) :
     (as.setIfInBounds index val).size = as.size := by
@@ -820,18 +829,22 @@ abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
     (as.setIfInBounds i v)[j]'hj = as[j]'(by simpa using hj) := by
   simp [getElem_setIfInBounds, h]
 
-@[simp]
-theorem getElem?_setIfInBounds_self (as : Array α) {i : Nat} (p : i < as.size) (v : α) :
-    (as.setIfInBounds i v)[i]? = some v := by
-  simp [getElem?_eq_getElem, p]
-
-@[deprecated getElem?_setIfInBounds_self (since := "2024-12-11")]
-abbrev getElem?_setIfInBounds_eq := @getElem?_setIfInBounds_self
-
 theorem getElem?_setIfInBounds {as : Array α} {i j : Nat} {a : α}  :
     (as.setIfInBounds i a)[j]? = if i = j then if i < as.size then some a else none else as[j]? := by
   cases as
   simp [List.getElem?_set]
+
+theorem getElem?_setIfInBounds_self (as : Array α) {i : Nat} (v : α) :
+    (as.setIfInBounds i v)[i]? = if i < as.size then some v else none := by
+  simp [getElem?_setIfInBounds]
+
+@[simp]
+theorem getElem?_setIfInBounds_self_of_lt (as : Array α) {i : Nat} (v : α) (h : i < as.size) :
+    (as.setIfInBounds i v)[i]? = some v := by
+  simp [getElem?_setIfInBounds, h]
+
+@[deprecated getElem?_setIfInBounds_self (since := "2024-12-11")]
+abbrev getElem?_setIfInBounds_eq := @getElem?_setIfInBounds_self
 
 @[simp] theorem getElem?_setIfInBounds_ne {as : Array α} {i j : Nat} (h : i ≠ j) {a : α}  :
     (as.setIfInBounds i a)[j]? = as[j]? := by
@@ -847,24 +860,24 @@ theorem setIfInBounds_eq_of_size_le {l : Array α} {n : Nat} (h : l.size ≤ n) 
   cases as <;> cases n <;> simp
 
 theorem setIfInBounds_comm (a b : α)
-    {n m : Nat} (as : Array α) (h : n ≠ m) :
-    (as.setIfInBounds n a).setIfInBounds m b = (as.setIfInBounds m b).setIfInBounds n a := by
+    {i j : Nat} (as : Array α) (h : i ≠ j) :
+    (as.setIfInBounds i a).setIfInBounds j b = (as.setIfInBounds j b).setIfInBounds i a := by
   cases as
   simp [List.set_comm _ _ _ h]
 
 @[simp]
-theorem setIfInBounds_setIfInBounds (a b : α) (as : Array α) (n : Nat) :
-    (as.setIfInBounds n a).setIfInBounds n b = as.setIfInBounds n b := by
+theorem setIfInBounds_setIfInBounds (a b : α) (as : Array α) (i : Nat) :
+    (as.setIfInBounds i a).setIfInBounds i b = as.setIfInBounds i b := by
   cases as
   simp
 
-theorem mem_setIfInBounds (as : Array α) (n : Nat) (h : n < as.size) (a : α) :
-    a ∈ as.setIfInBounds n a := by
+theorem mem_setIfInBounds (as : Array α) (i : Nat) (h : i < as.size) (a : α) :
+    a ∈ as.setIfInBounds i a := by
   simp [mem_iff_getElem]
-  exact ⟨n, (by simpa using h), by simp⟩
+  exact ⟨i, (by simpa using h), by simp⟩
 
 theorem mem_or_eq_of_mem_setIfInBounds
-    {as : Array α} {n : Nat} {a b : α} (h : a ∈ as.setIfInBounds n b) : a ∈ as ∨ a = b := by
+    {as : Array α} {i : Nat} {a b : α} (h : a ∈ as.setIfInBounds i b) : a ∈ as ∨ a = b := by
   cases as
   simpa using List.mem_or_eq_of_mem_set (by simpa using h)
 

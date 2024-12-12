@@ -2563,15 +2563,39 @@ theorem udiv_self {x : BitVec w} :
       ↓reduceIte, toNat_udiv]
     rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
 
+private theorem Nat.div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
+  (Nat.le_div_iff_mul_le hc).2 <|
+    Nat.le_trans (Nat.mul_le_mul_left _ hcb) (Nat.div_mul_le_self a b)
+
+private theorem Nat.div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
+    x / (y + z) ≤ x / z :=
+  Nat.div_le_div_left (by omega) h
+
 theorem msb_udiv (x y : BitVec w) :
-    (x / y).msb = (x.msb && y ≤ 1#w) := by
+    (x / y).msb = (x.msb && y == 1#w) := by
   cases msb_x : x.msb
   · simp [msb_eq_decide] at *
     have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
     omega
   . rcases w with _|w
     · contradiction
-    sorry
+    · have : (y == 1#_) = decide (y.toNat = 1) := by
+        simp [(· == ·), toNat_eq]
+      simp only [this, Bool.true_and]
+      match hy : y.toNat with
+      | 0 =>
+        obtain rfl : y = 0#_ := eq_of_toNat_eq hy
+        simp
+      | 1 =>
+        obtain rfl : y = 1#_ := eq_of_toNat_eq (by simp [hy])
+        simpa using msb_x
+      | y + 2 =>
+        suffices x.toNat / (y + 2) < 2 ^ w by
+          simp_all [msb_eq_decide, hy]
+        calc
+          x.toNat / (y + 2)
+            ≤ x.toNat / 2 := by apply Nat.div_add_le_right (by omega)
+          _ < 2 ^ w       := by omega
 
 /- TODO: generalize to a proper msb_udiv -/
 theorem msb_udiv_eq_false_of {x : BitVec w} (h : x.msb = false) (y : BitVec w) :

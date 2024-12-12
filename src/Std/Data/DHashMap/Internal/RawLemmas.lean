@@ -961,7 +961,7 @@ theorem getKey!_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashab
     (m.insertMany l).1.getKey! k = m.getKey! k := by
   simp_to_model using getKey!_insertList_of_contains_eq_false
 
-theorem getKey!_insertMany_listof_mem [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF)
+theorem getKey!_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))

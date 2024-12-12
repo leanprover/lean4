@@ -1063,7 +1063,7 @@ theorem insertMany_list_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHasha
   rw [Raw₀.insertMany_list_singleton]
 
 theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] (h : m.WF) :
-    (m.insertMany (⟨k, v⟩ :: l)).1 = ((m.insert k v).insertMany l).1 := by
+    m.insertMany (⟨k, v⟩ :: l) = (m.insert k v).insertMany l := by
   simp_to_raw
   rw [Raw₀.insertMany_cons]
 
@@ -1121,7 +1121,7 @@ theorem get!_insertMany_list_of_mem [LawfulBEq α] (h : m.WF)
 
 theorem getD_insertMany_list_of_contains_eq_false [LawfulBEq α] (h : m.WF)
     {l : List ((a : α) × β a)} {k : α} {fallback : β k}
-    (not_mem : (l.map Sigma.fst).contains k = false) :
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (m.insertMany l).getD k fallback = m.getD k fallback := by
   simp_to_raw using Raw₀.getD_insertMany_list_of_contains_eq_false
 
@@ -1169,13 +1169,13 @@ theorem getKey!_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashab
     (m.insertMany l).getKey! k = m.getKey! k := by
   simp_to_raw using Raw₀.getKey!_insertMany_list_of_contains_eq_false
 
-theorem getKey!_insertMany_listof_mem [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF)
+theorem getKey!_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ l.map Sigma.fst) :
     (m.insertMany l).getKey! k' = k := by
-  simp_to_raw using Raw₀.getKey!_insertMany_listof_mem
+  simp_to_raw using Raw₀.getKey!_insertMany_list_of_mem
 
 theorem getKeyD_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List ((a : α) × β a)} {k fallback : α}
@@ -1192,7 +1192,7 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
   simp_to_raw using Raw₀.getKeyD_insertMany_list_of_mem
 
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
-    {l : List ((a : α) × β a)} {distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)} :
+    {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), m.contains a → (l.map Sigma.fst).contains a = false) →
     (m.insertMany l).size = m.size + l.length := by
   simp_to_raw using Raw₀.size_insertMany_list
@@ -1208,7 +1208,7 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
   simp_to_raw using Raw₀.isEmpty_insertMany_list
 
 namespace Const
-variable {β : Type v} (m : Raw α (fun _ => β))
+variable {β : Type v} {m : Raw α (fun _ => β)}
 
 @[simp]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -1223,7 +1223,7 @@ theorem insertMany_list_singleton {k : α} {v : β} [EquivBEq α] [LawfulHashabl
   rw [Raw₀.Const.insertMany_list_singleton]
 
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} [EquivBEq α] [LawfulHashable α] (h : m.WF) :
-    (insertMany m (⟨k, v⟩ :: l)).1 = (insertMany (m.insert k v) l).1 := by
+    insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_cons]
 
@@ -1256,7 +1256,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashabl
     {h₁ : (l.map Prod.fst).contains k = false}
     {h'} :
     (insertMany m l).getKey k h' =
-    m.getKey k (contains_of_contains_insertMany_list _ h h' h₁) := by
+    m.getKey k (contains_of_contains_insertMany_list h h' h₁) := by
   simp_to_raw using Raw₀.Const.getKey_insertMany_list_of_contains_eq_false
 
 theorem getKey_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1298,7 +1298,7 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
 
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)}
-    {distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)} :
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), m.contains a → (l.map Prod.fst).contains a = false) →
     (insertMany m l).size = m.size + l.length := by
   simp_to_raw using Raw₀.Const.size_insertMany_list
@@ -1320,8 +1320,8 @@ theorem get?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable 
   simp_to_raw using Raw₀.Const.get?_insertMany_list_of_contains_eq_false
 
 theorem get?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
-    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} (mem : ⟨k, v⟩ ∈ l)
-    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
     get? (insertMany m l) k' = v := by
   simp_to_raw using Raw₀.Const.get?_insertMany_list_of_mem
 
@@ -1329,12 +1329,12 @@ theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable �
     {l : List (α × β)} {k : α}
     (h₁ : (l.map Prod.fst).contains k = false)
     {h'} :
-    get (insertMany m l) k h' = get m k (contains_of_contains_insertMany_list _ h h' h₁) := by
+    get (insertMany m l) k h' = get m k (contains_of_contains_insertMany_list h h' h₁) := by
   simp_to_raw using Raw₀.Const.get_insertMany_list_of_contains_eq_false
 
 theorem get_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
-    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} (mem : ⟨k, v⟩ ∈ l)
-    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) {h'} :
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l){h'} :
     get (insertMany m l) k' h' = v := by
   simp_to_raw using Raw₀.Const.get_insertMany_list_of_mem
 
@@ -1345,8 +1345,8 @@ theorem get!_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable 
   simp_to_raw using Raw₀.Const.get!_insertMany_list_of_contains_eq_false
 
 theorem get!_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited β] (h : m.WF)
-    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} (mem : ⟨k, v⟩ ∈ l)
-    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
     get! (insertMany m l) k' = v := by
   simp_to_raw using Raw₀.Const.get!_insertMany_list_of_mem
 
@@ -1357,12 +1357,12 @@ theorem getD_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable 
   simp_to_raw using Raw₀.Const.getD_insertMany_list_of_contains_eq_false
 
 theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
-    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v fallback : β} (mem : ⟨k, v⟩ ∈ l)
-    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v fallback : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
     getD (insertMany m l) k' fallback = v := by
   simp_to_raw using Raw₀.Const.getD_insertMany_list_of_mem
 
-variable (m : Raw α (fun _ => Unit))
+variable {m : Raw α (fun _ => Unit)}
 
 @[simp]
 theorem insertManyIfNewUnit_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -1412,7 +1412,7 @@ theorem getKey?_insertManyIfNewUnit_list_of_contains_of_contains [EquivBEq α] [
 theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k : α} (h₁ : l.contains k = false) {h'} :
     getKey (insertManyIfNewUnit m l) k h' =
-      getKey m k (contains_of_contains_insertManyIfNewUnit_list m h h₁ h') := by
+      getKey m k (contains_of_contains_insertManyIfNewUnit_list h h₁ h') := by
   simp_to_raw using Raw₀.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false
 
 theorem getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
@@ -1460,7 +1460,7 @@ theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [Law
 theorem getKeyD_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k k' fallback : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    {mem : k ∈ l } : m.contains k = false →
+    (mem : k ∈ l) : m.contains k = false →
     getKeyD (insertManyIfNewUnit m l) k' fallback = k := by
   simp_to_raw using Raw₀.Const.getKeyD_insertManyIfNewUnit_list_of_mem_of_contains_eq_false
 
@@ -1507,6 +1507,439 @@ theorem getValue!_insertManyIfNewUnit_list
 theorem getValueD_insertManyIfNewUnit_list
     {l : List α} {k : α} {fallback : Unit} :
     getD (insertManyIfNewUnit m l) k fallback = () := by
+  simp
+
+end Const
+end Raw
+
+namespace Raw
+variable [BEq α] [Hashable α]
+@[simp]
+theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+    ofList ([] : List ((a : α) × (β a))) = empty := by
+  simp only [ofList, WF.emptyc, insertMany_nil]
+  rfl
+
+@[simp]
+theorem ofList_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] :
+    ofList [⟨k, v⟩] = empty.insert k v := by
+  simp only [ofList, WF.emptyc, insertMany_list_singleton]
+  rfl
+
+theorem contains_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} {k : α} :
+    (ofList l).contains k = (l.map Sigma.fst).contains k := by
+  simp only [ofList, WF.emptyc, contains_insertMany_list, contains_emptyc, Bool.false_or]
+
+theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k : α}
+    (h : (l.map Sigma.fst).contains k = false) :
+    (ofList l).get? k = none := by
+  simp only [ofList]
+  rw [get?_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply get?_emptyc
+
+theorem get?_ofList_of_mem [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (ofList l).get? k' = some (cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v) := by
+  simp only [ofList]
+  rw [get?_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem get_ofList_of_mem [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l)
+    {h} :
+    (ofList l).get k' h = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v := by
+  simp only [ofList]
+  rw [get_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem get!_ofList_of_contains_eq_false [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
+    (h : (l.map Sigma.fst).contains k = false) :
+    (ofList l).get! k = default := by
+  simp only [ofList]
+  rw [get!_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply get!_emptyc
+
+theorem get!_ofList_of_mem [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k} [Inhabited (β k')]
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (ofList l).get! k' = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v := by
+  simp only [ofList]
+  rw [get!_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getD_ofList_of_contains_eq_false [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k : α} {fallback : β k}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (ofList l).getD k fallback = fallback := by
+  simp only [ofList]
+  rw [getD_insertMany_list_of_contains_eq_false WF.emptyc contains_eq_false]
+  apply getD_emptyc
+
+theorem getD_ofList_of_mem [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k} {fallback : β k'}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (ofList l).getD k' fallback = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v := by
+  simp only [ofList]
+  rw [getD_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKey?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} {k : α}
+    (h : (l.map Sigma.fst).contains k = false) :
+    (ofList l).getKey? k = none := by
+  simp only [ofList]
+  rw [getKey?_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply getKey?_emptyc
+
+theorem getKey?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Sigma.fst) :
+    (ofList l).getKey? k' = some k := by
+  simp only [ofList]
+  rw [getKey?_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKey_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Sigma.fst)
+    {h'} :
+    (ofList l).getKey k' h' = k := by
+  simp only [ofList]
+  rw [getKey_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKey!_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {l : List ((a : α) × β a)} {k : α}
+    (h : (l.map Sigma.fst).contains k = false) :
+    (ofList l).getKey! k = default := by
+  simp only [ofList]
+  rw [getKey!_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply getKey!_emptyc
+
+theorem getKey!_ofList_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Sigma.fst) :
+    (ofList l).getKey! k' = k := by
+  simp only [ofList]
+  rw [getKey!_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKeyD_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} {k fallback : α}
+    (h : (l.map Sigma.fst).contains k = false) :
+    (ofList l).getKeyD k fallback = fallback := by
+  simp only [ofList]
+  rw [getKeyD_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply getKeyD_emptyc
+
+theorem getKeyD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)}
+    {k k' fallback : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Sigma.fst) :
+    (ofList l).getKeyD k' fallback = k := by
+  simp only [ofList]
+  rw [getKeyD_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem size_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
+    (ofList l).size = l.length := by
+  simp only [ofList]
+  rw [size_insertMany_list WF.emptyc distinct]
+  · simp only [size_emptyc, Nat.zero_add]
+  · simp only [contains_emptyc, Bool.false_eq_true, false_implies, implies_true]
+
+theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} :
+    (ofList l).size ≤  l.length := by
+  simp only [ofList]
+  rw [← Nat.zero_add l.length, ← size_emptyc]
+  apply (size_insertMany_list_le WF.emptyc)
+
+theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} :
+    (ofList l).isEmpty = l.isEmpty := by
+  simp only [ofList]
+  rw [isEmpty_insertMany_list WF.emptyc]
+  simp
+
+namespace Const
+variable {β : Type v}
+
+@[simp]
+theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+    ofList ([] : List (α × β)) = empty := by
+  simp only [ofList, WF.emptyc, insertMany_nil]
+  rfl
+
+@[simp]
+theorem ofList_singleton {k : α} {v : β} [EquivBEq α] [LawfulHashable α] :
+    ofList [⟨k, v⟩] = empty.insert k v := by
+  simp only [ofList, WF.emptyc, insertMany_list_singleton]
+  rfl
+
+theorem contains_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} {k : α} :
+    (ofList l).contains k = (l.map Prod.fst).contains k := by
+  simp only [ofList, WF.emptyc, contains_insertMany_list, contains_emptyc, Bool.false_or]
+
+theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
+    {l : List (α × β)} {k : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    get? (ofList l) k = none := by
+  simp only [ofList]
+  rw [get?_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply get?_emptyc
+
+theorem get?_ofList_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    get? (ofList l) k' = some v := by
+  simp only [ofList]
+  rw [get?_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem get_ofList_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l)
+    {h} :
+    get (ofList l) k' h = v := by
+  simp only [ofList]
+  rw [get_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem get!_ofList_of_contains_eq_false [LawfulBEq α]
+    {l : List (α × β)} {k : α} [Inhabited β]
+    (h : (l.map Prod.fst).contains k = false) :
+    get! (ofList l) k = default := by
+  simp only [ofList]
+  rw [get!_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply get!_emptyc
+
+theorem get!_ofList_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} [Inhabited β]
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    get! (ofList l) k' = v := by
+  simp only [ofList]
+  rw [get!_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getD_ofList_of_contains_eq_false [LawfulBEq α]
+    {l : List (α × β)} {k : α} {fallback : β}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    getD (ofList l) k fallback = fallback := by
+  simp only [ofList]
+  rw [getD_insertMany_list_of_contains_eq_false WF.emptyc contains_eq_false]
+  apply getD_emptyc
+
+theorem getD_ofList_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} {fallback : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    getD (ofList l) k' fallback = v := by
+  simp only [ofList]
+  rw [getD_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKey?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} {k : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    (ofList l).getKey? k = none := by
+  simp only [ofList]
+  rw [getKey?_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply getKey?_emptyc
+
+theorem getKey?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst) :
+    (ofList l).getKey? k' = some k := by
+  simp only [ofList]
+  rw [getKey?_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKey_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst)
+    {h'} :
+    (ofList l).getKey k' h' = k := by
+  simp only [ofList]
+  rw [getKey_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKey!_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {l : List (α × β)} {k : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    (ofList l).getKey! k = default := by
+  simp only [ofList]
+  rw [getKey!_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply getKey!_emptyc
+
+theorem getKey!_ofList_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {l : List (α × β)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst) :
+    (ofList l).getKey! k' = k := by
+  simp only [ofList]
+  rw [getKey!_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem getKeyD_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} {k fallback : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    (ofList l).getKeyD k fallback = fallback := by
+  simp only [ofList]
+  rw [getKeyD_insertMany_list_of_contains_eq_false WF.emptyc h]
+  apply getKeyD_emptyc
+
+theorem getKeyD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)}
+    {k k' fallback : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst) :
+    (ofList l).getKeyD k' fallback = k := by
+  simp only [ofList]
+  rw [getKeyD_insertMany_list_of_mem WF.emptyc k_beq distinct mem]
+
+theorem size_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
+    (ofList l).size = l.length := by
+  simp only [ofList]
+  rw [size_insertMany_list WF.emptyc distinct]
+  · simp only [size_emptyc, Nat.zero_add]
+  · simp only [contains_emptyc, Bool.false_eq_true, false_implies, implies_true]
+
+theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} :
+    (ofList l).size ≤  l.length := by
+  simp only [ofList]
+  rw [← Nat.zero_add l.length, ← size_emptyc]
+  apply (size_insertMany_list_le WF.emptyc)
+
+theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} :
+    (ofList l).isEmpty = l.isEmpty := by
+  simp [ofList, isEmpty_insertMany_list WF.emptyc]
+
+@[simp]
+theorem unitOfList_nil [EquivBEq α] [LawfulHashable α] :
+    unitOfList ([] : List α) = empty := by
+  simp only [unitOfList, insertManyIfNewUnit_nil WF.emptyc]
+  rfl
+
+@[simp]
+theorem unitOfList_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+    unitOfList [k] = empty.insertIfNew k () := by
+  simp only [unitOfList, insertManyIfNewUnit_list_singleton WF.emptyc]
+  rfl
+
+theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} :
+    (unitOfList l).contains k = l.contains k := by
+  simp [unitOfList, contains_insertManyIfNewUnit_list WF.emptyc]
+
+theorem getKey?_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} (h' : l.contains k = false) :
+    getKey? (unitOfList l) k = none := by
+  simp [unitOfList, getKey?_insertManyIfNewUnit_list_of_contains_eq_false WF.emptyc h']
+
+theorem getKey?_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
+    getKey? (unitOfList l) k' = some k := by
+  simp [unitOfList, getKey?_insertManyIfNewUnit_list_of_mem_of_contains_eq_false WF.emptyc k_beq
+  distinct mem contains_emptyc]
+
+theorem getKey_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) {h'} :
+    getKey (unitOfList l) k' h' = k := by
+  simp [unitOfList, getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false WF.emptyc k_beq
+  distinct mem contains_emptyc]
+
+theorem getKey!_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    [Inhabited α] {l : List α} {k : α}
+    (h' : l.contains k = false) :
+    getKey! (unitOfList l) k = default := by
+  simp [unitOfList, getKey!_insertManyIfNewUnit_list_of_contains_eq_false WF.emptyc h']
+
+theorem getKey!_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
+    [Inhabited α] {l : List α} {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) :
+    getKey! (unitOfList l) k' = k := by
+  simp [unitOfList, getKey!_insertManyIfNewUnit_list_of_mem_of_contains_eq_false WF.emptyc k_beq
+  distinct mem contains_emptyc]
+
+theorem getKeyD_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k fallback : α}
+    (h' : l.contains k = false) :
+    getKeyD (unitOfList l) k fallback = fallback := by
+  simp [unitOfList, getKeyD_insertManyIfNewUnit_list_of_contains_eq_false WF.emptyc h']
+
+theorem getKeyD_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k k' fallback : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    {mem : k ∈ l } :
+    getKeyD (unitOfList l) k' fallback = k := by
+  simp [unitOfList, getKeyD_insertManyIfNewUnit_list_of_mem_of_contains_eq_false WF.emptyc k_beq
+  distinct mem contains_emptyc]
+
+theorem size_unitOfList [EquivBEq α] [LawfulHashable α]
+    {l : List α}
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) :
+    (unitOfList l).size = l.length := by
+  simp only [unitOfList]
+  rw [size_insertManyIfNewUnit_list WF.emptyc distinct]
+  · simp
+  · simp
+
+theorem size_unitOfList_le [EquivBEq α] [LawfulHashable α]
+    {l : List α} :
+    (unitOfList l).size ≤ l.length := by
+  simp only [unitOfList]
+  apply Nat.le_trans (size_insertManyIfNewUnit_list_le WF.emptyc)
+  simp
+
+
+theorem isEmpty_unitOfList [EquivBEq α] [LawfulHashable α]
+    {l : List α} :
+    (unitOfList l).isEmpty = l.isEmpty := by
+  simp only [unitOfList]
+  rw [isEmpty_insertManyIfNewUnit_list WF.emptyc]
+  simp
+
+theorem get?_unitOfList [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} :
+    get? (unitOfList l) k =
+    if l.contains k then some () else none := by
+  simp only [unitOfList]
+  rw [get?_insertManyIfNewUnit_list WF.emptyc]
+  simp
+
+theorem getValue_unitOfList
+    {l : List α} {k : α} {h} :
+    get (unitOfList l) k h = ()  := by
+  simp
+
+theorem getValue!_unitOfList
+    {l : List α} {k : α} :
+    get! (unitOfList l) k = ()  := by
+  simp
+
+theorem getValueD_unitOfList
+    {l : List α} {k : α} {fallback : Unit} :
+    getD (unitOfList l) k fallback = () := by
   simp
 
 end Const

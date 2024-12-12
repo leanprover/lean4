@@ -999,10 +999,9 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     (m.insertMany l).1.1.isEmpty = (m.1.isEmpty && l.isEmpty) := by
   simp_to_model using isEmpty_insertList
 
-section
-variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
 namespace Const
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
 @[simp]
 theorem insertMany_nil :
@@ -1304,7 +1303,6 @@ theorem getValueD_insertManyIfNewUnit_list
   simp
 
 end Const
-end
 end Raw₀
 
 end Std.DHashMap.Internal

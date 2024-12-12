@@ -1494,17 +1494,17 @@ theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.W
     if m.contains k ∨ l.contains k then some () else none := by
   simp_to_raw using Raw₀.Const.get?_insertManyIfNewUnit_list
 
-theorem getValue_insertManyIfNewUnit_list
+theorem get_insertManyIfNewUnit_list
     {l : List α} {k : α} {h} :
     get (insertManyIfNewUnit m l) k h = ()  := by
   simp
 
-theorem getValue!_insertManyIfNewUnit_list
+theorem get!_insertManyIfNewUnit_list
     {l : List α} {k : α} :
     get! (insertManyIfNewUnit m l) k = ()  := by
   simp
 
-theorem getValueD_insertManyIfNewUnit_list
+theorem getD_insertManyIfNewUnit_list
     {l : List α} {k : α} {fallback : Unit} :
     getD (insertManyIfNewUnit m l) k fallback = () := by
   simp
@@ -1927,17 +1927,17 @@ theorem get?_unitOfList [EquivBEq α] [LawfulHashable α]
   rw [get?_insertManyIfNewUnit_list WF.emptyc]
   simp
 
-theorem getValue_unitOfList
+theorem get_unitOfList
     {l : List α} {k : α} {h} :
     get (unitOfList l) k h = ()  := by
   simp
 
-theorem getValue!_unitOfList
+theorem get!_unitOfList
     {l : List α} {k : α} :
     get! (unitOfList l) k = ()  := by
   simp
 
-theorem getValueD_unitOfList
+theorem getD_unitOfList
     {l : List α} {k : α} {fallback : Unit} :
     getD (unitOfList l) k fallback = () := by
   simp

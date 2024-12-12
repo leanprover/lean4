@@ -1287,17 +1287,17 @@ theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.1
     if m.contains k ∨ l.contains k then some () else none := by
   simp_to_model using getValue?_insertListIfNewUnit
 
-theorem getValue_insertManyIfNewUnit_list
+theorem get_insertManyIfNewUnit_list
     {l : List α} {k : α} {h} :
     get (insertManyIfNewUnit m l).1 k h = ()  := by
   simp
 
-theorem getValue!_insertManyIfNewUnit_list
+theorem get!_insertManyIfNewUnit_list
     {l : List α} {k : α} :
     get! (insertManyIfNewUnit m l).1 k = ()  := by
   simp
 
-theorem getValueD_insertManyIfNewUnit_list
+theorem getD_insertManyIfNewUnit_list
     {l : List α} {k : α} {fallback : Unit} :
     getD (insertManyIfNewUnit m l).1 k fallback = () := by
   simp

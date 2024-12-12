@@ -3531,9 +3531,11 @@ theorem toInt_abs_eq_natAbs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
 /-! ### Reverse -/
 
 theorem getLsbD_reverse {i : Nat} {x : BitVec w} :
-  (x.reverse).getLsbD i = x.getMsbD i := by sorry
+  (x.reverse).getLsbD i = x.getMsbD i := by
+  sorry
 
-theorem reverse_replicate {n : Nat} {x.BitVec w} :
+
+theorem reverse_replicate {n : Nat} {x : BitVec w} :
   (x.reverse).replicate n = (x.replicate n).reverse := by sorry
 
 /-! ### Decidable quantifiers -/

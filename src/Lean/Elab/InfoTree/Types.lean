@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Lean.Data.Position
+import Lean.Data.DeclarationRange
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
 import Lean.Environment
@@ -168,14 +168,22 @@ structure FieldRedeclInfo where
   stx : Syntax
 
 /--
-Denotes information for the term `⋯` that is emitted by the delaborator when omitting a term
-due to `pp.deepTerms false` or `pp.proofs false`. Omission needs to be treated differently from regular terms because
+Denotes TermInfo with additional configurations to control interactions with delaborated terms.
+
+For example, the omission term `⋯` that is emitted by the delaborator when omitting a term
+due to `pp.deepTerms false` or `pp.proofs false` uses this.
+Omission needs to be treated differently from regular terms because
 it has to be delaborated differently in `Lean.Widget.InteractiveDiagnostics.infoToInteractive`:
 Regular terms are delaborated explicitly, whereas omitted terms are simply to be expanded with
-regular delaboration settings.
+regular delaboration settings. Additionally, omissions come with a reason for omission.
 -/
-structure OmissionInfo extends TermInfo where
-  reason : String
+structure DelabTermInfo extends TermInfo where
+  /-- A source position to use for "go to definition", to override the default. -/
+  location? : Option DeclarationLocation := none
+  /-- Text to use to override the docstring. -/
+  docString? : Option String := none
+  /-- Whether to use explicit mode when pretty printing the term on hover. -/
+  explicit : Bool := true
 
 /--
 Indicates that all overloaded elaborators failed. The subtrees of a `ChoiceInfo` node are the
@@ -198,7 +206,7 @@ inductive Info where
   | ofCustomInfo (i : CustomInfo)
   | ofFVarAliasInfo (i : FVarAliasInfo)
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
-  | ofOmissionInfo (i : OmissionInfo)
+  | ofDelabTermInfo (i : DelabTermInfo)
   | ofChoiceInfo (i : ChoiceInfo)
   deriving Inhabited
 

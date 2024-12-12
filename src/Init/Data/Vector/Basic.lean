@@ -70,6 +70,16 @@ instance [Inhabited α] : Inhabited (Vector α n) where
 instance : GetElem (Vector α n) Nat α fun _ i => i < n where
   getElem x i h := get x ⟨i, h⟩
 
+/-- Check if there is an element which satisfies `a == ·`. -/
+def contains [BEq α] (v : Vector α n) (a : α) : Bool := v.toArray.contains a
+
+/-- `a ∈ v` is a predicate which asserts that `a` is in the vector `v`. -/
+structure Mem (as : Vector α n) (a : α) : Prop where
+  val : a ∈ as.toArray
+
+instance : Membership α (Vector α n) where
+  mem := Mem
+
 /--
 Get an element of a vector using a `Nat` index. Returns the given default value if the index is out
 of bounds.
@@ -254,3 +264,19 @@ no element of the index matches the given value.
 /-- Returns `true` when `v` is a prefix of the vector `w`. -/
 @[inline] def isPrefixOf [BEq α] (v : Vector α m) (w : Vector α n) : Bool :=
   v.toArray.isPrefixOf w.toArray
+
+/-- Returns `true` with the monad if `p` returns `true` for any element of the vector. -/
+@[inline] def anyM [Monad m] (p : α → m Bool) (v : Vector α n) : m Bool :=
+  v.toArray.anyM p
+
+/-- Returns `true` with the monad if `p` returns `true` for all elements of the vector. -/
+@[inline] def allM [Monad m] (p : α → m Bool) (v : Vector α n) : m Bool :=
+  v.toArray.allM p
+
+/-- Returns `true` if `p` returns `true` for any element of the vector. -/
+@[inline] def any (v : Vector α n) (p : α → Bool) : Bool :=
+  v.toArray.any p
+
+/-- Returns `true` if `p` returns `true` for all elements of the vector. -/
+@[inline] def all (v : Vector α n) (p : α → Bool) : Bool :=
+  v.toArray.all p

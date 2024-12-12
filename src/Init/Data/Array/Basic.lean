@@ -663,9 +663,15 @@ def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM p start stop
 
+/-- `as.contains a` is true if there is some element `b` in `as` such that `a == b`. -/
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
   as.any (a == ·)
 
+/--
+Variant of `Array.contains` with arguments reversed.
+
+For verification purposes, we simplify this to `contains`.
+-/
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
 

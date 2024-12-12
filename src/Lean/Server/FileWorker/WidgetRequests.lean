@@ -53,13 +53,12 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
         | some type => some <$> ppExprTagged type
         | none => pure none
       let exprExplicit? ← match i.info with
-        | Elab.Info.ofTermInfo ti =>
-          pure <| some <| ← ppExprTaggedWithoutTopLevelHighlight ti.expr (explicit := true)
-        | Elab.Info.ofOmissionInfo { toTermInfo := ti, .. } =>
-          -- Omitted terms are simply to be expanded, not printed explicitly.
-          -- Keep the top-level tag so that users can also see the explicit version
-          -- of the omitted term.
-          pure <| some <| ← ppExprTagged ti.expr (explicit := false)
+        | Elab.Info.ofTermInfo ti
+        | Elab.Info.ofDelabTermInfo { toTermInfo := ti, explicit := true, ..} =>
+          some <$> ppExprTaggedWithoutTopLevelHighlight ti.expr (explicit := true)
+        | Elab.Info.ofDelabTermInfo { toTermInfo := ti, explicit := false, ..} =>
+          -- Keep the top-level tag so that users can also see the explicit version of the term on an additional hover.
+          some <$> ppExprTagged ti.expr (explicit := false)
         | Elab.Info.ofFieldInfo fi => pure <| some <| TaggedText.text fi.fieldName.toString
         | _ => pure none
       return {

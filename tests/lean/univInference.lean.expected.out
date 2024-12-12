@@ -1,19 +1,30 @@
-univInference.lean:25:0-27:9: error: failed to compute resulting universe level of structure, field 'Struct.S4.a' has type
-  α : Sort u
-structure resulting type
+univInference.lean:25:48-25:54: error: resulting type is of the form
   Type ?u
-recall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the structure resulting universe level
+but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. Explicitly providing a resulting type will silence this error. Universe inference suggests using
+  Sort (max (max 1 u) v)
+if the resulting universe level should be at the above universe level or higher.
+
+Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form '?u+1'. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
+  u ≤ ?u+1
+  v ≤ ?u+1
+However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
 S6 : Sort (max w₁ w₂) → Type w₂ → Sort (max w₁ (w₂ + 1))
-univInference.lean:45:0-46:17: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u')
-  max u v
-univInference.lean:65:2-65:22: error: failed to compute resulting universe level of inductive datatype, constructor 'Induct.S4.mk' has type
-  {α : Sort u} → {β : Sort v} → α → β → S4 α β
-parameter 'a' has type
-  α : Sort u
-inductive type resulting type
+univInference.lean:45:48-45:62: error: invalid universe polymorphic resulting type, the resulting universe is not 'Prop', but it may be 'Prop' for some parameter values:
+  Sort (max u v)
+Possible solution: use levels of the form 'max 1 _' or '_ + 1' to ensure the universe is of the form 'Type _'.
+univInference.lean:64:48-64:54: error: resulting type is of the form
   Type ?u
-recall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level
-univInference.lean:73:0-74:22: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u')
-  max u v
-univInference.lean:81:0-82:22: error: invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u')
-  max u v
+but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. Explicitly providing a resulting type will silence this error. Universe inference suggests using
+  Sort (max (max 1 u) v)
+if the resulting universe level should be at the above universe level or higher.
+
+Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form '?u+1'. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
+  u ≤ ?u+1
+  v ≤ ?u+1
+However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
+univInference.lean:73:48-73:62: error: invalid universe polymorphic resulting type, the resulting universe is not 'Prop', but it may be 'Prop' for some parameter values:
+  Sort (max u v)
+Possible solution: use levels of the form 'max 1 _' or '_ + 1' to ensure the universe is of the form 'Type _'.
+univInference.lean:81:48-81:62: error: invalid universe polymorphic resulting type, the resulting universe is not 'Prop', but it may be 'Prop' for some parameter values:
+  Sort (max u v)
+Possible solution: use levels of the form 'max 1 _' or '_ + 1' to ensure the universe is of the form 'Type _'.

@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Log
 import Lake.Util.Proc
 import Lake.Util.JsonObject
@@ -172,8 +173,9 @@ def uriEncodeChar (c : Char) (s := "") : String :=
 def uriEncode (s : String) : String :=
   s.foldl (init := "") fun s c => uriEncodeChar c s
 
+/-- Perform a HTTP `GET` request of a URL (using `curl`) and return the body. -/
 def getUrl (url : String) (headers : Array String := #[]) : LogIO String := do
-  let args := #["-s", "-L"]
+  let args := #["-s", "-L", "--retry", "3"] -- intermittent network errors can occur
   let args := headers.foldl (init := args) (· ++ #["-H", ·])
   captureProc {cmd := "curl", args := args.push url}
 
@@ -206,9 +208,9 @@ def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Optio
   let out ←
     try
       getUrl url Reservoir.lakeHeaders
-    catch _ =>
+    catch e =>
       logError s!"{owner}/{pkg}: Reservoir lookup failed"
-      return none
+      throw e
   match Json.parse out >>= fromJson? with
   | .ok json =>
     match fromJson? json with
@@ -220,11 +222,14 @@ def Reservoir.fetchPkg? (lakeEnv : Lake.Env) (owner pkg : String) : LogIO (Optio
         if status == 404 then
           return none
         else
-          logError s!"{owner}/{pkg}: Reservoir lookup failed: {msg}"
-          return none
+          error s!"{owner}/{pkg}: Reservoir lookup failed: {msg}"
     | .error e =>
+      errorWithLog do
       logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned unsupported JSON: {e}"
-      return none
+      logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+      failure
   | .error e =>
+    errorWithLog do
     logError s!"{owner}/{pkg}: Reservoir lookup failed; server returned invalid JSON: {e}"
-    return none
+    logVerbose s!"{owner}/{pkg}: Reservoir responded with:\n{out.trim}"
+    failure

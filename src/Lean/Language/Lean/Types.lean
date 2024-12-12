@@ -34,7 +34,7 @@ instance : ToSnapshotTree CommandFinishedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- State after a command has been parsed. -/
-structure CommandParsedSnapshotData extends Snapshot where
+structure CommandParsedSnapshot extends Snapshot where
   /-- Syntax tree of the command. -/
   stx : Syntax
   /-- Resulting parser state. -/
@@ -46,29 +46,19 @@ structure CommandParsedSnapshotData extends Snapshot where
   elabSnap : SnapshotTask DynamicSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
+  /-- Additional, untyped snapshots used for reporting, not reuse. -/
+  reportSnap : SnapshotTask SnapshotTree
   /-- Cache for `save`; to be replaced with incrementality. -/
   tacticCache : IO.Ref Tactic.Cache
+  /-- Next command, unless this is a terminal command. -/
+  nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot)
 deriving Nonempty
-
-/-- State after a command has been parsed. -/
--- workaround for lack of recursive structures
-inductive CommandParsedSnapshot where
-  /-- Creates a command parsed snapshot. -/
-  | mk (data : CommandParsedSnapshotData)
-    (nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot))
-deriving Nonempty
-/-- The snapshot data. -/
-abbrev CommandParsedSnapshot.data : CommandParsedSnapshot → CommandParsedSnapshotData
-  | mk data _ => data
-/-- Next command, unless this is a terminal command. -/
-abbrev CommandParsedSnapshot.nextCmdSnap? : CommandParsedSnapshot →
-    Option (SnapshotTask CommandParsedSnapshot)
-  | mk _ next? => next?
 partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
-    go s := ⟨s.data.toSnapshot,
-      #[s.data.elabSnap.map (sync := true) toSnapshotTree,
-        s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
+    go s := ⟨s.toSnapshot,
+      #[s.elabSnap.map (sync := true) toSnapshotTree,
+        s.finishedSnap.map (sync := true) toSnapshotTree,
+        s.reportSnap] |>
         pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
 
 /-- State after successful importing. -/

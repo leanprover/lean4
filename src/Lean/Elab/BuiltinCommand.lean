@@ -124,9 +124,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
-  match (← getEnv).addDecl (← getOptions) Declaration.quotDecl with
-  | Except.ok env   => setEnv env
-  | Except.error ex => throwError (ex.toMessageData (← getOptions))
+  liftCoreM <| addDecl Declaration.quotDecl
 
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
@@ -211,7 +209,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         else
           `(bracketedBinderF| {$id $[: $ty?]?})
       for id in ids.reverse do
-        if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
+        if let some idx := binderIds.findFinIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
           varDeclsNew := varDeclsNew.push (← mkBinder id explicit)
@@ -488,6 +486,9 @@ where
     let mut lines : Array MessageData := #[]
     let decls ← getOptionDecls
     for (name, val) in opts do
+      -- `#guard_msgs` sets this option internally, we don't want it to end up in its output
+      if name == `Elab.async then
+        continue
       let (isSet, isUnknown) :=
         match decls.find? name with
         | some decl => (decl.defValue != val, false)

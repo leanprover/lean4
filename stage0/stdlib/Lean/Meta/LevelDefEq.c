@@ -66,7 +66,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___l
 LEAN_EXPORT lean_object* lean_is_level_def_eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(uint8_t, uint8_t);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 uint8_t l_Lean_Level_hasMVar(lean_object*);
@@ -76,6 +75,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_isMVarWit
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isLevelDefEqAuxImpl___closed__1;
+uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(uint8_t, uint8_t);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasAssignableLevelMVar___at_Lean_Meta_isLevelDefEqAuxImpl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_mvarId_x21(lean_object*);
@@ -1775,7 +1775,7 @@ default:
 {
 lean_object* x_69; uint8_t x_70; 
 x_69 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___closed__1;
-x_70 = lean_ctor_get_uint8(x_3, sizeof(void*)*6);
+x_70 = lean_ctor_get_uint8(x_3, sizeof(void*)*6 + 8);
 if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; 
@@ -2649,7 +2649,7 @@ else
 {
 lean_object* x_264; uint8_t x_265; 
 x_264 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___closed__1;
-x_265 = lean_ctor_get_uint8(x_3, sizeof(void*)*6);
+x_265 = lean_ctor_get_uint8(x_3, sizeof(void*)*6 + 8);
 if (x_265 == 0)
 {
 lean_object* x_266; lean_object* x_267; 
@@ -2792,7 +2792,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_isLevelMVarAssignable___at_Lean_Meta_isLevelDefEqAuxImpl___spec__2___closed__1;
 x_2 = l_Lean_isLevelMVarAssignable___at_Lean_Meta_isLevelDefEqAuxImpl___spec__2___closed__2;
-x_3 = lean_unsigned_to_nat(427u);
+x_3 = lean_unsigned_to_nat(425u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_isLevelMVarAssignable___at_Lean_Meta_isLevelDefEqAuxImpl___spec__2___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3432,7 +3432,7 @@ x_24 = lean_ctor_get(x_22, 0);
 x_25 = lean_ctor_get(x_22, 1);
 x_26 = 2;
 x_27 = lean_unbox(x_24);
-x_28 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_27, x_26);
+x_28 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_27, x_26);
 if (x_28 == 0)
 {
 uint8_t x_29; uint8_t x_30; uint8_t x_31; lean_object* x_32; 
@@ -3447,7 +3447,7 @@ lean_dec(x_1);
 x_29 = 1;
 x_30 = lean_unbox(x_24);
 lean_dec(x_24);
-x_31 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_30, x_29);
+x_31 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_30, x_29);
 x_32 = lean_box(x_31);
 lean_ctor_set(x_22, 0, x_32);
 return x_22;
@@ -3474,7 +3474,7 @@ lean_object* x_35; lean_object* x_36; uint8_t x_37; uint8_t x_38;
 x_35 = lean_ctor_get(x_33, 0);
 x_36 = lean_ctor_get(x_33, 1);
 x_37 = lean_unbox(x_35);
-x_38 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_37, x_26);
+x_38 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_37, x_26);
 if (x_38 == 0)
 {
 uint8_t x_39; uint8_t x_40; uint8_t x_41; lean_object* x_42; 
@@ -3489,7 +3489,7 @@ lean_dec(x_1);
 x_39 = 1;
 x_40 = lean_unbox(x_35);
 lean_dec(x_35);
-x_41 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_40, x_39);
+x_41 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_40, x_39);
 x_42 = lean_box(x_41);
 lean_ctor_set(x_33, 0, x_42);
 return x_33;
@@ -4006,7 +4006,7 @@ lean_inc(x_163);
 lean_inc(x_162);
 lean_dec(x_33);
 x_164 = lean_unbox(x_162);
-x_165 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_164, x_26);
+x_165 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_164, x_26);
 if (x_165 == 0)
 {
 uint8_t x_166; uint8_t x_167; uint8_t x_168; lean_object* x_169; lean_object* x_170; 
@@ -4021,7 +4021,7 @@ lean_dec(x_1);
 x_166 = 1;
 x_167 = lean_unbox(x_162);
 lean_dec(x_162);
-x_168 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_167, x_166);
+x_168 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_167, x_166);
 x_169 = lean_box(x_168);
 x_170 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_170, 0, x_169);
@@ -4391,7 +4391,7 @@ lean_inc(x_240);
 lean_dec(x_22);
 x_242 = 2;
 x_243 = lean_unbox(x_240);
-x_244 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_243, x_242);
+x_244 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_243, x_242);
 if (x_244 == 0)
 {
 uint8_t x_245; uint8_t x_246; uint8_t x_247; lean_object* x_248; lean_object* x_249; 
@@ -4406,7 +4406,7 @@ lean_dec(x_1);
 x_245 = 1;
 x_246 = lean_unbox(x_240);
 lean_dec(x_240);
-x_247 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_246, x_245);
+x_247 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_246, x_245);
 x_248 = lean_box(x_247);
 x_249 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_249, 0, x_248);
@@ -4440,7 +4440,7 @@ if (lean_is_exclusive(x_250)) {
  x_253 = lean_box(0);
 }
 x_254 = lean_unbox(x_251);
-x_255 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_254, x_242);
+x_255 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_254, x_242);
 if (x_255 == 0)
 {
 uint8_t x_256; uint8_t x_257; uint8_t x_258; lean_object* x_259; lean_object* x_260; 
@@ -4455,7 +4455,7 @@ lean_dec(x_1);
 x_256 = 1;
 x_257 = lean_unbox(x_251);
 lean_dec(x_251);
-x_258 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_17_(x_257, x_256);
+x_258 = l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(x_257, x_256);
 x_259 = lean_box(x_258);
 if (lean_is_scalar(x_253)) {
  x_260 = lean_alloc_ctor(0, 2, 0);

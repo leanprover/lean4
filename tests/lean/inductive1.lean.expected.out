@@ -1,4 +1,4 @@
-inductive1.lean:4:15-4:18: error: invalid inductive type, resultant type is not a sort
+inductive1.lean:4:15-4:18: error: invalid resulting type, expecting 'Sort _' or an indexed family of sorts
 inductive1.lean:12:0-12:19: error: invalid mutually inductive types, resulting universe mismatch, given
   Type
 expected type

@@ -365,6 +365,7 @@ structure TextDocumentRegistrationOptions where
 
 inductive MarkupKind where
   | plaintext | markdown
+  deriving DecidableEq, Hashable
 
 instance : FromJson MarkupKind := ⟨fun
   | str "plaintext" => Except.ok MarkupKind.plaintext
@@ -378,7 +379,7 @@ instance : ToJson MarkupKind := ⟨fun
 structure MarkupContent where
   kind  : MarkupKind
   value : String
-  deriving ToJson, FromJson
+  deriving ToJson, FromJson, DecidableEq, Hashable
 
 /-- Reference to the progress of some in-flight piece of work.
 

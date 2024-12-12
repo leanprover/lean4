@@ -8,5 +8,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrivateTypes.lean"},
      "position": {"line": 3, "character": 26}},
-    "id": {"const": {"declName": "_private.0.Foo.x"}}}}],
+    "id": {"const": {"declName": "_private.0.Foo.x"}},
+    "cPos": 1}}],
  "isIncomplete": true}

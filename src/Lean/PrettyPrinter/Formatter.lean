@@ -467,7 +467,7 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
 @[combinator_formatter manyNoAntiquot]
 def manyNoAntiquot.formatter (p : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs $ stx.getArgs.size.forM fun _ => p
+  visitArgs $ stx.getArgs.size.forM fun _ _ => p
 
 @[combinator_formatter many1NoAntiquot] def many1NoAntiquot.formatter (p : Formatter) : Formatter := manyNoAntiquot.formatter p
 
@@ -487,7 +487,7 @@ def many1Unbox.formatter (p : Formatter) : Formatter := do
 @[combinator_formatter sepByNoAntiquot]
 def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs <| stx.getArgs.size.forRevM fun i => if i % 2 == 0 then p else pSep
+  visitArgs <| stx.getArgs.size.forRevM fun i _ => if i % 2 == 0 then p else pSep
 
 @[combinator_formatter sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 

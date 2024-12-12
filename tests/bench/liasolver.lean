@@ -170,7 +170,7 @@ namespace Equation
     let (i, c) := e.coeffs.getAny?.get!
     return { e with
       coeffs := e.coeffs.insert i 1
-      const := Int.div e.const c }
+      const := Int.ediv e.const c }
 
   def invert (e : Equation) : Equation :=
     { e with

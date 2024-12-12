@@ -694,11 +694,11 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] {k : α} :
 
 @[simp]
 theorem mem_keys [LawfulBEq α] [LawfulHashable α] {k : α} :
-    k ∈ m.keys ↔ k ∈ m := 
+    k ∈ m.keys ↔ k ∈ m :=
   DHashMap.mem_keys
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
-    m.keys.Pairwise (fun a b => (a == b) = false) := 
+    m.keys.Pairwise (fun a b => (a == b) = false) :=
   DHashMap.distinct_keys
 
 end

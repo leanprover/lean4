@@ -17,6 +17,7 @@ lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* lean_byte_array_mk(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(lean_object*);
+uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_matchPrefix_loop___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_matchPrefix_loop___spec__1(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert_insertEmpty___rarg(lean_object*, lean_object*, lean_object*);
@@ -94,7 +95,6 @@ lean_object* l_List_foldl___at_Array_appendList___spec__1___rarg(lean_object*, l
 static lean_object* l_Lean_Data_Trie_values___rarg___closed__1;
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert_loop(lean_object*);
-uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -226,7 +226,7 @@ return x_6;
 else
 {
 uint8_t x_7; uint8_t x_8; 
-x_7 = lean_byte_array_get(x_2, x_3);
+x_7 = lean_byte_array_fget(x_2, x_3);
 x_8 = lean_uint8_dec_eq(x_7, x_1);
 if (x_8 == 0)
 {
@@ -764,7 +764,7 @@ return x_6;
 else
 {
 uint8_t x_7; uint8_t x_8; 
-x_7 = lean_byte_array_get(x_2, x_3);
+x_7 = lean_byte_array_fget(x_2, x_3);
 x_8 = lean_uint8_dec_eq(x_7, x_1);
 if (x_8 == 0)
 {
@@ -1245,7 +1245,7 @@ return x_6;
 else
 {
 uint8_t x_7; uint8_t x_8; 
-x_7 = lean_byte_array_get(x_2, x_3);
+x_7 = lean_byte_array_fget(x_2, x_3);
 x_8 = lean_uint8_dec_eq(x_7, x_1);
 if (x_8 == 0)
 {
@@ -1442,7 +1442,7 @@ return x_6;
 else
 {
 uint8_t x_7; uint8_t x_8; 
-x_7 = lean_byte_array_get(x_2, x_3);
+x_7 = lean_byte_array_fget(x_2, x_3);
 x_8 = lean_uint8_dec_eq(x_7, x_1);
 if (x_8 == 0)
 {
@@ -1480,7 +1480,7 @@ return x_6;
 else
 {
 uint8_t x_7; uint8_t x_8; 
-x_7 = lean_byte_array_get(x_2, x_3);
+x_7 = lean_byte_array_fget(x_2, x_3);
 x_8 = lean_uint8_dec_eq(x_7, x_1);
 if (x_8 == 0)
 {

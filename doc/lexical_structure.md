@@ -128,16 +128,16 @@ Numeric literals can be specified in various bases.
 
 ```
    numeral    : numeral10 | numeral2 | numeral8 | numeral16
-   numeral10  : [0-9]+
-   numeral2   : "0" [bB] [0-1]+
-   numeral8   : "0" [oO] [0-7]+
-   numeral16  : "0" [xX] hex_char+
+   numeral10  : [0-9]+ ("_"+ [0-9]+)*
+   numeral2   : "0" [bB] ("_"* [0-1]+)+
+   numeral8   : "0" [oO] ("_"* [0-7]+)+
+   numeral16  : "0" [xX] ("_"* hex_char+)+
 ```
 
 Floating point literals are also possible with optional exponent:
 
 ```
-   float    : [0-9]+ "." [0-9]+ [[eE[+-][0-9]+]
+   float    : numeral10 "." numeral10? [eE[+-]numeral10]
 ```
 
 For example:
@@ -147,6 +147,7 @@ constant w : Int := 55
 constant x : Nat := 26085
 constant y : Nat := 0x65E5
 constant z : Float := 2.548123e-05
+constant b : Bool := 0b_11_01_10_00
 ```
 
 Note: that negative numbers are created by applying the "-" negation prefix operator to the number, for example:

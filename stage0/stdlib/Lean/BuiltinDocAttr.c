@@ -263,7 +263,6 @@ lean_dec(x_5);
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
-lean_inc(x_1);
 x_9 = l_Lean_isRec___at_Lean_declareBuiltinDocStringAndRanges___spec__2(x_1, x_2, x_3, x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -277,7 +276,6 @@ if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
 x_13 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___closed__1;
-lean_inc(x_1);
 x_14 = l_Lean_TagDeclarationExtension_isTagged(x_13, x_8, x_1);
 lean_dec(x_8);
 if (x_14 == 0)
@@ -1019,6 +1017,7 @@ lean_object* x_5;
 x_5 = l_Lean_isRec___at_Lean_declareBuiltinDocStringAndRanges___spec__2(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
 }
 }

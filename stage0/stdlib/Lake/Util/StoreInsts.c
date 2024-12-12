@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.StoreInsts
-// Imports: Init Lake.Util.DRBMap Lake.Util.RBArray Lake.Util.Family Lake.Util.Store
+// Imports: Lake.Util.DRBMap Lake.Util.RBArray Lake.Util.Family Lake.Util.Store
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -480,7 +480,6 @@ x_4 = lean_alloc_closure((void*)(l_Lake_instMonadStore1OfOfMonadDStoreOfFamilyOu
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_DRBMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_RBArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Family(uint8_t builtin, lean_object*);
@@ -490,9 +489,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin, lean_o
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_DRBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

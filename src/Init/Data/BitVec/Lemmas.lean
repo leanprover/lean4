@@ -3310,9 +3310,6 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
 
 /-! ### intMin -/
 
-/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
-def intMin (w : Nat) := twoPow w (w - 1)
-
 theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := by
   simp only [intMin, getLsbD_twoPow, boolToPropSimps]
   omega
@@ -3399,9 +3396,6 @@ theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   by_cases h : 0 < w <;> simp_all
 
 /-! ### intMax -/
-
-/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
-def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
 @[simp, bv_toNat]
 theorem toNat_intMax : (intMax w).toNat = 2 ^ (w - 1) - 1 := by

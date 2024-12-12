@@ -340,7 +340,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     let simprocs := r.simprocs
     let mut simpTheorems := ctx.simpTheorems
     /-
-    When using `zeta := false`, we do not expand let-declarations when using `[*]`.
+    When using `zetaDelta := false`, we do not expand let-declarations when using `[*]`.
     Users must explicitly include it in the list.
     -/
     let hs ← getPropHyps

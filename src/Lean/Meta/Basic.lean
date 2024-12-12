@@ -445,6 +445,13 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 structure Context where
   private config    : Config               := {}
   private configKey : UInt64               := config.toKey
+  /--
+  If `config.zetaDelta := false`, we may select specific local declarations to be unfolded using
+  the field `zetaDeltaSet`. Note that, we do not include this field in the `Config` structure
+  because this field is not taken into account while caching results.
+  Moreover, we reset all caches whenever setting it.
+  -/
+  zetaDeltaSet : FVarIdSet := {}
   /-- Local context -/
   lctx              : LocalContext         := {}
   /-- Local instances in `lctx`. -/
@@ -1091,6 +1098,24 @@ Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 -/
 @[inline] def withTrackingZetaDelta (x : n α) : n α :=
   withConfig (fun cfg => { cfg with trackZetaDelta := true }) x
+
+def withZetaDeltaSetImp (s : FVarIdSet) (x : MetaM α) : MetaM α := do
+  if s.isEmpty then
+    x
+  else
+    let cacheSaved := (← get).cache
+    modify fun s => { s with cache := {} }
+    try
+      withReader (fun ctx => { ctx with zetaDeltaSet := s }) x
+    finally
+      modify fun s => { s with cache := cacheSaved }
+
+/--
+`withZetaDeltaSet s x` executes `x` with `zetaDeltaSet := s`.
+The cache is reset while executing `x`.
+-/
+def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+  mapMetaM <| withZetaDeltaSetImp s
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x

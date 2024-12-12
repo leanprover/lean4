@@ -349,7 +349,9 @@ end
       -- Let-declarations marked as implementation detail should always be unfolded
       -- We initially added this feature for `simp`, and added it here for consistency.
       let cfg ← getConfig
-      unless cfg.zetaDelta || decl.isImplementationDetail do return e
+      if !decl.isImplementationDetail && !cfg.zetaDelta then
+        if !(← read).zetaDeltaSet.contains fvarId then
+          return e
       if cfg.trackZetaDelta then
         modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k

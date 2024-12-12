@@ -173,6 +173,8 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
     syntax simpErase := "-" ident
     -/
     let go := withMainContext do
+      let zetaDeltaSet ← toZetaDeltaSet stx ctx
+      withZetaDeltaSet zetaDeltaSet do
       let mut thmsArray := ctx.simpTheorems
       let mut thms      := thmsArray[0]!
       let mut simprocs  := simprocs
@@ -234,6 +236,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             logException ex
           else
             throw ex
+      let ctx := ctx.setZetaDeltaSet zetaDeltaSet
       return { ctx := ctx.setSimpTheorems (thmsArray.set! 0 thms), simprocs, starArg }
     -- If recovery is disabled, then we want simp argument elaboration failures to be exceptions.
     -- This affects `addSimpTheorem`.
@@ -276,6 +279,19 @@ where
         return .expr e
       else
         return .none
+
+  /-- If `zetaDelta := false`, create a `FVarId` set with all local let declarations in the `simp` argument list. -/
+  toZetaDeltaSet (stx : Syntax) (ctx : Simp.Context) : TacticM FVarIdSet := do
+    if ctx.config.zetaDelta then return {}
+    let mut s : FVarIdSet := {}
+    for arg in stx[1].getSepArgs do
+      if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
+        if arg[0].isNone && arg[1].isNone then
+          let term := arg[2]
+          let .expr (.fvar fvarId) ← resolveSimpIdTheorem? term | pure ()
+          if (← fvarId.getDecl).isLet then
+            s := s.insert fvarId
+    return s
 
 @[inline] def simpOnlyBuiltins : List Name := [``eq_self, ``iff_self]
 

@@ -767,9 +767,10 @@ where
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 
--- TODO: delete
-@[inline] def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α :=
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x
+@[inline] def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
+  withZetaDeltaSet ctx.zetaDeltaSet <|
+  withReducible x
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let ctx ← ctx.setLctxInitIndices

@@ -46,7 +46,7 @@ def forall_arg (P : (α → β) → Prop) (f : α → γ → β) : Prop := ∀ y
 
 universe u v
 
-class Order (α : Type u) where
+class PartialOrder (α : Type u) where
   /-- The less-defined than relation -/
   rel : α → α → Prop
   rel_refl : ∀ {x}, rel x x
@@ -54,19 +54,19 @@ class Order (α : Type u) where
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
 
 
-@[inherit_doc] scoped infix:50 " ⊑ " => Order.rel
+@[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 
-section Order
+section PartialOrder
 
-variable {α  : Type u} [Order α]
+variable {α  : Type u} [PartialOrder α]
 
-theorem Order.rel_of_eq {x y : α} (h : x = y) : x ⊑ y := by cases h; apply rel_refl
+theorem PartialOrder.rel_of_eq {x y : α} (h : x = y) : x ⊑ y := by cases h; apply rel_refl
 
 def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
 
-end Order
+end PartialOrder
 
-class CCPO (α : Type u) extends Order α where
+class CCPO (α : Type u) extends PartialOrder α where
   csup : (α → Prop) → α
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
@@ -74,19 +74,19 @@ section CCPO
 
 section monotone
 
-variable {α : Type u} [Order α]
-variable {β : Type v} [Order β]
+variable {α : Type u} [PartialOrder α]
+variable {β : Type v} [PartialOrder β]
 
 def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
 theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
-  fun _ _ _ => Order.rel_refl
+  fun _ _ _ => PartialOrder.rel_refl
 
 theorem monotone_id : monotone (fun (x : α) => x) :=
   fun _ _ hxy => hxy
 
 theorem monotone_compose
-    {γ : Type w} [Order γ]
+    {γ : Type w} [PartialOrder γ]
     {f : α → β} {g : β → γ}
     (hf : monotone f) (hg : monotone g) :
    monotone (fun x => g (f x)) := fun _ _ hxy => hg _ _ (hf _ _ hxy)
@@ -121,7 +121,7 @@ theorem monotone_dite
 
 end monotone
 
-open Order CCPO
+open PartialOrder CCPO
 
 variable {α  : Type u} [CCPO α]
 
@@ -224,29 +224,29 @@ end CCPO
 
 section fun_order
 
-open Order
+open PartialOrder
 
 variable {α : Type u}
 variable {β : α → Type v}
 
-instance instOrderPi [∀ x, Order (β x)] : Order (∀ x, β x) where
+instance instOrderPi [∀ x, PartialOrder (β x)] : PartialOrder (∀ x, β x) where
   rel f g := ∀ x, f x ⊑ g x
   rel_refl _ := rel_refl
   rel_trans hf hg x := rel_trans (hf x) (hg x)
   rel_antisymm hf hg := funext (fun x => rel_antisymm (hf x) (hg x))
 
-theorem monotone_of_monotone_apply [Order γ] [∀ x, Order (β x)] (f : γ → (∀ x, β x))
+theorem monotone_of_monotone_apply [PartialOrder γ] [∀ x, PartialOrder (β x)] (f : γ → (∀ x, β x))
   (h : ∀ y, monotone (fun x => f x y)) : monotone f :=
   fun x y hxy z => h z x y hxy
 
-theorem monotone_apply [∀ x, Order (β x)] (x : α) :
+theorem monotone_apply [∀ x, PartialOrder (β x)] (x : α) :
     monotone (fun (f : (∀ x, β x)) => f x) := fun _ _ hfg => hfg x
 
 -- It seems this lemma can be used to decompose all kind of applications,
 -- but the `[Order β]` constraint comes out of no where, so not generally applicable.
 theorem monotone_apply_of_monotone -- can `f` be made dependent here?
     {α : Type u} {β : Type v} {γ : Type w}
-    [Order α] [Order β] [Order γ]
+    [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f: γ → α → β}
     {g: γ → α}
     (hf1 : monotone f)
@@ -260,7 +260,7 @@ theorem monotone_apply_of_monotone -- can `f` be made dependent here?
 
 theorem monotone_apply_of_monotone_arg
     {α : Type u} {β : Type v} {γ : Type w}
-    [Order α] [Order β] [Order γ]
+    [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f: α → β}
     {g: γ → α}
     (hf : monotone f)
@@ -271,13 +271,13 @@ theorem monotone_apply_of_monotone_arg
 -- are stronger than what we need for the goal, where we just need `[Order (β z)]`
 theorem monotone_apply_of_monotone_fun
     {α : Type u} {β : α → Type v} {γ : Type w}
-    [∀ x, Order (β x)] [Order γ]
+    [∀ x, PartialOrder (β x)] [PartialOrder γ]
     (f : γ → (∀ x, β x)) (z : α)
     (h : monotone f) :
     monotone (fun x => f x z) :=
   fun x y hxy => h x y hxy z
 
-theorem chain_apply [∀ x, Order (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
+theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
     chain (fun y => ∃ f, c f ∧ f x = y) := by
   intro _ _ ⟨f, hf, hfeq⟩ ⟨g, hg, hgeq⟩
   subst hfeq; subst hgeq
@@ -309,12 +309,12 @@ end fun_order
 
 section prod_order
 
-open Order
+open PartialOrder
 
 variable {α : Type u}
 variable {β : Type v}
 
-instance [Order α] [Order β] : Order (α ×' β) where
+instance [PartialOrder α] [PartialOrder β] : PartialOrder (α ×' β) where
   rel a b := a.1 ⊑ b.1 ∧ a.2 ⊑ b.2
   rel_refl := ⟨rel_refl, rel_refl⟩
   rel_trans ha hb := ⟨rel_trans ha.1 hb.1, rel_trans ha.2 hb.2⟩
@@ -323,16 +323,16 @@ instance [Order α] [Order β] : Order (α ×' β) where
     dsimp at *
     rw [rel_antisymm ha.1 hb.1, rel_antisymm ha.2 hb.2]
 
-theorem monotone_prod [Order α] [Order β] {γ : Type w} [Order γ]
+theorem monotone_prod [PartialOrder α] [PartialOrder β] {γ : Type w} [PartialOrder γ]
     {f : γ → α} {g : γ → β} (hf : monotone f) (hg : monotone g) :
     monotone (fun x => PProd.mk (f x) (g x)) :=
   fun _ _ h12 => ⟨hf _ _ h12, hg _ _ h12⟩
 
-theorem monotone_fst [Order α] [Order β] {γ : Type w} [Order γ]
+theorem monotone_fst [PartialOrder α] [PartialOrder β] {γ : Type w} [PartialOrder γ]
     {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).1) :=
   fun _ _ h12 => (hf _ _ h12).1
 
-theorem monotone_snd [Order α] [Order β] {γ : Type w} [Order γ]
+theorem monotone_snd [PartialOrder α] [PartialOrder β] {γ : Type w} [PartialOrder γ]
     {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).2) :=
   fun _ _ h12 => (hf _ _ h12).2
 
@@ -397,7 +397,7 @@ inductive FlatOrder.rel : (x y : FlatOrder b) → Prop where
   | bot : rel b x
   | refl : rel x x
 
-instance FlatOrder.instOrder : Order (FlatOrder b) where
+instance FlatOrder.instOrder : PartialOrder (FlatOrder b) where
   rel := rel
   rel_refl := .refl
   rel_trans {x y z : α} (hxy : rel x y) (hyz : rel y z) := by
@@ -426,7 +426,7 @@ noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
       intro z ⟨hz, hnb⟩
       constructor
       · intro h y hy
-        apply Order.rel_trans _ h; clear h
+        apply PartialOrder.rel_trans _ h; clear h
         cases hc y z hy hz
         next => assumption
         next h =>
@@ -456,25 +456,25 @@ end flat_order
 
 section mono_bind
 
-class MonoBind (m : Type u → Type v) [Bind m] [∀ α, Order (m α)] where
+class MonoBind (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] where
   bind_mono_left (a₁ a₂ : m α) (f : α → m b) (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
   bind_mono_right (a : m α) (f₁ f₂ : α → m b) (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
 
 theorem monotone_bind
-    (m : Type u → Type v) [Bind m] [∀ α, Order (m α)] [MonoBind m]
+    (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] [MonoBind m]
     {α β : Type u}
-    {γ : Type w} [Order γ]
+    {γ : Type w} [PartialOrder γ]
     (f : γ → m α) (g : γ → α → m β)
     (hmono₁ : monotone f)
     (hmono₂ : forall_arg monotone g) :
     monotone (fun (x : γ) => f x >>= g x) := by
   intro x₁ x₂ hx₁₂
-  apply Order.rel_trans
+  apply PartialOrder.rel_trans
   · apply MonoBind.bind_mono_left _ _ _ (hmono₁ _ _ hx₁₂)
   · apply MonoBind.bind_mono_right _ _ _ (fun y => hmono₂ y _ _ hx₁₂)
 
 
-instance : Order (Option α) := inferInstanceAs (Order (FlatOrder none))
+instance : PartialOrder (Option α) := inferInstanceAs (PartialOrder (FlatOrder none))
 noncomputable instance : CCPO (Option α) := inferInstanceAs (CCPO (FlatOrder none))
 noncomputable instance : MonoBind Option where
   bind_mono_left _ _ _ h := by
@@ -486,9 +486,9 @@ noncomputable instance : MonoBind Option where
     · exact FlatOrder.rel.refl
     · exact h _
 
-instance [Monad m] [inst : ∀ α, Order (m α)] : Order (ExceptT ε m α) := inst _
-instance [Monad m] [∀ α, Order (m α)] [inst : ∀ α, CCPO (m α)] : CCPO (ExceptT ε m α) := inst _
-instance [Monad m] [∀ α, Order (m α)] [∀ α, CCPO (m α)] [MonoBind m] : MonoBind (ExceptT ε m) where
+instance [Monad m] [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
+instance [Monad m] [∀ α, PartialOrder (m α)] [inst : ∀ α, CCPO (m α)] : CCPO (ExceptT ε m α) := inst _
+instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind m] : MonoBind (ExceptT ε m) where
   bind_mono_left a₁ a₂ f h₁₂ := by
     apply MonoBind.bind_mono_left (m := m)
     exact h₁₂
@@ -496,7 +496,7 @@ instance [Monad m] [∀ α, Order (m α)] [∀ α, CCPO (m α)] [MonoBind m] : M
     apply MonoBind.bind_mono_right (m := m)
     intro x
     cases x
-    · apply Order.rel_refl
+    · apply PartialOrder.rel_refl
     · apply h₁₂
 
 end mono_bind

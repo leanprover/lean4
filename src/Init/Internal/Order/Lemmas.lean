@@ -13,9 +13,9 @@ import Init.Internal.Order.Basic
 namespace Lean.Order
 
 theorem monotone_mapM
-    (m : Type u → Type v) [Monad m] [∀ α, Order (m α)] [MonoBind m]
+    (m : Type u → Type v) [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m]
     {α β : Type u}
-    {γ : Type w} [Order γ]
+    {γ : Type w} [PartialOrder γ]
     (f : γ → α → m β)
     (xs : List α)
     (hmono : forall_arg monotone f) :
@@ -37,9 +37,9 @@ theorem monotone_mapM
           apply ih
 
 theorem monotone_mapFinIdxM
-    (m : Type u → Type v) [Monad m] [∀ α, Order (m α)] [MonoBind m]
+    (m : Type u → Type v) [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m]
     {α β : Type u}
-    {γ : Type w} [Order γ]
+    {γ : Type w} [PartialOrder γ]
     (xs : Array α)
     (f : γ → Fin xs.size → α → m β)
     (hmono : forall_arg (forall_arg monotone) f) :

@@ -81,14 +81,14 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       withLocalDeclD `x packedDomain fun x => do
          mkForallFVars #[x] (← mkAppM ``CCPO #[← instantiateForall packedType #[x]])
     let unaryCCPOInst ← argsPacker.uncurryWithType unaryCCPOInstType ccpoInsts
-    -- ∀ (x : packedDomain): Order (t x). Derived from unaryCCPOInst to avoid diamond later on
-    let unaryOrderInst ←
+    -- ∀ (x : packedDomain): PartialOrder (t x). Derived from unaryCCPOInst to avoid diamond later on
+    let unaryPartialOrderInst ←
       withLocalDeclD `x packedDomain fun x => do
-        mkLambdaFVars #[x] (← mkAppOptM ``CCPO.toOrder #[none, unaryCCPOInst.beta #[x]])
+        mkLambdaFVars #[x] (← mkAppOptM ``CCPO.toPartialOrder #[none, unaryCCPOInst.beta #[x]])
     -- CCPO (∀ (x : packedDomain): t x)
     let instCCPOPackedType ← mkAppOptM ``instCCPOPi #[packedDomain, packedRange, unaryCCPOInst]
-    -- Order (∀ (x : packedDomain): t x)
-    let instOrderPackedType ← mkAppOptM ``CCPO.toOrder #[packedType, instCCPOPackedType]
+    -- PartialOrder (∀ (x : packedDomain): t x)
+    let instPartialOrderPackedType ← mkAppOptM ``CCPO.toPartialOrder #[packedType, instCCPOPackedType]
 
     -- Error reporting hook, preseting monotonicity errors in terms of recursive functions
     let failK {α} f (monoThms : Array Name) : MetaM α := do
@@ -125,9 +125,9 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       lambdaTelescope body fun xs _ => do
         let type ← instantiateForall type xs
         let F ← instantiateLambda Fs[i]! xs
-        let instOrder ← mkAppOptM ``CCPO.toOrder #[none, ccpoInsts[i]!.beta xs]
+        let instPartialOrder ← mkAppOptM ``CCPO.toPartialOrder #[none, ccpoInsts[i]!.beta xs]
         let goal ← mkAppOptM ``monotone
-          #[packedType, instOrderPackedType, type, instOrder, F]
+          #[packedType, instPartialOrderPackedType, type, instPartialOrder, F]
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
           solveMono failK hmono.mvarId!
@@ -143,7 +143,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           mkLambdaFVars #[f, x] (F.beta #[x, f])
 
     let hmono ← mkAppOptM ``monotone_of_monotone_apply
-      #[packedDomain, packedRange, packedType, instOrderPackedType, unaryOrderInst, F]
+      #[packedDomain, packedRange, packedType, instPartialOrderPackedType, unaryPartialOrderInst, F]
 
     let monoGoal := (← inferType hmono).bindingDomain!
     trace[Elab.definition.partialFixpoint] "monoGoal: {monoGoal}"

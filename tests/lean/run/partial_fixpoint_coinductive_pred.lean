@@ -17,7 +17,7 @@ Without an induction principle this isn't so useful, though.
 
 open Lean.Order
 
-instance : Order Prop where
+instance : PartialOrder Prop where
   rel x y := y → x -- NB: Dual
   rel_refl := fun x => x
   rel_trans h₁ h₂ := fun x => h₁ (h₂ x)
@@ -29,13 +29,13 @@ instance : CCPO Prop where
     ⟨fun h y hcy hx => h hx y hcy, fun h hx y hcy => h y hcy hx ⟩
 
 @[partial_fixpoint_monotone] theorem monotone_exists
-    {α} [Order α] {β} (f : α → β → Prop)
+    {α} [PartialOrder α] {β} (f : α → β → Prop)
     (h : forall_arg monotone f) :
     monotone (fun x => Exists (f x)) :=
   fun x y hxy ⟨w, hw⟩ => ⟨w, h w x y hxy hw⟩
 
 @[partial_fixpoint_monotone] theorem monotone_and
-    {α} [Order α] (f₁ : α → Prop) (f₂ : α → Prop)
+    {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)
     (h₁ : monotone f₁) (h₂ : monotone f₂) :
     monotone (fun x => f₁ x ∧ f₂ x) :=
   fun x y hxy ⟨hfx₁, hfx₂⟩ => ⟨h₁ x y hxy hfx₁, h₂ x y hxy hfx₂⟩

@@ -69,7 +69,7 @@ noncomputable instance : Bind Distr where
 
 open Lean.Order
 
-noncomputable instance : Order (Distr α) where
+noncomputable instance : PartialOrder (Distr α) where
   rel d1 d2 := ∀ x, d1 x ≤ d2 x
   rel_refl _ := ENNReal.le_refl _
   rel_trans h1 h2 _ := ENNReal.le_trans (h1 _) (h2 _)

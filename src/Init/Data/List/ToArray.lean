@@ -371,4 +371,9 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
   · simp
   · simp_all [List.set_eq_of_length_le]
 
+@[simp] theorem toArray_replicate (n : Nat) (v : α) : (List.replicate n v).toArray = mkArray n v := rfl
+
+@[deprecated toArray_replicate (since := "2024-12-13")]
+abbrev _root_.Array.mkArray_eq_toArray_replicate := @toArray_replicate
+
 end List

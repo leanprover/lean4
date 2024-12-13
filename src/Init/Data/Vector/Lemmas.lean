@@ -22,6 +22,7 @@ end Array
 
 namespace Vector
 
+
 /-! ### mk lemmas -/
 
 theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a := rfl
@@ -48,6 +49,10 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem pop_mk {data : Array α} {size : data.size = n} :
     (Vector.mk data size).pop = Vector.mk data.pop (by simp [size]) := rfl
+
+@[simp] theorem mk_beq_mk [BEq α] {a b : Array α} {h : a.size = n} {h' : b.size = n} :
+    (Vector.mk a h == Vector.mk b h') = (a == b) := by
+  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, h, h']
 
 @[simp] theorem allDiff_mk [BEq α] (a : Array α) (h : a.size = n) :
     (Vector.mk a h).allDiff = a.allDiff := rfl
@@ -181,6 +186,10 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem toArray_push (a : Vector α n) (x) : (a.push x).toArray = a.toArray.push x := rfl
 
+@[simp] theorem toArray_beq_toArray [BEq α] (a : Vector α n) (b : Vector α n) :
+    (a.toArray == b.toArray) = (a == b) := by
+  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, a.2, b.2]
+
 @[simp] theorem toArray_range : (Vector.range n).toArray = Array.range n := rfl
 
 @[simp] theorem toArray_reverse (a : Vector α n) : a.reverse.toArray = a.toArray.reverse := rfl
@@ -236,8 +245,25 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
   cases v
   simp
 
-theorem toArray_inj : ∀ {v w : Vector α n}, v.toArray = w.toArray → v = w
-  | {..}, {..}, rfl => rfl
+@[simp] theorem toArray_mkVector : (mkVector n a).toArray = mkArray n a := rfl
+
+theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
+  cases v
+  cases w
+  simp
+
+/--
+`Vector.ext` is an extensionality theorem.
+Vectors `a` and `b` are equal to each other if their elements are equal for each valid index.
+-/
+@[ext]
+protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i] = b[i]) : a = b := by
+  apply Vector.toArray_inj.1
+  apply Array.ext
+  · rw [a.size_toArray, b.size_toArray]
+  · intro i hi _
+    rw [a.size_toArray] at hi
+    exact h i hi
 
 @[simp] theorem toArray_eq_empty_iff (v : Vector α n) : v.toArray = #[] ↔ n = 0 := by
   rcases v with ⟨v, h⟩
@@ -293,6 +319,10 @@ theorem toList_pop (a : Vector α n) : a.pop.toList = a.toList.dropLast := rfl
 
 theorem toList_push (a : Vector α n) (x) : (a.push x).toList = a.toList ++ [x] := by simp
 
+@[simp] theorem toList_beq_toList [BEq α] (a : Vector α n) (b : Vector α n) :
+    (a.toList == b.toList) = (a == b) := by
+  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, a.2, b.2]
+
 theorem toList_range : (Vector.range n).toList = List.range n := by simp
 
 theorem toList_reverse (a : Vector α n) : a.reverse.toList = a.toList.reverse := by simp
@@ -335,8 +365,12 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
   cases v
   simp
 
-theorem toList_inj : ∀ {v w : Vector α n}, v.toList = w.toList → v = w
-  | {..}, {..}, rfl => rfl
+@[simp] theorem toList_mkVector : (mkVector n a).toList = List.replicate n a := rfl
+
+theorem toList_inj {v w : Vector α n} : v.toList = w.toList ↔ v = w := by
+  cases v
+  cases w
+  simp [Array.toList_inj]
 
 @[simp] theorem toList_eq_empty_iff (v : Vector α n) : v.toList = [] ↔ n = 0 := by
   rcases v with ⟨v, h⟩
@@ -356,7 +390,7 @@ theorem length_toList {α n} (xs : Vector α n) : xs.toList.length = n := by sim
 
 /-- A vector of length `0` is the empty vector. -/
 protected theorem eq_empty (v : Vector α 0) : v = #v[] := by
-  apply Vector.toArray_inj
+  apply Vector.toArray_inj.1
   apply Array.eq_empty_of_size_eq_zero v.2
 
 
@@ -364,7 +398,7 @@ protected theorem eq_empty (v : Vector α 0) : v = #v[] := by
 
 theorem eq_empty_of_size_eq_zero (xs : Vector α n) (h : n = 0) : xs = #v[].cast h.symm := by
   rcases xs with ⟨xs, rfl⟩
-  apply toArray_inj
+  apply toArray_inj.1
   simp only [List.length_eq_zero, Array.toList_eq_nil_iff] at h
   simp [h]
 
@@ -405,7 +439,20 @@ theorem exists_push {xs : Vector α (n + 1)} :
     ∃ (ys : Vector α n) (a : α), xs = ys.push a := by
   rcases xs with ⟨xs, w⟩
   obtain ⟨ys, a, h⟩ := Array.exists_push_of_size_eq_add_one w
-  exact ⟨⟨ys, by simp_all⟩, a, toArray_inj h⟩
+  exact ⟨⟨ys, by simp_all⟩, a, toArray_inj.1 h⟩
+
+theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
+  simp
+
+/-! ### mkVector -/
+
+@[simp] theorem mkVector_zero : mkVector 0 a = #v[] := rfl
+
+theorem mkVector_succ : mkVector (n + 1) a = (mkVector n a).push a := by
+  simp [mkVector, Array.mkArray_succ]
+
+theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
+  simp [← toArray_inj, toArray_mkVector, Array.mkArray_inj]
 
 /-! ## L[i] and L[i]? -/
 
@@ -908,6 +955,67 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
   simp [mem_iff_getElem]
   exact ⟨i, (by simpa using hi), by simp⟩
 
+/-! ### BEq -/
+
+@[simp] theorem push_beq_push [BEq α] {a b : α} {n : Nat} {v : Vector α n} {w : Vector α n} :
+    (v.push a == w.push b) = (v == w && a == b) := by
+  cases v
+  cases w
+  simp
+
+@[simp] theorem mkVector_beq_mkVector [BEq α] {a b : α} {n : Nat} :
+    (mkVector n a == mkVector n b) = (n == 0 || a == b) := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [mkVector_succ, mkVector_succ, push_beq_push, mkVector_beq_mkVector]
+    rw [Bool.eq_iff_iff]
+    simp +contextual
+
+@[simp] theorem reflBEq_iff [BEq α] [NeZero n] : ReflBEq (Vector α n) ↔ ReflBEq α := by
+  match n, NeZero.ne n with
+  | n + 1, _ =>
+    constructor
+    · intro h
+      constructor
+      intro a
+      suffices (mkVector (n + 1) a == mkVector (n + 1) a) = true by
+        rw [mkVector_succ, push_beq_push, Bool.and_eq_true] at this
+        exact this.2
+      simp
+    · intro h
+      constructor
+      rintro ⟨v, h⟩
+      simpa using Array.isEqv_self_beq ..
+
+@[simp] theorem lawfulBEq_iff [BEq α] [NeZero n] : LawfulBEq (Vector α n) ↔ LawfulBEq α := by
+  match n, NeZero.ne n with
+  | n + 1, _ =>
+    constructor
+    · intro h
+      constructor
+      · intro a b h
+        have := mkVector_inj (n := n+1) (a := a) (b := b)
+        simp only [Nat.add_one_ne_zero, false_or] at this
+        rw [← this]
+        apply eq_of_beq
+        rw [mkVector_beq_mkVector]
+        simpa
+      · intro a
+        suffices (mkVector (n + 1) a == mkVector (n + 1) a) = true by
+          rw [mkVector_beq_mkVector] at this
+          simpa
+        simp
+    · intro h
+      constructor
+      · rintro ⟨a, ha⟩ ⟨b, hb⟩ h
+        simp at h
+        obtain ⟨hs, hi⟩ := Array.rel_of_isEqv h
+        ext i h
+        · simpa using hi _ (by omega)
+      · rintro ⟨a, ha⟩
+        simpa using Array.isEqv_self_beq ..
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
@@ -919,20 +1027,6 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
 theorem map_empty (f : α → β) : map f #v[] = #v[] := by
   rw [map, mk.injEq]
   exact Array.map_empty f
-
-
-/--
-`Vector.ext` is an extensionality theorem.
-Vectors `a` and `b` are equal to each other if their elements are equal for each valid index.
--/
-@[ext]
-protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i] = b[i]) : a = b := by
-  apply Vector.toArray_inj
-  apply Array.ext
-  · rw [a.size_toArray, b.size_toArray]
-  · intro i hi _
-    rw [a.size_toArray] at hi
-    exact h i hi
 
 @[simp] theorem getElem_push_last {v : Vector α n} {x : α} : (v.push x)[n] = x := by
   rcases v with ⟨data, rfl⟩

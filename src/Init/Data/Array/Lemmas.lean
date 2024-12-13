@@ -25,8 +25,8 @@ namespace Array
 
 /-! ### toList -/
 
-theorem toList_inj {a b : Array α} (h : a.toList = b.toList) : a = b := by
-  cases a; cases b; simpa using h
+theorem toList_inj {a b : Array α} : a.toList = b.toList ↔ a = b := by
+  cases a; cases b; simp
 
 @[simp] theorem toList_eq_nil_iff (l : Array α) : l.toList = [] ↔ l = #[] := by
   cases l <;> simp
@@ -142,6 +142,34 @@ theorem size_pos_iff_exists_push {xs : Array α} :
 theorem exists_push_of_size_eq_add_one {xs : Array α} (h : xs.size = n + 1) :
     ∃ (ys : Array α) (a : α), xs = ys.push a :=
   exists_push_of_size_pos (by simp [h])
+
+theorem singleton_inj : #[a] = #[b] ↔ a = b := by
+  simp
+
+/-! ### mkArray -/
+
+@[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
+  List.length_replicate ..
+
+@[simp] theorem toList_mkArray : (mkArray n a).toList = List.replicate n a := by
+  simp only [mkArray]
+
+@[simp] theorem mkArray_zero : mkArray 0 a = #[] := rfl
+
+theorem mkArray_succ : mkArray (n + 1) a = (mkArray n a).push a := by
+  apply toList_inj.1
+  simp [List.replicate_succ']
+
+theorem mkArray_inj : mkArray n a = mkArray m b ↔ n = m ∧ (n = 0 ∨ a = b) := by
+  rw [← List.replicate_inj, ← toList_inj]
+  simp
+
+@[simp] theorem getElem_mkArray (n : Nat) (v : α) (h : i < (mkArray n v).size) :
+    (mkArray n v)[i] = v := by simp [← getElem_toList]
+
+theorem getElem?_mkArray (n : Nat) (v : α) (i : Nat) :
+    (mkArray n v)[i]? = if i < n then some v else none := by
+  simp [getElem?_def]
 
 /-! ## L[i] and L[i]? -/
 
@@ -894,10 +922,59 @@ theorem mem_or_eq_of_mem_setIfInBounds
   · simp
   · simp [List.set_eq_of_length_le (by simpa using h)]
 
-/-! Content below this point has not yet been aligned with `List`. -/
+/-! ### BEq -/
 
-theorem singleton_inj : #[a] = #[b] ↔ a = b := by
+@[simp] theorem push_beq_push [BEq α] {a b : α} {v : Array α} {w : Array α} :
+    (v.push a == w.push b) = (v == w && a == b) := by
+  cases v
+  cases w
   simp
+
+@[simp] theorem mkArray_beq_mkArray [BEq α] {a b : α} {n : Nat} :
+    (mkArray n a == mkArray n b) = (n == 0 || a == b) := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [mkArray_succ, mkArray_succ, push_beq_push, mkArray_beq_mkArray]
+    rw [Bool.eq_iff_iff]
+    simp +contextual
+
+@[simp] theorem reflBEq_iff [BEq α] : ReflBEq (Array α) ↔ ReflBEq α := by
+  constructor
+  · intro h
+    constructor
+    intro a
+    suffices (#[a] == #[a]) = true by
+      simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+    simp
+  · intro h
+    constructor
+    apply Array.isEqv_self_beq
+
+@[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (Array α) ↔ LawfulBEq α := by
+  constructor
+  · intro h
+    constructor
+    · intro a b h
+      apply singleton_inj.1
+      apply eq_of_beq
+      simp only [instBEq, isEqv, isEqvAux]
+      simpa
+    · intro a
+      suffices (#[a] == #[a]) = true by
+        simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+      simp
+  · intro h
+    constructor
+    · intro a b h
+      obtain ⟨hs, hi⟩ := rel_of_isEqv h
+      ext i h₁ h₂
+      · exact hs
+      · simpa using hi _ h₁
+    · intro a
+      apply Array.isEqv_self_beq
+
+/-! Content below this point has not yet been aligned with `List`. -/
 
 theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
 
@@ -1082,22 +1159,6 @@ theorem ofFn_succ (f : Fin (n+1) → α) :
     · congr
       simp at h₁ h₂
       omega
-
-/-! # mkArray -/
-
-@[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
-  List.length_replicate ..
-
-@[simp] theorem toList_mkArray (n : Nat) (v : α) : (mkArray n v).toList = List.replicate n v := rfl
-
-theorem mkArray_eq_toArray_replicate (n : Nat) (v : α) : mkArray n v = (List.replicate n v).toArray := rfl
-
-@[simp] theorem getElem_mkArray (n : Nat) (v : α) (h : i < (mkArray n v).size) :
-    (mkArray n v)[i] = v := by simp [← getElem_toList]
-
-theorem getElem?_mkArray (n : Nat) (v : α) (i : Nat) :
-    (mkArray n v)[i]? = if i < n then some v else none := by
-  simp [getElem?_def]
 
 /-! # mem -/
 
@@ -1309,43 +1370,6 @@ theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Arra
       simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
         true_and, Nat.not_lt] at h
       rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
-
-/-! ### BEq -/
-
-@[simp] theorem reflBEq_iff [BEq α] : ReflBEq (Array α) ↔ ReflBEq α := by
-  constructor
-  · intro h
-    constructor
-    intro a
-    suffices (#[a] == #[a]) = true by
-      simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
-    simp
-  · intro h
-    constructor
-    apply Array.isEqv_self_beq
-
-@[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (Array α) ↔ LawfulBEq α := by
-  constructor
-  · intro h
-    constructor
-    · intro a b h
-      apply singleton_inj.1
-      apply eq_of_beq
-      simp only [instBEq, isEqv, isEqvAux]
-      simpa
-    · intro a
-      suffices (#[a] == #[a]) = true by
-        simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
-      simp
-  · intro h
-    constructor
-    · intro a b h
-      obtain ⟨hs, hi⟩ := rel_of_isEqv h
-      ext i h₁ h₂
-      · exact hs
-      · simpa using hi _ h₁
-    · intro a
-      apply Array.isEqv_self_beq
 
 /-! ### take -/
 

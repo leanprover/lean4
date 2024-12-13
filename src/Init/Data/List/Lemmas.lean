@@ -154,6 +154,9 @@ theorem ne_nil_iff_exists_cons {l : List α} : l ≠ [] ↔ ∃ b L, l = b :: L 
 theorem singleton_inj {α : Type _} {a b : α} : [a] = [b] ↔ a = b := by
   simp
 
+@[simp] theorem concat_ne_nil (a : α) (l : List α) : l ++ [a] ≠ [] := by
+  cases l <;> simp
+
 /-! ## L[i] and L[i]? -/
 
 /-! ### `get` and `get?`.
@@ -716,6 +719,15 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
 
 @[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
     (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
+
+@[simp] theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
+    (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> simp
+  | cons x l₁ ih =>
+    cases l₂ with
+    | nil => simp
+    | cons y l₂ => simp [ih, Bool.and_assoc]
 
 theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
   match l₁, l₂ with
@@ -2074,8 +2086,6 @@ theorem concat_inj_right {l : List α} {a a' : α} : concat l a = concat l a' �
 
 @[deprecated concat_inj (since := "2024-09-05")] abbrev concat_eq_concat := @concat_inj
 
-theorem concat_ne_nil (a : α) (l : List α) : concat l a ≠ [] := by cases l <;> simp
-
 theorem concat_append (a : α) (l₁ l₂ : List α) : concat l₁ a ++ l₂ = l₁ ++ a :: l₂ := by simp
 
 theorem append_concat (a : α) (l₁ l₂ : List α) : l₁ ++ concat l₂ a = concat (l₁ ++ l₂) a := by simp
@@ -2327,6 +2337,10 @@ theorem flatMap_eq_foldl (f : α → List β) (l : List α) :
 /-! ### replicate -/
 
 @[simp] theorem replicate_one : replicate 1 a = [a] := rfl
+
+/-- Variant of `replicate_succ` that concatenates `a` to the end of the list. -/
+theorem replicate_succ' : replicate (n + 1) a = replicate n a ++ [a] := by
+  induction n <;> simp_all [replicate_succ, ← cons_append]
 
 @[simp] theorem mem_replicate {a b : α} : ∀ {n}, b ∈ replicate n a ↔ n ≠ 0 ∧ b = a
   | 0 => by simp

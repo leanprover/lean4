@@ -99,7 +99,7 @@ lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__47___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_3794____closed__10;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_MVarId_casesRec___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_throwInductiveTypeExpected___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -627,7 +627,8 @@ x_16 = lean_ctor_get(x_13, 1);
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = lean_environment_find(x_17, x_11);
+x_18 = l_Lean_Environment_find_x3f(x_17, x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
@@ -703,7 +704,8 @@ lean_dec(x_13);
 x_35 = lean_ctor_get(x_33, 0);
 lean_inc(x_35);
 lean_dec(x_33);
-x_36 = lean_environment_find(x_35, x_11);
+x_36 = l_Lean_Environment_find_x3f(x_35, x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; 
@@ -2633,7 +2635,8 @@ lean_dec(x_15);
 x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
 lean_dec(x_16);
-x_19 = lean_environment_find(x_18, x_14);
+x_19 = l_Lean_Environment_find_x3f(x_18, x_14);
+lean_dec(x_14);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; 
@@ -3024,7 +3027,8 @@ x_14 = lean_ctor_get(x_12, 0);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec(x_14);
-x_16 = lean_environment_find(x_15, x_11);
+x_16 = l_Lean_Environment_find_x3f(x_15, x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
@@ -3081,7 +3085,8 @@ lean_inc(x_27);
 lean_dec(x_26);
 x_28 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_mkCasesContext_x3f___spec__1___closed__1;
 x_29 = l_Lean_Name_str___override(x_27, x_28);
-x_30 = lean_environment_find(x_1, x_29);
+x_30 = l_Lean_Environment_find_x3f(x_1, x_29);
+lean_dec(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 
@@ -3223,7 +3228,8 @@ lean_dec(x_12);
 x_55 = lean_ctor_get(x_53, 0);
 lean_inc(x_55);
 lean_dec(x_53);
-x_56 = lean_environment_find(x_55, x_11);
+x_56 = l_Lean_Environment_find_x3f(x_55, x_11);
+lean_dec(x_11);
 if (lean_obj_tag(x_56) == 0)
 {
 lean_object* x_57; lean_object* x_58; 
@@ -3284,7 +3290,8 @@ lean_inc(x_69);
 lean_dec(x_68);
 x_70 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_mkCasesContext_x3f___spec__1___closed__1;
 x_71 = l_Lean_Name_str___override(x_69, x_70);
-x_72 = lean_environment_find(x_1, x_71);
+x_72 = l_Lean_Environment_find_x3f(x_1, x_71);
+lean_dec(x_71);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; lean_object* x_74; 

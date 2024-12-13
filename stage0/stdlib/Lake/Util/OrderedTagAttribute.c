@@ -1641,7 +1641,6 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lake_OrderedTagAttribute_hasTag(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
@@ -1756,7 +1755,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_OrderedTagAttribute_getAllEntries(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }

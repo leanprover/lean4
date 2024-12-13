@@ -324,15 +324,14 @@ return x_5;
 static lean_object* _init_l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__5() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 0;
-x_2 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__4;
-x_3 = l_Lean_NameSet_empty;
-x_4 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__4;
+x_2 = l_Lean_NameSet_empty;
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__6() {
@@ -2779,7 +2778,7 @@ LEAN_EXPORT lean_object* l_Lean_MessageLog_forM___at_Lean_Language_reportMessage
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
 x_5 = l_Lean_PersistentArray_forM___at_Lean_Language_reportMessages___spec__2(x_2, x_4, x_3);
 return x_5;
 }

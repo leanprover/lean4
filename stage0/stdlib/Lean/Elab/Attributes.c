@@ -131,7 +131,7 @@ LEAN_EXPORT uint8_t l_Lean_Elab_instToFormatAttribute___lambda__1(lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___rarg___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabDeclAttrs(lean_object*);
-lean_object* lean_environment_main_module(lean_object*);
+lean_object* l_Lean_Environment_mainModule(lean_object*);
 static lean_object* l_Lean_Elab_toAttributeKind___closed__4;
 static lean_object* l_Lean_Elab_instInhabitedAttribute___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_elabAttrs___spec__1___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1109,7 +1109,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__
 _start:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_18 = lean_environment_main_module(x_1);
+x_18 = l_Lean_Environment_mainModule(x_1);
 x_19 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_19, 0, x_2);
 lean_ctor_set(x_19, 1, x_18);
@@ -1572,7 +1572,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__
 _start:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_18 = lean_environment_main_module(x_1);
+x_18 = l_Lean_Environment_mainModule(x_1);
 x_19 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_19, 0, x_2);
 lean_ctor_set(x_19, 1, x_18);
@@ -2344,6 +2344,7 @@ _start:
 {
 lean_object* x_18; 
 x_18 = l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__1___rarg___lambda__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
+lean_dec(x_1);
 return x_18;
 }
 }
@@ -2396,6 +2397,7 @@ _start:
 {
 lean_object* x_18; 
 x_18 = l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__3___rarg___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
+lean_dec(x_1);
 return x_18;
 }
 }

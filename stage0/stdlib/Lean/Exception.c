@@ -119,6 +119,7 @@ static lean_object* l_Lean_termThrowError_______closed__1;
 LEAN_EXPORT lean_object* l_Lean_Exception_isMaxRecDepth___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Kernel_Exception_toMessageData(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowErrorAt___________closed__8;
@@ -152,7 +153,6 @@ static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThr
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowErrorAt__________1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withIncRecDepth(lean_object*, lean_object*);
-lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean___aux__Lean__Exception______macroRules__Lean__termThrowError______1___closed__15;
 static lean_object* l_Lean_termThrowError_______closed__9;
@@ -536,7 +536,7 @@ LEAN_EXPORT lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_obj
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_KernelException_toMessageData(x_1, x_4);
+x_5 = l_Lean_Kernel_Exception_toMessageData(x_1, x_4);
 x_6 = l_Lean_throwError___rarg(x_2, x_3, x_5);
 return x_6;
 }

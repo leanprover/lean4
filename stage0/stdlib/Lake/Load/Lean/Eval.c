@@ -60,7 +60,7 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec_
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_loadFromEnv___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___lambda__1___closed__1;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck_throwUnexpectedType(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__21___closed__1;
@@ -340,7 +340,7 @@ _start:
 lean_object* x_6; 
 lean_inc(x_5);
 lean_inc(x_1);
-x_6 = lean_environment_find(x_1, x_5);
+x_6 = l_Lean_Environment_find_x3f(x_1, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -5385,7 +5385,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lake_mkTagMap___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -5573,7 +5572,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lake_mkOrdTagMap___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -5661,6 +5659,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Lake_PackageConfig_loadFromEnv___closed__1;
+lean_inc(x_1);
 x_4 = l_Lake_OrderedTagAttribute_getAllEntries(x_3, x_1);
 x_5 = lean_array_to_list(x_4);
 if (lean_obj_tag(x_5) == 0)
@@ -19214,7 +19213,6 @@ lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 1;
 x_19 = l_Lean_findDocString_x3f(x_3, x_5, x_18, x_17);
-lean_dec(x_3);
 x_20 = !lean_is_exclusive(x_19);
 if (x_20 == 0)
 {
@@ -20078,6 +20076,7 @@ lean_closure_set(x_17, 1, x_15);
 lean_closure_set(x_17, 2, x_2);
 lean_closure_set(x_17, 3, x_3);
 x_18 = l_Lake_Package_loadFromEnv___closed__1;
+lean_inc(x_2);
 x_19 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__2(x_2, x_18, x_17, x_4, x_5);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -20096,6 +20095,7 @@ x_23 = lean_ctor_get(x_20, 1);
 lean_inc(x_23);
 lean_dec(x_20);
 x_24 = l_Lake_Package_loadFromEnv___closed__2;
+lean_inc(x_2);
 x_25 = l_Lake_OrderedTagAttribute_getAllEntries(x_24, x_2);
 x_26 = lean_array_size(x_25);
 x_27 = 0;
@@ -20127,6 +20127,7 @@ x_465 = lean_alloc_closure((void*)(l_Lake_Package_loadFromEnv___lambda__9___boxe
 lean_closure_set(x_465, 0, x_2);
 lean_closure_set(x_465, 1, x_3);
 x_466 = l_Lake_Package_loadFromEnv___closed__12;
+lean_inc(x_2);
 x_467 = l_Lake_mkOrdTagMap___at_Lake_Package_loadFromEnv___spec__26(x_2, x_466, x_465);
 x_468 = l_IO_ofExcept___at_Lake_Package_loadFromEnv___spec__28(x_467, x_30);
 if (lean_obj_tag(x_468) == 0)
@@ -20181,6 +20182,7 @@ x_296 = lean_alloc_closure((void*)(l_Lake_Package_loadFromEnv___lambda__8___boxe
 lean_closure_set(x_296, 0, x_2);
 lean_closure_set(x_296, 1, x_3);
 x_297 = l_Lake_Package_loadFromEnv___closed__11;
+lean_inc(x_2);
 x_298 = l_Lake_mkOrdTagMap___at_Lake_Package_loadFromEnv___spec__23(x_2, x_297, x_296);
 x_299 = l_IO_ofExcept___at_Lake_Package_loadFromEnv___spec__25(x_298, x_36);
 if (lean_obj_tag(x_299) == 0)
@@ -20238,6 +20240,7 @@ lean_closure_set(x_44, 1, x_3);
 lean_closure_set(x_44, 2, x_15);
 lean_closure_set(x_44, 3, x_13);
 x_45 = l_Lake_Package_loadFromEnv___closed__3;
+lean_inc(x_2);
 x_46 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__9(x_1, x_2, x_45, x_44, x_43, x_41);
 if (lean_obj_tag(x_46) == 0)
 {
@@ -20264,6 +20267,7 @@ lean_closure_set(x_51, 1, x_3);
 lean_closure_set(x_51, 2, x_15);
 lean_closure_set(x_51, 3, x_13);
 x_52 = l_Lake_Package_loadFromEnv___closed__4;
+lean_inc(x_2);
 x_53 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__14(x_1, x_2, x_52, x_51, x_50, x_48);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -20282,8 +20286,10 @@ x_57 = lean_ctor_get(x_54, 1);
 lean_inc(x_57);
 lean_dec(x_54);
 x_58 = l_Lake_Package_loadFromEnv___closed__5;
+lean_inc(x_2);
 x_59 = l_Lake_OrderedTagAttribute_getAllEntries(x_58, x_2);
 x_60 = l_Lake_Package_loadFromEnv___closed__6;
+lean_inc(x_2);
 x_61 = l_Lake_OrderedTagAttribute_getAllEntries(x_60, x_2);
 x_62 = lean_array_size(x_61);
 lean_inc(x_13);
@@ -20312,6 +20318,7 @@ lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean
 x_68 = lean_ctor_get(x_64, 0);
 x_69 = lean_ctor_get(x_64, 1);
 x_162 = l_Lake_Package_loadFromEnv___closed__10;
+lean_inc(x_2);
 x_163 = l_Lake_OrderedTagAttribute_getAllEntries(x_162, x_2);
 x_164 = lean_array_size(x_163);
 lean_inc(x_2);
@@ -20365,6 +20372,7 @@ lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean
 x_73 = lean_ctor_get(x_70, 0);
 x_74 = lean_ctor_get(x_70, 1);
 x_75 = l_Lake_Package_loadFromEnv___closed__7;
+lean_inc(x_2);
 x_76 = l_Lake_OrderedTagAttribute_getAllEntries(x_75, x_2);
 x_77 = lean_array_get_size(x_76);
 x_78 = lean_unsigned_to_nat(1u);
@@ -20384,7 +20392,6 @@ lean_dec(x_66);
 x_82 = lean_ctor_get(x_8, 17);
 lean_inc(x_82);
 x_83 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_73, x_38, x_42, x_49, x_56, x_59, x_22, x_33, x_68, x_13, x_15, x_82, x_74, x_71);
-lean_dec(x_2);
 return x_83;
 }
 else
@@ -20452,7 +20459,6 @@ lean_dec(x_76);
 x_99 = 1;
 x_100 = l_Lean_Name_toString(x_98, x_99, x_15);
 x_101 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_73, x_38, x_42, x_49, x_56, x_59, x_22, x_33, x_68, x_13, x_15, x_100, x_74, x_71);
-lean_dec(x_2);
 return x_101;
 }
 }
@@ -20514,6 +20520,7 @@ lean_inc(x_114);
 lean_inc(x_113);
 lean_dec(x_70);
 x_115 = l_Lake_Package_loadFromEnv___closed__7;
+lean_inc(x_2);
 x_116 = l_Lake_OrderedTagAttribute_getAllEntries(x_115, x_2);
 x_117 = lean_array_get_size(x_116);
 x_118 = lean_unsigned_to_nat(1u);
@@ -20532,7 +20539,6 @@ lean_dec(x_66);
 x_122 = lean_ctor_get(x_8, 17);
 lean_inc(x_122);
 x_123 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_113, x_38, x_42, x_49, x_56, x_59, x_22, x_33, x_68, x_13, x_15, x_122, x_114, x_71);
-lean_dec(x_2);
 return x_123;
 }
 else
@@ -20599,7 +20605,6 @@ lean_dec(x_116);
 x_140 = 1;
 x_141 = l_Lean_Name_toString(x_139, x_140, x_15);
 x_142 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_113, x_38, x_42, x_49, x_56, x_59, x_22, x_33, x_68, x_13, x_15, x_141, x_114, x_71);
-lean_dec(x_2);
 return x_142;
 }
 }
@@ -20718,6 +20723,7 @@ lean_inc(x_177);
 lean_inc(x_176);
 lean_dec(x_64);
 x_229 = l_Lake_Package_loadFromEnv___closed__10;
+lean_inc(x_2);
 x_230 = l_Lake_OrderedTagAttribute_getAllEntries(x_229, x_2);
 x_231 = lean_array_size(x_230);
 lean_inc(x_2);
@@ -20779,6 +20785,7 @@ if (lean_is_exclusive(x_178)) {
  x_182 = lean_box(0);
 }
 x_183 = l_Lake_Package_loadFromEnv___closed__7;
+lean_inc(x_2);
 x_184 = l_Lake_OrderedTagAttribute_getAllEntries(x_183, x_2);
 x_185 = lean_array_get_size(x_184);
 x_186 = lean_unsigned_to_nat(1u);
@@ -20798,7 +20805,6 @@ lean_dec(x_66);
 x_190 = lean_ctor_get(x_8, 17);
 lean_inc(x_190);
 x_191 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_180, x_38, x_42, x_49, x_56, x_59, x_22, x_33, x_176, x_13, x_15, x_190, x_181, x_179);
-lean_dec(x_2);
 return x_191;
 }
 else
@@ -20871,7 +20877,6 @@ lean_dec(x_184);
 x_208 = 1;
 x_209 = l_Lean_Name_toString(x_207, x_208, x_15);
 x_210 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_180, x_38, x_42, x_49, x_56, x_59, x_22, x_33, x_176, x_13, x_15, x_209, x_181, x_179);
-lean_dec(x_2);
 return x_210;
 }
 }
@@ -21355,6 +21360,7 @@ x_443 = lean_alloc_closure((void*)(l_Lake_Package_loadFromEnv___lambda__8___boxe
 lean_closure_set(x_443, 0, x_2);
 lean_closure_set(x_443, 1, x_3);
 x_444 = l_Lake_Package_loadFromEnv___closed__11;
+lean_inc(x_2);
 x_445 = l_Lake_mkOrdTagMap___at_Lake_Package_loadFromEnv___spec__23(x_2, x_444, x_443);
 x_446 = l_IO_ofExcept___at_Lake_Package_loadFromEnv___spec__25(x_445, x_36);
 if (lean_obj_tag(x_446) == 0)
@@ -21414,6 +21420,7 @@ lean_closure_set(x_315, 1, x_3);
 lean_closure_set(x_315, 2, x_15);
 lean_closure_set(x_315, 3, x_13);
 x_316 = l_Lake_Package_loadFromEnv___closed__3;
+lean_inc(x_2);
 x_317 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__9(x_1, x_2, x_316, x_315, x_314, x_312);
 if (lean_obj_tag(x_317) == 0)
 {
@@ -21440,6 +21447,7 @@ lean_closure_set(x_322, 1, x_3);
 lean_closure_set(x_322, 2, x_15);
 lean_closure_set(x_322, 3, x_13);
 x_323 = l_Lake_Package_loadFromEnv___closed__4;
+lean_inc(x_2);
 x_324 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__14(x_1, x_2, x_323, x_322, x_321, x_319);
 if (lean_obj_tag(x_324) == 0)
 {
@@ -21458,8 +21466,10 @@ x_328 = lean_ctor_get(x_325, 1);
 lean_inc(x_328);
 lean_dec(x_325);
 x_329 = l_Lake_Package_loadFromEnv___closed__5;
+lean_inc(x_2);
 x_330 = l_Lake_OrderedTagAttribute_getAllEntries(x_329, x_2);
 x_331 = l_Lake_Package_loadFromEnv___closed__6;
+lean_inc(x_2);
 x_332 = l_Lake_OrderedTagAttribute_getAllEntries(x_331, x_2);
 x_333 = lean_array_size(x_332);
 lean_inc(x_13);
@@ -21494,6 +21504,7 @@ if (lean_is_exclusive(x_335)) {
  x_340 = lean_box(0);
 }
 x_392 = l_Lake_Package_loadFromEnv___closed__10;
+lean_inc(x_2);
 x_393 = l_Lake_OrderedTagAttribute_getAllEntries(x_392, x_2);
 x_394 = lean_array_size(x_393);
 lean_inc(x_2);
@@ -21564,6 +21575,7 @@ if (lean_is_exclusive(x_341)) {
  x_345 = lean_box(0);
 }
 x_346 = l_Lake_Package_loadFromEnv___closed__7;
+lean_inc(x_2);
 x_347 = l_Lake_OrderedTagAttribute_getAllEntries(x_346, x_2);
 x_348 = lean_array_get_size(x_347);
 x_349 = lean_unsigned_to_nat(1u);
@@ -21583,7 +21595,6 @@ lean_dec(x_337);
 x_353 = lean_ctor_get(x_8, 17);
 lean_inc(x_353);
 x_354 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_343, x_309, x_313, x_320, x_327, x_330, x_22, x_33, x_338, x_13, x_15, x_353, x_344, x_342);
-lean_dec(x_2);
 return x_354;
 }
 else
@@ -21656,7 +21667,6 @@ lean_dec(x_347);
 x_371 = 1;
 x_372 = l_Lean_Name_toString(x_370, x_371, x_15);
 x_373 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_343, x_309, x_313, x_320, x_327, x_330, x_22, x_33, x_338, x_13, x_15, x_372, x_344, x_342);
-lean_dec(x_2);
 return x_373;
 }
 }
@@ -22133,6 +22143,7 @@ x_638 = lean_alloc_closure((void*)(l_Lake_Package_loadFromEnv___lambda__9___boxe
 lean_closure_set(x_638, 0, x_2);
 lean_closure_set(x_638, 1, x_3);
 x_639 = l_Lake_Package_loadFromEnv___closed__12;
+lean_inc(x_2);
 x_640 = l_Lake_mkOrdTagMap___at_Lake_Package_loadFromEnv___spec__26(x_2, x_639, x_638);
 x_641 = l_IO_ofExcept___at_Lake_Package_loadFromEnv___spec__28(x_640, x_30);
 if (lean_obj_tag(x_641) == 0)
@@ -22195,6 +22206,7 @@ x_617 = lean_alloc_closure((void*)(l_Lake_Package_loadFromEnv___lambda__8___boxe
 lean_closure_set(x_617, 0, x_2);
 lean_closure_set(x_617, 1, x_3);
 x_618 = l_Lake_Package_loadFromEnv___closed__11;
+lean_inc(x_2);
 x_619 = l_Lake_mkOrdTagMap___at_Lake_Package_loadFromEnv___spec__23(x_2, x_618, x_617);
 x_620 = l_IO_ofExcept___at_Lake_Package_loadFromEnv___spec__25(x_619, x_481);
 if (lean_obj_tag(x_620) == 0)
@@ -22263,6 +22275,7 @@ lean_closure_set(x_489, 1, x_3);
 lean_closure_set(x_489, 2, x_15);
 lean_closure_set(x_489, 3, x_13);
 x_490 = l_Lake_Package_loadFromEnv___closed__3;
+lean_inc(x_2);
 x_491 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__9(x_1, x_2, x_490, x_489, x_488, x_486);
 if (lean_obj_tag(x_491) == 0)
 {
@@ -22289,6 +22302,7 @@ lean_closure_set(x_496, 1, x_3);
 lean_closure_set(x_496, 2, x_15);
 lean_closure_set(x_496, 3, x_13);
 x_497 = l_Lake_Package_loadFromEnv___closed__4;
+lean_inc(x_2);
 x_498 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__14(x_1, x_2, x_497, x_496, x_495, x_493);
 if (lean_obj_tag(x_498) == 0)
 {
@@ -22307,8 +22321,10 @@ x_502 = lean_ctor_get(x_499, 1);
 lean_inc(x_502);
 lean_dec(x_499);
 x_503 = l_Lake_Package_loadFromEnv___closed__5;
+lean_inc(x_2);
 x_504 = l_Lake_OrderedTagAttribute_getAllEntries(x_503, x_2);
 x_505 = l_Lake_Package_loadFromEnv___closed__6;
+lean_inc(x_2);
 x_506 = l_Lake_OrderedTagAttribute_getAllEntries(x_505, x_2);
 x_507 = lean_array_size(x_506);
 lean_inc(x_13);
@@ -22343,6 +22359,7 @@ if (lean_is_exclusive(x_509)) {
  x_514 = lean_box(0);
 }
 x_566 = l_Lake_Package_loadFromEnv___closed__10;
+lean_inc(x_2);
 x_567 = l_Lake_OrderedTagAttribute_getAllEntries(x_566, x_2);
 x_568 = lean_array_size(x_567);
 lean_inc(x_2);
@@ -22413,6 +22430,7 @@ if (lean_is_exclusive(x_515)) {
  x_519 = lean_box(0);
 }
 x_520 = l_Lake_Package_loadFromEnv___closed__7;
+lean_inc(x_2);
 x_521 = l_Lake_OrderedTagAttribute_getAllEntries(x_520, x_2);
 x_522 = lean_array_get_size(x_521);
 x_523 = lean_unsigned_to_nat(1u);
@@ -22432,7 +22450,6 @@ lean_dec(x_511);
 x_527 = lean_ctor_get(x_8, 17);
 lean_inc(x_527);
 x_528 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_517, x_482, x_487, x_494, x_501, x_504, x_22, x_478, x_512, x_13, x_15, x_527, x_518, x_516);
-lean_dec(x_2);
 return x_528;
 }
 else
@@ -22505,7 +22522,6 @@ lean_dec(x_521);
 x_545 = 1;
 x_546 = l_Lean_Name_toString(x_544, x_545, x_15);
 x_547 = l_Lake_Package_loadFromEnv___lambda__7(x_2, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_517, x_482, x_487, x_494, x_501, x_504, x_22, x_478, x_512, x_13, x_15, x_546, x_518, x_516);
-lean_dec(x_2);
 return x_547;
 }
 }
@@ -23161,7 +23177,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__2(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_6;
 }
 }
@@ -23248,7 +23263,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__9(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
 }
@@ -23300,7 +23314,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lake_mkTagMap___at_Lake_Package_loadFromEnv___spec__14(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
 }
@@ -23365,7 +23378,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lake_mkOrdTagMap___at_Lake_Package_loadFromEnv___spec__23(x_1, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -23388,7 +23400,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lake_mkOrdTagMap___at_Lake_Package_loadFromEnv___spec__26(x_1, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -23538,7 +23549,6 @@ _start:
 {
 lean_object* x_23; 
 x_23 = l_Lake_Package_loadFromEnv___lambda__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
-lean_dec(x_1);
 return x_23;
 }
 }
@@ -23829,6 +23839,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; 
 x_4 = l_Lake_Workspace_addFacetsFromEnv___closed__1;
+lean_inc(x_1);
 x_5 = l_Lake_OrderedTagAttribute_getAllEntries(x_4, x_1);
 x_6 = lean_box(0);
 x_7 = lean_array_size(x_5);
@@ -23863,6 +23874,7 @@ x_13 = lean_ctor_get(x_9, 0);
 lean_inc(x_13);
 lean_dec(x_9);
 x_14 = l_Lake_Workspace_addFacetsFromEnv___closed__2;
+lean_inc(x_1);
 x_15 = l_Lake_OrderedTagAttribute_getAllEntries(x_14, x_1);
 x_16 = lean_array_size(x_15);
 lean_inc(x_1);
@@ -23895,6 +23907,7 @@ x_21 = lean_ctor_get(x_17, 0);
 lean_inc(x_21);
 lean_dec(x_17);
 x_22 = l_Lake_Workspace_addFacetsFromEnv___closed__3;
+lean_inc(x_1);
 x_23 = l_Lake_OrderedTagAttribute_getAllEntries(x_22, x_1);
 x_24 = lean_array_size(x_23);
 x_25 = l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__3(x_1, x_2, x_6, x_23, x_23, x_24, x_8, x_21);

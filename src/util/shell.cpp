@@ -28,7 +28,7 @@ Author: Leonardo de Moura
 #include "util/io.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/trace.h"
 #include "library/formatter.h"
@@ -332,7 +332,7 @@ extern "C" object * lean_run_frontend(
     uint8_t  json_output,
     object * w
 );
-pair_ref<environment, object_ref> run_new_frontend(
+pair_ref<elab_environment, object_ref> run_new_frontend(
     std::string const & input,
     options const & opts, std::string const & file_name,
     name const & main_module_name,
@@ -344,7 +344,7 @@ pair_ref<environment, object_ref> run_new_frontend(
     if (ilean_file_name) {
         oilean_file_name = mk_option_some(mk_string(*ilean_file_name));
     }
-    return get_io_result<pair_ref<environment, object_ref>>(lean_run_frontend(
+    return get_io_result<pair_ref<elab_environment, object_ref>>(lean_run_frontend(
         mk_string(input),
         opts.to_obj_arg(),
         mk_string(file_name),
@@ -401,7 +401,7 @@ void print_imports_json(array_ref<string_ref> const & fnames) {
 }
 
 extern "C" object* lean_environment_free_regions(object * env, object * w);
-void environment_free_regions(environment && env) {
+void environment_free_regions(elab_environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
 }
 }
@@ -633,7 +633,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         report_profiling_time("initialization", init_time);
     }
 
-    environment env(trust_lvl);
     scoped_task_manager scope_task_man(num_threads);
     optional<name> main_module_name;
 
@@ -705,8 +704,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
-        env = r.fst();
+        pair_ref<elab_environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
+        elab_environment env = r.fst();
         bool ok = unbox(r.snd().raw());
 
         if (stats) {

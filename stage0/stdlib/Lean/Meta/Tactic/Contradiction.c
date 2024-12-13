@@ -70,7 +70,7 @@ uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradiction___hyg_4434____closed__9;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___at_Lean_Meta_ElimEmptyInductive_elim___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at_Lean_Meta_ElimEmptyInductive_elim___spec__6___closed__3;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradiction___hyg_4434____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -731,7 +731,8 @@ x_18 = lean_ctor_get(x_16, 0);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec(x_18);
-x_20 = lean_environment_find(x_19, x_15);
+x_20 = l_Lean_Environment_find_x3f(x_19, x_15);
+lean_dec(x_15);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; lean_object* x_22; 
@@ -803,7 +804,8 @@ lean_dec(x_16);
 x_38 = lean_ctor_get(x_36, 0);
 lean_inc(x_38);
 lean_dec(x_36);
-x_39 = lean_environment_find(x_38, x_15);
+x_39 = l_Lean_Environment_find_x3f(x_38, x_15);
+lean_dec(x_15);
 if (lean_obj_tag(x_39) == 0)
 {
 uint8_t x_40; lean_object* x_41; lean_object* x_42; 
@@ -917,7 +919,8 @@ if (lean_is_exclusive(x_65)) {
 x_69 = lean_ctor_get(x_66, 0);
 lean_inc(x_69);
 lean_dec(x_66);
-x_70 = lean_environment_find(x_69, x_64);
+x_70 = l_Lean_Environment_find_x3f(x_69, x_64);
+lean_dec(x_64);
 if (lean_obj_tag(x_70) == 0)
 {
 uint8_t x_71; lean_object* x_72; lean_object* x_73; 

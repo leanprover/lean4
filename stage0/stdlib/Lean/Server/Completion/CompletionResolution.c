@@ -31,7 +31,7 @@ uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonResolvableCompletionItemData___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonResolvableCompletionItemData___closed__1;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_Completion_CompletionResolution_0__Lean_Lsp_fromJsonResolvableCompletionItemData____x40_Lean_Server_Completion_CompletionResolution___hyg_262____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_CompletionResolution_0__Lean_Lsp_fromJsonCompletionIdentifier____x40_Lean_Server_Completion_CompletionResolution___hyg_24____lambda__3___closed__1;
 static lean_object* l___private_Lean_Server_Completion_CompletionResolution_0__Lean_Lsp_fromJsonResolvableCompletionItemData____x40_Lean_Server_Completion_CompletionResolution___hyg_262____closed__15;
@@ -1811,7 +1811,8 @@ lean_dec(x_12);
 x_77 = lean_ctor_get(x_2, 0);
 lean_inc(x_77);
 lean_dec(x_2);
-x_78 = lean_environment_find(x_11, x_77);
+x_78 = l_Lean_Environment_find_x3f(x_11, x_77);
+lean_dec(x_77);
 if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; 

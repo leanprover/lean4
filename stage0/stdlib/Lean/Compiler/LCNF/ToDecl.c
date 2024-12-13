@@ -44,7 +44,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Compiler_LC
 lean_object* l_Lean_Meta_Match_MatcherInfo_arity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_inlineMatchers___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToDecl_0__Lean_Compiler_LCNF_normalizeAlt___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_inlineMatchers___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_inlineAttrs;
 lean_object* l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2428,11 +2428,13 @@ x_9 = l_Lean_Compiler_LCNF_getDeclInfo_x3f___closed__1;
 lean_inc(x_1);
 x_10 = l_Lean_Name_str___override(x_1, x_9);
 lean_inc(x_8);
-x_11 = lean_environment_find(x_8, x_10);
+x_11 = l_Lean_Environment_find_x3f(x_8, x_10);
+lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
-x_12 = lean_environment_find(x_8, x_1);
+x_12 = l_Lean_Environment_find_x3f(x_8, x_1);
+lean_dec(x_1);
 lean_ctor_set(x_5, 0, x_12);
 return x_5;
 }
@@ -2475,11 +2477,13 @@ x_19 = l_Lean_Compiler_LCNF_getDeclInfo_x3f___closed__1;
 lean_inc(x_1);
 x_20 = l_Lean_Name_str___override(x_1, x_19);
 lean_inc(x_18);
-x_21 = lean_environment_find(x_18, x_20);
+x_21 = l_Lean_Environment_find_x3f(x_18, x_20);
+lean_dec(x_20);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; 
-x_22 = lean_environment_find(x_18, x_1);
+x_22 = l_Lean_Environment_find_x3f(x_18, x_1);
+lean_dec(x_1);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_17);

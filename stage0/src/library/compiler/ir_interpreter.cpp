@@ -19,7 +19,7 @@ Implementation
 The interpreter mainly consists of a homogeneous stack of `value`s, which are either unboxed values or pointers to boxed
 objects. The IR type system tells us which union member is active at any time. IR variables are mapped to stack
 slots by adding the current base pointer to the variable index. Further stacks are used for storing join points and call
-stack metadata. The interpreted IR is taken directly from the environment. Whenever possible, we try to switch to native
+stack metadata. The interpreted IR is taken directly from the elab_environment. Whenever possible, we try to switch to native
 code by checking for the mangled symbol via dlsym/GetProcAddress, which is also how we can call external functions
 (which only works if the file declaring them has already been compiled). We always call the "boxed" versions of native
 functions, which have a (relatively) homogeneous ABI that we can use without runtime code generation; see also
@@ -182,7 +182,7 @@ type decl_type(decl const & b) { return cnstr_get_type(b, 2); }
 fn_body const & decl_fun_body(decl const & b) { lean_assert(decl_tag(b) == decl_kind::Fun); return cnstr_get_ref_t<fn_body>(b, 3); }
 
 extern "C" object * lean_ir_find_env_decl(object * env, object * n);
-option_ref<decl> find_ir_decl(environment const & env, name const & n) {
+option_ref<decl> find_ir_decl(elab_environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
@@ -217,12 +217,12 @@ static bool type_is_scalar(type t) {
 }
 
 extern "C" object* lean_get_regular_init_fn_name_for(object* env, object* fn);
-optional<name> get_regular_init_fn_name_for(environment const & env, name const & n) {
+optional<name> get_regular_init_fn_name_for(elab_environment const & env, name const & n) {
     return to_optional<name>(lean_get_regular_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
 extern "C" object* lean_get_builtin_init_fn_name_for(object* env, object* fn);
-optional<name> get_builtin_init_fn_name_for(environment const & env, name const & n) {
+optional<name> get_builtin_init_fn_name_for(elab_environment const & env, name const & n) {
     return to_optional<name>(lean_get_builtin_init_fn_name_for(env.to_obj_arg(), n.to_obj_arg()));
 }
 
@@ -359,7 +359,7 @@ class interpreter {
         frame(name const & mFn, size_t mArgBp, size_t mJpBp) : m_fn(mFn), m_arg_bp(mArgBp), m_jp_bp(mJpBp) {}
     };
     std::vector<frame> m_call_stack;
-    environment const & m_env;
+    elab_environment const & m_env;
     options const & m_opts;
     // if `false`, use IR code where possible
     bool m_prefer_native;
@@ -397,7 +397,7 @@ class interpreter {
 
 public:
     template<class T>
-    static inline T with_interpreter(environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
+    static inline T with_interpreter(elab_environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
         if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
             return f(*g_interpreter);
         } else {
@@ -812,7 +812,7 @@ private:
         }
     }
 
-    /** \brief Retrieve Lean declaration from environment. */
+    /** \brief Retrieve Lean declaration from elab_environment. */
     decl get_decl(name const & fn) {
         option_ref<decl> d = find_ir_decl(m_env, fn);
         if (!d) {
@@ -935,7 +935,7 @@ private:
 
     // static closure stub
     static object * stub_m_aux(object ** args) {
-        environment env(args[0]);
+        elab_environment env(args[0]);
         options opts(args[1]);
         return with_interpreter<object *>(env, opts, decl_fun_id(TO_REF(decl, args[2])), [&](interpreter & interp) {
             return interp.stub_m(args);
@@ -983,7 +983,7 @@ private:
         }
     }
 public:
-    explicit interpreter(environment const & env, options const & opts) : m_env(env), m_opts(opts) {
+    explicit interpreter(elab_environment const & env, options const & opts) : m_env(env), m_opts(opts) {
         m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
     }
 
@@ -1094,24 +1094,34 @@ public:
 
 extern "C" object * lean_decl_get_sorry_dep(object * env, object * n);
 
-optional<name> get_sorry_dep(environment const & env, name const & n) {
+optional<name> get_sorry_dep(elab_environment const & env, name const & n) {
     return option_ref<name>(lean_decl_get_sorry_dep(env.to_obj_arg(), n.to_obj_arg())).get();
 }
 
-object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
+object * run_boxed(elab_environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
     if (optional<name> decl_with_sorry = get_sorry_dep(env, fn)) {
         throw exception(sstream() << "cannot evaluate code because '" << *decl_with_sorry
             << "' uses 'sorry' and/or contains errors");
     }
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
-uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
+
+extern "C" obj_res lean_elab_environment_of_kernel_env(obj_arg);
+elab_environment elab_environment_of_kernel_env(environment const & env) {
+    return elab_environment(lean_elab_environment_of_kernel_env(env.to_obj_arg()));
+}
+
+object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
+    return run_boxed(elab_environment_of_kernel_env(env), opts, fn, n, args);
+}
+
+uint32 run_main(elab_environment const & env, options const & opts, int argv, char * argc[]) {
     return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(argv, argc); });
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
     try {
-        return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
+        return mk_cnstr(1, run_boxed(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
         return mk_cnstr(0, string_ref(ex.what())).steal();
     }
@@ -1138,7 +1148,7 @@ extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
 }
 
 extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
-    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
+    return interpreter::with_interpreter<object *>(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
         return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));
     });
 }

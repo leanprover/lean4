@@ -48,6 +48,17 @@ partial def find? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k :
       | some t => loop t ks
   loop t k
 
+/-- Returns the the value of the longest key in `t` that is a prefix of `k`, if any. -/
+@[specialize]
+partial def findLongestPrefix? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) : Option β :=
+  let rec loop acc?
+    | PrefixTreeNode.Node val _, [] => val <|> acc?
+    | PrefixTreeNode.Node val m, k :: ks =>
+      match RBNode.find cmp m k with
+      | none   => val
+      | some t => loop (val <|> acc?) t ks
+  loop none t k
+
 @[specialize]
 partial def foldMatchingM [Monad m] (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) (init : σ) (f : β → σ → m σ) : m σ :=
   let rec fold : PrefixTreeNode α β → σ → m σ
@@ -91,6 +102,10 @@ def PrefixTree.insert (t : PrefixTree α β p) (k : List α) (v : β) : PrefixTr
 @[inline]
 def PrefixTree.find? (t : PrefixTree α β p) (k : List α) : Option β :=
   t.val.find? p k
+
+@[inline]
+def PrefixTree.findLongestPrefix? (t : PrefixTree α β p) (k : List α) : Option β :=
+  t.val.findLongestPrefix? p k
 
 @[inline]
 def PrefixTree.foldMatchingM [Monad m] (t : PrefixTree α β p) (k : List α) (init : σ) (f : β → σ → m σ) : m σ :=

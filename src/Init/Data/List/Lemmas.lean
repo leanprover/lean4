@@ -216,7 +216,7 @@ We simplify `l[i]!` to `(l[i]?).getD default`.
 @[simp] theorem getElem!_eq_getElem?_getD [Inhabited α] (l : List α) (i : Nat) :
     l[i]! = (l[i]?).getD (default : α) := by
   simp only [getElem!_def]
-  match l[n]? with
+  match l[i]? with
   | some _ => simp
   | none => simp
 

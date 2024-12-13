@@ -7,7 +7,6 @@ prelude
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.ForEachExpr
 
 namespace Lean.Compiler.LCNF
 

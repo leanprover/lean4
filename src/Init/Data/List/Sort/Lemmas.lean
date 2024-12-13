@@ -285,8 +285,6 @@ theorem sorted_mergeSort
   | [] => by simp [mergeSort]
   | [a] => by simp [mergeSort]
   | a :: b :: xs => by
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
     rw [mergeSort]
     apply sorted_merge @trans @total
     apply sorted_mergeSort trans total

@@ -15,7 +15,7 @@ population of imported modules for use in tactics.  It uses a lazy
 initialization strategy.
 
 The discrimination tree can be created through
-`createImportedEnvironment`. This creates a discrimination tree from all
+`createImportedDiscrTree`. This creates a discrimination tree from all
 imported modules in an environment using a callback that provides the
 entries as `InitEntry` values.
 

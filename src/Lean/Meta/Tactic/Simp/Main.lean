@@ -647,6 +647,8 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
       let x := mkConst `__no_used_dummy__ -- dummy value
       let { expr, proof, .. } ← go (xs.push x) body.bindingBody!
       let proof := mkApp6 (mkConst ``letFun_unused us) alpha betaFun.bindingBody! val body.bindingBody! expr proof
+      let expr := expr.lowerLooseBVars 1 1
+      let proof := proof.lowerLooseBVars 1 1
       return { expr, proof, modified := true }
     else
       let beta    := betaFun.bindingBody!

@@ -579,12 +579,27 @@ private def checkAltsOfOptInductionAlts (optInductionAlts : Syntax) : TacticM Un
           throwErrorAt alt "more than one wildcard alternative '| _ => ...' used"
         found := true
 
-def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
+def getInductiveValFromMajor (induction : Bool) (major : Expr) : TacticM InductiveVal :=
   liftMetaMAtMain fun mvarId => do
     let majorType ← inferType major
     let majorType ← whnf majorType
     matchConstInduct majorType.getAppFn
-      (fun _ => Meta.throwTacticEx `induction mvarId m!"major premise type is not an inductive type {indentExpr majorType}")
+      (fun _ => do
+        let tacticName := if induction then `induction else `cases
+        let mut hint := m!"\n\nExplanation: the '{tacticName}' tactic is for constructor-based reasoning, \
+          with cases exhausting every way in which a term could have been constructed."
+        if majorType.isProp then
+          hint := m!"{hint} \
+            The 'Prop' universe is not an inductive type however, so '{tacticName}' does not apply. \
+            Consider using the 'by_cases' tactic, which enables true/false reasoning."
+        else if majorType.isType then
+          hint := m!"{hint} \
+            Type universes are not inductive types however, so such case-based reasoning is not possible. \
+            This is a strong limitation. According to Lean's underlying theory, the only distinguishing \
+            feature of types is their cardinalities."
+        else
+          hint := m!"{hint} It can sometimes be helpful defining an equivalent auxiliary inductive type to apply '{tacticName}' to instead."
+        Meta.throwTacticEx tacticName mvarId m!"major premise type is not an inductive type{indentExpr majorType}{hint}")
       (fun val _ => pure val)
 
 /--
@@ -627,7 +642,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
         return ← getElimInfo elimName
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
-    let indVal ← getInductiveValFromMajor targets[0]!
+    let indVal ← getInductiveValFromMajor induction targets[0]!
     if induction && indVal.all.length != 1 then
       throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     if induction && indVal.isNested then

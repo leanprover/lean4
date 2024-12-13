@@ -5,6 +5,7 @@ Authors: Mac Malone, Mario Carneiro
 -/
 prelude
 import Lake.Build.Fetch
+import Lake.Config.OutFormat
 
 namespace Lake
 open Lean (Name)
@@ -13,23 +14,31 @@ open Lean (Name)
 structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type where
   /-- The facet's build (function). -/
   build : ι → FetchM (DataFam name)
-  /-- Does this facet produce an associated asynchronous job? -/
-  getJob? : Option (DataFam name → BuildJob Unit)
+  /-- The facet's associated asynchronous job (e.g., for `lake build`). -/
+  getBuildJob? : Option (DataFam name → BuildJob Unit)
+  /-- The facet's build job with formatted output (e.g., for `lake fetch`). -/
+  getFetchJob? : Option (OutFormat → DataFam name → BuildJob String)
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
 
-/-- A smart constructor for facet configurations that are not known to generate targets. -/
-@[inline] def mkFacetConfig (build : ι → FetchM α)
-[h : FamilyOut Fam facet α] : FacetConfig Fam ι facet where
+/--
+A smart constructor for facet configurations
+that are not known to generate targets. -/
+@[inline] def mkFacetConfig
+  (build : ι → FetchM α) [h : FamilyOut Fam facet α]
+: FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := none
+  getBuildJob? := none
+  getFetchJob? := none
 
 /-- A smart constructor for facet configurations that generate jobs for the CLI. -/
-@[inline] def mkFacetJobConfig (build : ι → FetchM (BuildJob α))
-[h : FamilyOut Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
+@[inline] def mkFacetJobConfig
+  (build : ι → FetchM (BuildJob α)) [h : FamilyOut Fam facet (BuildJob α)]
+: FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := some fun data => discard <| ofFamily data
+  getBuildJob? := some fun data => discard <| ofFamily data
+  getFetchJob? := none
 
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where

@@ -1096,39 +1096,42 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })
 
+@[inline] def withFreshCache : n α → n α :=
+  mapMetaM fun x => do
+    let cacheSaved := (← get).cache
+    modify fun s => { s with cache := {} }
+    try
+      x
+    finally
+      modify fun s => { s with cache := cacheSaved }
+
 /--
 Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 -/
 @[inline] def withTrackingZetaDelta : n α → n α :=
-  mapMetaM <| withReader (fun ctx => { ctx with trackZetaDelta := true })
-
-def withZetaDeltaSetImp (s : FVarIdSet) (x : MetaM α) : MetaM α := do
-  if s.isEmpty then
-    x
-  else
-    let cacheSaved := (← get).cache
-    modify fun s => { s with cache := {} }
-    try
-      withReader (fun ctx => { ctx with zetaDeltaSet := s }) x
-    finally
-      modify fun s => { s with cache := cacheSaved }
+  mapMetaM fun x =>
+    withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) x
 
 /--
 `withZetaDeltaSet s x` executes `x` with `zetaDeltaSet := s`.
 The cache is reset while executing `x` if `s` is not empty.
 -/
 def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
-  mapMetaM <| withZetaDeltaSetImp s
+  mapMetaM fun x =>
+    if s.isEmpty then
+      x
+    else
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s }) x
 
 /--
-Similar to `withZetaDeltaSet`, but also enables `withTrackingZetaDelta` if
-`s` is not empty.
+Similar to `withZetaDeltaSet`, but also enables `withTrackingZetaDelta` if `s` is not empty.
 -/
-def withTrackingZetaDeltaSet (s : FVarIdSet) (x : n α) : n α := do
-  if s.isEmpty then
-    x
-  else
-    withZetaDeltaSet s <| withTrackingZetaDelta x
+def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+  mapMetaM fun x =>
+    if s.isEmpty then
+      x
+    else
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s, trackZetaDelta := true }) x
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x

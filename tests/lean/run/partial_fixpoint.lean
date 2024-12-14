@@ -195,6 +195,8 @@ def dependent2''b (n : Nat) (b : Bool) : if b then Nat else Bool :=
 partial_fixpoint
 end
 
+#guard_msgs in #print equations dependent2''b
+
 def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
   let next := f x
   if x ≠ next then
@@ -241,7 +243,7 @@ info: whileSome.eq_1.{u_1} {α : Type u_1} (f : α → Option α) (x : α) :
     | none => x
     | some x' => whileSome f x'
 -/
-#guard_msgs in #check whileSome.eq_1
+#guard_msgs in #print equations whileSome.
 
 def ack : (n m : Nat) → Option Nat
   | 0,   y   => some (y+1)

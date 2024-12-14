@@ -355,8 +355,8 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
 
     -- These projections can be type changing (to And), so re-infer their type arguments
-    | .proj ``PProd 0 e => mkPProdFst (← foldAndCollect oldIH newIH isRecCall e)
-    | .proj ``PProd 1 e => mkPProdSnd (← foldAndCollect oldIH newIH isRecCall e)
+    | .proj ``PProd 0 e => mkPProdFstM (← foldAndCollect oldIH newIH isRecCall e)
+    | .proj ``PProd 1 e => mkPProdSndM (← foldAndCollect oldIH newIH isRecCall e)
 
     | .proj t i e =>
       pure <| .proj t i (← foldAndCollect oldIH newIH isRecCall e)
@@ -760,7 +760,7 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
         let value := mkAppN value xs
-        let value ← PProdN.proj names.size idx value
+        let value ← PProdN.projM names.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
@@ -1051,7 +1051,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                 let e := mkAppN e packedMotives
                 let e := mkAppN e indicesMajor
                 let e := mkAppN e minors'
-                let e ← PProdN.proj pos.size packIdx e
+                let e ← PProdN.projM pos.size packIdx e
                 let e := mkAppN e rest
                 let e ← mkLambdaFVars ys e
                 trace[Meta.FunInd] "assembled call for {info.name}: {e}"

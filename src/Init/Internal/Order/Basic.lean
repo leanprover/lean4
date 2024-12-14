@@ -239,8 +239,9 @@ theorem monotone_of_monotone_apply [PartialOrder γ] [∀ x, PartialOrder (β x)
   (h : ∀ y, monotone (fun x => f x y)) : monotone f :=
   fun x y hxy z => h z x y hxy
 
-theorem monotone_apply [∀ x, PartialOrder (β x)] (x : α) :
-    monotone (fun (f : (∀ x, β x)) => f x) := fun _ _ hfg => hfg x
+theorem monotone_apply [PartialOrder γ] [∀ x, PartialOrder (β x)] (a : α) (f : γ → ∀ x, β x)
+    (h : monotone f) :
+    monotone (fun x => f x a) := fun _ _ hfg => h _ _ hfg a
 
 -- It seems this lemma can be used to decompose all kind of applications,
 -- but the `[Order β]` constraint comes out of no where, so not generally applicable.
@@ -516,6 +517,7 @@ noncomputable def find (P : Nat → Bool) : Nat → Option Nat := fix (α := _ �
   split
   · apply monotone_const
   · apply monotone_apply
+    apply monotone_id
 
 theorem find_eq : find P = findF P (find P) := fix_eq (α := _ → TailrecOrder _) ..
 

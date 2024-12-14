@@ -144,44 +144,43 @@ def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
     resultRef.get
 
 
-private partial def addNonRecPreDefs (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition)  : TermElabM Unit := do
-  let us := preDefNonRec.levelParams.map mkLevelParam
-  let all := preDefs.toList.map (·.declName)
-  for h : fidx in [:preDefs.size] do
-    let preDef := preDefs[fidx]
+def preDefsFromUnaryNonRec (fixedPrefixSize : Nat) (argsPacker : ArgsPacker)
+    (preDefs : Array PreDefinition) (unaryPreDefNonRec : PreDefinition) : MetaM (Array PreDefinition) := do
+  let us := unaryPreDefNonRec.levelParams.map mkLevelParam
+  preDefs.mapIdxM fun fidx preDef => do
     let value ← forallBoundedTelescope preDef.type (some fixedPrefixSize) fun xs _ => do
-      let value := mkAppN (mkConst preDefNonRec.declName us) xs
+      let value := mkAppN (mkConst unaryPreDefNonRec.declName us) xs
       let value ← argsPacker.curryProj value fidx
       mkLambdaFVars xs value
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
-    addNonRec { preDef with value } (applyAttrAfterCompilation := false) (all := all)
+    pure { preDef with value }
 
-def addPreDefsFromUnary (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
-    (argsPacker : ArgsPacker) (preDefNonRec : PreDefinition) (hasInduct : Bool) : TermElabM Unit := do
+def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
+    (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do
   /-
   We must remove `implemented_by` attributes from the auxiliary application because
   this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
   attribute would check whether the `unaryPreDef` type matches with `<decl>`'s type, and produce
   and error. See issue #2899
   -/
-  let preDefNonRec := preDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
+  let preDefNonRec := unaryPreDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
+  let declNames := preDefs.toList.map (·.declName)
 
   -- Do not complain if the user sets @[semireducible], which usually is a noop,
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
-    if argsPacker.onlyOneUnary then
+    if unaryPreDefNonRec.declName = preDefs[0]!.declName then
       addNonRec preDefNonRec (applyAttrAfterCompilation := false)
     else
       withEnableInfoTree false do
         addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-      addNonRecPreDefs fixedPrefixSize argsPacker preDefs preDefNonRec
+      preDefsNonrec.forM (addNonRec · (applyAttrAfterCompilation := false) (all := declNames))
 
   -- We create the `_unsafe_rec` before we abstract nested proofs.
   -- Reason: the nested proofs may be referring to the _unsafe_rec.
   addAndCompilePartialRec preDefs
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
   let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker hasInduct
   for preDef in preDefs do
     markAsRecursive preDef.declName
     generateEagerEqns preDef.declName

@@ -8,6 +8,7 @@ import Lean.Elab.PreDefinition.MkInhabitant
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.Tactic.Monotonicity
 import Init.Internal.Order.Basic
+import Lean.Meta.PProdN
 
 namespace Lean.Elab
 
@@ -16,10 +17,11 @@ open Monotonicity
 
 open Lean.Order
 
-private def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : Expr :=
-  e.replace fun e =>
-    if e.isAppOfArity recFnName fixedPrefixSize then
-      some F
+private def replaceRecApps (recFnNames : Array Name) (fixedPrefixSize : Nat) (f : Expr) (e : Expr) : MetaM Expr := do
+  let t ← inferType f
+  return e.replace fun e =>
+    if let some idx := recFnNames.findIdx? (e.isAppOfArity · fixedPrefixSize) then
+      some <| PProdN.proj recFnNames.size idx t f
     else
       none
 
@@ -28,24 +30,46 @@ For pretty error messages:
 Takes `F : (fun f => e)`, where `f` is the packed function, and replaces `f` in `e` with the user-visible
 constants, which are added to the environment temporarily.
 -/
-private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (argsPacker : ArgsPacker)
-    (fixedArgs : Array Expr) (F : Expr) (k : Expr → MetaM α) : MetaM α := do
+private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedArgs : Array Expr)
+    (F : Expr) (k : Expr → MetaM α) : MetaM α := do
   unless F.isLambda do throwError "Expected lambda:{indentExpr F}"
   withoutModifyingEnv do
     preDefs.forM addAsAxiom
-    let fns := preDefs.map (fun d => .const d.declName (d.levelParams.map mkLevelParam))
+    let fns := preDefs.map fun d =>
+      mkAppN (.const d.declName (d.levelParams.map mkLevelParam)) fixedArgs
+    let packedFn ← PProdN.mk 0 fns
     let e ← lambdaBoundedTelescope F 1 fun f e =>
       let f := f[0]!
-      return e.replace fun e => do
-        guard e.isApp
-        guard (e.appFn! == f)
-        let (n, xs) ← argsPacker.unpack e.appArg!
-        return mkAppN fns[n]! (fixedArgs ++ xs)
+      let e := e.replace fun e => do
+        -- Replace f with calls to the constants
+        if e == f then return packedFn else none
+      let e := e.replace fun e => do
+        -- Reduce PProd projections
+        if e.isProj then
+          if e.projExpr!.isAppOfArity ``PProd.mk 4 then
+            if e.projIdx! == 0 then
+              return e.projExpr!.appFn!.appArg!
+            else
+              return e.projExpr!.appArg!
+        none
+      pure e
     k e
 
+def mkInstCCPOPProd (inst₁ inst₂ : Expr) : MetaM Expr := do
+  mkAppOptM ``instCCPOPProd #[none, none, inst₁, inst₂]
+
+def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
+  -- mkAppM does not support the equivalent of (cfg := { synthAssignedInstances := false}),
+  -- so this is a bit more pedestrian
+  let_expr monotone _ inst _ inst₁ _ := (← inferType hmono₁)
+    | throwError "Unexpected type of{indentExpr hmono₁}"
+  let_expr monotone _ _ _ inst₂ _ := (← inferType hmono₂)
+    | throwError "Unexpected type of{indentExpr hmono₂}"
+  mkAppOptM ``monotone_prod #[none, none, inst₁, inst₂, none, inst, none, none, hmono₁, hmono₂]
+
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
-  -- For every function, an CCPO instance on its range
-  -- ∀ x1 x2, CCPO (t1 x1 x2)
+  -- For every function of type `∀ x y, r x y`, an CCPO instance
+  -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
   let ccpoInsts ← preDefs.mapM fun preDef =>
     lambdaTelescope preDef.value fun xs _body => do
       let type ← instantiateForall preDef.type xs
@@ -60,6 +84,10 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
           mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
       mkLambdaFVars xs inst
+      -- let mut inst := inst
+      -- for x in xs.reverse do
+      --   inst ← mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
+      -- pure inst
 
   let fixedPrefixSize ← WF.getFixedPrefix preDefs
   trace[Elab.definition.partialFixpoint] "fixed prefix size: {fixedPrefixSize}"
@@ -71,28 +99,26 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   forallBoundedTelescope preDefs[0]!.type fixedPrefixSize fun fixedArgs _ => do
     let ccpoInsts := ccpoInsts.map (·.beta fixedArgs)
     let types ← preDefs.mapM (instantiateForall ·.type fixedArgs)
-    let packedType ← argsPacker.uncurryType types
-    let packedDomain := packedType.bindingDomain!
-    let packedRange ← withLocalDeclD `x packedDomain fun x => do
-      mkLambdaFVars #[x] (← instantiateForall packedType #[x])
 
-    -- ∀ (x : packedDomain): CCPO (t x)
-    let unaryCCPOInstType ←
-      withLocalDeclD `x packedDomain fun x => do
-         mkForallFVars #[x] (← mkAppM ``CCPO #[← instantiateForall packedType #[x]])
-    let unaryCCPOInst ← argsPacker.uncurryWithType unaryCCPOInstType ccpoInsts
+    -- (∀ x y, r₁ x y) ×' (∀ x y, r₂ x y)
+    let packedType ← PProdN.pack 0 types
+
+    -- CCPO (∀ x y, r₁ x y)
+    let ccpoInsts' ← ccpoInsts.mapM fun inst =>
+      lambdaTelescope inst fun xs inst => do
+        let mut inst := inst
+        for x in xs.reverse do
+          inst ← mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
+        pure inst
+    -- CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
+    let packedCCPOInst ← ccpoInsts'.pop.foldrM (mkInstCCPOPProd · ·) ccpoInsts'.back!
+    -- Order ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     -- ∀ (x : packedDomain): PartialOrder (t x). Derived from unaryCCPOInst to avoid diamond later on
-    let unaryPartialOrderInst ←
-      withLocalDeclD `x packedDomain fun x => do
-        mkLambdaFVars #[x] (← mkAppOptM ``CCPO.toPartialOrder #[none, unaryCCPOInst.beta #[x]])
-    -- CCPO (∀ (x : packedDomain): t x)
-    let instCCPOPackedType ← mkAppOptM ``instCCPOPi #[packedDomain, packedRange, unaryCCPOInst]
-    -- PartialOrder (∀ (x : packedDomain): t x)
-    let instPartialOrderPackedType ← mkAppOptM ``CCPO.toPartialOrder #[packedType, instCCPOPackedType]
+    let packedPartialOrderInst ← mkAppOptM ``CCPO.toPartialOrder #[none, packedCCPOInst]
 
-    -- Error reporting hook, preseting monotonicity errors in terms of recursive functions
+    -- Error reporting hook, presenting monotonicity errors in terms of recursive functions
     let failK {α} f (monoThms : Array Name) : MetaM α := do
-      unReplaceRecApps preDefs argsPacker fixedArgs f fun t => do
+      unReplaceRecApps preDefs fixedArgs f fun t => do
         let extraMsg := if monoThms.isEmpty then m!"" else
           m!"Tried to apply {.andList (monoThms.toList.map (m!"'{.ofConstName ·}'"))}, but failed.\n\
              Possible cause: A missing `{.ofConstName ``MonoBind}` instance.\n\
@@ -108,60 +134,48 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- (packed) parameter
     let Fs ← preDefs.mapM fun preDef => do
       let body ← instantiateLambda preDef.value fixedArgs
-      lambdaTelescope body fun xs body => do
-        withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
-          let body' ← withoutModifyingEnv do
-            -- WF.packCalls needs the constants in the env to typecheck things
-            preDefs.forM (addAsAxiom ·)
-            WF.packCalls fixedPrefixSize argsPacker declNames f body
-          mkLambdaFVars (xs.push f) body'
+      withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
+        let body' ← withoutModifyingEnv do
+          -- WF.packCalls needs the constants in the env to typecheck things
+          preDefs.forM (addAsAxiom ·)
+          replaceRecApps declNames fixedPrefixSize f body
+        mkLambdaFVars #[f] body'
 
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
     let hmonos ← preDefs.mapIdxM fun i preDef => do
-      let type ← instantiateForall preDef.type fixedArgs
-      let body ← instantiateLambda preDef.value fixedArgs
-      lambdaTelescope body fun xs _ => do
-        let type ← instantiateForall type xs
-        let F ← instantiateLambda Fs[i]! xs
-        let instPartialOrder ← mkAppOptM ``CCPO.toPartialOrder #[none, ccpoInsts[i]!.beta xs]
-        let goal ← mkAppOptM ``monotone
-          #[packedType, instPartialOrderPackedType, type, instPartialOrder, F]
-        let hmono ← mkFreshExprSyntheticOpaqueMVar goal
-        mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
-          solveMono failK hmono.mvarId!
-        mkLambdaFVars xs (← instantiateMVars hmono)
+      let type := types[i]!
+      let F := Fs[i]!
+      let inst ← mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
+      let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
+      let hmono ← mkFreshExprSyntheticOpaqueMVar goal
+      mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
+        solveMono failK hmono.mvarId!
+      trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
+      instantiateMVars hmono
 
-    let FType ← withLocalDeclD `x packedDomain fun x => do
-      mkForallFVars #[x] (← mkArrow packedType (← instantiateForall packedType #[x]))
-    let F ← argsPacker.uncurryWithType FType Fs
-    -- We still have to swap the arguments to F
-    let F ←
-      withLocalDeclD `f packedType fun f =>
-        withLocalDeclD `x packedDomain fun x =>
-          mkLambdaFVars #[f, x] (F.beta #[x, f])
+    -- let F ← withLocalDeclD `f packedType fun f => do
+      -- PProdN.mk 0 (Fs.map (·.beta #[f]))
+    let hmono ← hmonos.pop.foldrM (mkMonoPProd · ·) hmonos.back!
 
-    let hmono ← mkAppOptM ``monotone_of_monotone_apply
-      #[packedDomain, packedRange, packedType, instPartialOrderPackedType, unaryPartialOrderInst, F]
-
-    let monoGoal := (← inferType hmono).bindingDomain!
-    trace[Elab.definition.partialFixpoint] "monoGoal: {monoGoal}"
-    let hmono' ← argsPacker.uncurryWithType monoGoal hmonos
-    let hmono := mkApp hmono hmono'
-
-    let packedValue ← mkAppOptM ``fix #[packedType, instCCPOPackedType, F, hmono]
+    let packedValue ← mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
     trace[Elab.definition.partialFixpoint] "finalValue: {packedValue}"
 
-    check packedValue
-
-    let packedType ← mkForallFVars fixedArgs packedType
-    let packedValue ← mkLambdaFVars fixedArgs packedValue
+    let packedType' ← mkForallFVars fixedArgs packedType
+    let packedValue' ← mkLambdaFVars fixedArgs packedValue
     let preDefNonRec := { preDefs[0]! with
       declName := WF.mutualName argsPacker preDefs
-      type := packedType
-      value := packedValue}
-    WF.addPreDefsFromUnary preDefs fixedPrefixSize argsPacker preDefNonRec (hasInduct := false)
+      type := packedType'
+      value := packedValue'}
+    let preDefsNonrec ← preDefs.mapIdxM fun fidx preDef => do
+      let us := preDefNonRec.levelParams.map mkLevelParam
+      let value := mkConst preDefNonRec.declName us
+      let value := mkAppN value fixedArgs
+      let value := PProdN.proj preDefs.size fidx packedType value
+      let value ← mkLambdaFVars fixedArgs value
+      pure { preDef with value }
+    WF.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
 
 end Lean.Elab
 

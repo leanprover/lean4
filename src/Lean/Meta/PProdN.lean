@@ -47,22 +47,32 @@ def mkPProdMk (e1 e2 : Expr) : MetaM Expr := do
     return mkApp4 (.const ``PProd.mk [lvl1, lvl2]) t1 t2 e1 e2
 
 /-- `PProd.fst` or `And.left` (using `.proj`) -/
-def mkPProdFst (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
+def mkPProdFst (t e : Expr) : Expr :=
   match_expr t with
-  | PProd _ _ => return .proj ``PProd 0 e
-  | And _ _ => return .proj ``And 0 e
-  | _ => panic! "mkPProdFst: cannot handle{indentExpr e}\nof type{indentExpr t}"
+  | PProd _ _ => .proj ``PProd 0 e
+  | And _ _ => .proj ``And 0 e
+  | _ => panic! s!"mkPProdFst: cannot handle {e}\nof type {t}"
+
+/-- `PProd.fst` or `And.left` (using `.proj`), inferring the type of `e` -/
+def mkPProdFstM (e : Expr) : MetaM Expr := do
+  return mkPProdFst (← whnf (← inferType e)) e
+
+private def mkTypeSnd (t : Expr) : Expr :=
+  match_expr t with
+  | PProd _ t => t
+  | And _ t => t
+  | _ => panic! s!"mkTypeSnd: cannot handle type {t}"
 
 /-- `PProd.snd` or `And.right` (using `.proj`) -/
-def mkPProdSnd (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
+def mkPProdSnd (t e : Expr) : Expr :=
   match_expr t with
-  | PProd _ _ => return .proj ``PProd 1 e
-  | And _ _ => return .proj ``And 1 e
-  | _ => panic! "mkPProdSnd: cannot handle{indentExpr e}\nof type{indentExpr t}"
+  | PProd _ _ => .proj ``PProd 1 e
+  | And _ _ => .proj ``And 1 e
+  | _ => panic! s!"mkPProdSnd: cannot handle {e}\nof type {t}"
 
-
+/-- `PProd.snd` or `And.right` (using `.proj`), inferring the type of `e` -/
+def mkPProdSndM (e : Expr) : MetaM Expr := do
+  return mkPProdSnd (← whnf (← inferType e)) e
 
 namespace PProdN
 
@@ -83,12 +93,24 @@ def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   xs.pop.foldrM mkPProdMk xBack
 
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
-def proj (n i : Nat) (e : Expr) : MetaM Expr := do
+def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do
+  let mut t := t
   let mut value := e
   for _ in [:i] do
-      value ← mkPProdSnd value
+      value := mkPProdSnd t value
+      t := mkTypeSnd t
   if i+1 < n then
-    mkPProdFst value
+    mkPProdFst t value
+  else
+    value
+
+/-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
+def projM (n i : Nat) (e : Expr) : MetaM Expr := do
+  let mut value := e
+  for _ in [:i] do
+      value ← mkPProdSndM value
+  if i+1 < n then
+    mkPProdFstM value
   else
     pure value
 

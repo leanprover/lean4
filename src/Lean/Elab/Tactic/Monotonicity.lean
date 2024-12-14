@@ -64,6 +64,40 @@ private def applyConst (goal : MVarId) (name : Name) : MetaM (List MVarId) := do
   mapError (f := (m!"Could not apply {.ofConstName name}:{indentD ·}")) do
     goal.applyConst name (cfg := { synthAssignedInstances := false})
 
+/--
+Base case for solveMonoStep: Handles goals of the form
+```
+monotone (fun f => f.1.2 x y)
+```
+
+It's tricky to solve them compositionally from the outside in, so here we construct the proof
+from the inside out.
+-/
+partial def solveMonoCall (α inst_α : Expr) (e : Expr) : MetaM (Option Expr) := do
+  if e.isApp && !e.appArg!.hasLooseBVars then
+    let some hmono ← solveMonoCall α inst_α e.appFn! | return none
+    let hmonoType ← inferType hmono
+    let_expr monotone _ _ _ inst _ := hmonoType | throwError "solveMonoCall {e}: unexpected type {hmonoType}"
+    let some inst ← whnfUntil inst ``instOrderPi | throwError "solveMonoCall {e}: unexpected instance {inst}"
+    let_expr instOrderPi γ δ inst ← inst | throwError "solveMonoCall {e}: whnfUntil failed?{indentExpr inst}"
+    return ← mkAppOptM ``monotone_apply #[γ, δ, α, inst_α, inst, e.appArg!, none, hmono]
+
+  if e.isProj then
+    let some hmono ← solveMonoCall α inst_α e.projExpr! | return none
+    let hmonoType ← inferType hmono
+    let_expr monotone _ _ _ inst _ := hmonoType | throwError "solveMonoCall {e}: unexpected type {hmonoType}"
+    let some inst ← whnfUntil inst ``instPartialOrderPProd | throwError "solveMonoCall {e}: unexpected instance {inst}"
+    let_expr instPartialOrderPProd β γ inst_β inst_γ ← inst | throwError "solveMonoCall {e}: whnfUntil failed?{indentExpr inst}"
+    let n := if e.projIdx! == 0 then ``monotone_fst else ``monotone_snd
+    return ← mkAppOptM n #[β, γ, inst_β, inst_γ, α, inst_α, none, hmono]
+
+  if e == .bvar 0 then
+    let hmono ← mkAppOptM ``monotone_id #[α, inst_α]
+    return some hmono
+
+  return none
+
+
 def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaultFailK) (goal : MVarId) : MetaM (List MVarId) :=
   goal.withContext do
   trace[Elab.Tactic.partial_monotonicity] "partial_monotonicity at\n{goal}"
@@ -84,8 +118,8 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       let (_, new_goal) ← goal.intro1
       return [new_goal]
 
-  | monotone _α _inst_α _β _inst_β f =>
-    -- Ensure f is headed not a redex and headed by at least one lambda, and clean some
+  | monotone α inst_α _β _inst_β f =>
+    -- Ensure f is not headed by a redex and headed by at least one lambda, and clean some
     -- redexes left by some of the lemmas we tend to apply
     let f ← instantiateMVars f
     let f := f.headBeta
@@ -98,10 +132,6 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       return ← applyConst goal ``monotone_const
 
     -- NB: `e` is now an open term.
-
-    -- A recursive call directly here
-    if e.isApp && e.appFn! == .bvar 0 then
-      return ← applyConst goal ``monotone_apply
 
     -- Look through mdata
     if e.isMData then
@@ -120,6 +150,25 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         goal.assign (← mkLetFVars #[x] goal')
         pure goal'
       return [goal'.mvarId!]
+
+    -- Handle lambdas, preserving the name of the binder
+    if e.isLambda then
+      let [new_goal] ← applyConst goal ``monotone_of_monotone_apply
+        | throwError "Unexpected number of goals after {.ofConstName ``monotone_of_monotone_apply}."
+      let (_, new_goal) ← new_goal.intro e.bindingName!
+      return [new_goal]
+
+    -- A recursive call directly here
+    if e.isBVar then
+      return ← applyConst goal ``monotone_id
+
+    -- A recursive call
+    if let some hmono ← solveMonoCall α inst_α e then
+      trace[Elab.Tactic.partial_monotonicity] "Found recursive call {e}:{indentExpr hmono}"
+      unless ← goal.checkedAssign hmono do
+        trace[Elab.Tactic.partial_monotonicity] "Failed to assign {hmono} : {← inferType hmono} to goal"
+        failK f #[]
+      return []
 
     let monoThms ← withLocalDeclD `f f.bindingDomain! fun f =>
       -- The discrimination tree does not like open terms

@@ -203,6 +203,12 @@ theorem dependent2''b.eq_1 : ∀ (n : Nat) (b : Bool),
 -/
 #guard_msgs in #print equations dependent2''b
 
+/--
+info: dependent2''b.eq_unfold :
+  dependent2''b = fun n b => if x : b = true then dependent2''a (n + 1) b else dependent2''b (n + 2) b
+-/
+#guard_msgs in #check dependent2''b.eq_unfold
+
 def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
   let next := f x
   if x ≠ next then
@@ -266,6 +272,30 @@ theorem ack.eq_3 : ∀ (x_2 y : Nat),
     ack x_2 __do_lift
 -/
 #guard_msgs in #print equations ack
+
+/--
+info: ack.eq_def (x✝ x✝¹ : Nat) :
+  ack x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | 0, y => some (y + 1)
+    | x.succ, 0 => ack x 1
+    | x.succ, y.succ => do
+      let __do_lift ← ack (x + 1) y
+      ack x __do_lift
+-/
+#guard_msgs in #check ack.eq_def
+
+/--
+info: ack.eq_unfold :
+  ack = fun x x_1 =>
+    match x, x_1 with
+    | 0, y => some (y + 1)
+    | x.succ, 0 => ack x 1
+    | x.succ, y.succ => do
+      let __do_lift ← ack (x + 1) y
+      ack x __do_lift
+-/
+#guard_msgs in #check ack.eq_unfold
 
 /--
 error: Could not prove 'WrongMonad.ack' to be tailrecursive:

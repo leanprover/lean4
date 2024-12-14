@@ -54,6 +54,12 @@ abbrev CongrCache := ExprMap (Option CongrTheorem)
 structure Context where
   private mk ::
   config            : Config := {}
+  /-- Local declarations to propagate to `Meta.Context` -/
+  zetaDeltaSet      : FVarIdSet := {}
+  /--
+  When processing `Simp` arguments, `zetaDelta` may be performed if `zetaDeltaSet` is not empty.
+  We save the local free variable ids in `initUsedZetaDelta`. `initUsedZetaDelta` is a subset of `zetaDeltaSet`. -/
+  initUsedZetaDelta : FVarIdSet := {}
   metaConfig        : ConfigWithKey := default
   indexConfig       : ConfigWithKey := default
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
@@ -122,8 +128,18 @@ private def updateArith (c : Config) : CoreM Config := do
 /--
 Converts `Simp.Config` into `Meta.ConfigWithKey` used for indexing.
 -/
-private def mkIndexConfig (c : Config) : ConfigWithKey :=
-  { c with
+private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
+  let curr ← Meta.getConfig
+  return { curr with
+    beta         := c.beta
+    iota         := c.iota
+    zeta         := c.zeta
+    zetaDelta    := c.zetaDelta
+    etaStruct    := c.etaStruct
+    /-
+    When indexing terms we disable projection to ensure a term such as `f ((a, b).1)`
+    is an instance of the pattern `f (?x.1)`
+    -/
     proj         := .no
     transparency := .reducible
   : Meta.Config }.toConfigWithKey
@@ -131,9 +147,14 @@ private def mkIndexConfig (c : Config) : ConfigWithKey :=
 /--
 Converts `Simp.Config` into `Meta.ConfigWithKey` used for `isDefEq`.
 -/
--- TODO: use `metaConfig` at `isDefEq`. It is not being used yet because it will break Mathlib.
-private def mkMetaConfig (c : Config) : ConfigWithKey :=
-  { c with
+private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
+  let curr ← Meta.getConfig
+  return { curr with
+    beta         := c.beta
+    zeta         := c.zeta
+    iota         := c.iota
+    zetaDelta    := c.zetaDelta
+    etaStruct    := c.etaStruct
     proj         := if c.proj then .yesWithDelta else .no
     transparency := .reducible
   : Meta.Config }.toConfigWithKey
@@ -142,12 +163,16 @@ def mkContext (config : Config := {}) (simpTheorems : SimpTheoremsArray := {}) (
   let config ← updateArith config
   return {
     config, simpTheorems, congrTheorems
-    metaConfig := mkMetaConfig config
-    indexConfig := mkIndexConfig config
+    metaConfig := (← mkMetaConfig config)
+    indexConfig := (← mkIndexConfig config)
   }
 
-def Context.setConfig (context : Context) (config : Config) : Context :=
-  { context with config }
+def Context.setConfig (context : Context) (config : Config) : MetaM Context := do
+  return { context with
+    config
+    metaConfig := (← mkMetaConfig config)
+    indexConfig := (← mkIndexConfig config)
+  }
 
 def Context.setSimpTheorems (c : Context) (simpTheorems : SimpTheoremsArray) : Context :=
   { c with simpTheorems }
@@ -163,6 +188,9 @@ def Context.setFailIfUnchanged (c : Context) (flag : Bool) : Context :=
 
 def Context.setMemoize (c : Context) (flag : Bool) : Context :=
   { c with config.memoize := flag }
+
+def Context.setZetaDeltaSet (c : Context) (zetaDeltaSet : FVarIdSet) (initUsedZetaDelta : FVarIdSet) : Context :=
+  { c with zetaDeltaSet, initUsedZetaDelta }
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
@@ -236,6 +264,12 @@ For example, if the user has set `simp (config := { zeta := false })`,
 -/
 @[inline] def withSimpIndexConfig (x : SimpM α) : SimpM α := do
   withConfigWithKey (← readThe Simp.Context).indexConfig x
+
+/--
+Executes `x` using a `MetaM` configuration for inferred from `Simp.Config`.
+-/
+@[inline] def withSimpMetaConfig (x : SimpM α) : SimpM α := do
+  withConfigWithKey (← readThe Simp.Context).metaConfig x
 
 @[extern "lean_simp"]
 opaque simp (e : Expr) : SimpM Result

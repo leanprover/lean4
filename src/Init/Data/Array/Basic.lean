@@ -821,7 +821,7 @@ decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
   induction a, i, h using Array.eraseIdx.induct with
   | @case1 a i h h' a' ih =>
     unfold eraseIdx
-    simp [h', a', ih]
+    simp +zetaDelta [h', a', ih]
   | case2 a i h h' =>
     unfold eraseIdx
     simp [h']

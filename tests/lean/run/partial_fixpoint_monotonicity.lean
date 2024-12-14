@@ -11,8 +11,8 @@ attribute [partial_fixpoint_monotone]
 
 
 /-
-Shoudl test that the tactic syntax is scoped, but cannot use #guard_msgs to catch “tactic not known”
-error:
+Should test that the tactic syntax is scoped, but cannot use #guard_msgs to catch “tactic not known”
+errors, it seems:
 
 /--
 error: unsolved goals
@@ -25,28 +25,8 @@ example : True := by monotonicity
 
 open Lean.Order
 
-
 example : monotone (fun (f : Nat → Option Unit) => do {do f 1; f 2; f 3}) := by
   repeat monotonicity
 
--- The tactic only handels unary functions:
-
-/--
-error: Failed to prove monotonicity of:
-  fun x => x
----
-error: Failed to prove monotonicity of:
-  fun x => x
----
-error: Failed to prove monotonicity of:
-  fun x => x
--/
-#guard_msgs in
 example : monotone (fun (f : Option Unit) => do {do f; f; f}) := by
-  monotonicity
-  · monotonicity
-  · monotonicity
-    monotonicity
-    · monotonicity
-    · monotonicity
-      monotonicity
+  repeat monotonicity

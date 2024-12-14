@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Elab.Tactic.Conv
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
@@ -12,52 +13,52 @@ import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
 import Init.Internal.Order.Basic
 
-namespace Lean.Elab.WF
+namespace Lean.Elab.PartialFixpoint
 open Meta
 open Eqns
 
 structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
-  fixedPrefixSize : Nat
-  argsPacker      : ArgsPacker
   deriving Inhabited
 
-private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
-  let some (_, lhs, _) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
-  if lhs.isAppOf ``WellFounded.fix then
-    return mvarId
-  else if lhs.isAppOf ``Order.fix then
-    return mvarId
+  let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
+  let lhs' ← deltaExpand lhs fun n => n == declName || n == declNameNonRec
+  mvarId.replaceTargetDefEq (← mkEq lhs' rhs)
+
+partial def rwFixUnder (lhs : Expr) : MetaM Expr := do
+  if lhs.isAppOfArity ``Order.fix 4 then
+    return mkAppN (mkConst ``Order.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
+  else if lhs.isApp then
+    let h ← rwFixUnder lhs.appFn!
+    mkAppM ``congrFun #[h, lhs.appArg!]
+  else if lhs.isProj then
+    let f := mkLambda `p .default (← inferType lhs.projExpr!) (lhs.updateProj! (.bvar 0))
+    let h ← rwFixUnder lhs.projExpr!
+    mkAppM ``congrArg #[f, h]
   else
-    deltaLHSUntilFix (← deltaLHS mvarId)
+    throwError "rwFixUnder: unexpected expression {lhs}"
 
 private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let mut mvarId := mvarId
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | unreachable!
-  let h ←
-    if lhs.isAppOf ``WellFounded.fix then
-      pure <| mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
-    else if lhs.isAppOf ``Order.fix then
-      let x := lhs.getAppArgs.back!
-      let args := lhs.getAppArgs.pop
-      mkAppM ``congrFun #[mkAppN (mkConst ``Order.fix_eq lhs.getAppFn.constLevels!) args, x]
-    else
-      throwTacticEx `rwFixEq mvarId "expected fixed-point application"
+  let h ← rwFixUnder lhs
   let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
   let targetNew ← mkEq lhsNew rhs
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
   mvarId.assign (← mkEqTrans h mvarNew)
   return mvarNew.mvarId!
 
-private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  trace[Elab.definition.wf.eqns] "proving: {type}"
+private partial def mkProof (declName : Name) (declNameNonRec : Name) (type : Expr) : MetaM Expr := do
+  trace[Elab.definition.partialFixpoint] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
     let rec go (mvarId : MVarId) : MetaM Unit := do
-      trace[Elab.definition.wf.eqns] "step\n{MessageData.ofGoal mvarId}"
+      trace[Elab.definition.partialFixpoint] "step\n{MessageData.ofGoal mvarId}"
       if ← withAtLeastTransparency .all (tryURefl mvarId) then
         return ()
       else if (← tryContradiction mvarId) then
@@ -83,7 +84,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
             -- LHS (introduced in 096e4eb), but it seems that code path was never used,
             -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
-    go (← rwFixEq (← deltaLHSUntilFix mvarId))
+    go (← rwFixEq (← deltaLHSUntilFix declName declNameNonRec mvarId))
     instantiateMVars main
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
@@ -98,10 +99,10 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   let mut thmNames := #[]
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
-    trace[Elab.definition.wf.eqns] "{eqnTypes[i]}"
+    trace[Elab.definition.partialFixpoint] "{eqnTypes[i]}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
-    let value ← mkProof declName type
+    let value ← mkProof declName info.declNameNonRec type
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
@@ -111,21 +112,15 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
-    (argsPacker : ArgsPacker) : MetaM Unit := do
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)  : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
-  /-
-  See issue #2327.
-  Remark: we could do better for mutual declarations that mix theorems and definitions. However, this is a rare
-  combination, and we would have add support for it in the equation generator. I did not check which assumptions are made there.
-  -/
   unless preDefs.all fun p => p.kind.isTheorem do
     unless (← preDefs.allM fun p => isProp p.type) do
       let declNames := preDefs.map (·.declName)
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize, argsPacker }
+            declNames, declNameNonRec }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then
@@ -140,6 +135,5 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
 builtin_initialize
   registerGetEqnsFn getEqnsFor?
   registerGetUnfoldEqnFn getUnfoldFor?
-  registerTraceClass `Elab.definition.wf.eqns
 
-end Lean.Elab.WF
+end Lean.Elab.PartialFixpoint

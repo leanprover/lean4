@@ -19,6 +19,7 @@ partial_fixpoint
 def loop0 : Unit := loop0
 partial_fixpoint
 
+
 /--
 info: equations:
 theorem loop.eq_1 : ∀ (x : Nat), loop x = loop (x + 1)
@@ -195,6 +196,11 @@ def dependent2''b (n : Nat) (b : Bool) : if b then Nat else Bool :=
 partial_fixpoint
 end
 
+/--
+info: equations:
+theorem dependent2''b.eq_1 : ∀ (n : Nat) (b : Bool),
+  dependent2''b n b = if x : b = true then dependent2''a (n + 1) b else dependent2''b (n + 2) b
+-/
 #guard_msgs in #print equations dependent2''b
 
 def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
@@ -205,14 +211,12 @@ def computeLfp' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
     x
 partial_fixpoint
 
-def computeLfp'' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
-  have next := f x
-  if x ≠ next then
-    computeLfp'' f next
-  else
-    x
-partial_fixpoint
-
+/--
+info: equations:
+theorem computeLfp'.eq_1.{u} : ∀ {α : Type u} [inst : DecidableEq α] (f : α → α) (x : α),
+  computeLfp' f x = if x ≠ f x then computeLfp' f (f x) else x
+-/
+#guard_msgs in #print equations computeLfp'
 
 -- TODO: Switching to `(cfg := { synthAssignedInstances := false})` inlines `next`?
 /--
@@ -237,13 +241,14 @@ def whileSome (f : α → Option α) (x : α) : α :=
 partial_fixpoint
 
 /--
-info: whileSome.eq_1.{u_1} {α : Type u_1} (f : α → Option α) (x : α) :
+info: equations:
+theorem whileSome.eq_1.{u_1} : ∀ {α : Type u_1} (f : α → Option α) (x : α),
   whileSome f x =
     match f x with
     | none => x
     | some x' => whileSome f x'
 -/
-#guard_msgs in #print equations whileSome.
+#guard_msgs in #print equations whileSome
 
 def ack : (n m : Nat) → Option Nat
   | 0,   y   => some (y+1)

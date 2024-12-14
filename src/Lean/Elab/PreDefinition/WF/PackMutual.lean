@@ -10,7 +10,7 @@ import Lean.Elab.PreDefinition.WF.Eqns
 
 /-!
 This module contains roughly everything neede to turn mutual n-ary functions into a single unary
-function, and is shared between well-founded recursion and partial fixpoints.
+function, as used by well-founded recursion.
 -/
 
 namespace Lean.Elab.WF
@@ -113,37 +113,6 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
     xs.mapM (·.fvarId!.getUserName)
 
 
-partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
-  go #[] (preDefs.map (·.value))
-where
-  go (fvars : Array Expr) (vals : Array Expr) : MetaM α := do
-    if !(vals.all fun val => val.isLambda) then
-      k fvars vals
-    else if !(← vals.allM fun val => isDefEq val.bindingDomain! vals[0]!.bindingDomain!) then
-      k fvars vals
-    else
-      withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
-        go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
-
-def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
-  withCommonTelescope preDefs fun xs vals => do
-    let resultRef ← IO.mkRef xs.size
-    for val in vals do
-      if (← resultRef.get) == 0 then return 0
-      forEachExpr' val fun e => do
-        if preDefs.any fun preDef => e.isAppOf preDef.declName then
-          let args := e.getAppArgs
-          resultRef.modify (min args.size ·)
-          for arg in args, x in xs do
-            if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
-              -- We continue searching if e's arguments are not a prefix of `xs`
-              return true
-          return false
-        else
-          return true
-    resultRef.get
-
-
 def preDefsFromUnaryNonRec (fixedPrefixSize : Nat) (argsPacker : ArgsPacker)
     (preDefs : Array PreDefinition) (unaryPreDefNonRec : PreDefinition) : MetaM (Array PreDefinition) := do
   withoutModifyingEnv do
@@ -156,41 +125,5 @@ def preDefsFromUnaryNonRec (fixedPrefixSize : Nat) (argsPacker : ArgsPacker)
         mkLambdaFVars xs value
       trace[Elab.definition.wf] "{preDef.declName} := {value}"
       pure { preDef with value }
-
-def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
-    (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do
-  /-
-  We must remove `implemented_by` attributes from the auxiliary application because
-  this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
-  attribute would check whether the `unaryPreDef` type matches with `<decl>`'s type, and produce
-  and error. See issue #2899
-  -/
-  let preDefNonRec := unaryPreDefNonRec.filterAttrs fun attr => attr.name != `implemented_by
-  let declNames := preDefs.toList.map (·.declName)
-
-  -- Do not complain if the user sets @[semireducible], which usually is a noop,
-  -- we recognize that below and then do not set @[irreducible]
-  withOptions (allowUnsafeReducibility.set · true) do
-    if unaryPreDefNonRec.declName = preDefs[0]!.declName then
-      addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-    else
-      withEnableInfoTree false do
-        addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-      preDefsNonrec.forM (addNonRec · (applyAttrAfterCompilation := false) (all := declNames))
-
-  -- We create the `_unsafe_rec` before we abstract nested proofs.
-  -- Reason: the nested proofs may be referring to the _unsafe_rec.
-  addAndCompilePartialRec preDefs
-  let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-  let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  for preDef in preDefs do
-    markAsRecursive preDef.declName
-    generateEagerEqns preDef.declName
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-    -- Unless the user asks for something else, mark the definition as irreducible
-    unless preDef.modifiers.attrs.any fun a =>
-      a.name = `reducible || a.name = `semireducible do
-      setIrreducibleAttribute preDef.declName
-
 
 end Lean.Elab.WF

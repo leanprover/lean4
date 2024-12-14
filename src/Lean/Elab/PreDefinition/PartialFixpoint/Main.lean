@@ -5,7 +5,7 @@ Authors: Joachim Breitner
 -/
 prelude
 import Lean.Elab.PreDefinition.MkInhabitant
-import Lean.Elab.PreDefinition.WF.PackMutual
+import Lean.Elab.PreDefinition.Mutual
 import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 import Lean.Elab.Tactic.Monotonicity
 import Init.Internal.Order.Basic
@@ -90,7 +90,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       --   inst ← mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
       -- pure inst
 
-  let fixedPrefixSize ← WF.getFixedPrefix preDefs
+  let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
   trace[Elab.definition.partialFixpoint] "fixed prefix size: {fixedPrefixSize}"
 
   let declNames := preDefs.map (·.declName)
@@ -135,7 +135,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let body ← instantiateLambda preDef.value fixedArgs
       withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
         let body' ← withoutModifyingEnv do
-          -- WF.packCalls needs the constants in the env to typecheck things
+          -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
           replaceRecApps declNames fixedPrefixSize f body
         mkLambdaFVars #[f] body'
@@ -174,8 +174,11 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let value := PProdN.proj preDefs.size fidx packedType value
       let value ← mkLambdaFVars fixedArgs value
       pure { preDef with value }
+
+    Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
+    let preDefs ← Mutual.cleanPreDefs preDefs
     PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName
-    WF.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
+    Mutual.addPreDefAttributes preDefs
 
 end Lean.Elab
 

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.Mutual
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
@@ -25,7 +26,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
-    let fixedPrefixSize ← getFixedPrefix preDefs
+    let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
     trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
     let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
     for varNames in varNamess, preDef in preDefs do
@@ -57,8 +58,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
 
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefsNonrec ← preDefsFromUnaryNonRec fixedPrefixSize argsPacker preDefs preDefNonRec
+  Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
+  let preDefs ← Mutual.cleanPreDefs preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
-  addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
+  Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

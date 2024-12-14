@@ -257,6 +257,17 @@ def ack : (n m : Nat) → Option Nat
 partial_fixpoint
 
 /--
+info: equations:
+theorem ack.eq_1 : ∀ (x : Nat), ack 0 x = some (x + 1)
+theorem ack.eq_2 : ∀ (x_2 : Nat), ack x_2.succ 0 = ack x_2 1
+theorem ack.eq_3 : ∀ (x_2 y : Nat),
+  ack x_2.succ y.succ = do
+    let __do_lift ← ack (x_2 + 1) y
+    ack x_2 __do_lift
+-/
+#guard_msgs in #print equations ack
+
+/--
 error: Could not prove 'WrongMonad.ack' to be tailrecursive:
   Recursive call `ack (x + 1) y` is not a tail call.
   Enclosing tail-call position:

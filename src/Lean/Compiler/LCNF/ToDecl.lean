@@ -96,7 +96,7 @@ The steps for this are roughly:
 def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
   let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
-  let some value := info.value? | throwError "declaration `{declName}` does not have a value"
+  let some value := info.value? (allowOpaque := true) | throwError "declaration `{declName}` does not have a value"
   let (type, value) ← Meta.MetaM.run' do
     let type  ← toLCNFType info.type
     let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
@@ -107,7 +107,7 @@ def toDecl (declName : Name) : CompilerM Decl := do
     /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
     let value ← macroInline value
     /-
-    Remark: we have disabled the following transformation, we will perform it at phase 2, after code specialization.
+    Remark: we have disabled the following transformatbion, we will perform it at phase 2, after code specialization.
     It prevents many optimizations (e.g., "cases-of-ctor").
     -/
     -- let value ← applyCasesOnImplementedBy value

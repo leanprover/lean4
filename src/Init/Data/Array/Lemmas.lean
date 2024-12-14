@@ -924,11 +924,25 @@ theorem mem_or_eq_of_mem_setIfInBounds
 
 /-! ### BEq -/
 
+
+@[simp] theorem beq_empty_iff [BEq α] {xs : Array α} : (xs == #[]) = xs.isEmpty := by
+  cases xs
+  simp
+
+@[simp] theorem empty_beq_iff [BEq α] {xs : Array α} : (#[] == xs) = xs.isEmpty := by
+  cases xs
+  simp
+
 @[simp] theorem push_beq_push [BEq α] {a b : α} {v : Array α} {w : Array α} :
     (v.push a == w.push b) = (v == w && a == b) := by
   cases v
   cases w
   simp
+
+theorem size_eq_of_beq [BEq α] {xs ys : Array α} (h : xs == ys) : xs.size = ys.size := by
+  cases xs
+  cases ys
+  simp [List.length_eq_of_beq (by simpa using h)]
 
 @[simp] theorem mkArray_beq_mkArray [BEq α] {a b : α} {n : Nat} :
     (mkArray n a == mkArray n b) = (n == 0 || a == b) := by

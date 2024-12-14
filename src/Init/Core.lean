@@ -2116,14 +2116,37 @@ instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
 instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
 instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
 
+/-- `IsRefl X r` means the binary relation `r` on `X` is reflexive. -/
+class Refl (r : α → α → Prop) : Prop where
+  /-- A reflexive relation satisfies `r a a`. -/
+  refl : ∀ a, r a a
+
 /--
 `Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
 -/
 class Antisymm (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
-  antisymm {a b : α} : r a b → r b a → a = b
+  antisymm (a b : α) : r a b → r b a → a = b
 
 @[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
 abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
+
+/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
+`r a b → ¬ r b a`. -/
+class Asymm (r : α → α → Prop) : Prop where
+  /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
+  asymm : ∀ a b, r a b → ¬r b a
+
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
+`x y : X` we have `r x y` or `r y x`. -/
+class Total (r : α → α → Prop) : Prop where
+  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  total : ∀ a b, r a b ∨ r b a
+
+/-- `Irrefl X r` means the binary relation `r` on `X` is irreflexive (that is, `r x x` never
+holds). -/
+class Irrefl (r : α → α → Prop) : Prop where
+  /-- An irreflexive relation satisfies `¬ r a a`. -/
+  irrefl : ∀ a, ¬r a a
 
 end Std

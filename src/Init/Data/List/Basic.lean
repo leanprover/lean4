@@ -163,44 +163,86 @@ theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv)
 /-! ## Lexicographic ordering -/
 
 /--
-The lexicographic order on lists.
-`[] < a::as`, and `a::as < b::bs` if `a < b` or if `a` and `b` are equivalent and `as < bs`.
+Variant of lexicographic ordering on `List` which considers that `a :: as < b :: bs`
+if `a < b` or if `a` is merely indistinguishable from `b` (i.e. neither `a < b` nor `b < a`)
+and `as < bs`.
+
+For most applications `Lex` is more convenient.
 -/
-inductive lt [LT α] : List α → List α → Prop where
+inductive Lex' (r : α → α → Prop) : List α → List α → Prop
   /-- `[]` is the smallest element in the order. -/
-  | nil  (b : α) (bs : List α) : lt [] (b::bs)
+  | nil {a l} : Lex' r [] (a :: l)
+  /-- If `a` is indistinguishable from `b` and `as < bs`, then `a::as < b::bs`. -/
+  | cons {a l₁ b l₂} (h₁ : ¬ r a b) (h₂ : ¬ r b a) (h : Lex' r l₁ l₂) : Lex' r (a :: l₁) (b :: l₂)
   /-- If `a < b` then `a::as < b::bs`. -/
-  | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → lt (a::as) (b::bs)
-  /-- If `a` and `b` are equivalent and `as < bs`, then `a::as < b::bs`. -/
-  | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → lt as bs → lt (a::as) (b::bs)
+  | rel {a₁ l₁ a₂ l₂} (h : r a₁ a₂) : Lex' r (a₁ :: l₁) (a₂ :: l₂)
 
-instance [LT α] : LT (List α) := ⟨List.lt⟩
-
-instance hasDecidableLt [LT α] [h : DecidableRel (α := α) (· < ·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
+instance decidableLex' (r : α → α → Prop) [h : DecidableRel r] : (l₁ l₂ : List α) → Decidable (Lex' r l₁ l₂)
   | [],    []    => isFalse nofun
-  | [],    _::_  => isTrue (List.lt.nil _ _)
+  | [],    _::_  => isTrue List.Lex'.nil
   | _::_, []     => isFalse nofun
   | a::as, b::bs =>
     match h a b with
-    | isTrue h₁  => isTrue (List.lt.head _ _ h₁)
+    | isTrue h₁  => isTrue (List.Lex'.rel h₁)
     | isFalse h₁ =>
       match h b a with
       | isTrue h₂  => isFalse (fun h => match h with
-         | List.lt.head _ _ h₁' => absurd h₁' h₁
-         | List.lt.tail _ h₂' _ => absurd h₂ h₂')
+         | List.Lex'.rel h₁' => absurd h₁' h₁
+         | List.Lex'.cons _ h₂' _ => absurd h₂ h₂')
       | isFalse h₂ =>
-        match hasDecidableLt as bs with
-        | isTrue h₃  => isTrue (List.lt.tail h₁ h₂ h₃)
+        match decidableLex' r as bs with
+        | isTrue h₃  => isTrue (List.Lex'.cons h₁ h₂ h₃)
         | isFalse h₃ => isFalse (fun h => match h with
-           | List.lt.head _ _ h₁' => absurd h₁' h₁
-           | List.lt.tail _ _ h₃' => absurd h₃' h₃)
+           | List.Lex'.rel h₁' => absurd h₁' h₁
+           | List.Lex'.cons _ _ h₃' => absurd h₃' h₃)
+
+/-- Lexicographic ordering for lists. -/
+inductive Lex (r : α → α → Prop) : List α → List α → Prop
+  /-- `[]` is the smallest element in the order. -/
+  | nil {a l} : Lex r [] (a :: l)
+  /-- If `a` is indistinguishable from `b` and `as < bs`, then `a::as < b::bs`. -/
+  | cons {a l₁ l₂} (h : Lex r l₁ l₂) : Lex r (a :: l₁) (a :: l₂)
+  /-- If `a < b` then `a::as < b::bs`. -/
+  | rel {a₁ l₁ a₂ l₂} (h : r a₁ a₂) : Lex r (a₁ :: l₁) (a₂ :: l₂)
+
+instance decidableLex [DecidableEq α] (r : α → α → Prop) [h : DecidableRel r] :
+    (l₁ l₂ : List α) → Decidable (Lex r l₁ l₂)
+  | [], [] => isFalse nofun
+  | [], _::_ => isTrue Lex.nil
+  | _::_, [] => isFalse nofun
+  | a::as, b::bs =>
+    match h a b with
+    | isTrue h₁ => isTrue (Lex.rel h₁)
+    | isFalse h₁ =>
+      if h₂ : a = b then
+        match decidableLex r as bs with
+        | isTrue h₃ => isTrue (h₂ ▸ Lex.cons h₃)
+        | isFalse h₃ => isFalse (fun h => match h with
+          | Lex.rel h₁' => absurd h₁' h₁
+          | Lex.cons h₃' => absurd h₃' h₃)
+      else
+        isFalse (fun h => match h with
+          | Lex.rel h₁' => absurd h₁' h₁
+          | Lex.cons h₂' => h₂ rfl)
+
+@[inherit_doc Lex]
+protected abbrev lt [LT α] : List α → List α → Prop := Lex' (· < ·)
+
+instance instLT [LT α] : LT (List α) := ⟨List.lt⟩
+
+/-- Decidability of lexicographic ordering. -/
+instance decidableLT [LT α] [DecidableRel ((· < ·) : α → α → Prop)] (l₁ l₂ : List α) :
+    Decidable (l₁ < l₂) := decidableLex' (· < ·) l₁ l₂
+
+@[deprecated decidableLT (since := "2024-12-13"), inherit_doc decidableLT]
+abbrev hasDecidableLt := @decidableLT
 
 /-- The lexicographic order on lists. -/
 @[reducible] protected def le [LT α] (a b : List α) : Prop := ¬ b < a
 
-instance [LT α] : LE (List α) := ⟨List.le⟩
+instance instLE [LT α] : LE (List α) := ⟨List.le⟩
 
-instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
+instance decidableLE [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun _ _ => inferInstanceAs (Decidable (Not _))
 
 /-! ## Alternative getters -/

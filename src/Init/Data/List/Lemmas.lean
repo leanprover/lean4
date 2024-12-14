@@ -674,6 +674,42 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
 
 /-! ### BEq -/
 
+@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
+    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
+
+@[simp] theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
+    (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> simp
+  | cons x l₁ ih =>
+    cases l₂ with
+    | nil => simp
+    | cons y l₂ => simp [ih, Bool.and_assoc]
+
+theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
+  match l₁, l₂ with
+  | [], [] => rfl
+  | [], _ :: _ => by simp [beq_nil_iff] at h
+  | _ :: _, [] => by simp [nil_beq_iff] at h
+  | a :: l₁, b :: l₂ => by
+    simp at h
+    simpa [Nat.add_one_inj] using length_eq_of_beq h.2
+
+@[simp] theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
+    (replicate n a == replicate n b) = (n == 0 || a == b) := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [replicate_succ, replicate_succ, cons_beq_cons, replicate_beq_replicate]
+    rw [Bool.eq_iff_iff]
+    simp +contextual
+
 @[simp] theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
   constructor
   · intro h
@@ -711,75 +747,359 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
     · intro a
       simp
 
-@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
-  cases l <;> rfl
-
-@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
-  cases l <;> rfl
-
-@[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
-    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
-
-@[simp] theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
-    (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
-  induction l₁ generalizing l₂ with
-  | nil => cases l₂ <;> simp
-  | cons x l₁ ih =>
-    cases l₂ with
-    | nil => simp
-    | cons y l₂ => simp [ih, Bool.and_assoc]
-
-theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
-  match l₁, l₂ with
-  | [], [] => rfl
-  | [], _ :: _ => by simp [beq_nil_iff] at h
-  | _ :: _, [] => by simp [nil_beq_iff] at h
-  | a :: l₁, b :: l₂ => by
-    simp at h
-    simpa [Nat.add_one_inj]using length_eq_of_beq h.2
-
 /-! ### Lexicographic ordering -/
 
-protected theorem lt_irrefl [LT α] (lt_irrefl : ∀ x : α, ¬x < x) (l : List α) : ¬l < l := by
+theorem lex'_of_lex (r : α → α → Prop) : Lex r l₁ l₂ → Lex' r l₁ l₂ := by
+  intro h
+  induction h with
+  | nil => exact Lex'.nil
+  | rel h => exact Lex'.rel h
+  | cons h ih =>
+    rename_i a l₁ l₂
+    if w : r a a then
+      exact Lex'.rel w
+    else
+      exact Lex'.cons w w ih
+
+theorem lex_of_lex' {r : α → α → Prop} (total : ∀ x y, ¬r x y → ¬r y x → x = y) :
+    Lex' r l₁ l₂ → Lex r l₁ l₂ := by
+  intro h
+  induction h with
+  | nil => exact Lex.nil
+  | rel h => exact Lex.rel h
+  | cons h₁ h₂ h ih =>
+    obtain rfl := total _ _ h₁ h₂
+    exact Lex.cons ih
+
+-- When `r` is not total, `Lex'` does not generally imply `Lex`.
+example : ¬ (Lex' (fun _ _ => False) [0] [1, 2] → Lex (fun _ _ => False) [0] [1, 2]) := by decide
+
+theorem lex'_iff_lex {r : α → α → Prop} (total : ∀ x y, ¬r x y → ¬r y x → x = y) :
+    Lex' r l₁ l₂ ↔ Lex r l₁ l₂ :=
+  ⟨lex_of_lex' total, lex'_of_lex r⟩
+
+theorem lex'_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List α) : ¬Lex' r l l := by
   induction l with
   | nil => nofun
   | cons a l ih => intro
-    | .head _ _ h => exact lt_irrefl _ h
-    | .tail _ _ h => exact ih h
+    | .rel h => exact irrefl _ h
+    | .cons h₁ h₂ h => exact ih h
 
-protected theorem lt_trans [LT α] [DecidableRel (@LT.lt α _)]
-    (lt_trans : ∀ {x y z : α}, x < y → y < z → x < z)
-    (le_trans : ∀ {x y z : α}, ¬x < y → ¬y < z → ¬x < z)
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
+theorem lex_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List α) : ¬Lex r l l :=
+  fun h => lex'_irrefl irrefl l (lex'_of_lex r h)
+
+protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (l : List α) : ¬ l < l :=
+  lex'_irrefl Std.Irrefl.irrefl l
+
+instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irrefl (α := List α) (· < ·) where
+  irrefl := List.lt_irrefl
+
+@[simp] theorem not_lex'_nil : ¬Lex' r l [] := fun h => nomatch h
+@[simp] theorem not_lex_nil : ¬Lex r l [] := fun h => nomatch h
+
+@[simp] theorem nil_le [LT α] (l : List α) : [] ≤ l := fun h => nomatch h
+
+@[simp] theorem not_nil_lex'_iff : ¬Lex' r [] l ↔ l = [] := by
+  constructor
+  · rintro h
+    match l, h with
+    | [], h => rfl
+    | a :: _, h => exact False.elim (h Lex'.nil)
+  · rintro rfl
+    exact not_lex'_nil
+
+@[simp] theorem not_nil_lex_iff : ¬Lex r [] l ↔ l = [] := by
+  constructor
+  · rintro h
+    match l, h with
+    | [], h => rfl
+    | a :: _, h => exact False.elim (h Lex.nil)
+  · rintro rfl
+    exact not_lex_nil
+
+@[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex'_iff
+
+@[simp] theorem nil_lex'_cons : Lex' r [] (a :: l) := Lex'.nil
+@[simp] theorem nil_lex_cons : Lex r [] (a :: l) := Lex.nil
+
+@[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex'.nil
+
+theorem cons_lex'_cons_iff :
+    Lex' r (a :: l₁) (b :: l₂) ↔ r a b ∨ ¬ r a b ∧ ¬ r b a ∧ Lex' r l₁ l₂ :=
+  ⟨fun | .rel h => .inl h | .cons h₁ h₂ h₃ => .inr ⟨h₁, h₂, h₃⟩,
+    fun | .inl h => Lex'.rel h | .inr ⟨h₁, h₂, h₃⟩ => Lex'.cons h₁ h₂ h₃⟩
+
+theorem cons_lex_cons_iff : Lex r (a :: l₁) (b :: l₂) ↔ r a b ∨ a = b ∧ Lex r l₁ l₂ :=
+  ⟨fun | .rel h => .inl h | .cons h => .inr ⟨rfl, h⟩,
+    fun | .inl h => Lex.rel h | .inr ⟨rfl, h⟩ => Lex.cons h⟩
+
+/-- Variant of `cons_lt_cons_iff` that does not require `<` to be total. -/
+theorem cons_lt_cons_iff' [LT α] {a b} {l₁ l₂ : List α} :
+    (a :: l₁) < (b :: l₂) ↔ a < b ∨ ¬ a < b ∧ ¬ b < a ∧ l₁ < l₂ := cons_lex'_cons_iff
+
+theorem cons_lt_cons_iff [LT α] [i : Std.Antisymm (¬ · < · : α → α → Prop)] {a b} {l₁ l₂ : List α} :
+    (a :: l₁) < (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ < l₂ := by
+  dsimp only [instLT, List.lt]
+  simp [lex'_iff_lex i.antisymm, cons_lex_cons_iff]
+
+theorem not_cons_lex'_cons_iff [DecidableRel r] :
+    ¬ Lex' r (a :: l₁) (b :: l₂) ↔ (¬ r a b ∧ r b a) ∨ (¬ r a b ∧ ¬ Lex' r l₁ l₂) := by
+  rw [cons_lex'_cons_iff, not_or, Decidable.not_and_iff_or_not, Decidable.not_and_iff_or_not,
+    and_or_left, and_or_left]
+  simp
+
+theorem not_cons_lex_cons_iff [DecidableEq α] [DecidableRel r] {a b} {l₁ l₂ : List α} :
+    ¬ Lex r (a :: l₁) (b :: l₂) ↔ (¬ r a b ∧ a ≠ b) ∨ (¬ r a b ∧ ¬ Lex r l₁ l₂) := by
+  rw [cons_lex_cons_iff, not_or, Decidable.not_and_iff_or_not, and_or_left]
+
+theorem cons_le_cons_iff' [LT α] [DecidableEq α] [DecidableRel (· < · : α → α → Prop)]
+    {a b} {l₁ l₂ : List α} :
+    (a :: l₁) ≤ (b :: l₂) ↔ (a < b ∧ ¬ b < a) ∨ ¬ b < a ∧ l₁ ≤ l₂ := by
+  simp [List.instLE, List.instLT, List.le, not_cons_lex'_cons_iff, and_comm]
+
+theorem cons_le_cons_iff [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
+    [i₁ : Std.Asymm (· < · : α → α → Prop)]
+    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    {a b} {l₁ l₂ : List α} :
+    (a :: l₁) ≤ (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ ≤ l₂ := by
+  dsimp only [instLE, instLT, List.le, List.lt]
+  simp [lex'_iff_lex i₂.antisymm, not_cons_lex_cons_iff]
+  constructor
+  · rintro (⟨h₁, h₂⟩ | ⟨h₁, h₂⟩)
+    · left
+      apply Decidable.byContradiction
+      intro h₃
+      apply h₂
+      exact i₂.antisymm _ _ h₁ h₃
+    · if h₃ : a < b then
+        exact .inl h₃
+      else
+        right
+        exact ⟨i₂.antisymm _ _ h₃ h₁, h₂⟩
+  · rintro (h | ⟨h₁, h₂⟩)
+    · left
+      exact ⟨i₁.asymm _ _ h, fun w => i₀.irrefl _ (w ▸ h)⟩
+    · right
+      exact ⟨fun w => i₀.irrefl _ (h₁ ▸ w), h₂⟩
+
+theorem not_lt_of_cons_le_cons [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
+    [i₁ : Std.Asymm (· < · : α → α → Prop)]
+    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    {a b : α} {l₁ l₂ : List α} (h : a :: l₁ ≤ b :: l₂) : ¬ b < a := by
+  rw [cons_le_cons_iff] at h
+  rcases h with h | ⟨rfl, h⟩
+  · exact i₁.asymm _ _ h
+  · exact i₀.irrefl _
+
+theorem le_of_cons_le_cons [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
+    [i₁ : Std.Asymm (· < · : α → α → Prop)]
+    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    {a} {l₁ l₂ : List α} (h : a :: l₁ ≤ a :: l₂) : l₁ ≤ l₂ := by
+  rw [cons_le_cons_iff] at h
+  rcases h with h | ⟨_, h⟩
+  · exact False.elim (i₀.irrefl _ h)
+  · exact h
+
+protected theorem le_refl [LT α] [i₀ : Std.Irrefl (· < · : α → α → Prop)] (l : List α) : l ≤ l := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    intro
+    | .rel h => exact i₀.irrefl _ h
+    | .cons h₁ h₂ h₃ => exact ih h₃
+
+instance [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Refl (· ≤ · : List α → List α → Prop) where
+  refl := List.le_refl
+
+theorem lex'_trans {r : α → α → Prop} [DecidableRel r]
+    (lt_trans : ∀ {x y z : α}, r x y → r y z → r x z)
+    (le_trans : ∀ {x y z : α}, ¬r x y → ¬r y z → ¬r x z)
+    (h₁ : Lex' r l₁ l₂) (h₂ : Lex' r l₂ l₃) : Lex' r l₁ l₃ := by
   induction h₁ generalizing l₃ with
-  | nil => let _::_ := l₃; exact List.lt.nil ..
-  | @head a l₁ b l₂ ab =>
+  | nil => let _::_ := l₃; exact List.Lex'.nil ..
+  | @rel a l₁ b l₂ ab =>
     match h₂ with
-    | .head l₂ l₃ bc => exact List.lt.head _ _ (lt_trans ab bc)
-    | .tail _ cb ih =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans · cb ab)
-  | @tail a l₁ b l₂ ab ba h₁ ih2 =>
+    | .rel bc => exact List.Lex'.rel (lt_trans ab bc)
+    | .cons _ cb ih =>
+      exact List.Lex'.rel <| Decidable.by_contra (le_trans · cb ab)
+  | @cons a l₁ b l₂ ab ba h₁ ih2 =>
     match h₂ with
-    | .head l₂ l₃ bc =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans ba · bc)
-    | .tail bc cb ih =>
-      exact List.lt.tail (le_trans ab bc) (le_trans cb ba) (ih2 ih)
+    | .rel bc =>
+      exact List.Lex'.rel <| Decidable.by_contra (le_trans ba · bc)
+    | .cons bc cb ih =>
+      exact List.Lex'.cons (le_trans ab bc) (le_trans cb ba) (ih2 ih)
 
-protected theorem lt_antisymm [LT α]
-    (lt_antisymm : ∀ {x y : α}, ¬x < y → ¬y < x → x = y)
-    {l₁ l₂ : List α} (h₁ : ¬l₁ < l₂) (h₂ : ¬l₂ < l₁) : l₁ = l₂ := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ with
-    | nil => rfl
-    | cons b l₂ => cases h₁ (.nil ..)
-  | cons a l₁ ih =>
-    cases l₂ with
-    | nil => cases h₂ (.nil ..)
-    | cons b l₂ =>
-      have ab : ¬a < b := fun ab => h₁ (.head _ _ ab)
-      cases lt_antisymm ab (fun ba => h₂ (.head _ _ ba))
-      rw [ih (fun ll => h₁ (.tail ab ab ll)) (fun ll => h₂ (.tail ab ab ll))]
+theorem lex_trans {r : α → α → Prop} [DecidableRel r]
+    (lt_trans : ∀ {x y z : α}, r x y → r y z → r x z)
+    (h₁ : Lex r l₁ l₂) (h₂ : Lex r l₂ l₃) : Lex r l₁ l₃ := by
+  induction h₁ generalizing l₃ with
+  | nil => let _::_ := l₃; exact List.Lex.nil ..
+  | @rel a l₁ b l₂ ab =>
+    match h₂ with
+    | .rel bc => exact List.Lex.rel (lt_trans ab bc)
+    | .cons ih =>
+      exact List.Lex.rel ab
+  | @cons a l₁ l₂ h₁ ih2 =>
+    match h₂ with
+    | .rel bc =>
+      exact List.Lex.rel bc
+    | .cons ih =>
+      exact List.Lex.cons (ih2 ih)
+
+protected theorem lt_trans' [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
+    [i₂ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ :=
+  lex'_trans (fun h₁ h₂ => i₁.trans h₁ h₂) (fun h₁ h₂ => i₂.trans h₁ h₂) h₁ h₂
+
+protected theorem lt_trans [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
+    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
+  simp only [instLT, List.lt, lex'_iff_lex i₂.antisymm] at h₁ h₂ ⊢
+  exact lex_trans (fun h₁ h₂ => i₁.trans h₁ h₂) h₁ h₂
+
+instance [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+    Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
+  trans h₁ h₂ := List.lt_trans' h₁ h₂
+
+instance [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)] :
+    Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
+  trans h₁ h₂ := List.lt_trans h₁ h₂
+
+@[deprecated List.le_antisymm (since := "2024-12-13")]
+protected abbrev lt_antisymm := @List.le_antisymm
+
+protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
+    [i₁ : Std.Asymm (· < · : α → α → Prop)]
+    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
+  induction h₂ generalizing l₁ with
+  | nil => simp_all
+  | rel hab =>
+    rename_i a b
+    cases l₁ with
+    | nil => simp_all
+    | cons c l₁ =>
+      apply Lex'.rel
+      replace h₁ := not_lt_of_cons_le_cons h₁
+      apply Decidable.byContradiction
+      intro h₂
+      have := i₃.trans h₁ h₂
+      contradiction
+  | cons w₁ w₂ w₃ ih =>
+    rename_i a as b bs
+    cases l₁ with
+    | nil => simp_all
+    | cons c l₁ =>
+      have w₄ := not_lt_of_cons_le_cons h₁
+      obtain rfl := i₂.antisymm _ _ w₁ w₂
+      by_cases w₅ : a = c
+      · subst w₅
+        apply Lex'.cons w₄ w₄
+        apply ih
+        exact le_of_cons_le_cons h₁
+      · apply Lex'.rel
+        apply Decidable.byContradiction
+        intro w₆
+        exact w₅ (i₂.antisymm _ _ w₄ w₆)
+
+protected theorem le_trans [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [Std.Irrefl (· < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
+  fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
+
+instance [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [Std.Irrefl (· < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+    Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
+  trans h₁ h₂ := List.le_trans h₁ h₂
+
+theorem lex'_asymm {r : α → α → Prop} [DecidableRel r]
+    (h : ∀ {x y : α}, r x y → ¬ r y x) : ∀ {l₁ l₂ : List α}, Lex' r l₁ l₂ → ¬ Lex' r l₂ l₁
+  | nil, _, .nil => by simp
+  | x :: l₁, y :: l₂, .rel h₁ =>
+    fun
+    | .rel h₂ => h h₁ h₂
+    | .cons hyx hxy h => hxy h₁
+  | x :: l₁, y :: l₂, .cons hxy hyx h₁ =>
+    fun
+    | .rel h₂ => hyx h₂
+    | .cons _ _ h₂ => lex'_asymm h h₁ h₂
+
+theorem lex_asymm {r : α → α → Prop} [DecidableRel r]
+    (h : ∀ {x y : α}, r x y → ¬ r y x) : ∀ {l₁ l₂ : List α}, Lex r l₁ l₂ → ¬ Lex r l₂ l₁
+  | nil, _, .nil => by simp
+  | x :: l₁, y :: l₂, .rel h₁ =>
+    fun
+    | .rel h₂ => h h₁ h₂
+    | .cons h₂ => h h₁ h₁
+  | x :: l₁, _ :: l₂, .cons h₁ =>
+    fun
+    | .rel h₂ => h h₂ h₂
+    | .cons h₂ => lex_asymm h h₁ h₂
+
+protected theorem lt_asymm [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i : Std.Asymm (· < · : α → α → Prop)]
+    {l₁ l₂ : List α} (h : l₁ < l₂) : ¬ l₂ < l₁ := lex'_asymm (i.asymm _ _) h
+
+instance [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)] :
+    Std.Asymm (· < · : List α → List α → Prop) where
+  asymm _ _ := List.lt_asymm
+
+theorem not_lex'_total {r : α → α → Prop} [DecidableRel r]
+    (h : ∀ x y : α, ¬ r x y ∨ ¬ r y x) (l₁ l₂ : List α) : ¬ Lex' r l₁ l₂ ∨ ¬ Lex' r l₂ l₁ := by
+  rw [Decidable.or_iff_not_imp_left, Decidable.not_not]
+  intro w₁ w₂
+  match l₁, l₂, w₁, w₂ with
+  | nil, _ :: _, .nil, w₂ => simp at w₂
+  | x :: _, y :: _, .rel _, .rel _ =>
+    obtain (_ | _) := h x y <;> contradiction
+  | _ :: _, _ :: _, .rel _, .cons _ _ _ =>
+    contradiction
+  | _ :: _, _ :: _, .cons _ _ _, .rel _ =>
+    contradiction
+  | _ :: l₁, _ :: l₂, .cons _ _ _, .cons _ _ _ =>
+    obtain (_ | _) := not_lex'_total h l₁ l₂ <;> contradiction
+
+theorem not_lex_total [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
+    (h : ∀ x y : α, ¬ r x y ∨ ¬ r y x) (l₁ l₂ : List α) : ¬ Lex r l₁ l₂ ∨ ¬ Lex r l₂ l₁ := by
+  rw [Decidable.or_iff_not_imp_left, Decidable.not_not]
+  intro w₁ w₂
+  match l₁, l₂, w₁, w₂ with
+  | nil, _ :: _, .nil, w₂ => simp at w₂
+  | x :: _, y :: _, .rel _, .rel _ =>
+    obtain (_ | _) := h x y <;> contradiction
+  | x :: _, _ :: _, .rel _, .cons _ =>
+    obtain (_ | _) := h x x <;> contradiction
+  | x :: _, _ :: _, .cons  _, .rel _ =>
+    obtain (_ | _) := h x x <;> contradiction
+  | _ :: l₁, _ :: l₂, .cons _, .cons _ =>
+    obtain (_ | _) := not_lex_total h l₁ l₂ <;> contradiction
+
+protected theorem le_total [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i : Std.Total (¬ · < · : α → α → Prop)] {l₁ l₂ : List α} : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
+  not_lex'_total i.total l₂ l₁
+
+instance [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [Std.Total (¬ · < · : α → α → Prop)] :
+    Std.Total (· ≤ · : List α → List α → Prop) where
+  total _ _ := List.le_total
 
 /-! ### foldlM and foldrM -/
 

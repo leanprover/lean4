@@ -436,24 +436,30 @@ def numLevelParams (d : ConstantInfo) : Nat :=
 def type (d : ConstantInfo) : Expr :=
   d.toConstantVal.type
 
-def value? : ConstantInfo → Option Expr
-  | .defnInfo {value := r, ..} => some r
-  | .thmInfo  {value := r, ..} => some r
-  | _                          => none
+def value? (info : ConstantInfo) (allowOpaque := false) : Option Expr :=
+  match info with
+  | .defnInfo {value, ..}   => some value
+  | .thmInfo  {value, ..}   => some value
+  | .opaqueInfo {value, ..} => if allowOpaque then some value else none
+  | _                       => none
 
-def hasValue : ConstantInfo → Bool
-  | .defnInfo _ => true
-  | .thmInfo  _ => true
-  | _           => false
+def hasValue (info : ConstantInfo) (allowOpaque := false) : Bool :=
+  match info with
+  | .defnInfo _   => true
+  | .thmInfo  _   => true
+  | .opaqueInfo _ => allowOpaque
+  | _             => false
 
-def value! : ConstantInfo → Expr
-  | .defnInfo {value := r, ..} => r
-  | .thmInfo  {value := r, ..} => r
-  | _                          => panic! "declaration with value expected"
+def value! (info : ConstantInfo) (allowOpaque := false) : Expr :=
+  match info with
+  | .defnInfo {value, ..}   => value
+  | .thmInfo  {value, ..}   => value
+  | .opaqueInfo {value, ..} => if allowOpaque then value else panic! "declaration with value expected"
+  | _                       => panic! "declaration with value expected"
 
 def hints : ConstantInfo → ReducibilityHints
-  | .defnInfo {hints := r, ..} => r
-  | _                          => ReducibilityHints.opaque
+  | .defnInfo {hints, ..} => hints
+  | _                     => .opaque
 
 def isCtor : ConstantInfo → Bool
   | .ctorInfo _ => true

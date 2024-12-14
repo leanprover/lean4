@@ -9,5 +9,6 @@ USER gitpod
 # Install and configure elan
 RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
 ENV PATH="/home/gitpod/.elan/bin:${PATH}"
-RUN elan toolchain link lean4 build/release/stage1
-RUN elan toolchain link lean4-stage0 build/release/stage0
+# Create a dummy toolchain so that we can pre-register it with elan
+RUN mkdir -p build/release/stage1 && touch build/release/stage1/lean && elan toolchain link lean4 build/release/stage1
+RUN mkdir -p build/release/stage0 && touch build/release/stage0/lean && elan toolchain link lean4-stage0 build/release/stage0

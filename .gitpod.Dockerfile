@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install git libgmp-dev libuv1-dev cmake ccache cla
 USER gitpod
 
 # Install and configure elan
-RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
+RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
 ENV PATH="/home/gitpod/.elan/bin:${PATH}"
 RUN elan toolchain link lean4 build/release/stage1
 RUN elan toolchain link lean4-stage0 build/release/stage0

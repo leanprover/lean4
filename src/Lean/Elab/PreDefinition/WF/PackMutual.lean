@@ -146,14 +146,16 @@ def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
 
 def preDefsFromUnaryNonRec (fixedPrefixSize : Nat) (argsPacker : ArgsPacker)
     (preDefs : Array PreDefinition) (unaryPreDefNonRec : PreDefinition) : MetaM (Array PreDefinition) := do
-  let us := unaryPreDefNonRec.levelParams.map mkLevelParam
-  preDefs.mapIdxM fun fidx preDef => do
-    let value ← forallBoundedTelescope preDef.type (some fixedPrefixSize) fun xs _ => do
-      let value := mkAppN (mkConst unaryPreDefNonRec.declName us) xs
-      let value ← argsPacker.curryProj value fidx
-      mkLambdaFVars xs value
-    trace[Elab.definition.wf] "{preDef.declName} := {value}"
-    pure { preDef with value }
+  withoutModifyingEnv do
+    let us := unaryPreDefNonRec.levelParams.map mkLevelParam
+    addAsAxiom unaryPreDefNonRec
+    preDefs.mapIdxM fun fidx preDef => do
+      let value ← forallBoundedTelescope preDef.type (some fixedPrefixSize) fun xs _ => do
+        let value := mkAppN (mkConst unaryPreDefNonRec.declName us) xs
+        let value ← argsPacker.curryProj value fidx
+        mkLambdaFVars xs value
+      trace[Elab.definition.wf] "{preDef.declName} := {value}"
+      pure { preDef with value }
 
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do

@@ -767,17 +767,28 @@ where
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 
-@[inline] def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
+@[inline] private def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
-  withZetaDeltaSet ctx.zetaDeltaSet <|
+  withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
   withReducible x
+
+private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (usedZetaDelta : FVarIdSet) : UsedSimps :=
+  usedZetaDelta.fold (init := s) fun s fvarId =>
+    s.insert <| .fvar fvarId
+
+private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
+  let used := stats.usedTheorems
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.initUsedZetaDelta
+  let used := updateUsedSimpsWithZetaDeltaCore used (← getZetaDeltaFVarIds)
+  return { stats with usedTheorems := used }
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let ctx ← ctx.setLctxInitIndices
   withSimpContext ctx do
     let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-    return (r, { s with })
+    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    return (r, s)
 where
   go (e : Expr) : SimpM Result :=
     tryCatchRuntimeEx
@@ -792,7 +803,8 @@ where
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   withSimpContext ctx do
     let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
-    pure (r, { s with })
+    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    pure (r, s)
 where
   go (e : Expr) : SimpM Expr :=
     tryCatchRuntimeEx

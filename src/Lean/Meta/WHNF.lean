@@ -352,7 +352,7 @@ end
       if !decl.isImplementationDetail && !cfg.zetaDelta then
         if !(← read).zetaDeltaSet.contains fvarId then
           return e
-      if cfg.trackZetaDelta then
+      if (← read).trackZetaDelta then
         modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k
   | .mvar mvarId   =>

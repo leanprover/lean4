@@ -56,6 +56,10 @@ structure Context where
   config            : Config := {}
   /-- Local declarations to propagate to `Meta.Context` -/
   zetaDeltaSet      : FVarIdSet := {}
+  /--
+  When processing `Simp` arguments, `zetaDelta` may be performed if `zetaDeltaSet` is not empty.
+  We save the local free variable ids in `initUsedZetaDelta`. `initUsedZetaDelta` is a subset of `zetaDeltaSet`. -/
+  initUsedZetaDelta : FVarIdSet := {}
   metaConfig        : ConfigWithKey := default
   indexConfig       : ConfigWithKey := default
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
@@ -185,8 +189,8 @@ def Context.setFailIfUnchanged (c : Context) (flag : Bool) : Context :=
 def Context.setMemoize (c : Context) (flag : Bool) : Context :=
   { c with config.memoize := flag }
 
-def Context.setZetaDeltaSet (c : Context) (s : FVarIdSet) : Context :=
-  { c with zetaDeltaSet := s }
+def Context.setZetaDeltaSet (c : Context) (zetaDeltaSet : FVarIdSet) (initUsedZetaDelta : FVarIdSet) : Context :=
+  { c with zetaDeltaSet, initUsedZetaDelta }
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName

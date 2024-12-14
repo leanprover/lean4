@@ -789,7 +789,7 @@ theorem lex_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List 
   fun h => lex'_irrefl irrefl l (lex'_of_lex r h)
 
 protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (l : List α) : ¬ l < l :=
-  lex'_irrefl Std.Irrefl.irrefl l
+  lex_irrefl Std.Irrefl.irrefl l
 
 instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irrefl (α := List α) (· < ·) where
   irrefl := List.lt_irrefl
@@ -817,12 +817,12 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
   · rintro rfl
     exact not_lex_nil
 
-@[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex'_iff
+@[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex_iff
 
 @[simp] theorem nil_lex'_cons : Lex' r [] (a :: l) := Lex'.nil
 @[simp] theorem nil_lex_cons : Lex r [] (a :: l) := Lex.nil
 
-@[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex'.nil
+@[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex.nil
 
 theorem cons_lex'_cons_iff :
     Lex' r (a :: l₁) (b :: l₂) ↔ r a b ∨ ¬ r a b ∧ ¬ r b a ∧ Lex' r l₁ l₂ :=
@@ -833,14 +833,10 @@ theorem cons_lex_cons_iff : Lex r (a :: l₁) (b :: l₂) ↔ r a b ∨ a = b �
   ⟨fun | .rel h => .inl h | .cons h => .inr ⟨rfl, h⟩,
     fun | .inl h => Lex.rel h | .inr ⟨rfl, h⟩ => Lex.cons h⟩
 
-/-- Variant of `cons_lt_cons_iff` that does not require `<` to be total. -/
-theorem cons_lt_cons_iff' [LT α] {a b} {l₁ l₂ : List α} :
-    (a :: l₁) < (b :: l₂) ↔ a < b ∨ ¬ a < b ∧ ¬ b < a ∧ l₁ < l₂ := cons_lex'_cons_iff
-
-theorem cons_lt_cons_iff [LT α] [i : Std.Antisymm (¬ · < · : α → α → Prop)] {a b} {l₁ l₂ : List α} :
+theorem cons_lt_cons_iff [LT α] {a b} {l₁ l₂ : List α} :
     (a :: l₁) < (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ < l₂ := by
   dsimp only [instLT, List.lt]
-  simp [lex'_iff_lex i.antisymm, cons_lex_cons_iff]
+  simp [cons_lex_cons_iff]
 
 theorem not_cons_lex'_cons_iff [DecidableRel r] :
     ¬ Lex' r (a :: l₁) (b :: l₂) ↔ (¬ r a b ∧ r b a) ∨ (¬ r a b ∧ ¬ Lex' r l₁ l₂) := by
@@ -852,12 +848,7 @@ theorem not_cons_lex_cons_iff [DecidableEq α] [DecidableRel r] {a b} {l₁ l₂
     ¬ Lex r (a :: l₁) (b :: l₂) ↔ (¬ r a b ∧ a ≠ b) ∨ (¬ r a b ∧ ¬ Lex r l₁ l₂) := by
   rw [cons_lex_cons_iff, not_or, Decidable.not_and_iff_or_not, and_or_left]
 
-theorem cons_le_cons_iff' [LT α] [DecidableEq α] [DecidableRel (· < · : α → α → Prop)]
-    {a b} {l₁ l₂ : List α} :
-    (a :: l₁) ≤ (b :: l₂) ↔ (a < b ∧ ¬ b < a) ∨ ¬ b < a ∧ l₁ ≤ l₂ := by
-  simp [List.instLE, List.instLT, List.le, not_cons_lex'_cons_iff, and_comm]
-
-theorem cons_le_cons_iff [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+theorem cons_le_cons_iff [DecidableEq α] [LT α] [DecidableLT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -883,7 +874,7 @@ theorem cons_le_cons_iff [DecidableEq α] [LT α] [DecidableRel (· < · : α �
     · right
       exact ⟨fun w => i₀.irrefl _ (h₁ ▸ w), h₂⟩
 
-theorem not_lt_of_cons_le_cons [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+theorem not_lt_of_cons_le_cons [DecidableEq α] [LT α] [DecidableLT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -893,7 +884,7 @@ theorem not_lt_of_cons_le_cons [DecidableEq α] [LT α] [DecidableRel (· < · :
   · exact i₁.asymm _ _ h
   · exact i₀.irrefl _
 
-theorem le_of_cons_le_cons [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+theorem le_of_cons_le_cons [DecidableEq α] [LT α] [DecidableLT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -909,7 +900,7 @@ protected theorem le_refl [LT α] [i₀ : Std.Irrefl (· < · : α → α → Pr
   | cons a l ih =>
     intro
     | .rel h => exact i₀.irrefl _ h
-    | .cons h₁ h₂ h₃ => exact ih h₃
+    | .cons h₃ => exact ih h₃
 
 instance [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Refl (· ≤ · : List α → List α → Prop) where
   refl := List.le_refl
@@ -949,29 +940,18 @@ theorem lex_trans {r : α → α → Prop} [DecidableRel r]
     | .cons ih =>
       exact List.Lex.cons (ih2 ih)
 
-/--
-Variant of `List.lt_trans` that requires `¬ · < ·` to be transitive, rather than antisymmetric.
--/
-protected theorem lt_trans' [LT α] [DecidableRel (· < · : α → α → Prop)]
+protected theorem lt_trans [LT α] [DecidableLT α]
     [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
-    [i₂ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ :=
-  lex'_trans (fun h₁ h₂ => i₁.trans h₁ h₂) (fun h₁ h₂ => i₂.trans h₁ h₂) h₁ h₂
-
-protected theorem lt_trans [LT α] [DecidableRel (· < · : α → α → Prop)]
-    [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  simp only [instLT, List.lt, lex'_iff_lex i₂.antisymm] at h₁ h₂ ⊢
+  simp only [instLT, List.lt] at h₁ h₂ ⊢
   exact lex_trans (fun h₁ h₂ => i₁.trans h₁ h₂) h₁ h₂
 
-instance [LT α] [DecidableRel (· < · : α → α → Prop)]
-    [Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+instance [LT α] [DecidableLT α]
+    [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
     Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
-  trans h₁ h₂ := List.lt_trans' h₁ h₂
+  trans h₁ h₂ := List.lt_trans h₁ h₂
 
-instance [LT α] [DecidableRel (· < · : α → α → Prop)]
+instance [LT α] [DecidableLT α]
     [Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] :
     Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
@@ -980,7 +960,7 @@ instance [LT α] [DecidableRel (· < · : α → α → Prop)]
 @[deprecated List.le_antisymm (since := "2024-12-13")]
 protected abbrev lt_antisymm := @List.le_antisymm
 
-protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -993,30 +973,24 @@ protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableRel (· < ·
     cases l₁ with
     | nil => simp_all
     | cons c l₁ =>
-      apply Lex'.rel
+      apply Lex.rel
       replace h₁ := not_lt_of_cons_le_cons h₁
       apply Decidable.byContradiction
       intro h₂
       have := i₃.trans h₁ h₂
       contradiction
-  | cons w₁ w₂ w₃ ih =>
-    rename_i a as b bs
+  | cons w₃ ih =>
+    rename_i a as bs
     cases l₁ with
     | nil => simp_all
     | cons c l₁ =>
       have w₄ := not_lt_of_cons_le_cons h₁
-      obtain rfl := i₂.antisymm _ _ w₁ w₂
       by_cases w₅ : a = c
       · subst w₅
-        apply Lex'.cons w₄ w₄
-        apply ih
-        exact le_of_cons_le_cons h₁
-      · apply Lex'.rel
-        apply Decidable.byContradiction
-        intro w₆
-        exact w₅ (i₂.antisymm _ _ w₄ w₆)
+        exact Lex.cons (ih (le_of_cons_le_cons h₁))
+      · exact Lex.rel (Decidable.byContradiction fun w₆ => w₅ (i₂.antisymm _ _ w₄ w₆))
 
-protected theorem le_trans [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+protected theorem le_trans [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -1024,7 +998,7 @@ protected theorem le_trans [DecidableEq α] [LT α] [DecidableRel (· < · : α 
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
 
-instance [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+instance [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -1056,11 +1030,11 @@ theorem lex_asymm {r : α → α → Prop} [DecidableRel r]
     | .rel h₂ => h h₂ h₂
     | .cons h₂ => lex_asymm h h₁ h₂
 
-protected theorem lt_asymm [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+protected theorem lt_asymm [DecidableEq α] [LT α] [DecidableLT α]
     [i : Std.Asymm (· < · : α → α → Prop)]
-    {l₁ l₂ : List α} (h : l₁ < l₂) : ¬ l₂ < l₁ := lex'_asymm (i.asymm _ _) h
+    {l₁ l₂ : List α} (h : l₁ < l₂) : ¬ l₂ < l₁ := lex_asymm (i.asymm _ _) h
 
-instance [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+instance [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Asymm (· < · : α → α → Prop)] :
     Std.Asymm (· < · : List α → List α → Prop) where
   asymm _ _ := List.lt_asymm
@@ -1095,17 +1069,17 @@ theorem not_lex_total [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
   | _ :: l₁, _ :: l₂, .cons _, .cons _ =>
     obtain (_ | _) := not_lex_total h l₁ l₂ <;> contradiction
 
-protected theorem le_total [LT α] [DecidableRel (· < · : α → α → Prop)]
+protected theorem le_total [DecidableEq α] [LT α] [DecidableLT α]
     [i : Std.Total (¬ · < · : α → α → Prop)] {l₁ l₂ : List α} : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
-  not_lex'_total i.total l₂ l₁
+  not_lex_total i.total l₂ l₁
 
-instance [LT α] [DecidableRel (· < · : α → α → Prop)]
+instance [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Total (¬ · < · : α → α → Prop)] :
     Std.Total (· ≤ · : List α → List α → Prop) where
   total _ _ := List.le_total
 
-theorem lex_eq_true_iff' [DecidableEq α] (lt : α → α → Bool) :
-    lex l₁ l₂ lt = true ↔ Lex (fun x y => lt x y) l₁ l₂ := by
+theorem lex_eq_decide_lex [DecidableEq α] (lt : α → α → Bool) :
+    lex l₁ l₂ lt = decide (Lex (fun x y => lt x y) l₁ l₂) := by
   induction l₁ generalizing l₂ with
   | nil =>
     cases l₂ with
@@ -1115,13 +1089,81 @@ theorem lex_eq_true_iff' [DecidableEq α] (lt : α → α → Bool) :
     cases l₂ with
     | nil => simp [lex]
     | cons b bs =>
-      simp [lex, ih, cons_lex_cons_iff]
+      simp [lex, ih, cons_lex_cons_iff, Bool.beq_eq_decide_eq]
 
--- This isn't true because of the `Lex'` / `Lex` distinction.
--- theorem lex_eq_true_iff [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
---     {l₁ l₂ : List α} :
---     lex (· < ·) l₁ l₂ = true ↔ l₁ < l₂ := by
---   sorry
+/-- Variant of `lex_eq_true_iff` using an arbitrary comparator. -/
+@[simp] theorem lex_eq_true_iff_lex [DecidableEq α] (lt : α → α → Bool) :
+    lex l₁ l₂ lt = true ↔ Lex (fun x y => lt x y) l₁ l₂ := by
+  simp [lex_eq_decide_lex]
+
+/-- Variant of `lex_eq_false_iff` using an arbitrary comparator. -/
+@[simp] theorem lex_eq_false_iff_not_lex [DecidableEq α] (lt : α → α → Bool) :
+    lex l₁ l₂ lt = false ↔ ¬ Lex (fun x y => lt x y) l₁ l₂ := by
+  simp [Bool.eq_false_iff, lex_eq_true_iff_lex]
+
+@[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
+    {l₁ l₂ : List α} : lex l₁ l₂ = true ↔ l₁ < l₂ := by
+  simp only [lex_eq_true_iff_lex, decide_eq_true_eq]
+  exact Iff.rfl
+
+@[simp] theorem lex_eq_false_iff_ge [DecidableEq α] [LT α] [DecidableLT α]
+    {l₁ l₂ : List α} : lex l₁ l₂ = false ↔ l₂ ≤ l₁ := by
+  simp only [lex_eq_false_iff_not_lex, decide_eq_true_eq]
+  exact Iff.rfl
+
+attribute [local simp] Nat.add_one_lt_add_one_iff in
+/--
+`l₁` is lexicographically less than `l₂` if either
+- `l₁` is pairwise equivalent under `· == ·` to `l₂.take l₁.length`,
+  and `l₁` is shorter than `l₂` or
+- there exists an index `i` such that
+  - for all `j < i`, `l₁[j] == l₂[j]` and
+  - `l₁[i] < l₂[i]`
+-/
+theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
+    lex l₁ l₂ lt = true ↔
+      (l₁.isEqv (l₂.take l₁.length) (· == ·) ∧ l₁.length < l₂.length) ∨
+        (∃ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length),
+          (∀ j, (hj : j < i) →
+            l₁[j]'(Nat.lt_trans hj h₁) == l₂[j]'(Nat.lt_trans hj h₂)) ∧ lt l₁[i] l₂[i]) := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => simp [lex]
+    | cons b bs => simp [lex]
+  | cons a l₁ ih =>
+    cases l₂ with
+    | nil => simp [lex]
+    | cons b l₂ =>
+      simp only [lex_cons_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
+      constructor
+      · rintro (hab | ⟨hab, ⟨h₁, h₂⟩ | ⟨i, h₁, h₂, w₁, w₂⟩⟩)
+        · exact .inr ⟨0, by simp [hab]⟩
+        · exact .inl ⟨⟨hab, h₁⟩, by simpa using h₂⟩
+        · refine .inr ⟨i + 1, by simp [h₁],
+            by simp [h₂], ?_, ?_⟩
+          · intro j hj
+            cases j with
+            | zero => simp [hab]
+            | succ j =>
+              simp only [getElem_cons_succ]
+              rw [w₁]
+              simpa using hj
+          · simpa using w₂
+      · rintro (⟨⟨h₁, h₂⟩, h₃⟩ | ⟨i, h₁, h₂, w₁, w₂⟩)
+        · exact .inr ⟨h₁, .inl ⟨h₂, by simpa using h₃⟩⟩
+        · cases i with
+          | zero =>
+            left
+            simpa using w₂
+          | succ i =>
+            right
+            refine ⟨by simpa using w₁ 0 (by simp), ?_⟩
+            right
+            refine ⟨i, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
+            · intro j hj
+              simpa using w₁ (j + 1) (by simpa)
+            · simpa using w₂
 
 /-! ### foldlM and foldrM -/
 

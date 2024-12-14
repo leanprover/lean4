@@ -271,12 +271,12 @@ theorem not_lex'_antisymm {r : α → α → Prop} [DecidableRel r]
         have : a = b := antisymm _ _ hab hba
         simp [this, ih]
 
-protected theorem le_antisymm [LT α] [DecidableRel (· < · : α → α → Prop)]
+protected theorem le_antisymm [DecidableEq α] [LT α] [DecidableLT α]
     [i : Std.Antisymm (¬ · < · : α → α → Prop)]
     {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
-  not_lex'_antisymm i.antisymm h₁ h₂
+  not_lex_antisymm i.antisymm h₁ h₂
 
-instance [LT α] [DecidableRel (· < · : α → α → Prop)]
+instance [DecidableEq α] [LT α] [DecidableLT α]
     [s : Std.Antisymm (¬ · < · : α → α → Prop)] :
     Std.Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm _ _ h₁ h₂ := List.le_antisymm h₁ h₂

@@ -226,13 +226,13 @@ instance decidableLex [DecidableEq α] (r : α → α → Prop) [h : DecidableRe
           | Lex.cons h₂' => h₂ rfl)
 
 @[inherit_doc Lex]
-protected abbrev lt [LT α] : List α → List α → Prop := Lex' (· < ·)
+protected abbrev lt [LT α] : List α → List α → Prop := Lex (· < ·)
 
 instance instLT [LT α] : LT (List α) := ⟨List.lt⟩
 
 /-- Decidability of lexicographic ordering. -/
-instance decidableLT [LT α] [DecidableRel ((· < ·) : α → α → Prop)] (l₁ l₂ : List α) :
-    Decidable (l₁ < l₂) := decidableLex' (· < ·) l₁ l₂
+instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+    Decidable (l₁ < l₂) := decidableLex (· < ·) l₁ l₂
 
 @[deprecated decidableLT (since := "2024-12-13"), inherit_doc decidableLT]
 abbrev hasDecidableLt := @decidableLT
@@ -242,7 +242,7 @@ abbrev hasDecidableLt := @decidableLT
 
 instance instLE [LT α] : LE (List α) := ⟨List.le⟩
 
-instance decidableLE [LT α] [DecidableRel ((· < ·) : α → α → Prop)] (l₁ l₂ : List α) :
+instance decidableLE [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
     Decidable (l₁ ≤ l₂) :=
   inferInstanceAs (Decidable (Not _))
 
@@ -258,6 +258,12 @@ def lex [BEq α] (l₁ l₂ : List α) (lt : α → α → Bool := by exact (· 
   | [],      _ :: _  => true
   | _,      []       => false
   | a :: as, b :: bs => lt a b || (a == b && lex as bs lt)
+
+@[simp] theorem lex_nil_nil [BEq α] : lex ([] : List α) [] lt = false := rfl
+@[simp] theorem lex_nil_cons [BEq α] {b} {bs : List α} : lex [] (b :: bs) lt = true := rfl
+@[simp] theorem lex_cons_nil [BEq α] {a} {as : List α} : lex (a :: as) [] lt = false := rfl
+@[simp] theorem lex_cons_cons [BEq α] {a b} {as bs : List α} :
+    lex (a :: as) (b :: bs) lt = (lt a b || (a == b && lex as bs lt)) := rfl
 
 /-! ## Alternative getters -/
 

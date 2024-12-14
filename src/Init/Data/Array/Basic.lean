@@ -944,6 +944,11 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
 
+/-! ### Lexicographic ordering -/
+
+instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩
+instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toList⟩
+
 /-! ## Auxiliary functions used in metaprogramming.
 
 We do not currently intend to provide verification theorems for these functions.

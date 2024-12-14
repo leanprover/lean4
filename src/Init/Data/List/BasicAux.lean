@@ -233,7 +233,28 @@ theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.g
     apply Nat.lt_trans ih
     simp_arith
 
-theorem not_lex'_antisymm {r : α → α → Prop} (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
+theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
+    (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
+    {as bs : List α} (h₁ : ¬ Lex r bs as) (h₂ : ¬ Lex r as bs) : as = bs :=
+  match as, bs with
+  | [],    []    => rfl
+  | [],    _::_ => False.elim <| h₂ (List.Lex.nil ..)
+  | _::_, []    => False.elim <| h₁ (List.Lex.nil ..)
+  | a::as, b::bs => by
+    by_cases hab : r a b
+    · exact False.elim <| h₂ (List.Lex.rel hab)
+    · by_cases eq : a = b
+      · subst eq
+        have h₁ : ¬ Lex r bs as := fun h => h₁ (List.Lex.cons h)
+        have h₂ : ¬ Lex r as bs := fun h => h₂ (List.Lex.cons h)
+        simp [not_lex_antisymm antisymm h₁ h₂]
+      · exfalso
+        by_cases hba : r b a
+        · exact h₁ (Lex.rel hba)
+        · exact eq (antisymm _ _ hab hba)
+
+theorem not_lex'_antisymm {r : α → α → Prop} [DecidableRel r]
+    (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
     {as bs : List α} (h₁ : ¬ Lex' r bs as) (h₂ : ¬ Lex' r as bs) : as = bs :=
   match as, bs with
   | [],    []    => rfl
@@ -250,11 +271,13 @@ theorem not_lex'_antisymm {r : α → α → Prop} (antisymm : ∀ x y : α, ¬ 
         have : a = b := antisymm _ _ hab hba
         simp [this, ih]
 
-protected theorem le_antisymm [LT α] [i : Std.Antisymm (¬ · < · : α → α → Prop)]
+protected theorem le_antisymm [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [i : Std.Antisymm (¬ · < · : α → α → Prop)]
     {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
   not_lex'_antisymm i.antisymm h₁ h₂
 
-instance [LT α] [s : Std.Antisymm (¬ · < · : α → α → Prop)] :
+instance [LT α] [DecidableRel (· < · : α → α → Prop)]
+    [s : Std.Antisymm (¬ · < · : α → α → Prop)] :
     Std.Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm _ _ h₁ h₂ := List.le_antisymm h₁ h₂
 

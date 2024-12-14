@@ -242,8 +242,22 @@ abbrev hasDecidableLt := @decidableLT
 
 instance instLE [LT α] : LE (List α) := ⟨List.le⟩
 
-instance decidableLE [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
-  fun _ _ => inferInstanceAs (Decidable (Not _))
+instance decidableLE [LT α] [DecidableRel ((· < ·) : α → α → Prop)] (l₁ l₂ : List α) :
+    Decidable (l₁ ≤ l₂) :=
+  inferInstanceAs (Decidable (Not _))
+
+/--
+Lexicographic comparator for lists.
+
+* `lex lt [] (b :: bs)` is true.
+* `lex lt as []` is false.
+* `lex lt (a :: as) (b :: bs)` is true if `lt a b` or `a == b` and `lex lt as bs` is true.
+-/
+def lex [BEq α] (l₁ l₂ : List α) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
+  match l₁, l₂ with
+  | [],      _ :: _  => true
+  | _,      []       => false
+  | a :: as, b :: bs => lt a b || (a == b && lex as bs lt)
 
 /-! ## Alternative getters -/
 

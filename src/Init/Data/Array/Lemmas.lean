@@ -988,6 +988,8 @@ theorem size_eq_of_beq [BEq α] {xs ys : Array α} (h : xs == ys) : xs.size = ys
     · intro a
       apply Array.isEqv_self_beq
 
+/-! ### Lexicographic ordering -/
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl

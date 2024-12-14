@@ -949,6 +949,9 @@ theorem lex_trans {r : α → α → Prop} [DecidableRel r]
     | .cons ih =>
       exact List.Lex.cons (ih2 ih)
 
+/--
+Variant of `List.lt_trans` that requires `¬ · < ·` to be transitive, rather than antisymmetric.
+-/
 protected theorem lt_trans' [LT α] [DecidableRel (· < · : α → α → Prop)]
     [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
     [i₂ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
@@ -1100,6 +1103,25 @@ instance [LT α] [DecidableRel (· < · : α → α → Prop)]
     [Std.Total (¬ · < · : α → α → Prop)] :
     Std.Total (· ≤ · : List α → List α → Prop) where
   total _ _ := List.le_total
+
+theorem lex_eq_true_iff' [DecidableEq α] (lt : α → α → Bool) :
+    lex l₁ l₂ lt = true ↔ Lex (fun x y => lt x y) l₁ l₂ := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => simp [lex]
+    | cons b bs => simp [lex]
+  | cons a l₁ ih =>
+    cases l₂ with
+    | nil => simp [lex]
+    | cons b bs =>
+      simp [lex, ih, cons_lex_cons_iff]
+
+-- This isn't true because of the `Lex'` / `Lex` distinction.
+-- theorem lex_eq_true_iff [DecidableEq α] [LT α] [DecidableRel (· < · : α → α → Prop)]
+--     {l₁ l₂ : List α} :
+--     lex (· < ·) l₁ l₂ = true ↔ l₁ < l₂ := by
+--   sorry
 
 /-! ### foldlM and foldrM -/
 

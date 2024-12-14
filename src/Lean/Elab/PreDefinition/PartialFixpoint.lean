@@ -91,8 +91,6 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
   let fixedPrefixSize ← WF.getFixedPrefix preDefs
   trace[Elab.definition.partialFixpoint] "fixed prefix size: {fixedPrefixSize}"
-  let varNamess ← preDefs.mapM (WF.varyingVarNames fixedPrefixSize ·)
-  let argsPacker : ArgsPacker := { varNamess }
 
   let declNames := preDefs.map (·.declName)
 
@@ -165,7 +163,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     let packedType' ← mkForallFVars fixedArgs packedType
     let packedValue' ← mkLambdaFVars fixedArgs packedValue
     let preDefNonRec := { preDefs[0]! with
-      declName := WF.mutualName argsPacker preDefs
+      declName := if preDefs.size = 1 then preDefs[0]!.declName else preDefs[0]!.declName ++ `mutual
       type := packedType'
       value := packedValue'}
     let preDefsNonrec ← preDefs.mapIdxM fun fidx preDef => do

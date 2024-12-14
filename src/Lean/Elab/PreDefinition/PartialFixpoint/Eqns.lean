@@ -57,35 +57,12 @@ private partial def mkProof (declName : Name) (declNameNonRec : Name) (type : Ex
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
-    let rec go (mvarId : MVarId) : MetaM Unit := do
-      trace[Elab.definition.partialFixpoint] "step\n{MessageData.ofGoal mvarId}"
-      if ← withAtLeastTransparency .all (tryURefl mvarId) then
-        return ()
-      else if (← tryContradiction mvarId) then
-        return ()
-      else if let some mvarId ← simpMatch? mvarId then
-        go mvarId
-      else if let some mvarId ← simpIf? mvarId then
-        go mvarId
-      else if let some mvarId ← whnfReducibleLHS? mvarId then
-        go mvarId
-      else
-        let ctx ← Simp.mkContext (config := { dsimp := false })
-        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-        | TacticResultCNM.closed => return ()
-        | TacticResultCNM.modified mvarId => go mvarId
-        | TacticResultCNM.noChange =>
-          if let some mvarIds ← casesOnStuckLHS? mvarId then
-            mvarIds.forM go
-          else if let some mvarIds ← splitTarget? mvarId then
-            mvarIds.forM go
-          else
-            -- At some point in the past, we looked for occurrences of Wf.fix to fold on the
-            -- LHS (introduced in 096e4eb), but it seems that code path was never used,
-            -- so #3133 removed it again (and can be recovered from there if this was premature).
-            throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
-    go (← rwFixEq (← deltaLHSUntilFix declName declNameNonRec mvarId))
-    instantiateMVars main
+    let mvarId ← deltaLHSUntilFix declName declNameNonRec mvarId
+    let mvarId ← rwFixEq mvarId
+    if ← withAtLeastTransparency .all (tryURefl mvarId) then
+      instantiateMVars main
+    else
+      throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do

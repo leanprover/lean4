@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Meta
+import Init.Omega
 
 namespace Std
 -- We put `Range` in `Init` because we want the notation `[i:j]`  without importing `Std`
@@ -15,36 +16,44 @@ structure Range where
   step  : Nat := 1
 
 instance : Membership Nat Range where
-  mem r i := r.start ≤ i ∧ i < r.stop
+  mem r i := r.start ≤ i ∧ i < r.stop ∧ (i - r.start) % r.step = 0
 
 namespace Range
 universe u v
 
-@[inline] protected def forIn' {β : Type u} {m : Type u → Type v} [Monad m] (range : Range) (init : β) (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=
-  let rec @[specialize] loop (start stop step : Nat) (f : (i : Nat) → start ≤ i ∧ i < stop → β → m (ForInStep β)) (fuel i : Nat) (hl : start ≤ i) (b : β) : m β := do
-    if hu : i < stop then
-      match fuel with
-      | 0   => pure b
-      | fuel+1 => match (← f i ⟨hl, hu⟩ b) with
-         | ForInStep.done b  => pure b
-         | ForInStep.yield b => loop start stop step f fuel (i + step) (Nat.le_trans hl (Nat.le_add_right ..)) b
+@[inline] protected def forIn' [Monad m] (range : Range) (init : β)
+    (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=
+  let rec @[specialize] loop (b : β) (i : Nat)
+      (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i := by omega)
+      (w : 0 < range.step := by omega) : m β := do
+    if h : i < range.stop then
+      match (← f i ⟨hl, by omega, hs⟩ b) with
+      | .done b  => pure b
+      | .yield b =>
+        loop b (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left])
     else
-      return b
-  loop range.start range.stop range.step f range.stop range.start (Nat.le_refl ..) init
+      pure b
+  if h : range.step = 0 then
+    return init
+  else
+    loop init range.start (by simp)
 
 instance : ForIn' m Range Nat inferInstance where
   forIn' := Range.forIn'
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
-@[inline] protected def forM {m : Type u → Type v} [Monad m] (range : Range) (f : Nat → m PUnit) : m PUnit :=
-  let rec @[specialize] loop (fuel i stop step : Nat) : m PUnit := do
-    if i ≥ stop then
+@[inline] protected def forM [Monad m] (range : Range) (f : Nat → m PUnit) : m PUnit :=
+  let rec @[specialize] loop (i : Nat) (h : 0 < range.step) : m PUnit := do
+    if h' : i < range.stop then
+      f i
+      loop (i + range.step) h
+    else
       pure ⟨⟩
-    else match fuel with
-     | 0   => pure ⟨⟩
-     | fuel+1 => f i; loop fuel (i + step) stop step
-  loop range.stop range.start range.stop range.step
+  if h : range.step = 0 then
+    return ⟨⟩
+  else
+    loop range.start (by omega)
 
 instance : ForM m Range Nat where
   forM := Range.forM
@@ -63,12 +72,14 @@ macro_rules
 end Range
 end Std
 
-theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := h.2
+theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := h.2.1
 
 theorem Membership.mem.lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := h.1
 
+theorem Membership.mem.step {i : Nat} {r : Std.Range} (h : i ∈ r) : (i - r.start) % r.step = 0 := h.2.2
+
 theorem Membership.get_elem_helper {i n : Nat} {r : Std.Range} (h₁ : i ∈ r) (h₂ : r.stop = n) :
-    i < n := h₂ ▸ h₁.2
+    i < n := h₂ ▸ h₁.2.1
 
 macro_rules
   | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)

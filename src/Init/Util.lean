@@ -33,13 +33,13 @@ def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 @[noinline] private def mkPanicMessage (modName : String) (line col : Nat) (msg : String) : String :=
   "PANIC at " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 
-@[never_extract, inline] def panicWithPos {α : Type u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
+@[never_extract, inline] def panicWithPos {α : Sort u} [Inhabited α] (modName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessage modName line col msg)
 
 @[noinline] private def mkPanicMessageWithDecl (modName : String) (declName : String) (line col : Nat) (msg : String) : String :=
   "PANIC at " ++ declName ++ " " ++ modName ++ ":" ++ toString line ++ ":" ++ toString col ++ ": " ++ msg
 
-@[never_extract, inline] def panicWithPosWithDecl {α : Type u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
+@[never_extract, inline] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)
 
 @[extern "lean_ptr_addr"]

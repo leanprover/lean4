@@ -34,10 +34,8 @@ universe u v
         loop b (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left])
     else
       pure b
-  if h : range.step = 0 then
-    return init
-  else
-    loop init range.start (by simp)
+  have := range.step_pos
+  loop init range.start (by simp)
 
 instance : ForIn' m Range Nat inferInstance where
   forIn' := Range.forIn'
@@ -51,10 +49,8 @@ instance : ForIn' m Range Nat inferInstance where
       loop (i + range.step) h
     else
       pure ⟨⟩
-  if h : range.step = 0 then
-    return ⟨⟩
-  else
-    loop range.start (by omega)
+  have := range.step_pos
+  loop range.start (by omega)
 
 instance : ForM m Range Nat where
   forM := Range.forM

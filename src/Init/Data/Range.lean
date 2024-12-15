@@ -13,6 +13,7 @@ structure Range where
   start : Nat := 0
   stop  : Nat
   step  : Nat := 1
+  step_pos : 0 < step := by decide
 
 instance : Membership Nat Range where
   mem r i := r.start ≤ i ∧ i < r.stop

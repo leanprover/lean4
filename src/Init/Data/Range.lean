@@ -13,7 +13,7 @@ structure Range where
   start : Nat := 0
   stop  : Nat
   step  : Nat := 1
-  step_pos : 0 < step := by decide
+  step_pos : 0 < step
 
 instance : Membership Nat Range where
   mem r i := r.start ≤ i ∧ i < r.stop
@@ -56,10 +56,10 @@ syntax:max "[" withoutPosition(":" term ":" term) "]" : term
 syntax:max "[" withoutPosition(term ":" term ":" term) "]" : term
 
 macro_rules
-  | `([ : $stop]) => `({ stop := $stop : Range })
-  | `([ $start : $stop ]) => `({ start := $start, stop := $stop : Range })
-  | `([ $start : $stop : $step ]) => `({ start := $start, stop := $stop, step := $step : Range })
-  | `([ : $stop : $step ]) => `({ stop := $stop, step := $step : Range })
+  | `([ : $stop]) => `({ stop := $stop, step_pos := Nat.zero_lt_one : Range })
+  | `([ $start : $stop ]) => `({ start := $start, stop := $stop, step_pos := Nat.zero_lt_one : Range })
+  | `([ $start : $stop : $step ]) => `({ start := $start, stop := $stop, step := $step, step_pos := by decide : Range })
+  | `([ : $stop : $step ]) => `({ stop := $stop, step := $step, step_pos := by decide : Range })
 
 end Range
 end Std

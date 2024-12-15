@@ -139,7 +139,17 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
     let declName ← resolveNameUsingNamespaces nss idStx
     if (← getInfoState).enabled then
       addConstInfo idStx declName
-    aliases := aliases.push (currNamespace ++ id, declName)
+    let a := currNamespace ++ id
+    aliases := aliases.push (a, declName)
+    -- Is this alias shadowing a declaration?
+    if (← getEnv).contains a then
+      Linter.logLintIf linter.aliasConflict idStx m!"'{.ofConstName a true}' is an existing declaration and this alias may lead to ambiguities"
+    -- Is this alias conflicting with other aliases?
+    let aliases' := getAliases (← getEnv) a (skipProtected := false)
+    unless aliases'.isEmpty do
+      let aliases' := aliases'.map fun alias => m!"'{.ofConstName alias (fullNames := true)}'"
+      Linter.logLintIf linter.aliasConflict (← getRef) m!"\
+        '{a}' already exists as an alias for the following declaration(s) and may lead to ambiguities: {MessageData.joinSep aliases' ", "}"
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
 @[builtin_command_elab «open»] def elabOpen : CommandElab

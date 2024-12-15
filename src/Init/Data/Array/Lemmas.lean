@@ -12,6 +12,7 @@ import Init.Data.List.Monadic
 import Init.Data.List.OfFn
 import Init.Data.Array.Mem
 import Init.Data.Array.DecidableEq
+import Init.Data.Array.Lex
 import Init.TacticsExtra
 import Init.Data.List.ToArray
 

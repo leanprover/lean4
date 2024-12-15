@@ -1165,6 +1165,78 @@ theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
               simpa using w₁ (j + 1) (by simpa)
             · simpa using w₂
 
+attribute [local simp] Nat.add_one_lt_add_one_iff in
+/--
+`l₁` is *not* lexicographically less than `l₂`
+(which you might think of as "`l₂` is lexicographically greater than or equal to `l₁`"") if either
+- `l₁` is pairwise equivalent under `· == ·` to `l₂.take l₁.length` or
+- there exists an index `i` such that
+  - for all `j < i`, `l₁[j] == l₂[j]` and
+  - `l₂[i] < l₁[i]`
+
+This formulation requires that `==` and `lt` are compatible in the following senses:
+- `==` is symmetric
+  (we unnecessarily further assume it is transitive, to make use of the existing typeclasses)
+- `lt` is irreflexive with respect to `==` (i.e. if `x == y` then `lt x y = false`
+- `lt` is asymmmetric  (i.e. `lt x y = true → lt y x = false`)
+- `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
+-/
+theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)
+    (lt_irrefl : ∀ x y, x == y → lt x y = false)
+    (lt_asymm : ∀ x y, lt x y = true → lt y x = false)
+    (lt_antisymm : ∀ x y, lt x y = false → lt y x = false → x == y) :
+    lex l₁ l₂ lt = false ↔
+      (l₂.isEqv (l₁.take l₂.length) (· == ·)) ∨
+        (∃ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length),
+          (∀ j, (hj : j < i) →
+            l₁[j]'(Nat.lt_trans hj h₁) == l₂[j]'(Nat.lt_trans hj h₂)) ∧ lt l₂[i] l₁[i]) := by
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂ with
+    | nil => simp [lex]
+    | cons b bs => simp [lex]
+  | cons a l₁ ih =>
+    cases l₂ with
+    | nil => simp [lex]
+    | cons b l₂ =>
+      simp only [lex_cons_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
+        Bool.and_eq_true, length_cons]
+      constructor
+      · rintro ⟨hab, h⟩
+        if eq : b == a then
+          specialize h (BEq.symm eq)
+          obtain (h | ⟨i, h₁, h₂, w₁, w₂⟩) := h
+          · exact .inl ⟨eq, h⟩
+          · refine .inr ⟨i + 1, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
+            · intro j hj
+              cases j with
+              | zero => simpa using BEq.symm eq
+              | succ j =>
+                simp only [getElem_cons_succ]
+                rw [w₁]
+                simpa using hj
+            · simpa using w₂
+        else
+          right
+          have hba : lt b a :=
+            Decidable.byContradiction fun hba => eq (lt_antisymm _ _ (by simpa using hba) hab)
+          exact ⟨0, by simp, by simp, by simpa⟩
+      · rintro (⟨eq, h⟩ | ⟨i, h₁, h₂, w₁, w₂⟩)
+        · exact ⟨lt_irrefl _ _ (BEq.symm eq), fun _ => .inl h⟩
+        · cases i with
+          | zero =>
+            simp at w₂
+            refine ⟨lt_asymm _ _ w₂, ?_⟩
+            intro eq
+            exfalso
+            simp [lt_irrefl _ _ (BEq.symm eq)] at w₂
+          | succ i =>
+            refine ⟨lt_irrefl _ _ (by simpa using w₁ 0 (by simp)), ?_⟩
+            refine fun _ => .inr ⟨i, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
+            · intro j hj
+              simpa using w₁ (j + 1) (by simpa)
+            · simpa using w₂
+
 /-! ### foldlM and foldrM -/
 
 @[simp] theorem foldlM_reverse [Monad m] (l : List α) (f : β → α → m β) (b) :

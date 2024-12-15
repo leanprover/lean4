@@ -25,12 +25,12 @@ universe u v
 @[inline] protected def forIn' [Monad m] (range : Range) (init : β)
     (f : (i : Nat) → i ∈ range → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (b : β) (i : Nat)
-      (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i := by omega)
-      (w : 0 < range.step := by omega) : m β := do
+      (hs : (i - range.start) % range.step = 0) (hl : range.start ≤ i := by omega) : m β := do
     if h : i < range.stop then
       match (← f i ⟨hl, by omega, hs⟩ b) with
       | .done b  => pure b
       | .yield b =>
+        have := range.step_pos
         loop b (i + range.step) (by rwa [Nat.add_comm, Nat.add_sub_assoc hl, Nat.add_mod_left])
     else
       pure b
@@ -43,14 +43,15 @@ instance : ForIn' m Range Nat inferInstance where
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
 @[inline] protected def forM [Monad m] (range : Range) (f : Nat → m PUnit) : m PUnit :=
-  let rec @[specialize] loop (i : Nat) (h : 0 < range.step) : m PUnit := do
-    if h' : i < range.stop then
+  let rec @[specialize] loop (i : Nat): m PUnit := do
+    if i < range.stop then
       f i
-      loop (i + range.step) h
+      have := range.step_pos
+      loop (i + range.step)
     else
       pure ⟨⟩
   have := range.step_pos
-  loop range.start (by omega)
+  loop range.start
 
 instance : ForM m Range Nat where
   forM := Range.forM

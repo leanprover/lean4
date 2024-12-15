@@ -445,10 +445,10 @@ protected theorem le_antisymm_iff {a b : Nat} : a = b ↔ a ≤ b ∧ b ≤ a :=
 protected theorem eq_iff_le_and_ge : ∀{a b : Nat}, a = b ↔ a ≤ b ∧ b ≤ a := @Nat.le_antisymm_iff
 
 instance : Std.Antisymm ( . ≤ . : Nat → Nat → Prop) where
-  antisymm h₁ h₂ := Nat.le_antisymm h₁ h₂
+  antisymm _ _ h₁ h₂ := Nat.le_antisymm h₁ h₂
 
 instance : Std.Antisymm (¬ . < . : Nat → Nat → Prop) where
-  antisymm h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
+  antisymm _ _ h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
 
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with

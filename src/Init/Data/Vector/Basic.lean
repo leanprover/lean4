@@ -6,6 +6,7 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 
 prelude
 import Init.Data.Array.Lemmas
+import Init.Data.Range
 
 /-!
 # Vectors
@@ -280,3 +281,29 @@ no element of the index matches the given value.
 /-- Returns `true` if `p` returns `true` for all elements of the vector. -/
 @[inline] def all (v : Vector α n) (p : α → Bool) : Bool :=
   v.toArray.all p
+
+/-! ### Lexicographic ordering -/
+
+instance instLT [LT α] : LT (Vector α n) := ⟨fun v w => v.toArray < w.toArray⟩
+instance instLE [LT α] : LE (Vector α n) := ⟨fun v w => v.toArray ≤ w.toArray⟩
+
+instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Vector α n) :=
+  inferInstanceAs <| DecidableRel fun (v w : Vector α n) => v.toArray < w.toArray
+
+instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Vector α n) :=
+  inferInstanceAs <| DecidableRel fun (v w : Vector α n) => v.toArray ≤ w.toArray
+
+/--
+Lexicographic comparator for vectors.
+
+`lex v w lt` is true if
+- `v` is pairwise equivalent via `==` to `w`, or
+- there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
+-/
+def lex [BEq α] (v w : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
+  for h : i in [0 : n] do
+    if lt v[i] w[i] then
+      return true
+    else if v[i] != w[i] then
+      return false
+  return false

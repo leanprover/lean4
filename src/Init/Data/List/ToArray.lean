@@ -7,6 +7,7 @@ prelude
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Monadic
+import Init.Data.Array.Lex
 
 /-! ### Lemmas about `List.toArray`.
 

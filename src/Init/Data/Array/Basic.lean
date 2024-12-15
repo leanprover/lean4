@@ -821,7 +821,7 @@ decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
   induction a, i, h using Array.eraseIdx.induct with
   | @case1 a i h h' a' ih =>
     unfold eraseIdx
-    simp [h', a', ih]
+    simp +zetaDelta [h', a', ih]
   | case2 a i h h' =>
     unfold eraseIdx
     simp [h']
@@ -943,6 +943,19 @@ def unzip (as : Array (α × β)) : Array α × Array β :=
 def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
+
+/-! ### Lexicographic ordering -/
+
+instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩
+instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toList⟩
+
+instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Array α) :=
+  inferInstanceAs <| DecidableRel fun (as bs : Array α) => as.toList < bs.toList
+
+instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Array α) :=
+  inferInstanceAs <| DecidableRel fun (as bs : Array α) => as.toList ≤ bs.toList
+
+-- See `Init.Data.Array.Lex` for the boolean valued lexicographic comparator.
 
 /-! ## Auxiliary functions used in metaprogramming.
 

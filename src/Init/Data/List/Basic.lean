@@ -162,40 +162,6 @@ theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv)
 
 /-! ## Lexicographic ordering -/
 
-/--
-Variant of lexicographic ordering on `List` which considers that `a :: as < b :: bs`
-if `a < b` or if `a` is merely indistinguishable from `b` (i.e. neither `a < b` nor `b < a`)
-and `as < bs`.
-
-For most applications `Lex` is more convenient.
--/
-inductive Lex' (r : α → α → Prop) : List α → List α → Prop
-  /-- `[]` is the smallest element in the order. -/
-  | nil {a l} : Lex' r [] (a :: l)
-  /-- If `a` is indistinguishable from `b` and `as < bs`, then `a::as < b::bs`. -/
-  | cons {a l₁ b l₂} (h₁ : ¬ r a b) (h₂ : ¬ r b a) (h : Lex' r l₁ l₂) : Lex' r (a :: l₁) (b :: l₂)
-  /-- If `a < b` then `a::as < b::bs`. -/
-  | rel {a₁ l₁ a₂ l₂} (h : r a₁ a₂) : Lex' r (a₁ :: l₁) (a₂ :: l₂)
-
-instance decidableLex' (r : α → α → Prop) [h : DecidableRel r] : (l₁ l₂ : List α) → Decidable (Lex' r l₁ l₂)
-  | [],    []    => isFalse nofun
-  | [],    _::_  => isTrue List.Lex'.nil
-  | _::_, []     => isFalse nofun
-  | a::as, b::bs =>
-    match h a b with
-    | isTrue h₁  => isTrue (List.Lex'.rel h₁)
-    | isFalse h₁ =>
-      match h b a with
-      | isTrue h₂  => isFalse (fun h => match h with
-         | List.Lex'.rel h₁' => absurd h₁' h₁
-         | List.Lex'.cons _ h₂' _ => absurd h₂ h₂')
-      | isFalse h₂ =>
-        match decidableLex' r as bs with
-        | isTrue h₃  => isTrue (List.Lex'.cons h₁ h₂ h₃)
-        | isFalse h₃ => isFalse (fun h => match h with
-           | List.Lex'.rel h₁' => absurd h₁' h₁
-           | List.Lex'.cons _ _ h₃' => absurd h₃' h₃)
-
 /-- Lexicographic ordering for lists. -/
 inductive Lex (r : α → α → Prop) : List α → List α → Prop
   /-- `[]` is the smallest element in the order. -/

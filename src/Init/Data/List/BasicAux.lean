@@ -253,24 +253,6 @@ theorem not_lex_antisymm [DecidableEq α] {r : α → α → Prop} [DecidableRel
         · exact h₁ (Lex.rel hba)
         · exact eq (antisymm _ _ hab hba)
 
-theorem not_lex'_antisymm {r : α → α → Prop} [DecidableRel r]
-    (antisymm : ∀ x y : α, ¬ r x y → ¬ r y x → x = y)
-    {as bs : List α} (h₁ : ¬ Lex' r bs as) (h₂ : ¬ Lex' r as bs) : as = bs :=
-  match as, bs with
-  | [],    []    => rfl
-  | [],    _::_ => False.elim <| h₂ (List.Lex'.nil ..)
-  | _::_, []    => False.elim <| h₁ (List.Lex'.nil ..)
-  | a::as, b::bs => by
-    by_cases hab : r a b
-    · exact False.elim <| h₂ (List.Lex'.rel hab)
-    · by_cases hba : r b a
-      · exact False.elim <| h₁ (List.Lex'.rel hba)
-      · have h₁ : ¬ Lex' r bs as := fun h => h₁ (List.Lex'.cons hba hab h)
-        have h₂ : ¬ Lex' r as bs := fun h => h₂ (List.Lex'.cons hab hba h)
-        have ih : as = bs := not_lex'_antisymm antisymm h₁ h₂
-        have : a = b := antisymm _ _ hab hba
-        simp [this, ih]
-
 protected theorem le_antisymm [DecidableEq α] [LT α] [DecidableLT α]
     [i : Std.Antisymm (¬ · < · : α → α → Prop)]
     {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=

@@ -749,44 +749,13 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
 
 /-! ### Lexicographic ordering -/
 
-theorem lex'_of_lex (r : α → α → Prop) : Lex r l₁ l₂ → Lex' r l₁ l₂ := by
-  intro h
-  induction h with
-  | nil => exact Lex'.nil
-  | rel h => exact Lex'.rel h
-  | cons h ih =>
-    rename_i a l₁ l₂
-    if w : r a a then
-      exact Lex'.rel w
-    else
-      exact Lex'.cons w w ih
 
-theorem lex_of_lex' {r : α → α → Prop} (total : ∀ x y, ¬r x y → ¬r y x → x = y) :
-    Lex' r l₁ l₂ → Lex r l₁ l₂ := by
-  intro h
-  induction h with
-  | nil => exact Lex.nil
-  | rel h => exact Lex.rel h
-  | cons h₁ h₂ h ih =>
-    obtain rfl := total _ _ h₁ h₂
-    exact Lex.cons ih
-
--- When `r` is not total, `Lex'` does not generally imply `Lex`.
-example : ¬ (Lex' (fun _ _ => False) [0] [1, 2] → Lex (fun _ _ => False) [0] [1, 2]) := by decide
-
-theorem lex'_iff_lex {r : α → α → Prop} (total : ∀ x y, ¬r x y → ¬r y x → x = y) :
-    Lex' r l₁ l₂ ↔ Lex r l₁ l₂ :=
-  ⟨lex_of_lex' total, lex'_of_lex r⟩
-
-theorem lex'_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List α) : ¬Lex' r l l := by
+theorem lex_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List α) : ¬Lex r l l := by
   induction l with
   | nil => nofun
   | cons a l ih => intro
     | .rel h => exact irrefl _ h
-    | .cons h₁ h₂ h => exact ih h
-
-theorem lex_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List α) : ¬Lex r l l :=
-  fun h => lex'_irrefl irrefl l (lex'_of_lex r h)
+    | .cons h => exact ih h
 
 protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (l : List α) : ¬ l < l :=
   lex_irrefl Std.Irrefl.irrefl l
@@ -794,19 +763,9 @@ protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] 
 instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irrefl (α := List α) (· < ·) where
   irrefl := List.lt_irrefl
 
-@[simp] theorem not_lex'_nil : ¬Lex' r l [] := fun h => nomatch h
 @[simp] theorem not_lex_nil : ¬Lex r l [] := fun h => nomatch h
 
 @[simp] theorem nil_le [LT α] (l : List α) : [] ≤ l := fun h => nomatch h
-
-@[simp] theorem not_nil_lex'_iff : ¬Lex' r [] l ↔ l = [] := by
-  constructor
-  · rintro h
-    match l, h with
-    | [], h => rfl
-    | a :: _, h => exact False.elim (h Lex'.nil)
-  · rintro rfl
-    exact not_lex'_nil
 
 @[simp] theorem not_nil_lex_iff : ¬Lex r [] l ↔ l = [] := by
   constructor
@@ -819,15 +778,9 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
 
 @[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex_iff
 
-@[simp] theorem nil_lex'_cons : Lex' r [] (a :: l) := Lex'.nil
 @[simp] theorem nil_lex_cons : Lex r [] (a :: l) := Lex.nil
 
 @[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex.nil
-
-theorem cons_lex'_cons_iff :
-    Lex' r (a :: l₁) (b :: l₂) ↔ r a b ∨ ¬ r a b ∧ ¬ r b a ∧ Lex' r l₁ l₂ :=
-  ⟨fun | .rel h => .inl h | .cons h₁ h₂ h₃ => .inr ⟨h₁, h₂, h₃⟩,
-    fun | .inl h => Lex'.rel h | .inr ⟨h₁, h₂, h₃⟩ => Lex'.cons h₁ h₂ h₃⟩
 
 theorem cons_lex_cons_iff : Lex r (a :: l₁) (b :: l₂) ↔ r a b ∨ a = b ∧ Lex r l₁ l₂ :=
   ⟨fun | .rel h => .inl h | .cons h => .inr ⟨rfl, h⟩,
@@ -837,12 +790,6 @@ theorem cons_lt_cons_iff [LT α] {a b} {l₁ l₂ : List α} :
     (a :: l₁) < (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ < l₂ := by
   dsimp only [instLT, List.lt]
   simp [cons_lex_cons_iff]
-
-theorem not_cons_lex'_cons_iff [DecidableRel r] :
-    ¬ Lex' r (a :: l₁) (b :: l₂) ↔ (¬ r a b ∧ r b a) ∨ (¬ r a b ∧ ¬ Lex' r l₁ l₂) := by
-  rw [cons_lex'_cons_iff, not_or, Decidable.not_and_iff_or_not, Decidable.not_and_iff_or_not,
-    and_or_left, and_or_left]
-  simp
 
 theorem not_cons_lex_cons_iff [DecidableEq α] [DecidableRel r] {a b} {l₁ l₂ : List α} :
     ¬ Lex r (a :: l₁) (b :: l₂) ↔ (¬ r a b ∧ a ≠ b) ∨ (¬ r a b ∧ ¬ Lex r l₁ l₂) := by
@@ -855,7 +802,7 @@ theorem cons_le_cons_iff [DecidableEq α] [LT α] [DecidableLT α]
     {a b} {l₁ l₂ : List α} :
     (a :: l₁) ≤ (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ ≤ l₂ := by
   dsimp only [instLE, instLT, List.le, List.lt]
-  simp [lex'_iff_lex i₂.antisymm, not_cons_lex_cons_iff]
+  simp [not_cons_lex_cons_iff]
   constructor
   · rintro (⟨h₁, h₂⟩ | ⟨h₁, h₂⟩)
     · left
@@ -904,24 +851,6 @@ protected theorem le_refl [LT α] [i₀ : Std.Irrefl (· < · : α → α → Pr
 
 instance [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Refl (· ≤ · : List α → List α → Prop) where
   refl := List.le_refl
-
-theorem lex'_trans {r : α → α → Prop} [DecidableRel r]
-    (lt_trans : ∀ {x y z : α}, r x y → r y z → r x z)
-    (le_trans : ∀ {x y z : α}, ¬r x y → ¬r y z → ¬r x z)
-    (h₁ : Lex' r l₁ l₂) (h₂ : Lex' r l₂ l₃) : Lex' r l₁ l₃ := by
-  induction h₁ generalizing l₃ with
-  | nil => let _::_ := l₃; exact List.Lex'.nil ..
-  | @rel a l₁ b l₂ ab =>
-    match h₂ with
-    | .rel bc => exact List.Lex'.rel (lt_trans ab bc)
-    | .cons _ cb ih =>
-      exact List.Lex'.rel <| Decidable.by_contra (le_trans · cb ab)
-  | @cons a l₁ b l₂ ab ba h₁ ih2 =>
-    match h₂ with
-    | .rel bc =>
-      exact List.Lex'.rel <| Decidable.by_contra (le_trans ba · bc)
-    | .cons bc cb ih =>
-      exact List.Lex'.cons (le_trans ab bc) (le_trans cb ba) (ih2 ih)
 
 theorem lex_trans {r : α → α → Prop} [DecidableRel r]
     (lt_trans : ∀ {x y z : α}, r x y → r y z → r x z)
@@ -1006,18 +935,6 @@ instance [DecidableEq α] [LT α] [DecidableLT α]
     Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := List.le_trans h₁ h₂
 
-theorem lex'_asymm {r : α → α → Prop} [DecidableRel r]
-    (h : ∀ {x y : α}, r x y → ¬ r y x) : ∀ {l₁ l₂ : List α}, Lex' r l₁ l₂ → ¬ Lex' r l₂ l₁
-  | nil, _, .nil => by simp
-  | x :: l₁, y :: l₂, .rel h₁ =>
-    fun
-    | .rel h₂ => h h₁ h₂
-    | .cons hyx hxy h => hxy h₁
-  | x :: l₁, y :: l₂, .cons hxy hyx h₁ =>
-    fun
-    | .rel h₂ => hyx h₂
-    | .cons _ _ h₂ => lex'_asymm h h₁ h₂
-
 theorem lex_asymm {r : α → α → Prop} [DecidableRel r]
     (h : ∀ {x y : α}, r x y → ¬ r y x) : ∀ {l₁ l₂ : List α}, Lex r l₁ l₂ → ¬ Lex r l₂ l₁
   | nil, _, .nil => by simp
@@ -1038,21 +955,6 @@ instance [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Asymm (· < · : α → α → Prop)] :
     Std.Asymm (· < · : List α → List α → Prop) where
   asymm _ _ := List.lt_asymm
-
-theorem not_lex'_total {r : α → α → Prop} [DecidableRel r]
-    (h : ∀ x y : α, ¬ r x y ∨ ¬ r y x) (l₁ l₂ : List α) : ¬ Lex' r l₁ l₂ ∨ ¬ Lex' r l₂ l₁ := by
-  rw [Decidable.or_iff_not_imp_left, Decidable.not_not]
-  intro w₁ w₂
-  match l₁, l₂, w₁, w₂ with
-  | nil, _ :: _, .nil, w₂ => simp at w₂
-  | x :: _, y :: _, .rel _, .rel _ =>
-    obtain (_ | _) := h x y <;> contradiction
-  | _ :: _, _ :: _, .rel _, .cons _ _ _ =>
-    contradiction
-  | _ :: _, _ :: _, .cons _ _ _, .rel _ =>
-    contradiction
-  | _ :: l₁, _ :: l₂, .cons _ _ _, .cons _ _ _ =>
-    obtain (_ | _) := not_lex'_total h l₁ l₂ <;> contradiction
 
 theorem not_lex_total [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
     (h : ∀ x y : α, ¬ r x y ∨ ¬ r y x) (l₁ l₂ : List α) : ¬ Lex r l₁ l₂ ∨ ¬ Lex r l₂ l₁ := by

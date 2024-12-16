@@ -9,6 +9,7 @@ import Init.Data.Bool
 import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.Mod
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.Pow
@@ -2640,14 +2641,6 @@ theorem udiv_self {x : BitVec w} :
     simp only [udiv_eq, beq_iff_eq, toNat_eq, toNat_ofNat, Nat.zero_mod, h,
       ↓reduceIte, toNat_udiv]
     rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
-
-private theorem Nat.div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
-  (Nat.le_div_iff_mul_le hc).2 <|
-    Nat.le_trans (Nat.mul_le_mul_left _ hcb) (Nat.div_mul_le_self a b)
-
-private theorem Nat.div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
-    x / (y + z) ≤ x / z :=
-  Nat.div_le_div_left (by omega) h
 
 theorem msb_udiv (x y : BitVec w) :
     (x / y).msb = (x.msb && y == 1#w) := by
